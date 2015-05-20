@@ -13,7 +13,7 @@
   </head>
   <body class="with-3d-shadow with-transitions">
     <h2 class="page-header">pidstat - context_switches</h2>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">nonvoluntary_switches_sec
         <button id="save1">Save as Image</button>
         <div id="svgdataurl1"></div>
@@ -21,10 +21,10 @@
       <svg id="chart1"></svg>
       <canvas id="canvas1" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 1, "context_switches_nonvoluntary_switches_sec", 100.00);
+        constructChart("lineWithFocusChart", 1, "context_switches_nonvoluntary_switches_sec", 100.00);
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">voluntary_switches_sec
         <button id="save2">Save as Image</button>
         <div id="svgdataurl2"></div>
@@ -32,7 +32,7 @@
       <svg id="chart2"></svg>
       <canvas id="canvas2" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 2, "context_switches_voluntary_switches_sec", 100.00);
+        constructChart("lineWithFocusChart", 2, "context_switches_voluntary_switches_sec", 100.00);
       </script>
     </div>
   </body>

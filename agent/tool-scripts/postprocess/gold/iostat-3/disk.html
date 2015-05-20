@@ -13,7 +13,7 @@
   </head>
   <body class="with-3d-shadow with-transitions">
     <h2 class="page-header">iostat-3 - disk</h2>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">IOPS
         <button id="save1">Save as Image</button>
         <div id="svgdataurl1"></div>
@@ -21,10 +21,10 @@
       <svg id="chart1"></svg>
       <canvas id="canvas1" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 1, "disk_IOPS", 1.00);
+        constructChart("lineWithFocusChart", 1, "disk_IOPS", 1.00);
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">Queue_Size
         <button id="save2">Save as Image</button>
         <div id="svgdataurl2"></div>
@@ -32,10 +32,10 @@
       <svg id="chart2"></svg>
       <canvas id="canvas2" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 2, "disk_Queue_Size", 0.01);
+        constructChart("lineWithFocusChart", 2, "disk_Queue_Size", 0.01);
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">Request_Merges
         <button id="save3">Save as Image</button>
         <div id="svgdataurl3"></div>
@@ -43,10 +43,10 @@
       <svg id="chart3"></svg>
       <canvas id="canvas3" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 3, "disk_Request_Merges", 0.10);
+        constructChart("lineWithFocusChart", 3, "disk_Request_Merges", 0.10);
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">Request_Size
         <button id="save4">Save as Image</button>
         <div id="svgdataurl4"></div>
@@ -54,10 +54,10 @@
       <svg id="chart4"></svg>
       <canvas id="canvas4" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 4, "disk_Request_Size", 0.10);
+        constructChart("lineWithFocusChart", 4, "disk_Request_Size", 0.10);
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">Throughput
         <button id="save5">Save as Image</button>
         <div id="svgdataurl5"></div>
@@ -65,10 +65,10 @@
       <svg id="chart5"></svg>
       <canvas id="canvas5" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 5, "disk_Throughput", 1.00);
+        constructChart("lineWithFocusChart", 5, "disk_Throughput", 1.00);
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">Utilization
         <button id="save6">Save as Image</button>
         <div id="svgdataurl6"></div>
@@ -76,10 +76,10 @@
       <svg id="chart6"></svg>
       <canvas id="canvas6" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 6, "disk_Utilization", 1.00);
+        constructChart("lineWithFocusChart", 6, "disk_Utilization", 1.00);
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">Wait_Time
         <button id="save7">Save as Image</button>
         <div id="svgdataurl7"></div>
@@ -87,7 +87,7 @@
       <svg id="chart7"></svg>
       <canvas id="canvas7" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 7, "disk_Wait_Time", 0.10);
+        constructChart("lineWithFocusChart", 7, "disk_Wait_Time", 0.10);
       </script>
     </div>
   </body>

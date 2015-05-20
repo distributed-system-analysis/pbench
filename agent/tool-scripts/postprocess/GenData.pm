@@ -243,11 +243,13 @@ sub gen_data {
 				$series_num++;
 			}
 			if ( $series_num > 0 ) { # if there is at least one series then create the graph
-				my $this_graph_type = "lineChart";
+				my $this_graph_type = "lineWithFocusChart";
+				my $this_graph_class = "lwf-chart";
 				if (defined $graph_types{$htmlpage}{$chart} ) {
 					$this_graph_type = $graph_types{$htmlpage}{$chart};
+					$this_graph_class = "chart";
 				}
-				printf TOOL_HTML "    <div class=\"chart\">\n";
+				printf TOOL_HTML "    <div class=\"%s\">\n", "$this_graph_class";
 				printf TOOL_HTML "      <h3 class=\"chart-header\">%s\n", "$chart";
 				printf TOOL_HTML "        <button id=\"save%d\">Save as Image</button>\n", $chartnum;
 				printf TOOL_HTML "        <div id=\"svgdataurl%d\"></div>\n", $chartnum;
