@@ -63,6 +63,12 @@ var _initial_stats = function() {
     return stats;
 }
 
+var _max_series = 20;
+
+var _empty_chart = function(msg) {
+    return { 'data': [], 'start': new Date(), 'end': new Date(), 'stats': null, 'msg': msg };
+}
+
 var _process_csv_data = function(csv_data, threshold) {
     // This code assumes the .csv format is in one of two forms:
     //   1. ts, m0, m1, m2, ..., mN
@@ -72,9 +78,11 @@ var _process_csv_data = function(csv_data, threshold) {
 
     var _keys = Object.keys(csv_data[0]);
 
-    if (_keys.length <= 1) return console.log("No viable data to graph for " + chart_file_name);
+    if (_keys.length <= 1) {
+        return _empty_chart("No series data to graph for " + chart_file_name);
+    }
     if (!_keys[0].startsWith("timestamp_") && !_keys[0].endsWith("_ms")) {
-        return console.log("Unrecognized .csv data file format for " + chart_file_name);
+        return _empty_chart("Unrecognized .csv data file format for " + chart_file_name);
     }
 
     // We first transform the data into a hash table, below we make a slight
@@ -91,12 +99,16 @@ var _process_csv_data = function(csv_data, threshold) {
     }
 
     if (_keys.length >= 4 && _keys[2].startsWith("timestamp_") && _keys[2].endsWith("_ms")) {
-        if (_keys.length % 2 != 0) return console.log("Even number of columns expected for metrics with their own timestamps for " + chart_file_name);
+        if (_keys.length % 2 != 0) {
+            return _empty_chart("Even number of columns expected for metrics with their own timestamps for " + chart_file_name);
+        }
         // Assume: ts0, m0, ts1, m1, ts2, m2, ..., tsN, mN
         for (i = 1; i < csv_data.length; i++) {
             for (k = 1; k < _keys.length; k += 2) {
                 key = _keys[k];
-                if (key.startsWith("timestamp_") && key.endsWith("_ms")) return console.log("Bug! " + chart_file_name);
+                if (key.startsWith("timestamp_") && key.endsWith("_ms")) {
+                    return _empty_chart("Bug! " + chart_file_name);
+                }
                 val = csv_data[i][key];
                 if (val == "") {
                     _chart_datum_stats[key]["missing"] += 1;
@@ -145,19 +157,38 @@ var _process_csv_data = function(csv_data, threshold) {
     var chart_datum = {};
     chart_datum['stats'] = _chart_datum_stats;
     chart_datum['data'] = [];
-    // Pick only the top 20
-    for (k = 0; k < Math.min(20, _sorted_keys.length); k++) {
+    // Pick only the top _max_series
+    for (k = 0; k < Math.min(_max_series, _sorted_keys.length); k++) {
         key = _sorted_keys[k];
-        if (key.startsWith("timestamp_") && key.endsWith("_ms")) return console.log("Bug! " + chart_file_name);
+        if (key.startsWith("timestamp_") && key.endsWith("_ms")) {
+            return _empty_chart("Bug! " + chart_file_name);
+        }
         // Guard against empty data sets
         if (_chart_datum[key].length == 0) continue;
-        // Only graph the keys whose average value is above the threshold
-        //console.log("Key: " + key + ", avg: " + _chart_datum_stats[key]["avg"].toString());
-        if (threshold !== undefined && _chart_datum_stats[key]["avg"] < threshold) break;
         // Now we transform it into what nv.d3 expects.
-        chart_datum['data'].push({"key": key, "values": _chart_datum[key]});
+        chart_datum.data.push({"key": key, "values": _chart_datum[key]});
     }
 
+    var start = null, end = null, msg;
+    if (chart_datum.data.length > 0) {
+        msg = "";
+        start = end = chart_datum.data[0].values[0][0];
+        for (var i = 0; i < chart_datum.data.length; i++) {
+            var vals = chart_datum.data[i].values;
+            for (var j = 0; j < vals.length; j++) {
+                var tval = vals[j][0];
+                if (tval < start) start = tval;
+                if (tval > end) end = tval;
+            }
+        }
+    }
+    else {
+        msg = "No Data from any Series with Average over Threshold: " + d3.format(".3f")(threshold);
+    }
+
+    chart_datum['start'] = new Date(start);
+    chart_datum['end'] = new Date(end);
+    chart_datum['msg'] = msg;
     return chart_datum;
 };
 
@@ -180,34 +211,29 @@ var yTickFormat = d3.format(',.3f');
 var xLegendFormat = d3.time.format("%Y-%m-%dT%H:%M:%S");
 
 var constructChart = function(graph_type, chartnum, chart_file_name, threshold) {
+    // FIX-ME: For v0.2 based .html pages, display 'fetching' div overlaying graph
     d3.csv("csv/" + chart_file_name + ".csv", function (error, csv_data) {
-        if (error) return console.log("there was an error loading the csv data from " + chart_file_name + ": " + error);
-        if (csv_data.length == 0) return console.log("No data found for " + chart_file_name);
-
-        var chart_datum = _process_csv_data(csv_data, threshold);
-        if ((chart_datum === undefined)
-                || (chart_datum["data"].length == 0)) {
-            return console.log("No processed data found for " + chart_file_name);
+        // FIX-ME: For v0.2 based .html pages, display 'rendering' div overlaying graph
+        var chart_datum;
+        if (error) {
+            chart_datum = _empty_chart("No Data - there was an error loading the csv data from " + chart_file_name + ": " + error);
         }
-
-        var start = chart_datum["data"][0].values[0][0];
-        var end = start;
-        for (var i = 0; i < chart_datum["data"].length; i++) {
-            var vals = chart_datum["data"][i].values;
-            for (var j = 0; j < vals.length; j++) {
-                var tval = vals[j][0];
-                if (tval < start) start = tval;
-                if (tval > end) end = tval;
+        else {
+            if (csv_data.length == 0) {
+                chart_datum = _empty_chart("No data found for " + chart_file_name);
+            }
+            else {
+                chart_datum = _process_csv_data(csv_data, threshold);
             }
         }
-        start = new Date(start);
-        end = new Date(end);
+
         var _chartnum = chartnum.toString();
         var chartid = "chart" + _chartnum;
         var saveid = "#save" + _chartnum;
         var thischart;
-        nv.addGraph(function() {
+        var _graph_generator = function() {
             thischart = nv.models[graph_type]()
+                .noData(chart_datum.msg)
                 .xScale(d3.time.scale.utc())
                 .x(xAccessor)
                 .y(yAccessor)
@@ -215,22 +241,34 @@ var constructChart = function(graph_type, chartnum, chart_file_name, threshold) 
                 .color(keyColor);
             thischart.margin().left = 100;
             thischart.xAxis
-                .axisLabel('Time (UTC) - ' + xLegendFormat(start) + ' to ' + xLegendFormat(end))
+                .axisLabel('Time (UTC) - ' + xLegendFormat(chart_datum.start) + ' to ' + xLegendFormat(chart_datum.end))
                 .tickFormat(xTickFormat);
             thischart.yAxis
+                // FIX-ME: Perhaps add a parameter for the Y-Axis legend?
                 .tickFormat(yTickFormat);
             d3.select('#' + chartid)
-                .datum(chart_datum["data"])
+                .datum(chart_datum.data)
                 .call(thischart);
+
+            // Resize the chart to include the entire legend.
+            // FIX-ME: This should probably be an option in NVD3 legend objects.
             var current_height = parseInt(d3.select('svg#' + chartid).style('height'), 10);
             document.getElementById(chartid).style.height = String(current_height + thischart.legend.height()) + 'px';
             nv.utils.windowSize(thischart.update('height'));
 
+            // Resize the chart when the browser window is resized.
             nv.utils.windowResize(thischart.update);
+
             return thischart;
-        });
-        d3.select(saveid).on("click", function() {
-            saveSvgAsPng(document.getElementById(chartid), chart_file_name + ".png");
-        });
+        };
+        var _graph_callback = function(_graph_) {
+            // Called when graph has completed rendering.
+            //console.log("Chart ID " + chartid + " for " + chart_file_name + " has finished rendering.");
+            // FIX-ME: For v0.2 based .html pages, hide 'rendering' div overlaying graph
+            d3.select(saveid).on("click", function() {
+                saveSvgAsPng(document.getElementById(chartid), chart_file_name + ".png");
+            });
+        }
+        nv.addGraph(_graph_generator, _graph_callback);
     });
 };
