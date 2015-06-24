@@ -1,0 +1,2 @@
+timestamp_ms,raw_sockets,tcp_sockets,tcp_timewait_sockets,total_sockets,udp_sockets
+1427874609000,0,6,0,288,6

@@ -1,0 +1,88 @@
+diff -Naurp uperf-1.0.4/src/main.c uperf-1.0.4b/src/main.c
+--- uperf-1.0.4/src/main.c	2009-07-13 16:49:51.000000000 -0400
++++ uperf-1.0.4b/src/main.c	2015-06-03 16:26:44.732837073 -0400
+@@ -143,9 +143,10 @@ init_options(int argc, char **argv)
+ 	options.copt |= PACKET_STATS;
+ 
+ 	options.interval = 1000;	/* Collect throughput every 1second */
++	options.master_port = MASTER_PORT;
+ 	oserver = oclient = ofile = 0;
+ 
+-	while ((ch = getopt(argc, argv, "i:hngm:stTfkpaeE:vVxX:")) != EOF) {
++	while ((ch = getopt(argc, argv, "P:i:hngm:stTfkpaeE:vVxX:")) != EOF) {
+ 		switch (ch) {
+ #ifdef USE_CPC
+ 		case 'E':
+@@ -249,6 +250,12 @@ init_options(int argc, char **argv)
+ 				uperf_fatal("Please specify file \n");
+ 			}
+ 			break;
++		case 'P':
++			if (optarg) {
++				options.master_port = (int)
++					string_to_int(optarg);
++			}
++			break;
+ 		case 'i':
+ 			if (optarg) {
+ 				options.interval = (uint64_t)
+diff -Naurp uperf-1.0.4/src/main.h uperf-1.0.4b/src/main.h
+--- uperf-1.0.4/src/main.h	2008-06-24 21:36:27.000000000 -0400
++++ uperf-1.0.4b/src/main.h	2015-05-28 14:53:42.911362756 -0400
+@@ -58,6 +58,7 @@
+ 
+ /* options structure - has basic program options */
+ typedef struct options {
++	int	master_port;
+ 	int	run_choice;	/* master or slave */
+ 	char	app_profile_name[PATH_MAX];
+ 	int	bitorbyte;
+diff -Naurp uperf-1.0.4/src/master.c uperf-1.0.4b/src/master.c
+--- uperf-1.0.4/src/master.c	2009-07-13 16:49:51.000000000 -0400
++++ uperf-1.0.4b/src/master.c	2015-05-28 14:52:49.149777888 -0400
+@@ -241,7 +241,7 @@ print_progress(uperf_shm_t *shm, newstat
+ 		pns.end_time = GETHRTIME();
+ 		pns.count -= prev.count;
+ 		(void) strlcpy(pns.name, prev.name, sizeof (pns.name));
+-		print_summary(&pns, 1);
++		print_summary(&pns, 0);
+ 	}
+ }
+ 
+@@ -359,7 +359,7 @@ new_control_connection(group_t *g, char
+ 		p = p->next;
+ 	}
+ 	/* Not found, create a new one */
+-	p = create_protocol(PROTOCOL_TCP, host, MASTER_PORT, MASTER);
++	p = create_protocol(PROTOCOL_TCP, host, options.master_port, MASTER);
+ 	if (p != NULL) {
+ 		/* Try connecting */
+ 		if (p->connect(p, NULL) == 0) {
+diff -Naurp uperf-1.0.4/src/print.c uperf-1.0.4b/src/print.c
+--- uperf-1.0.4/src/print.c	2011-09-16 21:34:10.000000000 -0400
++++ uperf-1.0.4b/src/print.c	2015-05-28 13:30:23.161228033 -0400
+@@ -105,9 +105,9 @@ print_summary(newstats_t *ns, int same_l
+ 	throughput = ns->size * 8.0 / time_s;
+ 	ops = ns->count/time_s;
+ 	if (ENABLED_FENXI_PRINT(options)) {
+-		printf("%s %.2f MB in %.2f secs = %.2f Mbps or %10.2f ops\n",
+-			ns->name, ns->size/1024.0/1024.0,
+-			time/1.0e+9, throughput/1.0e+6, ops);
++		printf("timestamp_ms:%.4f name:%s nr_bytes:%lu nr_ops:%lu\n",
++			ns->end_time/1.0e+6, ns->name, ns->size, ns->count);
++		(void) fflush(stdout);
+ 		return;
+ 	}
+ 	if (same_line) {
+diff -Naurp uperf-1.0.4/src/slave.c uperf-1.0.4b/src/slave.c
+--- uperf-1.0.4/src/slave.c	2009-07-13 16:49:51.000000000 -0400
++++ uperf-1.0.4b/src/slave.c	2015-05-28 14:53:13.250488369 -0400
+@@ -423,7 +423,7 @@ slave()
+ 	if (setup_slave_signal() != 0) {
+ 		return (1);
+ 	}
+-	slave_conn = create_protocol(PROTOCOL_TCP, "", MASTER_PORT, SLAVE);
++	slave_conn = create_protocol(PROTOCOL_TCP, "", options.master_port, SLAVE);
+ 	if (slave_conn == NULL) {
+ 		uperf_error("Cannot create control connection\n");
+ 		return (1);

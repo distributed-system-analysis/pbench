@@ -1,0 +1,17 @@
+diff --git a/client.c b/client.c
+index 760ec85..76a30c7 100644
+--- a/client.c
++++ b/client.c
+@@ -968,12 +968,6 @@ static void handle_text(struct fio_client *client, struct fio_net_cmd *cmd)
+ 	const char *name;
+ 	int fio_unused ret;
+ 
+-	name = client->name ? client->name : client->hostname;
+-
+-	if (!client->skip_newline)
+-		fprintf(f_out, "<%s> ", name);
+-	ret = fwrite(buf, pdu->buf_len, 1, f_out);
+-	fflush(f_out);
+ 	client->skip_newline = strchr(buf, '\n') == NULL;
+ }
+ 

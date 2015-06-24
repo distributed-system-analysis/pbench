@@ -1,0 +1,17 @@
+#!/bin/bash
+
+interval=$1
+file=$2
+pattern=$3
+function count_docker {
+/usr/bin/docker ps -aq | wc -l
+}
+
+cmd="count_docker"
+
+cat /dev/null >$file
+while true; do
+	echo "timestamp: `date +%s.%N`" >>$file
+	$cmd >>$file
+	sleep $interval
+done

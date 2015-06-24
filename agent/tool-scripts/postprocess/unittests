@@ -1,0 +1,145 @@
+#!/bin/bash
+
+if [[ ! -z "$1" ]]; then
+    if [[ ! -d ./samples/$1 ]]; then
+        echo "Ignoring $1, ./samples/$1 does not exist as a directory" >&2
+        testname=""
+    else
+        testname="$1"
+    fi
+fi
+
+mkdir -p /tmp/GenData
+rm -rf /tmp/GenData/*
+
+# the timestamps in the data are (or should be) in UTC
+# make sure that we test in that environment, else the
+# timestamps will show a constant offset.
+export TZ=UTC
+
+export _TEST_SKIP_CPU_MAP=1
+
+function testit {
+    echo "Testing $2-postprocess under sample $1 ..."
+
+    mkdir /tmp/GenData/$1
+    cp samples/$1/$2.txt /tmp/GenData/$1/
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./$2-postprocess /tmp/GenData/$1 > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+
+    rm /tmp/GenData/$1/$2.txt
+
+    diff -cr gold/$1/ /tmp/GenData/$1
+    if [[ $? -eq 0 ]]; then
+        echo "PASS - $1"
+    else
+        echo "FAIL - $1"
+    fi
+}
+
+# Remove any file that is in the sample directory that
+# is still the same in the test directory, removing any
+# empty directories first.
+function remove_sample_data {
+    # First remove symlinks
+    for i in $(cd samples/$1; find . -type l); do
+        rm -rf /tmp/GenData/$1/$i
+    done
+    # Remove all files that have not changed from the
+    # original sample
+    for i in $(cd samples/$1; find . -type f); do
+        diff -cq samples/$1/$i /tmp/GenData/$1/$i > /dev/null 2>&1 && rm -f /tmp/GenData/$1/$i
+    done
+    let dir_cnt=-1
+    while [[ $dir_cnt -gt 0 || $dir_cnt -lt 0 ]]; do
+        let dir_cnt=0
+        # In the loop, exit condition set should we
+        # find no empty directories.
+        for i in $(find /tmp/GenData/$1 -type d -empty); do
+            let dir_cnt=$dir_cnt+1
+            rmdir $i
+        done
+    done
+}
+
+
+# Test uperf benchmark post-processing
+function testuperf {
+    echo "Testing bench-scripts/postprocess/uperf-postprocess under sample $1 ..."
+
+    mkdir /tmp/GenData/$1
+    cp -r samples/$1/* /tmp/GenData/$1
+
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
+        ../../bench-scripts/postprocess/uperf-postprocess /tmp/GenData/$1 1-tcp_rr-64B-1i uperf- default > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+
+    remove_sample_data $1
+
+    diff -cr gold/$1/ /tmp/GenData/$1
+    if [[ $? -eq 0 ]]; then
+        echo "PASS - $1"
+    else
+        echo "FAIL - $1"
+    fi
+}
+
+# Test fio benchmark post-processing
+function testfio {
+    echo "Testing bench-scripts/postprocess/fio-postprocess under sample $1 ..."
+
+    mkdir /tmp/GenData/$1
+    cp -r samples/$1/* /tmp/GenData/$1
+
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
+        ../../bench-scripts/postprocess/fio-postprocess /tmp/GenData/$1/result/reference-result 2-read-64KiB fio- default > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+
+    remove_sample_data $1
+
+    diff -cr gold/$1/ /tmp/GenData/$1
+    if [[ $? -eq 0 ]]; then
+        echo "PASS - $1"
+    else
+        echo "FAIL - $1"
+    fi
+}
+
+function testcmpr {
+    echo "Testing bench-scripts/postprocess/compare-bench-results under sample $1 ..."
+
+    mkdir /tmp/GenData/$1
+    rm -rf /tmp/GenData/$1
+    cp -a samples/$1 /tmp/GenData/
+
+    # Run the test
+    fullcmd=$(realpath ../../bench-scripts/postprocess/compare-bench-results)
+    (cd /tmp/GenData/$1; $fullcmd comparison * > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr)
+
+    remove_sample_data $1
+
+    diff -cr gold/$1/ /tmp/GenData/$1
+    if [[ $? -eq 0 ]]; then
+        echo "PASS - $1"
+    else
+        echo "FAIL - $1"
+    fi
+}
+
+for i in $(ls -1 samples/) ; do
+    if [[ ! -z "$testname" ]]; then
+        if [[ "$testname" != "$i" ]]; then
+            continue
+	fi
+    fi
+    if [[ $i == uperf-? ]]; then
+        testuperf $i
+    else
+        if [[ $i == fio-? ]]; then
+            testfio $i
+        else
+            if [[ $i == compare-bench-results-* ]]; then
+                testcmpr $i
+            else
+                testit $i ${i%-[0-9]}
+            fi
+        fi
+    fi
+done

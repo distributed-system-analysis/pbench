@@ -1,0 +1,7 @@
+*/bench-scripts/gold
+*/bench-scripts/sample-tools
+*/bench-scripts/test-bin
+*/bench-scripts/unittests
+*/tool-scripts/postprocess/unittests
+*/tool-scripts/postprocess/gold
+*/tool-scripts/postprocess/samples

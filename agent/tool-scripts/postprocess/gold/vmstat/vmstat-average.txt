@@ -1,0 +1,17 @@
+block-in_KiB=74202.977778
+block-out_KiB=722.222222
+cpu-idle=85.733333
+cpu-steal=0.000000
+cpu-sys=0.977778
+cpu-user=0.977778
+cpu-wait=12.466667
+memory-active_KiB=4919115.377778
+memory-free_KiB=12247062.755556
+memory-inactive_KiB=46963173.422222
+memory-swapped_KiB=8.000000
+procs-blocked=6.622222
+procs-running=0.511111
+swap-in_KiB=0.000000
+swap-out_KiB=0.000000
+system-cntx_switches=20553.533333
+system-interrupts=9989.888889

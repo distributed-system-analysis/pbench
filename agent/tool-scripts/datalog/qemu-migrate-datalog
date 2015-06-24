@@ -1,0 +1,14 @@
+#!/bin/bash
+
+interval=$1
+datalog_file=$2
+vm=$3
+
+cat /dev/null >$datalog_file
+while true; do
+	echo >>$datalog_file
+	echo >>$datalog_file
+	echo "timestamp: `date +%s.%N`" >>$datalog_file
+	echo info migrate | nc -U /var/lib/libvirt/qemu/$vm.monitor | sed -e 's/(qemu).*//' | sed 's/\r$//' >>$datalog_file
+	sleep $interval
+done

@@ -1,0 +1,196 @@
+
+* Configuration files tools
+
+The directory contains a python module to manage a hierarchy of configuration
+files and tools to extract values from such configuration files. The tools can
+be used from shell scripts.  Alternatively, a python program can use the
+module directlly.
+
+The format is that interpreted by the configparser module: a fairly basic INI
+file, consisting of key-value pairs. The format allows multiline values:
+whitespace at the beginning of a line makes it a continuation of the previous
+line with the whitespace squashed down to a single space.  Comments start with
+a hash character #. Empty lines are ignored and can be used for readability.
+
+Here is a basic example consisting of two sections:
+
+#+BEGIN_EXAMPLE
+[foo]
+var1 = val1
+
+[bar]
+var1 = val1-bar
+var2 = val2
+#+END_EXAMPLE
+
+The separator between the key and the value can be either an `equals' sign or
+a colon. Trailing white space in the key and leading white space in the value
+are stripped (and the continuation line rule above prohibits leading space in
+the key as well).
+
+* Installation
+In this directory, say (as root)
+
+#+BEGIN_EXAMPLE
+python3 setup.py install
+#+END_EXAMPLE
+
+* Set-up
+The base configuration file in the sequence is specified by an env variable:
+
+export CONFIG=/path/to/top-level/config/file/foo.conf
+
+or it can be specified explicitly using the --config (or its short form -C)
+option on any program that uses this module.
+
+The base configuration file can specify a search path and a sequence
+of config files to be loaded as follows:
+
+#+BEGIN_EXAMPLE
+[config]
+path = dir1, dir2, dir3
+files = foo.conf, bar.conf
+#+END_EXAMPLE
+
+The paths can be absolute or relative. Relative paths are relative to the
+directory of the base config file. In this case, the following files will
+be read in sequence:
+
+#+BEGIN_EXAMPLE
+base config file
+dir1/foo.conf
+dir1/bar.conf
+dir2/foo.conf
+dir2/bar.conf
+dir3/foo.conf
+dir3/bar.conf
+#+END_EXAMPLE
+
+The first instance of a given key in a given section in this sequence
+of files determines the value of the key.
+
+An empty base configuration file (which *must* exist) is equivalent to the
+following:
+
+#+BEGIN_EXAMPLE
+[config]
+path = ., ../config, ../../config
+files = foo.conf
+#+END_EXAMPLE
+
+where =foo.conf= is the basename of the base config file.
+
+* Example usage in shell scripts and Makefiles
+
+The tool =getconf.py= can be used to get a value from a section (or a sequence
+of sections) in a config file hierarchy (as described above):
+
+#+BEGIN_EXAMPLE
+$ getconf.py var1 foo
+val1
+$ getconf.py var1 bar foo
+val1-bar
+$ getconf.py var1 foo bar
+val1
+#+END_EXAMPLE
+
+This can be used in shell scripts:
+
+#+BEGIN_EXAMPLE
+foovar1=$(getconf.py var1 foo)
+barvar1=$(getconf.py var1 bar)
+#+END_EXAMPLE
+
+or in Makefiles:
+
+#+BEGIN_EXAMPLE
+foovar1 = $(shell getconf.py var1 foo)
+#+END_EXAMPLE
+
+* Example usage in python scripts
+
+The getconf.py program itself is a good example of how to use this module in
+python:
+
+#+BEGIN_SRC python
+#! /usr/bin/env python3
+
+import sys
+import os
+import configtools
+from optparse import make_option
+
+def main(conf, args, opts):
+
+    if opts.dump:
+        conf.write(sys.stdout)
+        return 0
+
+    if opts.all:
+        for sec in args:
+            if conf.has_section(sec):
+                print("[%s]" % (sec))
+                items = conf.items(sec)
+                items.sort()
+                for (n, v) in items:
+                    print("%s = %s" % (n, v))
+                print()
+        return 0
+
+    option = args[0]
+    for sec in args[1:]:
+        if conf.has_section(sec):
+            if conf.has_option(sec, option):
+                if opts.list:
+                    print(conf.get(sec, option).replace(',', ' ').replace('\n', ' ').replace('  ', ' '))
+                else:
+                    print(conf.get(sec, option))
+                return 0
+    return 1
+
+options = [
+    make_option("-a", "--all", action="store_true", dest="all", help="print all items in section"),
+    make_option("-d", "--dump", action="store_true", dest="dump", help="print everything"),
+    make_option("-l", "--list", action="store_true", dest="list", help="print it as a shell list, translating commas to spaces"),
+    make_option("-L", "--listfiles", action="store_true", dest="listfiles", help="print the list of config files"),
+]
+
+if __name__ == '__main__':
+    opts, args = configtools.parse_args(options)
+    conf, files = configtools.init(opts)
+    if opts.listfiles:
+        files.reverse()
+        print(files)
+        sys.exit(0)
+    status = main(conf, args, opts)
+    sys.exit(status)
+#+END_SRC
+
+After the initialization calls, we get a SafeConfigParser object conf, through
+which we can the values of keys using =conf.get(section, option)=. The module
+provides a few conveniences:
+
+- range expansion: foo[1-3] can be
+
+* Some notes
+
+- A list of values is specified in comma-separated form. That is only a
+  convention, not a hard-and-fast rule, but it is strongly recommended
+  nevertheless. Changing from CSV to a space-separated list is easily done
+  (see above).
+- The configparser module allows substitutions by using the SafeConfigParser
+  class (and the configtools module takes advantage of that).
+- To see the documentation of the module, say
+
+  #+BEGIN_EXAMPLE
+  $ python3
+  import configparser
+  help(configparser)
+  #+END_EXAMPLE
+
+  or on the web:
+
+  https://docs.python.org/3/library/configparser.html
+
+- This is python3-based. There is an equivalent ConfigParser module in Python
+  2.7 (note the spelling).

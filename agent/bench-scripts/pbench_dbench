@@ -1,0 +1,506 @@
+#!/bin/bash
+
+# This is a script to run the dbench benchmark
+# Author: Andrew Theurer
+
+# This script will take multiple samples of the same test type and try to achieve a standard deviation of <5%
+#
+# This script will repeat a test type 6 times in order to try to achieve target stddev.
+# If a run (with several samples) fails the stddev, its directory is appended with -fail
+#
+# This script will also generate a "summary-results.txt" with a table of all
+# results, efficiency, and other stats.
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+benchmark="dbench"
+if [[ -z "$benchmark_bin" ]]; then
+    benchmark_bin=/usr/local/bin/$benchmark
+fi
+ver=4.00
+
+# Every bench-script follows a similar sequence:
+# 1) process bench script arguments
+# 2) ensure the right version of the benchmark is installed
+# 3) gather pre-run state
+# 4) run the benchmark and start/stop perf analysis tools
+# 5) gather post-run state
+# 6) postprocess benchmark data
+# 7) postprocess analysis tool data
+
+# Defaults
+
+benchmark_run_dir=""
+config=""
+dir="/tmp"
+loadfile="/usr/local/share/doc/dbench/loadfiles/client.txt"
+warmup=15
+nr_samples=5
+maxstddevpct=5 # maximum allowable standard deviation in percent
+max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
+runtime=60
+postprocess_only=n
+start_iteration_num=1
+keep_failed_tool_data="y"
+tar_nonref_data="n"
+orig_cmd="$*"
+tool_group=default
+tool_label_pattern="dbench-"
+thread_counts=`cat /proc/cpuinfo | grep processor | wc -l`
+client_nodes=""
+
+function install_dbench {
+	if check_install_rpm $benchmark $ver; then
+		debug_log "[$script_name]$benchmark is installed"
+	else
+		error_log "[$script_name]$benchmark installation failed, exiting"
+		exit 1
+	fi
+}
+
+function print_iteration {
+	# printing a iteration assumes this must be a new row, so include \n first
+	printf "\n%28s" "$1" >>$benchmark_summary_txt_file
+	printf "\n%s" "$1" >>$benchmark_summary_csv_file
+	printf "\n%28s <a href=./$iteration/reference-result/dbench.html>%s</a> <a href=./$iteration/reference-result/tools-$tool_group>%s</a>" "$1" "summary" "tools">>$benchmark_summary_html_file
+}
+
+function print_value {
+	printf "%${spacing}s" "$1[+/-$2]" >>$benchmark_summary_txt_file
+	printf "%s" ",$1,$2" >>$benchmark_summary_csv_file
+	printf "%${spacing}s" "$1[+/-$2]" >>$benchmark_summary_html_file
+}
+
+function print_header {
+	printf "\n\n%28s" "iteration" >>$benchmark_summary_txt_file
+	printf "\n\n%s" "iteration" >>$benchmark_summary_csv_file
+	printf "\n\n%28s %s %s" "iteration" "       " "     " >>$benchmark_summary_html_file
+	for i in $1; do
+		printf "%${spacing}s" "$i" >>$benchmark_summary_txt_file
+		printf "%s" ",$i,stddevpct" >>$benchmark_summary_csv_file
+		printf "%${spacing}s" "$i" >>$benchmark_summary_html_file
+	done
+}
+
+
+# Process options and arguments
+opts=$(getopt -q -o i:c:t:r:m:p:M:S:C: --longoptions "client-node:,client-nodes:,client-label:,tool-label-pattern:,install,start-iteration-num:,config:,threads:,runtime:,samples:,client:,clients:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:" -n "getopt.sh" -- "$@");
+if [ $? -ne 0 ]; then
+	printf -- "$*\n"
+	printf "\n"
+	printf "\t${benchmark}: you specified an invalid option\n\n"
+	printf "\tThe following options are available:\n\n"
+	#              1   2         3         4         5         6         7         8         9         0         1         2         3
+	#              678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
+	printf -- "\t\t             --tool-group=str\n"
+	printf -- "\t\t-c str       --config=str               name of the test config (i.e. jumbo_frames_and_network_throughput)\n"
+	printf -- "\t\t-r int       --runtime=int              test measurement period in seconds (default is $runtime)\n"
+	printf -- "\t\t-t int[,int] --threads=int[,int]        a list of the number of dbench threads to run (default is $threads)\n"
+	printf -- "\t\t-C str[,str] --client[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the\n"
+	printf    "\t\t                                        dbench client (drive the test).\n"
+	printf    "\t\t                                        If this is omitted, the local system is the client\n"
+	printf -- "\t\t--client-node[s]=str[,str]              An ordered list of client NUMA nodes which should be used for CPU binding\n"
+	printf -- "\t\t                                        The order must correspond with the --clients list\n"
+	printf -- "\t\t                                        To omit a specific client from binding, use a value of -1\n"
+	printf -- "\t\t             --samples=int              the number of times each different test is run (to compute average &\n"
+	printf    "\t\t                                        standard deviations)\n"
+	printf -- "\t\t             --max-failures=int         the maximm number of failures to get below stddev\n"
+	printf -- "\t\t             --max-stddev=int           the maximm percent stddev allowed to pass\n"
+	printf -- "\t\t             --postprocess-only=y|n     don't run the benchmark, but postprocess data from previous test\n"
+	printf -- "\t\t             --run-dir=str              optionally specify what directory should be used (usually only used\n"
+	printf    "\t\t                                        if postprocess-only=y)\n"
+	printf -- "\t\t             --start-iteration-num=int  optionally skip the first (n-1) tests\n"
+	printf -- "\t\t             --tool-label-pattern=str   dbench will provide CPU and efficiency information for any tool directory\n"
+	printf    "\t\t                                        with a \"^<pattern>\" in the name, provided \"sar\" is one of the\n"
+	printf    "\t\t                                        registered tools.\n"
+	printf    "\t\t                                        a default pattern, \"dbench-\" is used if none is provided.\n"
+	printf    "\t\t                                        simply register your tools with \"--label=dbench-\$X\", and this script\n"
+	printf    "\t\t                                        will genrate CPU_dbench-\$X and MBps/CPU_dbench-\$X\n"
+	printf    "\t\t                                        for all tools which have that pattern as a\n"
+	printf    "\t\t                                        prefix.  if you don't want to register your tools with \"dbench-\" as\n"
+	printf    "\t\t                                        part of the label, just use --tool-label-pattern= to tell this script\n"
+	printf    "\t\t                                        the prefix pattern to use for CPU information.\n"
+	exit 1
+fi
+eval set -- "$opts";
+debug_log "[$script_name]processing options"
+while true; do
+	case "$1" in
+		--install)
+		shift;
+		install_dbench
+		exit
+		;;
+		--tool-label-pattern)
+		shift;
+		if [ -n "$1" ]; then
+			tool_label_pattern="$1"
+			shift;
+		fi
+		;;
+		--postprocess-only)
+		shift;
+		if [ -n "$1" ]; then
+			postprocess_only="$1"
+			shift;
+		fi
+		;;
+		--run-dir)
+		shift;
+		if [ -n "$1" ]; then
+			benchmark_run_dir="$1"
+			shift;
+		fi
+		;;
+		--max-stddev)
+		shift;
+		if [ -n "$1" ]; then
+			maxstddevpct="$1"
+			shift;
+		fi
+		;;
+		--max-failures)
+		shift;
+		if [ -n "$1" ]; then
+			max_failures="$1"
+			shift;
+		fi
+		;;
+		--samples)
+		shift;
+		if [ -n "$1" ]; then
+			nr_samples="$1"
+			shift;
+		fi
+		;;
+		-t|--threads)
+		shift;
+		if [ -n "$1" ]; then
+			thread_counts="$1"
+			shift;
+		fi
+		;;
+		--tool-group)
+		shift;
+		if [ -n "$1" ]; then
+			tool_group="$1"
+			shift;
+		fi
+		;;
+		-r|--runtime)
+		shift;
+		if [ -n "$1" ]; then
+			runtime="$1"
+			shift;
+		fi
+		;;
+		-C|--client|--clients)
+		shift;
+		if [ -n "$1" ]; then
+			clients="$1"
+			shift;
+		fi
+		;;
+		-c|--config)
+		shift;
+		if [ -n "$1" ]; then
+			config="$1"
+			shift;
+		fi
+		;;
+		--start-iteration-num)
+		shift;
+		if [ -n "$1" ]; then
+			start_iteration_num=$1
+			shift;
+		fi
+		;;
+		--client-node|--client-nodes)
+		shift;
+		if [ -n "$1" ]; then
+			client_nodes="$1"
+			shift;
+		fi
+		;;
+		*)
+		debug_log "[$script_name]what happened? [$1]"
+		break;
+		;;
+		--)
+		shift;
+		break;
+		;;
+	esac
+done
+if [[ -z "$benchmark_run_dir" ]]; then
+	# We don't have an explicit run directory, construct one
+	benchmark_run_dir="$pbench_run/${benchmark}_${config}_$date"
+else
+	# We have an explicit run directory provided by --run-dir, so warn
+	# the user if they also used --config
+	if [[ ! -z "$config" ]]; then
+		warn_log "[$script_name] ignoring --config=\"$config\" in favor of --rundir=\"$benchmark_run_dir\""
+	fi
+fi
+
+if [ -z "$clients" ]; then
+	clients=127.0.0.1
+fi
+
+# Verify the tool group exists
+verify_tool_group $tool_group
+
+# before we run a test, verify clients and install dbench if necessary
+if [ "$postprocess_only" != "y" ]; then
+	let err_cnt=0
+	err_clients=""
+	for client in `echo $clients | sed -e s/,/" "/g`; do
+		debug_log "checking for dbench on client $client"
+		ssh $ssh_opts $client pbench_dbench --install
+		if [ $? -ne 0 ]; then
+			let err_cnt=err_cnt+1
+			err_clients="$err_clients $client"
+		fi
+	done
+	if [ $err_cnt -gt 0 ]; then
+		error_log "Unable to verify connectivity and dbench installation on the following clients:"
+		error_log "    clients: $err_clients"
+		exit 1
+	fi
+fi
+
+mkdir -p $benchmark_run_dir/.running
+benchmark_summary_txt_file="$benchmark_run_dir/summary-result.txt"
+rm -f $benchmark_summary_txt_file
+benchmark_summary_csv_file="$benchmark_run_dir/summary-result.csv"
+rm -f $benchmark_summary_csv_file
+benchmark_summary_html_file="$benchmark_run_dir/summary-result.html"
+rm -f $benchmark_summary_html_file
+
+## Run the benchmark and start/stop perf analysis tools
+printf "# these results generated with:\n# pbench_dbench %s\n\n" "$orig_cmd" >$benchmark_summary_txt_file
+printf "<pre>\n# these results generated with:\n# pbench_dbench %s\n\n" "$orig_cmd" >$benchmark_summary_html_file
+printf "\n" >>$benchmark_summary_txt_file
+printf "\n" >>$benchmark_summary_html_file
+
+count=0
+for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
+	let count=$count+1
+done
+let total_iterations=count
+count=1
+max_key_length=0
+export benchmark config
+collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+
+for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
+	if [ $count -ge $start_iteration_num ]; then
+		echo "Starting iteration $iteration ($count of $total_iterations)"
+		log "Starting iteration $iteration ($count of $total_iterations)"
+		iteration="${count}-${thread_count}thread"
+		iteration_dir="$benchmark_run_dir/$iteration"
+		result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
+		failures=0
+		while [[ $(echo "if (${result_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; do
+			if [[ $failures -gt 0 ]]; then
+				echo "Restarting iteration $iteration ($count of $total_iterations)"
+				log "Restarting iteration $iteration ($count of $total_iterations)"
+			fi
+			mkdir -p $iteration_dir
+			# each attempt at a test config requires multiple samples to get stddev
+			for sample in `seq 1 $nr_samples`; do
+				benchmark_results_dir="$iteration_dir/sample$sample"
+				if [ "$postprocess_only" != "y" ]; then
+					mkdir -p $benchmark_results_dir
+					client_nr=1
+					# the following loop does all of the pre-benchmark execution work
+					for client in `echo $clients | sed -e s/,/" "/g`; do
+
+						client_node=`echo "$client_nodes," | cut -d, -f$client_nr`
+						benchmark_client_cmd_file="$iteration_dir/dbench-$client_nr-$client.cmd"
+
+						# construct the client command
+						benchmark_client_cmd="$benchmark_bin --machine-readable --directory=$dir/$client_nr --timelimit=$runtime --warmup=$warmup --loadfile $loadfile $thread_count"
+						# adjust client command for NUMA binding
+						if [ ! -z "$client_node" ]; then
+							if [ $client_node -ge 0 ]; then
+								benchmark_client_cmd="numactl --cpunodebind=$client_node bash -c \"$benchmark_client_cmd\""
+							fi
+						fi
+
+						# create the client command file, to be used for debugging purposes or to run this dbench command later [without pbench]
+						echo "$benchmark_client_cmd" >$benchmark_client_cmd_file
+						chmod +x $benchmark_client_cmd_file
+
+						# prepare test files and dirs if using remote clients
+						if [ "$client" != "127.0.0.1" ]; then
+							ssh $ssh_opts $client mkdir -p $benchmark_results_dir
+							ssh $ssh_opts $client mkdir -p $dir/$client_nr
+							scp $ssh_opts $benchmark_client_cmd_file $client:$benchmark_client_cmd_file >/dev/null
+						else
+							mkdir -p $dir/$client_nr
+						fi
+
+						((client_nr++))
+					done
+					start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+
+					# start the dbench clients
+					echo "test sample $sample of $nr_samples"
+					log "test sample $sample of $nr_samples "
+					client_nr=1
+					for client in `echo $clients | sed -e s/","/" "/g`; do
+						client_nodeinfo=""
+						client_node=`echo "$client_nodes," | cut -d, -f$client_nr`
+						if [ ! -z "$client_node" ]; then
+							if [ $client_node -ge 0 ]; then
+								client_nodeinfo="node[$client_node]"
+							fi
+						fi
+						benchmark_client_cmd_file="$iteration_dir/dbench-$client_nr-$client.cmd"
+						result_file=$benchmark_results_dir/result-$client_nr-$client.txt
+						debug_log "client[$client_nr-$client]${client_nodeinfo}threads[$thread_count]"
+						echo "client[$client_nr-$client]${client_nodeinfo}threads[$thread_count]"
+
+						if [ "$client" == "127.0.0.1" ]; then
+							$benchmark_client_cmd_file >$result_file &
+						else # using remote clients
+							ssh $ssh_opts $client "$benchmark_client_cmd_file" >$result_file &
+						fi
+						((client_nr++))
+					done
+					wait
+
+					# stop tools and clean up
+					stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+					postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+				else
+					if [[ ! -d $benchmark_results_dir ]]; then
+						error_log "Results directory $benchmark_results_dir does not exist, skipping post-processing"
+						continue
+					fi
+					echo "Not going to run dbench  Only postprocesing existing data"
+					log "Not going to run dbench  Only postprocesing existing data"
+				fi
+				$script_path/postprocess/$benchmark-postprocess $benchmark_results_dir "$tool_label_pattern" "$tool_group"
+				mv $benchmark_results_dir/$benchmark-average.txt $benchmark_results_dir/result.txt
+			done
+
+			# find the keys that we will compute avg & stddev
+			# NOTE: when getting keys, always choose "sample1" since it is
+			# always present and shares the same keys with
+			# every other sample
+			keys=`cat $iteration_dir/sample1/result.txt  | awk -F= '{print $1}'`
+			s_keys=""
+			key_nr=0
+			# for each key, get the average & stddev
+			for key in $keys; do
+				# the s_key is used in the summary reports to save space, it is just an abbreviated key
+				s_key=`echo $key | cut  -d- -f2-`
+				# remove the label pattern from the s_key
+				s_key=`echo $s_key | sed -e s/"$tool_label_pattern"//`
+				s_key=`echo $s_key | sed -e s/"transaction"/"trans"/`
+				# store these in reverse order as the keys and be sure to print values in reverse order later
+				s_keys="$s_key $s_keys"
+				s_key_length=`echo $s_key | wc -m`
+				if [ $s_key_length -gt $max_key_length ]; then
+					max_key_length=$s_key_length
+				fi
+				iteration_samples=""
+				for sample in `seq 1 $nr_samples`; do
+					value=`grep -- "$key" $iteration_dir/sample$sample/result.txt | awk -F= '{print $2}'`
+					iteration_samples="$iteration_samples $value"
+				done
+				avg_stddev_result=`avg-stddev $iteration_samples`
+				samples[$key_nr]="$iteration_samples"
+				avg[$key_nr]=`echo $avg_stddev_result | awk '{print $1}'`
+				stddev[$key_nr]=`echo $avg_stddev_result | awk '{print $2}'`
+				stddevpct[$key_nr]=`echo $avg_stddev_result | awk '{print $3}'`
+				closest[$key_nr]=`echo $avg_stddev_result | awk '{print $4}'`
+				if echo $key | grep -q "Throughput"; then
+					if echo $key | grep -q -v "Per_Server"; then
+						tput_index=$key_nr
+						tput_metric=$key
+					fi
+				fi
+				((key_nr++))
+			done
+
+			for sample in `seq 1 $nr_samples`; do
+				sample_dir="sample$sample"
+				# create a symlink to the result dir which most accurately represents the average result
+				if [ $sample -eq ${closest[$tput_index]} ]; then
+					msg="'######' $tput_metric: ${samples[$tput_index]}  average: ${avg[$tput_index]} stddev: ${stddevpct[$tput_index]}%  closest-sample: $sample"
+					echo $msg | tee $iteration_dir/sample-runs-summary.txt
+					log $msg
+					pushd "$iteration_dir" >/dev/null; /bin/rm -rf reference-result; ln -sf $sample_dir reference-result; popd >/dev/null
+				else
+					# delete the tool data from the other samples to save space
+					# this option is off by default
+					if [ "$keep_failed_tool_data" == "n" ]; then
+						/bin/rm -rf $iteration_dir/$sample_dir/tools-* $iteration_dir/$sample_dir/response-times.txt
+					fi
+					# since non reference-result sample data is rarely referenced, tar it up to reduce the number of files used
+					if [ "$tar_nonref_data" == "y" ]; then
+						pushd "$iteration_dir" >/dev/null; tar --create --xz --force-local --file=$sample_dir.tar.xz $sample_dir && /bin/rm -rf $sample_dir; popd >/dev/null
+					fi
+				fi
+			done
+			# if we did not achieve the stddevpct, then move this result out of the way and try again
+			fail=0
+			if [[ $(echo "if (${stddevpct[$tput_index]} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; then
+				fail=1
+			fi
+			if [ $fail -eq 1 ]; then
+				let failures=$failures+1
+				msg="$iteration: the percent standard deviation (${stddevpct[$tput_index]}%) was not within maximum allowed (${maxstddevpct}%)"
+				echo $msg
+				log $msg
+				msg="This iteration will be repeated until either standard deviation is below the maximum allowed, or $max_failures failed attempts."
+				echo $msg
+				log $msg
+				msg="Changing the standard deviation percent can be done with --max-stddev= and the maximum failures with --max-failures="
+				echo $msg
+				log $msg
+				# tar up the failed iteration.  We may need to look at it later, but don't waste space by keeping it uncompressed
+				# if all attempts failed, leaving no good result, leave the last attempt uncompressed
+				if [ $failures -le $max_failures ]; then
+					pushd $benchmark_run_dir >/dev/null
+					mv $iteration $iteration-fail$failures
+					tar --create --xz --force-local --file=$iteration-fail$failures.tar.xz $iteration-fail$failures &&\
+					/bin/rm -rf $iteration-fail$failures
+					popd >/dev/null
+				fi
+			fi
+			if [ $fail -eq 0 -o $failures -ge $max_failures ]; then
+				break
+			fi
+		done # break out of this loop only if the $result_stddevpct & $eff_stddevpct lower than $maxstddevpct
+		spacing=`echo "$max_key_length + 1" | bc`
+		if [ $count -eq 1 ]; then
+			print_header "$s_keys"
+		fi
+		print_iteration $iteration
+		((key_nr--))
+		for s_key in $s_keys; do
+			print_value "${avg[$key_nr]}" "${stddevpct[$key_nr]}%"
+			((key_nr--))
+		done
+		echo "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
+		log "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
+	else
+		echo "Skipping iteration $iteration ($count of $total_iterations)"
+		log "Skipping iteration $iteration ($count of $total_iterations)"
+	fi
+	let count=$count+1 # now we can move to the next iteration
+done
+
+printf -- "</pre>\n" >>$benchmark_summary_html_file
+collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+
+rmdir $benchmark_run_dir/.running

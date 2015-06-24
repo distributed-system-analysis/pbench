@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+
+import os, sys
+
+outfn = os.environ.get("_testlog")
+if not outfn:
+    sys.stderr.write("WARNING _testlog environment variable not present\n")
+    sys.exit(1)
+else:
+    with open(outfn, "a") as outf:
+        outf.write(' '.join(sys.argv) + '\n')
+
+#echo "dir=$1"
+#echo "iteration=$2"
+#echo "toollabelprefix=$3"
+#echo "toolgroup=$4"
+#"${count}-${protocol}_${test_type}-${message_size}B-${instance}i"
+
+# FIX-ME how does uperf-postprocess get the test_type?
+# test_type = os.environ.get("test_type")
+# if not test_type:
+#     iteration = sys.argv[2]
+#     parts = iteration.split('-')
+#     protocol, test_type = parts[1].split('_')
+#print "test_type = %r" % test_type
+
+with open(os.path.join(sys.argv[1], "dbench-average.txt"), "w") as avgf:
+    avgf.write("Per_Instance_Throughput-1-127.0.0.1-GiB_sec=3.538694\n")
+    avgf.write("Per_Instance_Throughput-2-127.0.0.1-GiB_sec=3.213416\n")
+    avgf.write("Throughput-GiB_sec=6.749179\n")

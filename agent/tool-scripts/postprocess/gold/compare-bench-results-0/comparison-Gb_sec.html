@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link href="/static/css/v0.1/nv.d3.css" rel="stylesheet" type="text/css" media="all">
+    <script src="/static/js/v0.1/function-bind.js"></script>
+    <script src="/static/js/v0.1/d3.v3.js"></script>
+    <script src="/static/js/v0.1/nv.d3.js"></script>
+    <script src="comparison-Gb_sec.js"></script>
+
+    <style>
+      text {
+        font: 12px sans-serif;
+      }
+      .resultname {
+        font-weight: bold;
+      }
+      .resultvalue {
+        text-align: right;
+      }
+      svg.chart {
+        margin: 0px;
+        padding: 0px;
+        height: 100%;
+        width: 100%;
+      }
+      div.chart {
+        display: block;
+        overflow: auto;
+        margin: 0px;
+        padding: 0px;
+        height: 90%;
+        width: 100%;
+      }
+      table.chart, table.chart thead th, table.chart tbody td {
+        border: 1px solid black;
+      }
+      table.chart thead th, table.chart tbody td {
+        padding: 4px;
+      }
+      table.chart {
+        height: 10%;
+        margin: 0px auto;
+      }
+      html, body {
+        margin: 0px;
+        padding: 0px;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+
+  </head>
+  <body>
+    <div class="chart">
+      <svg class="chart"></svg>
+    </div>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th>comparison</th><th class="resultvalue">geo-mean-ratio</th><th class="resultvalue">buffalo-wings</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="resultname"><a href="result-1">result_2</a>/<a href="result-0">result_1</a></td><td class="resultvalue">1.02</td><td class="resultvalue">0.02</td>
+        </tr>
+        <tr>
+          <td class="resultname"><a href="result-2">result_3</a>/<a href="result-0">result_1</a></td><td class="resultvalue">1.00</td><td class="resultvalue">-0.00</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <script>
+      var strP = /[^a-zA-Z-]/g;
+      var numsP = /[^0-9]/g;
+      function sortParams(a,b) {
+        var a_str = a.label.replace(strP, '');
+        var b_str = b.label.replace(strP, '');
+        if (a_str === b_str) {
+          var a_num = parseInt(a.label.replace(numsP, ""), 10);
+          var b_num = parseInt(b.label.replace(numsP, ""), 10);
+          return a_num === b_num ? 0 : a_num > b_num ? 1 : -1;
+        } else {
+          return a_str > b_str ? 1 : -1;
+        }
+      }
+
+      for (var i = 0; i < Gb_sec.length; i++) {
+        Gb_sec[i].values = Gb_sec[i].values.sort(sortParams);
+      }
+
+      var chart;
+      nv.addGraph(function() {
+        chart = nv.models.multiBarHorizontalChart()
+            .x(function(d) { return d.label })
+            .y(function(d) { return d.value })
+            .margin({top: 30, right: 20, bottom: 50, left: 175})
+            .showValues(true)    //Show bar value next to each bar.
+            .tooltips(true);     //Show tooltips on hover.
+        chart.yAxis.tickFormat(d3.format(',.2f'));
+        d3.select('svg.chart')
+            .datum(Gb_sec)
+            .call(chart);
+        nv.utils.windowResize(chart.update);
+        return chart;
+      });
+    </script>
+  </html>
+</html>

@@ -1,0 +1,18 @@
+#! /bin/bash
+# -*- mode: shell-script -*-
+
+prog=$1
+specfile=$HOME/rpmbuild/SPECS/$prog.spec
+
+if [ ! -f "$specfile" ] ;then
+   echo "$specfile does not exist"
+   exit 1
+fi
+
+tag=$(version-from-spec $specfile)
+
+echo $tag
+git tag -a -m "$tag" "$tag" HEAD
+git push --tags
+
+exit 0

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+host=$1
+ssh $ssh_opts $host uptime>/dev/null && exit 0
+rc=1
+while [ $rc -ne 0 ]; do
+	sleep 10
+	ssh $ssh_opts $host uptime
+	rc=$?
+done

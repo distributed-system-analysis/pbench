@@ -1,0 +1,193 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link href="/static/css/v0.2/nv.d3.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/static/css/v0.2/pbench_utils.css" rel="stylesheet" type="text/css" media="all">
+    <script src="/static/js/v0.2/function-bind.js"></script>
+    <script src="/static/js/v0.2/fastdom.js"></script>
+    <script src="/static/js/v0.2/d3.js"></script>
+    <script src="/static/js/v0.2/nv.d3.js"></script>
+    <script src="/static/js/v0.2/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.2/pbench_utils.js"></script>
+  </head>
+  <body class="with-3d-shadow with-transitions">
+    <h2 class="page-header">proc-vmstat - proc-vmstat</h2>
+    <div class="chart">
+      <h3 class="chart-header">compact_delta_sec
+        <button id="save1">Save as Image</button>
+        <div id="svgdataurl1"></div>
+      </h3>
+      <svg id="chart1"></svg>
+      <canvas id="canvas1" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 1, "proc-vmstat_compact_delta_sec");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">drop_delta_sec
+        <button id="save2">Save as Image</button>
+        <div id="svgdataurl2"></div>
+      </h3>
+      <svg id="chart2"></svg>
+      <canvas id="canvas2" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 2, "proc-vmstat_drop_delta_sec");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">htlb_delta_sec
+        <button id="save3">Save as Image</button>
+        <div id="svgdataurl3"></div>
+      </h3>
+      <svg id="chart3"></svg>
+      <canvas id="canvas3" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 3, "proc-vmstat_htlb_delta_sec");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kswapd_delta_sec
+        <button id="save4">Save as Image</button>
+        <div id="svgdataurl4"></div>
+      </h3>
+      <svg id="chart4"></svg>
+      <canvas id="canvas4" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 4, "proc-vmstat_kswapd_delta_sec");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">nr_delta_sec
+        <button id="save5">Save as Image</button>
+        <div id="svgdataurl5"></div>
+      </h3>
+      <svg id="chart5"></svg>
+      <canvas id="canvas5" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 5, "proc-vmstat_nr_delta_sec");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">numa_delta_sec
+        <button id="save6">Save as Image</button>
+        <div id="svgdataurl6"></div>
+      </h3>
+      <svg id="chart6"></svg>
+      <canvas id="canvas6" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 6, "proc-vmstat_numa_delta_sec");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">pgalloc_delta_sec
+        <button id="save7">Save as Image</button>
+        <div id="svgdataurl7"></div>
+      </h3>
+      <svg id="chart7"></svg>
+      <canvas id="canvas7" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 7, "proc-vmstat_pgalloc_delta_sec");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">pgmigrate_delta_sec
+        <button id="save8">Save as Image</button>
+        <div id="svgdataurl8"></div>
+      </h3>
+      <svg id="chart8"></svg>
+      <canvas id="canvas8" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 8, "proc-vmstat_pgmigrate_delta_sec");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">pgrefill_delta_sec
+        <button id="save9">Save as Image</button>
+        <div id="svgdataurl9"></div>
+      </h3>
+      <svg id="chart9"></svg>
+      <canvas id="canvas9" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 9, "proc-vmstat_pgrefill_delta_sec");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">pgscan_delta_sec
+        <button id="save10">Save as Image</button>
+        <div id="svgdataurl10"></div>
+      </h3>
+      <svg id="chart10"></svg>
+      <canvas id="canvas10" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 10, "proc-vmstat_pgscan_delta_sec");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">pgsteal_delta_sec
+        <button id="save11">Save as Image</button>
+        <div id="svgdataurl11"></div>
+      </h3>
+      <svg id="chart11"></svg>
+      <canvas id="canvas11" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 11, "proc-vmstat_pgsteal_delta_sec");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">slabs_delta_sec
+        <button id="save12">Save as Image</button>
+        <div id="svgdataurl12"></div>
+      </h3>
+      <svg id="chart12"></svg>
+      <canvas id="canvas12" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 12, "proc-vmstat_slabs_delta_sec");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">thp_delta_sec
+        <button id="save13">Save as Image</button>
+        <div id="svgdataurl13"></div>
+      </h3>
+      <svg id="chart13"></svg>
+      <canvas id="canvas13" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 13, "proc-vmstat_thp_delta_sec");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">unevictable_delta_sec
+        <button id="save14">Save as Image</button>
+        <div id="svgdataurl14"></div>
+      </h3>
+      <svg id="chart14"></svg>
+      <canvas id="canvas14" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 14, "proc-vmstat_unevictable_delta_sec");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">workingset_delta_sec
+        <button id="save15">Save as Image</button>
+        <div id="svgdataurl15"></div>
+      </h3>
+      <svg id="chart15"></svg>
+      <canvas id="canvas15" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 15, "proc-vmstat_workingset_delta_sec");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">zone_delta_sec
+        <button id="save16">Save as Image</button>
+        <div id="svgdataurl16"></div>
+      </h3>
+      <svg id="chart16"></svg>
+      <canvas id="canvas16" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 16, "proc-vmstat_zone_delta_sec");
+      </script>
+    </div>
+  </body>
+</html>

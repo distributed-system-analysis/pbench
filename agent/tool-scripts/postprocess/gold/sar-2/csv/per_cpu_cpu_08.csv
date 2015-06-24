@@ -1,0 +1,2 @@
+timestamp_ms,gnice,guest,idle,iowait,irq,nice,soft,steal,sys,usr
+1427874609000,0.00,0.00,98.66,0.00,0.00,0.00,0.00,0.00,0.67,0.67

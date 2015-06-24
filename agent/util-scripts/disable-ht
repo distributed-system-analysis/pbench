@@ -1,0 +1,29 @@
+#!/usr/bin/perl
+# This will disable all but the first cpu-thread in every core
+
+# store the sibling cpu threads as a list, indexed by (socket_id,core_id)
+opendir(my $dh, "/sys/devices/system/cpu") || die "can't opendir $some_dir: $!";
+while (readdir($dh)) { 
+	if ( $_ =~ /^cpu(\d+)/ ) {
+		$cpuid = $1;
+		$socket_id=`cat /sys/devices/system/cpu/cpu$cpuid/topology/physical_package_id`;
+		$core_id=`cat /sys/devices/system/cpu/cpu$cpuid/topology/core_id`;
+		$cpu_threads{$socket_id}{$core_id} .= "$cpuid ";
+		
+	}
+}
+
+# traverse over the (socket_id,core_id), offlining all but the first cpu-threads
+foreach $socket_id (sort {$a<=>$b} keys %cpu_threads) {
+	foreach $core_id (sort {$a<=>$b} keys %{ $cpu_threads{$socket_id} }) {
+		@cpuids = split(/\s+/,$cpu_threads{$socket_id}{$core_id});
+		# keep the first thread online
+		$first_thread = shift(@cpuids);
+		# remaining threads get offlined
+		foreach $cpuid (sort {$a<=>$b} @cpuids) {
+			open(ONLINE, ">/sys/devices/system/cpu/cpu$cpuid/online") || die "can't open file: $!";
+			print ONLINE "0\n";
+			close(ONLINE);
+		}
+	}
+}

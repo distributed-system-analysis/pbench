@@ -1,0 +1,165 @@
+#!/bin/bash
+
+# This is a script to run the cyclictest benchmark
+# TODO:
+# 1) write results using pbench standard file names and formats (see pbench_uperf/dbench/fio)
+# 2) support launching multiple remote and/or local copies concurrently
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+benchmark="cyclictest"
+benchmark_bin=/usr/bin/$benchmark
+benchmark_rpm=rt-tests
+ver=0.87
+
+# Every bench-script follows a similar sequence:
+# 1) process bench script arguments
+# 2) ensure the right version of the benchmark is installed
+# 3) gather pre-run state
+# 4) run the benchmark and start/stop perf analysis tools
+# 5) gather post-run state
+# 6) postprocess benchmark data
+# 7) postprocess analysis tool data
+
+# Defaults
+baseconfig="`uname -r`"
+runtimes="1m"
+orig_cmd="$*"
+tool_group="default"
+config=""
+stress=0
+cpu=""
+
+# Process options and arguments
+opts=$(getopt -q -o C:c:r:s --longoptions "cpu:,stress,config:,runtime:,runtimes:,tool-group:" -n "getopt.sh" -- "$@");
+
+if [ $? -ne 0 ]; then
+	printf -- "$0 $*\n"
+	printf "\n"
+	printf "\t${benchmark}: you specified an invalid option\n\n"
+	printf "\tThe following options are available:\n\n"
+	printf -- "\t\t-c str --config=str name of the test config\n"
+	printf -- "\t\t-r --runtime[s] int[s|m|h][,int[s|m|h] one or more test measurement periods. s=seconds, m=minutes, h=hours (default is $runtimes)\n"
+	printf -- "\t\t-C --cpu int                                  cpu to bind to\n"
+	printf -- "\t\t-s --stress                                   run stress process on the same cpu as --cpu\n"
+	printf -- "\t\t--tool-group=str\n"
+	exit 1
+fi
+eval set -- "$opts";
+debug_log "[$script_name] processing options"
+while true; do
+	case "$1" in
+	-C|--cpu)
+		shift;
+		if [ -n "$1" ]; then
+			cpu="$1"
+			shift;
+		fi
+		;;
+	-s|--stress)
+		shift;
+		stress=1
+		;;
+	-c|--config)
+		shift;
+		if [ -n "$1" ]; then
+			config="$1"
+			shift;
+		fi
+		;;
+	-r|--runtime|--runtimes)
+		shift;
+		if [ -n "$1" ]; then
+			runtimes="$1"
+			shift;
+		fi
+		;;
+	--tool-group)
+		shift;
+		if [ -n "$1" ]; then
+			tool_group="$1"
+			shift;
+		fi
+		;;
+	--)
+		shift;
+		break;
+		;;
+	*)
+		error_log "Encountered unrecognized parameter, what happened? [$1]"
+		break;
+		;;
+	esac
+done
+verify_tool_group $tool_group
+
+## Ensure the right version of the benchmark is installed
+check_install_rpm $benchmark_rpm $ver
+if [[ $? -ne 0 ]]; then
+	error_log "Failed to install the benchmark RPM $benchmark_rpm-$ver"
+	exit 1
+fi
+
+benchmark_run_dir="$pbench_run/${benchmark}_${config}_$date"
+benchmark_summary_txt_file="$benchmark_run_dir/$benchmark-summary.txt"
+benchmark_summary_html_file="$benchmark_run_dir/$benchmark-summary.html"
+if [ ! -z "$cpu" ]; then
+	benchmark_cmd="taskset -c $cpu $benchmark_cmd"
+fi
+
+mkdir -p $benchmark_run_dir/.running
+printf "# these results generated with:\n# %s\n\n" "$script_name $orig_cmd" >$benchmark_summary_txt_file
+printf "%20s%20s%20s%20s\n" "iteration" "min" "avg" "max" >>$benchmark_summary_txt_file
+printf "\n" >>$benchmark_summary_txt_file
+printf "<pre>\n# these results generated with:\n# uperf %s\n\n" "$scrtip_name $orig_cmd" >$benchmark_summary_html_file
+printf "\n" >>$benchmark_summary_html_file
+
+export benchmark config
+
+count=1
+collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+if [ $stress ]; then
+	if [ ! -z "$cpu" ]; then
+		taskset -c $cpu stress -c 1 &
+		stress_pid=$!
+	else
+		stress -c 1 &
+		stress_pid=$!
+	fi
+fi
+for runtime in `echo $runtimes | sed -e s/,/" "/g`; do
+	benchmark_cmd="cyclictest -m -n -q -p99 -h60 -D $runtime"
+	iteration="${count}-runtime_$runtime"
+	if [ ! -z "$cpu" ]; then
+		iteration="$iteration-cpu_$cpu"
+	fi
+	benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result/"
+	result_file=$benchmark_results_dir/result.txt
+	benchmark_cmd_file=$benchmark_results_dir/cyclictest.cmd
+	mkdir -p $benchmark_results_dir
+	echo $benchmark_cmd  >$benchmark_cmd_file
+	chmod +x $benchmark_cmd_file
+	debug_log "going to run $benchmark_cmd"
+	start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+	$benchmark_cmd_file | tee $result_file
+	stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+	postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+	min=`grep "Min Latencies:" $result_file | awk '{print $4}'`
+	avg=`grep "Avg Latencies:" $result_file | awk '{print $4}'`
+	max=`grep "Max Latencies:" $result_file | awk '{print $4}'`
+	printf "%20s%20s%20s%20s\n" "$iteration" "$min" "$avg" "$max" >>$benchmark_summary_txt_file
+	let count=$count+1
+done
+if [ $stress ]; then
+	kill $stress_pid
+fi
+collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+cat $benchmark_summary_txt_file
+
+# signal to move/copy-results that this run is done.
+rmdir $benchmark_run_dir/.running

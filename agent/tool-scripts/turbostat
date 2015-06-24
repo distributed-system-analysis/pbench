@@ -1,0 +1,167 @@
+#!/bin/bash
+
+script_path=`dirname $0`
+if [ "$script_path" = "." ]
+then
+    script_path=$PWD
+fi
+   
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+# Perftool scripts must provide the following functions
+# 1) Install the tool
+# 2) Start data collection
+# 3) Stop data collection
+# 4) post-process the data
+
+# Defaults
+tool=$script_name
+tool_bin=/usr/bin/$tool
+group=default
+dir="/tmp"
+mode=""
+interval="10"
+iteration="1"
+options="none"
+
+# Process options and arguments
+opts=$(getopt -q -o idp --longoptions "dir:,group:,iteration:,interval:,options:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+if [ $? -ne 0 ]; then
+    printf "\n"
+    printf "$script_name: you specified an invalid option\n\n"
+    printf "The following options are available: \n\n"
+    printf -- "\t--install,			install this perf tool\n"
+    printf "\n"
+    printf -- "\t--start|stop|postprocess	start/stop/post-process the data collection\n"
+    printf -- "\t--iteration=int 		the iteration (required)\n"
+    printf -- "\t--group=str		the perftool group (required)\n"
+    printf -- "\t--dir=str		directory to store data collection (required)\n"
+    printf -- "\t--interval=int		number of seconds between each data collection\n"
+    printf -- "\t--options=str		options passed directly to the perf tool\n"
+    exit 1
+fi
+eval set -- "$opts";
+while true; do
+    case "$1" in
+	--install)
+	    mode="install"
+	    shift;
+	    ;;
+	--start)
+	    mode="start"
+	    shift;
+	    ;;
+	--stop)
+	    mode="stop"
+	    shift;
+	    ;;
+	--postprocess)
+	    mode="postprocess"
+	    shift;
+	    ;;
+	-d|--dir)
+	    shift;
+	    if [ -n "$1" ]; then
+		dir="$1"
+		shift
+	    fi
+	    ;;
+	-g|--group)
+	    shift;
+	    if [ -n "$1" ]; then
+		group="$1"
+		shift
+	    fi
+	    ;;
+	-i|--iteration)
+	    shift;
+	    if [ -n "$1" ]; then
+		iteration="$1"
+		shift
+	    fi
+	    ;;
+	--interval)
+	    shift;
+	    if [ -n "$1" ]; then
+		interval="$1"
+		shift
+	    fi
+	    ;;
+	-o|--options)
+	    shift;
+	    if [ -n "$1" ]; then
+		options="$1"
+		shift
+	    fi
+	    ;;
+	--threads)
+	    shift;
+	    if [ -n "$1" ]; then
+		threads="-t"
+	    fi
+	    ;;
+	--)
+	    shift;
+	    break;
+	    ;;
+    esac
+done
+tool_dir="$dir/tools-$group"
+tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
+tool_cmd_dir="$dir/tools-$group/cmds"
+tool_cmd_file="$tool_cmd_dir/$tool.cmd"
+tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
+tool_output_file=$tool_output_dir/$tool.txt
+
+case "$script_name" in
+    turbostat)
+	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file"
+	;;
+esac
+
+tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
+
+# lsb_release would be simpler but it does not exist in RHEL7???
+release=$(awk '{x=$7; split(x, a, "."); print a[1];}' /etc/redhat-release)
+case $release in
+    6)
+        pkg=cpupowerutils
+        ;;
+    *)
+        pkg=kernel-tools
+        ;;
+esac
+
+case "$mode" in
+    install)
+	if [ ! -e $tool_bin ]; then
+            yum --debuglevel=0 install -y $pkg
+	    echo Installed $script_name
+	else
+	    echo $script_name is installed
+	fi
+        ;;
+    start)
+	mkdir -p $tool_output_dir
+	echo "$tool_cmd" >$tool_cmd_file
+	debug_log "$script_name: running $tool_cmd"
+	$tool_cmd >>"$tool_output_file" & echo $! >$tool_pid_file
+	wait
+	/bin/rm -f "$tool_pid_file"
+	;;
+    stop)
+	pid=$(cat "$tool_pid_file" 2> /dev/null)
+	if [[ ! -z "$pid" ]] ;then
+	    debug_log "stopping $script_name, pid $pid"
+	    kill $pid && /bin/rm -f "$tool_pid_file"
+	fi
+	;;
+    postprocess)
+	debug_log "postprocessing $script_name"
+	$script_path/postprocess/$script_name-postprocess $tool_output_dir
+	;;
+esac

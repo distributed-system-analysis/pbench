@@ -1,0 +1,60 @@
+diff --git a/options.c b/options.c
+index ab6e399..b57efa9 100644
+--- a/options.c
++++ b/options.c
+@@ -814,6 +814,7 @@ static int get_max_name_idx(char *input)
+  */
+ int set_name_idx(char *target, char *input, int index)
+ {
++        extern char my_addr[INET6_ADDRSTRLEN];
+ 	unsigned int cur_idx;
+ 	int len;
+ 	char *fname, *str, *p;
+@@ -824,7 +825,11 @@ int set_name_idx(char *target, char *input, int index)
+ 	for (cur_idx = 0; cur_idx <= index; cur_idx++)
+ 		fname = get_next_name(&str);
+ 
+-	len = sprintf(target, "%s/", fname);
++        if (my_addr[0]) {
++                len = sprintf(target, "%s/%s.", fname, my_addr);
++	} else {
++                len = sprintf(target, "%s/", fname);
++        }
+ 	free(p);
+ 
+ 	return len;
+diff --git a/server.c b/server.c
+index c249849..40fb0d7 100644
+--- a/server.c
++++ b/server.c
+@@ -28,6 +28,7 @@
+ #include "smalloc.h"
+ 
+ int fio_net_port = FIO_NET_PORT;
++char my_addr[INET6_ADDRSTRLEN] = {0};
+ 
+ int exit_backend = 0;
+ 
+@@ -996,17 +997,19 @@ static int accept_loop(int listen_sk)
+ 			from = inet_ntop(AF_INET6, (struct sockaddr *) &addr6.sin6_addr, buf, sizeof(buf));
+ 		else
+ 			from = inet_ntop(AF_INET, (struct sockaddr *) &addr.sin_addr, buf, sizeof(buf));
+-
++                if (!from) {
++                        log_err("fio: inet_ntop: %s\n", strerror(errno));
++                        return -1;
++                }
+ 		dprint(FD_NET, "server: connect from %s\n", from);
+-
+ 		pid = fork();
+ 		if (pid) {
+ 			close(sk);
+ 			fio_server_add_conn_pid(&conn_list, pid);
+ 			continue;
+ 		}
+-
+ 		/* exits */
++                strncpy(my_addr, from, INET6_ADDRSTRLEN);
+ 		handle_connection(sk);
+ 	}
+ 

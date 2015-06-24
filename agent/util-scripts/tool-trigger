@@ -1,0 +1,60 @@
+#!/usr/bin/perl
+# This script is designed to start & stop pbench tools while monitoring the output of a benchmark.
+# For many of the benchmarks we use, we simply start the tools before the benchmark, then run 
+# the benchmark, then stop the tools.  For some benchmarks, this is not optimal, because the
+# benchmark must do work before or after the measurement period, and tool's average results are then
+# not quite accurate.  There are also other benchmarks which have multiple measurment periods,
+# which may or may not correlate to different test iterations (SPECjbb is a good example, where
+# there are several warehouse counts measured, each one of these correspnding to to pbench test
+# iteration).
+#
+# So, this tool registers the user's triggers for starting and stopping the tools.  If the trigger
+# for stating a tool is encountered more than once, then the iteration is incremented, so the
+# tool's results for each trigger are easily managed.
+#
+
+# turn on autoflushing
+$| = 1;
+my $iteration=$ARGV[0];
+my $benchmark_results_dir=$ARGV[1];
+my $multi=$ARGV[2];
+my $script="tool-trigger";
+my %start_t;
+my %started;
+my %stop_t;
+my $t_file = "/var/lib/pbench/tool-triggers";
+open(TRIG, "<$t_file") || die "Could not open $t_file\n";
+while (<TRIG>) {
+	if (/^#/) {
+		next;
+	}
+	chomp;
+	($group, $start, $stop) = split(/:/);
+	printf "[$script]found trigger: group:$group start-trigger:$start stop-trigger:$stop\n";
+	$start_t{$group} = $start;
+	$started{$group} = 0;
+	$stop_t{$group} = $stop;
+}
+close(TRIG);
+
+while (<STDIN>) {
+
+	printf;
+	foreach $group (keys %stop_t) {
+		if ((/$stop_t{$group}/) && $started{$group}) {
+			$cmd="stop-tools --group=$group --iteration=$iteration --dir=$benchmark_results_dir\n";
+			print "[$script]$cmd";
+			system("$cmd");
+			$started{$group} = 0;
+		}
+	}
+	foreach $group (keys %start_t) {
+		if ((/$start_t{$group}/) && !$started{$group}) {
+			$cmd="start-tools --group=$group --iteration=$iteration --dir=$benchmark_results_dir\n";
+			print "[$script]$cmd";
+			system("$cmd");
+			$started{$group} = 1;
+		}
+	}
+
+}

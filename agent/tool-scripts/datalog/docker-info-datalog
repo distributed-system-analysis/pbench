@@ -1,0 +1,17 @@
+#!/bin/bash
+
+interval=$1
+file=$2
+pattern=$3
+function docker_info {
+/usr/bin/docker info
+}
+
+cmd="docker_info"
+
+cat /dev/null >$file
+while true; do
+	echo "timestamp: `date +%s.%N`" >>$file
+	$cmd >>$file
+	sleep $interval
+done

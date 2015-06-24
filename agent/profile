@@ -1,0 +1,42 @@
+# -*- mode: shell-script -*-
+prefix=/opt/pbench-agent
+
+if [[ ! -f $prefix/profile ]]
+then
+    if [[ -f $PWD/profile ]]
+    then
+	prefix=$PWD
+    else
+	# last ditch attempt
+	prefix=$TOP
+    fi
+fi
+
+pathins() {
+    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+        PATH="$1:$PATH"
+    fi
+}
+
+if [[ ! -f $prefix/util-scripts/register-tool-set ]]
+then
+    echo "*** WARNING *** Something wrong in the pbench base profile:" >&2
+    echo "                Setup has failed - could not determine the proper environment prefix: \"$prefix\"" >&2
+    echo "                You will need to fix it before working with pbench." >&2
+else
+    if [[ -f /opt/configtools/bin/getconf.py ]]
+    then
+	pathins /opt/configtools/bin
+	# no need to set PYTHONPATH if configtools is installed
+    else
+	pathins $prefix/configtools/bin
+    fi
+
+    export CONFIG=$prefix/config/pbench-agent.conf
+
+    pathins $prefix/bench-scripts
+    pathins $prefix/util-scripts
+fi
+
+unset prefix
+unset -f pathins

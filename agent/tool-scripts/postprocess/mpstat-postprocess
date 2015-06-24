@@ -1,0 +1,146 @@
+#!/usr/bin/perl
+
+# Author: Andrew Theurer
+#
+# usage: mpstat-postprocess <dir>  dir = directory where mpstat.txt can be found
+# mpstat.txt must be generated from "mpstat -t -y -x -m <interval>"
+#
+# The purpose of this script is to
+# -output the chart data in JSON format (mpstat.js)
+# -output html file (mpstat.html) with embedded javascript, using d3.js libraries
+# The result should be several mpstat graphs
+
+use strict;
+use warnings;
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+BEGIN {
+        my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+                $_test_alt_tools_lib = "$_pbench_tspp_dir";
+	}
+}
+use lib "$_test_alt_tools_lib";
+no lib ".";
+use GenData qw(gen_data);
+
+my $dir=$ARGV[0];
+my $dev;
+my %mpstat;
+my $date;
+my $timestamp_ms;
+my $prev_time = "";
+my $extra_time = 0;  # the extra amount of time in ms we need to add as the date recorded goes from one day to the next
+my $line;
+my $cpu;
+my $cpu_online;
+my %graph_threshold;
+my %graph_type;
+
+# we'll force mpstat into a LANG=C environment: two-digit year on the first line,
+# 24-hour time with *no* AM/PM designation in the timestamp.
+# but calc_timestamp() and the TSRE below are backwards-compatible and can
+# deal with AM/PM
+# Usage example: $timestamp_ms = calc_timestamp($time);
+sub calc_timestamp {
+	my $this_time = $_[0];
+
+	if ( $prev_time eq "" ) { # if this is the first time
+		$prev_time = $this_time;
+	}
+
+	# time format: HH:MM:SS
+	# 24-hour format,*no* AM/PM designation
+	my $hourminsec = $this_time;
+	$hourminsec =~ /(\d+):\d+:\d+\s?(\w\w)?/;
+	my $hour = $1;
+	my $this_ampm = $2;
+	$prev_time =~ /(\d+):\d+:\d+\s?(\w\w)?/;
+	my $prevhour = $1;
+	my $prev_ampm = $2;
+
+	# check for AM/PM first and if it's not there assume 24-hour
+	# clock and compare hours.
+	# the hour check is not entirely correct but it's more
+	# than sufficient for our purposes: it assumes that successive
+	# timestamps differ by less than 24 hours.
+	if ( (defined($this_ampm) and defined($prev_ampm) and ( $this_ampm eq "AM") and ( $prev_ampm eq "PM")) ||
+	     ( $prevhour > $hour ) ) {
+		# since we have rolled over to the next day, add enough ms to extra_time equal to 1 day
+		#print "detected day change\n";
+		$extra_time += (24 * 60 * 60 * 1000);
+	}
+	$prev_time = $this_time;
+	return int ($extra_time + 1000 * `date --date="$date $this_time" +%s.%N`);
+}
+
+# read the mpstat.txt and collect stats for all non dm-* devices
+open(MPSTAT_TXT, "$dir/mpstat.txt") || die "could not find $dir/mpstat.txt\n";
+
+# All mpstat output processing assumes LANG=C environment when mpstat was run.
+
+# The first line contains the date:
+#    Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 02/25/15 _x86_64_ (8 CPU)
+# Subsequent lines are of the form:
+#    15:48:49  CPU  %usr  %nice  %sys  %iowait  %irq  %soft  %steal  %guest  %gnice  %idle
+# containing only the time, so we need to combine the two to get a meaningful timestamp.
+
+$line = <MPSTAT_TXT>;
+chomp $line;
+if ( $line =~ /\S+\s\S+\s\S+\s+(\d\d\/\d\d\/\d\d)(.*)/ ) {
+    # Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 02/25/15 _x86_64_ (8 CPU)
+    $date = $1;
+} else {
+    # TBD: default is today - should we bail instead?
+    # TBD: what if the first line does not match? do we keep looking? or die?
+    # die("Bad mpstat.txt file format: first line should have the form: Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 02/25/2015 _x86_64_ (8 CPU)");
+    $date = "";
+}
+
+while (my $line = <MPSTAT_TXT>) {
+	chomp $line;
+	if ( $line =~ /(\d\d:\d\d:\d\d)\s+(\S+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)(.*)/ ) {
+		$timestamp_ms = calc_timestamp($1);
+		$cpu=$2;
+		my $online_file="/sys/devices/system/cpu/cpu" . "$cpu" . "/online";
+		if ( -e $online_file ) {
+			$cpu_online=`cat $online_file`;
+			chomp $cpu_online;
+		} else {
+			$cpu_online = 1;
+		}
+		if ( "$cpu_online" eq "1") {
+			my $usr=$3;
+			my $nice=$4;
+			my $sys=$5;
+			my $iowait=$6;
+			my $irq=$7;
+			my $softirq=$8;
+			my $steal=$9;
+			my $guest=$10;
+			my $gnice=$11;
+			my $idle=$12;
+			my $cpu_label = "cpu" . $cpu;
+			$mpstat{$cpu_label}{$cpu_label}{usr}{$timestamp_ms} = $usr;
+			$mpstat{$cpu_label}{$cpu_label}{nice}{$timestamp_ms} = $nice;
+			$mpstat{$cpu_label}{$cpu_label}{sys}{$timestamp_ms} = $sys;
+			$mpstat{$cpu_label}{$cpu_label}{irq}{$timestamp_ms} = $irq;
+			$mpstat{$cpu_label}{$cpu_label}{guest}{$timestamp_ms} = $guest;
+			$mpstat{$cpu_label}{$cpu_label}{softirq}{$timestamp_ms} = $softirq;
+			$mpstat{$cpu_label}{$cpu_label}{steal}{$timestamp_ms} = $steal;
+			$mpstat{$cpu_label}{$cpu_label}{iowait}{$timestamp_ms} = $iowait;
+			$mpstat{$cpu_label}{$cpu_label}{idle}{$timestamp_ms} = $idle;
+			}
+		}
+	}
+close(MPSTAT_TXT);
+my $file;
+my $graph;
+foreach $file (keys %mpstat) {
+	foreach $graph (keys %{ $mpstat{$file} }) {
+		$graph_type{$file}{$graph} = "stackedAreaChart";
+	}
+}
+gen_data(\%mpstat, \%graph_type, \%graph_threshold, $dir);

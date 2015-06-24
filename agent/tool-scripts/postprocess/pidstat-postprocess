@@ -1,0 +1,177 @@
+#!/usr/bin/perl
+
+# Author: Andrew Theurer
+#
+# usage: pidstat-postprocess <dir>  dir = directory where pidstat.txt can be found
+# pidstat.txt must be generated from "pidstat -l -w -u -h -d -r -p ALL <interval>"
+#
+# The purpose of this script is to
+# -output the chart data in JSON format (pidstat.js)
+# -output html file (pidstat.html) with embedded javascript, using d3.js libraries
+# The result should be several pidstat graphs
+
+use strict;
+use warnings;
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+BEGIN {
+        my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+                $_test_alt_tools_lib = "$_pbench_tspp_dir";
+	}
+}
+use lib "$_test_alt_tools_lib";
+no lib ".";
+use GenData qw(gen_data);
+
+my $dir=$ARGV[0];
+my $threads=$ARGV[1];
+my %pidstat;
+my %timestamps;
+my %cmdline;
+my %graph_type;
+my %graph_threshold;
+my $vm_name;
+my %vcpus;
+my $vcpu;
+my $line;
+my $line2;
+my $tid;
+my @stats;
+
+my @virsh_list;
+my @virsh_vcpus;
+# build a table for vcpu <-> TID
+# only do this is libvirtd is running
+system("pgrep libvirtd > /dev/null 2>&1");
+# the exit code is not $?, but $?>>8
+if ( (($? >> 8) == 0) && (! -e "/usr/bin/vdsClient") && (-e "/usr/bin/virsh") ) {
+	@virsh_list = `virsh list 2> /dev/null`;
+	foreach $line (@virsh_list) {
+		chomp $line;
+		#  8     dhcp31-212                     running
+		if ( $line =~ /^\s+\d+\s+(\S+)\s+running/ ) {
+			$vm_name = $1;
+			@virsh_vcpus = `virsh qemu-monitor-command $vm_name --hmp info cpus`;
+			foreach $line2 (@virsh_vcpus) {
+				# * CPU #0: pc=0xffffffff81046346 (halted) thread_id=30618
+				chomp $line2;
+				# for some unknown reason, virsh qemu-monitor-cmd outputs a \r in addition to a \n at the end of every line
+				$line2 =~ s/\r//;
+				if ( $line2 =~ /^..CPU\s\#(\d+).*thread_id=(\d+)\s*/) {
+					$vcpu = $1;
+					$tid = $2;
+					$vcpus{$vm_name}{$tid} = $vcpu;
+				}
+			}
+		}
+	}
+}
+
+# read the pidstat.txt and collect stats for all non dm-* devices
+open(PIDSTAT_TXT, "$dir/pidstat.txt") || die "could not find $dir/pidstat.txt\n";
+while ($line = <PIDSTAT_TXT>) {
+	chomp $line;
+	        ##      Time   UID       PID    %usr   %system  %guest  %CPU   CPU     minflt/s     majflt/s     VSZ     RSS       %MEM      kB_rd/s      kB_wr/s    kB_ccwr/s iodelay     cswch/s    nvcswch/s  Command
+	        # 1394568782   107    222936     0.67         0.00        0.00   3       0.67        8       0.00         0.00        164   17760     0.61         0.00        0.00         0.00         0       64.67        0.00      /usr/libexec/qemu-kvm -name dhcp31-2
+	if ( $line =~ /^(\s\d+\s+\d+\s+\d+\s+\d*).*/ ) {
+		$line =~ s/^\s+//;
+		@stats = split(/\s+/,$line);
+		my $timestamp = shift(@stats);
+		my $uid = shift(@stats);
+		my $pid = shift(@stats);
+
+		my $usr = shift(@stats);
+		# $usr might actually be the TID if its an integer
+		if ($usr =~ /^\d+$/) {
+			$tid=$usr;
+			# and the next value is for $usr
+			$usr = shift(@stats);
+		}
+		my $sys = shift(@stats);
+		my $guest = shift(@stats);
+		my $cpu = shift(@stats);
+		my $cpu_id = shift(@stats);
+		my $minor_faults = shift(@stats);
+		my $major_faults = shift(@stats);
+		my $vsz = shift(@stats);
+		my $rss = shift(@stats);
+		my $mem = shift(@stats);
+		my $kb_read = shift(@stats);
+		my $kb_write = shift(@stats);
+		my $kb_ccrw = shift(@stats);
+		my $io_delay = shift(@stats);
+		my $cswitches = shift(@stats);
+		my $nvcswitches = shift(@stats);
+		my $cmd = join(' ', @stats);
+
+		# print "timestamp[$timestamp]  uid[$uid]\n";
+
+		my $timestamp_ms = 1000 * $timestamp;
+
+		# if threads are reported
+		if ( $pid =~ /(\d+)\s+(\d+)/ ) {
+			$pid = $1;
+			$tid = $2;
+			if ($tid == 0) {
+				next;
+			} else {
+				$pid = $tid;
+				$cmd =~ s/\|_+//;
+			}
+		} else {
+			$pid =~ s/\s+//g;
+		}
+
+		# if this is a VM, change the "$cmd" to something more readable
+		if ( $cmd =~ /name\s(\S+).*/ ) {
+			$vm_name = $1;
+			$cmd = "KVMguest--" . $vm_name;
+		}
+		$cmd = substr($cmd, 0, 40);
+		$cmd =~ s/\s/_/g;
+		$cmd =~ s/\'//g;
+		$cmd =~ s/\"//g;
+		# avoid 'Invalid conversion in printf: "%=" ' errors if cmd contains a %.
+		$cmd =~ s/%/%%/g;
+		$pid = $pid . "-". $cmd;
+		$pidstat{cpu_usage}{percent_cpu}{$pid}{$timestamp_ms} = $cpu;
+		$pidstat{file_io}{io_reads_KB_sec}{$pid}{$timestamp_ms} = $kb_read;
+		$pidstat{file_io}{io_writes_KB_sec}{$pid}{$timestamp_ms} = $kb_write;
+		$pidstat{memory_faults}{minor_faults_sec}{$pid}{$timestamp_ms} = $minor_faults;
+		$pidstat{memory_faults}{major_faults_sec}{$pid}{$timestamp_ms} = $major_faults;
+		$pidstat{context_switches}{voluntary_switches_sec}{$pid}{$timestamp_ms} = $cswitches;
+		$pidstat{context_switches}{nonvoluntary_switches_sec}{$pid}{$timestamp_ms} = $nvcswitches;
+		$timestamps{$timestamp_ms}++;
+	}
+}
+close(PIDSTAT_TXT);
+
+# fill in any missing data with zeros
+my $htmlpage;
+my $graph;
+my $pid;
+my $timestamp_ms;
+foreach  $htmlpage ( keys %pidstat ) {
+	foreach  $graph ( keys %{ $pidstat{$htmlpage} } ) {
+		foreach $pid ( keys %{ $pidstat{$htmlpage}{$graph} } ) {
+			foreach $timestamp_ms ( sort {$a <=> $b} (keys %timestamps ) ) {
+				if (! defined($pidstat{$htmlpage}{$graph}{$pid}{$timestamp_ms})) {
+					$pidstat{$htmlpage}{$graph}{$pid}{$timestamp_ms} = 0;
+				}
+			}
+		}
+	}
+}
+
+$graph_type{cpu_usage}{percent_cpu} = "stackedAreaChart";
+$graph_threshold{cpu_usage}{percent_cpu} = 1;
+$graph_threshold{file_io}{io_reads_KB_sec} = 50;
+$graph_threshold{file_io}{io_writes_KB_sec} = 50;
+$graph_threshold{memory_faults}{minor_faults_sec} = 150;
+$graph_threshold{memory_faults}{major_faults_sec} = 150;
+$graph_threshold{context_switches}{voluntary_switches_sec} = 100;
+$graph_threshold{context_switches}{nonvoluntary_switches_sec} = 100;
+gen_data(\%pidstat, \%graph_type, \%graph_threshold, $dir);

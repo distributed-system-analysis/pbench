@@ -1,0 +1,187 @@
+#!/bin/bash
+
+# pbench_iozone 0.01 initial version 
+# TODO:
+# 1) write results in pbench standard file names and formats
+# 2) add support to run mulitple samples and get stddev
+# 3) add support for multiple local or remote copies of benchmark running concurrently
+# 4) add support for binding copies of benchmark to numa nodes
+
+# script to run the iozone benchmark test 
+
+# usage ./pbench_iozone --config="string" --targets=/location/file --number_of_runs --file_sizes=1,2,3 --record_sizes=1,2,4 
+# file_sizes are in GB, record sizes are in MB 
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+benchmark="iozone"
+benchmark_bin=/usr/local/bin/$benchmark
+ver=3.429
+
+# Every bench-script follows a similar sequence:
+# 1) process bench script arguments
+# 2) ensure the right version of the benchmark is installed
+# 3) gather pre-run state
+# 4) run the benchmark and start/stop perf analysis tools
+# 5) gather post-run state
+# 6) postprocess benchmark data
+# 7) postprocess analysis tool data
+
+# supported test types
+
+# 0=write/rewrite
+# 1=read/re-read
+# 2=random-read/write
+# 3=read-backwards
+# 4=re-write-record
+# 5=stride-read
+# 6=fwrite/re-fwrite
+# 7=fread/re-fread
+# 8=random_mix
+# 9=pwrite/re-pwrite
+# 10=pread/re-pread
+# 11=pwritev/re-pwritev
+# 12=preadv/re-preadv
+
+# Check "iozone -h" for full help 
+
+supported_test_types="0,1,2,3,4,5,6,7,8,10,11,12"
+config=""
+targets="/tmp/iozone"
+file_sizes="1,2"
+record_sizes="1,2"
+
+number_of_runs=10
+iteration=1 
+tool_group=default
+
+## Ensure the right version of the benchmark is installed
+
+if check_install_rpm $benchmark $ver; then
+	debug_log "[$script_name]$benchmark is installed"
+else
+	debug_log "[$script_name]$benchmark installation failed, exiting"
+	exit 1
+fi
+
+opts=$(getopt -q -o C:d:s:r:n: --longoptions "config:,targets:,file_sizes:,record_sizes:,number_of_runs:,tool-group:" -n "getopt.sh" -- "$@");
+
+if [ $? -ne 0 ]; then
+        printf -- "$*\n"
+        printf "\n"
+        printf "\t${benchmark}: you specified an invalid option\n\n"
+        printf "\tThe following options are available:\n\n"
+        printf -- "\t\t-C str --config=str name of the test config\n"
+	printf -- "\t\t-d str[,str] --targets=str[,str]\n"
+	printf "\t\t\tfile to use for iozone test in format /dir/file - this is iozone : -f option\n"
+	printf -- "\t\t-s str[,str] --file_sizes=str[,str]\n"
+	printf "\t\t\tone or more file_sizes sizes to use\n"
+	printf -- "\t\t-r str[,str] --record_sizes=str[,str]\n"
+        printf "\t\t\tone or more record_sizes sizes to use\n"
+	printf -- "\t\t-n str[,str] --number_of_runs=str[,str]\n"
+	printf "\t\t\tnumber of iozone runs - default is 10 runs\n"
+	printf -- "\t\t--tool-group=str\n"
+        exit 1
+fi
+
+
+eval set -- "$opts";
+debug_log "[$script_name] processing options"
+while true; do
+        case "$1" in
+                -C|--config)
+                shift;
+                if [ -n "$1" ]; then
+                        config="$1"
+                        shift;
+                fi
+                ;;
+		-d|--targets)
+		shift;
+		if [ -n "$1" ]; then 
+			targets="$1"
+			shift;
+		fi
+		;;	
+
+		-s|--file_sizes)
+		shift
+		if [ -n "$1" ]; then 
+			file_sizes="$1"
+			shift;
+		fi
+		;;
+		-r|--record_sizes)
+		shift
+		if [ -n "$1" ]; then
+			record_sizes="$1"
+			shift;
+		fi
+		;; 
+
+		-n|--number_of_runs)
+		shift
+		if [ -n "$1" ]; then 
+			number_of_runs="$1"
+			shift;
+		fi
+		;;
+
+		--tool-group)
+		shift
+		if [ -n "$1" ]; then 
+			tool_group="$1"
+			shift;
+		fi
+		;;
+
+
+                --)
+                shift;
+                break;
+                ;;
+                *)
+                echo "what happened? [$1]"
+                break;
+                ;;
+        esac
+done
+
+verify_tool_group $tool_group
+
+benchmark_run_dir="$pbench_run/${benchmark}_${config}_$date"
+benchmark_summary_file="$benchmark_run_dir/$benchmark-summary.txt"
+
+mkdir -p $benchmark_run_dir/.running
+export benchmark config
+collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+
+benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
+
+benchmark_tools_dir="$benchmark_results_dir/tools-$tool_group"
+mkdir -p $benchmark_results_dir $benchmark_tools_dir
+
+
+start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+
+# not 100% sure what is best run logic here, either to permute record sizes or over file sizes...
+
+for file_size in $(echo $file_sizes | sed -e s/,/" "/g); do
+	for record_size in $(echo $record_sizes | sed -e s/,/" "/g); do 
+		for run in $(seq 1 ${number_of_runs}); do
+			iozone -i0 -i1 -i2 -i3 -i4 -i5 -i6 -i7 -i8 -i9 -i10 -i11 -i12  -c -e -f $targets -s ${file_size}g -r ${record_size}m >> $benchmark_results_dir/$(hostname)_$run.iozone          
+		done
+	done
+done 
+
+stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+
+rmdir $benchmark_run_dir/.running
+

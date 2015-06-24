@@ -1,0 +1,3 @@
+interrupts_sec-all_interrupts=9816.902222
+proc_cswch_sec-context_switches_sec=16977.494074
+proc_cswch_sec-processes_created_sec=89.468889

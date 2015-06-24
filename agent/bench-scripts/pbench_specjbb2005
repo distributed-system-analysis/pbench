@@ -1,0 +1,223 @@
+#!/bin/bash
+
+# This is a script to run the specjbb2005 benchmark
+# Author: Andrew Theurer
+#
+# Note: you must have a license and access to SPECjbb2005 benchmark in order to run this
+#       pbench does not provide this
+#
+# TODO:
+# 1) write results in pbench standard file names and formats
+# 2) add support for multiple local or remote copies of benchmark running concurrently
+# 3) add support for binding copies of benchmark to numa nodes [in addition to binding certain JVMs within each copy]
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+benchmark="specjbb2005"
+
+# Every bench-script follows a similar sequence:
+# 1) process bench script arguments
+# 2) ensure the right version of the benchmark is installed
+# 3) gather pre-run state
+# 4) run the benchmark and start/stop perf analysis tools
+# 5) gather post-run state
+# 6) postprocess benchmark data
+# 7) postprocess analysis tool data
+
+# Defaults
+
+baseconfig="`uname -r`"
+runtime=30
+nr_jvms=1
+start_warehouses=1
+stop_warehouses="default"
+inc_warehouses=1
+peak_warehouses=2
+heap_size=4096 #in MB
+nr_cpus=`cat /proc/cpuinfo | grep processor | wc -l`
+classpath=/usr/local/share/specjbb2005
+tool_group=default
+config=""
+
+# Process options and arguments
+opts=$(getopt -q -o C:c:r:d: --longoptions "dir:,nr-jvms:,heap-size:,java-opts:,start-warehouses:,inc-warehouses:,stop-warehouses:,runtime:,tool-group:" -n "getopt.sh" -- "$@");
+
+if [ $? -ne 0 ]; then
+	printf -- "$*\n"
+	printf "\n"
+	printf "\t${benchmark}: you specified an invalid option\n\n"
+	printf "\tThe following options are available:\n\n"
+        printf -- "\t\t--kvm-host=str\n"
+	printf -- "\t\t-C str --config=str                         name of the test config\n"   
+	printf -- "\t\t-j str --java_opts=str                      options passed directly to the JVM\n"
+	printf -- "\t\t       --nr-jvms=int|node                      number of JVMs. if = node, number of JVMs = number of NUMA nodes\n"
+	printf -- "\t\t       --node-pinning=y/n                   if y, this script will use numactl to pin JVM to a node (1 per node round-robin)\n"
+	printf -- "\t\t       --start-warehouses                   number of warehouses to start with (default is $start_warehouses)\n"
+	printf -- "\t\t       --inc-warehouses                     number of warehouses to increment by (default is $inc_warehouses)\n"
+	printf -- "\t\t       --stop-warehouses                    number of warehouses to stop with (default is nr_cpus * 2 / nr_jvms)\n"
+	printf -- "\t\t       --heap-size                          size of the heap in MB (default is $heap_size)\n"
+	printf -- "\t\t       --runtime=int                        measurement period in seconds (default is $runtime)\n"
+	printf -- "\t\t-d str --dir=str                            directory to run the test\n"
+	printf -- "\t\t       --tool-group=str\n"
+	exit 1
+fi
+eval set -- "$opts";
+debug_log "[$script_name] processing options"
+while true; do
+	case "$1" in
+		--java-opts)
+		shift;
+		if [ -n "$1" ]; then
+			java_opts="$1"
+			shift;
+		fi
+		;;
+		-c|--config)
+		shift;
+		if [ -n "$1" ]; then
+			config="$1"
+			shift;
+		fi
+		;;
+		--nr-jvms)
+		shift;
+		if [ -n "$1" ]; then
+			nr_jvms="$1"
+			shift;
+		fi
+		;;
+		--heap-size)
+		shift;
+		if [ -n "$1" ]; then
+			heap_size="$1"
+			shift;
+		fi
+		;;
+		--node-pinning)
+		shift;
+		if [ -n "$1" ]; then
+			node_pinning="$1"
+			shift;
+		fi
+		;;
+		--start-warehouses)
+		shift;
+		if [ -n "$1" ]; then
+			start_warehouses="$1"
+			shift;
+		fi
+		;;
+		--inc-warehouses)
+		shift;
+		if [ -n "$1" ]; then
+			inc_warehouses="$1"
+			shift;
+		fi
+		;;
+		--stop-warehouses)
+		shift;
+		if [ -n "$1" ]; then
+			stop_warehouses="$1"
+			shift;
+		fi
+		;;
+		--runtime)
+		shift;
+		if [ -n "$1" ]; then
+			runtime="$1"
+			shift;
+		fi
+		;;
+		-d|--dir)
+		shift;
+		if [ -n "$1" ]; then
+			dir="$1"
+			shift;
+		fi
+		;;
+		--)
+		shift;
+		break;
+		;;
+		*)
+		echo "what happened? [$1]"
+		break;
+		;;
+	esac
+done
+verify_tool_group $tool_group
+
+if [ "$stop_warehouses" == "default" ]; then
+	stop_warehouses=`echo "$nr_cpus *2 /$nr_jvms" | bc`
+fi
+## Ensure the right version of the benchmark is installed
+
+benchmark_run_dir="$pbench_run/${benchmark}_${config}_$date"
+benchmark_summary_txt_file="$benchmark_run_dir/$benchmark-summary.txt"
+benchmark_summary_html_file="$benchmark_run_dir/$benchmark-summary.html"
+benchmark_results_dir="$benchmark_run_dir"
+
+mkdir -p $benchmark_run_dir/.running
+
+register-tool-trigger --group=$tool_group --start-trigger="Timing Measurement began" --stop-trigger="Timing Measurement ended"
+
+# run in the directory which has the jar and spec files
+pushd $classpath
+rm -rf ./results/*
+
+# edit the jbb properties file to match user's options
+sed -i -e s/"input.jvm_instances=.*"/"input.jvm_instances=$nr_jvms"/ SPECjbb.props
+sed -i -e s/"input.measurement_seconds=.*"/"input.measurement_seconds=$runtime"/ SPECjbb.props
+sed -i -e s/"input.starting_number_warehouses=.*"/"input.starting_number_warehouses=$start_warehouses"/ SPECjbb.props
+sed -i -e s/"input.increment_number_warehouses=.*"/"input.increment_number_warehouses=$inc_warehouses"/ SPECjbb.props
+sed -i -e s/"input.ending_number_warehouses=.*"/"input.ending_number_warehouses=$stop_warehouses"/ SPECjbb.props
+
+# start the controller
+java -cp jbb.jar:check.jar -Xms32m -Xmx32m spec.jbb.Controller -propfile SPECjbb.props & controller_pid=$!
+sleep 5
+
+iteration=1
+for i in `seq $nr_jvms -1 1`; do
+	if [ $i -eq 1 ]; then
+		# the last JVM gets output so we can trigger the tools
+		java -cp jbb.jar:check.jar -Xms4096m -Xmx4096m spec.jbb.JBBmain -propfile SPECjbb.props -id $i | tee $benchmark_results_dir/jvm-$i-worker.txt | tool-trigger "$iteration" "$benchmark_results_dir" "y"
+	else
+		java -cp jbb.jar:check.jar -Xms4096m -Xmx4096m spec.jbb.JBBmain -propfile SPECjbb.props -id $i > $benchmark_results_dir/jvm-$i-worker.txt &
+	fi
+done
+popd
+debug_log "worker JVMs have finished"
+debug_log "waiting for controller JVM to finish"
+kill $controller_pid
+debug_log "moving results to $benchmark_results_dir"
+if [ $nr_jvms -eq 1 ]; then
+	cp /usr/local/share/specjbb2005/results/SPECjbbSingleJVM/* $benchmark_results_dir
+else
+	cp /usr/local/share/specjbb2005/results/SPECjbbMultiJVM.001/* $benchmark_results_dir
+fi
+
+	
+pushd $benchmark_results_dir
+mv index.html SPECjbb.html
+
+# rename the iterations with warehouse count and then postprocess the tools
+iteration=1
+export benchmark config
+collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+for i in `seq $start_warehouses $inc_warehouses $stop_warehouses`; do
+	# for each of the test iterations (each test with a specific number of warehouses), copy the raw result data for that iteration in iteraration directory
+	grep "test$i" SPECjbb.raw >$i/reference-result/SPECjbb.raw
+	new_iteration_name="$iteration-warehouses:$i"
+	mv $iteration $new_iteration_name
+	postprocess-tools --group=$tool_group --iteration=$new_iteration_name --dir=$benchmark_results_dir/$new_iteration_name/reference-result
+	let iteration=$iteration+1
+done
+collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+popd
+
+rmdir $benchmark_run_dir/.running

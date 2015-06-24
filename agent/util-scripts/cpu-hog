@@ -1,0 +1,10 @@
+#!/bin/bash
+
+threads=$1
+
+for i in `seq 1 $threads`; do
+	while [ 1 ]; do
+		x=1
+	done &
+done
+wait

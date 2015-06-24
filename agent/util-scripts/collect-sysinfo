@@ -1,0 +1,157 @@
+#!/bin/bash
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+# This script will collect sysinfo data from all registered
+# tools hosts for a specific group. This is typically called
+# at the beginning and end of a benchmark script to capture
+# the configurations of all hosts involved in the benchmark.
+
+# Defaults
+group=default
+dir="/tmp"
+
+# Process options and arguments
+
+opts=$(getopt -q -o d:g: --longoptions "dir:,group:" -n "getopt.sh" -- "$@");
+if [ $? -ne 0 ]; then
+	printf "\n"
+	printf "$script_name: you specified an invalid option\n\n"
+	printf "The following are required:\n\n"
+	printf -- "\t-d str --dir=str, str = a directory where the $script_name\n"
+	printf -- "\t                        will store and process data\n"
+	printf "\n"
+	printf -- "\t-g str --group=str, str = a tool group used in a benchmark\n"
+	printf -- "\t                          (the default group is 'default')\n"
+	printf "\n"
+	exit 1
+fi
+eval set -- "$opts";
+while true; do
+	case "$1" in
+		-g|--group)
+		shift;
+		if [ -n "$1" ]; then
+			group="$1"
+			shift;
+		fi
+		;;
+		-d|--dir)
+		shift;
+		if [ -n "$1" ]; then
+			dir="$1"
+			shift;
+		fi
+		;;
+		--)
+		shift;
+		break;
+		;;
+	esac
+done
+
+name="$1"
+if [ -z "$name" ]; then
+	error_log "Missing argument, need a name for this sysinfo collection, either \"beg\" or \"end\""
+	exit 1
+fi
+if [ "$name" != "beg" -a "$name" != "end" ]; then
+	error_log "Invalid argument, collection names should be either \"beg\" or \"end\", not \"$name\""
+	exit 1
+fi
+
+# Make sure that the top-level directory exists no matter what
+mkdir -p $dir
+if [ ! -d $dir ]; then
+	error_log "Unable to create working directory, $dir"
+	exit 1
+fi
+
+# Ensure we have a tools group file to work with
+if [ -f "$pbench_run/tools.$group" ]; then
+	groupfile="$pbench_run/tools.$group"
+else
+	# Using the default group file
+	groupfile="$pbench_run/tools.default"
+	if [ ! -f "$groupfile" ]; then
+		error_log "Unable to find default tools group file, $groupfile"
+		exit 1
+	fi
+fi
+
+sysinfo_path="$dir/sysinfo/$name"
+if [ -d $sysinfo_path ]; then
+	debug_log "Already collected sysinfo-dump data, named: $name; skipping..."
+	exit 0
+fi
+mkdir -p $sysinfo_path
+if [ ! -d $sysinfo_path ]; then
+	error_log "Unable to create sysinfo-dump directory base path: $sysinfo_path"
+	exit 1
+fi
+
+
+function gather_remote_sysinfo_data {
+	local remote_host=$1
+	local remote_label=$2
+	debug_log "[$script_name]running sysinfo-dump on $remote_host"
+	cmd="ssh $ssh_opts -n $remote_host remote-sysinfo-dump $sysinfo_path $remote_label"
+	debug_log "[$script_name] $cmd > $sysinfo_path/$remote_label$remote_host.tar.xz 2> $sysinfo_path/$remote_label$remote_host.err"
+	$cmd > $sysinfo_path/$remote_label$remote_host.tar.xz 2> $sysinfo_path/$remote_label$remote_host.err
+	if [ $? -ne 0 ]; then
+		error_log "Remote sysinfo-dump failed"
+		error_log "$(cat $sysinfo_path/$remote_label$remote_host.err)"
+	else
+		debug_log "[$script_name]completed: deleting sysinfo-dump data on $remote_host"
+		debug_log "$(cat $sysinfo_path/$remote_label$remote_host.err)"
+		pushd "$sysinfo_path" >/dev/null
+		tar xf $remote_label$remote_host.tar.xz
+		tar_status=$?
+		popd >/dev/null
+		if [ $tar_status -ne 0 ]; then
+			error_log "Remote tar ball was bad: $sysinfo_path/$remote_label$remote_host.tar.xz"
+		fi
+	fi
+	rm -f $sysinfo_path/$remote_label$remote_host.tar.xz
+	rm -f $sysinfo_path/$remote_label$remote_host.err
+}
+
+
+## Collect the sysinfo-dumps in parallel
+
+lcl_label=""
+let lcl_cnt=0
+while read this_line; do
+	toolname=${this_line%%:*}
+	if [ "$toolname" == "label" ]; then
+		let lcl_cnt=lcl_cnt+1
+		lcl_label=${this_line##*:}
+		continue;
+	fi
+	remote=${toolname%%\@*}
+	if [ "$remote" == "$toolname" ]; then
+		let lcl_cnt=lcl_cnt+1
+		continue;
+	fi
+	if [ "$remote" == "remote" ]; then
+		gather_remote_sysinfo_data ${toolname##*\@} ${this_line##*:} &
+	fi
+done < $groupfile
+if [ $lcl_cnt -gt 0 ]; then
+	# We found local tools, or a label, specified in the tools group
+	# file, so we should collect sysinfo data locally
+        sysinfo-dump "$sysinfo_path" $lcl_label &
+fi
+wait
+
+# collect the metadata for the run
+metadata-log --group=$group --dir=$dir $name
+status=$?
+
+exit $status
+

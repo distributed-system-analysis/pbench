@@ -1,0 +1,85 @@
+#! /bin/bash
+
+###########################################################################
+# load common things
+# make sure that bash -x <script> works as well
+case $opts in
+    *x*)
+        dir=$(dirname $(which $0))
+        PROG=$(basename $(which $0))
+        ;;
+    *)
+        dir=$(dirname $0)
+        PROG=$(basename $0)
+        ;;
+esac
+
+if [[ -z "$1" ]]; then
+    echo "$PROG: Missing source pbench directory argument" >&2
+    exit 1
+fi
+TOP="$1"
+
+. $dir/pbench-base.sh
+###########################################################################
+
+log_init $(basename $0)
+echo $TS
+
+test -d $ARCHIVE || doexit "BAD ARCHIVE=$ARCHIVE"
+test -d $INCOMING || doexit "BAD INCOMING=$INCOMING"
+
+typeset -i nlinks=0
+typeset -i nerrs=0
+
+for x in $(find $INCOMING -mindepth 2 -maxdepth 2 -type d) ;do
+    # check whether there is a prefix for this result - skip it if so
+    # rationale: prefix is only available in recent versions, so no need
+    # to use the backward compatibility hammer.
+    hostname=$(basename $(dirname $x))
+    resultname=$(basename $x)
+    if [[ -f $ARCHIVE/$hostname/prefix.$resultname || -f $ARCHIVE/$hostname/.prefix/prefix.$resultname ]] ;then
+        # echo $x has a prefix - skipping...
+        continue
+    fi
+
+    y=$(echo $x | sed 's/incoming/results/')
+    if [[ -L "$y" ]] ;then
+        a=$(readlink -f $y)
+        b=$(readlink -f $x)
+        if [[ "$a" != "$b" ]]; then
+            echo "\"$y\" symlinks to \"$a\", does not symlink to \"$x\"" >&4
+            nerrs=$nerrs+1
+        fi
+        continue
+    fi
+    if [[ -e "$y" ]] ;then
+        if [[ -f $ARCHIVE/$hostname/$resultname.tar.xz ]]; then
+            # Only emit a warning if this is a proper result that has a
+            # a named file or directory when a symlink is expected.
+            echo "$y exists and is not a symlink" >&4
+            nerrs=$nerrs+1
+        else
+            if [[ -f "$y" ]] ;then
+                echo "$y exists as a file, expecting a directory or symlink" >&4
+                nerrs=$nerrs+1
+            fi
+        fi
+        continue
+    fi
+
+    echo "ln -s $x $y"
+    ln -s $x $y
+    status=$?
+    if [[ $status -ne 0 ]] ;then
+        echo "ln -s $x $y failed - code $status" >&4
+        nerrs=$nerrs+1
+    else
+        nlinks=$nlinks+1
+    fi
+done
+
+echo "$nlinks links made, $nerrs errors encountered"
+
+log_finish
+exit 0

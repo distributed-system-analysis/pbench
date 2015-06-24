@@ -1,0 +1,12 @@
+#!/bin/bash
+
+interval=$1
+datalog_file=$2
+vm=$3
+
+cat /dev/null >$datalog_file
+while true; do
+	echo "timestamp: `date +%s.%N`" >>$datalog_file
+	virsh domjobinfo $vm >>$datalog_file
+	sleep $interval
+done

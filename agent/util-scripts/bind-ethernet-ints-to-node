@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# This script disabled irqbalance and then for each network device,
+# binds each interrupt to a node local cpu, iterating over the node
+# local cpus for that device.
+
+echo checking if irqbalance is running
+if ps aux | pgrep irqbalance; then
+	if [ -x /usr/bin/systemctl ]; then
+		echo Using systemctl to stop irqbalanced
+		systemctl stop irqbalance.service
+	else
+		echo Using service to stop irqbalanced
+		service irqbalanced stop
+	fi
+else
+	echo irqbalance is already disabled
+fi
+
+pushd /sys/class/net
+for dev in `/bin/ls`; do
+	j=0;
+	if [ -e $dev/device/msi_irqs ]; then
+		# get array of node local cpus
+		cpus=""
+		cpulist=`cat $dev/device/local_cpulist`
+		# a cpulist can have combinations of "x,y" and "m-n"
+		for sublist in `echo $cpulist | sed -e 's/,/ /g'`; do
+			# echo sublist: $sublist
+			if echo $sublist | grep -q -- -; then
+				first=`echo $sublist | awk -F- '{print $1}'`
+				last=`echo $sublist | awk -F- '{print $2}'`
+				cpus="$cpus `seq $first $last`"
+			else
+				cpus="$cpus $sublist"
+			fi
+		done
+		cpuarray=($cpus)
+		nr_cpus=${#cpuarray[*]}
+		for irq in `/bin/ls $dev/device/msi_irqs`; do
+			if [ -e /proc/irq/$irq ]; then
+				cpu_idx=`echo "$j % $nr_cpus" | bc`
+				echo ${cpuarray[$cpu_idx]} >/proc/irq/$irq/smp_affinity_list
+				echo dev: $dev IRQ: $irq desired_cpu:${cpuarray[$cpu_idx]} actual_cpu:`cat /proc/irq/$irq/smp_affinity_list`
+				let j=$j+1
+			fi
+		done
+	fi
+done
+popd

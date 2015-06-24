@@ -1,0 +1,153 @@
+#!/usr/bin/perl
+
+# Author: Andrew Theurer
+#
+# usage: kvmtrace-postprocess <dir>  dir = directory where kvmtrace.txt can be found
+# This script requires that you first generate a file of exit_reasons, usually with
+# the following commmand:
+# grep rip kvmtrace-report.txt | awk -F"reason" '{print $2}' | sort | uniq -c | sort -rn >kvmtrace-exit-reasons.txt
+# The script also requires a file, kallsyms-guest.txt, to resolve symbol names by guest address.  Data in this file
+# can be found in /proc/kallsyms on the guest.
+#
+# The purpose of this script is to
+# -provide a list of functions that the guest was executing when a vm_exit happened
+
+use strict;
+use warnings;
+use bigint;
+no warnings 'portable';
+
+my $dir=$ARGV[0];
+my %exit_addrs;
+my %ext_int;
+my $nr_exits;
+my %exit_reason_by_addr;
+my %nr_exits_by_addr;
+my %sym_by_addr;
+my $reason;
+my $upper_addr;
+my $addr;
+my $info1;
+my $info2;
+my $line;
+my %vcpu_exits;
+my %vcpu_exit_reason;
+my %vcpu_mode;
+my %vcpu_max_lat;
+my %vcpu_max_lat_reason;
+my $exit_latency;
+my $thread;
+my $event;
+my $timestamp;
+
+open(KVMTRACE_REPORT, "$dir/kvmtrace-report.txt") || die "Could not open $dir/kvmtrace-report.txt";
+open(KVMTRACE_MAX_LAT, ">$dir/kvmtrace-max-lat.txt") || die "Could not open $dir/kvmtrace-max-lat.txt";
+while ($line = <KVMTRACE_REPORT>) {
+	#        qemu-kvm-3173  [010]  4068.016449: kvm_mmio:             mmio write len 4 gpa 0xfee00380 val 0xec68
+	#        qemu-kvm-3173  [010]  4068.016449: kvm_apic:             apic_write APIC_TMICT = 0xec68
+	#        qemu-kvm-3173  [010]  4068.016450: kvm_entry:            vcpu 3
+	#        qemu-kvm-3173  [010]  4068.017169: kvm_exit:             reason EXTERNAL_INTERRUPT rip 0x4311b5 info 0 800000ef
+	#        qemu-kvm-3173  [010]  4068.017173: kvm_entry:            vcpu 3
+
+	chomp $line;
+	if ( $line =~ /\s*(\S+)\s+\S+\s+(\d+\.\d+):\s(\S+)\s+(.+)/ ) {
+		$thread = $1;
+		$timestamp = $2;
+		$event = $3;
+		$reason = $4;
+		if ( $event eq "kvm_exit:" ) {
+			$vcpu_mode{$thread}= "exited";
+			#print "thread: [$thread] prev-exit: [$vcpu_exits{$thread}]\n";
+			$vcpu_exits{$thread} = $timestamp;
+			$vcpu_exit_reason{$thread} = "$reason";
+			#print "thread: [$thread] exit: [$vcpu_exits{$thread}]\n";
+		}
+		if ( $event eq "kvm_entry:" ) {
+			if ( $vcpu_mode{$thread} eq "exited" ) {
+				#print "thread: [$thread] entry: [$timestamp] exit: [$vcpu_exits{$thread}]\n";
+				$exit_latency = $timestamp - $vcpu_exits{$thread};
+				if ( ! defined($vcpu_max_lat{$thread}) || $exit_latency > $vcpu_max_lat{$thread} ) {
+					$vcpu_max_lat{$thread} = $exit_latency;
+					$vcpu_max_lat_reason{$thread} = $vcpu_exit_reason{$thread};
+				}
+				$vcpu_mode{$thread} = "entered";
+			}
+		}
+	}
+}
+print KVMTRACE_MAX_LAT "per-vcpu maximum exit latencies:\n";
+for $thread (keys %vcpu_max_lat) {
+	printf KVMTRACE_MAX_LAT "thread: [%s] exit_latency: [%.6f] exit_reason: [%s]\n", $thread, $vcpu_max_lat{$thread}, $vcpu_max_lat_reason{$thread};
+}
+close(KVMTRACE_REPORT);
+close(KVMTRACE_MAX_LAT);
+
+# store all of the unique exit_reason-rips:
+open(KVMTRACE_EXIT_REASONS, "$dir/kvmtrace-exit-reasons.txt") || die "Could not open $dir/kvmtrace-exit-reasons.txt";
+while ($line = <KVMTRACE_EXIT_REASONS>) {
+	# 2335573  MSR_WRITE rip 0xffffffff8103ec08 info 0 0
+	chomp $line;
+	if ( $line =~ /\s*(\w+)\s+(\w+)\srip\s0xffffffff(\w+)\sinfo\s(\w+)\s(\w+)(.*)/ ) {
+		$nr_exits = $1;
+		$reason = $2;
+		$addr = hex($3);
+		$info1 = $4;
+		$info2 = $5;
+		if ( "$reason" ne "EXTERNAL_INTERRUPT" ) {
+			$nr_exits_by_addr{$addr} = $nr_exits;
+			$exit_reason_by_addr{$addr} = $reason;
+		} else {
+			# exits due to external interrupts are not caused [directly] by the guest.
+			# so do not store them by rip.  Save them for later processing.
+			$ext_int{"$info2"}++;
+		}
+	}
+}
+close(KVMTRACE_EXIT_REASONS);
+
+open(KALLSYMS, "$dir/kallsyms-guest.txt") || die "Could not open $dir/kallsyms-guest.txt"; 
+my $sym_addr;
+my $sym;
+my $last_sym;
+my $last_sym_addr = 0;
+# create a list sorted by rip
+my @addr_sorted = (sort keys (%nr_exits_by_addr));
+
+my $exit_addr = shift(@addr_sorted);
+# scan kallsyms (also happens to be sorted) to map rip to symbol
+while ( defined($line = <KALLSYMS>) && defined($exit_addr) ) {
+	# ffffffff8101fbf0 t p4_pmu_handle_irq
+	if ( $line =~ /ffffffff(.+)\s.\s(\w+).*/ ) {
+		$sym = $2;
+		$sym_addr = hex($1);
+		while ( $sym_addr > $exit_addr ) {
+			$sym_by_addr{$exit_addr} = $last_sym;
+			$exit_addr = shift(@addr_sorted) || last;
+		}
+	$last_sym = $sym;
+	$last_sym_addr = $sym_addr;
+	}
+}
+close(KALLSYMS);
+# print "addresses with symbol not found:\n";
+# while (@addr_sorted) {
+	# $exit_addr = shift(@addr_sorted);
+	# print "addr: $exit_addr  reason: $exit_reason_by_addr{$exit_addr} count: $nr_exits_by_addr{$exit_addr}\n";
+# }
+# print "\n";
+	
+
+open(KVMTRACE_EXIT_SOURCES, ">$dir/kvmtrace-exit-sources.txt") || die "Could not open $dir/kvmtrace-exit-sources.txt"; 
+printf KVMTRACE_EXIT_SOURCES "%-20s %-17s %-30s %s\n", "exit_reason", "guest_address", "symbol", "nr_exits";
+printf KVMTRACE_EXIT_SOURCES "%20s %17s %30s %s\n", "--------------------", "-----------------", "------------------------------", "------------";
+for $exit_addr (sort { $nr_exits_by_addr{$b} <=> $nr_exits_by_addr{$a} } keys(%nr_exits_by_addr)) {
+	printf KVMTRACE_EXIT_SOURCES "%-20s ffffffff%08x %-30s %12d\n", $exit_reason_by_addr{$exit_addr}, $exit_addr, $sym_by_addr{$exit_addr}, $nr_exits_by_addr{$exit_addr};
+}
+close(KVMTRACE_EXIT_SOURCES);
+
+# to-do: do something useful with external interrupt exits
+# printf "External interrupts\n";
+# printf "value:   count:\n";
+# for $info2 (sort { $ext_int{$b} <=> $ext_int{$a} } keys(%ext_int)) {
+#	 printf "%s: %d\n", $info2, $ext_int{$info2};
+#}

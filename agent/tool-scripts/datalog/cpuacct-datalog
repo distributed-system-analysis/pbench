@@ -1,0 +1,17 @@
+#!/bin/bash
+
+interval=$1
+file=$2
+
+cat /dev/null >$file
+pushd /sys/fs/cgroup/cpuacct >/dev/null
+dirs=`find -mindepth 1 -type d`
+while true; do
+	echo "timestamp: `date +%s.%N`" >>$file
+	for dir in $dirs; do
+		echo "$dir: `cat $dir/cpuacct.usage_percpu`" >>$file
+	done
+	echo >>$file
+	sleep $interval
+done
+popd >/dev/null

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+node_id=$1
+# get list of node $1 cpus
+cpus=""
+cpulist=`cat /sys/devices/system/node/node$node_id/cpulist`
+for sublist in `echo $cpulist | sed -e 's/,/ /g'`; do
+	echo sublist: $sublist
+	if echo $sublist | grep -q -- -; then
+		first=`echo $sublist | awk -F- '{print $1}'`
+		last=`echo $sublist | awk -F- '{print $2}'`
+		cpus="$cpus `seq $first $last`"
+	else
+		cpus="$cpus $sublist"
+	fi
+done
+for cpu_id in $cpus; do
+	echo "0" >/sys/devices/system/cpu/cpu$cpu_id/online
+done

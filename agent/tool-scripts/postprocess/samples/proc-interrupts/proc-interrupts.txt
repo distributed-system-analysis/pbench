@@ -1,0 +1,792 @@
+timestamp: 1424904529.913029452
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19788        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307161       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1087967        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2533373          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        396          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271561          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:         13         75         83         62         87         86         94         75   Non-maskable interrupts
+LOC:    1931958     914050    1469158     798968    1564742    1009584    1616604     880336   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:         13         75         83         62         87         86         94         75   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          6          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92462      44660      50226      32632      54789      67663      45631      35516   Rescheduling interrupts
+CAL:       6297       4619       6093       4744       6763       3587       6087       5157   Function call interrupts
+TLB:      52228      43813      40668      25566      46807      28610      39521      37309   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904532.915437344
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19788        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307169       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1088685        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2533746          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        396          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271569          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:         84        139        243        109        203        116        200        234   Non-maskable interrupts
+LOC:    1933449     915530    1472747     800178    1568396    1010306    1620168     883681   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:         84        139        243        109        203        116        200        234   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          6          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92596      44763      50288      32719      54902      67683      45672      35548   Rescheduling interrupts
+CAL:       6510       4797       6130       4848       7605       3719       6953       5182   Function call interrupts
+TLB:      52235      43817      40685      25578      46819      28624      39532      37332   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904536.494301808
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19788        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307169       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1089413        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2534068          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        396          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271570          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:        134        144        514        140        231        123        241        239   Non-maskable interrupts
+LOC:    1934289     915689    1475457     800486    1569169    1010499    1620882     883994   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:        134        144        514        140        231        123        241        239   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          6          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92621      44767      50298      32722      54919      67689      45686      35550   Rescheduling interrupts
+CAL:       6518       4799       6130       4848       7615       3721       6963       5185   Function call interrupts
+TLB:      52235      43818      40685      25578      46822      28626      39532      37332   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904539.496219497
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19788        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307169       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1090146        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2534374          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        396          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271586          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:        168        158        815        140        283        143        280        257   Non-maskable interrupts
+LOC:    1935331     916056    1478460     800489    1570281    1010801    1621958     884539   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:        168        158        815        140        283        143        280        257   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92639      44793      50309      32725      54976      67695      45702      35559   Rescheduling interrupts
+CAL:       6548       4804       6130       4848       7647       3727       6990       5190   Function call interrupts
+TLB:      52243      43819      40685      25578      46826      28626      39535      37340   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904542.498773161
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19788        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307169       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1090168        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2534685          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        396          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271589          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:        210        172       1115        140        314        153        315        261   Non-maskable interrupts
+LOC:    1936393     916389    1481464     800494    1571241    1011224    1622851     884947   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:        210        172       1115        140        314        153        315        261   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92665      44797      50320      32725      54993      67700      45719      35565   Rescheduling interrupts
+CAL:       6564       4809       6131       4849       7664       3730       7003       5194   Function call interrupts
+TLB:      52244      43821      40685      25578      46826      28628      39537      37342   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904545.501488765
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19811        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307169       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1090504        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2534980          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        396          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271601          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:        229        176       1416        141        339        176        352        281   Non-maskable interrupts
+LOC:    1937253     916726    1484466     800497    1572134    1011753    1623826     885431   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:        229        176       1416        141        339        176        352        281   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92682      44801      50334      32725      55005      67714      45728      35576   Rescheduling interrupts
+CAL:       6575       4814       6131       4849       7673       3734       7015       5196   Function call interrupts
+TLB:      52246      43823      40685      25578      46828      28629      39538      37344   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904548.503955003
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19811        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307169       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1090590        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2535294          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        396          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271606          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:        258        181       1716        141        360        185        389        291   Non-maskable interrupts
+LOC:    1938261     917091    1487470     800505    1573077    1011985    1624776     885888   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:        258        181       1716        141        360        185        389        291   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92695      44805      50345      32725      55024      67725      45748      35577   Rescheduling interrupts
+CAL:       6583       4816       6131       4849       7679       3737       7024       5198   Function call interrupts
+TLB:      52247      43823      40685      25579      46828      28629      39539      37344   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904551.507048854
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19811        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307169       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1090604        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2535602          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        396          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271627          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:        295        184       2017        141        382        199        415        324   Non-maskable interrupts
+LOC:    1939374     917459    1490474     800510    1574040    1012323    1625611     886393   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:        295        184       2017        141        382        199        415        324   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92710      44806      50358      32725      55038      67735      45760      35595   Rescheduling interrupts
+CAL:       6593       4817       6131       4849       7691       3738       7033       5198   Function call interrupts
+TLB:      52249      43825      40685      25579      46829      28630      39542      37346   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904554.510212302
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19811        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307169       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1090740        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2535905          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        396          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271630          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:        329        188       2318        166        403        204        446        341   Non-maskable interrupts
+LOC:    1940511     917827    1493478     800523    1575091    1012382    1626382     887006   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:        329        188       2318        166        403        204        446        341   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92733      44807      50372      32726      55052      67736      45776      35602   Rescheduling interrupts
+CAL:       6603       4818       6131       4849       7699       3738       7046       5200   Function call interrupts
+TLB:      52257      43835      40685      25579      46838      28633      39550      37358   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904557.514293935
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19813        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307173       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1090782        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2536220          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        398          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271642          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:        365        192       2618        166        444        214        482        349   Non-maskable interrupts
+LOC:    1941533     918194    1496482     800531    1576141    1012578    1627372     887428   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:        365        192       2618        166        444        214        482        349   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92752      44813      50382      32726      55078      67739      45793      35602   Rescheduling interrupts
+CAL:       6616       4822       6132       4850       7709       3741       7060       5203   Function call interrupts
+TLB:      52257      43835      40685      25579      46838      28633      39550      37358   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904560.517777412
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19813        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307175       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1091177        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2536554          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        403          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271646          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:        410        217       2920        167        485        261        551        363   Non-maskable interrupts
+LOC:    1942770     918901    1499487     800554    1577306    1013126    1628480     887921   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:        410        217       2920        167        485        261        551        363   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92804      44844      50397      32735      55120      67756      45834      35617   Rescheduling interrupts
+CAL:       6635       4831       6133       4851       7726       3748       7073       5206   Function call interrupts
+TLB:      52258      43836      40685      25579      46838      28633      39550      37358   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904563.523432382
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19813        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307198       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1091206        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2536872          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        403          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271654          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:        450        228       3221        167        526        274        597        390   Non-maskable interrupts
+LOC:    1943818     919204    1502496     800566    1578356    1013614    1629561     888291   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:        450        228       3221        167        526        274        597        390   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92823      44864      50410      32739      55145      67764      45853      35632   Rescheduling interrupts
+CAL:       6655       4833       6133       4851       7741       3750       7086       5210   Function call interrupts
+TLB:      52259      43838      40685      25579      46841      28634      39551      37361   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904566.530437056
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19813        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307472       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1091296        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2537417          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        403          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271657          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:        505        282       3521        168        576        308        649        444   Non-maskable interrupts
+LOC:    1945019     920047    1505501     800595    1579578    1014183    1630569     889263   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:        505        282       3521        168        576        308        649        444   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92890      44897      50416      32749      55217      67797      45870      35655   Rescheduling interrupts
+CAL:       6681       4849       6134       4852       7772       3762       7119       5217   Function call interrupts
+TLB:      52260      43838      40685      25580      46844      28634      39552      37361   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904569.533688858
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19813        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307595       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1091508        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2537834          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        409          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271668          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:        560        314       3822        170        624        323        692        458   Non-maskable interrupts
+LOC:    1946233     920643    1508505     800614    1580749    1014513    1631463     889799   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:        560        314       3822        170        624        323        692        458   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92933      44929      50426      32757      55261      67811      45885      35670   Rescheduling interrupts
+CAL:       6702       4856       6135       4853       7793       3766       7141       5222   Function call interrupts
+TLB:      52261      43838      40685      25580      46844      28635      39553      37362   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904572.537371293
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19813        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307718       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1091555        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2538165          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        409          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271676          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:        852        319       3865        180        655        336        749        471   Non-maskable interrupts
+LOC:    1949192     920739    1509517     801236    1581726    1014888    1632458     890209   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:        852        319       3865        180        655        336        749        471   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92945      44950      50446      32788      55279      67820      45915      35682   Rescheduling interrupts
+CAL:       6705       4858       6147       4856       7809       3767       7156       5225   Function call interrupts
+TLB:      52261      43840      40686      25582      46844      28637      39555      37362   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904575.540382527
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19836        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307731       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1091598        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2538425          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        409          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271683          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:       1153        328       3902        191        686        341        772        477   Non-maskable interrupts
+LOC:    1952195     920845    1510481     801848    1582606    1015238    1633294     890437   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:       1153        328       3902        191        686        341        772        477   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92953      44954      50467      32791      55304      67824      45925      35683   Rescheduling interrupts
+CAL:       6706       4859       6157       4858       7818       3768       7167       5227   Function call interrupts
+TLB:      52261      43840      40686      25582      46844      28637      39555      37362   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904578.543039988
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19836        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307737       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1091649        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2538712          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        409          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271705          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:       1453        329       3920        193        710        363        807        488   Non-maskable interrupts
+LOC:    1955198     920854    1511465     802329    1583400    1015557    1634332     890780   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:       1453        329       3920        193        710        363        807        488   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92963      44960      50483      32791      55321      67837      45937      35687   Rescheduling interrupts
+CAL:       6707       4860       6172       4863       7832       3769       7179       5228   Function call interrupts
+TLB:      52261      43840      40686      25582      46844      28637      39555      37362   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904581.546993377
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19836        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307761       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1091830        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2539040          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        409          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271711          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:       1567        518       3968        209        738        371        848        495   Non-maskable interrupts
+LOC:    1956343     922736    1512655     802634    1584328    1015783    1635554     891082   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:       1567        518       3968        209        738        371        848        495   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92968      44969      50501      32795      55338      67840      45966      35689   Rescheduling interrupts
+CAL:       6707       4860       6179       4863       7838       3770       7189       5230   Function call interrupts
+TLB:      52261      43840      40687      25584      46844      28638      39556      37363   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904584.550058463
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19836        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307770       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1091906        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2539353          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        409          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271775          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:       1571        819       4002        218        774        377        882        499   Non-maskable interrupts
+LOC:    1956392     925739    1513733     803078    1585434    1015945    1636384     891432   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:       1571        819       4002        218        774        377        882        499   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92975      44978      50527      32801      55359      67844      45985      35691   Rescheduling interrupts
+CAL:       6707       4860       6185       4863       7844       3770       7196       5231   Function call interrupts
+TLB:      52261      43840      40687      25584      46844      28638      39556      37363   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904587.552573169
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19836        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307788       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1091918        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2539636          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        409          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271822          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:       1575       1119       4050        232        789        385        921        501   Non-maskable interrupts
+LOC:    1956445     928742    1514958     803581    1586335    1016108    1637374     891691   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:       1575       1119       4050        232        789        385        921        501   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92980      44991      50542      32817      55365      67853      46004      35693   Rescheduling interrupts
+CAL:       6707       4860       6193       4864       7854       3772       7205       5231   Function call interrupts
+TLB:      52261      43840      40687      25584      46844      28638      39556      37363   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904590.555043390
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19836        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307791       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1092031        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2539882          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        409          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271826          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:       1582       1419       4069        251        813        387        970        503   Non-maskable interrupts
+LOC:    1956488     931746    1515868     804008    1587361    1016153    1638342     892117   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:       1582       1419       4069        251        813        387        970        503   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92982      45001      50552      32825      55380      67854      46019      35693   Rescheduling interrupts
+CAL:       6707       4860       6201       4864       7860       3773       7213       5232   Function call interrupts
+TLB:      52261      43840      40687      25584      46844      28638      39556      37363   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0
+timestamp: 1424904593.558872222
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  0:         35          0          0          0          0          0          0          0  IR-IO-APIC-edge      timer
+  1:         21          4          3          0          0          5          0          0  IR-IO-APIC-edge      i8042
+  8:          1          0          0          0          0          0          0          0  IR-IO-APIC-edge      rtc0
+  9:      19836        929        309        471        327        337        256        104  IR-IO-APIC-fasteoi   acpi
+ 12:        134          3          0          0          0          1          1          3  IR-IO-APIC-edge      i8042
+ 16:     307804       3135       3448       2158       3681       2605       3090       2730  IR-IO-APIC-fasteoi   ehci_hcd:usb1, mmc0
+ 18:          0          0          0          0          0          0          0          0  IR-IO-APIC-fasteoi   i801_smbus
+ 19:          1          0          1          0          0          0          0          1  IR-IO-APIC-fasteoi   firewire_ohci
+ 23:        262         10          4          2          5          9          4          6  IR-IO-APIC-fasteoi   ehci_hcd:usb2
+ 40:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar0
+ 41:          0          0          0          0          0          0          0          0  DMAR_MSI-edge      dmar1
+ 42:    1092067        238        212        157        209        152        101     196915  IR-PCI-MSI-edge      ahci
+ 43:         24          4          2          0          0          0          0          0  IR-PCI-MSI-edge      xhci_hcd
+ 44:         49          3         56          2          0    2540153          1          2  IR-PCI-MSI-edge      i915
+ 45:         27          0          0          0          0          0          0          0  IR-PCI-MSI-edge      mei_me
+ 46:        409          0          0          0          0          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
+ 47:     201383          0          0          0          0          0          0          0  IR-PCI-MSI-edge      iwlwifi
+ 48:     271846          0          0          0          0          0          0          0  IR-PCI-MSI-edge      em1
+NMI:       1583       1699       4095        259        843        402       1002        516   Non-maskable interrupts
+LOC:    1956558     934536    1516736     804120    1588502    1016444    1639581     892302   Local timer interrupts
+SPU:          0          0          0          0          0          0          0          0   Spurious interrupts
+PMI:       1583       1699       4095        259        843        402       1002        516   Performance monitoring interrupts
+IWI:          4          2          3          2          2          3          7          4   IRQ work interrupts
+RTR:          0          0          0          0          0          0          0          0   APIC ICR read retries
+RES:      92991      45007      50567      32827      55389      67866      46035      35700   Rescheduling interrupts
+CAL:       6707       4860       6211       4866       7869       3774       7227       5233   Function call interrupts
+TLB:      52261      43840      40687      25586      46847      28640      39557      37366   TLB shootdowns
+TRM:          0          0          0          0          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0          0          0          0          0   Machine check exceptions
+MCP:         96         95         95         95         95         95         95         95   Machine check polls
+THR:          0          0          0          0          0          0          0          0   Hypervisor callback interrupts
+ERR:          0
+MIS:          0

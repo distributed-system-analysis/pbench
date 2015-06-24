@@ -1,0 +1,41 @@
+
+* RPM making
+
+There are four directories of interest here, meant for making RPMs. Each
+contains a Makefile, a spec file, a seqno file, possibly some patches
+and possibly a README.org. The general idea is that you invoke an rc
+file of some sort (usually called "profile") which sets up PATH,
+PYTHONPATH, CONFIG and then you cd into a subdirectory that contains
+a Makefile and say =make=: that will create the RPMs and upload them
+to the repo.
+
+- pbench-agent: making a pbench-agent RPM.
+- benchmarks: contains a subdirectory for each benchmark of interest.
+- tools: contains a subdirectory for each tool of interest.
+
+
+* Tools
+
+- sysstat
+- pssh
+
+* Benchmarks
+
+- dbench
+- fio
+- iozone
+- iperf
+- linpack
+- netperf
+- smallfile
+- stress
+- sysbench
+- uperf
+
+Future:
+
+
+- phoronix
+- tpcc
+
+

@@ -1,0 +1,9 @@
+^\./src/__pycache__
+^\./rpm
+^\./build
+^\./profile
+^\./test
+^\./README.org
+^\./Makefile
+^\./bin/getconf\.py
+^\./bin/gethosts\.py

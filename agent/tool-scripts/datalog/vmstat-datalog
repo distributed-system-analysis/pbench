@@ -1,0 +1,41 @@
+#!/bin/bash
+
+interval=$1
+file=$2
+
+# RHEL6.5 (procps version 3.2.8): -w -t combo does not work: the timestamp info is gone!
+#                                  Do not use -w: ugly text reports, but graphs work.
+# F20     (procps version 3.3.8): neither -w nor -t works, vmstat errors out
+#                                  TBD
+# RHEL7   (procps version 3.3.9): works fine
+
+ver=$(vmstat -V | awk '{print $NF;}')
+case $ver in
+    3.2.8)
+        # RHEL6.6
+        opts="-t"
+        ;;
+    3.3.9)
+        # RHEL7
+        opts="-w -t"
+        ;;
+    3.3.8)
+        # F20
+        # no timestamps, no graphs - need to run it with the timestamping tool - TBD
+        opts=""
+        ;;
+    3.2.*)
+        # assume same as RHEL6.6
+        opts="-t"
+        ;;
+    3.3.*)
+        # assume same as RHEL7, except for the F20-3.2.8 exception
+        opts="-w -t"
+        ;;
+    *)
+        # err on the side of caution but hope that timestamps are there.
+        opts="-t"
+        ;;
+esac
+
+/usr/bin/vmstat -a ${opts} $interval | tee $file

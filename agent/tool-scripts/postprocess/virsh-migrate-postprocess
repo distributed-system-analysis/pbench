@@ -1,0 +1,110 @@
+#!/usr/bin/perl
+
+# Author: Andrew Theurer
+#
+# usage: virsh-migrate-postprocess 
+#
+
+use strict;
+use warnings;
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+BEGIN {
+        my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+        $_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+        if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+                $_test_alt_tools_lib = "$_pbench_tspp_dir";
+        }
+}
+use lib "$_test_alt_tools_lib";
+no lib ".";
+use GenData qw(gen_data);
+
+sub convert_to_GiB {
+
+	my $count = $_[0];
+	my $size = $_[1];
+
+	if ( $size eq "GiB" ) {
+		return $count;
+	}
+	if ( $size eq "MiB" ) {
+		return ( $count / 1024 );
+	}
+}
+
+my $dir=$ARGV[0];
+my $file="virsh-migrate.txt";
+my %stats;
+my $timestamp;
+my $timestamp_ms;
+my $line;
+my $data_processed;
+my $size;
+my $value;
+
+open(TXT, "$dir/$file") || die "could not find $dir/$file\n";
+while (my $line = <TXT>) {
+	chomp $line;
+	#timestamp: 1407853973.548374311
+	#Job type:         Unbounded   
+	#Time elapsed:     6599         ms
+	#Data processed:   3.635 GiB
+	#Data remaining:   1.309 MiB
+	#Data total:       10.126 GiB
+	#Memory processed: 3.635 GiB
+	#Memory remaining: 1.309 MiB
+	#Memory total:     10.126 GiB
+	#Constant pages:   3542877     
+	#Normal pages:     950539      
+	#Normal data:      3.626 GiB
+	#Expected downtime: 2328         ms
+
+	if ($line =~ /^timestamp:\s(\d+\.\d+)/) {
+		$timestamp = $1;
+		$timestamp_ms = 1000 * $timestamp;
+		next;
+	}
+	if ($line =~ /^Memory\stotal:\s+(\d+\.\d+)\s(\w+)/) {
+		$value = $1;
+		$size = $2;
+		$stats{"virsh-migrate"}{"virsh-migrate"}{"memory_total_GB"}{$timestamp_ms} = convert_to_GiB($value, $size);
+		next;
+	}
+	if ($line =~ /^Memory\sprocessed:\s+(\d+\.\d+)\s(\w+)/) {
+		$value = $1;
+		$size = $2;
+		$stats{"virsh-migrate"}{"virsh-migrate"}{"memory_processed_GB"}{$timestamp_ms} = convert_to_GiB($value, $size);
+		next;
+	}
+	if ($line =~ /^Memory\sremaining:\s+(\d+\.\d+)\s(\w+)/) {
+		$value = $1;
+		$size = $2;
+		$stats{"virsh-migrate"}{"virsh-migrate"}{"memory_remaining_GB"}{$timestamp_ms} = convert_to_GiB($value, $size);
+		next;
+	}
+	if ($line =~ /^Data\sremaining:\s+(\d+\.\d+)\s(\w+)/) {
+		$value = $1;
+		$size = $2;
+		$stats{"virsh-migrate"}{"virsh-migrate"}{"data_remaining_GB"}{$timestamp_ms} = convert_to_GiB($value, $size);
+		next;
+	}
+	if ($line =~ /^Data\stotal:\s+(\d+\.\d+)\s(\w+)/) {
+		$value = $1;
+		$size = $2;
+		$stats{"virsh-migrate"}{"virsh-migrate"}{"data_total_GB"}{$timestamp_ms} = convert_to_GiB($value, $size);
+		next;
+	}
+	if ($line =~ /^Data\sprocessed:\s+(\d+\.\d+)\s(\w+)/) {
+		$value = $1;
+		$size = $2;
+		$stats{"virsh-migrate"}{"virsh-migrate"}{"data_processed_GB"}{$timestamp_ms} = convert_to_GiB($value, $size);
+		next;
+	}
+}
+close(TXT);
+
+my %graph_threshold;
+my %graph_type;
+gen_data(\%stats, \%graph_type, \%graph_threshold, $dir);

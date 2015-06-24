@@ -1,0 +1,6 @@
+[pbench]
+name=Pbench $releasever - $basearch
+baseurl=http://repohost.example.com/repo/$releasever/
+arch=$basearch
+enabled=1
+gpgcheck=0

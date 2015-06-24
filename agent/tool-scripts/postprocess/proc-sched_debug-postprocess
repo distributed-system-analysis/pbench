@@ -1,0 +1,151 @@
+#!/usr/bin/perl
+
+# Author: Andrew Theurer
+#
+# usage: proc-sched_debug-postprocess <dir>  dir = directory where proc-sched_debug.txt can be found
+#
+# The purpose of this script is to look through /proc/sched_debug data to identify potential 
+# Linux CPU scheduler problems
+
+use strict;
+use warnings;
+
+my $dir=$ARGV[0];
+my $file="proc-sched_debug.txt";
+my %nr_running;
+my $timestamp;
+my $timestamp_ms;
+my $line;
+my $cpu_id;
+my $subsection = "none";
+my $nr_cpus;
+my $nr_running_all;
+my $rqs_gt_1;
+my $rqs_lt_1;
+my $rq_list;
+my $this_rq;
+my $task;
+my $running_task;
+my %tasks;
+my %running_task;
+
+open(TXT, "$dir/$file") || die "could not find $dir/$file\n";
+while (my $line = <TXT>) {
+	chomp $line;
+	#timestamp: 1406212567.678549599
+	#Sched Debug Version: v0.11, 3.10.0-127.el7.x86_64 #1
+	#ktime                                   : 682980583.904335
+	#sched_clk                               : 683095326.884625
+	#cpu_clk                                 : 683095326.884736
+	#jiffies                                 : 4977647880
+	#sched_clock_stable                      : 1
+	#
+	#sysctl_sched
+	#  .sysctl_sched_latency                    : 24.000000
+	#  .sysctl_sched_min_granularity            : 10.000000
+	#  .sysctl_sched_wakeup_granularity         : 4.000000
+	#  .sysctl_sched_child_runs_first           : 0
+	#  .sysctl_sched_features                   : 110203
+	#  .sysctl_sched_tunable_scaling            : 1 (logaritmic)
+	#
+	#
+	#cpu#0, 2261.019 MHz
+	#  .nr_running                    : 2
+	#  .load                          : 537
+	#  .nr_switches                   : 405944507
+	#  .nr_load_updates               : 75961252
+	#  .nr_uninterruptible            : 3294
+
+	if ($line =~ /^timestamp:\s(\d+\.\d+)/) {
+		$timestamp = $1;
+		$timestamp_ms = 1000 * $timestamp;
+		print "found timestamp: $timestamp\n";
+		next;
+	}
+	# cfs_rq[0]:/machine.slice
+	#  .exec_clock                    : 0.000000
+	#  .MIN_vruntime                  : 0.000001
+	if ($line =~ /^cfs_rq/) {
+		$cpu_id = $1;
+		$subsection = "cfs";
+		# print "found cfs subsection: $line\n";
+		next;
+	}
+	if ($line =~ /^cpu\#(\d+),.+/) {
+		$cpu_id = $1;
+		$subsection = "cpu";
+		# print "found cpu subsection: $line\n";
+		next;
+	}
+	if ($line =~ /^runnable tasks:.+/) {
+		$subsection = "tasks";
+		next;
+	}
+	if ($subsection eq "tasks") {
+		#runnable tasks:
+		#            task   PID         tree-key  switches  prio     exec-runtime         sum-exec        sum-sleep
+		#----------------------------------------------------------------------------------------------------------
+		#         rcuob/2    12 261176494.877711         8   120               0               0               0.000000               0.000000               0.000000 2 /
+		#         rcuos/6    81 340446734.778003     39595   120               0               0               0.000000               0.000000               0.000000 2 /
+      		#      watchdog/2   146        -4.900972    170749     0               0               0               0.000000               0.000000               0.000000 2 /
+     		#     migration/2   147         0.000000    162848     0               0               0               0.000000               0.000000               0.000000 2 /
+     		#     ksoftirqd/2   148 340445752.207109     10291   120               0               0               0.000000               0.000000               0.000000 2 /
+     		#     kworker/2:0   149 340446782.724026    425527   120               0               0               0.000000               0.000000               0.000000 2 /
+    		#    kworker/2:0H   150        18.225290         8   100               0               0               0.000000               0.000000               0.000000 2 /
+  		#  kworker/u131:0   151 340445665.614947     15149   120               0               0               0.000000               0.000000               0.000000 2 /
+		#         kswapd2   534         0.989731         4   120               0               0               0.000000               0.000000               0.000000 2 /
+		#        fio-wq/2   781 340446761.889076    519138   120               0               0               0.000000               0.000000               0.000000 2 /
+		#    kworker/2:1H  2311 340409556.923863      3306   100               0               0               0.000000               0.000000               0.000000 2 /
+		#     kworker/2:3  3913 201349276.559851      1449   120               0               0               0.000000               0.000000               0.000000 2 /
+		#           tuned  4227 340446776.882344    684976   120               0               0               0.000000               0.000000               0.000000 2 /
+		#R       qemu-kvm 23713   9413937.313494   9238063   120               0               0               0.000000               0.000000               0.000000 2 /machine.slice/machine-qemu\x2drhel7.scope/vcpu2
+		if ( $line =~ /^R{0,1}\s+(\S+)\s+(\d+)/ ) {
+			$task = $1;
+			$tasks{$timestamp}{$cpu_id} = $tasks{$timestamp}{$cpu_id} . " " . $task;
+		}
+		if ( $line =~ /^R\s+(\S+)\s+(\d+)/ ) {
+			$running_task = $1;
+			$running_task{$timestamp}{$cpu_id} = $running_task;
+		}
+	}
+	if ($subsection eq "cpu") {
+		#  .nr_running                    : 2
+		if ( $line =~ /^\s\s\.nr_running\s+:\s(\d+)/ ) {
+			$nr_running{$timestamp_ms}{$cpu_id} = $1;
+			# print "found nr_running: $line\n";
+		}
+	}
+}
+close(TXT);
+
+# This looks for concurrent over/underload situations: one cpu has too much load while another has too little
+# For now this simply looks for any cpu >1 rq while another cpu has 0 rq length.
+$file="proc-sched_debug-report.txt";
+open(TXT, ">$dir/$file") || die "could not find $dir/$file\n";
+for $timestamp ( sort {$a<=>$b} keys %nr_running ) {
+	# printf "timestamp: $timestamp\n";
+	$nr_cpus = 0;
+	$nr_running_all = 0;
+	$rqs_gt_1 = 0;
+	$rqs_lt_1 = 0;
+	$rq_list = "";
+	for $cpu_id (sort {$a<=>$b} keys %{ $nr_running{$timestamp} } ) {
+		# print "nr_running for cpu $cpu_id is $nr_running{$timestamp}{$cpu_id}\n";
+		$nr_cpus++;
+		$nr_running_all += $nr_running{$timestamp}{$cpu_id};
+		if ( $nr_running{$timestamp}{$cpu_id} > 1 ) {
+			$rqs_gt_1++;
+		} elsif ( $nr_running{$timestamp}{$cpu_id} < 1 ) {
+			$rqs_lt_1++;
+		}
+		$this_rq = sprintf "%3d", $nr_running{$timestamp}{$cpu_id};
+		$rq_list = $rq_list . $this_rq;
+	}
+	if (($rqs_gt_1 > 0) && ($rqs_lt_1 > 0)) {
+		$rq_list = "X " . $rq_list;
+	}
+	else {
+		$rq_list = "  " . $rq_list;
+	}
+	printf TXT "$rq_list [%03d]\n", $nr_running_all;
+}

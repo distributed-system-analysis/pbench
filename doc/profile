@@ -1,0 +1,59 @@
+# -*- mode: shell-script -*-
+prefix=/opt/pbench-agent
+
+# we start one level up...
+if [ -z "$TOP" ]; then
+    export TOP=$(dirname $PWD)
+fi
+
+if [[ ! -f $prefix/profile ]]
+then
+    prefix=$TOP
+fi
+
+pathins() {
+    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+        PATH="$1:$PATH"
+    fi
+}
+ppathins() {
+    if [ -d "$1" ] && [[ ":$PYTHONPATH:" != *":$1:"* ]]; then
+        PYTHONPATH="$1:$PYTHONPATH"
+    fi
+}
+
+if [ ! -d $prefix/doc ]; then
+    if [ -z "$TOP" ]; then
+        echo "*** WARNING *** could not determine pbench git repo, $prefix, from \"$PWD\""
+    else
+        echo "*** WARNING *** existing TOP does not seem right: $TOP"
+    fi
+    echo "*** no actions taken ***"
+    unset TOP
+else
+    (cd $prefix/configtools; make > /dev/null 2>&1)
+    if [[ $? -eq 0 ]]; then
+        export TOP=$prefix
+
+        pathins $TOP/configtools/build/bin
+        
+        export PYTHONPATH
+        ppathins $TOP/configtools/build/lib
+
+        # create a config file that just points to the local config files, necessary
+        # for making the doc.
+        export CONFIG=$TOP/doc/doc.conf
+        cat > $CONFIG <<EOF
+[config]
+path = $TOP/agent/config, $TOP/rpm/misc-scripts/CONFIG
+files = pbench.conf, misc-scripts.conf
+EOF
+    else
+        echo "*** WARNING *** failed to build in-tree configtools"
+        echo "*** no actions taken ***"
+    fi
+fi
+
+unset prefix
+unset -f pathins
+unset -f ppathins

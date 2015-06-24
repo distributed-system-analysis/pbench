@@ -1,0 +1,36 @@
+--- dbench/dbench.c	2014-10-29 11:19:28.577368935 -0400
++++ dbench-amt/dbench.c	2014-08-01 10:48:01.000000000 -0400
+@@ -150,9 +150,8 @@ static void sig_alarm(int sig)
+ 
+         if (in_warmup) {
+ 		if (options.machine_readable) {
+-                    printf("@W@%d@%d@%.2f@%u@%.03f@\n", 
+-                       num_active, total_lines/nclients, 
+-			   1.0e-6 * total_bytes / t, (int)t, latency*1000);
++                    printf("warmup total_bytes: %.0f epochtime_ms: %lu latency_ms: %.03f\n", 
++			   total_bytes, (unsigned long) tnow.tv_sec * 1000 + tnow.tv_usec / 1000, latency*1000);
+ 		} else {
+                     printf("%4d  %8d  %7.2f MB/sec  warmup %3.0f sec  latency %.03f ms\n", 
+                        num_active, total_lines/nclients, 
+@@ -160,17 +159,15 @@ static void sig_alarm(int sig)
+ 		}
+         } else if (in_cleanup) {
+ 		if (options.machine_readable) {
+-                    printf("@C@%d@%d@%.2f@%u@%.03f@\n", 
+-                       num_active, total_lines/nclients, 
+-			   1.0e-6 * total_bytes / t, (int)t, latency*1000);
++                    printf("cleanup total_bytes: %.0f epochtime_ms: %lu latency_ms: %.03f\n", 
++			   total_bytes, (unsigned long) (tnow.tv_sec * 1000 + tnow.tv_usec / 1000), latency*1000);
+ 		} else {
+                     printf("%4d  cleanup %3.0f sec\n", nclients - num_finished, t);
+ 		}
+         } else {
+ 		if (options.machine_readable) {
+-                    printf("@R@%d@%d@%.2f@%u@%.03f@\n", 
+-                       num_active, total_lines/nclients, 
+-			   1.0e-6 * total_bytes / t, (int)t, latency*1000);
++                    printf("execute total_bytes: %.0f epochtime_ms: %lu latency_ms: %.03f\n", 
++			   total_bytes, (unsigned long) (tnow.tv_sec * 1000 + tnow.tv_usec / 1000), latency*1000);
+ 		} else {
+                     printf("%4d  %8d  %7.2f MB/sec  execute %3.0f sec  latency %.03f ms\n", 
+                        nclients, total_lines/nclients, 

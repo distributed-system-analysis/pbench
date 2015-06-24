@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+
+import os, sys
+
+outfn = os.environ.get("_testlog")
+if not outfn:
+    sys.stderr.write("WARNING _testlog environment variable not present\n")
+    sys.exit(1)
+else:
+    with open(outfn, "a") as outf:
+        outf.write(' '.join(sys.argv) + '\n')
+
+#echo "dir=$1"
+#echo "iteration=$2"
+#echo "toollabelprefix=$3"
+#echo "toolgroup=$4"
+#"${count}-${protocol}_${test_type}-${message_size}B-${instance}i"
+
+# FIX-ME how does uperf-postprocess get the test_type?
+test_type = os.environ.get("test_type")
+if not test_type:
+    iteration = sys.argv[2]
+    parts = iteration.split('-')
+    protocol, test_type = parts[1].split('_')
+#print "test_type = %r" % test_type
+
+with open(os.path.join(sys.argv[1], "uperf-average.txt"), "w") as avgf:
+    if test_type == "rr":
+        avgf.write("CPU_usage-CPU_uperf-client-server:localhost=0.500000\n")
+        avgf.write("Efficiency-transactions_sec/CPU_uperf-client-server:localhost=5000.000000\n")
+        avgf.write("Latency-latency_usec=250.000000\n")
+        avgf.write("Per_Server_Latency-127.0.0.1-latency_us=250.000000\n")
+        avgf.write("Per_Server_Throughput-127.0.0.1-trans_sec=5000.000000\n")
+        avgf.write("Throughput-transactions_sec=5000.000000\n")
+    else:
+        avgf.write("CPU_usage-CPU_uperf-client-server:localhost=1.000000\n")
+        avgf.write("Efficiency-Gbps/CPU_uperf-client-server:localhost=5.000000\n")
+        avgf.write("Per_Server_Throughput-127.0.0.1-Gb_sec=5.000000\n")
+        avgf.write("Throughput-Gb_sec=5.000000\n")

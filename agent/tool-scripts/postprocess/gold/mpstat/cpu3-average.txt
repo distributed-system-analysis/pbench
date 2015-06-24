@@ -1,0 +1,9 @@
+cpu3-guest=0.418571
+cpu3-idle=94.704286
+cpu3-iowait=3.120000
+cpu3-irq=0.000000
+cpu3-nice=0.000000
+cpu3-softirq=0.000000
+cpu3-steal=0.000000
+cpu3-sys=1.163810
+cpu3-usr=0.593333

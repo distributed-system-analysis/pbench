@@ -1,0 +1,2 @@
+export TOP=$(dirname $(dirname $PWD))
+. ../profile

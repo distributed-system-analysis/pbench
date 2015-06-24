@@ -1,0 +1,52 @@
+#!/usr/bin/perl
+
+# Author: Andrew Theurer
+#
+# usage: proc-sched_debug-postprocess <dir>  dir = directory where proc-sched_debug.txt can be found
+#
+# The purpose of this script is to look through /proc/sched_debug data to identify potential 
+# Linux CPU scheduler problems
+
+use strict;
+use warnings;
+
+my $dir=$ARGV[0];
+my $file="perf-report.txt";
+my $pct;
+my $samples;
+my $bin;
+my $object;
+my $mode;
+my $symbol;
+my %symbol_samples;
+my $total_samples = 0;
+
+my $line;
+
+open(TXT, "$dir/$file") || die "could not find $dir/$file\n";
+while (my $line = <TXT>) {
+	chomp $line;
+	#    32.95%        928412         qemu-kvm  [kernel.kallsyms]             [k] _raw_spin_lock                                   
+	#     5.50%        242887         qemu-kvm  [kernel.kallsyms]             [k] kvm_vcpu_on_spin                                 
+	#     3.66%        261976         qemu-kvm  [kernel.kallsyms]             [k] update_cfs_rq_blocked_load   
+
+	if ($line =~ /^\s*(\d+\.\d+)%\s+(\d+)\s+(\S+)\s+\[(\S+)\]\s+\[(\S+)\]\s+(\S+)/) {
+		$pct = $1;
+		$samples = $2;
+		$bin = $3;
+		$object = $4;
+		$mode = $5;
+		$symbol = $6;
+		# print "found pct: [$pct] samples: [$samples] bin: [$bin] object: [$object] mode: [$mode] symbol [$symbol]\n";
+		$symbol_samples{$symbol} += $samples;
+		$total_samples += $samples;
+	}
+}
+close(TXT);
+
+$file = "perf-report-consolidated.txt";
+open(TXT, ">$dir/$file") || die "could not find $dir/$file\n";
+foreach $symbol (sort { $symbol_samples{$b} <=> $symbol_samples{$a} } keys(%symbol_samples)) {
+	printf TXT "%10d %6.2f%% %s\n", $symbol_samples{$symbol}, (100 * $symbol_samples{$symbol}/$total_samples), $symbol;
+}
+close(TXT);

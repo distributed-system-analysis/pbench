@@ -1,0 +1,324 @@
+#!/usr/bin/perl
+
+# use strict;
+# use warnings;
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+my $_test_alt_bench_lib;
+BEGIN {
+	my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+		$_test_alt_tools_lib = "$_pbench_tspp_dir";
+	}
+	my $_pbench_bspp_dir = $ENV{'pbench_bspp_dir'};
+	$_test_alt_bench_lib=$ENV{_TEST_ALTERNATE_BENCH_LIBRARY};
+	if (not defined $_test_alt_bench_lib or not -d $_test_alt_bench_lib) {
+		$_test_alt_bench_lib = "$_pbench_bspp_dir";
+	}
+}
+use lib "$_test_alt_tools_lib";
+use lib "$_test_alt_bench_lib";
+no lib ".";
+use GenData qw(gen_data);
+use BenchPostprocess qw(get_cpubusy_series calc_ratio_series calc_sum_series);
+use File::Basename;
+my $script = basename($0);
+my $dir = $ARGV[0];
+my $test = $ARGV[1];
+my $tool_label_pattern = $ARGV[2];
+my $tool_group = $ARGV[3];
+my %uperf_sample;
+my %uperf_rate;
+my $timestamp_ms = 0;
+my $prev_timestamp_ms = 0;
+my $timestamp_ms_diff;
+my $in_file = "$dir" . "/result.txt";
+my $json_file = "$dir" . "/uperf.js";
+my $csv_file = "$dir" . "/csv-result.txt";
+my $sh_file = "$dir" . "/result.sh";
+my $line;
+my %avg;
+my %total;
+
+if ($test_type =~ /_rr/) {
+	$uperf_primary_metric="transactions_sec";
+} else {
+	$uperf_primary_metric="Gb_sec";
+}
+
+# Load the data from uperf output and create throughput metrics
+# There can be several result files, once for each server involved in this test
+# These are organized by server IP.
+#print "going to read dir: [$dir]\n";
+opendir(my $dh, $dir) || die "$script: could not open directory $dir: $!\n";
+my $nr_result_files=0;
+foreach $result_file ( readdir($dh) ) {
+	# the server ip should be in the result file name, like "result-192.168.1.1.txt"
+	if ( $result_file =~ /^result-(.+).txt$/) {
+		$server_ip = $1;
+		$this_nr_bytes_label = $server_ip . "-bytes"; # a number of bytes (not a througput metric)
+		$this_nr_ops_label = $server_ip . "-ops"; # a number of operations
+		$this_tput_label = $server_ip . "-Gb_sec"; # a number of bytes over time
+		$this_opssec_label = $server_ip . "-ops_sec"; # a number of operations over time
+		$this_transsec_label = $server_ip . "-trans_sec"; # a number of transactions over time
+		$this_lat_label = $server_ip . "-latency_us"; # a time period
+		open(IN_FILE, "$dir/$result_file") || die "$script: could not open file $dir/$result_file: $!\n";
+		$prev_timestamp_ms = 0;
+		while (<IN_FILE>) {
+			$line = "$_";
+			chomp($line);
+			# figure out how many sessions/instaces we are running and what test type (tcp_rr, etc)
+			# "Starting 64 threads running profile:tcp_stream ...   0.01 seconds"
+			if ( $line =~  /^Starting\s(\d+)\sthreads running profile:(\S+).+/ ) {
+				$instances = $1;
+				$test_type = $2;
+			}
+			# for each sample in the uperf result file, we get a number of bytes and a timestamp
+			# example of a sample: "time:1395170796 name:Txn2 nr_bytes:22037790720 nr_ops:43042560"
+			if ( $line =~  /^timestamp_ms:(\d+\.\d+)\s+name:Txn2\s+nr_bytes:(\d+)\s+nr_ops:(\d+)/ ) {
+				$timestamp_ms = $1;
+				$bytes = $2;
+				$ops = $3;
+				$uperf_sample{$this_nr_ops_label}{$timestamp_ms} = $ops;
+				$uperf_sample{$this_nr_bytes_label}{$timestamp_ms} = $bytes;
+				if ( $prev_timestamp_ms != 0) {
+					# This is what we are really interested in: computing value/sec metrics like Gb/sec and ops/sec
+					# We can do that once we have more than one sample
+	 				$timestamp_s_diff = ($timestamp_ms - $prev_timestamp_ms)/1000;
+					$nr_bytes_diff = $uperf_sample{$this_nr_bytes_label}{$timestamp_ms} - $uperf_sample{$this_nr_bytes_label}{$prev_timestamp_ms};
+					$nr_ops_diff = $uperf_sample{$this_nr_ops_label}{$timestamp_ms} - $uperf_sample{$this_nr_ops_label}{$prev_timestamp_ms};
+					# store the "rate" metrics
+					if ($test_type =~ /_rr/) {
+						$ops_sec = $nr_ops_diff /$timestamp_s_diff;
+						$trans_sec = $ops_sec /2;
+						# for request-response, 1 transaction is two ops, a write and a read.
+						$uperf_rate{"uperf"}{"Per_Server_Throughput"}{$this_transsec_label}{$timestamp_ms} = $ops_sec /2;
+						# the latency is the full round trip for 1 transaction, which is also = ($instances / trans_sec)
+						# if --log-response-times in pbench_uperf is used, the write and read latency can be computed (later).
+						$uperf_rate{"uperf"}{"Per_Server_Latency"}{$this_lat_label}{$timestamp_ms} = $instances /$trans_sec *1000000;
+					} else {
+						$bytes_sec = $nr_bytes_diff /$timestamp_s_diff;
+						$uperf_rate{"uperf"}{"Per_Server_Throughput"}{$this_tput_label}{$timestamp_ms} = $nr_bytes_diff *8 /1000000000 /$timestamp_s_diff;
+					}
+				}
+				$prev_timestamp_ms = $timestamp_ms;
+			}
+		}
+		$nr_result_files++;
+		close(IN_FILE);
+		# remove the leading and trailing 5 rate samples as they can be inaccurate
+		if ($test_type =~ /_rr/) {
+			my @this_rate_timestamps = (sort {$a<=>$b} keys %{ $uperf_rate{"uperf"}{"Per_Server_Throughput"}{$this_transsec_label} });
+			for (my $i=0; $i<5; $i++) {
+				delete $uperf_rate{"uperf"}{"Per_Server_Throughput"}{$this_transsec_label}{shift(@this_rate_timestamps)};
+				delete $uperf_rate{"uperf"}{"Per_Server_Latency"}{$this_lat_label}{shift(@this_rate_timestamps)};
+				delete $uperf_rate{"uperf"}{"Per_Server_Throughput"}{$this_transsec_label}{pop(@this_rate_timestamps)};
+				delete $uperf_rate{"uperf"}{"Per_Server_Latency"}{$this_lat_label}{pop(@this_rate_timestamps)};
+			}
+		} else {
+			my @this_rate_timestamps = (sort {$a<=>$b} keys %{ $uperf_rate{"uperf"}{"Per_Server_Throughput"}{$this_tput_label} });
+			for (my $i=0; $i<=4; $i++) {
+				delete $uperf_rate{"uperf"}{"Per_Server_Throughput"}{$this_tput_label}{shift(@this_rate_timestamps)};
+				delete $uperf_rate{"uperf"}{"Per_Server_Throughput"}{$this_tput_label}{pop(@this_rate_timestamps)};
+			}
+		}
+	}
+}
+closedir $dh;
+if ($nr_result_files == 0) {
+	print "$script: could not find any result files to process, exiting\n";
+	exit;
+}
+
+# Define a set of tool directories which we want to use to report CPU and efficiency metrics
+# Search for tool directories which match the $tool_label_pattern
+my %tool_ids;
+my $tool_group_dir = "$dir/tools-$tool_group";
+if (opendir(my $dh, $tool_group_dir)) {
+	my $this_tool_dir;
+	foreach $this_tool_dir (readdir($dh)) {
+		if ($this_tool_dir =~ /^$tool_label_pattern/) {
+			my $tool_dir_id = $this_tool_dir;
+			$tool_dir_id =~ s/^$tool_pattern_label//;
+			$this_tool_dir = $tool_group_dir . "/" . $this_tool_dir;
+			$tool_ids{$this_tool_dir} = $tool_dir_id;
+		}
+	}
+} else {
+	print "$script: could not find any directories in $tool_group_dir which matched $tool_label_pattern\n";
+}
+
+# Note that if there are multiple result files (multiple servers involved), we then do not yet have a throughput metric for the sum of all those tests
+# In order to get that, we have to go sum all of the data from the per-server results.
+if ($test_type =~ /_rr/) {
+	# we use the timestamps from this first per-server result to model our new hash with the summed data
+	@per_server_results =  (keys %{ $uperf_rate{"uperf"}{"Per_Server_Throughput"} });
+	@ref_timestamps = ( sort {$a<=>$b} keys %{ $uperf_rate{"uperf"}{"Per_Server_Throughput"}{$per_server_results[0]} } );
+	# our new hash starts off with 0's
+	foreach $timestamp_ms (@ref_timestamps) {
+		$uperf_rate{"uperf"}{"Throughput"}{"transactions_sec"}{$timestamp_ms} = 0;
+	}
+	# And now we add the values from each per server result to that hash one at a time
+	foreach $per_server_result (@per_server_results) {
+		calc_sum_series(\%{$uperf_rate{"uperf"}{"Per_Server_Throughput"}{$per_server_result}}, \%{$uperf_rate{"uperf"}{"Throughput"}{"transactions_sec"}});
+	}
+
+	# calculate the average latency
+	@per_server_results =  (keys %{ $uperf_rate{"uperf"}{"Per_Server_Latency"} });
+	@ref_timestamps = ( sort {$a<=>$b} keys %{ $uperf_rate{"uperf"}{"Per_Server_Latency"}{$per_server_results[0]} } );
+	foreach $timestamp_ms (@ref_timestamps) {
+		$uperf_rate{"uperf"}{"Latency"}{"latency_usec"}{$timestamp_ms} = 0;
+	}
+	my $num_server_results = 0;
+	foreach $per_server_result (@per_server_results) {
+		calc_sum_series(\%{$uperf_rate{"uperf"}{"Per_Server_Latency"}{$per_server_result}}, \%{$uperf_rate{"uperf"}{"Latency"}{"latency_usec"}});
+		$num_server_results++;
+	}
+	# divide by number of per-server latency results to get the average latency
+	if ($num_server_results > 0) {
+		foreach $timestamp_ms (keys %{ $uperf_rate{"uperf"}{"Latency"}{"latency_usec"} } ) {
+			$uperf_rate{"uperf"}{"Latency"}{"latency_usec"}{$timestamp_ms} /= $num_server_results;
+		}
+	}
+	# At the same time, generate an effiicency (transactions/CPU) series for both the client and server CPU data
+	@timestamps = ( sort {$a<=>$b} keys %{ $uperf_rate{"uperf"}{"Throughput"}{"transactions_sec"} });
+	foreach $this_tool_dir (keys %tool_ids) {
+		my $res;
+		my $this_tool_id = $tool_ids{$this_tool_dir};
+		my $this_cpu_label = "CPU_" . $this_tool_id;
+		my $this_eff_label = "transactions_sec/" . $this_cpu_label;
+		$res = get_cpubusy_series($this_tool_dir, \%{ $uperf_rate{"uperf"}{"CPU_usage"}{$this_cpu_label} }, $timestamps[0], $timestamps[-1]);
+		if ($res == 0) {
+			calc_ratio_series(\%{ $uperf_rate{"uperf"}{"Throughput"}{"transactions_sec"} }, \%{ $uperf_rate{"uperf"}{"CPU_usage"}{$this_cpu_label} }, \%{ $uperf_rate{"uperf"}{"Efficiency"}{$this_eff_label} });
+		}
+	}
+} else { # throughoput tests
+	@per_server_results = (keys %{ $uperf_rate{"uperf"}{"Per_Server_Throughput"} });
+	# we use the timestamps from this first per-server result to model our new hash with the summed data
+	@ref_timestamps = ( sort {$a<=>$b} keys %{ $uperf_rate{"uperf"}{"Per_Server_Throughput"}{$per_server_results[0]} } );
+	# our new hash starts off with 0's
+	foreach $timestamp_ms (@ref_timestamps) {
+		$uperf_rate{"uperf"}{"Throughput"}{"Gb_sec"}{$timestamp_ms} = 0;
+	}
+	# And now we add the values from each per server result to that hash one at a time
+	foreach $per_server_result (@per_server_results) {
+		calc_sum_series(\%{$uperf_rate{"uperf"}{"Per_Server_Throughput"}{$per_server_result}}, \%{$uperf_rate{"uperf"}{"Throughput"}{"Gb_sec"}});
+	}
+	@timestamps = ( sort {$a<=>$b} keys %{ $uperf_rate{"uperf"}{"Throughput"}{"Gb_sec"} });
+	# At the same time, generate an effiicency (Gb_sec/CPU) series for both the client and server CPU data
+	foreach $this_tool_dir (keys %tool_ids) {
+		my $res;
+		my $this_tool_id = $tool_ids{$this_tool_dir};
+		my $this_cpu_label = "CPU_" . $this_tool_id;
+		my $this_eff_label = "Gbps/" . $this_cpu_label;
+		$res = get_cpubusy_series($this_tool_dir, \%{ $uperf_rate{"uperf"}{"CPU_usage"}{$this_cpu_label} }, $timestamps[0], $timestamps[-1]);
+		if ($res == 0) {
+			calc_ratio_series(\%{ $uperf_rate{"uperf"}{"Throughput"}{"Gb_sec"} }, \%{ $uperf_rate{"uperf"}{"CPU_usage"}{$this_cpu_label} }, \%{ $uperf_rate{"uperf"}{"Efficiency"}{$this_eff_label} });
+		}
+	}
+}
+
+# if there is a request-response test , and there is a log of the response times, process it.
+my $all_server_write_avg_time;
+my $all_server_read_avg_time;
+my $all_server_nr_reads = 0;
+my $all_server_nr_writes = 0;
+my @all_server_transaction_times;
+my $nr_resp_files = 0;
+opendir(my $dh, $dir) || die "$script: can't open directory $dir: $!\n";
+foreach $resp_file ( readdir($dh) ) {
+	if ( $resp_file =~ /^response-times-(.+).txt$/) {
+		$server_ip = $1;
+		# The server ip should be in the file name, like "response-times-192.168.1.1.txt"
+		open(RESP_FILE, "$dir/$resp_file") || die "$script: can't open file $dir/$resp_file: $!\n";
+		#printf "$script: processing %s\n", $resp_file;
+		#  This response file contains an elapsed time value for each "flow op" in the 5th column:
+		#  35609 140172276365056  0 1408072771750861084           42765
+		#  For request-response, 2 lines contain the two values: first the request (a write) and next a response (a read).
+		#  The write is usually very fast, as it's just the write to the socket and should return almost immediately.
+		#  The read is the time for the packet to be sent out, responded by the other system, sent back, and read by the
+		#  uperf process.
+		$line = <RESP_FILE>; # this first value is the time it takes to open the stream
+		# the following lines will have a pattern of write (send) then read (receive)
+		my $time_us;
+		my $time_ns;
+		my $read_time;
+		my $write_time;
+		my @this_server_transaction_times;
+		my $transaction_time;
+		my $this_server_write_avg_time;
+		my $this_server_read_avg_time;
+		my $this_server_nr_reads;
+		my $this_server_nr_writes;
+		my $resp_type = "write"; # the remaining values are times alternating between two flow ops: a write (send a request) and a read (wait for response)
+		while ($line = (<RESP_FILE>)) {
+			#  35609 140172276365056  0 1408072771750861084           42765
+			$line =~ /\s*\d+\s+\d+\s+\d+\s+\d+\s+(\d+)/;
+			$time_ns = $1;
+			# print "time_ns: $time_ns\n";
+			$time_us = $time_ns / 1000;
+			if ($resp_type eq "write") {
+				$write_time = $time_us;
+				$all_server_write_avg_time += $write_time;
+				$this_server_write_avg_time += $write_time;
+				$all_server_nr_writes++;
+				$this_server_nr_writes++;
+				# the next value will be for a read
+				$resp_type = "read";
+				next;
+			}
+			if ($resp_type eq "read") {
+				$read_time = $time_us;
+				$all_server_read_avg_time += $read_time;
+				$this_server_read_avg_time += $read_time;
+				$all_server_nr_reads++;
+				$this_server_nr_reads++;
+				push(@this_server_transaction_times, ($write_time + $read_time));
+				push(@all_server_transaction_times, ($write_time + $read_time));
+				# the next value will be for a write
+				$resp_type = "write";
+				next;
+			}
+		}
+		close RESP_FILE;
+		$nr_resp_files++;
+		@this_server_transaction_times = sort {$a <=> $b} @this_server_transaction_times;
+		$this_server_read_avg_time /= $this_server_nr_reads;
+		$this_server_write_avg_time /= $this_server_nr_writes;
+		printf "resp-file: $resp_file\n";
+		printf "average latency: %.4f\n", ($this_server_read_avg_time + $this_server_write_avg_time);
+		printf "95th percentile latency: %.4f\n", $this_server_transaction_times[sprintf("%.0f",(0.95*($#this_server_transaction_times)))];
+		printf "99.995th percentile latency: %.4f\n", $this_server_transaction_times[sprintf("%.0f",(0.99995*($#this_server_transaction_times)))];
+		printf "maximum latency: %.4f\n", $this_server_transaction_times[$#this_server_transaction_times];
+	}
+}
+if ($nr_resp_files > 0) {
+	@all_server_transaction_times = sort {$a <=> $b} @all_server_transaction_times;
+	$all_server_write_avg_time /= $all_server_nr_writes;
+	$all_server_read_avg_time /= $all_server_nr_reads;
+	my $filename = $dir . "/summary-response-times.txt";
+	open(RESP_SUMMARY, ">$filename") || die "$script: could not open $filename\n";
+	printf RESP_SUMMARY "Number of writes: %d  Average response time for writes is: %.4fus\n", $all_server_nr_writes, $all_server_write_avg_time;
+	printf RESP_SUMMARY "Number of reads: %d  Average response time for reads is: %.4fus\n", $all_server_nr_reads, $all_server_read_avg_time;
+	printf RESP_SUMMARY "Average transaction latency: %.4fus\n", ($all_server_read_avg_time + $all_server_write_avg_time);
+	printf RESP_SUMMARY "95th percentile transaction latency: %.4fus\n", $all_server_transaction_times[sprintf("%.0f",(0.95*($#all_server_transaction_times)))];
+	printf RESP_SUMMARY "99.995th percentile transaction latency: %.4fus\n", $all_server_transaction_times[sprintf("%.0f",(0.99995*($#all_server_transaction_times)))];
+	printf RESP_SUMMARY "Maximum transaction latency: %.4fus\n", $all_server_transaction_times[$#all_server_transaction_times];
+	close(RESP_SUMMARY);
+	$total{"write_latency_us"} = $all_server_write_avg_time;
+	$total{"read_latency_us"} = $all_server_read_avg_time;
+}
+
+# define the graph types
+# if you want something other than lineChart, put it here
+my %graph_type;
+
+# threshold for displying a series in a graph
+my %graph_threshold;
+
+# N.B. Final parameter of 1 tells gen_data to do the expensive
+# combinatorial check of timestamps. uperf-postprocess is the
+# only script that makes use of it.
+gen_data(\%uperf_rate, \%graph_type, \%graph_threshold, $dir, 1);

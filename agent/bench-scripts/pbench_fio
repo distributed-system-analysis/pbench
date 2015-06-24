@@ -1,0 +1,449 @@
+#!/bin/bash
+
+# This is a script to run the fio benchmark
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+benchmark="fio"
+benchmark_bin=/usr/local/bin/$benchmark
+ver=2.2.5
+
+# Every bench-script follows a similar sequence:
+# 1) process bench script arguments
+# 2) ensure the right version of the benchmark is installed
+# 3) gather pre-run state
+# 4) run the benchmark and start/stop perf analysis tools
+# 5) gather post-run state
+# 6) postprocess benchmark data
+# 7) postprocess analysis tool data
+
+orig_cmd="$*"
+
+# Defaults
+supported_test_types="read,write,rw,randread,randwrite,randrw"
+supported_block_sizes="1,2,4,8,16,32,64,128,256,512,1024"
+install_only="n"
+config=""
+rate_iops=""
+test_types="read,randread"		# default is -non- destructive
+block_sizes="4,64,1024"
+targets="/tmp/fio"
+device_mode="concurrent"  # can also be sequential (one job per device, once at a time)
+runtime=30
+ramptime=5
+iodepth=32
+jobs_per_dev=1
+ioengine="libaio"
+job_mode="concurrent" # serial or concurrent
+file_size="256M"
+direct=1 # don't cache IO's by default
+sync=0 # don't sync IO's by default
+clients="" # A list of hostnames (hosta,hostb,hostc) where you want uperf to run.  Note: if you use this, pbench must be installed on these systems already.
+tool_group=default
+
+function fio_usage() {
+		printf "The following options are available:\n"
+		printf "\n"
+		printf -- "\t-t str[,str] --test-types=str[,str]\n"
+		printf "\t\tone or more of %s\n" $supported_test_types
+		printf "\n"
+		printf -- "\t--direct=[0/1]\n"
+		printf "\t\t1 = O_DIRECT enabled (default), 0 = O_DIRECT disabled\n"
+		printf "\n"
+		printf -- "\t--sync=[0/1]\n"
+		printf "\t\t1 = O_SYNC enabled, 0 = O_SYNC disabled (defalt)\n"
+		printf "\n"
+		printf -- "\t--rate-iops=int\n"
+		printf "\t\tdo not exceeed this IOP rate (per job, per client)\n"
+		printf "\n"
+		printf -- "\t-r int --runtime=int\n"
+		printf "\t\truntime in seconds (default is $runtime)\n"
+		printf "\n"
+		printf -- "\t-r int --ramptime=int\n"
+		printf "\t\ttime in seconds to warm up test before taking measurements (default is $ramptime)\n"
+		printf "\n"
+		printf -- "\t-b int[,int] --block-sizes=str[,str] (default is $block_sizes)\n"
+		printf "\t\tone or more block sizes in KiB: %s\n" "$supported_block_sizes (default is $block_sizes)"
+		printf "\n"
+                printf -- "\t-s int[,int] --file-size=str[,str] (default is $file_size)\n"
+                printf "\t\tfile sizes in MiB: %s\n"
+                printf "\n"
+		printf -- "\t-d str[,str] --targets=str[,str]\n"
+		printf "\t\tone or more directories or block devices (default is $targets)\n"
+		printf "\t\t(persistent names for devices highly recommended)\n"
+		printf "\n"
+		printf -- "\t-j str --job-mode=str    str=[serial|concurrent]  (default is $jon_mode)\n"
+		printf "\n"
+		printf -- "\t--ioengine=str           str= any ioengine fio supports (default is $ioengine)\n"
+		printf "\n"
+		printf -- "\t--clients=str[,str]      str= one or more remote systems to run fio\n"
+		printf -- "\t                         If no clients are specified, fio is run locally\n"
+		printf -- "\t--tool-group=str\n"
+}
+
+function fio_process_options() {
+	opts=$(getopt -q -o jic:t:b:s:d: --longoptions "help,direct:,sync:,install,clients:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:" -n "getopt.sh" -- "$@");
+	if [ $? -ne 0 ]; then
+		printf "\t${benchmark}: you specified an invalid option\n\n"
+		fio_usage
+		exit 1
+	fi
+	eval set -- "$opts";
+	while true; do
+		case "$1" in
+			--help)
+			fio_usage
+			exit
+			;;
+			--install)
+			shift;
+			install_only="y"
+			;;
+			--direct)
+			shift;
+			if [ -n "$1" ]; then
+				direct=$1
+				shift;
+			fi
+			;;
+			--sync)
+			shift;
+			if [ -n "$1" ]; then
+				sync=$1
+				shift;
+			fi
+			;;
+			-t|--test-types)
+			shift;
+			if [ -n "$1" ]; then
+				test_types="$1"
+				shift;
+			fi
+			;;
+			-b|--block-sizes)
+			shift;
+			if [ -n "$1" ]; then
+				block_sizes="$1"
+				shift;
+			fi
+			;;
+                        -s|--file-size)
+                        shift;
+                        if [ -n "$1" ]; then
+                                file_size="$1"
+                                shift;
+                        fi
+                        ;;
+			-r|--ramptime)
+			shift;
+			if [ -n "$1" ]; then
+				ramptime="$1"
+				shift;
+			fi
+			;;
+			--rate-iops)
+			shift;
+			if [ -n "$1" ]; then
+				rate_iops="$1"
+				shift;
+			fi
+			;;
+			-r|--runtime)
+			shift;
+			if [ -n "$1" ]; then
+				runtime="$1"
+				shift;
+			fi
+			;;
+			-c|--clients)
+			shift;
+			if [ -n "$1" ]; then
+				clients="$1"
+				shift;
+			fi
+			;;
+			-d|--targets)
+			shift;
+			if [ -n "$1" ]; then
+				targets="$1"
+				shift;
+			fi
+			;;
+			-j|--job-mode)
+			shift;
+			if [ -n "$1" ]; then
+				job_mode="$1"
+				shift;
+			fi
+			;;
+			-j|--config)
+			shift;
+			if [ -n "$1" ]; then
+				config="$1"
+				shift;
+			fi
+			;;
+			--ioengine)
+			shift;
+			if [ -n "$1" ]; then
+				ioengine="$1"
+				shift;
+			fi
+			;;
+			--iodepth)
+			shift;
+			if [ -n "$1" ]; then
+				iodepth="$1"
+				shift;
+			fi
+			;;
+			--tool-group)
+			shift;
+			if [ -n "$1" ]; then
+				tool_group="$1"
+				shift;
+			fi
+			;;
+			--)
+			shift;
+			break;
+			;;
+			*)
+			echo "what's this? [$1]"
+			shift;
+			break;
+			;;
+		esac
+	done
+	benchmark_run_dir="$pbench_run/${benchmark}_${config}_$date"
+	verify_tool_group $tool_group
+}
+
+
+# Ensure the right version of the benchmark is installed
+function fio_install() {
+	if check_install_rpm $benchmark $ver; then
+		debug_log "[$script_name]$benchmark is installed"
+	else
+		debug_log "[$script_name]$benchmark installation failed, exiting"
+		exit 1
+	fi
+	if [ ! -z "$clients" ]; then
+		debug_log "verifying clients have fio installed"
+		for client in `echo $clients | sed -e s/,/" "/g`; do
+			ssh $ssh_opts $client ${pbench_install_dir}/bench-scripts/pbench_fio --install &
+		done
+		wait
+	fi
+	if [ "$install_only" == "y" ]; then
+		exit 0
+	fi
+}
+
+# Make sure this devices exists
+function fio_device_check() {
+	local devs=$1
+	local clients=$2
+	local dev=""
+	local client=""
+	local rc=0
+	debug_log "fio_device_check() $devs $clients"
+	for dev in `echo $devs | sed -e s/,/" "/g`; do
+		if echo $dev | grep -q "^/dev/"; then
+			if [ ! -z "$clients" ]; then
+				for client in `echo $clients | sed -e s/,/" "/g`; do
+					debug_log "checking to see if $dev exists on client $client"
+					ssh $ssh_opts $client "if [ -L $dev ]; then dev=`dirname $dev`/`readlink $dev`; fi; test -b $dev" || rc=1
+				done
+				wait
+			else
+				if [ -L $dev ]; then dev=`dirname $dev`/`readlink $dev`; fi; test -b $dev || rc=1
+			fi
+			if [ $rc -eq 1 ]; then
+				debug_log "At least one client did not have block device $dev, exiting"
+				exit 1
+			fi
+		fi
+	done
+}
+
+function fio_create_jobfile() {
+	local test_type="$1"
+	local ioengine="$2"
+	local block_size="$3"
+	local iodepth="$4"
+	local direct="$5"
+	local sync="$6"
+	local runtime="$7"
+	local ramptime="$8"
+	local size="$9"
+	local rate_iops="${10}"
+	local targets="${11}"
+	local fio_job_file="${12}"
+	local job_num=1
+	local job_dir=`dirname "$fio_job_file"`
+	local target
+
+	mkdir -p $job_dir
+	printf "[global]\n"		 >$fio_job_file
+	printf "bs=%sk\n" $block_size	>>$fio_job_file
+	printf "ioengine=$ioengine\n"	>>$fio_job_file
+	printf "iodepth=$iodepth\n"	>>$fio_job_file
+	printf "direct=$direct\n"	>>$fio_job_file
+	printf "sync=$sync\n"		>>$fio_job_file
+	printf "time_based=1\n"		>>$fio_job_file
+	printf "runtime=$runtime\n"	>>$fio_job_file
+	printf "clocksource=gettimeofday\n" >>$fio_job_file 
+	printf "ramp_time=$ramptime\n" >>$fio_job_file 
+	for target in `echo $targets | sed -e s/,/" "/g`; do
+		printf "[job%d]\n" $job_num	>>$fio_job_file
+		printf "rw=%s\n" $test_type	>>$fio_job_file
+		printf "filename=%s\n" $target	>>$fio_job_file
+		printf "size=%s\n" "$size"	>>$fio_job_file # only used if actual file is used
+		printf "write_bw_log=fio\n"	>>$fio_job_file
+		printf "write_iops_log=fio\n"	>>$fio_job_file
+		printf "write_lat_log=fio\n"	>>$fio_job_file
+		printf "log_avg_msec=1000\n"	>>$fio_job_file
+		if [ ! -z "$rate_iops" ]; then
+			printf "rate_iops=$rate_iops\n"	>>$fio_job_file
+		fi
+		let job_num=$job_num+1
+	done
+
+	echo "The following jobfile was created: $fio_job_file"
+	cat $fio_job_file
+}
+
+function fio_run_job() {
+	local iteration="$1"
+	local benchmark_results_dir="$2"
+	local fio_job_file="$3"
+	local clients="$4"
+	local bench_cmd="$benchmark_bin"
+	local bench_opts="--output-format=json $fio_job_file"
+
+	if [ ! -e $fio_job_file ]; then
+		debug_log "fio jobfile could not be found: $fio_job_file"
+		return
+	fi
+
+	mkdir -p $benchmark_results_dir
+	mkdir -p $benchmark_results_dir/clients
+	if [ ! -z "$clients" ]; then
+		debug_log "creating directories on the clients"
+		for client in `echo $clients | sed -e s/,/" "/g`; do
+			ssh $ssh_opts $client mkdir -p $benchmark_results_dir &
+		done
+		wait
+		debug_log "opening port 8765 on firewall on the clients"
+		for client in `echo $clients | sed -e s/,/" "/g`; do
+			ssh $ssh_options $client "firewall-cmd --add-port=8765/tcp >/dev/null" &
+		done
+		wait
+		debug_log "killing any old fio process on the clients"
+		for client in `echo $clients | sed -e s/,/" "/g`; do
+			ssh $ssh_options $client "killall fio >/dev/null 2>&1" &
+		done
+		wait
+		debug_log "starting new fio process on the clients"
+		for client in `echo $clients | sed -e s/,/" "/g`; do
+			ssh $ssh_options $client "pushd $benchmark_results_dir >/dev/null; screen -dmS fio-server bash -c ''$bench_cmd' --server 2>&1 >client-result.txt'"
+		done
+		wait
+	else
+		mkdir -p $benchmark_results_dir/clients/localhost
+	fi
+	start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+	local client_opts=""
+	if [ ! -z "$clients" ]; then
+		local max_jobs=0
+		for client in `echo $clients | sed -e s/,/" "/g`; do
+			client_opts="$client_opts --client=$client"
+			let max_jobs=$max_jobs+1
+		done
+		client_opts="$client_opts --max-jobs=$max_jobs $bench_opts"
+	fi
+	
+	# create a command file and keep it with the results for debugging later, or user can run outside of pbench
+	echo "$bench_cmd $bench_opts $client_opts" >$benchmark_results_dir/fio.cmd
+	chmod +x $benchmark_results_dir/fio.cmd
+	debug_log "$benchmark: Going to run [$bench_cmd $bench_opts $client_opts]"
+	pushd $benchmark_results_dir >/dev/null
+	$benchmark_results_dir/fio.cmd >$benchmark_results_dir/result.txt
+	popd >/dev/null
+	stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+	if [ ! -z "$clients" ]; then
+		debug_log "getting log files from clients"
+		for client in `echo $clients | sed -e s/,/" "/g`; do
+			mkdir -p $benchmark_results_dir/clients/$client
+			scp $ssh_opts $client:"$benchmark_results_dir/*" $benchmark_results_dir/clients/$client/ >/dev/null &
+		done
+		wait
+	else
+		mv $benchmark_results_dir/fio*.log $benchmark_results_dir/clients/localhost/
+	fi
+	debug_log "post-processing fio results"
+	$script_path/postprocess/$benchmark-postprocess $benchmark_results_dir $iteration $tool_group
+	postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+}
+
+
+# Run the benchmark and start/stop perf analysis tools
+function fio_run_benchmark() {
+	fio_device_check "$targets" "$clients"
+	benchmark_summary_file="$benchmark_run_dir/summary-result.txt"
+	benchmark_summary_html_file="$benchmark_run_dir/summary-result.html"
+	benchmark_summary_csv_file="$benchmark_run_dir/summary-result.csv"
+	mkdir -p $benchmark_run_dir/.running
+	local count=1
+	printf "these results generated with:\n%s\n\n" "$orig_cmd" >$benchmark_summary_file
+	printf "%20s%20s%20s%20s%20s%20s%20s%20s%20s\n" "iteration" "rw IOPs" "rw kB/sec" "read IOPS" "read kB/sec" "read 95th-lat-ms" "write IOPS" "write kB/sec" "write 95th-lat-ms" >>$benchmark_summary_file
+	printf "<pre>\nthese results generated with:\n%s\n\n" "$orig_cmd" >$benchmark_summary_html_file
+	printf "%20s %s %s%20s%20s%20s%20s%20s%20s%20s%20s\n" "iteration" "details" "tools" "rw IOPs" "rw kB/sec" "read IOPS" "read kB/sec" "read 95th-lat-ms" "write IOPS" "write kB/sec" "write 95th-lat-ms" >>$benchmark_summary_html_file
+	printf "%s,%s,%s,%s,%s,%s,%s,%s,%s\n" "iteration" "rw IOPs" "rw kB/sec" "read IOPS" "read kB/sec" "read 95th-lat-ms" "write IOPS" "write kB/sec" "write 95th-lat-ms" >>$benchmark_summary_csv_file
+	if [ "$job_mode" = "serial" ]; then
+		# if each target is separated by a space, there will be one job for each in next for loop
+		targets=`echo $targets | sed -e s/,/" "/g`
+	fi
+	for dev in $targets; do
+		for test_type in `echo $test_types | sed -e s/,/" "/g`; do
+			for block_size in `echo $block_sizes | sed -e s/,/" "/g`; do
+				job_num=1
+				iteration="${count}-${test_type}-${block_size}KiB"
+				if [ "$job_mode" = "serial" ]; then
+					dev_short_name="`basename $dev`"
+					# easier to identify what job used what device when having 1 job per device
+					iteration="$iteration-${dev_short_name}"
+				fi
+				# note: there are no samples taken to produce average & stddev, so result is put directly in "reference-result"
+				benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
+				benchmark_tools_dir="$benchmark_results_dir/tools-$tool_group"
+				fio_job_file="$benchmark_results_dir/fio.job"
+				fio_create_jobfile "$test_type" "$ioengine" "$block_size" "$iodepth" "$direct" "$sync" "$runtime" "$ramptime" "$file_size" "$rate_iops" "$dev" "$fio_job_file"
+				fio_run_job "$iteration" "$benchmark_results_dir" "$fio_job_file" "$clients"
+				let count=$count+1
+			done
+		done
+	done
+	printf "</pre>" >>$benchmark_summary_html_file
+}
+
+function fio_print_summary() {
+	cat $benchmark_summary_file
+}
+
+fio_process_options "$@"
+fio_install
+
+export benchmark config
+collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+fio_run_benchmark
+collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+fio_print_summary
+
+rmdir $benchmark_run_dir/.running

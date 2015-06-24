@@ -1,0 +1,15 @@
+#!/bin/bash
+
+interval=$1
+username=$2
+password=$3
+file=$4
+
+cmd="/usr/bin/rabbitmqadmin --username=$username --password=$password list queues"
+
+cat /dev/null >$file
+while true; do
+	echo "timestamp: `date +%s.%N`" >>$file
+	$cmd >>$file
+	sleep $interval
+done

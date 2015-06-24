@@ -1,0 +1,59 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+BEGIN {
+        my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+        $_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+        if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+                $_test_alt_tools_lib = "$_pbench_tspp_dir";
+        }
+}
+use lib "$_test_alt_tools_lib";
+no lib ".";
+use GenData qw(gen_data);
+
+my %stats;
+my %this_kvmstat;
+my $timestamp_ms;
+my $duration;
+my $vm_exit_type;
+my $vm_exit_count;
+my $line;
+my %graph_type;
+my %graph_threshold;
+
+my $dir = $ARGV[0];
+my $in_file = "$dir" . "/kvmstat.txt";
+my $json_file = "$dir" . "/kvmstat.js";
+my $avg_file = "$dir" . "/kvmstat_avg.txt";
+
+open(IN_FILE, "$in_file") || die "Could not find $in_file\n";
+while (<IN_FILE>) {
+	$line = "$_";
+	chomp($line);
+
+	if ( $line =~  /\s+(\d+\.\d+) seconds time elapsed/ ) {
+		# this is needed to compute per-sec values
+		$duration = $1;
+	}
+
+	if ( $line =~ /^\s+([\d,]+)\s+kvm:(\w+)/ ) {
+		$vm_exit_type = $2;
+		$vm_exit_count = $1;
+		$vm_exit_count =~ s/,//g;
+		$this_kvmstat{$vm_exit_type} = $vm_exit_count;
+		}
+
+	if ( $line =~ /^time:\s(\d+\.\d+)/ ) {
+		# now that we have the timestamp, we can now store the per-sec stats
+		$timestamp_ms = $1 * 1000;
+		for $vm_exit_type (keys %this_kvmstat) {
+			$stats{kvmstat}{kvm_exits}{$vm_exit_type}{$timestamp_ms} = $this_kvmstat{$vm_exit_type} / $duration;
+		}
+	}
+}
+gen_data(\%stats, \%graph_type, \%graph_threshold, $dir);
