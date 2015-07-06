@@ -24,3 +24,13 @@ Please read ./doc/GETTING_STARTED
 The latest source code is here:
 
     https://github.com/distributed-system-analysis/pbench
+
+## Is there a mailing list for discussions?
+Yes, we use Google Groups:
+
+    https://groups.google.com/forum/#!forum/pbench
+
+## Is there a place to track current and future work?
+Yes, we are using Trello for that:
+
+    https://trello.com/b/y3YJgHim/pbench
