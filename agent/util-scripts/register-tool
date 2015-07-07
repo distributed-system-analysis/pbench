@@ -135,7 +135,7 @@ fi
 if [ -z "$remote" ]; then
 	if [ -e "$pbench_bin/tool-scripts/$name" ]; then
 		debug_log "checking to see if tool is installed..."
-		$pbench_bin/tool-scripts/$name --install
+		$pbench_bin/tool-scripts/$name --install "$tool_opts"
 		rc=$?
 	else
 		debug_log "Could not find $name in $pbench_bin/tool-scripts.  Has this tool been integrated in to pbench?"
