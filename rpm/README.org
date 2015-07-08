@@ -12,7 +12,7 @@ to the repo.
 - pbench-agent: making a pbench-agent RPM.
 - benchmarks: contains a subdirectory for each benchmark of interest.
 - tools: contains a subdirectory for each tool of interest.
-
+- configtools: making a configtools RPM.
 
 * Tools
 
