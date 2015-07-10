@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/distributed-system-analysis/pbench.png?label=ready&title=Ready)](https://waffle.io/distributed-system-analysis/pbench)
 # pbench
 A benchmarking and performance analysis framework
 
