@@ -121,6 +121,7 @@ var constructChart = function(graph_type, chartnum, chart_file_name, threshold) 
           .y(yAccessor)
           .useInteractiveGuideline(true)
           .color(keyColor);
+      thischart.margin().left = 100;
       thischart.xAxis
           .axisLabel('Time (UTC) - ' + xLegendFormat(start) + ' to ' + xLegendFormat(end))
           .tickFormat(xTickFormat);
