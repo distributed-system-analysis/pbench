@@ -262,6 +262,7 @@ function fio_install() {
 	fi
 	if [ ! -z "$clients" ]; then
 		debug_log "verifying clients have fio installed"
+		echo "verifying clients have fio installed"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			ssh $ssh_opts $client ${pbench_install_dir}/bench-scripts/pbench_fio --install &
 		done
@@ -439,12 +440,18 @@ function fio_run_job() {
 		debug_log "getting log files from clients"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			mkdir -p $benchmark_results_dir/clients/$client
-			scp $ssh_opts $client:"$benchmark_results_dir/*" $benchmark_results_dir/clients/$client/ >/dev/null &
+			scp $ssh_opts $client:"$benchmark_results_dir/*.log" $benchmark_results_dir/clients/$client/ >/dev/null &
+		done
+		wait
+		for client in `echo $clients | sed -e s/,/" "/g`; do
+			mkdir -p $benchmark_results_dir/clients/$client
+			ssh $ssh_opts $client /bin/rm "$benchmark_results_dir/*.log"  &
 		done
 		wait
 	else
 		mv $benchmark_results_dir/fio*.log $benchmark_results_dir/clients/localhost/
 	fi
+	echo "fio job complete"
 	debug_log "post-processing fio results"
 	$script_path/postprocess/$benchmark-postprocess $benchmark_results_dir $iteration $tool_group
 	postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
