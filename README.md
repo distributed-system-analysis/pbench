@@ -1,4 +1,4 @@
-# pbench
+# Pbench [![Stories in Ready](https://badge.waffle.io/distributed-system-analysis/pbench.png?label=ready&title=Ready)](https://waffle.io/distributed-system-analysis/pbench)
 A benchmarking and performance analysis framework
 
 The code base includes three sub-systems. The first being the collection
@@ -31,6 +31,6 @@ Yes, we use Google Groups:
     https://groups.google.com/forum/#!forum/pbench
 
 ## Is there a place to track current and future work?
-Yes, we are using Trello for that:
+Yes, we are using Waffle.io for that:
 
-    https://trello.com/b/y3YJgHim/pbench
+    https://waffle.io/distributed-system-analysis/pbench
