@@ -1,10 +1,10 @@
 [DEFAULT]
 pbench_install_dir = /opt/pbench-agent
-configtools_install_dir = /opt/configtools
+pbench_results_redirector = pbench.results.example.com
+pbench_web_server = pbench.example.com
 
 [pbench-agent]
 version = 0.33
-rpm-repo = %(pbench_repo_host)s:/pbench/repo/%%s
 pbench_run = /var/lib/pbench-agent
 pbench_log = %(pbench_run)s/pbench.log
 
