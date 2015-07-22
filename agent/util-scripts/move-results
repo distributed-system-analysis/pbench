@@ -58,16 +58,16 @@ if [ -z "$results_webserver" ]; then
     exit 1
 fi
 
-ver=$(yum info installed pbench 2> /dev/null | grep Version | awk '{ print $3 }')
+ver=$(yum info installed pbench-agent 2> /dev/null | grep Version | awk '{ print $3 }')
 if [ -z "$ver" ]; then
     ver="unknown"
 fi
-rel=$(yum info installed pbench 2> /dev/null | grep Release | awk '{ print $3 }')
+rel=$(yum info installed pbench-agent 2> /dev/null | grep Release | awk '{ print $3 }')
 if [ -z "$ver" ]; then
     rel="unknown"
 fi
-# User-Agent HTTP header: <pbench-ver-rel>:<FQDN>:<$USER>:<full path of this script>""
-user_agent="pbench-$ver-$rel:$(hostname -f):$USER:$0"
+# User-Agent HTTP header: <pbench-agent-ver-rel>:<FQDN>:<$USER>:<full path of this script>""
+user_agent="pbench-agent-$ver-$rel:$(hostname -f):$USER:$0"
 
 results_host_info_url="http://$results_webserver/pbench-results-host-info.versioned/pbench-results-host-info.URL001"
 results_host_info=$(curl -s -A "$user_agent" -L "$results_host_info_url")
