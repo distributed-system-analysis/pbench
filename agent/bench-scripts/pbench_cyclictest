@@ -33,24 +33,21 @@ orig_cmd="$*"
 tool_group="default"
 config=""
 stress=0
-rteval=0
-rteval_workdir=/tmp
 cpu=""
 
 # Process options and arguments
-opts=$(getopt -q -o C:c:r:s:e --longoptions "cpu:,stress,config:,runtime:,runtimes:,tool-group:,rteval" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o C:c:r:s --longoptions "cpu:,stress,config:,runtime:,runtimes:,tool-group:" -n "getopt.sh" -- "$@");
 
 if [ $? -ne 0 ]; then
 	printf -- "$0 $*\n"
 	printf "\n"
 	printf "\t${benchmark}: you specified an invalid option\n\n"
 	printf "\tThe following options are available:\n\n"
-	printf -- "\t\t-c str --config=str\t name of the test config\n"
-	printf -- "\t\t-r --runtime[s]\t\t int[s|m|h][,int[s|m|h] one or more test measurement periods. s=sec, m=min, h=hours (default is $runtimes)\n"
-	printf -- "\t\t-C --cpu int\t\t cpu to bind to\n"
-	printf -- "\t\t-s --stress\t\t run stress process on the same cpu as --cpu\n"
-	printf -- "\t\t--tool-group=str\t which pbench tool group to use (defaults to default)\n"
-	printf -- "\t\t-e --rteval\t\t run rteval --onlyloads on a NON-isolated core\n"
+	printf -- "\t\t-c str --config=str name of the test config\n"
+	printf -- "\t\t-r --runtime[s] int[s|m|h][,int[s|m|h] one or more test measurement periods. s=seconds, m=minutes, h=hours (default is $runtimes)\n"
+	printf -- "\t\t-C --cpu int                                  cpu to bind to\n"
+	printf -- "\t\t-s --stress                                   run stress process on the same cpu as --cpu\n"
+	printf -- "\t\t--tool-group=str\n"
 	exit 1
 fi
 eval set -- "$opts";
@@ -89,10 +86,6 @@ while true; do
 			shift;
 		fi
 		;;
-        -e|--rteval)
-                shift;
-                rteval=1
-                ;;
 	--)
 		shift;
 		break;
@@ -107,9 +100,6 @@ verify_tool_group $tool_group
 
 ## Ensure the right version of the benchmark is installed
 check_install_rpm $benchmark_rpm $ver
-check_install_rpm rteval
-check_install_rpm kernel-headers
-
 if [[ $? -ne 0 ]]; then
 	error_log "Failed to install the benchmark RPM $benchmark_rpm-$ver"
 	exit 1
@@ -142,17 +132,8 @@ if [ $stress ]; then
 		stress_pid=$!
 	fi
 fi
-
-if [ $rteval ]; then
-	rteval_cmd="rteval --onlyload --duration=$runtimes --verbose > $benchmark_run_dir/rteval.log"
-	# we need to ensure any previous rteval-build dirs are cleaned up before re-running.
-        rm -rf $rteval_workdir/rteval-build
-        $rteval_cmd
-	$rteval_pid=$!
-fi
-
 for runtime in `echo $runtimes | sed -e s/,/" "/g`; do
-	benchmark_cmd="cyclictest -m -n -q -p99 -h60 -N -v -i 200 -D $runtimes"
+	benchmark_cmd="cyclictest -m -n -q -p99 -h60 -D $runtime"
 	iteration="${count}-runtime_$runtime"
 	if [ ! -z "$cpu" ]; then
 		iteration="$iteration-cpu_$cpu"
@@ -165,7 +146,7 @@ for runtime in `echo $runtimes | sed -e s/,/" "/g`; do
 	chmod +x $benchmark_cmd_file
 	debug_log "going to run $benchmark_cmd"
 	start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-	$benchmark_cmd_file > $result_file
+	$benchmark_cmd_file | tee $result_file
 	stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	min=`grep "Min Latencies:" $result_file | awk '{print $4}'`
@@ -174,18 +155,9 @@ for runtime in `echo $runtimes | sed -e s/,/" "/g`; do
 	printf "%20s%20s%20s%20s\n" "$iteration" "$min" "$avg" "$max" >>$benchmark_summary_txt_file
 	let count=$count+1
 done
-
 if [ $stress ]; then
-	kill -9 $stress_pid
-	kill -9 $stress_pid
+	kill $stress_pid
 fi
-
-if [ $rteval ]; then
-        kill -9 $rteval_pid
-        kill -9 $rteval_pid
-	rm -rf $rteval_workdir/rteval-build
-fi
-
 collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 cat $benchmark_summary_txt_file
 
