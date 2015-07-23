@@ -6,20 +6,26 @@ use JSON;
 my $dir = $ARGV[0];
 my $iteration = $ARGV[1];
 my $tool_group = $ARGV[2];
+my $js_str;
 
 open(JS, "<$dir/fio-result.txt");
 # skip past the non json stuff
 while (<JS>) {
-	if (/^{/) {
+	if (/{/) {
 		last;
 	}
 }
 
-# read the rest of the file in to one string
-local $/=undef;
-binmode JS;
-my $js_str = <JS>;
-$js_str = "{\n" . $js_str;
+if ( eof JS ) {
+	print "Could not read rest of json data\n";
+	exit 1;
+} else {
+	# read the rest of the file in to one string
+	local $/=undef;
+	binmode JS;
+	$js_str = <JS>;
+	$js_str = "{\n" . $js_str;
+}
 
 # convert [json] string in to big hash
 my $fio_results;
@@ -28,10 +34,10 @@ close(JS);
 my %results;
 my %all_job_results;
 my %all_client_results;
-my $client_jobs;
-my $job_name;
-my $fio_json_field;
-my $client_name;
+my $client_jobs = "";
+my $job_name = "";
+my $fio_json_field = "";
+my $client_name = "";
 if ( defined $$fio_results{"client_stats"} ) {
 	# this is a multi-client test
 	$fio_json_field = "client_stats";
