@@ -314,7 +314,6 @@ sundry things - although the name of the script indicates its purpose,
 if you want more information on these, read the code :-)
 - avg-stddev
 - bind-ethernet-ints-to-node
-- bind-vhost-node0
 - check-vcpu-prio.sh
 - cpu-hog
 - disable-ht

@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# this currently binds cpus 0-11, which is not always node0
-# for all hosts
-
-# bind vhost threads
-for i in `ps aux | pgrep ^vhost`; do taskset -pc 0-11 $i;  done
