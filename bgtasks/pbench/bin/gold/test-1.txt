@@ -13,9 +13,6 @@ pbench-index: Bad TMP=/var/tmp/pbench-test-bgtasks/pbench/tmp
 +++ Running pbench-clean-up-dangling-results-links
 pbench-clean-up-dangling-results-links: Bad TMP=/var/tmp/pbench-test-bgtasks/pbench/tmp
 --- Finished pbench-clean-up-dangling-results-links (status=1}
-+++ Running pbench-create-results-links
-pbench-create-results-links: Bad TMP=/var/tmp/pbench-test-bgtasks/pbench/tmp
---- Finished pbench-create-results-links (status=1}
 +++ Running pbench-edit-prefixes
 pbench-edit-prefixes: Bad TMP=/var/tmp/pbench-test-bgtasks/pbench/tmp
 --- Finished pbench-edit-prefixes (status=1}

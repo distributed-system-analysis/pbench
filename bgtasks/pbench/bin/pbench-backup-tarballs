@@ -5,8 +5,9 @@
 # backup directory.
 
 # load common things
+opts=$SHELLOPTS
 case $opts in
-    *x*)
+    *xtrace*)
         dir=$(dirname $(which $0))
         PROG=$(basename $(which $0))
         ;;
