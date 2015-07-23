@@ -1,3 +1,0 @@
-MAILTO="pbench-admins@example.com"
-MAILFROM="pbench@example.com"
-41 4 * * *  flock -n /home/pbench/locks/pbench-backup-tarballs.lock /home/pbench/bin/pbench-backup-tarballs /pbench /srv/pbench/archive.backup

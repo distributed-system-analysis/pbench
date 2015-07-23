@@ -41,7 +41,6 @@ function _run_allscripts {
     _run pbench-index
     # These three are independent
     _run pbench-clean-up-dangling-results-links
-    _run pbench-create-results-links
     _run pbench-edit-prefixes
 }
 function _save_tree {
@@ -183,38 +182,6 @@ if [[ $? -gt 0 ]]; then
 fi
 _save_tree; _dump_logs
 _verify_output $res test-6
-res=$?
-_reset_state
-
-#
-# 7. Verify pbench-copy-sosreports works
-#
-_setup_state test-7
-_run pbench-copy-sosreports $_testroot/foo/pbench.copy-sosreports
-# PID-->####
-# rsync byte numbers --> ###
-sed -i '/\/usr\/bin\/rsync/s/pbench-copy-sosreports.[0-9]*/pbench-copy-sosreports.####/
-/^sent/s/sent [0-9,]* bytes  received [0-9,]* bytes  [0-9,]*\.[0-9,]* bytes\/sec/sent ### bytes  received ### bytes  ###.## bytes\/sec/
-/^total/s/total size is [0-9,]*  speedup is [0-9.]*/total size is ####  speedup is ###.##/' $_testroot/pbench/logs/pbench-copy-sosreports/pbench-copy-sosreports.log
-if [[ $? -gt 0 ]]; then
-    echo "ERROR: unable to fix up log file" >&2
-    exit 1
-fi
-_save_tree; _dump_logs
-_verify_output $res test-7
-res=$?
-_reset_state
-
-#
-# 8. Verify pbench-index works
-#    It runs index-pbench in --unittest mode, printing out the actions.
-#    There are two tarballs, one is a recent one with a metadata.log, the other
-#    is an older one without. The current version will index the first one and bail
-#    on the second.
-_setup_state test-8
-_run pbench-index $_testroot/foo/pbench.index
-_save_tree; _dump_logs
-_verify_output $res test-8
 res=$?
 _reset_state
 
