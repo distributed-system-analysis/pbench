@@ -119,6 +119,7 @@ tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
 tool_output_file=$tool_output_dir/$tool.txt
 case "$mode" in
 	install)
+	container_sanity_check_perf
         ;;
 	start)
 	if ! cat /proc/mounts | grep -q debugfs; then
