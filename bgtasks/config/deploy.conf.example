@@ -1,0 +1,67 @@
+# this file describes the elements of deploying the pbench background tools
+[DEFAULT]
+mailto = pbench-admins@example.com
+default-user=pbench
+default-deploy-dir=/home/pbench
+default-script-dir = %(default-deploy-dir)s/bin
+default-lib-dir = %(default-deploy-dir)s/lib
+default-crontab-dir = %(default-deploy-dir)s/crontab
+default-lock-dir = %(default-deploy-dir)s/locks
+deploy-script-dir = %(default-script-dir)s
+deploy-lib-dir = %(default-lib-dir)s
+deploy-crontab-dir=%(default-crontab-dir)s
+deploy-lock-dir = %(default-lock-dir)s
+
+[deploy]
+roles = pbench-results pbench-backup inactive
+user=%(default-user)s
+# where to find files locally
+script-dir = pbench/bin
+lib-dir = pbench/lib
+# generally needed scripts
+scripts = pbench-base.sh
+
+###########################################################################
+# hosts
+[pbench-results]
+host = pbench.results.example.com
+mailfrom = %(default-user)s@%(host)s
+tasks = pbench-unpack-tarballs, pbench-copy-sosreports, pbench-edit-prefixes, pbench-index,
+        pbench-clean-up-dangling-results
+
+[pbench-backup]
+host = pbench-backup.example.com
+mailfrom = %(default-user)s@%(host)s
+tasks = pbench-backup-tarballs
+
+[inactive]
+host = non-participant.example.com]
+mailfrom = %(default-user)s@%(host)s
+tasks = 
+
+###########################################################################
+# tasks
+[pbench-backup-tarballs]
+scripts = pbench-backup-tarballs
+crontab = 41 4 * * *  flock -n %(deploy-lock-dir)s/pbench-backup-tarballs.lock %(deploy-script-dir)s/pbench-backup-tarballs /pbench /srv/vos/pbench/archive.backup
+
+[pbench-unpack-tarballs]
+scripts = pbench-unpack-tarballs
+crontab = * * * * *  flock -n %(deploy-lock-dir)s/pbench-unpack-tarballs.lock %(deploy-script-dir)s/pbench-unpack-tarballs /pbench
+
+[pbench-copy-sosreports]
+scripts = pbench-copy-sosreports
+crontab = 41 * * * *  flock -n %(deploy-lock-dir)s/pbench-copy-sosreports.lock %(deploy-script-dir)s/pbench-copy-sosreports /pbench
+
+[pbench-edit-prefixes]
+scripts = pbench-edit-prefixes
+crontab = * * * * *  flock -n %(deploy-lock-dir)s/pbench-edit-prefixes.lock %(deploy-script-dir)s/pbench-edit-prefixes /pbench
+
+[pbench-index]
+scripts = pbench-index, index-pbench
+libs = config vos mappings
+crontab = 26 * * * *  flock -n %(deploy-lock-dir)s/pbench-index.lock %(deploy-script-dir)s/pbench-index /pbench
+
+[pbench-clean-up-dangling-results]
+scripts = pbench-clean-up-dangling-results
+crontab = 51 3 * * *  flock -n %(deploy-lock-dir)s/pbench-clean-up-dangling-results-links.lock %(deploy-script-dir)s/pbench-clean-up-dangling-results-links /pbench
