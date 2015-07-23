@@ -132,22 +132,3 @@ function verify_tool_group {
 	fi
 	return 0
 }
-
-function container_sanity_check_perf {
-if [ "$container" = "docker" ]; then
-	if egrep -qv ^\-1 /proc/sys/kernel/perf_event_paranoid; then
-		warn_log "As an unpriv user (i.e. in a container) perf record -a requires \"echo -1 > /proc/sys/kernel/perf_event_paranoid\" or --privileged."
-		warn_log "Continuing anyway, perf data will NOT be collected."
-	fi
-fi
-}
-
-function container_sanity_check_iostat {
-if [ "$container" = "docker" ]; then
-	if [ ! -e /dev/mapper ]; then
-		warn_log "The iostat tool requires /dev/mapper be volume mounted in to resolve device names."
-		warn_log "Add \"-v /dev/mapper:/dev/mapper\" or --privileged to the docker run command."
-		warn_log "Continuing anyway, iostat data will still be collected, but device names may be unclear"
-	fi
-fi
-}

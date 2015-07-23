@@ -153,7 +153,6 @@ case "$mode" in
 	else
 		echo $script_name is installed
 	fi
-	container_sanity_check_iostat
         ;;
 	start)
 	mkdir -p $tool_output_dir
