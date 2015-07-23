@@ -1,5 +1,5 @@
 resp-file: response-times-172.168.10.88.txt
-average latency: 54.8069
-95th percentile latency: 56.8610
-99.995th percentile latency: 87.5680
-maximum latency: 1441.3400
+average latency: 55.2066
+95th percentile latency: 59.3970
+99.995th percentile latency: 96.1700
+maximum latency: 96.1700
