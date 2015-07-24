@@ -37,7 +37,7 @@ tasks = pbench-backup-tarballs
 [inactive]
 host = non-participant.example.com
 mailfrom = %(default-user)s@%(host)s
-tasks = 
+tasks =
 
 ###########################################################################
 # tasks
