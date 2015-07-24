@@ -10,8 +10,6 @@ pbench-index: Bad ARCHIVE=/var/tmp/pbench-test-bgtasks/pbench/archive/fs-version
 --- Finished pbench-index (status=1}
 +++ Running pbench-clean-up-dangling-results-links
 --- Finished pbench-clean-up-dangling-results-links (status=1}
-+++ Running pbench-create-results-links
---- Finished pbench-create-results-links (status=1}
 +++ Running pbench-edit-prefixes
 --- Finished pbench-edit-prefixes (status=1}
 +++ pbench tree state
@@ -23,9 +21,6 @@ pbench-index: Bad ARCHIVE=/var/tmp/pbench-test-bgtasks/pbench/archive/fs-version
 /var/tmp/pbench-test-bgtasks/pbench/logs/pbench-copy-sosreports
 /var/tmp/pbench-test-bgtasks/pbench/logs/pbench-copy-sosreports/pbench-copy-sosreports.error
 /var/tmp/pbench-test-bgtasks/pbench/logs/pbench-copy-sosreports/pbench-copy-sosreports.log
-/var/tmp/pbench-test-bgtasks/pbench/logs/pbench-create-results-links
-/var/tmp/pbench-test-bgtasks/pbench/logs/pbench-create-results-links/pbench-create-results-links.error
-/var/tmp/pbench-test-bgtasks/pbench/logs/pbench-create-results-links/pbench-create-results-links.log
 /var/tmp/pbench-test-bgtasks/pbench/logs/pbench-edit-prefixes
 /var/tmp/pbench-test-bgtasks/pbench/logs/pbench-edit-prefixes/pbench-edit-prefixes.error
 /var/tmp/pbench-test-bgtasks/pbench/logs/pbench-edit-prefixes/pbench-edit-prefixes.log
@@ -37,8 +32,6 @@ pbench-index: Bad ARCHIVE=/var/tmp/pbench-test-bgtasks/pbench/archive/fs-version
 +++ pbench log file contents
 /var/tmp/pbench-test-bgtasks/pbench/logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log:pbench-clean-up-dangling-results-links: Bad ARCHIVE=/var/tmp/pbench-test-bgtasks/pbench/archive/fs-version-001
 /var/tmp/pbench-test-bgtasks/pbench/logs/pbench-copy-sosreports/pbench-copy-sosreports.log:pbench-copy-sosreports: Bad ARCHIVE=/var/tmp/pbench-test-bgtasks/pbench/archive/fs-version-001
-/var/tmp/pbench-test-bgtasks/pbench/logs/pbench-create-results-links/pbench-create-results-links.log:run-1900-01-01T00:00:00-UTC
-/var/tmp/pbench-test-bgtasks/pbench/logs/pbench-create-results-links/pbench-create-results-links.log:pbench-create-results-links: BAD ARCHIVE=/var/tmp/pbench-test-bgtasks/pbench/archive/fs-version-001
 /var/tmp/pbench-test-bgtasks/pbench/logs/pbench-edit-prefixes/pbench-edit-prefixes.log:pbench-edit-prefixes: Bad ARCHIVE=/var/tmp/pbench-test-bgtasks/pbench/archive/fs-version-001
 /var/tmp/pbench-test-bgtasks/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:pbench-unpack-tarballs: Bad ARCHIVE=/var/tmp/pbench-test-bgtasks/pbench/archive/fs-version-001
 --- pbench log file contents
