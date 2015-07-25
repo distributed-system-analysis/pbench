@@ -1,9 +1,0 @@
-./src/configtools.py
-./CONFIG/configtools.conf
-./setup.py
-./bin/gethosts.2.py
-./bin/getconf.3.py
-./bin/getconf.2.py
-./bin/gethosts.3.py
-./MANIFEST
-
