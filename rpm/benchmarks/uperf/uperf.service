@@ -1,8 +1,0 @@
-[Unit]
-Description=uperf A network performance tool
-
-[Service]
-ExecStart=/usr/local/bin/uperf -s
-
-[Install]
-WantedBy=multi-user.target
