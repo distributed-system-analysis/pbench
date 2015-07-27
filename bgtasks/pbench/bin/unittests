@@ -21,6 +21,8 @@ if [[ ! -d $_testdir ]]; then
     exit 1
 fi
 
+export CONFIG=../../config/run.conf
+
 # Fixed timestamp output
 export _PBENCH_BGTASKS_TEST=1
 

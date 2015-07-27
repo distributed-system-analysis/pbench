@@ -1,0 +1,7 @@
+[sosreports]
+sosreportdest-user = user
+sosreportdest-host = sosreport.host.example.com
+sosreportdest-dir = /example/reception/pbench.d/
+
+[mail]
+mailto = pbench-admins@example.com

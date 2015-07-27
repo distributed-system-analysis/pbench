@@ -35,9 +35,7 @@ if [ "$TS" = "" ]; then
     TS="run-$(timestamp)"
 fi
 
-SOSREPORTDEST=sosreport@example.com:VoS/reception/pbench.d/
-
-mail_recipients="pbench-admins@example.com"
+mail_recipients=$(getconf.py mailto mail)
 
 # make all the state directories for the pipeline and any others needed
 function mk_dirs {

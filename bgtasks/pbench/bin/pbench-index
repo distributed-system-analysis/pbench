@@ -25,15 +25,16 @@
 #               the TO-INDEX subdir to the DONE subdir.
 
 # assumptions:
-# - this script runs as a cron job on perf42 (eventually to be moved to the gluster servers)
-# - tarballs and md5 sums are uploaded by move/copy-results to $ARCHIVE/$(hostname -s) area.
-# - move/copy-results also makes a symlink to each tarball it uploads in $ARCHIVE/TODO.
+# - this script runs as a cron job
+# - tarballs and md5 sums are uploaded by move/copy-results to
+#   the $ARCHIVE/$(hostname -s) area.
+# - move/copy-results also makes a symlink to each tarball it uploads
+#   in $ARCHIVE/TODO.
 
-# this script loops over the contents of $archive/<hostname>/TO-INDEX, extracts
-# the information from the tarball and calls an indexing script to
-# index the results into ES. If everything works, it then moves the
-# symlink from $ARCHIVE/<hostname>/TO-INDEX to
-# $ARCHIVE/<hostname>/DONE.
+# This script loops over the contents of $archive/<hostname>/TO-INDEX,
+# extracts the information from the tarball and calls an indexing script
+# to index the results into ES. If everything works, it then moves the
+# symlink from $ARCHIVE/<hostname>/TO-INDEX to $ARCHIVE/<hostname>/DONE.
 
 ###########################################################################
 # load common things
