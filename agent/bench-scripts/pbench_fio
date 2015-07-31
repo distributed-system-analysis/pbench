@@ -25,26 +25,32 @@ ver=2.2.5
 orig_cmd="$*"
 
 # Defaults
+keep_failed_tool_data="y"
+tar_nonref_data="y"
+postprocess_only=n
+nr_samples=5
+maxstddevpct=5 # maximum allowable standard deviation in percent
+max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
 supported_test_types="read,write,rw,randread,randwrite,randrw"
-supported_block_sizes="1,2,4,8,16,32,64,128,256,512,1024"
 install_only="n"
 config=""
 rate_iops=""
 test_types="read,randread"		# default is -non- destructive
 block_sizes="4,64,1024"
 targets="/tmp/fio"
-device_mode="concurrent"  # can also be sequential (one job per device, once at a time)
 runtime=30
 ramptime=5
 iodepth=32
-jobs_per_dev=1
 ioengine="libaio"
 job_mode="concurrent" # serial or concurrent
-file_size="256M"
+file_size="4096M"
 direct=1 # don't cache IO's by default
 sync=0 # don't sync IO's by default
-clients="" # A list of hostnames (hosta,hostb,hostc) where you want uperf to run.  Note: if you use this, pbench must be installed on these systems already.
-tool_group=default
+clients="" # A list of hostnames (hosta,hostb,hostc) where you want fio to run.  Note: if you use this, pbench must be installed on these systems already.
+tool_label_pattern="fio-"
+tool_group="default"
+max_key_length=20
+primary_metric="readwrite_IOPS"
 
 function fio_usage() {
 		printf "The following options are available:\n"
@@ -68,7 +74,7 @@ function fio_usage() {
 		printf "\t\ttime in seconds to warm up test before taking measurements (default is $ramptime)\n"
 		printf "\n"
 		printf -- "\t-b int[,int] --block-sizes=str[,str] (default is $block_sizes)\n"
-		printf "\t\tone or more block sizes in KiB: %s\n" "$supported_block_sizes (default is $block_sizes)"
+		printf "\t\tone or more block sizes in KiB (default is $block_sizes)\n"
 		printf "\n"
                 printf -- "\t-s int[,int] --file-size=str[,str] (default is $file_size)\n"
                 printf "\t\tfile sizes in MiB: %s\n"
@@ -87,7 +93,7 @@ function fio_usage() {
 }
 
 function fio_process_options() {
-	opts=$(getopt -q -o jic:t:b:s:d: --longoptions "help,direct:,sync:,install,clients:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:" -n "getopt.sh" -- "$@");
+	opts=$(getopt -q -o jic:t:b:s:d: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,clients:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:" -n "getopt.sh" -- "$@");
 	if [ $? -ne 0 ]; then
 		printf "\t${benchmark}: you specified an invalid option\n\n"
 		fio_usage
@@ -103,6 +109,27 @@ function fio_process_options() {
 			--install)
 			shift;
 			install_only="y"
+			;;
+			--max-stddev)
+			shift;
+			if [ -n "$1" ]; then
+				maxstddevpct="$1"
+				shift;
+			fi
+			;;
+			--max-failures)
+			shift;
+			if [ -n "$1" ]; then
+				max_failures="$1"
+				shift;
+			fi
+			;;
+			--samples)
+			shift;
+			if [ -n "$1" ]; then
+				nr_samples="$1"
+				shift;
+			fi
 			;;
 			--direct)
 			shift;
@@ -235,6 +262,7 @@ function fio_install() {
 	fi
 	if [ ! -z "$clients" ]; then
 		debug_log "verifying clients have fio installed"
+		echo "verifying clients have fio installed"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			ssh $ssh_opts $client ${pbench_install_dir}/bench-scripts/pbench_fio --install &
 		done
@@ -243,6 +271,36 @@ function fio_install() {
 	if [ "$install_only" == "y" ]; then
 		exit 0
 	fi
+}
+
+function print_iteration {
+	# printing a iteration assumes this must be a new row, so include \n first
+	printf "\n%28s" "$1" >>$benchmark_summary_txt_file
+	printf "\n%s" "$1" >>$benchmark_summary_csv_file
+	if [ $1 == "iteration" ]; then
+		# this is just a label, so no links here
+		printf "\n%28s %s %s" "iteration" "summary" "tools">>$benchmark_summary_html_file
+	else
+		printf "\n%28s <a href=./$iteration/reference-result/summary-result.html>%s</a> <a href=./$iteration/reference-result/tools-$tool_group>%s</a>" "$1" "summary" "tools">>$benchmark_summary_html_file
+	fi
+}
+
+function print_value {
+	if [ -z "$2" ]; then
+		printf "%${spacing}s" "$1" >>$benchmark_summary_txt_file
+		printf "%s" ",$1,stddevpct" >>$benchmark_summary_csv_file
+		printf "%${spacing}s" "$1" >>$benchmark_summary_html_file
+	else
+		printf "%${spacing}s" "$1[+/-$2]" >>$benchmark_summary_txt_file
+		printf "%s" ",$1,$2" >>$benchmark_summary_csv_file
+		printf "%${spacing}s" "$1[+/-$2]" >>$benchmark_summary_html_file
+	fi
+}
+
+function print_newline {
+	printf "\n" >>$benchmark_summary_txt_file
+	printf "\n" >>$benchmark_summary_csv_file
+	printf "\n" >>$benchmark_summary_html_file
 }
 
 # Make sure this devices exists
@@ -331,6 +389,7 @@ function fio_run_job() {
 		debug_log "fio jobfile could not be found: $fio_job_file"
 		return
 	fi
+	echo "running fio job: $fio_job_file"
 
 	mkdir -p $benchmark_results_dir
 	mkdir -p $benchmark_results_dir/clients
@@ -374,19 +433,25 @@ function fio_run_job() {
 	chmod +x $benchmark_results_dir/fio.cmd
 	debug_log "$benchmark: Going to run [$bench_cmd $bench_opts $client_opts]"
 	pushd $benchmark_results_dir >/dev/null
-	$benchmark_results_dir/fio.cmd >$benchmark_results_dir/result.txt
+	$benchmark_results_dir/fio.cmd >$benchmark_results_dir/fio-result.txt
 	popd >/dev/null
 	stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	if [ ! -z "$clients" ]; then
 		debug_log "getting log files from clients"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			mkdir -p $benchmark_results_dir/clients/$client
-			scp $ssh_opts $client:"$benchmark_results_dir/*" $benchmark_results_dir/clients/$client/ >/dev/null &
+			scp $ssh_opts $client:"$benchmark_results_dir/*.log" $benchmark_results_dir/clients/$client/ >/dev/null &
+		done
+		wait
+		for client in `echo $clients | sed -e s/,/" "/g`; do
+			mkdir -p $benchmark_results_dir/clients/$client
+			ssh $ssh_opts $client /bin/rm "$benchmark_results_dir/*.log"  &
 		done
 		wait
 	else
 		mv $benchmark_results_dir/fio*.log $benchmark_results_dir/clients/localhost/
 	fi
+	echo "fio job complete"
 	debug_log "post-processing fio results"
 	$script_path/postprocess/$benchmark-postprocess $benchmark_results_dir $iteration $tool_group
 	postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
@@ -396,16 +461,20 @@ function fio_run_job() {
 # Run the benchmark and start/stop perf analysis tools
 function fio_run_benchmark() {
 	fio_device_check "$targets" "$clients"
-	benchmark_summary_file="$benchmark_run_dir/summary-result.txt"
-	benchmark_summary_html_file="$benchmark_run_dir/summary-result.html"
+	benchmark_summary_txt_file="$benchmark_run_dir/summary-result.txt"
+	rm -f $benchmark_summary_txt_file
 	benchmark_summary_csv_file="$benchmark_run_dir/summary-result.csv"
+	rm -f $benchmark_summary_csv_file
+	benchmark_summary_html_file="$benchmark_run_dir/summary-result.html"
+	rm -f $benchmark_summary_html_file
+
+	printf "# these results generated with:\n# $script_name %s\n\n" "$orig_cmd" >$benchmark_summary_txt_file
+	printf "<pre>\n# these results generated with:\n# $script_name %s\n\n" "$orig_cmd" >$benchmark_summary_html_file
+	printf "\n" >>$benchmark_summary_txt_file
+	printf "\n" >>$benchmark_summary_html_file
+
 	mkdir -p $benchmark_run_dir/.running
 	local count=1
-	printf "these results generated with:\n%s\n\n" "$orig_cmd" >$benchmark_summary_file
-	printf "%20s%20s%20s%20s%20s%20s%20s%20s%20s\n" "iteration" "rw IOPs" "rw kB/sec" "read IOPS" "read kB/sec" "read 95th-lat-ms" "write IOPS" "write kB/sec" "write 95th-lat-ms" >>$benchmark_summary_file
-	printf "<pre>\nthese results generated with:\n%s\n\n" "$orig_cmd" >$benchmark_summary_html_file
-	printf "%20s %s %s%20s%20s%20s%20s%20s%20s%20s%20s\n" "iteration" "details" "tools" "rw IOPs" "rw kB/sec" "read IOPS" "read kB/sec" "read 95th-lat-ms" "write IOPS" "write kB/sec" "write 95th-lat-ms" >>$benchmark_summary_html_file
-	printf "%s,%s,%s,%s,%s,%s,%s,%s,%s\n" "iteration" "rw IOPs" "rw kB/sec" "read IOPS" "read kB/sec" "read 95th-lat-ms" "write IOPS" "write kB/sec" "write 95th-lat-ms" >>$benchmark_summary_csv_file
 	if [ "$job_mode" = "serial" ]; then
 		# if each target is separated by a space, there will be one job for each in next for loop
 		targets=`echo $targets | sed -e s/,/" "/g`
@@ -415,26 +484,156 @@ function fio_run_benchmark() {
 			for block_size in `echo $block_sizes | sed -e s/,/" "/g`; do
 				job_num=1
 				iteration="${count}-${test_type}-${block_size}KiB"
-				if [ "$job_mode" = "serial" ]; then
-					dev_short_name="`basename $dev`"
-					# easier to identify what job used what device when having 1 job per device
-					iteration="$iteration-${dev_short_name}"
+				iteration_dir=$benchmark_run_dir/$iteration
+				result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
+				failures=0
+				while [[ $(echo "if (${result_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; do
+					if [[ $failures -gt 0 ]]; then
+						echo "Restarting iteration $iteration ($count of $total_iterations)"
+						log "Restarting iteration $iteration ($count of $total_iterations)"
+					fi
+					mkdir -p $iteration_dir
+					# each attempt at a test config requires multiple samples to get stddev
+					for sample in `seq 1 $nr_samples`; do
+						if [ "$job_mode" = "serial" ]; then
+							dev_short_name="`basename $dev`"
+							# easier to identify what job used what device when having 1 job per device
+							iteration="$iteration-${dev_short_name}"
+						fi
+						benchmark_results_dir="$iteration_dir/sample$sample"
+						benchmark_tools_dir="$benchmark_results_dir/tools-$tool_group"
+						benchmark_results_dir="$iteration_dir/sample$sample"
+						if [ "$postprocess_only" != "y" ]; then
+							mkdir -p $benchmark_results_dir
+							fio_job_file="$benchmark_results_dir/fio.job"
+							fio_create_jobfile "$test_type" "$ioengine" "$block_size" "$iodepth" "$direct" "$sync" "$runtime" "$ramptime" "$file_size" "$rate_iops" "$dev" "$fio_job_file"
+							fio_run_job "$iteration" "$benchmark_results_dir" "$fio_job_file" "$clients"
+						fi
+					done
+
+					# find the keys that we will compute avg & stddev
+					# NOTE: we always choose "sample1" since it is
+					# always present and shares the same keys with
+					# every other sample
+					keys=`cat $iteration_dir/sample1/result.txt  | awk -F= '{print $1}'`
+					s_keys=""
+					key_nr=0
+					# for each key, get the average & stddev
+					for key in $keys; do
+						# the s_key is used in the summary reports to save space, it is just an abbreviated key
+						s_key=`echo $key | cut  -d- -f2-`
+						# remove the label pattern from the s_key
+						s_key=`echo $s_key | sed -e s/"$tool_label_pattern"//`
+						s_key=`echo $s_key | sed -e s/"transactions"/"trans"/`
+						# store these in reverse order as the keys and be sure to print values in reverse order later
+						#s_keys="$s_key $s_keys"
+						s_keys[$key_nr]="$s_key"
+						s_key_length=`echo $s_key | wc -m`
+						if [ $s_key_length -gt $max_key_length ]; then
+							max_key_length=$s_key_length
+						fi
+						iteration_samples=""
+						for sample in `seq 1 $nr_samples`; do
+							value=`grep -- "^$key" $iteration_dir/sample$sample/result.txt | awk -F= '{print $2}'`
+							iteration_samples="$iteration_samples $value"
+						done
+						avg_stddev_result=`avg-stddev $iteration_samples`
+						samples[$key_nr]="$iteration_samples"
+						avg[$key_nr]=`echo $avg_stddev_result | awk '{print $1}'`
+						avg[$key_nr]=`printf "%.2f" ${avg[$key_nr]}`
+						stddev[$key_nr]=`echo $avg_stddev_result | awk '{print $2}'`
+						stddevpct[$key_nr]=`echo $avg_stddev_result | awk '{print $3}'`
+						stddevpct[$key_nr]=`printf "%.1f" ${stddevpct[$key_nr]}`
+						closest[$key_nr]=`echo $avg_stddev_result | awk '{print $4}'`
+						if echo $key | grep -q "$primary_metric"; then
+							tput_index=$key_nr
+							tput_metric=$key
+						fi
+						((key_nr++))
+					done
+	
+					# create a symlink to the result dir which most accurately represents the average result
+					for sample in `seq 1 $nr_samples`; do
+						sample_dir="sample$sample"
+						if [ $sample -eq ${closest[$tput_index]} ]; then
+							msg="$tput_metric: ${samples[$tput_index]}  average: ${avg[$tput_index]} stddev: ${stddevpct[$tput_index]}%  closest-sample: $sample"
+							echo $msg | tee $iteration_dir/sample-runs-summary.txt
+							log $msg
+							pushd "$iteration_dir" >/dev/null; /bin/rm -rf reference-result; ln -sf $sample_dir reference-result; popd >/dev/null
+						else
+							# delete the tool data [and respose time log for rr tests] from the other samples to save space
+							# this option is off by default
+							if [ "$keep_failed_tool_data" == "n" ]; then
+								/bin/rm -rf $iteration_dir/$sample_dir/tools-* $iteration_dir/$sample_dir/response-times.txt
+							fi
+							# since non reference-result sample data is rarely referenced, tar it up to reduce the number of files used
+							if [ "$tar_nonref_data" == "y" ]; then
+								pushd "$iteration_dir" >/dev/null; tar --create --xz --force-local --file=$sample_dir.tar.xz $sample_dir && /bin/rm -rf $sample_dir; popd >/dev/null
+							fi
+						fi
+					done
+
+					# if we did not achieve the stddevpct, then move this result out of the way and try again
+					fail=0
+					if [[ $(echo "if (${stddevpct[$tput_index]} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; then
+						fail=1
+					fi
+					if [ $fail -eq 1 ]; then
+						let failures=$failures+1
+						msg="$iteration: the percent standard deviation (${stddevpct[$tput_index]}%) was not within maximum allowed (${maxstddevpct}%)"
+						echo $msg
+						log $msg
+						msg="This iteration will be repeated until either standard deviation is below the maximum allowed, or $max_failures failed attempts."
+						echo $msg
+						log $msg
+						msg="Changing the standard deviation percent can be done with --max-stddev= and the maximum failures with --max-failures="
+						echo $msg
+						log $msg
+						# tar up the failed iteration.  We may need to look at it later, but don't waste space by keeping it uncompressed
+						# if all attempts failed, leaving no good result, leave the last attempt uncompressed
+						if [ $failures -le $max_failures ]; then
+							pushd $benchmark_run_dir >/dev/null
+							mv $iteration $iteration-fail$failures
+							tar --create --xz --force-local --file=$iteration-fail$failures.tar.xz $iteration-fail$failures &&\
+							/bin/rm -rf $iteration-fail$failures
+							popd >/dev/null
+						fi
+					fi
+					# break out of this loop only stddev is low enough or too many failures
+					if [ $fail -eq 0 -o $failures -ge $max_failures ]; then
+						break
+					fi
+				done
+				spacing=`echo "$max_key_length + 1" | bc`
+				
+				((key_nr--))
+				# print the labels for this group
+				if [ "$last_test_type" != "$test_type" ]; then
+					print_newline
+					print_iteration "iteration"
+					for i in `seq 0 $key_nr`; do
+						print_value "${s_keys[$i]}"
+					done
 				fi
-				# note: there are no samples taken to produce average & stddev, so result is put directly in "reference-result"
-				benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
-				benchmark_tools_dir="$benchmark_results_dir/tools-$tool_group"
-				fio_job_file="$benchmark_results_dir/fio.job"
-				fio_create_jobfile "$test_type" "$ioengine" "$block_size" "$iodepth" "$direct" "$sync" "$runtime" "$ramptime" "$file_size" "$rate_iops" "$dev" "$fio_job_file"
-				fio_run_job "$iteration" "$benchmark_results_dir" "$fio_job_file" "$clients"
-				let count=$count+1
+				# print the correspnding values
+				print_iteration $iteration
+				for i in `seq 0 $key_nr`; do
+					print_value "${avg[$i]}" "${stddevpct[$i]}%"
+				done
+
+				echo "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
+				log "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
+				last_test_type="$test_type"
+				let count=$count+1 # now we can move to the next iteration
 			done
 		done
 	done
-	printf "</pre>" >>$benchmark_summary_html_file
+	printf "</pre>\n" >>$benchmark_summary_html_file
+	printf "\n" >>$benchmark_summary_txt_file
 }
 
 function fio_print_summary() {
-	cat $benchmark_summary_file
+	cat $benchmark_summary_txt_file
 }
 
 fio_process_options "$@"
