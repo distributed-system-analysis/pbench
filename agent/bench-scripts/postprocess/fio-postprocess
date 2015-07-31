@@ -6,20 +6,26 @@ use JSON;
 my $dir = $ARGV[0];
 my $iteration = $ARGV[1];
 my $tool_group = $ARGV[2];
+my $js_str;
 
-open(JS, "<$dir/result.txt");
+open(JS, "<$dir/fio-result.txt");
 # skip past the non json stuff
 while (<JS>) {
-	if (/^{/) {
+	if (/{/) {
 		last;
 	}
 }
 
-# read the rest of the file in to one string
-local $/=undef;
-binmode JS;
-my $js_str = <JS>;
-$js_str = "{\n" . $js_str;
+if ( eof JS ) {
+	print "Could not read rest of json data\n";
+	exit 1;
+} else {
+	# read the rest of the file in to one string
+	local $/=undef;
+	binmode JS;
+	$js_str = <JS>;
+	$js_str = "{\n" . $js_str;
+}
 
 # convert [json] string in to big hash
 my $fio_results;
@@ -28,10 +34,10 @@ close(JS);
 my %results;
 my %all_job_results;
 my %all_client_results;
-my $client_jobs;
-my $job_name;
-my $fio_json_field;
-my $client_name;
+my $client_jobs = "";
+my $job_name = "";
+my $fio_json_field = "";
+my $client_name = "";
 if ( defined $$fio_results{"client_stats"} ) {
 	# this is a multi-client test
 	$fio_json_field = "client_stats";
@@ -115,37 +121,26 @@ foreach $client_jobs ( @$fio_results{$fio_json_field} ) {
 
 # now write all of this data to various files
 
-# only append to this file, as we write to it over multiple calls to this script
-open(BENCHMARK_TXT, ">>$dir/../../summary-result.txt");
-open(BENCHMARK_HTML, ">>$dir/../../summary-result.html");
-open(BENCHMARK_CSV, ">>$dir/../../summary-result.csv");
-
-# the overall benchmark summary result includes a single result for each iteration (but no more detail)
-printf BENCHMARK_TXT "%20s%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f\n", "$iteration",
-  $all_client_results{readwrite_iops}, $all_client_results{readwrite_bw},
-  $all_client_results{read_iops}, $all_client_results{read_bw}, $all_client_results{read_95lat}/$all_client_results{read_95lat_samples}/1000,
-  $all_client_results{write_iops}, $all_client_results{write_bw}, $all_client_results{write_95lat}/$all_client_results{write_95lat_samples}/1000;
-
-printf BENCHMARK_HTML "%20s <a href=./$iteration/reference-result/>%s</a> <a href=./$iteration/reference-result/tools-$tool_group>%s</a>%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f\n", "$iteration",
-  "details", "tools",
-  $all_client_results{readwrite_iops}, $all_client_results{readwrite_bw},
-  $all_client_results{read_iops}, $all_client_results{read_bw}, $all_client_results{read_95lat}/$all_client_results{read_95lat_samples}/1000,
-  $all_client_results{write_iops}, $all_client_results{write_bw}, $all_client_results{write_95lat}/$all_client_results{write_95lat_samples}/1000;
-
-printf BENCHMARK_CSV "%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n", "$iteration",
-  $all_client_results{readwrite_iops}, $all_client_results{readwrite_bw},
-  $all_client_results{read_iops}, $all_client_results{read_bw}, $all_client_results{read_95lat}/$all_client_results{read_95lat_samples}/1000,
-  $all_client_results{write_iops}, $all_client_results{write_bw}, $all_client_results{write_95lat}/$all_client_results{write_95lat_samples}/1000;
-
 # this file we start from scratch
+open(RESULT_TXT, ">$dir/result.txt");
 open(ITERATION_TXT, ">$dir/summary-result.txt");
 open(ITERATION_HTML, ">$dir/summary-result.html");
+
+printf RESULT_TXT "readwrite_IOPS=%.2f\n", $all_client_results{readwrite_iops};
+printf RESULT_TXT "rw_kB_sec=%.2f\n", $all_client_results{readwrite_bw};
+printf RESULT_TXT "read_IOPS=%.2f\n", $all_client_results{read_iops};
+printf RESULT_TXT "read_kB_sec=%.2f\n", $all_client_results{read_bw};
+printf RESULT_TXT "read_95th_lat_us=%.2f\n", $all_client_results{read_95lat};
+printf RESULT_TXT "write_IOPS=%.2f\n", $all_client_results{write_iops};
+printf RESULT_TXT "write_kB_sec=%.2f\n", $all_client_results{write_bw};
+printf RESULT_TXT "write_95th_lat_us=%.2f\n", $all_client_results{write_95lat};
+
 printf ITERATION_TXT "%20s%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", "$iteration", "clients",
-  "readwrite-IOPS", "rw-kB/sec",
+  "readwrite-IOPS", "readwrite-kB/sec",
   "read-IOPS", "read-kB/sec", "read-95th-lat-ms",
   "write-IOPS", "write-kB/sec", "write-95th-lat-ms";
 printf ITERATION_HTML "<pre>%20s%20s%s%20s%20s%20s%20s%20s%20s%20s%20s\n", "$iteration", "clients", "     details",
-  "readwrite-IOPS", "rw-kB/sec",
+  "readwrite-IOPS", "readwrite-kB/sec",
   "read-IOPS", "read-kB/sec", "read-95th-lat-ms",
   "write-IOPS", "write-kB/sec", "write-95th-lat-ms";
 # the iteration result includes the summed result for the all of the clients, then per-client result
@@ -171,7 +166,7 @@ foreach $client_name (keys %all_job_results) {
 	# the client result summary file includes the summed result for the client, and then a result for each job run
 	open(CLIENT_RESULT, ">$dir/clients/$client_name/summary-result.txt") || die "could not open $dir/clients/$client_name/summary-result.txt";
 	printf CLIENT_RESULT "%20s%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", "$client_name", "job_name",
-	  "rw-IOPS", "rw-kB/sec",
+	  "rw-IOPS", "readwrite-kB/sec",
 	  "read-IOPS", "read-kB/sec", "read-95th-lat-ms",
 	  "write-IOPS", "write-kB/sec", "write-95th-lat-ms";
 	printf CLIENT_RESULT "%20s%20s%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f\n", "", "all_jobs", 
@@ -188,8 +183,6 @@ foreach $client_name (keys %all_job_results) {
 	}
 	close(CLIENT_RESULT);
 }
-close(BENCHMARK_TXT);
-close(BENCHMARK_HTML);
-close(BENCHMARK_CSV);
+close(RESULT_TXT);
 close(ITERATION_TXT);
 close(ITERATION_HTML);
