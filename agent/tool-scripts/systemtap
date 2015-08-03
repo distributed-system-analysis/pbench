@@ -18,14 +18,8 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # Defaults
 tool=$script_name
 tool_bin=staprun
-ver=10.2.1
-tool_url="http://pagesperso-orange.fr/sebastien.godard/sysstat-$ver.tar.bz2"
 group=default
 dir="/tmp"
-mode=""
-interval="10"
-iteration="1"
-options="none"
 
 # Process options and arguments
 opts=$(getopt -q -o idp --longoptions "dir:,script:,group:,iteration:,options:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
@@ -86,9 +80,10 @@ while true; do
 		--script)
 		shift;
 		if [ -n "$1" ]; then
-			script="$1"
+			script=`echo $1 | sed 's/^"\(.*\)"$/\1/'`
 			shift
-			echo script is $script
+		else
+			echo "you did not provide a script"
 		fi
 		;;
 		-o|--options)
@@ -115,14 +110,22 @@ case "$mode" in
 	install)
 	# the installation for systemtap includes compiling the kernel module from the stap script
 	# this is done to avoid extra overhead when the workload is running
+	check_install_rpm systemtap-client || exit 1
+	check_install_rpm systemtap-devel || exit 1
+	check_install_rpm kernel-devel `uname -r` || exit 1
+<<<<<<< HEAD
+	check_install_rpm kernel-debuginfo `uname -r` || exit 1
+=======
+>>>>>>> fba1e802f86ea46dba1e4f5920e70f2cf625c34b
 	pushd $pbench_tmp >/dev/null
 	install_cmd="stap -v -m pbench_systemtap -p4 $script"
 	printf "%s\n" $script
 	debug_log "running $install_cmd"
-	$install_cmd
+	$install_cmd || exit 1
 	popd >/dev/null
         ;;
 	start)
+	mkdir -p $tool_output_dir
 	if [ -e $tool_output_file ]; then
 		/bin/rm $tool_output_file
 	fi
