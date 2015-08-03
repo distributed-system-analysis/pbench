@@ -8,8 +8,7 @@
 # correspond to the link. Each request moves a link from one place to
 # another in the results/ hierarchy.
 
-# - this script runs as a cron job on perf42 (eventually to be moved
-#    to the gluster servers) - for now it runs once a minute.
+# - this script runs as a cron job, recommended once a minute
 
 # - tarballs and md5 sums are uploaded by move/copy-results to
 #    $ARCHIVE/$(hostname -s) area.
@@ -20,8 +19,9 @@
 
 ###########################################################################
 # load common things
+opts=$SHELLOPTS
 case $opts in
-    *x*)
+    *xtrace*)
         dir=$(dirname $(which $0))
         PROG=$(basename $(which $0))
         ;;

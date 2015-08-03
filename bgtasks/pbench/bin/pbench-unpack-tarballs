@@ -25,19 +25,23 @@
 #               the TO-INDEX subdir to the DONE subdir.
 
 # assumptions:
-# - this script runs as a cron job on perf42 (eventually to be moved to the gluster servers)
-# - tarballs and md5 sums are uploaded by move/copy-results to $ARCHIVE/$(hostname -s) area.
-# - move/copy-results also makes a symlink to each tarball it uploads in $ARCHIVE/TODO.
+# - this script runs as a cron job
+# - tarballs and md5 sums are uploaded by move/copy-results to
+#   $ARCHIVE/$(hostname -s) area.
+# - move/copy-results also makes a symlink to each tarball it uploads
+#   in $ARCHIVE/TODO.
 
-# this script loops over the contents of $archive/TODO, verifies the md5 sum of each
-# tarball, and if correct, it unpacks the tarball into .../incoming/$(hostname -s)/.
-# If everything works, it then moves the symlink from $ARCHIVE/TODO to $ARCHIVE/TO-COPY-SOS.
+# This script loops over the contents of $archive/TODO, verifies the md5
+# sum of each tarball, and if correct, it unpacks the tarball into
+# .../incoming/$(hostname -s)/.  If everything works, it then moves the
+# symlink from $ARCHIVE/TODO to $ARCHIVE/TO-COPY-SOS.
 
 
 ###########################################################################
 # load common things
+opts=$SHELLOPTS
 case $opts in
-    *x*)
+    *xtrace*)
         dir=$(dirname $(which $0))
         PROG=$(basename $(which $0))
         ;;

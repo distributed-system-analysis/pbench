@@ -26,8 +26,7 @@
 
 # assumptions:
 
-# - this script runs as a cron job on perf42 (eventually to be moved
-#    to the gluster servers) - for now it runs once an hour.
+# - this script runs as a cron job, recommended to run once an hour.
 
 # - tarballs and md5 sums are uploaded by move/copy-results to
 #    $ARCHIVE/$(hostname -s) area.
@@ -38,8 +37,9 @@
 
 ###########################################################################
 # load common things
+opts=$SHELLOPTS
 case $opts in
-    *x*)
+    *xtrace*)
         dir=$(dirname $(which $0))
         PROG=$(basename $(which $0))
         ;;
@@ -73,7 +73,12 @@ test -d $INCOMING || doexit "Bad INCOMING=$INCOMING"
 linksrc=TO-COPY-SOS
 linkdest=TO-INDEX
 
-DEST=$SOSREPORTDEST
+if [ "$SOSREPORTDEST" == "" ]; then
+    _sosrpt_user=$(getconf.py sosreportdest-user sosreports)
+    _sosrpt_host=$(getconf.py sosreportdest-host sosreports)
+    _sosrpt_dir=$(getconf.py sosreportdest-dir sosreports)
+    SOSREPORTDEST=$_sosrpt_user@$_sosrpt_host:$_sosrpt_dir/
+fi
 
 echo "$TS: starting at $(timestamp)"
 
@@ -150,7 +155,7 @@ for result in $list ;do
         echo "$TS: No sosreports found for $result"
     else
         pushd $incoming > /dev/null
-        cmd="/usr/bin/rsync -av $TMPDIR/ $DEST"
+        cmd="/usr/bin/rsync -av $TMPDIR/ $SOSREPORTDEST"
         echo "$TS: $cmd"
         $cmd
         sts=$?

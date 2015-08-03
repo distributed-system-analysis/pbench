@@ -1,10 +1,10 @@
-Scripts in this directory are generally called by start-tools, stop-tools, and postprocess-tools
-(found in ./util-scripts).  They are usually not called directly.
+Scripts in this directory are generally called by start-tools,stop-tools, and
+postprocess-tools (found in ./util-scripts).  They are usually not called
+directly.
 
 Note: many of these files are just link to the same file.
 
 #ls -li | sort -n
-90320298 -rw-r--r--. 1 root root 1771 Jul 23 16:05 README
 90320299 -rwxr-xr-x. 4 root root 6776 Jul 23 11:45 iostat
 90320299 -rwxr-xr-x. 4 root root 6776 Jul 23 11:45 mpstat
 90320299 -rwxr-xr-x. 4 root root 6776 Jul 23 11:45 pidstat
@@ -31,25 +31,27 @@ inode            ref-count
 
 These are all the same file:
 
-cpuacct
-kvm-spinlock
-kvmstat
-numastat
-proc-interrupts
-proc-sched_debug
-proc-vmstat
-sysfs
-virsh-migrate
+    cpuacct
+    kvm-spinlock
+    kvmstat
+    numastat
+    proc-interrupts
+    proc-sched_debug
+    proc-vmstat
+    sysfs
+    virsh-migrate
 
-And thse are the same file:
+And these are the same file:
 
-iostat
-mpstat
-pidstat
-sar
+    iostat
+    mpstat
+    pidstat
+    sar
 
 So, be mindful of editing one of these files, as it affects the other tools.
 
+The datalog directory: If a tool needs another script to log data, put it in
+this directory.
 
-The datalog directory:  If a tool needs another script to log data, put it in this directory
-The postprocess directory:  only postprocessing scripts go here
+The postprocess directory: Only postprocessing scripts, and their unit tests,
+go here.

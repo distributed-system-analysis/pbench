@@ -1,12 +1,12 @@
 #! /bin/bash
 
-# Runs on perf44 as a cron job for user pbench, pulling tarballs from the
-# GlusterFS pbench mount point ARCHIVE, copying them to the configured
-# backup directory.
+# Cron job for user pbench, pulling tarballs from the pbench ARCHIVE and
+# copying them to the configured backup directory.
 
 # load common things
+opts=$SHELLOPTS
 case $opts in
-    *x*)
+    *xtrace*)
         dir=$(dirname $(which $0))
         PROG=$(basename $(which $0))
         ;;
