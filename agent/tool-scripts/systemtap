@@ -113,7 +113,10 @@ case "$mode" in
 	check_install_rpm systemtap-client || exit 1
 	check_install_rpm systemtap-devel || exit 1
 	check_install_rpm kernel-devel `uname -r` || exit 1
+<<<<<<< HEAD
 	check_install_rpm kernel-debuginfo `uname -r` || exit 1
+=======
+>>>>>>> fba1e802f86ea46dba1e4f5920e70f2cf625c34b
 	pushd $pbench_tmp >/dev/null
 	install_cmd="stap -v -m pbench_systemtap -p4 $script"
 	printf "%s\n" $script
