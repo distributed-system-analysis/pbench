@@ -1,0 +1,1947 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Pbench Getting Started Guide</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Pbench</h1>
+      <h2 class="project-tagline">A benchmarking and performance analysis framework</h2>
+      <a href="https://github.com/distributed-system-analysis/pbench" class="btn">View on GitHub</a>
+      <a href="https://github.com/distributed-system-analysis/pbench/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/distributed-system-analysis/pbench/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+
+      <h1 class="title">Pbench Start Guide</h1>
+      <div id="table-of-contents">
+    	
+      <h2>Table of Contents</h2>
+    	<div id="text-table-of-contents">
+    	  <ul>
+    	    <li><a href="#sec-1">1. WARNING</a></li>
+    	    <li><a href="#sec-2">2. What is <code>pbench</code>?</a></li>
+    	    <li><a href="#sec-3">3. Quick links</a></li>
+    	    <li><a href="#sec-4">4. TL;DR version</a></li>
+    	    <li><a href="#sec-5">5. How to install</a>
+    	      <ul>
+    		<li><a href="#sec-5-1">5.1. Updating pbench</a></li>
+    	      </ul>
+    	    </li>
+    	    <li><a href="#sec-6">6. First steps</a>
+    	      <ul>
+    		<li><a href="#sec-6-1">6.1. First steps with user-benchmark</a></li>
+    		<li><a href="#sec-6-2">6.2. First steps with remote hosts and user-benchmark</a></li>
+    	      </ul>
+    	    </li>
+    	    <li><a href="#sec-7">7. Defaults</a></li>
+    	    <li><a href="#sec-8">8. Available tools</a></li>
+    	    <li><a href="#sec-9">9. Available benchmark scripts</a></li>
+    	    <li><a href="#sec-10">10. Utility scripts</a></li>
+    	    <li><a href="#sec-11">11. Second steps</a>
+    	      <ul>
+    		<li><a href="#sec-11-1">11.1. Benchmark scripts options</a></li>
+    		<li><a href="#sec-11-2">11.2. Collection tools options</a></li>
+    		<li><a href="#sec-11-3">11.3. Utility script options</a></li>
+    	      </ul>
+    	    </li>
+    	    <li><a href="#sec-12">12. Running pbench collection tools with an arbitrary benchmark</a></li>
+    	    <li><a href="#sec-13">13. Remote hosts</a>
+    	      <ul>
+    		<li><a href="#sec-13-1">13.1. Multihost benchmarks</a></li>
+    	      </ul>
+    	    </li>
+    	    <li><a href="#sec-14">14. Customizing</a></li>
+    	    <li><a href="#sec-15">15. Best practices</a>
+    	      <ul>
+    		<li><a href="#sec-15-1">15.1. Clear results</a></li>
+    		<li><a href="#sec-15-2">15.2. Kill tools</a></li>
+    		<li><a href="#sec-15-3">15.3. Clear tools</a></li>
+    		<li><a href="#sec-15-4">15.4. Register tools</a></li>
+    		<li><a href="#sec-15-5">15.5. Using <code>--dir</code></a></li>
+    		<li><a href="#sec-15-6">15.6. Using <code>--remote</code></a></li>
+    		<li><a href="#sec-15-7">15.7. Using <code>--label</code></a></li>
+    	      </ul>
+    	    </li>
+    	    <li><a href="#sec-16">16. Results handling</a>
+    	      <ul>
+    		<li><a href="#sec-16-1">16.1. Accessing results on the web</a>
+    		  <ul>
+    		    <li><a href="#sec-16-1-1">16.1.1. Where to go to see results</a></li>
+    		    <li><a href="#sec-16-1-2">16.1.2. <code>move-results</code> and its <code>--prefix</code> option</a></li>
+    		    <li><a href="#sec-16-1-3">16.1.3. <code>edit-prefix</code></a></li>
+    		  </ul>
+    		</li>
+    		<li><a href="#sec-16-2">16.2. Normalized directory structure</a></li>
+    		<li><a href="#sec-16-3">16.3. CSV</a></li>
+    		<li><a href="#sec-16-4">16.4. Results structure</a>
+    		  <ul>
+    		    <li><a href="#sec-16-4-1">16.4.1. Local results structure</a></li>
+    		    <li><a href="#sec-16-4-2">16.4.2. Remote results structure</a></li>
+    		  </ul>
+    		</li>
+    	      </ul>
+    	    </li>
+    	    <li><a href="#sec-17">17. Advanced topics</a>
+    	      <ul>
+    		<li><a href="#sec-17-1">17.1. Triggers</a></li>
+    	      </ul>
+    	    </li>
+    	    <li><a href="#sec-18">18. FAQ</a>
+    	      <ul>
+    		<li><a href="#sec-18-1">18.1. What does <code>--name</code> do?</a></li>
+    		<li><a href="#sec-18-2">18.2. What does <code>--config</code> do?</a></li>
+    		<li><a href="#sec-18-3">18.3. What does <code>--dir</code> do?</a></li>
+    		<li><a href="#sec-18-4">18.4. What does <code>--remote</code> do?</a></li>
+    		<li><a href="#sec-18-5">18.5. What does <code>--label</code> do?</a></li>
+    		<li><a href="#sec-18-6">18.6. How to add a collection tool</a></li>
+    		<li><a href="#sec-18-7">18.7. How to add a benchmark</a></li>
+    		<li><a href="#sec-18-8">18.8. How do I collect data for a short time while my benchmark is running?</a></li>
+    		<li><a href="#sec-18-9">18.9. I have a script to run my benchmark - how do I use it with pbench?</a></li>
+    	      </ul>
+    	    </li>
+    	  </ul>
+    	</div>
+
+	<div id="outline-container-sec-1" class="outline-2">
+	  <h2 id="sec-1"><span class="section-number-2">1</span> WARNING</h2>
+	  <div class="outline-text-2" id="text-1">
+	    <p>
+	      This document may describe some future capabilities of pbench. We are
+	      working as fast as we can to make the code catch up to the
+	      documentation and vice-versa, but things may not be exactly as
+	      described here. If you find something not working as described here,
+	      please let us know: it may be a bug in the documentation, a bug in
+	      the code or a feature that we want to implement but we haven't quite
+	      gotten to yet.
+	    </p>
+	  </div>
+	</div>
+
+	<div id="outline-container-sec-2" class="outline-2">
+	  <h2 id="sec-2"><span class="section-number-2">2</span> What is <code>pbench</code>?</h2>
+	  <div class="outline-text-2" id="text-2">
+	    <p>
+	      Pbench is a harness that allows data collection from a variety of tools
+	      while running a benchmark. Pbench has some built-in script that run some
+	      common benchmarks, but the data collection can be run separately as well
+	      with a benchmark that is not built-in to pbench, or a pbench script can
+	      be written for the benchmark. Such contributions are more than welcome!
+	    </p>
+	  </div>
+	</div>
+
+	<div id="outline-container-sec-3" class="outline-2">
+	  <h2 id="sec-3"><span class="section-number-2">3</span> Quick links</h2>
+	  <div class="outline-text-2" id="text-3">
+	    <p>
+	      Convenience links for some places of interest (N.B. The results directory has changed - see
+	      <a href="#sec-16-1">Accessing results on the web</a> for the details):
+	    </p>
+
+	    <ul class="org-ul">
+	      <li><a href="http://pbench.example.com/results/">Results directory</a>.
+	      </li>
+	      <li><a href="http://pbench.example.com/repo">pbench RPM repo</a>.
+	      </li>
+	    </ul>
+
+	    <p>
+	      <span class="timestamp-wrapper"><span class="timestamp">[2015-01-23 Fri]</span></span> In preparation for moving the incoming directory to bigger storage,
+	      older directories in the pbench incoming area were archived (tarred/compressed/moved
+	      to new area). The list of these directories can be found <a href="./archived-directories.html">here</a>.
+	    </p>
+	  </div>
+	</div>
+
+
+	<div id="outline-container-sec-4" class="outline-2">
+	  <h2 id="sec-4"><span class="section-number-2">4</span> TL;DR version</h2>
+	  <div class="outline-text-2" id="text-4">
+	    <p>
+	      Here is the minimum set of commands to get from 0 to a crawl:
+	    </p>
+	    <pre><code>
+        wget -O /etc/yum.repos.d/pbench.repo http://repohost.example.com/repo/yum.repos.d/pbench.repo
+        yum install pbench-agent -y
+        . /etc/profile.d/pbench-agent.sh                          # or log out and log back in
+        register-tool-set
+        user-benchmark -C test1 -- ./your_cmd.sh
+        move-results
+	    </code></pre>
+
+	    <p>
+	      Visit the <a href="http://pbench.example.com/results/">Results directory</a> to see the results: assuming you ran the
+	      above on a host named "myhost", the results will be in its
+	      "myhost/user_benchmark_test1_&lt;yyyy-mm-dd_HH:MM:SS&gt;" subidrectory.
+	    </p>
+
+	    <p>
+	      For explanations, and if crawling is not enough, see subsequent sections.
+	    </p>
+	  </div>
+	</div>
+
+	<div id="outline-container-sec-5" class="outline-2">
+	
+  <h2 id="sec-5"><span class="section-number-2">5</span> How to install</h2>
+	  <div class="outline-text-2" id="text-5">
+	    <p>
+	      Visit
+	    </p>
+
+	    <p>
+	      <a href="http://repohost.example.com/repo/yum.repos.d">http://repohost.example.com/repo/yum.repos.d</a>
+	    </p>
+
+	    <p>
+	      and copy the <code>pbench.repo</code> file to <code>/etc/yum.repos.d</code> on the SUT<sup><a id="fnr.1" name="fnr.1" class="footref" href="#fn.1">1</a></sup>. If the SUT
+	      consists of multiple hosts, the file (and pbench) should be installed on <b>all</b>
+	      of them. Here is a command that you can execute (as root) on the SUT to accomplish
+	      this:
+	    </p>
+	    <pre><code>
+        wget -O /etc/yum.repos.d/pbench.repo http://repohost.example.com/repo/yum.repos.d/pbench.repo
+	    </code></pre>
+	    <p>
+	      Then
+	    </p>
+	    <pre><code>
+      yum install pbench-agent
+	    </code></pre>
+	    <p>
+	      will install the <code>pbench</code> agent in <code>/opt/pbench-agent</code>. Before you do
+	      anything else, you need to source the file
+	      <code>/etc/profile.d/pbench-agent.sh</code>. It sets PATH appropriately and
+	      defines an env variable CONFIG to point to the default pbench
+	      configuration file (see <a href="#sec-14">Customizing</a> below). Alternatively, logging out
+	      and logging back in will source the script automatically.
+	    </p>
+	  </div>
+
+	  <div id="outline-container-sec-5-1" class="outline-3">
+	    <h3 id="sec-5-1"><span class="section-number-3">5.1</span> Updating pbench</h3>
+	    <div class="outline-text-3" id="text-5-1">
+	      <p>
+		Since the package (as well as the benchmark and tools RPMS that are in
+		the repo) gets updated fairly often, I have found it necessary to
+		clean the yum cache in order for yum to see the new package, although
+		you might want to try updating without cleaning the cache first and if
+		yum reports no packages to update, then try again after cleaning the cache:
+	      </p>
+	      <pre><code>
+          yum clean expire-cache
+          yum update pbench-agent
+	      </code></pre>
+
+	      <p>
+		If you try the above update and encounter problems (e.g. the pbench
+		scripts, or the config file, are not found even after you log out and
+		log back in), then try the following workaround:
+	      </p>
+	      <pre><code>
+          yum reinstall pbench-agent
+	      </code></pre>
+	      <p>
+		That should reestablish the missing symlink.
+	      </p>
+
+	      <p>
+		The workaround should not be necessary if your currently installed
+		release is 0.31-95 or later.
+	      </p>
+
+	      <p>
+		In desperate situations, removing the <code>pbench-agent</code> package and reinstalling
+		after cleaning the cache should clear up any problems:
+	      </p>
+	      <pre><code>
+          yum erase pbench-agent
+          yum clean expire-cache
+          yum install pbench-agent
+	      </code></pre>
+
+	      <p>
+		If you upgrade to a release later than -102, please also ensure that
+		you clear out your tools and reregister them after the upgrade: the
+		label handling has changed. For example:
+	      </p>
+	      <pre><code>
+          clear-tools
+          register-tool-set --label=ceph-server --remote=my-ceph-server
+          register-tool-set --label=kvmhost --remote=my-kvmhost
+          register-tool-set --label=kvmguest --remote=my-kvmguest
+	      </code></pre>
+	    </div>
+	  </div>
+	</div>
+
+	<div id="outline-container-sec-6" class="outline-2">
+	  <h2 id="sec-6"><span class="section-number-2">6</span> First steps</h2>
+	  <div class="outline-text-2" id="text-6">
+	    <p>
+	      All of the commands take a <code>--help</code> option and produce a terse
+	      usage message.
+	    </p>
+
+	    <p>
+	      The default set of tools for data collection can be enabled with
+	    </p>
+
+	    <pre><code>
+          register-tool-set
+	    </code></pre>
+
+	    <p>
+	      You can then run a built-in benchmark by invoking its pbench script -
+	      pbench will install the benchmark if necessary<sup><a id="fnr.2" name="fnr.2" class="footref" href="#fn.2">2</a></sup>:
+	    </p>
+
+	    <pre><code>
+          pbench_fio
+	    </code></pre>
+
+	    <p>
+	      When the benchmark finishes, the tools will be stopped as well. The
+	      results can be collected and shipped to the standard storage location<sup><a id="fnr.3" name="fnr.3" class="footref" href="#fn.3">3</a></sup>
+	      with
+	    </p>
+	    <pre><code>
+          move-results
+	    </code></pre>
+	    <p>
+	      or
+	    </p>
+	    <pre><code>
+          copy-results
+	    </code></pre>
+	  </div>
+
+	  <div id="outline-container-sec-6-1" class="outline-3">
+	    <h3 id="sec-6-1"><span class="section-number-3">6.1</span> First steps with user-benchmark</h3>
+	    <div class="outline-text-3" id="text-6-1">
+	      <p>
+		If you want to run something that is not already packaged up as a benchmark script,
+		you may be able to use the <code>user-benchmark</code> script: it takes a command as argument,
+		starts the collection tools, invokes the command, stops the collection tools and
+		postprocesses the results. So the workflow becomes:
+	      </p>
+	      <pre><code>
+          register-tool-set
+          user-benchmark --config=foo -- myscript.sh
+          move-results
+	      </code></pre>
+	      <p>
+		See <a href="#sec-18-2">What does <code>--config</code> do?</a> for more information on that.
+	      </p>
+	    </div>
+	  </div>
+
+	  <div id="outline-container-sec-6-2" class="outline-3">
+	    <h3 id="sec-6-2"><span class="section-number-3">6.2</span> First steps with remote hosts and user-benchmark</h3>
+	    <div class="outline-text-3" id="text-6-2">
+	      <p>
+		Running a multihost benchmark involves registering the tools on all the hosts,
+		but assuming you have a script that will execute your benchmark that can be
+		used with <code>user-benchmark</code>, the workflow is not much different:
+	      </p>
+	      <pre><code>
+          for host in $hosts ;do
+              register-tool-set --remote=$host
+          done
+          user-benchmark --config=foo -- myscript.sh
+          move-results
+	      </code></pre>
+	      <p>
+		Apart from having to register the collection tools on <b>all</b> the hosts, the rest
+		is the same: <code>user-benchmark</code> will start the collection tools on all the hosts,
+		run <code>myscript.sh</code>, stop the tools and run the postprocessing phase, gathering up
+		all the remote results to the local host (the local host may be just a controller,
+		not running any collection tools itself, or it may be part of the set of hosts where
+		the benchmark is run, with collection tools running).
+	      </p>
+
+	      <p>
+		The underlying assumption is that <code>myscript.sh</code> will run your
+		benchmark on all the relevant hosts and will copy all the results into
+		the standard directory which postprocessing will copy over to the
+		controller host. <code>user-benchmark</code> calls the script in its command-line
+		arguments (everything after the &#x2013; is just execed by user-benchmark)
+		and redirects its <code>stdout</code> to a file in that directory:
+		<code>$benchmark_run_dir/result.txt</code>.
+	      </p>
+	    </div>
+	  </div>
+	</div>
+
+	<div id="outline-container-sec-7" class="outline-2">
+	  <h2 id="sec-7"><span class="section-number-2">7</span> Defaults</h2>
+	  <div class="outline-text-2" id="text-7">
+	    <p>
+	      The benchmark scripts source the base script (<code>/opt/pbench-agent/base</code>)
+	      which sets a bunch of defaults:
+	    </p>
+
+	    <pre><code>
+        pbench_run=/var/lib/pbench
+        pbench_log=/var/lib/pbench/pbench.log
+        date=`date "+%F_%H:%M:%S"`
+        hostname=`hostname -s`
+        results_repo=pbench@pbench.example.com
+        results_repo_dir=/pbench/public_html/incoming
+        ssh_opts='-o StrictHostKeyChecking=no'
+	    </code></pre>
+
+	    <p>
+	      These are now specified in the config file
+	      <code>/opt/pbench-agent/config/pbench.conf</code>.
+	    </p>
+	  </div>
+	</div>
+
+	<div id="outline-container-sec-8" class="outline-2">
+	  <h2 id="sec-8"><span class="section-number-2">8</span> Available tools</h2>
+	  <div class="outline-text-2" id="text-8">
+	    <p>
+	      The configured default set of tools (what you would get by running
+	      <code>register-tool-set</code>) is:
+	    </p>
+	    <ul class="org-ul">
+	      <li>sar, iostat, mpstat, pidstat, proc-vmstat, proc-interrupts, perf
+	      </li>
+	    </ul>
+
+	    <p>
+	      In addition, there are tools that can be added to the default set
+	      with <code>register-tool</code>:
+	    </p>
+	    <ul class="org-ul">
+	      <li>blktrace, cpuacct, dm-cache, docker, kvmstat, kvmtrace, lockstat,
+		numastat, perf, porc-sched_debug, proc-vmstat, qemu-migrate, rabbit,
+		strace, sysfs, systemtap, tcpdump, turbostat, virsh-migrate, vmstat
+	      </li>
+	    </ul>
+	    <p>
+	      There is a <code>default</code> group of tools (that's what <code>register-tool-set</code> uses), but
+	      tools can be registered in other groups using the <code>--group</code> option of <code>register-tool</code>.
+	      The group can then be started and stopped using <code>start-tools</code> and <code>stop-tools</code>
+	      using their <code>--group</code> option.
+	    </p>
+
+	    <p>
+	      Additional tools can be registered:
+	    </p>
+	    <pre><code>
+        register-tool --name blktrace
+	    </code></pre>
+	    <p>
+	      or unregistered (e.g. some people prefer to run without perf):
+	    </p>
+	    <pre><code>
+        unregister-tool --name perf
+	    </code></pre>
+
+	    <p>
+	      Note that perf is run in a "low overhead" mode with options "record -a
+	      &#x2013;freq=100", but if you want to run it differently, you can always
+	      unregister it and register it again with different options:
+	    </p>
+
+	    <pre><code>
+        unregister --name=perf
+        register-tool --name=perf -- --record-opts="record -a --freq=200"
+	    </code></pre>
+
+	    <p>
+	      Tools can be also be registered, started and stopped on remote hosts
+	      (see the <code>--remote</code> option described in <a href="#sec-18-4">What does <code>--remote</code> do?</a>).
+	    </p>
+	  </div>
+	</div>
+
+	<div id="outline-container-sec-9" class="outline-2">
+	  <h2 id="sec-9"><span class="section-number-2">9</span> Available benchmark scripts</h2>
+	  <div class="outline-text-2" id="text-9">
+	    <p>
+	      Pbench provides a set of pre-packaged script to run some common benchmarks
+	      using the collection tools and other facilities that pbench provides.  These
+	      are found in the <code>bench-scripts</code> directory of the pbench installation
+	      (<code>/opt/pbench-agent/bench-scripts</code> by default). The current set consists of
+	    </p>
+
+	    <ul class="org-ul">
+	      <li><code>pbench_dbench</code>
+	      </li>
+	      <li><code>pbench_fio</code>
+	      </li>
+	      <li><code>pbench_linpack</code>
+	      </li>
+	      <li><code>pbench_migrate</code>
+	      </li>
+	      <li><code>pbench_tpcc</code>
+	      </li>
+	      <li><code>pbench_uperf</code>
+	      </li>
+	      <li><code>user-benchmark</code> (see <a href="#sec-12">Running pbench collection tools with an arbitrary benchmark</a> below for more on this)
+	      </li>
+	    </ul>
+
+	    <p>
+	      Note that in many of these scripts the default tool group is hard-wired: if you want them to run
+	      a different tool group, you need to edit the script<sup><a id="fnr.4" name="fnr.4" class="footref" href="#fn.4">4</a></sup>.
+	    </p>
+	  </div>
+	</div>
+
+	<div id="outline-container-sec-10" class="outline-2">
+	  <h2 id="sec-10"><span class="section-number-2">10</span> Utility scripts</h2>
+	  <div class="outline-text-2" id="text-10">
+	    <p>
+	      This section is needed as preparation for the <a href="#sec-11">Second steps</a> section below.
+	    </p>
+
+	    <p>
+	      Pbench uses a bunch of utility scripts to do common operations. There
+	      is a common set of options for some of these: <code>--name</code> to specify a
+	      tool, <code>--group</code> to specify a tool group, <code>--with-options</code> to list or
+	      pass options to a tool, <code>--remote</code> to operate on a remote host
+	      (see entries in the <a href="#sec-18">FAQ</a> section below for more
+	      details on these options).
+	    </p>
+
+	    <p>
+	      The first set is for registering and unregistering tools and getting
+	      some information about them:
+	    </p>
+
+	    <dl class="org-dl">
+	      <dt> <code>list-tools</code> </dt><dd>list the tools in the default group or in the
+		specified group; with the &#x2013;name option, list the groups that the
+		named tool is in. TBD: how do you list <b>all</b> available tools
+		whether in a group or not?
+	      </dd>
+	      <dt> <code>register-tool-set</code> </dt><dd>call <code>register-tool</code> on each tool in the default list.
+	      </dd>
+	      <dt> <code>register-tool</code> </dt><dd>add a tool to a tool group (possibly remotely).
+	      </dd>
+	      <dt> <code>unregister-tool</code> </dt><dd>remove a tool from a tool group (possibly remotely).
+	      </dd>
+	      <dt> <code>clear-tools</code> </dt><dd>remove a tool or all tools from a specified tool
+		group (including remotely).
+	      </dd>
+	    </dl>
+
+	    <p>
+	      The second set is for controlling the running of tools &#x2013;
+	      <code>start-tools</code> and <code>stop-tools</code>, as well as <code>postprocess-tools</code> below,
+	      take <code>--group</code>, <code>--dir</code> and <code>--iteration</code> options: which group of
+	      tools to start/stop/postprocess, which directory to use to stash
+	      results and a label to apply to this set of results. <code>kill-tools</code> is
+	      used to make sure that all running tools are stopped: having a bunch
+	      of tools from earlier runs still running has been know to happen and
+	      is the cause of many problems (slowdowns in particular):
+	    </p>
+
+	    <dl class="org-dl">
+	      <dt> <code>start-tools</code> </dt><dd>start a group of tools, stashing the results in the
+		directory specified by <code>--dir</code>.
+	      </dd>
+	      <dt> <code>stop-tools</code> </dt><dd>stop a group of tools.
+	      </dd>
+	      <dt> <code>kill-tools</code> </dt><dd>make sure that no tools are running to pollute the
+		environment.
+	      </dd>
+	    </dl>
+
+	    <p>
+	      The third set is for handling the results and doing cleanup:
+	    </p>
+	    <dl class="org-dl">
+	      <dt> <code>postprocess-tools</code> </dt><dd>run all the relevant postprocessing scripts
+		on the tool output - this step also gathers up tool output from
+		remote hosts to the local host in preparation for copying it to
+		the results repository.
+	      </dd>
+	      <dt> <code>clear-results</code> </dt><dd>start with a clean slate.
+	      </dd>
+	      <dt> <code>copy-results</code> </dt><dd>copy results to the results repo.
+	      </dd>
+	      <dt> <code>move-results</code> </dt><dd>move the results to the results repo and delete
+		them from the local host.
+	      </dd>
+	      <dt> <code>edit-prefix</code> </dt><dd>change the directory structure of the results
+		(see the <a href="#sec-16-1">Accessing results on the web</a> section below for details).
+	      </dd>
+	      <dt> <code>cleanup</code> </dt><dd>clean up the pbench run directory - after this step,
+		you will need to register any tools again.
+	      </dd>
+	    </dl>
+
+	    <p>
+	      <code>register-tool-set</code>, <code>register-tool</code> and <code>unregister-tool</code> can also
+	      take a <code>--remote</code> option (see <a href="#sec-18-4">What does <code>--remote</code> do?</a>) in order to
+	      allow the starting/stopping of tools and the postprocessing of results
+	      on multiple remote hosts.
+	    </p>
+
+	    <p>
+	      There is also a set of miscellaneous tools for doing various and
+	      sundry things - although the name of the script indicates its purpose,
+	      if you want more information on these, read the code :-)
+	    </p>
+	    <ul class="org-ul">
+	      <li>avg-stddev
+	      </li>
+	      <li>bind-ethernet-ints-to-node
+	      </li>
+	      <li>check-vcpu-prio.sh
+	      </li>
+	      <li>cpu-hog
+	      </li>
+	      <li>disable-ht
+	      </li>
+	      <li>log-timestamp
+	      </li>
+	      <li>offline-node-cpus
+	      </li>
+	      <li>set-vcpu-prio-rt.sh
+	      </li>
+	      <li>sync-clocks
+	      </li>
+	      <li>wait-until-sshable
+	      </li>
+	    </ul>
+	  </div>
+	</div>
+
+	<div id="outline-container-sec-11" class="outline-2">
+	  <h2 id="sec-11"><span class="section-number-2">11</span> Second steps</h2>
+	  <div class="outline-text-2" id="text-11">
+	    <p>
+	      WARNING: It is <b>highly</b> recommended that you use one of the <code>pbench_&lt;benchmark&gt;</code>
+	      scripts for running your benchmark. If one does not exist already, you might be
+	      able to use the <code>user_benchmark</code> script to run your own script. The advantage
+	      is that these scripts already embody some conventions that pbench and associated
+	      tools depend on, e.g. using a timestamp in the name of the results directory to
+	      make the name unique. If you cannot use <code>user_benchmark</code> and a <code>pbench_&lt;benchmark&gt;</code>
+	      script does not exist already, consider writing one or helping us write one. The
+	      more we can encapsulate all these details into generally useful tools, the easier
+	      it will be for everybody: people running it will not need to worry about all these
+	      details and people maintaining the system will not have to fix stuff because the
+	      script broke some assumptions. The easiest way to do so is to crib an existing
+	      <code>pbench_&lt;benchmark&gt;</code> script, e.g <code>pbench_fio</code>.
+	    </p>
+
+	    <p>
+	      Once collection tools have been registered, the work flow of a
+	      benchmark script is as follows:
+	    </p>
+	    <ul class="org-ul">
+	      <li>Process options (see <a href="#sec-11-1">Benchmark scripts options</a>).
+	      </li>
+	      <li>Check that the necessary prerequisites are installed and if not, install them.
+	      </li>
+	      <li>Iterate over some set of benchmark characteristics
+		(e.g. <code>pbench_fio</code> iterates over a couple test types: read, randread
+		and a bunch of block sizes), with each iteration doing the following:
+		<ul class="org-ul">
+		  <li>create a benchmark_results directory
+		  </li>
+		  <li>start the collection tools
+		  </li>
+		  <li>run the benchmark
+		  </li>
+		  <li>stop the collection tools
+		  </li>
+		  <li>postprocess the collection tools data
+		  </li>
+		</ul>
+	      </li>
+	    </ul>
+
+	    <p>
+	      The tools are started with an invocation of <code>start-tools</code> like this:
+	    </p>
+	    <pre><code>
+        start-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
+	    </code></pre>
+	    <p>
+	      where the group is usually "default" but can be changed to taste as
+	      described above, iteration is a benchmark-specific tag that
+	      disambiguates the separate iterations in a run (e.g. for <code>pbench_fio</code>
+	      it is a combination of a count, the test type, the block size and a
+	      device name), and the benchmark_tools_dir specifies where the collection
+	      results are going to end up (see the <a href="#sec-16-4">Results structure</a> section for much
+	      more detail on this).
+	    </p>
+
+	    <p>
+	      The stop invocation is exactly parallel, as is the postprocessing invocation:
+	    </p>
+	    <pre><code>
+        stop-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
+        postprocess-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
+	    </code></pre>
+	  </div>
+
+
+	  <div id="outline-container-sec-11-1" class="outline-3">
+	    <h3 id="sec-11-1"><span class="section-number-3">11.1</span> Benchmark scripts options</h3>
+	    <div class="outline-text-3" id="text-11-1">
+	      <p>
+		Generally speaking, benchmark scripts do not take any pbench-specific
+		options except <code>--config</code> (see <a href="#sec-18-2">What does <code>--config</code> do?</a>  below).
+		Other options tend to be benchmark-specific<sup><a id="fnr.5" name="fnr.5" class="footref" href="#fn.5">5</a></sup>.
+	      </p>
+	    </div>
+	  </div>
+
+	  <div id="outline-container-sec-11-2" class="outline-3">
+	    <h3 id="sec-11-2"><span class="section-number-3">11.2</span> Collection tools options</h3>
+	    <div class="outline-text-3" id="text-11-2">
+	      <p>
+		<code>--help</code> can be used to trigger the usage message on all of the tools (even though it's
+		an invalid option for many of them). Here is a list of gotcha's:
+	      </p>
+
+	      <ul class="org-ul">
+		<li>blktrace: you need to pass <code>--devices=/dev/sda,/dev/sdb</code> when you register the tool:
+		  <pre><code>
+      register-tool --name=blktrace [--remote=foo] -- --devices=/dev/sda,/dev/sdb
+		  </code></pre>
+		  <p>
+		    There is no default and leaving it empty causes errors in
+		    postprocessing (this should be flagged).
+		  </p>
+		</li>
+	      </ul>
+	    </div>
+	  </div>
+
+	  <div id="outline-container-sec-11-3" class="outline-3">
+	    <h3 id="sec-11-3"><span class="section-number-3">11.3</span> Utility script options</h3>
+	    <div class="outline-text-3" id="text-11-3">
+	      <p>
+		Note that <code>move-results</code>, <code>copy-results</code> and <code>clear-results</code> always
+		assume that the run directory is the default <code>/var/lib/pbench</code>.
+	      </p>
+
+	      <p>
+		<code>move-results</code> and <code>copy-results</code> now (starting with pbench version 0.31-108gf016ed6)
+		take a <code>--prefix</code> option. This is explained in the <a href="#sec-16-1">Accessing results on the web</a> section
+		below.
+	      </p>
+
+	      <p>
+		Note also that <code>start/stop/postprocess-tools</code> <b>must</b> be called with exactly the same
+		arguments. The built-in benchmark scripts do that already, but if you go your own way,
+		make sure to follow this dictum.
+	      </p>
+
+	      <dl class="org-dl">
+		<dt> <code>--dir</code> </dt><dd>specify the run directory for all the collections tools. This argument
+		  <b>must</b> be used by <code>start/stop/postrprocess-tools</code>, so that all the results files
+		  are in known places:
+		  <pre><code>
+        start-tools --dir=/var/lib/pbench/foo
+        stop-tools  --dir=/var/lib/pbench/foo
+        postprocess-tools --dir=/var/lib/pbench/foo
+		  </code></pre>
+		</dd>
+		<dt> <code>--remote</code> </dt><dd>specify a remote host on which a collection tools (or set of collection tools)
+		  is to be registered:
+		  <pre><code>
+      register-tool --name=&lt;tool&gt; --remote=&lt;host&gt;
+		  </code></pre>
+		</dd>
+	      </dl>
+	    </div>
+	  </div>
+	</div>
+
+	<div id="outline-container-sec-12" class="outline-2">
+	  <h2 id="sec-12"><span class="section-number-2">12</span> Running pbench collection tools with an arbitrary benchmark</h2>
+	  <div class="outline-text-2" id="text-12">
+	    <p>
+	      If you want to take advantage of pbench's data collection and other
+	      goodies, but your benchmark is not part of the set above (see <a href="#sec-9">Available benchmark scripts</a>),
+	      or you want to run it differently so
+	      that the pre-packaged script does not work for you, that's no problem
+	      (but, if possible, heed the <a href="#sec-11">WARNING</a> above). The various pbench phases
+	      can be run separately and you can fit your benchmark into the
+	      appropriate slot:
+	    </p>
+	    <pre><code>
+        group=default
+        benchmark_tools_dir=TBD
+
+        register-tool-set --group=$group
+        start-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
+        &lt;run your benchmark&gt;
+        stop-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
+        postprocess-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
+        copy-results
+	    </code></pre>
+	    <p>
+	      Often, multiple experiments (or "iterations") are run as part of a single run. The modified
+	      flow then looks like this:
+	    </p>
+	    <pre><code>
+        group=default
+        experiments="exp1 exp2 exp3"
+        benchmark_tools_dir=TBD
+
+        register-tool-set --group=$group
+        for exp in $experiments ;do
+            start-tools --group=$group --iteration=$exp
+            &lt;run the experiment&gt;
+            stop-tools --group=$group --iteration=$exp
+            postprocess-tools --group=$group --iteration=$exp
+        done
+        copy-results
+	    </code></pre>
+
+	    <p>
+	      Alternatively, you may be able to use the <code>user-benchmark</code> script as follows:
+	    </p>
+	    <pre><code>
+      user-benchmark --config="specjbb2005-4-JVMs" -- my_benchmark.sh
+	    </code></pre>
+	    <p>
+	      which is going to run <code>my_benchmark.sh</code> in the <code>&lt;run your benchmark&gt;</code>
+	      slot above. Iterations and such are your responsibility.
+	    </p>
+
+	    <p>
+	      <code>user-benchmark</code> can also be used for a somewhat more specialized
+	      scenario: sometimes you just want to run the collection tools for a
+	      short time while your benchmark is running to get an idea of how the
+	      system looks. The idea here is to use <code>user-benchmark</code> to run a sleep
+	      of the appropriate duration in parallel with your benchmark:
+	    </p>
+	    <pre><code>
+      user-benchmark --config="specjbb2005-4-JVMs" -- sleep 10
+	    </code></pre>
+	    <p>
+	      will start data collection, sleep for 10 seconds, then stop data collection
+	      and gather up the results. The config argument is a tag to distinguish this data
+	      collection from any other: you will probably want to make sure it's unique.
+	    </p>
+
+	    <p>
+	      This works well for one-off scenarios, but for repeated usage on well defined phase
+	      changes you might want to investigate <a href="#sec-17-1">Triggers</a>.
+	    </p>
+	  </div>
+	</div>
+
+	<div id="outline-container-sec-13" class="outline-2">
+	  <h2 id="sec-13"><span class="section-number-2">13</span> Remote hosts</h2>
+	  <div class="outline-text-2" id="text-13">
+	    <p>
+	      Note that from latest version onwards, we would like to have a file at
+	      <a href="http://pbench.example.com/pbench-archive-host">http://pbench.example.com/pbench-archive-host</a> where the FQDN
+	      of the pbench web-server lies and the results would be pushed here. Currently it
+	      is <code>archivehost.example.com</code>. This would mean, if in future, we would like
+	      to change the central server settings, we wouldn't want the users to upgrade to a latest
+	      version of pbench. Rather, just change the FQDN in this hosted file and then new results
+	      would automatically be pushed to the updated location.
+	    </p>
+	  </div>
+
+	  <div id="outline-container-sec-13-1" class="outline-3">
+	    <h3 id="sec-13-1"><span class="section-number-3">13.1</span> Multihost benchmarks</h3>
+	    <div class="outline-text-3" id="text-13-1">
+	      <p>
+		Usually, a multihost benchmark is run using a host that acts as the "controller"
+		of the run. There is a set of hosts on which data collection is to be performed while
+		the benchmark is running. The controller may or may not be itself part of that set.
+		In what follows, we assume that the controller has password-less ssh access to the
+		relevant hosts.
+	      </p>
+
+	      <p>
+		The recommended way to run your workload is to use the generic <code>user-benchmark</code> script.
+		The workflow in that case is:
+	      </p>
+
+	      <ul class="org-ul">
+		<li>Register the collection tools on <b>each</b> host in the set:
+		</li>
+	      </ul>
+	      <pre><code>
+      for host in $hosts ;do
+          register-tool-set --remote=$host
+	      </code></pre>
+	      <ul class="org-ul">
+		<li>Invoke <code>user-benchmark</code> with your workload generator as argument: that will start the
+		  collection tools on all the hosts and then run your workload generator; when that
+		  finished, it will stop the collection tools on all the hosts and then run the postprocessing
+		  phase which will gather the data from all the remote hosts and run the postprocessing tools
+		  on everything.
+		</li>
+		<li>Run <code>copy-results</code> or <code>move-results</code> to upload the data to the results server.
+		</li>
+	      </ul>
+
+	      <p>
+		If you cannot use the <code>user-benchmark</code> script, then the process becomes more manual.
+		The workflow is:
+	      </p>
+
+	      <ul class="org-ul">
+		<li>Register the collection tools on <b>each</b> host as above.
+		</li>
+		<li>Invoke <code>start-tools</code> on the controller: that will start data collection on
+		  all of the remote hosts.
+		</li>
+		<li>Run the workload generator.
+		</li>
+		<li>Invoke <code>stop-tools</code> on the controller: that will stop data collection on
+		  all of the remote hosts.
+		</li>
+		<li>Invoke <code>postprocess-tools</code> on the controller: that will gather all the data
+		  from the remotes and run the postprocessing tools on all the data.
+		</li>
+		<li>Run <code>copy-results</code> or <code>move-results</code> to upload the data to the results server.
+		</li>
+	      </ul>
+	    </div>
+	  </div>
+	</div>
+
+
+
+
+	<div id="outline-container-sec-14" class="outline-2">
+	  <h2 id="sec-14"><span class="section-number-2">14</span> Customizing</h2>
+	  <div class="outline-text-2" id="text-14">
+	    <p>
+	      Some characteristics<sup><a id="fnr.6" name="fnr.6" class="footref" href="#fn.6">6</a></sup> of pbench are specified in config files and can be customized
+	      by adding your own config file to override the default settings.
+	    </p>
+
+	    <p>
+	      TBD
+	    </p>
+	  </div>
+	</div>
+
+
+	<div id="outline-container-sec-15" class="outline-2">
+	  <h2 id="sec-15"><span class="section-number-2">15</span> Best practices</h2>
+	  <div class="outline-text-2" id="text-15">
+	  </div><div id="outline-container-sec-15-1" class="outline-3">
+	    <h3 id="sec-15-1"><span class="section-number-3">15.1</span> Clear results</h3>
+	    <div class="outline-text-3" id="text-15-1">
+	      <p>
+		The <code>move-results</code> script removes the results directory (assumed to be
+		within the <code>/var/lib/pbench</code> hierarchy) after copying it the results
+		repo. But if there are previous results present (perhaps because
+		<code>move-results</code> was never invoked, or perhaps because <code>copy-results</code>
+		was invoked instead), <code>move-results</code> will copy <b>all</b> of them: you
+		probably do not want that.
+	      </p>
+
+	      <p>
+		It's a good idea in general to invoke <code>clear-results</code>, which cleans
+		<code>/var/lib/pbench</code>, <b>before</b> running your benchmark.
+	      </p>
+	    </div>
+	  </div>
+
+	  <div id="outline-container-sec-15-2" class="outline-3">
+	    <h3 id="sec-15-2"><span class="section-number-3">15.2</span> Kill tools</h3>
+	    <div class="outline-text-3" id="text-15-2">
+	      <p>
+		If you interrupt a built-in benchmark script (or your own script perhaps),
+		the collection tools are <b>not</b> going to be stopped. If you don't stop them
+		explicitly, they can severely affect subsequent runs that you make. So it
+		is strongly recommended that you invoke <code>kill-tools</code> before you start your
+		run:
+	      </p>
+	      <pre><code>
+      kill-tools --group=$group
+	      </code></pre>
+	    </div>
+	  </div>
+
+	  <div id="outline-container-sec-15-3" class="outline-3">
+	    <h3 id="sec-15-3"><span class="section-number-3">15.3</span> Clear tools</h3>
+	    <div class="outline-text-3" id="text-15-3">
+	      <p>
+		This tool will delete the tools.$group file on the local host as well
+		as on all the remote hosts specified therein.  After doing that, you
+		will need to re-register all the tools that you want to use. In
+		combination with <code>clear-results</code>, this tool creates a blank slate
+		where you can start from scratch. You probably don't want to call
+		this much, but it may be useful in certain isolated cases.
+	      </p>
+	    </div>
+	  </div>
+
+	  <div id="outline-container-sec-15-4" class="outline-3">
+	    <h3 id="sec-15-4"><span class="section-number-3">15.4</span> Register tools</h3>
+	    <div class="outline-text-3" id="text-15-4">
+	      <p>
+		Some tools have <b>required</b> options<sup><a id="fnr.7" name="fnr.7" class="footref" href="#fn.7">7</a></sup> and you <b>have</b> to specify
+		them when you register the tool. One example is the <code>blktrace</code> tool
+		which requires a <code>--devices=/dev/sda,dev/sdb=</code> argument. <code>register-tool-set</code>
+		knows about such options for the default set of tools, but with other
+		tools, you are on your own.
+	      </p>
+
+	      <p>
+		The trouble is that registration does not invoke the tool and does not
+		know what options are required. So the best thing to do is invoke the
+		tool with <code>--help</code>: the <code>--help</code> option may or may not be recognized
+		by any particular tool, but either way you should get a usage message
+		that labels required options. You can then register the tool by using
+		an invocation similar to:
+	      </p>
+	      <pre><code>
+      register-tool --name=blktrace -- --devices=/dev/sda,/dev/sdb
+	      </code></pre>
+	    </div>
+	  </div>
+
+	  <div id="outline-container-sec-15-5" class="outline-3">
+	    <h3 id="sec-15-5"><span class="section-number-3">15.5</span> Using <code>--dir</code></h3>
+	    <div class="outline-text-3" id="text-15-5">
+	      <p>
+		If you use the tool scripts explicitly, specify <code>--dir=/var/lib/pbench/&lt;run-id&gt;</code>
+		so that all the data are collected in the specified directory. Also, save any data
+		that your benchmark produces inside that directory: that way, <code>move-results</code>
+		can move everything to the results warehouse.
+	      </p>
+
+	      <p>
+		Make the <code>&lt;run-id&gt;</code> as detailed as possible to disambiguate results. The built-in
+		benchmark scripts use the following form: <code>&lt;benchmark&gt;_&lt;config&gt;-&lt;ts&gt;</code>, e.g
+	      </p>
+	      <pre><code>
+      fio_bagl-16-4-ceph_2014-12-15_15:58:51
+	      </code></pre>
+	      <p>
+		where the <code>&lt;config&gt;</code> part (<code>bagl-16-4-ceph</code>) comes from the <code>--config</code> option and
+		can be as detailed as you want to make it.
+	      </p>
+	    </div>
+	  </div>
+
+	  <div id="outline-container-sec-15-6" class="outline-3">
+	    <h3 id="sec-15-6"><span class="section-number-3">15.6</span> Using <code>--remote</code></h3>
+	    <div class="outline-text-3" id="text-15-6">
+	      <p>
+		If you are running multihost benchmarks, we strongly encourage you to set up the
+		tool collections using <code>--remote</code>. Choose a driver host (which might or might not
+		participate in the tool data collection: in the first case, you register tools locally
+		as well as remotely; in the second, you just register them remotely) and run everything
+		from it. During the data collection phase, everything will be pulled off the remotes and
+		copied to the driver host, so it can be moved to the results repo as a single unit.
+		Consider also using <code>--label</code> to label sets of hosts - see <a href="#sec-15-7">Using <code>--label</code></a> for more information.
+	      </p>
+	    </div>
+	  </div>
+
+	  <div id="outline-container-sec-15-7" class="outline-3">
+	    <h3 id="sec-15-7"><span class="section-number-3">15.7</span> Using <code>--label</code></h3>
+	    <div class="outline-text-3" id="text-15-7">
+	      <p>
+		When you register remotes, <code>--label</code> can be used to give a meaningful
+		label to the results subdirectories that come from remote hosts. For
+		example, use =&#x2013;label=server" (or client, or vm, or capsule or
+		whatever else is appropriate for your use case).
+	      </p>
+	    </div>
+	  </div>
+	</div>
+
+	<div id="outline-container-sec-16" class="outline-2">
+	  <h2 id="sec-16"><span class="section-number-2">16</span> Results handling</h2>
+	  <div class="outline-text-2" id="text-16">
+	  </div><div id="outline-container-sec-16-1" class="outline-3">
+	    <h3 id="sec-16-1"><span class="section-number-3">16.1</span> Accessing results on the web</h3>
+	    <div class="outline-text-3" id="text-16-1">
+	      <p>
+		This section describes how to get to your results using a web browser. It describes
+		how <code>move-results</code> moves the results from your local controller to a centralized
+		location and what happens there. It also describes the <code>--prefix</code> option to <code>move-results</code>
+		(and <code>copy-results</code>) and a utility script, <code>edit-prefix</code>, that allows you to change how
+		the results are viewed.
+	      </p>
+
+	      <p>
+		N.B. This section applies to the pbench RPM version 0.31-108gf016ed6 and later. If you are
+		using an earlier version, please upgrade at your earliest convenience.
+	      </p>
+	    </div>
+
+	    <div id="outline-container-sec-16-1-1" class="outline-4">
+	      <h4 id="sec-16-1-1"><span class="section-number-4">16.1.1</span> Where to go to see results</h4>
+	      <div class="outline-text-4" id="text-16-1-1">
+		<p>
+		  The canonical place is
+		</p>
+
+		<p>
+		  <a href="http://resultshost.example.com/results/">http://resultshost.example.com/results/</a>
+		</p>
+
+		<p>
+		  There are subdirectories there for each controller host (the host on
+		  which <code>move-results</code> was executed) and underneath those, there are
+		  subdirectories for each pbench run.
+		</p>
+
+		<p>
+		  The leaves of the hierarchy are actually symlinks that point to the
+		  corresponding results directory in the old, flat <code>incoming/</code>
+		  hierarchy. Direct access to <code>incoming/</code> is now deprecated (and will
+		  eventually go away).
+		</p>
+
+		<p>
+		  The advantage is that the <code>results/</code> hierarchy can be manipulated to
+		  change one's view of the results<sup><a id="fnr.8" name="fnr.8" class="footref" href="#fn.8">8</a></sup>, while leaving the <code>incoming/</code>
+		  hierarchy intact, so that tools manipulating it can assume a fixed
+		  structure.
+		</p>
+
+		<p>
+		  In the interim, a simple script is running once an hour creating any
+		  missing links from <code>results/</code> to <code>incoming/</code>. It will be turned off
+		  eventually after everybody has upgraded to this or a later version
+		  of pbench.
+		</p>
+	      </div>
+	    </div>
+
+	    <div id="outline-container-sec-16-1-2" class="outline-4">
+	      <h4 id="sec-16-1-2"><span class="section-number-4">16.1.2</span> <code>move-results</code> and its <code>--prefix</code> option</h4>
+	      <div class="outline-text-4" id="text-16-1-2">
+		<p>
+		  In order to make <code>move-results</code> more robust, it now packages up the
+		  results in a tarball, computes an MD5 checksum, copies the tarball
+		  to an archive area, checks that the MD5 checksum is still correct
+		  and <b>then</b> deletes the results from one's local host.
+		</p>
+
+		<p>
+		  The tarball is unpacked into the <code>incoming/</code> hierarchy by a cron script
+		  which runs every minute (so there might be a short delay before the results
+		  are available), and plants a symlink to the results directory in the <code>results/</code>
+		  hierarchy.
+		</p>
+
+		<p>
+		  Using the <code>--prefix=</code> option to <code>move-results</code> affects where that
+		  symlink is planted (and that's the only thing it affects). For
+		  example, if your controller host is <code>alphaville</code> and the results name
+		  is <code>fio__2015-03-30_13:33:15</code>, normally <code>move-results</code> would unpack
+		  the tarball under <code>incoming/alphaville/fio__2015-03-30_13:33:15</code> and
+		  plant a symlink pointing to that at <code>results/alphaville/fio__2015-03-30_13:33:15</code>.
+		  But if you wanted to group all your fio results under  <code>results/alphaville/fio</code>, you
+		  could instead say
+		</p>
+		<pre><code>
+      move-results --prefix=fio
+		</code></pre>
+		<p>
+		  which would plant the link at <code>results/alphaville/fio/fio__2015-03-30_13:33:15</code>
+		  instead of planting it at <code>results/alphaville/fio__2015-03-30_13:33:15</code>.
+		</p>
+	      </div>
+	    </div>
+
+	    <div id="outline-container-sec-16-1-3" class="outline-4">
+	      <h4 id="sec-16-1-3"><span class="section-number-4">16.1.3</span> <code>edit-prefix</code></h4>
+	      <div class="outline-text-4" id="text-16-1-3">
+		<p>
+		  What if you forget to use <code>--prefix</code> when calling <code>move-prefix</code>? Or
+		  you want to reorganize further, perhaps pushing a set of results
+		  further down in the <code>results/</code> hierarchy?
+		</p>
+
+		<p>
+		  You can do that with <code>edit-prefix</code>. For example, continuing the example
+		  above, suppose you want to push a bunch of results from <code>fio/</code> down another
+		  level, perhaps to group all the fio results on a particular platform together:
+		</p>
+		<pre><code>
+      edit-prefix --prefix=fio/dl980 fio/fio__2015-03-30_13:33:15 ...
+		</code></pre>
+		<p>
+		  would do that. The arguments <b>must</b> exist in the appropriate place in
+		  the <code>results</code> hierarchy and the symlink at the leaf <b>must</b> point to an
+		  existing result in the <code>incoming/</code> hierarchy. The links are then moved,
+		  using the new prefix, to a different place in the <code>results/</code> hierarchy.
+		</p>
+
+		<p>
+		  <code>edit-prefix</code> works similarly to <code>move-results</code>: it sends instruction to
+		  the centralized results repository which are executed by a cron script
+		  running once a minute; so it may take a bit before the change takes effect.
+		</p>
+	      </div>
+	    </div>
+	  </div>
+
+	  <div id="outline-container-sec-16-2" class="outline-3">
+	    <h3 id="sec-16-2"><span class="section-number-3">16.2</span> Normalized directory structure</h3>
+	    <div class="outline-text-3" id="text-16-2">
+	      <p>
+		Andrew writes:
+	      </p>
+	      <blockquote>
+		<ul class="org-ul">
+		  <li>All of the benchmark scripts use
+		    <i>var/lib/pbench/$benchmark-$config-$date/$iteration/reference-result/tools-$tool_group</i>
+		  </li>
+		  <li>This allows for 1-N iterations and 1-N samples per iteration. For
+		    example, user-benchmark uses
+		    <i>var/lib/pbench/user-benchmark-$config-$date/1/reference-result</i>
+		  </li>
+		</ul>
+	      </blockquote>
+
+	      <ul class="org-ul">
+		<li>A self-explanatory example of the above mentioned hierarchical pattern is as follows:
+		</li>
+	      </ul>
+
+	      <pre><code>
+          fio__2015-01-15_19:45:10/ --&gt; $benchmark-$config-$date
+          ├── 1-read-4KiB  --&gt; $iteration
+          │   └── reference-result --&gt; reference-result/
+          │       │  
+          │       └── tools-default --&gt; tools-$tool_group/
+          │           ├── cmds
+          │           ├── iostat
+          │           ├── mpstat
+          │           ├── perf
+          │           ├── pidstat
+          │           ├── proc-interrupts
+          │           ├── proc-vmstat
+          │           ├── sar
+          │           └── turbostat
+	      </code></pre>
+
+	      <dl class="org-dl">
+		<dt> <code>reference-results</code> </dt><dd>This is calculated (based on standard deviation) as the best result from all the iterations, after the tests
+		  have ended. This is just a sym-link to one of the iterations, so as to make it easier for the user take a quick look at the results.
+		</dd>
+	      </dl>
+	    </div>
+	  </div>
+
+	  <div id="outline-container-sec-16-3" class="outline-3">
+	    <h3 id="sec-16-3"><span class="section-number-3">16.3</span> CSV</h3>
+	    <div class="outline-text-3" id="text-16-3">
+	      <p>
+		Postprocessing now produces CSV files of the results. Each row consists
+		of a timestamp and a series of measures. The first row is a header row
+		with the labels.
+	      </p>
+
+	      <p>
+		The CSV files are directly used by the Javascript library that allows users
+		to view graphs. The library runs in the client browser and pulls the CSV file
+		from the server. If that file is large, there might be a substantial delay in
+		the rendering of the graphs. In certain cases, large files have caused browsers
+		to explode. The only known method to avoid that currently is to reduce the sampling
+		frequency and therefore make the files smaller. This is unsatisfactory and we
+		are working to mitigate this problem
+	      </p>
+	    </div>
+	  </div>
+
+	  <div id="outline-container-sec-16-4" class="outline-3">
+	    <h3 id="sec-16-4"><span class="section-number-3">16.4</span> Results structure</h3>
+	    <div class="outline-text-3" id="text-16-4">
+	    </div><div id="outline-container-sec-16-4-1" class="outline-4">
+	      <h4 id="sec-16-4-1"><span class="section-number-4">16.4.1</span> Local results structure</h4>
+	      <div class="outline-text-4" id="text-16-4-1">
+		<p>
+		  Andrew writes:
+		</p>
+
+		<blockquote>
+		  <p>
+		    To understand how data is arranged, you have to understand the
+		    different requirements users &amp; benchmarks might have:
+		  </p>
+
+		  <p>
+		    The simplest use case is when a user just wants to get tool data for a
+		    single measurement. For example, a user may run:
+		  </p>
+
+		  <pre><code>
+          register-tool-set
+          dir=/var/lib/pbench/mytest
+          start-tools --dir=$dir
+          my-benchmark-script.sh
+          stop-tools --dir=$dir
+          postprocess-tools --dir=$dir
+          move-results
+		  </code></pre>
+
+		  <p>
+		    (the "my-benchmark-script.sh" above could be substituted by simply
+		    waiting until whatever thing is happening is done, or a "sleep &lt;x&gt;",
+		    etc)
+		  </p>
+
+		  <p>
+		    The hierarchy is then pretty simple: <code>/var/lib/pbench/my-test</code> is the
+		    base directory for this test, and the tool data is in
+		    <code>tools-$tool_group</code>. Since they used the default tool group (they did
+		    not specify an alternative), it's "tools-default". The base directory
+		    is where a user should put any data regarding the workload (benchmark
+		    result). So, in general, when processing a test result, the benchmark
+		    data is in ./mytest, and the tool data for this benchmark is in
+		    ./mytest/tools-$tool_group/. These two are always tightly coupled to
+		    ensure the tool data is always included in the benchmark result.
+		  </p>
+
+		  <p>
+		    In the case above, the user has total control over the &#x2013;dir name. The
+		    "tools-default" is a fixed name, which originates from
+		    "tools-$tool_group". This should not change. "./&lt;dir&gt;/tools-*" should
+		    always be recognizable by other postprocessing scripts as the tools
+		    data for test &lt;dir&gt;. If a user wants to identify this result uniquely,
+		    the upper directory should be used, for example:
+		  </p>
+
+		  <p>
+		    a first test:
+		  </p>
+
+		  <pre><code>
+          dir=/var/lib/pbench/mytest-using-containers
+          start-tools --dir=$dir
+          my-benchmark-script.sh --use-docker
+          stop-tools --dir=$dir
+          postprocess-tools --dir=$dir
+          move-results
+		  </code></pre>
+
+		  <p>
+		    and then a second test:
+		  </p>
+
+		  <pre><code>
+          dir=/var/lib/pbench/mytest-using-VMs
+           start-tools --dir=$dir
+           my-benchmark-script.sh --use-vms
+           stop-tools --dir=$dir
+           postprocess-tools --dir=$dir
+           move-results
+		  </code></pre>
+
+		  <p>
+		    When a user uses a built-in pbench benchmark, the directory hierarchy
+		    is maintained [and optionally expanded], but some of the directory
+		    names (or rather a portion of the name) is under the control of the
+		    pbench benchmark script. This is to maintain consistency across the
+		    pbench benchmark scripts. The pbench benchmark scripts should include
+		    a date in the base directory name and include contents from the
+		    &#x2013;config option.
+		  </p>
+
+		  <p>
+		    Since many benchmarks actually have several measurements, an extra
+		    level of directory is added to accommodate this. Instead of
+		    /var/lib/pbench/&lt;mytest&gt;/tools-default, we usually end up with
+		    /var/lib/pbench/&lt;mytest&gt;/&lt;test-iteration[s]&gt;/tools-default.
+		  </p>
+
+		  <p>
+		    There are actually multiple reasons for the ./&lt;test-iteration[s]&gt;/
+		    addition, as there are many reasons to have more than one test
+		    execution for any given benchmark. These include (but are not limited
+		    to):
+		  </p>
+
+		  <ol class="org-ol">
+		    <li>a benchmark simply has multiple <b>different</b> tests.
+		    </li>
+		    <li>a pbench benchmark script often tries to execute several benchmark
+		      configurations, varying things like load levels &amp; different
+		      benchmark options, so the user does not have script these
+		      themselves.
+		    </li>
+		    <li>benchmarks may need multiple samples of the exact same benchmark
+		      configuration to compute standard deviation.
+		    </li>
+		  </ol>
+
+		  <p>
+		    An example of (1) is SPECcpu, where there are several completely
+		    different tests, and they each should get their own result
+		    sub-directory (./&lt;test-iteration-X/), with its own tools-$tool_group
+		    subdirectory. The "main" directory (/var/lib/pbench/&lt;mytest&gt;) includes
+		    the overall result, and generally where any report generated would
+		    reside.
+		  </p>
+
+		  <p>
+		    An example of (2) is uperf, where by default this script runs several
+		    configurations, varying message size, number of instances, and
+		    protocol type. This can produce dozens of different results, all of
+		    which need to be organized properly. Each unique configuration uses a
+		    unique ./&lt;iteration&gt;/ directory under the main directory, each with
+		    their own tools-$tool_group subdir.
+		  </p>
+
+		  <p>
+		    An example of (3) is dbench, where by default 5 samples of the same
+		    test are taken, Each of these results are kept in a ./&lt;iteration&gt;/
+		    subdir. After the end of the tests, the dbench script computes the
+		    standard deviation and even creates a symlink, "reference-result", to
+		    the 1 iteration-dir that it's result closest to the sdtdev.
+		  </p>
+
+		  <p>
+		    More than one of these uses for iterations can also be used. In fact,
+		    uperf, uses iterations for both varying benchmark options (like
+		    message sizes), but for each of those unique configurations, multiple
+		    samples are taken to compute a standard deviation. This then involves
+		    two levels of subdirs for the iterations. So, in this case, we have a
+		    hierarchy like:
+		  </p>
+
+		  <pre><code>
+          /var/lib/pbench/&lt;my-test&gt;
+          /var/lib/pbench/&lt;my-test&gt;/1-tcp-stream-1024k-1instance/
+          /var/lib/pbench/&lt;my-test&gt;/1-tcp-stream-1024k-1instance/sample1/
+		  </code></pre>
+
+		  <p>
+		    So, in summary:
+		  </p>
+
+		  <ol class="org-ol">
+		    <li>tool data is always in a subdir of where the benchmark result is
+		      kept. The tool subdir starts with "tools-"
+		    </li>
+
+		    <li>A benchmark result dir can be as high up as
+		      <i>var/lib/pbench/&lt;mytest&gt;</i>, or it can be 1 or two levels deeper,
+		      depending on the need for multiple test runs. Some kind of
+		      benchmark summary should always be in /var/lib/pbench/&lt;mytest&gt;.
+		    </li>
+		  </ol>
+
+		  <p>
+		    I will cover remote tools in another comment section.
+		  </p>
+		</blockquote>
+	      </div>
+	    </div>
+
+	    <div id="outline-container-sec-16-4-2" class="outline-4">
+	      <h4 id="sec-16-4-2"><span class="section-number-4">16.4.2</span> Remote results structure</h4>
+	      <div class="outline-text-4" id="text-16-4-2">
+		<p>
+		  When pbench tools are registered remotely, the structure described
+		  above is followed on each host
+		</p>
+
+		<p>
+		  Post-processing collects all the remote results locally.  The results
+		  from each remote host are pushed down one level in the hierarchy, with
+		  the name of the host (augmented by the value of the <code>--label</code> option if
+		  applicable) providing the extra directory level at the top.
+		</p>
+
+		<p>
+		  In addition, if local results are present, they are also pushed down
+		  one level in the hierarchy with the name of the local host providing
+		  the extra directory level at the top (this happens in the purely local
+		  case as well, for uniformity's sake). Again, the value of the
+		  <code>--label</code> option is used to augment the name if applicable.
+		</p>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+	<div id="outline-container-sec-17" class="outline-2">
+	  <h2 id="sec-17"><span class="section-number-2">17</span> Advanced topics</h2>
+	  <div class="outline-text-2" id="text-17">
+	  </div><div id="outline-container-sec-17-1" class="outline-3">
+	    <h3 id="sec-17-1"><span class="section-number-3">17.1</span> Triggers</h3>
+	    <div class="outline-text-3" id="text-17-1">
+	      <p>
+		Triggers are groups of tools that are started and stopped on specific events.
+		They are registered with <code>register-tool-trigger</code> using the <code>--start-trigger</code>
+		and <code>--stop-trigger</code> options. The output of the benchmark is piped into the
+		<code>tool-trigger</code> tool which detects the conditions for starting and stopping
+		the specified group of tools.
+	      </p>
+
+	      <p>
+		There are some commands specifically for triggers:
+	      </p>
+
+	      <dl class="org-dl">
+		<dt> <code>register-tool-trigger</code> </dt><dd>register start and stop triggers for a tool group.
+		</dd>
+		<dt> <code>list-triggers</code> </dt><dd>list triggers and their start/stop criteria.
+		</dd>
+		<dt> <code>tool-trigger</code> </dt><dd>this is a Perl script that looks for the
+		  start-trigger and end-trigger markers in the benchmark's output,
+		  starting and stopping the appropriate group of tools when it
+		  finds the corresponding marker.
+		</dd>
+	      </dl>
+
+	      <p>
+		As an example, <code>pbench_dbench</code> uses three groups of tools: warmup, measurement
+		and cleanup. It registers these groups as triggers using
+	      </p>
+
+	      <pre><code>
+          register-tool-trigger --group=warmup --start-trigger="warmup" --stop-trigger="execute"
+          register-tool-trigger --group=measurement --start-trigger="execute" --stop-trigger="cleanup"
+          register-tool-trigger --group=cleanup --start-trigger="cleanup" --stop-trigger="Operation"
+	      </code></pre>
+
+	      <p>
+		It then pipes the output of the benchmark into <code>tool-trigger</code>:
+	      </p>
+
+	      <pre><code>
+          $benchmark_bin --machine-readable --directory=$dir --timelimit=$runtime
+                         --warmup=$warmup --loadfile $loadfile $client |
+          	           tee $benchmark_results_dir/result.txt |
+                         tool-trigger "$iteration" "$benchmark_results_dir" no
+	      </code></pre>
+
+	      <p>
+		<code>tool-trigger</code> will then start the warmup group when it encounters the
+		string "warmup" in the benchmark's output and stop it when it
+		encounters "execute". It will also start the measurement group when it
+		encounters "execute" and stop it when it encounters "cleanup" - and so
+		on.
+	      </p>
+
+	      <p>
+		Obviously, the start/stop conditions will have to be chosen with some
+		care to ensure correct actions.
+	      </p>
+	    </div>
+	  </div>
+	</div>
+
+	<div id="outline-container-sec-18" class="outline-2">
+	  <h2 id="sec-18"><span class="section-number-2">18</span> FAQ</h2>
+	  <div class="outline-text-2" id="text-18">
+	  </div><div id="outline-container-sec-18-1" class="outline-3">
+	    <h3 id="sec-18-1"><span class="section-number-3">18.1</span> What does <code>--name</code> do?</h3>
+	    <div class="outline-text-3" id="text-18-1">
+	      <p>
+		This option is recognized by <code>register-tool</code> and <code>unregister-tool</code>: it
+		specifies the name of the tool that is to be (un)registered. <code>list-tools</code>
+		with the <code>--name</code> option list all the groups that contain the named tool<sup><a id="fnr.9" name="fnr.9" class="footref" href="#fn.9">9</a></sup>.
+	      </p>
+	    </div>
+	  </div>
+
+	  <div id="outline-container-sec-18-2" class="outline-3">
+	    <h3 id="sec-18-2"><span class="section-number-3">18.2</span> What does <code>--config</code> do?</h3>
+	    <div class="outline-text-3" id="text-18-2">
+	      <p>
+		This option is recognized by the benchmark scripts (see <a href="#sec-9">Available benchmark
+		scripts</a> above) which use it as a tag for the directory where the benchmark is
+		going to run. The default value is empty.  The run directory for the benchmark
+		is constructed this way:
+	      </p>
+
+	      <pre><code>
+          $pbench_run/${benchmark}_${config}_$date
+	      </code></pre>
+
+	      <p>
+		where <code>$pbench_run</code> and <code>$date</code> are set by the <code>/opt/pbench-agent/base</code> script
+		and <code>$benchmark</code> is set to the obvious value by the benchmark script; e.g. a
+		fio run with config=foo would run in the directory
+		<code>/var/lib/pbench/fio_foo_2014-11-10_15:47:04</code>.
+	      </p>
+	    </div>
+	  </div>
+
+	  <div id="outline-container-sec-18-3" class="outline-3">
+	    <h3 id="sec-18-3"><span class="section-number-3">18.3</span> What does <code>--dir</code> do?</h3>
+	    <div class="outline-text-3" id="text-18-3">
+	      <p>
+		This option is recognized by <code>start-tools</code>, <code>stop-tools</code>,
+		<code>tool-trigger</code> and <code>postprocess-tools</code>.  It specifies the directory
+		where the tools are going to stash their data. The default value is <code>/tmp</code>.
+		Each group then uses it as a prefix for its own stash, which has the form
+		<code>$dir/tools-$group</code>. Part of the stash is the set of cmds to start and stop
+		the tools - they are stored in <code>$dir/tools-$group/cmds</code>. The output of the
+		tool is in <code>$dir/tools-$group/$tool.txt</code>.
+	      </p>
+
+	      <p>
+		This option <b>has</b> to be specified identically for each command when
+		invoking these commands (actually, each of the commands should be invoked
+		with the identical set of <b>all</b> options, not just <code>--dir</code>.)
+	      </p>
+
+	      <p>
+		If you use these tools explicitly (i.e. you don't use one of the
+		benchmark scripts), it is <b>highly</b> recommended that you specify this
+		option explicitly and not rely on the <code>/tmp</code> default. For one, you
+		should make sure that different iterations of your benchmark use a
+		<b>different</b> value for this option, otherwise later results will
+		overwrite earlier ones.
+	      </p>
+
+	      <p>
+		<b>N.B.</b> If you want to run <code>move-results</code> or <code>copy-results</code> after the
+		end of the run, your resuls should be under <code>/var/lib/pbench</code>:
+		<code>move/copy-results</code> does not know anything about your choice for this
+		option; it only looks in <code>/var/lib/pbench</code> for results to upload. So
+		if you are planning to use <code>move/copy-results</code>, make sure that the
+		specified directory is a subdirectory of <code>/var/lib/pbench</code>.
+	      </p>
+	    </div>
+	  </div>
+
+	  <div id="outline-container-sec-18-4" class="outline-3">
+	    <h3 id="sec-18-4"><span class="section-number-3">18.4</span> What does <code>--remote</code> do?</h3>
+	    <div class="outline-text-3" id="text-18-4">
+	      <p>
+		pbench can register tools on remote hosts, start them and stop them remotely and gather up
+		the results from the remote hosts for post-processing. The model is that one has a controller
+		or orchestrator and a bunch of remote hosts that participate in the benchmark run.
+	      </p>
+
+	      <p>
+		The pbench setup is as follows: <code>register-tool-set</code> or <code>register-tool</code>
+		is called on the controller with the <code>--remote</code> option, once for each
+		remote host:
+	      </p>
+	      <pre><code>
+          for remote in $remotes ;do
+              register-tool-set --remote=$remote --label=foo --group=$group
+          done
+	      </code></pre>
+	      <p>
+		That has two effects: it adds a stanza for the tool to
+		the appropriate <code>tools.$group</code> file on the remote host and it also adds
+		a stanza like this to the controller <code>tools.$group</code> file:
+	      </p>
+	      <pre><code>
+          remote@&lt;host&gt;:&lt;label&gt;
+	      </code></pre>
+	      <p>
+		The label is optionally specified with <code>--label</code> and is empty by default.
+	      </p>
+
+	      <p>
+		When <code>start-tools</code> is called on the controller, it starts the local
+		collection (if any), but it also interprets the above stanzas and
+		starts the appropriate tools on the remote hosts. Similarly for
+		<code>stop-tools</code> and <code>postprocess-tools</code>.
+	      </p>
+	    </div>
+	  </div>
+
+	  <div id="outline-container-sec-18-5" class="outline-3">
+	    <h3 id="sec-18-5"><span class="section-number-3">18.5</span> What does <code>--label</code> do?</h3>
+	    <div class="outline-text-3" id="text-18-5">
+	      <p>
+		TBD
+	      </p>
+	    </div>
+	  </div>
+	  <div id="outline-container-sec-18-6" class="outline-3">
+	    <h3 id="sec-18-6"><span class="section-number-3">18.6</span> How to add a collection tool</h3>
+	    <div class="outline-text-3" id="text-18-6">
+	      <p>
+		Tool scripts are mostly boilerplate: they need to take a standard set
+		of commands (&#x2013;install, &#x2013;start, &#x2013;stop, &#x2013;postprocess) and a standard
+		set of options (&#x2013;iteration, &#x2013;group, &#x2013;dir, &#x2013;interval,
+		&#x2013;options). Consequently, the easiest thing to do is to take an
+		existing script and modify it slightly to call the tool of your
+		choice. I describe here the case of turbostat.
+	      </p>
+
+	      <p>
+		There are some tools that timestamp each output stanza; there are others
+		that do not. In the former case, make sure to use whatever option the tool
+		requires to include such timestamps (e.g. vmstat -t on RHEL6 or RHEL7 - but
+		strangely <b>not</b> on Fedora 20 - will produce such timestamps).
+	      </p>
+
+	      <p>
+		There are some tools that are included in the default installation -
+		others need to be installed separately. Turbostat is not always
+		installed by default, so the tool script installs the
+		package (which is named differently on RHEL6 and RHEL7) if necessary.
+		In some cases (e.g. the sysstat tools), we provide an RPM in the pbench
+		repo and the tool script makes sure to install that if necessary.
+	      </p>
+
+	      <p>
+		The only other knowledge required is where the tool executable resides
+		(usually /usr/bin/&lt;tool&gt; or /usr/local/bin/&lt;tool&gt; - /usr/bin/turbostat
+		in this case) and the default options to pass to the tool (which can
+		be modified by passing &#x2013;options to the tool script).
+	      </p>
+
+	      <p>
+		So here are the non-boilerplate portions of the <a href="https://github.com/distributed-system-analysis/pbench/tree/tool-scripts/turbostat">turbostat</a> tool
+		script. The first interesting part is to set <code>tool_bin</code> to point to
+		the binary:
+	      </p>
+	      <pre><code>
+          # Defaults
+          tool=$script_name
+          tool_bin=/usr/bin/$tool
+	      </code></pre>
+	      <p>
+		This only works if the script is named the same as the tool, which
+		is encouraged. If the installed location of your tool is not <code>/usr/bin</code>,
+		then adjust accordingly.
+	      </p>
+
+	      <p>
+		Since turbostat does not provide a timestamp option, we define a
+		datalog script to add timestamps (no need for that for vmstat e.g.)
+		and use that as the tool command:
+	      </p>
+	      <pre><code>
+          case "$script_name" in
+              turbostat)
+          	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file"
+          	;;
+          esac
+	      </code></pre>
+	      <p>
+		The <a href="https://github.com/distributed-system-analysis/pbench/tree/tool-scripts/datalog/turbostat-datalog">datalog script</a> uses the <code>log-timestamp</code> pbench utility to timestamp the
+		output. It will then be up to the postprocessing script to tease out the data
+		appropriately.
+	      </p>
+
+	      <p>
+		The last interesting part dispatches on the command - the install is turbostat-specific,
+		but the rest is boilerplate: <code>--start</code> just executes the <code>tool_cmd</code> as defined above
+		and stashes away the pid, so that <code>--stop</code> can kill the command later; <code>--postprocess</code>
+		calls the separate post-processing script (see below):
+	      </p>
+	      <pre><code>
+          release=$(awk '{x=$7; split(x, a, "."); print a[1];}' /etc/redhat-release)
+          case $release in
+              6)
+                  pkg=cpupowerutils
+                  ;;
+              7)
+                  pkg=kernel-tools
+                  ;;
+              *)
+                  # better be installed already
+                  ;;
+          esac
+
+          case "$mode" in
+              install)
+          	if [ ! -e $tool_bin ]; then
+                      yum install $pkg
+          	        echo $script_name is installed
+          	else
+          	        echo $script_name is installed
+          	fi
+              start)
+          	mkdir -p $tool_output_dir
+          	echo "$tool_cmd" &gt;$tool_cmd_file
+          	debug_log "$script_name: running $tool_cmd"
+          	$tool_cmd &gt;&gt;"$tool_output_file" &amp; echo $! &gt;$tool_pid_file
+          	wait
+          	;;
+              stop)
+          	pid=`cat "$tool_pid_file"`
+          	debug_log "stopping $script_name"
+          	kill $pid &amp;&amp; /bin/rm "$tool_pid_file"
+          	;;
+              postprocess)
+          	debug_log "postprocessing $script_name"
+          	$script_path/postprocess/$script_name-postprocess $tool_output_dir
+          	;;
+          esac
+	      </code></pre>
+
+	      <p>
+		Finally, there is the post-processing tool: the simplest thing to do
+		is nothing.  That's currently the case for the <a href="https://github.com/distributed-system-analysis/pbench/tree/tool-scripts/postprocess/turbostat-postprocess">turbostat</a>
+		post-processing tool, but ideally it should produce a JSON file with
+		the data points and an HTML file that uses the nv3 library to plot
+		the data graphically in a browser. See the <a href="https://github.com/distributed-system-analysis/pbench/tree/tool-scripts/postprocess">postprocess</a> directory for
+		examples, e.g. <a href="https://github.com/distributed-system-analysis/pbench/tree/tool-scripts/postprocess/iostat-postprocess">the iostat postprocessing tool</a>.
+	      </p>
+	    </div>
+	  </div>
+
+
+	  <div id="outline-container-sec-18-7" class="outline-3">
+	    <h3 id="sec-18-7"><span class="section-number-3">18.7</span> How to add a benchmark</h3>
+	    <div class="outline-text-3" id="text-18-7">
+	      <p>
+		TBD
+	      </p>
+	    </div>
+	  </div>
+	  <div id="outline-container-sec-18-8" class="outline-3">
+	    <h3 id="sec-18-8"><span class="section-number-3">18.8</span> How do I collect data for a short time while my benchmark is running?</h3>
+	    <div class="outline-text-3" id="text-18-8">
+	      <p>
+		Running
+	      </p>
+	      <pre><code>
+          user_benchmark -- sleep 60
+	      </code></pre>
+	      <p>
+		will start whatever data collections are specified in the default tool
+		group, then sleep for 60 seconds. At the end of that period, it will
+		stop the running collections tools and postprocess the collected data.
+		Running move-results afterwards will move the results to the results
+		server as usual.
+	      </p>
+	    </div>
+	  </div>
+
+	  <div id="outline-container-sec-18-9" class="outline-3">
+	    <h3 id="sec-18-9"><span class="section-number-3">18.9</span> I have a script to run my benchmark - how do I use it with pbench?</h3>
+	    <div class="outline-text-3" id="text-18-9">
+	      <p>
+		pbench is a set of building blocks, so it allows you to use it in many different
+		ways, but it also makes certain assumptions which if not satisfied, lead to problems.
+	      </p>
+
+	      <p>
+		Let's assume that you want to run a number of <code>iozone</code> experiments, each with different
+		parameters. Your script probably contains a loop, running one experiment each time around.
+		If you can change your script so that it executes <b>one</b> experiment specified by an argument,
+		then  the best way is to use the <code>user-benchmark</code> script:
+	      </p>
+	      <pre><code>
+          register-tool-set
+          for exp in experiment1 experiment2 experiment3 ;do
+              user-benchmark --config $exp -- my-script.sh $exp
+          done
+          move-results
+	      </code></pre>
+	      <p>
+		The results are going to end up in directories named <code>/var/lib/pbench/user-benchmark_$exp_$ts</code>
+		for each experiment (unfortunately, the timestamp will be recalculated at the beginning of
+		each <code>user-benchmark</code> invocation), before being uploaded to the results server.
+	      </p>
+
+	      <p>
+		Alternatively, you can modify your script so that each experiment is wrapped with start/stop/postprocess-tools
+		and then call move-results at the end:
+	      </p>
+	      <pre><code>
+          register-tool-set
+          for exp in experiment1 experiment2 experiment3 ;do
+              start-tools
+              &lt;run the experiment&gt;
+              stop-tools
+              postprocess-tools
+          done
+          move-results
+	      </code></pre>
+	    </div>
+	  </div>
+	</div>
+	
+	<div id="footnotes">
+	  <h2 class="footnotes">Footnotes: </h2>
+	  <div id="text-footnotes">
+
+	  	<ol>
+	    <div class="footdef"> <li>
+	      "System under test".
+	    </li></div>
+
+	    <div class="footdef"> <li>
+	      The current version of pbench-agent yum installs prebuilt RPMs of
+	      various common benchmarks: dbench, fio, iozone, linpack, smallfile and uperf,
+	      as well as the most recent version of the sysstat tools. We are planning to
+	      add more benchmarks to the list: iperf, netperf, streams, maybe the phoronix
+	      benchmarks. If you want some other benchmark (AIM7?), let us know.
+	    </li></div>
+
+	    <div class="footdef"> <li>
+	      The standard storage location currently is
+	      <a href="http://resultshost.example.com/incoming">http://resultshost.example.com/incoming</a> but it is subject to change
+	      without notice.
+	    </li></div>
+
+	    <div class="footdef"> <li>
+	      That will be handled by a configuration file in the future.
+	    </li></div>
+
+	    <div class="footdef"> <li>
+	      It is probably better to bundle these options in a configuration file,
+	      but that's still WIP.
+	    </li></div>
+
+	    <div class="footdef"> <li>
+	      Only a few such characteristics exist today, but the plan is to move
+	      more hardwired things into the config files from the scripts. If you need to
+	      override some setting and have to modify scripts in order to do so, let us
+	      know: that's a good candidate for the config file.
+	    </li></div>
+
+	    <div class="footdef"> <li>
+	      Yes, I know: it's an oxymoron.
+	    </li></div>
+
+	    <div class="footdef"> <li>
+	      E.g. A performance engineer was NFS-mounting the <code>incoming/</code>
+	      hierarchy, grouping his results under separate subdirectories for fio, iozone
+	      and smallfile, and grouping them further under thematically created
+	      subdirectories ("baremetal results for this configuration", "virtual host
+	      results under that configuration" etc.), primarily because having them all in
+	      a single directory was slow, as well as confusing. There were two problems
+	      with this approach which motivated the prefix approach described above. One
+	      was that the NFS export of the FUSE mount of the gluster volume that houses
+	      the result is extremetly flakey. The other is that the <code>incoming/</code> hierarchy
+	      is modified, which makes the writing of tools to extract data harder: they
+	      have to figure out arbitrary changes, instead of being able to assume a fixed
+	      structure.
+	    </li></div>
+
+	    <div class="footdef"> <li>
+	      A list of available tools in a specific group can be obtained with the
+	      <code>--group</code> option of <code>list-tools</code>; unfortunately, there is no option to list
+	      all available tools - the current workaround is to check the contents of
+	      <code>/opt/pbench-agent/tool-scripts</code>.
+	    </li></div>
+
+	</ol>
+	  </div>
+
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/distributed-system-analysis/pbench">Pbench</a> is maintained by <a href="https://github.com/distributed-system-analysis">distributed-system-analysis</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+  </body>
+</html>
