@@ -1,0 +1,175 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+    <title>Dashboard Tools</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../dist/img/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../dist/img/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../dist/img/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../dist/img/apple-touch-icon-57-precomposed.png">
+    <link href="/static/js/v0.1/DashboardTools/css/patternfly.min.css" rel="stylesheet" media="screen, print">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="../components/html5shiv/dist/html5shiv.min.js"></script>
+    <script src="../components/respond/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- IE8 requires jQuery and Bootstrap JS to load in head to prevent rendering bugs -->
+    <!-- IE8 requires jQuery v1.x -->
+    <script src="/static/js/v0.1/DashboardTools/components/nvd3/nv.d3.js"></script>
+    <script src="/static/js/v0.1/DashboardTools/components/nvd3/d3.v3.js"></script>
+    <script src="/static/js/v0.1/DashboardTools/components/nvd3/function-bind.js"></script>
+    <script src="/static/js/v0.1/DashboardTools/components/nvd3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.1/DashboardTools/components/nvd3/pbench_utils.js"></script>
+    <script src="/static/js/v0.1/DashboardTools/components/jquery/dist/jquery.min.js"></script>
+    <script src="/static/js/v0.1/DashboardTools/components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/static/js/v0.1/DashboardTools/components/datatables/media/js/jquery.dataTables.js"></script>
+    <script src="/static/js/v0.1/DashboardTools/dist/js/patternfly.min.js"></script>
+    <script src="/static/js/v0.1/DashboardTools/resultsDashboard.js"></script>
+  </head>
+	<body class=with-3d-shadow with-transitions>
+    <nav class="navbar navbar-default navbar-pf" role="navigation">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">
+          Dashboard Tools
+        </a>
+      </div>
+      <div class="collapse navbar-collapse navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-utility">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <span class="pficon pficon-user"></span>
+              Gurbir Kalsi <b class="caret"></b>
+            </a>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-primary">
+          <li class="active">
+            <a href="mainDashboard.html" class="active">Controllers</a>
+          </li>
+          <li>
+        </ul>
+      </div>
+    </nav>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-10 col-md-9">
+          <div class="page-header page-header-bleed-right">
+            <div class="actions pull-right">
+              <a href="#"><span class="pficon pficon-refresh"></span> Refresh Results</a>
+            </div>
+            <h1 id="result_name">Dashboard</h1>
+          </div>
+          <h3>CPU
+            <div id="svgdataurl1"></div>
+          </h3>
+          <div><svg id="chart1" class="chart"></svg></div>
+          <canvas id="canvas1" style="display:none"></canvas>
+          <script>
+            constructChart("lineChart", 1, "uperf_CPU_usage");
+          </script>
+          <hr>
+          <h3>DISK
+            <div id="svgdataurl2"></div>
+          </h3>
+          <div><svg id="chart2" class="chart"></svg></div>
+          <canvas id="canvas2" style="display:none"></canvas>
+          <script>
+            constructChart("lineChart", 2, "disk_Queue_Size");
+          </script>
+          <hr>
+          <h3>NETWORK
+            <div id="svgdataurl3"></div>
+          </h3>
+          <div><svg id="chart3" class="chart"></svg></div>
+          <canvas id="canvas3" style="display:none"></canvas>
+          <script>
+            constructChart("lineChart", 3, "network_l2_network_Mbits_sec");
+          </script>
+          <hr>
+          <h3>MEMORY
+            <div id="svgdataurl4"></div>
+          </h3>
+          <div><svg id="chart4" class="chart"></svg></div>
+          <canvas id="canvas4" style="display:none"></canvas>
+          <script>
+            constructChart("lineChart", 4, "memory_memory_activity");
+          </script>
+        </div><!-- /col -->
+        <div class="col-sm-4 col-md-3 sidebar-pf sidebar-pf-right">
+          <div class="sidebar-header sidebar-header-bleed-left sidebar-header-bleed-right">
+            <h2 class="h5">Result Metadata</h2>
+          </div>
+          <ul class="list-group">
+            <li class="list-group-item">
+              <h3 class="list-group-item-heading">File Name</h3>
+              <p class="list-group-item-text" id="file_name"></p>
+            </li>
+            <li class="list-group-item">
+              <h3 class="list-group-item-heading">Generated By Version</h3>
+              <p class="list-group-item-text" id="generated_by_version"></p>
+            </li>
+            <li class="list-group-item">
+              <h3 class="list-group-item-heading">Generated By</h3>
+              <p class="list-group-item-text" id="generated_by"></p>
+            </li>
+            <li class="list-group-item">
+              <h3 class="list-group-item-heading">controller</h3>
+              <p class="list-group-item-text" id="controller"></p>
+            </li>
+            <li class="list-group-item">
+              <h3 class="list-group-item-heading">config</h3>
+              <p class="list-group-item-text" id="config"></p>
+            </li>
+            <li class="list-group-item">
+              <h3 class="list-group-item-heading">host</h3>
+              <p class="list-group-item-text" id="host"></p>
+            </li>
+            <li class="list-group-item">
+              <h3 class="list-group-item-heading">script</h3>
+              <p class="list-group-item-text" id="script"></p>
+            </li>
+            <li class="list-group-item">
+              <h3 class="list-group-item-heading">mpstat</h3>
+              <p class="list-group-item-text" id="mpstat"></p>
+            </li>
+            <li class="list-group-item">
+              <h3 class="list-group-item-heading">perf</h3>
+              <p class="list-group-item-text" id="perf"></p>
+            </li>
+            <li class="list-group-item">
+              <h3 class="list-group-item-heading">proc-interrupts</h3>
+              <p class="list-group-item-text" id="proc-interrupts"></p>
+            </li>
+            <li class="list-group-item">
+              <h3 class="list-group-item-heading">proc-vmstat</h3>
+              <p class="list-group-item-text" id="proc-vmstat"></p>
+            </li>
+            <li class="list-group-item">
+              <h3 class="list-group-item-heading">sar</h3>
+              <p class="list-group-item-text" id="sar"></p>
+            </li>
+            <li class="list-group-item">
+              <h3 class="list-group-item-heading">pidstat</h3>
+              <p class="list-group-item-text" id="pidstat"></p>
+            </li>
+            <li class="list-group-item">
+              <h3 class="list-group-item-heading">turbostat</h3>
+              <p class="list-group-item-text" id="turbostat"></p>
+            </li>
+            <li class="list-group-item">
+              <h3 class="list-group-item-heading">iostat</h3>
+              <p class="list-group-item-text" id="iostat"></p>
+            </li>
+          </ul>
+        <div class="sidebar-header sidebar-header-bleed-left sidebar-header-bleed-right">
+          <h2 class="h5">Samples</h2>
+        </div>
+          <p class="list-group-item-text">pbench.pbench-0.33-1</p>
+	</body>
+</html> 
