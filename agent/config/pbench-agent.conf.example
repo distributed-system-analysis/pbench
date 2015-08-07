@@ -4,7 +4,6 @@ pbench_results_redirector = pbench.results.example.com
 pbench_web_server = pbench.example.com
 
 [pbench-agent]
-version = 0.33
 pbench_run = /var/lib/pbench-agent
 pbench_log = %(pbench_run)s/pbench.log
 
