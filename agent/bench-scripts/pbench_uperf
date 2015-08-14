@@ -156,9 +156,12 @@ function gen_xml {
 function stop_server {
 	local server=$1
 	local server_port=$2
+	local message=$3
 	local uperf_pid=`ssh $ssh_opts $server netstat -tlnp | grep ":$server_port " | awk '{print $7}' | awk -F/ '{print $1}'`
 	if [ ! -z "$uperf_pid" ]; then
-		echo found uperf pid $uperf_pid on $server:$server_port, killing
+		if [ $message -eq 1 ]; then
+			echo found uperf pid $uperf_pid on $server:$server_port, killing
+		fi
 		ssh $ssh_opts $server kill $uperf_pid
 	fi
 }
@@ -594,7 +597,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									scp $ssh_opts $benchmark_server_cmd_file $server:$benchmark_server_cmd_file >/dev/null
 
 									# start the uperf server(s)
-									stop_server $server $server_port
+									stop_server $server $server_port 1
 									ssh $ssh_opts $server "systemctl stop firewalld"
 									ssh $ssh_opts $server "screen -dmS uperf-server $benchmark_server_cmd_file"
 
@@ -650,7 +653,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								server_nr=1
 								for server in `echo $servers | sed -e s/,/" "/g`; do
 									server_port=`echo "1000 * $server_nr + $server_base_port" | bc`
-									stop_server $server $server_port
+									stop_server $server $server_port 0
 									if [ ! -z "$clients" ]; then
 										client=`echo $clients | cut -d, -f$server_nr`
 										result_file=$benchmark_results_dir/result-$server:$server_port.txt
