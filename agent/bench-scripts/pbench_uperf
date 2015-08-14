@@ -654,7 +654,6 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									if [ ! -z "$clients" ]; then
 										client=`echo $clients | cut -d, -f$server_nr`
 										result_file=$benchmark_results_dir/result-$server:$server_port.txt
-										echo scp $ssh_opts $client:$result_file $result_file 
 										scp $ssh_opts $client:$result_file $result_file >/dev/null
 									fi
 									((server_nr++))
