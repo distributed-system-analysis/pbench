@@ -16,6 +16,9 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 group=default
 dir="/tmp"
 
+# always notify the user, as collection can sometimes take a while
+echo "Collecting system information"
+
 # Process options and arguments
 
 opts=$(getopt -q -o d:g: --longoptions "dir:,group:" -n "getopt.sh" -- "$@");
