@@ -628,8 +628,8 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									server_port=`echo "1000 * $server_nr + $server_base_port" | bc`
 									benchmark_client_cmd_file="$iteration_dir/uperf-client-$server:$server_port.cmd"
 									result_file=$benchmark_results_dir/result-$server:$server_port.txt
-									debug_log "client[$client]${client_nodeinfo}test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
-									echo "client[$client]${client_nodeinfo}test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
+									debug_log "client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
+									echo "client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
 
 									# using local clients
 									if [ -z "$clients" ]; then
