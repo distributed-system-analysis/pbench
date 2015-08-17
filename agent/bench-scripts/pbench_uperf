@@ -201,7 +201,7 @@ function print_header {
 
 
 # Process options and arguments
-opts=$(getopt -q -o i:c:t:r:m:p:M:S:C: --longoptions "server-node:,server-nodes:,client-node:,client-nodes:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,kvm-host:,log-response-times:,postprocess-only:,run-dir:,tool-group:" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o i:c:t:r:m:p:M:S:C: --longoptions "server-node:,server-nodes:,client-node:,client-nodes:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,kvm-host:,log-response-times:,postprocess-only:,run-dir:,tool-group:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
@@ -252,176 +252,176 @@ if [ $? -ne 0 ]; then
 	printf    "\t\t                                        the prefix pattern to use for CPU information.\n"
 	exit 1
 fi
-eval set -- "$opts";
+eval set -- "$opts"
 debug_log "[$script_name]processing options"
 while true; do
 	case "$1" in
 		--install)
-		shift;
+		shift
 		install_uperf
 		exit
 		;;
 		--client-label)
-		shift;
+		shift
 		if [ -n "$1" ]; then
-			shift;
+			shift
 		fi
 		warn_log "The --client-label option is deprecated, please use --tool-label-pattern"
 		;;
 		--server-label)
-		shift;
+		shift
 		if [ -n "$1" ]; then
-			shift;
+			shift
 		fi
 		warn_log "The --server-label option is deprecated, please use --tool-label-pattern"
 		;;
 		--tool-label-pattern)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			tool_label_pattern="$1"
-			shift;
+			shift
 		fi
 		;;
 		--postprocess-only)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			postprocess_only="$1"
-			shift;
+			shift
 		fi
 		;;
 		--run-dir)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			benchmark_run_dir="$1"
-			shift;
+			shift
 		fi
 		;;
 		--max-stddev)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			maxstddevpct="$1"
-			shift;
+			shift
 		fi
 		;;
 		--max-failures)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			max_failures="$1"
-			shift;
+			shift
 		fi
 		;;
 		--samples)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			nr_samples="$1"
-			shift;
+			shift
 		fi
 		;;
 		-i|--instances)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			instances="$1"
-			shift;
+			shift
 		fi
 		;;
 		-t|--test-types)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			test_types="$1"
-			shift;
+			shift
 		fi
 		;;
 		--kvm-host)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			kvm_host="$1"
-			shift;
+			shift
 		fi
 		;;
 		--tool-group)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			tool_group="$1"
-			shift;
+			shift
 		fi
 		;;
 		-m|--message-sizes)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			message_sizes="$1"
-			shift;
+			shift
 		fi
 		;;
 		-r|--runtime)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			runtime="$1"
-			shift;
+			shift
 		fi
 		;;
 		--log-response-times)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			log_response_times="$1"
-			shift;
+			shift
 		fi
 		;;
 		-p|--protocols)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			protocols="$1"
-			shift;
+			shift
 		fi
 		;;
 		-C|--client|--clients)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			clients="$1"
-			shift;
+			shift
 		fi
 		;;
 		-S|--server|--servers)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			servers="$1"
-			shift;
+			shift
 		fi
 		;;
 		-c|--config)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			config="$1"
-			shift;
+			shift
 		fi
 		;;
 		--start-iteration-num)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			start_iteration_num=$1
-			shift;
+			shift
 		fi
 		;;
 		--client-node|--client-nodes)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			client_nodes="$1"
-			shift;
+			shift
 		fi
 		;;
 		--server-node|--server-nodes)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			server_nodes="$1"
-			shift;
+			shift
 		fi
 		;;
-		*)
-		debug_log "[$script_name]what happened? [$1]"
-		break;
-		;;
 		--)
-		shift;
-		break;
+		shift
+		break
+		;;
+		*)
+		error_log "[$script_name] bad option, \"$1 $2\""
+		break
 		;;
 	esac
 done

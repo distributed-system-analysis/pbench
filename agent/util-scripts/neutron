@@ -1,16 +1,16 @@
 #!/bin/bash
-// vim: set syntax=bash tabstop=4 shiftwidth=4 expandtab
+# vim: set syntax=bash tabstop=4 shiftwidth=4 expandtab
 #-------------------------------------------------------------------------------
 #
 #
 #
 #-------------------------------------------------------------------------------
-    
+
 DEBUG=true
 
 #-------------------------------------------------------------------------------
-# neutron_port_create ( compute_host, neutron_network, auth ) 
-#  Returns "MAC IP PORTID" 
+# neutron_port_create ( compute_host, neutron_network, auth )
+#  Returns "MAC IP PORTID"
 #-------------------------------------------------------------------------------
 neutron_port_create () {
     host=$1
@@ -19,15 +19,15 @@ neutron_port_create () {
     if [[ -z $host ]] ; then
         echo "Host not passed"
         exit 1
-    fi 
+    fi
     if [[ -z $NET ]] ; then
         echo "NET not passed"
         exit 1
-    fi 
+    fi
     if [[ -z $auth ]] ; then
         echo "auth not passed"
         exit 1
-    fi 
+    fi
     source $auth
     hostid=$(echo ${host} | cut -f1 -d".")
     netid=$(neutron net-show ${NET} | grep " id" | awk '{print $4}')
@@ -39,7 +39,7 @@ neutron_port_create () {
 }
 
 #-------------------------------------------------------------------------------
-# wireup_neutron_port compute_host mac portid, auth 
+# wireup_neutron_port compute_host mac portid, auth
 #
 #-------------------------------------------------------------------------------
 wireup_neutron_port () {
@@ -49,15 +49,15 @@ wireup_neutron_port () {
     if [[ -z $host ]] ; then
         echo "Host not passed"
         exit 1
-    fi 
+    fi
     if [[ -z $portid ]] ; then
         echo "portid not passed"
         exit 1
-    fi 
+    fi
     if [[ -z $auth ]] ; then
         echo "auth not passed"
         exit 1
-    fi 
+    fi
     source $auth
     hostid=$(echo ${host} | cut -f1 -d".")
     ssh $host ovs-vsctl -- --may-exist add-port br-int ${hostid} -- set Interface ${hostid} type=internal -- set Interface ${hostid} external-ids:iface-status=active -- set Interface ${hostid} external-ids:attached-mac=${mac} -- set Interface ${hostid} external-ids:iface-id=${portid}
@@ -81,12 +81,12 @@ PEERDNS=no" | ssh $host "cat > /etc/sysconfig/network-scripts/ifcfg-$hostid"
 clean_ovs () {
     if [[ -z $1 ]]; then
         echo " Clean Failed, no host passed"
-        exit 1 
+        exit 1
     fi
     if [[ -z $2 ]] ; then
         echo "auth not passed"
         exit 1
-    fi 
+    fi
     source $2
     host=$1
     hostid=$(echo ${host} | cut -f1 -d".")
