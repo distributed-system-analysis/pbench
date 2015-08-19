@@ -1,6 +1,6 @@
 all:  pbench-agent.html test-rpms.html
 
-everything: all pbench.pdf
+everything: all pbench-agent.pdf
 
 %.html:	%.org
 	emacs -batch -l batch-export.el --eval "(batch-org-export-as 'html)" $<
@@ -12,8 +12,8 @@ everything: all pbench.pdf
 	emacs -batch -l batch-export.el --eval "(batch-org-export-as 'latex)" $<
 
 
-desthost = $(shell PYTHONPATH=../../configtools/src:/opt/configtools/src:$$PYTHONPATH getconf.py repohost $(prog) repo)
-destuser = $(shell PYTHONPATH=../../configtools/src:/opt/configtools/src:$$PYTHONPATH getconf.py repouser $(prog) repo)
+desthost = $(shell getconf.py repohost $(prog) repo)
+destuser = $(shell getconf.py repouser $(prog) repo)
 destdir  = /var/www/html
 dest = ${destuser}@${desthost}:${destdir}
 

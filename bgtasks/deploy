@@ -1,9 +1,10 @@
 #! /bin/bash
 # -*- mode: shell-script -*-
 
-# deploy script for pbench background tasks
-# depends on ./config/deploy.conf
-# Dependcency: configtools
+# deploy script for pbench background tasks depends on ./config/deploy.conf
+# and ./config/run.conf
+
+# Dependency: configtools
 
 while getopts dh x ;do
     case $x in
@@ -29,9 +30,6 @@ else
     ssh=/usr/bin/ssh
 fi
 
-# override for debugging, comment out for production
-
-
 opts=$SHELLOPTS
 case $opts in
     *xtrace*)
@@ -45,18 +43,15 @@ case $opts in
 esac
 
 export CONFIG=$dir/config/deploy.conf
-
 if [ ! -f $CONFIG ] ;then
-   echo "$prog: required config file $CONFIG does not exist" > /dev/stdout
+   echo "$PROG: ERROR: required config file $CONFIG does not exist" > /dev/stdout
    exit 1
 fi
-
-PATH=/opt/configtools/bin:$PATH
 
 if which getconf.py > /dev/null 2>&1 ;then
     :
 else
-    echo "The configtools package must be installed."
+    echo "$PROG: ERROR: The configtools package must be installed." > /dev/stdout
     exit 2
 fi
 
@@ -76,8 +71,11 @@ function do_scripts {
     for script in $scripts ;do
         if [ -f $scriptdir/$script ] ;then
             files="$files $scriptdir/$script"
+        else
+            echo "$PROG: WARNING: script $script does not exist at $scriptdir/$script" > /dev/stdout
         fi
     done
+    echo "Copying scripts to $host"
     $rsync -avz $files $user@$host:$(getconf.py deploy-script-dir $role)
 }
 
@@ -94,9 +92,12 @@ function do_libs {
     for lib in $libs ;do
         if [ -e $libdir/$lib ] ;then
             files="$files $libdir/$lib"
+        else
+            echo "$PROG: WARNING: lib $lib does not exist at $libdir/$lib" > /dev/stdout
         fi
     done
-    $rsync -avz $files $user@$host:$(getconf.py deploy-lib-dir $host deploy)
+    echo "Copying libs to $host"
+    $rsync -avz $files $user@$host:$(getconf.py deploy-lib-dir $role deploy)
 }
 
 function do_crontab {
@@ -105,12 +106,38 @@ function do_crontab {
     host=$3
     crontabs=$4
 
-    # make sure the directory exists
-    $ssh $user@$host mkdir -p $(getconf.py deploy-crontab-dir $role deploy)
-    # copy the file
-    $rsync -avz $crontabs $user@$host:$(getconf.py deploy-crontab-dir $host deploy)/crontab
-    # refresh cron
-    $ssh $user@$host crontab $(getconf.py deploy-crontab-dir $role deploy)/crontab
+    if [[ $debug == 1 ]] ;then
+        echo "+++++++++ $crontabs +++++++++"
+        cat $crontabs
+        echo "-----------------------------"
+    fi
+
+    echo "Ensuring the crontab directory exists remotely on $host"
+    remote_dir=$(getconf.py deploy-crontab-dir $role deploy)
+    $ssh $user@$host mkdir -p $remote_dir
+    echo "Copying the crontab file to $host"
+    $rsync -avz $crontabs $user@$host:$remote_dir/crontab
+    echo "Refreshing user $user's crontab on $host"
+    $ssh $user@$host crontab $remote_dir/crontab
+}
+
+function do_config {
+    role=$1
+    user=$2
+    host=$3
+    config=$4
+
+    cfgdir_remote=$(getconf.py deploy-config-dir $role deploy)
+    echo "Ensuring the config directory exists remotely on $host"
+    $ssh $user@$host mkdir -p $cfgdir_remote
+    echo "Copying the config file to $host"
+    $rsync -avz $config $user@$host:$cfgdir_remote/
+
+    # Check for remote system having configtools installed
+    res=$($ssh $user@$host 'which getconf.py > /dev/null 2>&1 && echo "installed"')
+    if [ "$res" != "installed" ] ;then
+        echo "$PROG: WARNING: configtools does not appear to be installed on $host"
+    fi
 }
 
 function deploy_host {
@@ -120,20 +147,25 @@ function deploy_host {
     user=$(getconf.py user $role deploy)
     tasks=$(getconf.py -l tasks $role)
 
-    hostscripts=""
+    rolescripts=""
     if [ ! -z "$tasks" ] ;then
-        # general scripts
-        hostscripts=$(getconf.py -l scripts deploy)
-        hostscripts="$hostscripts $(getconf.py -l scripts $role)"
+        # general scripts for all roles
+        rolescripts=$(getconf.py -l scripts deploy)
+        # role specific scripts
+        rolescripts="$rolescripts $(getconf.py -l scripts $role)"
     fi
     # scripts and libs are concatenated and passed as arguments
-    scripts="$hostscripts"
+    scripts="$rolescripts"
     libs=""
+    config=$dir/$(getconf.py config-dir deploy)/run.conf
     # Don't pass crontab entries as arguments: newlines are mangled.
     # Use a file instead.
     crontabs=$TMP/crontab.$host
-    # make sure the file starts out empty.
-    > $crontabs
+    mailto=$(getconf.py mailto deploy)
+    echo "MAILTO=\"$mailto\"" > $crontabs
+    mailfrom=$(getconf.py mailfrom $role deploy)
+    echo "MAILFROM=\"$mailfrom\"" >> $crontabs
+    echo "CONFIG=\"$(getconf.py deploy-config-dir $role deploy)/run.conf\"" >> $crontabs
     for task in $tasks ;do
         # avoid introducing unnecessary spaces: the -z below won't work.
         if [ -z "$scripts" ] ;then
@@ -141,13 +173,13 @@ function deploy_host {
         else
             scripts="$scripts $(getconf.py -l scripts $task)"
         fi
-        
+
         if [ -z "$libs" ] ;then
             libs="$(getconf.py -l libs $task)"
         else
             libs="$libs $(getconf.py -l libs $task)"
         fi
-        
+
         getconf.py -l crontab $task >> $crontabs
     done
 
@@ -159,6 +191,9 @@ function deploy_host {
     fi
     if [ -s "$crontabs" ] ;then
         do_crontab $role $user $host "$crontabs"
+    fi
+    if [ -s "$config" ] ;then
+        do_config $role $user $host "$config"
     fi
 }
 

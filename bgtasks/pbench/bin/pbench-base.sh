@@ -14,6 +14,13 @@ fi
 TMP=$TOP/tmp
 test -d $TMP || doexit "Bad TMP=$TMP"
 
+if which getconf.py > /dev/null 2>&1 ;then
+    :
+else
+    echo "$PROG: ERROR: The configtools package must be installed." > /dev/stdout
+    exit 2
+fi
+
 ARCHIVE=$TOP/archive/fs-version-001
 LOGSDIR=$TOP/logs
 INCOMING=$TOP/public_html/incoming
