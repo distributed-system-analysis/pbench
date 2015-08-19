@@ -5,7 +5,7 @@ perl:
  - "5.16"
  - "5.10"
 install:
- - sudo apt-get install python python-pip
+ - sudo apt-get install python python-pip bc libjson-perl
  - sudo pip install configtools
 script:
  - ./agent/bench-scripts/unittests
