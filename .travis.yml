@@ -4,7 +4,7 @@ perl:
  - "5.18"
  - "5.16"
  - "5.10"
-before_script:
+install:
  - sudo apt-get install python python-pip
  - sudo pip install configtools
 scripts:
