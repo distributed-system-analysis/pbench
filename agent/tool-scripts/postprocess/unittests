@@ -1,5 +1,8 @@
 #!/bin/bash
 
+_tdir=$(dirname $(readlink -f $0))
+cd $_tdir
+
 if [[ ! -z "$1" ]]; then
     if [[ ! -d ./samples/$1 ]]; then
         echo "Ignoring $1, ./samples/$1 does not exist as a directory" >&2
@@ -29,11 +32,7 @@ function testit {
     rm /tmp/GenData/$1/$2.txt
 
     diff -cr gold/$1/ /tmp/GenData/$1
-    if [[ $? -eq 0 ]]; then
-        echo "PASS - $1"
-    else
-        echo "FAIL - $1"
-    fi
+    return $?
 }
 
 # Remove any file that is in the sample directory that
@@ -75,11 +74,7 @@ function testuperf {
     remove_sample_data $1
 
     diff -cr gold/$1/ /tmp/GenData/$1
-    if [[ $? -eq 0 ]]; then
-        echo "PASS - $1"
-    else
-        echo "FAIL - $1"
-    fi
+    return $?
 }
 
 # Test fio benchmark post-processing
@@ -95,11 +90,7 @@ function testfio {
     remove_sample_data $1
 
     diff -cr gold/$1/ /tmp/GenData/$1
-    if [[ $? -eq 0 ]]; then
-        echo "PASS - $1"
-    else
-        echo "FAIL - $1"
-    fi
+    return $?
 }
 
 function testcmpr {
@@ -116,13 +107,10 @@ function testcmpr {
     remove_sample_data $1
 
     diff -cr gold/$1/ /tmp/GenData/$1
-    if [[ $? -eq 0 ]]; then
-        echo "PASS - $1"
-    else
-        echo "FAIL - $1"
-    fi
+    return $?
 }
 
+res=0
 for i in $(ls -1 samples/) ; do
     if [[ ! -z "$testname" ]]; then
         if [[ "$testname" != "$i" ]]; then
@@ -131,15 +119,27 @@ for i in $(ls -1 samples/) ; do
     fi
     if [[ $i == uperf-? ]]; then
         testuperf $i
+        sts=$?
     else
         if [[ $i == fio-? ]]; then
             testfio $i
+            sts=$?
         else
             if [[ $i == compare-bench-results-* ]]; then
                 testcmpr $i
+                sts=$?
             else
                 testit $i ${i%-[0-9]}
+                sts=$?
             fi
         fi
     fi
+    if [[ $sts -eq 0 ]]; then
+        echo "PASS - $i"
+    else
+        echo "FAIL - $i"
+    fi
+    let res=$res+$sts
 done
+
+exit $res

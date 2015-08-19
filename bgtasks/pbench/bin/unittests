@@ -1,6 +1,6 @@
 #!/bin/bash
 
-_tdir=$(dirname $0)
+_tdir=$(dirname $(readlink -f $0))
 
 _testroot=/var/tmp/pbench-test-bgtasks
 mkdir -p $_testroot
@@ -63,7 +63,7 @@ function _dump_logs {
 function _verify_output {
     res=$1
     tname=$2
-    diff -cw gold/${tname}.txt $_testout
+    diff -cw $_tdir/gold/${tname}.txt $_testout
     if [[ $? -gt 0 ]]; then
         echo "FAIL - $tname"
         mv $_testout $_testroot/${tname}_output.txt
@@ -75,7 +75,7 @@ function _verify_output {
     return $res
 }
 function _setup_state {
-    _state_tb=$(pwd)/state/${1}.tar.xz
+    _state_tb=$_tdir/state/${1}.tar.xz
     (cd $_testroot; tar xf $_state_tb)
     if [[ $? -gt 0 ]]; then
         echo "ERROR: unable to create pbench hierarchy for state $1" >&2

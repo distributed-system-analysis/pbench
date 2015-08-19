@@ -1,0 +1,13 @@
+language: perl
+perl:
+ - "5.20"
+ - "5.18"
+ - "5.16"
+ - "5.10"
+install:
+ - sudo apt-get install python python-pip bc libjson-perl realpath
+ - sudo pip install configtools
+script:
+ - ./agent/bench-scripts/unittests
+ - ./agent/tool-scripts/postprocess/unittests
+ - ./bgtasks/pbench/bin/unittests
