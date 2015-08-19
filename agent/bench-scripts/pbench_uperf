@@ -156,9 +156,12 @@ function gen_xml {
 function stop_server {
 	local server=$1
 	local server_port=$2
+	local message=$3
 	local uperf_pid=`ssh $ssh_opts $server netstat -tlnp | grep ":$server_port " | awk '{print $7}' | awk -F/ '{print $1}'`
 	if [ ! -z "$uperf_pid" ]; then
-		echo found uperf pid $uperf_pid on $server:$server_port, killing
+		if [ $message -eq 1 ]; then
+			echo found uperf pid $uperf_pid on $server:$server_port, killing
+		fi
 		ssh $ssh_opts $server kill $uperf_pid
 	fi
 }
@@ -513,8 +516,6 @@ done
 let total_iterations=count
 count=1
 max_key_length=0
-# disable firewall on local system
-systemctl stop firewalld
 export benchmark config
 collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 # start the server processes
@@ -596,7 +597,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									scp $ssh_opts $benchmark_server_cmd_file $server:$benchmark_server_cmd_file >/dev/null
 
 									# start the uperf server(s)
-									stop_server $server $server_port
+									stop_server $server $server_port 1
 									ssh $ssh_opts $server "systemctl stop firewalld"
 									ssh $ssh_opts $server "screen -dmS uperf-server $benchmark_server_cmd_file"
 
@@ -630,8 +631,8 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									server_port=`echo "1000 * $server_nr + $server_base_port" | bc`
 									benchmark_client_cmd_file="$iteration_dir/uperf-client-$server:$server_port.cmd"
 									result_file=$benchmark_results_dir/result-$server:$server_port.txt
-									debug_log "client[$client]${client_nodeinfo}test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
-									echo "client[$client]${client_nodeinfo}test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
+									debug_log "client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
+									echo "client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
 
 									# using local clients
 									if [ -z "$clients" ]; then
@@ -652,11 +653,10 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								server_nr=1
 								for server in `echo $servers | sed -e s/,/" "/g`; do
 									server_port=`echo "1000 * $server_nr + $server_base_port" | bc`
-									stop_server $server $server_port
+									stop_server $server $server_port 0
 									if [ ! -z "$clients" ]; then
 										client=`echo $clients | cut -d, -f$server_nr`
 										result_file=$benchmark_results_dir/result-$server:$server_port.txt
-										echo scp $ssh_opts $client:$result_file $result_file 
 										scp $ssh_opts $client:$result_file $result_file >/dev/null
 									fi
 									((server_nr++))
