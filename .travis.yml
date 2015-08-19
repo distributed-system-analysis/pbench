@@ -1,0 +1,13 @@
+language: perl
+perl:
+ - "5.20"
+ - "5.18"
+ - "5.16"
+ - "5.10"
+before_install:
+ - sudo apt-get python pip
+ - sudo pip install configtools
+scripts:
+ - ./agent/bench-scripts/unittests
+ - ./agent/tool-scripts/postprocess/unittests
+ - ./bgtasks/pbench/bin/unittests
