@@ -1,6 +1,6 @@
 #!/bin/bash
 
-_tdir=$(dirname $0)
+_tdir=$(dirname $(readlink -f $0))
 
 _testroot=/var/tmp/pbench-test-bench
 mkdir -p $_testroot
@@ -58,7 +58,7 @@ function _run {
     shift
     echo "$tname $tscrpt $@"
     echo "+++ Running $tname $tscrpt" >> $_testout
-    benchmark_bin=$_tdir/test-bin/bm pbench_run=$_testdir pbench_log=$_testdir/pbench.log $_testopt/bench-scripts/$tscrpt $@ >> $_testout 2>&1
+    benchmark_bin=$_testopt/unittest-scripts/bm pbench_run=$_testdir pbench_log=$_testdir/pbench.log $_testopt/bench-scripts/$tscrpt $@ >> $_testout 2>&1
     res=$?
     echo "--- Finished $tname $tscrpt (status=$res}" >> $_testout
     return $res
@@ -83,7 +83,7 @@ function _verify_output {
     res=$1
     tname=$2
     tscrpt=$3
-    diff -cw gold/${tscrpt}/${tname}.txt $_testout
+    diff -cw $_tdir/gold/${tscrpt}/${tname}.txt $_testout
     if [[ $? -gt 0 ]]; then
         echo "FAIL - $tname"
         mv $_testout $_testroot/${tname}_output.txt
@@ -104,7 +104,7 @@ function _setup_state {
         echo "ERROR: failed to create test pbench directory, \"$_testdir\"" >&2
         exit 1
     fi
-    cp sample-tools/tools.default $_testdir/
+    cp $_tdir/sample-tools/tools.default $_testdir/
 }
 function _reset_state {
     rm -rf $_testdir

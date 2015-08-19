@@ -1,5 +1,8 @@
 #!/bin/bash
 
+_tdir=$(dirname $(readlink -f $0))
+cd $_tdir
+
 if [[ ! -z "$1" ]]; then
     if [[ ! -d ./samples/$1 ]]; then
         echo "Ignoring $1, ./samples/$1 does not exist as a directory" >&2
