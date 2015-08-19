@@ -5,8 +5,8 @@ perl:
  - "5.16"
  - "5.10"
 install:
- - apt-get install python python-pip
- - pip install configtools
+ - sudo apt-get install python python-pip
+ - sudo pip install configtools
 script:
  - ./agent/bench-scripts/unittests
  - ./agent/tool-scripts/postprocess/unittests
