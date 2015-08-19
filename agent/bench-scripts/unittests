@@ -59,9 +59,9 @@ function _run {
     echo "$tname $tscrpt $@"
     echo "+++ Running $tname $tscrpt" >> $_testout
     benchmark_bin=$_testopt/unittest-scripts/bm pbench_run=$_testdir pbench_log=$_testdir/pbench.log $_testopt/bench-scripts/$tscrpt $@ >> $_testout 2>&1
-    res=$?
-    echo "--- Finished $tname $tscrpt (status=$res}" >> $_testout
-    return $res
+    sts=$?
+    echo "--- Finished $tname $tscrpt (status=$sts}" >> $_testout
+    return $sts
 }
 function _save_tree {
     # Save state of the tree
@@ -80,23 +80,23 @@ function _dump_logs {
     rm -f $_testroot/test-execution.log
 }
 function _verify_output {
-    res=$1
+    sts=$1
     tname=$2
     tscrpt=$3
     diff -cw $_tdir/gold/${tscrpt}/${tname}.txt $_testout
     if [[ $? -gt 0 ]]; then
         echo "FAIL - $tname"
         mv $_testout $_testroot/${tname}_output.txt
-        res=1
+        sts=1
     else
-        if [[ $res -eq 0 ]]; then
+        if [[ $sts -eq 0 ]]; then
             echo "PASS - $tname"
             rm $_testout
         else
             echo "FAIL - $tname: PASS output but execution returned non-zero exit status"
         fi
     fi
-    return $res
+    return $sts
 }
 function _setup_state {
     mkdir $_testdir
@@ -114,6 +114,8 @@ function _reset_state {
     fi
 }
 
+let errs=0
+
 #
 # 1. Verify uperf
 #
@@ -124,6 +126,7 @@ _save_tree
 _dump_logs
 _verify_output $res test-00 pbench_uperf
 res=$?
+let errs=$errs+$res
 _reset_state
 
 #
@@ -136,6 +139,7 @@ _save_tree
 _dump_logs
 _verify_output $res test-01 pbench_uperf
 res=$?
+let errs=$errs+$res
 _reset_state
 
 #
@@ -148,7 +152,12 @@ _save_tree
 _dump_logs
 _verify_output $res test-00 pbench_dbench
 res=$?
-# _reset_state
+let errs=$errs+$res
+_reset_state
 
-exit $res
-
+if [[ $errs -gt 0 ]]; then
+    sts=1
+else
+    sts=0
+fi
+exit $sts
