@@ -5,7 +5,7 @@ perl:
  - "5.16"
  - "5.10"
 before_install:
- - sudo apt-get python pip
+ - sudo apt-get install python pip
  - sudo pip install configtools
 scripts:
  - ./agent/bench-scripts/unittests
