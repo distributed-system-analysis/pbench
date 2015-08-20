@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "$0 $*" >> $_testlog
+
+if [[ "$4" == "netstat" && "$5" == "-tlpn" ]]; then
+    echo "tcp        0      0 0.0.0.0:21000               0.0.0.0:*                   LISTEN      5830/uperf"
+fi

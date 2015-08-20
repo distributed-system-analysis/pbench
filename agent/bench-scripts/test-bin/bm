@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Generic "benchmark" command, meant to mock out any behaviors of the various
+# benchmarks, uperf, linpack, iozone, fio, etc.
+
+echo "$0 $*" >> $_testlog

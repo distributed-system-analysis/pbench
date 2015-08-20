@@ -1,0 +1,782 @@
+#!/usr/bin/perl
+# -*- mode: perl; indent-tabs-mode: t; perl-indent-level: 8 -*-
+
+# Author: Andrew Theurer
+#
+# usage: sar-postprocess <dir>  dir = directory where sar.txt can be found
+#
+# The purpose of this script is to
+# -output the chart data in JSON format (sar.js)
+# -output html file (sar.html) with embedded javascript, using d3.js libraries
+# The result should be several sar graphs
+
+use strict;
+use warnings;
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+BEGIN {
+	my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+                $_test_alt_tools_lib = "$_pbench_tspp_dir";
+	}
+}
+use lib "$_test_alt_tools_lib";
+no lib ".";
+use GenData qw(gen_data);
+
+my $dir=$ARGV[0];
+my %sar;
+my $prev_time = "";
+my $timestamp_ms;
+my $time;
+my $date;
+my %graph_type;
+my $line_num = 1;
+my $line;
+my $extra_time = 0;  # the extra amount of time in ms we need to add as the date recorded goes from one day to the next
+my %graph_threshold;
+$graph_threshold{network_l2}{network_packets_sec} = 300;
+$graph_threshold{network_l2}{carrier_errors} = 1;
+$graph_threshold{network_l2}{drops_sec} = 1;
+$graph_threshold{network_l2}{errors_sec} = 1;
+$graph_threshold{network_l2}{fifo_overrun_errors} = 1;
+$graph_threshold{network_l2}{frame_alignment_errors} = 1;
+$graph_threshold{network_l2}{network_Mbits_sec} = 1;
+$graph_threshold{network_l2}{network_compressed_packets_sec} = 1;
+$graph_threshold{network_l2}{network_multicast_packets_sec} = 1;
+
+# we'll force sar into a LANG=C environment: two-digit year on the first line,
+# 24-hour time with *no* AM/PM designation in the timestamp.
+# but calc_timestamp() and the TSRE below are backwards-compatible and can
+# deal with AM/PM
+# Usage example: $timestamp_ms = calc_timestamp($time);
+sub calc_timestamp {
+	my $this_time = $_[0];
+
+	if ( $prev_time eq "" ) { # if this is the first time
+		$prev_time = $this_time;
+	}
+
+	# time format: HH:MM:SS
+	# 24-hour format,*no* AM/PM designation
+	my $hourminsec = $this_time;
+	$hourminsec =~ /(\d+):\d+:\d+\s?(\w\w)?/;
+	my $hour = $1;
+	my $this_ampm = $2;
+	$prev_time =~ /(\d+):\d+:\d+\s?(\w\w)?/;
+	my $prevhour = $1;
+	my $prev_ampm = $2;
+
+	# check for AM/PM first and if it's not there assume 24-hour
+	# clock and compare hours.
+	# the hour check is not entirely correct but it's more
+	# than sufficient for our purposes: it assumes that successive
+	# timestamps differ by less than 24 hours.
+	if ( (defined($this_ampm) and defined($prev_ampm) and ( $this_ampm eq "AM") and ( $prev_ampm eq "PM")) ||
+	     ( $prevhour > $hour ) ) {
+		# since we have rolled over to the next day, add enough ms to extra_time equal to 1 day
+		#print "detected day change\n";
+		$extra_time += (24 * 60 * 60 * 1000);
+	}
+	$prev_time = $this_time;
+	return int ($extra_time + 1000 * `date --date="$date $this_time" +%s`);
+}
+
+# read the sar.txt and collect stats
+open(SAR_TXT, "$dir/sar.txt") || die "could not find $dir/sar.txt\n";
+
+# The first line contains the date:
+#    Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
+# Subsequent lines are of the form:
+#    05:48:49 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+# containing only the time, so we need to combine the two to get a meaningful timestamp.
+
+$line = <SAR_TXT>;
+chomp $line;
+if ( $line =~ /\S+\s\S+\s\S+\s+(\d\d\/\d\d\/(\d\d)?\d\d)(.*)/ ) {
+	$date = $1;
+} else {
+	# TBD: default is today - should we bail instead?
+	# TBD: what if the first line does not match? do we keep looking? or die?
+	# die("Bad mpstat.txt file format: first line should have the form: Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)");
+	$date = "";
+}
+
+# timestamp regexp - optional AM/PM designator, but don't catch it as a group
+my $tsre = qr/\d+\:\d+\:\d+(?:\s\w\w)?/;
+
+my $mode="search";
+while ($line = <SAR_TXT>) {
+	chomp $line;
+
+	# 02:50:58 PM     CPU      %usr     %nice      %sys   %iowait    %steal      %irq     %soft    %guest    %gnice     %idle
+	if ( $line =~ /$tsre\s+CPU\s+%usr\s+%nice\s+%sys\s+%iowait\s+%steal\s+%irq\s+%soft\s+%guest\s+%gnice\s+%idle/ ) {
+		$mode = "cpu_util";
+	}
+	# 02:50:58 PM     CPU       MHz
+	if ( $line =~ /$tsre\s+CPU\s+MHz$/ ) {
+		$mode = "cpu_freq";
+	}
+	# 02:50:58 PM    proc/s   cswch/s
+	if ( $line =~ /$tsre\s+proc\/s\s+cswch\/s$/ ) {
+		$mode = "proc_cswch";
+	}
+	# 02:50:58 PM      INTR    intr/s
+	if ( $line =~ /\d+\:\d+\:\d+(\s\w\w)?\s+INTR\s+intr\/s$/ ) {
+		$mode = "intr";
+	}
+	# 02:50:58 PM  pswpin/s pswpout/s
+	if ( $line =~ /$tsre\s+pswpin\/s\s+pswpout\/s$/ ) {
+		$mode = "pageswap";
+	}
+		# 02:50:58 PM  pgpgin/s pgpgout/s   fault/s  majflt/s  pgfree/s pgscank/s pgscand/s pgsteal/s    %vmeff
+	if ( $line =~ /$tsre\s+pgpgin\/s\s+pgpgout\/s\s+fault\/s\s+majflt\/s\s+pgfree\/s\s+pgscank\/s\s+pgscand\/s\s+pgsteal\/s\s+%vmeff$/ ) {
+		$mode = "pagefault";
+	}
+	# 02:50:58 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
+	if ( $line =~ /$tsre\s+kbmemfree\s+kbmemused\s+%memused\s+kbbuffers\s+kbcached\s+kbcommit\s+%commit\s+kbactive\s+kbinact\s+kbdirty$/ ) {
+		$mode = "mem_usage";
+	}
+	# 02:50:58 PM kbhugfree kbhugused  %hugused
+	if ( $line =~ /$tsre\s+kbhugfree\s+kbhugused\s+%hugused$/ ) {
+		$mode = "hugemem_usage";
+	}
+	# 02:50:58 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
+	if ( $line =~ /$tsre\s+kbswpfree\s+kbswpused\s+%swpused\s+kbswpcad\s+%swpcad$/ ) {
+		$mode = "swap_usage";
+	}
+	# 02:50:58 PM     IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s   rxcmp/s   txcmp/s  rxmcst/s   %ifutil
+	if ( $line =~ /$tsre\s+IFACE\s+rxpck\/s\s+txpck\/s\s+rxkB\/s\s+txkB\/s\s+rxcmp\/s\s+txcmp\/s\s+rxmcst\/s\s+%ifutil$/ ) {
+		$mode = "net_dev";
+	}
+	# 02:50:58 PM     IFACE   rxerr/s   txerr/s    coll/s  rxdrop/s  txdrop/s  txcarr/s  rxfram/s  rxfifo/s  txfifo/s
+	if ( $line =~ /$tsre\s+IFACE\s+rxerr\/s\s+txerr\/s\s+coll\/s\s+rxdrop\/s\s+txdrop\/s\s+txcarr\/s\s+rxfram\/s\s+rxfifo\/s\s+txfifo\/s$/ ) {
+		$mode = "net_dev_error";
+	}
+	# 02:50:58 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
+	if ( $line =~ /$tsre\s+MBfsfree\s+MBfsused\s+%fsused\s+%ufsused\s+Ifree\s+Iused\s+%Iused\s+FILESYSTEM$/ ) {
+		$mode = "fs_usage";
+	}
+	# 02:50:58 PM    totsck    tcpsck    udpsck    rawsck   ip-frag    tcp-tw
+	if ( $line =~ /$tsre\s+totsck\s+tcpsck\s+udpsck\s+rawsck\s+ip-frag\s+tcp-tw$/ ) {
+		$mode = "net_sock";
+	}
+	# 02:50:58 PM  active/s passive/s    iseg/s    oseg/s
+	if ( $line =~ /$tsre\s+active\/s\s+passive\/s\s+iseg\/s\s+oseg\/s$/ ) {
+		$mode = "net_tcp";
+	}
+	# 02:50:58 PM  atmptf/s  estres/s retrans/s isegerr/s   orsts/s
+	if ( $line =~ /$tsre\s+atmptf\/s\s+estres\/s\s+retrans\/s\s+isegerr\/s\s+orsts\/s$/ ) {
+		$mode = "net_tcp_error";
+	}
+	# 02:50:58 PM    irec/s  fwddgm/s    idel/s     orq/s   asmrq/s   asmok/s  fragok/s fragcrt/s
+	if ( $line =~ /$tsre\s+irec\/s\s+fwddgm\/s\s+idel\/s\s+orq\/s\s+asmrq\/s\s+asmok\/s\s+fragok\/s\s+fragcrt\/s$/ ) {
+		$mode = "net_ip";
+	}
+	# 02:50:58 PM ihdrerr/s iadrerr/s iukwnpr/s   idisc/s   odisc/s   onort/s    asmf/s   fragf/s
+	if ( $line =~ /$tsre\s+ihdrerr\/s\s+iadrerr\/s\s+iukwnpr\/s\s+idisc\/s\s+odisc\/s\s+onort\/s\s+asmf\/s\s+fragf\/s$/ ) {
+		$mode = "net_ip_error";
+	}
+	# 02:50:58 PM    idgm/s    odgm/s  noport/s idgmerr/s
+	if ( $line =~ /$tsre\s+idgm\/s\s+odgm\/s\s+noport\/s\s+idgmerr\/s$/ ) {
+		$mode = "net_udp";
+	}
+	if ( $line eq "" ) {
+		$mode = "none";
+	}
+	# 02:50:58 PM    call/s retrans/s    read/s   write/s  access/s  getatt/s
+	if ( $line =~ /$tsre\s+call\/s\s+retrans\/s\s+read\/s\s+write\/s\s+access\/s\s+getatt\/s$/ ) {
+		$mode = "net_nfs_client";
+	}
+	# 02:50:58 PM   scall/s badcall/s  packet/s     udp/s     tcp/s     hit/s    miss/s   sread/s  swrite/s saccess/s sgetatt/s
+	# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+	if ( $line =~ /$tsre\s+scall\/s\s+badcall\/s\s+packet\/s\s+udp\/s\s+tcp\/s\s+hit\/s\s+miss\/s\s+sread\/s\s+swrite\/s\s+saccess\/s\s+sgetatt\/s$/ ) {
+		$mode = "net_nfs_server";
+	}
+	# 02:50:58 PM    imsg/s    omsg/s    iech/s   iechr/s    oech/s   oechr/s     itm/s    itmr/s     otm/s    otmr/s  iadrmk/s iadrmkr/s  oadrmk/s oadrmkr/s
+	if ( $line =~ /$tsre\s+imsg\/s\s+omsg\/s\s+iech\/s\s+iechr\/s\s+oech\/s\s+oechr\/s\s+itm\/s\s+itmr\/s\s+otm\/s\s+otmr\/s\s+iadrmk\/s\s+iadrmkr\/s\s+oadrmk\/s\s+oadrmkr\/s$/ ) {
+		$mode = "net_icmp";
+	}
+	# 02:50:58 PM    ierr/s    oerr/s idstunr/s odstunr/s   itmex/s   otmex/s iparmpb/s oparmpb/s   isrcq/s   osrcq/s  iredir/s  oredir/s
+	# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+	if ( $line =~ /$tsre\s+ierr\/s\s+oerr\/s\s+idstunr\/s\s+odstunr\/s\s+itmex\/s\s+otmex\/s\s+iparmpb\/s\s+oparmpb\/s\s+isrcq\/s\s+osrcq\/s\s+iredir\/s\s+oredir\/s$/ ) {
+		$mode = "net_eicmp";
+	}
+
+	# capture CPU util data:
+	# 02:50:59 PM     all      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00    100.00
+	# 02:50:59 PM       0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00    100.00
+	               # timestamp              pu_id   %user     %nice        %sys         %iowait      %steal       %irq         %soft        %guest        %gnice      %id
+	if (( $mode eq "cpu_util" ) &&
+	    ( $line =~ /($tsre)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)/)) {
+		$time = $1;
+		my $id = $2;
+		my $usr = $3;
+		my $nice = $4;
+		my $sys = $5;
+		my $iowait = $6;
+		my $steal = $7;
+		my $irq = $8;
+		my $soft = $9;
+		my $guest = $10;
+		my $gnice = $11;
+		my $idle = $12;
+
+		$timestamp_ms = calc_timestamp($time);
+		my $busy = $usr + $nice + $sys + $irq + $soft + $guest + $gnice;
+		$id = sprintf "%02d", $id;
+		my $cpulabel = "cpu_" . $id;
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{cpu}{"all_cpu_busy"}{$cpulabel}{$timestamp_ms} = $busy;
+		$sar{per_cpu}{$cpulabel}{usr}{$timestamp_ms} = $usr;
+		$sar{per_cpu}{$cpulabel}{nice}{$timestamp_ms} = $nice;
+		$sar{per_cpu}{$cpulabel}{sys}{$timestamp_ms} = $sys;
+		$sar{per_cpu}{$cpulabel}{iowait}{$timestamp_ms} = $iowait;
+		$sar{per_cpu}{$cpulabel}{steal}{$timestamp_ms} = $steal;
+		$sar{per_cpu}{$cpulabel}{irq}{$timestamp_ms} = $irq;
+		$sar{per_cpu}{$cpulabel}{soft}{$timestamp_ms} = $soft;
+		$sar{per_cpu}{$cpulabel}{guest}{$timestamp_ms} = $guest;
+		$sar{per_cpu}{$cpulabel}{gnice}{$timestamp_ms} = $gnice;
+		$sar{per_cpu}{$cpulabel}{idle}{$timestamp_ms} = $idle;
+		next;
+	}
+
+	# 02:50:58 PM     CPU       MHz
+	# 02:50:59 PM     all   2661.00
+	# 02:50:59 PM       0   2661.00
+	#               #date                   cpu_id  MHz
+	if (( $mode eq "cpu_freq" ) &&
+	    ( $line =~ /($tsre)\s+(\d+)\s+(\d+.\d+)$/ )) {
+		$time = $1;
+		my $id = $2;
+		my $mhz = $3;
+		$timestamp_ms = calc_timestamp($time);
+		$id = sprintf "%02d", $id;
+		my $cpulabel = "cpu_" . $id;
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{cpu}{"frequency_MHz"}{$cpulabel}{$timestamp_ms} = $mhz;
+		next;
+	}
+
+	# 02:50:58 PM    proc/s   cswch/s
+	# 02:50:59 PM      0.00    140.00
+	if (( $mode eq "proc_cswch" ) &&
+	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+.\d+)$/ )) {
+		$time = $1;
+		my $proc_sec = $2;
+		my $cswch_sec = $3;
+		$timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{system}{proc_cswch_sec}{processes_created_sec}{$timestamp_ms} = $proc_sec;
+		$sar{system}{proc_cswch_sec}{context_switches_sec}{$timestamp_ms} = $cswch_sec;
+		next;
+	}
+	# 02:50:58 PM      INTR    intr/s
+	# 02:50:59 PM       sum   1490.00
+	# 02:50:59 PM         0      0.00
+	if (( $mode eq "intr" ) &&
+	    ( $line =~ /($tsre)\s+sum\s+(\d+.\d+)$/ )) {
+		$time = $1;
+		my $intr_sec = $2;
+		$timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{system}{interrupts_sec}{all_interrupts}{$timestamp_ms} = $intr_sec;
+		next;
+	}
+	# 02:50:58 PM  pswpin/s pswpout/s
+	# 02:50:59 PM      0.00      0.00
+	if (( $mode eq "pageswap" ) &&
+	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+.\d+)$/ )) {
+		$time = $1;
+		my $pswpin_sec = $2;
+		my $pswpout_sec = $3;
+		$timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{memory}{memory_activity}{page_swaps_in_sec}{$timestamp_ms} = $pswpin_sec;
+		$sar{memory}{memory_activity}{page_swaps_out_sec}{$timestamp_ms} = $pswpout_sec;
+		next;
+	}
+	# 02:50:58 PM  pgpgin/s pgpgout/s   fault/s  majflt/s  pgfree/s pgscank/s pgscand/s pgsteal/s    %vmeff
+	# 02:50:59 PM      0.00      0.00     70.00      0.00    163.00      0.00      0.00      0.00      0.00
+	if (( $mode eq "pagefault" ) &&
+	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
+		$time = $1;
+		my $pgpgin_sec = $2;
+		my $pgpgout_sec = $3;
+		my $fault_sec = $4;
+		my $majflt_sec = $5;
+		my $pgfree_sec = $6;
+		my $pgscank_sec = $7;
+		my $pgscand_sec = $8;
+		my $pgsteal_sec = $9;
+		my $vmeff_pct = $10;
+		$timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{memory}{memory_activity}{pgpgin_sec}{$timestamp_ms} = $pgpgin_sec;
+		$sar{memory}{memory_activity}{pgpgout_sec}{$timestamp_ms} = $pgpgout_sec;
+		$sar{memory}{memory_activity}{fault_sec}{$timestamp_ms} = $fault_sec;
+		$sar{memory}{memory_activity}{majflt_sec}{$timestamp_ms} = $majflt_sec;
+		$sar{memory}{memory_activity}{pgfree_sec}{$timestamp_ms} = $pgfree_sec;
+		$sar{memory}{memory_activity}{pgscank_sec}{$timestamp_ms} = $pgscank_sec;
+		$sar{memory}{memory_activity}{pgscand_sec}{$timestamp_ms} = $pgscand_sec;
+		$sar{memory}{memory_activity}{pgsteal_sec}{$timestamp_ms} = $pgsteal_sec;
+		$sar{memory}{memory_activity}{vmeff_pct}{$timestamp_ms} = $vmeff_pct;
+		next;
+	}
+	# 02:50:58 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
+	# 02:50:59 PM  48090512   1191160      2.42       744    422096    422628      0.86    261068    258416         0
+	if (( $mode eq "mem_usage" ) &&
+	    ( $line =~ /($tsre)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+)\s+(\d+)\s+(\d+)$/ )) {
+		$time = $1;
+		my $kbmemfree = $2;
+		my $kbmemused = $3;
+		my $memused_pct = $4;
+		my $kbbuffers = $5;
+		my $kbcached = $6;
+		my $kbcommit = $7;
+		my $commit_pct = $8;
+		my $kbactive = $9;
+		my $kbinactive = $10;
+		my $kbdirty = $11;
+		$timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{memory}{memory_usage}{kbmemfree}{$timestamp_ms} = $kbmemfree;
+		$sar{memory}{memory_usage}{kbmemused}{$timestamp_ms} = $kbmemused;
+		$sar{memory}{memory_usage}{memused_pct}{$timestamp_ms} = $memused_pct;
+		$sar{memory}{memory_usage}{kbbuffers}{$timestamp_ms} = $kbbuffers;
+		$sar{memory}{memory_usage}{kbcached}{$timestamp_ms} = $kbcached;
+		$sar{memory}{memory_usage}{kbcommit}{$timestamp_ms} = $kbcommit;
+		$sar{memory}{memory_usage}{commit_pct}{$timestamp_ms} = $commit_pct;
+		$sar{memory}{memory_usage}{kbactive}{$timestamp_ms} = $kbactive;
+		$sar{memory}{memory_usage}{kbinactive}{$timestamp_ms} = $kbinactive;
+		$sar{memory}{memory_usage}{kbdirty}{$timestamp_ms} = $kbdirty;
+		next;
+	}
+	# 02:50:58 PM kbhugfree kbhugused  %hugused
+	if (( $mode eq "hugemem_usage" ) &&
+	    ( $line =~ /($tsre)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)$/ )) {
+		$time = $1;
+		my $kbhugfree = $2;
+		my $kbhugused = $3;
+		my $hugused_pct = $4;
+		$timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{memory}{memory_usage}{kbhugefree}{$timestamp_ms} = $kbhugfree;
+		$sar{memory}{memory_usage}{kbhugeused}{$timestamp_ms} = $kbhugused;
+		$sar{memory}{memory_usage}{hugeused_pct}{$timestamp_ms} = $hugused_pct;
+		next;
+	}
+	# 02:50:58 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
+	# 02:50:59 PM         0         0      0.00         0      0.00
+	if (( $mode eq "swap_usage" ) &&
+	    ( $line =~ /($tsre)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+)\s+(\d+\.\d+)$/ )) {
+		$time = $1;
+		my $kbswpfree = $2;
+		my $kbswpused = $3;
+		my $swpused_pct = $4;
+		my $kbswpcad = $5;
+		my $swpcad_pct = $6;
+		$timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{memory}{memory_usage}{kbswpfree}{$timestamp_ms} = $kbswpfree;
+		$sar{memory}{memory_usage}{kbswpused}{$timestamp_ms} = $kbswpused;
+		$sar{memory}{memory_usage}{swpused_pct}{$timestamp_ms} = $swpused_pct;
+		$sar{memory}{memory_usage}{kbswpcad}{$timestamp_ms} = $kbswpcad;
+		$sar{memory}{memory_usage}{swpcad_pct}{$timestamp_ms} = $swpcad_pct;
+		next;
+	}
+	# 02:50:58 PM     IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s   rxcmp/s   txcmp/s  rxmcst/s   %ifutil
+	# 02:50:59 PM    br-em1     11.00      1.00      0.52      0.06      0.00      0.00      0.00      0.00
+	if (( $mode eq "net_dev" ) &&
+	    ( $line =~ /($tsre)\s+(\S+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
+		$time = $1;
+		my $interface = $2;
+		if ( $interface eq ";vdsmdummy;" ) {
+			next;
+		}
+		my $rx_packets_sec = $3;
+		my $tx_packets_sec = $4;
+		my $rx_kbytes_sec = $5;
+		my $tx_kbytes_sec = $6;
+		my $rx_compressed_packets_sec = $7;
+		my $tx_compressed_packets_sec = $8;
+		my $rx_multicast_packets_sec = $9;
+		my $interface_utilization = $10;
+		my $timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{network_l2}{network_packets_sec}{"$interface" . "-rx"}{$timestamp_ms} = $rx_packets_sec;
+		$sar{network_l2}{network_packets_sec}{"$interface" . "-tx"}{$timestamp_ms} = $tx_packets_sec;
+		$sar{network_l2}{network_compressed_packets_sec}{"$interface" . "-rx"}{$timestamp_ms} = $rx_compressed_packets_sec;
+		$sar{network_l2}{network_compressed_packets_sec}{"$interface" . "-tx"}{$timestamp_ms} = $tx_compressed_packets_sec;
+		$sar{network_l2}{network_multicast_packets_sec}{"$interface" . "-rx"}{$timestamp_ms} = $rx_compressed_packets_sec;
+		$sar{network_l2}{network_Mbits_sec}{"$interface" . "-rx"}{$timestamp_ms} = $rx_kbytes_sec *1024 *8 /1000000; # Mbit = 1,000,000 bits per second
+		$sar{network_l2}{network_Mbits_sec}{"$interface" . "-tx"}{$timestamp_ms} = $tx_kbytes_sec *1024 *8 /1000000; # Mbit = 1,000,000 bits per second
+		next;
+	}
+	# 02:50:58 PM     IFACE   rxerr/s   txerr/s    coll/s  rxdrop/s  txdrop/s  txcarr/s  rxfram/s  rxfifo/s  txfifo/s
+	# 02:50:59 PM    br-em1      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+	if (( $mode eq "net_dev_error" ) &&
+	    ( $line =~ /($tsre)\s+(\S+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
+		$time = $1;
+		my $interface = $2;
+		if ( $interface eq ";vdsmdummy;" ) {
+			next;
+		}
+		my $rx_err_sec = $3;
+		my $tx_err_sec = $4;
+		my $coll_sec = $5;
+		my $rx_drop_sec = $6;
+		my $tx_drop_sec = $7;
+		my $tx_carr_sec = $8;
+		my $tx_fram_sec = $9;
+		my $rxfifo_sec = $10;
+		my $txfifo_sec = $11;
+		$timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{network_l2}{errors_sec}{"$interface" . "-rx"}{$timestamp_ms} = $rx_err_sec;
+		$sar{network_l2}{errors_sec}{"$interface" . "-tx"}{$timestamp_ms} = $tx_err_sec;
+		$sar{network_l2}{drops_sec}{"$interface" . "-rx"}{$timestamp_ms} = $rx_drop_sec;
+		$sar{network_l2}{drops_sec}{"$interface" . "-tx"}{$timestamp_ms} = $tx_drop_sec;
+		$sar{network_l2}{carrier_errors}{"$interface"}{$timestamp_ms} = $tx_carr_sec;
+		$sar{network_l2}{frame_alignment_errors}{"$interface"}{$timestamp_ms} = $tx_fram_sec;
+		$sar{network_l2}{fifo_overrun_errors}{"$interface" . "-rx"}{$timestamp_ms} = $rxfifo_sec;
+		$sar{network_l2}{fifo_overrun_errors}{"$interface" . "-tx"}{$timestamp_ms} = $txfifo_sec;
+		next;
+	}
+	# 02:50:58 PM    totsck    tcpsck    udpsck    rawsck   ip-frag    tcp-tw
+	# 02:50:59 PM       318        15        14         0         0         0
+	if (( $mode eq "net_sock" ) &&
+	    ( $line =~ /($tsre)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)$/ )) {
+		$time = $1;
+		my $totsck = $2;
+		my $tcpsck = $3;
+		my $udpsck = $4;
+		my $rawsck = $5;
+		my $ipfrag = $6;
+		my $tcptw = $7;
+		$timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{network_l345}{sockets}{total_sockets}{$timestamp_ms} = $totsck;
+		$sar{network_l345}{sockets}{tcp_sockets}{$timestamp_ms} = $tcpsck;
+		$sar{network_l345}{sockets}{udp_sockets}{$timestamp_ms} = $udpsck;
+		$sar{network_l345}{sockets}{raw_sockets}{$timestamp_ms} = $rawsck;
+		$sar{network_l345}{sockets}{raw_sockets}{$timestamp_ms} = $ipfrag;
+		$sar{network_l345}{sockets}{tcp_timewait_sockets}{$timestamp_ms} = $tcptw;
+		next;
+	}
+	# 02:50:58 PM  active/s passive/s    iseg/s    oseg/s
+	# 02:50:59 PM      0.00      0.00      1.00      1.00
+	if (( $mode eq "net_tcp" ) &&
+	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
+		$time = $1;
+		my $active_sec = $2;
+		my $passive_sec = $3;
+		my $iseg_sec = $4;
+		my $oseg_sec = $5;
+		$timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{network_l345}{tcp_sockets}{active_opens_sec}{$timestamp_ms} = $active_sec;
+		$sar{network_l345}{tcp_sockets}{passive_opens_sec}{$timestamp_ms} = $passive_sec;
+		$sar{network_l345}{tcp_sockets}{rx_segments_sec}{$timestamp_ms} = $iseg_sec;
+		$sar{network_l345}{tcp_sockets}{tx_segments_sec}{$timestamp_ms} = $oseg_sec;
+		next;
+	}
+	# 02:50:58 PM  atmptf/s  estres/s retrans/s isegerr/s   orsts/s
+	# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00
+	if (( $mode eq "net_tcp_error" ) &&
+	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
+		$time = $1;
+		my $atmptf_sec = $2;
+		my $estres_sec = $3;
+		my $retrans_sec = $4;
+		my $isegerr_sec = $5;
+		my $orsts_sec = $5; # The number of TCP segments sent per second containing the RST flag [tcpOutRsts].
+		$timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{network_l345}{tcp_sockets}{tcp_attempt_fails_sec}{$timestamp_ms} = $atmptf_sec;
+		$sar{network_l345}{tcp_sockets}{tcp_establish_resets_sec}{$timestamp_ms} = $estres_sec;
+		$sar{network_l345}{tcp_sockets}{tcp_segments_retransmitted_sec}{$timestamp_ms} = $retrans_sec;
+		$sar{network_l345}{tcp_sockets}{tcp_rx_segments_error_sec}{$timestamp_ms} = $isegerr_sec;
+		$sar{network_l345}{tcp_sockets}{tcp_tx_segments_RSTflag_sec}{$timestamp_ms} = $orsts_sec;
+		next;
+	}
+	# 02:50:58 PM    irec/s  fwddgm/s    idel/s     orq/s   asmrq/s   asmok/s  fragok/s fragcrt/s
+	# 02:50:59 PM      4.00      0.00      2.00      1.00      0.00      0.00      0.00      0.00
+	if (( $mode eq "net_ip" ) &&
+	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
+		$time = $1;
+		my $irec_sec = $2; # The total number of input datagrams received from interfaces per second, including those received in error [ipInReceives].
+		my $fwddgm_sec = $3; # The  number  of input datagrams per second, for which this entity was not their final IP destination, as a result
+				  # of which an attempt was made to find a route to forward them to that final destination [ipForwDatagrams].
+		my $idel_sec = $4; # The total number of input datagrams successfully delivered per second to IP user-protocols (including ICMP) [ipInDelivers].
+		my $orq_sec = $5; # The total number of IP datagrams which local IP user-protocols (including ICMP) supplied per second to IP in requests
+			       # for transmission [ipOutRequests].  Note that  this  counter  does  not include any datagrams counted in fwddgm/s.
+		my $asmrq_sec = $6; # The number of IP fragments received per second which needed to be reassembled at this entity [ipReasmReqds].
+		my $asmok_sec = $7; # The number of IP datagrams successfully re-assembled per second [ipReasmOKs].
+		my $fragok_sec = $8; # The number of IP datagrams that have been successfully fragmented at this entity per second [ipFragOKs].
+		my $fragcrt_sec = $9; # The number of IP datagram fragments that have been generated per second as a result of fragmentation at this entity [ipFragCreates].
+		my $timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{network_l345}{ip}{rx_datagrams_sec}{$timestamp_ms} = $irec_sec;
+		$sar{network_l345}{ip}{rx_datagrams_forwarded_sec}{$timestamp_ms} = $fwddgm_sec;
+		$sar{network_l345}{ip}{datagrams_delivered_sec}{$timestamp_ms} = $idel_sec;
+		$sar{network_l345}{ip}{datagrams_output_requests_sec}{$timestamp_ms} = $orq_sec;
+		$sar{network_l345}{ip}{fragments_rx_need_reassemble_sec}{$timestamp_ms} = $asmrq_sec;
+		$sar{network_l345}{ip}{datagrams_reassmbled_sec}{$timestamp_ms} = $asmok_sec;
+		$sar{network_l345}{ip}{datagrams_fragmented_ok_sec}{$timestamp_ms} = $fragok_sec;
+		$sar{network_l345}{ip}{datagram_fragments_gen_sec}{$timestamp_ms} = $fragcrt_sec;
+		next;
+	}
+	# 02:50:58 PM ihdrerr/s iadrerr/s iukwnpr/s   idisc/s   odisc/s   onort/s    asmf/s   fragf/s
+	# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+	if (( $mode eq "net_ip_error" ) &&
+	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
+$time = $1;
+		my $ihdrerr_sec = $2; # The number of input datagrams discarded per second due to errors in their IP headers, including bad checksums,
+				     # version number mismatch, other format errors, time-to-live  exceeded,  errors discovered in processing their IP options, etc. [ipInHdrErrors]
+		my $iadrerr_sec = $3;
+		my $iukwnpr_sec = $4;
+		my $idisc_sec = $5;
+		my $odisc_sec = $6;
+		my $onort_sec = $7;
+		my $asmf_sec = $8;
+		my $fragf_sec = $9;
+		my $timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{network_l345}{ip}{rx_datagrams_header_err_sec}{$timestamp_ms} = $ihdrerr_sec;
+		$sar{network_l345}{ip}{rx_datagrams_invalid_addr_sec}{$timestamp_ms} = $iadrerr_sec;
+		$sar{network_l345}{ip}{rx_datagrams_unknown_proto_sec}{$timestamp_ms} = $iukwnpr_sec;
+		$sar{network_l345}{ip}{rx_datagrams_nobuff_sec}{$timestamp_ms} = $idisc_sec;
+		$sar{network_l345}{ip}{tx_datagrams_nobuff_sec}{$timestamp_ms} = $odisc_sec;
+		$sar{network_l345}{ip}{tx_datagrams_noroute_sec}{$timestamp_ms} = $onort_sec;
+		$sar{network_l345}{ip}{rx_datagrams_reassmbly_fail_sec}{$timestamp_ms} = $asmf_sec;
+		$sar{network_l345}{ip}{tx_datagrams_fragment_fail_sec}{$timestamp_ms} = $fragf_sec;
+		next;
+	}
+	# 02:50:58 PM    idgm/s    odgm/s  noport/s idgmerr/s
+	# 02:50:59 PM      0.00      0.00      0.00      0.00
+	if (( $mode eq "net_udp" ) &&
+	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
+		$time = $1;
+		my $idgm_sec = $2; # The total number of UDP datagrams delivered per second to UDP users [udpInDatagrams].
+		my $odgm_sec = $3; # The total number of UDP datagrams sent per second from this entity [udpOutDatagrams].
+		my $noport_sec = $4; # The total number of received UDP datagrams per second for which there was no application at the destination port [udpNoPorts].
+		my $idgmerr_sec = $5; # The number of received UDP datagrams per second that could not be delivered for reasons other than the lack of an application at the destination port [udpInErrors].
+		my $timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{network_l345}{udp}{rx_datagrams_sec}{$timestamp_ms} = $idgm_sec;
+		$sar{network_l345}{udp}{tx_datagrams_sec}{$timestamp_ms} = $odgm_sec;
+		$sar{network_l345}{udp}{rx_datagrams_discard_no_dest_port_sec}{$timestamp_ms} = $noport_sec;
+		$sar{network_l345}{udp}{rx_datagrams_discard_other_error}{$timestamp_ms} = $idgmerr_sec;
+		next;
+	}
+	# 02:50:58 PM    call/s retrans/s    read/s   write/s  access/s  getatt/s
+	# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00
+	if (( $mode eq "net_nfs_client") &&
+	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
+		$time = $1;
+		my $call_sec = $2;
+		my $retrans_sec = $3;
+		my $read_sec = $4;
+		my $write_sec = $5;
+		my $access_sec = $5;
+		my $getatt_sec = $5;
+		my $timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{network_l345}{nfs_client}{calls_sec}{$timestamp_ms} = $call_sec;
+		$sar{network_l345}{nfs_client}{reads_sec}{$timestamp_ms} = $read_sec;
+		$sar{network_l345}{nfs_client}{writes_sec}{$timestamp_ms} = $write_sec;
+		$sar{network_l345}{nfs_client}{access_sec}{$timestamp_ms} = $access_sec;
+		$sar{network_l345}{nfs_client}{getattr_sec}{$timestamp_ms} = $getatt_sec;
+		next;
+	}
+	# 02:50:58 PM   scall/s badcall/s  packet/s     udp/s     tcp/s     hit/s    miss/s   sread/s  swrite/s saccess/s sgetatt/s
+	# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+	if (( $mode eq "net_nfs_server" ) &&
+	    ( $line =~ /(\d+\:\d+\:\d+\s)\w\w\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
+		$time = $1;
+		my $scall_sec = $2;
+		my $badcall_sec = $3;
+		my $packet_sec = $4;
+		my $udp_sec = $5;
+		my $tcp_sec = $6;
+		my $hit_sec = $7;
+		my $miss_sec = $8;
+		my $sread_sec = $9;
+		my $swrite_sec = $10;
+		my $saccess_sec = $11;
+		my $sgetatt_sec = $12;
+		my $timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{network_l345}{nfs_server}{calls_sec}{$timestamp_ms} = $scall_sec;
+		$sar{network_l345}{nfs_server}{badcalls_sec}{$timestamp_ms} = $badcall_sec;
+		$sar{network_l345}{nfs_server}{rx_udp_packets_sec}{$timestamp_ms} = $udp_sec;
+		$sar{network_l345}{nfs_server}{rx_tcp_packets_sec}{$timestamp_ms} = $tcp_sec;
+		$sar{network_l345}{nfs_server}{reply_cache_hits_sec}{$timestamp_ms} = $hit_sec;
+		$sar{network_l345}{nfs_server}{reply_cache_misses_sec}{$timestamp_ms} = $miss_sec;
+		$sar{network_l345}{nfs_server}{rpc_read_calls_sec}{$timestamp_ms} = $sread_sec;
+		$sar{network_l345}{nfs_server}{rpc_write_calls_sec}{$timestamp_ms} = $swrite_sec;
+		$sar{network_l345}{nfs_server}{rpc_access_calls_sec}{$timestamp_ms} = $saccess_sec;
+		$sar{network_l345}{nfs_server}{rpc_getattr_calls_sec}{$timestamp_ms} = $sgetatt_sec;
+		next;
+	}
+	# 02:50:58 PM    imsg/s    omsg/s    iech/s   iechr/s    oech/s   oechr/s     itm/s    itmr/s     otm/s    otmr/s  iadrmk/s iadrmkr/s  oadrmk/s oadrmkr/s
+	# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+	if (( $mode eq "net_icmp" ) &&
+	    ( $line =~ /(\d+\:\d+\:\d+\s)\w\w\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
+		$time = $1;
+		my $imsg_sec = $2; # The total number of ICMP messages which the entity received per second [icmpInMsgs].
+		my $omsg_sec = $3; # The total number of ICMP messages which this entity attempted to send per second [icmpOutMsgs].
+		my $iech_sec = $4; # The number of ICMP Echo (request) messages received per second [icmpInEchos].
+		my $iechr_sec = $5; # The number of ICMP Echo Reply messages received per second [icmpInEchoReps].
+		my $oech_sec = $6; # The number of ICMP Echo (request) messages sent per second [icmpOutEchos].
+		my $oechr_sec = $7; # The number of ICMP Echo Reply messages sent per second [icmpOutEchoReps].
+		my $itm_sec = $8; # The number of ICMP Timestamp (request) messages received per second [icmpInTimestamps].
+		my $itmr_sec = $9; # The number of ICMP Timestamp Reply messages received per second [icmpInTimestampReps].
+		my $otm_sec = $10; # The number of ICMP Timestamp (request) messages sent per second [icmpOutTimestamps].
+		my $otmr_sec = $11; # The number of ICMP Timestamp Reply messages sent per second [icmpOutTimestampReps].
+		my $iadrmk_sec = $12; # The number of ICMP Address Mask Request messages received per second [icmpInAddrMasks].
+		my $iadrmkr_sec = $13; # The number of ICMP Address Mask Reply messages received per second [icmpInAddrMaskReps].
+		my $oadrmk_sec = $14; # The number of ICMP Address Mask Request messages sent per second [icmpOutAddrMasks].
+		my $oadrmkr_sec = $15; # The number of ICMP Address Mask Reply messages sent per second [icmpOutAddrMaskReps].
+		$timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{network_l345}{icmp}{rx_messages_sec}{$timestamp_ms} = $imsg_sec;
+		$sar{network_l345}{icmp}{tx_messages_sec}{$timestamp_ms} = $omsg_sec;
+		$sar{network_l345}{icmp}{rx_echo_request_messages_sec}{$timestamp_ms} = $iech_sec;
+		$sar{network_l345}{icmp}{rx_echo_reply_messages_sec}{$timestamp_ms} = $iechr_sec;
+		$sar{network_l345}{icmp}{tx_echo_request_messages_sec}{$timestamp_ms} = $oech_sec;
+		$sar{network_l345}{icmp}{tx_echo_reply_messages_sec}{$timestamp_ms} = $oechr_sec;
+		$sar{network_l345}{icmp}{rx_timestamp_request_messages_sec}{$timestamp_ms} = $itm_sec;
+		$sar{network_l345}{icmp}{rx_timestamp_reply_messages_sec}{$timestamp_ms} = $itmr_sec;
+		$sar{network_l345}{icmp}{tx_timestamp_request_messages_sec}{$timestamp_ms} = $otm_sec;
+		$sar{network_l345}{icmp}{tx_timestamp_reply_messages_sec}{$timestamp_ms} = $otmr_sec;
+		$sar{network_l345}{icmp}{rx_addrmask_request_messages_sec}{$timestamp_ms} = $iadrmk_sec;
+		$sar{network_l345}{icmp}{rx_addrmask_reply_messages_sec}{$timestamp_ms} = $iadrmkr_sec;
+		$sar{network_l345}{icmp}{tx_addrmask_request_messages_sec}{$timestamp_ms} = $oadrmk_sec;
+		$sar{network_l345}{icmp}{tx_addrmask_reply_messages_sec}{$timestamp_ms} = $oadrmkr_sec;
+		next;
+	}
+	# 02:50:58 PM    ierr/s    oerr/s idstunr/s odstunr/s   itmex/s   otmex/s iparmpb/s oparmpb/s   isrcq/s   osrcq/s  iredir/s  oredir/s
+	# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+	if (( $mode eq "net_eicmp" ) &&
+	    ( $line =~ /(\d+\:\d+\:\d+\s)\w\w\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
+		$time = $1;
+		my $rx_icmp_err_sec = $2; # ICMP messages per second which the entity received but determined as having ICMP-specific errors (bad ICMP checksums, bad length, etc.) [icmpInErrors].
+		my $tx_icmp_err_sec = $3; # ICMP messages per second which this entity did not send due to problems discovered within ICMP such as a lack of buffers [icmpOutErrors].
+		my $rx_dest_unreachable_sec = $4; # ICMP Destination Unreachable messages received per second [icmpInDestUnreachs].
+		my $tx_dest_unreachable_sec = $5; # ICMP Destination Unreachable messages sent per second [icmpOutDestUnreachs].
+		my $rx_time_exceed_sec = $6; # ICMP Time Exceeded messages received per second [icmpInTimeExcds].
+		my $tx_time_exceed_sec = $7; # ICMP Time Exceeded messages sent per second [icmpOutTimeExcds].
+		my $rx_param_prob_sec = $8; # ICMP Parameter Problem messages received per second [icmpInParmProbs].
+		my $tx_param_prob_sec = $9; # ICMP Parameter Problem messages sent per second [icmpOutParmProbs].
+		my $rx_src_quench_sec = $10; # ICMP Source Quench messages received per second [icmpInSrcQuenchs].
+		my $tx_src_quench_sec = $11; # ICMP Source Quench messages sent per second [icmpOutSrcQuenchs].
+		my $rx_redir_sec = $12; # ICMP Redirect messages received per second [icmpInRedirects].
+		my $tx_redir_sec = $13; # ICMP Redirect messages sent per second [icmpOutRedirects].
+		$timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{network_l345}{icmp}{rx_icmp_err_sec}{$timestamp_ms} = $rx_icmp_err_sec;
+		$sar{network_l345}{icmp}{tx_icmp_err_sec}{$timestamp_ms} = $tx_icmp_err_sec;
+		$sar{network_l345}{icmp}{rx_dest_unreachable_sec}{$timestamp_ms} = $rx_dest_unreachable_sec;
+		$sar{network_l345}{icmp}{tx_dest_unreachable_sec}{$timestamp_ms} = $tx_dest_unreachable_sec;
+		$sar{network_l345}{icmp}{rx_time_exceed_sec}{$timestamp_ms} = $rx_time_exceed_sec;
+		$sar{network_l345}{icmp}{tx_time_exceed_sec}{$timestamp_ms} = $tx_time_exceed_sec;
+		$sar{network_l345}{icmp}{rx_param_prob_sec}{$timestamp_ms} = $rx_param_prob_sec;
+		$sar{network_l345}{icmp}{tx_param_prob_sec}{$timestamp_ms} = $tx_param_prob_sec;
+		$sar{network_l345}{icmp}{rx_src_quench_sec}{$timestamp_ms} = $rx_src_quench_sec;
+		$sar{network_l345}{icmp}{tx_src_quench_sec}{$timestamp_ms} = $tx_src_quench_sec;
+		$sar{network_l345}{icmp}{rx_redir_sec}{$timestamp_ms} = $rx_redir_sec;
+		$sar{network_l345}{icmp}{tx_redir_sec}{$timestamp_ms} = $tx_redir_sec;
+		next;
+	}
+
+		### the text below is output from sar which has -not- handled by this script [yet].
+		###
+
+		# 02:50:58 PM    ierr/s    oerr/s idstunr/s odstunr/s   itmex/s   otmex/s iparmpb/s oparmpb/s   isrcq/s   osrcq/s  iredir/s  oredir/s
+		# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+
+		# 02:50:58 PM       tps      rtps      wtps   bread/s   bwrtn/s
+		# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00
+
+		# 02:50:58 PM   frmpg/s   bufpg/s   campg/s
+		# 02:50:59 PM    -33.00      0.00      0.00
+
+		# 02:50:58 PM dentunusd   file-nr  inode-nr    pty-nr
+		# 02:50:59 PM    111122      1584     74020         3
+
+		# 02:50:58 PM   runq-sz  plist-sz   ldavg-1   ldavg-5  ldavg-15   blocked
+		# 02:50:59 PM         0       379      0.00      0.01      0.05         0
+
+		# 02:50:58 PM       TTY   rcvin/s   xmtin/s framerr/s prtyerr/s     brk/s   ovrun/s
+		# 02:50:59 PM         0      0.00      0.00      0.00      0.00      0.00      0.00
+		# 02:50:59 PM         1      0.00      0.00      0.00      0.00      0.00      0.00
+
+		# 02:50:58 PM       DEV       tps  rd_sec/s  wr_sec/s  avgrq-sz  avgqu-sz     await     svctm     %util
+		# 02:50:59 PM   dev8-32      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+		# 02:50:59 PM   dev8-33      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+		# 02:50:59 PM   dev8-34      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+		# 02:50:59 PM   dev8-35      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+		# 02:50:59 PM  dev253-0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+
+		# 02:50:58 PM   tcp6sck   udp6sck   raw6sck  ip6-frag
+		# 02:50:59 PM         8         9         0         0
+
+		# 02:50:58 PM   irec6/s fwddgm6/s   idel6/s    orq6/s  asmrq6/s  asmok6/s imcpck6/s omcpck6/s fragok6/s fragcr6/s
+		# 02:50:59 PM      2.00      0.00      0.00      0.00      0.00      0.00      2.00      0.00      0.00      0.00
+
+		# 02:50:58 PM ihdrer6/s iadrer6/s iukwnp6/s  i2big6/s  idisc6/s  odisc6/s  inort6/s  onort6/s   asmf6/s  fragf6/s itrpck6/s
+		# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+
+		# 02:50:58 PM   imsg6/s   omsg6/s   iech6/s  iechr6/s  oechr6/s  igmbq6/s  igmbr6/s  ogmbr6/s igmbrd6/s ogmbrd6/s irtsol6/s ortsol6/s  irtad6/s inbsol6/s onbsol6/s  inbad6/s  onbad6/s
+		# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+
+		# 02:50:58 PM   ierr6/s idtunr6/s odtunr6/s  itmex6/s  otmex6/s iprmpb6/s oprmpb6/s iredir6/s oredir6/s ipck2b6/s opck2b6/s
+		# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+
+		# 02:50:58 PM   idgm6/s   odgm6/s noport6/s idgmer6/s
+		# 02:50:59 PM      0.00      0.00      0.00      0.00
+
+		# 02:50:58 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
+		# 02:50:59 PM       1       424      2514         4
+		# 02:50:59 PM       2       624       249         4                 Avocent                          USB Composite Device-1
+		# 02:50:59 PM       5       624       248         4                 Avocent                          USB Composite Device-0
+
+		# 02:50:58 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
+		# 02:50:59 PM     70223     29728     29.74     29.74 102282133    117867      0.12 /dev/sdc2
+		# 02:50:59 PM      4866       124      2.48      2.48   5119622       378      0.01 /dev/sdc1
+		# 02:50:59 PM    362638      8893      2.39      2.39 380632957       131      0.00 /dev/mapper/nfs--share-nfs--share
+
+	$line_num++;
+}
+close(SAR_TXT);
+$graph_type{cpu}{"all_cpu_busy"} = "stackedAreaChart";
+my $label;
+foreach $label (keys %{ $sar{per_cpu}} ) {
+	$graph_type{per_cpu}{$label} = "stackedAreaChart";
+}
+gen_data(\%sar, \%graph_type, \%graph_threshold, $dir);

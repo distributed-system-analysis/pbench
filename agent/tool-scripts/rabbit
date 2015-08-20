@@ -1,0 +1,156 @@
+#!/bin/bash
+
+script_path=`dirname $0`
+if [ "$script_path" = "." ]
+then
+    script_path=$PWD
+fi
+   
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+# Perftool scripts must provide the following functions
+# 1) Install the tool
+# 2) Start data collection
+# 3) Stop data collection
+# 4) post-process the data
+
+# Defaults
+tool=$script_name
+tool_bin=/usr/bin/rabbitmqadmin
+group=default
+dir="/tmp"
+mode=""
+interval="10"
+iteration="1"
+username="guest"
+password="guest"
+
+# Process options and arguments
+opts=$(getopt -q -o idp --longoptions "username:,password:,dir:,group:,iteration:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+if [ $? -ne 0 ]; then
+    printf "\n"
+    printf "$script_name: you specified an invalid option\n\n"
+    printf "The following options are available: \n\n"
+    printf -- "\t--install,			install this perf tool\n"
+    printf "\n"
+    printf -- "\t--start|stop|postprocess	start/stop/post-process the data collection\n"
+    printf -- "\t--iteration=int 		the iteration (required)\n"
+    printf -- "\t--group=str		the perftool group (required)\n"
+    printf -- "\t--dir=str		directory to store data collection (required)\n"
+    printf -- "\t--interval=int		number of seconds between each data collection\n"
+    printf -- "\t--username=str		rabbit user name (default is "guest")\n"
+    printf -- "\t--interval=int		rabbit password (default is "guest")\n"
+    exit 1
+fi
+eval set -- "$opts";
+while true; do
+    case "$1" in
+	--install)
+	    mode="install"
+	    shift;
+	    ;;
+	--start)
+	    mode="start"
+	    shift;
+	    ;;
+	--stop)
+	    mode="stop"
+	    shift;
+	    ;;
+	--postprocess)
+	    mode="postprocess"
+	    shift;
+	    ;;
+	--username)
+	    shift;
+	    if [ -n "$1" ]; then
+		username="$1"
+		shift
+	    fi
+	    ;;
+	--password)
+	    shift;
+	    if [ -n "$1" ]; then
+		password="$1"
+		shift
+	    fi
+	    ;;
+	--host)
+	    shift;
+	    if [ -n "$1" ]; then
+		host="$1"
+		shift
+	    fi
+	    ;;
+	-d|--dir)
+	    shift;
+	    if [ -n "$1" ]; then
+		dir="$1"
+		shift
+	    fi
+	    ;;
+	-g|--group)
+	    shift;
+	    if [ -n "$1" ]; then
+		group="$1"
+		shift
+	    fi
+	    ;;
+	-i|--iteration)
+	    shift;
+	    if [ -n "$1" ]; then
+		iteration="$1"
+		shift
+	    fi
+	    ;;
+	--interval)
+	    shift;
+	    if [ -n "$1" ]; then
+		interval="$1"
+		shift
+	    fi
+	    ;;
+	--)
+	    shift;
+	    break;
+	    ;;
+    esac
+done
+
+tool_dir="$dir/tools-$group"
+tool_cmd_dir="$dir/tools-$group/cmds"
+tool_cmd_file="$tool_cmd_dir/$tool.cmd"
+tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
+tool_output_file=$tool_dir/$tool.txt
+tool_cmd="$script_path/datalog/$tool-datalog $interval $username $password $tool_output_file"
+
+tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
+tool_output_file=$tool_dir/$tool.txt
+
+case "$mode" in
+    install)
+	if [ ! -e $tool_bin ]; then
+            echo "$tool_bin not installed, exiting"
+            exit 1
+	fi
+        ;;
+    start)
+	echo "$tool_cmd" >$tool_cmd_file
+	debug_log "$script_name: running $tool_cmd"
+	$tool_cmd >>"$tool_output_file" & echo $! >$tool_pid_file
+	wait
+	;;
+    stop)
+	pid=`cat "$tool_pid_file"`
+	debug_log "stopping $script_name"
+	kill $pid && /bin/rm "$tool_pid_file"
+	;;
+    postprocess)
+	debug_log "postprocessing $script_name"
+	$script_path/postprocess/$script_name-postprocess $tool_dir
+	;;
+esac

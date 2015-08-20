@@ -1,0 +1,117 @@
+#!/usr/bin/perl
+
+# Author: Andrew Theurer
+#
+# usage: <tool>-postprocess <dir>  dir = directory where tool txt file can be found
+#
+# The purpose of this script is to
+# -output the chart data in JSON format (docker.js)
+# -output html file(s) with embedded javascript, using d3.js libraries
+# The result should be one or more graphs
+
+use strict;
+use warnings;
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+BEGIN {
+        my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+        $_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+        if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+                $_test_alt_tools_lib = "$_pbench_tspp_dir";
+        }
+}
+use lib "$_test_alt_tools_lib";
+no lib ".";
+use GenData qw(gen_data);
+
+my $tool = "rabbit";
+my $dir=$ARGV[0]; # the directory where the txt file is
+my %stats;
+my $timestamp_ms;
+my $use_subdir = "n";
+my $subdir;
+
+# if you are going to generate many html files, you might want to have them in a subdirectory
+if ($use_subdir eq "y") {
+	$subdir = "/" . $tool;
+} else {
+	$subdir = "";
+}
+
+# read the test file
+my $input_file_name = $dir . "/" . $tool . ".txt";
+open(TOOL_TXT, $input_file_name) || die "could not find $input_file_name\n";
+my $mode="search";
+while (my $line = <TOOL_TXT>) {
+	chomp $line;
+	# Each sample should start with a time stamp
+	# When we find this, update our timestamp for the hash.
+	#   example from the test file:
+	# timestamp: 1413473221.422902142
+	if ( $line =~ /^timestamp:\s(\d+\.\d+)/ ) {
+		$timestamp_ms=$1
+	} else {
+	# now find the data we are interested in
+	# +-------+----------------------------------------------------------------------------------+-------------+-----------+---------+------------------------+---------------------+--------+----------+----------------+-------------------------+------------------------+--------+---------+
+	# | vhost |                                       name                                       | auto_delete | consumers | durable | exclusive_consumer_tag |     idle_since      | memory | messages | messages_ready | messages_unacknowledged |          node          | policy | status  |
+	# +-------+----------------------------------------------------------------------------------+-------------+-----------+---------+------------------------+---------------------+--------+----------+----------------+-------------------------+------------------------+--------+---------+
+	# | /     | 0cca3c59-aa62-4b7b-a941-ea01df03ecfb                                             | False       | 1         | False   |                        | 2014-10-15 21:23:49 | 14008  |          |                |                         | rabbit@macbc305bf041f5 |        | running |
+	# | /     | 0cca3c59-aa62-4b7b-a941-ea01df03ecfb.macbc305bf041f5.example.com                 | False       | 1         | False   |                        | 2014-10-15 21:23:49 | 14008  |          |                |                         | rabbit@macbc305bf041f5 |        | running |
+		if ($line =~ /^\+/) {
+			next;
+		} else {
+			my @values = split(/\|/,$line);
+			# print "all vhost: $values[1]\n";
+			# print "all line: $line\n";
+			if ($values[1] =~ /vhost/) {
+				# print "vhost vhost: $values[1]\n";
+				# print "line: $line\n";
+				next;
+			}
+			# print "vhost: $values[0]\n";
+			# print "line: $line\n";
+			my $queue_name = $values[2];
+			$queue_name =~ s/\./_/g;
+			$queue_name =~ s/-/_/g;
+			$queue_name =~ s/\s+//g;
+			# my $consumers = $values[4];
+			my $messages = $values[9];
+			my $messages_ready = $values[10];
+			my $messages_unacknowledged = $values[11];
+			# data is stored this way:
+			# $stats{htmlpage}{graph}{series}{sample}
+			# if you are -not- using a subdirectory to store these files, the "{htmlpage}" should at least have the tool name in it
+			# if you are using a subdirectory, the subdirectory name is the name of the tool, so the htmlpage does not necessarily need the tool name in it
+			# if ( $consumers =~ /\d+/ || $messages =~ /\d+/ || $messages_ready =~ /\d+/ || $messages_unacknowledged =~ /\d+/ ) {
+			if ( $messages =~ /\d+/ || $messages_ready =~ /\d+/ || $messages_unacknowledged =~ /\d+/ ) {
+				# if ($consumers =~ /^\s+$/) {
+					# $consumers = 0;
+				# }
+				if ($messages =~ /^\s+$/) {
+					$messages = 0;
+				}
+				if ($messages_ready =~ /^\s+$/) {
+					$messages_ready = 0;
+				}
+				if ($messages_unacknowledged =~ /^\s+$/) {
+					$messages_unacknowledged = 0;
+				}
+				# $stats{rabbit}{"queue-" . $queue_name}{consumers}{$timestamp_ms} = int $consumers;
+				$stats{rabbit}{"queue_" . $queue_name}{messages}{$timestamp_ms} = int $messages;
+				$stats{rabbit}{"queue_" . $queue_name}{messages_ready}{$timestamp_ms} = int $messages_ready;
+				$stats{rabbit}{"queue_" . $queue_name}{messages_unacknowledged}{$timestamp_ms} = int $messages_unacknowledged;
+			}
+		}
+	}
+}
+close(TOOL_TXT);
+
+# define the graph types
+# if you want something other than lineChart, put it here
+my %graph_type;
+
+# threshold for displying a series in a graph
+my %graph_threshold;
+
+gen_data(\%stats, \%graph_type, \%graph_threshold, $dir);

@@ -1,0 +1,111 @@
+#!/usr/bin/perl
+
+# Author: Andrew Theurer
+#
+# usage: vmstat-postprocess <dir>  dir = directory where vmstat.txt can be found
+#
+use strict;
+use warnings;
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+BEGIN {
+        my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+        $_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+        if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+                $_test_alt_tools_lib = "$_pbench_tspp_dir";
+        }
+}
+use lib "$_test_alt_tools_lib";
+no lib ".";
+use GenData qw(gen_data);
+
+my $dir=$ARGV[0];
+my $file="vmstat.txt";
+my $timestamp;
+my $timestamp_ms;
+my $line;
+my %vmstat;
+my $running;
+my $blocked;
+my $mem_swapped;
+my $mem_free;
+my $mem_inactive;
+my $mem_active;
+my $swap_in;
+my $swap_out;
+my $block_in;
+my $block_out;
+my $interrupts;
+my $cntx_switches;
+my $cpu_user;
+my $cpu_sys;
+my $cpu_idle;
+my $cpu_wait;
+my $cpu_steal;
+my $sample_num = 0;
+
+open(TXT, "$dir/$file") || die "could not find $dir/$file\n";
+while (my $line = <TXT>) {
+	chomp $line;
+	#procs -----------------------memory---------------------- ---swap-- -----io---- -system-- --------cpu-------- -----timestamp-----
+ 	#r  b         swpd         free        inact       active   si   so    bi    bo   in   cs  us  sy  id  wa  st                 EDT
+ 	#0  0            0     48100928       258088       253556    0    0     0     1    0    0   0   0 100   0   0 2014-09-15 16:58:28
+ 	#0  0            0     48100796       258088       253656    0    0     0     0 1502   90   0   0 100   0   0 2014-09-15 16:58:30
+ 	#0  0            0     48101020       258088       253656    0    0     0     0 1514  102   0   0 100   0   0 2014-09-15 16:58:32
+ 	
+		      # r       b       swap    free    inact   active  si      so      bi      bo      in      cs      us      sy      id      wa      st     timestamp
+	if ($line =~ /(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(.+)/) {
+		$sample_num++;
+		# always skip the first sample as it's an average since boot
+		if ($sample_num eq 1) {
+			next;
+		}
+		$running = $1;
+		$blocked = $2;
+		$mem_swapped = $3;
+		$mem_free = $4;
+		$mem_inactive = $5;
+		$mem_active = $6;
+		$swap_in = $7;
+		$swap_out = $8;
+		$block_in = $9;
+		$block_out = $10;
+		$interrupts = $11;
+		$cntx_switches = $12;
+		$cpu_user = $13;
+		$cpu_sys = $14;
+		$cpu_idle = $15;
+		$cpu_wait = $16;
+		$cpu_steal = $17;
+		$timestamp = $18;
+		$timestamp = `date --date="$timestamp" +%s.%N`;
+		chomp $timestamp;
+		$timestamp_ms = sprintf "%d", (1000 * $timestamp);
+
+		$vmstat{vmstat}{procs}{running}{$timestamp_ms} = $running;
+		$vmstat{vmstat}{procs}{blocked}{$timestamp_ms} = $blocked;
+		$vmstat{vmstat}{memory}{swapped_KiB}{$timestamp_ms} = $mem_swapped;
+		$vmstat{vmstat}{memory}{free_KiB}{$timestamp_ms} = $mem_free;
+		$vmstat{vmstat}{memory}{inactive_KiB}{$timestamp_ms} = $mem_inactive;
+		$vmstat{vmstat}{memory}{active_KiB}{$timestamp_ms} = $mem_active;
+		$vmstat{vmstat}{swap}{in_KiB}{$timestamp_ms} = $swap_in;
+		$vmstat{vmstat}{swap}{out_KiB}{$timestamp_ms} = $swap_out;
+		$vmstat{vmstat}{block}{in_KiB}{$timestamp_ms} = $block_in;
+		$vmstat{vmstat}{block}{out_KiB}{$timestamp_ms} = $block_out;
+		$vmstat{vmstat}{system}{interrupts}{$timestamp_ms} = $interrupts;
+		$vmstat{vmstat}{system}{cntx_switches}{$timestamp_ms} = $cntx_switches;
+		$vmstat{vmstat}{cpu}{user}{$timestamp_ms} = $cpu_user;
+		$vmstat{vmstat}{cpu}{sys}{$timestamp_ms} = $cpu_sys;
+		$vmstat{vmstat}{cpu}{idle}{$timestamp_ms} = $cpu_idle;
+		$vmstat{vmstat}{cpu}{wait}{$timestamp_ms} = $cpu_wait;
+		$vmstat{vmstat}{cpu}{steal}{$timestamp_ms} = $cpu_steal;
+	}
+}
+close(TXT);
+
+my %graph_type;
+my %graph_threshold;
+$graph_type{vmstat}{cpu} = "stackedAreaChart";
+$graph_type{vmstat}{memory} = "stackedAreaChart";
+gen_data(\%vmstat, \%graph_type, \%graph_threshold, $dir);

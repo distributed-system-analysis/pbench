@@ -1,0 +1,190 @@
+#!/bin/bash
+
+_tdir=$(dirname $0)
+
+_testroot=/var/tmp/pbench-test-bgtasks
+mkdir -p $_testroot
+if [[ ! -d $_testroot ]]; then
+    echo "ERROR: failed to create test root directory, \"$_testroot\"" >&2
+    exit 1
+fi
+rm -rf $_testroot/*
+if [[ $? -gt 0 ]]; then
+    echo "ERROR: failed to empty test root directory, \"$_testroot\"" >&2
+    exit 1
+fi
+_testout=$_testroot/output.txt
+_testdir=$_testroot/pbench
+mkdir -p $_testdir
+if [[ ! -d $_testdir ]]; then
+    echo "ERROR: failed to create test pbench directory, \"$_testdir\"" >&2
+    exit 1
+fi
+
+export CONFIG=../../config/run.conf
+
+# Fixed timestamp output
+export _PBENCH_BGTASKS_TEST=1
+
+res=0
+
+function _run {
+    tname=$1
+    shift
+    echo "+++ Running $tname" >> $_testout
+    $_tdir/$tname $_testdir $@ >> $_testout 2>&1
+    echo "--- Finished $tname (status=$?}" >> $_testout
+}
+function _run_allscripts {
+    _run pbench-backup-tarballs
+    # These next three are related and would flow in this order
+    _run pbench-unpack-tarballs
+    _run pbench-copy-sosreports
+    _run pbench-index
+    # These three are independent
+    _run pbench-clean-up-dangling-results-links
+    _run pbench-edit-prefixes
+}
+function _save_tree {
+    # Save state of the tree
+    echo "+++ pbench tree state" >> $_testout
+    find $_testdir | sort >> $_testout
+    echo "--- pbench tree state" >> $_testout
+}
+function _dump_logs {
+    # Dump the state of any generated script logs
+    echo "+++ pbench log file contents" >> $_testout
+    find $_testdir/logs -type f | sort | \
+    while read fname; do
+        grep -HvF "\-\-should-n0t-ex1st--" $fname >> $_testout 2>&1
+    done
+    echo "--- pbench log file contents" >> $_testout
+}
+function _verify_output {
+    res=$1
+    tname=$2
+    diff -cw gold/${tname}.txt $_testout
+    if [[ $? -gt 0 ]]; then
+        echo "FAIL - $tname"
+        mv $_testout $_testroot/${tname}_output.txt
+        res=1
+    else
+        echo "PASS - $tname"
+        rm $_testout
+    fi
+    return $res
+}
+function _setup_state {
+    _state_tb=$(pwd)/state/${1}.tar.xz
+    (cd $_testroot; tar xf $_state_tb)
+    if [[ $? -gt 0 ]]; then
+        echo "ERROR: unable to create pbench hierarchy for state $1" >&2
+        exit 1
+    fi
+}
+function _reset_state {
+    rm -rf $_testdir
+    if [[ -d $_testdir ]]; then
+        echo "ERROR: unable to remove pbench hierarchy" >&2
+        exit 1
+    fi
+}
+
+#
+# 1. Verify all scripts fail without a temporary directory
+#
+_setup_state test-1
+_run_allscripts
+_verify_output $res test-1
+res=$?
+_reset_state
+
+#
+# 2. Verify empty environment with tmp works
+#
+_setup_state test-2
+_run_allscripts
+_save_tree; _dump_logs
+_verify_output $res test-2
+res=$?
+_reset_state
+
+#
+# 3. Verify environment with ARCHIVE directory created
+#
+_setup_state test-3
+_run_allscripts
+_save_tree; _dump_logs
+_verify_output $res test-3
+res=$?
+_reset_state
+
+#
+# 4. Verify environment adding INCOMING directory
+#
+_setup_state test-4
+_run_allscripts
+_save_tree; _dump_logs
+_verify_output $res test-4
+res=$?
+_reset_state
+
+#
+# 5. Verify environment adding RESULTS directory
+#
+_setup_state test-5
+_run_allscripts
+_save_tree; _dump_logs
+_verify_output $res test-5
+res=$?
+_reset_state
+
+#
+# 6. Verify pbench-backup-tarballs works
+#
+_setup_state test-6a
+_run pbench-backup-tarballs $_testroot/foo/pbench.backup
+_save_tree; _dump_logs
+_verify_output $res test-6a
+res=$?
+_reset_state
+
+_setup_state test-6b
+_run pbench-backup-tarballs $_testroot/foo/pbench.backup
+_save_tree; _dump_logs
+_verify_output $res test-6b
+res=$?
+_reset_state
+
+_setup_state test-6
+_run pbench-backup-tarballs $_testroot/foo/pbench.backup
+_save_tree; _dump_logs
+_verify_output $res test-6c
+res=$?
+_reset_state
+
+_setup_state test-6
+_run pbench-backup-tarballs $_testroot/pbench.backup
+_save_tree; _dump_logs
+_verify_output $res test-6d
+res=$?
+_reset_state
+
+mkdir $_testroot/pbench.backup
+if [[ $? -gt 0 ]]; then
+    echo "ERROR: unable to create pbench backup directory for testing" >&2
+    exit 1
+fi
+_setup_state test-6
+_run pbench-backup-tarballs $_testroot/pbench.backup
+sed -i 's/sent [0-9,]* bytes  received [0-9,]* bytes  [0-9,]*\.[0-9]* bytes\/sec/sent ### bytes  received ### bytes  ###.## bytes\/sec/' $_testroot/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log
+if [[ $? -gt 0 ]]; then
+    echo "ERROR: unable to fix up log file" >&2
+    exit 1
+fi
+_save_tree; _dump_logs
+_verify_output $res test-6
+res=$?
+_reset_state
+
+exit $res

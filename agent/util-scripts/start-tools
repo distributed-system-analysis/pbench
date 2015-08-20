@@ -1,0 +1,112 @@
+#!/bin/bash
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+# This script will start all tools that belong
+# to a specific group.  This is typically called
+# by a benchmark script when some activity needs to
+# monitored.
+
+# Defaults
+group=default
+dir="/tmp"
+iteration=1
+
+# Process options and arguments
+
+opts=$(getopt -q -o d:g: --longoptions "dir:,group:,iteration:" -n "getopt.sh" -- "$@");
+if [ $? -ne 0 ]; then
+	printf "\n"
+	printf "$script_name: you specified an invalid option\n\n"
+	printf "The following are required:\n\n"
+	printf -- "\t-d str --dir=str, str = a directory where the $script_name\n"
+	printf -- "\t                          will store and process data\n"
+	printf "\n"
+	printf -- "\t-g str --group=str, str = a tool group used in a benchmark\n"
+	printf -- "\t                          (the default group is 'default')\n"
+	printf "\n"
+	printf -- "\t-i str --iteration=num, num = a number representing the\n"
+	printf -- "\t                              iteration data is being\n"
+	printf -- "\t                              collected for\n"
+	printf "\n"
+	exit 1
+fi
+eval set -- "$opts";
+while true; do
+	case "$1" in
+		-g|--group)
+		shift;
+		if [ -n "$1" ]; then
+			group="$1"
+			shift;
+		fi
+		;;
+		-d|--dir)
+		shift;
+		if [ -n "$1" ]; then
+			dir="$1"
+			shift;
+		fi
+		;;
+		-i|--iteration)
+		shift;
+		if [ -n "$1" ]; then
+			iteration="$1"
+			shift;
+		fi
+		;;
+		--)
+		shift;
+		break;
+		;;
+	esac
+done
+## Start this tool
+if [ -f "$pbench_run/tools.$group" ]; then
+	groupfile="$pbench_run/tools.$group"
+else
+	# if there were no tools registered for the group, use the 
+	# tools registered in the default group
+	groupfile="$pbench_run/tools.default"
+fi
+if [ ! -f "$groupfile" ]; then
+	error_log "[$script_name] failed to find tools group file, \"$groupfile\""
+	exit 1
+fi
+
+# make sure that the top-level directory exists no matter what
+mkdir -p $dir
+
+while read this_line; do
+	name=`echo $this_line | cut -d: -f1`
+	if [ "$name" == "label" ]; then
+		continue;
+	fi
+	remote=""
+	if echo $name | grep -q "@"; then
+		remote=`echo $name | cut -d\@ -f2`
+		name=`echo $name | cut -d\@ -f1`
+		# tool options are stored on the remote host's tool file, so no need to pass it here
+		debug_log "[$script_name]running this tool on $remote"
+		cmd="ssh $ssh_opts -n $remote start-tools --iteration=$iteration --group=$group --dir=$dir"
+		debug_log "[$script_name]$cmd"
+		$cmd | sed -e 's/\(.*\)/'[$remote]'\1/g'
+
+	else
+		# tool is local
+		cmd="$pbench_bin/tool-scripts/$name --start --iteration=$iteration --group=$group --dir=$dir `grep ^$name $groupfile | cut -d: -f2- | sed -e 's/"/\\\"/g'`"
+		debug_log "[$script_name]$cmd"
+		cmd_dir=$dir/tools-$group/cmds
+		cmd_file=$cmd_dir/pbench-$name-start.cmd
+		mkdir -p $cmd_dir
+		echo $cmd >$cmd_file
+		chmod +x $cmd_file
+		# using screen to avoid tty issues and guarantee tool is backgrounded
+		screen -dmS pbench-tool-$name-$group-$iteration $cmd_file
+	fi
+done <$groupfile

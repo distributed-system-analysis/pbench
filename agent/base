@@ -1,0 +1,140 @@
+#!/bin/bash
+
+export PBENCH_debug_mode=0
+
+# very first thing to do is figure out which pbench
+# we are
+if [ -z "$pbench_run" ]; then
+    pbench_run=$(getconf.py pbench_run pbench-agent)
+    if [ -z "$pbench_run" ]; then
+	pbench_run=/var/lib/pbench-agent
+    fi
+fi
+
+# if $pbench-run does not exist, but we had an old /var/lib/pbench directory
+# then just rename the old directory
+if [[ ! -d $pbench_run && -d /var/lib/pbench ]] ;then
+    mv /var/lib/pbench $pbench_run
+fi
+
+# make sure it exists in any case
+mkdir -p $pbench_run
+pbench_tmp="$pbench_run/tmp"
+mkdir -p $pbench_tmp
+
+# log file - N.B. not a directory
+if [ -z "$pbench_log" ]; then
+    pbench_log=$(getconf.py pbench_log pbench-agent)
+    if [ -z "$pbench_log" ]; then
+	pbench_log=$pbench_run/pbench.log
+    fi
+fi
+
+if [ -z "$pbench_install_dir" ]; then
+    pbench_install_dir=$(getconf.py pbench_install_dir pbench-agent)
+    if [ -z "$pbench_install_dir" ]; then
+	pbench_install_dir=/opt/pbench-agent
+    fi
+fi
+pbench_tspp_dir=$pbench_install_dir/tool-scripts/postprocess
+pbench_bspp_dir=$pbench_install_dir/bench-scripts/postprocess
+export pbench_install_dir pbench_tspp_dir pbench_bspp_dir
+
+if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
+    function timestamp {
+        echo "$(date +'%Y%m%d_%H:%M:%S.%N')"
+    }
+else
+    function timestamp {
+        echo "1900-01-01T00:00:00.000000"
+    }
+fi
+# contains the base functions needed to use pbench
+function log {
+    debug_date=$(timestamp)
+    echo "[info][$debug_date] $1" >> $pbench_log
+}
+
+function warn_log {
+    debug_date=$(timestamp)
+    echo "[warn][$debug_date] $1" >&2
+    echo "[warn][$debug_date] $1" >> $pbench_log
+}
+
+function error_log {
+    debug_date=$(timestamp)
+    echo "[error][$debug_date] $1" >&2
+    echo "[error][$debug_date] $1" >> $pbench_log
+}
+
+function debug_log {
+    debug_date=$(timestamp)
+    if [ "$PBENCH_debug_mode" != "0" ]; then
+        echo "[debug][$debug_date] $1"
+    fi
+    echo "[debug][$debug_date] $1" >> $pbench_log
+}
+
+
+# Some standard global vars - try the config file first and fall back on hardwired defaults
+# which are valid today.
+if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
+    date=`date "+%F_%H:%M:%S"`
+    hostname=`hostname -s`
+    full_hostname=`hostname`
+else
+    date="1900-01-01_00:00:00"
+    hostname="testhost"
+    full_hostname="testhost.example.com"
+fi
+
+ssh_opts=$(getconf.py ssh_opts results)
+if [ -z "$ssh_opts" ]; then
+    ssh_opts='-o StrictHostKeyChecking=no'
+fi
+
+function check_install_rpm {
+    local this_rpm=$1
+    if [ ! -z "$2" ]; then
+    	local this_version="-$2"
+    else
+	local this_version=""
+    fi
+
+    rpm_status=`rpm --query ${this_rpm}$this_version`
+    if echo $rpm_status | grep -q "is not installed"; then
+	echo attempting to install ${this_rpm}$this_version
+	yum --debuglevel=0 install -y ${this_rpm}$this_version >> $pbench_log 2>&1
+	rc=$?
+    else
+	local installed_rpm_version=`echo $rpm_status | awk -F- '{print $2"-"$3}'`
+	if [ "$this_version" != "$installed_rpm_version" ]; then
+	    yum --debuglevel=0 install -y ${this_rpm}$this_version >> $pbench_log 2>&1
+	    rc=$?
+	else
+	    debug_log "$this_rpm has already been installed"
+	    rc=0
+	fi
+    fi
+    if [ $rc -ne 0 ]; then
+	error_log "[check_install_rpm]the installation of $this_rpm$this_version failed"
+	return 1
+    else
+	return 0
+    fi
+}
+
+function verify_tool_group {
+	local group=$1
+	if [ -z "$group" ]; then
+		error_log "Bad argument to verify_tool_group"
+		exit 1
+	fi
+	# Ensure we have a tools group file to work with
+	groupfile="$pbench_run/tools.$group"
+	if [ ! -f "$groupfile" ]; then
+		error_log "Unable to find default tools group file, $groupfile"
+		exit 1
+	fi
+	return 0
+}

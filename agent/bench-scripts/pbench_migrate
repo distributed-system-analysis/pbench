@@ -1,0 +1,370 @@
+#!/bin/bash
+
+# This is a script to run the migrate benchmark
+# Author: Andrew Theurer
+#
+# It is recommended that you run this script from a host which is not one of the kvm hosts
+# migrating to/from (although it is not required).  This script will use ssh to intitiate the
+# live migrations, so ssh keys must be set up between the host running this script and the 
+# KVM hosts.
+#
+# This is an odd "benchmark" as the workload is a KVM live-migration
+# Typically one might run this script while the VM to be migrated is running
+# a different pbench benchmark.  Care must be taken to coordinate the two
+#
+# TODO:
+# 1) write results in pbench standard file names and formats
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+benchmark="migrate"
+ver=1.0
+
+# Every bench-script follows a similar sequence:
+# 1) process bench script arguments
+# 2) ensure the right version of the benchmark is installed
+# 3) gather pre-run state
+# 4) run the benchmark and start/stop perf analysis tools
+# 5) gather post-run state
+# 6) postprocess benchmark data
+# 7) postprocess analysis tool data
+
+# Defaults
+round_trips=0
+runtime=120
+clients=`cat /proc/cpuinfo | grep processor | wc -l`
+samples=5
+maxstddevpct=3 # maximum allowable standard deviation in percent
+max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
+postprocess_only=n
+kvm_host=""
+start_iteration_num=1
+orig_cmd="$*"
+postprocess=yes
+seconds_before_migrate=1
+seconds_before_postprocess=1
+use_libvirt="y"
+tool_group=default
+config=""
+
+# Process options and arguments
+opts=$(getopt -q -o C:c:r:d: --longoptions "max-downtime:,compcache_size:,speed:,seconds-before-postprocess:,seconds-before-migrate:,postprocess:,round-trips:,vm:,dir:,config:,src-host:,src-ipaddr:,dest-host:,dest-ipaddr:,timeout:,use-libvirt:,tool-group:" -n "getopt.sh" -- "$@");
+
+if [ $? -ne 0 ]; then
+	printf -- "$*\n"
+	printf "\n"
+	printf "\t${benchmark}: you specified an invalid option\n\n"
+	printf "\tThe following options are available:\n\n"
+	printf -- "\t\t--tool-group=str\n"
+	printf -- "\t\t--vm=str                                name of vm to migrate\n"
+	printf -- "\t\t--src-host=str                          host to migrate from\n"
+	printf -- "\t\t--dest-host=str                         host to migrate to\n"
+	printf -- "\t\t--src-ipaddr=str                        optional IP address to migrate from\n"
+	printf -- "\t\t--dest-ipaddr=str                       optional IP address to migrate to\n"
+	printf -- "\t\t--timeout=int                           optional timeout in seconds\n"
+	printf -- "\t\t--postprocess=str                       skip = don't postprocess, only = only postprocess existing test, yes (default) = postprocess after test\n"
+	printf -- "\t\t--seconds-before-migrate=int            wait this many seconds before starting the migration\n"
+	printf -- "\t\t--seconds-before-postprocess=int        wait this many seconds before postprocessing the data\n"
+	printf -- "\t\t--max-downtime			       maximum downtime in milliseconds\n"
+	printf -- "\t\t--compache-size			       maximum size in bytes of cache used for compression\n"
+	printf -- "\t\t--speed				       maximum network speed in MiB/sec\n"
+	printf -- "\t\t--round-trips=int                       the number of times to live-migrate back & forth (default is 0)\n"
+	printf -- "\t\t--use-libvirt=y/n                       iif this is "n", then migration is done with qemu directly\n"
+	printf -- "\t\t                                        0 = 1 migration, just to dest-host (no round-trip migration, VM ends up on dest-host).\n"
+	printf -- "\t\t                                        1 = 2 migrations, 2 = 4 migrations, etc.  VM ends up on src-host\n"
+	exit 1
+fi
+eval set -- "$opts";
+debug_log "[$script_name] processing options"
+while true; do
+	case "$1" in
+		--use-libvirt)
+		shift;
+		if [ -n "$1" ]; then
+			use_libvirt="$1"
+			echo \$use_libvirt is $use_libvirt
+			shift;
+		fi
+		;;
+		--seconds-before-postprocess)
+		shift;
+		if [ -n "$1" ]; then
+			seconds_before_postprocess="$1"
+			shift;
+		fi
+		;;
+		--compcache-size)
+		shift;
+		if [ -n "$1" ]; then
+			compcache_size="$1"
+			shift;
+		fi
+		;;
+		--speed)
+		shift;
+		if [ -n "$1" ]; then
+			speed="$1"
+			shift;
+		fi
+		;;
+		--max-downtime)
+		shift;
+		if [ -n "$1" ]; then
+			max_downtime="$1"
+			shift;
+		fi
+		;;
+		--seconds-before-migrate)
+		shift;
+		if [ -n "$1" ]; then
+			seconds_before_migrate="$1"
+			shift;
+		fi
+		;;
+		--postprocess)
+		shift;
+		if [ -n "$1" ]; then
+			postprocess="$1"
+			shift;
+		fi
+		;;
+		--round-trips)
+		shift;
+		if [ -n "$1" ]; then
+			round_trips="$1"
+			shift;
+		fi
+		;;
+		--vm)
+		shift;
+		if [ -n "$1" ]; then
+			vm="$1"
+			shift;
+		fi
+		;;
+		--src-host)
+		shift;
+		if [ -n "$1" ]; then
+			src_host="$1"
+			shift;
+		fi
+		;;
+		--src-ipaddr)
+		shift;
+		if [ -n "$1" ]; then
+			src_ipaddr="$1"
+			shift;
+		fi
+		;;
+		--dest-host)
+		shift;
+		if [ -n "$1" ]; then
+			dest_host="$1"
+			shift;
+		fi
+		;;
+		--dest-ipaddr)
+		shift;
+		if [ -n "$1" ]; then
+			dest_ipaddr="$1"
+			shift;
+		fi
+		;;
+		--timeout)
+		shift;
+		if [ -n "$1" ]; then
+			timeout="--timeout=$1"
+			shift;
+		fi
+		;;
+		--config)
+		shift;
+		if [ -n "$1" ]; then
+			config="$1"
+			shift;
+		fi
+		;;
+		--tool-group)
+		shift;
+		if [ -n "$1" ]; then
+			tool_group="$1"
+			shift;
+		fi
+		;;
+		--)
+		shift;
+		break;
+		;;
+		*)
+		echo "what happened? [$1]"
+		break;
+		;;
+	esac
+done
+verify_tool_group $tool_group
+
+function do_migrate() {
+
+	local src_host=$1
+	local dest_host=$2
+	local dest_ipaddr=$3
+
+	# set migration options
+	if [ "$use_libvirt" == "y" ]; then
+		if [ ! -z "$speed" ]; then
+			echo Setting migration speed to $speed | tee -a $benchmark_results_dir/result.txt
+			ssh $src_host virsh migrate-setspeed $vm $speed
+			ssh $src_host virsh migrate-getspeed $vm
+		fi
+		if [ ! -z "$compcache_size" ]; then
+			echo Setting compression cache size to $compcache_size | tee -a $benchmark_results_dir/result.txt
+			ssh $src_host virsh migrate-compcache $vm $compcache_size
+			ssh $src_host virsh migrate-compcache $vm
+		fi
+	else
+		ssh $src_host "echo migrate_set_capability x-postcopy-ram on | nc -U /var/lib/libvirt/qemu/dhcp159-207.monitor"
+		if [ ! -z "$speed" ]; then
+			echo Setting migration speed to $speed | tee -a $benchmark_results_dir/result.txt
+			ssh $src_host "echo migrate_set_speed $speed | nc -U /var/lib/libvirt/qemu/dhcp159-207.monitor"
+			echo
+			echo
+		fi
+		if [ ! -z "$compcache_size" ]; then
+			echo Setting compression cache size to $compcache_size | tee -a $benchmark_results_dir/result.txt
+			ssh $src_host "echo migrate_set_cache_size $compcache_size | nc -U /var/lib/libvirt/qemu/dhcp159-207.monitor"
+			echo
+			echo
+		fi
+		if [ ! -z "$max_downtime" ]; then
+			echo Setting max downtime to $max_downtime | tee -a $benchmark_results_dir/result.txt
+			ssh $src_host "echo migrate_set_downtime $max_downtime | nc -U /var/lib/libvirt/qemu/dhcp159-207.monitor"
+			echo
+			echo
+		fi
+	fi
+	
+	# make sure dest_host has exact VM config as src_host
+	if [ "$use_libvirt" == "y" ]; then
+		echo creating VM on destination host using libvirt
+		ssh $dest_host virsh undefine $vm
+		ssh $src_host virsh dumpxml $vm >/tmp/$vm.xml
+		scp /tmp/$vm.xml $dest_host:/tmp/$vm.xml
+		ssh $dest_host virsh define /tmp/$vm.xml
+	else
+		# start qemu in listen mode on dest host
+		echo creating VM on destination hosyt using qemu
+		qemu_cmd=`ssh $src_host "ps -C qemu-system-x86 -o command | tail -1"`
+		echo Starting qemu on $dest_host | tee -a $benchmark_results_dir/result.txt
+		echo qemu command: $qemu_cmd | tee -a $benchmark_results_dir/result.txt
+		ssh $dest_host "if ps -C qemu-system-x86_64; then killall qemu-system-x86_64; fi"
+		if echo $qemu_cmd | grep -q incoming; then
+			ssh $dest_host $qemu_cmd || exit
+		else
+			ssh $dest_host $qemu_cmd -incoming tcp:[::]:49152 || exit
+		fi
+	fi
+	
+	# migrate
+	echo sleeping for $seconds_before_migrate seconds before starting migration | tee -a $benchmark_results_dir/result.txt
+	sleep $seconds_before_migrate
+	start-tools --group=$tool_group --dir=$benchmark_results_dir
+	if [ "$use_libvirt" == "y" ]; then
+		if [ ! -z "$dest_ipaddr" ]; then
+			tcp_opt="tcp://$dest_ipaddr"
+		fi
+		echo Startinng migration from $src_host to $dest_host using libvirt | tee -a $benchmark_results_dir/result.txt
+		/usr/bin/time ssh $src_host "virsh migrate --verbose --live $vm qemu+ssh://$dest_host/system $tcp_opt $timeout 2>&1" | tee -a $benchmark_results_dir/result.txt
+	else
+		echo Startinng migration from $src_host to $dest_host using qemu | tee -a $benchmark_results_dir/result.txt
+		ssh $src_host 'echo migrate -d tcp:'$dest_ipaddr':49152 | nc -U /var/lib/libvirt/qemu/dhcp159-207.monitor' | sed -e 's/(qemu).*//' | sed 's/\r$//' | tee -a $benchmark_results_dir/result.txt
+		migration_status="running"
+		count=0
+		while [ "$migration_status" == "running" ]; do
+			if [ $count -gt 15 ]; then
+				ssh $src_host 'echo "migrate_start_postcopy" | nc -U /var/lib/libvirt/qemu/dhcp159-207.monitor' | sed -e 's/(qemu).*//' | sed 's/\r$//' | tee -a $benchmark_results_dir/result.txt
+			fi
+			ssh $src_host 'echo "info migrate" | nc -U /var/lib/libvirt/qemu/dhcp159-207.monitor' | sed -e 's/(qemu).*//' | sed 's/\r$//' | tee -a $benchmark_results_dir/result.txt
+			if grep -q "Migration status: completed" $benchmark_results_dir/result.txt; then
+				# make sure original qemu is gone
+				ssh $src_host 'echo "quit" | nc -U /var/lib/libvirt/qemu/dhcp159-207.monitor' | sed -e 's/(qemu).*//' | sed 's/\r$//' | tee -a $benchmark_results_dir/result.txt
+				migration_status="passed"
+			fi
+			if grep -q "Migration status: failed" $benchmark_results_dir/result.txt; then
+				# kill the destination qemu
+				ssh $dest_host 'echo "quit" | nc -U /var/lib/libvirt/qemu/dhcp159-207.monitor' | sed -e 's/(qemu).*//' | sed 's/\r$//' | tee -a $benchmark_results_dir/result.txt
+				migration_status="failed"
+			fi
+			sleep 1
+			let count=$count+1
+		done
+	fi
+	stop-tools --group=$tool_group --dir=$benchmark_results_dir
+}
+
+if [ "$postprocess" = "only" ]; then
+	# user provides directory for previous test
+	benchmark_run_dir="$benchmark_data_dir"
+else
+	config="from_${src_host}_to_${dest_host}--$config"
+	benchmark_run_dir="$pbench_run/${benchmark}_${config}_$date"
+fi
+benchmark_summary_txt_file="$benchmark_run_dir/$benchmark-summary.txt"
+benchmark_summary_html_file="$benchmark_run_dir/$benchmark-summary.html"
+
+mkdir -p ${benchmark_run_dir}/.running
+
+loops=$round_trips
+if [ $loops -eq 0 ]; then
+	loops=1
+fi
+count=1
+export benchmark config
+collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+for i in `seq 1 $loops`; do
+	iteration="$count-from-$src_host-to-$dest_host"
+	benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
+	if [ "$postprocess" != "only" ]; then
+		mkdir -p $benchmark_results_dir
+		do_migrate $src_host $dest_host $dest_ipaddr
+		if [ "$migation_status" == "failed" ]; then
+			break
+		fi
+	fi
+	if [ "$postprocess" != "skip" ]; then
+		postprocess_dirs="$postprocess_dirs $benchmark_results_dir"
+	fi
+	let count=$count+1
+	if [ $round_trips -gt 0 ]; then
+		# this will complete the round-trip migration
+		# this time the src and dest hosts are swapped for the do_migrate command
+		iteration="$count-from-$dest_host-to-$src_host"
+		benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
+		if [ "$postprocess" != "only" ]; then
+			mkdir -p $benchmark_results_dir
+			do_migrate $dest_host $src_host $src_ipaddr
+			if [ "$migation_status" == "failed" ]; then
+				break
+			fi
+		fi
+		if [ "$postprocess" != "skip" ]; then
+			postprocess_dirs="$postprocess_dirs $benchmark_results_dir"
+		fi
+		let count=$count+1
+	fi
+done
+
+# after all the migrations are done, postprocess the data
+echo sleeping for $seconds_before_postprocess seconds before postprocessing tools
+sleep $seconds_before_postprocess
+for postprocess_dir in $postprocess_dirs; do
+	postprocess-tools --group=$tool_group --dir=$postprocess_dir &
+done
+wait
+collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+
+rmdir $benchmark_run_dir/.running

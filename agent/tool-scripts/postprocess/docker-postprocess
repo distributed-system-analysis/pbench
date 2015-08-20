@@ -1,0 +1,65 @@
+#!/usr/bin/perl
+
+# Author: Andrew Theurer
+#
+# usage: <tool>-postprocess <dir>  dir = directory where tool txt file can be found
+#
+# The purpose of this script is to
+# -output the chart data in JSON format (docker.js)
+# -output html file(s) with embedded javascript, using d3.js libraries
+# The result should be one or more graphs
+
+use strict;
+use warnings;
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+BEGIN {
+        my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+        $_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+        if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+                $_test_alt_tools_lib = "$_pbench_tspp_dir";
+        }
+}
+use lib "$_test_alt_tools_lib";
+no lib ".";
+use GenData qw(gen_data);
+
+my $tool = "docker";
+my $dir=$ARGV[0]; # the directory where the txt file is
+my %stats;
+my $timestamp_ms;
+
+# read the test file
+my $input_file_name = $dir . "/" . $tool . ".txt";
+open(TOOL_TXT, $input_file_name) || die "could not find $input_file_name\n";
+my $mode="search";
+while (my $line = <TOOL_TXT>) {
+	chomp $line;
+	# Each sample should start with a time stamp
+	# When we find this, update our timestamp for the hash.
+	#   example from the test file:
+	# timestamp: 1413473221.422902142
+	if ( $line =~ /^timestamp:\s(\d+\.\d+)/ ) {
+		$timestamp_ms=$1*1000;
+	}
+	# now find the data we are interested in
+	if ( $line =~ /^(\d+)/ ) {
+		my $total_containers = $1;
+		# data is stored this way:
+		# $stats{htmlpage}{graph}{series}{sample}
+		# if you are -not- using a subdirectory to store these files, the "{htmlpage}" should at least have the tool name in it
+		# if you are using a subdirectory, the subdirectory name is the name of the tool, so the htmlpage does not necessarily need the tool name in it
+		$stats{docker}{containers}{total_containers}{$timestamp_ms} = $total_containers;
+	}
+}
+close(TOOL_TXT);
+
+# define the graph types
+# if you want something other than lineChart, put it here
+my %graph_type;
+
+# threshold for displying a series in a graph
+my %graph_threshold;
+
+gen_data(\%stats, \%graph_type, \%graph_threshold, $dir);

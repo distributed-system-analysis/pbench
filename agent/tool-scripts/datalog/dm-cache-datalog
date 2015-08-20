@@ -1,0 +1,14 @@
+#!/bin/bash
+
+interval=$1
+file=$2
+pattern=$3
+
+cmd="dmsetup status --target=cache"
+
+cat /dev/null >$file
+while true; do
+	echo "timestamp: `date +%s.%N`" >>$file
+	$cmd >>$file
+	sleep $interval
+done

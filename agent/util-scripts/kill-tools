@@ -1,0 +1,94 @@
+#!/bin/bash
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+# This script will kill all tools that belong
+# to a specific group.  
+
+# Process options and arguments
+
+# kill the local tools
+pushd $pbench_run/tmp >/dev/null
+for i in `/bin/ls *.pid 2>/dev/null`; do
+	pid=`cat $i`
+	kill $pid
+	/bin/rm -f $i
+done
+# kill any other tools which for some reason did not have their PID logged
+# all tools run in a screen session with a title beginning with "pbench-tool"
+for i in `screen -ls | grep pbench-tool | awk -F. '{print $1}'`; do
+	kill $i
+done
+
+function usage() {
+        printf "Usage: kill-tools [--group <toolgroup>] [--local]\n"
+}
+
+# Process options and arguments
+
+opts=$(getopt -q -o hlg: --longoptions "help,local,group:" -n "getopt.sh" -- "$@");
+if [ $? -ne 0 ]; then
+	printf "\n"
+	printf "$script_name: you specified an invalid option\n\n"
+        usage
+	exit 1
+fi
+eval set -- "$opts";
+while true; do
+	case "$1" in
+		-g|--group)
+		shift;
+		if [ -n "$1" ]; then
+			group="$1"
+			shift;
+		fi
+		;;
+		-l|--local)
+                local=1;
+                shift;
+		;;
+		-h|--help)
+                usage
+                break;
+		;;
+		--)
+		shift;
+		break;
+		;;
+	esac
+done
+
+if [ "$local" == 1 ] ;then
+        exit 0
+fi
+
+if [ -f "$pbench_run/tools.$group" ]; then
+	groupfile="$pbench_run/tools.$group"
+else
+	# if there were no tools registered for the group, use the 
+	# tools registered in the default group
+	groupfile="$pbench_run/tools.default"
+fi
+
+## kill remote tools
+if [ -f "$groupfile" ]; then
+	while read this_line; do
+		name=`echo $this_line | cut -d: -f1`
+		remote=""
+		if echo $name | grep -q "@"; then
+			remote=`echo $name | cut -d\@ -f2`
+			name=`echo $name | cut -d\@ -f1`
+			# tool options are stored on the remote host's tool file, so no need to pass it here
+			debug_log "[$script_name]running this tool on $remote"
+                        # avoid kill-tools storms even if remote tools.$group file is misconfigured
+			cmd="ssh $ssh_opts -n $remote kill-tools --local"
+                        debug_log "[$script_name]$cmd"
+                        $cmd | sed -e 's/\(.*\)/'[$remote]'\1/g'
+		fi
+	done <$groupfile
+fi

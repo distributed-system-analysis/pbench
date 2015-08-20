@@ -1,0 +1,87 @@
+#!/bin/bash
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+# This script will remove tools that have
+# been registered.  If no options are used,
+# then all tools from all tool groups are removed
+# specifying a tool name and/or group will
+# limit the scope of the removal
+
+# Defaults
+name=""
+group="default"
+
+# Process options and arguments
+
+opts=$(getopt -q -o d:g: --longoptions "group:,name:" -n "getopt.sh" -- "$@");
+if [ $? -ne 0 ]; then
+	printf "\n"
+	printf "$script_name: you specified an invalid option\n\n"
+	printf "The following are required:\n\n"
+	printf -- "\t-g str --group=str, str = the group which tools should be removed from\n"
+	printf -- "\t                          (the default group is 'default')\n"
+	printf -- "\t-n str --name=str, str = a specific tool to be removed.  If no tool is specified, all tools in the group are removed \n"
+	printf "\n"
+
+	exit 1
+fi
+eval set -- "$opts";
+while true; do
+	case "$1" in
+		-n|--name)
+		shift;
+		if [ -n "$1" ]; then
+			name="$1"
+			shift;
+		fi
+		;;
+		-g|--group)
+		shift;
+		if [ -n "$1" ]; then
+			group="$1"
+			shift;
+		fi
+		;;
+		--)
+		shift;
+		break;
+		;;
+	esac
+done
+
+tool_file=tools.$group
+		
+if [ -f "$pbench_run/$tool_file" ]; then
+	while read line; do
+		this_name=`echo $line | cut -d: -f1`
+		# if there is a remote tool, call clear tools on the remote host
+		if echo $this_name | grep -q "@"; then
+			group_opt="--group $group"
+			if [ ! -z "$name" ]; then
+				name_opt="--name=$name"
+			fi
+			remote=`echo $this_name | awk -F@ '{print $2}'`
+			echo running ". ${pbench_install_dir}/profile; clear-tools $group_opt $name_opt" on $remote
+			ssh $ssh_opts -n $remote ". ${pbench_install_dir}/profile; clear-tools $group_opt $name_opt" | sed -e 's/\(.*\)/['$remote']\1/g'
+			remaining_remote_tools=`ssh $ssh_opts -n $remote ". ${pbench_install_dir}/profile; list-tools $grouo_opt"`
+			if [ -z "$remaining_remote_tools" ]; then
+				echo "The remote host $remote no longer has tools registered for $group group, so the "remote@$remote" entry in the local $tool_file will be removed"
+				sed -i /"^remote@$remote.*"/d "$pbench_run/$tool_file"
+			fi
+			
+		else
+			# remove any existing local entry for this tool
+			# if a tool name was provided, only remove that tool.  If not, all tools should be removed
+			if [ -z "$name" -o "$name" == "$this_name" ]; then
+				echo removing $this_name
+				sed -i /"^$name.*"/d "$pbench_run/$tool_file"
+			fi
+		fi
+	done <$pbench_run/$tool_file
+fi

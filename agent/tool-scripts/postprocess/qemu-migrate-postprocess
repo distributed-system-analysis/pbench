@@ -1,0 +1,157 @@
+#!/usr/bin/perl
+
+# Author: Andrew Theurer
+#
+# usage: qemu-migrate-postprocess 
+#
+
+use strict;
+use warnings;
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+BEGIN {
+        my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+        $_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+        if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+                $_test_alt_tools_lib = "$_pbench_tspp_dir";
+        }
+}
+use lib "$_test_alt_tools_lib";
+no lib ".";
+use GenData qw(gen_data);
+
+sub convert_to_GiB {
+
+	my $count = $_[0];
+	my $size = $_[1];
+
+	if ( $size eq "GiB" ) {
+		return $count;
+	}
+	if ( $size eq "MiB" ) {
+		return ( $count / 1024 );
+	}
+	if ( $size eq "kbytes" ) {
+		return ( $count / 1024 / 1024);
+	}
+}
+
+my $dir=$ARGV[0];
+my $file="qemu-migrate.txt";
+my %stats;
+my $timestamp;
+my $timestamp_ms;
+my $line;
+my $data_processed;
+my $size;
+my $value;
+
+open(TXT, "$dir/$file") || die "could not find $dir/$file\n";
+while (my $line = <TXT>) {
+	chomp $line;
+	#timestamp: 1407853973.548374311
+	#Job type:         Unbounded   
+	#Time elapsed:     6599         ms
+	#Data processed:   3.635 GiB
+	#Data remaining:   1.309 MiB
+	#Data total:       10.126 GiB
+	#Memory processed: 3.635 GiB
+	#Memory remaining: 1.309 MiB
+	#Memory total:     10.126 GiB
+	#Constant pages:   3542877     
+	#Normal pages:     950539      
+	#Normal data:      3.626 GiB
+	#Expected downtime: 2328         ms
+	#
+
+	#QEMU 2.1.50 monitor - type 'help' for more information
+	#
+	#capabilities: xbzrle: off rdma-pin-all: off auto-converge: off zero-blocks: off x-postcopy-ram: off 
+	#Migration status: active
+	#total time: 762 milliseconds
+	#expected downtime: 30000 milliseconds
+	#setup: 126 milliseconds
+
+	#timestamp: 1410284122.034961543
+	if ($line =~ /^timestamp:\s(\d+\.\d+)/) {
+		$timestamp = $1;
+		$timestamp_ms = 1000 * $timestamp;
+		next;
+	}
+	#throughput: 41.99 mbps
+	if ($line =~ /^throughput:\s+(\d+\.\d+)\smbps/) {
+		$value = $1;
+		$stats{"qemu-migrate"}{"qemu-migrate"}{"throughput_Gbps"}{$timestamp_ms} = $value /1000;
+		next;
+	}
+	#dirty pages rate: 6015 pages
+	if ($line =~ /^dirty\spages\srate:\s(\d+)\spages/) {
+		$value = $1;
+		$stats{"qemu-migrate"}{"qemu-migrate"}{"dirty-pages-rate-x1000"}{$timestamp_ms} = $value/1000;
+		next;
+	}
+	#duplicate: 176089 pages
+	if ($line =~ /^duplicate:\s(\d+)\spages/) {
+		$value = $1;
+		$stats{"qemu-migrate"}{"qemu-migrate"}{"duplicate_pages-x1000000"}{$timestamp_ms} = $value/1000000;
+		next;
+	}
+	#total ram: 10486144 kbytes
+	if ($line =~ /^total\sram:\s(\d+)\s(\w+)/) {
+		$value = $1;
+		$size = $2;
+		$stats{"qemu-migrate"}{"qemu-migrate"}{"total_ram_GB"}{$timestamp_ms} = convert_to_GiB($value, $size);
+		next;
+	}
+	#remaining ram: 9762656 kbytes
+	if ($line =~ /^remaining\sram:\s(\d+)\s(\w+)/) {
+		$value = $1;
+		$size = $2;
+		$stats{"qemu-migrate"}{"qemu-migrate"}{"remaining_ram_GB"}{$timestamp_ms} = convert_to_GiB($value, $size);
+		next;
+	}
+	#dirty sync count: 0
+	if ($line =~ /^dirty\ssync\scount:\s+(\d+)/) {
+		$value = $1;
+		$size = $2;
+		$stats{"qemu-migrate"}{"qemu-migrate"}{"dirty_sync_count"}{$timestamp_ms} = $value;
+		next;
+	}
+	#skipped: 0 pages
+	if ($line =~ /^skipped:\s(\d+)\spages/) {
+		$value = $1;
+		$size = $2;
+		$stats{"qemu-migrate"}{"qemu-migrate"}{"skipped_pages-x1000"}{$timestamp_ms} = $value/1000;
+		next;
+	}
+	#normal: 4782 pages
+	if ($line =~ /^normal:\s(\d+)\spages/) {
+		$value = $1;
+		$size = $2;
+		$stats{"qemu-migrate"}{"qemu-migrate"}{"normal_pages-x1000"}{$timestamp_ms} = $value/1000;
+		next;
+	}
+	#normal bytes: 19128 kbytes
+	if ($line =~ /^normal\sbytes:\s(\d+)\s(\w+)/) {
+		$value = $1;
+		$size = $2;
+		$stats{"qemu-migrate"}{"qemu-migrate"}{"normal_GiB"}{$timestamp_ms} = convert_to_GiB($value, $size);
+		next;
+	}
+	#transferred ram: 20490 kbytes
+	if ($line =~ /^transferred\sram:\s(\d+)\s(\w+)/) {
+		$value = $1;
+		$size = $2;
+		$stats{"qemu-migrate"}{"qemu-migrate"}{"transferred_ram_GiB"}{$timestamp_ms} = convert_to_GiB($value, $size);
+		next;
+	}
+}
+close(TXT);
+
+
+my %graph_type;
+my %graph_threshold;
+gen_data(\%stats, \%graph_type, \%graph_threshold, $dir);
+
+

@@ -1,0 +1,5 @@
+resp-file: response-times-172.168.10.88.txt
+average latency: 55.2066
+95th percentile latency: 59.3970
+99.995th percentile latency: 96.1700
+maximum latency: 96.1700

@@ -1,0 +1,81 @@
+#!/bin/bash
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+# The sole purpose of this script is to ensure a tool
+# of your choosing is used during the execution of a benchmark.
+# For a list of performance tools, look at the
+# $pbench_bin/tool-scripts directory.
+
+# Defaults
+group=default
+
+function usage() {
+	printf "usage:\n"
+	printf "$script_name --group=<tool group> --start-trigger=<string to match> --stop-trigger=<string to match>"
+}
+
+# Process options and arguments
+opts=$(getopt -q -o h --longoptions "help,group:,start-trigger:,stop-trigger:" -n "getopt.sh" -- "$@");
+if [ $? -ne 0 ]; then
+	printf "\n"
+	printf "%s\n" $*
+	printf "$script_name: you specified an invalid option\n\n"
+	usage
+
+
+	exit 1
+fi
+eval set -- "$opts";
+while true; do
+	case "$1" in
+		--start-trigger)
+		shift;
+		if [ -n "$1" ]; then
+			start_trigger="$1"
+			shift;
+		fi
+		;;
+		--stop-trigger)
+		shift;
+		if [ -n "$1" ]; then
+			stop_trigger="$1"
+			shift;
+		fi
+		;;
+		--group)
+		shift;
+		if [ -n "$1" ]; then
+			group="$1"
+			shift;
+		fi
+		;;
+                -h|--help)
+                usage;
+                exit 0
+                ;;
+		--)
+		shift;
+		break;
+		;;
+		*)
+		shift;
+		;;
+	esac
+done
+
+if [ ! -f "$pbench_run/tool-triggers" ]; then
+	mkdir -p "$pbench_run"
+	echo "#group:start-trigger:stop-trigger" >"$pbench_run/tool-triggers"
+fi
+# remove any previous trigger
+sed -i /^$group.*/d "$pbench_run/tool-triggers"
+# remeber this trigger
+printf "%s:%s:%s\n" "$group" "$start_trigger" "$stop_trigger" >>"$pbench_run/tool-triggers"
+printf "tool trigger strings for start: \"$start_trigger\" and for stop: \"$stop_trigger\" are now registered for tool group: $group\n"
+

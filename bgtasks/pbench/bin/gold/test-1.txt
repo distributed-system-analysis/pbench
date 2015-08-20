@@ -1,0 +1,18 @@
++++ Running pbench-backup-tarballs
+pbench-backup-tarballs: Missing target backup directory argument
+--- Finished pbench-backup-tarballs (status=1}
++++ Running pbench-unpack-tarballs
+pbench-unpack-tarballs: Bad TMP=/var/tmp/pbench-test-bgtasks/pbench/tmp
+--- Finished pbench-unpack-tarballs (status=1}
++++ Running pbench-copy-sosreports
+pbench-copy-sosreports: Bad TMP=/var/tmp/pbench-test-bgtasks/pbench/tmp
+--- Finished pbench-copy-sosreports (status=1}
++++ Running pbench-index
+pbench-index: Bad TMP=/var/tmp/pbench-test-bgtasks/pbench/tmp
+--- Finished pbench-index (status=1}
++++ Running pbench-clean-up-dangling-results-links
+pbench-clean-up-dangling-results-links: Bad TMP=/var/tmp/pbench-test-bgtasks/pbench/tmp
+--- Finished pbench-clean-up-dangling-results-links (status=1}
++++ Running pbench-edit-prefixes
+pbench-edit-prefixes: Bad TMP=/var/tmp/pbench-test-bgtasks/pbench/tmp
+--- Finished pbench-edit-prefixes (status=1}

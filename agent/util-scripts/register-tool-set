@@ -1,0 +1,102 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+# The sole purpose of this script is to ensure a tool
+# of your choosing is used during the execution of a benchmark.
+# For a list of performance tools, look at the
+# $pbench_bin/tool-scripts directory.
+
+# Defaults
+remote=""
+group=""
+options=""
+toolset="default"
+
+interval=$(getconf.py interval pbench/tools)
+
+function usage() {
+	printf "usage:\n"
+	printf "$script_name --toolset=<tool-set> [--group=<group-name>] [--remote=<remote-host>] [--label=<label>] [--interval=<interval] -- [all tool specific options here]\n"
+}
+
+# Process options and arguments
+opts=$(getopt -q -o hr:l:g:i: --longoptions "help,toolset:,remote:,label:,group:,interval:" -n "getopt.sh" -- "$@");
+if [ $? -ne 0 ]; then
+	printf "\n"
+	printf "%s\n" $*
+	printf "$script_name: you specified an invalid option or forgot a required option value\n\n"
+	usage
+
+
+	exit 1
+fi
+eval set -- "$opts";
+while true; do
+	case "$1" in
+		--toolset)
+		shift;
+		if [ -n "$1" ]; then
+			toolset="$1"
+			shift;
+		fi
+		;;
+		-r|--remote)
+		shift;
+		if [ -n "$1" ]; then
+			remote="--remote=$1"
+			shift;
+		fi
+		;;
+		-l|--label)
+		shift;
+		if [ -n "$1" ]; then
+			label="--label=$1"
+			shift;
+		fi
+		;;
+		-g|--group)
+		shift;
+		if [ -n "$1" ]; then
+			group="--group=$1"
+			shift;
+		fi
+		;;
+		-i|--interval)
+		shift;
+		if [ -n "$1" ]; then
+			interval="$1"
+			shift;
+		fi
+		;;
+                -h|--help)
+                usage;
+                exit 0
+                ;;
+		--)
+		shift;
+		break;
+		;;
+	esac
+done
+
+if [ -z "$interval" ] ;then
+	interval=3
+fi
+
+default_tool_set=$(getconf.py -l default-tool-set pbench/tools)
+case "$toolset" in
+	default)
+	for i in $default_tool_set; do
+		register-tool --name=$i $remote $label $group -- --interval="$interval"
+	done
+	# low overhead perf
+	register-tool --name=perf $remote $label $group -- --record-opts="record -a --freq=100"
+	;;
+esac

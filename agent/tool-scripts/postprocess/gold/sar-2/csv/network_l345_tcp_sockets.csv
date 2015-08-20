@@ -1,0 +1,2 @@
+timestamp_ms,active_opens_sec,passive_opens_sec,rx_segments_sec,tcp_attempt_fails_sec,tcp_establish_resets_sec,tcp_rx_segments_error_sec,tcp_segments_retransmitted_sec,tcp_tx_segments_RSTflag_sec,tx_segments_sec
+1427874609000,0.00,0.33,6.67,0.00,0.00,0.00,0.00,0.00,7.67

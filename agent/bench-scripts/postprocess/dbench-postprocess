@@ -1,0 +1,129 @@
+#!/usr/bin/perl
+# use strict;
+# use warnings;
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+my $_test_alt_bench_lib;
+BEGIN {
+	my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+		$_test_alt_tools_lib = "$_pbench_tspp_dir";
+	}
+	my $_pbench_bspp_dir = $ENV{'pbench_bspp_dir'};
+	$_test_alt_bench_lib=$ENV{_TEST_ALTERNATE_BENCH_LIBRARY};
+	if (not defined $_test_alt_bench_lib or not -d $_test_alt_bench_lib) {
+		$_test_alt_bench_lib = "_pbench_bspp_dir";
+	}
+}
+use lib "$_test_alt_tools_lib";
+use lib "$_test_alt_bench_lib";
+no lib ".";
+use GenData qw(gen_data);
+use BenchPostprocess qw(get_cpubusy_series calc_ratio_series calc_sum_series);
+use File::Basename;
+my $script = basename($0);
+my $dir = $ARGV[0];
+my $tool_label_pattern = $ARGV[1];
+my $tool_group = $ARGV[2];
+my %sample;
+my %rate;
+my $timestamp_ms = 0;
+my $prev_timestamp_ms = 0;
+my $timestamp_ms_diff;
+my $line;
+
+# Load the data from dbench output and create throughput metrics
+# There can be several result files, once for each copy of dbench
+opendir(my $dh, $dir) || die "$script: could not open directory $dir: $!\n";
+my $nr_result_files=0;
+foreach $result_file ( readdir($dh) ) {
+	if ( $result_file =~ /^result-(.+).txt$/) {
+		$client_id = $1;
+		$this_nr_bytes_label = $client_id . "-bytes"; # a number of bytes (not a througput metric)
+		$this_tput_label = $client_id . "-GiB_sec"; # a number of 1024^3 bytes over time
+		open(IN_FILE, "$dir/$result_file") || die "$script: could not open file $dir/$result_file: $!\n";
+		$prev_timestamp_ms = 0;
+		while (<IN_FILE>) {
+			$line = "$_";
+			chomp($line);
+			# for each sample in the dbench result file, we get a number of bytes and a timestamp
+			# example of a sample: "time:1395170796 name:Txn2 nr_bytes:22037790720 nr_ops:43042560"
+			if ($line =~  /^execute total_bytes:\s(\d+)\sepochtime_ms:\s(\d+)\slatency_ms:\s(\d+\.\d+)/){
+				$bytes = $1;
+				$timestamp_ms = $2;
+				$sample{$this_nr_bytes_label}{$timestamp_ms} = $bytes;
+				if ($prev_timestamp_ms != 0) {
+					$timestamp_s_diff = ($timestamp_ms - $prev_timestamp_ms)/1000;
+					$bytes_diff = $sample{$this_nr_bytes_label}{$timestamp_ms} - $sample{$this_nr_bytes_label}{$prev_timestamp_ms};
+					$rate{"dbench"}{"Per_Instance_Throughput"}{$this_tput_label}{$timestamp_ms} = $bytes_diff /1024 /1024 /1024 /$timestamp_s_diff;
+				}
+				$prev_timestamp_ms = $timestamp_ms;
+			}
+		}
+		$nr_result_files++;
+		close(IN_FILE);
+	}
+}
+closedir $dh;
+if ($nr_result_files == 0) {
+	print "$script: could not find any result files to process, exiting\n";
+	exit;
+}
+
+# Define a set of tool directories which we want to use to report CPU and efficiency metrics
+# Search for tool directories which match the $tool_label_pattern
+my %tool_ids;
+my $tool_group_dir = "$dir/tools-$tool_group";
+if (opendir(my $dh, $tool_group_dir)) {
+	my $this_tool_dir;
+	foreach $this_tool_dir (readdir($dh)) {
+		if ($this_tool_dir =~ /^$tool_label_pattern/) {
+			my $tool_dir_id = $this_tool_dir;
+			$tool_dir_id =~ s/^$tool_pattern_label//;
+			$this_tool_dir = $tool_group_dir . "/" . $this_tool_dir;
+			$tool_ids{$this_tool_dir} = $tool_dir_id;
+		}
+	}
+} else {
+	print "$script: could not find any directories in $tool_group_dir which matched $tool_label_pattern\n";
+}
+
+# Note that if there are multiple result files (multiple dbench copies), we then do not yet have a throughput metric for the sum of all those tests
+# In order to get that, we have to go sum all of the data from the individual results.
+@per_server_results = (keys %{ $rate{"dbench"}{"Per_Instance_Throughput"} });
+# we use the timestamps from this first per-server result to model our new hash with the summed data
+@ref_timestamps = ( sort {$a<=>$b} keys %{ $rate{"dbench"}{"Per_Instance_Throughput"}{$per_server_results[0]} } );
+# our new hash starts off with 0's
+foreach $timestamp_ms (@ref_timestamps) {
+	$rate{"dbench"}{"Throughput"}{"GiB_sec"}{$timestamp_ms} = 0;
+}
+# And now we add the values from each per server result to that hash one at a time
+foreach $per_server_result (@per_server_results) {
+	calc_sum_series(\%{$rate{"dbench"}{"Per_Instance_Throughput"}{$per_server_result}}, \%{$rate{"dbench"}{"Throughput"}{"GiB_sec"}});
+}
+@timestamps = ( sort {$a<=>$b} keys %{ $rate{"dbench"}{"Throughput"}{"GiB_sec"} });
+# At the same time, generate an effiicency (GiB_sec/CPU) series for both the client and server CPU data
+foreach $this_tool_dir (keys %tool_ids) {
+	my $res;
+	my $this_tool_id = $tool_ids{$this_tool_dir};
+	my $this_cpu_label = "CPU_" . $this_tool_id;
+	my $this_eff_label = "GiB_sec/" . $this_cpu_label;
+	$res = get_cpubusy_series($this_tool_dir, \%{ $rate{"dbench"}{"CPU_usage"}{$this_cpu_label} }, $timestamps[0], $timestamps[-1]);
+	if ($res == 0) {
+		calc_ratio_series(\%{ $rate{"dbench"}{"Throughput"}{"GiB_sec"} }, \%{ $rate{"dbench"}{"CPU_usage"}{$this_cpu_label} }, \%{ $rate{"dbench"}{"Effiency"}{$this_eff_label} });
+	}
+}
+
+# define the graph types
+# if you want something other than lineChart, put it here
+my %graph_type;
+
+# threshold for displying a series in a graph
+my %graph_threshold;
+
+# N.B. Final parameter of 1 tells gen_data to do the expensive
+# combinatorial check of timestamps. dbench-postprocess is the
+# only script that makes use of it.
+gen_data(\%rate, \%graph_type, \%graph_threshold, $dir, 1);

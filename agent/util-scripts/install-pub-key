@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Install an SSH public RSA key for the pbench agent to enable it to push
+# result tar balls to a pbench archive server.
+
+# FIXME - we need to validate the RSA key, and / or drop its use entirely,
+# instead using an object store to hold the result tar balls pushed by
+# move/copy-results.
+cp $1 /opt/pbench-agent/id_rsa

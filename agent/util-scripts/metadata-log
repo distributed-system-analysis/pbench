@@ -1,0 +1,151 @@
+#! /bin/bash
+# -*- mode: shell-script -*-
+
+# this script uses env variables set by the base script, so it
+# needs to be invoked *after* the base script is sourced and *after*
+# the bench_run_dir is set.
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+# This script will collect metadata about a pbench run.  This is
+# typically called at the beginning and end of a benchmark script to
+# capture various bits of information that will be useful in indexing
+# the run.
+
+# Defaults
+dir="/tmp"
+group="default"
+
+# Process options and arguments
+
+opts=$(getopt -q -o d:g: --longoptions "dir:,group:" -n "getopt.sh" -- "$@");
+if [ $? -ne 0 ]; then
+	printf "\n"
+	printf "$script_name: you specified an invalid option\n\n"
+	printf "The following are required:\n\n"
+	printf -- "\t-d str --dir=str, str = a directory where the $script_name\n"
+	printf -- "\t                        will store and process data\n"
+	printf "\n"
+	exit 1
+fi
+eval set -- "$opts";
+while true; do
+	case "$1" in
+		-d|--dir)
+		shift;
+		if [ -n "$1" ]; then
+			dir="$1"
+			shift;
+		fi
+		;;
+		-g|--group)
+		shift;
+		if [ -n "$1" ]; then
+			group="$1"
+			shift;
+		fi
+		;;
+		--)
+		shift;
+		break;
+		;;
+	esac
+done
+
+function usage {
+    echo "Usage: $prog beg|end <bench_run_dir>" >&2
+}
+
+function metadata_log_tools {
+
+    log=$1
+    
+    # get the remotes from the local tools.$group file
+    # then get the remote tools.$group files for each remote
+    
+    remotes="$(grep @ $pbench_run/tools.$group | sed 's/.*@//
+s/:[^:]*$//' | tr '\n' ' ')"
+
+
+    # check if the local tools.$group file includes any local tools
+    local=0
+    if grep -v @ $pbench_run/tools.$group > /dev/null 2>&1 ;then
+        local=1
+    fi
+
+    # if yes ...
+    if [ $local == 1 ] ;then
+        cat >> $log <<EOF
+[tools]
+hosts: $hostname $remotes
+
+[tools/$hostname]
+$(cat $pbench_run/tools.$group)
+
+EOF
+    else
+        # just remotes
+        if [ ! -z "$remotes" ] ;then
+            cat >> $log <<EOF
+[tools]
+hosts: $remotes
+
+EOF
+        fi
+    fi
+    
+    for remote in $remotes ;do
+        cat >> $log <<EOF
+[tools/$remote]
+$(ssh $remote cat $pbench_run/tools.$group)
+
+EOF
+    done
+}
+
+function metadata_log_start {
+    dir=$1
+    log=$dir/metadata.log
+
+    cat > $log <<EOF
+[pbench]
+name: $(basename $dir)
+script: $benchmark
+config: $config
+date: $date
+rpm-version: $(yum list installed pbench 2>/dev/null | tail -n 1 | awk '{print $2}')
+
+EOF
+    metadata_log_tools $log
+    cat >> $log <<EOF
+[run]
+controller: $full_hostname
+start_run: $(TZ=UTC date '+%F_%H:%M:%S.%N')
+EOF
+}
+
+function metadata_log_end {
+    dir=$1
+    log=$dir/metadata.log
+
+    echo "end_run: $(TZ=UTC date '+%F_%H:%M:%S.%N')" >> $log
+}
+
+case $1 in
+    beg)
+        metadata_log_start $dir
+        ;;
+    end)
+        metadata_log_end $dir
+        ;;
+    *)
+        usage
+        exit 2
+esac
+
+exit 0

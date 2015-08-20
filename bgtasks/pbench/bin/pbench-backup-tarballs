@@ -1,0 +1,66 @@
+#! /bin/bash
+
+# Cron job for user pbench, pulling tarballs from the pbench ARCHIVE and
+# copying them to the configured backup directory.
+
+# load common things
+opts=$SHELLOPTS
+case $opts in
+    *xtrace*)
+        dir=$(dirname $(which $0))
+        PROG=$(basename $(which $0))
+        ;;
+    *)
+        dir=$(dirname $0)
+        PROG=$(basename $0)
+        ;;
+esac
+
+if [[ -z "$1" ]]; then
+    echo "$PROG: Missing source pbench directory argument" >&2
+    exit 1
+fi
+TOP="$1"
+if [[ -z "$2" ]]; then
+    echo "$PROG: Missing target backup directory argument" >&2
+    exit 1
+fi
+BDIR="$2"
+. $dir/pbench-base.sh
+
+log_init $(basename $0)
+
+echo "start-$(timestamp)"
+
+rla=$(readlink -f $ARCHIVE)
+if [[ $? -ne 0 ]]; then
+    echo "$PROG: The ARCHIVE directory does not resolve to a real location, $ARCHIVE"
+    log_finish; exit 1
+fi
+if [[ ! -d "$rla" ]]; then
+    echo "$PROG: The ARCHIVE directory does not resolve to a directory, $ARCHIVE"
+    log_finish; exit 1
+fi
+
+rlb=$(readlink -f $BDIR)
+if [[ $? -ne 0 ]]; then
+    echo "$PROG: Specified backup directory does not resolve to a real location, $BDIR"
+    log_finish; exit 1
+fi
+if [[ ! -d "$rlb" ]]; then
+    echo "$PROG: Specified backup directory does not resolve to a directory, $BDIR"
+    log_finish; exit 1
+fi
+
+# N.B The trailing slash is important
+/usr/bin/rsync -va $rla/ $rlb
+rsync_sts=$?
+if [[ $rsync_sts -ne 0 ]]; then
+    echo "$PROG: rsync failed with code: $rsync_sts, $BDIR"
+fi
+
+echo "end-$(timestamp)"
+
+log_finish
+
+exit 0

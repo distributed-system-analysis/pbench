@@ -1,0 +1,281 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link href="/static/css/v0.2/nv.d3.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/static/css/v0.2/pbench_utils.css" rel="stylesheet" type="text/css" media="all">
+    <script src="/static/js/v0.2/function-bind.js"></script>
+    <script src="/static/js/v0.2/fastdom.js"></script>
+    <script src="/static/js/v0.2/d3.js"></script>
+    <script src="/static/js/v0.2/nv.d3.js"></script>
+    <script src="/static/js/v0.2/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.2/pbench_utils.js"></script>
+  </head>
+  <body class="with-3d-shadow with-transitions">
+    <h2 class="page-header">sar-1 - per_cpu</h2>
+    <div class="chart">
+      <h3 class="chart-header">cpu_00
+        <button id="save1">Save as Image</button>
+        <div id="svgdataurl1"></div>
+      </h3>
+      <svg id="chart1"></svg>
+      <canvas id="canvas1" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 1, "per_cpu_cpu_00");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_01
+        <button id="save2">Save as Image</button>
+        <div id="svgdataurl2"></div>
+      </h3>
+      <svg id="chart2"></svg>
+      <canvas id="canvas2" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 2, "per_cpu_cpu_01");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_02
+        <button id="save3">Save as Image</button>
+        <div id="svgdataurl3"></div>
+      </h3>
+      <svg id="chart3"></svg>
+      <canvas id="canvas3" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 3, "per_cpu_cpu_02");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_03
+        <button id="save4">Save as Image</button>
+        <div id="svgdataurl4"></div>
+      </h3>
+      <svg id="chart4"></svg>
+      <canvas id="canvas4" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 4, "per_cpu_cpu_03");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_04
+        <button id="save5">Save as Image</button>
+        <div id="svgdataurl5"></div>
+      </h3>
+      <svg id="chart5"></svg>
+      <canvas id="canvas5" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 5, "per_cpu_cpu_04");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_05
+        <button id="save6">Save as Image</button>
+        <div id="svgdataurl6"></div>
+      </h3>
+      <svg id="chart6"></svg>
+      <canvas id="canvas6" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 6, "per_cpu_cpu_05");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_06
+        <button id="save7">Save as Image</button>
+        <div id="svgdataurl7"></div>
+      </h3>
+      <svg id="chart7"></svg>
+      <canvas id="canvas7" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 7, "per_cpu_cpu_06");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_07
+        <button id="save8">Save as Image</button>
+        <div id="svgdataurl8"></div>
+      </h3>
+      <svg id="chart8"></svg>
+      <canvas id="canvas8" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 8, "per_cpu_cpu_07");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_08
+        <button id="save9">Save as Image</button>
+        <div id="svgdataurl9"></div>
+      </h3>
+      <svg id="chart9"></svg>
+      <canvas id="canvas9" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 9, "per_cpu_cpu_08");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_09
+        <button id="save10">Save as Image</button>
+        <div id="svgdataurl10"></div>
+      </h3>
+      <svg id="chart10"></svg>
+      <canvas id="canvas10" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 10, "per_cpu_cpu_09");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_10
+        <button id="save11">Save as Image</button>
+        <div id="svgdataurl11"></div>
+      </h3>
+      <svg id="chart11"></svg>
+      <canvas id="canvas11" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 11, "per_cpu_cpu_10");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_11
+        <button id="save12">Save as Image</button>
+        <div id="svgdataurl12"></div>
+      </h3>
+      <svg id="chart12"></svg>
+      <canvas id="canvas12" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 12, "per_cpu_cpu_11");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_12
+        <button id="save13">Save as Image</button>
+        <div id="svgdataurl13"></div>
+      </h3>
+      <svg id="chart13"></svg>
+      <canvas id="canvas13" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 13, "per_cpu_cpu_12");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_13
+        <button id="save14">Save as Image</button>
+        <div id="svgdataurl14"></div>
+      </h3>
+      <svg id="chart14"></svg>
+      <canvas id="canvas14" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 14, "per_cpu_cpu_13");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_14
+        <button id="save15">Save as Image</button>
+        <div id="svgdataurl15"></div>
+      </h3>
+      <svg id="chart15"></svg>
+      <canvas id="canvas15" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 15, "per_cpu_cpu_14");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_15
+        <button id="save16">Save as Image</button>
+        <div id="svgdataurl16"></div>
+      </h3>
+      <svg id="chart16"></svg>
+      <canvas id="canvas16" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 16, "per_cpu_cpu_15");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_16
+        <button id="save17">Save as Image</button>
+        <div id="svgdataurl17"></div>
+      </h3>
+      <svg id="chart17"></svg>
+      <canvas id="canvas17" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 17, "per_cpu_cpu_16");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_17
+        <button id="save18">Save as Image</button>
+        <div id="svgdataurl18"></div>
+      </h3>
+      <svg id="chart18"></svg>
+      <canvas id="canvas18" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 18, "per_cpu_cpu_17");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_18
+        <button id="save19">Save as Image</button>
+        <div id="svgdataurl19"></div>
+      </h3>
+      <svg id="chart19"></svg>
+      <canvas id="canvas19" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 19, "per_cpu_cpu_18");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_19
+        <button id="save20">Save as Image</button>
+        <div id="svgdataurl20"></div>
+      </h3>
+      <svg id="chart20"></svg>
+      <canvas id="canvas20" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 20, "per_cpu_cpu_19");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_20
+        <button id="save21">Save as Image</button>
+        <div id="svgdataurl21"></div>
+      </h3>
+      <svg id="chart21"></svg>
+      <canvas id="canvas21" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 21, "per_cpu_cpu_20");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_21
+        <button id="save22">Save as Image</button>
+        <div id="svgdataurl22"></div>
+      </h3>
+      <svg id="chart22"></svg>
+      <canvas id="canvas22" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 22, "per_cpu_cpu_21");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_22
+        <button id="save23">Save as Image</button>
+        <div id="svgdataurl23"></div>
+      </h3>
+      <svg id="chart23"></svg>
+      <canvas id="canvas23" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 23, "per_cpu_cpu_22");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">cpu_23
+        <button id="save24">Save as Image</button>
+        <div id="svgdataurl24"></div>
+      </h3>
+      <svg id="chart24"></svg>
+      <canvas id="canvas24" style="display:none"></canvas>
+      <script>
+        constructChart("stackedAreaChart", 24, "per_cpu_cpu_23");
+      </script>
+    </div>
+  </body>
+</html>

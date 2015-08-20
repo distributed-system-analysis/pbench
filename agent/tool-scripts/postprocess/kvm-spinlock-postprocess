@@ -1,0 +1,92 @@
+#!/usr/bin/perl
+
+# Author: Andrew Theurer
+#
+# usage: kvm-spinlock-postprocess <dir>  dir = directory where kvm-spinlock.txt can be found
+#
+# The purpose of this script is to
+# -output the chart data in JSON format (kvm-spinlock.js)
+# -output html file (kvm-spinlock.html) with embedded javascript, using d3.js libraries
+
+use strict;
+use warnings;
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+BEGIN {
+        my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+        $_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+        if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+                $_test_alt_tools_lib = "$_pbench_tspp_dir";
+        }
+}
+use lib "$_test_alt_tools_lib";
+no lib ".";
+use GenData qw(gen_data);
+
+my $dir=$ARGV[0];
+my $dev;
+my %kvm_spinlock;
+my %kvm_spinlock_rate;
+my $timestamp;
+my $timestamp_ms;
+my $line;
+my $count_diff;
+my $duration;
+my $count;
+my $this_rate;
+my $last_timestamp_ms;
+my $last_count;
+my $value;
+my $stat;
+my $i;
+my $divisor;
+
+open(SPINLOCK_TXT, "$dir/kvm-spinlock.txt") || die "could not find $dir/kvm-spinlock.txt\n";
+while (my $line = <SPINLOCK_TXT>) {
+	chomp $line;
+	# timestamp: 1394480119.581327192
+	# released_slow: 601343
+	# released_slow_kicked: 600341
+	# taken_slow: 824761
+	# taken_slow_pickup: 1
+	# time_blocked: 8218197412667
+	#
+	if ( $line =~ /^timestamp:\s(\d+\.\d+)/ ) {
+		$timestamp = $1;
+		$timestamp_ms = 1000 * $timestamp;
+		next;
+	}
+	if ($line =~ /^(\w+):\s+(\w+)/) {
+		$stat = $1;
+		$count = $2;
+		$kvm_spinlock{$stat}{$timestamp_ms} = $count;
+	}
+}
+close(SPINLOCK_TXT);
+
+for $stat (sort keys %kvm_spinlock) {
+ 	if ( $stat eq "time_blocked" ) {
+		$divisor = 1000000000; # convert to seconds
+	} else {
+		$divisor = 1;
+	}
+	$last_timestamp_ms = 0;
+	$i = 0;
+	for $timestamp_ms (sort {$a<=>$b} keys %{ $kvm_spinlock{$stat} } ) {
+		$duration = ($timestamp_ms - $last_timestamp_ms) / 1000; # we want a rate per second
+		$count = $kvm_spinlock{$stat}{$timestamp_ms} / $divisor;
+		if ($last_timestamp_ms != 0) {
+			$count_diff = $count - $last_count;
+			$this_rate = $count_diff / $duration;
+			$kvm_spinlock_rate{"kvm-spinlock"}{"kvm-spinlock"}{$stat}{$timestamp_ms} = $this_rate;
+			$i++;
+		}
+		$last_count = $count;
+		$last_timestamp_ms = $timestamp_ms;
+	}
+}
+
+my %graph_threshold;
+my %graph_type;
+gen_data(\%kvm_spinlock_rate, \%graph_type, \%graph_threshold, $dir);

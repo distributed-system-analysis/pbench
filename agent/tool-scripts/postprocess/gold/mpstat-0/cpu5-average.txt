@@ -1,0 +1,9 @@
+cpu5-guest=0.000000
+cpu5-idle=99.930000
+cpu5-iowait=0.000000
+cpu5-irq=0.000000
+cpu5-nice=0.000000
+cpu5-softirq=0.000000
+cpu5-steal=0.000000
+cpu5-sys=0.050000
+cpu5-usr=0.020000

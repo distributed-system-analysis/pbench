@@ -1,0 +1,6 @@
+#!/bin/bash
+
+interval=$1
+file=$2
+
+/usr/bin/turbostat -i $interval | log-timestamp $file

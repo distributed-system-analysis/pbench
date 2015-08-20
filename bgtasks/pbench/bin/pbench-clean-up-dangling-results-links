@@ -1,0 +1,47 @@
+#! /bin/bash
+
+# clean up dangling links from $RESULTS
+
+# load common things
+opts=$SHELLOPTS
+case $opts in
+    *xtrace*)
+        dir=$(dirname $(which $0))
+        PROG=$(basename $(which $0))
+        ;;
+    *)
+        dir=$(dirname $0)
+        PROG=$(basename $0)
+        ;;
+esac
+
+if [[ -z "$1" ]]; then
+    echo "$PROG: Missing source pbench directory argument" >&2
+    exit 1
+fi
+TOP="$1"
+
+. $dir/pbench-base.sh
+log_init $(basename $0)
+
+# check that all the directories exist
+test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
+test -d $RESULTS || doexit "Bad RESULTS=$RESULTS"
+
+cd $RESULTS || exit 1
+
+for x in $(find . -type l) ; do
+     y=$(readlink $x)
+     if [ ! -d $y ] ;then
+        hostname=$(basename $(dirname $y))
+        pbench_run_name=$(basename $y)
+        if [ -f $ARCHIVE/$hostname/$pbench_run_name.tar.xz ] ;then
+            echo "$x -> $y dangling and $hostname/$pbench_run_name.tar.xz exists - cleaning up the link"
+            rm -f $x
+        else
+            echo "$x -> $y dangling and $hostname/$pbench_run_name.tar.xz does *NOT* exist" >&4
+        fi
+     fi
+done
+log_finish
+exit 0

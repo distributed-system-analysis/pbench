@@ -1,0 +1,13 @@
+#!/bin/bash
+
+script_path=`dirname $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+if [ -d "$pbench_run" ]; then
+	pushd $pbench_run >/dev/null
+	/bin/rm -rf -- `/bin/ls | grep -v "^tmp" | grep -v "^tools"`
+	popd >/dev/null
+fi

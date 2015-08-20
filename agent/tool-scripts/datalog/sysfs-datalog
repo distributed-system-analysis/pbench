@@ -1,0 +1,25 @@
+#!/bin/bash
+
+interval=$1
+datalog_file=$2
+path=$3
+maxdepth=$4
+pattern=$5
+files=""
+
+for file in `find "/sys/$path" -maxdepth $maxdepth -name "$pattern" -type f -readable `; do
+	if file $file | grep -q text; then
+		files="$files $file"
+	fi
+done
+echo files are "[$files]"
+
+cat /dev/null >$datalog_file
+while true; do
+	echo "timestamp: `date +%s.%N`" >>$datalog_file
+	for file in $files; do
+		file_contents=`cat $file`
+		printf "%s: %s\n" "$file" "$file_contents" >>$datalog_file
+	done
+	sleep $interval
+done

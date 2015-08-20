@@ -1,0 +1,11 @@
+#!/bin/bash
+
+interval=$1
+file=$2
+
+cat /dev/null >$file
+while true; do
+	# perf outputs to stderr
+	perf stat -e 'kvm:*' -a sleep $interval 2>>$file
+	echo "time: `date +%s.%N`" >>$file
+done

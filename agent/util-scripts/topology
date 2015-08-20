@@ -1,0 +1,6 @@
+#!/bin/bash
+
+function list_physical_package_ids() {
+	local physical_package_ids="$(cat `find /sys/devices/system/cpu/ -name physical_package_id` | sort | uniq)"
+	echo $physical_package_ids
+}

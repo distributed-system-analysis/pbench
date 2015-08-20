@@ -1,0 +1,57 @@
+Scripts in this directory are generally called by start-tools,stop-tools, and
+postprocess-tools (found in ./util-scripts).  They are usually not called
+directly.
+
+Note: many of these files are just link to the same file.
+
+#ls -li | sort -n
+90320299 -rwxr-xr-x. 4 root root 6776 Jul 23 11:45 iostat
+90320299 -rwxr-xr-x. 4 root root 6776 Jul 23 11:45 mpstat
+90320299 -rwxr-xr-x. 4 root root 6776 Jul 23 11:45 pidstat
+90320299 -rwxr-xr-x. 4 root root 6776 Jul 23 11:45 sar
+90320300 -rwxr-xr-x. 1 root root 2650 Jul 23 11:45 strace
+90320302 -rwxr-xr-x. 1 root root 3513 Jul 23 11:45 kvmtrace
+90320304 -rwxr-xr-x. 1 root root 2329 Jul 23 11:45 lockstat
+90320308 -rwxr-xr-x. 1 root root 3439 Jul 23 11:45 perf
+90320309 drwxr-xr-x. 2 root root 4096 Jul 23 14:11 datalog
+90320319 drwxr-xr-x. 2 root root 4096 Jul 23 11:45 postprocess
+90320339 -rwxr-xr-x. 1 root root 2551 Jul 23 11:45 blktrace
+90320365 -rwxr-xr-x. 9 root root 3639 Jul 23 14:10 cpuacct
+90320365 -rwxr-xr-x. 9 root root 3639 Jul 23 14:10 kvm-spinlock
+90320365 -rwxr-xr-x. 9 root root 3639 Jul 23 14:10 kvmstat
+90320365 -rwxr-xr-x. 9 root root 3639 Jul 23 14:10 numastat
+90320365 -rwxr-xr-x. 9 root root 3639 Jul 23 14:10 proc-interrupts
+90320365 -rwxr-xr-x. 9 root root 3639 Jul 23 14:10 proc-sched_debug
+90320365 -rwxr-xr-x. 9 root root 3639 Jul 23 14:10 proc-vmstat
+90320365 -rwxr-xr-x. 9 root root 3639 Jul 23 14:10 sysfs
+90320365 -rwxr-xr-x. 9 root root 3639 Jul 23 14:10 virsh-migrate
+ ^                   ^
+ |                   |
+inode            ref-count
+
+These are all the same file:
+
+    cpuacct
+    kvm-spinlock
+    kvmstat
+    numastat
+    proc-interrupts
+    proc-sched_debug
+    proc-vmstat
+    sysfs
+    virsh-migrate
+
+And these are the same file:
+
+    iostat
+    mpstat
+    pidstat
+    sar
+
+So, be mindful of editing one of these files, as it affects the other tools.
+
+The datalog directory: If a tool needs another script to log data, put it in
+this directory.
+
+The postprocess directory: Only postprocessing scripts, and their unit tests,
+go here.
