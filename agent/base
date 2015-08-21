@@ -102,21 +102,29 @@ function check_install_rpm {
     fi
     local func_name="check_install_rpm"
     local yum_output=""
+    local yum_cmd="yum --debuglevel=0 install -y ${this_rpm}$this_version"
     local rpm_output=""
+    local rpm_cmd="rpm --query ${this_rpm}$this_version"
 
-    rpm_output=`rpm --query ${this_rpm}$this_version 2>&1`
-    debug_log "[$func_name] $rpm_output"
+    rpm_output=`$rpm_cmd 2>&1`
+    debug_log "[$func_name] $rpm_cmd : $rpm_output"
     if echo $rpm_output | grep -q "is not installed"; then
+	debug_log "[$func_name] ${this_rpm}$this_version was not found on this system"
 	debug_log "[$func_name] attempting to install ${this_rpm}$this_version"
-	yum_output=`yum --debuglevel=0 install -y ${this_rpm}$this_version 2>&1`
+	yum_output=`$yum_cmd 2>&1`
 	rc=$?
-	debug_log "[$func_name] $yum_output"
+	debug_log "[$func_name] $yum_cmd : $yum_output"
     else
-	local installed_rpm_version=`echo $rpm_output | awk -F- '{print $2"-"$3}'`
-	if [ "$this_version" != "$installed_rpm_version" ]; then
-	    yum_output=`yum --debuglevel=0 install -y ${this_rpm}$this_version 2>&1`
+	local installed_rpm_version="-`echo $rpm_output | awk -F- '{print $2"-"$3}'`"
+	local installed_rpm_short_version="-`echo $rpm_output | awk -F- '{print $2}'`"
+	debug_log "[$func_name] installed_rpm_version: $installed_rpm_version"
+	debug_log "[$func_name] installed_rpm_short_version: $installed_rpm_short_version"
+	debug_log "[$func_name] requested_rpm_version: $this_version"
+	if [ "$this_version" != "$installed_rpm_version" -a "$this_version" != "$installed_rpm_short_version" ]; then
+	    debug_log "[$func_name] requested version does not match installed version, attempting install"
+	    yum_output=`$yum_cmd 2>&1`
 	    rc=$?
-	    debug_log "[$func_name] $yum_output"
+	    debug_log "[$func_name] $yum_cmd : $yum_output"
 	else
 	    debug_log "[$func_name] $this_rpm has already been installed"
 	    rc=0
