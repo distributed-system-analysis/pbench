@@ -118,7 +118,7 @@ name: $(basename $dir)
 script: $benchmark
 config: $config
 date: $date
-rpm-version: $(yum list installed pbench 2>/dev/null | tail -n 1 | awk '{print $2}')
+rpm-version: $(yum list installed pbench-agent 2>/dev/null | tail -n 1 | awk '{print $2}')
 
 EOF
     metadata_log_tools $log
