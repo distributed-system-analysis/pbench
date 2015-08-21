@@ -154,3 +154,69 @@ function verify_tool_group {
 	fi
 	return 0
 }
+
+# ensure the benchmark is installed on these systems
+function install_benchmark_systems() {
+	local systems=$1
+	local benchmark_name=$2
+	local benchmark_ver=$3
+	local rc=0
+	local func_name="install_benchnmark_systems"
+
+	if [ -z "$systems" ]; then
+		error_log "[$func_name] no systems were provided"
+		return 1
+	fi
+
+	if [ -z "$benchmark_name" ]; then
+		error_log "[$func_name] no benchmark_name was provided"
+		return 1
+	fi
+
+	if [ -z "$benchmark_ver" ]; then
+		error_log "[$func_name] no benchmark_ver was provided"
+		return 1
+	fi
+
+	systems=`echo $systems | sed -e s/,/" "/g`
+	systems=($systems)
+
+	debug_log "[$func_name] installing $benchmark_name on: ${systems[@]}"
+	local length=${#systems[@]}
+	local rc_dir=$(mktemp -d)
+	rc=$?
+	if [ $rc -ne 0 ]; then
+		error_log "$func_name] could not create temp dir"
+		return $rc
+	fi
+	for (( i=0; i<${length}; i++ )); do
+                debug_log "[$func_name] $benchmark_script --install on ${systems[$i]}"
+		install_rc[$i]=0
+		ssh_install_cmd=". ${pbench_install_dir}/base; check_install_rpm $benchmark_name $benchmark_ver"
+		install_cmd="check_install_rpm $benchmark_name $benchmark_ver"
+		if [ "${systems[$i]}" != "localhost" -a "${systems[$i]}" != "127.0.0.1" ]; then
+			debug_log "[$func_name] ssh $ssh_opts ${systems[$i]} $ssh_install_cmd"
+			( ssh $ssh_opts ${systems[$i]} "$ssh_install_cmd" >$rc_dir/$i-output.txt 2>&1 ; echo "$?" >"$rc_dir/$i" ) &
+		else
+			debug_log "[$func_name] $install_cmd"
+			( $install_cmd >$rc_dir/$i-output.txt 2>&1 ; echo "$?" >"$rc_dir/$i" ) &
+		fi
+        done
+	wait
+
+	for (( i=0; i<${length}; i++ )); do
+		if [ ! -e $rc_dir/$i ]; then
+			error_log "[$func_name] rc file $rc_dir/$i does not exist"
+			rc=1
+			break
+		fi
+		install_rc="`cat $rc_dir/$i`"
+		((rc+="$install_rc"))
+		if [ $install_rc -ne 0 ]; then
+			error_msg=`cat "$rc_dir/$i-output.txt"`
+			error_log "[$func_name] installation of $benchmark_name on ${systems[$i]} failed: $error_msg"
+		fi
+	done
+	/bin/rm -rf "$rc_dir"
+	return $rc
+}
