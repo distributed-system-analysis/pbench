@@ -100,24 +100,30 @@ function check_install_rpm {
     else
 	local this_version=""
     fi
+    local func_name="check_install_rpm"
+    local yum_output=""
+    local rpm_output=""
 
-    rpm_status=`rpm --query ${this_rpm}$this_version`
-    if echo $rpm_status | grep -q "is not installed"; then
-	echo attempting to install ${this_rpm}$this_version
-	yum --debuglevel=0 install -y ${this_rpm}$this_version >> $pbench_log 2>&1
+    rpm_output=`rpm --query ${this_rpm}$this_version 2>&1`
+    debug_log "[$func_name] $rpm_output"
+    if echo $rpm_output | grep -q "is not installed"; then
+	debug_log "[$func_name] attempting to install ${this_rpm}$this_version"
+	yum_output=`yum --debuglevel=0 install -y ${this_rpm}$this_version 2>&1`
 	rc=$?
+	debug_log "[$func_name] $yum_output"
     else
-	local installed_rpm_version=`echo $rpm_status | awk -F- '{print $2"-"$3}'`
+	local installed_rpm_version=`echo $rpm_output | awk -F- '{print $2"-"$3}'`
 	if [ "$this_version" != "$installed_rpm_version" ]; then
-	    yum --debuglevel=0 install -y ${this_rpm}$this_version >> $pbench_log 2>&1
+	    yum_output=`yum --debuglevel=0 install -y ${this_rpm}$this_version 2>&1`
 	    rc=$?
+	    debug_log "[$func_name] $yum_output"
 	else
-	    debug_log "$this_rpm has already been installed"
+	    debug_log "[$func_name] $this_rpm has already been installed"
 	    rc=0
 	fi
     fi
     if [ $rc -ne 0 ]; then
-	error_log "[check_install_rpm]the installation of $this_rpm$this_version failed"
+	error_log "[$func_name] the installation of $this_rpm$this_version failed"
 	return 1
     else
 	return 0
@@ -126,14 +132,16 @@ function check_install_rpm {
 
 function verify_tool_group {
 	local group=$1
+	local func_name="verify_tool_group"
+
 	if [ -z "$group" ]; then
-		error_log "Bad argument to verify_tool_group"
+		error_log "[$func_name] bad argument"
 		exit 1
 	fi
 	# Ensure we have a tools group file to work with
 	groupfile="$pbench_run/tools.$group"
 	if [ ! -f "$groupfile" ]; then
-		error_log "Unable to find default tools group file, $groupfile"
+		error_log "[$func_name] unable to find default tools group file, $groupfile"
 		exit 1
 	fi
 	return 0
