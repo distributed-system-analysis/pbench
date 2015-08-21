@@ -64,11 +64,11 @@ if [ -z "$results_webserver" ]; then
     exit 1
 fi
 
-ver=$(yum info installed pbench 2> /dev/null | grep Version | awk '{ print $3 }')
+ver=$(yum info installed pbench-agent 2> /dev/null | grep Version | awk '{ print $3 }')
 if [ -z "$ver" ]; then
     ver="unknown"
 fi
-rel=$(yum info installed pbench 2> /dev/null | grep Release | awk '{ print $3 }')
+rel=$(yum info installed pbench-agent 2> /dev/null | grep Release | awk '{ print $3 }')
 if [ -z "$ver" ]; then
     rel="unknown"
 fi
