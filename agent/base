@@ -233,3 +233,27 @@ function stop_server {
 		ssh $ssh_opts $server kill $server_pid
 	fi
 }
+
+function print_iteration {
+	# printing a iteration assumes this must be a new row, so include \n first
+	printf "\n%28s" "$1" >>$benchmark_summary_txt_file
+	printf "\n%s" "$1" >>$benchmark_summary_csv_file
+	printf "\n%28s <a href=./$iteration/reference-result/$benchmark_name.html>%s</a> <a href=./$iteration/reference-result/tools-$tool_group>%s</a>" "$1" "summary" "tools">>$benchmark_summary_html_file
+}
+
+function print_value {
+	printf "%${spacing}s" "$1[+/-$2]" >>$benchmark_summary_txt_file
+	printf "%s" ",$1,$2" >>$benchmark_summary_csv_file
+	printf "%${spacing}s" "$1[+/-$2]" >>$benchmark_summary_html_file
+}
+
+function print_header {
+	printf "\n\n%28s" "iteration" >>$benchmark_summary_txt_file
+	printf "\n\n%s" "iteration" >>$benchmark_summary_csv_file
+	printf "\n\n%28s %s %s" "iteration" "       " "     " >>$benchmark_summary_html_file
+	for i in $1; do
+		printf "%${spacing}s" "$i" >>$benchmark_summary_txt_file
+		printf "%s" ",$i,stddevpct" >>$benchmark_summary_csv_file
+		printf "%${spacing}s" "$i" >>$benchmark_summary_html_file
+	done
+}
