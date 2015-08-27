@@ -220,3 +220,16 @@ function install_benchmark_systems() {
 	/bin/rm -rf "$rc_dir"
 	return $rc
 }
+
+function stop_server {
+	local server=$1
+	local server_port=$2
+	local message=$3
+	local server_pid=`ssh $ssh_opts $server netstat -tlnp | grep ":$server_port " | awk '{print $7}' | awk -F/ '{print $1}'`
+	if [ ! -z "$server_pid" ]; then
+		if [ $message -eq 1 ]; then
+			echo found $benchmark_name pid $server_pid on $server:$server_port, killing
+		fi
+		ssh $ssh_opts $server kill $server_pid
+	fi
+}

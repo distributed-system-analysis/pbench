@@ -151,19 +151,6 @@ function gen_xml {
 	esac
 }
 
-function stop_server {
-	local server=$1
-	local server_port=$2
-	local message=$3
-	local uperf_pid=`ssh $ssh_opts $server netstat -tlnp | grep ":$server_port " | awk '{print $7}' | awk -F/ '{print $1}'`
-	if [ ! -z "$uperf_pid" ]; then
-		if [ $message -eq 1 ]; then
-			echo found $benchmark_name pid $uperf_pid on $server:$server_port, killing
-		fi
-		ssh $ssh_opts $server kill $uperf_pid
-	fi
-}
-
 function print_iteration {
 	# printing a iteration assumes this must be a new row, so include \n first
 	printf "\n%28s" "$1" >>$benchmark_summary_txt_file
