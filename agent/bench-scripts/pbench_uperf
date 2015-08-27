@@ -22,11 +22,9 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # source the base script
 . "$pbench_bin"/base
 
-benchmark="uperf"
-if [[ -z "$benchmark_bin" ]]; then
-    benchmark_bin=/usr/local/bin/$benchmark
-fi
-ver=1.0.4
+benchmark_name="uperf"
+benchmark_bin=/usr/local/bin/$benchmark_name
+benchmark_ver=1.0.4
 
 # Every bench-script follows a similar sequence:
 # 1) process bench script arguments
@@ -49,7 +47,6 @@ nr_samples=5
 maxstddevpct=5 # maximum allowable standard deviation in percent
 max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
 runtime=60
-mode="loopback"
 servers=127.0.0.1
 server_base_port=20000
 postprocess_only=n
@@ -63,6 +60,7 @@ tool_group=default
 tool_label_pattern="uperf-"
 server_nodes=""
 client_nodes=""
+install_only="n"
 
 function gen_xml {
 
@@ -160,18 +158,9 @@ function stop_server {
 	local uperf_pid=`ssh $ssh_opts $server netstat -tlnp | grep ":$server_port " | awk '{print $7}' | awk -F/ '{print $1}'`
 	if [ ! -z "$uperf_pid" ]; then
 		if [ $message -eq 1 ]; then
-			echo found uperf pid $uperf_pid on $server:$server_port, killing
+			echo found $benchmark_name pid $uperf_pid on $server:$server_port, killing
 		fi
 		ssh $ssh_opts $server kill $uperf_pid
-	fi
-}
-
-function install_uperf {
-	if check_install_rpm $benchmark $ver; then
-		debug_log "[$script_name]$benchmark is installed"
-	else
-		error_log "[$script_name]$benchmark installation failed, exiting"
-		exit 1
 	fi
 }
 
@@ -199,13 +188,12 @@ function print_header {
 	done
 }
 
-
 # Process options and arguments
 opts=$(getopt -q -o i:c:t:r:m:p:M:S:C: --longoptions "server-node:,server-nodes:,client-node:,client-nodes:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,kvm-host:,log-response-times:,postprocess-only:,run-dir:,tool-group:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
-	printf "\t${benchmark}: you specified an invalid option\n\n"
+	printf "\t${benchmark_name}: you specified an invalid option\n\n"
 	printf "\tThe following options are available:\n\n"
 	#              1   2         3         4         5         6         7         8         9         0         1         2         3
 	#              678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
@@ -216,9 +204,9 @@ if [ $? -ne 0 ]; then
 	printf -- "\t\t-r int       --runtime=int              test measurement period in seconds (default is $runtime)\n"
 	printf -- "\t\t-m int[,int] --message-sizes=str[,str]  list of message sizes in bytes (default is $message_sizes)\n"
 	printf -- "\t\t-p str[,str] --protocols=str[,str]      tcp and/or udp (default is $protocols)\n"
-	printf -- "\t\t-i int[,int] --instances=int[,int]      list of number of uperf instances to run (default is $instances)\n"
+	printf -- "\t\t-i int[,int] --instances=int[,int]      list of number of $benchmark_name instances to run (default is $instances)\n"
 	printf -- "\t\t-C str[,str] --client[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the\n"
-	printf    "\t\t                                        uperf client (drive the test).\n"
+	printf    "\t\t                                        $benchmark_name client (drive the test).\n"
 	printf    "\t\t                                        If this is omitted, the local system is the client\n"
 	printf    "\t\t                                        Note: the number of clients and server must be the same!\n"
 	printf    "\t\t                                        Clients and servers are paired according the order in the list (first\n"
@@ -240,7 +228,7 @@ if [ $? -ne 0 ]; then
 	printf    "\t\t                                        if postprocess-only=y)\n"
 	printf -- "\t\t             --start-iteration-num=int  optionally skip the first (n-1) tests\n"
 	printf -- "\t\t             --log-response-times=y|n   record the response time of every single operation\n"
-	printf -- "\t\t             --tool-label-pattern=str   uperf will provide CPU and efficiency information for any tool directory\n"
+	printf -- "\t\t             --tool-label-pattern=str   $benchmark_name will provide CPU and efficiency information for any tool directory\n"
 	printf    "\t\t                                        with a \"^<pattern>\" in the name, provided \"sar\" is one of the\n"
 	printf    "\t\t                                        registered tools.\n"
 	printf    "\t\t                                        a default pattern, \"uperf-\" is used if none is provided.\n"
@@ -258,7 +246,7 @@ while true; do
 	case "$1" in
 		--install)
 		shift
-		install_uperf
+		install_only="y"
 		exit
 		;;
 		--client-label)
@@ -427,7 +415,7 @@ while true; do
 done
 if [[ -z "$benchmark_run_dir" ]]; then
 	# We don't have an explicit run directory, construct one
-	benchmark_run_dir="$pbench_run/${benchmark}_${config}_$date"
+	benchmark_run_dir="$pbench_run/${benchmark_name}_${config}_$date"
 else
 	# We have an explicit run directory provided by --run-dir, so warn
 	# the user if they also used --config
@@ -435,9 +423,6 @@ else
 		warn_log "[$script_name] ignoring --config=\"$config\" in favor of --rundir=\"$benchmark_run_dir\""
 	fi
 fi
-
-# Verify the tool group exists
-verify_tool_group $tool_group
 
 # Verify the number of clients and servers match.
 if [ ! -z "$clients" -a "$postprocess_only" != "y" ]; then
@@ -456,38 +441,30 @@ if [ ! -z "$clients" -a "$postprocess_only" != "y" ]; then
 		exit 1
 	fi
 fi
-# before we run a test, verify clients and servers are accessible and install
-# uperf if necessary
+
+# Verify uperf is installed
 if [ "$postprocess_only" != "y" ]; then
-	# Always install locally
-	# FIXME: why is this necessary?
-	install_uperf
-	let err_cnt=0
-	err_clients=""
-	for client in `echo $clients | sed -e s/,/" "/g`; do
-		debug_log "checking for uperf on client $client"
-		ssh $ssh_opts $client pbench_uperf --install
-		if [ $? -ne 0 ]; then
-			let err_cnt=err_cnt+1
-			err_clients="$err_clients $client"
+	if [ -z "$servers" -o -z "$clients" ]; then
+		echo "installing $benchmark_name on localhost"
+		if ! install_benchmark_systems "localhost" "$benchmark_name" "$benchmark_ver"; then
+			error_log "installtion of $benchmake_name failed";
+			exit 1
 		fi
-	done
-	err_servers=""
-	for server in `echo $servers | sed -e s/,/" "/g`; do
-		debug_log "checking for uperf on server $server"
-		ssh $ssh_opts $server pbench_uperf --install
-		if [ $? -ne 0 ]; then
-			let err_cnt=err_cnt+1
-			err_servers="$err_servers $server"
+	else
+		echo "installing $benchmark_name on: $clients,$servers"
+		if ! install_benchmark_systems "$clients,$servers" "$benchmark_name" "$benchmark_ver"; then
+			error_log "installtion of $benchmark_name failed"
+			exit 1
 		fi
-	done
-	if [ $err_cnt -gt 0 ]; then
-		error_log "Unable to verify connectivity and uperf installation on the following clients and servers:"
-		error_log "    clients: $err_clients"
-		error_log "    servers: $err_servers"
-		exit 1
+
+	fi
+	if [ "$install_only" == "y" ]; then
+		exit 0
 	fi
 fi
+
+# Verify the tool group exists
+verify_tool_group $tool_group
 
 mkdir -p $benchmark_run_dir/.running
 benchmark_summary_txt_file="$benchmark_run_dir/summary-result.txt"
@@ -498,8 +475,8 @@ benchmark_summary_html_file="$benchmark_run_dir/summary-result.html"
 rm -f $benchmark_summary_html_file
 
 ## Run the benchmark and start/stop perf analysis tools
-printf "# these results generated with:\n# uperf %s\n\n" "$orig_cmd" >$benchmark_summary_txt_file
-printf "<pre>\n# these results generated with:\n# uperf %s\n\n" "$orig_cmd" >$benchmark_summary_html_file
+printf "# these results generated with:\n# $benchmark_name %s\n\n" "$orig_cmd" >$benchmark_summary_txt_file
+printf "<pre>\n# these results generated with:\n# $benchmark_name %s\n\n" "$orig_cmd" >$benchmark_summary_html_file
 printf "\n" >>$benchmark_summary_txt_file
 printf "\n" >>$benchmark_summary_html_file
 
@@ -516,7 +493,7 @@ done
 let total_iterations=count
 count=1
 max_key_length=0
-export benchmark config
+export benchmark_name config
 collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 # start the server processes
 for protocol in `echo $protocols | sed -e s/,/" "/g`; do
@@ -555,7 +532,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									gen_xml $test_type $message_size $protocol $instance $server >$xml_file
 
 									# construct the server command
-									benchmark_server_cmd="/usr/local/bin/uperf -s -P $server_port"
+									benchmark_server_cmd="$benchmark_bin -s -P $server_port"
 									# adjust server command for NUMA binding
 									if [ ! -z "$server_node" ]; then
 										if [ $server_node -ge 0 ]; then
@@ -669,7 +646,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								echo "Not going to run uperf.  Only postprocesing existing data"
 								log "Not going to run uperf.  Only postprocesing existing data"
 							fi
-							$script_path/postprocess/$benchmark-postprocess $benchmark_results_dir $iteration "$tool_label_pattern" "$tool_group"
+							$script_path/postprocess/$benchmark_name-postprocess $benchmark_results_dir $iteration "$tool_label_pattern" "$tool_group"
 							mv $benchmark_results_dir/uperf-average.txt $benchmark_results_dir/result.txt
 						done
 
