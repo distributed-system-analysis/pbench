@@ -57,7 +57,7 @@ keep_failed_tool_data="y"
 tar_nonref_data="y"
 orig_cmd="$*"
 tool_group=default
-tool_label_pattern="uperf-"
+tool_label_pattern="$benchmark_name-"
 server_nodes=""
 client_nodes=""
 install_only="n"
@@ -174,7 +174,7 @@ if [ $? -ne 0 ]; then
 	printf    "\t\t                                        Note: the number of clients and server must be the same!\n"
 	printf    "\t\t                                        Clients and servers are paired according the order in the list (first\n"
 	printf    "\t\t                                        client pairs with firest server, etc)\n"
-	printf -- "\t\t-S str[,str] --server[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the uperf\n"
+	printf -- "\t\t-S str[,str] --server[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the $benchmark_name\n"
 	printf    "\t\t                                        server (listening for connections)\n"
 	printf    "\t\t                                        If this is omitted, the server will listen on the local system\n"
 	printf    "\t\t                                        loopback interface\n"
@@ -194,11 +194,11 @@ if [ $? -ne 0 ]; then
 	printf -- "\t\t             --tool-label-pattern=str   $benchmark_name will provide CPU and efficiency information for any tool directory\n"
 	printf    "\t\t                                        with a \"^<pattern>\" in the name, provided \"sar\" is one of the\n"
 	printf    "\t\t                                        registered tools.\n"
-	printf    "\t\t                                        a default pattern, \"uperf-\" is used if none is provided.\n"
-	printf    "\t\t                                        simply register your tools with \"--label=uperf-\$X\", and this script\n"
-	printf    "\t\t                                        will genrate CPU_uperf-\$X and Gbps/CPU_uperf-\$X or\n"
-	printf    "\t\t                                        trans_sec/CPU-uperf-\$X for all tools which have that pattern as a\n"
-	printf    "\t\t                                        prefix.  if you don't want to register your tools with \"uperf-\" as\n"
+	printf    "\t\t                                        a default pattern, \"$bechmark_name-\" is used if none is provided.\n"
+	printf    "\t\t                                        simply register your tools with \"--label=$benchmark_name-\$X\", and this script\n"
+	printf    "\t\t                                        will genrate CPU_$benchmark_name-\$X and Gbps/CPU_$benchmark_name-\$X or\n"
+	printf    "\t\t                                        trans_sec/CPU-$benchmark_name-\$X for all tools which have that pattern as a\n"
+	printf    "\t\t                                        prefix.  if you don't want to register your tools with \"$benchmark_name-\" as\n"
 	printf    "\t\t                                        part of the label, just use --tool-label-pattern= to tell this script\n"
 	printf    "\t\t                                        the prefix pattern to use for CPU information.\n"
 	exit 1
@@ -386,6 +386,14 @@ else
 		warn_log "[$script_name] ignoring --config=\"$config\" in favor of --rundir=\"$benchmark_run_dir\""
 	fi
 fi
+mkdir -p $benchmark_run_dir/.running
+
+benchmark_summary_txt_file="$benchmark_run_dir/summary-result.txt"
+rm -f $benchmark_summary_txt_file
+benchmark_summary_csv_file="$benchmark_run_dir/summary-result.csv"
+rm -f $benchmark_summary_csv_file
+benchmark_summary_html_file="$benchmark_run_dir/summary-result.html"
+rm -f $benchmark_summary_html_file
 
 # Verify the number of clients and servers match.
 if [ ! -z "$clients" -a "$postprocess_only" != "y" ]; then
@@ -405,7 +413,7 @@ if [ ! -z "$clients" -a "$postprocess_only" != "y" ]; then
 	fi
 fi
 
-# Verify uperf is installed
+# Verify benchmark is installed
 if [ "$postprocess_only" != "y" ]; then
 	if [ -z "$servers" -o -z "$clients" ]; then
 		echo "installing $benchmark_name on localhost"
@@ -429,13 +437,6 @@ fi
 # Verify the tool group exists
 verify_tool_group $tool_group
 
-mkdir -p $benchmark_run_dir/.running
-benchmark_summary_txt_file="$benchmark_run_dir/summary-result.txt"
-rm -f $benchmark_summary_txt_file
-benchmark_summary_csv_file="$benchmark_run_dir/summary-result.csv"
-rm -f $benchmark_summary_csv_file
-benchmark_summary_html_file="$benchmark_run_dir/summary-result.html"
-rm -f $benchmark_summary_html_file
 
 ## Run the benchmark and start/stop perf analysis tools
 printf "# these results generated with:\n# $benchmark_name %s\n\n" "$orig_cmd" >$benchmark_summary_txt_file
@@ -456,6 +457,7 @@ done
 let total_iterations=count
 count=1
 max_key_length=0
+mkdir -p $benchmark_run_dir/.running
 export benchmark_name config
 collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 # start the server processes
@@ -488,10 +490,10 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									server_node=`echo "$server_nodes," | cut -d, -f$server_nr`
 									client_node=`echo "$client_nodes," | cut -d, -f$server_nr`
 									server_port=`echo "1000 * $server_nr + $server_base_port" | bc`
-									xml_file="$iteration_dir/uperf-config-$server:$server_port.xml"
-									benchmark_client_cmd_file="$iteration_dir/uperf-client-$server:$server_port.cmd"
+									xml_file="$iteration_dir/$benchmark_name-config-$server:$server_port.xml"
+									benchmark_client_cmd_file="$iteration_dir/$benchmark_name-client-$server:$server_port.cmd"
 									result_file=$benchmark_results_dir/result-$server:$server_port.txt
-									benchmark_server_cmd_file="$iteration_dir/uperf-server-$server:$server_port.cmd"
+									benchmark_server_cmd_file="$iteration_dir/$benchmark_name-server-$server:$server_port.cmd"
 									gen_xml $test_type $message_size $protocol $instance $server >$xml_file
 
 									# construct the server command
@@ -503,7 +505,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 										fi
 									fi
 
-									# create a server command file, to be used for debugging purposes or to run this uperf command later [without pbench]
+									# create a server command file, to be used for debugging purposes or to run this benchmark command later [without pbench]
 									echo "$benchmark_server_cmd" >$benchmark_server_cmd_file
 									chmod +x $benchmark_server_cmd_file
 
@@ -519,7 +521,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 										fi
 									fi
 
-									# create the client command file, to be used for debugging purposes or to run this uperf command later [without pbench]
+									# create the client command file, to be used for debugging purposes or to run this benchmark command later [without pbench]
 									echo "$benchmark_client_cmd" >$benchmark_client_cmd_file
 									chmod +x $benchmark_client_cmd_file
 
@@ -536,16 +538,16 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									ssh $ssh_opts $server mkdir -p $benchmark_results_dir
 									scp $ssh_opts $benchmark_server_cmd_file $server:$benchmark_server_cmd_file >/dev/null
 
-									# start the uperf server(s)
+									# start the benchmark server(s)
 									stop_server $server $server_port 1
 									ssh $ssh_opts $server "systemctl stop firewalld"
-									ssh $ssh_opts $server "screen -dmS uperf-server $benchmark_server_cmd_file"
+									ssh $ssh_opts $server "screen -dmS $benchmark_name-server $benchmark_server_cmd_file"
 
 									((server_nr++))
 								done
 								start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 
-								# start the uperf clients
+								# start the $benchmark_name clients
 								echo "test sample $sample of $nr_samples"
 								log "test sample $sample of $nr_samples "
 								server_nr=1
@@ -569,18 +571,18 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 										client="127.0.0.1"
 									fi
 									server_port=`echo "1000 * $server_nr + $server_base_port" | bc`
-									benchmark_client_cmd_file="$iteration_dir/uperf-client-$server:$server_port.cmd"
+									benchmark_client_cmd_file="$iteration_dir/$benchmark_name-client-$server:$server_port.cmd"
 									result_file=$benchmark_results_dir/result-$server:$server_port.txt
 									debug_log "client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
 									echo "client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
 
 									# using local clients
 									if [ -z "$clients" ]; then
-										debug_log "screen -dmS uperf-client $benchmark_client_cmd_file"
-										screen -dmS uperf-client $benchmark_client_cmd_file
+										debug_log "screen -dmS $benchmark_name-client $benchmark_client_cmd_file"
+										screen -dmS $benchmark_name-client $benchmark_client_cmd_file
 									else # using remote clients
-										debug_log "ssh $ssh_opts $client screen -dmS uperf-client $benchmark_client_cmd_file"
-										ssh $ssh_opts $client "screen -dmS uperf-client $benchmark_client_cmd_file" 
+										debug_log "ssh $ssh_opts $client screen -dmS $benchmark_name-client $benchmark_client_cmd_file"
+										ssh $ssh_opts $client "screen -dmS $benchmark_name-client $benchmark_client_cmd_file" 
 									fi
 									((server_nr++))
 								done
@@ -606,11 +608,11 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									error_log "Results directory $benchmark_results_dir does not exist, skipping post-processing"
 									continue
 								fi
-								echo "Not going to run uperf.  Only postprocesing existing data"
-								log "Not going to run uperf.  Only postprocesing existing data"
+								echo "Not going to run $benchmark_name.  Only postprocesing existing data"
+								log "Not going to run $benchmnark_name.  Only postprocesing existing data"
 							fi
 							$script_path/postprocess/$benchmark_name-postprocess $benchmark_results_dir $iteration "$tool_label_pattern" "$tool_group"
-							mv $benchmark_results_dir/uperf-average.txt $benchmark_results_dir/result.txt
+							mv $benchmark_results_dir/$benchmark_name-average.txt $benchmark_results_dir/result.txt
 						done
 
 						# find the keys that we will compute avg & stddev
@@ -657,7 +659,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 							sample_dir="sample$sample"
 							# create a symlink to the result dir which most accurately represents the average result
 							if [ $sample -eq ${closest[$tput_index]} ]; then
-								msg="'######' $tput_metric: ${samples[$tput_index]}  average: ${avg[$tput_index]} stddev: ${stddevpct[$tput_index]}%  closest-sample: $sample"
+								msg="$tput_metric: ${samples[$tput_index]}  average: ${avg[$tput_index]} stddev: ${stddevpct[$tput_index]}%  closest-sample: $sample"
 								echo $msg | tee $iteration_dir/sample-runs-summary.txt
 								log $msg
 								pushd "$iteration_dir" >/dev/null; /bin/rm -rf reference-result; ln -sf $sample_dir reference-result; popd >/dev/null
