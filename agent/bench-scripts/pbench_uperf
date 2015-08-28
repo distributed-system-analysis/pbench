@@ -54,7 +54,7 @@ log_response_times=n
 kvm_host=""
 start_iteration_num=1
 keep_failed_tool_data="y"
-tar_nonref_data="y"
+tar_nonref_data="n"
 orig_cmd="$*"
 tool_group=default
 tool_label_pattern="$benchmark_name-"
@@ -647,7 +647,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 							stddevpct[$key_nr]=`echo $avg_stddev_result | awk '{print $3}'`
 							closest[$key_nr]=`echo $avg_stddev_result | awk '{print $4}'`
 							if echo $key | grep -q "Throughput"; then
-								if echo $key | grep -q -v "Per_Server"; then
+								if echo $key | grep -q -v "server"; then
 									tput_index=$key_nr
 									tput_metric=$key
 								fi
