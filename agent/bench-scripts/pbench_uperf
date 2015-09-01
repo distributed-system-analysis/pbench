@@ -388,13 +388,6 @@ else
 fi
 mkdir -p $benchmark_run_dir/.running
 
-benchmark_summary_txt_file="$benchmark_run_dir/summary-result.txt"
-rm -f $benchmark_summary_txt_file
-benchmark_summary_csv_file="$benchmark_run_dir/summary-result.csv"
-rm -f $benchmark_summary_csv_file
-benchmark_summary_html_file="$benchmark_run_dir/summary-result.html"
-rm -f $benchmark_summary_html_file
-
 # Verify the number of clients and servers match.
 if [ ! -z "$clients" -a "$postprocess_only" != "y" ]; then
 	let c_cnt=0
@@ -434,15 +427,7 @@ if [ "$postprocess_only" != "y" ]; then
 	fi
 fi
 
-# Verify the tool group exists
 verify_tool_group $tool_group
-
-
-## Run the benchmark and start/stop perf analysis tools
-printf "# these results generated with:\n# $benchmark_name %s\n\n" "$orig_cmd" >$benchmark_summary_txt_file
-printf "<pre>\n# these results generated with:\n# $benchmark_name %s\n\n" "$orig_cmd" >$benchmark_summary_html_file
-printf "\n" >>$benchmark_summary_txt_file
-printf "\n" >>$benchmark_summary_html_file
 
 count=0
 for protocol in `echo $protocols | sed -e s/,/" "/g`; do
@@ -454,28 +439,33 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 		done
 	done
 done
+
 let total_iterations=count
 count=1
-max_key_length=0
 mkdir -p $benchmark_run_dir/.running
 export benchmark_name config
 collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 # start the server processes
 for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 	for test_type in `echo $test_types | sed -e s/,/" "/g`; do
+		if [ "$test_type" == "rr" ]; then
+			primary_metric="Throughput-trans-sec"
+		else
+			primary_metric="Throughput-Gb-sec"
+		fi
 		for message_size in `echo $message_sizes | sed -e s/,/" "/g`; do
 			for instance in `echo $instances | sed -e s/,/" "/g`; do
 				if [ $count -ge $start_iteration_num ]; then
-					echo "Starting iteration $iteration ($count of $total_iterations)"
-					log "Starting iteration $iteration ($count of $total_iterations)"
 					iteration="${count}-${protocol}_${test_type}-${message_size}B-${instance}i"
 					iteration_dir="$benchmark_run_dir/$iteration"
 					result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
 					failures=0
+					echo "Starting iteration[$iteration] ($count of $total_iterations)"
+					log "Starting iteration[$iteration] ($count of $total_iterations)"
 					while [[ $(echo "if (${result_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; do
 						if [[ $failures -gt 0 ]]; then
-							echo "Restarting iteration $iteration ($count of $total_iterations)"
-							log "Restarting iteration $iteration ($count of $total_iterations)"
+							echo "Restarting iteration[$iteration] ($count of $total_iterations)"
+							log "Restarting iteration[$iteration] ($count of $total_iterations)"
 						fi
 						mkdir -p $iteration_dir
 						# each attempt at a test config requires multiple samples to get stddev
@@ -614,107 +604,15 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 							$script_path/postprocess/$benchmark_name-postprocess $benchmark_results_dir $iteration "$tool_label_pattern" "$tool_group"
 							mv $benchmark_results_dir/$benchmark_name-average.txt $benchmark_results_dir/result.txt
 						done
-
-						# find the keys that we will compute avg & stddev
-						# NOTE: we always choose "sample1" since it is
-						# always present and shares the same keys with
-						# every other sample
-						keys=`cat $iteration_dir/sample1/result.txt  | awk -F= '{print $1}'`
-						s_keys=""
-						key_nr=0
-						# for each key, get the average & stddev
-						for key in $keys; do
-							# the s_key is used in the summary reports to save space, it is just an abbreviated key
-							s_key=`echo $key | cut  -d- -f2-`
-							# remove the label pattern from the s_key
-							s_key=`echo $s_key | sed -e s/"$tool_label_pattern"//`
-							s_key=`echo $s_key | sed -e s/"transactions"/"trans"/`
-							# store these in reverse order as the keys and be sure to print values in reverse order later
-							s_keys="$s_key $s_keys"
-							s_key_length=`echo $s_key | wc -m`
-							if [ $s_key_length -gt $max_key_length ]; then
-								max_key_length=$s_key_length
-							fi
-							iteration_samples=""
-							for sample in `seq 1 $nr_samples`; do
-								value=`grep -- "$key" $iteration_dir/sample$sample/result.txt | awk -F= '{print $2}'`
-								iteration_samples="$iteration_samples $value"
-							done
-							avg_stddev_result=`avg-stddev $iteration_samples`
-							samples[$key_nr]="$iteration_samples"
-							avg[$key_nr]=`echo $avg_stddev_result | awk '{print $1}'`
-							stddev[$key_nr]=`echo $avg_stddev_result | awk '{print $2}'`
-							stddevpct[$key_nr]=`echo $avg_stddev_result | awk '{print $3}'`
-							closest[$key_nr]=`echo $avg_stddev_result | awk '{print $4}'`
-							if echo $key | grep -q "Throughput"; then
-								if echo $key | grep -q -v "server"; then
-									tput_index=$key_nr
-									tput_metric=$key
-								fi
-							fi
-							((key_nr++))
-						done
-
-						for sample in `seq 1 $nr_samples`; do
-							sample_dir="sample$sample"
-							# create a symlink to the result dir which most accurately represents the average result
-							if [ $sample -eq ${closest[$tput_index]} ]; then
-								msg="$tput_metric: ${samples[$tput_index]}  average: ${avg[$tput_index]} stddev: ${stddevpct[$tput_index]}%  closest-sample: $sample"
-								echo $msg | tee $iteration_dir/sample-runs-summary.txt
-								log $msg
-								pushd "$iteration_dir" >/dev/null; /bin/rm -rf reference-result; ln -sf $sample_dir reference-result; popd >/dev/null
-							else
-								# delete the tool data [and respose time log for rr tests] from the other samples to save space
-								# this option is off by default
-								if [ "$keep_failed_tool_data" == "n" ]; then
-									/bin/rm -rf $iteration_dir/$sample_dir/tools-* $iteration_dir/$sample_dir/response-times.txt
-								fi
-								# since non reference-result sample data is rarely referenced, tar it up to reduce the number of files used
-								if [ "$tar_nonref_data" == "y" ]; then
-									pushd "$iteration_dir" >/dev/null; tar --create --xz --force-local --file=$sample_dir.tar.xz $sample_dir && /bin/rm -rf $sample_dir; popd >/dev/null
-								fi
-							fi
-						done
-						# if we did not achieve the stddevpct, then move this result out of the way and try again
-						fail=0
-						if [[ $(echo "if (${stddevpct[$tput_index]} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; then
-							fail=1
-						fi
+						process_benchmark_iteration_samples "$iteration_dir" "$nr_samples" "$maxstddevpct" "$primary_metric" "$failures" "$max_failures"
+						fail=$?
 						if [ $fail -eq 1 ]; then
-							let failures=$failures+1
-							msg="$iteration: the percent standard deviation (${stddevpct[$tput_index]}%) was not within maximum allowed (${maxstddevpct}%)"
-							echo $msg
-							log $msg
-							msg="This iteration will be repeated until either standard deviation is below the maximum allowed, or $max_failures failed attempts."
-							echo $msg
-							log $msg
-							msg="Changing the standard deviation percent can be done with --max-stddev= and the maximum failures with --max-failures="
-							echo $msg
-							log $msg
-							# tar up the failed iteration.  We may need to look at it later, but don't waste space by keeping it uncompressed
-							# if all attempts failed, leaving no good result, leave the last attempt uncompressed
-							if [ $failures -le $max_failures ]; then
-								pushd $benchmark_run_dir >/dev/null
-								mv $iteration $iteration-fail$failures
-								tar --create --xz --force-local --file=$iteration-fail$failures.tar.xz $iteration-fail$failures &&\
-								/bin/rm -rf $iteration-fail$failures
-								popd >/dev/null
-							fi
+							((failures++))
 						fi
 						if [ $fail -eq 0 -o $failures -ge $max_failures ]; then
 							break
 						fi
-					done # break out of this loop only if the $result_stddevpct & $eff_stddevpct lower than $maxstddevpct
-					spacing=`echo "$max_key_length + 1" | bc`
-					if [ "$last_test_type" != "$test_type" ]; then
-						print_header "$s_keys"
-					fi
-					print_iteration $iteration
-					((key_nr--))
-					for s_key in $s_keys; do
-						print_value "${avg[$key_nr]}" "${stddevpct[$key_nr]}%"
-						((key_nr--))
-					done
+					done # break out of this loop only if the $result_stddevpct is lower than $maxstddevpct
 					echo "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
 					log "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
 				else
@@ -727,9 +625,6 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 		done
 	done
 done
-printf -- "</pre>\n" >>$benchmark_summary_html_file
-printf -- "\n" >>$benchmark_summary_txt_file
-printf -- "\n" >>$benchmark_summary_csv_file
+$script_path/postprocess/generate-benchmark-summary "$benchmark_name" "$orig_cmd" "$benchmark_run_dir"
 collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
-
 rmdir $benchmark_run_dir/.running

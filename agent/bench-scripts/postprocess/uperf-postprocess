@@ -154,11 +154,11 @@ if ($test_type =~ /_rr/) {
 	@ref_timestamps = ( sort {$a<=>$b} keys %{ $uperf_rate{"uperf"}{"Throughput_server"}{$per_server_results[0]} } );
 	# our new hash starts off with 0's
 	foreach $timestamp_ms (@ref_timestamps) {
-		$uperf_rate{"uperf"}{"Throughput"}{"trans_sec"}{$timestamp_ms} = 0;
+		$uperf_rate{"uperf"}{"Throughput"}{"trans-sec"}{$timestamp_ms} = 0;
 	}
 	# And now we add the values from each per server result to that hash one at a time
 	foreach $per_server_result (@per_server_results) {
-		calc_sum_series(\%{$uperf_rate{"uperf"}{"Throughput_server"}{$per_server_result}}, \%{$uperf_rate{"uperf"}{"Throughput"}{"trans_sec"}});
+		calc_sum_series(\%{$uperf_rate{"uperf"}{"Throughput_server"}{$per_server_result}}, \%{$uperf_rate{"uperf"}{"Throughput"}{"trans-sec"}});
 	}
 
 	# calculate the average latency
@@ -179,7 +179,7 @@ if ($test_type =~ /_rr/) {
 		}
 	}
 	# At the same time, generate an effiicency (transactions/CPU) series for both the client and server CPU data
-	@timestamps = ( sort {$a<=>$b} keys %{ $uperf_rate{"uperf"}{"Throughput"}{"trans_sec"} });
+	@timestamps = ( sort {$a<=>$b} keys %{ $uperf_rate{"uperf"}{"Throughput"}{"trans-sec"} });
 	foreach $this_tool_dir (keys %tool_ids) {
 		my $res;
 		my $this_tool_id = $tool_ids{$this_tool_dir};
@@ -188,7 +188,7 @@ if ($test_type =~ /_rr/) {
 		my $this_eff_label = "trans-sec/" . $this_cpu_label;
 		$res = get_cpubusy_series($this_tool_dir, \%{ $uperf_rate{"uperf"}{"Resource"}{$this_cpu_label} }, $timestamps[0], $timestamps[-1]);
 		if ($res == 0) {
-			calc_ratio_series(\%{ $uperf_rate{"uperf"}{"Throughput"}{"trans_sec"} }, \%{ $uperf_rate{"uperf"}{"Resource"}{$this_cpu_label} }, \%{ $uperf_rate{"uperf"}{"Efficiency"}{$this_eff_label} });
+			calc_ratio_series(\%{ $uperf_rate{"uperf"}{"Throughput"}{"trans-sec"} }, \%{ $uperf_rate{"uperf"}{"Resource"}{$this_cpu_label} }, \%{ $uperf_rate{"uperf"}{"Efficiency"}{$this_eff_label} });
 		}
 	}
 } else { # throughoput tests

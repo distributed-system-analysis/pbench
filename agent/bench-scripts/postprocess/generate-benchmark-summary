@@ -1,0 +1,82 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+#function generate_benchmark_summary {
+        #local benchmark_name=$1
+        #local orig_cmd=$2
+        #local benchmark_run_dir=$3
+#
+        #printf "# these results generated with:\n# uperf %s\n\n" "$orig_cmd" >$benchmark_summary_txt_file
+        #printf "<pre>\n# these results generated with:\n# uperf %s\n\n" "$orig_cmd" >$benchmark_summary_html_file
+#}
+
+#metric,average,stddev,closest-sample
+#Efficiency-Gb-sec/CPU-kvmguest:virbr0-122-18,101.4697,5.7401,1
+#Efficiency-Gb-sec/CPU-kvmhost:perf102,5.6473,2.0126,3
+#Resource-CPU-kvmguest:virbr0-122-18,0.7655,7.2766,2
+#Resource-CPU-kvmhost:perf102,13.6824,1.7065,2
+#Throughput-Gb-sec,77.3844,4.2668,3
+#Throughput_server-virbr0-122-18:21000-Gb-sec,17.6435,4.4764,2
+#Throughput_server-virbr0-122-204:22000-Gb-sec,22.8695,10.5984,1
+#Throughput_server-virbr0-122-210:23000-Gb-sec,18.9944,9.1998,2
+#Throughput_server-virbr0-122-32:24000-Gb-sec,17.8836,4.9231,3
+
+use File::Basename;
+my $script = basename($0);
+my $benchmark_name = $ARGV[0];
+my $orig_cmd = $ARGV[1];
+my $benchmark_run_dir = $ARGV[2];
+
+# build a hash with keys = iteration_name, and for each iteration, a hash for each metric
+opendir(my $dh, $benchmark_run_dir) || die "$script: could not open directory $benchmark_run_dir: $!\n";
+my @dirs = readdir($dh);
+my $iteration_dir;
+my $line = "";
+my $dir;
+my %iteration_metrics;
+foreach $dir ( @dirs) {
+	#print "dir is [$dir]\n";
+	$iteration_dir = $benchmark_run_dir . "/" . $dir;
+	if ((-d $iteration_dir) && ($dir =~ /(\d+)-(.+)/)) {
+	# if ($dir =~ /(\d+)-(.+)/) {
+		my $iteration_num = $1;
+		my $iteration_name = $2;
+		#print "iteration_dir is [$iteration_dir]\n";
+		my $result_csv_file = $iteration_dir . "/result.csv";
+		open(ITERATION_CSV, "$result_csv_file") || die "$script: could not open file $result_csv_file: $!\n";
+		$line = <ITERATION_CSV>;
+		chomp $line;
+		#print "line is [$line]\n";
+		my @labels = split(/,/, $line);
+		shift(@labels);
+		my $idx = 0;
+		while (<ITERATION_CSV>) {
+			$line = "$_";
+			chomp($line);
+			my @values = split(/,/, $line);
+			#print "values: @values\n";
+			my $iteration_metric = shift(@values);
+			#print "values: @values\n";
+			my %iteration_values;
+			@iteration_values{@labels} = @values;
+			$iteration_metrics{$iteration_name}{$iteration_metric} = \%iteration_values;
+		}
+		close ITERATION_CSV;
+	}
+}
+
+my $iteration_name;
+my $iteration_metric;
+my $type;
+foreach $iteration_name (keys %iteration_metrics) {
+	print "\n$iteration_name";
+	foreach $iteration_metric (keys %{ $iteration_metrics{$iteration_name} } ) {
+		print "\n$iteration_metric";
+		foreach $type (keys %{ $iteration_metrics{$iteration_name}{$iteration_metric} } ) {
+			print ",$iteration_metrics{$iteration_name}{$iteration_metric}{$type}";
+		}
+	}
+}
+print "\n";
+

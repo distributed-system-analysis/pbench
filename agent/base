@@ -155,7 +155,6 @@ function verify_tool_group {
 	return 0
 }
 
-# ensure the benchmark is installed on these systems
 function install_benchmark_systems() {
 	local systems=$1
 	local benchmark_name=$2
@@ -196,6 +195,7 @@ function install_benchmark_systems() {
 		install_cmd="check_install_rpm $benchmark_name $benchmark_ver"
 		if [ "${systems[$i]}" != "localhost" -a "${systems[$i]}" != "127.0.0.1" ]; then
 			debug_log "[$func_name] ssh $ssh_opts ${systems[$i]} $ssh_install_cmd"
+			sleep 1
 			( ssh $ssh_opts ${systems[$i]} "$ssh_install_cmd" >$rc_dir/$i-output.txt 2>&1 ; echo "$?" >"$rc_dir/$i" ) &
 		else
 			debug_log "[$func_name] $install_cmd"
@@ -256,4 +256,91 @@ function print_header {
 		printf "%s" ",$i,stddevpct" >>$benchmark_summary_csv_file
 		printf "%${spacing}s" "$i" >>$benchmark_summary_html_file
 	done
+}
+
+function process_benchmark_iteration_samples {
+	local iteration_dir=$1
+	local nr_samples=$2
+	local maxstddevpct=$3
+	local primary_metric=$4 # could be: Throughput-Gb-sec (for uperf), Throughput-IOPS (for fio), Throughput-MB-sec (dbench), etc...
+	local num_failures=$5
+	local max_failures=$6
+	local iteration_samples=""
+	local keys=`cat $iteration_dir/sample1/result.txt  | awk -F= '{print $1}'`
+	local key_nr=0
+	local sample=0
+	local avg_stddev_result=""
+	local primary_metric_index=-1
+	local func_name="process_benchmark_iteration_samples"
+
+	# for each key, get the average & stddev
+	printf "%s,%s,%s,%s\n" "metric" "average" "stddev" "closest-sample" >"$iteration_dir/result.csv"
+	for key in $keys; do
+		iteration_samples=""
+		for sample in `seq 1 $nr_samples`; do
+			value=`grep -- "$key" $iteration_dir/sample$sample/result.txt | awk -F= '{print $2}'`
+			iteration_samples="$iteration_samples $value"
+		done
+		iteration_samples=`echo $iteration_samples | sed -e s/^" "//`
+		avg_stddev_result=`avg-stddev $iteration_samples`
+		samples[$key_nr]="$iteration_samples"
+		avg[$key_nr]=`echo $avg_stddev_result | awk '{print $1}'`
+		stddev[$key_nr]=`echo $avg_stddev_result | awk '{print $2}'`
+		stddevpct[$key_nr]=`echo $avg_stddev_result | awk '{print $3}'`
+		closest[$key_nr]=`echo $avg_stddev_result | awk '{print $4}'`
+		printf "%s,%s,%s,%s\n" "$key" "${avg[$key_nr]}" "${stddevpct[$key_nr]}" "${closest[$key_nr]}" >>"$iteration_dir/result.csv"
+		if echo $key | grep -q "$primary_metric"; then
+			if echo $key | grep -q -v "server"; then
+				primary_metric_index=$key_nr
+			fi
+		fi
+		((key_nr++))
+	done
+	if [ $primary_metric_index -eq -1 ]; then
+		error_log "[$func_name]could not find the primary metric, "$primary_metric" in $iteration_dir/sample$sample/result.txt"
+		return 1
+	fi
+
+	for sample in `seq 1 $nr_samples`; do
+		sample_dir="sample$sample"
+		# create a symlink to the result dir which most accurately represents the average result
+		if [ $sample -eq ${closest[$primary_metric_index]} ]; then
+			msg="$primary_metric samples[${samples[$primary_metric_index]}]  average[${avg[$primary_metric_index]}] stddev[${stddevpct[$primary_metric_index]}%]  closest-sample[$sample]"
+			echo $msg
+			log $msg
+			pushd "$iteration_dir" >/dev/null; /bin/rm -rf reference-result; ln -sf $sample_dir reference-result; popd >/dev/null
+		else
+			# delete the tool data [and respose time log for rr tests] from the other samples to save space
+			# this option is off by default
+			if [ "$keep_failed_tool_data" == "n" ]; then
+				/bin/rm -rf $iteration_dir/$sample_dir/tools-* $iteration_dir/$sample_dir/response-times.txt
+			fi
+			# since non reference-result sample data is rarely referenced, tar it up to reduce the number of files used
+			if [ "$tar_nonref_data" == "y" ]; then
+				pushd "$iteration_dir" >/dev/null; tar --create --xz --force-local --file=$sample_dir.tar.xz $sample_dir && /bin/rm -rf $sample_dir; popd >/dev/null
+			fi
+		fi
+	done
+	# if we did not achieve the stddevpct, then move this result out of the way and try again
+	local fail=0
+	if [[ $(echo "if (${stddevpct[$primary_metric_index]} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; then
+		fail=1
+	fi
+	if [ $fail -eq 1 ]; then
+		msg="$iteration: the percent standard deviation (${stddevpct[$primary_metric_index]}%) was not within maximum allowed (${maxstddevpct}%)"
+		echo $msg
+		log $msg
+		msg="This iteration will be repeated until either standard deviation is below the maximum allowed, or $max_failures failed attempts."
+		echo $msg
+		log $msg
+		msg="Changing the standard deviation percent can be done with --max-stddev= and the maximum failures with --max-failures="
+		echo $msg
+		log $msg
+		pushd $benchmark_run_dir >/dev/null
+		mv $iteration $iteration-fail$num_failures
+		tar --create --xz --force-local --file=$iteration-fail$num_failures.tar.xz $iteration-fail$num_failures &&\
+		/bin/rm -rf $iteration-fail$num_failures
+		popd >/dev/null
+	fi
+	return $fail
 }
