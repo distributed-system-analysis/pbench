@@ -449,9 +449,9 @@ collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 	for test_type in `echo $test_types | sed -e s/,/" "/g`; do
 		if [ "$test_type" == "rr" ]; then
-			primary_metric="Throughput-trans-sec"
+			primary_metric="Throughput--aggregate_trans_sec"
 		else
-			primary_metric="Throughput-Gb-sec"
+			primary_metric="Throughput--aggregate_Gb_sec"
 		fi
 		for message_size in `echo $message_sizes | sed -e s/,/" "/g`; do
 			for instance in `echo $instances | sed -e s/,/" "/g`; do
