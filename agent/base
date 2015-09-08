@@ -234,35 +234,11 @@ function stop_server {
 	fi
 }
 
-function print_iteration {
-	# printing a iteration assumes this must be a new row, so include \n first
-	printf "\n%28s" "$1" >>$benchmark_summary_txt_file
-	printf "\n%s" "$1" >>$benchmark_summary_csv_file
-	printf "\n%28s <a href=./$iteration/reference-result/$benchmark_name.html>%s</a> <a href=./$iteration/reference-result/tools-$tool_group>%s</a>" "$1" "summary" "tools">>$benchmark_summary_html_file
-}
-
-function print_value {
-	printf "%${spacing}s" "$1[+/-$2]" >>$benchmark_summary_txt_file
-	printf "%s" ",$1,$2" >>$benchmark_summary_csv_file
-	printf "%${spacing}s" "$1[+/-$2]" >>$benchmark_summary_html_file
-}
-
-function print_header {
-	printf "\n\n%28s" "iteration" >>$benchmark_summary_txt_file
-	printf "\n\n%s" "iteration" >>$benchmark_summary_csv_file
-	printf "\n\n%28s %s %s" "iteration" "       " "     " >>$benchmark_summary_html_file
-	for i in $1; do
-		printf "%${spacing}s" "$i" >>$benchmark_summary_txt_file
-		printf "%s" ",$i,stddevpct" >>$benchmark_summary_csv_file
-		printf "%${spacing}s" "$i" >>$benchmark_summary_html_file
-	done
-}
-
 function process_benchmark_iteration_samples {
 	local iteration_dir=$1
 	local nr_samples=$2
 	local maxstddevpct=$3
-	local primary_metric=$4 # could be: Throughput-Gb-sec (for uperf), Throughput-IOPS (for fio), Throughput-MB-sec (dbench), etc...
+	local primary_metric=$4 # could be: Throughput_aggregate-Gb-sec (for uperf), Throughput_aggregate-IOPS (for fio), Throughput_aggregate-MB-sec (dbench), etc...
 	local num_failures=$5
 	local max_failures=$6
 	local iteration_samples=""
@@ -274,7 +250,7 @@ function process_benchmark_iteration_samples {
 	local func_name="process_benchmark_iteration_samples"
 
 	# for each key, get the average & stddev
-	printf "%s,%s,%s,%s\n" "metric" "average" "stddev" "closest-sample" >"$iteration_dir/result.csv"
+	printf "%s,%s,%s,%s,%s\n" "metric_type" "metric_name" "average" "stddev" "closest-sample" >"$iteration_dir/result.csv"
 	for key in $keys; do
 		iteration_samples=""
 		for sample in `seq 1 $nr_samples`; do
@@ -288,7 +264,9 @@ function process_benchmark_iteration_samples {
 		stddev[$key_nr]=`echo $avg_stddev_result | awk '{print $2}'`
 		stddevpct[$key_nr]=`echo $avg_stddev_result | awk '{print $3}'`
 		closest[$key_nr]=`echo $avg_stddev_result | awk '{print $4}'`
-		printf "%s,%s,%s,%s\n" "$key" "${avg[$key_nr]}" "${stddevpct[$key_nr]}" "${closest[$key_nr]}" >>"$iteration_dir/result.csv"
+		metric_type=`echo $key | awk -F-- '{print $1}'`
+		metric_name=`echo $key | awk -F-- '{print $2}'`
+		printf "%s,%s,%s,%s,%s\n" "$metric_type" "$metric_name" "${avg[$key_nr]}" "${stddevpct[$key_nr]}" "${closest[$key_nr]}" >>"$iteration_dir/result.csv"
 		if echo $key | grep -q "$primary_metric"; then
 			if echo $key | grep -q -v "server"; then
 				primary_metric_index=$key_nr
