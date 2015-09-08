@@ -204,7 +204,7 @@ sub gen_data {
 				my $total;
 				$count = $counts{$chart}{$series_key};
 				$total = $totals{$chart}{$series_key};
-				printf TOOL_AVG "$chart-$series_key=%f\n", $total / $count;
+				printf TOOL_AVG "${chart}--$series_key=%f\n", $total / $count;
 			}
 		}
 		close(TOOL_AVG);
