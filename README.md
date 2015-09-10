@@ -31,9 +31,9 @@ Refer to this [Getting Started
 Guide](http://distributed-system-analysis.github.io/pbench/pbench-agent.html)
 
 TL;DR? See [Section
-4](distributed-system-analysis.github.io/pbench/pbench-agent.html#sec-4) of the
+4](http://distributed-system-analysis.github.io/pbench/pbench-agent.html#sec-4) of the
 [Getting Started
-Guide](distributed-system-analysis.github.io/pbench/pbench-agent.html) for a
+Guide](http://distributed-system-analysis.github.io/pbench/pbench-agent.html) for a
 super quick set of introductory steps.
 
 ## Where is the source kept?
