@@ -1,6 +1,7 @@
 #!/bin/bash
 
 _tdir=$(dirname $(readlink -f $0))
+_tlib=${_tdir}/../lib
 
 _testroot=/var/tmp/pbench-test-bgtasks
 mkdir -p $_testroot
@@ -21,11 +22,11 @@ if [[ ! -d $_testdir ]]; then
     exit 1
 fi
 
-export CONFIG=../../config/run.conf
+# is this necessary?
+export CONFIG=${_tdir}/../../config/run.conf
 
 # Fixed timestamp output
 export _PBENCH_BGTASKS_TEST=1
-
 res=0
 
 function _run {
@@ -34,6 +35,15 @@ function _run {
     echo "+++ Running $tname" >> $_testout
     $_tdir/$tname $_testdir $@ >> $_testout 2>&1
     echo "--- Finished $tname (status=$?}" >> $_testout
+}
+function _run_index {
+    dname=$1
+    shift
+    mkdir -p $_testdir
+    echo "+++ Running indexing on $dname" >> $_testout
+    PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_tlib}/config/pbench-index.cfg.example $dname.tar.xz >> $_testout 2>&1
+    echo "--- Finished indexing on $dname (status=$?)" >> $_testout
+    sed -i '/File "\/home\//s;/home/.*/pbench/bgtasks/;/home/user/repo/pbench/bgtasks/;' $_testout
 }
 function _run_allscripts {
     _run pbench-backup-tarballs
@@ -54,10 +64,12 @@ function _save_tree {
 function _dump_logs {
     # Dump the state of any generated script logs
     echo "+++ pbench log file contents" >> $_testout
-    find $_testdir/logs -type f | sort | \
-    while read fname; do
-        grep -HvF "\-\-should-n0t-ex1st--" $fname >> $_testout 2>&1
-    done
+    if [ -d $_testdir/logs ] ;then
+        find $_testdir/logs -type f | sort | \
+            while read fname; do
+                grep -HvF "\-\-should-n0t-ex1st--" $fname >> $_testout 2>&1
+            done
+    fi
     echo "--- pbench log file contents" >> $_testout
 }
 function _verify_output {
@@ -186,5 +198,18 @@ _save_tree; _dump_logs
 _verify_output $res test-6
 res=$?
 _reset_state
+
+
+# indexing unit tests
+PATH=/usr/local/bin:$PATH
+
+for i in {1..7} ;do
+    _setup_state test-7.$i
+    _run_index $_testroot/test-7.$i
+    _save_tree; _dump_logs
+    _verify_output $res test-7.$i
+    res=$?
+    _reset_state
+done    
 
 exit $res
