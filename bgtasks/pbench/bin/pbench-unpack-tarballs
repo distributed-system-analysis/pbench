@@ -108,7 +108,19 @@ for result in $list ;do
 
     # make sure that all the relevant state directories exist
     mk_dirs $hostname
-
+    # ... and a couple of other necessities.
+    if [[ $? -ne 0 ]] ;then
+        echo "$TS: Creation of $hostname processing directories failed: code $status" >&4
+        nerrs=$nerrs+1
+        continue
+    fi
+    mkdir -p $INCOMING/$hostname
+    if [[ $? -ne 0 ]] ;then
+        echo "$TS: Creation of $INCOMING/$hostname failed: code $status" >&4
+        nerrs=$nerrs+1
+        continue
+    fi
+    
     mkdir -p $TMP/$PROG/$hostname
     status=$?
     if [[ $status -ne 0 ]] ;then
