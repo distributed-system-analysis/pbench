@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use JSON;
 use File::Basename;
 my $script = basename($0);
 my $benchmark_name = $ARGV[0];
@@ -67,6 +68,12 @@ my $metric_type;
 my $metric_label;
 my $length;
 my $padding = 1;
+
+my $json_file = $benchmark_run_dir . "/summary-result.json";
+my $json_text   = to_json( \%metrics, { ascii => 1, pretty => 1 } );
+open(JSON, ">$json_file") || die "$script: could not open file $json_file: $!\n";
+print JSON $json_text;
+close(JSON);
 
 # calculate spacing such that we have enough space for each column, but non extra (other than $padding)
 foreach $iteration_num (sort keys %iterations_by_num) {
