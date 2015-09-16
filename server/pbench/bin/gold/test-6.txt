@@ -15,10 +15,27 @@
 --- pbench tree state
 +++ pbench log file contents
 /var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:start-1900-01-01T00:00:00-UTC
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:sending incremental file list
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:./
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:sent ### bytes  received ### bytes  ###.## bytes/sec
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:total size is 0  speedup is 0.00
 /var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:end-1900-01-01T00:00:00-UTC
 --- pbench log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/rsync -va --stats --exclude=TODO --exclude=TO-COPY-SOS --exclude=TO-INDEX --exclude=INDEXED --exclude=WONT-INDEX --exclude=DONE /var/tmp/pbench-test-server/pbench/archive/fs-version-001/ /var/tmp/pbench-test-server/pbench.backup
+/var/tmp/pbench-test-server/test-execution.log:
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Number of files: 1 (dir: 1)
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Number of created files: 0
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Number of deleted files: 0
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Number of regular files transferred: 0
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Total file size: 0 bytes
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Total transferred file size: 0 bytes
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Literal data: 0 bytes
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Matched data: 0 bytes
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:File list size: 0
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:File list generation time: 0.001 seconds
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:File list transfer time: 0.000 seconds
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Total bytes sent: 54
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Total bytes received: 19
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:sent ### bytes  received ### bytes  ###.## bytes/sec
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:total size is 0  speedup is 0.00
+/var/tmp/pbench-test-server/test-execution.log:
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/mailx -s pbench-backup-tarballs - run-1900-01-01T00:00:00-UTC
+--- test-execution.log file contents

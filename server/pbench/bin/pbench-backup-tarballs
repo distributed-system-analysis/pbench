@@ -30,6 +30,10 @@ TOP_LOCAL="$3"
 
 . $dir/pbench-base.sh
 
+stats=$TMP/${PROG}.$$
+
+trap "rm -f $stats" EXIT INT QUIT
+                 
 log_init $(basename $0)
 
 echo "start-$(timestamp)"
@@ -54,8 +58,12 @@ if [[ ! -d "$rlb" ]]; then
     log_finish; exit 1
 fi
 
+# exclude the subdirs of symlinks
+exclude="--exclude=$(echo $LINKDIRS | sed 's/  */ --exclude=/g')"
+
 # N.B The trailing slash is important
-/usr/bin/rsync -va $rla/ $rlb
+rsync -va --stats $exclude $rla/ $rlb | tee -a $stats
+
 rsync_sts=$?
 if [[ $rsync_sts -ne 0 ]]; then
     echo "$PROG: rsync failed with code: $rsync_sts, $BDIR"
@@ -64,5 +72,9 @@ fi
 echo "end-$(timestamp)"
 
 log_finish
+
+# Back up some way and find the empty line separating the list of files
+# from the stats.
+tail -n 20 $stats | sed -n '/^$/,$p' | mailx -s "$PROG - $TS" $mail_recipients 
 
 exit 0

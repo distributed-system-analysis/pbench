@@ -15,6 +15,7 @@ if [[ $? -gt 0 ]]; then
     exit 1
 fi
 _testout=$_testroot/output.txt
+export _testlog=$_testroot/test-execution.log
 _testdir=$_testroot/pbench
 mkdir -p $_testdir
 if [[ ! -d $_testdir ]]; then
@@ -24,10 +25,17 @@ fi
 
 # Fixed timestamp output
 export _PBENCH_SERVER_TEST=1
-res=0
 
-# mock out some stuff
-PATH=$_tdir/test-bin:$PATH
+# execution environment
+_testopt=$_testroot/opt/pbench-agent
+res=0
+mkdir -p $_testopt/unittest-scripts/
+let res=res+$?
+cp $_tdir/test-bin/* $_testopt/unittest-scripts/
+let res=res+$?
+
+export PATH=$_testopt/unittest-scripts:$_tconfigtoolsbin:$PATH
+res=0
 
 function _run {
     tname=$1
@@ -86,6 +94,11 @@ function _dump_logs {
             done
     fi
     echo "--- pbench log file contents" >> $_testout
+    echo "+++ test-execution.log file contents" >> $_testout
+    grep -HvF "\-\-should-n0t-ex1st--" $_testroot/test-execution.log >> $_testout 2>&1
+    echo "--- test-execution.log file contents" >> $_testout
+    rm -f $_testroot/test-execution.log
+
 }
 function _verify_output {
     res=$1
