@@ -92,6 +92,9 @@ export benchmark_results_dir=$benchmark_results_dir
 export benchmark config
 metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 
+# on abnormal exit, make sure that the metadata log exists and is complete.
+trap "metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
+
 start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 echo "Running $benchmark_bin"
 log "[$script_name] Running $benchmark_bin"
