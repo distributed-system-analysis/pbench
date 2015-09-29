@@ -102,8 +102,7 @@ while true; do
 done
 tool_dir="$dir/tools-$group"
 tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
-tool_cmd_dir="$dir/tools-$group/cmds"
-tool_cmd_file="$tool_cmd_dir/$tool.cmd"
+tool_cmd_file="$tool_output_dir/$tool.cmd"
 tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
 tool_output_file=$tool_output_dir/$tool.txt
 tool_cmd="$tool_bin -c $packets -ni $interface -w $tool_output_file"
