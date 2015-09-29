@@ -1,0 +1,279 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use JSON;
+use File::Basename;
+my $script = basename($0);
+my $benchmark_name = $ARGV[0];
+my $orig_cmd = $ARGV[1];
+my $benchmark_run_dir = $ARGV[2];
+my %spacing;
+
+opendir(my $dh, $benchmark_run_dir) || die "$script: could not open directory $benchmark_run_dir: $!\n";
+my @dirs = readdir($dh);
+my $iteration_dir;
+my $line = "";
+my $dir;
+my %metrics;
+my %iterations_by_num;
+my %all_metric_names_by_type;
+my %all_metric_labels;
+my $iter_num = $1;
+my $iter_name = $2;
+# build a hash from all of the iteration results
+foreach $dir ( @dirs) {
+	$iteration_dir = $benchmark_run_dir . "/" . $dir;
+	if ((-d $iteration_dir) && ($dir =~ /(\d+)-(.+)/)) {
+		$iter_num = $1;
+		$iter_name = $2;
+		my $length;
+		$length = scalar split("", $iter_num);
+		if (  ! defined $spacing{iter_num} || $spacing{iter_num} < $length ) {
+			$spacing{iter_num} = $length;
+		}
+		$length = scalar split("", $iter_name);
+		if ( ! defined $spacing{iter_name} || $spacing{iter_name} < $length ) {
+			$spacing{iter_name} = $length;
+		}
+		$iterations_by_num{$iter_num} = $iter_name;
+		my $result_csv_file = $iteration_dir . "/result.csv";
+		open(ITERATION_CSV, "$result_csv_file") || die "$script: could not open file $result_csv_file: $!\n";
+		$line = <ITERATION_CSV>; # first line contains labels: metric_type,metric_name,average,stddev,closest-sample
+		chomp $line;
+		my @labels = split(/,/, $line);
+		shift(@labels);
+		shift(@labels); # @labels should now contain only ("average", "stddevpct", "closest-sample")
+		while (<ITERATION_CSV>) {
+			$line = "$_";
+			chomp($line);
+			my $label;
+			my @values = split(/,/, $line);
+			my $metric_type = shift(@values); # Throughput, Latency, Resource, CPU
+			my $metric_name = shift(@values); # Gb_s, MB_s, trans_sec
+			$all_metric_names_by_type{$metric_type}{$metric_name}++;
+			foreach $label (@labels) {
+				$all_metric_labels{$label}++;
+				$metrics{$iter_name}{$metric_type}{$metric_name}{$label} = shift(@values)
+			}
+		}
+		close ITERATION_CSV;
+	}
+}
+
+my $iteration_name;
+my $iteration_num;
+my $metric_name;
+my $metric_type;
+my $metric_label;
+my $length;
+my $padding = 1;
+
+my $json_file = $benchmark_run_dir . "/summary-result.json";
+my $json_text   = to_json( \%metrics, { ascii => 1, pretty => 1 } );
+open(JSON, ">$json_file") || die "$script: could not open file $json_file: $!\n";
+print JSON $json_text;
+close(JSON);
+
+# calculate spacing such that we have enough space for each column, but non extra (other than $padding)
+foreach $iteration_num (sort keys %iterations_by_num) {
+	$iteration_name = $iterations_by_num{$iteration_num};
+	$length = scalar split("", $iteration_num) + $padding;;
+	if ( ! defined ($spacing{iter_num}) || $spacing{iter_num} < $length) {
+		$spacing{iter_num} = $length;
+	}
+	$length = scalar split("", $iteration_name) + $padding;
+	if ( ! defined ($spacing{iter_name}) || $spacing{iter_name} < $length) {
+		$spacing{iter_name} = $length;
+	}
+	foreach $metric_type (sort keys %{ $metrics{$iteration_name} } ) {
+		my $this_metric_type_spacing = 0;
+		foreach $metric_name (sort keys %{ $all_metric_names_by_type{$metric_type} } ) {
+			my $this_metric_type_name_spacing = 0;
+			foreach $metric_label ( sort keys %all_metric_labels ) {
+				if ( defined ($metrics{$iteration_name}{$metric_type}{$metric_name}{$metric_label}) ) {
+					$length = scalar split("", $metrics{$iteration_name}{$metric_type}{$metric_name}{$metric_label}) + $padding;
+					if ( ! defined $spacing{$metric_type}{$metric_name}{$metric_label} || $length > $spacing{$metric_type}{$metric_name}{$metric_label}) {
+						#printf "increasing spacing for $metric_type $metric_name $metric_label ($metrics{$iteration_name}{$metric_type}{$metric_name}{$metric_label}) from $spacing{$metric_type}{$metric_name}{$metric_label} ";
+						$spacing{$metric_type}{$metric_name}{$metric_label} = $length;
+						#printf "to $spacing{$metric_type}{$metric_name}{$metric_label}\n";
+					}
+				}
+				# check to see if the name length of the label itself is longer than the longest label-value
+				$length = scalar split("", $metric_label) + $padding;
+				# printf "max length is %d\n", $spacing{$metric_type}{$metric_name}{$metric_label};
+				# printf "length of \"$metric_label\" is %d\n", $length;
+				if ( ! defined $spacing{$metric_type}{$metric_name}{$metric_label} || $spacing{$metric_type}{$metric_name}{$metric_label} < $length) {
+					$spacing{$metric_type}{$metric_name}{$metric_label} = $length;
+				}
+				# this_metric_type_name is calculated by summing metric label lengths
+				##print "metric_type[$metric_type] metric_name[$metric_name] increasing spacing for this_metric_type_name_spacing from $this_metric_type_name_spacing";
+				$this_metric_type_name_spacing += $spacing{$metric_type}{$metric_name}{$metric_label};
+				##print " to $this_metric_type_name_spacing\n";
+			}
+			$this_metric_type_name_spacing += $padding;
+			# check to see if the spacing for this_metric_type_name is longer than existing spacing for metric_type_name:
+			if ( ! defined $spacing{$metric_type}{$metric_name}{header} || $spacing{$metric_type}{$metric_name}{header} < $this_metric_type_name_spacing) {
+				##print "metric_type[$metric_type] metric_name[$metric_name] increasing spacing for [$metric_name] header to $this_metric_type_name_spacing\n";
+				$spacing{$metric_type}{$metric_name}{header} = $this_metric_type_name_spacing;
+			}
+			# check to see if the name length of the metric_name itself is longer than the metric values
+			$length = scalar split("", $metric_name) + $padding;
+			if ( $spacing{$metric_type}{$metric_name}{header} < $length) {
+				##print "metric_type[$metric_type] since metric_name[$metric_name] is longer than $spacing{$metric_type}{$metric_name}{header}, increasing spacing to $length\n";
+				$spacing{$metric_type}{$metric_name}{header} = $length;
+			}
+			# get the metric type header by summing the metric name lengths
+			$this_metric_type_spacing += $spacing{$metric_type}{$metric_name}{header};
+		}
+		$this_metric_type_spacing += $padding;
+		# check to see if this_metric_type_spacing is longer than existing metric type spacing
+		if ( ! defined $spacing{$metric_type}{header} || $spacing{$metric_type}{header} < $this_metric_type_spacing) {
+			##print "metric_type[$metric_type] header: increasing spacing from $spacing{$metric_type}{header} ";
+			$spacing{$metric_type}{header} = $this_metric_type_spacing;
+			##print "to $spacing{$metric_type}{header}\n";
+		}
+		# check to see if the name length of the metric type itself is longer than the metric type values
+		$length = scalar split("", $metric_type) + $padding;
+		if ( $spacing{$metric_type}{header} < $length) {
+			##print "metric_type[$metric_type] header: increasing spacing from $spacing{$metric_type}{header} ";
+			$spacing{$metric_type}{header} = $length;
+			##print "to $spacing{$metric_type}{header}\n";
+		}
+	}
+}
+
+
+# generate all of the summary files
+my $txt_file = $benchmark_run_dir . "/summary-result.txt";
+my $html_file = $benchmark_run_dir . "/summary-result.html";
+open(TXT, ">$txt_file") || die "$script: could not open file $txt_file: $!\n";
+open(HTML, ">$html_file") || die "$script: could not open file $html_file: $!\n";
+$iteration_name = $iterations_by_num{"1"};
+my @all_metric_types = reverse sort keys %all_metric_names_by_type;
+# print the headers for metric types (Throuhgput, Resource, Efficiency)
+printf TXT "%$spacing{iter_num}s%$spacing{iter_name}s", "", "";
+printf HTML "<pre>\n%$spacing{iter_num}s%$spacing{iter_name}s", "", "";
+foreach $metric_type (@all_metric_types) {
+	$length = scalar split("", $metric_type);
+	if ( $length + $padding > $spacing{$metric_type}{header} ) {
+		printf "warning: length of $metric_type (%d) is longer than spacing for $metric_type header (%s)\n", $length, $spacing{$metric_type}{header};
+	}
+	printf TXT "%$spacing{$metric_type}{header}s|", $metric_type;
+	printf HTML "%$spacing{$metric_type}{header}s|", $metric_type;
+}
+printf TXT "\n";
+printf HTML "\n";
+# print the headers for individual metrics in each metric type (aggregate_Gb_sec)
+printf TXT "%$spacing{iter_num}s%$spacing{iter_name}s", "", "";
+printf HTML "%$spacing{iter_num}s%$spacing{iter_name}s", "", "";
+foreach $metric_type (@all_metric_types) {
+	my $metric_section;
+	foreach $metric_name (sort keys %{ $all_metric_names_by_type{$metric_type} } ) {
+		$metric_section = $metric_section . sprintf "%$spacing{$metric_type}{$metric_name}{header}s", $metric_name;
+	}
+	$length = scalar split("", $metric_section);
+	if ( $length + $padding > $spacing{$metric_type}{header} ) {
+		printf "warning: length of $metric_section (%d) is longer than spacing for $metric_type header (%s)\n", $length, $spacing{$metric_type}{header};
+	}
+	printf TXT "%$spacing{$metric_type}{header}s|", $metric_section;
+	printf HTML "%$spacing{$metric_type}{header}s|", $metric_section;
+}
+printf TXT "\n";
+printf HTML "\n";
+# print a horizontal separator 
+printf TXT "%$spacing{iter_num}s%$spacing{iter_name}s", "", "";
+printf HTML "%$spacing{iter_num}s%$spacing{iter_name}s", "", "";
+foreach $metric_type (@all_metric_types) {
+	my $metric_section;
+	foreach $metric_name (sort keys %{ $all_metric_names_by_type{$metric_type} } ) {
+		my $metric_underline = "";
+		my $i;
+		for ($i=0; $i<($spacing{$metric_type}{$metric_name}{header} - $padding); $i++) {
+			$metric_underline = $metric_underline . sprintf "%s", "-";
+		}
+		$metric_section = $metric_section . sprintf "%$spacing{$metric_type}{$metric_name}{header}s", $metric_underline;
+	}
+	$length = scalar split("", $metric_section);
+	if ( $length + $padding > $spacing{$metric_type}{header} ) {
+		printf "warning: length of $metric_section (%d) is longer than spacing for $metric_type header (%s)\n", $length, $spacing{$metric_type}{header};
+	}
+	printf TXT "%$spacing{$metric_type}{header}s+", $metric_section;
+	printf HTML "%$spacing{$metric_type}{header}s+", $metric_section;
+}
+printf TXT "\n";
+printf HTML "\n";
+
+# print the headers for the metric-labels (average, stddev, closest-sample)
+$iteration_num = 1;
+$iteration_name = $iterations_by_num{$iteration_num};
+printf TXT "%$spacing{iter_num}s%$spacing{iter_name}s", "", "";
+printf HTML "%$spacing{iter_num}s%$spacing{iter_name}s", "", "";
+foreach $metric_type (@all_metric_types) {
+	my $metric_section;
+	foreach $metric_name (sort keys %{ $all_metric_names_by_type{$metric_type} } ) {
+		my $label_section;
+		foreach $metric_label ( sort keys %all_metric_labels ) {
+			if ( defined ($metrics{$iteration_name}{$metric_type}{$metric_name}{$metric_label}) ) {
+				$label_section = $label_section . sprintf "%$spacing{$metric_type}{$metric_name}{$metric_label}s", "$metric_label";
+			} else {
+				$label_section = $label_section . sprintf "%$spacing{$metric_type}{$metric_name}{$metric_label}s", "$metric_label";
+			}
+		}
+		$length = scalar split("", $label_section);
+		if ( $length + $padding > $spacing{$metric_type}{$metric_name}{header} ) {
+			printf "warning: length of [%s] (%d) is longer than spacing for [%s] header (%s)\n", $label_section, $length, $metric_name, $spacing{$metric_type}{$metric_name}{header};
+		}
+		$metric_section = $metric_section . sprintf "%$spacing{$metric_type}{$metric_name}{header}s", $label_section;
+	}
+	$length = scalar split("", $metric_section);
+	if ( $length + $padding > $spacing{$metric_type}{header} ) {
+		printf "warning: length of $metric_section (%d) is longer than spacing for $metric_type header (%s)\n", $length, $spacing{$metric_type}{header};
+	}
+	printf TXT "%$spacing{$metric_type}{header}s|", $metric_section;
+	printf HTML "%$spacing{$metric_type}{header}s|", $metric_section;
+}
+printf TXT "\n";
+printf HTML "\n";
+
+# for all iterations, print the *values* for the metric labels (average, stddev, closest-sample)
+foreach $iteration_num (sort keys %iterations_by_num) {
+	$iteration_name = $iterations_by_num{$iteration_num};
+	#printf "%$spacing{iter_num}s%$spacing{iter_name}s", $iteration_num, "[$spacing{iter_name}]";
+	printf TXT "%$spacing{iter_num}s%$spacing{iter_name}s", $iteration_num, $iteration_name;
+	printf HTML "%$spacing{iter_num}s%$spacing{iter_name}s", $iteration_num, $iteration_name;
+	foreach $metric_type (@all_metric_types) {
+		my $metric_section;
+		foreach $metric_name (sort keys %{ $all_metric_names_by_type{$metric_type} } ) {
+			my $label_section;
+			foreach $metric_label ( sort keys %all_metric_labels ) {
+				if ( defined ($metrics{$iteration_name}{$metric_type}{$metric_name}{$metric_label}) ) {
+					$length = scalar split("", $metrics{$iteration_name}{$metric_type}{$metric_name}{$metric_label});
+					if ( $length + $padding > $spacing{$metric_type}{$metric_name}{$metric_label} ) {
+						printf "warning: length of [%s] (%d) is longer than spacing for [%s] header (%s)\n", $metrics{$iteration_name}{$metric_type}{$metric_name}{$metric_label}, $length, $metric_label, $spacing{$metric_type}{$metric_name}{$metric_label};
+					}
+					$label_section = $label_section . sprintf "%$spacing{$metric_type}{$metric_name}{$metric_label}s", "$metrics{$iteration_name}{$metric_type}{$metric_name}{$metric_label}";
+				} else {
+					$label_section = $label_section . sprintf "%$spacing{$metric_type}{$metric_name}{$metric_label}s", "";
+				}
+			}
+			$length = scalar split("", $label_section);
+			if ( $length + $padding > $spacing{$metric_type}{$metric_name}{header} ) {
+				printf "warning: length of [%s] (%d) is longer than spacing for [%s] header (%s)\n", $label_section, $length, $metric_name, $spacing{$metric_type}{$metric_name}{header};
+			}
+			$metric_section = $metric_section . sprintf "%$spacing{$metric_type}{$metric_name}{header}s", $label_section;
+		}
+		$length = scalar split("", $metric_section);
+		if ( $length + $padding > $spacing{$metric_type}{header} ) {
+			printf "warning: length of $metric_section (%d) is longer than spacing for $metric_type header (%s)\n", $length, $spacing{$metric_type}{header};
+		}
+		printf TXT "%$spacing{$metric_type}{header}s|", $metric_section;
+		printf HTML "%$spacing{$metric_type}{header}s|", $metric_section;
+	}
+	printf TXT "\n";
+	printf HTML "\n";
+}
+printf TXT "\n";
+printf HTML "\n</pre>\n";
+close(TXT);
+close(HTML);

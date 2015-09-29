@@ -104,8 +104,7 @@ done
 
 tool_dir="$dir/tools-$group"
 tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
-tool_cmd_dir="$dir/tools-$group/cmds"
-tool_cmd_file="$tool_cmd_dir/$tool.cmd"
+tool_cmd_file="$tool_outuput_dir/$tool.cmd"
 case "$mode" in
 	install)
         ;;

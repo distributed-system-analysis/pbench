@@ -100,24 +100,38 @@ function check_install_rpm {
     else
 	local this_version=""
     fi
+    local func_name="check_install_rpm"
+    local yum_output=""
+    local yum_cmd="yum --debuglevel=0 install -y ${this_rpm}$this_version"
+    local rpm_output=""
+    local rpm_cmd="rpm --query ${this_rpm}$this_version"
 
-    rpm_status=`rpm --query ${this_rpm}$this_version`
-    if echo $rpm_status | grep -q "is not installed"; then
-	echo attempting to install ${this_rpm}$this_version
-	yum --debuglevel=0 install -y ${this_rpm}$this_version >> $pbench_log 2>&1
+    rpm_output=`$rpm_cmd 2>&1`
+    debug_log "[$func_name] $rpm_cmd : $rpm_output"
+    if echo $rpm_output | grep -q "is not installed"; then
+	debug_log "[$func_name] ${this_rpm}$this_version was not found on this system"
+	debug_log "[$func_name] attempting to install ${this_rpm}$this_version"
+	yum_output=`$yum_cmd 2>&1`
 	rc=$?
+	debug_log "[$func_name] $yum_cmd : $yum_output"
     else
-	local installed_rpm_version=`echo $rpm_status | awk -F- '{print $2"-"$3}'`
-	if [ "$this_version" != "$installed_rpm_version" ]; then
-	    yum --debuglevel=0 install -y ${this_rpm}$this_version >> $pbench_log 2>&1
+	local installed_rpm_version="-`echo $rpm_output | awk -F- '{print $2"-"$3}'`"
+	local installed_rpm_short_version="-`echo $rpm_output | awk -F- '{print $2}'`"
+	debug_log "[$func_name] installed_rpm_version: $installed_rpm_version"
+	debug_log "[$func_name] installed_rpm_short_version: $installed_rpm_short_version"
+	debug_log "[$func_name] requested_rpm_version: $this_version"
+	if [ "$this_version" != "$installed_rpm_version" -a "$this_version" != "$installed_rpm_short_version" ]; then
+	    debug_log "[$func_name] requested version does not match installed version, attempting install"
+	    yum_output=`$yum_cmd 2>&1`
 	    rc=$?
+	    debug_log "[$func_name] $yum_cmd : $yum_output"
 	else
-	    debug_log "$this_rpm has already been installed"
+	    debug_log "[$func_name] $this_rpm has already been installed"
 	    rc=0
 	fi
     fi
     if [ $rc -ne 0 ]; then
-	error_log "[check_install_rpm]the installation of $this_rpm$this_version failed"
+	error_log "[$func_name] the installation of $this_rpm$this_version failed"
 	return 1
     else
 	return 0
@@ -126,15 +140,185 @@ function check_install_rpm {
 
 function verify_tool_group {
 	local group=$1
+	local func_name="verify_tool_group"
+
 	if [ -z "$group" ]; then
-		error_log "Bad argument to verify_tool_group"
+		error_log "[$func_name] bad argument"
 		exit 1
 	fi
 	# Ensure we have a tools group file to work with
-	groupfile="$pbench_run/tools.$group"
-	if [ ! -f "$groupfile" ]; then
-		error_log "Unable to find default tools group file, $groupfile"
+	tool_group_dir="$pbench_run/tools-$group"
+	if [ ! -d "$tool_group_dir" ]; then
+		error_log "[$func_name] unable to find default tools group file, $tool_group_dir"
 		exit 1
 	fi
 	return 0
+}
+
+function install_benchmark_systems() {
+	local systems=$1
+	local benchmark_name=$2
+	local benchmark_ver=$3
+	local rc=0
+	local func_name="install_benchnmark_systems"
+
+	if [ -z "$systems" ]; then
+		error_log "[$func_name] no systems were provided"
+		return 1
+	fi
+
+	if [ -z "$benchmark_name" ]; then
+		error_log "[$func_name] no benchmark_name was provided"
+		return 1
+	fi
+
+	if [ -z "$benchmark_ver" ]; then
+		error_log "[$func_name] no benchmark_ver was provided"
+		return 1
+	fi
+
+	systems=`echo $systems | sed -e s/,/" "/g`
+	systems=($systems)
+
+	debug_log "[$func_name] installing $benchmark_name on: ${systems[@]}"
+	local length=${#systems[@]}
+	local rc_dir=$(mktemp -d)
+	rc=$?
+	if [ $rc -ne 0 ]; then
+		error_log "$func_name] could not create temp dir"
+		return $rc
+	fi
+	for (( i=0; i<${length}; i++ )); do
+                debug_log "[$func_name] $benchmark_script --install on ${systems[$i]}"
+		install_rc[$i]=0
+		ssh_install_cmd=". ${pbench_install_dir}/base; check_install_rpm $benchmark_name $benchmark_ver"
+		install_cmd="check_install_rpm $benchmark_name $benchmark_ver"
+		if [ "${systems[$i]}" != "localhost" -a "${systems[$i]}" != "127.0.0.1" ]; then
+			debug_log "[$func_name] ssh $ssh_opts ${systems[$i]} $ssh_install_cmd"
+			sleep 1
+			( ssh $ssh_opts ${systems[$i]} "$ssh_install_cmd" >$rc_dir/$i-output.txt 2>&1 ; echo "$?" >"$rc_dir/$i" ) &
+		else
+			debug_log "[$func_name] $install_cmd"
+			( $install_cmd >$rc_dir/$i-output.txt 2>&1 ; echo "$?" >"$rc_dir/$i" ) &
+		fi
+        done
+	wait
+
+	for (( i=0; i<${length}; i++ )); do
+		if [ ! -e $rc_dir/$i ]; then
+			error_log "[$func_name] rc file $rc_dir/$i does not exist"
+			rc=1
+			break
+		fi
+		install_rc="`cat $rc_dir/$i`"
+		((rc+="$install_rc"))
+		if [ $install_rc -ne 0 ]; then
+			error_msg=`cat "$rc_dir/$i-output.txt"`
+			error_log "[$func_name] installation of $benchmark_name on ${systems[$i]} failed: $error_msg"
+		fi
+	done
+	/bin/rm -rf "$rc_dir"
+	return $rc
+}
+
+function stop_server {
+	local server=$1
+	local server_port=$2
+	local message=$3
+	local server_pid=`ssh $ssh_opts $server netstat -tlnp | grep ":$server_port " | awk '{print $7}' | awk -F/ '{print $1}'`
+	if [ ! -z "$server_pid" ]; then
+		if [ $message -eq 1 ]; then
+			echo found $benchmark_name pid $server_pid on $server:$server_port, killing
+		fi
+		ssh $ssh_opts $server kill $server_pid
+	fi
+}
+
+function process_benchmark_iteration_samples {
+	local iteration_dir=$1
+	local nr_samples=$2
+	local maxstddevpct=$3
+	local primary_metric=$4 # could be: Throughput_aggregate-Gb-sec (for uperf), Throughput_aggregate-IOPS (for fio), Throughput_aggregate-MB-sec (dbench), etc...
+	local num_failures=$5
+	local max_failures=$6
+	local iteration_samples=""
+	local keys=`cat $iteration_dir/sample1/result.txt  | awk -F= '{print $1}'`
+	local key_nr=0
+	local sample=0
+	local avg_stddev_result=""
+	local primary_metric_index=-1
+	local func_name="process_benchmark_iteration_samples"
+
+	# for each key, get the average & stddev
+	printf "%s,%s,%s,%s,%s\n" "metric_type" "metric_name" "average" "stddev" "closest-sample" >"$iteration_dir/result.csv"
+	for key in $keys; do
+		iteration_samples=""
+		for sample in `seq 1 $nr_samples`; do
+			value=`grep -- "$key" $iteration_dir/sample$sample/result.txt | awk -F= '{print $2}'`
+			iteration_samples="$iteration_samples $value"
+		done
+		iteration_samples=`echo $iteration_samples | sed -e s/^" "//`
+		avg_stddev_result=`avg-stddev $iteration_samples`
+		samples[$key_nr]="$iteration_samples"
+		avg[$key_nr]=`echo $avg_stddev_result | awk '{print $1}'`
+		stddev[$key_nr]=`echo $avg_stddev_result | awk '{print $2}'`
+		stddevpct[$key_nr]=`echo $avg_stddev_result | awk '{print $3}'`
+		closest[$key_nr]=`echo $avg_stddev_result | awk '{print $4}'`
+		metric_type=`echo $key | awk -F-- '{print $1}'`
+		metric_name=`echo $key | awk -F-- '{print $2}'`
+		printf "%s,%s,%s,%s,%s\n" "$metric_type" "$metric_name" "${avg[$key_nr]}" "${stddevpct[$key_nr]}" "${closest[$key_nr]}" >>"$iteration_dir/result.csv"
+		if echo $key | grep -q "$primary_metric"; then
+			if echo $key | grep -q -v "server"; then
+				primary_metric_index=$key_nr
+			fi
+		fi
+		((key_nr++))
+	done
+	if [ $primary_metric_index -eq -1 ]; then
+		error_log "[$func_name]could not find the primary metric, "$primary_metric" in $iteration_dir/sample$sample/result.txt"
+		return 1
+	fi
+
+	for sample in `seq 1 $nr_samples`; do
+		sample_dir="sample$sample"
+		# create a symlink to the result dir which most accurately represents the average result
+		if [ $sample -eq ${closest[$primary_metric_index]} ]; then
+			msg="$primary_metric samples[${samples[$primary_metric_index]}]  average[${avg[$primary_metric_index]}] stddev[${stddevpct[$primary_metric_index]}%]  closest-sample[$sample]"
+			echo $msg
+			log $msg
+			pushd "$iteration_dir" >/dev/null; /bin/rm -rf reference-result; ln -sf $sample_dir reference-result; popd >/dev/null
+		else
+			# delete the tool data [and respose time log for rr tests] from the other samples to save space
+			# this option is off by default
+			if [ "$keep_failed_tool_data" == "n" ]; then
+				/bin/rm -rf $iteration_dir/$sample_dir/tools-* $iteration_dir/$sample_dir/response-times.txt
+			fi
+			# since non reference-result sample data is rarely referenced, tar it up to reduce the number of files used
+			if [ "$tar_nonref_data" == "y" ]; then
+				pushd "$iteration_dir" >/dev/null; tar --create --xz --force-local --file=$sample_dir.tar.xz $sample_dir && /bin/rm -rf $sample_dir; popd >/dev/null
+			fi
+		fi
+	done
+	# if we did not achieve the stddevpct, then move this result out of the way and try again
+	local fail=0
+	if [[ $(echo "if (${stddevpct[$primary_metric_index]} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; then
+		fail=1
+	fi
+	if [ $fail -eq 1 ]; then
+		msg="$iteration: the percent standard deviation (${stddevpct[$primary_metric_index]}%) was not within maximum allowed (${maxstddevpct}%)"
+		echo $msg
+		log $msg
+		msg="This iteration will be repeated until either standard deviation is below the maximum allowed, or $max_failures failed attempts."
+		echo $msg
+		log $msg
+		msg="Changing the standard deviation percent can be done with --max-stddev= and the maximum failures with --max-failures="
+		echo $msg
+		log $msg
+		pushd $benchmark_run_dir >/dev/null
+		mv $iteration $iteration-fail$num_failures
+		tar --create --xz --force-local --file=$iteration-fail$num_failures.tar.xz $iteration-fail$num_failures &&\
+		/bin/rm -rf $iteration-fail$num_failures
+		popd >/dev/null
+	fi
+	return $fail
 }
