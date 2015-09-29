@@ -1,0 +1,17 @@
+#!/bin/bash
+
+interval=$1
+file=$2
+pattern=$3
+function count_docker {
+/usr/bin/oc get pods | egrep 1/1 | wc -l
+}
+
+cmd="count_oc"
+
+cat /dev/null >$file
+while true; do
+	echo "timestamp: `date +%s.%N`" >>$file
+	$cmd >>$file
+	sleep $interval
+done
