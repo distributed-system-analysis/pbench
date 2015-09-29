@@ -55,33 +55,41 @@ while true; do
 	esac
 done
 
-tool_file=tools.$group
-		
-if [ -f "$pbench_run/$tool_file" ]; then
-	while read line; do
-		this_name=`echo $line | cut -d: -f1`
+pushd $pbench_run >/dev/null
+# this tool group's directory which stores options, etc.
+tool_group_dir="tools-$group"
+if [ -d "$tool_group_dir" ]; then
+	for this_tool_file in `/bin/ls $tool_group_dir`; do
+		if [ "$this_tool_file" == "label" ]; then
+			echo "removing tool label: `cat $tool_group_dir/$this_tool_file`"
+			/bin/rm -f "$tool_group_dir/$this_tool_file"
+			continue;
+		fi
+		remote=""
 		# if there is a remote tool, call clear tools on the remote host
-		if echo $this_name | grep -q "@"; then
+		if echo $this_tool_file | grep -q "^remote"; then
 			group_opt="--group $group"
 			if [ ! -z "$name" ]; then
 				name_opt="--name=$name"
 			fi
-			remote=`echo $this_name | awk -F@ '{print $2}'`
-			echo running ". ${pbench_install_dir}/profile; clear-tools $group_opt $name_opt" on $remote
-			ssh $ssh_opts -n $remote ". ${pbench_install_dir}/profile; clear-tools $group_opt $name_opt" | sed -e 's/\(.*\)/['$remote']\1/g'
-			remaining_remote_tools=`ssh $ssh_opts -n $remote ". ${pbench_install_dir}/profile; list-tools $grouo_opt"`
+			remote_hostname=`echo $this_tool_file | awk -F@ '{print $2}'`
+			echo running ". ${pbench_install_dir}/profile; clear-tools $group_opt $name_opt" on $remote_hostname
+			ssh $ssh_opts -n $remote_hostname ". ${pbench_install_dir}/profile; clear-tools $group_opt $name_opt" | sed -e 's/\(.*\)/['$remote_hostname']\1/g'
+			remaining_remote_tools=`ssh $ssh_opts -n $remote_hostname ". ${pbench_install_dir}/profile; list-tools $grouo_opt"`
 			if [ -z "$remaining_remote_tools" ]; then
-				echo "The remote host $remote no longer has tools registered for $group group, so the "remote@$remote" entry in the local $tool_file will be removed"
-				sed -i /"^remote@$remote.*"/d "$pbench_run/$tool_file"
+				echo "The remote host $remote_hostname no longer has tools registered for $group group, so the "remote@$remote" entry in the local $tool_group_dir directory will be removed"
+				echo "/bin/rm -f $tool_group_dir/$this_tool_file"
+				/bin/rm -f "$tool_group_dir/$this_tool_file"
 			fi
 			
 		else
 			# remove any existing local entry for this tool
 			# if a tool name was provided, only remove that tool.  If not, all tools should be removed
-			if [ -z "$name" -o "$name" == "$this_name" ]; then
-				echo removing $this_name
-				sed -i /"^$name.*"/d "$pbench_run/$tool_file"
+			if [ -z "$name" -o "$name" == "$this_tool_file" ]; then
+				echo "removing $tool_group_dir/$this_tool_file"
+				/bin/rm -f "$tool_group_dir/$this_tool_file"
 			fi
 		fi
-	done <$pbench_run/$tool_file
+	done
 fi
+popd >/dev/null
