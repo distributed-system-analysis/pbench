@@ -65,16 +65,16 @@ function metadata_log_tools {
 
     log=$1
     
-    # get the remotes from the local tools.$group file
-    # then get the remote tools.$group files for each remote
+    # get the remotes from the local tools-$group directory
+    # then get the remote tools-$group dirs for each remote
     
-    remotes="$(grep @ $pbench_run/tools.$group | sed 's/.*@//
+    remotes="$(/bin/ls $pbench_run/tools-$group | grep "^remote@" | sed 's/.*@//
 s/:[^:]*$//' | tr '\n' ' ')"
 
 
-    # check if the local tools.$group file includes any local tools
+    # check if the local tools-$group directory includes any local tools
     local=0
-    if grep -v @ $pbench_run/tools.$group > /dev/null 2>&1 ;then
+    if /bin/ls $pbench_run/tools-$group | grep -q -v "^remote@" ;then
         local=1
     fi
 
@@ -85,7 +85,7 @@ s/:[^:]*$//' | tr '\n' ' ')"
 hosts: $hostname $remotes
 
 [tools/$hostname]
-$(cat $pbench_run/tools.$group)
+$(/bin/ls $pbench_run/tools-$group)
 
 EOF
     else
@@ -102,7 +102,7 @@ EOF
     for remote in $remotes ;do
         cat >> $log <<EOF
 [tools/$remote]
-$(ssh $remote cat $pbench_run/tools.$group)
+$(ssh $remote /bin/ls $pbench_run/tools-$group)
 
 EOF
     done

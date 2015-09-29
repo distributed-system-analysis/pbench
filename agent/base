@@ -147,9 +147,9 @@ function verify_tool_group {
 		exit 1
 	fi
 	# Ensure we have a tools group file to work with
-	groupfile="$pbench_run/tools.$group"
-	if [ ! -f "$groupfile" ]; then
-		error_log "[$func_name] unable to find default tools group file, $groupfile"
+	tool_group_dir="$pbench_run/tools-$group"
+	if [ ! -d "$tool_group_dir" ]; then
+		error_log "[$func_name] unable to find default tools group file, $tool_group_dir"
 		exit 1
 	fi
 	return 0

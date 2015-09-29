@@ -76,13 +76,13 @@ if [ ! -d $dir ]; then
 fi
 
 # Ensure we have a tools group file to work with
-if [ -f "$pbench_run/tools.$group" ]; then
-	groupfile="$pbench_run/tools.$group"
+if [ -d "$pbench_run/tools-$group" ]; then
+	tool_group_dir="$pbench_run/tools-$group"
 else
 	# Using the default group file
-	groupfile="$pbench_run/tools.default"
-	if [ ! -f "$groupfile" ]; then
-		error_log "Unable to find default tools group file, $groupfile"
+	tool_group_dir="$pbench_run/tools-default"
+	if [ ! -d "$tool_group_dir" ]; then
+		error_log "Unable to find default tools group file, $toOl_group_dir"
 		exit 1
 	fi
 fi
@@ -129,22 +129,22 @@ function gather_remote_sysinfo_data {
 
 lcl_label=""
 let lcl_cnt=0
-while read this_line; do
-	toolname=${this_line%%:*}
-	if [ "$toolname" == "label" ]; then
+for this_tool_file in `/bin/ls $tool_group_dir`; do
+        if [ "$this_tool_file" == "label" ]; then
+		lcl_label=`cat $tool_group_dir/label`
 		let lcl_cnt=lcl_cnt+1
-		lcl_label=${this_line##*:}
-		continue;
-	fi
-	remote=${toolname%%\@*}
-	if [ "$remote" == "$toolname" ]; then
+                continue;
+        fi
+	if echo "$this_tool_file" | grep -q "^remote"; then
+		remote_hostname=`echo "$this_tool_file" | awk -F@ '{print $2}'`
+		label=`cat $tool_group_dir/$this_tool_file`
+		echo gather_remote_sysinfo_data $remote_hostname $label
+		gather_remote_sysinfo_data $remote_hostname $label &
+	else
+		# any other file is assumed to be a local tool
 		let lcl_cnt=lcl_cnt+1
-		continue;
 	fi
-	if [ "$remote" == "remote" ]; then
-		gather_remote_sysinfo_data ${toolname##*\@} ${this_line##*:} &
-	fi
-done < $groupfile
+done
 if [ $lcl_cnt -gt 0 ]; then
 	# We found local tools, or a label, specified in the tools group
 	# file, so we should collect sysinfo data locally
