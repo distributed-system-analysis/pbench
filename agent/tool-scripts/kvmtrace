@@ -129,8 +129,7 @@ fi
 
 tool_dir="$dir/tools-$group"
 tool_output_dir="$tool_dir/$tool"
-tool_cmd_dir="$dir/tools-$group/cmds"
-tool_cmd_file="$tool_cmd_dir/$tool.cmd"
+tool_cmd_file="$tool_output_dir/$tool.cmd"
 #tool_cmd="/usr/bin/trace-cmd record -b 20000 -e kvm >kvmtrace.txt 2>&1"
 tool_cmd="$tool_bin record -a -e kvm $sleep_cmd"
 tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid

@@ -113,8 +113,7 @@ done
 tool_cmd="$tool_bin $record_opts"
 tool_dir="$dir/tools-$group"
 tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
-tool_cmd_dir="$dir/tools-$group/cmds"
-tool_cmd_file="$tool_cmd_dir/$tool.cmd"
+tool_cmd_file="$tool_output_dir/$tool.cmd"
 tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
 tool_output_file=$tool_output_dir/$tool.txt
 case "$mode" in
@@ -128,7 +127,7 @@ case "$mode" in
 	pushd $tool_output_dir >/dev/null
         echo "$tool_cmd" >$tool_cmd_file
 	# call the tool and background it...
-	$tool_cmd & echo $! >"$tool_pid_file"
+	$tool_cmd > "$tool_output_dir/perf-stdout.txt" 2> "$tool_output_dir/perf-stderr.txt" & echo $! >"$tool_pid_file"
 	wait
 	popd >/dev/null
 	;;

@@ -122,8 +122,7 @@ while true; do
 done
 
 tool_dir="$dir/tools-$group"
-tool_cmd_dir="$dir/tools-$group/cmds"
-tool_cmd_file="$tool_cmd_dir/$tool.cmd"
+tool_cmd_file="$tool_output_dir/$tool.cmd"
 tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
 tool_output_file=$tool_dir/$tool.txt
 tool_cmd="$script_path/datalog/$tool-datalog $interval $username $password $tool_output_file"
