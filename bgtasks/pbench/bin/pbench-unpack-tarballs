@@ -175,12 +175,31 @@ for result in $list ;do
     pushd $TMP/$hostname > /dev/null 2>&1
     tar --extract --no-same-owner --no-overwrite-dir --touch --file="$result"
     status=$?
-    popd > /dev/null 2>&1
     if [[ $status -ne 0 ]] ;then
         echo "$TS: tar -xf $result failed: code $status" >&4
         nerrs=$nerrs+1
+        popd > /dev/null 2>&1
         continue
     fi
+    # chmod directories to at least 555
+    find . -type d -print0 | xargs -0 chmod ugo+rx
+    status=$?
+    if [[ $status -ne 0 ]] ;then
+        echo "$TS: chmod go+rx of subdirs failed: code $status" >&4
+        nerrs=$nerrs+1
+        popd > /dev/null 2>&1
+        continue
+    fi
+    # chmod files to at least 444
+    chmod -R ugo+r .
+    status=$?
+    if [[ $status -ne 0 ]] ;then
+        echo "$TS: ``chmod -R +r .'' failed: code $status" >&4
+        nerrs=$nerrs+1
+        popd > /dev/null 2>&1
+        continue
+    fi
+    popd > /dev/null 2>&1
 
     # move the tarball contents to INCOMING
     rm $incoming/index.html
