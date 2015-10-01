@@ -138,7 +138,7 @@ for this_tool_file in `/bin/ls $tool_group_dir`; do
 	if echo "$this_tool_file" | grep -q "^remote"; then
 		remote_hostname=`echo "$this_tool_file" | awk -F@ '{print $2}'`
 		label=`cat $tool_group_dir/$this_tool_file`
-		echo gather_remote_sysinfo_data $remote_hostname $label
+		debug_log "gather_remote_sysinfo_data $remote_hostname $label"
 		gather_remote_sysinfo_data $remote_hostname $label &
 	else
 		# any other file is assumed to be a local tool
