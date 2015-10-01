@@ -75,14 +75,14 @@ if [ ! -d $dir ]; then
 	exit 1
 fi
 
-# Ensure we have a tools group file to work with
+# Ensure we have a tools group directory to work with
 if [ -d "$pbench_run/tools-$group" ]; then
 	tool_group_dir="$pbench_run/tools-$group"
 else
-	# Using the default group file
+	# Using the default group directory
 	tool_group_dir="$pbench_run/tools-default"
 	if [ ! -d "$tool_group_dir" ]; then
-		error_log "Unable to find default tools group file, $toOl_group_dir"
+		error_log "Unable to find default tools group file, $tool_group_dir"
 		exit 1
 	fi
 fi

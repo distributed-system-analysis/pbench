@@ -130,10 +130,10 @@ function verify_tool_group {
 		error_log "Bad argument to verify_tool_group"
 		exit 1
 	fi
-	# Ensure we have a tools group file to work with
+	# Ensure we have a tools group directory to work with
 	tool_group_dir="$pbench_run/tools-$group"
 	if [ ! -d "$tool_group_dir" ]; then
-		error_log "Unable to find default tools group file, $tool_group_dir"
+		error_log "Unable to find default tools group directory, $tool_group_dir"
 		exit 1
 	fi
 	return 0
