@@ -138,6 +138,14 @@ for result in $list ;do
     # make sure that all the relevant state directories exist
     mk_dirs $hostname
 
+    mkdir -p $TMP/$PROG/$hostname
+    status=$?
+    if [[ $status -ne 0 ]] ;then
+        echo "$TS: mkdir -p $TMP/$PROG/$hostname failed: code $status" >&4
+        nerrs=$nerrs+1
+        continue
+    fi
+    
     # XXXX - for now, if it's a duplicate name, just punt and avoid producing the error - the full
     # solution will involve renaming the unpacked directory appropriately.
     if [ ${resultname%%.*} == "DUPLICATE__NAME" ] ;then
@@ -149,7 +157,7 @@ for result in $list ;do
     incoming=$INCOMING/$hostname/$resultname
     mkdir -p $incoming
     status=$?
-    if [[ $? -ne 0 ]] ;then
+    if [[ $status -ne 0 ]] ;then
         echo "$TS: mkdir -p $incoming failed: code $status" >&4
         nerrs=$nerrs+1
         continue
@@ -172,11 +180,11 @@ for result in $list ;do
     fi
 
     # unpack the tarball into a temp area
-    pushd $TMP/$hostname > /dev/null 2>&1
+    pushd $TMP/$PROG/$hostname > /dev/null 2>&1
     tar --extract --no-same-owner --no-overwrite-dir --touch --file="$result"
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: tar -xf $result failed: code $status" >&4
+        echo "$TS: 'tar -xf $result' failed: code $status" >&4
         nerrs=$nerrs+1
         popd > /dev/null 2>&1
         continue
@@ -185,7 +193,7 @@ for result in $list ;do
     find . -type d -print0 | xargs -0 chmod ugo+rx
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: chmod go+rx of subdirs failed: code $status" >&4
+        echo "$TS: 'chmod ugo+rx' of subdirs failed: code $status" >&4
         nerrs=$nerrs+1
         popd > /dev/null 2>&1
         continue
@@ -194,7 +202,7 @@ for result in $list ;do
     chmod -R ugo+r .
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: ``chmod -R +r .'' failed: code $status" >&4
+        echo "$TS: 'chmod -R ugo+r .' failed: code $status" >&4
         nerrs=$nerrs+1
         popd > /dev/null 2>&1
         continue
@@ -242,10 +250,10 @@ for result in $list ;do
     fi
 
     # now move the directory - remove the link on failure
-    mv $TMP/$hostname/$resultname $incoming
+    mv $TMP/$PROG/$hostname/$resultname $incoming
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: Cannot move $TMP/$resultname to $incoming: code $status" >&4
+        echo "$TS: Cannot move $TMP/$PROG/$hostname/$resultname to $incoming: code $status" >&4
         rm $RESULTS/$hostname/$prefix$resultname
         nerrs=$nerrs+1
         continue
