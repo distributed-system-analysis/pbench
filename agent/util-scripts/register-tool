@@ -99,9 +99,9 @@ while true; do
 	if [ ! -z "$remote" ]; then
 		# build an array-construction command, to be used with ssh
 		if [ $count -eq 0 ]; then
-			tool_opt_array_cmd="tool_opts[$count]=\"$1\""
+			tool_opt_array_cmd="tool_opts[$count]=\"$1\";"
 		else
-			tool_opt_array_cmd="$tool_opt_array_cmd; tool_opts[$count]=\"$1\""
+			tool_opt_array_cmd="$tool_opt_array_cmd tool_opts[$count]=\"$1\";"
 		fi
 	fi
 	let count=$count+1
@@ -163,8 +163,8 @@ else    # register this tool on the remote host
 		label_opt="--label=$label"
 	fi
 	# can't really pass an array of tool options over ssh, so here we will actually construct the array within the ssh call, then reference that array
-	debug_log  "$tool_opt_array_cmd;"' register-tool --name='"$name"' --group='"$group"' $label_opt -- "${tool_opts[@]}" 2>&1'
-	ssh $ssh_opts $remote "$tool_opt_array_cmd;"' register-tool --name='"$name"' --group='"$group"' $label_opt -- "${tool_opts[@]}" 2>&1' | sed -e 's/\(.*\)/'[$remote]'\1/g'
+	debug_log "$tool_opt_array_cmd"' register-tool --name='"$name"' --group='"$group"' $label_opt -- "${tool_opts[@]}" 2>&1'
+	ssh $ssh_opts $remote "$tool_opt_array_cmd"' register-tool --name='"$name"' --group='"$group"' $label_opt -- "${tool_opts[@]}" 2>&1' | sed -e 's/\(.*\)/'[$remote]'\1/g'
 	rc=$?
 	if [ ! -d "$pbench_run/tools-$group" ]; then
 		mkdir -p "$pbench_run/tools-$group"
