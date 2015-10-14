@@ -61,36 +61,6 @@ TOP_LOCAL="$2"
 . $dir/pbench-base.sh
 ###########################################################################
 
-
-###########################################################################
-# for testing
-ARCHIVE_TEST=$HOME/tmp/pbench-unpack-tarballs.test/archive/fs-version-001
-TESTDIR="fio__2015-04-06_12:19:26"
-
-function make_test_area() {
-    if [ "$ARCHIVE" != "$ARCHIVE_TEST" ] ;then
-        return
-    fi
-
-    if [ ! -z $ARCHIVE ] ;then
-        echo Removing $ARCHIVE and $INCOMING in order to recreate them - not
-        # rm -rf $ARCHIVE $INCOMING
-    fi
-
-    hostname=$(hostname -s)
-    mk_dirs $hostname
-    (cd /var/lib/pbench; tar --xz -cf $ARCHIVE/$hostname/"$TESTDIR".tar.xz "$TESTDIR")
-    pushd $ARCHIVE/$hostname
-    md5sum "$TESTDIR".tar.xz > "$TESTDIR".tar.xz.md5
-    popd
-    pushd $ARCHIVE/alphaville/TODO
-    ln -s $ARCHIVE/alphaville/*.tar.xz .
-    popd
-}
-
-# make_test_area
-# end for testing
-###########################################################################
 log_init $(basename $0)
 
 # check that all the directories exist
