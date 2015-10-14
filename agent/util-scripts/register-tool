@@ -164,7 +164,7 @@ else    # register this tool on the remote host
 	fi
 	# can't really pass an array of tool options over ssh, so here we will actually construct the array within the ssh call, then reference that array
 	debug_log "$tool_opt_array_cmd"' register-tool --name='"$name"' --group='"$group"' $label_opt -- "${tool_opts[@]}" 2>&1'
-	ssh $ssh_opts $remote "$tool_opt_array_cmd"' register-tool --name='"$name"' --group='"$group"' $label_opt -- "${tool_opts[@]}" 2>&1' | sed -e 's/\(.*\)/'[$remote]'\1/g'
+	ssh $ssh_opts $remote "$tool_opt_array_cmd"' register-tool --name='"$name"' --group='"$group" $label_opt' -- "${tool_opts[@]}" 2>&1' | sed -e 's/\(.*\)/'[$remote]'\1/g'
 	rc=$?
 	if [ ! -d "$pbench_run/tools-$group" ]; then
 		mkdir -p "$pbench_run/tools-$group"
