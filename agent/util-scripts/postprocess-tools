@@ -129,8 +129,9 @@ for this_tool_file in `/bin/ls $tool_group_dir`; do
 		ssh $ssh_opts -n $remote $action-tools --iteration=$iteration --group=$group --dir=$dir &
 	else
 		# tool is local
-		i=0
 		# assemble the tool options in to an array
+		i=0
+		tool_opts=()
 		while read line; do
 			tool_opts[$i]="$line"
 			((i++))
