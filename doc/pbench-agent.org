@@ -27,7 +27,9 @@ Convenience links for some places of interest (N.B. The results directory has ch
 [[*Accessing results on the web][Accessing results on the web]] for the details):
 
 - [[http://pbench.example.com/results/][Results directory]].
-- [[http://pbench.example.com/repo][pbench RPM repo]].
+- [[http://pbench.example.com/repo][pbench RPM repo]]
+- [[http://pbench.example.com/doc/RELEASE-NOTES.html][Release notes]]
+
 
 [2015-01-23 Fri] In preparation for moving the incoming directory to bigger storage,
 older directories in the pbench incoming area were archived (tarred/compressed/moved
