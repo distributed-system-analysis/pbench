@@ -10,5 +10,6 @@ install:
 script:
  - ./agent/bench-scripts/unittests
  - ./agent/tool-scripts/postprocess/unittests
+ - ./agent/util-scripts/unittests
  - ./bgtasks/pbench/bin/unittests
  - ./agent/util-scripts/unittests

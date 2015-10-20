@@ -199,6 +199,7 @@ function metadata_log_end {
     echo "end_run: $(TZ=UTC date '+%F_%H:%M:%S.%N')" >> $log
 }
 
+mkdir -p $dir
 case $1 in
     beg)
         metadata_log_start $dir
