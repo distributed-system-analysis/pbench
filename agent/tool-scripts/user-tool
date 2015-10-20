@@ -24,9 +24,6 @@ interval="10"
 iteration="1"
 options="none"
 
-echo pre-getopt:
-echo "args: [$@]"
-echo "args: 1[$1] 2[$2] 3[$3] 4[$4] 5[$5]"
 # Process options and arguments
 opts=$(getopt -q -o idp --longoptions "dir:,group:,iteration:,interval:,start,stop,install,postprocess,tool-name:,file-to-capture:,start-script:,postprocess-script:" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
@@ -48,13 +45,9 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 eval set -- "$opts";
-echo post-getopt:
 while true; do
-echo "args: [$@]"
-echo "args: 1[$1] 2[$2] 3[$3] 4[$4] 5[$5]"
 	case "$1" in
 		--install)
-		echo "setting mode to [install]"
 		mode="install"
 		shift;
 		;;
@@ -73,10 +66,8 @@ echo "args: 1[$1] 2[$2] 3[$3] 4[$4] 5[$5]"
 		-d|--dir)
 		shift;
 		if [ -n "$1" ]; then
-			echo "\$1 is [$1]"
 			dir="$1"
 			shift
-			echo "dir is now [$dir]"
 		fi
 		;;
 		-g|--group)
@@ -97,7 +88,6 @@ echo "args: 1[$1] 2[$2] 3[$3] 4[$4] 5[$5]"
 		shift;
 		if [ -n "$1" ]; then
 			interval="$1"
-			echo interval is now $interval
 			shift
 		fi
 		;;
@@ -105,7 +95,6 @@ echo "args: 1[$1] 2[$2] 3[$3] 4[$4] 5[$5]"
 		shift;
 		if [ -n "$1" ]; then
 			tool_name="$1"
-			echo "tool_name is now [$tool_name]"
 			shift
 		fi
 		;;
@@ -157,10 +146,12 @@ case "$mode" in
         ;;
 	start)
 	mkdir -p $tool_output_dir
+	pushd $tool_output_dir >/dev/null
 	echo "$tool_cmd" >$tool_cmd_file
 	chmod +x $tool_cmd_file
 	debug_log "$script_name: running $tool_cmd"
-	$tool_cmd >>"$tool_output_file" & echo $! >$tool_pid_file
+	$tool_cmd 2>&1 >"$tool_output_file" & echo $! >$tool_pid_file
+	popd >/dev/null
 	wait
 	;;
 	stop)
@@ -170,9 +161,13 @@ case "$mode" in
 	;;
 	postprocess)
 	debug_log "postprocessing $script_name"
+	pushd $tool_output_dir >/dev/null
 	if [ -z "$file_to_capture" ]; then
-		$script_path/postprocess/$script_name-postprocess $tool_output_dir
+		if [ -e "$postprocess_script" ]; then
+			chmod +x $postprocess_script
+			$postprocess_script 2>&1 >postprocess-output.txt
+		fi
 	fi
+	popd >/dev/null
 	;;
 esac
-
