@@ -151,11 +151,11 @@ case "$mode" in
 	;;
 	postprocess)
 	pushd $tool_output_dir >/dev/null
-	$tool_bin $report_opts --stdio >perf-report.txt 2>/dev/null
+	$tool_bin $report_opts -i ./perf.data --stdio >perf-report.txt 2>&1
 	# report per-cpu
 	mkdir -p perf-percpu
 	for cpu_id in `cat /proc/cpuinfo  | grep processor | awk -F: '{print $2}'`; do
-		$tool_bin $report_opts --stdio --cpu $cpu_id >./perf-percpu/perf-report-cpu_$cpu_id.txt 2>/dev/null
+		$tool_bin $report_opts -i ./perf.data --stdio --cpu $cpu_id >./perf-percpu/perf-report-cpu_$cpu_id.txt 2>/dev/null
 		xz --threads=0 perf-percpu/perf-report-cpu_$cpu_id.txt
 		chmod go+r perf-percpu/perf-report-cpu_$cpu_id.txt.xz
 	done
