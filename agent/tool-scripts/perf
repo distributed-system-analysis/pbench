@@ -164,7 +164,9 @@ case "$mode" in
 		chmod go+r perf.data.xz
 	fi
 	# only postprocess the perf report if the default options are used
-	if [ "$record_opts" == "record -a" ]; then
+	if echo $record_opts | grep -E -q -- -g\|--callgraph; then
+		debug_log "Not going to run perf postprocess script since this report contains a callgraph"
+	else
 		$script_path/postprocess/$script_name-postprocess .
 	fi
 	xz --threads=0 perf-report.txt
