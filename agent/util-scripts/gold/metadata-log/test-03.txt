@@ -1,0 +1,79 @@
++++ Running test-03 metadata-log
+--- Finished test-03 metadata-log (status=0}
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tmp/metadata.log
+/var/tmp/pbench-test-utils/pbench/tools-default
+/var/tmp/pbench-test-utils/pbench/tools-default/iostat
+/var/tmp/pbench-test-utils/pbench/tools-default/label
+/var/tmp/pbench-test-utils/pbench/tools-default/mpstat
+/var/tmp/pbench-test-utils/pbench/tools-default/perf
+/var/tmp/pbench-test-utils/pbench/tools-default/pidstat
+/var/tmp/pbench-test-utils/pbench/tools-default/proc-interrupts
+/var/tmp/pbench-test-utils/pbench/tools-default/proc-vmstat
+/var/tmp/pbench-test-utils/pbench/tools-default/remote@dhcp31-174
+/var/tmp/pbench-test-utils/pbench/tools-default/remote@perf104
+/var/tmp/pbench-test-utils/pbench/tools-default/sar
+/var/tmp/pbench-test-utils/pbench/tools-default/turbostat
+/var/tmp/pbench-test-utils/pbench/tools-default/iostat:
+--interval=3
+/var/tmp/pbench-test-utils/pbench/tools-default/label:
+packet-generator
+/var/tmp/pbench-test-utils/pbench/tools-default/mpstat:
+--interval=3
+/var/tmp/pbench-test-utils/pbench/tools-default/perf:
+--record-opts=record -a --freq=100
+/var/tmp/pbench-test-utils/pbench/tools-default/pidstat:
+--interval=3
+/var/tmp/pbench-test-utils/pbench/tools-default/proc-interrupts:
+--interval=3
+/var/tmp/pbench-test-utils/pbench/tools-default/proc-vmstat:
+--interval=3
+/var/tmp/pbench-test-utils/pbench/tools-default/remote@dhcp31-174:
+kvmguest
+/var/tmp/pbench-test-utils/pbench/tools-default/remote@perf104:
+kvmhost
+/var/tmp/pbench-test-utils/pbench/tools-default/sar:
+--interval=3
+/var/tmp/pbench-test-utils/pbench/tools-default/turbostat:
+--interval=3
+/var/tmp/pbench-test-utils/pbench/tmp/metadata.log:
+[pbench]
+name: tmp
+script: 
+config: 
+date: 1900-01-01_00:00:00
+rpm-version: 
+
+[tools]
+hosts: testhost dhcp31-174 perf104 
+
+[tools/testhost]
+iostat: --interval=3
+label: packet-generator
+mpstat: --interval=3
+perf: --record-opts=record -a --freq=100
+pidstat: --interval=3
+proc-interrupts: --interval=3
+proc-vmstat: --interval=3
+remote@dhcp31-174: kvmguest
+remote@perf104: kvmhost
+sar: --interval=3
+turbostat: --interval=3
+
+[tools/dhcp31-174]
+
+[tools/perf104]
+
+[run]
+controller: testhost.example.com
+--- pbench tree state
++++ pbench.log file contents
+grep: /var/tmp/pbench-test-utils/pbench/pbench.log: No such file or directory
+--- pbench.log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/yum list installed pbench-agent
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh dhcp31-174 /bin/ls /var/tmp/pbench-test-utils/pbench/tools-default
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh perf104 /bin/ls /var/tmp/pbench-test-utils/pbench/tools-default
+--- test-execution.log file contents

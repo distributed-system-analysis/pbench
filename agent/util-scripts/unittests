@@ -1,0 +1,207 @@
+#!/bin/bash
+
+_tdir=$(dirname $(readlink -f $0))
+
+_testroot=/var/tmp/pbench-test-utils
+mkdir -p $_testroot
+if [[ ! -d $_testroot ]]; then
+    echo "ERROR: failed to create test root directory, \"$_testroot\"" >&2
+    exit 1
+fi
+rm -rf $_testroot/*
+if [[ $? -gt 0 ]]; then
+    echo "ERROR: failed to empty test root directory, \"$_testroot\"" >&2
+    exit 1
+fi
+export _testout=$_testroot/output.txt
+export _testlog=$_testroot/test-execution.log
+_testdir=$_testroot/pbench
+
+# Copy util-scripts execution environment to _testroot
+_testopt=$_testroot/opt/pbench-agent
+res=0
+mkdir -p $_testopt/util-scripts
+let res=res+$?
+cp $_tdir/../base $_testopt/
+let res=res+$?
+mkdir -p $_testopt/tool-scripts
+let res=res+$?
+cp $_tdir/../tool-scripts/mpstat $_testopt/tool-scripts
+let res=res+$?
+scripts="$_tdir/register-tool $_tdir/metadata-log"
+for script in $scripts ; do
+    cp $script $_testopt/util-scripts/
+    let res=res+$?
+done
+mkdir -p $_testopt/unittest-scripts/
+let res=res+$?
+cp $_tdir/test-bin/* $_testopt/unittest-scripts/
+let res=res+$?
+if [[ $res -ne 0 ]]; then
+    echo "ERROR: failed to construct unittest execution directory hierarchy" \
+         "under, \"$_testroot\"" >&2
+    exit 1
+fi
+
+# Fixed timestamp output
+export _PBENCH_BENCH_TESTS=1
+# Allows us to intercept scp, ssh, rsync, etc.
+export PATH=$_testopt/tool-scripts:$_testopt/unittest-scripts:$_tconfigtoolsbin:$PATH
+
+res=0
+
+function _run {
+    tname=$1
+    shift
+    tscrpt=$1
+    shift
+    echo "$tname $tscrpt $@"
+    echo "+++ Running $tname $tscrpt" >> $_testout
+    benchmark_bin=$_testopt/unittest-scripts/bm pbench_run=$_testdir pbench_log=$_testdir/pbench.log $_testopt/util-scripts/$tscrpt $@ >> $_testout 2>&1
+    sts=$?
+    echo "--- Finished $tname $tscrpt (status=$sts}" >> $_testout
+    return $sts
+}
+function _save_tree {
+    # Save state of the tree
+    echo "+++ pbench tree state" >> $_testout
+    find $_testdir | sort >> $_testout
+    if [ -d $_testdir/tools-default ] ;then
+        for x in $_testdir/tools-default/* ;do
+            echo $x:
+            cat $x
+        done
+    elif [ -f $_testdir/tools.default ]; then
+        echo $_testdir/tools.default: 
+        cat $_testdir/tools.default
+    fi >> $_testout
+    for x in $(find $_testdir/tmp -type f) ;do
+        echo $x:
+        sed '/start_run/d' $x
+    done >> $_testout
+    echo "--- pbench tree state" >> $_testout
+}
+function _dump_logs {
+    # Dump the state of any generated script logs
+    echo "+++ pbench.log file contents" >> $_testout
+    grep -HvF "\-\-should-n0t-ex1st--" $_testdir/pbench.log >> $_testout 2>&1
+    echo "--- pbench.log file contents" >> $_testout
+    echo "+++ test-execution.log file contents" >> $_testout
+    grep -HvF "\-\-should-n0t-ex1st--" $_testroot/test-execution.log >> $_testout 2>&1
+    echo "--- test-execution.log file contents" >> $_testout
+    rm -f $_testroot/test-execution.log
+}
+function _verify_output {
+    sts=$1
+    tname=$2
+    tscrpt=$3
+    diff -cw $_tdir/gold/${tscrpt}/${tname}.txt $_testout
+    if [[ $? -gt 0 ]]; then
+        echo "FAIL - $tname"
+        mv $_testout $_testroot/${tname}_output.txt
+        sts=1
+    else
+        if [[ $sts -eq 0 ]]; then
+            echo "PASS - $tname"
+            rm $_testout
+        else
+            echo "FAIL - $tname: PASS output but execution returned non-zero exit status"
+        fi
+    fi
+    return $sts
+}
+function _setup_state {
+    mkdir $_testdir
+    if [[ $? -ne 0 ]]; then
+        echo "ERROR: failed to create test pbench directory, \"$_testdir\"" >&2
+        exit 1
+    fi
+}
+function _reset_state {
+    rm -rf $_testdir
+    if [[ -d $_testdir ]]; then
+        echo "ERROR: unable to remove pbench hierarchy" >&2
+        exit 1
+    fi
+}
+
+let errs=0
+
+#
+# 1. Verify register-tool
+#
+_setup_state
+_run test-00 register-tool --name=mpstat --group=default -- --interval=10
+res=$?
+_save_tree
+_dump_logs
+_verify_output $res test-00 register-tool
+res=$?
+let errs=$errs+$res
+_reset_state
+
+#
+# 2. Verify metadata-log - compatibility mode: tools.default file
+#
+_setup_state
+cp $_tdir/samples/metadata-log/test-01/tools.default $_testdir
+_run test-01 metadata-log --dir=$_testdir/tmp beg
+res=$?
+_save_tree
+_dump_logs
+_verify_output $res test-01 metadata-log
+res=$?
+let errs=$errs+$res
+_reset_state
+
+#
+# 3. Verify metadata-log - standard mode: tools-default directory
+#                                         default register-tool-set content
+#
+_setup_state
+cp -r $_tdir/samples/metadata-log/test-02/tools-default $_testdir
+_run test-02 metadata-log --dir=$_testdir/tmp beg
+res=$?
+_save_tree
+_dump_logs
+_verify_output $res test-02 metadata-log
+res=$?
+let errs=$errs+$res
+ _reset_state
+
+#
+# 4. Verify metadata-log - standard mode: tools-default directory
+#                                         remotes
+#
+_setup_state
+cp -r $_tdir/samples/metadata-log/test-03/tools-default $_testdir
+_run test-03 metadata-log --dir=$_testdir/tmp beg
+res=$?
+_save_tree
+_dump_logs
+_verify_output $res test-03 metadata-log
+res=$?
+let errs=$errs+$res
+_reset_state
+
+#
+# 5. Verify metadata-log - standard mode: tools-default directory
+#                                         multiple options
+#
+_setup_state
+cp -r $_tdir/samples/metadata-log/test-04/tools-default $_testdir
+_run test-04 metadata-log --dir=$_testdir/tmp beg
+res=$?
+_save_tree
+_dump_logs
+_verify_output $res test-04 metadata-log
+res=$?
+let errs=$errs+$res
+_reset_state
+
+if [[ $errs -gt 0 ]]; then
+    sts=1
+else
+    sts=0
+fi
+exit $sts
