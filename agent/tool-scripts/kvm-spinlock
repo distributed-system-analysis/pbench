@@ -144,7 +144,7 @@ case "$tool" in
 	sysfs)
 	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file \"$path\" \"$maxdepth\" \"$pattern\""
 	;;
-	proc-sched_debug|proc-vmstat|proc-interrupts|cpuacct|numastat|kvmstat|kvm-spinlock|vmstat)
+	openvswitch|proc-sched_debug|proc-vmstat|proc-interrupts|cpuacct|numastat|kvmstat|kvm-spinlock|vmstat)
 	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file"
 	;;
 	numastat)
