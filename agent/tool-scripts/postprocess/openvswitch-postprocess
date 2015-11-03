@@ -68,13 +68,11 @@ while (my $line = <VMSTAT_TXT>) {
 		$timestamp = $1;
 		$timestamp_ms = $timestamp * 1000;
 		$bridge = "";
-		#print "timestamp_ms[$timestamp_ms]\n";
 		next;
 	}
 
 	if ($line =~ /^bridge: (\S+)/ ) {
 		$bridge = $1;
-		#print "bridge[$bridge]\n";
 		$port = "";
 		next;
 	}
@@ -82,7 +80,6 @@ while (my $line = <VMSTAT_TXT>) {
 	if ($line =~ /^\s+port\s+(\S+):(.*)/ ) {
 		$port = $1;
 		$line = $2;
-		#print "port[$port]\n";
 	}
 
 	if ($line =~ /\s*([r|t]x)(.*)/ ) {
@@ -93,7 +90,6 @@ while (my $line = <VMSTAT_TXT>) {
 		foreach $stat (@stats) {
 			$stat =~ s/^\s+//;
 			$stat =~ s/\s/_/g;
-			#print "bridge[$bridge] port[$port] stat[$stat]\n";
 			if ($stat =~ /(\S+)=(\S+)/) {
 				my $s = $1;
 				my $v = $2;
@@ -121,7 +117,6 @@ for $bridge (sort keys %data) {
 					my $duration = ($timestamp_ms - $last_timestamp_ms)/1000;
 					my $value_diff = $value - $last_value;
 					my $this_rate = $value_diff / $duration;
-					print "bridge[$bridge] port[$port] stat[$stat] value[$value] diff[$value_diff]\n";
 					$rate{"openvswitch"}{$bridge}{$port . "-" . $stat}{$timestamp_ms} = $this_rate;
 					$i++;
 				}
