@@ -94,7 +94,9 @@ Iteration 2-48thread complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/dbench__1900-01-01_00:00:00/summary-result.txt
 /var/tmp/pbench-test-bench/pbench/pbench.log
 /var/tmp/pbench-test-bench/pbench/tmp
-/var/tmp/pbench-test-bench/pbench/tools.default
+/var/tmp/pbench-test-bench/pbench/tools-default
+/var/tmp/pbench-test-bench/pbench/tools-default/mpstat
+/var/tmp/pbench-test-bench/pbench/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench_dbench]processing options

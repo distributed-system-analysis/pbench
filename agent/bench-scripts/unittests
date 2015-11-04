@@ -104,7 +104,7 @@ function _setup_state {
         echo "ERROR: failed to create test pbench directory, \"$_testdir\"" >&2
         exit 1
     fi
-    cp $_tdir/sample-tools/tools.default $_testdir/
+    cp -a $_tdir/sample-tools/tools-default $_testdir/
 }
 function _reset_state {
     rm -rf $_testdir

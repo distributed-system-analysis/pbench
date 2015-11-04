@@ -1,0 +1,18 @@
+#!/bin/bash
+
+interval=$1
+file=$2
+
+cat /dev/null >$file
+bridges=`ovs-vsctl show | grep Bridge | awk '{print $2}' | sed -e 's/"//g'`
+if [ ! -z "$bridges" ]; then
+	while true; do
+		echo "timestamp: `date +%s.%N`" >>$file
+		for b in $bridges; do
+			echo bridge: $b >>$file
+			ovs-ofctl dump-ports $b >>$file
+			echo >>$file
+		done
+		sleep $interval
+	done
+fi
