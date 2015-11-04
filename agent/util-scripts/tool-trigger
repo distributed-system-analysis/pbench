@@ -21,7 +21,7 @@ my $script="tool-trigger";
 my %start_t;
 my %started;
 my %stop_t;
-my $t_file = "/var/lib/pbench-agent/tool-triggers";
+my $t_file = $ENV{pbench_run} . "/tool-triggers";
 open(TRIG, "<$t_file") || die "Could not open $t_file\n";
 while (<TRIG>) {
 	if (/^#/) {

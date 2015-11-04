@@ -38,7 +38,7 @@ if [ -z "$pbench_install_dir" ]; then
 fi
 pbench_tspp_dir=$pbench_install_dir/tool-scripts/postprocess
 pbench_bspp_dir=$pbench_install_dir/bench-scripts/postprocess
-export pbench_install_dir pbench_tspp_dir pbench_bspp_dir
+export pbench_install_dir pbench_tspp_dir pbench_bspp_dir pbench_run
 
 if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
     function timestamp {
