@@ -4,11 +4,17 @@
 script_path=`dirname $0`
 script_name=`basename $0`
 pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+action=`echo $script_name | awk -F- '{print $1}'`
 
 # source the base script
 . "$pbench_bin"/base
 
-# This script will postprocess all tools that belong
+if [ "$action" != "start" -a "$action" != "stop" -a "$action" != "postprocess" -a "$action" != "kill" ]; then 
+	error_log "[$script_name] action "$action" is not supported"
+	exit 1
+fi
+
+# This script will $action all tools that belong
 # to a specific group.  This is typically called
 # by a benchmark script when some activity needs to
 # monitored.
@@ -68,39 +74,31 @@ while true; do
 	esac
 done
 
-if [ -f "$pbench_run/tools.$group" ]; then
-	groupfile="$pbench_run/tools.$group"
+# this tool group's directory which stores options, etc.
+if [ -d "$pbench_run/tools-$group" ]; then
+	tool_group_dir="$pbench_run/tools-$group"
 else
-	# if there were no tools registered for the group, use the
+	# if there were no tools registered for the group, use the 
 	# tools registered in the default group
-	groupfile="$pbench_run/tools.default"
+	tool_group_dir="$pbench_run/tools-default"
 fi
-if [ ! -f "$groupfile" ]; then
-	error_log "[$script_name] failed to find tools group file, \"$groupfile\""
+if [ ! -d "$tool_group_dir" ]; then
+	error_log "[$script_name] failed to find tools group directroy, \"$tool_group_dir\""
 	exit 1
 fi
 
-tool_dir="$dir/tools-$group"
-if [ ! -d $tool_dir ]; then
-	error_log "[$script_name]missing tools group directory: $tool_dir"
-	exit 1
-fi
-
-cmd_dir=$tool_dir/cmds
-mkdir -p $cmd_dir
-if [ ! -d $cmd_dir ]; then
-	error_log "[$script_name]failed to create commands directory: $cmd_dir"
-	exit 1
-fi
+# this tool group's directory which stores tool output
+tool_output_dir="$dir/tools-$group"
+mkdir -p $tool_output_dir
 
 function move_tool_data {
 	local remote_host=$1
 	local remote_label=$2
 	local remote_shost=`echo $remote_host | awk -F. '{print $1}'`
-	pushd $tool_dir >/dev/null
-	tool_data_size=`ssh $ssh_opts -n $remote_host du -sm $tool_dir | awk '{print $1}'`
+	pushd $tool_output_dir >/dev/null
+	tool_data_size=`ssh $ssh_opts -n $remote_host du -sm $tool_output_dir | awk '{print $1}'`
 	debug_log "[$script_name]started: copying tool data ($tool_data_size MB) from $remote_host"
-	ssh $ssh_opts -n $remote_host "cd $tool_dir && tar cf - *" | tar mxf -
+	ssh $ssh_opts -n $remote_host "cd $tool_output_dir && tar cf - *" | tar mxf -
 	# if the full hostname was used in register-tool --remote, make sure that is preserved in the directory name
 	if [ $remote_host != "$remote_shost" ]; then
 		if [ -e "$remote_label:$remote_shost" ]; then
@@ -112,86 +110,82 @@ function move_tool_data {
 	fi
 	debug_log "[$script_name]completed: copying of tool data on $remote_host"
 	debug_log "[$script_name]started: deleting tool data on $remote_host"
-	ssh $ssh_opts -n $remote_host "cd $tool_dir && /bin/rm -rf *"
+	ssh $ssh_opts -n $remote_host "cd $tool_output_dir && /bin/rm -rf *"
 	debug_log "[$script_name]completed: deleting tool data on $remote_host"
 	popd >/dev/null
 }
 
-function run_pp_job {
-	local job_cmdfile=$1
-	local job_cmdfile_output=$2
-	local remote_host=$3
-	local job_cmd="`cat $job_cmdfile`"
-	debug_log "[$script_name]started: $job_cmd"
-	if [ -z "$remote_host" ]; then
-		$cmd_file 2>&1 | tee $cmd_file_output
-	else
-		$cmd_file 2>&1 | sed -e 's/\(.*\)/'[$remote]'\1/g' | tee $cmd_file_output
-	fi
-	debug_log "[$script_name]finished: $job_cmd"
-}
-
-
-### phase 1: generate data from tools
-
-# tool postprocessing
-# issue the postprocess command for each line in the tools file
-while read this_line; do
-	remote=""
-	name=`echo $this_line | awk -F: '{print $1}'`
-	if [ "$name" == "label" ]; then
+### phase 1: for each tool, call the tool script with --$action (start, stop, or postprocess)
+for this_tool_file in `/bin/ls $tool_group_dir`; do
+	if [ "$this_tool_file" == "label" ]; then
 		continue;
 	fi
-	options=`echo $this_line | awk -F: '{print $2}'`
-	if echo $name | grep -q "@"; then
-		# tool is on remote host
-		remote=`echo $name | cut -d\@ -f2`
+	remote=""
+	if echo $this_tool_file | grep -q "^remote"; then
+		remote=`echo $this_tool_file | cut -d\@ -f2`
+		name=`echo $this_tool_file | cut -d\@ -f1`
 		# tool options are stored on the remote host's tool file, so no need to pass it here
-		cmd="ssh $ssh_opts -n $remote postprocess-tools --iteration=$iteration --group=$group --dir=$dir"
-		cmd_file="$cmd_dir/pbench@$remote-postprocess.cmd"
-		cmd_file_output="$cmd_dir/pbench@$remote-postprocess-output.txt"
+		debug_log "[$script_name]running this tool on $remote: ssh $ssh_opts -n $remote $action-tools --iteration=$iteration --group=$group --dir=$dir"
+		ssh $ssh_opts -n $remote $action-tools --iteration=$iteration --group=$group --dir=$dir &
 	else
-		# tool is on local host
-		cmd="$pbench_bin/tool-scripts/$name --postprocess --iteration=$iteration --group=$group --dir=$dir `grep ^$name $groupfile | cut -d: -f2- | sed -e 's/\"/\\\"/g'`"
-		cmd_file="$cmd_dir/pbench-$name-postprocess.cmd"
-		cmd_file_output="$cmd_dir/pbench-$name-postprocess-output.txt"
+		# tool is local
+		# assemble the tool options in to an array
+		i=0
+		tool_opts=()
+		while read line; do
+			tool_opts[$i]="$line"
+			((i++))
+		done < "$tool_group_dir/$this_tool_file"
+		name="$this_tool_file"
+		debug_log "$pbench_bin/tool-scripts/$name --$action --iteration=$iteration --group=$group --dir=$dir ${tool_opts[@]}"
+		if [ "$action" == "start" ]; then 
+			# using screen to avoid tty issues and guarantee tool is backgrounded
+			screen -dmS "pbench-tool-$name-$group-$iteration" $pbench_bin/tool-scripts/$name --$action --iteration=$iteration --group=$group --dir=$dir "${tool_opts[@]}"
+			rc=$?
+			if [ $rc -ne 0 ]; then
+				error_log "screen command failed: screen -dmS pbench-tool-$name-$group-$iteration $pbench_bin/tool-scripts/$name --$action --iteration=$iteration --group=$group --dir=$dir ${tool_opts[@]}"
+			fi
+		else
+			if [ "$action" == "kill" ]; then
+				screens_to_kill=`screen -ls | grep "pbench-tool-$name" | awk '{print $1}'`
+				pids_to_kill=`echo $screens_to_kill | awk -F. '{print $1}'`
+				echo "killing the following screen sessions for $name:"
+				echo "$screens_to_kill"
+				kill $pids_to_kill
+			else
+				$pbench_bin/tool-scripts/$name --$action --iteration=$iteration --group=$group --dir=$dir "${tool_opts[@]}" &
+			fi
+		fi
+		
 	fi
-	debug_log "[$script_name]$cmd"
-	echo $cmd >$cmd_file
-	chmod +x $cmd_file
-	run_pp_job $cmd_file $cmd_file_output $remote &
-done <$groupfile
+done
 wait
-
-# phase 2: now that the local results are ready, move them
-# down to $tool_dir/[$label:]$hostname.
-if grep -q -v "@" $groupfile; then
-	pushd $tool_dir >/dev/null
-	if grep -q "^label:" $groupfile; then
-		label="`grep "^label:" $groupfile | awk -F: '{print $2}'`"
-		mkdir "$label:$hostname"
-		mv * "$label:$hostname" 2>/dev/null
-	else
-		mkdir -p $hostname
-		mv * $hostname 2>/dev/null
-	fi
-	popd >/dev/null
-fi
-
-### phase 3: copy over data from remote hosts
-# for the remote tools, copy over the postprocess data
-while read this_line; do
-	name=`echo $this_line | awk -F: '{print $1}'`
-	options=`echo $this_line | awk -F: '{print $2}'`
-	# this copies data from the remote host after it has completed its postprocessing
-	if echo $name | grep -q "@"; then
-		remote=`echo $name | cut -d\@ -f2`
-		name=`echo $name | cut -d\@ -f1`
-		label="$options" 
+if [ "$action" == "postprocess" ]; then
+	# phase 2: now that the local results are ready, move them
+	# down to $tool_output_dir/[$label:]$hostname.
+	for this_tool_file in `/bin/ls $tool_group_dir`; do
+		if echo $this_tool_file | grep -q -v "@"; then
+			pushd $tool_output_dir >/dev/null
+			if [ -f "$tool_group_dir/label" ]; then
+				label="`cat "$tool_group_dir/label"`"
+				mkdir -p "$label:$hostname"
+				mv * "$label:$hostname" 2>/dev/null
+			else
+				mkdir -p $hostname
+				mv * $hostname 2>/dev/null
+			fi
+			popd >/dev/null
+		fi
+	done
+	
+	### phase 3: copy over data from remote hosts
+	# for the remote tools, copy over the postprocess data
+	for this_tool_file in `/bin/ls $tool_group_dir | grep "^remote"`; do
+		remote_hostname=`echo "$this_tool_file" | awk -F@ '{print $2}'`
+		label=`cat $tool_group_dir/$this_tool_file`
 		# copy over the data from postprocessing
-		move_tool_data $remote $label &
-	fi
-done <$groupfile
-wait
-
+		move_tool_data $remote_hostname $label &
+	done
+	wait
+fi
 debug_log "[$script_name]completed: $@"

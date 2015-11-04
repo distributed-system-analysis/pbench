@@ -1,17 +1,19 @@
 #!/bin/bash
 
+# This provides the ability to either:
+# 1) run user-provided scripts to start/stop/postprocess a custom tool
+# or
+# 2) capture contents of a file at specified interval
+# 
+# If you use scripts, they must already be in installed
+# if you opt to capture a file, please make sure the file is not enormous
+
 script_path=`dirname $0`
 script_name=`basename $0`
 pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 
 # source the base script
 . "$pbench_bin"/base
-
-# Perftool scripts must provide the following functions
-# 1) Install the tool
-# 2) Start data collection
-# 3) Stop data collection
-# 4) post-process the data
 
 # Defaults
 tool=$script_name
@@ -21,33 +23,25 @@ mode=""
 interval="10"
 iteration="1"
 options="none"
-if [ "$script_name" == "sysfs" ]; then
-	pattern='*'
-	maxdepth=4
-	path=""
-fi
 
 # Process options and arguments
-opts=$(getopt -q -o idp --longoptions "path:,maxdepth:,pattern:,vm:,dir:,group:,iteration:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o idp --longoptions "dir:,group:,iteration:,interval:,start,stop,install,postprocess,tool-name:,file-to-capture:,start-script:,postprocess-script:" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"
 	printf "The following options are available: \n\n"
 	printf -- "\t--install,			install this perf tool\n"
 	printf "\n"
+	printf -- "\t--tool-name		you must provide a unique name for this user tool\n"
 	printf -- "\t--start|stop|postprocess	start/stop/postprocess the data collection\n"
+	printf -- "\t--start-script		run this user-provided script when starting this tool\n"
+	printf -- "\t--postproceess-script	run this user-provided script when postprocessing this tool\n"
+	printf -- "\t--file-to-capture		capture the contents of this file at each interval\n"
+	printf -- "\t				you can use this option, or the start/stop/postprocess-script, but not both at the same time\n"
 	printf -- "\t--iteration=int 		the iteration (required)\n"
 	printf -- "\t--group=str		the perftool group (required)\n"
 	printf -- "\t--dir=str			directory to store data collection (required)\n"
 	printf -- "\t--interval=int		number of seconds between each data collection\n"
-	if [ "$script_name" == "sysfs" ]; then
-		printf -- "\t--pattern=str		a pattern passed to -name option of find command to filter files\n"
-		printf -- "\t--path=str			a path (beyond the /sysfs prefix) passed to -name option of find command to filter files\n"
-		printf -- "\t--maxdepth=int		a maxdepth passed to -name option of find command to filter files\n"
-	fi
-	if [ "$script_name" == "virsh-migrate" ]; then
-		printf -- "\t--vm=str			the name of the VM being migrated\n"
-	fi
 	exit 1
 fi
 eval set -- "$opts";
@@ -97,31 +91,31 @@ while true; do
 			shift
 		fi
 		;;
-		--path)
+		--tool-name)
 		shift;
 		if [ -n "$1" ]; then
-			path="$1"
+			tool_name="$1"
 			shift
 		fi
 		;;
-		--maxdepth)
+		--file-to-capture)
 		shift;
 		if [ -n "$1" ]; then
-			maxdepth="$1"
+			file_to_capture="$1"
 			shift
 		fi
 		;;
-		--pattern)
+		--start-script)
 		shift;
 		if [ -n "$1" ]; then
-			pattern="$1"
+			start_script="$1"
 			shift
 		fi
 		;;
-		--vm)
+		--postprocess-script)
 		shift;
 		if [ -n "$1" ]; then
-			vm="$1"
+			postprocess_script="$1"
 			shift
 		fi
 		;;
@@ -132,34 +126,32 @@ while true; do
 	esac
 done
 
+if [ -z "$tool_name" ]; then
+	error_log "[$script_name] You must provide --tool-name"
+	exit 1
+fi
+
 tool_dir="$dir/tools-$group"
-tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
+tool_output_dir=$tool_dir/$tool-$tool_name # all tools keep data in their tool specific dir
 tool_cmd_file="$tool_output_dir/$tool.cmd"
-tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
-tool_output_file=$tool_output_dir/$tool.txt
-case "$tool" in
-	virsh-migrate|qemu-migrate)
-	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file $vm"
-	;;
-	sysfs)
-	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file \"$path\" \"$maxdepth\" \"$pattern\""
-	;;
-	openvswitch|proc-sched_debug|proc-vmstat|proc-interrupts|cpuacct|numastat|kvmstat|kvm-spinlock|vmstat)
-	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file"
-	;;
-	numastat)
-	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file $pattern"
-	;;
-esac
+tool_pid_file=$pbench_tmp/$group.$iteration.$tool-$tool_name.pid
+tool_output_file=$tool_output_dir/$tool-$tool_name.txt
+if [ ! -z "$file_to_capture" ]; then
+	tool_cmd="$script_path/datalog/$tool-datalog $interval $file_to_capture $tool_output_file"
+else
+	tool_cmd="$start_script"
+fi
 case "$mode" in
 	install)
         ;;
 	start)
 	mkdir -p $tool_output_dir
+	pushd $tool_output_dir >/dev/null
 	echo "$tool_cmd" >$tool_cmd_file
 	chmod +x $tool_cmd_file
 	debug_log "$script_name: running $tool_cmd"
-	$tool_cmd >>"$tool_output_file" & echo $! >$tool_pid_file
+	$tool_cmd 2>&1 >"$tool_output_file" & echo $! >$tool_pid_file
+	popd >/dev/null
 	wait
 	;;
 	stop)
@@ -169,7 +161,13 @@ case "$mode" in
 	;;
 	postprocess)
 	debug_log "postprocessing $script_name"
-	$script_path/postprocess/$script_name-postprocess $tool_output_dir
+	pushd $tool_output_dir >/dev/null
+	if [ -z "$file_to_capture" ]; then
+		if [ -e "$postprocess_script" ]; then
+			chmod +x $postprocess_script
+			$postprocess_script 2>&1 >postprocess-output.txt
+		fi
+	fi
+	popd >/dev/null
 	;;
 esac
-

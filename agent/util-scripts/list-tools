@@ -74,23 +74,27 @@ if [ -d "$pbench_run" ]; then
 	if [ -z $name ]; then
 		# list tools in one or all groups
 		if [ -z "$group" ]; then
-			groups=`/bin/ls tools.* 2>/dev/null | sed -e s/^tools\.//g`
+			groups=`/bin/ls -d tools-* 2>/dev/null | sed -e s/^tools-//g`
 		else
 			groups="$group"
 		fi
 		for group in $groups; do
 			tools=""
-			for tool in `cat tools.$group | grep -v "^label:" | awk -F: '{print $1}'`; do
-				if echo $tool | grep -q "@"; then
-                                	remote_host=`echo $tool | awk -F@ '{print $2}'`
-                                	tool=`echo $tool | awk -F@ '{print $1}'`
+			tool_group_dir="tools-$group"
+			for this_tool_file in `/bin/ls $tool_group_dir`; do
+				if [ "$this_tool_file" == "label" ]; then
+					continue;
+				fi
+				if echo $this_tool_file | grep -q "^remote"; then
+                                	remote_host=`echo $this_tool_file | awk -F@ '{print $2}'`
+                                	tool=`echo $this_tool_file | awk -F@ '{print $1}'`
                                 	remote_tools=`ssh $ssh_opts -n $remote_host ". ${pbench_install_dir}/profile; list-tools $with_options_opt --group=$group" | sed -e s/"^$group: "//`
-					tools=",$remote_host[$remote_tools]$tools"
+					tools="$tools,$remote_host[$remote_tools]"
                         	else
 					if [ $with_options -eq 1 ]; then
-						tool="$tool `grep ^$tool tools.$group | cut -d: -f2-`"
+						this_tool_file="$this_tool_file `cat $tool_group_dir/$this_tool_file`"
 					fi
-					tools=",$tool$tools"
+					tools="$tools,$this_tool_file"
                         	fi
 			done
 			tools=`echo $tools | sed -e s/"^,"//`
@@ -101,8 +105,8 @@ if [ -d "$pbench_run" ]; then
 		done
 	else 
 		# list the groups which include this tool
-		for group in `/bin/ls tools.* 2>/dev/null | sed -e s/^tools\.//g`; do
-			if grep -q "^$name\|" tools.$group; then
+		for group in `/bin/ls tools-* 2>/dev/null | sed -e s/^tools-//g`; do
+			if /bin/ls tools-$group | grep -q "^$name"; then
 				groups="$groups $group"
 			fi
 		done
