@@ -100,7 +100,7 @@ function fio_usage() {
 }
 
 function fio_process_options() {
-	opts=$(getopt -q -o jic:t:b:s:d: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,clients:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:" -n "getopt.sh" -- "$@");
+	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,clients:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:" -n "getopt.sh" -- "$@");
 	if [ $? -ne 0 ]; then
 		printf "\t${benchmark}: you specified an invalid option\n\n"
 		fio_usage
@@ -173,7 +173,7 @@ function fio_process_options() {
                                 shift;
                         fi
                         ;;
-			-r|--ramptime)
+			--ramptime)
 			shift;
 			if [ -n "$1" ]; then
 				ramptime="$1"
