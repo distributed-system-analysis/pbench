@@ -11,3 +11,4 @@ script:
  - ./agent/bench-scripts/unittests
  - ./agent/tool-scripts/postprocess/unittests
  - ./bgtasks/pbench/bin/unittests
+ - ./agent/util-scripts/unittests
