@@ -42,7 +42,7 @@ export pbench_install_dir pbench_tspp_dir pbench_bspp_dir pbench_run
 
 if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
     function timestamp {
-        echo "$(date +'%Y%m%d_%H:%M:%S.%N')"
+        echo "$(date --utc +'%Y%m%d_%H:%M:%S.%N')"
     }
 else
     function timestamp {
@@ -79,7 +79,7 @@ function debug_log {
 # Some standard global vars - try the config file first and fall back on hardwired defaults
 # which are valid today.
 if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
-    date=`date "+%F_%H:%M:%S"`
+    date=`date --utc "+%F_%H:%M:%S"`
     hostname=`hostname -s`
     full_hostname=`hostname`
 else

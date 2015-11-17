@@ -173,8 +173,12 @@ EOF
 
 function metadata_log_start {
     dir=$1
+    ts=$2
     log=$dir/metadata.log
 
+    if [ -z "$ts" ] ;then
+        ts=$(date --utc '+%F_%H:%M:%S.%N')
+    fi
     cat > $log <<EOF
 [pbench]
 name: $(basename $dir)
@@ -188,15 +192,30 @@ EOF
     cat >> $log <<EOF
 [run]
 controller: $full_hostname
-start_run: $(TZ=UTC date '+%F_%H:%M:%S.%N')
+start_run: $ts
 EOF
 }
 
 function metadata_log_end {
     dir=$1
+    int=$2
     log=$dir/metadata.log
 
-    echo "end_run: $(TZ=UTC date '+%F_%H:%M:%S.%N')" >> $log
+    if [ ! -f $log ] ;then
+        # Somehow, metadata_log_start was never called !?!?
+        # Call it explicitly.
+        # Manufacture a start_run timestamp and pass it
+        # explicitly. The manufactured stamp is the date that
+        # the base file calculates (now in UTC).
+        start_ts=$date
+        metadata_log_start $dir $start_ts
+    fi
+    if ! grep -q end_run $log ;then
+        echo "end_run: $(date --utc '+%F_%H:%M:%S.%N')" >> $log
+    fi
+    if [ "$int" == "int" ] ;then
+        echo "run_interrupted: true" >> $log
+    fi
 }
 
 mkdir -p $dir
@@ -206,6 +225,9 @@ case $1 in
         ;;
     end)
         metadata_log_end $dir
+        ;;
+    int)
+        metadata_log_end $dir int
         ;;
     *)
         usage
