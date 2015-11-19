@@ -1,239 +1,251 @@
 readwrite_IOPS = [
   {
-    key: 'fio_single-vm-xfs-cache:none-io:native-disk:ssd-fs:xfs-nfsserver:perf10-iodepth-1-jobs-32-ioeng:sync-profile:latency-with-perf-with-stefan-rhel72-vcpu-2-fresh-install-run:10_2015-11-17_01:05:49',
+    key: 'fio_multi-vm-lvm-cache:none-io:native-disk:ssd-fs:lvm-iodepth-1-jobs-32-ioeng:sync-profile:latency-without-perf-full-run-with-stefan-rhel72-vcpu-2-run:1_2015-10-30_16:50:41',
     values: [
        {
          "label" : "randread-16KiB",
-         "value" : 52383.3
+         "value" : 139481.8
        },
        {
          "label" : "randread-64KiB",
-         "value" : 17897.4
+         "value" : 26729.0
        },
        {
          "label" : "write-64KiB",
-         "value" : 10436.1
+         "value" : 17683.0
        },
        {
          "label" : "read-256KiB",
-         "value" : 4486.3
+         "value" : 8993.6
        },
        {
          "label" : "read-4KiB",
-         "value" : 70195.5
+         "value" : 457925.2
        },
        {
          "label" : "write-4KiB",
-         "value" : 23740.1
+         "value" : 254639.0
        },
        {
          "label" : "write-4096KiB",
-         "value" : 253.3
+         "value" : 266.1
        },
        {
          "label" : "read-1024KiB",
-         "value" : 1121.7
+         "value" : 1909.2
        },
        {
          "label" : "randwrite-16KiB",
-         "value" : 30360.3
+         "value" : 59889.7
        },
        {
          "label" : "randrw-1024KiB",
-         "value" : 1534.7
+         "value" : 1282.5
        },
        {
          "label" : "randrw-4KiB",
-         "value" : 45388.1
+         "value" : 252146.8
        },
        {
          "label" : "write-16KiB",
-         "value" : 18265.6
+         "value" : 62291.2
        },
        {
          "label" : "randrw-16KiB",
-         "value" : 32964.4
+         "value" : 81910.4
        },
        {
          "label" : "randwrite-4KiB",
-         "value" : 41281.1
+         "value" : 265015.2
        },
        {
          "label" : "read-64KiB",
-         "value" : 17896.3
+         "value" : 32541.5
        },
        {
          "label" : "randwrite-4096KiB",
-         "value" : 245.6
+         "value" : 254.8
        },
        {
          "label" : "randread-4096KiB",
-         "value" : 281.7
+         "value" : 299.1
        },
        {
          "label" : "read-4096KiB",
-         "value" : 281.1
+         "value" : 361.8
        },
        {
          "label" : "randrw-4096KiB",
-         "value" : 371.3
+         "value" : 251.3
        },
        {
          "label" : "randrw-64KiB",
-         "value" : 15854.5
+         "value" : 20782.0
        },
        {
          "label" : "randwrite-1024KiB",
-         "value" : 1007.4
+         "value" : 950.8
        },
        {
          "label" : "write-1024KiB",
-         "value" : 1100.7
+         "value" : 1075.6
        },
        {
          "label" : "randrw-256KiB",
-         "value" : 6138.7
+         "value" : 5062.2
        },
        {
-         "label" : "read-16KiB",
-         "value" : 54405.9
+         "label" : "randwrite-256KiB",
+         "value" : 4013.3
+       },
+       {
+         "label" : "write-256KiB",
+         "value" : 4291.0
        },
        {
          "label" : "randread-1024KiB",
-         "value" : 1121.8
+         "value" : 2292.9
+       },
+       {
+         "label" : "read-16KiB",
+         "value" : 143702.8
        },
        {
          "label" : "randwrite-64KiB",
-         "value" : 11967.9
+         "value" : 16907.1
        },
        {
          "label" : "randread-256KiB",
-         "value" : 4487.0
+         "value" : 8751.8
        },
        {
          "label" : "randread-4KiB",
-         "value" : 66131.2
+         "value" : 460911.4
        }
      ]
   },
   {
-    key: 'fio_single-vm-xfs-cache:none-io:threads-disk:ssd-fs:xfs-nfsserver:perf10-iodepth-1-jobs-32-ioeng:sync-profile:latency-with-perf-with-stefan-rhel72_vcpu-2-fresh-install-run:10_2015-11-17_04:18:12',
+    key: 'fio_multi-vm-lvm-cache:none-io:threads-disk:ssd-fs:lvm-iodepth-1-jobs-32-ioeng:sync-profile:latency-without-perf-full-run-with-stefan-rhel72_vcpu-2-run:1_2015-10-30_21:11:48',
     values: [
        {
          "label" : "randread-16KiB",
-         "value" : 53413.4
+         "value" : 132490.4
        },
        {
          "label" : "randread-64KiB",
-         "value" : 17911.2
+         "value" : 26102.7
        },
        {
          "label" : "write-64KiB",
-         "value" : 11123.7
+         "value" : 17080.2
        },
        {
          "label" : "read-256KiB",
-         "value" : 4486.9
+         "value" : 8989.5
        },
        {
          "label" : "read-4KiB",
-         "value" : 77136.0
+         "value" : 428059.0
        },
        {
          "label" : "write-4KiB",
-         "value" : 25608.0
+         "value" : 239264.2
        },
        {
          "label" : "write-4096KiB",
-         "value" : 245.3
+         "value" : 247.4
        },
        {
          "label" : "read-1024KiB",
-         "value" : 1121.8
+         "value" : 2274.8
        },
        {
          "label" : "randwrite-16KiB",
-         "value" : 28925.8
+         "value" : 59123.1
        },
        {
          "label" : "randrw-1024KiB",
-         "value" : 1527.8
+         "value" : 1276.0
        },
        {
          "label" : "randrw-4KiB",
-         "value" : 47834.7
+         "value" : 249006.2
        },
        {
          "label" : "write-16KiB",
-         "value" : 20650.0
+         "value" : 64627.7
        },
        {
          "label" : "randrw-16KiB",
-         "value" : 34384.8
+         "value" : 76286.1
        },
        {
          "label" : "randwrite-4KiB",
-         "value" : 39183.0
+         "value" : 255972.9
        },
        {
          "label" : "read-64KiB",
-         "value" : 17927.5
+         "value" : 33582.4
        },
        {
          "label" : "randwrite-4096KiB",
-         "value" : 248.7
+         "value" : 214.7
        },
        {
          "label" : "randread-4096KiB",
-         "value" : 281.5
+         "value" : 167.5
        },
        {
          "label" : "read-4096KiB",
-         "value" : 281.0
+         "value" : 180.1
        },
        {
          "label" : "randrw-4096KiB",
-         "value" : 361.4
+         "value" : 154.0
        },
        {
          "label" : "randrw-64KiB",
-         "value" : 15880.0
+         "value" : 19713.0
        },
        {
          "label" : "randwrite-1024KiB",
-         "value" : 1003.1
+         "value" : 843.5
        },
        {
          "label" : "write-1024KiB",
-         "value" : 1084.0
+         "value" : 1133.9
        },
        {
          "label" : "randrw-256KiB",
-         "value" : 6217.4
+         "value" : 5032.0
+       },
+       {
+         "label" : "randwrite-256KiB",
+         "value" : 3574.4
        },
        {
          "label" : "write-256KiB",
-         "value" : 3588.1
-       },
-       {
-         "label" : "read-16KiB",
-         "value" : 54949.7
+         "value" : 4278.4
        },
        {
          "label" : "randread-1024KiB",
-         "value" : 1121.7
+         "value" : 2160.8
+       },
+       {
+         "label" : "read-16KiB",
+         "value" : 141733.6
        },
        {
          "label" : "randwrite-64KiB",
-         "value" : 11457.1
+         "value" : 15730.0
        },
        {
          "label" : "randread-256KiB",
-         "value" : 4485.9
+         "value" : 8478.1
        },
        {
          "label" : "randread-4KiB",
-         "value" : 75040.1
+         "value" : 460494.9
        }
      ]
   }
