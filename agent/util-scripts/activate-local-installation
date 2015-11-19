@@ -11,11 +11,22 @@
 
 configfile=$1
 keyfile=$2
+user=$(getconf.py -C $configfile pbench_user pbench-agent)
+group=$(getconf.py -C $configfile pbench_group pbench-agent)
+
+# fallbacks assume the existence of user/group pbench
+if [ -z "$user" ] ;then
+    user=pbench
+fi
+if [ -z "$group" ] ;then
+    group=pbench
+fi
 
 if [ -f $configfile ] ;then
     pbenchdir=$(getconf.py -C $configfile pbench_install_dir pbench-agent)
     if [ ! -z "$pbenchdir" -a -d $pbenchdir -a -d $pbenchdir/config ] ;then
         cp $configfile $pbenchdir/config/pbench-agent.conf
+        chown ${user}.${group} $pbenchdir/config/pbench-agent.conf
     else
         exit 1
     fi
@@ -26,6 +37,8 @@ fi
 # if we have not exited, then $pbenchdir is good.
 if [ -f $keyfile ] ;then
     cp $keyfile $pbenchdir/id_rsa
+    chown $user.$group $pbenchdir/id_rsa
+    chmod 640 $pbenchdir/id_rsa
 else
     exit 3
 fi
