@@ -39,6 +39,7 @@ test_types="read,randread"		# default is -non- destructive
 block_sizes="4,64,1024"
 targets="/tmp/fio"
 directory=""
+numjobs=""
 runtime=30
 ramptime=5
 iodepth=32
@@ -100,10 +101,12 @@ function fio_usage() {
 		printf "\t\tprovide the path of an existig result (typically somewhere in $pbench_run\n"
 		printf -- "\t--directory=<path>\n"
 		printf "\t\tprovide the path to an existing directory where fio operations will be performed\n"
+		printf -- "\t--numjobs=<int>\n"
+		printf "\t\tnumber of jobs to run, if not given then fio default of numjobs=1 will be used\n"
 }
 
 function fio_process_options() {
-	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,clients:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:" -n "getopt.sh" -- "$@");
+	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,clients:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:" -n "getopt.sh" -- "$@");
 	if [ $? -ne 0 ]; then
 		printf "\t${benchmark}: you specified an invalid option\n\n"
 		fio_usage
@@ -266,6 +269,13 @@ function fio_process_options() {
 				directory="$1"
 				shift;
 			fi
+			;; 
+			--numjobs)
+			shift;
+			if [ -n "$1" ]; then
+				numjobs="$1"
+				shift;
+			fi 
 			;;
 			--)
 			shift;
@@ -417,6 +427,9 @@ function fio_create_jobfile() {
 			printf "directory=$directory\n" >>$fio_job_file
 		else
 			printf "filename=%s\n" $target  >>$fio_job_file
+		fi 
+		if [ ! -z "$numjobs" ]; then 
+			printf "numjobs=$numjobs\n"	>>$fio_job_file
 		fi 
 		let job_num=$job_num+1
 	done
