@@ -9,22 +9,23 @@ my $tool_group = $ARGV[2];
 my $js_str;
 
 open( JS, "<$dir/fio-result.txt" ) or die "Can't open $dir/fio-result.txt: $!";
-# skip past the non json stuff
+# there may be more than one json array, and we want only the last one
 while ( <JS> ) {
+	# skip past the non json stuff
 	if ( /{/ ) {
-		last;
+		$js_str = "{\n";
+		while ( <JS> ) {
+			$js_str = $js_str . $_;
+			if ( /^}/ ) {
+				last;
+			}
+		}
 	}
 }
 
-if ( eof JS ) {
-	print "Could not read rest of json data\n";
-	exit 1;
-} else {
-	# read the rest of the file in to one string
-	local $/=undef;
-	binmode JS;
-	$js_str = <JS>;
-	$js_str = "{\n" . $js_str;
+if ( ! defined $js_str ) {
+	print "Could not find any json data, exiting\n";
+	exit 1
 }
 
 # convert [json] string in to big hash
