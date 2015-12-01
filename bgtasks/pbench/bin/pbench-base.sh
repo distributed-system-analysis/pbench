@@ -9,9 +9,23 @@ if [[ -z "$TOP" ]]; then
     doexit "TOP not defined before sourcing"
 fi
 
+if [[ -z "${TOP_LOCAL}" ]] ;then
+    TOP_LOCAL=$TOP
+fi
 # The only directory we verify exists here is $TMP, we leave
 # the rest to the individual scripts to check.
-TMP=$TOP/tmp
+
+# $TOP is generally some distributed file system with lots of space.
+# TMP was a subdirectory, but that has caused problems occasionally,
+# so we (optionally) make it a local directory now. That decouples the
+# immediate availability of data from long-term storage
+# considerations.  Not every script does that however: see
+# pbench-unpack-tarballs for a script that does this, when called with
+# two arguments (if it is called with one, both TOP and TOP_LOCAL are
+# set to the same thing).
+
+# TMP=$TOP/tmp
+TMP=${TOP_LOCAL}/tmp
 test -d $TMP || doexit "Bad TMP=$TMP"
 
 if which getconf.py > /dev/null 2>&1 ;then
@@ -21,11 +35,11 @@ else
     exit 2
 fi
 
-ARCHIVE=$TOP/archive/fs-version-001
-LOGSDIR=$TOP/logs
-INCOMING=$TOP/public_html/incoming
+ARCHIVE=${TOP}/archive/fs-version-001
+LOGSDIR=${TOP}/logs
+INCOMING=${TOP}/public_html/incoming
 # this is where the symlink forest is going to go
-RESULTS=$TOP/public_html/results
+RESULTS=${TOP}/public_html/results
 
 if [[ -z "$_PBENCH_BGTASKS_TEST" ]]; then
     function timestamp {
