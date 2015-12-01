@@ -47,7 +47,7 @@ crontab = 41 4 * * *  flock -n %(deploy-lock-dir)s/pbench-backup-tarballs.lock %
 
 [pbench-unpack-tarballs]
 scripts = pbench-unpack-tarballs
-crontab = * * * * *  flock -n %(deploy-lock-dir)s/pbench-unpack-tarballs.lock %(deploy-script-dir)s/pbench-unpack-tarballs /pbench
+crontab = * * * * *  flock -n %(deploy-lock-dir)s/pbench-unpack-tarballs.lock %(deploy-script-dir)s/pbench-unpack-tarballs /pbench /pbench-local
 
 [pbench-copy-sosreports]
 scripts = pbench-copy-sosreports
