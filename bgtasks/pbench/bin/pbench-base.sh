@@ -59,10 +59,23 @@ fi
 mail_recipients=$(getconf.py mailto mail)
 
 # make all the state directories for the pipeline and any others needed
+LINKDIRS="TODO TO-COPY-SOS TO-INDEX INDEXED WONT-INDEX DONE"
+
 function mk_dirs {
     hostname=$1
 
-    mkdir -p $ARCHIVE/$hostname/{TODO,TO-COPY-SOS,TO-INDEX,INDEXED,WONT-INDEX,DONE} $TMP/$hostname $INCOMING/$hostname
+    for d in $LINKDIRS ;do
+        thedir=$ARCHIVE/$hostname/$d
+        mkdir -p $thedir
+        if [[ $? -ne 0 || ! -d "$thedir" ]]; then
+            return 1
+        fi
+    done
+    # to accommodate different exit codes from index-pbench
+    mkdir -p $ARCHIVE/$hostname/WONT-INDEX.{1..9}
+    if [[ $? -ne 0 ]]; then
+        return 2
+    fi
 }
 
 function log_init {
