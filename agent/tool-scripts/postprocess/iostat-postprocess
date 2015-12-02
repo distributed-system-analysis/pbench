@@ -33,7 +33,7 @@ my $timestamp;
 my $timestamp_ms;
 
 # read the iostat.txt
-open(IOSTAT_TXT, "$dir/iostat.txt") || die "could not find $dir/iostat.txt\n";
+open(IOSTAT_TXT, "$dir/iostat-stdout.txt") || die "could not find $dir/iostat-stdout.txt\n";
 while (my $line = <IOSTAT_TXT>) {
 	chomp $line;
 	# Each sample should start with a time stamp (the -t in iostat).
