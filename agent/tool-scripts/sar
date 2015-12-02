@@ -18,6 +18,8 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 
 # Defaults
 tool=$script_name
+tool_package_name="pbench-sysstat"
+tool_package_ver="11.1.2"
 tool_bin=/usr/local/bin/$tool
 group=default
 dir="/tmp"
@@ -147,11 +149,7 @@ case "$script_name" in
 esac
 case "$mode" in
 	install)
-	if [ ! -e $tool_bin ] || [ "`$tool_bin -V | head -1`" != "sysstat version $ver" ]; then
-                yum --debuglevel=0 install -y pbench-sysstat
-	else
-		echo $script_name is installed
-	fi
+	check_install_rpm $tool_package_name $tool_package_ver
         ;;
 	start)
 	mkdir -p $tool_output_dir
