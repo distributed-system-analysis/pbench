@@ -125,7 +125,8 @@ tool_dir="$dir/tools-$group"
 tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
 tool_cmd_file="$tool_output_dir/$tool.cmd"
 tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
-tool_output_file=$tool_output_dir/$tool.txt
+tool_stdout_file=$tool_output_dir/$tool-stdout.txt
+tool_stderr_file=$tool_output_dir/$tool-stderr.txt
 case "$script_name" in
 	mpstat)
 	options="-P ALL"
@@ -157,8 +158,9 @@ case "$mode" in
 	mkdir -p $tool_output_dir
 	# force LANG=C
 	echo "LANG=C $tool_cmd" >$tool_cmd_file
+	chmod +x $tool_cmd_file
 	debug_log "$script_name: running $tool_cmd"
-	LANG=C $tool_cmd >>"$tool_output_file" & echo $! >$tool_pid_file
+	$tool_cmd_file >"$tool_stdout_file" 2>"$tool_stderr_file" & echo $! >$tool_pid_file
 	wait
 	;;
 	stop)
