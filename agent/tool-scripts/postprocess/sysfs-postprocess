@@ -35,7 +35,7 @@ my $line;
 my $count;
 my $value;
 
-open(SYSFS_TXT, "$dir/sysfs.txt") || die "could not find $dir/sysfs.txt\n";
+open(SYSFS_TXT, "$dir/sysfs-stdout.txt") || die "could not find $dir/sysfs-stdout.txt\n";
 while (my $line = <SYSFS_TXT>) {
 	chomp $line;
 	# timestamp: 1404854661.042987923

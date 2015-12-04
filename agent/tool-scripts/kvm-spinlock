@@ -133,43 +133,44 @@ while true; do
 done
 
 tool_dir="$dir/tools-$group"
-tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
+tool_output_dir="$tool_dir/$tool" # all tools keep data in their tool specific dir
 tool_cmd_file="$tool_output_dir/$tool.cmd"
-tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
-tool_output_file=$tool_output_dir/$tool.txt
+tool_pid_file="$pbench_tmp/$group.$iteration.$tool.pid"
+tool_stdout_file="$tool_output_dir/$tool-stdout.txt"
+tool_stderr_file="$tool_output_dir/$tool-stderr.txt"
 case "$tool" in
 	virsh-migrate|qemu-migrate)
-	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file $vm"
+	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file $vm"
 	;;
 	sysfs)
-	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file \"$path\" \"$maxdepth\" \"$pattern\""
+	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file \"$path\" \"$maxdepth\" \"$pattern\""
 	;;
 	openvswitch|proc-sched_debug|proc-vmstat|proc-interrupts|cpuacct|numastat|kvmstat|kvm-spinlock|vmstat)
-	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file"
+	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file"
 	;;
 	numastat)
-	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file $pattern"
+	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file $pattern"
 	;;
 esac
 case "$mode" in
 	install)
         ;;
 	start)
-	mkdir -p $tool_output_dir
-	echo "$tool_cmd" >$tool_cmd_file
-	chmod +x $tool_cmd_file
+	mkdir -p "$tool_output_dir"
+	echo "$tool_cmd" >"$tool_cmd_file"
+	chmod +x "$tool_cmd_file"
 	debug_log "$script_name: running $tool_cmd"
-	$tool_cmd >>"$tool_output_file" & echo $! >$tool_pid_file
+	"$tool_cmd_file" 2>"$tool_stderr_file" & echo $! >"$tool_pid_file"
 	wait
 	;;
 	stop)
 	pid=`cat $tool_pid_file`
 	debug_log "stopping $script_name"
-	kill $pid && /bin/rm -f $tool_pid_file
+	kill $pid && /bin/rm -f "$tool_pid_file"
 	;;
 	postprocess)
 	debug_log "postprocessing $script_name"
-	$script_path/postprocess/$script_name-postprocess $tool_output_dir
+	$script_path/postprocess/$script_name-postprocess "$tool_output_dir"
 	;;
 esac
 

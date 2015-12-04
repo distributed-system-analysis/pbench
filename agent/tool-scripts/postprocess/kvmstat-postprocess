@@ -27,7 +27,7 @@ my %graph_type;
 my %graph_threshold;
 
 my $dir = $ARGV[0];
-my $in_file = "$dir" . "/kvmstat.txt";
+my $in_file = "$dir" . "/kvmstat-stdout.txt";
 my $json_file = "$dir" . "/kvmstat.js";
 my $avg_file = "$dir" . "/kvmstat_avg.txt";
 

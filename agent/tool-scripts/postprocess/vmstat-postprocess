@@ -21,7 +21,7 @@ no lib ".";
 use GenData qw(gen_data);
 
 my $dir=$ARGV[0];
-my $file="vmstat.txt";
+my $file="vmstat-stdout.txt";
 my $timestamp;
 my $timestamp_ms;
 my $line;
