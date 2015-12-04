@@ -40,7 +40,7 @@ my $thread;
 my $event;
 my $timestamp;
 
-open(KVMTRACE_REPORT, "$dir/kvmtrace-report.txt") || die "Could not open $dir/kvmtrace-report.txt";
+open(KVMTRACE_REPORT, "$dir/kvmtrace-report-stdout.txt") || die "Could not open $dir/kvmtrace-report-stdout.txt";
 open(KVMTRACE_MAX_LAT, ">$dir/kvmtrace-max-lat.txt") || die "Could not open $dir/kvmtrace-max-lat.txt";
 while ($line = <KVMTRACE_REPORT>) {
 	#        qemu-kvm-3173  [010]  4068.016449: kvm_mmio:             mmio write len 4 gpa 0xfee00380 val 0xec68
