@@ -2,7 +2,6 @@
 
 interval=$1
 file=$2
-pattern=$3
 
 cmd="dmsetup status --target=cache"
 
