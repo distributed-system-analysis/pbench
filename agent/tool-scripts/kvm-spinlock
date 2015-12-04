@@ -28,7 +28,7 @@ if [ "$script_name" == "sysfs" ]; then
 fi
 
 # Process options and arguments
-opts=$(getopt -q -o idp --longoptions "devices:,path:,maxdepth:,pattern:,vm:,dir:,group:,iteration:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o idp --longoptions "start-delay:,timeout:,devices:,path:,maxdepth:,pattern:,vm:,dir:,group:,iteration:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"
@@ -50,6 +50,11 @@ if [ $? -ne 0 ]; then
 	fi
 	if [ "$script_name" == "blktrace" ]; then
 		printf -- "\t--devices=str,[str]	the list of block devices to trace\n"
+	fi
+	if [ "$script_name" == "kvmtrace" ]; then
+		printf -- "\t--vm=str			the hostname of the vm running (to get kallsyms)\n"
+		printf -- "\t--timeout=int		how long the trace will run (default is 1 second).  If 0 is used, the trace will not stop until stop-tools is called\n"
+		printf -- "\t--start-delay=int		sleep this many seconds before starting the trace\n"
 	fi
 	exit 1
 fi
@@ -135,6 +140,20 @@ while true; do
 			shift
 		fi
 		;;
+		--start-delay)
+		shift;
+		if [ -n "$1" ]; then
+			start_delay="$1"
+			shift
+		fi
+		;;
+		--timeout)
+		shift;
+		if [ -n "$1" ]; then
+			timeout="$1"
+			shift
+		fi
+		;;
 		--)
 		shift;
 		break;
@@ -164,10 +183,33 @@ case "$tool" in
 	blktrace)
 	tool_cmd="blktrace $devices >$tool_stdout_file"
 	;;
+	kvmtrace)
+	tool_bin=/usr/bin/trace-cmd
+	group=default
+	sleep_cmd="sleep 1"
+	if [ ! -z "$timeout" ]; then
+		if [ $timeout -eq 0 ]; then
+			sleep_cmd=""
+		else
+			sleep_cmd="sleep $timeout"
+		fi
+	fi
+	tool_cmd="$tool_bin record -a -e kvm $sleep_cmd"
 esac
 case "$mode" in
 	install)
 	case "$tool" in
+		kvmtrace)
+		# ensure debugfs is mounted
+		if cat /proc/mounts | grep -q debugfs; then
+			echo "debugfs is already mounted"
+		else
+			mount -t debugfs none /sys/kernel/debug
+		fi
+		# no version is provided here because we rely on a 
+		# distribution provided package and we take whatever we can get
+		check_install_rpm trace-cmd
+		;;
 		turbostat)
 		release=$(awk '{x=$7; split(x, a, "."); print a[1];}' /etc/redhat-release)
 		case $release in
@@ -190,6 +232,11 @@ case "$mode" in
 	esac
         ;;
 	start)
+	if [ "$tool" == "kvmtrace" ]; then
+		if [ ! -z "$start_delay" ]; then
+			sleep $start_delay
+		fi
+	fi
 	mkdir -p "$tool_output_dir"
 	pushd "$tool_output_dir" >/dev/null
 	echo "$tool_cmd" >"$tool_cmd_file"
@@ -200,12 +247,32 @@ case "$mode" in
 	popd >/dev/null
 	;;
 	stop)
-	pid=`cat $tool_pid_file`
 	debug_log "stopping $script_name"
-	kill $pid && /bin/rm -f "$tool_pid_file"
+	pid=`cat $tool_pid_file`
+	if [ "$tool" == "kvmtrace" ]; then
+		if [ -z "$sleep_cmd" ]; then
+			# kill the perf cmd
+			kill -s SIGINT $pid
+		else
+			# kill the sleep process if it still exists
+			sleep_pid=`ps --ppid $pid | pgrep sleep`
+			if [ ! -z "$sleep_pid" ]; then
+				kill $sleep_pid
+			fi
+		fi
+		# wait for the trace-cmd pid to complete
+		while [ -d /proc/$pid ]; do
+			debug_log "waiting for PID $pid to die"
+			sleep 0.5
+		done
+	else
+		kill $pid && /bin/rm -f "$tool_pid_file"
+	fi
 	;;
 	postprocess)
-	if [ "$tool" == "blktrace" ]; then
+	pushd $tool_output_dir >/dev/null
+	case $tool in
+		blktrace)
 		for dev in $devices; do
 			devs="$devs `basename $dev`"
 		done
@@ -217,9 +284,26 @@ case "$mode" in
 		done
 		wait
 		popd >/dev/null
-	else
+		;;
+		kvmtrace)
+		/usr/bin/trace-cmd report >kvmtrace-report-stdout.txt 2>kvmtrace-report-stderr.txt
+		grep rip kvmtrace-report-stdout.txt | awk -F"reason" '{print $2}' | sort | uniq -c | sort -rn >kvmtrace-exit-reasons.txt
+		if [ -z "$vm" ]; then
+			# if the vm hostname was not provided, try to find a running vm, and use its vm name as the host
+			vm=`virsh list | grep running | head -1 | awk '{print $2}'`
+		fi
+		ssh $vm cat /proc/kallsyms >kallsyms-guest.txt
+		$script_path/postprocess/kvmtrace-postprocess .
+		bzip2 --fast kvmtrace-report-stdout.txt &
+		bzip2 --fast trace.dat &
+		bzip2 --fast kallsyms-guest.txt &
+		wait
+		;;
+		*)
 		debug_log "postprocessing $script_name"
 		$script_path/postprocess/$script_name-postprocess "$tool_output_dir"
-	fi
+		;;
+	esac
+	popd >/dev/null
 	;;
 esac
