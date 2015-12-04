@@ -145,7 +145,7 @@ case "$tool" in
 	sysfs)
 	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file \"$path\" \"$maxdepth\" \"$pattern\""
 	;;
-	turbostat|openvswitch|proc-sched_debug|proc-vmstat|proc-interrupts|cpuacct|numastat|kvmstat|kvm-spinlock|vmstat)
+	dm-cache|turbostat|openvswitch|proc-sched_debug|proc-vmstat|proc-interrupts|cpuacct|numastat|kvmstat|kvm-spinlock|vmstat)
 	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file"
 	;;
 	numastat)
@@ -167,6 +167,14 @@ case "$mode" in
         		;;
 		esac
 		check_install_rpm $pkg
+		;;
+		dm-cache)
+		kmod=dm_cache
+		if ! grep -q $kmod /proc/modules ; then
+            		echo "$kmod not loaded, exiting"
+            	exit 1
+		fi
+        ;;
 	esac
         ;;
 	start)
@@ -187,4 +195,3 @@ case "$mode" in
 	$script_path/postprocess/$script_name-postprocess "$tool_output_dir"
 	;;
 esac
-

@@ -1,8 +1,2 @@
 #! /bin/bash
-
-dir=$1
-file=dm-cache.txt
-outfile=dm-cache-report.txt
-
-cd $dir
-cp $file $outfile
+# dm-cache does no postprocessing currently
