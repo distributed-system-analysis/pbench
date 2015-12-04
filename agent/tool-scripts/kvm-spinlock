@@ -145,15 +145,29 @@ case "$tool" in
 	sysfs)
 	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file \"$path\" \"$maxdepth\" \"$pattern\""
 	;;
-	openvswitch|proc-sched_debug|proc-vmstat|proc-interrupts|cpuacct|numastat|kvmstat|kvm-spinlock|vmstat)
+	turbostat|openvswitch|proc-sched_debug|proc-vmstat|proc-interrupts|cpuacct|numastat|kvmstat|kvm-spinlock|vmstat)
 	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file"
 	;;
 	numastat)
 	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file $pattern"
 	;;
+	turbostat)
 esac
 case "$mode" in
 	install)
+	case "$tool" in
+		turbostat)
+		release=$(awk '{x=$7; split(x, a, "."); print a[1];}' /etc/redhat-release)
+		case $release in
+    			6)
+        		pkg=cpupowerutils
+        		;;
+    			*)
+        		pkg=kernel-tools
+        		;;
+		esac
+		check_install_rpm $pkg
+	esac
         ;;
 	start)
 	mkdir -p "$tool_output_dir"
