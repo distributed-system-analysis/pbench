@@ -47,7 +47,7 @@ my $i;
 my %graph_type;
 my %graph_threshold;
 
-open(VMSTAT_TXT, "$dir/proc-vmstat.txt") || die "could not find $dir/proc-vmstat.txt\n";
+open(VMSTAT_TXT, "$dir/proc-vmstat-stdout.txt") || die "could not find $dir/proc-vmstat-stdout.txt\n";
 while (my $line = <VMSTAT_TXT>) {
 	chomp $line;
 	# timestamp: 1394048617.043209234
