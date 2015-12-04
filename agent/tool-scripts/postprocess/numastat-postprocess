@@ -37,7 +37,7 @@ my $nr_nodes;
 my @nodelist;
 my %numastat;
 
-open(NUMASTAT_TXT, "$dir/numastat.txt") || die "could not find $dir/numastat.txt\n";
+open(NUMASTAT_TXT, "$dir/numastat-stdout.txt") || die "could not find $dir/numastat-stdout.txt\n";
 while (my $line = <NUMASTAT_TXT>) {
 	chomp $line;
 	#timestamp: 1398274848.924503133

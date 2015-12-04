@@ -63,7 +63,7 @@ if (-d $sysdevsyscpu && not defined $ENV{_TEST_SKIP_CPU_MAP}) {
 }
 
 # read the data
-open(CPUACCT_TXT, "$dir/cpuacct.txt") || die "could not find $dir/cpuacct.txt\n";
+open(CPUACCT_TXT, "$dir/cpuacct-stdout.txt") || die "could not find $dir/cpuacct-stdout.txt\n";
 while (my $line = <CPUACCT_TXT>) {
 	chomp $line;
 	# timestamp: 1399561821.313696527

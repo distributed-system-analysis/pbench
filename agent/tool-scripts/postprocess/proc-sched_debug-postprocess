@@ -11,7 +11,7 @@ use strict;
 use warnings;
 
 my $dir=$ARGV[0];
-my $file="proc-sched_debug.txt";
+my $file="proc-sched_debug-stdout.txt";
 my %nr_running;
 my $timestamp;
 my $timestamp_ms;
