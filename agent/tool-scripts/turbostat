@@ -137,12 +137,7 @@ esac
 
 case "$mode" in
     install)
-	if [ ! -e $tool_bin ]; then
-            yum --debuglevel=0 install -y $pkg
-	    echo Installed $script_name
-	else
-	    echo $script_name is installed
-	fi
+        check_install_rpm $pkg
         ;;
     start)
 	mkdir -p $tool_output_dir

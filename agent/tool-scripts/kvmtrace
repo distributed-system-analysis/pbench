@@ -141,9 +141,9 @@ case "$mode" in
 	else
 		mount -t debugfs none /sys/kernel/debug
 	fi
-        if [ ! -e $tool_bin ] ;then
-		yum --debuglevel=0 install -y trace-cmd
-	fi
+	# no version is provided here because we rely on a 
+	# distribution provided package and we take whatever we can get
+	check_install_rpm trace-cmd
         ;;
 	start)
 	if ! cat /proc/mounts | grep -q debugfs; then
