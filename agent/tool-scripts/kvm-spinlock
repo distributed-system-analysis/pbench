@@ -33,7 +33,7 @@ case "$script_name" in
 esac
 
 # Process options and arguments
-opts=$(getopt -q -o idp --longoptions "n:,interface:,p:,packets:,start-delay:,timeout:,devices:,path:,maxdepth:,pattern:,vm:,dir:,group:,iteration:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o idp --longoptions "interface:,packets:,start-delay:,timeout:,devices:,path:,maxdepth:,pattern:,vm:,dir:,group:,iteration:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"
