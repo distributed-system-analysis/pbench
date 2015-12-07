@@ -30,10 +30,14 @@ case "$script_name" in
 	tcpdump)
 	packets=500
 	;;
+	rabbit)
+	username="guest"
+	password="guest"
+	;;
 esac
 
 # Process options and arguments
-opts=$(getopt -q -o idp --longoptions "interface:,packets:,start-delay:,timeout:,devices:,path:,maxdepth:,pattern:,vm:,dir:,group:,iteration:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o idp --longoptions "username:.password:,interface:,packets:,start-delay:,timeout:,devices:,path:,maxdepth:,pattern:,vm:,dir:,group:,iteration:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"
@@ -64,6 +68,10 @@ if [ $? -ne 0 ]; then
 	if [ "$script_name" == "tcpdump" ]; then
 		printf -- "\t--interface=str		the network interface to monitor\n"
 		printf -- "\t--packets=	int		the number of packets to monitor before exiting\n"
+	fi
+	if [ "$script_name" == "rabbit" ]; then
+		printf -- "\t--username=str         rabbit user name (default is "$username")\n"
+		printf -- "\t--password=int         rabbit password (default is "$password")\n"
 	fi
 	exit 1
 fi
@@ -223,6 +231,9 @@ case "$tool" in
 	tool_bin=/usr/sbin/tcpdump
 	tool_cmd="$tool_bin -c $packets -ni $interface >$tool_stdout_file"
 	;;
+	rabbit)
+	tool_cmd="$script_path/datalog/$tool-datalog $interval $username $password $tool_stdout_file"
+	;;
 esac
 case "$mode" in
 	install)
@@ -257,6 +268,13 @@ case "$mode" in
             	exit 1
 		fi
         	;;
+		rabbit)
+		tool_bin="/usr/bin/rabbitmqadmin"
+		if [ ! -e $tool_bin ]; then
+			echo "$tool_bin not installed, exiting"
+			exit 1
+		fi
+		;;
 	esac
         ;;
 	start)
