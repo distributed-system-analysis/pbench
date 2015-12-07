@@ -104,7 +104,6 @@ done
 
 tool_dir="$dir/tools-$group"
 tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
-tool_cmd_file="$tool_outuput_dir/$tool.cmd"
 case "$mode" in
 	install)
         ;;
@@ -116,10 +115,14 @@ case "$mode" in
 	mkdir -p $tool_output_dir
         echo "$script_name: running $tool_cmd"
 	for pid_to_strace in $pids_to_strace; do
-		tool_output_file=$tool_output_dir/$tool-$pid_to_strace.txt
+		tool_stdout_file=$tool_output_dir/$tool-$pid_to_strace-stdout.txt
+		tool_stderr_file=$tool_output_dir/$tool-$pid_to_strace-stderr.txt
 		tool_pid_file=$pbench_tmp/$group.$iteration.$tool-$pid_to_strace.pid
-		# save the PID of each strace command to a file
-        	$tool_bin -p $pid_to_strace -c -o $tool_output_file & echo $! >$tool_pid_file
+		tool_cmd_file="$tool_output_dir/$tool-$pid_to_strace.cmd"
+		tool_cmd="$tool_bin -p $pid_to_strace -c -o $tool_stdout_file"
+		echo "$tool_cmd" > "$tool_cmd_file"
+		chmod +x $tool_cmd_file
+		$tool_cmd_file 2>"$tool_stderr_file" & echo $! >"$tool_pid_file"
 	done
         wait
         ;;
