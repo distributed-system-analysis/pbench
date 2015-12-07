@@ -21,14 +21,19 @@ mode=""
 interval="10"
 iteration="1"
 options="none"
-if [ "$script_name" == "sysfs" ]; then
+case "$script_name" in
+	"sysfs")
 	pattern='*'
 	maxdepth=4
 	path=""
-fi
+	;;
+	tcpdump)
+	packets=500
+	;;
+esac
 
 # Process options and arguments
-opts=$(getopt -q -o idp --longoptions "start-delay:,timeout:,devices:,path:,maxdepth:,pattern:,vm:,dir:,group:,iteration:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o idp --longoptions "n:,interface:,p:,packets:,start-delay:,timeout:,devices:,path:,maxdepth:,pattern:,vm:,dir:,group:,iteration:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"
@@ -55,6 +60,10 @@ if [ $? -ne 0 ]; then
 		printf -- "\t--vm=str			the hostname of the vm running (to get kallsyms)\n"
 		printf -- "\t--timeout=int		how long the trace will run (default is 1 second).  If 0 is used, the trace will not stop until stop-tools is called\n"
 		printf -- "\t--start-delay=int		sleep this many seconds before starting the trace\n"
+	fi
+	if [ "$script_name" == "tcpdump" ]; then
+		printf -- "\t--interface=str		the network interface to monitor\n"
+		printf -- "\t--packets=	int		the number of packets to monitor before exiting\n"
 	fi
 	exit 1
 fi
@@ -154,6 +163,20 @@ while true; do
 			shift
 		fi
 		;;
+		--packets)
+		shift;
+		if [ -n "$1" ]; then
+			packets="$1"
+			shift
+		fi
+		;;
+		--interface)
+		shift;
+		if [ -n "$1" ]; then
+			interface="$1"
+			shift
+		fi
+		;;
 		--)
 		shift;
 		break;
@@ -195,6 +218,10 @@ case "$tool" in
 		fi
 	fi
 	tool_cmd="$tool_bin record -a -e kvm $sleep_cmd"
+	;;
+	tcpdump)
+	tool_bin=/usr/sbin/tcpdump
+	tool_cmd="$tool_bin -c $packets -ni $interface >$tool_stdout_file"
 	;;
 esac
 case "$mode" in
