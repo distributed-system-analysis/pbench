@@ -195,6 +195,7 @@ case "$tool" in
 		fi
 	fi
 	tool_cmd="$tool_bin record -a -e kvm $sleep_cmd"
+	;;
 esac
 case "$mode" in
 	install)
