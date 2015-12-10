@@ -1,23 +1,23 @@
-+++ Running indexing on /var/tmp/pbench-test-bgtasks/test-7.4
++++ Running indexing on /var/tmp/pbench-test-server/test-7.4
 Other error The sosreport did not collect a hostname other than 'localhost'
 Traceback (most recent call last):
-  File "/home/user/repo/pbench/bgtasks/pbench/bin/index-pbench", line 884, in main
+  File "/home/user/repo/pbench/server/pbench/bin/index-pbench", line 884, in main
     actions = mk_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, options)
-  File "/home/user/repo/pbench/bgtasks/pbench/bin/index-pbench", line 735, in mk_actions
+  File "/home/user/repo/pbench/server/pbench/bin/index-pbench", line 735, in mk_actions
     actions.append(mk_results_action(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, ts, options))
-  File "/home/user/repo/pbench/bgtasks/pbench/bin/index-pbench", line 682, in mk_results_action
+  File "/home/user/repo/pbench/server/pbench/bin/index-pbench", line 682, in mk_results_action
     source = mk_source(hostname, tbname, dirname, dirprefix, tb, mdconf, md5sum, options)
-  File "/home/user/repo/pbench/bgtasks/pbench/bin/index-pbench", line 623, in mk_source
+  File "/home/user/repo/pbench/server/pbench/bin/index-pbench", line 623, in mk_source
     rec['sosreports'] = sos_d = mk_sosreports(tb)
-  File "/home/user/repo/pbench/bgtasks/pbench/bin/index-pbench", line 581, in mk_sosreports
+  File "/home/user/repo/pbench/server/pbench/bin/index-pbench", line 581, in mk_sosreports
     d.update(hostnames_if_ip_from_sosreport(tb.extractfile(sos)))
-  File "/home/user/repo/pbench/bgtasks/pbench/bin/index-pbench", line 547, in hostnames_if_ip_from_sosreport
+  File "/home/user/repo/pbench/server/pbench/bin/index-pbench", line 547, in hostnames_if_ip_from_sosreport
     raise Exception("The sosreport did not collect a hostname other than 'localhost'")
 Exception: The sosreport did not collect a hostname other than 'localhost'
 
---- Finished indexing on /var/tmp/pbench-test-bgtasks/test-7.4 (status=11)
+--- Finished indexing on /var/tmp/pbench-test-server/test-7.4 (status=11)
 +++ pbench tree state
-/var/tmp/pbench-test-bgtasks/pbench
+/var/tmp/pbench-test-server/pbench
 --- pbench tree state
 +++ pbench log file contents
 --- pbench log file contents
