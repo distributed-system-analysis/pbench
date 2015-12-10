@@ -193,7 +193,7 @@ if [[ $ntotal -gt 0 || $nerrs -gt 0 ]]; then
         subj="$PROG.$TS"
     fi
     # don't send mail when running unittests
-    if [[ "$_PBENCH_BGTASKS_TEST" != 1 ]] ;then
+    if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
         echo "Processed $ntotal sosreports for $nresults results directories with $nerrs errors" | mailx -s "$subj" $mail_recipients
     fi
 fi

@@ -1,0 +1,19 @@
++++ Running pbench-backup-tarballs
+--- Finished pbench-backup-tarballs (status=1}
++++ pbench tree state
+/var/tmp/pbench-test-server/pbench
+/var/tmp/pbench-test-server/pbench/archive
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001
+/var/tmp/pbench-test-server/pbench/logs
+/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs
+/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.error
+/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log
+/var/tmp/pbench-test-server/pbench/public_html
+/var/tmp/pbench-test-server/pbench/public_html/incoming
+/var/tmp/pbench-test-server/pbench/public_html/results
+/var/tmp/pbench-test-server/pbench/tmp
+--- pbench tree state
++++ pbench log file contents
+/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:start-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:pbench-backup-tarballs: Specified backup directory does not resolve to a directory, /var/tmp/pbench-test-server/pbench.backup
+--- pbench log file contents
