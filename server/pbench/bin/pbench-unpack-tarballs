@@ -79,15 +79,16 @@ linkdest=TO-COPY-SOS
 
 echo $TS
 
-# get the list of files we'll be operating on
-list=$(ls $ARCHIVE/*/$linksrc/*.tar.xz 2>/dev/null)
+# get the list of files we'll be operating on - sort them by size
+list=$TMP/pbench-unpack-tarballs.$$
+find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | grep -v DUPLICATE | sort -n > $list
 
 typeset -i ntb=0
 typeset -i ntotal=0
 typeset -i nerrs=0
 typeset -i ndups=0
 
-for result in $list ;do
+while read size result ;do
     ntotal=$ntotal+1
 
     link=$(readlink -e $result)
@@ -255,7 +256,7 @@ for result in $list ;do
     # log the success
     echo "$TS: $hostname/$resultname: success"
     ntb=$ntb+1
-done
+done < $list
 
 echo "$TS: Processed $ntb tarballs"
 
