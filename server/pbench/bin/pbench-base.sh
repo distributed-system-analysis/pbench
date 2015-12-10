@@ -41,7 +41,7 @@ INCOMING=${TOP}/public_html/incoming
 # this is where the symlink forest is going to go
 RESULTS=${TOP}/public_html/results
 
-if [[ -z "$_PBENCH_BGTASKS_TEST" ]]; then
+if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
     function timestamp {
         echo "$(date +'%Y-%m-%dT%H:%M:%S-%Z')"
     }
