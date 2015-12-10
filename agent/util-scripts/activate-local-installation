@@ -1,0 +1,48 @@
+#! /bin/bash
+
+# Usage: activate-local-installation </path/to/local/config/pbench.conf> <path/to/local/private/key>
+
+# This script installs the local config file that is used by the
+# scripts to discover local settings. One of these is the results
+# server that move-results uses to copy results to. The move-results
+# script uses scp to do that under the user id "pbench". The private
+# key for that user, as given by the second argument to this script,
+# is copied to the place where move-results expects it.
+
+configfile=$1
+keyfile=$2
+user=$(getconf.py -C $configfile pbench_user pbench-agent)
+group=$(getconf.py -C $configfile pbench_group pbench-agent)
+
+# fallbacks assume the existence of user/group pbench
+if [ -z "$user" ] ;then
+    user=pbench
+fi
+if [ -z "$group" ] ;then
+    group=pbench
+fi
+
+if [ -f $configfile ] ;then
+    pbenchdir=$(getconf.py -C $configfile pbench_install_dir pbench-agent)
+    if [ ! -z "$pbenchdir" -a -d $pbenchdir -a -d $pbenchdir/config ] ;then
+        cp $configfile $pbenchdir/config/pbench-agent.conf
+        chown ${user}.${group} $pbenchdir/config/pbench-agent.conf
+    else
+        exit 1
+    fi
+else
+    exit 2
+fi
+
+# if we have not exited, then $pbenchdir is good.
+if [ -f $keyfile ] ;then
+    cp $keyfile $pbenchdir/id_rsa
+    chown $user.$group $pbenchdir/id_rsa
+    chmod 640 $pbenchdir/id_rsa
+else
+    exit 3
+fi
+
+exit 0
+
+    

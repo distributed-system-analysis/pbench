@@ -368,9 +368,14 @@ for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 						echo "client[$client_nr-$client]${client_nodeinfo}threads[$thread_count]"
 
 						if [ "$client" == "127.0.0.1" ]; then
-							$benchmark_client_cmd_file >$result_file &
+							final_cmd_file="$benchmark_client_cmd_file"
 						else # using remote clients
-							ssh $ssh_opts $client "$benchmark_client_cmd_file" >$result_file &
+							final_cmd_file="ssh $ssh_opts $client \"$benchmark_client_cmd_file\""
+						fi
+						if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
+							$final_cmd_file >$result_file &
+						else
+							$final_cmd_file >$result_file
 						fi
 						((client_nr++))
 					done

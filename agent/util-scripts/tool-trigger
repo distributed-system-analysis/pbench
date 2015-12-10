@@ -11,18 +11,17 @@
 # So, this tool registers the user's triggers for starting and stopping the tools.  If the trigger
 # for stating a tool is encountered more than once, then the iteration is incremented, so the
 # tool's results for each trigger are easily managed.
-#
 
 # turn on autoflushing
 $| = 1;
-my $iteration=$ARGV[0];
+
+my $iteration=$ARGV[0]; # which iteratoin number to start with (required)
 my $benchmark_results_dir=$ARGV[1];
-my $multi=$ARGV[2];
 my $script="tool-trigger";
 my %start_t;
 my %started;
 my %stop_t;
-my $t_file = "/var/lib/pbench/tool-triggers";
+my $t_file = $ENV{pbench_run} . "/tool-triggers";
 open(TRIG, "<$t_file") || die "Could not open $t_file\n";
 while (<TRIG>) {
 	if (/^#/) {

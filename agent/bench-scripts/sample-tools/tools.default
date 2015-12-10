@@ -1,3 +1,0 @@
-sar:--interval="3"
-mpstat:--interval="3"
-label:uperf-client-server

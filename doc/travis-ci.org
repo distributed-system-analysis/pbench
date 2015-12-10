@@ -1,0 +1,104 @@
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:auto
+#+OPTIONS: html-preamble:t html-scripts:t html-style:t
+#+OPTIONS: html5-fancy:nil tex:t
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+DESCRIPTION:
+#+KEYWORDS:
+#+HTML_LINK_HOME:
+#+HTML_LINK_UP:
+#+HTML_MATHJAX:
+#+HTML_HEAD:
+#+HTML_HEAD_EXTRA:
+#+SUBTITLE:
+#+INFOJS_OPT:
+#+CREATOR: <a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.0.50.1 (<a href="http://orgmode.org">Org</a> mode 8.3.1)
+#+LATEX_HEADER:
+
+
+* Running unit tests using the travis-ci infrastructure at github.
+
+The unit tests require bash, perl (for the postprocessing scripts)
+and python for the indexing unit tests.
+
+The travis-ci hosts are set up with Ubunty 12.04 LTS, with some additions.
+That works fine for bash and perl - the .travis.yml file was taking care
+of different perl versions like this:
+
+#+BEGIN_EXAMPLE
+language: perl
+perl:
+ - "5.20"
+ - "5.18"
+ - "5.16"
+ - "5.10"
+install:
+ - sudo apt-get install python python-pip bc libjson-perl realpath
+ - sudo pip install configtools
+script:
+ - ./agent/bench-scripts/unittests
+ - ./agent/tool-scripts/postprocess/unittests
+ - ./bgtasks/pbench/bin/unittests
+#+END_EXAMPLE
+
+That causes travis-ci to run the same unit tests four times, once for
+each version of perl, but that accommodates all the perl versions running
+on RHEL6/7 or recent Fedora versions.
+
+* Python dependencies 
+The indexing tests run the index-pbench script which requires python
+>= 3.3.  The main reason for that is that the tarfile.py module does
+not handle xz-compressed tarballs before that version. There is also
+a minor dependency on FileNotFoundError which was introduced in python 3.3,
+but that can be easily worked around. The tarfile.py dependency can also
+be worked around of course, at the price of introducing a compatibility layer
+(something which we did for other projects), but it seems wasteful to do
+that in this case and in the future. We hope that at some point the travis-ci
+infrastructure will use a more modern distro, one with a built-in (or easily
+available) python >= 3.3 (at the time of writing, this looks like python 3.5).
+
+For the time being, we go through a bunch of hoops and install python 3.4 on
+Ubuntu 12.04 LTS:
+
+#+BEGIN_EXAMPLE
+
+language: perl
+perl:
+ - "5.20"
+ - "5.18"
+ - "5.16"
+ - "5.10"
+install:
+ - sudo apt-get install python python-pip bc libjson-perl realpath
+ - sudo pip install configtools elasticsearch
+ - sudo apt-get install python-software-properties
+ - sudo add-apt-repository ppa:fkrull/deadsnakes -y
+ - sudo apt-get update
+ - sudo apt-get install python3.4
+ - sudo apt-get install python3-setuptools
+ - sudo easy_install3 pip
+ - sudo pip3 install configtools elasticsearch
+ - sudo cp -r /usr/local/lib/python3.2/dist-packages/* /usr/local/lib/python3.4/dist-packages
+ - sudo ln -sf python3.4 /usr/bin/python3
+script:
+ - ./agent/bench-scripts/unittests
+ - ./agent/tool-scripts/postprocess/unittests
+ - ./bgtasks/pbench/bin/unittests
+#+END_EXAMPLE
+
+python-software-properties provides the add-apt-repository command
+that is used to add the fkrull/deadsnakes ppa.
+
+There are no official repos for python > 3.2 for Ubuntu 12.04. The
+best I could find was the fkrull/deadsnakes PPA which provides
+unofficial packages of more recent python versions.
+
+To install configtools and elasticsearch in the python3.4 package
+directory, we have to install pip3, using easy_install3, which in turn
+is installed using python3-setuptools.  The packages are installed
+under python3.2 however, so we copy them to the python3.4 directory by
+hand. We also symlink /usr/bin/python3 to the python3.4 version.
+
+With these additions, python3.4 is installed and the indexing unit tests
+are now passing.
+

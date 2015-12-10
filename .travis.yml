@@ -6,8 +6,19 @@ perl:
  - "5.10"
 install:
  - sudo apt-get install python python-pip bc libjson-perl realpath
- - sudo pip install configtools
+ - sudo pip install configtools elasticsearch
+ - sudo apt-get install python-software-properties
+ - sudo add-apt-repository ppa:fkrull/deadsnakes -y
+ - sudo apt-get update
+ - sudo apt-get install python3.4
+ - sudo apt-get install python3-setuptools
+ - sudo easy_install3 pip
+ - sudo pip3 install configtools elasticsearch
+ - sudo cp -r /usr/local/lib/python3.2/dist-packages/* /usr/local/lib/python3.4/dist-packages
+ - sudo ln -sf python3.4 /usr/bin/python3
 script:
  - ./agent/bench-scripts/unittests
  - ./agent/tool-scripts/postprocess/unittests
- - ./bgtasks/pbench/bin/unittests
+ - ./agent/util-scripts/unittests
+ - ./server/pbench/bin/unittests
+ - ./agent/util-scripts/unittests

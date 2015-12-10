@@ -35,6 +35,9 @@ if [ $? -ne 0 ]; then
 
 	exit 1
 fi
+# here we process only the arguments before the "--"
+# these are argument for register-tools
+# all agruments after "--" are for the tool itself
 eval set -- "$opts";
 while true; do
 	case "$1" in
@@ -84,38 +87,27 @@ if [ -z $name ]; then
 fi
 
 rc=1
-# try to not mangle tool specifc options, so take extra precaution when parsing and stuffing in $tool_opts
-# don't do this for remote, just pass "$@"
+# the remainder of $@ is now tool-specific options
+# the best way to not mess up arguments while seems to be using an array
 count=0
-while  true; do
-	if echo $1 | grep -q -- "="; then
-		arg=`echo $1 | cut -d= -f1`
-		val=`echo $1 | cut -d= -f2-`
-		if [ -z $arg ]; then
-			break;
-		fi
+tool_opt_array_cmd=""
+while true; do
+	if [ -z "$1" ]; then
+		break
+	fi
+	tool_opts[$count]="$1"
+	if [ ! -z "$remote" ]; then
+		# build an array-construction command, to be used with ssh
 		if [ $count -eq 0 ]; then
-			tool_opts="$arg=\"$val\""
+			tool_opt_array_cmd="tool_opts[$count]=\"$1\";"
 		else
-			tool_opts="$tool_opts $arg=\"$val\""
-		fi
-	else
-		arg="$1"
-		val=""
-		if [ -z $arg ]; then
-			break;
-		fi
-		if [ $count -eq 0 ]; then
-			tool_opts="$arg"
-		else
-			tool_opts="$tool_opts $arg"
+			tool_opt_array_cmd="$tool_opt_array_cmd tool_opts[$count]=\"$1\";"
 		fi
 	fi
 	let count=$count+1
 	shift
-	# debug_log: "echo \$\@: $@"
 done
-debug_log "tool_opts: $tool_opts"
+debug_log "tool_opts: ${tool_opts[@]}"
 
 #FIXME: this does not check for ipv6
 local_ips=`ip a | grep "inet " | awk '{print $2}' |  awk -F/ '{print $1}'`
@@ -131,53 +123,59 @@ if [ ! -z "$remote" ]; then
 	done
 fi
 
-# A local tool registration
+# a local tool registration
 if [ -z "$remote" ]; then
 	if [ -e "$pbench_bin/tool-scripts/$name" ]; then
 		debug_log "checking to see if tool is installed..."
-		$pbench_bin/tool-scripts/$name --install "$tool_opts"
+		$pbench_bin/tool-scripts/$name --install "${tool_opts[@]}"
 		rc=$?
 	else
 		debug_log "Could not find $name in $pbench_bin/tool-scripts.  Has this tool been integrated in to pbench?"
 	fi
+	# remeber the tool and its options
 	if [ $rc == "0" ]; then
-		if [ ! -f "$pbench_run/tools.$group" ]; then
-			mkdir -p "$pbench_run"
-			touch "$pbench_run/tools.$group"
+		if [ ! -d "$pbench_run/tools-$group" ]; then
+			mkdir -p "$pbench_run/tools-$group"
 		fi
-		# remove any existing entry for this perftool
-		sed -i /^$name.*/d "$pbench_run/tools.$group"
-		# remeber this tool
-		printf "%s:%s\n" "$name" "$tool_opts" >>"$pbench_run/tools.$group"
+		this_tool_file="$pbench_run/tools-$group/$name"
+		/bin/rm -f "$this_tool_file"
+		touch "$this_tool_file"
+		i=0
+		# tool options are 1 per line
+		while [ $i -lt $count ]; do
+			echo "${tool_opts[$i]}" >>"$this_tool_file"
+			((i++))
+		done
 		printf "$name tool is now registered in group $group\n"
-		# if we have a label, update the label in the tool file
+		# if we have a label, update the label in the tool directory
 		if [ "$label" != "" ]; then
-			# remove any existing label for this perftool
-			sed -i /^label:.*/d "$pbench_run/tools.$group"
-			# add the new label as an entry "label:$label"
-			printf "%s:%s\n" "label" "$label" >>"$pbench_run/tools.$group"
+			this_label_file="$pbench_run/tools-$group/label"
+			/bin/rm -f "$this_label_file"
+			echo "$label" >"$this_label_file"
 		fi
 	else
 		printf "For some reason this tool could not be installed\n"
 	fi
 else    # register this tool on the remote host
-	debug_log "tool_opts: $tool_opts"
 	if [ -z "$label" ]; then
 		label_opt=""
 	else
 		label_opt="--label=$label"
 	fi
-	cmd=". ${pbench_install_dir}/profile; register-tool --name=$name --group=$group $label_opt -- $tool_opts"
-	debug_log "ssh $ssh_opts $remote $cmd"
-	ssh $ssh_opts $remote "$cmd" | sed -e 's/\(.*\)/'[$remote]'\1/g'
+	# can't really pass an array of tool options over ssh, so here we will actually construct the array within the ssh call, then reference that array
+	debug_log "$tool_opt_array_cmd"' register-tool --name='"$name"' --group='"$group"' $label_opt -- "${tool_opts[@]}" 2>&1'
+	ssh $ssh_opts $remote "$tool_opt_array_cmd"' register-tool --name='"$name"' --group='"$group" $label_opt' -- "${tool_opts[@]}" 2>&1' | sed -e 's/\(.*\)/'[$remote]'\1/g'
 	rc=$?
-		if [ ! -f "$pbench_run/tools.$group" ]; then
-			mkdir -p "$pbench_run"
-			touch "$pbench_run/tools.$group"
-		fi
-		# remove any existing entry for hostname
-		sed -i /"^remote@$remote".*/d "$pbench_run/tools.$group"
-		# Remember the remote host.  The tool name becomes "remote@<hostname>"
-		printf "%s:%s\n" "remote@$remote" "$label" >>"$pbench_run/tools.$group"
+	if [ ! -d "$pbench_run/tools-$group" ]; then
+		mkdir -p "$pbench_run/tools-$group"
+	fi
+	this_tool_file="$pbench_run/tools-$group/remote@$remote"
+	/bin/rm -f "$this_tool_file"
+	# the specific tool options are stored on the remote host, so there is no need to keep them here
+	# however, we do use this file to store the label for this remote host [if any]
+	if [ -z "$label" ]; then
+		touch "$this_tool_file"
+	else
+		echo "$label" >"$this_tool_file"
+	fi
 fi
-

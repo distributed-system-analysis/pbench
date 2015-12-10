@@ -18,7 +18,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # the run.
 
 # Defaults
-dir="/tmp"
+dir=/tmp
 group="default"
 
 # Process options and arguments
@@ -62,16 +62,27 @@ function usage {
 }
 
 function metadata_log_tools {
-
     log=$1
-    
-    # get the remotes from the local tools.$group file
+
+    if [ -d $pbench_run/tools-$group ] ;then
+        metadata_log_tools_dir $log
+    else
+        metadata_log_tools_file $log
+    fi
+}
+
+function metadata_log_tools_file {
+    # This is provided for backwards compatibility.
+    # v0.35 introduced the tools-<group> directory: if that
+    # directory exists, we assume that it is authoritative.
+    # If it does not, we fall back to the tools.<group> file.
+
+    # Get the remotes from the local tools.$group file
     # then get the remote tools.$group files for each remote
-    
+
     remotes="$(grep @ $pbench_run/tools.$group | sed 's/.*@//
 s/:[^:]*$//' | tr '\n' ' ')"
-
-
+ 
     # check if the local tools.$group file includes any local tools
     local=0
     if grep -v @ $pbench_run/tools.$group > /dev/null 2>&1 ;then
@@ -86,9 +97,9 @@ hosts: $hostname $remotes
 
 [tools/$hostname]
 $(cat $pbench_run/tools.$group)
-
+ 
 EOF
-    else
+     else
         # just remotes
         if [ ! -z "$remotes" ] ;then
             cat >> $log <<EOF
@@ -108,40 +119,115 @@ EOF
     done
 }
 
+function metadata_log_tools_dir {
+    # we have a tools-<group> dir.
+    
+    log=$1
+    # get the remotes from the local tools-$group directory
+    # then get the remote tools-$group dirs for each remote
+    
+    remotes="$(ls $pbench_run/tools-$group/ | grep @ | sed 's/.*@//
+s/:[^:]*$//' | tr '\n' ' ')"
+
+    # check if the local tools-$group directory includes any local tools
+    local=0
+    if /bin/ls $pbench_run/tools-$group | grep -q -v "^remote@" ;then
+        local=1
+    fi
+
+    # if yes ...
+    if [ $local == 1 ] ;then
+        cat >> $log <<EOF
+[tools]
+hosts: $hostname $remotes
+
+[tools/$hostname]
+EOF
+        for tool in $(/bin/ls $pbench_run/tools-$group) ;do
+            # add the options with a space in front, effectively making them continuation
+            # lines as far the python config module is concerned.
+            echo $tool: $(cat $pbench_run/tools-$group/$tool | sed 's/^/ /')
+        done >> $log
+        echo "" >> $log
+    else
+        # just remotes
+        if [ ! -z "$remotes" ] ;then
+            cat >> $log <<EOF
+[tools]
+hosts: $remotes
+
+EOF
+        fi
+    fi
+    
+    for remote in $remotes ;do
+        cat >> $log <<EOF
+[tools/$remote]
+EOF
+        for tool in $(ssh $remote /bin/ls $pbench_run/tools-$group) ;do
+            echo $tool: $(ssh $remote cat $pbench_run/tools-$group/$tool | sed 's/^/ /')
+        done >> $log
+        echo "" >> $log
+    done
+}
+
 function metadata_log_start {
     dir=$1
+    ts=$2
     log=$dir/metadata.log
 
+    if [ -z "$ts" ] ;then
+        ts=$(date --utc '+%F_%H:%M:%S.%N')
+    fi
     cat > $log <<EOF
 [pbench]
 name: $(basename $dir)
 script: $benchmark
 config: $config
 date: $date
-rpm-version: $(yum list installed pbench 2>/dev/null | tail -n 1 | awk '{print $2}')
+rpm-version: $(yum list installed pbench-agent 2>/dev/null | tail -n 1 | awk '{print $2}')
 
 EOF
     metadata_log_tools $log
     cat >> $log <<EOF
 [run]
 controller: $full_hostname
-start_run: $(TZ=UTC date '+%F_%H:%M:%S.%N')
+start_run: $ts
 EOF
 }
 
 function metadata_log_end {
     dir=$1
+    int=$2
     log=$dir/metadata.log
 
-    echo "end_run: $(TZ=UTC date '+%F_%H:%M:%S.%N')" >> $log
+    if [ ! -f $log ] ;then
+        # Somehow, metadata_log_start was never called !?!?
+        # Call it explicitly.
+        # Manufacture a start_run timestamp and pass it
+        # explicitly. The manufactured stamp is the date that
+        # the base file calculates (now in UTC).
+        start_ts=$date
+        metadata_log_start $dir $start_ts
+    fi
+    if ! grep -q end_run $log ;then
+        echo "end_run: $(date --utc '+%F_%H:%M:%S.%N')" >> $log
+    fi
+    if [ "$int" == "int" ] ;then
+        echo "run_interrupted: true" >> $log
+    fi
 }
 
+mkdir -p $dir
 case $1 in
     beg)
         metadata_log_start $dir
         ;;
     end)
         metadata_log_end $dir
+        ;;
+    int)
+        metadata_log_end $dir int
         ;;
     *)
         usage

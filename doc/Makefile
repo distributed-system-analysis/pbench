@@ -26,6 +26,9 @@ push-results:	results.html
 push-test-rpms:	test-rpms.html
 	rsync -ave ssh $< ${dest}/test-repo/$<
 
+push-relnotes: RELEASE-NOTES.html
+	rsync -ave ssh $< ${dest}/doc/$<
+
 .PHONY: clean veryclean
 clean:
 	rm -f *~ *.fdb_latexmk *.fls *.toc *.aux *.log *.out
