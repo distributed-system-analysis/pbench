@@ -18,7 +18,8 @@ remote=""
 group=""
 options=""
 toolset="default"
-
+pbench_agent="pbench-agent" 
+ 
 interval=$(getconf.py interval pbench/tools)
 
 function usage() {
@@ -94,9 +95,20 @@ default_tool_set=$(getconf.py -l default-tool-set pbench/tools)
 case "$toolset" in
 	default)
 	for i in $default_tool_set; do
-		register-tool --name=$i $remote $label $group -- --interval="$interval"
+		if [ ! -z $remote ] ; then
+			# ensure pbench packages are installed on remote system 
+			ssh $ssh_opts $(echo $remote | cut -d"=" -f2) yum -y install "$pbench_agent"
+			register-tool --name=$i $remote $label $group -- --interval="$interval"
+		else 
+			register-tool --name=$i $label $group -- --interval="$interval"
+		fi 
 	done
 	# low overhead perf
-	register-tool --name=perf $remote $label $group -- --record-opts="record -a --freq=100"
+	if [ ! -z $remote ]; then 
+		ssh $ssh_opts $(echo $remote | cut -d"=" -f2) yum -y install "$pbench_agent"
+		register-tool --name=perf $remote $label $group -- --record-opts="record -a --freq=100"	
+	else
+		register-tool --name=perf $label $group -- --record-opts="record -a --freq=100"
+	fi 	
 	;;
 esac
