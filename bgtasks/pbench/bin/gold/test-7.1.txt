@@ -1,0 +1,8 @@
++++ Running indexing on /var/tmp/pbench-test-bgtasks/test-7.1
+Bad Date:  /var/tmp/pbench-test-bgtasks/test-7.1.tar.xz
+--- Finished indexing on /var/tmp/pbench-test-bgtasks/test-7.1 (status=5)
++++ pbench tree state
+/var/tmp/pbench-test-bgtasks/pbench
+--- pbench tree state
++++ pbench log file contents
+--- pbench log file contents
