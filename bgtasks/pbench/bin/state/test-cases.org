@@ -1,0 +1,30 @@
+
+* Hostname test cases
+
+We read hostname_-f and hostname from a sosreport. If the
+files exist and can be read, we set hostname_f and hostname_s
+to their respective contents. In the following table, - means
+undefined and "foo", "bar", "baz" are generic.
+
+| Test case name | hostname_f  | hostname_s  | result           |
+|----------------+-------------+-------------+------------------|
+| u-u            | -           | -           | 11               |
+| u-l            | -           | localhost   | 11               |
+| l-u            | localhost   | -           | 11               |
+| l-l            | localhost   | localhost   | 11               |
+| u-f            | -           | foo         | foo, foo         |
+| u-fbc          | -           | foo.bar.com | foo.bar.com, foo |
+| f-u            | foo         | -           | foo, foo         |
+| fbc-u          | foo.bar.com | -           | foo.bar.com, foo |
+| l-f            | localhost   | foo         | foo, foo         |
+| l-fbc          | localhost   | foo.bar.com | foo.bar.com, foo |
+| f-f            | foo         | foo         | foo, foo         |
+| f-fbc          | foo         | foo.bar.com | foo.bar.com, foo |
+| fbc-f          | foo.bar.com | foo         | foo.bar.com, foo |
+| f-z            | foo         | baz         | 11               |
+| fbc-z          | foo.bar.com | baz         | 11               |
+| f-zbc          | foo         | baz.bar.com | 11               |
+
+Occasionally, the file contains an error: "hostname: Name or service not known".
+We treat that as if the corresponding variable is undefined.
+

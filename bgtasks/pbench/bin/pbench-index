@@ -73,7 +73,10 @@ linkdest=INDEXED
 linkerrdest=WONT-INDEX
 
 # get the list of files we'll be operating on
-list=$(ls $ARCHIVE/*/$linksrc/*.tar.xz 2>/dev/null)
+#list=$(ls $ARCHIVE/*/$linksrc/*.tar.xz 2>/dev/null)
+# Better: avoids long command line problems and sorts by size
+list=$TMP/pbench-index.$$
+find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | sort -n > $list
 
 log_init $(basename $0)
 
@@ -87,14 +90,15 @@ typeset -i nskip=0
 skipped=$TMP/$PROG.$TS.skipped.$$
 mail_body=$TMP/$PROG.$TS.mail.$$
 
-trap "rm -f $indexed $erred $skipped $mail_body" EXIT QUIT INT
+trap "rm -f $indexed $erred $skipped $mail_body $list" EXIT QUIT INT
 
 > $indexed
 > $erred
 > $skipped
 > $mail_body
 
-for result in $list ;do
+while read size result ;do
+    echo "   $(timestamp): Starting $result (size $size)"
     link=$(readlink -e $result)
     if [ ! -f $link ] ;then
         echo "$TS: $link does not exist" >&4
@@ -139,16 +143,20 @@ for result in $list ;do
     fi
     
     if [ $status -ne 0 ] ;then
-        if [ $status -eq 2 ]; then
-            echo "$TS: unsupported tarball format: $result" >&4
-            nskip=$nskip+1
-            echo $result >> $skipped
-        else
+        # Distinguish failure cases, so we can retry the indexing easily if possible.
+        # Different WONT-INDEX directories for different failures:
+        # The rest are going to end up in WONT-INDEX for later retry.
+
+        if [ $status -eq 11 ]; then
             echo "$TS: index error $status on $result" >&4
             nerrs=$nerrs+1
             echo $result >> $erred
+            mv $result $(echo $result | sed "s/$linksrc/$linkerrdest/")
+        else
+            nskip=$nskip+1
+            echo $result >> $skipped
+            mv $result $(echo $result | sed "s/$linksrc/$linkerrdest.$status/")
         fi
-        mv $result $(echo $result | sed "s/$linksrc/$linkerrdest/")
         continue
     fi
     
@@ -170,7 +178,8 @@ for result in $list ;do
 
     # debugging run
     # if (($nidx > 10)) ;then break ;fi
-done
+    echo "   $(timestamp): Finished $result (size $size)"
+done < $list
 
 
 echo "$TS: ending at $(timestamp), indexed $nidx (skipped $nskip) results, $nerrs errors"
@@ -178,10 +187,18 @@ echo "$TS: ending at $(timestamp), indexed $nidx (skipped $nskip) results, $nerr
 log_finish
 
 if [[ $nidx -gt 0 || $nskip -gt 0 || $nerrs -gt 0 ]]; then
-    # tricky quoting: variables are not expanded until the final eval
-    # that solved the problem of embedded parens - in the meantime, we got rid of the
+    # Tricky quoting: variables are not expanded until the final eval.
+    # That solved the problem of embedded parens - in the meantime, we got rid of the
     # parens, so it has become moot.
-    subj='$PROG.$TS - Indexed $nidx results, skipped $nskip results, w/ $nerrs errors'
+    if [[ $nerrs > 0 && $nskip > 0 ]] ;then
+        subj='$PROG.$TS - Indexed $nidx results, skipped $nskip results, w/ $nerrs errors'
+    elif [[ $nskip > 0 ]] ;then
+        subj='$PROG.$TS - Indexed $nidx results, skipped $nskip results'
+    elif [[ $nerrs > 0 ]] ;then
+        subj='$PROG.$TS - Indexed $nidx results, w/ $nerrs errors'
+    else
+        subj='$PROG.$TS - Indexed $nidx results'
+    fi
     if [[ "$_PBENCH_BGTASKS_TEST" != 1 ]] ;then
         # send mail if not unit testing
         mailcmd="mailx -s \"$subj\" $mail_recipients < $mail_body"
@@ -199,6 +216,7 @@ if [[ $nidx -gt 0 || $nskip -gt 0 || $nerrs -gt 0 ]]; then
         echo "Skipped Results"
         echo "==============="
         cat $skipped
+        echo
     fi  >> $mail_body
     if [[ $nidx -gt 0 ]]; then
         echo "Indexed Results"
