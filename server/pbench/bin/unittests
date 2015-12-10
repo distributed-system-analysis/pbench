@@ -58,7 +58,8 @@ function _run_allscripts {
 function _save_tree {
     # Save state of the tree
     echo "+++ pbench tree state" >> $_testout
-    find $_testdir | sort >> $_testout
+    find $_testdir | sort |
+        sed 's;tmp/pbench-unpack-tarballs.[0-9]*$;tmp/pbench-unpack-tarballs.NNNN;' >> $_testout
     echo "--- pbench tree state" >> $_testout
 }
 function _dump_logs {
