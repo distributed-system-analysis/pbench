@@ -33,6 +33,7 @@ maxstddevpct=5 # maximum allowable standard deviation in percent
 max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
 supported_test_types="read,write,rw,randread,randwrite,randrw"
 install_only="n"
+noinstall="n"
 config=""
 rate_iops=""
 test_types="read,randread"		# default is -non- destructive
@@ -72,7 +73,7 @@ function fio_usage() {
 		printf -- "\t-r int --runtime=int\n"
 		printf "\t\truntime in seconds (default is $runtime)\n"
 		printf "\n"
-		printf -- "\t-r int --ramptime=int\n"
+		printf -- "\t--ramptime=int\n"
 		printf "\t\ttime in seconds to warm up test before taking measurements (default is $ramptime)\n"
 		printf "\n"
 		printf -- "\t-b int[,int] --block-sizes=str[,str] (default is $block_sizes)\n"
@@ -106,7 +107,7 @@ function fio_usage() {
 }
 
 function fio_process_options() {
-	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,clients:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:" -n "getopt.sh" -- "$@");
+	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,clients:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,noinstall:" -n "getopt.sh" -- "$@");
 	if [ $? -ne 0 ]; then
 		printf "\t${benchmark}: you specified an invalid option\n\n"
 		fio_usage
@@ -277,6 +278,13 @@ function fio_process_options() {
 				shift;
 			fi 
 			;;
+			--noinstall)
+				shift;
+				if [ -n "$1" ]; then 
+					noinstall="$1"
+					shift;
+				fi
+			;; 
 			--)
 			shift;
 			break;
@@ -310,18 +318,29 @@ function fio_install() {
 		else
 			debug_log "[$script_name]$benchmark installation failed, exiting"
 			exit 1
-		fi
-		if [ ! -z "$clients" ]; then
-			debug_log "verifying clients have fio installed"
-			echo "verifying clients have fio installed"
-			for client in `echo $clients | sed -e s/,/" "/g`; do
-				ssh $ssh_opts $client ${pbench_install_dir}/bench-scripts/pbench_fio --install &
-			done
-			wait
-		fi
-		if [ "$install_only" == "y" ]; then
-			exit 0
-		fi
+		fi 
+	fi
+	if [ ! -z "$clients" ] && [ "$noinstall" == "n" ] ; then
+		debug_log "verifying clients have fio installed"
+		echo "verifying clients have fio installed"
+		for client in `echo $clients | sed -e s/,/" "/g`; do
+			ssh $ssh_opts $client ${pbench_install_dir}/bench-scripts/pbench_fio --install &
+		done
+		wait
+	elif [ ! -z "$clients" ] && [ "$noinstall" == "y" ]; then 
+		debug_log "verifying clients have fio installed" 
+                echo "verifying clients have fio installed"
+		for client in `echo $clients | sed -e s/,/" "/g`; do
+			if ( ssh $ssh_opts $clients "[ ! -e $benchmark_bin ]" ); then
+				debug_log "[$script_name]$benchmark is not installed on $client and option noinstall specified. Cannot proceed, remove noinstall or install $benchmark manually"
+                                echo "$script_name $benchmark is not installed on $client and option noinstall specified. Cannot proceed, remove noinstall or install $benchmark manually"
+				exit 0 
+		
+			fi 
+		done 
+	fi
+	if [ "$install_only" == "y" ]; then
+		exit 0
 	fi
 }
 
@@ -462,17 +481,17 @@ function fio_run_job() {
 		wait
 		debug_log "opening port 8765 on firewall on the clients"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
-			ssh $ssh_options $client "firewall-cmd --add-port=8765/tcp >/dev/null" &
+			ssh $ssh_opts $client "firewall-cmd --add-port=8765/tcp >/dev/null" &
 		done
 		wait
 		debug_log "killing any old fio process on the clients"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
-			ssh $ssh_options $client "killall fio >/dev/null 2>&1" &
+			ssh $ssh_opts $client "killall fio >/dev/null 2>&1" &
 		done
 		wait
 		debug_log "starting new fio process on the clients"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
-			ssh $ssh_options $client "pushd $benchmark_results_dir >/dev/null; screen -dmS fio-server bash -c ''$bench_cmd' --server 2>&1 >client-result.txt'"
+			ssh $ssh_opts $client "pushd $benchmark_results_dir >/dev/null; screen -dmS fio-server bash -c ''$bench_cmd' --server 2>&1 >client-result.txt'"
 		done
 		wait
 	else
@@ -484,7 +503,11 @@ function fio_run_job() {
 		local max_jobs=0
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			client_opts="$client_opts --client=$client"
-			let max_jobs=$max_jobs+1
+			if [ ! -z $numjobs ]; then 
+				let max_jobs=$numjobs
+			else
+				let max_jobs=$max_jobs+1
+			fi 
 		done
 		client_opts="$client_opts --max-jobs=$max_jobs $bench_opts"
 	fi
