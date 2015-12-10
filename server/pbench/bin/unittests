@@ -3,7 +3,7 @@
 _tdir=$(dirname $(readlink -f $0))
 _tlib=${_tdir}/../lib
 
-_testroot=/var/tmp/pbench-test-bgtasks
+_testroot=/var/tmp/pbench-test-server
 mkdir -p $_testroot
 if [[ ! -d $_testroot ]]; then
     echo "ERROR: failed to create test root directory, \"$_testroot\"" >&2
@@ -26,7 +26,7 @@ fi
 export CONFIG=${_tdir}/../../config/run.conf
 
 # Fixed timestamp output
-export _PBENCH_BGTASKS_TEST=1
+export _PBENCH_SERVER_TEST=1
 res=0
 
 function _run {
@@ -43,7 +43,7 @@ function _run_index {
     echo "+++ Running indexing on $dname" >> $_testout
     PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_tlib}/config/pbench-index.cfg.example $dname.tar.xz >> $_testout 2>&1
     echo "--- Finished indexing on $dname (status=$?)" >> $_testout
-    sed -i '/File "\/home\//s;/home/.*/pbench/bgtasks/;/home/user/repo/pbench/bgtasks/;' $_testout
+    sed -i '/File "\/home\//s;/home/.*/pbench/server/;/home/user/repo/pbench/server/;' $_testout
 }
 function _run_allscripts {
     _run pbench-backup-tarballs

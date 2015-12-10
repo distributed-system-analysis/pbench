@@ -124,12 +124,12 @@ while read size result ;do
 
     # index-pbench depends on a whole hierarchy - this script and index-pbench
     # are in /home/pbench/bin when deployed, but it depends on /home/pbench/lib/config/pbench-index.cfg,
-    # /home/pbench/lib/vos etc. On a devel system, however, they are under .../pbench/bgtasks/pbench
+    # /home/pbench/lib/vos etc. On a devel system, however, they are under .../pbench/server/pbench
     # in the git clone. So tell the script where things are explicitly: hence PROGLOC. We use one for
     # the real runs and a different one for unit testing. The actual command executed is the same, but
     # since the "real" box does not have a python3, we use Software Collections; on the unit test box,
     # we just executed python3 directly.
-    if [[ "$_PBENCH_BGTASKS_TEST" != 1 ]] ;then
+    if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
         PROGLOC=/home/pbench
         PYTHONPATH=${PROGLOC}/lib:$PYTHONPATH scl enable python33 \
                   "python ${PROGLOC}/bin/index-pbench --config ${PROGLOC}/lib/config/pbench-index.cfg $link"
@@ -199,7 +199,7 @@ if [[ $nidx -gt 0 || $nskip -gt 0 || $nerrs -gt 0 ]]; then
     else
         subj='$PROG.$TS - Indexed $nidx results'
     fi
-    if [[ "$_PBENCH_BGTASKS_TEST" != 1 ]] ;then
+    if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
         # send mail if not unit testing
         mailcmd="mailx -s \"$subj\" $mail_recipients < $mail_body"
     else

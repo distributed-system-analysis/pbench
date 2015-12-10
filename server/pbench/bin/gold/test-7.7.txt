@@ -1,9 +1,9 @@
-+++ Running indexing on /var/tmp/pbench-test-bgtasks/test-7.7
++++ Running indexing on /var/tmp/pbench-test-server/test-7.7
 [{'_id': '3a58d0784827289ecf52b40dbd2d8b05',
   '_index': 'pbench.2015-09',
   '_op_type': 'create',
   '_source': {'_metadata': {'file-date': '2015-09-28',
-                            'file-name': '/var/tmp/pbench-test-bgtasks/test-7.7.tar.xz',
+                            'file-name': '/var/tmp/pbench-test-server/test-7.7.tar.xz',
                             'generated-by': 'index-pbench',
                             'generated-by-version': '0.0.0.3',
                             'md5': '3a58d0784827289ecf52b40dbd2d8b05',
@@ -66,9 +66,9 @@
                          'size': 51}]},
   '_timestamp': datetime.datetime(1900, 1, 1, 0, 0),
   '_type': 'pbench-run-toc-entry'}]
---- Finished indexing on /var/tmp/pbench-test-bgtasks/test-7.7 (status=0)
+--- Finished indexing on /var/tmp/pbench-test-server/test-7.7 (status=0)
 +++ pbench tree state
-/var/tmp/pbench-test-bgtasks/pbench
+/var/tmp/pbench-test-server/pbench
 --- pbench tree state
 +++ pbench log file contents
 --- pbench log file contents
