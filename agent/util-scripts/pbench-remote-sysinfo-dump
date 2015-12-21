@@ -20,14 +20,14 @@ if [ ! -d $sysinfo_path ]; then
 	exit 1
 fi
 
-sysinfo-dump $sysinfo_path $label
+pbench-sysinfo-dump $sysinfo_path $label
 if [ $? -ne 0 ]; then
-	echo "\"sysinfo-dump $sysinfo_path $label\" failed!" >&2
+	echo "\"pbench-sysinfo-dump $sysinfo_path $label\" failed!" >&2
 	exit 1
 fi
 
 cd $sysinfo_path >&2
-echo "sysinfo-dump data size: $(du -sm $sysinfo_path | awk '{print $1}') MB" >&2
+echo "pbench-sysinfo-dump data size: $(du -sm $sysinfo_path | awk '{print $1}') MB" >&2
 tar cf - *
 exit_status=$?
 rm -rf $sysinfo_path >&2

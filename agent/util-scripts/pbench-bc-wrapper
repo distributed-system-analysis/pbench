@@ -1,0 +1,26 @@
+#! /bin/bash
+
+name=$(basename $0)
+
+function warning () {
+    name=$1
+    echo "***************************************************************************" > /dev/stderr
+    echo "WARNING: the script \"$name\" has been renamed to \"pbench-$name\" " > /dev/stderr
+    echo "Please fix your scripts: this compatibility layer will go" > /dev/stderr
+    echo "away in release 0.38 (approximately 2015-04-04)." > /dev/stderr
+    echo "The old name \"$name\" will NOT work after that - you have been warned!" > /dev/stderr
+    echo "***************************************************************************" > /dev/stderr
+    echo > /dev/stderr
+}
+
+if [ ! -L $(which $name) ] ;then
+    echo "$name not a link?!?"
+    exit 101
+elif [ ! -f $(which "pbench-$name") ] ;then
+    echo "pbench-$name does not exist?!?"
+    exit 102
+else
+    warning $name
+    exec pbench-$name $*
+fi
+   

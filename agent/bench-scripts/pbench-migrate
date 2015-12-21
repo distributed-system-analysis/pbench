@@ -272,7 +272,7 @@ function do_migrate() {
 	# migrate
 	echo sleeping for $seconds_before_migrate seconds before starting migration | tee -a $benchmark_results_dir/result.txt
 	sleep $seconds_before_migrate
-	start-tools --group=$tool_group --dir=$benchmark_results_dir
+	pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
 	if [ "$use_libvirt" == "y" ]; then
 		if [ ! -z "$dest_ipaddr" ]; then
 			tcp_opt="tcp://$dest_ipaddr"
@@ -303,7 +303,7 @@ function do_migrate() {
 			let count=$count+1
 		done
 	fi
-	stop-tools --group=$tool_group --dir=$benchmark_results_dir
+	pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
 }
 
 if [ "$postprocess" = "only" ]; then
@@ -324,7 +324,7 @@ if [ $loops -eq 0 ]; then
 fi
 count=1
 export benchmark config
-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 for i in `seq 1 $loops`; do
 	iteration="$count-from-$src_host-to-$dest_host"
 	benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
@@ -362,9 +362,9 @@ done
 echo sleeping for $seconds_before_postprocess seconds before postprocessing tools
 sleep $seconds_before_postprocess
 for postprocess_dir in $postprocess_dirs; do
-	postprocess-tools --group=$tool_group --dir=$postprocess_dir &
+	pbench-postprocess-tools --group=$tool_group --dir=$postprocess_dir &
 done
 wait
-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 
 rmdir $benchmark_run_dir/.running
