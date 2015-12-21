@@ -4,6 +4,8 @@ perl:
  - "5.18"
  - "5.16"
  - "5.10"
+before_install:
+ - sudo apt-get update
 install:
  - sudo apt-get install python python-pip bc libjson-perl realpath
  - sudo pip install configtools elasticsearch
