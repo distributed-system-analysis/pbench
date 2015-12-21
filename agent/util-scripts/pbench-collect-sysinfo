@@ -103,7 +103,7 @@ function gather_remote_sysinfo_data {
 	local remote_host=$1
 	local remote_label=$2
 	debug_log "[$script_name]running sysinfo-dump on $remote_host"
-	cmd="ssh $ssh_opts -n $remote_host remote-sysinfo-dump $sysinfo_path $remote_label"
+	cmd="ssh $ssh_opts -n $remote_host pbench-remote-sysinfo-dump $sysinfo_path $remote_label"
 	debug_log "[$script_name] $cmd > $sysinfo_path/$remote_label$remote_host.tar.xz 2> $sysinfo_path/$remote_label$remote_host.err"
 	$cmd > $sysinfo_path/$remote_label$remote_host.tar.xz 2> $sysinfo_path/$remote_label$remote_host.err
 	if [ $? -ne 0 ]; then
@@ -148,12 +148,12 @@ done
 if [ $lcl_cnt -gt 0 ]; then
 	# We found local tools, or a label, specified in the tools group
 	# file, so we should collect sysinfo data locally
-        sysinfo-dump "$sysinfo_path" $lcl_label &
+        pbench-sysinfo-dump "$sysinfo_path" $lcl_label &
 fi
 wait
 
 # collect the metadata for the run
-metadata-log --group=$group --dir=$dir $name
+pbench-metadata-log --group=$group --dir=$dir $name
 status=$?
 
 exit $status

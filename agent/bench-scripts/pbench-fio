@@ -497,7 +497,7 @@ function fio_run_job() {
 	else
 		mkdir -p $benchmark_results_dir/clients/localhost
 	fi
-	start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+	pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	local client_opts=""
 	if [ ! -z "$clients" ]; then
 		local max_jobs=0
@@ -519,7 +519,7 @@ function fio_run_job() {
 	pushd $benchmark_results_dir >/dev/null
 	$benchmark_results_dir/fio.cmd >$benchmark_results_dir/fio-result.txt
 	popd >/dev/null
-	stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+	pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	if [ ! -z "$clients" ]; then
 		debug_log "getting log files from clients"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
@@ -535,7 +535,7 @@ function fio_run_job() {
 	else
 		mv $benchmark_results_dir/fio*.log $benchmark_results_dir/clients/localhost/
 	fi
-	postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+	pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	echo "fio job complete"
 }
 
@@ -664,7 +664,7 @@ function fio_run_benchmark() {
 									value=`grep -- "^$key" $iteration_dir/sample$sample/result.txt | awk -F= '{print $2}'`
 									iteration_samples="$iteration_samples $value"
 								done
-								avg_stddev_result=`avg-stddev $iteration_samples`
+								avg_stddev_result=`pbench-avg-stddev $iteration_samples`
 								samples[$key_nr]="$iteration_samples"
 								avg[$key_nr]=`echo $avg_stddev_result | awk '{print $1}'`
 								avg[$key_nr]=`printf "%.2f" ${avg[$key_nr]}`
@@ -781,9 +781,9 @@ fio_process_options "$@"
 fio_install
 
 export benchmark config
-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 fio_run_benchmark
-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 fio_print_summary
 
 rmdir $benchmark_run_dir/.running

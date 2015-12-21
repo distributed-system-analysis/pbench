@@ -83,24 +83,24 @@ export benchmark_results_dir=$benchmark_results_dir
 
 # For now, since we only ever run one iteration here, don't bother
 # collecting sysinfo data before and after, just do it after.
-#collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+# pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 
 # gather up metadata for the run - this is usually called from
-# collect-sysinfo (both at the beginning and end of the run)
-# but since we don't call collect-sysinfo here, we need to call
+# pbench-collect-sysinfo (both at the beginning and end of the run)
+# but since we don't call pbench-collect-sysinfo here, we need to call
 # metadata-log explicitly
 export benchmark config
-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 
 # on abnormal exit, make sure that the metadata log exists and is complete.
 trap "metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
 
-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 echo "Running $benchmark_bin"
 log "[$script_name] Running $benchmark_bin"
 $benchmark_bin 2>&1 | tee $benchmark_results_dir/result.txt
-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 
 rmdir $benchmark_results_dir/.running

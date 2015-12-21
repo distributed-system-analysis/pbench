@@ -4,7 +4,7 @@
 script_path=`dirname $0`
 script_name=`basename $0`
 pbench_bin="`cd ${script_path}/..; /bin/pwd`"
-action=`echo $script_name | awk -F- '{print $1}'`
+action=`echo ${script_name#pbench-} | awk -F- '{print $1}'`
 
 # source the base script
 . "$pbench_bin"/base
@@ -99,7 +99,7 @@ function move_tool_data {
 	tool_data_size=`ssh $ssh_opts -n $remote_host du -sm $tool_output_dir | awk '{print $1}'`
 	debug_log "[$script_name]started: copying tool data ($tool_data_size MB) from $remote_host"
 	ssh $ssh_opts -n $remote_host "cd $tool_output_dir && tar cf - *" | tar mxf -
-	# if the full hostname was used in register-tool --remote, make sure that is preserved in the directory name
+	# if the full hostname was used in pbench-register-tool --remote, make sure that is preserved in the directory name
 	if [ $remote_host != "$remote_shost" ]; then
 		if [ -e "$remote_label:$remote_shost" ]; then
 			mv $remote_label:$remote_shost $remote_label:$remote_host

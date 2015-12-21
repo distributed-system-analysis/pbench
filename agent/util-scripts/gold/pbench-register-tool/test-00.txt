@@ -1,6 +1,6 @@
-+++ Running test-00 register-tool
++++ Running test-00 pbench-register-tool
 mpstat tool is now registered in group default
---- Finished test-00 register-tool (status=0}
+--- Finished test-00 pbench-register-tool (status=0}
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/pbench.log
