@@ -74,9 +74,9 @@ linksrc=TO-COPY-SOS
 linkdest=TO-INDEX
 
 if [ "$SOSREPORTDEST" == "" ]; then
-    _sosrpt_user=$(getconf.py sosreportdest-user sosreports)
-    _sosrpt_host=$(getconf.py sosreportdest-host sosreports)
-    _sosrpt_dir=$(getconf.py sosreportdest-dir sosreports)
+    _sosrpt_user=$(getconf.py user sosreports)
+    _sosrpt_host=$(getconf.py host sosreports)
+    _sosrpt_dir=$(getconf.py dir sosreports)
     SOSREPORTDEST=$_sosrpt_user@$_sosrpt_host:$_sosrpt_dir/
 fi
 

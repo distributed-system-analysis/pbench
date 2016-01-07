@@ -1,0 +1,41 @@
+#! /bin/bash
+
+configdir=$1
+
+if [ -z "$configdir" ] ;then
+    echo $usage
+    exit 1
+fi
+
+export CONFIG=$configdir/pbench-server.cfg
+
+if [ ! -f $CONFIG ] ;then
+    echo "$CONFIG does not exist"
+    exit 2
+fi
+
+pbench_dir=$(getconf.py deploy-pbench-dir results)
+archive_dir=$(getconf.py deploy-archive-dir results)
+user=$(getconf.py default-user results)
+
+if [ -z "$pbench_dir" ] ;then
+    echo "pbench_dir is undefined in config file"
+    exit 3
+fi
+if [ -z "$archive_dir" ] ;then
+    echo "archive_dir is undefined in config file"
+    exit 4
+fi
+if [ -z "$user" ] ;then
+    echo "user is undefined in config file"
+    exit 5
+fi
+
+mkdir -p $archive_dir  || exit 6
+mkdir -p $pbench_dir/public_html/incoming || exit 7
+mkdir -p $pbench_dir/public_html/results || exit 8
+
+chown -R $user.$user $pbench_dir || exit 9
+
+exit 0
+

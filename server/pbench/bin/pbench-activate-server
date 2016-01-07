@@ -1,0 +1,34 @@
+#! /bin/bash
+# do all the setup
+
+# if an internal RPM is used, it is supposed to install the
+# config files in this directory
+installedconfigdir=/opt/pbench-server-internal/pbench/lib/config
+
+# the script is going to copy them to their final resting place
+configdir=/home/pbench/lib/config
+
+# bin and crontab dirs
+bindir=/home/pbench/bin
+crontabdir=/home/pbench/lib/crontab
+
+PATH=$bindir:$PATH
+if [ -d $installedconfigdir ] ;then
+    pbench-activate-copy-config-files \
+        $installedconfigdir \
+        $configdir || exit 1
+fi
+
+# we *must* have a config file at this point
+if [ ! -f $configdir/pbench-server.cfg ] ;then
+    echo "$configdir/pbench-server.cfg does not exist"
+    exit 127
+fi
+
+export CONFIG=$configdir/pbench-server.cfg
+pbench-activate-create-crontab $configdir \
+                               $crontabdir || exit 2
+pbench-activate-setup-results-host-info $configdir || exit 3
+pbench-activate-create-results-dir-structure $configdir || exit 4
+
+exit 0
