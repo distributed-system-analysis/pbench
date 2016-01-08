@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+
+script_path=`dirname $0`
+if [ "$script_path" = "." ]
+then
+    script_path=$PWD
+fi
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# Defaults
+tool_output_dir="$1"
+tool=pprof
+tool_bin=/usr/bin/go
+origin_dir="/var/lib/origin"
+openshift_bin="/usr/bin/openshift"
+
+# generate report
+for profile in mem cpu; do
+    # it can be either cpu or mem profile
+    if [ -e $origin_dir/$profile.pprof ] && [ -s $origin_dir/$profile.pprof ] ; then
+        $tool_bin tool $tool -cum -text -output $tool_output_dir/$profile-pprof-output $openshift_bin $origin_dir/$profile.pprof
+    else
+        printf "$origin_dir/$profile.pprof is zero bytes in size ... so no profile data were generated\n"
+    fi
+done

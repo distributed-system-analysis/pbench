@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+
+openshift_conf="/etc/sysconfig/atomic-openshift-master"
+
+profile="$1"
+osecomponent="$2"
+
+ose_pprof() {
+    case "$osecomponent" in
+        master)
+            case  "$profile" in
+                cpu)
+                    echo "OPENSHIFT_PROFILE=cpu" >> /etc/sysconfig/atomic-openshift-master
+                    systemctl restart atomic-openshift-master.service
+                 ;;
+                mem)
+                    echo "OPENSHIFT_PROFILE=mem" >> /etc/sysconfig/atomic-openshift-master
+                    systemctl restart atomic-openshift-master.service
+                ;;
+            esac
+        ;;
+        node)
+            case "$profile" in
+                cpu)
+                    echo "OPENSHIFT_PROFILE=cpu" >> /etc/sysconfig/atomic-openshift-node
+                    systemctl restart atomic-openshift-node.service
+                 ;;
+                mem)
+                    echo "OPENSHIFT_PROFILE=mem" >> /etc/sysconfig/atomic-openshift-node
+                    systemctl restart atomic-openshift-node.service
+                ;;
+            esac
+        ;;
+    esac
+}
+ose_pprof
+
+
+
