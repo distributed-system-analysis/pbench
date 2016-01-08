@@ -21,14 +21,20 @@ mode=""
 interval="10"
 iteration="1"
 options="none"
+
 if [ "$script_name" == "sysfs" ]; then
 	pattern='*'
 	maxdepth=4
 	path=""
 fi
 
+if [ "$script_name" == "pprof" ]; then
+    profile="cpu"
+    osecomponent="master"
+fi
+
 # Process options and arguments
-opts=$(getopt -q -o idp --longoptions "path:,maxdepth:,pattern:,vm:,dir:,group:,iteration:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o idp --longoptions "path:,maxdepth:,pattern:,vm:,dir:,group:,iteration:,interval:,profile:,osecomponent:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"
@@ -40,6 +46,8 @@ if [ $? -ne 0 ]; then
 	printf -- "\t--group=str		the perftool group (required)\n"
 	printf -- "\t--dir=str			directory to store data collection (required)\n"
 	printf -- "\t--interval=int		number of seconds between each data collection\n"
+	printf -- "\t--profile=str pprof profile to use : supported are mem or cpu profile - default is cpu profile\n"
+	printf -- "\t-osecomponent=str Openshift component to profile : supported are node or master - default is master\n"
 	if [ "$script_name" == "sysfs" ]; then
 		printf -- "\t--pattern=str		a pattern passed to -name option of find command to filter files\n"
 		printf -- "\t--path=str			a path (beyond the /sysfs prefix) passed to -name option of find command to filter files\n"
@@ -125,6 +133,20 @@ while true; do
 			shift
 		fi
 		;;
+		--profile)
+		shift;
+		if [ -n "$1" ]; then
+		    profile="$1"
+		    shift
+		fi
+		;;
+		--osecomponent)
+		shift;
+		if [ -n "$1" ]; then
+		    osecomponent="$1"
+		    shift
+		fi
+	    ;;
 		--)
 		shift;
 		break;
@@ -150,6 +172,12 @@ case "$tool" in
 	numastat)
 	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file $pattern"
 	;;
+	pprof)
+	tool_cmd="$script_path/datalog/$tool-datalog $profile $osecomponent"
+	;;
+	# oc is Openshift Developer and Administrator Client
+	oc)
+	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_dir"
 esac
 case "$mode" in
 	install)

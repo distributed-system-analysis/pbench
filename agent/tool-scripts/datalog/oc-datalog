@@ -1,0 +1,18 @@
+#!/bin/bash
+
+interval=$1
+tool_output_dir=$2
+oc_component="rc nodes ep pods pv pvc svc projects cs"
+
+oc_info_file() {
+    for component in $oc_component; do
+        echo "timestamp: `date +%s.%N`" >> $tool_output_dir/$component.txt
+        oc get $component -o wide >> $tool_output_dir/$component.txt
+    done
+}
+
+while true; do
+    oc_info_file
+    sleep $interval
+done
+
