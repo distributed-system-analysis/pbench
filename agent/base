@@ -70,9 +70,9 @@ function error_log {
 function debug_log {
     debug_date=$(timestamp)
     if [ "$PBENCH_debug_mode" != "0" ]; then
-        echo "[debug][$debug_date] $1"
+        echo "[debug][$debug_date] $*"
     fi
-    echo "[debug][$debug_date] $1" >> $pbench_log
+    echo "[debug][$debug_date] $*" >> $pbench_log
 }
 
 
