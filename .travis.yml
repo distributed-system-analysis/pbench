@@ -21,4 +21,3 @@ script:
  - ./agent/tool-scripts/postprocess/unittests
  - ./agent/util-scripts/unittests
  - ./server/pbench/bin/unittests
- - ./agent/util-scripts/unittests
