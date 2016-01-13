@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+script_path=`dirname $0`
+if [ "$script_path" = "." ]
+then
+    script_path=$PWD
+fi
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# defaults
+tool_output_dir=$1
+oc_ev=ev
+echo "timestamp: `date +%s.%N`" >> $tool_output_dir/$oc_ev.txt
+# and we want only once oc get ev - events
+oc get $oc_ev -o wide --watch>> $tool_output_dir/$oc_ev.txt
+
+
