@@ -46,7 +46,7 @@ my $i;
 my %graph_type;
 my %graph_threshold;
 
-open(INTERRUPTS_TXT, "$dir/proc-interrupts.txt") || die "could not find $dir/proc-interrupts.txt\n";
+open(INTERRUPTS_TXT, "$dir/proc-interrupts-stdout.txt") || die "could not find $dir/proc-interrupts-stdout.txt\n";
 while (my $line = <INTERRUPTS_TXT>) {
 	chomp $line;
 	# timestamp: 1394048617.043209234

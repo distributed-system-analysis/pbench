@@ -34,7 +34,7 @@ my $bridge;
 my $port;
 my %data;
 
-open(TXT, "$dir/openvswitch.txt") || die "could not find $dir/openvswitch.txt\n";
+open(TXT, "$dir/openvswitch-stdout.txt") || die "could not find $dir/openvswitch-stdout.txt\n";
 while (my $line = <TXT>) {
 	chomp $line;
 ## sample file data:

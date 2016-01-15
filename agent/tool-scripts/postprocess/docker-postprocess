@@ -31,7 +31,7 @@ my %stats;
 my $timestamp_ms;
 
 # read the test file
-my $input_file_name = $dir . "/" . $tool . ".txt";
+my $input_file_name = $dir . "/" . $tool . "-stdout.txt";
 open(TOOL_TXT, $input_file_name) || die "could not find $input_file_name\n";
 my $mode="search";
 while (my $line = <TOOL_TXT>) {

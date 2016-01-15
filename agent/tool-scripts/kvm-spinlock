@@ -21,14 +21,23 @@ mode=""
 interval="10"
 iteration="1"
 options="none"
-if [ "$script_name" == "sysfs" ]; then
+case "$script_name" in
+	"sysfs")
 	pattern='*'
 	maxdepth=4
 	path=""
-fi
+	;;
+	tcpdump)
+	packets=500
+	;;
+	rabbit)
+	username="guest"
+	password="guest"
+	;;
+esac
 
 # Process options and arguments
-opts=$(getopt -q -o idp --longoptions "path:,maxdepth:,pattern:,vm:,dir:,group:,iteration:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o idp --longoptions "username:,password:,interface:,packets:,start-delay:,timeout:,devices:,path:,maxdepth:,pattern:,vm:,dir:,group:,iteration:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"
@@ -47,6 +56,22 @@ if [ $? -ne 0 ]; then
 	fi
 	if [ "$script_name" == "virsh-migrate" ]; then
 		printf -- "\t--vm=str			the name of the VM being migrated\n"
+	fi
+	if [ "$script_name" == "blktrace" ]; then
+		printf -- "\t--devices=str,[str]	the list of block devices to trace\n"
+	fi
+	if [ "$script_name" == "kvmtrace" ]; then
+		printf -- "\t--vm=str			the hostname of the vm running (to get kallsyms)\n"
+		printf -- "\t--timeout=int		how long the trace will run (default is 1 second).  If 0 is used, the trace will not stop until stop-tools is called\n"
+		printf -- "\t--start-delay=int		sleep this many seconds before starting the trace\n"
+	fi
+	if [ "$script_name" == "tcpdump" ]; then
+		printf -- "\t--interface=str		the network interface to monitor\n"
+		printf -- "\t--packets=	int		the number of packets to monitor before exiting\n"
+	fi
+	if [ "$script_name" == "rabbit" ]; then
+		printf -- "\t--username=str         rabbit user name (default is "$username")\n"
+		printf -- "\t--password=int         rabbit password (default is "$password")\n"
 	fi
 	exit 1
 fi
@@ -125,6 +150,41 @@ while true; do
 			shift
 		fi
 		;;
+		--devices)
+		shift;
+		if [ -n "$1" ]; then
+			devices=`echo $1 | sed -e s/","/" "/g`
+			shift
+		fi
+		;;
+		--start-delay)
+		shift;
+		if [ -n "$1" ]; then
+			start_delay="$1"
+			shift
+		fi
+		;;
+		--timeout)
+		shift;
+		if [ -n "$1" ]; then
+			timeout="$1"
+			shift
+		fi
+		;;
+		--packets)
+		shift;
+		if [ -n "$1" ]; then
+			packets="$1"
+			shift
+		fi
+		;;
+		--interface)
+		shift;
+		if [ -n "$1" ]; then
+			interface="$1"
+			shift
+		fi
+		;;
 		--)
 		shift;
 		break;
@@ -133,43 +193,163 @@ while true; do
 done
 
 tool_dir="$dir/tools-$group"
-tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
+tool_output_dir="$tool_dir/$tool" # all tools keep data in their tool specific dir
 tool_cmd_file="$tool_output_dir/$tool.cmd"
-tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
-tool_output_file=$tool_output_dir/$tool.txt
+tool_pid_file="$pbench_tmp/$group.$iteration.$tool.pid"
+tool_stdout_file="$tool_output_dir/$tool-stdout.txt"
+tool_stderr_file="$tool_output_dir/$tool-stderr.txt"
 case "$tool" in
 	virsh-migrate|qemu-migrate)
-	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file $vm"
+	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file $vm"
 	;;
 	sysfs)
-	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file \"$path\" \"$maxdepth\" \"$pattern\""
+	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file \"$path\" \"$maxdepth\" \"$pattern\""
 	;;
-	openvswitch|proc-sched_debug|proc-vmstat|proc-interrupts|cpuacct|numastat|kvmstat|kvm-spinlock|vmstat)
-	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file"
+	docker-info|docker|dm-cache|turbostat|openvswitch|proc-sched_debug|proc-vmstat|proc-interrupts|cpuacct|numastat|kvmstat|kvm-spinlock|vmstat)
+	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file"
 	;;
 	numastat)
-	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file $pattern"
+	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file $pattern"
+	;;
+	blktrace)
+	tool_cmd="blktrace $devices >$tool_stdout_file"
+	;;
+	kvmtrace)
+	tool_bin=/usr/bin/trace-cmd
+	group=default
+	sleep_cmd="sleep 1"
+	if [ ! -z "$timeout" ]; then
+		if [ $timeout -eq 0 ]; then
+			sleep_cmd=""
+		else
+			sleep_cmd="sleep $timeout"
+		fi
+	fi
+	tool_cmd="$tool_bin record -a -e kvm $sleep_cmd"
+	;;
+	tcpdump)
+	tool_bin=/usr/sbin/tcpdump
+	tool_cmd="$tool_bin -c $packets -ni $interface >$tool_stdout_file"
+	;;
+	rabbit)
+	tool_cmd="$script_path/datalog/$tool-datalog $interval $username $password $tool_stdout_file"
 	;;
 esac
 case "$mode" in
 	install)
+	case "$tool" in
+		kvmtrace)
+		# ensure debugfs is mounted
+		if cat /proc/mounts | grep -q debugfs; then
+			echo "debugfs is already mounted"
+		else
+			mount -t debugfs none /sys/kernel/debug
+		fi
+		# no version is provided here because we rely on a 
+		# distribution provided package and we take whatever we can get
+		check_install_rpm trace-cmd
+		;;
+		turbostat)
+		release=$(awk '{x=$7; split(x, a, "."); print a[1];}' /etc/redhat-release)
+		case $release in
+    			6)
+        		pkg=cpupowerutils
+        		;;
+    			*)
+        		pkg=kernel-tools
+        		;;
+		esac
+		check_install_rpm $pkg
+		;;
+		dm-cache)
+		kmod=dm_cache
+		if ! grep -q $kmod /proc/modules ; then
+            		echo "$kmod not loaded, exiting"
+            	exit 1
+		fi
+        	;;
+		rabbit)
+		tool_bin="/usr/bin/rabbitmqadmin"
+		if [ ! -e $tool_bin ]; then
+			echo "$tool_bin not installed, exiting"
+			exit 1
+		fi
+		;;
+	esac
         ;;
 	start)
-	mkdir -p $tool_output_dir
-	echo "$tool_cmd" >$tool_cmd_file
-	chmod +x $tool_cmd_file
+	if [ "$tool" == "kvmtrace" ]; then
+		if [ ! -z "$start_delay" ]; then
+			sleep $start_delay
+		fi
+	fi
+	mkdir -p "$tool_output_dir"
+	pushd "$tool_output_dir" >/dev/null
+	echo "$tool_cmd" >"$tool_cmd_file"
+	chmod +x "$tool_cmd_file"
 	debug_log "$script_name: running $tool_cmd"
-	$tool_cmd >>"$tool_output_file" & echo $! >$tool_pid_file
+	"$tool_cmd_file" 2>"$tool_stderr_file" & echo $! >"$tool_pid_file"
 	wait
+	popd >/dev/null
 	;;
 	stop)
-	pid=`cat $tool_pid_file`
 	debug_log "stopping $script_name"
-	kill $pid && /bin/rm -f $tool_pid_file
+	pid=`cat $tool_pid_file`
+	if [ "$tool" == "kvmtrace" ]; then
+		if [ -z "$sleep_cmd" ]; then
+			# kill the perf cmd
+			kill -s SIGINT $pid
+		else
+			# kill the sleep process if it still exists
+			sleep_pid=`ps --ppid $pid | pgrep sleep`
+			if [ ! -z "$sleep_pid" ]; then
+				kill $sleep_pid
+			fi
+		fi
+		# wait for the trace-cmd pid to complete
+		while [ -d /proc/$pid ]; do
+			debug_log "waiting for PID $pid to die"
+			sleep 0.5
+		done
+	else
+		kill $pid && /bin/rm -f "$tool_pid_file"
+	fi
 	;;
 	postprocess)
-	debug_log "postprocessing $script_name"
-	$script_path/postprocess/$script_name-postprocess $tool_output_dir
+	pushd $tool_output_dir >/dev/null
+	case $tool in
+		blktrace)
+		for dev in $devices; do
+			devs="$devs `basename $dev`"
+		done
+		pushd $tool_output_dir >/dev/null
+		blkparse $devs >blkparse-stdout.txt 2>blkparse-stderr.txt
+		bzip2 blkparse-stdout.txt &
+		for dev in $devs; do
+			bzip2 $dev.blktrace.* &
+		done
+		wait
+		popd >/dev/null
+		;;
+		kvmtrace)
+		/usr/bin/trace-cmd report >kvmtrace-report-stdout.txt 2>kvmtrace-report-stderr.txt
+		grep rip kvmtrace-report-stdout.txt | awk -F"reason" '{print $2}' | sort | uniq -c | sort -rn >kvmtrace-exit-reasons.txt
+		if [ -z "$vm" ]; then
+			# if the vm hostname was not provided, try to find a running vm, and use its vm name as the host
+			vm=`virsh list | grep running | head -1 | awk '{print $2}'`
+		fi
+		ssh $vm cat /proc/kallsyms >kallsyms-guest.txt
+		$script_path/postprocess/kvmtrace-postprocess .
+		bzip2 --fast kvmtrace-report-stdout.txt &
+		bzip2 --fast trace.dat &
+		bzip2 --fast kallsyms-guest.txt &
+		wait
+		;;
+		*)
+		debug_log "postprocessing $script_name"
+		$script_path/postprocess/$script_name-postprocess "$tool_output_dir"
+		;;
+	esac
+	popd >/dev/null
 	;;
 esac
-

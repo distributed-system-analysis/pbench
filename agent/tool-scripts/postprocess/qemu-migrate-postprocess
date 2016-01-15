@@ -38,7 +38,7 @@ sub convert_to_GiB {
 }
 
 my $dir=$ARGV[0];
-my $file="qemu-migrate.txt";
+my $file="qemu-migrate-stdout.txt";
 my %stats;
 my $timestamp;
 my $timestamp_ms;
