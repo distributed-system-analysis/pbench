@@ -131,10 +131,10 @@ printf RESULT_TXT "readwrite_IOPS=%.2f\n", $all_client_results{readwrite_iops};
 printf RESULT_TXT "rw_kB_sec=%.2f\n", $all_client_results{readwrite_bw};
 printf RESULT_TXT "read_IOPS=%.2f\n", $all_client_results{read_iops};
 printf RESULT_TXT "read_kB_sec=%.2f\n", $all_client_results{read_bw};
-printf RESULT_TXT "read_95th_lat_us=%.2f\n", $all_client_results{read_95lat};
+printf RESULT_TXT "read_95th_lat_us=%.2f\n", $all_client_results{read_95lat}/$all_client_results{read_95lat_samples};
 printf RESULT_TXT "write_IOPS=%.2f\n", $all_client_results{write_iops};
 printf RESULT_TXT "write_kB_sec=%.2f\n", $all_client_results{write_bw};
-printf RESULT_TXT "write_95th_lat_us=%.2f\n", $all_client_results{write_95lat};
+printf RESULT_TXT "write_95th_lat_us=%.2f\n", $all_client_results{write_95lat}/$all_client_results{write_95lat_samples};
 
 printf ITERATION_TXT "%20s%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", "$iteration", "clients",
   "readwrite-IOPS", "readwrite-kB/sec",
