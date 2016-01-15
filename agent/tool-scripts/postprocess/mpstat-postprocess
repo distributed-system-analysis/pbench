@@ -77,7 +77,7 @@ sub calc_timestamp {
 }
 
 # read the mpstat.txt and collect stats for all non dm-* devices
-open(MPSTAT_TXT, "$dir/mpstat.txt") || die "could not find $dir/mpstat.txt\n";
+open(MPSTAT_TXT, "$dir/mpstat-stdout.txt") || die "could not find $dir/mpstat-stdout.txt\n";
 
 # All mpstat output processing assumes LANG=C environment when mpstat was run.
 

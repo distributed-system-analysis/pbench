@@ -1,8 +1,2 @@
 #! /bin/bash
-
-dir=$1
-file=turbostat.txt
-outfile=turbostat-report.txt
-
-cd $dir
-cp $file $outfile
+# turbostat postprocess does nothing for now...
