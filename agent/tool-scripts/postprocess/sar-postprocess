@@ -85,7 +85,7 @@ sub calc_timestamp {
 }
 
 # read the sar.txt and collect stats
-open(SAR_TXT, "$dir/sar.txt") || die "could not find $dir/sar.txt\n";
+open(SAR_TXT, "$dir/sar-stdout.txt") || die "could not find $dir/sar-stdout.txt\n";
 
 # The first line contains the date:
 #    Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
