@@ -1,0 +1,49 @@
++++ Running pbench-backup-tarballs
+pbench-backup-tarballs: Missing target backup directory argument
+--- Finished pbench-backup-tarballs (status=1}
++++ Running pbench-unpack-tarballs
+--- Finished pbench-unpack-tarballs (status=0}
++++ Running pbench-copy-sosreports
+--- Finished pbench-copy-sosreports (status=0}
++++ Running pbench-index
+--- Finished pbench-index (status=0}
++++ Running pbench-clean-up-dangling-results-links
+--- Finished pbench-clean-up-dangling-results-links (status=0}
++++ Running pbench-edit-prefixes
+--- Finished pbench-edit-prefixes (status=0}
++++ pbench tree state
+/var/tmp/pbench-test-server/pbench
+/var/tmp/pbench-test-server/pbench/archive
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001
+/var/tmp/pbench-test-server/pbench/logs
+/var/tmp/pbench-test-server/pbench/logs/pbench-clean-up-dangling-results-links
+/var/tmp/pbench-test-server/pbench/logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
+/var/tmp/pbench-test-server/pbench/logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
+/var/tmp/pbench-test-server/pbench/logs/pbench-copy-sosreports
+/var/tmp/pbench-test-server/pbench/logs/pbench-copy-sosreports/pbench-copy-sosreports.error
+/var/tmp/pbench-test-server/pbench/logs/pbench-copy-sosreports/pbench-copy-sosreports.log
+/var/tmp/pbench-test-server/pbench/logs/pbench-edit-prefixes
+/var/tmp/pbench-test-server/pbench/logs/pbench-edit-prefixes/pbench-edit-prefixes.error
+/var/tmp/pbench-test-server/pbench/logs/pbench-edit-prefixes/pbench-edit-prefixes.log
+/var/tmp/pbench-test-server/pbench/logs/pbench-index
+/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.error
+/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log
+/var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs
+/var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
+/var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+/var/tmp/pbench-test-server/pbench/public_html
+/var/tmp/pbench-test-server/pbench/public_html/incoming
+/var/tmp/pbench-test-server/pbench/public_html/results
+/var/tmp/pbench-test-server/pbench/tmp
+/var/tmp/pbench-test-server/pbench/tmp/pbench-unpack-tarballs.NNNN
+--- pbench tree state
++++ pbench log file contents
+/var/tmp/pbench-test-server/pbench/logs/pbench-copy-sosreports/pbench-copy-sosreports.log:run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-copy-sosreports/pbench-copy-sosreports.log:run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, processed 0 sosreports for 0 results directories with 0 errors
+/var/tmp/pbench-test-server/pbench/logs/pbench-edit-prefixes/pbench-edit-prefixes.log:run-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-edit-prefixes/pbench-edit-prefixes.log:run-1900-01-01T00:00:00-UTC: Processed 0 edit-prefix requests
+/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 0 (skipped 0) results, 0 errors
+/var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:run-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:run-1900-01-01T00:00:00-UTC: Processed 0 tarballs
+--- pbench log file contents

@@ -1,0 +1,230 @@
+#! /bin/bash
+# -*- mode: shell-script -*-
+
+# This script is the third part of the pipeline that processes pbench
+# results tarballs.
+
+# First stage:  pbench-unpack-tarballs looks in all the TODO
+#               directories, unpacks tarballs, checks MD5 sums and
+#               moves the symlink from the TODO subdir to the
+#               TO-COPY-SOS subdir.  It runs under cron once a minute
+#               in order to minimize the delay between uploading the
+#               results and making them available for viewing over the
+#               web.
+
+# Second stage: pbench-copy-sosreports looks in all the TO-COPY-SOS
+#               subdirs, extracs the sos report from the tarball and
+#               copies it to the VoS incoming area for further
+#               processing. Assuming that all is well, it moves the
+#               symlink from the TO-COPY-SOS subdir to the TO-INDEX
+#               subdir.
+
+# Third stage:  pbench-index looks in all the TO-INDEX subdirs and
+#               calls the pbench-results-indexer script to index the
+#               results tarball into ES. It then moves the symlink from
+#               the TO-INDEX subdir to the DONE subdir.
+
+# assumptions:
+# - this script runs as a cron job
+# - tarballs and md5 sums are uploaded by move/copy-results to
+#   the $ARCHIVE/$(hostname -s) area.
+# - move/copy-results also makes a symlink to each tarball it uploads
+#   in $ARCHIVE/TODO.
+
+# This script loops over the contents of $archive/<hostname>/TO-INDEX,
+# extracts the information from the tarball and calls an indexing script
+# to index the results into ES. If everything works, it then moves the
+# symlink from $ARCHIVE/<hostname>/TO-INDEX to $ARCHIVE/<hostname>/DONE.
+
+###########################################################################
+# load common things
+opts=$SHELLOPTS
+case $opts in
+    *xtrace*)
+        dir=$(dirname $(which $0))
+        PROG=$(basename $(which $0))
+        ;;
+    *)
+        dir=$(dirname $0)
+        PROG=$(basename $0)
+        ;;
+esac
+
+if [[ -z "$1" ]]; then
+    echo "$PROG: Missing source pbench directory argument" >&2
+    exit 1
+fi
+TOP="$1"
+
+. $dir/pbench-base.sh
+###########################################################################
+
+# check that all the directories exist
+test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
+
+# make sure only one copy is running.
+# Use 'flock -n $LOCKFILE /home/pbench/bin/pbench-index' in the
+# crontab to ensure that only one copy is running. The script itself
+# does not use any locking. 
+
+# the link source and destination for this script
+linksrc=TO-INDEX
+linkdest=INDEXED
+linkerrdest=WONT-INDEX
+
+# get the list of files we'll be operating on
+#list=$(ls $ARCHIVE/*/$linksrc/*.tar.xz 2>/dev/null)
+# Better: avoids long command line problems and sorts by size
+list=$TMP/pbench-index.$$
+find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | sort -n > $list
+
+log_init $(basename $0)
+
+echo "$TS: starting at $(timestamp)"
+
+typeset -i nidx=0
+indexed=$TMP/$PROG.$TS.indexed.$$
+typeset -i nerrs=0
+erred=$TMP/$PROG.$TS.erred.$$
+typeset -i nskip=0
+skipped=$TMP/$PROG.$TS.skipped.$$
+mail_body=$TMP/$PROG.$TS.mail.$$
+
+trap "rm -f $indexed $erred $skipped $mail_body $list" EXIT QUIT INT
+
+> $indexed
+> $erred
+> $skipped
+> $mail_body
+
+while read size result ;do
+    echo "   $(timestamp): Starting $result (size $size)"
+    link=$(readlink -e $result)
+    if [ ! -f $link ] ;then
+        echo "$TS: $link does not exist" >&4
+        nerrs=$nerrs+1
+        echo $result >> $erred
+        continue
+    fi
+       
+    resultname=$(basename $result)
+    resultname=${resultname%.tar.xz}
+    hostname=$(basename $(dirname $link))
+
+    # make sure that all the relevant state directories exist
+    mk_dirs $hostname
+
+    # index it
+    if [ ! -f $link  -o ! -f $link.md5 ] ;then
+        echo "$TS: $link and/or $link.md5 does not exist" >&4
+        nerrs=$nerrs+1
+        echo $result >> $erred
+        continue
+    fi
+
+    # index-pbench depends on a whole hierarchy - this script and index-pbench
+    # are in /home/pbench/bin when deployed, but it depends on /home/pbench/lib/config/pbench-index.cfg,
+    # /home/pbench/lib/vos etc. On a devel system, however, they are under .../pbench/server/pbench
+    # in the git clone. So tell the script where things are explicitly: hence PROGLOC. We use one for
+    # the real runs and a different one for unit testing. The actual command executed is the same, but
+    # since the "real" box does not have a python3, we use Software Collections; on the unit test box,
+    # we just executed python3 directly.
+    if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
+        PROGLOC=/home/pbench
+        PYTHONPATH=${PROGLOC}/lib:$PYTHONPATH scl enable python33 \
+                  "python ${PROGLOC}/bin/index-pbench --config ${PROGLOC}/lib/config/pbench-index.cfg $link"
+        status=$?
+    else
+        # assume that we are in the right directory
+        PROGLOC=$dir
+        PYTHONPATH=${PROGLOC}/../lib:$PYTHONPATH eval\
+                  "python3 ${PROGLOC}/index-pbench -U --config ${PROGLOC}/../lib/config/pbench-index.cfg $link"
+        status=$?
+    fi
+    
+    if [ $status -ne 0 ] ;then
+        # Distinguish failure cases, so we can retry the indexing easily if possible.
+        # Different WONT-INDEX directories for different failures:
+        # The rest are going to end up in WONT-INDEX for later retry.
+
+        if [ $status -eq 11 ]; then
+            echo "$TS: index error $status on $result" >&4
+            nerrs=$nerrs+1
+            echo $result >> $erred
+            mv $result $(echo $result | sed "s/$linksrc/$linkerrdest/")
+        else
+            nskip=$nskip+1
+            echo $result >> $skipped
+            mv $result $(echo $result | sed "s/$linksrc/$linkerrdest.$status/")
+        fi
+        continue
+    fi
+    
+    # move the link to $linkdest directory
+    # echo mv $result $(echo $result | sed "s/$linksrc/$linkdest/")
+    mv $result $(echo $result | sed "s/$linksrc/$linkdest/")
+    status=$?
+    if [ $status -ne 0 ] ;then
+        echo "$TS: Cannot move $result link from $linksrc to $linkdest: code $status" >&4
+        nerrs=$nerrs+1
+        echo $result >> $erred
+        continue
+    fi
+
+    # log the success
+    echo "$TS: $hostname/$resultname: success"
+    nidx=$nidx+1
+    echo $result >> $indexed
+
+    # debugging run
+    # if (($nidx > 10)) ;then break ;fi
+    echo "   $(timestamp): Finished $result (size $size)"
+done < $list
+
+
+echo "$TS: ending at $(timestamp), indexed $nidx (skipped $nskip) results, $nerrs errors"
+
+log_finish
+
+if [[ $nidx -gt 0 || $nskip -gt 0 || $nerrs -gt 0 ]]; then
+    # Tricky quoting: variables are not expanded until the final eval.
+    # That solved the problem of embedded parens - in the meantime, we got rid of the
+    # parens, so it has become moot.
+    if [[ $nerrs > 0 && $nskip > 0 ]] ;then
+        subj='$PROG.$TS - Indexed $nidx results, skipped $nskip results, w/ $nerrs errors'
+    elif [[ $nskip > 0 ]] ;then
+        subj='$PROG.$TS - Indexed $nidx results, skipped $nskip results'
+    elif [[ $nerrs > 0 ]] ;then
+        subj='$PROG.$TS - Indexed $nidx results, w/ $nerrs errors'
+    else
+        subj='$PROG.$TS - Indexed $nidx results'
+    fi
+    if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
+        # send mail if not unit testing
+        mailcmd="mailx -s \"$subj\" $mail_recipients < $mail_body"
+    else
+        # otherwise store the output in the log
+        mailcmd="echo \"$subj\"; cat $mail_body"
+    fi
+    if [[ $nerrs -gt 0 ]]; then
+        echo "Results producing errors"
+        echo "========================"
+        cat $erred
+        echo
+    fi  >> $mail_body
+    if [[ $nskip -gt 0 ]]; then
+        echo "Skipped Results"
+        echo "==============="
+        cat $skipped
+        echo
+    fi  >> $mail_body
+    if [[ $nidx -gt 0 ]]; then
+        echo "Indexed Results"
+        echo "==============="
+        cat $indexed
+    fi  >> $mail_body
+
+    eval $mailcmd
+fi
+
+exit 0

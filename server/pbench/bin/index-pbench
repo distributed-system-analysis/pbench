@@ -1,0 +1,951 @@
+#! /usr/bin/env python3
+
+# prereqs:
+# config file: specified in ES_CONFIG_PATH
+# mapping file: 
+# vos.analysis.lib.tstos:
+
+from __future__ import print_function
+
+import sys, os, time, re, stat
+import hashlib, json, glob
+
+try:
+    from configparser import SafeConfigParser, NoSectionError, NoOptionError
+except: 
+    from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
+    
+from optparse import OptionParser, make_option
+from elasticsearch import VERSION, Elasticsearch, helpers, exceptions as es_excs
+from urllib3 import exceptions as ul_excs, Timeout
+from datetime import datetime
+import tarfile
+from vos.analysis.lib import tstos
+
+from pprint import pprint
+
+_VERSION_ = "0.0.0.3"
+_NAME_    = "index-pbench"
+_DEBUG    = 0
+
+class MappingFileError(Exception):
+    pass
+
+###########################################################################
+# Fetch the mapping file for pbench metadata.
+# It is passed to the index creation routine.
+def fetch_mapping(mapping_fn):
+    with open(mapping_fn, "r") as mappingfp:
+        try:
+            mapping = json.load(mappingfp)
+        except ValueError as err:
+            raise MappingFileError("%s: %s" % (mapping_fn, err))
+
+    keys = list(mapping.keys())
+    if len(keys) != 1:
+        raise MappingFileError("Invalid mapping file: %s" % mapping_fn)
+    return keys[0], mapping
+
+###########################################################################
+# this is cribbed from the vos sosreport index stuff and should be
+# made generic and imported.
+_read_timeout = 30
+
+def get_hosts(config):
+    """
+    Return list of dicts (a single dict for now) -
+    that's what ES is expecting.
+    """
+    try:
+        URL = config.get('Server', 'server')
+    except NoSectionError:
+        print("Need a [Server] section with host and port defined in %s"
+              " configuration file" % (" ".join(config.__files__)),
+                file=sys.stderr)
+        return None
+    except NoOptionError:
+        host = config.get('Server', 'host')
+        port = config.get('Server', 'port')
+    else:
+        host, port = URL.rsplit(':', 1)
+    timeoutobj = Timeout(total=1200, connect=10, read=_read_timeout)
+    return [dict(host=host, port=port, timeout=timeoutobj),]
+
+_op_type = "create"
+
+def es_index(es, actions, dbg=0):
+    """
+    Now do the indexing specified by the actions.
+    """
+    delay = _read_timeout
+    tries = 20
+
+    beg, end = time.time(), None
+    start = beg
+    if dbg > 0:
+        print("\tbulk index (beg ts: %s) ..." % tstos(beg))
+        sys.stdout.flush()
+    while True:
+        try:
+            res = helpers.bulk_index(es, actions)
+        except es_excs.ConnectionError as err:
+                end = time.time()
+                if isinstance(err.info, ul_excs.ReadTimeoutError):
+                    tries -= 1
+                    if tries > 0:
+                        print("\t\tWARNING (end ts: %s, duration: %.2fs):"
+                              " read timeout, delaying %d seconds before"
+                              " retrying (%d attempts remaining)..." % (
+                                  tstos(end), end - beg, delay, tries),
+                                  file=sys.stderr)
+                        time.sleep(delay)
+                        delay *= 2
+                        beg, end = time.time(), None
+                        print("\t\tWARNING (beg ts: %s): retrying..." % (
+                            tstos(beg)), file=sys.stderr)
+                        continue
+                print("\tERROR(%s) (end ts: %s, duration: %.2fs): %s" % (
+                    _NAME_, tstos(end), end - start, err), file=sys.stderr)
+                return 1
+        except helpers.BulkIndexError as err:
+            end = time.time()
+            len_errors = len(err.errors)
+            error_idx = 0
+            lcl_successes = 0
+            lcl_duplicates = 0
+            lcl_errors = 0
+            for e in err.errors:
+                sts = e[_op_type]['status']
+                if sts not in (200, 201):
+                    if _op_type == 'create' and sts == 409:
+                        lcl_duplicates += 1
+                    else:
+                        if _DEBUG > 8:
+                            import pdb; pdb.set_trace()
+                        print("\t\tERRORS (%d of %d): %r" % \
+                              (error_idx, len_errors, e[_op_type]['error']),
+                              file=sys.stderr)
+                        lcl_errors += 1
+                else:
+                    lcl_successes += 1
+            if _DEBUG > 0 or lcl_errors > 0:
+                print("\tdone (end ts: %s, duration: %.2fs,"
+                      " success: %d, duplicates: %d, errors: %d)" % (
+                          tstos(end), end - start, lcl_successes,
+                          lcl_duplicates, lcl_errors))
+                sys.stdout.flush()
+        except Exception as err:
+            end = time.time()
+            print("\tERROR(%s) (end ts: %s, duration: %.2fs): %s" % (
+                _NAME_, tstos(end), end - start, err), file=sys.stderr)
+            return 1
+        else:
+            end = time.time()
+            successes = res[0]
+            duplicates = 0
+            errors = 0
+            len_res1 = len(res[1])
+            for idx, ires in enumerate(res[1]):
+                sts = ires[_op_type]['status']
+                if sts not in (200, 201):
+                    if _op_type == 'create' and sts == 409:
+                        duplicates += 1
+                    else:
+                        print("\t\tERROR (%d of %d): %r" % (
+                            idx, len_res1, ires[_op_type]['error']),
+                            file=sys.stderr)
+                        errors += 1
+                else:
+                    successes += 1
+            if dbg > 0 or errors > 0:
+                print("\tdone (end ts: %s, duration: %.2fs,"
+                    " success: %d, duplicates: %d, errors: %d)" % (
+                        tstos(end), end - start, successes, duplicates,
+                        errors))
+                sys.stdout.flush()
+            if errors > 0:
+                if successes > 0:
+                    modifier = "some "
+                else:
+                    modifier = ""
+                    print("\tERROR(%s) %serrors encountered during indexing" % (
+                        _NAME_, modifier), file=sys.stderr)
+                    return 1
+            break
+    return 0
+
+###########################################################################
+# get metadata from metadata.log
+# metadata.log is in the format expected by configparser,
+# so we just get and return a configparser object.
+def get_mdconfig(mdf):
+
+    mdfconfig = SafeConfigParser()
+    # XXX - review
+    # ^%*&%(&% encoding: the read() returns bytes but configparser
+    # wants a string somewhere deep inside and I don't know how to
+    # tell it. So read it as bytes and convert it to string assuming ascii
+    # encoding - and have configparser read the config from the string.
+    mdfconfig.read_string(str(mdf.read(), 'ascii'))
+    return mdfconfig
+
+###########################################################################
+# old tarballs do not contain a metadata.log, so we are
+# left to fend for ourselves. We troll through the pbench.log
+# file and get beginning and ending timestamps: unfortunately, they
+# are in local time, so we assume they are run on machines in BOS
+# or RDU, which use EST/EDT/
+
+def convert_to_utc(t):
+    """ convert it to UTC, assuming it is EST/EDT"""
+
+    import pytz
+    local = pytz.timezone("America/New_York")
+    local_dt = local.localize(t)
+    # return it as UTC
+    return local_dt.astimezone(pytz.utc)
+
+def utc_ts(s):
+    from datetime import datetime
+
+    # parse string of form '[debug][<TS>].*\n'
+    ifmt = "%Y%m%d_%H:%M:%S.%f"
+    ts = s.split(']')[1].replace('[', '')
+    df = ts.split('.')
+    # python can only do microseconds
+    ts = "%s.%.6s" % (df[0], df[1])
+    t = datetime.strptime(ts, ifmt)
+    t = convert_to_utc(t)
+    ofmt =  "%Y-%m-%d_%H:%M:%S.%f"
+    return t.strftime(ofmt)
+
+def get_start_end_time_utc(pbf):
+
+    start = utc_ts(str(pbf.readline(), 'ascii'))
+    pbf.seek(-1024, 2)
+    end = utc_ts(str(pbf.readlines()[-1], 'ascii'))
+    return (start, end)
+
+# 
+def get_pb(dirname):
+    member_name = "%s/pbench.log" % (dirname)
+    pblog = tb.getmember(member_name)
+    d = get_metadata_pb(tb.extractfile(member_name))
+
+def get_metadata_pb(pbf):
+    # no metadata.log file :-(
+    # grovel through pbench.log and try to extract as much info as possible
+    d = {}
+    runtimes = get_start_end_time_utc(pbf)
+    d['start_run'] = runtimes[0]
+    d['end_run'] = runtimes[1]
+    return d
+
+###########################################################################
+# generic metadata routines
+
+class UnsupportedTarballFormat(Exception):
+    pass
+
+def mk_pbench_metadata(mdconf):
+    d = {}
+    try:
+        d['pbench-rpm-version'] = mdconf.get("pbench", "rpm-version")
+    except:
+        d['pbench-rpm-version'] = "Unknown"
+    return d
+
+def _to_utc(l, u):
+    """l is a timestamp in local time and u is one in UTC. These are
+    supposed to be close, so we calculate an offset rounded to a
+    half-hour and add it to the local date. We then convert back to an
+    ISO format date.
+
+    """
+    from datetime import datetime, timedelta
+
+    lts = datetime.strptime(l, "%Y-%m-%dT%H:%M:%S")
+    uts = datetime.strptime(u[:u.rfind('.')] , "%Y-%m-%dT%H:%M:%S")
+    offset = lts - uts
+    res = round(float(offset.seconds) / 60 / 60 + offset.days * 24, 1)
+    return (lts - timedelta(0, int(res*60*60), 0)).isoformat()
+
+    
+def mk_run_metadata(mdconf, dirname, dirprefix):
+    try:
+        d = {}
+        d.update(mdconf.items('run'))
+        d.update(mdconf.items('pbench'))
+        # Fix up old format dates so ES won't barf on them.
+        d['start_run'] = d['start_run'].replace('_', 'T')
+        d['end_run'] = d['end_run'].replace('_', 'T')
+        # Convert the date to UTC: date and start-run are supposed to be close
+        # (except that date may be in local time and start-run is UTC).
+        d['date'] = _to_utc(d['date'].replace('_', 'T'), d['start_run'])
+        d['tarball-dirname'] = dirname
+        d['tarball-toc-prefix'] = dirprefix
+        del d['rpm-version']
+        return d
+    except KeyError as e:
+        # import pdb; pdb.set_trace()
+        if str(e) == "'start_run'" or str(e) == "'end_run'":
+            raise Exception(e)
+        print("Tarball: %s - %s is missing in metadata.log\n" % (dirname, e), file=sys.stdout)
+        return {}
+    
+def mk_metadata(fname, tb, mdconf, md5sum):
+    """Return a dict with metadata about a tarball"""
+    mtime = datetime.fromtimestamp(os.stat(fname)[stat.ST_MTIME])
+        
+    mddict = {'generated-by': _NAME_,
+              'generated-by-version': _VERSION_,
+              'pbench-agent-version': mdconf.get("pbench", "rpm-version"),
+              'file-date': mtime.strftime("%Y-%m-%d"),
+              'file-name': fname,
+              'md5': md5sum
+    }
+    return mddict
+
+
+###########################################################################
+# routines for handling sosreports, hostnames, and tools
+def valid_ip(address):
+    import socket
+    try: 
+        socket.inet_aton(address)
+        return True
+    except:
+        return False
+
+def search_by_host(sos_d_list, host):
+    for sos_d in sos_d_list:
+        if host in sos_d.values():
+            return sos_d['hostname-f']
+    return None
+
+def search_by_ip(sos_d_list, ip):
+    # import pdb; pdb.set_trace()
+    for sos_d in sos_d_list:
+        for l in sos_d.values():
+            if type(l) != type([]):
+                continue
+            for d in l:
+                if type(d) != type({}):
+                    continue
+                if ip in d.values():
+                    return sos_d['hostname-f']
+    return None
+
+def get_hostname_f_from_sos_d(sos_d, host=None, ip=None):
+    if not host and not ip:
+        return None
+
+    if host:
+        return search_by_host(sos_d, host)
+    else:
+        return search_by_ip(sos_d, ip)
+    
+def mk_tool_info(sos_d, mdconf):
+    """Return a dict containing tool info (local and remote)"""
+    try:
+        tools_array = []
+        # from pprint import pprint; pprint(mdconf.get("tools", "hosts"))
+
+        labels = {}
+        for host in mdconf.get("tools", "hosts").split(' '):
+            # from pprint import pprint; pprint(host)
+            tools_info = {}
+            # XXX - we should have an FQDN for the host but
+            # sometimes we have only an IP address.
+            tools_info['hostname'] = host
+            # import pdb; pdb.set_trace()
+            if valid_ip(host):
+                tools_info['hostname-f'] = get_hostname_f_from_sos_d(sos_d, ip=host)
+            else:
+                tools_info['hostname-f'] = get_hostname_f_from_sos_d(sos_d, host=host)
+            section = "tools/%s" % (host)
+            items = mdconf.items(section)
+            options = mdconf.options(section)
+            if 'label' in options:
+                tools_info['label'] = mdconf.get(section, 'label')
+
+            # process remote entries for a label and remember them in the labels dict
+            remoteitems = [x for x in items if x[0].startswith('remote@') and x[1]]
+            for (k,v) in remoteitems:
+                host = k.replace('remote@', '', 1)
+                labels[host] = v
+                
+            # now, forget about any label or remote entries - they have been dealt with.
+            items = [x for x in items if x[0] != 'label' and not x[0].startswith('remote')]
+
+            tools = {}
+            tools.update(items)
+            tools_info['tools'] = tools
+            tools_array.append(tools_info)
+
+        # now process remote labels
+        for item in tools_array:
+            host = item['hostname']
+            if host in labels:
+                item['label'] = labels[host]
+                
+        return tools_array
+    
+    except Exception as err:
+        print("get_tool_info" , err)
+        return []
+
+def ip_address_to_ip_o_addr(s):
+    # This routine deals with the contents of either the ip_-o_addr
+    # (preferred) or the ip_address file in the sosreport.
+    # If each line starts with a number followed by a colon,
+    # leave it alone and return it as is - that's the preferred case.
+    # If not, grovel through the ip_address file, collect the juicy pieces
+    # and fake a string that is similar in format to the preferred case -
+    # at least similar enough to satisfy the caller of this function.
+    
+    import re
+    as_is = True
+    pat = re.compile(r'^[0-9]+:')
+
+    # reduce is not available in python3 :-(
+    # as_is = reduce(lambda x, y: x and y,
+    #               map(lambda x: re.match(pat, x), s.split('\n')[:-1]))
+    for l in s.split('\n')[:-1]:
+        if not re.match(pat, l):
+            as_is = False
+            break
+    if as_is:
+        return s
+
+    # rats - we've got to do real work
+    # state machine
+    # start: 0
+    # seen <N:>: 1
+    # seen inet* : 2
+    # EOF: 3
+    # if we see anything else, we stay put in the current state
+    # transitions: 2 --> 1  action: output a line
+    #              2 --> 2  action: output a line 
+    # 
+    state = 0
+    ret = ""
+    # import pdb; pdb.set_trace()
+    for l in s.split('\n'):
+        if re.match(pat, l):
+            if state == 0 or state == 1:
+                state = 1
+            elif state == 2:
+                ret += "%s: %s %s %s\n" % (serial, ifname, proto, addr)
+                state = 1
+            serial, ifname = l.split(':')[0:2]
+        elif l.lstrip().startswith('inet'):
+            assert(state != 0)
+            if state == 1:
+                state = 2
+            elif state == 2:
+                ret += "%s: %s %s %s\n" % (serial, ifname, proto, addr)
+                state = 2
+            proto, addr = l.lstrip().split()[0:2]
+    if state == 2:
+        ret += "%s: %s %s %s\n" % (serial, ifname, proto, addr)
+        state = 3
+    return ret
+        
+def if_ip_from_sosreport(ip_addr_f):
+    """Parse the ip_-o_addr file or ip_address file from the sosreport and
+    get a dict associating the if name with the ip - separate entries
+    for inet and inet6.
+    """
+
+    s = str(ip_addr_f.read(), 'iso8859-1')
+    d = {}
+    # if it's an ip_address file, convert it to ip_-o_addr format
+    s = ip_address_to_ip_o_addr(s)
+    for l in s.split('\n'):
+        fields = l.split()
+        if not fields:
+            continue
+        ifname = fields[1]
+        ifproto = fields[2]
+        ifip = fields[3].split('/')[0]
+        if ifproto not in d:
+            d[ifproto] = []
+        d[ifproto].append({"ifname": ifname, "ipaddr" : ifip})
+
+    return d
+    
+def hostnames_if_ip_from_sosreport(sos):
+    """Return a dict with hostname info (both short and fqdn) and
+    ip addresses of all the network interfaces we find at sosreport time."""
+    
+    tb = tarfile.open(fileobj=sos)
+    hostname_files = [x for x in tb.getnames() if x.find('sos_commands/general/hostname') >= 0]
+
+    # Fetch the hostname -f and hostname file contents
+    hostname_f_file = [x for x in hostname_files if x.endswith('hostname_-f')]
+    if hostname_f_file:
+        try:
+            hostname_f = str(tb.extractfile(hostname_f_file[0]).read(), 'iso8859-1')[:-1]
+        except IOError as e:
+            raise Exception("Failure to fetch a hostname-f from the sosreport")
+        if hostname_f == 'hostname: Name or service not known':
+            hostname_f = ""
+    else:
+        hostname_f = ""
+    hostname_s_file = [x for x in hostname_files if x.endswith('hostname')]
+    if hostname_s_file:
+        try:
+            hostname_s = str(tb.extractfile(hostname_s_file[0]).read(), 'iso8859-1')[:-1]
+        except IOError as e:
+            raise Exception("Failure to fetch a hostname from the sosreport")
+    else:
+        hostname_s = ""
+
+    if not hostname_f and not hostname_s:
+        raise Exception("We do not have a hostname recorded in the sosreport")
+
+    # import pdb; pdb.set_trace()
+    if hostname_f and hostname_s:
+        if hostname_f == hostname_s:
+            # Shorten the hostname if possible
+            hostname_s = hostname_f.split('.')[0]
+        elif hostname_f.startswith(hostname_s):
+            # Already have a shortened hostname
+            pass
+        elif hostname_s.startswith(hostname_f):
+            # switch them
+            x = hostname_s
+            hostname_s = hostname_f
+            hostname_f = x
+        elif hostname_f != "localhost":
+            hostname_s = hostname_f.split('.')[0]
+        elif hostname_s != "localhost":
+            hostname_f = hostname_s
+        else:
+            assert(1 == 0)
+            
+    elif not hostname_f and hostname_s:
+        # The sosreport did not include, or failed to properly collect, the
+        # output from "hostname -f", so we'll just keep them the same
+        hostname_f = hostname_s
+        # Shorten the hostname if possible
+        hostname_s = hostname_f.split('.')[0]
+    elif hostname_f and not hostname_s:
+        # Shorten the hostname if possible
+        hostname_s = hostname_f.split('.')[0]
+    else:
+        # both undefined
+        raise Exception("Hostname undefined (both short and long)")
+        
+    if hostname_f == "localhost" and hostname_s != "localhost":
+        hostname_f = hostname_s
+        hostname_s = hostname_f.split('.')[0]
+    elif hostname_f != "localhost" and hostname_s == "localhost":
+        hostname_s = hostname_f.split('.')[0]
+    elif hostname_f == "localhost" and hostname_s == "localhost":
+        raise Exception("The sosreport did not collect a hostname other than 'localhost'")
+    else:
+        pass
+        
+    d = {
+        'hostname-f': hostname_f,
+        'hostname-s': hostname_s
+    }
+
+    # get the ip addresses for all interfaces
+    ipfiles = [x for x in tb.getnames() if x.find('sos_commands/networking/ip_') >= 0]
+    ip_files = [x for x in ipfiles if x.find('sos_commands/networking/ip_-o_addr') >= 0]
+    if ip_files:
+        d.update(if_ip_from_sosreport(tb.extractfile(ip_files[0])))
+    else:
+        # try the ip_address file instead
+        ip_files = [x for x in ipfiles if x.find('sos_commands/networking/ip_address') >= 0]
+        if ip_files:
+            d.update(if_ip_from_sosreport(tb.extractfile(ip_files[0])))
+    return d
+
+def mk_sosreports(tb):
+    sosreports = [ x for x in tb.getnames() if x.find("sosreport") >= 0 ]
+    sosreports.sort()
+
+    sosreportlist = []
+    for x in sosreports:
+        if x.endswith('.md5'):
+            # x is the *sosreport*.tar.xz.md5 filename
+            d = {}
+            sos = x[:x.rfind('.md5')]
+            d['name'] = sos
+            d['md5'] = tb.extractfile(x).read().decode('ascii')[:-1]
+            # get hostname (short and FQDN) from sosreport
+            d.update(hostnames_if_ip_from_sosreport(tb.extractfile(sos)))
+            sosreportlist.append(d)
+            
+    return sosreportlist
+
+###########################################################################
+# mk_actions, mk_source
+
+ts_start = None
+
+def ts(msg, newline=False):
+    from datetime import datetime
+    global ts_start
+    
+    now = datetime.now()
+    if ts_start:
+        print(now - ts_start, file=sys.stderr)
+    ts_start = now
+    if newline:
+        print(msg, file=sys.stderr)
+        ts_start = None
+    else:
+        print(msg, end=' ', file=sys.stderr)
+    sys.stderr.flush()
+    
+def mk_source(hostname, tbname, dirname, dirprefix, tb, mdconf, md5sum, options):
+    # a dict containing:
+    #   metadata about the tarball,
+    #   pbench metadata
+    #   run metadata
+    #   tool info
+    #   tarball toc
+    
+    rec = {}
+
+    if options.timeit: ts("mk_metadata")
+    rec['_metadata'] = mk_metadata(tbname, tb, mdconf, md5sum)
+    #if options.timeit: ts("mk_pbench_metadata")
+    #rec['pbench'] = mk_pbench_metadata(mdconf)
+    if options.timeit: ts("mk_run_metadata")
+    rec['run'] = mk_run_metadata(mdconf,dirname, dirprefix)
+    if options.timeit: ts("mk_sosreports")
+    rec['sosreports'] = sos_d = mk_sosreports(tb)
+    if options.timeit: ts("mk_tool_info")
+    rec['host_tools_info'] = mk_tool_info(sos_d, mdconf)
+    if options.timeit: ts("Done!", newline=True)
+    return rec
+
+###########################################################################
+# mk-toc-source
+
+def mk_toc(tb, md5sum):
+
+    members = tb.getmembers()
+
+    prefix = members[0].name.split(os.path.sep)[0]
+    # create a list of dicts where each directory that contains files is represented
+    # by a dictionary with a "name" key, whose value is the pathname of the dictionary
+    # and a "files" key, which is a list of the files contained in the directory.
+    d = {}
+    for m in members:
+        if m.isdir():
+            dname = os.path.dirname(m.name)[len(prefix):] + os.path.sep
+            if dname not in d:
+                d[dname] = { "dirname": dname }
+        elif m.isfile() or m.issym():
+            dname = os.path.dirname(m.name)[len(prefix):] + os.path.sep
+            fentry = { "name" : os.path.basename(m.name),
+                       "size" : m.size,
+                       "mode" : m.mode
+            }
+            if m.issym():
+                fentry['linkpath'] = m.linkpath
+            if dname in d:
+                # we may have created an empty dir entry already
+                # without a "files" entry, so we now make sure that
+                # there is an empty "files" entry that we can populate.
+                if "files" not in d[dname]:
+                    d[dname]["files"] = []
+                d[dname]["files"].append(fentry)
+            else:
+                # presumably we'll never fall through here any more:
+                # the directory entry always preceded the file entry
+                # in the tarball.
+                d[dname] = { "dirname": dname, "files": [fentry] }
+        else:
+            continue
+            
+    return (prefix, d)
+
+def mk_results_action(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, ts, options):
+
+    """Extract metadata from the named tarball and create an indexing
+       action out of them.  We don't index the data (yet).
+       There are two kinds of metadata: what goes into _source[_metadata]
+       is metadata about the tarball itself - not things that are *part* of
+       the tarball: its name, size, md5, mtime.
+       Metadata about the run are *data* to be indexed.
+    """
+
+    # make a simple action for indexing
+    source = mk_source(hostname, tbname, dirname, dirprefix, tb, mdconf, md5sum, options)
+    action = {
+        "_op_type": "create",
+        "_index": idxname,
+        "_type" : "pbench-run",
+        "_id"   : md5sum,
+        "_timestamp" : ts,
+        "_source"    : source,
+    }
+    return action
+
+def get_md5sum_toc(tb):
+    """Calculate the md5 sum of all the names in the toc"""
+    import hashlib
+    
+    h = hashlib.md5()
+    for x in tb.getnames():
+        h.update(x.encode('utf-8'))
+    return h.hexdigest()
+
+def mk_toc_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, ts, options):
+
+    prefix, dirs = mk_toc(tb, md5sum)
+    assert(prefix == dirprefix)
+    actions = []
+    for d in dirs:
+        action = {
+            "_op_type": "create",
+            "_index": idxname,
+            "_type" : "pbench-run-toc-entry",
+            "_timestamp" : ts,
+            "_source"    : dirs[d],
+            "_parent"    : md5sum
+        }
+        actions.append(action)
+
+    if options.unittest:
+        # sort the list to produce a predictable result for comparison to gold output
+        actions.sort(key=lambda x: x["_source"]["dirname"])
+        
+    return actions
+
+def get_md5sum(name):
+    """Open the MD5 file of the tarball and read the MD5 sum from it."""
+    return open("%s.md5" % (name)).read().split()[0]
+
+def mk_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, options):
+    if options.unittest:
+        ts = datetime.strptime("1900-01-01T00:00:00", "%Y-%m-%dT%H:%M:%S")
+    else:
+        ts = datetime.now()
+    md5sum = get_md5sum(tbname)
+    actions = []
+    actions.append(mk_results_action(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, ts, options))
+    actions.extend(mk_toc_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, ts, options))
+    return actions
+    
+###########################################################################
+# We get the start date out of the metadata log.
+class BadDate(Exception):
+    pass
+
+def run_start_date(mdconf, tbname):
+    # import pdb; pdb.set_trace()
+    try:
+        # N.B. the start_run timestamp is in UTC.
+        tstamp = mdconf.get('run', 'start_run').split('_')
+        date = [ int(x) for x in tstamp[0].split("-") ]
+    except:
+        raise BadDate(tbname)
+    # for future reference
+    # time = [ int(x) for x in tstamp[1].split(":") ]
+
+    return date
+
+###########################################################################
+# main: create index from template if necessary, prepare the action and ship
+# it to ES for indexing.
+
+# status codes: these are used by pbench-index to segregate tarballs into
+#               classes: should we retry (perhaps after fixing bugs in the
+#               indexing) or should we just forget about them?
+#       0 - normal exit, no errors.
+#       1 - operational error (bad mapping file, no config file).
+#       2 - tarball does not contain a metadata.log file, do not try to index again.
+#       3 - tarball name does not encode the date, do not try to index again.
+#       4 - generic error, needs to be investigated and can be retried after
+#           any indexing bugs are fixed.
+
+class ConfigFileNotSpecified(Exception):
+    pass
+
+class ConfigFileError(Exception):
+    pass
+
+class BadMDLogFormat(Exception):
+    pass
+
+class TemplateError(Exception):
+    pass
+
+def main(options, args):
+    # ^$!@!#%# compatibility
+    # FileNotFoundError is python 3.3 and the travis-ci hosts still (2015-10-01) run
+    # python 3.2
+    filenotfounderror = getattr(__builtins__, 'FileNotFoundError', IOError)
+    try:
+        config=SafeConfigParser()
+        try:
+            cfg_name = options.cfg_name
+        except:
+            cfg_name = os.environ.get("ES_CONFIG_PATH")
+
+        if not cfg_name:
+            raise ConfigFileNotSpecified("No config file specified: set ES_CONFIG_PATH env variable or use --config <file> on the command line")
+    
+        try:
+            config.read(cfg_name)
+            INDEX_PREFIX = config.get('Settings', 'index_prefix')
+            INDEX_VERSION = config.get('Settings', 'index_version')
+            NUMBER_OF_SHARDS = config.get('Settings', 'number_of_shards')
+            NUMBER_OF_REPLICAS = config.get('Settings', 'number_of_replicas')
+
+        except Exception as e:
+            raise ConfigFileError(e)
+    
+        settings = dict(
+            number_of_shards=NUMBER_OF_SHARDS,
+            number_of_replicas=NUMBER_OF_REPLICAS,
+            codec=dict(
+                bloom=dict(
+                    load='false')),
+            gateway=dict(
+                local=dict(
+                    sync='1m')),
+            merge=dict(
+                scheduler=dict(
+                    max_thread_count=1)),
+            translog=dict(
+                flush_threshold_size='1g'),
+        )
+
+        # where to find the mappings
+        LIBDIR = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))),
+            'lib', 'mappings')
+
+        pbench_mappings = {}
+        pbench_settings = settings
+        for mapping_fn in glob.iglob(os.path.join(LIBDIR, "*.json")):
+            key, mapping = fetch_mapping(mapping_fn)
+            pbench_mappings[key] = mapping
+
+        # The API body for the create() contains a dictionary with the settings and
+        # the mappings.
+        pbench_body = dict(
+            template='%s.20*-*' % (INDEX_PREFIX,),
+            settings=pbench_settings,
+            mappings=pbench_mappings)
+
+        hosts = get_hosts(config)
+        if options.unittest:
+            es = None
+        else:
+            es = Elasticsearch(hosts, max_retries=0)
+
+        # prepare the actions - the tarball name is the only argument.
+        hostname = os.path.basename(os.path.dirname(args[0]))
+        tbname = args[0]
+        tb = tarfile.open(tbname)
+
+        # this is the top-level name of the run - it should be the common
+        # first component of every member of the tarball.
+        dirname = os.path.basename(tbname)
+        dirname = dirname[:dirname.rfind('.tar.xz')]
+        # ... but let's make sure.
+        dirprefix = tb.getmembers()[0].name.split(os.path.sep)[0]
+
+        member_name = "%s/metadata.log" % (dirname)
+        try:
+            mdlog = tb.getmember(member_name)
+        except:
+            raise UnsupportedTarballFormat(tbname)
+        
+        try:
+            mdconf = get_mdconfig(tb.extractfile(member_name))
+        except:
+            raise BadMDLogFormat(tbname)
+
+        # index name is of the form "pbench.<YEAR>-<MONTH>-<PBENCH-VERSION>-<INDEX_VERSION>"
+        year, month, day = run_start_date(mdconf, tbname)
+
+        template_name = INDEX_PREFIX
+        idxname = "%s.%d-%02d" % (INDEX_PREFIX, year, month)
+        # create the index with the indicated mappings
+        if not options.unittest:
+            try:
+                res = es.indices.put_template(name=template_name, body=pbench_body)
+            except Exception as e:
+                raise TemplateError(e)
+
+        
+        actions = mk_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, options)
+
+        if options.unittest:
+            pprint(actions)
+            return 0
+
+        # returns 0 0r 1
+        return es_index(es, actions)
+
+    except ConfigFileNotSpecified as e:
+        print(e, file=sys.stderr)
+        return 2
+
+    except ConfigFileError as e:
+        print(e, file=sys.stderr)
+        return 3
+
+    except UnsupportedTarballFormat as e:
+        print("Unsupported Tarball Format - no metadata.log: ", e, file=sys.stderr)
+        return 4
+
+    except BadDate as e:
+        print("Bad Date: ", e, file=sys.stderr)
+        return 5
+
+    except filenotfounderror as e:
+        print("No such file: ", e, file=sys.stderr)
+        return 6
+
+    except BadMDLogFormat as e:
+        print("The metadata.log file is curdled in tarball: ", e, file=sys.stderr)
+        return 7
+
+    except MappingFileError as e:
+        print(e, file=sys.stderr)
+        return 8
+    
+    except TemplateError as e:
+        print(repr(err), file=sys.stderr)
+        return 9
+
+    # this is Spinal Tap
+    except Exception as e:
+        print("Other error", e, file=sys.stderr)
+        import traceback
+        print(traceback.format_exc())
+        return 11
+    
+###########################################################################
+# Options handling
+
+prog_options = [
+    make_option("-C", "--config", dest="cfg_name", help="Specify config file"),
+    make_option("-U", "--unittest", action="store_true", dest="unittest", help="Run in unittest mode"),
+    make_option("-T", "--timeit", action="store_true", dest="timeit", help="Time action making routines")
+]
+
+if __name__ == '__main__':
+    parser = OptionParser("Usage: index-pbench [--config <path-to-config-file>] <path-to-tarball>")
+    for o in prog_options:
+        parser.add_option(o)
+        
+    (options, args) = parser.parse_args()
+
+    # if options.unittest:
+    #     options.timeit = True
+    status = main(options, args)
+    sys.exit(status)

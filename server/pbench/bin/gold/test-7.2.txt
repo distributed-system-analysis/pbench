@@ -1,0 +1,8 @@
++++ Running indexing on /var/tmp/pbench-test-server/test-7.2
+Unsupported Tarball Format - no metadata.log:  /var/tmp/pbench-test-server/test-7.2.tar.xz
+--- Finished indexing on /var/tmp/pbench-test-server/test-7.2 (status=4)
++++ pbench tree state
+/var/tmp/pbench-test-server/pbench
+--- pbench tree state
++++ pbench log file contents
+--- pbench log file contents
