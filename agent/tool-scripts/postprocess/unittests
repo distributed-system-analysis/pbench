@@ -26,10 +26,10 @@ function testit {
     echo "Testing $2-postprocess under sample $1 ..."
 
     mkdir /tmp/GenData/$1
-    cp samples/$1/$2.txt /tmp/GenData/$1/
+    cp samples/$1/$2-std*.txt /tmp/GenData/$1/
     _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./$2-postprocess /tmp/GenData/$1 > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
 
-    rm /tmp/GenData/$1/$2.txt
+    rm /tmp/GenData/$1/$2-std*.txt
 
     diff -cr gold/$1/ /tmp/GenData/$1
     return $?
