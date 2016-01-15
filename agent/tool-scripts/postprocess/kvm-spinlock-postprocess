@@ -42,7 +42,7 @@ my $stat;
 my $i;
 my $divisor;
 
-open(SPINLOCK_TXT, "$dir/kvm-spinlock.txt") || die "could not find $dir/kvm-spinlock.txt\n";
+open(SPINLOCK_TXT, "$dir/kvm-spinlock-stdout.txt") || die "could not find $dir/kvm-spinlock-stdout.txt\n";
 while (my $line = <SPINLOCK_TXT>) {
 	chomp $line;
 	# timestamp: 1394480119.581327192
