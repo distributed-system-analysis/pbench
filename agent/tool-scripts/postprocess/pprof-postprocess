@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+
+script_path=`dirname $0`
+if [ "$script_path" = "." ]
+then
+    script_path=$PWD
+fi
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# Defaults
+tool_output_dir="$1"
+tool=pprof
+tool_bin=/usr/bin/go
+origin_dir="/var/lib/origin"
+openshift_bin="/usr/bin/openshift"
+
+for profile in mem cpu; do
+    #it can be either cpu or mem profile
+    if [ -e $origin_dir/$profile.pprof ] && [ -s $origin_dir/$profile.pprof ] ; then
+        # get us text, png, and pdf output formats
+        printf "sleeping 60 seconds to allow pprof to do proper data collection\n" ; sleep 60
+        for outputformat in png pdf text; do
+            $tool_bin tool $tool -cum -$outputformat -output $tool_output_dir/$profile-pprof-output-$outputformat $openshift_bin $origin_dir/$profile.pprof
+        done
+        cp $origin_dir/$profile.pprof $tool_output_dir
+    else
+        printf "$origin_dir/$profile.pprof is zero bytes in size ... so no profile data were generated, nor $profile.pprof files were copied to $tool_output_dir\n"
+    fi
+done
+
