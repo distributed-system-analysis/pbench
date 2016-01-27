@@ -1,0 +1,11 @@
+v0.2
+
+NOTE: This hierarchy deploys as:
+
+  http://web-server.example.com/static/css/v0.2/*
+  http://web-server.example.com/static/js/v0.2/*
+
+*** Please do not change these files unless absolutely necessary ***
+
+** If you need to make an incompatible change, please create a new
+   version.
