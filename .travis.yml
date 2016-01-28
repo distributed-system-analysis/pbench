@@ -11,12 +11,11 @@ install:
  - sudo apt-get install python-software-properties
  - sudo add-apt-repository ppa:fkrull/deadsnakes -y
  - sudo apt-get update
- - sudo apt-get install python3.4
- - sudo apt-get install python3-setuptools
- - sudo easy_install3 pip
- - sudo pip3 install configtools elasticsearch
- - sudo cp -r /usr/local/lib/python3.2/dist-packages/* /usr/local/lib/python3.4/dist-packages
- - sudo ln -sf python3.4 /usr/bin/python3
+ - sudo apt-get install python3.5
+ - sudo wget -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py
+ - sudo python3.5 /tmp/get-pip.py
+ - sudo pip install configtools elasticsearch
+ - sudo ln -sf python3.5 /usr/bin/python3
 script:
  - ./agent/bench-scripts/unittests
  - ./agent/tool-scripts/postprocess/unittests
