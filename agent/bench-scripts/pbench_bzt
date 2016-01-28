@@ -2,7 +2,37 @@
 
 
 """
-This script generates a bzt taurus yml file and executes a jmeter performance test based on it.
+This script generates a bzt taurus yml file and executes a performance test based on it.
+It is a wrapper for the bzt tool.
+
+By default, it uses the jmeter executor with the simple scenario set up [1].
+It is required to have a file containing the URL's of the websites to test.
+
+cat urls_to_test.lst
+pod1.cloudapps.example.com
+pod2.cloudapps.example.com
+pod3.cloudapps.example.com
+
+The simplest way of running it would then be be:
+./pbench_bzt -u urls_to_test.lst
+
+It outputs a post-test summary using the final stats module [2]
+This is the simplest reporter that prints out basic KPIs in the console log after test execution.
+
+pbench_bzt uses the following load profiles for the jmeter executor:
+    concurrency - number of target concurrent virtual users
+    ramp-up - ramp-up time to reach target concurrency
+    hold-for - time to hold target concurrency
+
+These are customizable using the -c, -r and -d command line arguments.
+
+This script will generate a taurus.csv and a bzt.yml file under the /tmp directory with the test results and scenario
+data, respectively. This can be changed using the -p and -o arguments.
+
+
+[1] "http://gettaurus.org/docs/ExecutionSettings/"
+[2] "http://gettaurus.org/docs/Reporting/"
+
 """
 
 import argparse
@@ -73,6 +103,7 @@ def which(cmd):
             if is_executable(executable):
                 return executable
     return None
+
 
 def parser():
     parser_obj = argparse.ArgumentParser(description="This script generates a taurus yml cfg and, based on \
