@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+openshift_master="/etc/sysconfig/atomic-openshift-master"
+openshift_node="/etc/sysconfig/atomic-openshift-node"
+
+profile="$1"
+osecomponent="$2"
+
+ose_pprof() {
+    case "$osecomponent" in
+        master)
+            case  "$profile" in
+                cpu)
+                    if grep -q "^OPENSHIFT_PROFILE=cpu" $openshift_master; then
+                        systemctl restart atomic-openshift-master.service
+                    else
+                        echo "OPENSHIFT_PROFILE=cpu" >> $openshift_master
+                        systemctl restart atomic-openshift-master.service
+                    fi
+                 ;;
+                mem)
+                    if grep -q "^OPENSHIFT_PROFILE=mem" $openshift_master; then
+                        systemctl restart atomic-openshift-master.service
+                    else
+                        echo "OPENSHIFT_PROFILE=mem" >> $openshift_master
+                        systemctl restart atomic-openshift-master.service
+                    fi
+                ;;
+            esac
+        ;;
+        node)
+            case "$profile" in
+                cpu)
+                    if grep -q "^OPENSHIFT_PROFILE=cpu" $openshift_node; then
+                        systemctl restart atomic-openshift-node.service
+                    else
+                        echo "OPENSHIFT_PROFILE=cpu" >> $openshift_node
+                        systemctl restart atomic-openshift-node.service
+                    fi
+                ;;
+                mem)
+                    if grep -q "^OPENSHIFT_PROFILE=mem" $openshift_master; then
+                        systemctl restart atomic-openshift-node.service
+                    else
+                        echo "OPENSHIFT_PROFILE=mem" >> $openshift_node
+                        systemctl restart atomic-openshift-node.service
+                    fi
+                ;;
+            esac
+        ;;
+    esac
+}
+ose_pprof
+
+
+
