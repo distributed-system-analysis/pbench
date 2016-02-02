@@ -10,7 +10,7 @@ if [ ! -z "$bridges" ]; then
 		echo "timestamp: `date +%s.%N`" >>$file
 		for b in $bridges; do
 			echo bridge: $b >>$file
-			ovs-ofctl dump-ports $b >>$file
+			ovs-ofctl dump-ports --protocols OpenFlow13 $b >>$file
 			echo >>$file
 		done
 		sleep $interval
