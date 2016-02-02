@@ -10,7 +10,12 @@ if [ ! -z "$bridges" ]; then
 		echo "timestamp: `date +%s.%N`" >>$file
 		for b in $bridges; do
 			echo bridge: $b >>$file
-			ovs-ofctl dump-ports --protocols OpenFlow13 $b >>$file
+			ovs-ofctl dump-ports $b >>$file
+			# check exit code and try specific protocol if necessary
+			sts=$?
+			if [[ $sts != 0 ]] ;then
+				ovs-ofctl dump-ports --protocols OpenFlow13 $b >>$file
+			fi
 			echo >>$file
 		done
 		sleep $interval
