@@ -13,7 +13,7 @@
 #
 # One goal is for this script to compare results from any of the
 # pbench benchmark scripts (comparing results of same benchmark).
-# However, currently only pbench_fio and pbench_uperf work.  Other
+# However, currently only pbench-fio and pbench-uperf work.  Other
 # benchmark scripts will be updated to support the standard result
 # format that this script understands.
 
