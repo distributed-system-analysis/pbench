@@ -119,7 +119,7 @@ results_full_path="$results_path_prefix/$hostname"
 ssh -q -i $pbench_bin/id_rsa $ssh_opts $results_repo exit
 if [ $? -ne 0 ]; then
     error_log "ERROR: results host unreachable: $results_repo"
-    debug_log "the following ssh command failed: \"ssh -q $results_repo exit\""
+    debug_log "the following ssh command failed: \"ssh -q -i $pbench_bin/id_rsa $ssh_opts $results_repo exit\""
     exit 1
 fi
 ssh -i $pbench_bin/id_rsa $ssh_opts $results_repo "mkdir -p $results_full_path"
