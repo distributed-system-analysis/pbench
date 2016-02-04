@@ -1,4 +1,4 @@
-+++ Running test-00 pbench_uperf
++++ Running test-00 pbench-uperf
 Starting iteration  (1 of 2)
 test sample 1 of 2
 client[127.0.0.1]protocol[tcp]test[rr]instances[1]size[64] <-> server[127.0.0.1]
@@ -13,7 +13,7 @@ test sample 2 of 2
 client[127.0.0.1]protocol[tcp]test[stream]instances[1]size[64] <-> server[127.0.0.1]
 '######' Throughput-Gb_sec: 5.000000 5.000000 average: 5.0000 stddev: 0.0000% closest-sample: 1
 Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
---- Finished test-00 pbench_uperf (status=0}
+--- Finished test-00 pbench-uperf (status=0}
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
 /var/tmp/pbench-test-bench/pbench/pbench.log
@@ -45,8 +45,8 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/summary-result.txt
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench_uperf]processing options
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench_uperf]uperf is installed
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-uperf]processing options
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-uperf]uperf is installed
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking for uperf on server 127.0.0.1
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration  (1 of 2)
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 2 
@@ -70,7 +70,7 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 +++ test-execution.log file contents
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/rpm --query uperf-1.0.4
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/yum --debuglevel=0 install -y uperf-1.0.4
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 pbench_uperf --install
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 pbench-uperf --install
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00 beg
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 mkdir -p /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/uperf-server-127.0.0.1:21000.cmd 127.0.0.1:/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/uperf-server-127.0.0.1:21000.cmd
