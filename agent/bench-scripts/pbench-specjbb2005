@@ -164,7 +164,7 @@ benchmark_results_dir="$benchmark_run_dir"
 
 mkdir -p $benchmark_run_dir/.running
 
-register-tool-trigger --group=$tool_group --start-trigger="Timing Measurement began" --stop-trigger="Timing Measurement ended"
+pbench-register-tool-trigger --group=$tool_group --start-trigger="Timing Measurement began" --stop-trigger="Timing Measurement ended"
 
 # run in the directory which has the jar and spec files
 pushd $classpath
@@ -208,16 +208,16 @@ mv index.html SPECjbb.html
 # rename the iterations with warehouse count and then postprocess the tools
 iteration=1
 export benchmark config
-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 for i in `seq $start_warehouses $inc_warehouses $stop_warehouses`; do
 	# for each of the test iterations (each test with a specific number of warehouses), copy the raw result data for that iteration in iteraration directory
 	grep "test$i" SPECjbb.raw >$i/reference-result/SPECjbb.raw
 	new_iteration_name="$iteration-warehouses:$i"
 	mv $iteration $new_iteration_name
-	postprocess-tools --group=$tool_group --iteration=$new_iteration_name --dir=$benchmark_results_dir/$new_iteration_name/reference-result
+	pbench-postprocess-tools --group=$tool_group --iteration=$new_iteration_name --dir=$benchmark_results_dir/$new_iteration_name/reference-result
 	let iteration=$iteration+1
 done
-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 popd
 
 rmdir $benchmark_run_dir/.running

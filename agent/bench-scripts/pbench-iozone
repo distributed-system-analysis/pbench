@@ -159,7 +159,7 @@ benchmark_summary_file="$benchmark_run_dir/$benchmark-summary.txt"
 
 mkdir -p $benchmark_run_dir/.running
 export benchmark config
-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 
 benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
 
@@ -167,7 +167,7 @@ benchmark_tools_dir="$benchmark_results_dir/tools-$tool_group"
 mkdir -p $benchmark_results_dir $benchmark_tools_dir
 
 
-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 
 # not 100% sure what is best run logic here, either to permute record sizes or over file sizes...
 
@@ -179,9 +179,9 @@ for file_size in $(echo $file_sizes | sed -e s/,/" "/g); do
 	done
 done 
 
-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 
 rmdir $benchmark_run_dir/.running
 

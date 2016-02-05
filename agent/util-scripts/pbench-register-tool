@@ -36,7 +36,7 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 # here we process only the arguments before the "--"
-# these are argument for register-tools
+# these are argument for pbench-register-tools
 # all agruments after "--" are for the tool itself
 eval set -- "$opts";
 while true; do
@@ -163,8 +163,8 @@ else    # register this tool on the remote host
 		label_opt="--label=$label"
 	fi
 	# can't really pass an array of tool options over ssh, so here we will actually construct the array within the ssh call, then reference that array
-	debug_log "$tool_opt_array_cmd"' register-tool --name='"$name"' --group='"$group"' $label_opt -- "${tool_opts[@]}" 2>&1'
-	ssh $ssh_opts $remote "$tool_opt_array_cmd"' register-tool --name='"$name"' --group='"$group" $label_opt' -- "${tool_opts[@]}" 2>&1' | sed -e 's/\(.*\)/'[$remote]'\1/g'
+	debug_log "$tool_opt_array_cmd"' pbench-register-tool --name='"$name"' --group='"$group"' $label_opt -- "${tool_opts[@]}" 2>&1'
+	ssh $ssh_opts $remote "$tool_opt_array_cmd"' pbench-register-tool --name='"$name"' --group='"$group" $label_opt' -- "${tool_opts[@]}" 2>&1' | sed -e 's/\(.*\)/'[$remote]'\1/g'
 	rc=$?
 	if [ ! -d "$pbench_run/tools-$group" ]; then
 		mkdir -p "$pbench_run/tools-$group"

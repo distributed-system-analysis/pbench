@@ -401,7 +401,7 @@ count=1
 # disable firewall on local system
 systemctl stop firewalld
 export benchmark config
-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 # start the server processes
 for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 	for test_type in `echo $test_types | sed -e s/,/" "/g`; do
@@ -448,7 +448,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									done
 									wait
 								fi
-								start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+								pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 								# start a local netperf client process for each host found in the $servers list
 								if [ -z "$clients" ]; then
 									for server in `echo $servers | sed -e s/","/" "/g`; do	
@@ -476,8 +476,8 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									done
 									wait
 								fi
-								stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-								postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+								pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+								pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 							else
 								echo "Not going to run netperf.  Only postprocesing existing data"
 							fi
@@ -508,29 +508,29 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 						done
 						debug_log "$tput_metric: $tputs"
 						# pick the result closest to the average and call it our "reference result"
-						debug_log "avg-stddev $tputs"
-						tput_data=`avg-stddev $tputs`
+						debug_log "pbench-avg-stddev $tputs"
+						tput_data=`pbench-avg-stddev $tputs`
 						tput_avg=`echo $tput_data | awk '{print $1}'`
 						tput_stddev=`echo $tput_data | awk '{print $2}'`
 						tput_stddevpct=`echo $tput_data | awk '{print $3}'`
 						tput_closest=`echo $tput_data | awk '{print $4}'`
 						if [ $test_type == "rr" ]; then
-							latency_data=`avg-stddev $latencies`
+							latency_data=`pbench-avg-stddev $latencies`
 							latency_avg=`echo $latency_data | awk '{print $1}'`
 							latency_stddev=`echo $latency_data | awk '{print $2}'`
 							latency_stddevpct=`echo $latency_data | awk '{print $3}'`
 							latency_closest=`echo $latency_data | awk '{print $4}'`
 						fi
-						client_cpu_data=`avg-stddev $client_cpus`
+						client_cpu_data=`pbench-avg-stddev $client_cpus`
 						client_cpu_avg=`echo $client_cpu_data | awk '{print $1}'`
 						client_cpu_stddevpct=`echo $client_cpu_data | awk '{print $3}'`
-						server_cpu_data=`avg-stddev $server_cpus`
+						server_cpu_data=`pbench-avg-stddev $server_cpus`
 						server_cpu_avg=`echo $server_cpu_data | awk '{print $1}'`
 						server_cpu_stddevpct=`echo $server_cpu_data | awk '{print $3}'`
-						client_eff_data=`avg-stddev $client_effs`
+						client_eff_data=`pbench-avg-stddev $client_effs`
 						client_eff_avg=`echo $client_eff_data | awk '{print $1}'`
 						client_eff_stddevpct=`echo $client_eff_data | awk '{print $3}'`
-						server_eff_data=`avg-stddev $server_effs`
+						server_eff_data=`pbench-avg-stddev $server_effs`
 						server_eff_avg=`echo $server_eff_data | awk '{print $1}'`
 						server_eff_stddevpct=`echo $server_eff_data | awk '{print $3}'`
 
@@ -583,7 +583,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 	done
 done
 printf -- "</pre>\n" >>$benchmark_summary_html_file
-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 
 
 rmdir $benchmark_run_dir/.running

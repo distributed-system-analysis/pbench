@@ -28,7 +28,7 @@ mkdir -p $_testopt/tool-scripts
 let res=res+$?
 cp $_tdir/../tool-scripts/mpstat $_testopt/tool-scripts
 let res=res+$?
-scripts="$_tdir/register-tool $_tdir/metadata-log"
+scripts="$_tdir/pbench-register-tool $_tdir/pbench-metadata-log"
 for script in $scripts ; do
     cp $script $_testopt/util-scripts/
     let res=res+$?
@@ -128,14 +128,14 @@ function _reset_state {
 let errs=0
 
 #
-# 1. Verify register-tool
+# 1. Verify pbench-register-tool
 #
 _setup_state
-_run test-00 register-tool --name=mpstat --group=default -- --interval=10
+_run test-00 pbench-register-tool --name=mpstat --group=default -- --interval=10
 res=$?
 _save_tree
 _dump_logs
-_verify_output $res test-00 register-tool
+_verify_output $res test-00 pbench-register-tool
 res=$?
 let errs=$errs+$res
 _reset_state
@@ -145,26 +145,26 @@ _reset_state
 #
 _setup_state
 cp $_tdir/samples/metadata-log/test-01/tools.default $_testdir
-_run test-01 metadata-log --dir=$_testdir/tmp beg
+_run test-01 pbench-metadata-log --dir=$_testdir/tmp beg
 res=$?
 _save_tree
 _dump_logs
-_verify_output $res test-01 metadata-log
+_verify_output $res test-01 pbench-metadata-log
 res=$?
 let errs=$errs+$res
 _reset_state
 
 #
 # 3. Verify metadata-log - standard mode: tools-default directory
-#                                         default register-tool-set content
+#                                         default pbench-register-tool-set content
 #
 _setup_state
 cp -r $_tdir/samples/metadata-log/test-02/tools-default $_testdir
-_run test-02 metadata-log --dir=$_testdir/tmp beg
+_run test-02 pbench-metadata-log --dir=$_testdir/tmp beg
 res=$?
 _save_tree
 _dump_logs
-_verify_output $res test-02 metadata-log
+_verify_output $res test-02 pbench-metadata-log
 res=$?
 let errs=$errs+$res
  _reset_state
@@ -175,11 +175,11 @@ let errs=$errs+$res
 #
 _setup_state
 cp -r $_tdir/samples/metadata-log/test-03/tools-default $_testdir
-_run test-03 metadata-log --dir=$_testdir/tmp beg
+_run test-03 pbench-metadata-log --dir=$_testdir/tmp beg
 res=$?
 _save_tree
 _dump_logs
-_verify_output $res test-03 metadata-log
+_verify_output $res test-03 pbench-metadata-log
 res=$?
 let errs=$errs+$res
 _reset_state
@@ -190,11 +190,11 @@ _reset_state
 #
 _setup_state
 cp -r $_tdir/samples/metadata-log/test-04/tools-default $_testdir
-_run test-04 metadata-log --dir=$_testdir/tmp beg
+_run test-04 pbench-metadata-log --dir=$_testdir/tmp beg
 res=$?
 _save_tree
 _dump_logs
-_verify_output $res test-04 metadata-log
+_verify_output $res test-04 pbench-metadata-log
 res=$?
 let errs=$errs+$res
 _reset_state

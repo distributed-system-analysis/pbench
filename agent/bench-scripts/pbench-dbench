@@ -296,7 +296,7 @@ let total_iterations=count
 count=1
 max_key_length=0
 export benchmark config
-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 
 for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 	if [ $count -ge $start_iteration_num ]; then
@@ -348,7 +348,7 @@ for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 
 						((client_nr++))
 					done
-					start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+					pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 
 					# start the dbench clients
 					echo "test sample $sample of $nr_samples"
@@ -382,8 +382,8 @@ for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 					wait
 
 					# stop tools and clean up
-					stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-					postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+					pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+					pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 				else
 					if [[ ! -d $benchmark_results_dir ]]; then
 						error_log "Results directory $benchmark_results_dir does not exist, skipping post-processing"
@@ -421,7 +421,7 @@ for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 					value=`grep -- "$key" $iteration_dir/sample$sample/result.txt | awk -F= '{print $2}'`
 					iteration_samples="$iteration_samples $value"
 				done
-				avg_stddev_result=`avg-stddev $iteration_samples`
+				avg_stddev_result=`pbench-avg-stddev $iteration_samples`
 				samples[$key_nr]="$iteration_samples"
 				avg[$key_nr]=`echo $avg_stddev_result | awk '{print $1}'`
 				stddev[$key_nr]=`echo $avg_stddev_result | awk '{print $2}'`
@@ -506,6 +506,6 @@ for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 done
 
 printf -- "</pre>\n" >>$benchmark_summary_html_file
-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 
 rmdir $benchmark_run_dir/.running

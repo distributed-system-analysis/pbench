@@ -1,5 +1,5 @@
-+++ Running test-02 metadata-log
---- Finished test-02 metadata-log (status=0}
++++ Running test-04 pbench-metadata-log
+--- Finished test-04 pbench-metadata-log (status=0}
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/tmp
@@ -18,7 +18,11 @@
 /var/tmp/pbench-test-utils/pbench/tools-default/mpstat:
 --interval=3
 /var/tmp/pbench-test-utils/pbench/tools-default/perf:
---record-opts=record -a --freq=100
+--record-opts=-a -freq=100
+--record-opts=--call-graph
+--record-opts=--event=branch-misses
+--record-opts=--event=cache-misses
+--record-opts=--event=instructions
 /var/tmp/pbench-test-utils/pbench/tools-default/pidstat:
 --interval=3
 /var/tmp/pbench-test-utils/pbench/tools-default/proc-interrupts:
@@ -43,7 +47,7 @@ hosts: testhost
 [tools/testhost]
 iostat: --interval=3
 mpstat: --interval=3
-perf: --record-opts=record -a --freq=100
+perf: --record-opts=-a -freq=100 --record-opts=--call-graph --record-opts=--event=branch-misses --record-opts=--event=cache-misses --record-opts=--event=instructions
 pidstat: --interval=3
 proc-interrupts: --interval=3
 proc-vmstat: --interval=3
