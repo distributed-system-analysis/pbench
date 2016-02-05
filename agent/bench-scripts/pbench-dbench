@@ -261,7 +261,7 @@ if [ "$postprocess_only" != "y" ]; then
 	err_clients=""
 	for client in `echo $clients | sed -e s/,/" "/g`; do
 		debug_log "checking for dbench on client $client"
-		ssh $ssh_opts $client pbench_dbench --install
+		ssh $ssh_opts $client $script_name --install
 		if [ $? -ne 0 ]; then
 			let err_cnt=err_cnt+1
 			err_clients="$err_clients $client"
@@ -283,8 +283,8 @@ benchmark_summary_html_file="$benchmark_run_dir/summary-result.html"
 rm -f $benchmark_summary_html_file
 
 ## Run the benchmark and start/stop perf analysis tools
-printf "# these results generated with:\n# pbench_dbench %s\n\n" "$orig_cmd" >$benchmark_summary_txt_file
-printf "<pre>\n# these results generated with:\n# pbench_dbench %s\n\n" "$orig_cmd" >$benchmark_summary_html_file
+printf "# these results generated with:\n# pbench-dbench %s\n\n" "$orig_cmd" >$benchmark_summary_txt_file
+printf "<pre>\n# these results generated with:\n# pbench-dbench %s\n\n" "$orig_cmd" >$benchmark_summary_html_file
 printf "\n" >>$benchmark_summary_txt_file
 printf "\n" >>$benchmark_summary_html_file
 
