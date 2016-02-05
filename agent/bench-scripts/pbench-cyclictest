@@ -122,7 +122,7 @@ printf "\n" >>$benchmark_summary_html_file
 export benchmark config
 
 count=1
-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 if [ $stress ]; then
 	if [ ! -z "$cpu" ]; then
 		taskset -c $cpu stress -c 1 &
@@ -145,10 +145,10 @@ for runtime in `echo $runtimes | sed -e s/,/" "/g`; do
 	echo $benchmark_cmd  >$benchmark_cmd_file
 	chmod +x $benchmark_cmd_file
 	debug_log "going to run $benchmark_cmd"
-	start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+	pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	$benchmark_cmd_file | tee $result_file
-	stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-	postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+	pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+	pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	min=`grep "Min Latencies:" $result_file | awk '{print $4}'`
 	avg=`grep "Avg Latencies:" $result_file | awk '{print $4}'`
 	max=`grep "Max Latencies:" $result_file | awk '{print $4}'`
@@ -158,7 +158,7 @@ done
 if [ $stress ]; then
 	kill $stress_pid
 fi
-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 cat $benchmark_summary_txt_file
 
 # signal to move/copy-results that this run is done.

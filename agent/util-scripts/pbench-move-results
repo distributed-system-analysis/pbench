@@ -253,7 +253,7 @@ for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v 
         let failures=failures+1
         continue
     else
-        if [ "$script_name" == "move-results" ]; then
+        if [ "$script_name" == "pbench-move-results" ]; then
             rm -rf $pbench_run_name
         else
             touch $pbench_run_name.copied
@@ -271,7 +271,7 @@ popd >/dev/null
 
 let anything=runs_copied+failures
 if [ $anything -gt 0 ]; then
-    if [ "$script_name" == "move-results" ]; then
+    if [ "$script_name" == "pbench-move-results" ]; then
         op="moved"
     else
         op="copied"

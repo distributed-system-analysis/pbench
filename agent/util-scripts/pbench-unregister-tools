@@ -79,7 +79,7 @@ else # run on remote host
         ssh $ssh_opts $remote "$cmd" | sed -e 's/\(.*\)/'[$remote]'\1/g'
         rc=$?
 	# if there are no more tools on the remote host, then remove the 'remote@' entry for that host on the local tools file
-	remote_tools=`ssh $ssh_opts $remote list-tools | grep $group | awk -F: '{print $2}'`
+	remote_tools=`ssh $ssh_opts $remote pbench-list-tools | grep $group | awk -F: '{print $2}'`
 	echo remote tools: [$remote_tools]
 	if [ -z "$remote_tools" ]; then
 		echo removing remote hostname $remote
