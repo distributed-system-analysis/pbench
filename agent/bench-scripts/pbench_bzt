@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+
 """
 This script generates a bzt taurus yml file and executes a performance test based on it.
 It is a wrapper for the bzt tool.
@@ -15,6 +16,9 @@ pod3.cloudapps.example.com
 The simplest way of running it would then be be:
 ./pbench_bzt -u urls_to_test.lst
 
+For HTTP/TLS testing, use:
+./pbench_bzt -u urls_to_test.lst -p https://
+
 It outputs a post-test summary using the final stats module [2]
 This is the simplest reporter that prints out basic KPIs in the console log after test execution.
 
@@ -24,35 +28,64 @@ pbench_bzt uses the following load profiles for the jmeter executor:
     hold-for - time to hold target concurrency
 
 These are customizable using the -c, -r and -d command line arguments.
-This script will generate a taurus.csv and a bzt.yml file under the /tmp directory with the test results and scenario
-data, respectively. This can be changed using the -p and -o arguments.
+
+By default, pbench_bzt outputs a taurus.csv and a bzt.json file under the /tmp directory with the test results
+and scenario data, respectively. This can be changed using the -f and -o arguments.
+
 
 [1] "http://gettaurus.org/docs/ExecutionSettings/"
 [2] "http://gettaurus.org/docs/Reporting/"
+
 """
 
 import argparse
 import subprocess
 import os
 import sys
-
-try:
-    import yaml
-except ImportError:
-    raise ImportError('PyYAML module not found. Please install with: "sudo pip install PyYAML"')
+import platform
+import json
 
 
-class BztConfWriter:
+class OSType(object):
+    """
+        Detects Red Hat / CentOS / Fedora distributions
+    """
+
+    def __getattr__(self, attr):
+        if attr == "fedora":
+            return "fedora"
+        elif attr == "rhel":
+            return "redhat"
+        elif attr == "unknown":
+            return "unknown"
+        else:
+            raise (AttributeError, attr)
+
+    def platform_type(self):
+        if platform.dist()[0] == self.rhel:
+            return self.rhel
+        elif platform.dist()[0] == self.fedora:
+            return self.fedora
+        else:
+            return self.unknown
+
+    def query_os(self):
+        if platform.system() == "Linux":
+            return self.platform_type()
+
+
+class BztConfigWriter:
+    """
+    Writes a template json config file for testing endpoints with taurus bzt
+    """
     def __init__(self, args):
         self.args = args
         self.bzt_conf = dict()
         self.bzt_conf['execution'] = []
-        self.bzt_conf['scenarios'] = {}
         self.bzt_conf['reporting'] = []
-        self.bzt_conf['modules'] = {}
+        self.bzt_conf['scenarios'] = {}
 
     def create_scenario_file(self):
-        # Add executions and scenarios
         if self.args.scenario == "simple":
             count = 1
             with open(self.args.url_file) as f:
@@ -62,29 +95,25 @@ class BztConfWriter:
                                                        'hold-for': self.args.hold_for,
                                                        'ramp-up': self.args.ramp_up,
                                                        'scenario': scenario_nbr})
-
                     self.bzt_conf['scenarios'][scenario_nbr] = {'requests': [self.args.prefix + line.strip()]}
                     count += 1
 
-            self.bzt_conf['modules']['blazemeter'] = {'browser-open': False, 'test': self.args.test_name}
-            self.bzt_conf['modules']['console'] = {'disable': True}
+            self.bzt_conf['modules'] = {'blazemeter': {'browser-open': False, 'test': self.args.test_name},
+                                        'console': {'disable': True}}
             self.bzt_conf['reporting'].append({'module': 'final_stats', 'dump-csv': self.args.stats_file})
+            self.write_json_file(self.args.out_json_file)
 
-            self.write_yaml_file(self.args.out_yml_file)
-
-        elif self.args.scenario == "key-value-put":
-            pass
-
-        elif self.args.scenario == "key-value-get":
-            pass
-
-    def write_yaml_file(self, f):
-        with open(f, 'w') as ymlfile:
-            ymlfile.write("---\n")
-            ymlfile.write(yaml.dump(self.bzt_conf, default_flow_style=False))
+    def write_json_file(self, f):
+        with open(f, mode='w') as fd:
+            json.dump(self.bzt_conf, fd, indent=2)
 
 
 def which(cmd):
+    """
+    Basic function that mimics the linux `which` cmd
+    :param cmd: executable to look up for
+    :return:
+    """
     def is_executable(path):
         return os.path.isfile(path) and os.access(path, os.X_OK)
 
@@ -95,10 +124,23 @@ def which(cmd):
     else:
         for path in os.environ["PATH"].split(os.pathsep):
             path = path.strip('"')
-            executable = os.path.join(path, cmd)
-            if is_executable(executable):
-                return executable
+            cmdpath = os.path.join(path, cmd)
+            if is_executable(cmdpath):
+                return cmdpath
     return None
+
+
+def fingerprint():
+    """
+    Detects OS type/distro
+    TODO: install dependencies based on the result
+    :return:
+    """
+    ost = OSType()
+    if 'fedora' == ost.query_os():
+        print(ost.query_os())
+    if 'redhat' == ost.query_os():
+        print(ost.query_os())
 
 
 def parser():
@@ -107,33 +149,35 @@ def parser():
                                          E.g.: pbench_bzt.py -u jmeter_urls/4_http_urls")
 
     parser_obj.add_argument('-u', '--url_file', action="store", dest="url_file", type=str, required=True)
-    parser_obj.add_argument('-c', '--concurrency', action="store", dest="concurrency", type=str, default=100)
+    parser_obj.add_argument('-c', '--concurrency', action="store", dest="concurrency", type=str, default=10)
     parser_obj.add_argument('-r', '--ramp-up', action="store", dest="ramp_up", type=str, default='10s')
     parser_obj.add_argument('-d', '--hold_for', action="store", dest="hold_for", type=str, default='1m')
     parser_obj.add_argument('-s', '--scenario', action="store", dest="scenario", type=str, default='simple')
-    parser_obj.add_argument('-o', '--out_yml_file', action="store", dest="out_yml_file",
-                            type=str, default='/tmp/bzt.yml')
+    parser_obj.add_argument('-o', '--out_json_file', action="store", dest="out_json_file",
+                            type=str, default='/tmp/bzt.json')
     parser_obj.add_argument('-n', '--test_name', action="store", dest="test_name", type=str, default='OSE')
     parser_obj.add_argument('-p', '--prefix', action="store", dest="prefix", type=str, default='http://')
     parser_obj.add_argument('-f', '--stats_file', action="store", dest="stats_file",
                             type=str, default='/tmp/taurus.csv')
+    parser_obj.add_argument('-P', '--program', action="store", dest="program", default='bzt')
 
     return parser_obj.parse_args()
 
 
 if __name__ == '__main__':
+    fingerprint()
     opt_args = parser()
-    program = 'bzt'
 
-    bzt = BztConfWriter(opt_args)
+    bzt = BztConfigWriter(opt_args)
     bzt.create_scenario_file()
 
-    executable = which(program)
+    executable = which(opt_args.program)
     if executable is not None:
         try:
-            subprocess.check_call([executable, opt_args.out_yml_file])
+            # check_call: blocking code
+            subprocess.check_call([executable, opt_args.out_json_file])
         except subprocess.CalledProcessError:
-            print("%s has returned in error: %s" % (program, subprocess.CalledProcessError.returncode))
+            print("%s has returned in error: %s" % (opt_args.program, subprocess.CalledProcessError.message))
     else:
         sys.exit("Either %s is not installed, or the current user does not have permission to execute it.\n"
-                 "http://gettaurus.org/docs/Installation/" % program)
+                 "http://gettaurus.org/docs/Installation/" % opt_args.program)
