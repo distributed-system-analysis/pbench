@@ -28,7 +28,7 @@ for script in $_tdir/pbench-* ; do
     cp $script $_testopt/bench-scripts/
     let res=res+$?
 done
-cp $_tdir/user-benchmark $_testopt/bench-scripts/
+cp $_tdir/pbench-user-benchmark $_testopt/bench-scripts/
 let res=res+$?
 mkdir -p $_testopt/unittest-scripts/
 let res=res+$?
