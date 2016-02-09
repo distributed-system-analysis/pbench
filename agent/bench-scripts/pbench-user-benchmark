@@ -20,7 +20,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # source the base script
 . "$pbench_bin"/base
 
-benchmark="user-benchmark"
+benchmark="pbench-user-benchmark"
 
 # This bench-script does the following:
 # 1) process pbench script arguments (--config)
