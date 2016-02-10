@@ -7,11 +7,10 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # source the base script
 . "$pbench_bin"/base
 
-# This script will remove tools that have
-# been registered.  If no options are used,
-# then all tools from all tool groups are removed
-# specifying a tool name and/or group will
-# limit the scope of the removal
+# This script will remove tools that have been registered.  If no
+# options are used, then all tools from all tool groups are removed.
+# Specifying a tool name and/or group will limit the scope of the
+# removal.
 
 # Defaults
 name=""
@@ -24,9 +23,9 @@ if [ $? -ne 0 ]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"
 	printf "The following are required:\n\n"
-	printf -- "\t-g str --group=str, str = the group which tools should be removed from\n"
+	printf -- "\t-g str --group=str, str = the group from which tools should be removed\n"
 	printf -- "\t                          (the default group is 'default')\n"
-	printf -- "\t-n str --name=str, str = a specific tool to be removed.  If no tool is specified, all tools in the group are removed \n"
+	printf -- "\t-n str --name=str, str = a specific tool to be removed.  If no tool is specified, all tools in the group are removed\n"
 	printf "\n"
 
 	exit 1
