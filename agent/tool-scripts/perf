@@ -22,7 +22,7 @@ dir="/tmp"
 mode=""
 iteration="1"
 options="none"
-record_opts="record -a"
+record_opts="record -a -freq=100"
 report_opts="report --show-nr-samples -I"
 
 # Process options and arguments
