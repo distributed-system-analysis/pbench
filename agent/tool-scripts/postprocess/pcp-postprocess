@@ -1,5 +1,10 @@
 #!/bin/bash
 dir=$1
+interval=$2
+
+if [ -z "$interval"]; then
+	interval=3
+fi
 
 pushd $dir >/dev/null
 mkdir -p csv
@@ -25,7 +30,7 @@ for html_page in $html_pages; do
 
 	chart_count=1
 	for graph in `pminfo -a archive $html_page`; do
-		pmdumptext $graph -a archive -f %s000 -m  -d, | grep -v "?"  | sed -e s/^Time/timestamp_ms/ >./csv/$graph.csv
+		pmdumptext $graph -a archive -t $interval -f %s000 -m  -d, | grep -v "?"  | sed -e s/^Time/timestamp_ms/ >./csv/$graph.csv
 		echo '    <div class="chart">' >>${html_page}.html
       		echo '      <h3 class="chart-header">'$graph >>${html_page}.html
         	echo '        <button id="save'$chart_count'">Save as Image</button>' >>${html_page}.html
