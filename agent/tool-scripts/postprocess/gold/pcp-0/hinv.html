@@ -1,0 +1,281 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link href="/static/css/v0.2/nv.d3.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/static/css/v0.2/pbench_utils.css" rel="stylesheet" type="text/css" media="all">
+    <script src="/static/js/v0.2/function-bind.js"></script>
+    <script src="/static/js/v0.2/fastdom.js"></script>
+    <script src="/static/js/v0.2/d3.js"></script>
+    <script src="/static/js/v0.2/nv.d3.js"></script>
+    <script src="/static/js/v0.2/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.2/pbench_utils.js"></script>
+  </head>
+  <body class="with-3d-shadow with-transitions">
+    <h2 class="page-header">hinv</h2>
+    <div class="chart">
+      <h3 class="chart-header">hinv.nnode
+        <button id="save1">Save as Image</button>
+        <div id="svgdataurl1"></div>
+      </h3>
+      <svg id="chart1"></svg>
+      <canvas id="canvas1" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 1, "hinv.nnode");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.ncpu
+        <button id="save2">Save as Image</button>
+        <div id="svgdataurl2"></div>
+      </h3>
+      <svg id="chart2"></svg>
+      <canvas id="canvas2" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 2, "hinv.ncpu");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.ndisk
+        <button id="save3">Save as Image</button>
+        <div id="svgdataurl3"></div>
+      </h3>
+      <svg id="chart3"></svg>
+      <canvas id="canvas3" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 3, "hinv.ndisk");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.physmem
+        <button id="save4">Save as Image</button>
+        <div id="svgdataurl4"></div>
+      </h3>
+      <svg id="chart4"></svg>
+      <canvas id="canvas4" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 4, "hinv.physmem");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.pagesize
+        <button id="save5">Save as Image</button>
+        <div id="svgdataurl5"></div>
+      </h3>
+      <svg id="chart5"></svg>
+      <canvas id="canvas5" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 5, "hinv.pagesize");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.hugepagesize
+        <button id="save6">Save as Image</button>
+        <div id="svgdataurl6"></div>
+      </h3>
+      <svg id="chart6"></svg>
+      <canvas id="canvas6" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 6, "hinv.hugepagesize");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.ninterface
+        <button id="save7">Save as Image</button>
+        <div id="svgdataurl7"></div>
+      </h3>
+      <svg id="chart7"></svg>
+      <canvas id="canvas7" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 7, "hinv.ninterface");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.nfilesys
+        <button id="save8">Save as Image</button>
+        <div id="svgdataurl8"></div>
+      </h3>
+      <svg id="chart8"></svg>
+      <canvas id="canvas8" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 8, "hinv.nfilesys");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.machine
+        <button id="save9">Save as Image</button>
+        <div id="svgdataurl9"></div>
+      </h3>
+      <svg id="chart9"></svg>
+      <canvas id="canvas9" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 9, "hinv.machine");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.map.scsi
+        <button id="save10">Save as Image</button>
+        <div id="svgdataurl10"></div>
+      </h3>
+      <svg id="chart10"></svg>
+      <canvas id="canvas10" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 10, "hinv.map.scsi");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.map.cpu_num
+        <button id="save11">Save as Image</button>
+        <div id="svgdataurl11"></div>
+      </h3>
+      <svg id="chart11"></svg>
+      <canvas id="canvas11" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 11, "hinv.map.cpu_num");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.map.cpu_node
+        <button id="save12">Save as Image</button>
+        <div id="svgdataurl12"></div>
+      </h3>
+      <svg id="chart12"></svg>
+      <canvas id="canvas12" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 12, "hinv.map.cpu_node");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.map.dmname
+        <button id="save13">Save as Image</button>
+        <div id="svgdataurl13"></div>
+      </h3>
+      <svg id="chart13"></svg>
+      <canvas id="canvas13" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 13, "hinv.map.dmname");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.cpu.clock
+        <button id="save14">Save as Image</button>
+        <div id="svgdataurl14"></div>
+      </h3>
+      <svg id="chart14"></svg>
+      <canvas id="canvas14" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 14, "hinv.cpu.clock");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.cpu.vendor
+        <button id="save15">Save as Image</button>
+        <div id="svgdataurl15"></div>
+      </h3>
+      <svg id="chart15"></svg>
+      <canvas id="canvas15" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 15, "hinv.cpu.vendor");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.cpu.model
+        <button id="save16">Save as Image</button>
+        <div id="svgdataurl16"></div>
+      </h3>
+      <svg id="chart16"></svg>
+      <canvas id="canvas16" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 16, "hinv.cpu.model");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.cpu.stepping
+        <button id="save17">Save as Image</button>
+        <div id="svgdataurl17"></div>
+      </h3>
+      <svg id="chart17"></svg>
+      <canvas id="canvas17" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 17, "hinv.cpu.stepping");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.cpu.cache
+        <button id="save18">Save as Image</button>
+        <div id="svgdataurl18"></div>
+      </h3>
+      <svg id="chart18"></svg>
+      <canvas id="canvas18" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 18, "hinv.cpu.cache");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.cpu.bogomips
+        <button id="save19">Save as Image</button>
+        <div id="svgdataurl19"></div>
+      </h3>
+      <svg id="chart19"></svg>
+      <canvas id="canvas19" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 19, "hinv.cpu.bogomips");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.cpu.model_name
+        <button id="save20">Save as Image</button>
+        <div id="svgdataurl20"></div>
+      </h3>
+      <svg id="chart20"></svg>
+      <canvas id="canvas20" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 20, "hinv.cpu.model_name");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.cpu.flags
+        <button id="save21">Save as Image</button>
+        <div id="svgdataurl21"></div>
+      </h3>
+      <svg id="chart21"></svg>
+      <canvas id="canvas21" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 21, "hinv.cpu.flags");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.cpu.cache_alignment
+        <button id="save22">Save as Image</button>
+        <div id="svgdataurl22"></div>
+      </h3>
+      <svg id="chart22"></svg>
+      <canvas id="canvas22" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 22, "hinv.cpu.cache_alignment");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.cpu.online
+        <button id="save23">Save as Image</button>
+        <div id="svgdataurl23"></div>
+      </h3>
+      <svg id="chart23"></svg>
+      <canvas id="canvas23" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 23, "hinv.cpu.online");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">hinv.node.online
+        <button id="save24">Save as Image</button>
+        <div id="svgdataurl24"></div>
+      </h3>
+      <svg id="chart24"></svg>
+      <canvas id="canvas24" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 24, "hinv.node.online");
+      </script>
+    </div>
+  </body>
+  </html>
