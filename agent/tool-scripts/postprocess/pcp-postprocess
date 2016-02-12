@@ -1,0 +1,45 @@
+#!/bin/bash
+dir=$1
+
+pushd $dir >/dev/null
+mkdir -p csv
+
+html_pages=`pminfo -a archive | awk -F. '{print $1}' | sort | uniq`
+
+for html_page in $html_pages; do
+	echo '<!DOCTYPE HTML>' >${html_page}.html
+	echo '<html>' >>${html_page}.html
+  	echo '  <head>' >>${html_page}.html
+    	echo '    <meta charset="utf-8">' >>${html_page}.html
+    	echo '    <link href="/static/css/v0.2/nv.d3.css" rel="stylesheet" type="text/css" media="all">' >>${html_page}.html
+    	echo '    <link href="/static/css/v0.2/pbench_utils.css" rel="stylesheet" type="text/css" media="all">' >>${html_page}.html
+    	echo '    <script src="/static/js/v0.2/function-bind.js"></script>' >>${html_page}.html
+    	echo '    <script src="/static/js/v0.2/fastdom.js"></script>' >>${html_page}.html
+    	echo '    <script src="/static/js/v0.2/d3.js"></script>' >>${html_page}.html
+    	echo '    <script src="/static/js/v0.2/nv.d3.js"></script>' >>${html_page}.html
+    	echo '    <script src="/static/js/v0.2/saveSvgAsPng.js"></script>' >>${html_page}.html
+    	echo '    <script src="/static/js/v0.2/pbench_utils.js"></script>' >>${html_page}.html
+  	echo '  </head>' >>${html_page}.html
+  	echo '  <body class="with-3d-shadow with-transitions">' >>${html_page}.html
+    	echo '    <h2 class="page-header">'$html_page'</h2>' >>${html_page}.html
+
+	chart_count=1
+	for graph in `pminfo -a archive $html_page`; do
+		pmdumptext $graph -a archive -f %s000 -m  -d, | grep -v "?"  | sed -e s/^Time/timestamp_ms/ >./csv/$graph.csv
+		echo '    <div class="chart">' >>${html_page}.html
+      		echo '      <h3 class="chart-header">'$graph >>${html_page}.html
+        	echo '        <button id="save'$chart_count'">Save as Image</button>' >>${html_page}.html
+        	echo '        <div id="svgdataurl'$chart_count'"></div>' >>${html_page}.html
+      		echo '      </h3>' >>${html_page}.html
+      		echo '      <svg id="chart'$chart_count'"></svg>' >>${html_page}.html
+      		echo '      <canvas id="canvas'$chart_count'" style="display:none"></canvas>' >>${html_page}.html
+      		echo '      <script>' >>${html_page}.html
+        	echo '        constructChart("lineChart", '$chart_count', "'$graph'");' >>${html_page}.html
+      		echo '      </script>' >>${html_page}.html
+    		echo '    </div>' >>${html_page}.html
+		((chart_count++))
+	done
+	echo '  </body>' >>${html_page}.html
+	echo '  </html>' >>${html_page}.html
+done
+popd >/dev/null
