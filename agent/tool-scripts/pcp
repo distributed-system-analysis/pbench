@@ -108,6 +108,10 @@ case "$mode" in
 	install)
 	# pcp package are not maintained by pbench
 	check_install_rpm "$tool_package_name" || error_log "$script_name: installation of $tool_package_name failed"
+	# if a user does not create their own pmlogger config, we create one
+	if [ ! -e $pmlogger_conf ]; then
+		/usr/libexec/pcp/bin/pmlogconf -c -r $pmlogger_conf
+	fi
 	;;
 	start)
 	# TODO: write start_service() in $pbench_bin/base script
@@ -127,11 +131,8 @@ case "$mode" in
 		/bin/rm -f archive*
 		echo "$tool_cmd" >"$tool_cmd_file"
 		chmod +x "$tool_cmd_file"
-		if [ -e "$pmlogger_conf" ]; then
-			/bin/cp "$pmlogger_conf" "$tool_output_dir"
-		else
-			error_log "$script_name: could not find $pmlogger_conf"
-		fi
+		# pmlogger config is kept with tool data for debug purposes
+		/bin/cp "$pmlogger_conf" "$tool_output_dir"
 		debug_log "$script_name: running $tool_cmd"
 		. $tool_cmd_file 
 		popd >/dev/null
