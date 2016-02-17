@@ -1,6 +1,6 @@
 var app = angular.module('sample', ['nvd3']);
 
-app.controller('MainCtrl', function ($scope, $http) {
+app.controller('graphControl', function ($scope, $http) {
     $scope.options = {
         chart: {
             type: 'lineWithFocusChart',
@@ -76,9 +76,14 @@ function constructChart(graph_type, chartnum, chart_file_name, threshold) {
                 if (tval > end) end = tval;
             }
         }
-        var scope = angular.element(document.getElementById("main")).scope();
+        
+        var scope = angular.element(document.getElementById("chartid")).scope();
         scope.$apply(function () {
             scope.data = chart_datum;
+        });
+        
+        d3.select(saveid).on("click", function() {
+            saveSvgAsPng(document.getElementById(chartid), chart_file_name + ".png");
         });
     });
 };
@@ -148,54 +153,11 @@ function _process_csv_data(csv_data, threshold) {
             "values": _chart_datum[key]
         });
     }
-
     return chart_datum;
 };
 
-var colors = d3.scale.category20();
-var keyColor = function (d, i) {
-    return colors(d.key);
-};
-var xAccessor = function (d) {
-    return d[0];
-};
-var yAccessor = function (d) {
-    return d[1];
-};
-var customTimeFormat = d3.time.format.multi([
-  [".%L", function (d) {
-        return d.getMilliseconds();
-    }],
-  [":%S", function (d) {
-        return d.getSeconds();
-    }],
-  ["%I:%M", function (d) {
-        return d.getMinutes();
-    }],
-  ["%I %p", function (d) {
-        return d.getHours();
-    }],
-  ["%a %d", function (d) {
-        return d.getDay() && d.getDate() != 1;
-    }],
-  ["%b %d", function (d) {
-        return d.getDate() != 1;
-    }],
-  ["%B", function (d) {
-        return d.getMonth();
-    }],
-  ["%Y", function () {
-        return true;
-    }]
-]);
-var xTickFormat = function (d) {
-    return customTimeFormat(new Date(d));
-};
-var yTickFormat = d3.format(',.3f');
-var xLegendFormat = d3.time.format("%Y-%m-%dT%H:%M:%S");
-
 $(function () {
-    $(".button").click(function () {
+    $(".dropdown").click(function () {
         $(".wrapper").slideToggle();
     });
 });

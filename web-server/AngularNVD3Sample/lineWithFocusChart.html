@@ -17,21 +17,26 @@
     <script src="js/nv.d3.js"></script>
     <script src="js/angular-nvd3.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/saveSvgAsPng.js"></script>
     <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
     <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 </head>
 
-<body ng-controller="MainCtrl" onload="fetchData()">
+<body ng-controller="graphControl" onload="fetchData()">
     <div class="card">
         <div id="header">
             <h2>
               cpu_all_cpu_busy
             </h2>
-            <div class="button raised blue">
+            <div class="dropdown button raised blue">
                 ADVANCED
                 <paper-ripple fit></paper-ripple>
             </div>
             <div class="wrapper">
+                <div class="button raised blue" id="saveid">
+                    Save Image
+                    <paper-ripple fit></paper-ripple>
+                </div>
                 <p>Graph Type:
                     <select>
                         <option value='lineWithFocusChart' ng-model="options.chart.type">lineWithFocusChart</option>
@@ -41,7 +46,7 @@
                         <option value="cumulativeLineChart" ng-model="options.chart.type">cumulativeLineChart</option>
                     </select>
                 </p>
-                <p>Height:
+                <p>Height:x
                     <input type="number" ng-model="options.chart.height" />
                 </p>
                 <p>Width:
@@ -73,7 +78,7 @@
                 </p>
             </div>
         </div>
-        <div id="main">
+        <div id="chartid">
             <nvd3 options="options" data="data"></nvd3>
         </div>
     </div>

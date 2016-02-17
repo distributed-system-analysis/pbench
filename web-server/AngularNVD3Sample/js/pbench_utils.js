@@ -109,7 +109,7 @@ var constructChart = function(graph_type, chartnum, chart_file_name, threshold) 
       }
     }
     return chart_datum
-    /*start = new Date(start);
+    start = new Date(start);
     end = new Date(end);
     var _chartnum = chartnum.toString();
     var chartid = "chart" + _chartnum;
@@ -141,6 +141,6 @@ var constructChart = function(graph_type, chartnum, chart_file_name, threshold) 
 
     d3.select(saveid).on("click", function() {
       saveSvgAsPng(document.getElementById(chartid), chart_file_name + ".png");
-    });*/
+    });
   });
 };

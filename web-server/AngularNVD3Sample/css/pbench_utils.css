@@ -28,6 +28,12 @@ div.chart {
 
 .wrapper {
     display: none;
+    padding-top: 10px;
+}
+
+.advanced {
+    float: right;
+    display: inline;
 }
 
 .button {
