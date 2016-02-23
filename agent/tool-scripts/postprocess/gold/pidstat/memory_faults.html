@@ -13,7 +13,7 @@
   </head>
   <body class="with-3d-shadow with-transitions">
     <h2 class="page-header">pidstat - memory_faults</h2>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">minor_faults_sec
         <button id="save1">Save as Image</button>
         <div id="svgdataurl1"></div>
@@ -21,7 +21,7 @@
       <svg id="chart1"></svg>
       <canvas id="canvas1" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 1, "memory_faults_minor_faults_sec", 150.00);
+        constructChart("lineWithFocusChart", 1, "memory_faults_minor_faults_sec", 150.00);
       </script>
     </div>
   </body>

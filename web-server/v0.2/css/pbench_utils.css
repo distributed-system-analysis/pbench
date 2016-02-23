@@ -6,7 +6,7 @@ body {
 text {
   font: 12px sans-serif;
 }
-div.chart {
+div.chart, div.lwf-chart {
   margin-top: 6px;
   padding: 4px;
   border-style: solid;
@@ -15,6 +15,10 @@ div.chart {
 .chart svg {
   height: 150px;
 }
+.lwf-chart svg {
+  height: 200px;
+  width: 100%;
+}
 .chart-header, .page-header, .chart-reason {
   text-align: center;
-} 
+}

@@ -13,7 +13,7 @@
   </head>
   <body class="with-3d-shadow with-transitions">
     <h2 class="page-header">pidstat - file_io</h2>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">io_reads_KB_sec
         <button id="save1">Save as Image</button>
         <div id="svgdataurl1"></div>
@@ -21,10 +21,10 @@
       <svg id="chart1"></svg>
       <canvas id="canvas1" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 1, "file_io_io_reads_KB_sec", 50.00);
+        constructChart("lineWithFocusChart", 1, "file_io_io_reads_KB_sec", 50.00);
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">io_writes_KB_sec
         <button id="save2">Save as Image</button>
         <div id="svgdataurl2"></div>
@@ -32,7 +32,7 @@
       <svg id="chart2"></svg>
       <canvas id="canvas2" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 2, "file_io_io_writes_KB_sec", 50.00);
+        constructChart("lineWithFocusChart", 2, "file_io_io_writes_KB_sec", 50.00);
       </script>
     </div>
   </body>

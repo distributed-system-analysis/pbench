@@ -13,7 +13,7 @@
   </head>
   <body class="with-3d-shadow with-transitions">
     <h2 class="page-header">vmstat - vmstat</h2>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">block
         <button id="save1">Save as Image</button>
         <div id="svgdataurl1"></div>
@@ -21,7 +21,7 @@
       <svg id="chart1"></svg>
       <canvas id="canvas1" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 1, "vmstat_block");
+        constructChart("lineWithFocusChart", 1, "vmstat_block");
       </script>
     </div>
     <div class="chart">
@@ -46,7 +46,7 @@
         constructChart("stackedAreaChart", 3, "vmstat_memory");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">procs
         <button id="save4">Save as Image</button>
         <div id="svgdataurl4"></div>
@@ -54,10 +54,10 @@
       <svg id="chart4"></svg>
       <canvas id="canvas4" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 4, "vmstat_procs");
+        constructChart("lineWithFocusChart", 4, "vmstat_procs");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">swap
         <button id="save5">Save as Image</button>
         <div id="svgdataurl5"></div>
@@ -65,10 +65,10 @@
       <svg id="chart5"></svg>
       <canvas id="canvas5" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 5, "vmstat_swap");
+        constructChart("lineWithFocusChart", 5, "vmstat_swap");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">system
         <button id="save6">Save as Image</button>
         <div id="svgdataurl6"></div>
@@ -76,7 +76,7 @@
       <svg id="chart6"></svg>
       <canvas id="canvas6" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 6, "vmstat_system");
+        constructChart("lineWithFocusChart", 6, "vmstat_system");
       </script>
     </div>
   </body>

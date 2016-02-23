@@ -13,7 +13,7 @@
   </head>
   <body class="with-3d-shadow with-transitions">
     <h2 class="page-header">cpuacct - cgroup_cpuacct</h2>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice
         <button id="save1">Save as Image</button>
         <div id="svgdataurl1"></div>
@@ -21,10 +21,10 @@
       <svg id="chart1"></svg>
       <canvas id="canvas1" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 1, "cgroup_cpuacct_machine.slice");
+        constructChart("lineWithFocusChart", 1, "cgroup_cpuacct_machine.slice");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm1
         <button id="save2">Save as Image</button>
         <div id="svgdataurl2"></div>
@@ -32,10 +32,10 @@
       <svg id="chart2"></svg>
       <canvas id="canvas2" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 2, "cgroup_cpuacct_machine.slice_machine-qemu-vm1");
+        constructChart("lineWithFocusChart", 2, "cgroup_cpuacct_machine.slice_machine-qemu-vm1");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm10
         <button id="save3">Save as Image</button>
         <div id="svgdataurl3"></div>
@@ -43,10 +43,10 @@
       <svg id="chart3"></svg>
       <canvas id="canvas3" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 3, "cgroup_cpuacct_machine.slice_machine-qemu-vm10");
+        constructChart("lineWithFocusChart", 3, "cgroup_cpuacct_machine.slice_machine-qemu-vm10");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm10_emulator
         <button id="save4">Save as Image</button>
         <div id="svgdataurl4"></div>
@@ -54,10 +54,10 @@
       <svg id="chart4"></svg>
       <canvas id="canvas4" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 4, "cgroup_cpuacct_machine.slice_machine-qemu-vm10_emulator");
+        constructChart("lineWithFocusChart", 4, "cgroup_cpuacct_machine.slice_machine-qemu-vm10_emulator");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm10_vcpu0
         <button id="save5">Save as Image</button>
         <div id="svgdataurl5"></div>
@@ -65,10 +65,10 @@
       <svg id="chart5"></svg>
       <canvas id="canvas5" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 5, "cgroup_cpuacct_machine.slice_machine-qemu-vm10_vcpu0");
+        constructChart("lineWithFocusChart", 5, "cgroup_cpuacct_machine.slice_machine-qemu-vm10_vcpu0");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm10_vcpu1
         <button id="save6">Save as Image</button>
         <div id="svgdataurl6"></div>
@@ -76,10 +76,10 @@
       <svg id="chart6"></svg>
       <canvas id="canvas6" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 6, "cgroup_cpuacct_machine.slice_machine-qemu-vm10_vcpu1");
+        constructChart("lineWithFocusChart", 6, "cgroup_cpuacct_machine.slice_machine-qemu-vm10_vcpu1");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm10_vcpu2
         <button id="save7">Save as Image</button>
         <div id="svgdataurl7"></div>
@@ -87,10 +87,10 @@
       <svg id="chart7"></svg>
       <canvas id="canvas7" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 7, "cgroup_cpuacct_machine.slice_machine-qemu-vm10_vcpu2");
+        constructChart("lineWithFocusChart", 7, "cgroup_cpuacct_machine.slice_machine-qemu-vm10_vcpu2");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm10_vcpu3
         <button id="save8">Save as Image</button>
         <div id="svgdataurl8"></div>
@@ -98,10 +98,10 @@
       <svg id="chart8"></svg>
       <canvas id="canvas8" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 8, "cgroup_cpuacct_machine.slice_machine-qemu-vm10_vcpu3");
+        constructChart("lineWithFocusChart", 8, "cgroup_cpuacct_machine.slice_machine-qemu-vm10_vcpu3");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm11
         <button id="save9">Save as Image</button>
         <div id="svgdataurl9"></div>
@@ -109,10 +109,10 @@
       <svg id="chart9"></svg>
       <canvas id="canvas9" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 9, "cgroup_cpuacct_machine.slice_machine-qemu-vm11");
+        constructChart("lineWithFocusChart", 9, "cgroup_cpuacct_machine.slice_machine-qemu-vm11");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm11_emulator
         <button id="save10">Save as Image</button>
         <div id="svgdataurl10"></div>
@@ -120,10 +120,10 @@
       <svg id="chart10"></svg>
       <canvas id="canvas10" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 10, "cgroup_cpuacct_machine.slice_machine-qemu-vm11_emulator");
+        constructChart("lineWithFocusChart", 10, "cgroup_cpuacct_machine.slice_machine-qemu-vm11_emulator");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm11_vcpu0
         <button id="save11">Save as Image</button>
         <div id="svgdataurl11"></div>
@@ -131,10 +131,10 @@
       <svg id="chart11"></svg>
       <canvas id="canvas11" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 11, "cgroup_cpuacct_machine.slice_machine-qemu-vm11_vcpu0");
+        constructChart("lineWithFocusChart", 11, "cgroup_cpuacct_machine.slice_machine-qemu-vm11_vcpu0");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm11_vcpu1
         <button id="save12">Save as Image</button>
         <div id="svgdataurl12"></div>
@@ -142,10 +142,10 @@
       <svg id="chart12"></svg>
       <canvas id="canvas12" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 12, "cgroup_cpuacct_machine.slice_machine-qemu-vm11_vcpu1");
+        constructChart("lineWithFocusChart", 12, "cgroup_cpuacct_machine.slice_machine-qemu-vm11_vcpu1");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm11_vcpu2
         <button id="save13">Save as Image</button>
         <div id="svgdataurl13"></div>
@@ -153,10 +153,10 @@
       <svg id="chart13"></svg>
       <canvas id="canvas13" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 13, "cgroup_cpuacct_machine.slice_machine-qemu-vm11_vcpu2");
+        constructChart("lineWithFocusChart", 13, "cgroup_cpuacct_machine.slice_machine-qemu-vm11_vcpu2");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm11_vcpu3
         <button id="save14">Save as Image</button>
         <div id="svgdataurl14"></div>
@@ -164,10 +164,10 @@
       <svg id="chart14"></svg>
       <canvas id="canvas14" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 14, "cgroup_cpuacct_machine.slice_machine-qemu-vm11_vcpu3");
+        constructChart("lineWithFocusChart", 14, "cgroup_cpuacct_machine.slice_machine-qemu-vm11_vcpu3");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm12
         <button id="save15">Save as Image</button>
         <div id="svgdataurl15"></div>
@@ -175,10 +175,10 @@
       <svg id="chart15"></svg>
       <canvas id="canvas15" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 15, "cgroup_cpuacct_machine.slice_machine-qemu-vm12");
+        constructChart("lineWithFocusChart", 15, "cgroup_cpuacct_machine.slice_machine-qemu-vm12");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm12_emulator
         <button id="save16">Save as Image</button>
         <div id="svgdataurl16"></div>
@@ -186,10 +186,10 @@
       <svg id="chart16"></svg>
       <canvas id="canvas16" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 16, "cgroup_cpuacct_machine.slice_machine-qemu-vm12_emulator");
+        constructChart("lineWithFocusChart", 16, "cgroup_cpuacct_machine.slice_machine-qemu-vm12_emulator");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm12_vcpu0
         <button id="save17">Save as Image</button>
         <div id="svgdataurl17"></div>
@@ -197,10 +197,10 @@
       <svg id="chart17"></svg>
       <canvas id="canvas17" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 17, "cgroup_cpuacct_machine.slice_machine-qemu-vm12_vcpu0");
+        constructChart("lineWithFocusChart", 17, "cgroup_cpuacct_machine.slice_machine-qemu-vm12_vcpu0");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm12_vcpu1
         <button id="save18">Save as Image</button>
         <div id="svgdataurl18"></div>
@@ -208,10 +208,10 @@
       <svg id="chart18"></svg>
       <canvas id="canvas18" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 18, "cgroup_cpuacct_machine.slice_machine-qemu-vm12_vcpu1");
+        constructChart("lineWithFocusChart", 18, "cgroup_cpuacct_machine.slice_machine-qemu-vm12_vcpu1");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm12_vcpu2
         <button id="save19">Save as Image</button>
         <div id="svgdataurl19"></div>
@@ -219,10 +219,10 @@
       <svg id="chart19"></svg>
       <canvas id="canvas19" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 19, "cgroup_cpuacct_machine.slice_machine-qemu-vm12_vcpu2");
+        constructChart("lineWithFocusChart", 19, "cgroup_cpuacct_machine.slice_machine-qemu-vm12_vcpu2");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm12_vcpu3
         <button id="save20">Save as Image</button>
         <div id="svgdataurl20"></div>
@@ -230,10 +230,10 @@
       <svg id="chart20"></svg>
       <canvas id="canvas20" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 20, "cgroup_cpuacct_machine.slice_machine-qemu-vm12_vcpu3");
+        constructChart("lineWithFocusChart", 20, "cgroup_cpuacct_machine.slice_machine-qemu-vm12_vcpu3");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm1_emulator
         <button id="save21">Save as Image</button>
         <div id="svgdataurl21"></div>
@@ -241,10 +241,10 @@
       <svg id="chart21"></svg>
       <canvas id="canvas21" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 21, "cgroup_cpuacct_machine.slice_machine-qemu-vm1_emulator");
+        constructChart("lineWithFocusChart", 21, "cgroup_cpuacct_machine.slice_machine-qemu-vm1_emulator");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm1_vcpu0
         <button id="save22">Save as Image</button>
         <div id="svgdataurl22"></div>
@@ -252,10 +252,10 @@
       <svg id="chart22"></svg>
       <canvas id="canvas22" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 22, "cgroup_cpuacct_machine.slice_machine-qemu-vm1_vcpu0");
+        constructChart("lineWithFocusChart", 22, "cgroup_cpuacct_machine.slice_machine-qemu-vm1_vcpu0");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm1_vcpu1
         <button id="save23">Save as Image</button>
         <div id="svgdataurl23"></div>
@@ -263,10 +263,10 @@
       <svg id="chart23"></svg>
       <canvas id="canvas23" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 23, "cgroup_cpuacct_machine.slice_machine-qemu-vm1_vcpu1");
+        constructChart("lineWithFocusChart", 23, "cgroup_cpuacct_machine.slice_machine-qemu-vm1_vcpu1");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm1_vcpu2
         <button id="save24">Save as Image</button>
         <div id="svgdataurl24"></div>
@@ -274,10 +274,10 @@
       <svg id="chart24"></svg>
       <canvas id="canvas24" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 24, "cgroup_cpuacct_machine.slice_machine-qemu-vm1_vcpu2");
+        constructChart("lineWithFocusChart", 24, "cgroup_cpuacct_machine.slice_machine-qemu-vm1_vcpu2");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm1_vcpu3
         <button id="save25">Save as Image</button>
         <div id="svgdataurl25"></div>
@@ -285,10 +285,10 @@
       <svg id="chart25"></svg>
       <canvas id="canvas25" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 25, "cgroup_cpuacct_machine.slice_machine-qemu-vm1_vcpu3");
+        constructChart("lineWithFocusChart", 25, "cgroup_cpuacct_machine.slice_machine-qemu-vm1_vcpu3");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm2
         <button id="save26">Save as Image</button>
         <div id="svgdataurl26"></div>
@@ -296,10 +296,10 @@
       <svg id="chart26"></svg>
       <canvas id="canvas26" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 26, "cgroup_cpuacct_machine.slice_machine-qemu-vm2");
+        constructChart("lineWithFocusChart", 26, "cgroup_cpuacct_machine.slice_machine-qemu-vm2");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm2_emulator
         <button id="save27">Save as Image</button>
         <div id="svgdataurl27"></div>
@@ -307,10 +307,10 @@
       <svg id="chart27"></svg>
       <canvas id="canvas27" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 27, "cgroup_cpuacct_machine.slice_machine-qemu-vm2_emulator");
+        constructChart("lineWithFocusChart", 27, "cgroup_cpuacct_machine.slice_machine-qemu-vm2_emulator");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm2_vcpu0
         <button id="save28">Save as Image</button>
         <div id="svgdataurl28"></div>
@@ -318,10 +318,10 @@
       <svg id="chart28"></svg>
       <canvas id="canvas28" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 28, "cgroup_cpuacct_machine.slice_machine-qemu-vm2_vcpu0");
+        constructChart("lineWithFocusChart", 28, "cgroup_cpuacct_machine.slice_machine-qemu-vm2_vcpu0");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm2_vcpu1
         <button id="save29">Save as Image</button>
         <div id="svgdataurl29"></div>
@@ -329,10 +329,10 @@
       <svg id="chart29"></svg>
       <canvas id="canvas29" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 29, "cgroup_cpuacct_machine.slice_machine-qemu-vm2_vcpu1");
+        constructChart("lineWithFocusChart", 29, "cgroup_cpuacct_machine.slice_machine-qemu-vm2_vcpu1");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm2_vcpu2
         <button id="save30">Save as Image</button>
         <div id="svgdataurl30"></div>
@@ -340,10 +340,10 @@
       <svg id="chart30"></svg>
       <canvas id="canvas30" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 30, "cgroup_cpuacct_machine.slice_machine-qemu-vm2_vcpu2");
+        constructChart("lineWithFocusChart", 30, "cgroup_cpuacct_machine.slice_machine-qemu-vm2_vcpu2");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm2_vcpu3
         <button id="save31">Save as Image</button>
         <div id="svgdataurl31"></div>
@@ -351,10 +351,10 @@
       <svg id="chart31"></svg>
       <canvas id="canvas31" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 31, "cgroup_cpuacct_machine.slice_machine-qemu-vm2_vcpu3");
+        constructChart("lineWithFocusChart", 31, "cgroup_cpuacct_machine.slice_machine-qemu-vm2_vcpu3");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm3
         <button id="save32">Save as Image</button>
         <div id="svgdataurl32"></div>
@@ -362,10 +362,10 @@
       <svg id="chart32"></svg>
       <canvas id="canvas32" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 32, "cgroup_cpuacct_machine.slice_machine-qemu-vm3");
+        constructChart("lineWithFocusChart", 32, "cgroup_cpuacct_machine.slice_machine-qemu-vm3");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm3_emulator
         <button id="save33">Save as Image</button>
         <div id="svgdataurl33"></div>
@@ -373,10 +373,10 @@
       <svg id="chart33"></svg>
       <canvas id="canvas33" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 33, "cgroup_cpuacct_machine.slice_machine-qemu-vm3_emulator");
+        constructChart("lineWithFocusChart", 33, "cgroup_cpuacct_machine.slice_machine-qemu-vm3_emulator");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm3_vcpu0
         <button id="save34">Save as Image</button>
         <div id="svgdataurl34"></div>
@@ -384,10 +384,10 @@
       <svg id="chart34"></svg>
       <canvas id="canvas34" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 34, "cgroup_cpuacct_machine.slice_machine-qemu-vm3_vcpu0");
+        constructChart("lineWithFocusChart", 34, "cgroup_cpuacct_machine.slice_machine-qemu-vm3_vcpu0");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm3_vcpu1
         <button id="save35">Save as Image</button>
         <div id="svgdataurl35"></div>
@@ -395,10 +395,10 @@
       <svg id="chart35"></svg>
       <canvas id="canvas35" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 35, "cgroup_cpuacct_machine.slice_machine-qemu-vm3_vcpu1");
+        constructChart("lineWithFocusChart", 35, "cgroup_cpuacct_machine.slice_machine-qemu-vm3_vcpu1");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm3_vcpu2
         <button id="save36">Save as Image</button>
         <div id="svgdataurl36"></div>
@@ -406,10 +406,10 @@
       <svg id="chart36"></svg>
       <canvas id="canvas36" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 36, "cgroup_cpuacct_machine.slice_machine-qemu-vm3_vcpu2");
+        constructChart("lineWithFocusChart", 36, "cgroup_cpuacct_machine.slice_machine-qemu-vm3_vcpu2");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm3_vcpu3
         <button id="save37">Save as Image</button>
         <div id="svgdataurl37"></div>
@@ -417,10 +417,10 @@
       <svg id="chart37"></svg>
       <canvas id="canvas37" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 37, "cgroup_cpuacct_machine.slice_machine-qemu-vm3_vcpu3");
+        constructChart("lineWithFocusChart", 37, "cgroup_cpuacct_machine.slice_machine-qemu-vm3_vcpu3");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm4
         <button id="save38">Save as Image</button>
         <div id="svgdataurl38"></div>
@@ -428,10 +428,10 @@
       <svg id="chart38"></svg>
       <canvas id="canvas38" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 38, "cgroup_cpuacct_machine.slice_machine-qemu-vm4");
+        constructChart("lineWithFocusChart", 38, "cgroup_cpuacct_machine.slice_machine-qemu-vm4");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm4_emulator
         <button id="save39">Save as Image</button>
         <div id="svgdataurl39"></div>
@@ -439,10 +439,10 @@
       <svg id="chart39"></svg>
       <canvas id="canvas39" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 39, "cgroup_cpuacct_machine.slice_machine-qemu-vm4_emulator");
+        constructChart("lineWithFocusChart", 39, "cgroup_cpuacct_machine.slice_machine-qemu-vm4_emulator");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm4_vcpu0
         <button id="save40">Save as Image</button>
         <div id="svgdataurl40"></div>
@@ -450,10 +450,10 @@
       <svg id="chart40"></svg>
       <canvas id="canvas40" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 40, "cgroup_cpuacct_machine.slice_machine-qemu-vm4_vcpu0");
+        constructChart("lineWithFocusChart", 40, "cgroup_cpuacct_machine.slice_machine-qemu-vm4_vcpu0");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm4_vcpu1
         <button id="save41">Save as Image</button>
         <div id="svgdataurl41"></div>
@@ -461,10 +461,10 @@
       <svg id="chart41"></svg>
       <canvas id="canvas41" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 41, "cgroup_cpuacct_machine.slice_machine-qemu-vm4_vcpu1");
+        constructChart("lineWithFocusChart", 41, "cgroup_cpuacct_machine.slice_machine-qemu-vm4_vcpu1");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm4_vcpu2
         <button id="save42">Save as Image</button>
         <div id="svgdataurl42"></div>
@@ -472,10 +472,10 @@
       <svg id="chart42"></svg>
       <canvas id="canvas42" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 42, "cgroup_cpuacct_machine.slice_machine-qemu-vm4_vcpu2");
+        constructChart("lineWithFocusChart", 42, "cgroup_cpuacct_machine.slice_machine-qemu-vm4_vcpu2");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm4_vcpu3
         <button id="save43">Save as Image</button>
         <div id="svgdataurl43"></div>
@@ -483,10 +483,10 @@
       <svg id="chart43"></svg>
       <canvas id="canvas43" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 43, "cgroup_cpuacct_machine.slice_machine-qemu-vm4_vcpu3");
+        constructChart("lineWithFocusChart", 43, "cgroup_cpuacct_machine.slice_machine-qemu-vm4_vcpu3");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm5
         <button id="save44">Save as Image</button>
         <div id="svgdataurl44"></div>
@@ -494,10 +494,10 @@
       <svg id="chart44"></svg>
       <canvas id="canvas44" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 44, "cgroup_cpuacct_machine.slice_machine-qemu-vm5");
+        constructChart("lineWithFocusChart", 44, "cgroup_cpuacct_machine.slice_machine-qemu-vm5");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm5_emulator
         <button id="save45">Save as Image</button>
         <div id="svgdataurl45"></div>
@@ -505,10 +505,10 @@
       <svg id="chart45"></svg>
       <canvas id="canvas45" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 45, "cgroup_cpuacct_machine.slice_machine-qemu-vm5_emulator");
+        constructChart("lineWithFocusChart", 45, "cgroup_cpuacct_machine.slice_machine-qemu-vm5_emulator");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm5_vcpu0
         <button id="save46">Save as Image</button>
         <div id="svgdataurl46"></div>
@@ -516,10 +516,10 @@
       <svg id="chart46"></svg>
       <canvas id="canvas46" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 46, "cgroup_cpuacct_machine.slice_machine-qemu-vm5_vcpu0");
+        constructChart("lineWithFocusChart", 46, "cgroup_cpuacct_machine.slice_machine-qemu-vm5_vcpu0");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm5_vcpu1
         <button id="save47">Save as Image</button>
         <div id="svgdataurl47"></div>
@@ -527,10 +527,10 @@
       <svg id="chart47"></svg>
       <canvas id="canvas47" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 47, "cgroup_cpuacct_machine.slice_machine-qemu-vm5_vcpu1");
+        constructChart("lineWithFocusChart", 47, "cgroup_cpuacct_machine.slice_machine-qemu-vm5_vcpu1");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm5_vcpu2
         <button id="save48">Save as Image</button>
         <div id="svgdataurl48"></div>
@@ -538,10 +538,10 @@
       <svg id="chart48"></svg>
       <canvas id="canvas48" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 48, "cgroup_cpuacct_machine.slice_machine-qemu-vm5_vcpu2");
+        constructChart("lineWithFocusChart", 48, "cgroup_cpuacct_machine.slice_machine-qemu-vm5_vcpu2");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm5_vcpu3
         <button id="save49">Save as Image</button>
         <div id="svgdataurl49"></div>
@@ -549,10 +549,10 @@
       <svg id="chart49"></svg>
       <canvas id="canvas49" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 49, "cgroup_cpuacct_machine.slice_machine-qemu-vm5_vcpu3");
+        constructChart("lineWithFocusChart", 49, "cgroup_cpuacct_machine.slice_machine-qemu-vm5_vcpu3");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm6
         <button id="save50">Save as Image</button>
         <div id="svgdataurl50"></div>
@@ -560,10 +560,10 @@
       <svg id="chart50"></svg>
       <canvas id="canvas50" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 50, "cgroup_cpuacct_machine.slice_machine-qemu-vm6");
+        constructChart("lineWithFocusChart", 50, "cgroup_cpuacct_machine.slice_machine-qemu-vm6");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm6_emulator
         <button id="save51">Save as Image</button>
         <div id="svgdataurl51"></div>
@@ -571,10 +571,10 @@
       <svg id="chart51"></svg>
       <canvas id="canvas51" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 51, "cgroup_cpuacct_machine.slice_machine-qemu-vm6_emulator");
+        constructChart("lineWithFocusChart", 51, "cgroup_cpuacct_machine.slice_machine-qemu-vm6_emulator");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm6_vcpu0
         <button id="save52">Save as Image</button>
         <div id="svgdataurl52"></div>
@@ -582,10 +582,10 @@
       <svg id="chart52"></svg>
       <canvas id="canvas52" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 52, "cgroup_cpuacct_machine.slice_machine-qemu-vm6_vcpu0");
+        constructChart("lineWithFocusChart", 52, "cgroup_cpuacct_machine.slice_machine-qemu-vm6_vcpu0");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm6_vcpu1
         <button id="save53">Save as Image</button>
         <div id="svgdataurl53"></div>
@@ -593,10 +593,10 @@
       <svg id="chart53"></svg>
       <canvas id="canvas53" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 53, "cgroup_cpuacct_machine.slice_machine-qemu-vm6_vcpu1");
+        constructChart("lineWithFocusChart", 53, "cgroup_cpuacct_machine.slice_machine-qemu-vm6_vcpu1");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm6_vcpu2
         <button id="save54">Save as Image</button>
         <div id="svgdataurl54"></div>
@@ -604,10 +604,10 @@
       <svg id="chart54"></svg>
       <canvas id="canvas54" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 54, "cgroup_cpuacct_machine.slice_machine-qemu-vm6_vcpu2");
+        constructChart("lineWithFocusChart", 54, "cgroup_cpuacct_machine.slice_machine-qemu-vm6_vcpu2");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm6_vcpu3
         <button id="save55">Save as Image</button>
         <div id="svgdataurl55"></div>
@@ -615,10 +615,10 @@
       <svg id="chart55"></svg>
       <canvas id="canvas55" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 55, "cgroup_cpuacct_machine.slice_machine-qemu-vm6_vcpu3");
+        constructChart("lineWithFocusChart", 55, "cgroup_cpuacct_machine.slice_machine-qemu-vm6_vcpu3");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm7
         <button id="save56">Save as Image</button>
         <div id="svgdataurl56"></div>
@@ -626,10 +626,10 @@
       <svg id="chart56"></svg>
       <canvas id="canvas56" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 56, "cgroup_cpuacct_machine.slice_machine-qemu-vm7");
+        constructChart("lineWithFocusChart", 56, "cgroup_cpuacct_machine.slice_machine-qemu-vm7");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm7_emulator
         <button id="save57">Save as Image</button>
         <div id="svgdataurl57"></div>
@@ -637,10 +637,10 @@
       <svg id="chart57"></svg>
       <canvas id="canvas57" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 57, "cgroup_cpuacct_machine.slice_machine-qemu-vm7_emulator");
+        constructChart("lineWithFocusChart", 57, "cgroup_cpuacct_machine.slice_machine-qemu-vm7_emulator");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm7_vcpu0
         <button id="save58">Save as Image</button>
         <div id="svgdataurl58"></div>
@@ -648,10 +648,10 @@
       <svg id="chart58"></svg>
       <canvas id="canvas58" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 58, "cgroup_cpuacct_machine.slice_machine-qemu-vm7_vcpu0");
+        constructChart("lineWithFocusChart", 58, "cgroup_cpuacct_machine.slice_machine-qemu-vm7_vcpu0");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm7_vcpu1
         <button id="save59">Save as Image</button>
         <div id="svgdataurl59"></div>
@@ -659,10 +659,10 @@
       <svg id="chart59"></svg>
       <canvas id="canvas59" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 59, "cgroup_cpuacct_machine.slice_machine-qemu-vm7_vcpu1");
+        constructChart("lineWithFocusChart", 59, "cgroup_cpuacct_machine.slice_machine-qemu-vm7_vcpu1");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm7_vcpu2
         <button id="save60">Save as Image</button>
         <div id="svgdataurl60"></div>
@@ -670,10 +670,10 @@
       <svg id="chart60"></svg>
       <canvas id="canvas60" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 60, "cgroup_cpuacct_machine.slice_machine-qemu-vm7_vcpu2");
+        constructChart("lineWithFocusChart", 60, "cgroup_cpuacct_machine.slice_machine-qemu-vm7_vcpu2");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm7_vcpu3
         <button id="save61">Save as Image</button>
         <div id="svgdataurl61"></div>
@@ -681,10 +681,10 @@
       <svg id="chart61"></svg>
       <canvas id="canvas61" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 61, "cgroup_cpuacct_machine.slice_machine-qemu-vm7_vcpu3");
+        constructChart("lineWithFocusChart", 61, "cgroup_cpuacct_machine.slice_machine-qemu-vm7_vcpu3");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm8
         <button id="save62">Save as Image</button>
         <div id="svgdataurl62"></div>
@@ -692,10 +692,10 @@
       <svg id="chart62"></svg>
       <canvas id="canvas62" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 62, "cgroup_cpuacct_machine.slice_machine-qemu-vm8");
+        constructChart("lineWithFocusChart", 62, "cgroup_cpuacct_machine.slice_machine-qemu-vm8");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm8_emulator
         <button id="save63">Save as Image</button>
         <div id="svgdataurl63"></div>
@@ -703,10 +703,10 @@
       <svg id="chart63"></svg>
       <canvas id="canvas63" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 63, "cgroup_cpuacct_machine.slice_machine-qemu-vm8_emulator");
+        constructChart("lineWithFocusChart", 63, "cgroup_cpuacct_machine.slice_machine-qemu-vm8_emulator");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm8_vcpu0
         <button id="save64">Save as Image</button>
         <div id="svgdataurl64"></div>
@@ -714,10 +714,10 @@
       <svg id="chart64"></svg>
       <canvas id="canvas64" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 64, "cgroup_cpuacct_machine.slice_machine-qemu-vm8_vcpu0");
+        constructChart("lineWithFocusChart", 64, "cgroup_cpuacct_machine.slice_machine-qemu-vm8_vcpu0");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm8_vcpu1
         <button id="save65">Save as Image</button>
         <div id="svgdataurl65"></div>
@@ -725,10 +725,10 @@
       <svg id="chart65"></svg>
       <canvas id="canvas65" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 65, "cgroup_cpuacct_machine.slice_machine-qemu-vm8_vcpu1");
+        constructChart("lineWithFocusChart", 65, "cgroup_cpuacct_machine.slice_machine-qemu-vm8_vcpu1");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm8_vcpu2
         <button id="save66">Save as Image</button>
         <div id="svgdataurl66"></div>
@@ -736,10 +736,10 @@
       <svg id="chart66"></svg>
       <canvas id="canvas66" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 66, "cgroup_cpuacct_machine.slice_machine-qemu-vm8_vcpu2");
+        constructChart("lineWithFocusChart", 66, "cgroup_cpuacct_machine.slice_machine-qemu-vm8_vcpu2");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm8_vcpu3
         <button id="save67">Save as Image</button>
         <div id="svgdataurl67"></div>
@@ -747,10 +747,10 @@
       <svg id="chart67"></svg>
       <canvas id="canvas67" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 67, "cgroup_cpuacct_machine.slice_machine-qemu-vm8_vcpu3");
+        constructChart("lineWithFocusChart", 67, "cgroup_cpuacct_machine.slice_machine-qemu-vm8_vcpu3");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm9
         <button id="save68">Save as Image</button>
         <div id="svgdataurl68"></div>
@@ -758,10 +758,10 @@
       <svg id="chart68"></svg>
       <canvas id="canvas68" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 68, "cgroup_cpuacct_machine.slice_machine-qemu-vm9");
+        constructChart("lineWithFocusChart", 68, "cgroup_cpuacct_machine.slice_machine-qemu-vm9");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm9_emulator
         <button id="save69">Save as Image</button>
         <div id="svgdataurl69"></div>
@@ -769,10 +769,10 @@
       <svg id="chart69"></svg>
       <canvas id="canvas69" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 69, "cgroup_cpuacct_machine.slice_machine-qemu-vm9_emulator");
+        constructChart("lineWithFocusChart", 69, "cgroup_cpuacct_machine.slice_machine-qemu-vm9_emulator");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm9_vcpu0
         <button id="save70">Save as Image</button>
         <div id="svgdataurl70"></div>
@@ -780,10 +780,10 @@
       <svg id="chart70"></svg>
       <canvas id="canvas70" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 70, "cgroup_cpuacct_machine.slice_machine-qemu-vm9_vcpu0");
+        constructChart("lineWithFocusChart", 70, "cgroup_cpuacct_machine.slice_machine-qemu-vm9_vcpu0");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm9_vcpu1
         <button id="save71">Save as Image</button>
         <div id="svgdataurl71"></div>
@@ -791,10 +791,10 @@
       <svg id="chart71"></svg>
       <canvas id="canvas71" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 71, "cgroup_cpuacct_machine.slice_machine-qemu-vm9_vcpu1");
+        constructChart("lineWithFocusChart", 71, "cgroup_cpuacct_machine.slice_machine-qemu-vm9_vcpu1");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm9_vcpu2
         <button id="save72">Save as Image</button>
         <div id="svgdataurl72"></div>
@@ -802,10 +802,10 @@
       <svg id="chart72"></svg>
       <canvas id="canvas72" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 72, "cgroup_cpuacct_machine.slice_machine-qemu-vm9_vcpu2");
+        constructChart("lineWithFocusChart", 72, "cgroup_cpuacct_machine.slice_machine-qemu-vm9_vcpu2");
       </script>
     </div>
-    <div class="chart">
+    <div class="lwf-chart">
       <h3 class="chart-header">machine.slice_machine-qemu-vm9_vcpu3
         <button id="save73">Save as Image</button>
         <div id="svgdataurl73"></div>
@@ -813,7 +813,7 @@
       <svg id="chart73"></svg>
       <canvas id="canvas73" style="display:none"></canvas>
       <script>
-        constructChart("lineChart", 73, "cgroup_cpuacct_machine.slice_machine-qemu-vm9_vcpu3");
+        constructChart("lineWithFocusChart", 73, "cgroup_cpuacct_machine.slice_machine-qemu-vm9_vcpu3");
       </script>
     </div>
   </body>
