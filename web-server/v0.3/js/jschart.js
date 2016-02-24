@@ -1285,6 +1285,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
     var svg = d3.select("#" + location + "_chart").append("svg")
 	.attr("class", "svg")
+	.attr("id", location + "_svg")
 	.attr("width", width + margin.left + margin.right)
 	.attr("height", height + margin.top + margin.bottom + ((Math.ceil(dataset_count / legend_properties.columns) - 1 + extra_legend_rows) * legend_properties.row_height))
 	.append("g")
@@ -1387,7 +1388,17 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
     svg.append("text")
 	.attr("class", "actionlabel")
-	.attr("x", (width / 2))
+	.attr("x", (width / 3) * 2)
+	.attr("y", -margin.top + 29)
+	.style("text-anchor", "middle")
+	.on("click", function() {
+		saveSvgAsPng(document.getElementById(location + "_svg"), chart_title + ".png");
+	    })
+	.text("Save as PNG");
+
+    svg.append("text")
+	.attr("class", "actionlabel")
+	.attr("x", (width / 3))
 	.attr("y", -margin.top + 29)
 	.style("text-anchor", "middle")
 	.on("click", function() {
