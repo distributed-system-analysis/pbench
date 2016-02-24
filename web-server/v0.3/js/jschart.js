@@ -511,10 +511,6 @@ function complete_graph(stacked, x, x_axis, x2, x_axis2, y, y_axis, y2, y_axis2,
 	}
     }
 
-    if (domain[0] > 0) {
-	domain[0] = 0;
-    }
-
     if (myobject.x_min !== undefined) {
 	domain[0] = myobject.x_min;
     }
