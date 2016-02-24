@@ -358,11 +358,67 @@ function load_json(myobject, chart_title, datasets, callback) {
 	});
 }
 
-function load_file(url, chart_title, datasets, callback) {
+function load_csv_files(url, chart_title, datasets, callback) {
+    // the call to d3.text is performed asynchronously...queue.js
+    // processing is used to ensure all files are loaded prior to
+    // populating the graph, avoiding parallelism issues
+    d3.text(url, "text/plain")
+	.get(function(error, text) {
+		if ((text === undefined) ||
+		    (error !== null)) {
+		    console.log("Error %O loading %s", error, url);
+
+		    // create an error object with minimal properties
+		    datasets[index] = {
+			index: index,
+			name: "Error loading " + url,
+		    };
+
+		    // signal that we are finished asynchronously failing to load the data
+		    callback();
+		    return;
+		}
+
+		var sample_counter = 0;
+		var index_base = datasets.length;
+
+		var data = d3.csv.parseRows(text).map(function(row) {
+		    if (sample_counter == 0) {
+			for (var i=1; i<row.length; i++) {
+			    datasets[index_base + i - 1] = {
+				index: index_base + i - 1,
+				name: row[i],
+				mean: "No Samples",
+				median: "No Samples",
+				values: [],
+			    };
+			}
+		    } else {
+			for (var i=1; i<row.length; i++) {
+			    datasets[index_base + i - 1].values.push({ x: +row[0], y: +row[i] });
+			}
+		    }
+
+		    sample_counter++;
+		});
+
+		for (var i=index_base; i<datasets.length; i++) {
+		    if (datasets[i].values.length) {
+			datasets[i].mean = d3.mean(datasets[i].values, function(d) { return d.y; });
+			datasets[i].median = d3.median(datasets[i].values, function(d) { return d.y });
+		    }
+		}
+
+		// signal that we are finished asynchronously loading the data
+		callback();
+	    });
+}
+
+function load_plot_file(url, chart_title, datasets, callback) {
     load_files(url, chart_title, datasets, -1, callback)
 }
 
-function load_files(url, chart_title, datasets, index, callback) {
+function load_plot_files(url, chart_title, datasets, index, callback) {
     // the call to d3.text is performed asynchronously...queue.js
     // processing is used to ensure all files are loaded prior to
     // populating the graph, avoiding parallelism issues
@@ -1690,23 +1746,38 @@ function generate_chart(stacked, location, chart_title, x_axis_title, y_axis_tit
 	.text("Loading");
 
     // create a new queue object for loading datasets
-    var async_q = queue(512);
+    var async_q;
 
     //console.time("\"" + chart_title + "\" Data Load");
 
-    if ((myobject.packed !== undefined) &&
-	(myobject.plotfile !== undefined)) {
-	// add a packed dataset load to the queue
-	async_q.defer(load_file, myobject.plotfile, chart_title, datasets);
+    if (myobject.csvfiles !== undefined) {
+	// this path can have no parallelism since it is unknown how
+	// many datasets each CSV file might contain
+	async_q = queue(1);
+
+	for (var i=0; i<myobject.csvfiles.length; i++) {
+	    // add a dataset load to the queue
+	    async_q.defer(load_csv_files, myobject.csvfiles[i], chart_title, datasets);
+	}
     } else {
-	if (myobject.plotfiles !== undefined) {
-	    for (var i=0; i<myobject.plotfiles.length; i++) {
-		// add a dataset load to the queue
-		async_q.defer(load_files, myobject.plotfiles[i], chart_title, datasets, i);
-	    }
+	// this path can have some parallelism, but place a limit on
+	// it to keep things under control
+	async_q = queue(512);
+
+	if ((myobject.packed !== undefined) &&
+	    (myobject.plotfile !== undefined)) {
+	    // add a packed dataset load to the queue
+	    async_q.defer(load_plot_file, myobject.plotfile, chart_title, datasets);
 	} else {
-	    if (myobject.json_plotfile !== undefined) {
-		async_q.defer(load_json, myobject, chart_title, datasets);
+	    if (myobject.plotfiles !== undefined) {
+		for (var i=0; i<myobject.plotfiles.length; i++) {
+		    // add a dataset load to the queue
+		    async_q.defer(load_plot_files, myobject.plotfiles[i], chart_title, datasets, i);
+		}
+	    } else {
+		if (myobject.json_plotfile !== undefined) {
+		    async_q.defer(load_json, myobject, chart_title, datasets);
+		}
 	    }
 	}
     }
