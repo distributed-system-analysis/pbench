@@ -1,0 +1,49 @@
+
+/*
+  LPCPU (Linux Performance Customer Profiler Utility): ./tools/jschart.pm/jschart.css
+
+  (C) Copyright IBM Corp. 2015
+
+  This file is subject to the terms and conditions of the Eclipse
+  Public License.  See the file LICENSE.TXT in the main directory of the
+  distribution for more details.
+*/
+
+.axis path, .axis line { fill: none; stroke: #000; shape-rendering: crispEdges; }
+.tick line { stroke: #CCCCCC; }
+.line { fill: none; stroke-width: 1.5px; cursor: crosshair; pointer-events: none; }
+circle.points { cursor: crosshair; pointer-events: none; }
+line.points { stroke-width: 1.5px; cursor: crosshair; pointer-events: none; }
+.svg { font: 12px monospace; border: 2px solid black; background-color: white; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -o-user-select: none; user-select: none; }
+.axislabel { font-weight: bold; }
+.title { fill: #FFFFFF; font-weight: bold; }
+.titlebox { fill: #033E6B; }
+.legendlabel { }
+.area { opacity: 0.9; cursor: crosshair; pointer-events: none; }
+.legendrect { opacity: 0.9; }
+rect.pane { cursor: crosshair; fill: none; pointer-events: all; }
+.actionlabel { cursor: pointer; fill: blue; }
+.actionlabel:hover { text-decoration: underline; font-weight: bold; fill: red; }
+.hidden { opacity: 0; }
+.loadinglabel { opacity: 0.75; font: 120px monospace; color: black; pointer-events: none; }
+text.tooltip { font-weight: bold; }
+rect.tooltip { fill: #CCCCCC; stroke-width: 2px; stroke: black; }
+.slider path { fill: #033E6B;  stroke: black;  }
+.slider rect { fill-opacity: 0.25; }
+.coordinates { font-size: 10px; font-weight: bold; cursor: crosshair; pointer-events: none; }
+.selection { fill-opacity: 0.10; cursor: crosshair; pointer-events: none; stroke: #AAAAAA; }
+.cursorline { cursor: crosshair; pointer-events: none; stroke: #AAAAAA; shape-rendering: crispEdges; }
+.chartbutton { fill-opacity: 0.5; fill: #AAAAAA; stroke: #333333; stroke-width: 2px; font-size: 14px; pointer-events: all; cursor: pointer; }
+.playicon { fill-opacity: 1.0; fill: #333333; pointer-events: all; cursor: pointer; }
+.pauseicon { pointer-events: all; cursor: pointer; }
+
+.chart { border: 2px solid black; border-collapse: collapse; font-family: monospace; background-color: white; }
+.chart TH { padding-left: 6px; padding-right: 6px; padding-top: 2px; padding-bottom: 2px; border: 1px solid silver; }
+.chart TD { padding-left: 6px; padding-right: 6px; padding-top: 2px; padding-bottom: 2px; border: 1px solid silver; }
+.chart TR.header { border-bottom: 2px solid black; }
+.chart TR.footer { border-top: 2px solid black; }
+.chart TR.section { border-bottom: 2px solid black; border-top: 2px solid black; }
+
+body { font-family: monospace; }
+a { text-decoration: none; color: blue; }
+a:hover { font-weight: bold; text-decoration: underline; color: red; }
