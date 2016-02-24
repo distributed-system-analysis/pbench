@@ -781,20 +781,56 @@ function create_table_controls(svg, location, myobject) {
     table.appendChild(row);
 }
 
-function create_table_entries(datasets, location, stacked, raw_data_sources) {
-    var table = document.getElementById(location + "_table");
+function create_table_entries(chart_title, datasets, location, stacked, raw_data_sources) {
+    var colspan = 4;
+
+    var table_cell = document.getElementById(location + "_table_cell");
+
+    var table = document.createElement("table");
+    table.id = location + "_table";
+    table.className = 'chart';
+
+    var table_header_1 = document.createElement("tr");
+    table_header_1.className = 'header';
+
+    var table_header_1_cell = document.createElement("th");
+    table_header_1_cell.colSpan = colspan;
+    table_header_1_cell.innerHTML = chart_title;
+
+    table_header_1.appendChild(table_header_1_cell);
+    table.appendChild(table_header_1);
+
+    var table_header_2 = document.createElement("tr");
+    table_header_2.className = 'header';
+
+    var table_header_2_cell_1 = document.createElement("th");
+    table_header_2_cell_1.align = 'left';
+    table_header_2_cell_1.innerHTML = 'Data Sets';
+
+    var table_header_2_cell_2 = document.createElement("th");
+    table_header_2_cell_2.align = 'right';
+    table_header_2_cell_2.innerHTML = 'Data Set Average';
+
+    var table_header_2_cell_3 = document.createElement("th");
+    table_header_2_cell_3.align = 'right';
+    table_header_2_cell_3.innerHTML = 'Data Set Median';
+
+    var table_header_2_cell_4 = document.createElement("th");
+    table_header_2_cell_4.align = 'right';
+    table_header_2_cell_4.innerHTML = 'Samples';
+
+    table_header_2.appendChild(table_header_2_cell_1);
+    table_header_2.appendChild(table_header_2_cell_2);
+    table_header_2.appendChild(table_header_2_cell_3);
+    table_header_2.appendChild(table_header_2_cell_4);
+
+    table.appendChild(table_header_2);
+
+    table_cell.appendChild(table);
 
     if (stacked) {
 	var stacked_mean = 0;
 	var valid_stacked_mean = 0;
-    }
-
-    var colspan = 3;
-
-    var table_header = d3.select(table).select("tr").select("th");
-
-    if (table_header[0][0]) {
-	colspan = table_header[0][0].colSpan;
     }
 
     datasets.map(function(d) {
@@ -1073,6 +1109,35 @@ function generate_chart(stacked, location, chart_title, x_axis_title, y_axis_tit
     var datasets = [];
 
     console.log("Beginning to build chart \"" + chart_title + "\"...");
+
+    var div = document.getElementById(location);
+
+    if (div == null) {
+	console.log("Failed to locate div for \"" + chart_title + "\" identified by \"" + location + "\"");
+
+	// signal that the chart generation is complete (albeit with an error)
+	callback();
+	return;
+    }
+
+    var table = document.createElement("table");
+
+    var row = document.createElement("tr");
+    row.vAlign = 'top';
+
+    var chart_cell = document.createElement("td");
+    chart_cell.id = location + "_chart";
+
+    row.appendChild(chart_cell);
+
+    var table_cell = document.createElement("td");
+    table_cell.id = location + "_table_cell";
+
+    row.appendChild(table_cell);
+
+    table.appendChild(row);
+
+    div.appendChild(table);
 
     var x = d3.scale.linear()
 	.range([0, width]);
@@ -1662,7 +1727,7 @@ function generate_chart(stacked, location, chart_title, x_axis_title, y_axis_tit
 		myobject.raw_data_sources = [];
 	    }
 
-	    create_table_entries(datasets, location, stacked, myobject.raw_data_sources);
+	    create_table_entries(chart_title, datasets, location, stacked, myobject.raw_data_sources);
 	    console.log("...finished adding table entries for chart \"" + chart_title + "\"");
 
 	if (myobject.update_interval !== undefined) {
