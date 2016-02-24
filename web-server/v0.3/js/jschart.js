@@ -1157,8 +1157,19 @@ function zoom_it(zoom, svg, x_brush, y_brush, x, y, x2, y2, x_slider, y_slider, 
     fix_y_axis_labels(svg);
 }
  
-function generate_chart(stacked, location, chart_title, x_axis_title, y_axis_title, myobject, callback) {
+function generate_chart(stacked, data_model, location, chart_title, x_axis_title, y_axis_title, myobject, callback) {
     var datasets = [];
+
+    if ((data_model == "xy") ||
+	(data_model == "timeseries")) {
+	    console.log("User specified data_model=\"" + data_model + "\" for chart \"" + chart_title + "\"");
+    } else {
+	console.log("An unsupported data_model [\"" + data_model + "\"] was specified for chart \"" + chart_title + "\"");
+
+	// signal that the chart generation is complete (albeit with an error)
+	callback();
+	return;
+    }
 
     console.log("Beginning to build chart \"" + chart_title + "\"...");
 
@@ -1191,11 +1202,20 @@ function generate_chart(stacked, location, chart_title, x_axis_title, y_axis_tit
 
     div.appendChild(table);
 
-    var x = d3.scale.linear()
-	.range([0, width]);
+    var x;
+    var x2;
 
-    var x2 = d3.scale.linear()
-	.clamp(true)
+    if (data_model == "xy") {
+	x = d3.scale.linear();
+	x2 = d3.scale.linear();
+    } else if (data_model == "timeseries") {
+	x = d3.time.scale();
+	x2 = d3.time.scale();
+    }
+
+    x.range([0, width]);
+
+    x2.clamp(true)
 	.range([0, width]);
 
     var y = d3.scale.linear()
@@ -1959,9 +1979,9 @@ function generate_chart(stacked, location, chart_title, x_axis_title, y_axis_tit
 	});
 }
 
-function create_graph(stacked, location, chart_title, x_axis_title, y_axis_title, myobject) {
+function create_graph(stacked, data_model, location, chart_title, x_axis_title, y_axis_title, myobject) {
     // add an entry to the chart generating queue
-    chart_queue.defer(generate_chart, stacked, location, chart_title, x_axis_title, y_axis_title, myobject);
+    chart_queue.defer(generate_chart, stacked, data_model, location, chart_title, x_axis_title, y_axis_title, myobject);
 }
 
 function finish_page() {
