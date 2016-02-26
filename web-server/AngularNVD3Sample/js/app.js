@@ -59,6 +59,7 @@ app.controller('graphControl', function ($scope, $http) {
 });
 
 function constructChart(graph_type, chartnum, chart_file_name, threshold) {
+    var chartid = "chart" + chartnum;
     d3.csv("csv/" + chart_file_name + ".csv", function (error, csv_data) {
         if (error) return console.log("there was an error loading the csv data from " + chart_file_name + ": " + error);
         if (csv_data.length == 0) return console.log("No data found for " + chart_file_name);
@@ -77,19 +78,19 @@ function constructChart(graph_type, chartnum, chart_file_name, threshold) {
             }
         }
         
-        var scope = angular.element(document.getElementById("chartid")).scope();
+        var scope = angular.element(document.getElementById(chartid)).scope();
         scope.$apply(function () {
             scope.data = chart_datum;
         });
         
         d3.select(saveid).on("click", function() {
-            saveSvgAsPng(document.getElementById(chartid), chart_file_name + ".png");
+            saveSvgAsPng($("#chart1 nvd3 svg")[0], chart_file_name + ".png");
         });
     });
 };
 
 function fetchData() {
-    constructChart("lineWithFocusChart", 0, "cpu_all_cpu_busy");
+    constructChart("lineWithFocusChart", 1, "cpu_all_cpu_busy");
 };
 
 function _process_csv_data(csv_data, threshold) {
