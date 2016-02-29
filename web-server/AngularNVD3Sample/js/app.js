@@ -84,6 +84,24 @@ function constructChart(graph_type, chartnum, chart_file_name, threshold) {
             scope.options.chart.type = graph_type;
         });
         
+        d3.select(restore_button).on("click", function() {
+            scope.$apply(function () {
+                scope.options.chart.type = 'lineWithFocusChart';
+                scope.options.chart.height = 450;
+                scope.options.chart.width = 500;
+                scope.options.chart.focusHeight = 50;
+                scope.options.chart.interactive = true;
+                scope.options.chart.showLegend = true;
+                scope.options.chart.useInteractiveGuideline = true;
+                scope.options.chart.forceX = null;
+                scope.options.chart.forceY = null;
+                scope.options.chart.margin.top = 20;
+                scope.options.chart.margin.right = 20;
+                scope.options.chart.margin.bottom = 60;
+                scope.options.chart.margin.left = 40;
+            });       
+        });
+        
         d3.select(saveid).on("click", function() {
             saveSvgAsPng($("#" + chartid + " nvd3 svg")[0], chart_file_name + ".png");
         });
@@ -159,3 +177,6 @@ $(function () {
         $(".wrapper").slideToggle();
     });
 });
+
+
+
