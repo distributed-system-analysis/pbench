@@ -41,7 +41,7 @@ var zoom_rate = 0.03;
 var chart_refs = [];
 
 // queue to use for generating charts, 1 at a time to limit the total amount of concurrency
-var chart_queue = queue(1);
+var chart_queue = d3_queue.queue(1);
 
 function compute_stacked_median(datasets) {
     var foo = [];
@@ -1780,7 +1780,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
     if (myobject.csvfiles !== undefined) {
 	// this path can have no parallelism since it is unknown how
 	// many datasets each CSV file might contain
-	async_q = queue(1);
+	async_q = d3_queue.queue(1);
 
 	for (var i=0; i<myobject.csvfiles.length; i++) {
 	    // add a dataset load to the queue
@@ -1789,7 +1789,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
     } else {
 	// this path can have some parallelism, but place a limit on
 	// it to keep things under control
-	async_q = queue(512);
+	async_q = d3_queue.queue(512);
 
 	if ((myobject.packed !== undefined) &&
 	    (myobject.plotfile !== undefined)) {
