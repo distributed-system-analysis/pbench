@@ -81,16 +81,13 @@ function constructChart(graph_type, chartnum, chart_file_name, threshold) {
         var scope = angular.element(document.getElementById(chartid)).scope();
         scope.$apply(function () {
             scope.data = chart_datum;
+            scope.options.chart.type = graph_type;
         });
         
         d3.select(saveid).on("click", function() {
-            saveSvgAsPng($("#chart1 nvd3 svg")[0], chart_file_name + ".png");
+            saveSvgAsPng($("#" + chartid + " nvd3 svg")[0], chart_file_name + ".png");
         });
     });
-};
-
-function fetchData() {
-    constructChart("lineWithFocusChart", 1, "cpu_all_cpu_busy");
 };
 
 function _process_csv_data(csv_data, threshold) {
