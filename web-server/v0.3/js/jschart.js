@@ -536,9 +536,9 @@ function complete_graph(stacked, x, x_axis, x2, x_axis2, y, y_axis, y2, y_axis2,
     legend.append("rect")
 	.attr("class", "legendrect")
 	.attr("id", function(d) { return location + "_rect_" + id_str_fixup(d); })
-	.attr("onclick", function(d) { return "click_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
-	.attr("onmouseover", function(d) { return "mouseover_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
-	.attr("onmouseout", function(d) { return "mouseout_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
+	.attr("onclick", function(d) { return "click_highlight_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
+	.attr("onmouseover", function(d) { return "mouseover_highlight_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
+	.attr("onmouseout", function(d) { return "mouseout_highlight_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
 	.attr("rx", 4)
 	.attr("ry", 4)
 	.attr("width", 18)
@@ -550,9 +550,9 @@ function complete_graph(stacked, x, x_axis, x2, x_axis2, y, y_axis, y2, y_axis2,
     legend.append("text")
 	.attr("class", "legendlabel")
 	.attr("id", function(d) { return location + "_label_" + id_str_fixup(d); })
-	.attr("onclick", function(d) { return "click_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
-	.attr("onmouseover", function(d) { return "mouseover_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
-	.attr("onmouseout", function(d) { return "mouseout_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
+	.attr("onclick", function(d) { return "click_highlight_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
+	.attr("onmouseover", function(d) { return "mouseover_highlight_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
+	.attr("onmouseout", function(d) { return "mouseout_highlight_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
 	.attr("x", legend_label_offset)
 	.attr("y", 13.5)
 	.text(function(d) { return d; });
@@ -676,9 +676,9 @@ function complete_graph(stacked, x, x_axis, x2, x_axis2, y, y_axis, y2, y_axis2,
 	    .style("fill", function(d) { return mycolors(d.index); })
 	    .attr("clip-path", "url(#clip)")
 	    .attr("id", function(d) { return location + "_area_" + id_str_fixup(d.name); });
-	    //.attr("onclick", function(d) { return "click_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
-	    //.attr("onmouseover", function(d) { return "mouseover_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
-	    //.attr("onmouseout", function(d) { return "mouseout_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; });
+	    //.attr("onclick", function(d) { return "click_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
+	    //.attr("onmouseover", function(d) { return "mouseover_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
+	    //.attr("onmouseout", function(d) { return "mouseout_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; });
 
 	datasets.map(function(d) {
 		if (d.values.length > 1) {
@@ -715,9 +715,9 @@ function complete_graph(stacked, x, x_axis, x2, x_axis2, y, y_axis, y2, y_axis2,
 	    .style("stroke", function(d) { return mycolors(d.index) })
 	    .attr("clip-path", "url(#clip)")
 	    .attr("id", function(d) { return location + "_line_" + id_str_fixup(d.name); });
-	    //.attr("onclick", function(d) { return "click_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
-	    //.attr("onmouseover", function(d) { return "mouseover_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
-	    //.attr("onmouseout", function(d) { return "mouseout_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; });
+	    //.attr("onclick", function(d) { return "click_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
+	    //.attr("onmouseover", function(d) { return "mouseover_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
+	    //.attr("onmouseout", function(d) { return "mouseout_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; });
 
 	datasets.map(function(d) {
 		if (d.values.length > 1) {
@@ -888,9 +888,9 @@ function create_table_entries(chart_title, datasets, location, stacked, raw_data
     datasets.map(function(d) {
 	    var row = document.createElement("tr");
 	    row.id = location + "_tablerow_" + id_str_fixup(d.name);
-	    row.onclick = function() { click_function(location, id_str_fixup(d.name), stacked); };
-	    row.onmouseover = function() { mouseover_function(location, id_str_fixup(d.name), stacked); };
-	    row.onmouseout = function() { mouseout_function(location, id_str_fixup(d.name), stacked); };
+	    row.onclick = function() { click_highlight_function(location, id_str_fixup(d.name), stacked); };
+	    row.onmouseover = function() { mouseover_highlight_function(location, id_str_fixup(d.name), stacked); };
+	    row.onmouseout = function() { mouseout_highlight_function(location, id_str_fixup(d.name), stacked); };
 
 	    var name_cell = document.createElement("td");
 	    name_cell.align = "left";
@@ -2003,7 +2003,7 @@ function finish_page() {
 	});
 }
 
-function click_function(location, id, stacked) {
+function click_highlight_function(location, id, stacked) {
     var svg = d3.select("#" + location + "_chart").select("svg");
 
     if ((svg.select("#chart_selection").text().length == 0) ||
@@ -2019,7 +2019,7 @@ function click_function(location, id, stacked) {
     }
 }
 
-function mouseover_function(location, id, stacked) {
+function mouseover_highlight_function(location, id, stacked) {
     var svg = d3.select("#" + location + "_chart").select("svg");
 
     if (svg.select("#chart_selection").text().length == 0) {
@@ -2027,7 +2027,7 @@ function mouseover_function(location, id, stacked) {
     }
 }
 
-function mouseout_function(location, id, stacked) {
+function mouseout_highlight_function(location, id, stacked) {
     var svg = d3.select("#" + location + "_chart").select("svg");
 
     if (svg.select("#chart_selection").text().length == 0) {
