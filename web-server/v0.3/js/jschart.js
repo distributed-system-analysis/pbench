@@ -35,6 +35,16 @@ var table_format_print = d3.format(" ,.2f");
 
 var tooltip_format_print = d3.format(" ,f");
 
+var utc_time_format_print = d3.time.format.utc("%Y-%m-%d %H:%M:%S");
+
+var utc_time_format_tick = d3.time.format.utc("%M:%S");
+
+var local_time_format_print = d3.time.format("%Y-%m-%d %H:%M:%S");
+
+var local_time_format_tick = d3.time.format("%M:%S");
+
+var timezone_print = d3.time.format("UTC/GMT %Z");
+
 var zoom_rate = 0.03;
 
 // array to store objects for each chart, with references to often used variables
@@ -288,7 +298,7 @@ function update_chart(data_model, chart_title, myobject, svg, datasets, location
 		    y_brush.extent(domain);
 		}
 
-		zoom_it(data_mode, 0, svg, x_brush, y_brush, x, y, x2, y2, x_slider, y_slider, x_axis, y_axis, x2_axis, y2_axis, stacked, area, line, location);
+		zoom_it(data_mode, 0, svg, x_brush, y_brush, x, y, x2, y2, x_slider, y_slider, x_axis, y_axis, x2_axis, y2_axis, stacked, area, line, location, myobject);
 	    }
 	});
 }
@@ -660,8 +670,7 @@ function complete_graph(stacked, data_model, x, x_axis, x2, x_axis2, y, y_axis, 
     fix_y_axis_labels(svg);
 
     if (data_model == "timeseries") {
-	var x_domain = x.domain();
-	svg.select("#" + location + "_x_axis_label").text(x_domain[0] + " - " + x_domain[1]);
+	set_x_axis_timeseries_label(svg, location, x.domain(), myobject.timeseries_timezone);
     }
 
     var plot;
@@ -1046,7 +1055,7 @@ function fix_y_axis_labels(svg) {
 	});
 }
 
-function handle_brush_actions(data_model, svg, x_brush, y_brush, x, y, x2, y2, x_axis, y_axis, x_slider, y_slider, stacked, area, line, location) {
+function handle_brush_actions(data_model, svg, x_brush, y_brush, x, y, x2, y2, x_axis, y_axis, x_slider, y_slider, stacked, area, line, location, myobject) {
     if (x_brush.empty()) {
 	x_brush.extent(x.domain());
     }
@@ -1090,11 +1099,11 @@ function handle_brush_actions(data_model, svg, x_brush, y_brush, x, y, x2, y2, x
     fix_y_axis_labels(svg);
 
     if (data_model == "timeseries") {
-	svg.select("#" + location + "_x_axis_label").text(x_extent[0] + " - " + x_extent[1]);
+	set_x_axis_timeseries_label(svg, location, x_extent, myobject.timeseries_timezone);
     }
 }
 
-function zoom_it(data_model, zoom, svg, x_brush, y_brush, x, y, x2, y2, x_slider, y_slider, x_axis, y_axis, x2_axis, y2_axis, stacked, area, line, location) {
+function zoom_it(data_model, zoom, svg, x_brush, y_brush, x, y, x2, y2, x_slider, y_slider, x_axis, y_axis, x2_axis, y2_axis, stacked, area, line, location, myobject) {
     var x_extent = x_brush.extent();
     var x_domain = x2.domain();
 
@@ -1166,7 +1175,7 @@ function zoom_it(data_model, zoom, svg, x_brush, y_brush, x, y, x2, y2, x_slider
     fix_y_axis_labels(svg);
 
     if (data_model == "timeseries") {
-	svg.select("#" + location + "_x_axis_label").text(x_extent[0] + " - " + x_extent[1]);
+	set_x_axis_timeseries_label(svg, location, x.domain(), myobject.timeseries_timezone);
     }
 }
  
@@ -1222,8 +1231,15 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	x = d3.scale.linear();
 	x2 = d3.scale.linear();
     } else if (data_model == "timeseries") {
-	x = d3.time.scale();
-	x2 = d3.time.scale();
+	if ((myobject.timeseries_timezone !== undefined) &&
+	    (myboject.timeseries_timezone === "local")) {
+	    x = d3.time.scale();
+	    x2 = d3.time.scale();
+	} else {
+	    myobject.timeseries_timezone = "utc";
+	    x = d3.time.scale.utc();
+	    x2 = d3.time.scale.utc();
+	}
     }
 
     x.range([0, width]);
@@ -1247,6 +1263,16 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.scale(x2)
 	.orient("top")
 	.tickSize(9);
+
+    if (data_model == "timeseries") {
+	if (myobject.timeseries_timezone == "local") {
+	    xAxis.tickFormat(local_time_format_tick);
+	    xAxis2.tickFormat(local_time_format_tick);
+	} else {
+	    xAxis.tickFormat(utc_time_format_tick);
+	    xAxis2.tickFormat(utc_time_format_tick);
+	}
+    }
 
     var xBrush = d3.svg.brush()
 	.x(x2);
@@ -1374,7 +1400,11 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
 		fix_y_axis_labels(svg);
 
-	    svg.selectAll("#user_x_zoomed,#user_y_zoomed").text("0");
+		if (data_model == "timeseries") {
+		    set_x_axis_timeseries_label(svg, location, x.domain(), myobject.timeseries_timezone);
+		}
+
+		svg.selectAll("#user_x_zoomed,#user_y_zoomed").text("0");
 	    })
 	.text("Reset Zoom/Pan");
 
@@ -1612,7 +1642,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		return;
 	    }
 
-	    handle_brush_actions(data_model, svg, xBrush, yBrush, x, y, x2, y2, xAxis, yAxis, x_slider, y_slider, stacked, area, line, location);
+	    handle_brush_actions(data_model, svg, xBrush, yBrush, x, y, x2, y2, xAxis, yAxis, x_slider, y_slider, stacked, area, line, location, myobject);
 	svg.select("#user_x_zoomed").text("1");
 	});
 
@@ -1623,7 +1653,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		return;
 	    }
 
-	    handle_brush_actions(data_model, svg, xBrush, yBrush, x, y, x2, y2, xAxis, yAxis, x_slider, y_slider, stacked, area, line, location);
+	    handle_brush_actions(data_model, svg, xBrush, yBrush, x, y, x2, y2, xAxis, yAxis, x_slider, y_slider, stacked, area, line, location, myobject);
 	svg.select("#user_y_zoomed").text("1");
 	});
 
@@ -1726,7 +1756,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		fix_y_axis_labels(svg);
 
 		if (data_model == "timeseries") {
-		    svg.select("#" + location + "_x_axis_label").text(x_extent[0] + " - " + x_extent[1]);
+		    set_x_axis_timeseries_label(svg, location, x_extent, myobject.timeseries_timezone);
 		}
 
 		svg.select("#coordinates").style("visibility", "visible")
@@ -1873,7 +1903,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		.attr("class", "chartbutton")
 		.style("visibility", "hidden")
 		.on("click", function() {
-		    zoom_it(data_model, zoom_rate, svg, xBrush, yBrush, x, y, x2, y2, x_slider, y_slider, xAxis, yAxis, xAxis2, yAxis2, stacked, area, line, location);
+		    zoom_it(data_model, zoom_rate, svg, xBrush, yBrush, x, y, x2, y2, x_slider, y_slider, xAxis, yAxis, xAxis2, yAxis2, stacked, area, line, location, myobject);
 		    svg.selectAll("#user_x_zoomed,#user_y_zoomed").text("1");
 		    })
 		.on("mouseout", function() {
@@ -1899,7 +1929,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		.attr("class", "chartbutton")
 		.style("visibility", "hidden")
 		.on("click", function() {
-		    zoom_it(data_model, -1 * zoom_rate, svg, xBrush, yBrush, x, y, x2, y2, x_slider, y_slider, xAxis, yAxis, xAxis2, yAxis2, stacked, area, line, location);
+		    zoom_it(data_model, -1 * zoom_rate, svg, xBrush, yBrush, x, y, x2, y2, x_slider, y_slider, xAxis, yAxis, xAxis2, yAxis2, stacked, area, line, location, myobject);
 		    svg.selectAll("#user_x_zoomed,#user_y_zoomed").text("1");
 		    })
 		.on("mouseout", function() {
@@ -2180,4 +2210,16 @@ function tooltip_off(d, i) {
     }
 
     svg.select("#tooltip_" + id_str_fixup(string)).remove();
+}
+
+function set_x_axis_timeseries_label(svg, location, domain, timezone) {
+    var label = "Time ";
+
+    if (timezone == "local") {
+	label += "(" + timezone_print(domain[0]) + "): " + local_time_format_print(domain[0]) + " - " + local_time_format_print(domain[1]);
+    } else {
+	label += "(UTC/GMT): " + utc_time_format_print(domain[0]) + " - " + utc_time_format_print(domain[1]);
+    }
+
+    svg.select("#" + location + "_x_axis_label").text(label);
 }
