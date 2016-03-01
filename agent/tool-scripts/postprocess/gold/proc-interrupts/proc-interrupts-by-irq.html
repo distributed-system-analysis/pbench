@@ -2,81 +2,42 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <link href="/static/css/v0.2/nv.d3.css" rel="stylesheet" type="text/css" media="all">
-    <link href="/static/css/v0.2/pbench_utils.css" rel="stylesheet" type="text/css" media="all">
-    <script src="/static/js/v0.2/function-bind.js"></script>
-    <script src="/static/js/v0.2/fastdom.js"></script>
-    <script src="/static/js/v0.2/d3.js"></script>
-    <script src="/static/js/v0.2/nv.d3.js"></script>
-    <script src="/static/js/v0.2/saveSvgAsPng.js"></script>
-    <script src="/static/js/v0.2/pbench_utils.js"></script>
+    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">
   </head>
-  <body class="with-3d-shadow with-transitions">
-    <h2 class="page-header">proc-interrupts - proc-interrupts-by-irq</h2>
-    <div class="chart">
-      <h3 class="chart-header">IRQ_042_IR-PCI-MSI-edge_ahci
-        <button id="save1">Save as Image</button>
-        <div id="svgdataurl1"></div>
-      </h3>
-      <svg id="chart1"></svg>
-      <canvas id="canvas1" style="display:none"></canvas>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.3/jschart.js"></script>
+    <center><h2>proc-interrupts - proc-interrupts-by-irq</h2></center>
+    <div id="chart_1">
       <script>
-        constructChart("stackedAreaChart", 1, "proc-interrupts-by-irq_IRQ_042_IR-PCI-MSI-edge_ahci", 100.00);
+        create_graph("stackedAreaChart", "timeseries", "chart_1", "IRQ_042_IR-PCI-MSI-edge_ahci", null, null, { csvfiles: [ "csv/proc-interrupts-by-irq_IRQ_042_IR-PCI-MSI-edge_ahci.csv" ], threshold: 100 });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">IRQ_044_IR-PCI-MSI-edge_i915
-        <button id="save2">Save as Image</button>
-        <div id="svgdataurl2"></div>
-      </h3>
-      <svg id="chart2"></svg>
-      <canvas id="canvas2" style="display:none"></canvas>
+    <div id="chart_2">
       <script>
-        constructChart("stackedAreaChart", 2, "proc-interrupts-by-irq_IRQ_044_IR-PCI-MSI-edge_i915", 100.00);
+        create_graph("stackedAreaChart", "timeseries", "chart_2", "IRQ_044_IR-PCI-MSI-edge_i915", null, null, { csvfiles: [ "csv/proc-interrupts-by-irq_IRQ_044_IR-PCI-MSI-edge_i915.csv" ], threshold: 100 });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">IRQ_CAL_Function_call_interrupts
-        <button id="save3">Save as Image</button>
-        <div id="svgdataurl3"></div>
-      </h3>
-      <svg id="chart3"></svg>
-      <canvas id="canvas3" style="display:none"></canvas>
+    <div id="chart_3">
       <script>
-        constructChart("stackedAreaChart", 3, "proc-interrupts-by-irq_IRQ_CAL_Function_call_interrupts", 100.00);
+        create_graph("stackedAreaChart", "timeseries", "chart_3", "IRQ_CAL_Function_call_interrupts", null, null, { csvfiles: [ "csv/proc-interrupts-by-irq_IRQ_CAL_Function_call_interrupts.csv" ], threshold: 100 });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">IRQ_LOC_Local_timer_interrupts
-        <button id="save4">Save as Image</button>
-        <div id="svgdataurl4"></div>
-      </h3>
-      <svg id="chart4"></svg>
-      <canvas id="canvas4" style="display:none"></canvas>
+    <div id="chart_4">
       <script>
-        constructChart("stackedAreaChart", 4, "proc-interrupts-by-irq_IRQ_LOC_Local_timer_interrupts", 100.00);
+        create_graph("stackedAreaChart", "timeseries", "chart_4", "IRQ_LOC_Local_timer_interrupts", null, null, { csvfiles: [ "csv/proc-interrupts-by-irq_IRQ_LOC_Local_timer_interrupts.csv" ], threshold: 100 });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">IRQ_NMI_Non-maskable_interrupts
-        <button id="save5">Save as Image</button>
-        <div id="svgdataurl5"></div>
-      </h3>
-      <svg id="chart5"></svg>
-      <canvas id="canvas5" style="display:none"></canvas>
+    <div id="chart_5">
       <script>
-        constructChart("stackedAreaChart", 5, "proc-interrupts-by-irq_IRQ_NMI_Non-maskable_interrupts", 100.00);
+        create_graph("stackedAreaChart", "timeseries", "chart_5", "IRQ_NMI_Non-maskable_interrupts", null, null, { csvfiles: [ "csv/proc-interrupts-by-irq_IRQ_NMI_Non-maskable_interrupts.csv" ], threshold: 100 });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">IRQ_PMI_Performance_monitoring_interrupts
-        <button id="save6">Save as Image</button>
-        <div id="svgdataurl6"></div>
-      </h3>
-      <svg id="chart6"></svg>
-      <canvas id="canvas6" style="display:none"></canvas>
+    <div id="chart_6">
       <script>
-        constructChart("stackedAreaChart", 6, "proc-interrupts-by-irq_IRQ_PMI_Performance_monitoring_interrupts", 100.00);
+        create_graph("stackedAreaChart", "timeseries", "chart_6", "IRQ_PMI_Performance_monitoring_interrupts", null, null, { csvfiles: [ "csv/proc-interrupts-by-irq_IRQ_PMI_Performance_monitoring_interrupts.csv" ], threshold: 100 });
       </script>
     </div>
   </body>

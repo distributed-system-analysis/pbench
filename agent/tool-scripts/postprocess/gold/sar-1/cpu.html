@@ -2,37 +2,22 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <link href="/static/css/v0.2/nv.d3.css" rel="stylesheet" type="text/css" media="all">
-    <link href="/static/css/v0.2/pbench_utils.css" rel="stylesheet" type="text/css" media="all">
-    <script src="/static/js/v0.2/function-bind.js"></script>
-    <script src="/static/js/v0.2/fastdom.js"></script>
-    <script src="/static/js/v0.2/d3.js"></script>
-    <script src="/static/js/v0.2/nv.d3.js"></script>
-    <script src="/static/js/v0.2/saveSvgAsPng.js"></script>
-    <script src="/static/js/v0.2/pbench_utils.js"></script>
+    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">
   </head>
-  <body class="with-3d-shadow with-transitions">
-    <h2 class="page-header">sar-1 - cpu</h2>
-    <div class="chart">
-      <h3 class="chart-header">all_cpu_busy
-        <button id="save1">Save as Image</button>
-        <div id="svgdataurl1"></div>
-      </h3>
-      <svg id="chart1"></svg>
-      <canvas id="canvas1" style="display:none"></canvas>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.3/jschart.js"></script>
+    <center><h2>sar-1 - cpu</h2></center>
+    <div id="chart_1">
       <script>
-        constructChart("stackedAreaChart", 1, "cpu_all_cpu_busy");
+        create_graph("stackedAreaChart", "timeseries", "chart_1", "all_cpu_busy", null, null, { csvfiles: [ "csv/cpu_all_cpu_busy.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">frequency_MHz
-        <button id="save2">Save as Image</button>
-        <div id="svgdataurl2"></div>
-      </h3>
-      <svg id="chart2"></svg>
-      <canvas id="canvas2" style="display:none"></canvas>
+    <div id="chart_2">
       <script>
-        constructChart("lineChart", 2, "cpu_frequency_MHz");
+        create_graph("lineChart", "timeseries", "chart_2", "frequency_MHz", null, null, { csvfiles: [ "csv/cpu_frequency_MHz.csv" ] });
       </script>
     </div>
   </body>

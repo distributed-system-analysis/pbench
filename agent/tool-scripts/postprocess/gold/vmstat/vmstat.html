@@ -2,81 +2,42 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <link href="/static/css/v0.2/nv.d3.css" rel="stylesheet" type="text/css" media="all">
-    <link href="/static/css/v0.2/pbench_utils.css" rel="stylesheet" type="text/css" media="all">
-    <script src="/static/js/v0.2/function-bind.js"></script>
-    <script src="/static/js/v0.2/fastdom.js"></script>
-    <script src="/static/js/v0.2/d3.js"></script>
-    <script src="/static/js/v0.2/nv.d3.js"></script>
-    <script src="/static/js/v0.2/saveSvgAsPng.js"></script>
-    <script src="/static/js/v0.2/pbench_utils.js"></script>
+    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">
   </head>
-  <body class="with-3d-shadow with-transitions">
-    <h2 class="page-header">vmstat - vmstat</h2>
-    <div class="chart">
-      <h3 class="chart-header">block
-        <button id="save1">Save as Image</button>
-        <div id="svgdataurl1"></div>
-      </h3>
-      <svg id="chart1"></svg>
-      <canvas id="canvas1" style="display:none"></canvas>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.3/jschart.js"></script>
+    <center><h2>vmstat - vmstat</h2></center>
+    <div id="chart_1">
       <script>
-        constructChart("lineChart", 1, "vmstat_block");
+        create_graph("lineChart", "timeseries", "chart_1", "block", null, null, { csvfiles: [ "csv/vmstat_block.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu
-        <button id="save2">Save as Image</button>
-        <div id="svgdataurl2"></div>
-      </h3>
-      <svg id="chart2"></svg>
-      <canvas id="canvas2" style="display:none"></canvas>
+    <div id="chart_2">
       <script>
-        constructChart("stackedAreaChart", 2, "vmstat_cpu");
+        create_graph("stackedAreaChart", "timeseries", "chart_2", "cpu", null, null, { csvfiles: [ "csv/vmstat_cpu.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">memory
-        <button id="save3">Save as Image</button>
-        <div id="svgdataurl3"></div>
-      </h3>
-      <svg id="chart3"></svg>
-      <canvas id="canvas3" style="display:none"></canvas>
+    <div id="chart_3">
       <script>
-        constructChart("stackedAreaChart", 3, "vmstat_memory");
+        create_graph("stackedAreaChart", "timeseries", "chart_3", "memory", null, null, { csvfiles: [ "csv/vmstat_memory.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">procs
-        <button id="save4">Save as Image</button>
-        <div id="svgdataurl4"></div>
-      </h3>
-      <svg id="chart4"></svg>
-      <canvas id="canvas4" style="display:none"></canvas>
+    <div id="chart_4">
       <script>
-        constructChart("lineChart", 4, "vmstat_procs");
+        create_graph("lineChart", "timeseries", "chart_4", "procs", null, null, { csvfiles: [ "csv/vmstat_procs.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">swap
-        <button id="save5">Save as Image</button>
-        <div id="svgdataurl5"></div>
-      </h3>
-      <svg id="chart5"></svg>
-      <canvas id="canvas5" style="display:none"></canvas>
+    <div id="chart_5">
       <script>
-        constructChart("lineChart", 5, "vmstat_swap");
+        create_graph("lineChart", "timeseries", "chart_5", "swap", null, null, { csvfiles: [ "csv/vmstat_swap.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">system
-        <button id="save6">Save as Image</button>
-        <div id="svgdataurl6"></div>
-      </h3>
-      <svg id="chart6"></svg>
-      <canvas id="canvas6" style="display:none"></canvas>
+    <div id="chart_6">
       <script>
-        constructChart("lineChart", 6, "vmstat_system");
+        create_graph("lineChart", "timeseries", "chart_6", "system", null, null, { csvfiles: [ "csv/vmstat_system.csv" ] });
       </script>
     </div>
   </body>

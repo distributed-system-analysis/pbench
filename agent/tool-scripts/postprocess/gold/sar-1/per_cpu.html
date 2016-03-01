@@ -2,279 +2,132 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <link href="/static/css/v0.2/nv.d3.css" rel="stylesheet" type="text/css" media="all">
-    <link href="/static/css/v0.2/pbench_utils.css" rel="stylesheet" type="text/css" media="all">
-    <script src="/static/js/v0.2/function-bind.js"></script>
-    <script src="/static/js/v0.2/fastdom.js"></script>
-    <script src="/static/js/v0.2/d3.js"></script>
-    <script src="/static/js/v0.2/nv.d3.js"></script>
-    <script src="/static/js/v0.2/saveSvgAsPng.js"></script>
-    <script src="/static/js/v0.2/pbench_utils.js"></script>
+    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">
   </head>
-  <body class="with-3d-shadow with-transitions">
-    <h2 class="page-header">sar-1 - per_cpu</h2>
-    <div class="chart">
-      <h3 class="chart-header">cpu_00
-        <button id="save1">Save as Image</button>
-        <div id="svgdataurl1"></div>
-      </h3>
-      <svg id="chart1"></svg>
-      <canvas id="canvas1" style="display:none"></canvas>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.3/jschart.js"></script>
+    <center><h2>sar-1 - per_cpu</h2></center>
+    <div id="chart_1">
       <script>
-        constructChart("stackedAreaChart", 1, "per_cpu_cpu_00");
+        create_graph("stackedAreaChart", "timeseries", "chart_1", "cpu_00", null, null, { csvfiles: [ "csv/per_cpu_cpu_00.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_01
-        <button id="save2">Save as Image</button>
-        <div id="svgdataurl2"></div>
-      </h3>
-      <svg id="chart2"></svg>
-      <canvas id="canvas2" style="display:none"></canvas>
+    <div id="chart_2">
       <script>
-        constructChart("stackedAreaChart", 2, "per_cpu_cpu_01");
+        create_graph("stackedAreaChart", "timeseries", "chart_2", "cpu_01", null, null, { csvfiles: [ "csv/per_cpu_cpu_01.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_02
-        <button id="save3">Save as Image</button>
-        <div id="svgdataurl3"></div>
-      </h3>
-      <svg id="chart3"></svg>
-      <canvas id="canvas3" style="display:none"></canvas>
+    <div id="chart_3">
       <script>
-        constructChart("stackedAreaChart", 3, "per_cpu_cpu_02");
+        create_graph("stackedAreaChart", "timeseries", "chart_3", "cpu_02", null, null, { csvfiles: [ "csv/per_cpu_cpu_02.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_03
-        <button id="save4">Save as Image</button>
-        <div id="svgdataurl4"></div>
-      </h3>
-      <svg id="chart4"></svg>
-      <canvas id="canvas4" style="display:none"></canvas>
+    <div id="chart_4">
       <script>
-        constructChart("stackedAreaChart", 4, "per_cpu_cpu_03");
+        create_graph("stackedAreaChart", "timeseries", "chart_4", "cpu_03", null, null, { csvfiles: [ "csv/per_cpu_cpu_03.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_04
-        <button id="save5">Save as Image</button>
-        <div id="svgdataurl5"></div>
-      </h3>
-      <svg id="chart5"></svg>
-      <canvas id="canvas5" style="display:none"></canvas>
+    <div id="chart_5">
       <script>
-        constructChart("stackedAreaChart", 5, "per_cpu_cpu_04");
+        create_graph("stackedAreaChart", "timeseries", "chart_5", "cpu_04", null, null, { csvfiles: [ "csv/per_cpu_cpu_04.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_05
-        <button id="save6">Save as Image</button>
-        <div id="svgdataurl6"></div>
-      </h3>
-      <svg id="chart6"></svg>
-      <canvas id="canvas6" style="display:none"></canvas>
+    <div id="chart_6">
       <script>
-        constructChart("stackedAreaChart", 6, "per_cpu_cpu_05");
+        create_graph("stackedAreaChart", "timeseries", "chart_6", "cpu_05", null, null, { csvfiles: [ "csv/per_cpu_cpu_05.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_06
-        <button id="save7">Save as Image</button>
-        <div id="svgdataurl7"></div>
-      </h3>
-      <svg id="chart7"></svg>
-      <canvas id="canvas7" style="display:none"></canvas>
+    <div id="chart_7">
       <script>
-        constructChart("stackedAreaChart", 7, "per_cpu_cpu_06");
+        create_graph("stackedAreaChart", "timeseries", "chart_7", "cpu_06", null, null, { csvfiles: [ "csv/per_cpu_cpu_06.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_07
-        <button id="save8">Save as Image</button>
-        <div id="svgdataurl8"></div>
-      </h3>
-      <svg id="chart8"></svg>
-      <canvas id="canvas8" style="display:none"></canvas>
+    <div id="chart_8">
       <script>
-        constructChart("stackedAreaChart", 8, "per_cpu_cpu_07");
+        create_graph("stackedAreaChart", "timeseries", "chart_8", "cpu_07", null, null, { csvfiles: [ "csv/per_cpu_cpu_07.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_08
-        <button id="save9">Save as Image</button>
-        <div id="svgdataurl9"></div>
-      </h3>
-      <svg id="chart9"></svg>
-      <canvas id="canvas9" style="display:none"></canvas>
+    <div id="chart_9">
       <script>
-        constructChart("stackedAreaChart", 9, "per_cpu_cpu_08");
+        create_graph("stackedAreaChart", "timeseries", "chart_9", "cpu_08", null, null, { csvfiles: [ "csv/per_cpu_cpu_08.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_09
-        <button id="save10">Save as Image</button>
-        <div id="svgdataurl10"></div>
-      </h3>
-      <svg id="chart10"></svg>
-      <canvas id="canvas10" style="display:none"></canvas>
+    <div id="chart_10">
       <script>
-        constructChart("stackedAreaChart", 10, "per_cpu_cpu_09");
+        create_graph("stackedAreaChart", "timeseries", "chart_10", "cpu_09", null, null, { csvfiles: [ "csv/per_cpu_cpu_09.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_10
-        <button id="save11">Save as Image</button>
-        <div id="svgdataurl11"></div>
-      </h3>
-      <svg id="chart11"></svg>
-      <canvas id="canvas11" style="display:none"></canvas>
+    <div id="chart_11">
       <script>
-        constructChart("stackedAreaChart", 11, "per_cpu_cpu_10");
+        create_graph("stackedAreaChart", "timeseries", "chart_11", "cpu_10", null, null, { csvfiles: [ "csv/per_cpu_cpu_10.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_11
-        <button id="save12">Save as Image</button>
-        <div id="svgdataurl12"></div>
-      </h3>
-      <svg id="chart12"></svg>
-      <canvas id="canvas12" style="display:none"></canvas>
+    <div id="chart_12">
       <script>
-        constructChart("stackedAreaChart", 12, "per_cpu_cpu_11");
+        create_graph("stackedAreaChart", "timeseries", "chart_12", "cpu_11", null, null, { csvfiles: [ "csv/per_cpu_cpu_11.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_12
-        <button id="save13">Save as Image</button>
-        <div id="svgdataurl13"></div>
-      </h3>
-      <svg id="chart13"></svg>
-      <canvas id="canvas13" style="display:none"></canvas>
+    <div id="chart_13">
       <script>
-        constructChart("stackedAreaChart", 13, "per_cpu_cpu_12");
+        create_graph("stackedAreaChart", "timeseries", "chart_13", "cpu_12", null, null, { csvfiles: [ "csv/per_cpu_cpu_12.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_13
-        <button id="save14">Save as Image</button>
-        <div id="svgdataurl14"></div>
-      </h3>
-      <svg id="chart14"></svg>
-      <canvas id="canvas14" style="display:none"></canvas>
+    <div id="chart_14">
       <script>
-        constructChart("stackedAreaChart", 14, "per_cpu_cpu_13");
+        create_graph("stackedAreaChart", "timeseries", "chart_14", "cpu_13", null, null, { csvfiles: [ "csv/per_cpu_cpu_13.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_14
-        <button id="save15">Save as Image</button>
-        <div id="svgdataurl15"></div>
-      </h3>
-      <svg id="chart15"></svg>
-      <canvas id="canvas15" style="display:none"></canvas>
+    <div id="chart_15">
       <script>
-        constructChart("stackedAreaChart", 15, "per_cpu_cpu_14");
+        create_graph("stackedAreaChart", "timeseries", "chart_15", "cpu_14", null, null, { csvfiles: [ "csv/per_cpu_cpu_14.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_15
-        <button id="save16">Save as Image</button>
-        <div id="svgdataurl16"></div>
-      </h3>
-      <svg id="chart16"></svg>
-      <canvas id="canvas16" style="display:none"></canvas>
+    <div id="chart_16">
       <script>
-        constructChart("stackedAreaChart", 16, "per_cpu_cpu_15");
+        create_graph("stackedAreaChart", "timeseries", "chart_16", "cpu_15", null, null, { csvfiles: [ "csv/per_cpu_cpu_15.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_16
-        <button id="save17">Save as Image</button>
-        <div id="svgdataurl17"></div>
-      </h3>
-      <svg id="chart17"></svg>
-      <canvas id="canvas17" style="display:none"></canvas>
+    <div id="chart_17">
       <script>
-        constructChart("stackedAreaChart", 17, "per_cpu_cpu_16");
+        create_graph("stackedAreaChart", "timeseries", "chart_17", "cpu_16", null, null, { csvfiles: [ "csv/per_cpu_cpu_16.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_17
-        <button id="save18">Save as Image</button>
-        <div id="svgdataurl18"></div>
-      </h3>
-      <svg id="chart18"></svg>
-      <canvas id="canvas18" style="display:none"></canvas>
+    <div id="chart_18">
       <script>
-        constructChart("stackedAreaChart", 18, "per_cpu_cpu_17");
+        create_graph("stackedAreaChart", "timeseries", "chart_18", "cpu_17", null, null, { csvfiles: [ "csv/per_cpu_cpu_17.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_18
-        <button id="save19">Save as Image</button>
-        <div id="svgdataurl19"></div>
-      </h3>
-      <svg id="chart19"></svg>
-      <canvas id="canvas19" style="display:none"></canvas>
+    <div id="chart_19">
       <script>
-        constructChart("stackedAreaChart", 19, "per_cpu_cpu_18");
+        create_graph("stackedAreaChart", "timeseries", "chart_19", "cpu_18", null, null, { csvfiles: [ "csv/per_cpu_cpu_18.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_19
-        <button id="save20">Save as Image</button>
-        <div id="svgdataurl20"></div>
-      </h3>
-      <svg id="chart20"></svg>
-      <canvas id="canvas20" style="display:none"></canvas>
+    <div id="chart_20">
       <script>
-        constructChart("stackedAreaChart", 20, "per_cpu_cpu_19");
+        create_graph("stackedAreaChart", "timeseries", "chart_20", "cpu_19", null, null, { csvfiles: [ "csv/per_cpu_cpu_19.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_20
-        <button id="save21">Save as Image</button>
-        <div id="svgdataurl21"></div>
-      </h3>
-      <svg id="chart21"></svg>
-      <canvas id="canvas21" style="display:none"></canvas>
+    <div id="chart_21">
       <script>
-        constructChart("stackedAreaChart", 21, "per_cpu_cpu_20");
+        create_graph("stackedAreaChart", "timeseries", "chart_21", "cpu_20", null, null, { csvfiles: [ "csv/per_cpu_cpu_20.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_21
-        <button id="save22">Save as Image</button>
-        <div id="svgdataurl22"></div>
-      </h3>
-      <svg id="chart22"></svg>
-      <canvas id="canvas22" style="display:none"></canvas>
+    <div id="chart_22">
       <script>
-        constructChart("stackedAreaChart", 22, "per_cpu_cpu_21");
+        create_graph("stackedAreaChart", "timeseries", "chart_22", "cpu_21", null, null, { csvfiles: [ "csv/per_cpu_cpu_21.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_22
-        <button id="save23">Save as Image</button>
-        <div id="svgdataurl23"></div>
-      </h3>
-      <svg id="chart23"></svg>
-      <canvas id="canvas23" style="display:none"></canvas>
+    <div id="chart_23">
       <script>
-        constructChart("stackedAreaChart", 23, "per_cpu_cpu_22");
+        create_graph("stackedAreaChart", "timeseries", "chart_23", "cpu_22", null, null, { csvfiles: [ "csv/per_cpu_cpu_22.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_23
-        <button id="save24">Save as Image</button>
-        <div id="svgdataurl24"></div>
-      </h3>
-      <svg id="chart24"></svg>
-      <canvas id="canvas24" style="display:none"></canvas>
+    <div id="chart_24">
       <script>
-        constructChart("stackedAreaChart", 24, "per_cpu_cpu_23");
+        create_graph("stackedAreaChart", "timeseries", "chart_24", "cpu_23", null, null, { csvfiles: [ "csv/per_cpu_cpu_23.csv" ] });
       </script>
     </div>
   </body>

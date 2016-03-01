@@ -2,26 +2,17 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <link href="/static/css/v0.2/nv.d3.css" rel="stylesheet" type="text/css" media="all">
-    <link href="/static/css/v0.2/pbench_utils.css" rel="stylesheet" type="text/css" media="all">
-    <script src="/static/js/v0.2/function-bind.js"></script>
-    <script src="/static/js/v0.2/fastdom.js"></script>
-    <script src="/static/js/v0.2/d3.js"></script>
-    <script src="/static/js/v0.2/nv.d3.js"></script>
-    <script src="/static/js/v0.2/saveSvgAsPng.js"></script>
-    <script src="/static/js/v0.2/pbench_utils.js"></script>
+    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">
   </head>
-  <body class="with-3d-shadow with-transitions">
-    <h2 class="page-header">mpstat - cpu7</h2>
-    <div class="chart">
-      <h3 class="chart-header">cpu7
-        <button id="save1">Save as Image</button>
-        <div id="svgdataurl1"></div>
-      </h3>
-      <svg id="chart1"></svg>
-      <canvas id="canvas1" style="display:none"></canvas>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.3/jschart.js"></script>
+    <center><h2>mpstat - cpu7</h2></center>
+    <div id="chart_1">
       <script>
-        constructChart("stackedAreaChart", 1, "cpu7_cpu7");
+        create_graph("stackedAreaChart", "timeseries", "chart_1", "cpu7", null, null, { csvfiles: [ "csv/cpu7_cpu7.csv" ] });
       </script>
     </div>
   </body>
