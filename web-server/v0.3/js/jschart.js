@@ -1991,6 +1991,12 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 }
 
 function create_graph(stacked, data_model, location, chart_title, x_axis_title, y_axis_title, myobject) {
+    if (stacked === "stackedAreaChart") {
+	stacked = 1;
+    } else if (stacked === "lineChart") {
+	stacked = 0;
+    }
+
     // add an entry to the chart generating queue
     chart_queue.defer(generate_chart, stacked, data_model, location, chart_title, x_axis_title, y_axis_title, myobject);
 }
