@@ -219,17 +219,14 @@ sub gen_data {
 		printf TOOL_HTML "<html>\n";
 		printf TOOL_HTML "  <head>\n";
 		printf TOOL_HTML "    <meta charset=\"utf-8\">\n";
-		printf TOOL_HTML "    <link href=\"/static/css/v0.2/nv.d3.css\" rel=\"stylesheet\" type=\"text/css\" media=\"all\">\n";
-		printf TOOL_HTML "    <link href=\"/static/css/v0.2/pbench_utils.css\" rel=\"stylesheet\" type=\"text/css\" media=\"all\">\n";
-		printf TOOL_HTML "    <script src=\"/static/js/v0.2/function-bind.js\"></script>\n";
-		printf TOOL_HTML "    <script src=\"/static/js/v0.2/fastdom.js\"></script>\n";
-		printf TOOL_HTML "    <script src=\"/static/js/v0.2/d3.js\"></script>\n";
-		printf TOOL_HTML "    <script src=\"/static/js/v0.2/nv.d3.js\"></script>\n";
-		printf TOOL_HTML "    <script src=\"/static/js/v0.2/saveSvgAsPng.js\"></script>\n";
-		printf TOOL_HTML "    <script src=\"/static/js/v0.2/pbench_utils.js\"></script>\n";
+		printf TOOL_HTML "    <link href=\"/static/css/v0.3/jschart.css\" rel=\"stylesheet\" type=\"text/css\" media=\"all\">\n";
 		printf TOOL_HTML "  </head>\n";
-		printf TOOL_HTML "  <body class=\"with-3d-shadow with-transitions\">\n";
-		printf TOOL_HTML "    <h2 class=\"page-header\">%s - %s</h2>\n", basename($dir), "$htmlpage";
+		printf TOOL_HTML "  <body>\n";
+		printf TOOL_HTML "    <script src=\"/static/js/v0.3/d3.min.js\"></script>\n";
+		printf TOOL_HTML "    <script src=\"/static/js/v0.3/d3-queue.min.js\"></script>\n";
+		printf TOOL_HTML "    <script src=\"/static/js/v0.3/saveSvgAsPng.js\"></script>\n";
+		printf TOOL_HTML "    <script src=\"/static/js/v0.3/jschart.js\"></script>\n";
+		printf TOOL_HTML "    <h2>%s - %s</h2>\n", basename($dir), "$htmlpage";
 
 		my $chartnum=1;
 		for $chart (sort keys %{$stats{$htmlpage}}) {
@@ -247,19 +244,16 @@ sub gen_data {
 				if (defined $graph_types{$htmlpage}{$chart} ) {
 					$this_graph_type = $graph_types{$htmlpage}{$chart};
 				}
-				printf TOOL_HTML "    <div class=\"chart\">\n";
-				printf TOOL_HTML "      <h3 class=\"chart-header\">%s\n", "$chart";
-				printf TOOL_HTML "        <button id=\"save%d\">Save as Image</button>\n", $chartnum;
-				printf TOOL_HTML "        <div id=\"svgdataurl%d\"></div>\n", $chartnum;
-				printf TOOL_HTML "      </h3>\n";
-				printf TOOL_HTML "      <svg id=\"chart%d\"></svg>\n", $chartnum;
-				printf TOOL_HTML "      <canvas id=\"canvas%d\" style=\"display:none\"></canvas>\n", $chartnum;
+				printf TOOL_HTML "    <div id=\"chart_" . $chartnum . "\">\n";
 				printf TOOL_HTML "      <script>\n";
+
+				my $threshold = "";
 				if ( defined $thresholds{$htmlpage}{$chart} ) {
-					printf TOOL_HTML "        constructChart(\"%s\", %d, \"%s\", %.2f);\n", $this_graph_type, $chartnum, $htmlpage . '_' . $chart, $thresholds{$htmlpage}{$chart};
-				} else {
-					printf TOOL_HTML "        constructChart(\"%s\", %d, \"%s\");\n", $this_graph_type, $chartnum, $htmlpage . '_' . $chart;
+					$threshold = ", threshold: " . $thresholds{$htmlpage}{$chart};
 				}
+
+				printf TOOL_HTML "        create_graph(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", null, { csvfiles: [ \"csv/%s.csv\" ]%s });\n", $this_graph_type, "timeseries", "chart_" . $chartnum, $chart, "Time", $htmlpage . '_' . $chart, $threshold;
+
 				printf TOOL_HTML "      </script>\n";
 				printf TOOL_HTML "    </div>\n";
 				$chartnum++;
