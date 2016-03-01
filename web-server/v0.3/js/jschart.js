@@ -141,7 +141,7 @@ function parse_plot_file(datasets, index, text) {
     };
 }
 
-function update_chart(chart_title, myobject, svg, datasets, location, stacked, stack, area, line, x, y, x_brush, y_brush, x2, y2, x_slider, y_slider, x_axis, y_axis, x2_axis, y2_axis) {
+function update_chart(data_model, chart_title, myobject, svg, datasets, location, stacked, stack, area, line, x, y, x_brush, y_brush, x2, y2, x_slider, y_slider, x_axis, y_axis, x2_axis, y2_axis) {
     var last_timestamp = 0;
     if (datasets.length) {
 	last_timestamp = datasets[0].last_timestamp;
@@ -288,7 +288,7 @@ function update_chart(chart_title, myobject, svg, datasets, location, stacked, s
 		    y_brush.extent(domain);
 		}
 
-		zoom_it(0, svg, x_brush, y_brush, x, y, x2, y2, x_slider, y_slider, x_axis, y_axis, x2_axis, y2_axis, stacked, area, line);
+		zoom_it(data_mode, 0, svg, x_brush, y_brush, x, y, x2, y2, x_slider, y_slider, x_axis, y_axis, x2_axis, y2_axis, stacked, area, line, location);
 	    }
 	});
 }
@@ -485,7 +485,7 @@ function navigate_to_chart(target) {
     }
 }
 
-function complete_graph(stacked, x, x_axis, x2, x_axis2, y, y_axis, y2, y_axis2, svg, datasets, line, area, stack, myobject, location) {
+function complete_graph(stacked, data_model, x, x_axis, x2, x_axis2, y, y_axis, y2, y_axis2, svg, datasets, line, area, stack, myobject, location) {
     x.domain([
 	      d3.min(datasets, function(c) { if (c.values === undefined) { return null; } return d3.min(c.values, function(v) { return v.x; }); }),
 	      d3.max(datasets, function(c) { if (c.values === undefined) { return null; } return d3.max(c.values, function(v) { return v.x; }); })
@@ -658,6 +658,11 @@ function complete_graph(stacked, x, x_axis, x2, x_axis2, y, y_axis, y2, y_axis2,
     svg.select(".y.axis").call(y_axis);
     svg.select(".y2.axis").call(y_axis2);
     fix_y_axis_labels(svg);
+
+    if (data_model == "timeseries") {
+	var x_domain = x.domain();
+	svg.select("#" + location + "_x_axis_label").text(x_domain[0] + " - " + x_domain[1]);
+    }
 
     var plot;
     var group;
@@ -1041,7 +1046,7 @@ function fix_y_axis_labels(svg) {
 	});
 }
 
-function handle_brush_actions(svg, x_brush, y_brush, x, y, x2, y2, x_axis, y_axis, x_slider, y_slider, stacked, area, line) {
+function handle_brush_actions(data_model, svg, x_brush, y_brush, x, y, x2, y2, x_axis, y_axis, x_slider, y_slider, stacked, area, line, location) {
     if (x_brush.empty()) {
 	x_brush.extent(x.domain());
     }
@@ -1083,9 +1088,13 @@ function handle_brush_actions(svg, x_brush, y_brush, x, y, x2, y2, x_axis, y_axi
     }
 
     fix_y_axis_labels(svg);
+
+    if (data_model == "timeseries") {
+	svg.select("#" + location + "_x_axis_label").text(x_extent[0] + " - " + x_extent[1]);
+    }
 }
 
-function zoom_it(zoom, svg, x_brush, y_brush, x, y, x2, y2, x_slider, y_slider, x_axis, y_axis, x2_axis, y2_axis, stacked, area, line) {
+function zoom_it(data_model, zoom, svg, x_brush, y_brush, x, y, x2, y2, x_slider, y_slider, x_axis, y_axis, x2_axis, y2_axis, stacked, area, line, location) {
     var x_extent = x_brush.extent();
     var x_domain = x2.domain();
 
@@ -1155,6 +1164,10 @@ function zoom_it(zoom, svg, x_brush, y_brush, x, y, x2, y2, x_slider, y_slider, 
     }
 
     fix_y_axis_labels(svg);
+
+    if (data_model == "timeseries") {
+	svg.select("#" + location + "_x_axis_label").text(x_extent[0] + " - " + x_extent[1]);
+    }
 }
  
 function generate_chart(stacked, data_model, location, chart_title, x_axis_title, y_axis_title, myobject, callback) {
@@ -1507,6 +1520,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.attr("transform", "translate(0," + height +")")
 	.call(xAxis)
 	.append("text")
+	.attr("id", location + "_x_axis_label")
 	.attr("class", "axislabel")
 	.attr("y", 30)
 	.attr("x", (width/2))
@@ -1539,6 +1553,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.attr("class", "y axis")
 	.call(yAxis)
 	.append("text")
+	.attr("id", location + "_y_axis_label")
 	.attr("class", "axislabel")
 	.attr("x", -margin.left + 10)
 	.attr("y", -40)
@@ -1597,7 +1612,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		return;
 	    }
 
-	    handle_brush_actions(svg, xBrush, yBrush, x, y, x2, y2, xAxis, yAxis, x_slider, y_slider, stacked, area, line);
+	    handle_brush_actions(data_model, svg, xBrush, yBrush, x, y, x2, y2, xAxis, yAxis, x_slider, y_slider, stacked, area, line, location);
 	svg.select("#user_x_zoomed").text("1");
 	});
 
@@ -1608,7 +1623,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		return;
 	    }
 
-	    handle_brush_actions(svg, xBrush, yBrush, x, y, x2, y2, xAxis, yAxis, x_slider, y_slider, stacked, area, line);
+	    handle_brush_actions(data_model, svg, xBrush, yBrush, x, y, x2, y2, xAxis, yAxis, x_slider, y_slider, stacked, area, line, location);
 	svg.select("#user_y_zoomed").text("1");
 	});
 
@@ -1709,6 +1724,10 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		}
 
 		fix_y_axis_labels(svg);
+
+		if (data_model == "timeseries") {
+		    svg.select("#" + location + "_x_axis_label").text(x_extent[0] + " - " + x_extent[1]);
+		}
 
 		svg.select("#coordinates").style("visibility", "visible")
 		    .text("x:" + table_format_print(x.invert(selection_stop[0])) + " y:" + table_format_print(y.invert(selection_stop[1])));
@@ -1837,7 +1856,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	}
 
 	    console.log("Processing datasets for chart \"" + chart_title + "\"...");
-	    var errors = complete_graph(stacked, x, xAxis, x2, xAxis2, y, yAxis, y2, yAxis2, svg, datasets, line, area, stack, myobject, location);
+	    var errors = complete_graph(stacked, data_model, x, xAxis, x2, xAxis2, y, yAxis, y2, yAxis2, svg, datasets, line, area, stack, myobject, location);
 	    console.log("...finished processing datasets for chart \"" + chart_title + "\"");
 
 	    x_slider.call(xBrush.event);
@@ -1854,7 +1873,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		.attr("class", "chartbutton")
 		.style("visibility", "hidden")
 		.on("click", function() {
-		    zoom_it(zoom_rate, svg, xBrush, yBrush, x, y, x2, y2, x_slider, y_slider, xAxis, yAxis, xAxis2, yAxis2, stacked, area, line);
+		    zoom_it(data_model, zoom_rate, svg, xBrush, yBrush, x, y, x2, y2, x_slider, y_slider, xAxis, yAxis, xAxis2, yAxis2, stacked, area, line, location);
 		    svg.selectAll("#user_x_zoomed,#user_y_zoomed").text("1");
 		    })
 		.on("mouseout", function() {
@@ -1880,7 +1899,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		.attr("class", "chartbutton")
 		.style("visibility", "hidden")
 		.on("click", function() {
-		    zoom_it(-1 * zoom_rate, svg, xBrush, yBrush, x, y, x2, y2, x_slider, y_slider, xAxis, yAxis, xAxis2, yAxis2, stacked, area, line);
+		    zoom_it(data_model, -1 * zoom_rate, svg, xBrush, yBrush, x, y, x2, y2, x_slider, y_slider, xAxis, yAxis, xAxis2, yAxis2, stacked, area, line, location);
 		    svg.selectAll("#user_x_zoomed,#user_y_zoomed").text("1");
 		    })
 		.on("mouseout", function() {
@@ -1933,7 +1952,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	if ((myobject.update_interval !== undefined) &&
 	    (myobject.json_plotfile !== undefined)) {
 	    var interval = window.setInterval(function() {
-		update_chart(chart_title, myobject, svg, datasets, location, stacked, stack, area, line, x, y, xBrush, yBrush, x2, y2, x_slider, y_slider, xAxis, yAxis, xAxis2, yAxis2);
+		update_chart(data_model, chart_title, myobject, svg, datasets, location, stacked, stack, area, line, x, y, xBrush, yBrush, x2, y2, x_slider, y_slider, xAxis, yAxis, xAxis2, yAxis2);
 	    }, myobject.update_interval * 1000);
 
 	    var live_update = true;
@@ -1950,7 +1969,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		    } else {
 			live_update = true;
 			interval = window.setInterval(function() {
-			    update_chart(chart_title, myobject, svg, datasets, location, stacked, stack, area, line, x, y, xBrush, yBrush, x2, y2, x_slider, y_slider, xAxis, yAxis, xAxis2, yAxis2);
+			    update_chart(data_model, chart_title, myobject, svg, datasets, location, stacked, stack, area, line, x, y, xBrush, yBrush, x2, y2, x_slider, y_slider, xAxis, yAxis, xAxis2, yAxis2);
 			}, myobject.update_interval * 1000);
 			//svg.select("#playpauselabel").text("Pause");
 		    }
