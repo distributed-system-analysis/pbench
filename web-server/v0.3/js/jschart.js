@@ -1759,10 +1759,20 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		    set_x_axis_timeseries_label(svg, location, x_extent, myobject.timeseries_timezone);
 		}
 
-		svg.select("#coordinates").style("visibility", "visible")
-		    .text("x:" + table_format_print(x.invert(selection_stop[0])) + " y:" + table_format_print(y.invert(selection_stop[1])));
+		if (data_model == "timeseries") {
+		    if (myobject.timeseries_timezone == "local") {
+			svg.select("#coordinates").style("visibility", "visible")
+			    .text("x:" + local_time_format_print(x.invert(selection_stop[0])) + " y:" + table_format_print(y.invert(selection_stop[1])));
+		    } else {
+			svg.select("#coordinates").style("visibility", "visible")
+			    .text("x:" + utc_time_format_print(x.invert(selection_stop[0])) + " y:" + table_format_print(y.invert(selection_stop[1])));
+		    }
+		} else {
+		    svg.select("#coordinates").style("visibility", "visible")
+			.text("x:" + table_format_print(x.invert(selection_stop[0])) + " y:" + table_format_print(y.invert(selection_stop[1])));
+		}
 
-	    svg.selectAll("#user_x_zoomed,#user_y_zoomed").text("1");
+		svg.selectAll("#user_x_zoomed,#user_y_zoomed").text("1");
 	    })
 	.on("mouseout", function() {
 		svg.selectAll("#coordinates,#xcursorline,#ycursorline,#zoomin,#zoomout,#playpause").style("visibility", "hidden");
@@ -1774,7 +1784,15 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
 		svg.selectAll("#zoomin,#zoomout,#playpause,#coordinates,#xcursorline,#ycursorline").style("visibility", "visible");
 
-		svg.select("#coordinates").text("x:" + table_format_print(x.invert(mouse[0])) + " y:" + table_format_print(y.invert(mouse[1]))); // + " | x':" + mouse[0].toFixed(2) + " y':" + mouse[1].toFixed(2));
+		if (data_model == "timeseries") {
+		    if (myobject.timeseries_timezone == "local") {
+			svg.select("#coordinates").text("x:" + local_time_format_print(x.invert(mouse[0])) + " y:" + table_format_print(y.invert(mouse[1])));
+		    } else {
+			svg.select("#coordinates").text("x:" + utc_time_format_print(x.invert(mouse[0])) + " y:" + table_format_print(y.invert(mouse[1])));
+		    }
+		} else {
+		    svg.select("#coordinates").text("x:" + table_format_print(x.invert(mouse[0])) + " y:" + table_format_print(y.invert(mouse[1])));
+		}
 
 		svg.select("#xcursorline").attr("x1", mouse[0])
 		    .attr("x2", mouse[0])
