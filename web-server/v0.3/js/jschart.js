@@ -1070,13 +1070,8 @@ function handle_brush_actions(data_model, svg, x_brush, y_brush, x, y, x2, y2, x
     var x_domain = x2.domain();
     var y_domain = y2.domain();
 
-    var new_value;
-
     x.domain(x_extent);
     y.domain(y_extent);
-
-    x_brush.extent(x_extent);
-    y_brush.extent(y_extent);
 
     svg.select("g.x.axis").call(x_axis);
     svg.select("g.y.axis").call(y_axis);
