@@ -1102,11 +1102,18 @@ function zoom_it(data_model, zoom, svg, x_brush, y_brush, x, y, x2, y2, x_slider
     var x_extent = x_brush.extent();
     var x_domain = x2.domain();
 
+    if (data_model == "timeseries") {
+	// convert the timestamps into integers for the calculations that follow
+	x_extent[0] = +x_extent[0];
+	x_extent[1] = +x_extent[1];
+	x_domain[0] = +x_domain[0];
+	x_domain[1] = +x_domain[1];
+    }
     var y_extent = y_brush.extent();
     var y_domain = y2.domain();
 
-    var x_center = (x_extent[0] + x_extent[1]) / 2;
-    var y_center = (y_extent[0] + y_extent[1]) / 2;
+    var x_center = (x_extent[1] - x_extent[0]) / 2;
+    var y_center = (y_extent[1] - y_extent[0]) / 2;
 
     x_extent[0] = x_extent[0] - (x_center * zoom);
     x_extent[1] = x_extent[1] + (x_center * zoom);
@@ -1131,13 +1138,19 @@ function zoom_it(data_model, zoom, svg, x_brush, y_brush, x, y, x2, y2, x_slider
     }
 
     if (x_extent[0] > x_extent[1]) {
-	x_extent[0] = x_center - (x_center / 10000);
-	x_extent[1] = x_center + (x_center / 10000);
+	x_extent[0] = x_extent[0] + x_center - (x_center / 10000);
+	x_extent[1] = x_extent[1] - x_center + (x_center / 10000);
     }
 
     if (y_extent[0] > y_extent[1]) {
-	y_extent[0] = y_center - (y_center / 10000);
-	y_extent[1] = y_center + (y_center / 10000);
+	y_extent[0] = y_extent[0] + y_center - (y_center / 10000);
+	y_extent[1] = y_extent[1] - y_center + (y_center / 10000);
+    }
+
+    if (data_model == "timeseries") {
+	// convert the integers back into date objects after the calculations are complete
+	x_extent[0] = new Date(Math.floor(x_extent[0]));
+	x_extent[1] = new Date(Math.ceil(x_extent[1]));
     }
 
     x.domain(x_extent);
