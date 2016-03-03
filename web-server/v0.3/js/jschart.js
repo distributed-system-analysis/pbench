@@ -1522,8 +1522,30 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
 			var target_domain = d.x2.domain();
 			var source_domain = x2.domain();
-			if ((target_domain[0] != source_domain[0]) ||
-			    (target_domain[1] != source_domain[1])) {
+
+			var domain_check = 0;
+
+			if (data_model == "timeseries") {
+			    if (d.data_model == "timeseries") {
+				if ((target_domain[0].getTime() !== source_domain[0].getTime()) ||
+				    (target_domain[1].getTime() !== source_domain[1].getTime())) {
+				    domain_check = 1;
+				}
+			    } else {
+				domain_check = 1;
+			    }
+			} else {
+			    if (d.data_model == "timeseries") {
+				domain_check = 1;
+			    } else {
+				if ((target_domain[0] !== source_domain[0]) ||
+				    (target_domain[1] !== source_domain[1])) {
+				    domain_check = 1;
+				}
+			    }
+			}
+
+			if (domain_check) {
 			    console.log("Skipping application of X-Axis zoom from \"" + chart_title + "\" to \"" + d.chart_title + "\" because data domains are not a match");
 			    return;
 			}
@@ -1635,6 +1657,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 			y2_axis: yAxis2,
 			x_slider: x_slider,
 			y_slider: y_slider,
+			data_model: data_model,
     };
     if (stacked) {
 	tmp_object.area = area;
