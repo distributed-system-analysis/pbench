@@ -108,11 +108,27 @@ function mycolors(index) {
     return colors[(index % (colors.length - 1))];
 }
 
-function parse_plot_file(datasets, index, text) {
+function parse_plot_file(data_model, datasets, index, text) {
+    var histogram = { samples: 0,
+		      sum: 0,
+		      mean: null,
+		      median: null,
+		      min: null,
+		      max: null,
+		      p90: null,
+		      p95: null,
+		      p99: null,
+		      p9999: null
+		    };
+
     var data = dsv.parseRows(text).map(function(row) {
 	    var index = row[0].indexOf("#LABEL:");
 
 	    if (index == -1) {
+		if (data_model == "histogram") {
+		    histogram.samples += +row[1];
+		    histogram.sum += (+row[0] * +row[1]);
+		}
 		return { x: +row[0], y: +row[1] };
 	    } else {
 		var tmp = row[0].substring(7);
@@ -135,9 +151,51 @@ function parse_plot_file(datasets, index, text) {
     if (data.length > 0) {
 	mean = d3.mean(data, function(d) { return d.y; });
 	median = d3.median(data, function(d) { return d.y; });
+
+	if (data_model == "histogram") {
+	    histogram.mean = histogram.sum / histogram.samples;
+	    histogram.min = data[0].x;
+	    histogram.max = data[data.length - 1].x;
+
+	    var count = 0;
+	    var threshold = histogram.samples * 0.5;
+	    var threshold_p90 = histogram.samples * 0.9;
+	    var threshold_p95 = histogram.samples * 0.95;
+	    var threshold_p99 = histogram.samples * 0.99;
+	    var threshold_p9999 = histogram.samples * 0.9999;
+	    for (var i=0; i < data.length; i++) {
+		count += data[i].y;
+		if ((histogram.median === null) && (count >= threshold)) {
+		    histogram.median = data[i].x;
+		}
+		if ((histogram.p90 === null) && (count >= threshold_p90)) {
+		    histogram.p90 = data[i].x;
+		}
+		if ((histogram.p95 === null) && (count >= threshold_p95)) {
+		    histogram.p95 = data[i].x;
+		}
+		if ((histogram.p99 === null) && (count >= threshold_p99)) {
+		    histogram.p99 = data[i].x;
+		}
+		if ((histogram.p9999 === null) && (count >= threshold_p9999)) {
+		    histogram.p9999 = data[i].x;
+		}
+	    }
+	}
     } else {
 	mean = "No Samples";
 	median = "No Samples";
+
+	if (data_model == "histogram") {
+	    histogram.mean = "No Samples";
+	    histogram.median = "No Samples";
+	    histogram.min = "No Samples";
+	    histogram.max = "No Samples";
+	    histogram.p90 = "No Samples";
+	    histogram.p95 = "No Samples";
+	    histogram.p99 = "No Samples";
+	    histogram.p9999 = "No Samples";
+	}
     }
 
     datasets[index] = {
@@ -145,6 +203,7 @@ function parse_plot_file(datasets, index, text) {
 	name: dataset_title,
 	mean: mean,
 	median: median,
+	histogram: histogram,
 	values: data.map(function(d) {
 		return { x: d.x, y: d.y };
 	    })
@@ -368,7 +427,7 @@ function load_json(myobject, chart_title, datasets, callback) {
 	});
 }
 
-function load_csv_files(url, chart_title, datasets, callback) {
+function load_csv_files(url, data_model, chart_title, datasets, callback) {
     // the call to d3.text is performed asynchronously...queue.js
     // processing is used to ensure all files are loaded prior to
     // populating the graph, avoiding parallelism issues
@@ -395,17 +454,39 @@ function load_csv_files(url, chart_title, datasets, callback) {
 		var data = d3.csv.parseRows(text).map(function(row) {
 		    if (sample_counter == 0) {
 			for (var i=1; i<row.length; i++) {
+			    var histogram = { samples: 0,
+					      sum: 0,
+					      mean: null,
+					      median: null,
+					      min: null,
+					      max: null,
+					      p90: null,
+					      p95: null,
+					      p99: null,
+					      p9999: null
+					    };
+
 			    datasets[index_base + i - 1] = {
 				index: index_base + i - 1,
 				name: row[i],
 				mean: "No Samples",
 				median: "No Samples",
+				histogram: histogram,
 				values: [],
 			    };
 			}
 		    } else {
 			for (var i=1; i<row.length; i++) {
+			    if (row[i] == "") {
+				continue;
+			    }
+
 			    datasets[index_base + i - 1].values.push({ x: +row[0], y: +row[i] });
+
+			    if (data_model == "histogram") {
+				datasets[index_base + i -1].histogram.samples += +row[i];
+				datasets[index_base + i -1].histogram.sum += (+row[0] * +row[i]);
+			    }
 			}
 		    }
 
@@ -416,6 +497,37 @@ function load_csv_files(url, chart_title, datasets, callback) {
 		    if (datasets[i].values.length) {
 			datasets[i].mean = d3.mean(datasets[i].values, function(d) { return d.y; });
 			datasets[i].median = d3.median(datasets[i].values, function(d) { return d.y });
+
+			if (data_model == "histogram") {
+			    datasets[i].histogram.mean = datasets[i].histogram.sum / datasets[i].histogram.samples;
+			    datasets[i].histogram.min = datasets[i].values[0].x;
+			    datasets[i].histogram.max = datasets[i].values[datasets[i].values.length - 1].x;
+			}
+
+			var count = 0;
+			var threshold = datasets[i].histogram.samples * 0.5;
+			var threshold_p90 = datasets[i].histogram.samples * 0.9;
+			var threshold_p95 = datasets[i].histogram.samples * 0.95;
+			var threshold_p99 = datasets[i].histogram.samples * 0.99;
+			var threshold_p9999 = datasets[i].histogram.samples * 0.9999;
+			for (var p=0; p < datasets[i].values.length; p++) {
+			    count += datasets[i].values[p].y;
+			    if ((datasets[i].histogram.median === null) && (count >= threshold)) {
+				datasets[i].histogram.median = datasets[i].values[p].x;
+			    }
+			    if ((datasets[i].histogram.p90 === null) && (count >= threshold_p90)) {
+				datasets[i].histogram.p90 = datasets[i].values[p].x;
+			    }
+			    if ((datasets[i].histogram.p95 === null) && (count >= threshold_p95)) {
+				datasets[i].histogram.p95 = datasets[i].values[p].x;
+			    }
+			    if ((datasets[i].histogram.p99 === null) && (count >= threshold_p99)) {
+				datasets[i].histogram.p99 = datasets[i].values[p].x;
+			    }
+			    if ((datasets[i].histogram.p9999 === null) && (count >= threshold_p9999)) {
+				datasets[i].histogram.p9999 = datasets[i].values[p].x;
+			    }
+			}
 		    }
 		}
 
@@ -424,11 +536,11 @@ function load_csv_files(url, chart_title, datasets, callback) {
 	    });
 }
 
-function load_plot_file(url, chart_title, datasets, callback) {
-    load_files(url, chart_title, datasets, -1, callback)
+function load_plot_file(url, data_model, chart_title, datasets, callback) {
+    load_plot_files(url, data_model, chart_title, datasets, -1, callback)
 }
 
-function load_plot_files(url, chart_title, datasets, index, callback) {
+function load_plot_files(url, data_model, chart_title, datasets, index, callback) {
     // the call to d3.text is performed asynchronously...queue.js
     // processing is used to ensure all files are loaded prior to
     // populating the graph, avoiding parallelism issues
@@ -453,7 +565,7 @@ function load_plot_files(url, chart_title, datasets, index, callback) {
 		var packed_index = text.indexOf(packed_separator);
 		var prev_packed_index = packed_index;
 		if ((packed_index == -1) && (index >= 0)) {
-		    parse_plot_file(datasets, index, text);
+		    parse_plot_file(data_model, datasets, index, text);
 		} else {
 		    var dataset_index = 0;
 
@@ -461,7 +573,7 @@ function load_plot_files(url, chart_title, datasets, index, callback) {
 			prev_packed_index = packed_index;
 			packed_index = text.indexOf(packed_separator, packed_index+1);
 
-			parse_plot_file(datasets, dataset_index++, text.slice(prev_packed_index + packed_separator.length + 1, packed_index));
+			parse_plot_file(data_model, datasets, dataset_index++, text.slice(prev_packed_index + packed_separator.length + 1, packed_index));
 		    }
 		}
 
@@ -847,8 +959,14 @@ function create_table_controls(svg, location, myobject) {
     table.appendChild(row);
 }
 
-function create_table_entries(chart_title, datasets, location, stacked, raw_data_sources) {
-    var colspan = 4;
+function create_table_entries(data_model, chart_title, datasets, location, stacked, raw_data_sources) {
+    var colspan;
+
+    if (data_model == "histogram") {
+	colspan = 10;
+    } else {
+	colspan = 4;
+    }
 
     var table_cell = document.getElementById(location + "_table_cell");
 
@@ -866,33 +984,93 @@ function create_table_entries(chart_title, datasets, location, stacked, raw_data
     table_header_1.appendChild(table_header_1_cell);
     table.appendChild(table_header_1);
 
-    var table_header_2 = document.createElement("tr");
-    table_header_2.className = 'header';
+    if (data_model == "histogram") {
+	var table_header_2 = document.createElement("tr");
+	table_header_2.className = 'header';
 
-    var table_header_2_cell_1 = document.createElement("th");
-    table_header_2_cell_1.align = 'left';
-    table_header_2_cell_1.innerHTML = 'Data Sets';
+	var table_header_2_cell_1 = document.createElement("th");
+	table_header_2_cell_1.align = 'left';
+	table_header_2_cell_1.innerHTML = 'Data Sets';
 
-    var table_header_2_cell_2 = document.createElement("th");
-    table_header_2_cell_2.align = 'right';
-    table_header_2_cell_2.innerHTML = 'Data Set Average';
+	var table_header_2_cell_2 = document.createElement("th");
+	table_header_2_cell_2.align = 'right';
+	table_header_2_cell_2.innerHTML = 'Average';
 
-    var table_header_2_cell_3 = document.createElement("th");
-    table_header_2_cell_3.align = 'right';
-    table_header_2_cell_3.innerHTML = 'Data Set Median';
+	var table_header_2_cell_3 = document.createElement("th");
+	table_header_2_cell_3.align = 'right';
+	table_header_2_cell_3.innerHTML = 'Median';
 
-    var table_header_2_cell_4 = document.createElement("th");
-    table_header_2_cell_4.align = 'right';
-    table_header_2_cell_4.innerHTML = 'Samples';
+	var table_header_2_cell_4 = document.createElement("th");
+	table_header_2_cell_4.align = 'right';
+	table_header_2_cell_4.innerHTML = 'Min';
 
-    table_header_2.appendChild(table_header_2_cell_1);
-    table_header_2.appendChild(table_header_2_cell_2);
-    table_header_2.appendChild(table_header_2_cell_3);
-    table_header_2.appendChild(table_header_2_cell_4);
+	var table_header_2_cell_5 = document.createElement("th");
+	table_header_2_cell_5.align = 'right';
+	table_header_2_cell_5.innerHTML = 'Max';
 
-    table.appendChild(table_header_2);
+	var table_header_2_cell_6 = document.createElement("th");
+	table_header_2_cell_6.align = 'right';
+	table_header_2_cell_6.innerHTML = '90%';
 
-    table_cell.appendChild(table);
+	var table_header_2_cell_7 = document.createElement("th");
+	table_header_2_cell_7.align = 'right';
+	table_header_2_cell_7.innerHTML = '95%';
+
+	var table_header_2_cell_8 = document.createElement("th");
+	table_header_2_cell_8.align = 'right';
+	table_header_2_cell_8.innerHTML = '99%';
+
+	var table_header_2_cell_9 = document.createElement("th");
+	table_header_2_cell_9.align = 'right';
+	table_header_2_cell_9.innerHTML = '99.99%';
+
+	var table_header_2_cell_10 = document.createElement("th");
+	table_header_2_cell_10.align = 'right';
+	table_header_2_cell_10.innerHTML = 'Samples';
+
+	table_header_2.appendChild(table_header_2_cell_1);
+	table_header_2.appendChild(table_header_2_cell_2);
+	table_header_2.appendChild(table_header_2_cell_3);
+	table_header_2.appendChild(table_header_2_cell_4);
+	table_header_2.appendChild(table_header_2_cell_5);
+	table_header_2.appendChild(table_header_2_cell_6);
+	table_header_2.appendChild(table_header_2_cell_7);
+	table_header_2.appendChild(table_header_2_cell_8);
+	table_header_2.appendChild(table_header_2_cell_9);
+	table_header_2.appendChild(table_header_2_cell_10);
+
+	table.appendChild(table_header_2);
+
+	table_cell.appendChild(table);
+    } else {
+	var table_header_2 = document.createElement("tr");
+	table_header_2.className = 'header';
+
+	var table_header_2_cell_1 = document.createElement("th");
+	table_header_2_cell_1.align = 'left';
+	table_header_2_cell_1.innerHTML = 'Data Sets';
+
+	var table_header_2_cell_2 = document.createElement("th");
+	table_header_2_cell_2.align = 'right';
+	table_header_2_cell_2.innerHTML = 'Data Set Average';
+
+	var table_header_2_cell_3 = document.createElement("th");
+	table_header_2_cell_3.align = 'right';
+	table_header_2_cell_3.innerHTML = 'Data Set Median';
+
+	var table_header_2_cell_4 = document.createElement("th");
+	table_header_2_cell_4.align = 'right';
+	table_header_2_cell_4.innerHTML = 'Samples';
+
+	table_header_2.appendChild(table_header_2_cell_1);
+	table_header_2.appendChild(table_header_2_cell_2);
+	table_header_2.appendChild(table_header_2_cell_3);
+	table_header_2.appendChild(table_header_2_cell_4);
+
+	table.appendChild(table_header_2);
+
+	table_cell.appendChild(table);
+    }
 
     if (stacked) {
 	var stacked_mean = 0;
@@ -912,36 +1090,117 @@ function create_table_entries(chart_title, datasets, location, stacked, raw_data
 	    row.appendChild(name_cell);
 
 	    var mean_cell = document.createElement("td");
-	mean_cell.id = location + "_tablerow_" + id_str_fixup(d.name) + "_mean";
+	    mean_cell.id = location + "_tablerow_" + id_str_fixup(d.name) + "_mean";
 	    mean_cell.align = "right";
-	    if (isFinite(d.mean)) {
-		mean_cell.innerHTML = table_format_print(d.mean);
+	    if (data_model == "histogram") {
+		if (isFinite(d.histogram.mean)) {
+		    mean_cell.innerHTML = table_format_print(d.histogram.mean);
+		} else {
+		    mean_cell.innerHTML = d.histogram.mean;
+		}
 	    } else {
-		mean_cell.innerHTML = d.mean;
+		if (isFinite(d.mean)) {
+		    mean_cell.innerHTML = table_format_print(d.mean);
+		} else {
+		    mean_cell.innerHTML = d.mean;
+		}
+		if (stacked && (d.mean !== undefined) && isFinite(d.mean)) {
+		    valid_stacked_mean = 1;
+		    stacked_mean += d.mean;
+		}
 	    }
 	    row.appendChild(mean_cell);
-	    if (stacked && (d.mean !== undefined) && isFinite(d.mean)) {
-		valid_stacked_mean = 1;
-		stacked_mean += d.mean;
-	    }
 
 	    var median_cell = document.createElement("td");
-	median_cell.id = location + "_tablerow_" + id_str_fixup(d.name) + "_median";
+	    median_cell.id = location + "_tablerow_" + id_str_fixup(d.name) + "_median";
 	    median_cell.align = "right";
-	    if (isFinite(d.median)) {
-		median_cell.innerHTML = table_format_print(d.median);
+	    if (data_model == "histogram") {
+		if (isFinite(d.histogram.median)) {
+		    median_cell.innerHTML = table_format_print(d.histogram.median);
+		} else {
+		    median_cell.innerHTML = d.histogram.median;
+		}
 	    } else {
-		median_cell.innerHTML = d.median;
+		if (isFinite(d.median)) {
+		    median_cell.innerHTML = table_format_print(d.median);
+		} else {
+		    median_cell.innerHTML = d.median;
+		}
 	    }
 	    row.appendChild(median_cell);
 
-	    if (colspan === 4) {
-		var sample_cell = document.createElement("td");
-		sample_cell.id = location + "_tablerow_" + id_str_fixup(d.name) + "_samples";
-		sample_cell.align = "right";
-		sample_cell.innerHTML = d.values.length;
-		row.appendChild(sample_cell);
+	    if (data_model == "histogram") {
+		var min_cell = document.createElement("td");
+		min_cell.id = location + "_tablerow_" + id_str_fixup(d.name) + "_min";
+		min_cell.align = "right";
+		if (isFinite(d.histogram.min)) {
+		    min_cell.innerHTML = table_format_print(d.histogram.min);
+		} else {
+		    min_cell.innerHTML = d.histogram.min;
+		}
+		row.appendChild(min_cell);
+
+		var max_cell = document.createElement("td");
+		max_cell.id = location + "_tablerow_" + id_str_fixup(d.name) + "_max";
+		max_cell.align = "right";
+		if (isFinite(d.histogram.max)) {
+		    max_cell.innerHTML = table_format_print(d.histogram.max);
+		} else {
+		    max_cell.innerHTML = d.histogram.max;
+		}
+		row.appendChild(max_cell);
+
+		var p90_cell = document.createElement("td");
+		p90_cell.id = location + "_tablerow_" + id_str_fixup(d.name) + "_p90";
+		p90_cell.align = "right";
+		if (isFinite(d.histogram.p90)) {
+		    p90_cell.innerHTML = table_format_print(d.histogram.p90);
+		} else {
+		    p90_cell.innerHTML = d.histogram.p90;
+		}
+		row.appendChild(p90_cell);
+
+		var p95_cell = document.createElement("td");
+		p95_cell.id = location + "_tablerow_" + id_str_fixup(d.name) + "_p95";
+		p95_cell.align = "right";
+		if (isFinite(d.histogram.p95)) {
+		    p95_cell.innerHTML = table_format_print(d.histogram.p95);
+		} else {
+		    p95_cell.innerHTML = d.histogram.p95;
+		}
+		row.appendChild(p95_cell);
+
+		var p99_cell = document.createElement("td");
+		p99_cell.id = location + "_tablerow_" + id_str_fixup(d.name) + "_p99";
+		p99_cell.align = "right";
+		if (isFinite(d.histogram.p99)) {
+		    p99_cell.innerHTML = table_format_print(d.histogram.p99);
+		} else {
+		    p99_cell.innerHTML = d.histogram.p99;
+		}
+		row.appendChild(p99_cell);
+
+		var p9999_cell = document.createElement("td");
+		p9999_cell.id = location + "_tablerow_" + id_str_fixup(d.name) + "_p9999";
+		p9999_cell.align = "right";
+		if (isFinite(d.histogram.p9999)) {
+		    p9999_cell.innerHTML = table_format_print(d.histogram.p9999);
+		} else {
+		    p9999_cell.innerHTML = d.histogram.p9999;
+		}
+		row.appendChild(p9999_cell);
 	    }
+
+	    var sample_cell = document.createElement("td");
+	    sample_cell.id = location + "_tablerow_" + id_str_fixup(d.name) + "_samples";
+	    sample_cell.align = "right";
+	    if (data_model == "histogram") {
+		sample_cell.innerHTML = table_format_print(d.histogram.samples);
+	    } else {
+		sample_cell.innerHTML = table_format_print(d.values.length);
+	    }
+
+	    row.appendChild(sample_cell);
 
 	    table.appendChild(row);
 	});
@@ -1191,8 +1450,9 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
     var datasets = [];
 
     if ((data_model == "xy") ||
-	(data_model == "timeseries")) {
-	    console.log("User specified data_model=\"" + data_model + "\" for chart \"" + chart_title + "\"");
+	(data_model == "timeseries") ||
+	(data_model == "histogram")) {
+	console.log("User specified data_model=\"" + data_model + "\" for chart \"" + chart_title + "\"");
     } else {
 	console.log("An unsupported data_model [\"" + data_model + "\"] was specified for chart \"" + chart_title + "\"");
 
@@ -1235,7 +1495,8 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
     var x;
     var x2;
 
-    if (data_model == "xy") {
+    if ((data_model == "xy") ||
+	(data_model == "histogram")) {
 	x = d3.scale.linear();
 	x2 = d3.scale.linear();
     } else if (data_model == "timeseries") {
@@ -1884,7 +2145,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
 	for (var i=0; i<myobject.csvfiles.length; i++) {
 	    // add a dataset load to the queue
-	    async_q.defer(load_csv_files, myobject.csvfiles[i], chart_title, datasets);
+	    async_q.defer(load_csv_files, myobject.csvfiles[i], data_model, chart_title, datasets);
 	}
     } else {
 	// this path can have some parallelism, but place a limit on
@@ -1894,12 +2155,12 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	if ((myobject.packed !== undefined) &&
 	    (myobject.plotfile !== undefined)) {
 	    // add a packed dataset load to the queue
-	    async_q.defer(load_plot_file, myobject.plotfile, chart_title, datasets);
+	    async_q.defer(load_plot_file, myobject.plotfile, data_mode, chart_title, datasets);
 	} else {
 	    if (myobject.plotfiles !== undefined) {
 		for (var i=0; i<myobject.plotfiles.length; i++) {
 		    // add a dataset load to the queue
-		    async_q.defer(load_plot_files, myobject.plotfiles[i], chart_title, datasets, i);
+		    async_q.defer(load_plot_files, myobject.plotfiles[i], data_model, chart_title, datasets, i);
 		}
 	    } else {
 		if (myobject.json_plotfile !== undefined) {
@@ -1925,7 +2186,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		myobject.raw_data_sources = [];
 	    }
 
-	    create_table_entries(chart_title, datasets, location, stacked, myobject.raw_data_sources);
+	    create_table_entries(data_model, chart_title, datasets, location, stacked, myobject.raw_data_sources);
 	    console.log("...finished adding table entries for chart \"" + chart_title + "\"");
 
 	    if (myobject.update_interval !== undefined) {
