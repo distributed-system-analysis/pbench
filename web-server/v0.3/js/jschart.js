@@ -1913,10 +1913,10 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
 	    console.log("Content load complete for chart \"" + chart_title + "\".");
 
-	if (datasets.length > dataset_count) {
-	    console.log("Resizing SVG for chart \"" + chart_title + "\".");
-	    d3.select("#" + location + "_chart").select("svg").attr("height", height + margin.top + margin.bottom + ((Math.ceil(datasets.length / legend_properties.columns) - 1 + extra_legend_rows) * legend_properties.row_height))
-	}
+	    if (datasets.length > dataset_count) {
+		console.log("Resizing SVG for chart \"" + chart_title + "\".");
+		d3.select("#" + location + "_chart").select("svg").attr("height", height + margin.top + margin.bottom + ((Math.ceil(datasets.length / legend_properties.columns) - 1 + extra_legend_rows) * legend_properties.row_height))
+	    }
 
 	    console.log("Creating table entries for chart \"" + chart_title + "\"...");
 	    if (myobject.raw_data_sources === undefined) {
@@ -1926,11 +1926,11 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	    create_table_entries(chart_title, datasets, location, stacked, myobject.raw_data_sources);
 	    console.log("...finished adding table entries for chart \"" + chart_title + "\"");
 
-	if (myobject.update_interval !== undefined) {
-	    console.log("Creating table controls for chart \"" + chart_title + "\"...");
-	    create_table_controls(svg, location, myobject);
-	    console.log("...finished adding table controls for chart \"" + chart_title + "\"");
-	}
+	    if (myobject.update_interval !== undefined) {
+		console.log("Creating table controls for chart \"" + chart_title + "\"...");
+		create_table_controls(svg, location, myobject);
+		console.log("...finished adding table controls for chart \"" + chart_title + "\"");
+	    }
 
 	    console.log("Processing datasets for chart \"" + chart_title + "\"...");
 	    var errors = complete_graph(stacked, data_model, x, xAxis, x2, xAxis2, y, yAxis, y2, yAxis2, svg, datasets, line, area, stack, myobject, location);
@@ -2026,62 +2026,61 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
 	    console.log("...finished building chart \"" + chart_title + "\"");
 
-	if ((myobject.update_interval !== undefined) &&
-	    (myobject.json_plotfile !== undefined)) {
-	    var interval = window.setInterval(function() {
-		update_chart(data_model, chart_title, myobject, svg, datasets, location, stacked, stack, area, line, x, y, xBrush, yBrush, x2, y2, x_slider, y_slider, xAxis, yAxis, xAxis2, yAxis2);
-	    }, myobject.update_interval * 1000);
+	    if ((myobject.update_interval !== undefined) &&
+		(myobject.json_plotfile !== undefined)) {
+		var interval = window.setInterval(function() {
+		    update_chart(data_model, chart_title, myobject, svg, datasets, location, stacked, stack, area, line, x, y, xBrush, yBrush, x2, y2, x_slider, y_slider, xAxis, yAxis, xAxis2, yAxis2);
+		}, myobject.update_interval * 1000);
 
-	    var live_update = true;
+		var live_update = true;
 
-	    var playpause = svg.append("g")
-		.attr("id", "playpause")
-		.attr("class", "chartbutton")
-		.style("visibility", "hidden")
-		.on("click", function () {
-		    if (live_update) {
-			live_update = false;
-			clearInterval(interval);
-			//svg.select("#playpauselabel").text("Play");
-		    } else {
-			live_update = true;
-			interval = window.setInterval(function() {
-			    update_chart(data_model, chart_title, myobject, svg, datasets, location, stacked, stack, area, line, x, y, xBrush, yBrush, x2, y2, x_slider, y_slider, xAxis, yAxis, xAxis2, yAxis2);
-			}, myobject.update_interval * 1000);
-			//svg.select("#playpauselabel").text("Pause");
-		    }
-		})
-		.on("mouseout", function() {
-		    svg.selectAll("#zoomin,#zoomout,#playpause").style("visibility", "hidden");
-		})
-		.on("mouseover", function() {
-		    svg.selectAll("#zoomin,#zoomout,#playpause").style("visibility", "visible");
-		});
+		var playpause = svg.append("g")
+		    .attr("id", "playpause")
+		    .attr("class", "chartbutton")
+		    .style("visibility", "hidden")
+		    .on("click", function () {
+			if (live_update) {
+			    live_update = false;
+			    clearInterval(interval);
+			    //svg.select("#playpauselabel").text("Play");
+			} else {
+			    live_update = true;
+			    interval = window.setInterval(function() {
+				update_chart(data_model, chart_title, myobject, svg, datasets, location, stacked, stack, area, line, x, y, xBrush, yBrush, x2, y2, x_slider, y_slider, xAxis, yAxis, xAxis2, yAxis2);
+			    }, myobject.update_interval * 1000);
+			    //svg.select("#playpauselabel").text("Pause");
+			}
+		    })
+		    .on("mouseout", function() {
+			svg.selectAll("#zoomin,#zoomout,#playpause").style("visibility", "hidden");
+		    })
+		    .on("mouseover", function() {
+			svg.selectAll("#zoomin,#zoomout,#playpause").style("visibility", "visible");
+		    });
 
-	    playpause.append("circle")
-		.attr("cx", 35)
-		.attr("cy", 45)
-		.attr("r", 11);
+		playpause.append("circle")
+		    .attr("cx", 35)
+		    .attr("cy", 45)
+		    .attr("r", 11);
 
-	    playpause.append("polygon")
-		.attr("class", "playicon")
-		.attr("points", "29,42 29,49 34,45");
+		playpause.append("polygon")
+		    .attr("class", "playicon")
+		    .attr("points", "29,42 29,49 34,45");
 
-	    playpause.append("line")
-		.attr("class", "pauseicon")
-		.attr("x1", 37)
-		.attr("y1", 41)
-		.attr("x2", 37)
-		.attr("y2", 50);
+		playpause.append("line")
+		    .attr("class", "pauseicon")
+		    .attr("x1", 37)
+		    .attr("y1", 41)
+		    .attr("x2", 37)
+		    .attr("y2", 50);
 
-	    playpause.append("line")
-		.attr("class", "pauseicon")
-		.attr("x1", 41)
-		.attr("y1", 41)
-		.attr("x2", 41)
-		.attr("y2", 50);
-
-	}
+		playpause.append("line")
+		    .attr("class", "pauseicon")
+		    .attr("x1", 41)
+		    .attr("y1", 41)
+		    .attr("x2", 41)
+		    .attr("y2", 50);
+	    }
 
 	    // signal that the chart generation is complete
 	    callback();
