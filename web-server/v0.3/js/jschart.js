@@ -1704,7 +1704,9 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.attr("y", -margin.top + 29)
 	.style("text-anchor", "middle")
 	.on("click", function() {
-		saveSvgAsPng(document.getElementById(location + "_svg"), chart_title + ".png");
+		saveSvgAsPng(document.getElementById(location + "_svg"), chart_title + ".png", {
+		    backgroundColor: "#FFFFFF"
+		});
 	    })
 	.text("Save as PNG");
 
