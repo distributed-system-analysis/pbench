@@ -5,8 +5,8 @@
   (C) Copyright IBM Corp. 2015
 
   This file is subject to the terms and conditions of the Eclipse
-  Public License.  See the file LICENSE.TXT in the main directory of the
-  distribution for more details.
+  Public License.  See the file LICENSE.TXT in this directory for more
+  details.
 */
 
 // This is a Javascript library that renders SVG charts.  It is
