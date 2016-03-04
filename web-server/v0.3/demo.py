@@ -34,7 +34,7 @@ event = threading.Event()
 
 Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
 
-# most of the files that we collect are plain text but don't have valid mime types...so force plain text for unknown
+# most of the files that we serve are plain text but don't have valid mime types...so force plain text for unknown
 Handler.extensions_map[""] = "text/plain"
 
 httpd = SocketServer.TCPServer((INTERFACE, PORT), Handler)
@@ -53,7 +53,7 @@ def handler(signum, frame):
 
 signal.signal(signal.SIGINT, handler)
 
-print "Using your browser, open http://%s:%d/summary.html to view profiler data charts or http://%s:%d to browse all collected data." % (INTERFACE, PORT, INTERFACE, PORT)
+print "Using your browser, open http://%s:%d/demo.html to view the demo charts or http://%s:%d to browse all files." % (INTERFACE, PORT, INTERFACE, PORT)
 print "Press CTRL-C to quit..."
 # this will block....
 httpd.serve_forever()
