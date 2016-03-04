@@ -2,37 +2,22 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <link href="/static/css/v0.2/nv.d3.css" rel="stylesheet" type="text/css" media="all">
-    <link href="/static/css/v0.2/pbench_utils.css" rel="stylesheet" type="text/css" media="all">
-    <script src="/static/js/v0.2/function-bind.js"></script>
-    <script src="/static/js/v0.2/fastdom.js"></script>
-    <script src="/static/js/v0.2/d3.js"></script>
-    <script src="/static/js/v0.2/nv.d3.js"></script>
-    <script src="/static/js/v0.2/saveSvgAsPng.js"></script>
-    <script src="/static/js/v0.2/pbench_utils.js"></script>
+    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">
   </head>
-  <body class="with-3d-shadow with-transitions">
-    <h2 class="page-header">sar-0 - memory</h2>
-    <div class="chart">
-      <h3 class="chart-header">memory_activity
-        <button id="save1">Save as Image</button>
-        <div id="svgdataurl1"></div>
-      </h3>
-      <svg id="chart1"></svg>
-      <canvas id="canvas1" style="display:none"></canvas>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.3/jschart.js"></script>
+    <center><h2>sar-0 - memory</h2></center>
+    <div id="chart_1">
       <script>
-        constructChart("lineChart", 1, "memory_memory_activity");
+        create_graph("lineChart", "timeseries", "chart_1", "memory_activity", null, null, { csvfiles: [ "csv/memory_memory_activity.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">memory_usage
-        <button id="save2">Save as Image</button>
-        <div id="svgdataurl2"></div>
-      </h3>
-      <svg id="chart2"></svg>
-      <canvas id="canvas2" style="display:none"></canvas>
+    <div id="chart_2">
       <script>
-        constructChart("lineChart", 2, "memory_memory_usage");
+        create_graph("lineChart", "timeseries", "chart_2", "memory_usage", null, null, { csvfiles: [ "csv/memory_memory_usage.csv" ] });
       </script>
     </div>
   </body>
