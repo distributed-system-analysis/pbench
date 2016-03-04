@@ -9,14 +9,13 @@
   details.
 */
 
-// This is a Javascript library that renders SVG charts.  It is
-// modeled after chart.pl, implementing many of the same capabilities
-// while adding many others.
+// This is a Javascript library that renders SVG charts.
 //
-// This library depends on 2 external packages: d3.js and queue.js
-// Those packages are available here:
+// This library depends on 3 external packages: d3.js, d3-queue.js, and saveSvgAsPng.js
+// Those packages are available here or via npm:
 //     https://github.com/mbostock/d3
-//     https://github.com/mbostock/queue
+//     https://github.com/d3/d3-queue
+//     https://github.com/exupero/saveSvgAsPng
 
 // debugging placeholder for development use
 var debug = 0;
