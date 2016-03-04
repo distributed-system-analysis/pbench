@@ -36,6 +36,7 @@ rect.tooltip { fill: #CCCCCC; stroke-width: 2px; stroke: black; }
 .chartbutton { fill-opacity: 0.5; fill: #AAAAAA; stroke: #333333; stroke-width: 2px; font-size: 14px; pointer-events: all; cursor: pointer; }
 .playicon { fill-opacity: 1.0; fill: #333333; pointer-events: all; cursor: pointer; }
 .pauseicon { pointer-events: all; cursor: pointer; }
+text { font-size: 12px; font-family: monospace; }
 
 .chart { border: 2px solid black; border-collapse: collapse; font-family: monospace; background-color: white; }
 .chart TH { padding-left: 6px; padding-right: 6px; padding-top: 2px; padding-bottom: 2px; border: 1px solid silver; }
