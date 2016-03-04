@@ -226,7 +226,7 @@ sub gen_data {
 		printf TOOL_HTML "    <script src=\"/static/js/v0.3/d3-queue.min.js\"></script>\n";
 		printf TOOL_HTML "    <script src=\"/static/js/v0.3/saveSvgAsPng.js\"></script>\n";
 		printf TOOL_HTML "    <script src=\"/static/js/v0.3/jschart.js\"></script>\n";
-		printf TOOL_HTML "    <h2>%s - %s</h2>\n", basename($dir), "$htmlpage";
+		printf TOOL_HTML "    <center><h2>%s - %s</h2></center>\n", basename($dir), "$htmlpage";
 
 		my $chartnum=1;
 		for $chart (sort keys %{$stats{$htmlpage}}) {
