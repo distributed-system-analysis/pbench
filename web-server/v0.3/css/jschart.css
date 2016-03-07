@@ -20,7 +20,7 @@ line.points { stroke-width: 1.5px; cursor: crosshair; pointer-events: none; }
 .titlebox { fill: #033E6B; }
 .legendlabel { }
 .area { opacity: 0.9; cursor: crosshair; pointer-events: none; }
-.legendrect { opacity: 0.9; }
+.legendrect { outline-style: solid; outline-offset: 1px; outline-width: 2px; opacity: 0.9; }
 rect.pane { cursor: crosshair; fill: none; pointer-events: all; }
 .actionlabel { cursor: pointer; fill: blue; }
 .actionlabel:hover { text-decoration: underline; font-weight: bold; fill: red; }

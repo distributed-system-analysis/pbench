@@ -660,10 +660,9 @@ function complete_graph(stacked, data_model, x, x_axis, x2, x_axis2, y, y_axis, 
 	.attr("onclick", function(d) { return "click_highlight_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
 	.attr("onmouseover", function(d) { return "mouseover_highlight_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
 	.attr("onmouseout", function(d) { return "mouseout_highlight_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
-	.attr("rx", 4)
-	.attr("ry", 4)
-	.attr("width", 18)
-	.attr("height", 18)
+	.attr("width", 16)
+	.attr("height", 16)
+	.style("outline-color", function(d) { var color; datasets.map(function(c) { if (c.name == d) { color = mycolors(c.index); }}); return color; } )
 	.style("fill", function(d) { var color; datasets.map(function(c) { if (c.name == d) { color = mycolors(c.index); }}); return color; } );
 
     var legend_label_offset = 25;
