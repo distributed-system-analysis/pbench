@@ -80,16 +80,6 @@ function compute_stacked_median(datasets) {
     }
 }
 
-function get_dataset_labels(datasets) {
-    var labels = [];
-
-    datasets.map(function(d) {
-	    labels.push(d.name);
-	});
-
-    return labels;
-}
-
 function id_str_fixup(string) {
     return string.replace(/[\[\]\s%.\/():,]/g, "_");
 }
@@ -203,6 +193,14 @@ function parse_plot_file(data_model, datasets, index, text) {
 	mean: mean,
 	median: median,
 	histogram: histogram,
+	dom: {
+	    table_row: null,
+	    path: null,
+	    legend: {
+		rec: null,
+		label: null
+	    },
+	},
 	values: data.map(function(d) {
 		return { x: d.x, y: d.y };
 	    })
@@ -395,6 +393,14 @@ function load_json(myobject, chart_title, datasets, callback) {
 			mean: 0,
 			median: 0,
 			values: [],
+			dom: {
+			    table_row: null,
+			    path: null,
+			    legend: {
+				rec: null,
+				label: null
+			    },
+			},
 			last_timestamp: 0
 		    };
 
@@ -471,6 +477,14 @@ function load_csv_files(url, data_model, chart_title, datasets, callback) {
 				mean: "No Samples",
 				median: "No Samples",
 				histogram: histogram,
+				dom: {
+				    table_row: null,
+				    path: null,
+				    legend: {
+					rec: null,
+					label: null
+				    },
+				},
 				values: [],
 			    };
 			}
@@ -649,33 +663,33 @@ function complete_graph(stacked, data_model, x, x_axis, x2, x_axis2, y, y_axis, 
     }
 
     var legend = svg.selectAll(".legend")
-        .data(get_dataset_labels(datasets))
+        .data(datasets)
 	.enter().append("g")
         .attr("class", "legend")
         .attr("transform", function(d, i) { return "translate(" + (-margin.left + 5 + (i % legend_columns) * (total_width / legend_columns)) + "," + (height + legend_properties.margin.top + (Math.floor(i / legend_columns) * legend_properties.row_height)) + ")"; });
 
     legend.append("rect")
 	.attr("class", "legendrect")
-	.attr("id", function(d) { return location + "_rect_" + id_str_fixup(d); })
-	.attr("onclick", function(d) { return "click_highlight_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
-	.attr("onmouseover", function(d) { return "mouseover_highlight_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
-	.attr("onmouseout", function(d) { return "mouseout_highlight_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
+	.attr("id", function(d) { d.dom.legend.rect = this; return location + "_rect_" + id_str_fixup(d.name); })
+	.attr("onclick", function(d) { return "click_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
+	.attr("onmouseover", function(d) { return "mouseover_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
+	.attr("onmouseout", function(d) { return "mouseout_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
 	.attr("width", 16)
 	.attr("height", 16)
-	.style("outline-color", function(d) { var color; datasets.map(function(c) { if (c.name == d) { color = mycolors(c.index); }}); return color; } )
-	.style("fill", function(d) { var color; datasets.map(function(c) { if (c.name == d) { color = mycolors(c.index); }}); return color; } );
+	.style("outline-color", function(d) { return mycolors(d.index); } )
+	.style("fill", function(d) { return mycolors(d.index); } );
 
     var legend_label_offset = 25;
 
     legend.append("text")
 	.attr("class", "legendlabel")
-	.attr("id", function(d) { return location + "_label_" + id_str_fixup(d); })
-	.attr("onclick", function(d) { return "click_highlight_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
-	.attr("onmouseover", function(d) { return "mouseover_highlight_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
-	.attr("onmouseout", function(d) { return "mouseout_highlight_function(\"" + location + "\", \"" + id_str_fixup(d) + "\", " + stacked + ")"; })
+	.attr("id", function(d) { d.dom.legend.label = this; return location + "_label_" + id_str_fixup(d.name); })
+	.attr("onclick", function(d) { return "click_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
+	.attr("onmouseover", function(d) { return "mouseover_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
+	.attr("onmouseout", function(d) { return "mouseout_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
 	.attr("x", legend_label_offset)
 	.attr("y", 13.5)
-	.text(function(d) { return d; });
+	.text(function(d) { return d.name; });
 
     svg.selectAll(".legendlabel")
 	.each(function(d, i) {
@@ -796,7 +810,7 @@ function complete_graph(stacked, data_model, x, x_axis, x2, x_axis2, y, y_axis, 
 
 	plot.append("path")
 	    .attr("class", "area")
-	    .attr("d", function(d) { if (d.values === undefined) { return null; } return area(d.values); })
+	    .attr("d", function(d) { d.dom.path = this; if (d.values === undefined) { return null; } return area(d.values); })
 	    .style("fill", function(d) { return mycolors(d.index); })
 	    .attr("clip-path", "url(#clip)")
 	    .attr("id", function(d) { return location + "_area_" + id_str_fixup(d.name); });
@@ -835,7 +849,7 @@ function complete_graph(stacked, data_model, x, x_axis, x2, x_axis2, y, y_axis, 
 
 	plot.append("path")
 	    .attr("class", "line")
-	    .attr("d", function(d) { if (d.values === undefined) { return null; } return line(d.values); })
+	    .attr("d", function(d) { d.dom.path = this; if (d.values === undefined) { return null; } return line(d.values); })
 	    .style("stroke", function(d) { return mycolors(d.index) })
 	    .attr("clip-path", "url(#clip)")
 	    .attr("id", function(d) { return location + "_line_" + id_str_fixup(d.name); });
@@ -1201,6 +1215,8 @@ function create_table_entries(data_model, chart_title, datasets, location, stack
 	    row.appendChild(sample_cell);
 
 	    table.appendChild(row);
+
+	    d.dom.table_row = row;
 	});
 
     if (stacked) {
@@ -1917,6 +1933,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 			x_slider: x_slider,
 			y_slider: y_slider,
 			data_model: data_model,
+			datasets: datasets
     };
     if (stacked) {
 	tmp_object.area = area;
