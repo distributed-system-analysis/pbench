@@ -1,0 +1,10 @@
+cpu_00-gnice=0.000000
+cpu_00-guest=0.000000
+cpu_00-idle=97.708500
+cpu_00-iowait=0.067000
+cpu_00-irq=0.000000
+cpu_00-nice=0.000000
+cpu_00-soft=0.000000
+cpu_00-steal=0.000000
+cpu_00-sys=1.120500
+cpu_00-usr=1.104000
