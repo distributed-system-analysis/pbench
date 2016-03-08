@@ -260,6 +260,10 @@ case "$mode" in
         		;;
 		esac
 		check_install_rpm $pkg
+		if grep -q KVM /sys/devices/virtual/dmi/id/product_name ; then
+			echo "pbench is running inside a KVM guest.  Disabling turbostat."
+		exit 1
+		fi
 		;;
 		dm-cache)
 		kmod=dm_cache
