@@ -193,9 +193,11 @@ function parse_plot_file(data_model, datasets, index, text) {
 	mean: mean,
 	median: median,
 	histogram: histogram,
+	highlighted: false,
 	dom: {
 	    table_row: null,
 	    path: null,
+	    points: null,
 	    legend: {
 		rec: null,
 		label: null
@@ -393,9 +395,11 @@ function load_json(myobject, chart_title, datasets, callback) {
 			mean: 0,
 			median: 0,
 			values: [],
+			highlighted: false,
 			dom: {
 			    table_row: null,
 			    path: null,
+			    points: null,
 			    legend: {
 				rec: null,
 				label: null
@@ -477,9 +481,11 @@ function load_csv_files(url, data_model, chart_title, datasets, callback) {
 				mean: "No Samples",
 				median: "No Samples",
 				histogram: histogram,
+				highlighted: false,
 				dom: {
 				    table_row: null,
 				    path: null,
+				    points: null,
 				    legend: {
 					rec: null,
 					label: null
@@ -620,7 +626,7 @@ function navigate_to_chart(target) {
     }
 }
 
-function complete_graph(stacked, data_model, x, x_axis, x2, x_axis2, y, y_axis, y2, y_axis2, svg, datasets, line, area, stack, myobject, location) {
+function complete_graph(stacked, data_model, x, x_axis, x2, x_axis2, y, y_axis, y2, y_axis2, svg, datasets, line, area, stack, myobject, location, chart_refs_index) {
     x.domain([
 	      d3.min(datasets, function(c) { if (c.values === undefined) { return null; } return d3.min(c.values, function(v) { return v.x; }); }),
 	      d3.max(datasets, function(c) { if (c.values === undefined) { return null; } return d3.max(c.values, function(v) { return v.x; }); })
@@ -671,9 +677,10 @@ function complete_graph(stacked, data_model, x, x_axis, x2, x_axis2, y, y_axis, 
     legend.append("rect")
 	.attr("class", "legendrect")
 	.attr("id", function(d) { d.dom.legend.rect = this; return location + "_rect_" + id_str_fixup(d.name); })
-	.attr("onclick", function(d) { return "click_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
-	.attr("onmouseover", function(d) { return "mouseover_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
-	.attr("onmouseout", function(d) { return "mouseout_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
+	.attr("onclick", function(d) { return "click_highlight_function(" + chart_refs_index + ", " + d.index + ", " + stacked + ")"; })
+	.attr("ondblclick", function(d) { return "console.log(chart_refs[" + chart_refs_index + "]); console.log(chart_refs[" + chart_refs_index + "].datasets[" + d.index + "])"; })
+	.attr("onmouseover", function(d) { return "mouseover_highlight_function(" + chart_refs_index + ", " + d.index + ", " + stacked + ")"; })
+	.attr("onmouseout", function(d) { return "mouseout_highlight_function(" + chart_refs_index + ", " + d.index + ", " + stacked + ")"; })
 	.attr("width", 16)
 	.attr("height", 16)
 	.style("outline-color", function(d) { return mycolors(d.index); } )
@@ -684,9 +691,9 @@ function complete_graph(stacked, data_model, x, x_axis, x2, x_axis2, y, y_axis, 
     legend.append("text")
 	.attr("class", "legendlabel")
 	.attr("id", function(d) { d.dom.legend.label = this; return location + "_label_" + id_str_fixup(d.name); })
-	.attr("onclick", function(d) { return "click_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
-	.attr("onmouseover", function(d) { return "mouseover_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
-	.attr("onmouseout", function(d) { return "mouseout_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
+	.attr("onclick", function(d) { return "click_highlight_function(" + chart_refs_index + ", " + d.index + ", " + stacked + ")"; })
+	.attr("onmouseover", function(d) { return "mouseover_highlight_function(" + chart_refs_index + ", " + d.index + ", " + stacked + ")"; })
+	.attr("onmouseout", function(d) { return "mouseout_highlight_function(" + chart_refs_index + ", " + d.index + ", " + stacked + ")"; })
 	.attr("x", legend_label_offset)
 	.attr("y", 13.5)
 	.text(function(d) { return d.name; });
@@ -814,9 +821,6 @@ function complete_graph(stacked, data_model, x, x_axis, x2, x_axis2, y, y_axis, 
 	    .style("fill", function(d) { return mycolors(d.index); })
 	    .attr("clip-path", "url(#clip)")
 	    .attr("id", function(d) { return location + "_area_" + id_str_fixup(d.name); });
-	    //.attr("onclick", function(d) { return "click_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
-	    //.attr("onmouseover", function(d) { return "mouseover_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
-	    //.attr("onmouseout", function(d) { return "mouseout_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; });
 
 	datasets.map(function(d) {
 		if (d.values.length > 1) {
@@ -831,7 +835,7 @@ function complete_graph(stacked, data_model, x, x_axis, x2, x_axis2, y, y_axis, 
 		    .data(d.values)
 		    .enter().append("line")
 		    .attr("class", "points")
-		    .attr("id", function(b) { return location + "_points_" + id_str_fixup(d.name); })
+		    .attr("id", function(b) { d.dom.points = this; return location + "_points_" + id_str_fixup(d.name); })
 		    .attr("r", 3)
 		    .attr("clip-path", "url(#clip)")
 		    .style("stroke", mycolors(d.index))
@@ -853,9 +857,6 @@ function complete_graph(stacked, data_model, x, x_axis, x2, x_axis2, y, y_axis, 
 	    .style("stroke", function(d) { return mycolors(d.index) })
 	    .attr("clip-path", "url(#clip)")
 	    .attr("id", function(d) { return location + "_line_" + id_str_fixup(d.name); });
-	    //.attr("onclick", function(d) { return "click_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
-	    //.attr("onmouseover", function(d) { return "mouseover_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; })
-	    //.attr("onmouseout", function(d) { return "mouseout_highlight_function(\"" + location + "\", \"" + id_str_fixup(d.name) + "\", " + stacked + ")"; });
 
 	datasets.map(function(d) {
 		if (d.values.length > 1) {
@@ -870,7 +871,7 @@ function complete_graph(stacked, data_model, x, x_axis, x2, x_axis2, y, y_axis, 
 		    .data(d.values)
 		    .enter().append("circle")
 		    .attr("class", "points")
-		    .attr("id", function(b) { return location + "_points_" + id_str_fixup(d.name); })
+		    .attr("id", function(b) { d.dom.points = this; return location + "_points_" + id_str_fixup(d.name); })
 		    .attr("r", 3)
 		    .attr("clip-path", "url(#clip)")
 		    .style("fill", mycolors(d.index))
@@ -971,7 +972,7 @@ function create_table_controls(svg, location, myobject) {
     table.appendChild(row);
 }
 
-function create_table_entries(data_model, chart_title, datasets, location, stacked, raw_data_sources) {
+function create_table_entries(data_model, chart_title, datasets, location, stacked, raw_data_sources, chart_refs_index) {
     var colspan;
 
     if (data_model == "histogram") {
@@ -1092,9 +1093,9 @@ function create_table_entries(data_model, chart_title, datasets, location, stack
     datasets.map(function(d) {
 	    var row = document.createElement("tr");
 	    row.id = location + "_tablerow_" + id_str_fixup(d.name);
-	    row.onclick = function() { click_highlight_function(location, id_str_fixup(d.name), stacked); };
-	    row.onmouseover = function() { mouseover_highlight_function(location, id_str_fixup(d.name), stacked); };
-	    row.onmouseout = function() { mouseout_highlight_function(location, id_str_fixup(d.name), stacked); };
+	    row.onclick = function() { click_highlight_function(chart_refs_index, d.index, stacked); };
+	    row.onmouseover = function() { mouseover_highlight_function(chart_refs_index, d.index, stacked); };
+	    row.onmouseout = function() { mouseout_highlight_function(chart_refs_index, d.index, stacked); };
 
 	    var name_cell = document.createElement("td");
 	    name_cell.align = "left";
@@ -1615,13 +1616,6 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
     svg.append("text")
 	.attr("class", "hidden")
-	.attr("id", "chart_selection")
-	.attr("x", 0)
-	.attr("y", 0)
-	.text("");
-
-    svg.append("text")
-	.attr("class", "hidden")
 	.attr("id", "user_x_zoomed")
 	.attr("x", 0)
 	.attr("y", 0)
@@ -1933,14 +1927,15 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 			x_slider: x_slider,
 			y_slider: y_slider,
 			data_model: data_model,
-			datasets: datasets
+			datasets: datasets,
+			chart_selection: -1
     };
     if (stacked) {
 	tmp_object.area = area;
     } else {
 	tmp_object.line = line;
     }
-    chart_refs.push(tmp_object);
+    var chart_refs_index = chart_refs.push(tmp_object) - 1;
 
     xBrush.on("brush", function() {
 	    if (d3.event.sourceEvent == null) {
@@ -2201,7 +2196,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		myobject.raw_data_sources = [];
 	    }
 
-	    create_table_entries(data_model, chart_title, datasets, location, stacked, myobject.raw_data_sources);
+	    create_table_entries(data_model, chart_title, datasets, location, stacked, myobject.raw_data_sources, chart_refs_index);
 	    console.log("...finished adding table entries for chart \"" + chart_title + "\"");
 
 	    if (myobject.update_interval !== undefined) {
@@ -2211,7 +2206,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	    }
 
 	    console.log("Processing datasets for chart \"" + chart_title + "\"...");
-	    var errors = complete_graph(stacked, data_model, x, xAxis, x2, xAxis2, y, yAxis, y2, yAxis2, svg, datasets, line, area, stack, myobject, location);
+	    var errors = complete_graph(stacked, data_model, x, xAxis, x2, xAxis2, y, yAxis, y2, yAxis2, svg, datasets, line, area, stack, myobject, location, chart_refs_index);
 	    console.log("...finished processing datasets for chart \"" + chart_title + "\"");
 
 	    x_slider.call(xBrush.event);
@@ -2384,95 +2379,105 @@ function finish_page() {
 	});
 }
 
-function click_highlight_function(location, id, stacked) {
-    var svg = d3.select("#" + location + "_chart").select("svg");
-
-    if ((svg.select("#chart_selection").text().length == 0) ||
-	(svg.select("#chart_selection").text() != id)) {
-	if (svg.select("#chart_selection").text().length != 0) {
-	    dehighlight(location, svg.select("#chart_selection").text(), stacked);
+function click_highlight_function(chart_refs_index, datasets_index, stacked) {
+    if ((chart_refs[chart_refs_index].chart_selection == -1) ||
+	(chart_refs[chart_refs_index].chart_selection != datasets_index)) {
+	if (chart_refs[chart_refs_index].chart_selection != -1) {
+	    dehighlight(chart_refs_index, chart_refs[chart_refs_index].chart_selection, stacked);
+	    chart_refs[chart_refs_index].datasets[chart_refs[chart_refs_index].chart_selection].highlighted = false;
 	}
-	svg.select("#chart_selection").text(id);
-	highlight(location, id, stacked);
+	chart_refs[chart_refs_index].datasets[datasets_index].highlighted = true;
+	chart_refs[chart_refs_index].chart_selection = datasets_index;
+	highlight(chart_refs_index, datasets_index, stacked);
     } else {
-	svg.select("#chart_selection").text("");
-	highlight(location, id, stacked);
+	chart_refs[chart_refs_index].datasets[datasets_index].highlighted = false;
+	chart_refs[chart_refs_index].chart_selection = -1;
+	highlight(chart_refs_index, datasets_index, stacked);
     }
 }
 
-function mouseover_highlight_function(location, id, stacked) {
-    var svg = d3.select("#" + location + "_chart").select("svg");
-
-    if (svg.select("#chart_selection").text().length == 0) {
-	highlight(location, id, stacked);
+function mouseover_highlight_function(chart_refs_index, datasets_index, stacked) {
+    if (chart_refs[chart_refs_index].chart_selection == -1) {
+	highlight(chart_refs_index, datasets_index, stacked);
     }
 }
 
-function mouseout_highlight_function(location, id, stacked) {
-    var svg = d3.select("#" + location + "_chart").select("svg");
-
-    if (svg.select("#chart_selection").text().length == 0) {
-	dehighlight(location, id, stacked);
+function mouseout_highlight_function(chart_refs_index, datasets_index, stacked) {
+    if (chart_refs[chart_refs_index].chart_selection == -1) {
+	dehighlight(chart_refs_index, datasets_index, stacked);
     }
 }
 
-function highlight(location, id, stacked) {
-    var svg = d3.select("#" + location + "_chart").select("svg");
-
-    svg.select("#" + location + "_label_" + id).style("font-weight", "bold");
+function highlight(chart_refs_index, datasets_index, stacked) {
+    d3.select(chart_refs[chart_refs_index].datasets[datasets_index].dom.legend.label).style("font-weight", "bold");
 
     if (stacked) {
-	svg.selectAll("path.area").style("opacity", "0.15");
+	for (var i = 0; i < chart_refs[chart_refs_index].datasets.length; i++) {
+	    if (i == datasets_index) {
+		d3.select(chart_refs[chart_refs_index].datasets[i].dom.path).style("opacity", "0.9");
 
-	svg.select("#" + location + "_area_" + id).style("opacity", "0.9");
+		d3.select(chart_refs[chart_refs_index].datasets[i].dom.points).style("opacity", "0.9")
+		    .style("stroke-width", "5.0px");
+	    } else {
+		d3.select(chart_refs[chart_refs_index].datasets[i].dom.path).style("opacity", "0.15");
 
-	svg.selectAll("line.points").style("opacity", "0.15");
-	svg.selectAll("#" + location + "_points_" + id).style("opacity", "0.9")
-	    .style("stroke-width", "5.0px");
+		d3.select(chart_refs[chart_refs_index].datasets[i].dom.points).style("opacity", "0.15");
+	    }
+	}
     } else {
-	svg.selectAll("path.line").style("opacity", "0.15")
-	    .style("stroke-width", "1.5px");
+	for (var i = 0; i < chart_refs[chart_refs_index].datasets.length; i++) {
+	    if (i == datasets_index) {
+		d3.select(chart_refs[chart_refs_index].datasets[i].dom.path).style("opacity", "0.9")
+		    .style("stroke-width", "3.0px");
 
-	svg.select("#" + location + "_line_" + id).style("opacity", "0.9")
-	    .style("stroke-width", "3.0px");
+		d3.select(chart_refs[chart_refs_index].datasets[i].dom.path).style("opacity", "0.9")
+		    .attr("r", 4);
+	    } else {
+		d3.select(chart_refs[chart_refs_index].datasets[i].dom.path).style("opacity", "0.15")
+		    .style("stroke-width", "1.5px");
 
-	svg.selectAll("circle.points").style("opacity", "0.15");
-	svg.selectAll("#" + location + "_points_" + id).style("opacity", "0.9")
-	    .attr("r", 4);
+		d3.select(chart_refs[chart_refs_index].datasets[i].dom.points).style("opacity", "0.15");
+	    }
+	}
     }
 
-    svg.selectAll(".legendrect").style("opacity", "0.15");
-    svg.select("#" + location + "_rect_" + id).style("opacity", "0.9");
+    for (var i = 0; i < chart_refs[chart_refs_index].datasets.length; i++) {
+	if (i == datasets_index) {
+	    d3.select(chart_refs[chart_refs_index].datasets[i].dom.legend.rect).style("opacity", "0.9");
+	} else {
+	    d3.select(chart_refs[chart_refs_index].datasets[i].dom.legend.rect).style("opacity", "0.15");
+	}
+    }
 
-    var table = d3.select("#" + location + "_table");
-
-    table.select("#" + location + "_tablerow_" + id).style("background-color", "black")
+    d3.select(chart_refs[chart_refs_index].datasets[datasets_index].dom.table_row).style("background-color", "black")
 	.style("color", "white");
 }
 
-function dehighlight(location, id, stacked) {
-    var svg = d3.select("#" + location + "_chart").select("svg");
-
-    svg.select("#" + location + "_label_" + id).style("font-weight", "normal");
+function dehighlight(chart_refs_index, datasets_index, stacked) {
+    d3.select(chart_refs[chart_refs_index].datasets[datasets_index].dom.legend.label).style("font-weight", "normal");
 
     if (stacked) {
-	svg.selectAll("path.area").style("opacity", "0.9");
+	for (var i = 0; i < chart_refs[chart_refs_index].datasets.length; i++) {
+	    d3.select(chart_refs[chart_refs_index].datasets[i].dom.path).style("opacity", "0.9");
 
-	svg.selectAll("line.points").style("opacity", "0.9")
-	    .style("stroke-width", "3.0px");
+	    d3.select(chart_refs[chart_refs_index].datasets[i].dom.points).style("opacity", "0.9")
+		.style("stroke-width", "3.0px");
+	}
     } else {
-	svg.selectAll("path.line").style("opacity", "0.9")
-	    .style("stroke-width", "1.5px");
+	for (var i = 0; i < chart_refs[chart_refs_index].datasets.length; i++) {
+	    d3.select(chart_refs[chart_refs_index].datasets[i].dom.path).style("opacity", "0.9")
+		.style("stroke-width", "1.5px");
 
-	svg.selectAll("circle.points").style("opacity", "0.9")
-	    .attr("r", 3);
+	    d3.select(chart_refs[chart_refs_index].datasets[i].dom.points).style("opacity", "0.9")
+		.attr("r", 3);
+	}
     }
 
-    svg.selectAll(".legendrect").style("opacity", "0.9");
+    for (var i = 0; i < chart_refs[chart_refs_index].datasets.length; i++) {
+	d3.select(chart_refs[chart_refs_index].datasets[i].dom.legend.rect).style("opacity", "0.9");
+    }
 
-    var table = d3.select("#" + location + "_table");
-
-    table.select("#" + location + "_tablerow_" + id).style("background-color", "rgba(0, 0, 0, 0)")
+    d3.select(chart_refs[chart_refs_index].datasets[datasets_index].dom.table_row).style("background-color", "rgba(0, 0, 0, 0)")
 	.style("color", "black");
 }
 
