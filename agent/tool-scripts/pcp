@@ -27,6 +27,27 @@ options="none"
 tool_bin="/usr/bin/pmlogger"
 pmlogger_conf="$pbench_bin/config/pmlogger.conf"
 
+# TODO: implement a generic start_service function in $pbench_run/base
+function start_pmcd {
+	if ! pgrep pmcd; then
+		if [ -x /usr/bin/systemctl ]; then
+			systemctl start pmcd
+		else if [-x /usr/bin/service ]; then
+				service pmcd start
+			else
+				error_log "$script_name: could not start pmcd service"
+			fi
+		fi
+	fi
+	if pgrep pmcd; then
+		debug_log "$script_name: service pmcd started"
+		return 0 
+	else
+		error_log "$script_name: could not start pmcd service"
+		return 1
+	fi
+}
+
 # Process options and arguments
 opts=$(getopt -q -o idp --longoptions "dir:,group:,iteration:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
@@ -107,25 +128,26 @@ tool_cmd="$tool_bin -c pmlogger.conf -t ${interval} archive >$tool_stdout_file 2
 case "$mode" in
 	install)
 	# pcp package are not maintained by pbench
-	check_install_rpm "$tool_package_name" || error_log "$script_name: installation of $tool_package_name failed"
-	# if a user does not create their own pmlogger config, we create one
-	if [ ! -e $pmlogger_conf ]; then
-		/usr/libexec/pcp/bin/pmlogconf -c -r $pmlogger_conf
+	if check_install_rpm $tool_package_name; then
+		# if a user does not create their own pmlogger config, we create one
+		if [ ! -e $pmlogger_conf ]; then
+			if start_pmcd; then
+    				if /usr/libexec/pcp/bin/pmlogconf -c -r $pmlogger_conf; then
+					debug_log "$script_name: created pmlogger config"
+				else
+					error_log "$script_name: could not create pmlogger config"
+				fi
+			else
+				error_log "$script_name: creating pmlogger config not possible because pmcd could not be started"
+			fi
+		fi
+	else
+		error_log "$script_name: installation of $tool_package_name failed"
+		exit 1
 	fi
 	;;
 	start)
-	# TODO: write start_service() in $pbench_bin/base script
-	if ! pgrep pmcd; then
-		if [ -x /usr/bin/systemctl ]; then
-			systemctl start pmcd
-		else if [-x /usr/bin/service ]; then
-				service pmcd start
-			else
-				error_log "$script_name: could not start PCP service (pmcd)"
-			fi
-		fi
-	fi
-	if pgrep pmcd; then
+	if start_pmcd; then
 		mkdir -p "$tool_output_dir"
 		pushd "$tool_output_dir" >/dev/null
 		/bin/rm -f archive*
@@ -138,7 +160,7 @@ case "$mode" in
 		popd >/dev/null
 		wait
 	else
-		error_log "$script_name: could not get pmcd running"
+		error_log "$script_name: could not not run pmlogger because pmcd is not running"
 	fi
 	;;
 	stop)
