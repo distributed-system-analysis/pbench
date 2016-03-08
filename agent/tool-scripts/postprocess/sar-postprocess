@@ -137,7 +137,11 @@ while ($line = <SAR_TXT>) {
 	}
 	# 02:50:58 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
 	if ( $line =~ /$tsre\s+kbmemfree\s+kbmemused\s+%memused\s+kbbuffers\s+kbcached\s+kbcommit\s+%commit\s+kbactive\s+kbinact\s+kbdirty$/ ) {
-		$mode = "mem_usage";
+		$mode = "mem_usage_v1";
+	}
+	# 09:56:15    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+	if ( $line =~ /$tsre\s+kbmemfree\s+kbmemused\s+%memused\s+kbbuffers\s+kbcached\s+kbcommit\s+%commit\s+kbactive\s+kbinact\s+kbdirty\s+kbanonpg\s+kbslab\s+kbkstack\s+kbpgtbl\s+kbvmused$/ ) {
+		$mode = "mem_usage_v2";
 	}
 	# 02:50:58 PM kbhugfree kbhugused  %hugused
 	if ( $line =~ /$tsre\s+kbhugfree\s+kbhugused\s+%hugused$/ ) {
@@ -333,7 +337,7 @@ while ($line = <SAR_TXT>) {
 	}
 	# 02:50:58 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
 	# 02:50:59 PM  48090512   1191160      2.42       744    422096    422628      0.86    261068    258416         0
-	if (( $mode eq "mem_usage" ) &&
+	if (( $mode eq "mem_usage_v1" ) &&
 	    ( $line =~ /($tsre)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+)\s+(\d+)\s+(\d+)$/ )) {
 		$time = $1;
 		my $kbmemfree = $2;
@@ -359,6 +363,46 @@ while ($line = <SAR_TXT>) {
 		$sar{memory}{memory_usage}{kbactive}{$timestamp_ms} = $kbactive;
 		$sar{memory}{memory_usage}{kbinactive}{$timestamp_ms} = $kbinactive;
 		$sar{memory}{memory_usage}{kbdirty}{$timestamp_ms} = $kbdirty;
+		next;
+	}
+	# 09:56:15    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+	# 09:56:18     28563624  35695216     55.55     54256  27031068  13283212     20.03  15544256  16783636      1304   5271884   2781856     25056     30236    158020
+	if (( $mode eq "mem_usage_v2" ) &&
+	    ( $line =~ /($tsre)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)$/ )) {
+		$time = $1;
+		my $kbmemfree = $2;
+		my $kbmemused = $3;
+		my $memused_pct = $4;
+		my $kbbuffers = $5;
+		my $kbcached = $6;
+		my $kbcommit = $7;
+		my $commit_pct = $8;
+		my $kbactive = $9;
+		my $kbinactive = $10;
+		my $kbdirty = $11;
+		my $kbanonpg = $12;
+		my $kbslab = $13;
+		my $kbkstack = $14;
+		my $kbpgtbl = $15;
+		my $kbvmused = $16;
+		$timestamp_ms = calc_timestamp($time);
+		# data is stored this way:
+		# $sar{htmlpage}{graph}{series}{sample}
+		$sar{memory}{memory_usage}{kbmemfree}{$timestamp_ms} = $kbmemfree;
+		$sar{memory}{memory_usage}{kbmemused}{$timestamp_ms} = $kbmemused;
+		$sar{memory}{memory_usage}{memused_pct}{$timestamp_ms} = $memused_pct;
+		$sar{memory}{memory_usage}{kbbuffers}{$timestamp_ms} = $kbbuffers;
+		$sar{memory}{memory_usage}{kbcached}{$timestamp_ms} = $kbcached;
+		$sar{memory}{memory_usage}{kbcommit}{$timestamp_ms} = $kbcommit;
+		$sar{memory}{memory_usage}{commit_pct}{$timestamp_ms} = $commit_pct;
+		$sar{memory}{memory_usage}{kbactive}{$timestamp_ms} = $kbactive;
+		$sar{memory}{memory_usage}{kbinactive}{$timestamp_ms} = $kbinactive;
+		$sar{memory}{memory_usage}{kbdirty}{$timestamp_ms} = $kbdirty;
+		$sar{memory}{memory_usage}{kbanonpg}{$timestamp_ms} = $kbanonpg;
+		$sar{memory}{memory_usage}{kbslab}{$timestamp_ms} = $kbslab;
+		$sar{memory}{memory_usage}{kbkstack}{$timestamp_ms} = $kbkstack;
+		$sar{memory}{memory_usage}{kbpgtbl}{$timestamp_ms} = $kbpgtbl;
+		$sar{memory}{memory_usage}{kbvmused}{$timestamp_ms} = $kbvmused;
 		next;
 	}
 	# 02:50:58 PM kbhugfree kbhugused  %hugused
