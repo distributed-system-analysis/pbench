@@ -1,6 +1,4 @@
 +++ Running test-00 pbench-register-tool
-[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=10
-[debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
 mpstat tool is now registered in group default
 --- Finished test-00 pbench-register-tool (status=0}
 +++ pbench tree state

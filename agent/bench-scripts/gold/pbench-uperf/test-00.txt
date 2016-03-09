@@ -1,27 +1,16 @@
 +++ Running test-00 pbench-uperf
-[debug][1900-01-01T00:00:00.000000] [pbench-uperf]processing options
-[debug][1900-01-01T00:00:00.000000] [pbench-uperf]uperf is installed
-[debug][1900-01-01T00:00:00.000000] checking for uperf on server 127.0.0.1
 Starting iteration  (1 of 2)
 test sample 1 of 2
-[debug][1900-01-01T00:00:00.000000] client[127.0.0.1]protocol[tcp]test[rr]instances[1]size[64] <-> server[127.0.0.1]
 client[127.0.0.1]protocol[tcp]test[rr]instances[1]size[64] <-> server[127.0.0.1]
-[debug][1900-01-01T00:00:00.000000] screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/uperf-client-127.0.0.1:21000.cmd
 test sample 2 of 2
-[debug][1900-01-01T00:00:00.000000] client[127.0.0.1]protocol[tcp]test[rr]instances[1]size[64] <-> server[127.0.0.1]
 client[127.0.0.1]protocol[tcp]test[rr]instances[1]size[64] <-> server[127.0.0.1]
-[debug][1900-01-01T00:00:00.000000] screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/uperf-client-127.0.0.1:21000.cmd
 '######' Throughput-transactions_sec: 5000.000000 5000.000000 average: 5000.0000 stddev: 0.0000% closest-sample: 1
 Iteration 1-tcp_rr-64B-1i complete (1 of 2), with 1 pass and 0 failures
 Starting iteration 1-tcp_rr-64B-1i (2 of 2)
 test sample 1 of 2
-[debug][1900-01-01T00:00:00.000000] client[127.0.0.1]protocol[tcp]test[stream]instances[1]size[64] <-> server[127.0.0.1]
 client[127.0.0.1]protocol[tcp]test[stream]instances[1]size[64] <-> server[127.0.0.1]
-[debug][1900-01-01T00:00:00.000000] screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/uperf-client-127.0.0.1:21000.cmd
 test sample 2 of 2
-[debug][1900-01-01T00:00:00.000000] client[127.0.0.1]protocol[tcp]test[stream]instances[1]size[64] <-> server[127.0.0.1]
 client[127.0.0.1]protocol[tcp]test[stream]instances[1]size[64] <-> server[127.0.0.1]
-[debug][1900-01-01T00:00:00.000000] screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/uperf-client-127.0.0.1:21000.cmd
 '######' Throughput-Gb_sec: 5.000000 5.000000 average: 5.0000 stddev: 0.0000% closest-sample: 1
 Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 --- Finished test-00 pbench-uperf (status=0}
