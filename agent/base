@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export PBENCH_debug_mode=1
+export PBENCH_debug_mode=0
 
 # very first thing to do is figure out which pbench
 # we are
