@@ -140,7 +140,6 @@ _dump_logs
 _verify_output $res test-01 pbench-uperf
 res=$?
 let errs=$errs+$res
-exit
 _reset_state
 
 #
