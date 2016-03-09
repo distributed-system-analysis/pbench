@@ -89,7 +89,7 @@ function collect_sos {
 		tuned=""
 	fi
 	sosreport -o general -o kernel -o filesys -o devicemapper -o system -o memory \
-	      -o hardware -o networking -o lsbrelease ${block} ${processor} ${tuned} \
+	      -o hardware -o networking -o lsbrelease -o rpm rpm.rpmq on ${block} ${processor} ${tuned} \
 	      --batch ${quiet} --tmp-dir=$dir --name "$name" > /dev/null 2>&1
 	if [[ -f "sosreport-$name-*.tar.xz" ]]; then
 		debug_log "[$script_name]done collecting sosreport"
