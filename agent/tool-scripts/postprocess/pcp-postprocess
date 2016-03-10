@@ -2,7 +2,7 @@
 dir=$1
 interval=$2
 
-if [ -z "$interval"]; then
+if [ -z "$interval" ]; then
 	interval=3
 fi
 
