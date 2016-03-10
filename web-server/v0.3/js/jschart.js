@@ -194,6 +194,7 @@ function parse_plot_file(data_model, datasets, index, text) {
 	median: median,
 	histogram: histogram,
 	highlighted: false,
+	hidden: false,
 	dom: {
 	    table_row: null,
 	    path: null,
@@ -396,6 +397,7 @@ function load_json(myobject, chart_title, datasets, callback) {
 			median: 0,
 			values: [],
 			highlighted: false,
+			hidden: false,
 			dom: {
 			    table_row: null,
 			    path: null,
@@ -482,6 +484,7 @@ function load_csv_files(url, data_model, chart_title, datasets, callback) {
 				median: "No Samples",
 				histogram: histogram,
 				highlighted: false,
+				hidden: false,
 				dom: {
 				    table_row: null,
 				    path: null,
@@ -677,10 +680,9 @@ function complete_graph(stacked, data_model, x, x_axis, x2, x_axis2, y, y_axis, 
     legend.append("rect")
 	.attr("class", "legendrect")
 	.attr("id", function(d) { d.dom.legend.rect = this; return location + "_rect_" + id_str_fixup(d.name); })
-	.attr("onclick", function(d) { return "click_highlight_function(" + chart_refs_index + ", " + d.index + ", " + stacked + ")"; })
-	.attr("ondblclick", function(d) { return "console.log(chart_refs[" + chart_refs_index + "]); console.log(chart_refs[" + chart_refs_index + "].datasets[" + d.index + "])"; })
-	.attr("onmouseover", function(d) { return "mouseover_highlight_function(" + chart_refs_index + ", " + d.index + ", " + stacked + ")"; })
-	.attr("onmouseout", function(d) { return "mouseout_highlight_function(" + chart_refs_index + ", " + d.index + ", " + stacked + ")"; })
+	.attr("onclick", function(d) { return "toggle_hide(" + chart_refs_index + ", " + d.index + ")"; })
+	.attr("onmouseover", function(d) { return "mouseover_highlight_function(" + chart_refs_index + ", " + d.index + ")"; })
+	.attr("onmouseout", function(d) { return "mouseout_highlight_function(" + chart_refs_index + ", " + d.index + ")"; })
 	.attr("width", 16)
 	.attr("height", 16)
 	.style("outline-color", function(d) { return mycolors(d.index); } )
@@ -691,9 +693,9 @@ function complete_graph(stacked, data_model, x, x_axis, x2, x_axis2, y, y_axis, 
     legend.append("text")
 	.attr("class", "legendlabel")
 	.attr("id", function(d) { d.dom.legend.label = this; return location + "_label_" + id_str_fixup(d.name); })
-	.attr("onclick", function(d) { return "click_highlight_function(" + chart_refs_index + ", " + d.index + ", " + stacked + ")"; })
-	.attr("onmouseover", function(d) { return "mouseover_highlight_function(" + chart_refs_index + ", " + d.index + ", " + stacked + ")"; })
-	.attr("onmouseout", function(d) { return "mouseout_highlight_function(" + chart_refs_index + ", " + d.index + ", " + stacked + ")"; })
+	.attr("onclick", function(d) { return "click_highlight_function(" + chart_refs_index + ", " + d.index + ")"; })
+	.attr("onmouseover", function(d) { return "mouseover_highlight_function(" + chart_refs_index + ", " + d.index + ")"; })
+	.attr("onmouseout", function(d) { return "mouseout_highlight_function(" + chart_refs_index + ", " + d.index + ")"; })
 	.attr("x", legend_label_offset)
 	.attr("y", 13.5)
 	.text(function(d) { return d.name; });
@@ -1093,9 +1095,9 @@ function create_table_entries(data_model, chart_title, datasets, location, stack
     datasets.map(function(d) {
 	    var row = document.createElement("tr");
 	    row.id = location + "_tablerow_" + id_str_fixup(d.name);
-	    row.onclick = function() { click_highlight_function(chart_refs_index, d.index, stacked); };
-	    row.onmouseover = function() { mouseover_highlight_function(chart_refs_index, d.index, stacked); };
-	    row.onmouseout = function() { mouseout_highlight_function(chart_refs_index, d.index, stacked); };
+	    row.onclick = function() { click_highlight_function(chart_refs_index, d.index); };
+	    row.onmouseover = function() { mouseover_highlight_function(chart_refs_index, d.index); };
+	    row.onmouseout = function() { mouseout_highlight_function(chart_refs_index, d.index); };
 
 	    var name_cell = document.createElement("td");
 	    name_cell.align = "left";
@@ -1686,7 +1688,8 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.text("Reset Zoom/Pan");
 
     var help = "This chart provides interactive features to assist the user in interpreting the data.\n\n";
-    help += "You can \"lock\" a dataset to be hightlighted by clicking it in either the legend or the table to the right of the chart.  Click either entry to \"unlock\" the selection.\n\n";
+    help += "You can \"lock\" a dataset to be hightlighted by clicking it's text in the legend or it's row in the table to the right of the chart.  Click either to \"unlock\" the selection.\n\n";
+    help += "You can show or hide all datasets using the \"Show\" or \"Hide\" buttons at the top of the chart area.  Individual datasets can be hidden or unhidden by clicking the legend icon for that dataset.\n\n";
     help += "When moving your mouse around the chart area, the coordinates will be displayed in the upper right part of the chart area.\n\n";
     help += "You can zoom into a selected area by clicking in the chart area and dragging the cursor to the opposite corner of the rectangular area you would like to focus on.  When you release the cursor the selection will be zoomed.\n\n";
     help += "You can also zoom in/out using the +/- controls which are visible when the mouse is over the chart area.\n\n";
@@ -1708,7 +1711,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
     svg.append("text")
 	.attr("class", "actionlabel")
-	.attr("x", (width / 3) * 2)
+	.attr("x", (width / 4) * 2)
 	.attr("y", -margin.top + 29)
 	.style("text-anchor", "middle")
 	.on("click", function() {
@@ -1718,9 +1721,35 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	    })
 	.text("Save as PNG");
 
+    var show_all = svg.append("text")
+	.attr("class", "actionlabel")
+	.attr("x", (width / 4 * 3 - 41))
+	.attr("y", -margin.top + 29)
+	.style("text-anchro", "middle")
+	.text("Show");
+
+    svg.append("text")
+	.attr("x", (width / 4 * 3 - 10))
+	.attr("y", -margin.top + 29)
+	.style("text-anchro", "middle")
+	.text("/");
+
+    var hide_all = svg.append("text")
+	.attr("class", "actionlabel")
+	.attr("x", (width / 4 * 3 + 15))
+	.attr("y", -margin.top + 29)
+	.style("text-anchor", "middle")
+	.text("Hide");
+
+    svg.append("text")
+	.attr("x", (width / 4 * 3 + 42))
+	.attr("y", -margin.top + 29)
+	.style("text-anchor", "middle")
+	.text("All");
+
     svg.append("text")
 	.attr("class", "actionlabel")
-	.attr("x", (width / 3))
+	.attr("x", (width / 4))
 	.attr("y", -margin.top + 29)
 	.style("text-anchor", "middle")
 	.on("click", function() {
@@ -1936,6 +1965,9 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	tmp_object.line = line;
     }
     var chart_refs_index = chart_refs.push(tmp_object) - 1;
+
+    show_all.attr("onclick", "show_all(" + chart_refs_index + ");");
+    hide_all.attr("onclick", "hide_all(" + chart_refs_index + ");");
 
     xBrush.on("brush", function() {
 	    if (d3.event.sourceEvent == null) {
@@ -2379,40 +2411,56 @@ function finish_page() {
 	});
 }
 
-function click_highlight_function(chart_refs_index, datasets_index, stacked) {
+function click_highlight_function(chart_refs_index, datasets_index) {
+    if (chart_refs[chart_refs_index].datasets[datasets_index].hidden) {
+	return;
+    }
+
     if ((chart_refs[chart_refs_index].chart_selection == -1) ||
 	(chart_refs[chart_refs_index].chart_selection != datasets_index)) {
 	if (chart_refs[chart_refs_index].chart_selection != -1) {
-	    dehighlight(chart_refs_index, chart_refs[chart_refs_index].chart_selection, stacked);
+	    dehighlight(chart_refs_index, chart_refs[chart_refs_index].chart_selection);
 	    chart_refs[chart_refs_index].datasets[chart_refs[chart_refs_index].chart_selection].highlighted = false;
 	}
 	chart_refs[chart_refs_index].datasets[datasets_index].highlighted = true;
 	chart_refs[chart_refs_index].chart_selection = datasets_index;
-	highlight(chart_refs_index, datasets_index, stacked);
+	highlight(chart_refs_index, datasets_index);
     } else {
 	chart_refs[chart_refs_index].datasets[datasets_index].highlighted = false;
 	chart_refs[chart_refs_index].chart_selection = -1;
-	highlight(chart_refs_index, datasets_index, stacked);
+	highlight(chart_refs_index, datasets_index);
     }
 }
 
-function mouseover_highlight_function(chart_refs_index, datasets_index, stacked) {
+function mouseover_highlight_function(chart_refs_index, datasets_index) {
+    if (chart_refs[chart_refs_index].datasets[datasets_index].hidden) {
+	return;
+    }
+
     if (chart_refs[chart_refs_index].chart_selection == -1) {
-	highlight(chart_refs_index, datasets_index, stacked);
+	highlight(chart_refs_index, datasets_index);
     }
 }
 
-function mouseout_highlight_function(chart_refs_index, datasets_index, stacked) {
+function mouseout_highlight_function(chart_refs_index, datasets_index) {
+    if (chart_refs[chart_refs_index].datasets[datasets_index].hidden) {
+	return;
+    }
+
     if (chart_refs[chart_refs_index].chart_selection == -1) {
-	dehighlight(chart_refs_index, datasets_index, stacked);
+	dehighlight(chart_refs_index, datasets_index);
     }
 }
 
-function highlight(chart_refs_index, datasets_index, stacked) {
+function highlight(chart_refs_index, datasets_index) {
     d3.select(chart_refs[chart_refs_index].datasets[datasets_index].dom.legend.label).style("font-weight", "bold");
 
-    if (stacked) {
+    if (chart_refs[chart_refs_index].stacked) {
 	for (var i = 0; i < chart_refs[chart_refs_index].datasets.length; i++) {
+	    if (chart_refs[chart_refs_index].datasets[i].hidden) {
+		continue;
+	    }
+
 	    if (i == datasets_index) {
 		d3.select(chart_refs[chart_refs_index].datasets[i].dom.path).style("opacity", "0.9");
 
@@ -2426,6 +2474,10 @@ function highlight(chart_refs_index, datasets_index, stacked) {
 	}
     } else {
 	for (var i = 0; i < chart_refs[chart_refs_index].datasets.length; i++) {
+	    if (chart_refs[chart_refs_index].datasets[i].hidden) {
+		continue;
+	    }
+
 	    if (i == datasets_index) {
 		d3.select(chart_refs[chart_refs_index].datasets[i].dom.path).style("opacity", "0.9")
 		    .style("stroke-width", "3.0px");
@@ -2442,6 +2494,10 @@ function highlight(chart_refs_index, datasets_index, stacked) {
     }
 
     for (var i = 0; i < chart_refs[chart_refs_index].datasets.length; i++) {
+	if (chart_refs[chart_refs_index].datasets[i].hidden) {
+	    continue;
+	}
+
 	if (i == datasets_index) {
 	    d3.select(chart_refs[chart_refs_index].datasets[i].dom.legend.rect).style("opacity", "0.9");
 	} else {
@@ -2453,11 +2509,15 @@ function highlight(chart_refs_index, datasets_index, stacked) {
 	.style("color", "white");
 }
 
-function dehighlight(chart_refs_index, datasets_index, stacked) {
+function dehighlight(chart_refs_index, datasets_index) {
     d3.select(chart_refs[chart_refs_index].datasets[datasets_index].dom.legend.label).style("font-weight", "normal");
 
-    if (stacked) {
+    if (chart_refs[chart_refs_index].stacked) {
 	for (var i = 0; i < chart_refs[chart_refs_index].datasets.length; i++) {
+	    if (chart_refs[chart_refs_index].datasets[i].hidden) {
+		continue;
+	    }
+
 	    d3.select(chart_refs[chart_refs_index].datasets[i].dom.path).style("opacity", "0.9");
 
 	    d3.select(chart_refs[chart_refs_index].datasets[i].dom.points).style("opacity", "0.9")
@@ -2465,6 +2525,10 @@ function dehighlight(chart_refs_index, datasets_index, stacked) {
 	}
     } else {
 	for (var i = 0; i < chart_refs[chart_refs_index].datasets.length; i++) {
+	    if (chart_refs[chart_refs_index].datasets[i].hidden) {
+		continue;
+	    }
+
 	    d3.select(chart_refs[chart_refs_index].datasets[i].dom.path).style("opacity", "0.9")
 		.style("stroke-width", "1.5px");
 
@@ -2474,6 +2538,10 @@ function dehighlight(chart_refs_index, datasets_index, stacked) {
     }
 
     for (var i = 0; i < chart_refs[chart_refs_index].datasets.length; i++) {
+	if (chart_refs[chart_refs_index].datasets[i].hidden) {
+	    continue;
+	}
+
 	d3.select(chart_refs[chart_refs_index].datasets[i].dom.legend.rect).style("opacity", "0.9");
     }
 
@@ -2551,4 +2619,68 @@ function set_x_axis_timeseries_label(svg, location, domain, timezone) {
     }
 
     svg.select("#" + location + "_x_axis_label").text(label);
+}
+
+function show_all(chart_refs_index) {
+    var opacity;
+
+    for (var i = 0; i < chart_refs[chart_refs_index].datasets.length; i++) {
+	if (chart_refs[chart_refs_index].datasets[i].hidden) {
+	    chart_refs[chart_refs_index].datasets[i].hidden = false;
+	    d3.select(chart_refs[chart_refs_index].datasets[i].dom.path).style("visibility", "visible");
+	    d3.select(chart_refs[chart_refs_index].datasets[i].dom.points).style("visibility", "visible");
+	    d3.select(chart_refs[chart_refs_index].datasets[i].dom.legend.rect).style("opacity", "0.9");
+	    d3.select(chart_refs[chart_refs_index].datasets[i].dom.table_row).style("background-color", "rgba(0, 0, 0, 0)");
+	}
+    }
+
+    if (chart_refs[chart_refs_index].chart_selection != -1) {
+	highlight(chart_refs_index, chart_refs[chart_refs_index].chart_selection);
+    }
+}
+
+function hide_all(chart_refs_index) {
+    if (chart_refs[chart_refs_index].chart_selection != -1) {
+	click_highlight_function(chart_refs_index, chart_refs[chart_refs_index].chart_selection);
+    }
+
+    for (var i = 0; i < chart_refs[chart_refs_index].datasets.length; i++) {
+	if (! chart_refs[chart_refs_index].datasets[i].hidden) {
+	    chart_refs[chart_refs_index].datasets[i].hidden = true;
+	    d3.select(chart_refs[chart_refs_index].datasets[i].dom.path).style("visibility", "hidden");
+	    d3.select(chart_refs[chart_refs_index].datasets[i].dom.points).style("visibility", "hidden");
+	    d3.select(chart_refs[chart_refs_index].datasets[i].dom.legend.rect).style("opacity", "0");
+	    d3.select(chart_refs[chart_refs_index].datasets[i].dom.table_row).style("background-color", "rgba(152, 152, 152, 1)");
+	}
+    }
+}
+
+function toggle_hide(chart_refs_index, datasets_index) {
+    if (chart_refs[chart_refs_index].datasets[datasets_index].hidden) {
+	chart_refs[chart_refs_index].datasets[datasets_index].hidden = false;
+	d3.select(chart_refs[chart_refs_index].datasets[datasets_index].dom.path).style("visibility", "visible");
+	d3.select(chart_refs[chart_refs_index].datasets[datasets_index].dom.legend.rect).style("opacity", "0.9");
+	d3.select(chart_refs[chart_refs_index].datasets[datasets_index].dom.table_row).style("background-color", "rgba(0, 0, 0, 0)");
+
+	if (chart_refs[chart_refs_index].chart_selection != -1) {
+	    d3.select(chart_refs[chart_refs_index].datasets[datasets_index].dom.legend.rect).style("opacity", "0.15");
+	    d3.select(chart_refs[chart_refs_index].datasets[datasets_index].dom.path).style("opacity", "0.15");
+	}
+    } else {
+	if ((chart_refs[chart_refs_index].chart_selection != -1) &&
+	    (chart_refs[chart_refs_index].chart_selection == datasets_index)) {
+	    chart_refs[chart_refs_index].chart_selection = -1;
+	    dehighlight(chart_refs_index, datasets_index);
+	}
+
+	// once this dataset is marked as hidden it will not be
+	// capable of executing it's mouseout function so call it
+	// manually
+	mouseout_highlight_function(chart_refs_index, datasets_index);
+
+	chart_refs[chart_refs_index].datasets[datasets_index].hidden = true;
+	d3.select(chart_refs[chart_refs_index].datasets[datasets_index].dom.path).style("visibility", "hidden");
+	d3.select(chart_refs[chart_refs_index].datasets[datasets_index].dom.legend.rect).style("opacity", "0");
+	d3.select(chart_refs[chart_refs_index].datasets[datasets_index].dom.table_row).style("background-color", "rgba(152, 152, 152, 1)");
+    }
 }
