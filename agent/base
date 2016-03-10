@@ -103,21 +103,21 @@ function check_install_rpm {
 
     rpm_status=`rpm --query ${this_rpm}$this_version`
     if echo $rpm_status | grep -q "is not installed"; then
-	echo attempting to install ${this_rpm}$this_version
+	debug_log "[check_install_rpm] attempting to install ${this_rpm}$this_version"
 	yum --debuglevel=0 install -y ${this_rpm}$this_version >> $pbench_log 2>&1
 	rc=$?
     else
 	local installed_rpm_version=`echo $rpm_status | awk -F- '{print $2"-"$3}'`
-	if [ "$this_version" != "$installed_rpm_version" ]; then
+	if [ ! -z "$this_version" -a "$this_version" != "$installed_rpm_version" ]; then
 	    yum --debuglevel=0 install -y ${this_rpm}$this_version >> $pbench_log 2>&1
 	    rc=$?
 	else
-	    debug_log "$this_rpm has already been installed"
+	    debug_log "[check_install_rpm] $this_rpm has already been installed"
 	    rc=0
 	fi
     fi
     if [ $rc -ne 0 ]; then
-	error_log "[check_install_rpm]the installation of $this_rpm$this_version failed"
+	error_log "[check_install_rpm] the installation of $this_rpm$this_version failed"
 	return 1
     else
 	return 0
