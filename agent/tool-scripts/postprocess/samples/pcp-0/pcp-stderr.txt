@@ -1,0 +1,21 @@
+/opt/pbench-agent/tool-scripts/postprocess/pcp-postprocess: line 5: [: missing `]'
+pmdumptext: Error: archive/pmcd.pmie.configfile: Instance domain identifier not defined in the PCP archive log
+pmdumptext: no valid metrics, exiting.
+pmdumptext: Error: archive/pmcd.pmie.logfile: Instance domain identifier not defined in the PCP archive log
+pmdumptext: no valid metrics, exiting.
+pmdumptext: Error: archive/pmcd.pmie.pmcd_host: Instance domain identifier not defined in the PCP archive log
+pmdumptext: no valid metrics, exiting.
+pmdumptext: Error: archive/pmcd.pmie.numrules: Instance domain identifier not defined in the PCP archive log
+pmdumptext: no valid metrics, exiting.
+pmdumptext: Error: archive/pmcd.pmie.actions: Instance domain identifier not defined in the PCP archive log
+pmdumptext: no valid metrics, exiting.
+pmdumptext: Error: archive/pmcd.pmie.eval.true: Instance domain identifier not defined in the PCP archive log
+pmdumptext: no valid metrics, exiting.
+pmdumptext: Error: archive/pmcd.pmie.eval.false: Instance domain identifier not defined in the PCP archive log
+pmdumptext: no valid metrics, exiting.
+pmdumptext: Error: archive/pmcd.pmie.eval.unknown: Instance domain identifier not defined in the PCP archive log
+pmdumptext: no valid metrics, exiting.
+pmdumptext: Error: archive/pmcd.pmie.eval.expected: Instance domain identifier not defined in the PCP archive log
+pmdumptext: no valid metrics, exiting.
+pmdumptext: Error: archive/pmcd.pmie.eval.actual: Instance domain identifier not defined in the PCP archive log
+pmdumptext: no valid metrics, exiting.
