@@ -77,6 +77,21 @@ function testuperf {
     return $?
 }
 
+function testpcp {
+    echo "Testing pcp-postprocess under sample $1 ..."
+
+    mkdir /tmp/GenData/$1
+    cp -r samples/$1/* /tmp/GenData/$1
+
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
+        ./pcp-postprocess /tmp/GenData/$1 > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+
+    remove_sample_data $1
+
+    diff -cr gold/$1/ /tmp/GenData/$1
+    return $?
+}
+
 # Test fio benchmark post-processing
 function testfio {
     echo "Testing bench-scripts/postprocess/fio-postprocess under sample $1 ..."
@@ -117,23 +132,27 @@ for i in $(ls -1 samples/) ; do
             continue
 	fi
     fi
-    if [[ $i == uperf-? ]]; then
-        testuperf $i
-        sts=$?
-    else
-        if [[ $i == fio-? ]]; then
+    case $i in
+        uperf-*)
+            testuperf $i
+            sts=$?
+            ;;
+        fio-*)
             testfio $i
             sts=$?
-        else
-            if [[ $i == compare-bench-results-* ]]; then
-                testcmpr $i
-                sts=$?
-            else
-                testit $i ${i%-[0-9]}
-                sts=$?
-            fi
-        fi
-    fi
+            ;;
+        pcp-*)
+            testpcp $i
+            sts=$?
+            ;;
+        compare-bench-results-*)
+            testcmpr $i
+            sts=$?
+            ;;
+        *)
+            testit $i ${i%-[0-9]}
+            sts=$?
+    esac
     if [[ $sts -eq 0 ]]; then
         echo "PASS - $i"
     else
