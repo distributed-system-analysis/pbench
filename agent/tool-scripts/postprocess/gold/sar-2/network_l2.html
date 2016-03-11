@@ -3,15 +3,23 @@
   <head>
     <meta charset="utf-8">
     <link href="/static/css/v0.2/nv.d3.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/static/css/v0.2/patternfly.min.css" rel="stylesheet" type="text/css" media="all">
     <link href="/static/css/v0.2/pbench_utils.css" rel="stylesheet" type="text/css" media="all">
+    <link href="https://www.polymer-project.org/0.5/components/paper-ripple/paper-ripple.html" rel="import">
+    <script src="/static/js/v0.2/jquery.min.js"></script>
+    <script src="/static/js/v0.2/jquery-ui.js"></script>
     <script src="/static/js/v0.2/function-bind.js"></script>
     <script src="/static/js/v0.2/fastdom.js"></script>
+    <script src="/static/js/v0.2/saveSvgAsPng.js"></script>
     <script src="/static/js/v0.2/d3.js"></script>
     <script src="/static/js/v0.2/nv.d3.js"></script>
-    <script src="/static/js/v0.2/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.2/angular.js"></script>
+    <script src="/static/js/v0.2/angular-nvd3.js"></script>
+    <script src="/static/js/v0.2/app.js"></script>
     <script src="/static/js/v0.2/pbench_utils.js"></script>
   </head>
-  <body class="with-3d-shadow with-transitions">
+  <body class="with-3d-shadow with-transitions" ng-app="pbench">
+    <script src="/static/js/v0.2/angular.js"></script>
     <h2 class="page-header">sar-2 - network_l2</h2>
     <h3 class="chart-header">carrier_errors</h3>
     <p class="chart-reason">No data from any series met set thresholds for graphing.</p>

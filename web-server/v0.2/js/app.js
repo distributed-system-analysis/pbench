@@ -1,4 +1,4 @@
-var app = angular.module('sample', ['nvd3']);
+var app = angular.module('pbench', ['nvd3']);
 
 app.controller('MainCtrl', function($scope,$http) {
  $scope.options = {
