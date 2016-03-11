@@ -125,8 +125,8 @@ for this_tool_file in `/bin/ls $tool_group_dir`; do
 		remote=`echo $this_tool_file | cut -d\@ -f2`
 		name=`echo $this_tool_file | cut -d\@ -f1`
 		# tool options are stored on the remote host's tool file, so no need to pass it here
-		debug_log "[$script_name]running this tool on $remote: ssh $ssh_opts -n $remote $action-tools --iteration=$iteration --group=$group --dir=$dir"
-		ssh $ssh_opts -n $remote $action-tools --iteration=$iteration --group=$group --dir=$dir &
+		debug_log "[$script_name]running this tool on $remote: ssh $ssh_opts -n $remote pbench-$action-tools --iteration=$iteration --group=$group --dir=$dir"
+		ssh $ssh_opts -n $remote pbench-$action-tools --iteration=$iteration --group=$group --dir=$dir &
 	else
 		# tool is local
 		# assemble the tool options in to an array
