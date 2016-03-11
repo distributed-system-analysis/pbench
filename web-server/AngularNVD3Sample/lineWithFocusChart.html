@@ -7,25 +7,25 @@
         document.write('<base href="' + document.location + '" />');
     </script>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../bower_components/patternfly/dist/css/patternfly.min.css">
-    <link rel="stylesheet" href="https://rawgit.com/novus/nvd3/v1.1.15-beta/nv.d3.min.css" />
+    <link rel="stylesheet" href="css/patternfly.min.css">
+    <link rel="stylesheet" href="css/nv.d3.min.css" />
     <link rel="stylesheet" href="css/pbench_utils.css">
     <link rel="import" href="https://www.polymer-project.org/0.5/components/paper-ripple/paper-ripple.html">
-    <script src="../bower_components/patternfly/components/jquery/dist/jquery.min.js"></script>
-    <script data-require="angular.js@1.2.x" src="https://code.angularjs.org/1.2.16/angular.js" data-semver="1.2.16"></script>
-    <script src="https://rawgit.com/mbostock/d3/master/d3.min.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/angular.js"></script>
+    <script src="js/d3.min.js"></script>
     <script src="js/nv.d3.js"></script>
     <script src="js/angular-nvd3.js"></script>
     <script src="js/app.js"></script>
     <script src="js/saveSvgAsPng.js"></script>
-    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-    <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <script src="js/jquery-1.10.2.js"></script>
+    <script src="js/jquery-ui.js"></script>
 </head>
 
 <body ng-controller="graphControl" onload="constructChart('lineWithFocusChart', 1, 'cpu_all_cpu_busy')">
     <div class="card">
         <div id="header">
-            <h2>
+            <h2 class="header-title">
               cpu_all_cpu_busy
             </h2>
             <div class="dropdown button raised blue">
@@ -41,48 +41,50 @@
                     Restore Defaults
                     <paper-ripple fit></paper-ripple>
                 </div>
-                <p>Graph Type:
-                    <select name="typeSelect" ng-model="options.chart.type">
-                        <option value="lineWithFocusChart">lineWithFocusChart</option>
-                        <option value="lineChart">lineChart</option>
-                        <option value="stackedAreaChart">stackedAreaChart</option>
-                        <option value="multiBarChart">multiBarChart</option>
-                        <option value="cumulativeLineChart">cumulativeLineChart</option>
-                    </select>
-                </p>
-                <p>Height:
-                    <input type="number" ng-model="options.chart.height" />
-                </p>
-                <p>Width:
-                    <input type="number" ng-model="options.chart.width" />
-                </p>
-                <p>Focus Height:
-                    <input type="number" ng-model="options.chart.focusHeight" />
-                </p>
-                <p>Interactive:
-                    <input type="checkbox" ng-model="options.chart.interactive" />
-                </p>
-                <p>Interactive Guideline:
-                    <input type="checkbox" ng-model="options.chart.useInteractiveGuideline" />
-                </p>
-                <p>Show Legend:
-                    <input type="checkbox" ng-model="options.chart.showLegend" />
-                </p>
-                <p>Force X:
-                    <input type="number" ng-model="options.chart.forceX" />
-                </p>
-                <p>Force Y:
-                    <input type="number" ng-model="options.chart.forceY" />
-                </p>
-                <p>Focus Force X:
-                    <input type="number" ng-model="options.chart.lines2.forceX" />
-                </p>
-                <p>Focus Force Y:
-                    <input type="number" ng-model="options.chart.lines2.forceY" />
-                </p>
+                <form>
+                    <p>Graph Type:
+                        <select name="typeSelect" ng-model="options.chart.type">
+                            <option value="lineWithFocusChart">lineWithFocusChart</option>
+                            <option value="lineChart">lineChart</option>
+                            <option value="stackedAreaChart">stackedAreaChart</option>
+                            <option value="multiBarChart">multiBarChart</option>
+                            <option value="cumulativeLineChart">cumulativeLineChart</option>
+                        </select>
+                    </p>
+                    <p>Height:
+                        <input type="number" ng-model="options.chart.height" />
+                    </p>
+                    <p>Width:
+                        <input type="number" ng-model="options.chart.width" />
+                    </p>
+                    <p>Focus Height:
+                        <input type="number" ng-model="options.chart.focusHeight" />
+                    </p>
+                    <p>Force X:
+                        <input type="number" ng-model="options.chart.forceX" />
+                    </p>
+                    <p>Force Y:
+                        <input type="number" ng-model="options.chart.forceY" />
+                    </p>
+                    <p>Focus Force X:
+                        <input type="number" ng-model="options.chart.lines2.forceX" />
+                    </p>
+                    <p>Focus Force Y:
+                        <input type="number" ng-model="options.chart.lines2.forceY" />
+                    </p>
+                    <p>Interactive:
+                        <input type="checkbox" ng-model="options.chart.interactive" />
+                    </p>
+                    <p>Interactive Guideline:
+                        <input type="checkbox" ng-model="options.chart.useInteractiveGuideline" />
+                    </p>
+                    <p>Show Legend:
+                        <input type="checkbox" ng-model="options.chart.showLegend" />
+                    </p>
+                </form>
             </div>
         </div>
-        <div id="chart1">
+        <div id="chart1" class="graph">
             <nvd3 options="options" data="data"></nvd3>
         </div>
     </div>
