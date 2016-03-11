@@ -84,7 +84,7 @@ function constructChart(graph_type, chartnum, chart_file_name, threshold) {
             scope.options.chart.type = graph_type;
         });
         
-        d3.select(restore_button).on("click", function() {
+        d3.select("#restore_button" + chartnum).on("click", function() {
             scope.$apply(function () {
                 scope.options.chart.type = 'lineWithFocusChart';
                 scope.options.chart.height = 450;
@@ -102,7 +102,7 @@ function constructChart(graph_type, chartnum, chart_file_name, threshold) {
             });       
         });
         
-        d3.select(saveid).on("click", function() {
+        d3.select("#saveid" + chartnum).on("click", function() {
             saveSvgAsPng($("#" + chartid + " nvd3 svg")[0], chart_file_name + ".png");
         });
     });
