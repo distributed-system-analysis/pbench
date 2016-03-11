@@ -707,7 +707,7 @@ function complete_graph(stacked, data_model, x, x_axis, x2, x_axis2, y, y_axis, 
 		if (label_width >= (total_width / legend_columns - legend_label_offset)) {
 		    var label = d3.select(this);
 
-		    label.text(d.substr(0, 21) + '...')
+		    label.text(d.name.substr(0, 21) + '...')
 			.on("mouseover", tooltip_on)
 			.on("mouseout", tooltip_off);
 		}
@@ -2554,16 +2554,15 @@ function tooltip_on(d, i) {
     var svg = d3.select(object[0][0].ownerSVGElement);
     var coordinates = d3.mouse(object[0][0].ownerSVGElement);
 
-    var string = d;
+    var string = d.name;
 
     if (!isNaN(string)) {
 	string = tooltip_format_print(d);
     }
 
-    var container = svg.append("g")
-	.attr("id", "tooltip_" + id_str_fixup(string));
+    d.dom.tooltip = svg.append("g");
 
-    var text = container.append("text")
+    var text = d.dom.tooltip.append("text")
 	.attr("class", "tooltip")
 	.attr("x", coordinates[0] + 20)
 	.attr("y", coordinates[1] - 20)
@@ -2586,7 +2585,7 @@ function tooltip_on(d, i) {
 
     // insert the box before the text so that the text appears on top
     // of it rather than below it
-    container.insert("rect", ".tooltip")
+    d.dom.tooltip.insert("rect", ".tooltip")
 	.attr("class", "tooltip")
 	.attr("x", dimensions.x - tooltip_margin)
 	.attr("y", dimensions.y - tooltip_margin)
@@ -2597,16 +2596,8 @@ function tooltip_on(d, i) {
 }
 
 function tooltip_off(d, i) {
-    var object = d3.select(this);
-    var svg = d3.select(object[0][0].ownerSVGElement);
-
-    var string = d;
-
-    if (!isNaN(string)) {
-	string = tooltip_format_print(d);
-    }
-
-    svg.select("#tooltip_" + id_str_fixup(string)).remove();
+    d.dom.tooltip.remove();
+    d.dom.tooltip = null;
 }
 
 function set_x_axis_timeseries_label(svg, location, domain, timezone) {
