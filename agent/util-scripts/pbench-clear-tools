@@ -72,8 +72,8 @@ if [ -d "$tool_group_dir" ]; then
 				name_opt="--name=$name"
 			fi
 			remote_hostname=`echo $this_tool_file | awk -F@ '{print $2}'`
-			echo running ". ${pbench_install_dir}/profile; clear-tools $group_opt $name_opt" on $remote_hostname
-			ssh $ssh_opts -n $remote_hostname ". ${pbench_install_dir}/profile; clear-tools $group_opt $name_opt" | sed -e 's/\(.*\)/['$remote_hostname']\1/g'
+			echo running ". ${pbench_install_dir}/profile; pbench-clear-tools $group_opt $name_opt" on $remote_hostname
+			ssh $ssh_opts -n $remote_hostname ". ${pbench_install_dir}/profile; pbench-clear-tools $group_opt $name_opt" | sed -e 's/\(.*\)/['$remote_hostname']\1/g'
 			remaining_remote_tools=`ssh $ssh_opts -n $remote_hostname ". ${pbench_install_dir}/profile; pbench-list-tools $group_opt"`
 			if [ -z "$remaining_remote_tools" ]; then
 				echo "The remote host $remote_hostname no longer has tools registered for $group group, so the "remote@$remote" entry in the local $tool_group_dir directory will be removed"
