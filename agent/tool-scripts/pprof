@@ -1,0 +1,170 @@
+#!/usr/bin/env bash
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+# Perftool scripts must provide the following functions
+# 1) Install the tool
+# 2) Start data collection
+# 3) Stop data collection
+# 4) post-process the data
+
+# Defaults
+tool=pprof
+tool_bin=/usr/bin/$tool
+tool_package=go
+group=default
+dir="/tmp"
+mode=""
+iteration="1"
+options="none"
+interval=30
+origin_master="/etc/sysconfig/origin-master"
+origin_node="/etc/sysconfig/origin-node"
+ose_openshift_master="/etc/sysconfig/atomic-openshift-master"
+ose_openshift_node="/etc/sysconfig/atomic-openshift-node"
+
+opts=$(getopt -o d --longoptions "dir:,group:,iteration:,osecomponent:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+
+eval set -- "$opts"; 
+while true ; do 
+    case "$1" in 
+    --install)
+        mode="install"
+        shift;
+    ;;
+    --start)
+        mode="start"
+        shift;
+    ;;
+    --stop)
+        mode="stop"
+        shift;
+    ;;
+    --postprocess)
+        mode="postprocess"
+        shift;
+    ;;
+    -d|--dir)
+        shift;
+        if [ -n "$1" ]; then
+            dir="$1"
+            shift
+        fi
+    ;;
+    -g|--group)
+        shift;
+        if [ -n "$1" ]; then
+                group="$1"
+                shift
+        fi
+      ;;
+     -i|--iteration)
+        shift;
+        if [ -n "$1" ]; then
+           iteration="$1"
+           shift
+        fi
+      ;;
+    --osecomponent)
+        shift; 
+        if [ -n "$1" ]; then 
+            osecomponent="$1"
+            shift;
+        fi
+    ;;
+    --interval)
+        shift;
+        if [ -n "$1" ]; then 
+            interval="$1"
+            shift;
+        fi
+    ;; 
+    --)
+        shift;
+        break;
+    ;;
+    *)
+        echo "what's this? [$1]"
+        shift;
+        break;
+    ;; 
+esac
+done 
+
+tool_cmd="$tool_bin $record_opts"
+tool_dir="$dir/tools-$group"
+tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
+tool_cmd_file="$tool_output_dir/$tool.cmd"
+tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
+tool_output_file=$tool_output_dir/$tool.txt
+export PPROF_TMPDIR=$tool_output_dir
+
+# function to setup openshift master or node file to support web profile, depending
+# is it Openshift Enterprise, or upstream Openshift Origin
+ose_pprof() {
+    case "$osecomponent" in
+        master)
+            if [ -e $origin-master ]; then 
+                if grep -q "^OPENSHIFT_PROFILE=web" $origin_master; then
+                    systemctl restart openshift-master.service
+                else
+                    echo "OPENSHIFT_PROFILE=web" >> $origin_master
+                    systemctl restart openshift-master.service
+                fi
+            else
+                if grep -q "^OPENSHIFT_PROFILE=web" $ose_openshift_master; then 
+                    systemctl restart atomic-openshift-master
+                else
+                    echo "OPENSHIFT_PROFILE=web" >> $ose_openshift_master
+                    systemctl restart atomic-openshift-master.service
+                fi
+            fi 
+            ;;
+        node)
+            if [ -e $origin-node ]; then 
+                if grep -q "^OPENSHIFT_PROFILE=web" $origin_node; then
+                    systemctl restart openshift-node.service
+                else
+                    echo "OPENSHIFT_PROFILE=web" >> $origin_node
+                    systemctl restart openshift-node.service
+                fi 
+            else
+                if grep -q "^OPENSHIFT_PROFILE=web" $ose_openshift_node; then
+                    systemctl restart atomic-openshift-node.service
+                else
+                    echo "OPENSHIFT_PROFILE=web" >> $ose_openshift_node
+                    systemctl restart atomic-openshift-node.service
+                fi
+            fi 
+    esac
+}
+
+collect_data() {
+    while true; do
+            $tool_package tool $tool -text -seconds=$interval -output $PPROF_TMPDIR/$(date +%Y-%m-%d:%H:%M:%S)_.txt http://localhost:6060/debug/pprof/profile
+    done 
+} 
+case "$mode" in 
+    install)
+        check_install_rpm $tool_package 
+        ose_pprof
+    ;; 
+    start)
+        mkdir -p $tool_output_dir
+        collect_data
+    ;; 
+    stop)
+        # killing pprof processes at end on of itteration 
+        for pprof_process in $(ps aux | grep pbench-tool-$tool | grep -v grep | awk '{print $2}'); do kill -9 $pprof_process; done
+    ;; 
+    postprocess)
+        printf "This script does not do any postprocessing\n"
+        printf "Data already collected\n" 
+        ls -l $tool_output_dir 
+    ;; 
+esac 
