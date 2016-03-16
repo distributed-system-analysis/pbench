@@ -1,0 +1,2 @@
+all_cpu_busy-cpu_00=2.224500
+frequency_MHz-cpu_00=2799.990000
