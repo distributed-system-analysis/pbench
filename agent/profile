@@ -18,7 +18,7 @@ pathins() {
     fi
 }
 
-if [[ ! -f $prefix/util-scripts/register-tool-set ]]
+if [[ ! -f $prefix/util-scripts/pbench-register-tool-set ]]
 then
     echo "*** WARNING *** Something wrong in the pbench base profile:" >&2
     echo "                Setup has failed - could not determine the proper environment prefix: \"$prefix\"" >&2
