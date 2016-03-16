@@ -20,6 +20,7 @@ if [[ -z "$1" ]]; then
     exit 1
 fi
 TOP="$1"
+TOP_LOCAL="$2"
 
 . $dir/pbench-base.sh
 log_init $(basename $0)
