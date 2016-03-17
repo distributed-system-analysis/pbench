@@ -26,7 +26,7 @@ dir="/tmp"
 mode=""
 interval="10"
 iteration="1"
-options="none"
+options=""
 
 # Process options and arguments
 opts=$(getopt -q -o idp --longoptions "dir:,group:,iteration:,interval:,options:,threads,patterns:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
@@ -41,7 +41,7 @@ if [ $? -ne 0 ]; then
 	printf -- "\t--group=str		the perftool group (required)\n"
 	printf -- "\t--dir=str			directory to store data collection (required)\n"
 	printf -- "\t--interval=int		number of seconds between each data collection\n"
-	printf -- "\t--options=int		options passed directly to the perf tool\n"
+	printf -- "\t--options=str		options passed directly to the tool\n"
 	if [ "$script_name" == "pidstat" ]; then
 		printf -- "\t--patterns=str[,str]       only collect information on process names which match this pattern (complicated patterns with special charaters may not work)\n"
 		printf -- "                             for kvm, use --patterns=qemu,vhost\n"
@@ -131,21 +131,21 @@ tool_stdout_file=$tool_output_dir/$tool-stdout.txt
 tool_stderr_file=$tool_output_dir/$tool-stderr.txt
 case "$script_name" in
 	mpstat)
-	options="-P ALL"
-	tool_cmd="$tool_bin $options $interval"
+	default_options="-P ALL"
+	tool_cmd="$tool_bin $options $default_options $interval"
 	;;
 	iostat)
-	options="-N -t -y -x -m"
-	tool_cmd="$tool_bin $options $interval"
+	default_options="-N -t -y -x -m"
+	tool_cmd="$tool_bin $options $default_options $interval"
 	;;
 	sar)
-	options="-A"
+	default_options="-A"
 	tool_data_file="$tool_output_dir/$tool.data"
-	tool_cmd="$tool_bin $options -o $tool_data_file $interval"
+	tool_cmd="$tool_bin $options $default_options -o $tool_data_file $interval"
 	;;
 	pidstat)
-	options="-l -w -u -h -d -r $thread -p ALL $pattern"
-	tool_cmd="$tool_bin $options $interval"
+	default_options="-l -w -u -h -d -r $thread -p ALL $pattern"
+	tool_cmd="$tool_bin $options $default_options $interval"
 	;;
 esac
 case "$mode" in
@@ -167,7 +167,11 @@ case "$mode" in
 	kill $pid && /bin/rm "$tool_pid_file"
 	;;
 	postprocess)
-	debug_log "postprocessing $script_name"
-	$script_path/postprocess/$script_name-postprocess $tool_output_dir
+	if [ -z "$options" ] ;then
+		debug_log "postprocessing $script_name"
+		$script_path/postprocess/$script_name-postprocess $tool_output_dir
+	else
+		debug_log "Non-default options $options: skipping postprocessing for $script_name"
+	fi
 	;;
 esac
