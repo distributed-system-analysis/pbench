@@ -1,0 +1,281 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link href="/static/css/v0.2/nv.d3.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/static/css/v0.2/pbench_utils.css" rel="stylesheet" type="text/css" media="all">
+    <script src="/static/js/v0.2/function-bind.js"></script>
+    <script src="/static/js/v0.2/fastdom.js"></script>
+    <script src="/static/js/v0.2/d3.js"></script>
+    <script src="/static/js/v0.2/nv.d3.js"></script>
+    <script src="/static/js/v0.2/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.2/pbench_utils.js"></script>
+  </head>
+  <body class="with-3d-shadow with-transitions">
+    <h2 class="page-header">kernel</h2>
+    <div class="chart">
+      <h3 class="chart-header">kernel.all.intr
+        <button id="save1">Save as Image</button>
+        <div id="svgdataurl1"></div>
+      </h3>
+      <svg id="chart1"></svg>
+      <canvas id="canvas1" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 1, "kernel.all.intr");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.all.pswitch
+        <button id="save2">Save as Image</button>
+        <div id="svgdataurl2"></div>
+      </h3>
+      <svg id="chart2"></svg>
+      <canvas id="canvas2" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 2, "kernel.all.pswitch");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.all.cpu.user
+        <button id="save3">Save as Image</button>
+        <div id="svgdataurl3"></div>
+      </h3>
+      <svg id="chart3"></svg>
+      <canvas id="canvas3" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 3, "kernel.all.cpu.user");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.all.cpu.nice
+        <button id="save4">Save as Image</button>
+        <div id="svgdataurl4"></div>
+      </h3>
+      <svg id="chart4"></svg>
+      <canvas id="canvas4" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 4, "kernel.all.cpu.nice");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.all.cpu.sys
+        <button id="save5">Save as Image</button>
+        <div id="svgdataurl5"></div>
+      </h3>
+      <svg id="chart5"></svg>
+      <canvas id="canvas5" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 5, "kernel.all.cpu.sys");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.all.cpu.idle
+        <button id="save6">Save as Image</button>
+        <div id="svgdataurl6"></div>
+      </h3>
+      <svg id="chart6"></svg>
+      <canvas id="canvas6" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 6, "kernel.all.cpu.idle");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.all.cpu.intr
+        <button id="save7">Save as Image</button>
+        <div id="svgdataurl7"></div>
+      </h3>
+      <svg id="chart7"></svg>
+      <canvas id="canvas7" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 7, "kernel.all.cpu.intr");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.all.cpu.wait.total
+        <button id="save8">Save as Image</button>
+        <div id="svgdataurl8"></div>
+      </h3>
+      <svg id="chart8"></svg>
+      <canvas id="canvas8" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 8, "kernel.all.cpu.wait.total");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.all.cpu.irq.soft
+        <button id="save9">Save as Image</button>
+        <div id="svgdataurl9"></div>
+      </h3>
+      <svg id="chart9"></svg>
+      <canvas id="canvas9" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 9, "kernel.all.cpu.irq.soft");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.all.cpu.irq.hard
+        <button id="save10">Save as Image</button>
+        <div id="svgdataurl10"></div>
+      </h3>
+      <svg id="chart10"></svg>
+      <canvas id="canvas10" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 10, "kernel.all.cpu.irq.hard");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.all.cpu.steal
+        <button id="save11">Save as Image</button>
+        <div id="svgdataurl11"></div>
+      </h3>
+      <svg id="chart11"></svg>
+      <canvas id="canvas11" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 11, "kernel.all.cpu.steal");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.all.cpu.guest
+        <button id="save12">Save as Image</button>
+        <div id="svgdataurl12"></div>
+      </h3>
+      <svg id="chart12"></svg>
+      <canvas id="canvas12" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 12, "kernel.all.cpu.guest");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.all.cpu.vuser
+        <button id="save13">Save as Image</button>
+        <div id="svgdataurl13"></div>
+      </h3>
+      <svg id="chart13"></svg>
+      <canvas id="canvas13" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 13, "kernel.all.cpu.vuser");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.all.cpu.guest_nice
+        <button id="save14">Save as Image</button>
+        <div id="svgdataurl14"></div>
+      </h3>
+      <svg id="chart14"></svg>
+      <canvas id="canvas14" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 14, "kernel.all.cpu.guest_nice");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.all.cpu.vnice
+        <button id="save15">Save as Image</button>
+        <div id="svgdataurl15"></div>
+      </h3>
+      <svg id="chart15"></svg>
+      <canvas id="canvas15" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 15, "kernel.all.cpu.vnice");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.all.load
+        <button id="save16">Save as Image</button>
+        <div id="svgdataurl16"></div>
+      </h3>
+      <svg id="chart16"></svg>
+      <canvas id="canvas16" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 16, "kernel.all.load");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.all.nusers
+        <button id="save17">Save as Image</button>
+        <div id="svgdataurl17"></div>
+      </h3>
+      <svg id="chart17"></svg>
+      <canvas id="canvas17" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 17, "kernel.all.nusers");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.all.uptime
+        <button id="save18">Save as Image</button>
+        <div id="svgdataurl18"></div>
+      </h3>
+      <svg id="chart18"></svg>
+      <canvas id="canvas18" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 18, "kernel.all.uptime");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.uname.release
+        <button id="save19">Save as Image</button>
+        <div id="svgdataurl19"></div>
+      </h3>
+      <svg id="chart19"></svg>
+      <canvas id="canvas19" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 19, "kernel.uname.release");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.uname.version
+        <button id="save20">Save as Image</button>
+        <div id="svgdataurl20"></div>
+      </h3>
+      <svg id="chart20"></svg>
+      <canvas id="canvas20" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 20, "kernel.uname.version");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.uname.sysname
+        <button id="save21">Save as Image</button>
+        <div id="svgdataurl21"></div>
+      </h3>
+      <svg id="chart21"></svg>
+      <canvas id="canvas21" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 21, "kernel.uname.sysname");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.uname.machine
+        <button id="save22">Save as Image</button>
+        <div id="svgdataurl22"></div>
+      </h3>
+      <svg id="chart22"></svg>
+      <canvas id="canvas22" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 22, "kernel.uname.machine");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.uname.nodename
+        <button id="save23">Save as Image</button>
+        <div id="svgdataurl23"></div>
+      </h3>
+      <svg id="chart23"></svg>
+      <canvas id="canvas23" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 23, "kernel.uname.nodename");
+      </script>
+    </div>
+    <div class="chart">
+      <h3 class="chart-header">kernel.uname.distro
+        <button id="save24">Save as Image</button>
+        <div id="svgdataurl24"></div>
+      </h3>
+      <svg id="chart24"></svg>
+      <canvas id="canvas24" style="display:none"></canvas>
+      <script>
+        constructChart("lineChart", 24, "kernel.uname.distro");
+      </script>
+    </div>
+  </body>
+  </html>
