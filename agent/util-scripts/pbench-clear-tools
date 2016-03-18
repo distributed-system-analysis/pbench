@@ -60,8 +60,6 @@ tool_group_dir="tools-$group"
 if [ -d "$tool_group_dir" ]; then
 	for this_tool_file in `/bin/ls $tool_group_dir`; do
 		if [ "$this_tool_file" == "label" ]; then
-			echo "removing tool label: `cat $tool_group_dir/$this_tool_file`"
-			/bin/rm -f "$tool_group_dir/$this_tool_file"
 			continue;
 		fi
 		remote=""
@@ -90,5 +88,11 @@ if [ -d "$tool_group_dir" ]; then
 			fi
 		fi
 	done
+        tool_files=`/bin/ls $tool_group_dir`
+        # if the only file remaining is the label, remove it
+	if [ "$tool_files" == "label" ]; then
+	    echo "removing tool label: `cat $tool_group_dir/$tool_files`"
+	    /bin/rm -f "$tool_group_dir/$tool_files"
+	fi
 fi
 popd >/dev/null
