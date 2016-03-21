@@ -96,6 +96,11 @@ div.chart {
     padding: 20px;
 }
 
+.header {
+    border-bottom: 1px solid;
+    border-bottom-color: #E0E0E0;
+}
+
 .graph {
     padding: 20px;
 }
