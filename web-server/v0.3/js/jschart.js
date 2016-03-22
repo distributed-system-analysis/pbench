@@ -164,7 +164,14 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
 			  stacked: { median: null,
 				     mean: null
 				   }
-			}
+			},
+		 axis: { x: { chart: null,
+			      zoom: null
+			    },
+			 y: { chart: null,
+			      zoom: null
+			    }
+		       }
 	       };
 
     this.table = { stacked_mean: 0,
@@ -920,10 +927,10 @@ function complete_chart(charts_index) {
     charts[charts_index].y.scale.chart.domain(domain);
     charts[charts_index].y.scale.zoom.domain(charts[charts_index].y.scale.chart.domain());
 
-    charts[charts_index].chart.container.select(".x.axis").call(charts[charts_index].x.axis.chart);
-    charts[charts_index].chart.container.select(".x2.axis").call(charts[charts_index].x.axis.zoom);
-    charts[charts_index].chart.container.select(".y.axis").call(charts[charts_index].y.axis.chart);
-    charts[charts_index].chart.container.select(".y2.axis").call(charts[charts_index].y.axis.zoom);
+    charts[charts_index].dom.axis.x.chart.call(charts[charts_index].x.axis.chart);
+    charts[charts_index].dom.axis.x.zoom.call(charts[charts_index].x.axis.zoom);
+    charts[charts_index].dom.axis.y.chart.call(charts[charts_index].y.axis.chart);
+    charts[charts_index].dom.axis.y.zoom.call(charts[charts_index].y.axis.zoom);
     fix_y_axis_labels(charts_index);
 
     if (charts[charts_index].data_model == "timeseries") {
@@ -1447,8 +1454,8 @@ function handle_brush_actions(charts_index) {
     charts[charts_index].x.scale.chart.domain(x_extent);
     charts[charts_index].y.scale.chart.domain(y_extent);
 
-    charts[charts_index].chart.container.select("g.x.axis").call(charts[charts_index].x.axis.chart);
-    charts[charts_index].chart.container.select("g.y.axis").call(charts[charts_index].y.axis.chart);
+    charts[charts_index].dom.axis.x.chart.call(charts[charts_index].x.axis.chart);
+    charts[charts_index].dom.axis.y.chart.call(charts[charts_index].y.axis.chart);
 
     charts[charts_index].x.slider.call(charts[charts_index].x.brush);
     charts[charts_index].y.slider.call(charts[charts_index].y.brush);
@@ -1533,11 +1540,11 @@ function zoom_it(charts_index, zoom) {
     charts[charts_index].x.brush.extent(x_extent);
     charts[charts_index].y.brush.extent(y_extent);
 
-    charts[charts_index].chart.container.select("g.x.axis").call(charts[charts_index].x.axis.chart);
-    charts[charts_index].chart.container.select("g.y.axis").call(charts[charts_index].y.axis.chart);
+    charts[charts_index].dom.axis.x.chart.call(charts[charts_index].x.axis.chart);
+    charts[charts_index].dom.axis.y.chart.call(charts[charts_index].y.axis.chart);
 
-    charts[charts_index].chart.container.select("g.x2.axis").call(charts[charts_index].x.axis.zoom);
-    charts[charts_index].chart.container.select("g.y2.axis").call(charts[charts_index].y.axis.zoom);
+    charts[charts_index].dom.axis.x.zoom.call(charts[charts_index].x.axis.zoom);
+    charts[charts_index].dom.axis.y.zoom.call(charts[charts_index].y.axis.zoom);
 
     charts[charts_index].x.slider.call(charts[charts_index].x.brush);
     charts[charts_index].y.slider.call(charts[charts_index].y.brush);
@@ -1718,11 +1725,11 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		charts[charts_index].x.brush.extent(charts[charts_index].x.scale.zoom.domain());
 		charts[charts_index].y.brush.extent(charts[charts_index].y.scale.zoom.domain());
 
-		charts[charts_index].chart.container.select("g.x.axis").call(charts[charts_index].x.axis.chart);
-		charts[charts_index].chart.container.select("g.y.axis").call(charts[charts_index].y.axis.chart);
+		charts[charts_index].dom.axis.x.chart.call(charts[charts_index].x.axis.chart);
+		charts[charts_index].dom.axis.x.zoom.call(charts[charts_index].x.axis.zoom);
 
-		charts[charts_index].chart.container.select("g.x2.axis").call(charts[charts_index].x.axis.zoom);
-		charts[charts_index].chart.container.select("g.y2.axis").call(charts[charts_index].y.axis.zoom);
+		charts[charts_index].dom.axis.y.chart.call(charts[charts_index].y.axis.chart);
+		charts[charts_index].dom.axis.y.zoom.call(charts[charts_index].y.axis.zoom);
 
 		charts[charts_index].x.slider.call(charts[charts_index].x.brush);
 		charts[charts_index].y.slider.call(charts[charts_index].y.brush);
@@ -1906,7 +1913,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
 			d.x.brush.extent(x_domain);
 
-			d.chart.container.select("g.x.axis").call(d.x.axis.chart);
+			d.dom.axis.x.chart.call(d.x.axis.chart);
 
 			d.x.slider.call(d.x.brush);
 
@@ -1927,19 +1934,19 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	    })
 	.text("Apply X-Axis Zoom to All");
 
-    var tmp = charts[charts_index].chart.container.append("g")
+    charts[charts_index].dom.axis.x.chart = charts[charts_index].chart.container.append("g")
 	.attr("class", "x axis")
 	.attr("transform", "translate(0," + height +")")
 	.call(charts[charts_index].x.axis.chart);
 
-    charts[charts_index].x.axis.title.dom = tmp.append("text")
+    charts[charts_index].x.axis.title.dom = charts[charts_index].dom.axis.x.chart.append("text")
 	.attr("class", "axislabel")
 	.attr("y", 30)
 	.attr("x", (width/2))
 	.style("text-anchor", "middle")
 	.text(charts[charts_index].x.axis.title.text);
 
-    charts[charts_index].chart.container.append("g")
+    charts[charts_index].dom.axis.x.zoom = charts[charts_index].chart.container.append("g")
 	.attr("class", "x2 axis")
 	.attr("transform", "translate(0, -15)")
 	.call(charts[charts_index].x.axis.zoom);
@@ -1961,11 +1968,11 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.attr("transform", "translate(0, -25)")
 	.attr("height", 20);
 
-    var tmp = charts[charts_index].chart.container.append("g")
+    charts[charts_index].dom.axis.y.chart = charts[charts_index].chart.container.append("g")
 	.attr("class", "y axis")
 	.call(charts[charts_index].y.axis.chart);
 
-    charts[charts_index].y.axis.title.dom = tmp.append("text")
+    charts[charts_index].y.axis.title.dom = charts[charts_index].dom.axis.y.chart.append("text")
 	.append("text")
 	.attr("class", "axislabel")
 	.attr("x", -margin.left + 10)
@@ -1973,7 +1980,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.style("text-anchor", "start")
 	.text(charts[charts_index].y.axis.title.text);
 
-    charts[charts_index].chart.container.append("g")
+    charts[charts_index].dom.axis.y.zoom = charts[charts_index].chart.container.append("g")
 	.attr("class", "y2 axis")
 	.attr("transform", "translate(" + (width + 15) + ", 0)")
 	.call(charts[charts_index].y.axis.zoom);
@@ -2100,8 +2107,8 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		charts[charts_index].x.scale.chart.domain(x_extent);
 		charts[charts_index].y.scale.chart.domain(y_extent);
 
-		charts[charts_index].chart.container.select("g.x.axis").call(charts[charts_index].x.axis.chart);
-		charts[charts_index].chart.container.select("g.y.axis").call(charts[charts_index].y.axis.chart);
+		charts[charts_index].dom.axis.x.chart.call(charts[charts_index].x.axis.chart);
+		charts[charts_index].dom.axis.y.chart.call(charts[charts_index].y.axis.chart);
 
 		charts[charts_index].x.slider.call(charts[charts_index].x.brush);
 		charts[charts_index].y.slider.call(charts[charts_index].y.brush);
