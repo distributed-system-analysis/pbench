@@ -209,16 +209,40 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
 		     update_interval: null,
 		     history_length: null,
 		     x: { min: null,
-			  max: null
+			  max: null,
+			  scale: { linear: true,
+				   log: false,
+				   time: false
+				 }
 			},
 		     y: { min: null,
-			  max: null
+			  max: null,
+			  scale: { linear: true,
+				   log: false
+				 }
 			},
 		   };
 
     this.interval = null;
 
     // option(s) "parsing"
+    if (this.data_model == "timeseries") {
+	this.options.x.scale.time = true;
+	this.options.x.scale.linear = false;
+    } else {
+	if ((options.x_log_scale !== undefined) &&
+	    options.x_log_scale) {
+	    this.options.x.scale.log = true;
+	    this.options.x.scale.linear = false;
+	}
+    }
+
+    if ((options.y_log_scale !== undefined) &&
+	options.y_log_scale) {
+	this.options.y.scale.log = true;
+	this.options.y.scale.linear = false;
+    }
+
     if (options.timeseries_timezone !== undefined) {
 	this.options.timezone = options.timeseries_timezone;
     }
@@ -910,7 +934,9 @@ function complete_chart(charts_index) {
 	}
     }
 
-    if (!charts[charts_index].stacked && domain[0] > 0) {
+    if (!charts[charts_index].stacked &&
+	!charts[charts_index].options.y.scale.log &&
+	(domain[0] > 0)) {
 	domain[0] = 0;
     }
 
@@ -1613,11 +1639,10 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
     charts[charts_index].dom.div = d3.select(charts[charts_index].dom.div);
 
-    if ((charts[charts_index].data_model == "xy") ||
-	(charts[charts_index].data_model == "histogram")) {
+    if (charts[charts_index].options.x.scale.linear) {
 	charts[charts_index].x.scale.chart = d3.scale.linear();
 	charts[charts_index].x.scale.zoom = d3.scale.linear();
-    } else if (charts[charts_index].data_model == "timeseries") {
+    } else if (charts[charts_index].options.x.scale.time) {
 	if (charts[charts_index].options.timezone === "local") {
 	    charts[charts_index].x.scale.chart = d3.time.scale();
 	    charts[charts_index].x.scale.zoom = d3.time.scale();
@@ -1626,6 +1651,9 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	    charts[charts_index].x.scale.chart = d3.time.scale.utc();
 	    charts[charts_index].x.scale.zoom = d3.time.scale.utc();
 	}
+    } else if (charts[charts_index].options.x.scale.log) {
+	charts[charts_index].x.scale.chart = d3.scale.log();
+	charts[charts_index].x.scale.zoom = d3.scale.log();
     }
 
     charts[charts_index].x.scale.chart.range([0, width]);
@@ -1633,11 +1661,17 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
     charts[charts_index].x.scale.zoom.clamp(true)
 	.range([0, width]);
 
-    charts[charts_index].y.scale.chart = d3.scale.linear()
-	.range([height, 0]);
+    if (charts[charts_index].options.y.scale.linear) {
+	charts[charts_index].y.scale.chart = d3.scale.linear();
+	charts[charts_index].y.scale.zoom = d3.scale.linear();
+    } else if (charts[charts_index].options.y.scale.log) {
+	charts[charts_index].y.scale.chart = d3.scale.log();
+	charts[charts_index].y.scale.zoom = d3.scale.log();
+    }
 
-    charts[charts_index].y.scale.zoom = d3.scale.linear()
-	.clamp(true)
+    charts[charts_index].y.scale.chart.range([height, 0]);
+
+    charts[charts_index].y.scale.zoom.clamp(true)
 	.range([height, 0]);
 
     charts[charts_index].x.axis.chart = d3.svg.axis()
@@ -1650,7 +1684,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.orient("top")
 	.tickSize(9);
 
-    if (charts[charts_index].data_model == "timeseries") {
+    if (charts[charts_index].options.x.scale.time) {
 	if (charts[charts_index].options.timezone == "local") {
 	    charts[charts_index].x.axis.chart.tickFormat(local_time_format_tick);
 	    charts[charts_index].x.axis.zoom.tickFormat(local_time_format_tick);
@@ -2028,13 +2062,16 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	    charts[charts_index].state.user_y_zoomed = true;
 	});
 
+    var x_domain = charts[charts_index].x.scale.chart.domain();
+    var y_domain = charts[charts_index].y.scale.chart.domain();
+
     charts[charts_index].chart.container.append("clipPath")
 	.attr("id", "clip")
 	.append("rect")
-	.attr("x", charts[charts_index].x.scale.chart(0))
-	.attr("y", charts[charts_index].y.scale.chart(1))
-	.attr("width", charts[charts_index].x.scale.chart(1) - charts[charts_index].x.scale.chart(0))
-	.attr("height", charts[charts_index].y.scale.chart(0) - charts[charts_index].y.scale.chart(1));
+	.attr("x", charts[charts_index].x.scale.chart(x_domain[0]))
+	.attr("y", charts[charts_index].y.scale.chart(y_domain[1]))
+	.attr("width", charts[charts_index].x.scale.chart(x_domain[1]) - charts[charts_index].x.scale.chart(x_domain[0]))
+	.attr("height", charts[charts_index].y.scale.chart(y_domain[0]) - charts[charts_index].y.scale.chart(y_domain[1]));
 
     charts[charts_index].chart.container.append("rect")
 	.attr("id", "pane")
@@ -2216,8 +2253,8 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
     charts[charts_index].chart.loading = charts[charts_index].chart.container.append("text")
 	.attr("class", "loadinglabel")
-	.attr("x", charts[charts_index].x.scale.chart(0.5))
-	.attr("y", charts[charts_index].y.scale.chart(0.5) + 35)
+	.attr("x", (charts[charts_index].x.scale.chart(x_domain[1]) - charts[charts_index].x.scale.chart(x_domain[0])) / 2)
+	.attr("y", (charts[charts_index].y.scale.chart(y_domain[0]) - charts[charts_index].y.scale.chart(y_domain[1])) / 2 + 35)
 	.style("text-anchor", "middle")
 	.text("Loading");
 
