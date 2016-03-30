@@ -46,6 +46,9 @@ var timezone_print = d3.time.format("UTC/GMT %Z");
 
 var zoom_rate = 0.03;
 
+// percentage to overscale the y-axis by default
+var y_axis_overscale = 2;
+
 // array to store objects for each chart, with references to often used variables
 var charts = [];
 
@@ -63,6 +66,13 @@ help += "You can apply any x-axis zooming to all charts on the page by clicking 
 help += "To reset the chart area to it's original state after being panned/zoomed, hit the \"Reset Zoom/Pan\" button in the upper right.\n\n";
 help += "You can download a CSV file for the data by clicking the \"Export Data as CSV\" button located under the chart title.  The exported data is limited by x-axis zooming, if performed.\n\n";
 help += "When the page has completed generating all charts, the background will change colors to signal that loading is complete.\n";
+
+function datapoint(x, y, dataset, timestamp) {
+    this.x = x;
+    this.y = y;
+    this.dataset = dataset;
+    this.timestamp = timestamp;
+}
 
 function dataset(index, name, mean, median, values) {
     this.index = index;
@@ -175,7 +185,6 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
 	       };
 
     this.table = { stacked_mean: 0,
-		   valid_stacked_mean: 0,
 		   stacked_median: 0
 		 };
 
@@ -185,7 +194,8 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
 		   selection_start: null,
 		   selection_stop: null,
 		   selection_active: false,
-		   live_update: true
+		   live_update: true,
+		   visible_datasets: 0
 		 };
 
     this.functions = { area: null,
@@ -317,7 +327,9 @@ function compute_stacked_median(charts_index) {
     var bar = [];
 
     charts[charts_index].datasets.map(function(d) {
-	    if (d.values === undefined) {
+	    if (d.hidden ||
+		(d.values === undefined))
+		{
 		return null;
 	    }
 
@@ -340,6 +352,26 @@ function compute_stacked_median(charts_index) {
     }
 }
 
+function compute_stacked_mean(charts_index) {
+    var sum = 0;
+    var counter = 0;
+
+    charts[charts_index].datasets.map(function(d) {
+	if (!d.hidden) {
+	    if (!isNaN(d.mean)) {
+		sum += d.mean;
+		counter++;
+	    }
+	}
+    });
+
+    if (counter) {
+	return sum;
+    } else {
+	return "No Samples";
+    }
+}
+
 function mycolors(index) {
     var colors = [ "#FF0000", "#009900", "#0000FF", "#FF00FF", "#E69900", "#AC3839", "#00FFFF", "#007D00", "#00CACD", "#AA44AA",
 		   "#FFFF00", "#C0C0FF", "#FF8000", "#00FF00", "#C0C000", "#1E90FF", "#778899", "#CD3278", "#808080", "#D2691E",
@@ -355,6 +387,7 @@ function mycolors(index) {
 
 function parse_plot_file(charts_index, datasets_index, text) {
     charts[charts_index].datasets[datasets_index] = new dataset(datasets_index, "", "No Samples", "No Samples", []);
+    charts[charts_index].state.visible_datasets++;
 
     dsv.parseRows(text).map(function(row) {
 	var index = row[0].indexOf("#LABEL:");
@@ -364,7 +397,7 @@ function parse_plot_file(charts_index, datasets_index, text) {
 		charts[charts_index].datasets[datasets_index].histogram.samples += +row[1];
 		charts[charts_index].datasets[datasets_index].histogram.sum += (+row[0] * +row[1]);
 	    }
-	    charts[charts_index].datasets[datasets_index].values.push({ x: +row[0], y: +row[1] });
+	    charts[charts_index].datasets[datasets_index].values.push(new datapoint(+row[0], +row[1], charts[charts_index].datasets[datasets_index], null));
 	} else {
 	    var tmp = row[0].substring(7);
 	    row.shift();
@@ -427,7 +460,130 @@ function parse_plot_file(charts_index, datasets_index, text) {
     }
 }
 
+function update_domains(charts_index) {
+    charts[charts_index].x.scale.chart.domain([
+	d3.min(charts[charts_index].datasets, function(c) { if (c.hidden || (c.values === undefined)) { return null; } return d3.min(c.values, function(v) { return v.x; }); }),
+	d3.max(charts[charts_index].datasets, function(c) { if (c.hidden || (c.values === undefined)) { return null; } return d3.max(c.values, function(v) { return v.x; }); })
+    ]);
+
+    var domain = charts[charts_index].x.scale.chart.domain();
+
+    if (isNaN(domain[0])) {
+	domain[0] = 0;
+    }
+
+    if (isNaN(domain[1])) {
+	domain[1] = 1;
+    }
+
+    // ensure that the domain is not "empty"
+    if (domain[0] == domain[1]) {
+	domain[0] *= 0.95;
+	domain[1] *= 1.05;
+
+	if (domain[0] == domain[1]) {
+	    domain[1]++;
+	}
+    }
+
+    if (charts[charts_index].options.x.min) {
+	domain[0] = charts[charts_index].options.x.min;
+    }
+
+    if (charts[charts_index].options.x.max) {
+	domain[1] = charts[charts_index].options.x.max;
+    }
+
+    charts[charts_index].x.scale.chart.domain(domain);
+    charts[charts_index].x.scale.zoom.domain(charts[charts_index].x.scale.chart.domain());
+
+    if (! charts[charts_index].state.user_x_zoomed) {
+	charts[charts_index].x.brush.extent(domain);
+    }
+
+    if (charts[charts_index].stacked) {
+	charts[charts_index].datasets = charts[charts_index].functions.stack(charts[charts_index].datasets);
+
+	charts[charts_index].y.scale.chart.domain([
+	    d3.min(charts[charts_index].datasets, function(c) { if (c.hidden || (c.values === undefined)) { return null; } return d3.min(c.values, function(v) { return v.y0; }); }),
+	    d3.max(charts[charts_index].datasets, function(c) { if (c.hidden || (c.values === undefined)) { return null; } return d3.max(c.values, function(v) { return v.y0 + v.y; }); })
+	]);
+    } else {
+	charts[charts_index].y.scale.chart.domain([
+	    d3.min(charts[charts_index].datasets, function(c) { if (c.hidden || (c.values === undefined)) { return null; } return d3.min(c.values, function(v) { return v.y; }); }),
+	    d3.max(charts[charts_index].datasets, function(c) { if (c.hidden || (c.values === undefined)) { return null; } return d3.max(c.values, function(v) { return v.y; }); })
+	]);
+    }
+
+    var domain = charts[charts_index].y.scale.chart.domain();
+
+    if (isNaN(domain[0])) {
+	domain[0] = 0;
+    }
+
+    if (isNaN(domain[1])) {
+	domain[1] = 1;
+    }
+
+    // ensure that the domain is not "empty"
+    if (domain[0] == domain[1]) {
+	domain[0] *= 0.95;
+	domain[1] *= 1.05;
+
+	if (domain[0] == domain[1]) {
+	    domain[1]++;
+	}
+    }
+
+    if (!charts[charts_index].stacked &&
+	!charts[charts_index].options.y.scale.log &&
+	(domain[0] > 0)) {
+	domain[0] = 0;
+    }
+
+    if (charts[charts_index].options.y.min) {
+	domain[0] = charts[charts_index].options.y.min;
+    }
+
+    if (charts[charts_index].options.y.max) {
+	domain[1] = charts[charts_index].options.y.max;
+    } else {
+	domain[1] *= (1 + y_axis_overscale/100);
+    }
+
+    charts[charts_index].y.scale.chart.domain(domain);
+    charts[charts_index].y.scale.zoom.domain(charts[charts_index].y.scale.chart.domain());
+
+    if (! charts[charts_index].state.user_y_zoomed) {
+	charts[charts_index].y.brush.extent(domain);
+    }
+}
+
 function update_chart(charts_index) {
+    if (!charts[charts_index].state.visible_datasets) {
+	return;
+    }
+
+    if (charts[charts_index].stacked) {
+	charts[charts_index].table.stacked_mean = compute_stacked_mean(charts_index);
+	if (isFinite(charts[charts_index].table.stacked_mean)) {
+	    charts[charts_index].table.stacked_mean = table_format_print(charts[charts_index].table.stacked_mean);
+	}
+	charts[charts_index].dom.table.stacked.mean.text(charts[charts_index].table.stacked_mean);
+
+	charts[charts_index].table.stacked_median = compute_stacked_median(charts_index);
+	if (isFinite(charts[charts_index].table.stacked_median)) {
+	    charts[charts_index].table.stacked_median = table_format_print(charts[charts_index].table.stacked_median);
+	}
+	charts[charts_index].dom.table.stacked.median.text(charts[charts_index].table.stacked_median);
+    }
+
+    update_domains(charts_index);
+
+    zoom_it(charts_index, 0);
+}
+
+function live_update(charts_index) {
     var last_timestamp = 0;
     if (charts[charts_index].datasets.length) {
 	last_timestamp = charts[charts_index].datasets[0].last_timestamp;
@@ -450,9 +606,6 @@ function update_chart(charts_index) {
 
 		var table = d3.select(charts[charts_index].table.table);
 
-		charts[charts_index].table.stacked_mean = 0;
-		charts[charts_index].table.valid_stacked_mean = 0;
-
 		var x_axis_index = 0;
 		for (var index=0; index<json.data_series_names.length; index++) {
 		    if (json.data_series_names[index] === json.x_axis_series) {
@@ -466,7 +619,7 @@ function update_chart(charts_index) {
 		    }
 
 		    json.data.map(function(d) {
-			charts[charts_index].datasets[dataset_index].values.push({ timestamp: d[0], x: 0, y: d[index] });
+			charts[charts_index].datasets[dataset_index].values.push(new datapoint(null, d[index], charts[charts_index].datasets[dataset_index], d[0]));
 			charts[charts_index].datasets[dataset_index].last_timestamp = d[0];
 		    });
 
@@ -486,11 +639,8 @@ function update_chart(charts_index) {
 		    var median;
 
 		    if (charts[charts_index].datasets[dataset_index].values.length > 0) {
-			mean = d3.mean(charts[charts_index].datasets[dataset_index].values, function(d) { return d.y; });
-			median = d3.median(charts[charts_index].datasets[dataset_index].values, function(d) { return d.y });
-
-			charts[charts_index].table.stacked_mean += mean;
-			charts[charts_index].table.valid_stacked_mean = 1;
+			mean = d3.mean(charts[charts_index].datasets[dataset_index].values, function(d) { if (d.y_backup === undefined) { return d.y; } else { return d.y_backup; }; });
+			median = d3.median(charts[charts_index].datasets[dataset_index].values, function(d) { if (d.y_backup === undefined) { return d.y; } else { return d.y_backup; }; });
 		    } else {
 			mean = "No Samples";
 			median = "No Samples"
@@ -506,75 +656,7 @@ function update_chart(charts_index) {
 		    dataset_index++;
 		}
 
-		if (charts[charts_index].stacked) {
-		    if (charts[charts_index].table.valid_stacked_mean) {
-			charts[charts_index].table.stacked_mean = table_format_print(charts[charts_index].table.stacked_mean);
-		    } else {
-			charts[charts_index].table.stacked_mean = "No Samples";
-		    }
-		    charts[charts_index].dom.table.stacked.mean.text(charts[charts_index].table.stacked_mean);
-
-		    charts[charts_index].table.stacked_median = compute_stacked_median(charts_index);
-		    if (isFinite(charts[charts_index].table.stacked_median)) {
-			charts[charts_index].table.stacked_median = table_format_print(charts[charts_index].table.stacked_median);
-		    }
-		    charts[charts_index].dom.table.stacked.median.text(charts[charts_index].table.stacked_median);
-
-		    charts[charts_index].datasets = charts[charts_index].functions.stack(charts[charts_index].datasets);
-		}
-
-		charts[charts_index].x.scale.chart.domain([
-		    d3.min(charts[charts_index].datasets, function(c) { if (c.values === undefined) { return null; } return d3.min(c.values, function(v) { return v.x; }); }),
-		    d3.max(charts[charts_index].datasets, function(c) { if (c.values === undefined) { return null; } return d3.max(c.values, function(v) { return v.x; }); })
-		]);
-
-		if (charts[charts_index].stacked) {
-		    charts[charts_index].y.scale.chart.domain([
-			d3.min(charts[charts_index].datasets, function(c) { if (c.values === undefined) { return null; } return d3.min(c.values, function(v) { return v.y0; }); }),
-			d3.max(charts[charts_index].datasets, function(c) { if (c.values === undefined) { return null; } return d3.max(c.values, function(v) { return v.y0 + v.y; }); })
-		    ]);
-		} else {
-		    charts[charts_index].y.scale.chart.domain([
-			d3.min(charts[charts_index].datasets, function(c) { if (c.values === undefined) { return null; } return d3.min(c.values, function(v) { return v.y; }); }),
-			d3.max(charts[charts_index].datasets, function(c) { if (c.values === undefined) { return null; } return d3.max(c.values, function(v) { return v.y; }); })
-		    ]);
-		}
-
-		var domain = charts[charts_index].x.scale.chart.domain();
-
-		if (charts[charts_index].options.x.min) {
-		    domain[0] = charts[charts_index].options.x.min;
-		}
-
-		if (charts[charts_index].options.x.max) {
-		    domain[1] = charts[charts_index].options.x.max;
-		}
-
-		charts[charts_index].x.scale.chart.domain(domain);
-		charts[charts_index].x.scale.zoom.domain(charts[charts_index].x.scale.chart.domain());
-
-		if (! charts[charts_index].state.user_x_zoomed) {
-		    charts[charts_index].x.brush.extent(domain);
-		}
-
-		var domain = charts[charts_index].y.scale.chart.domain();
-
-		if (charts[charts_index].options.y.min) {
-		    domain[0] = charts[charts_index].options.y.min;
-		}
-
-		if (charts[charts_index].options.y.max) {
-		    domain[1] = charts[charts_index].options.y.max;
-		}
-
-		charts[charts_index].y.scale.chart.domain(domain);
-		charts[charts_index].y.scale.zoom.domain(charts[charts_index].y.scale.chart.domain());
-
-		if (! charts[charts_index].state.user_y_zoomed) {
-		    charts[charts_index].y.brush.extent(domain);
-		}
-
-		zoom_it(charts_index, 0);
+		update_chart(charts_index);
 	    }
 	});
 }
@@ -610,7 +692,8 @@ function load_json(charts_index, callback) {
 		    charts[charts_index].datasets[dataset_index] = new dataset(index-1, json.data_series_names[index], 0, 0, []);
 
 		    json.data.map(function(d) {
-			charts[charts_index].datasets[dataset_index].values.push({ timestamp: d[x_axis_index], x: d[x_axis_index] - timebase, y: d[index] });
+			charts[charts_index].datasets[dataset_index].values.push(new datapoint(d[x_axis_index] - timebase, d[index], charts[charts_index].datasets[dataset_index], d[x_axis_index]));
+			charts[charts_index].state.visible_datasets++;
 			charts[charts_index].datasets[dataset_index].last_timestamp = d[x_axis_index];
 		    });
 
@@ -657,6 +740,7 @@ function load_csv_files(url, charts_index, callback) {
 		    if (sample_counter == 0) {
 			for (var i=1; i<row.length; i++) {
 			    charts[charts_index].datasets[index_base + i - 1] = new dataset(index_base + i - 1, row[i], "No Samples", "No Samples", []);
+			    charts[charts_index].state.visible_datasets++;
 			}
 		    } else {
 			for (var i=1; i<row.length; i++) {
@@ -664,7 +748,7 @@ function load_csv_files(url, charts_index, callback) {
 				continue;
 			    }
 
-			    charts[charts_index].datasets[index_base + i - 1].values.push({ x: +row[0], y: +row[i] });
+			    charts[charts_index].datasets[index_base + i - 1].values.push(new datapoint(+row[0], +row[i], charts[charts_index].datasets[index_base + i - 1], null));
 
 			    if (charts[charts_index].data_model == "histogram") {
 				charts[charts_index].datasets[index_base + i -1].histogram.samples += +row[i];
@@ -788,41 +872,7 @@ function navigate_to_chart(target) {
 }
 
 function complete_chart(charts_index) {
-    charts[charts_index].x.scale.chart.domain([
-	      d3.min(charts[charts_index].datasets, function(c) { if (c.values === undefined) { return null; } return d3.min(c.values, function(v) { return v.x; }); }),
-	      d3.max(charts[charts_index].datasets, function(c) { if (c.values === undefined) { return null; } return d3.max(c.values, function(v) { return v.x; }); })
-	      ]);
-
-    var domain = charts[charts_index].x.scale.chart.domain();
-
-    if (isNaN(domain[0])) {
-	domain[0] = 0;
-    }
-
-    if (isNaN(domain[1])) {
-	domain[1] = 1;
-    }
-
-    // ensure that the domain is not "empty"
-    if (domain[0] == domain[1]) {
-	domain[0] *= 0.95;
-	domain[1] *= 1.05;
-
-	if (domain[0] == domain[1]) {
-	    domain[1]++;
-	}
-    }
-
-    if (charts[charts_index].options.x.min) {
-	domain[0] = charts[charts_index].options.x.min;
-    }
-
-    if (charts[charts_index].options.x.max) {
-	domain[1] = charts[charts_index].options.x.max;
-    }
-
-    charts[charts_index].x.scale.chart.domain(domain);
-    charts[charts_index].x.scale.zoom.domain(charts[charts_index].x.scale.chart.domain());
+    update_domains(charts_index);
 
     if (charts[charts_index].datasets.length < charts[charts_index].legend_columns) {
 	charts[charts_index].legend_columns = charts[charts_index].datasets.length;
@@ -899,59 +949,6 @@ function complete_chart(charts_index) {
 	    }
 	}
     }
-
-    if (charts[charts_index].stacked) {
-	charts[charts_index].datasets = charts[charts_index].functions.stack(charts[charts_index].datasets);
-
-	charts[charts_index].y.scale.chart.domain([
-		  d3.min(charts[charts_index].datasets, function(c) { if (c.values === undefined) { return null; } return d3.min(c.values, function(v) { return v.y0; }); }),
-		  d3.max(charts[charts_index].datasets, function(c) { if (c.values === undefined) { return null; } return d3.max(c.values, function(v) { return v.y0 + v.y; }); })
-		  ]);
-    } else {
-	charts[charts_index].y.scale.chart.domain([
-		  d3.min(charts[charts_index].datasets, function(c) { if (c.values === undefined) { return null; } return d3.min(c.values, function(v) { return v.y; }); }),
-		  d3.max(charts[charts_index].datasets, function(c) { if (c.values === undefined) { return null; } return d3.max(c.values, function(v) { return v.y; }); })
-		  ]);
-    }
-
-    var domain = charts[charts_index].y.scale.chart.domain();
-
-    if (isNaN(domain[0])) {
-	domain[0] = 0;
-    }
-
-    if (isNaN(domain[1])) {
-	domain[1] = 1;
-    }
-
-    // ensure that the domain is not "empty"
-    if (domain[0] == domain[1]) {
-	domain[0] *= 0.95;
-	domain[1] *= 1.05;
-
-	if (domain[0] == domain[1]) {
-	    domain[1]++;
-	}
-    }
-
-    if (!charts[charts_index].stacked &&
-	!charts[charts_index].options.y.scale.log &&
-	(domain[0] > 0)) {
-	domain[0] = 0;
-    }
-
-    domain[1] *= 1.05;
-
-    if (charts[charts_index].options.y.min) {
-	domain[0] = charts[charts_index].options.y.min;
-    }
-
-    if (charts[charts_index].options.y.max) {
-	domain[1] = charts[charts_index].options.y.max;
-    }
-
-    charts[charts_index].y.scale.chart.domain(domain);
-    charts[charts_index].y.scale.zoom.domain(charts[charts_index].y.scale.chart.domain());
 
     charts[charts_index].chart.axis.x.chart.call(charts[charts_index].x.axis.chart);
     charts[charts_index].chart.axis.x.zoom.call(charts[charts_index].x.axis.zoom);
@@ -1257,10 +1254,6 @@ function create_table_entries(charts_index) {
 		} else {
 		    d.dom.table.mean.innerHTML = d.mean;
 		}
-		if (charts[charts_index].stacked && (d.mean !== undefined) && isFinite(d.mean)) {
-		    charts[charts_index].table.valid_stacked_mean = 1;
-		    charts[charts_index].table.stacked_mean += d.mean;
-		}
 	    }
 	    d.dom.table.row.appendChild(d.dom.table.mean);
 	    d.dom.table.mean = d3.select(d.dom.table.mean);
@@ -1371,7 +1364,8 @@ function create_table_entries(charts_index) {
 
 	charts[charts_index].dom.table.stacked.mean = document.createElement("td");
 	charts[charts_index].dom.table.stacked.mean.align = "right";
-	if (charts[charts_index].table.valid_stacked_mean) {
+	charts[charts_index].table.stacked_mean = compute_stacked_mean(charts_index);
+	if (isFinite(charts[charts_index].table.stacked_mean)) {
 	    charts[charts_index].dom.table.stacked.mean.innerHTML = table_format_print(charts[charts_index].table.stacked_mean);
 	} else {
 	    charts[charts_index].dom.table.stacked.mean.innerHTML = "No Samples";
@@ -1724,6 +1718,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	    .y1(function(d) { return charts[charts_index].y.scale.chart(d.y0 + d.y); });
 
 	charts[charts_index].functions.stack = d3.layout.stack()
+	    .y(function(d) { if (!d.dataset.hidden) { if (d.y_backup !== undefined) { d.y = d.y_backup; delete d.y_backup}; return d.y; } else { if (d.y_backup === undefined) { d.y_backup = d.y }; return 0; } })
 	    .values(function(d) { return d.values; });
     } else {
 	charts[charts_index].functions.line = d3.svg.line()
@@ -2419,7 +2414,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
 	    if (charts[charts_index].options.update_interval && charts[charts_index].options.json_plotfile) {
 		charts[charts_index].interval = window.setInterval(function() {
-		    update_chart(charts_index);
+		    live_update(charts_index);
 		}, charts[charts_index].options.update_interval * 1000);
 
 		charts[charts_index].chart.playpause = charts[charts_index].chart.container.append("g")
@@ -2434,7 +2429,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 			} else {
 			    charts[charts_index].state.live_update = true;
 			    charts[charts_index].interval = window.setInterval(function() {
-				update_chart(charts_index);
+				live_update(charts_index);
 			    }, charts[charts_index].options.update_interval * 1000);
 			    //svg.select("#playpauselabel").text("Pause");
 			}
@@ -2716,6 +2711,7 @@ function show_all(charts_index) {
     for (var i = 0; i < charts[charts_index].datasets.length; i++) {
 	if (charts[charts_index].datasets[i].hidden) {
 	    charts[charts_index].datasets[i].hidden = false;
+	    charts[charts_index].state.visible_datasets++;
 	    charts[charts_index].datasets[i].dom.path.style("visibility", "visible");
 	    if (charts[charts_index].datasets[i].dom.points) {
 		charts[charts_index].datasets[i].dom.points.style("visibility", "visible");
@@ -2728,6 +2724,8 @@ function show_all(charts_index) {
     if (charts[charts_index].state.chart_selection != -1) {
 	highlight(charts_index, charts[charts_index].state.chart_selection);
     }
+
+    update_chart(charts_index);
 }
 
 function hide_all(charts_index) {
@@ -2746,14 +2744,20 @@ function hide_all(charts_index) {
 	    charts[charts_index].datasets[i].dom.table.row.style("background-color", "rgba(152, 152, 152, 1)");
 	}
     }
+
+    charts[charts_index].state.visible_datasets = 0;
 }
 
 function toggle_hide(charts_index, datasets_index) {
     if (charts[charts_index].datasets[datasets_index].hidden) {
 	charts[charts_index].datasets[datasets_index].hidden = false;
 	charts[charts_index].datasets[datasets_index].dom.path.style("visibility", "visible");
+	if (charts[charts_index].datasets[datasets_index].dom.points) {
+	    charts[charts_index].datasets[datasets_index].dom.points.style("visibility", "visible");
+	}
 	charts[charts_index].datasets[datasets_index].dom.legend.rect.style("opacity", "0.9");
 	charts[charts_index].datasets[datasets_index].dom.table.row.style("background-color", "rgba(0, 0, 0, 0)");
+	charts[charts_index].state.visible_datasets++;
 
 	if (charts[charts_index].state.chart_selection != -1) {
 	    charts[charts_index].datasets[datasets_index].dom.legend.rect.style("opacity", "0.15");
@@ -2773,7 +2777,13 @@ function toggle_hide(charts_index, datasets_index) {
 
 	charts[charts_index].datasets[datasets_index].hidden = true;
 	charts[charts_index].datasets[datasets_index].dom.path.style("visibility", "hidden");
+	if (charts[charts_index].datasets[datasets_index].dom.points) {
+	    charts[charts_index].datasets[datasets_index].dom.points.style("visibility", "hidden");
+	}
 	charts[charts_index].datasets[datasets_index].dom.legend.rect.style("opacity", "0");
 	charts[charts_index].datasets[datasets_index].dom.table.row.style("background-color", "rgba(152, 152, 152, 1)");
+	charts[charts_index].state.visible_datasets--;
     }
+
+    update_chart(charts_index);
 }
