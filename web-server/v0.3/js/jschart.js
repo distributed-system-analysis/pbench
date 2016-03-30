@@ -49,6 +49,15 @@ var zoom_rate = 0.03;
 // percentage to overscale the y-axis by default
 var y_axis_overscale = 2;
 
+// global opacity values
+var hidden_opacity = 0;
+var default_opacity = 0.9;
+var unhighlighted_opacity = 0.15;
+
+// global rgba values
+var hidden_dataset_table_row_color = "rgba(152, 152, 152, 1)";
+var default_table_row_color = "rgba(0, 0, 0, 0)";
+
 // array to store objects for each chart, with references to often used variables
 var charts = [];
 
@@ -2540,18 +2549,18 @@ function highlight(charts_index, datasets_index) {
 	    }
 
 	    if (i == datasets_index) {
-		charts[charts_index].datasets[i].dom.path.style("opacity", "0.9");
+		charts[charts_index].datasets[i].dom.path.style("opacity", default_opacity);
 
 		if (charts[charts_index].datasets[i].dom.points) {
-		    charts[charts_index].datasets[i].dom.points.style("opacity", "0.9")
+		    charts[charts_index].datasets[i].dom.points.style("opacity", default_opacity)
 			.style("stroke-width", "5.0px");
 		}
 
 	    } else {
-		charts[charts_index].datasets[i].dom.path.style("opacity", "0.15");
+		charts[charts_index].datasets[i].dom.path.style("opacity", unhighlighted_opacity);
 
 		if (charts[charts_index].datasets[i].dom.points) {
-		    charts[charts_index].datasets[i].dom.points.style("opacity", "0.15");
+		    charts[charts_index].datasets[i].dom.points.style("opacity", unhighlighted_opacity);
 		}
 	    }
 	}
@@ -2562,19 +2571,19 @@ function highlight(charts_index, datasets_index) {
 	    }
 
 	    if (i == datasets_index) {
-		charts[charts_index].datasets[i].dom.path.style("opacity", "0.9")
+		charts[charts_index].datasets[i].dom.path.style("opacity", default_opacity)
 		    .style("stroke-width", "3.0px");
 
 		if (charts[charts_index].datasets[i].dom.points) {
-		    charts[charts_index].datasets[i].dom.points.style("opacity", "0.9")
+		    charts[charts_index].datasets[i].dom.points.style("opacity", default_opacity)
 			.attr("r", 4);
 		}
 	    } else {
-		charts[charts_index].datasets[i].dom.path.style("opacity", "0.15")
+		charts[charts_index].datasets[i].dom.path.style("opacity", unhighlighted_opacity)
 		    .style("stroke-width", "1.5px");
 
 		if (charts[charts_index].datasets[i].dom.points) {
-		    charts[charts_index].datasets[i].dom.points.style("opacity", "0.15");
+		    charts[charts_index].datasets[i].dom.points.style("opacity", unhighlighted_opacity);
 		}
 	    }
 	}
@@ -2586,9 +2595,9 @@ function highlight(charts_index, datasets_index) {
 	}
 
 	if (i == datasets_index) {
-	    charts[charts_index].datasets[i].dom.legend.rect.style("opacity", "0.9");
+	    charts[charts_index].datasets[i].dom.legend.rect.style("opacity", default_opacity);
 	} else {
-	    charts[charts_index].datasets[i].dom.legend.rect.style("opacity", "0.15");
+	    charts[charts_index].datasets[i].dom.legend.rect.style("opacity", unhighlighted_opacity);
 	}
     }
 
@@ -2605,10 +2614,10 @@ function dehighlight(charts_index, datasets_index) {
 		continue;
 	    }
 
-	    charts[charts_index].datasets[i].dom.path.style("opacity", "0.9");
+	    charts[charts_index].datasets[i].dom.path.style("opacity", default_opacity);
 
 	    if (charts[charts_index].datasets[i].dom.points) {
-		charts[charts_index].datasets[i].dom.points.style("opacity", "0.9")
+		charts[charts_index].datasets[i].dom.points.style("opacity", default_opacity)
 		    .style("stroke-width", "3.0px");
 	    }
 	}
@@ -2618,11 +2627,11 @@ function dehighlight(charts_index, datasets_index) {
 		continue;
 	    }
 
-	    charts[charts_index].datasets[i].dom.path.style("opacity", "0.9")
+	    charts[charts_index].datasets[i].dom.path.style("opacity", default_opacity)
 		.style("stroke-width", "1.5px");
 
 	    if (charts[charts_index].datasets[i].dom.points) {
-		charts[charts_index].datasets[i].dom.points.style("opacity", "0.9")
+		charts[charts_index].datasets[i].dom.points.style("opacity", default_opacity)
 		    .attr("r", 3);
 	    }
 	}
@@ -2633,10 +2642,10 @@ function dehighlight(charts_index, datasets_index) {
 	    continue;
 	}
 
-	charts[charts_index].datasets[i].dom.legend.rect.style("opacity", "0.9");
+	charts[charts_index].datasets[i].dom.legend.rect.style("opacity", default_opacity);
     }
 
-    charts[charts_index].datasets[datasets_index].dom.table.row.style("background-color", "rgba(0, 0, 0, 0)")
+    charts[charts_index].datasets[datasets_index].dom.table.row.style("background-color", default_table_row_color)
 	.style("color", "black");
 }
 
@@ -2716,8 +2725,8 @@ function show_all(charts_index) {
 	    if (charts[charts_index].datasets[i].dom.points) {
 		charts[charts_index].datasets[i].dom.points.style("visibility", "visible");
 	    }
-	    charts[charts_index].datasets[i].dom.legend.rect.style("opacity", "0.9");
-	    charts[charts_index].datasets[i].dom.table.row.style("background-color", "rgba(0, 0, 0, 0)");
+	    charts[charts_index].datasets[i].dom.legend.rect.style("opacity", default_opacity);
+	    charts[charts_index].datasets[i].dom.table.row.style("background-color", default_table_row_color);
 	}
     }
 
@@ -2740,8 +2749,8 @@ function hide_all(charts_index) {
 	    if (charts[charts_index].datasets[i].dom.points) {
 		charts[charts_index].datasets[i].dom.points.style("visibility", "hidden");
 	    }
-	    charts[charts_index].datasets[i].dom.legend.rect.style("opacity", "0");
-	    charts[charts_index].datasets[i].dom.table.row.style("background-color", "rgba(152, 152, 152, 1)");
+	    charts[charts_index].datasets[i].dom.legend.rect.style("opacity", hidden_opacity);
+	    charts[charts_index].datasets[i].dom.table.row.style("background-color", hidden_dataset_table_row_color);
 	}
     }
 
@@ -2755,13 +2764,13 @@ function toggle_hide(charts_index, datasets_index) {
 	if (charts[charts_index].datasets[datasets_index].dom.points) {
 	    charts[charts_index].datasets[datasets_index].dom.points.style("visibility", "visible");
 	}
-	charts[charts_index].datasets[datasets_index].dom.legend.rect.style("opacity", "0.9");
-	charts[charts_index].datasets[datasets_index].dom.table.row.style("background-color", "rgba(0, 0, 0, 0)");
+	charts[charts_index].datasets[datasets_index].dom.legend.rect.style("opacity", default_opacity);
+	charts[charts_index].datasets[datasets_index].dom.table.row.style("background-color", default_table_row_color);
 	charts[charts_index].state.visible_datasets++;
 
 	if (charts[charts_index].state.chart_selection != -1) {
-	    charts[charts_index].datasets[datasets_index].dom.legend.rect.style("opacity", "0.15");
-	    charts[charts_index].datasets[datasets_index].dom.path.style("opacity", "0.15");
+	    charts[charts_index].datasets[datasets_index].dom.legend.rect.style("opacity", unhighlighted_opacity);
+	    charts[charts_index].datasets[datasets_index].dom.path.style("opacity", unhighlighted_opacity);
 	}
     } else {
 	if ((charts[charts_index].state.chart_selection != -1) &&
@@ -2780,8 +2789,8 @@ function toggle_hide(charts_index, datasets_index) {
 	if (charts[charts_index].datasets[datasets_index].dom.points) {
 	    charts[charts_index].datasets[datasets_index].dom.points.style("visibility", "hidden");
 	}
-	charts[charts_index].datasets[datasets_index].dom.legend.rect.style("opacity", "0");
-	charts[charts_index].datasets[datasets_index].dom.table.row.style("background-color", "rgba(152, 152, 152, 1)");
+	charts[charts_index].datasets[datasets_index].dom.legend.rect.style("opacity", hidden_opacity);
+	charts[charts_index].datasets[datasets_index].dom.table.row.style("background-color", hidden_dataset_table_row_color);
 	charts[charts_index].state.visible_datasets--;
     }
 
