@@ -81,6 +81,11 @@ function datapoint(x, y, dataset, timestamp) {
     this.y = y;
     this.dataset = dataset;
     this.timestamp = timestamp;
+
+    if (!this.dataset.max_y_value ||
+	(this.dataset.max_y_value < this.y)) {
+	this.dataset.max_y_value = this.y;
+    }
 }
 
 function dataset(index, name, mean, median, values) {
@@ -90,6 +95,7 @@ function dataset(index, name, mean, median, values) {
     this.median = median;
     this.highlighted = false;
     this.hidden = false;
+    this.max_y_value = null;
     this.histogram = { samples: 0,
 		       sum: 0,
 		       mean: null,
@@ -227,6 +233,7 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
 		     raw_data_source: [],
 		     update_interval: null,
 		     history_length: null,
+		     hide_dataset_threshold: null,
 		     x: { min: null,
 			  max: null,
 			  scale: { linear: true,
@@ -328,6 +335,10 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
 
     if (options.y_max !== undefined) {
 	this.options.y.max = options.y_max;
+    }
+
+    if (options.threshold !== undefined) {
+	this.options.hide_dataset_threshold = options.threshold;
     }
 }
 
@@ -466,6 +477,12 @@ function parse_plot_file(charts_index, datasets_index, text) {
 	    charts[charts_index].datasets[datasets_index].histogram.p99 = "No Samples";
 	    charts[charts_index].datasets[datasets_index].histogram.p9999 = "No Samples";
 	}
+    }
+
+    if (charts[charts_index].options.hide_dataset_threshold &&
+	(charts[charts_index].datasets[i].max_y_value < charts[charts_index].options.hide_dataset_threshold)) {
+	charts[charts_index].datasets[i].hidden = true;
+	charts[charts_index].state.visible_datasets--;
     }
 }
 
@@ -716,6 +733,12 @@ function load_json(charts_index, callback) {
 
 		    dataset_index++;
 		}
+
+		if (charts[charts_index].options.hide_dataset_threshold &&
+		    (charts[charts_index].datasets[i].max_y_value < charts[charts_index].options.hide_dataset_threshold)) {
+		    charts[charts_index].datasets[i].hidden = true;
+		    charts[charts_index].state.visible_datasets--;
+		}
 	    }
 
 	    // signal that we are finished asynchronously loading the data
@@ -804,6 +827,12 @@ function load_csv_files(url, charts_index, callback) {
 				}
 			    }
 			}
+		    }
+
+		    if (charts[charts_index].options.hide_dataset_threshold &&
+			(charts[charts_index].datasets[i].max_y_value < charts[charts_index].options.hide_dataset_threshold)) {
+			charts[charts_index].datasets[i].hidden = true;
+			charts[charts_index].state.visible_datasets--;
 		    }
 		}
 
@@ -900,6 +929,7 @@ function complete_chart(charts_index) {
 	.attr("onmouseout", function(d) { return "mouseout_highlight_function(" + charts_index + ", " + d.index + ")"; })
 	.attr("width", 16)
 	.attr("height", 16)
+	.style("opacity", function(d) { if (d.hidden) { return hidden_opacity; } else { return default_opacity; } })
 	.style("outline-color", function(d) { return mycolors(d.index); } )
 	.style("fill", function(d) { return mycolors(d.index); } );
 
@@ -979,6 +1009,7 @@ function complete_chart(charts_index) {
 	    .attr("class", function(d) { d.dom.path = d3.select(this); return "area"; })
 	    .attr("d", function(d) { if (d.values === undefined) { return null; } return charts[charts_index].functions.area(d.values); })
 	    .style("fill", function(d) { return mycolors(d.index); })
+	    .style("visibility", function(d) { if (d.hidden) { return "hidden"; } else { return "visible"; }; })
 	    .attr("clip-path", "url(#clip)");
 
 	charts[charts_index].datasets.map(function(d) {
@@ -996,6 +1027,7 @@ function complete_chart(charts_index) {
 		    .attr("r", 3)
 		    .attr("clip-path", "url(#clip)")
 		    .style("stroke", mycolors(d.index))
+		    .style("visibility", function(d) { if (d.hidden) { return "hidden"; } else { return "visible"; }; })
 		    .attr("x1", function(b) { return charts[charts_index].x.scale.chart(b.x); })
 		    .attr("x2", function(b) { return charts[charts_index].x.scale.chart(b.x); })
 		    .attr("y1", function(b) { return charts[charts_index].y.scale.chart(b.y0); })
@@ -1011,6 +1043,7 @@ function complete_chart(charts_index) {
 	    .attr("class", function(d) { d.dom.path = d3.select(this); return "line"; })
 	    .attr("d", function(d) { if (d.values === undefined) { return null; } return charts[charts_index].functions.line(d.values); })
 	    .style("stroke", function(d) { return mycolors(d.index) })
+	    .style("visibility", function(d) { if (d.hidden) { return "hidden"; } else { return "visible"; }; })
 	    .attr("clip-path", "url(#clip)");
 
 	charts[charts_index].datasets.map(function(d) {
@@ -1029,6 +1062,7 @@ function complete_chart(charts_index) {
 		    .attr("clip-path", "url(#clip)")
 		    .style("fill", mycolors(d.index))
 		    .style("stroke", mycolors(d.index))
+		    .style("visibility", function(d) { if (d.hidden) { return "hidden"; } else { return "visible"; }; })
 		    .attr("cx", function(b) { return charts[charts_index].x.scale.chart(b.x); })
 		    .attr("cy", function(b) { return charts[charts_index].y.scale.chart(b.y); });
 	    });
@@ -1360,6 +1394,10 @@ function create_table_entries(charts_index) {
 	    charts[charts_index].table.table.appendChild(d.dom.table.row);
 
 	    d.dom.table.row = d3.select(d.dom.table.row);
+
+	    if (d.hidden) {
+		d.dom.table.row.style("background-color", hidden_dataset_table_row_color);
+	    }
 	});
 
     if (charts[charts_index].stacked) {
