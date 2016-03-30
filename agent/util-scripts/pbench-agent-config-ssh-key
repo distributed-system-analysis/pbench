@@ -1,6 +1,9 @@
 #! /bin/bash
+# this script is to be used *only* in a post-trans action
+# by an "internal" RPM. It installs the ssh private key
+# file to allow pbench to move/copy results to the server.
 
-# Usage: activate-local-installation </path/to/local/config/pbench.conf> <path/to/local/private/key>
+# Usage: pbench-agent-config-ssh-key <path/to/pbench-agent.cfg> <path/to/local/private/key>
 
 # This script installs the local config file that is used by the
 # scripts to discover local settings. One of these is the results
@@ -22,19 +25,8 @@ if [ -z "$group" ] ;then
     group=pbench
 fi
 
-if [ -f $configfile ] ;then
-    pbenchdir=$(getconf.py -C $configfile pbench_install_dir pbench-agent)
-    if [ ! -z "$pbenchdir" -a -d $pbenchdir -a -d $pbenchdir/config ] ;then
-        cp $configfile $pbenchdir/config/pbench-agent.conf
-        chown ${user}.${group} $pbenchdir/config/pbench-agent.conf
-    else
-        exit 1
-    fi
-else
-    exit 2
-fi
-
-# if we have not exited, then $pbenchdir is good.
+pbenchdir=$(getconf.py -C $configfile pbench_install_dir pbench-agent)
+# copy the key file and adjust perms
 if [ -f $keyfile ] ;then
     cp $keyfile $pbenchdir/id_rsa
     chown $user.$group $pbenchdir/id_rsa

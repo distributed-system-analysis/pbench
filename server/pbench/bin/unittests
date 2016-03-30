@@ -41,7 +41,7 @@ function _run_index {
     shift
     mkdir -p $_testdir
     echo "+++ Running indexing on $dname" >> $_testout
-    PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_tlib}/config/pbench-index.cfg.example $dname.tar.xz >> $_testout 2>&1
+    PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_tlib}/config/production/pbench-index.cfg.example $dname.tar.xz >> $_testout 2>&1
     echo "--- Finished indexing on $dname (status=$?)" >> $_testout
     sed -i '/File "\/home\//s;/home/.*/pbench/server/;/home/user/repo/pbench/server/;' $_testout
 }

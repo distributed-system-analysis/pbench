@@ -1,8 +1,8 @@
 [Server]
-server = es.example.com:9280
+server = es-test.example.com
 
 [Settings]
-index_prefix = pbench
+index_prefix = pbench-test
 index_version = 1
 bulk_action_count = 2000
 number_of_shards = 1

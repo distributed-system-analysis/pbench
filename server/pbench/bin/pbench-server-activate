@@ -1,0 +1,21 @@
+#! /bin/bash
+# do all the setup
+
+config=$1
+
+configdir=/home/pbench/lib/config
+# we *must* have a config file at this point
+if [ ! -f $configdir/pbench-server.cfg ] ;then
+    echo "$configdir/pbench-server.cfg does not exist"
+    exit 127
+fi
+
+export CONFIG=$configdir/pbench-server.cfg
+crontabdir=$(getconf.py crontabdir pbench-server)
+crontabdir=${crontabdir:-/home/pbench/lib/crontab}
+
+pbench-server-activate-create-crontab $crontabdir || exit 2
+pbench-server-activate-setup-results-host-info || exit 3
+pbench-server-activate-create-results-dir-structure || exit 4
+
+exit 0
