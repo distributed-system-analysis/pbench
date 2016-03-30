@@ -1,5 +1,7 @@
 [Server]
-server = es.example.com:9280
+# CHANGE ME!
+# host:port - both must be specified.
+server = elasticsearch.example.com:9280
 
 [Settings]
 index_prefix = pbench
