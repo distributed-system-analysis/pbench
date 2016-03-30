@@ -54,7 +54,7 @@ var charts_queue = d3_queue.queue(1);
 
 var help = "This chart provides interactive features to assist the user in interpreting the data.\n\n";
 help += "You can \"lock\" a dataset to be hightlighted by clicking it's text in the legend or it's row in the table to the right of the chart.  Click either to \"unlock\" the selection.\n\n";
-help += "You can show or hide all datasets using the \"Show\" or \"Hide\" buttons at the top of the chart area.  Individual datasets can be hidden or unhidden by clicking the legend icon for that dataset.\n\n";
+help += "You can show or hide all datasets using the \"Show\" or \"Hide\" buttons at the top of the chart area.  Individual datasets can be hidden or unhidden by clicking the legend icon for that dataset.  A hidden dataset can also be unhidden by clicking it's table row.\n\n";
 help += "When moving your mouse around the chart area, the coordinates will be displayed in the upper right part of the chart area.\n\n";
 help += "You can zoom into a selected area by clicking in the chart area and dragging the cursor to the opposite corner of the rectangular area you would like to focus on.  When you release the cursor the selection will be zoomed.\n\n";
 help += "You can also zoom in/out using the +/- controls which are visible when the mouse is over the chart area.\n\n";
@@ -1227,7 +1227,14 @@ function create_table_entries(charts_index) {
 
     charts[charts_index].datasets.map(function(d) {
 	    d.dom.table.row = document.createElement("tr");
-	    d.dom.table.row.onclick = function() { click_highlight_function(charts_index, d.index); };
+	    d.dom.table.row.onclick = function() {
+		if (charts[charts_index].datasets[d.index].hidden) {
+		    toggle_hide(charts_index, d.index);
+		    mouseover_highlight_function(charts_index, d.index);
+		} else {
+		    click_highlight_function(charts_index, d.index);
+		}
+	    };
 	    d.dom.table.row.onmouseover = function() { mouseover_highlight_function(charts_index, d.index); };
 	    d.dom.table.row.onmouseout = function() { mouseout_highlight_function(charts_index, d.index); };
 
