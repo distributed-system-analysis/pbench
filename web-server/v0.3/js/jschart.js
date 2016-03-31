@@ -199,6 +199,7 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
 			  live_update: { history: null,
 					 interval: null
 				       },
+			  threshold: null
 			}
 	       };
 
@@ -235,6 +236,7 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
 		     json_args: null,
 		     raw_data_source: [],
 		     update_interval: null,
+		     live_update: false,
 		     history_length: null,
 		     hide_dataset_threshold: null,
 		     sort_datasets: true,
@@ -318,6 +320,8 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
     }
 
     if (options.update_interval !== undefined) {
+	this.options.live_update = true;
+
 	this.options.update_interval = options.update_interval;
 
 	this.options.sort_datasets = false;
@@ -350,7 +354,6 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
     if (options.threshold !== undefined) {
 	this.options.hide_dataset_threshold = options.threshold;
     }
-
 }
 
 function compute_stacked_median(charts_index) {
@@ -935,7 +938,7 @@ function complete_chart(charts_index) {
 
     charts[charts_index].chart.legend.append("rect")
 	.attr("class", function(d) { d.dom.legend.rect = d3.select(this); return "legendrect"; })
-	.attr("onclick", function(d) { return "toggle_hide(" + charts_index + ", " + d.index + ")"; })
+	.attr("onclick", function(d) { return "toggle_hide(" + charts_index + ", " + d.index + ", false)"; })
 	.attr("onmouseover", function(d) { return "mouseover_highlight_function(" + charts_index + ", " + d.index + ")"; })
 	.attr("onmouseout", function(d) { return "mouseout_highlight_function(" + charts_index + ", " + d.index + ")"; })
 	.attr("width", 16)
@@ -1082,91 +1085,7 @@ function complete_chart(charts_index) {
     return errors;
 }
 
-function create_table_controls(charts_index) {
-    var colspan = 4;
-
-    var table_header = d3.select(charts[charts_index].table.table).select("tr").select("th");
-
-    if (table_header[0][0]) {
-	colspan = table_header[0][0].colSpan;
-    }
-
-    var row = document.createElement("tr");
-    row.className = "footer";
-
-    var cell = document.createElement("th");
-    cell.colSpan = colspan;
-    cell.innerHTML = "History Length: ";
-
-    var textbox = document.createElement("input");
-    textbox.type = "text";
-    if (charts[charts_index].options.history_length) {
-	textbox.value = charts[charts_index].options.history_length;
-    }
-
-    cell.appendChild(textbox);
-    charts[charts_index].dom.table.live_update.history = d3.select(textbox);
-
-    var button = document.createElement("button")
-    button.innerHTML = "Update";
-    button.onclick = function() {
-	var value = charts[charts_index].dom.table.live_update.history.property("value");
-	if (!isNaN(value)) {
-	    charts[charts_index].options.history_length = value;
-	} else if (charts[charts_index].options.history_length) {
-	    charts[charts_index].dom.table.live_update.history.property("value", charts[charts_index].options.history_length);
-	}
-    };
-
-    cell.appendChild(button);
-
-    row.appendChild(cell);
-
-    charts[charts_index].table.table.appendChild(row);
-
-    var row = document.createElement("tr");
-    row.className = "footer";
-
-    var cell = document.createElement("th");
-    cell.colSpan = colspan;
-    cell.innerHTML = "Update Interval: ";
-
-    var textbox = document.createElement("input");
-    textbox.type = "text";
-    if (charts[charts_index].options.update_interval) {
-	textbox.value = charts[charts_index].options.update_interval;
-    }
-
-    cell.appendChild(textbox);
-    charts[charts_index].dom.table.live_update.interval = d3.select(textbox);
-
-    var button = document.createElement("button")
-    button.innerHTML = "Update";
-    button.onclick = function() {
-	var value = charts[charts_index].dom.table.live_update.interval.property("value");
-	if (!isNaN(value)) {
-	    charts[charts_index].options.update_interval = value;
-	    if (charts[charts_index].state.live_update) {
-		//pause
-		charts[charts_index].chart.playpause.on("click")();
-		//unpause
-		charts[charts_index].chart.playpause.on("click")();
-	    }
-	} else {
-	    if (charts[charts_index].options.update_interval) {
-		charts[charts_index].dom.table.live_update.interval.property("value", charts[charts_index].options.update_interval);
-	    }
-	}
-    };
-
-    cell.appendChild(button);
-
-    row.appendChild(cell);
-
-    charts[charts_index].table.table.appendChild(row);
-}
-
-function create_table_entries(charts_index) {
+function create_table(charts_index) {
     var colspan;
 
     if (charts[charts_index].data_model == "histogram") {
@@ -1187,6 +1106,142 @@ function create_table_entries(charts_index) {
 
     table_header_1.appendChild(table_header_1_cell);
     charts[charts_index].table.table.appendChild(table_header_1);
+
+    var row = document.createElement("tr");
+    row.className = "header";
+
+    var cell = document.createElement("th");
+    cell.colSpan = colspan;
+    cell.innerHTML = "Threshold: ";
+
+    var textbox = document.createElement("input");
+    textbox.type = "text";
+    if (charts[charts_index].options.hide_dataset_threshold) {
+	textbox.value = charts[charts_index].options.hide_dataset_threshold;
+    }
+
+    cell.appendChild(textbox);
+    charts[charts_index].dom.table.threshold = d3.select(textbox);
+
+    var button = document.createElement("button");
+    button.innerHTML = "Apply Max Y";
+    button.onclick = function() {
+	var value = charts[charts_index].dom.table.threshold.property("value");
+
+	if (!isNaN(value)) {
+	    charts[charts_index].options.hide_dataset_threshold = value;
+
+	    update_threshold_hidden_datasets(charts_index, "max_y");
+	} else if (charts[charts_index].options.hide_dataset_threshold) {
+	    charts[charts_index].dom.table.threshold.property("value", charts[charts_index].options.hide_dataset_threshold);
+	} else {
+	    charts[charts_index].dom.table.threshold.property("value", "");
+	}
+    };
+
+    cell.appendChild(button);
+
+    var button = document.createElement("button");
+    button.innerHTML = "Apply Y Average";
+    button.onclick = function() {
+	var value = charts[charts_index].dom.table.threshold.property("value");
+
+	if (!isNaN(value)) {
+	    charts[charts_index].options.hide_dataset_threshold = value;
+
+	    update_threshold_hidden_datasets(charts_index, "mean");
+	} else if (charts[charts_index].options.hide_dataset_threshold) {
+	    charts[charts_index].dom.table.threshold.property("value", charts[charts_index].options.hide_dataset_threshold);
+	} else {
+	    charts[charts_index].dom.table.threshold.property("value", "");
+	}
+    };
+
+    cell.appendChild(button);
+
+    row.appendChild(cell);
+
+    charts[charts_index].table.table.appendChild(row);
+
+    if (charts[charts_index].options.live_update) {
+	console.log("Creating table controls for chart \"" + charts[charts_index].chart_title + "\"...");
+
+	var row = document.createElement("tr");
+	row.className = "header";
+
+	var cell = document.createElement("th");
+	cell.colSpan = colspan;
+	cell.innerHTML = "History Length: ";
+
+	var textbox = document.createElement("input");
+	textbox.type = "text";
+	if (charts[charts_index].options.history_length) {
+	    textbox.value = charts[charts_index].options.history_length;
+	}
+
+	cell.appendChild(textbox);
+	charts[charts_index].dom.table.live_update.history = d3.select(textbox);
+
+	var button = document.createElement("button");
+	button.innerHTML = "Update";
+	button.onclick = function() {
+	    var value = charts[charts_index].dom.table.live_update.history.property("value");
+	    if (!isNaN(value)) {
+		charts[charts_index].options.history_length = value;
+	    } else if (charts[charts_index].options.history_length) {
+		charts[charts_index].dom.table.live_update.history.property("value", charts[charts_index].options.history_length);
+	    }
+	};
+
+	cell.appendChild(button);
+
+	row.appendChild(cell);
+
+	charts[charts_index].table.table.appendChild(row);
+
+	var row = document.createElement("tr");
+	row.className = "header";
+
+	var cell = document.createElement("th");
+	cell.colSpan = colspan;
+	cell.innerHTML = "Update Interval: ";
+
+	var textbox = document.createElement("input");
+	textbox.type = "text";
+	if (charts[charts_index].options.update_interval) {
+	    textbox.value = charts[charts_index].options.update_interval;
+	}
+
+	cell.appendChild(textbox);
+	charts[charts_index].dom.table.live_update.interval = d3.select(textbox);
+
+	var button = document.createElement("button")
+	button.innerHTML = "Update";
+	button.onclick = function() {
+	    var value = charts[charts_index].dom.table.live_update.interval.property("value");
+	    if (!isNaN(value)) {
+		charts[charts_index].options.update_interval = value;
+		if (charts[charts_index].state.live_update) {
+		    //pause
+		    charts[charts_index].chart.playpause.on("click")();
+		    //unpause
+		    charts[charts_index].chart.playpause.on("click")();
+		}
+	    } else {
+		if (charts[charts_index].options.update_interval) {
+		    charts[charts_index].dom.table.live_update.interval.property("value", charts[charts_index].options.update_interval);
+		}
+	    }
+	};
+
+	cell.appendChild(button);
+
+	row.appendChild(cell);
+
+	charts[charts_index].table.table.appendChild(row);
+
+	console.log("...finished adding table controls for chart \"" + charts[charts_index].chart_title + "\"");
+    }
 
     if (charts[charts_index].data_model == "histogram") {
 	var table_header_2 = document.createElement("tr");
@@ -1280,7 +1335,7 @@ function create_table_entries(charts_index) {
 	    d.dom.table.row = document.createElement("tr");
 	    d.dom.table.row.onclick = function() {
 		if (charts[charts_index].datasets[d.index].hidden) {
-		    toggle_hide(charts_index, d.index);
+		    toggle_hide(charts_index, d.index, false);
 		    mouseover_highlight_function(charts_index, d.index);
 		} else {
 		    click_highlight_function(charts_index, d.index);
@@ -2378,16 +2433,9 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		charts[charts_index].chart.svg.attr("height", height + margin.top + margin.bottom + ((Math.ceil(charts[charts_index].datasets.length / legend_properties.columns) - 1 + charts[charts_index].options.legend_entries.length) * legend_properties.row_height))
 	    }
 
-	    console.log("Creating table entries for chart \"" + charts[charts_index].chart_title + "\"...");
-
-	    create_table_entries(charts_index);
-	    console.log("...finished adding table entries for chart \"" + charts[charts_index].chart_title + "\"");
-
-	    if (charts[charts_index].options.update_interval) {
-		console.log("Creating table controls for chart \"" + charts[charts_index].chart_title + "\"...");
-		create_table_controls(charts_index);
-		console.log("...finished adding table controls for chart \"" + charts[charts_index].chart_title + "\"");
-	    }
+	    console.log("Creating table for chart \"" + charts[charts_index].chart_title + "\"...");
+	    create_table(charts_index);
+	    console.log("...finished adding table for chart \"" + charts[charts_index].chart_title + "\"");
 
 	    console.log("Processing datasets for chart \"" + charts[charts_index].chart_title + "\"...");
 	    var errors = complete_chart(charts_index);
@@ -2486,7 +2534,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
 	    console.log("...finished building chart \"" + charts[charts_index].chart_title + "\"");
 
-	    if (charts[charts_index].options.update_interval && charts[charts_index].options.json_plotfile) {
+	    if (charts[charts_index].options.live_update) {
 		charts[charts_index].interval = window.setInterval(function() {
 		    live_update(charts_index);
 		}, charts[charts_index].options.update_interval * 1000);
@@ -2822,7 +2870,7 @@ function hide_all(charts_index) {
     charts[charts_index].state.visible_datasets = 0;
 }
 
-function toggle_hide(charts_index, datasets_index) {
+function toggle_hide(charts_index, datasets_index, skip_update_chart) {
     if (charts[charts_index].datasets[datasets_index].hidden) {
 	charts[charts_index].datasets[datasets_index].hidden = false;
 	charts[charts_index].datasets[datasets_index].dom.path.style("visibility", "visible");
@@ -2857,6 +2905,36 @@ function toggle_hide(charts_index, datasets_index) {
 	charts[charts_index].datasets[datasets_index].dom.legend.rect.style("opacity", hidden_opacity);
 	charts[charts_index].datasets[datasets_index].dom.table.row.style("background-color", hidden_dataset_table_row_color);
 	charts[charts_index].state.visible_datasets--;
+    }
+
+    if (!skip_update_chart) {
+	update_chart(charts_index);
+    }
+}
+
+function update_threshold_hidden_datasets(charts_index, field) {
+    for (var i=0; i < charts[charts_index].datasets.length; i++) {
+	var hidden = false;
+
+	if (field == "max_y") {
+	    if (charts[charts_index].datasets[i].max_y_value < charts[charts_index].options.hide_dataset_threshold) {
+		hidden = true;
+	    }
+	} else if (field == "mean") {
+	    if (charts[charts_index].data_model == "histogram") {
+		if (charts[charts_index].datasets[i].histogram.mean < charts[charts_index].options.hide_dataset_threshold) {
+		    hidden = true;
+		}
+	    } else {
+		if (charts[charts_index].datasets[i].mean < charts[charts_index].options.hide_dataset_threshold) {
+		    hidden = true;
+		}
+	    }
+	}
+
+	if (charts[charts_index].datasets[i].hidden != hidden) {
+	    toggle_hide(charts_index, i, true);
+	}
     }
 
     update_chart(charts_index);
