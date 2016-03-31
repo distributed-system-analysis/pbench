@@ -234,6 +234,7 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
 		     update_interval: null,
 		     history_length: null,
 		     hide_dataset_threshold: null,
+		     sort_datasets: true,
 		     x: { min: null,
 			  max: null,
 			  scale: { linear: true,
@@ -315,6 +316,12 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
 
     if (options.update_interval !== undefined) {
 	this.options.update_interval = options.update_interval;
+
+	this.options.sort_datasets = false;
+
+	console.log("Cannot enable dataset sorting for \"" + this.chart_title + "\" because it is not compatible with live updates.");
+    } else if (options.sort_datasets !== undefined) {
+	this.options.sort_datasets = options.sort_datasets;
     }
 
     if (options.history_length !== undefined) {
@@ -340,6 +347,7 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
     if (options.threshold !== undefined) {
 	this.options.hide_dataset_threshold = options.threshold;
     }
+
 }
 
 function compute_stacked_median(charts_index) {
@@ -2345,6 +2353,22 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	    //console.timeEnd("\"" + chart_title + "\" Data Load");
 
 	    console.log("Content load complete for chart \"" + charts[charts_index].chart_title + "\".");
+
+	    if (charts[charts_index].options.sort_datasets) {
+		if (charts[charts_index].data_model == "histogram") {
+		    console.log("Sorting datasets descending by histogram mean for chart \"" + charts[charts_index].chart_title + "\"...");
+		    charts[charts_index].datasets.sort(function(a, b) { return b.histogram.mean - a.histogram.mean; });
+		} else {
+		    console.log("Sorting datasets descending by mean for chart \"" + charts[charts_index].chart_title + "\"...");
+		    charts[charts_index].datasets.sort(function(a, b) { return b.mean - a.mean; });
+		}
+		console.log("...finished sorting datasets for chart \"" + charts[charts_index].chart_title + "\"...");
+
+		// the dataset indexes need to be updated after sorting
+		for (var i=0; i<charts[charts_index].datasets.length; i++) {
+		    charts[charts_index].datasets[i].index = i;
+		}
+	    }
 
 	    if (charts[charts_index].datasets.length > charts[charts_index].dataset_count) {
 		console.log("Resizing SVG for chart \"" + charts[charts_index].chart_title + "\".");
