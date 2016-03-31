@@ -12,32 +12,22 @@
     <center><h2>uperf-0 - uperf</h2></center>
     <div id="chart_1">
       <script>
-        create_graph("lineChart", "timeseries", "chart_1", "CPU_usage", null, null, { csvfiles: [ "csv/uperf_CPU_usage.csv" ] });
+        create_graph("lineChart", "timeseries", "chart_1", "cpu_busy", null, null, { csvfiles: [ "csv/uperf_cpu_busy.csv" ] });
       </script>
     </div>
     <div id="chart_2">
       <script>
-        create_graph("lineChart", "timeseries", "chart_2", "Efficiency", null, null, { csvfiles: [ "csv/uperf_Efficiency.csv" ] });
+        create_graph("lineChart", "timeseries", "chart_2", "trans_sec", null, null, { csvfiles: [ "csv/uperf_trans_sec.csv" ] });
       </script>
     </div>
     <div id="chart_3">
       <script>
-        create_graph("lineChart", "timeseries", "chart_3", "Latency", null, null, { csvfiles: [ "csv/uperf_Latency.csv" ] });
+        create_graph("lineChart", "timeseries", "chart_3", "trans_sec_per_cpu_busy", null, null, { csvfiles: [ "csv/uperf_trans_sec_per_cpu_busy.csv" ] });
       </script>
     </div>
     <div id="chart_4">
       <script>
-        create_graph("lineChart", "timeseries", "chart_4", "Per_Server_Latency", null, null, { csvfiles: [ "csv/uperf_Per_Server_Latency.csv" ] });
-      </script>
-    </div>
-    <div id="chart_5">
-      <script>
-        create_graph("lineChart", "timeseries", "chart_5", "Per_Server_Throughput", null, null, { csvfiles: [ "csv/uperf_Per_Server_Throughput.csv" ] });
-      </script>
-    </div>
-    <div id="chart_6">
-      <script>
-        create_graph("lineChart", "timeseries", "chart_6", "Throughput", null, null, { csvfiles: [ "csv/uperf_Throughput.csv" ] });
+        create_graph("lineChart", "timeseries", "chart_4", "usec", null, null, { csvfiles: [ "csv/uperf_usec.csv" ] });
       </script>
     </div>
   </body>

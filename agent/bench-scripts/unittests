@@ -38,6 +38,10 @@ mv $_testopt/unittest-scripts/mock-uperf-postprocess $_testopt/bench-scripts/pos
 let res=res+$?
 mv $_testopt/unittest-scripts/mock-dbench-postprocess $_testopt/bench-scripts/postprocess/dbench-postprocess
 let res=res+$?
+mv $_testopt/unittest-scripts/mock-generate-benchmark-summary $_testopt/bench-scripts/postprocess/generate-benchmark-summary
+let res=res+$?
+mv $_testopt/unittest-scripts/mock-process-iteration-samples $_testopt/bench-scripts/postprocess/process-iteration-samples
+let res=res+$?
 if [[ $res -ne 0 ]]; then
     echo "ERROR: failed to construct unittest execution directory hierarchy" \
          "under, \"$_testroot\"" >&2
