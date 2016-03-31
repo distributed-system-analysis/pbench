@@ -195,7 +195,10 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
 			  table: null,
 			  stacked: { median: null,
 				     mean: null
-				   }
+				   },
+			  live_update: { history: null,
+					 interval: null
+				       },
 			}
 	       };
 
@@ -658,10 +661,10 @@ function live_update(charts_index) {
 		    });
 
 		    if (charts[charts_index].options.history_length) {
-			var length = charts[charts_index].datasets[dataset_index].values.length;
+			var delta = charts[charts_index].datasets[dataset_index].values.length - charts[charts_index].options.history_length;
 
-			if (length > charts[charts_index].options.history_length) {
-			    charts[charts_index].datasets[dataset_index].values.splice(0, length - charts[charts_index].options.history_length);
+			if (delta > 0) {
+			    charts[charts_index].datasets[dataset_index].values.splice(0, delta);
 			}
 		    }
 
@@ -1089,31 +1092,29 @@ function create_table_controls(charts_index) {
     }
 
     var row = document.createElement("tr");
-    row.id = location + "_tablerow_control_row_history";
     row.className = "footer";
 
     var cell = document.createElement("th");
-    cell.id = location + "_tablerow_control_cell_history";
     cell.colSpan = colspan;
     cell.innerHTML = "History Length: ";
 
     var textbox = document.createElement("input");
-    textbox.id = location + "_history_length";
     textbox.type = "text";
     if (charts[charts_index].options.history_length) {
 	textbox.value = charts[charts_index].options.history_length;
     }
 
     cell.appendChild(textbox);
+    charts[charts_index].dom.table.live_update.history = d3.select(textbox);
 
     var button = document.createElement("button")
     button.innerHTML = "Update";
     button.onclick = function() {
-	var value = d3.select("#" + location + "_history_length")[0][0].value;
+	var value = charts[charts_index].dom.table.live_update.history.property("value");
 	if (!isNaN(value)) {
 	    charts[charts_index].options.history_length = value;
 	} else if (charts[charts_index].options.history_length) {
-	    d3.select("#" + location + "_history_length")[0][0].value = charts[charts_index].options.history_length;
+	    charts[charts_index].dom.table.live_update.history.property("value", charts[charts_index].options.history_length);
 	}
     };
 
@@ -1124,34 +1125,36 @@ function create_table_controls(charts_index) {
     charts[charts_index].table.table.appendChild(row);
 
     var row = document.createElement("tr");
-    row.id = location + "_tablerow_control_row_interval";
     row.className = "footer";
 
     var cell = document.createElement("th");
-    cell.id = location + "_tablerow_control_cell_interval";
     cell.colSpan = colspan;
     cell.innerHTML = "Update Interval: ";
 
     var textbox = document.createElement("input");
-    textbox.id = location + "_update_interval";
     textbox.type = "text";
     if (charts[charts_index].options.update_interval) {
 	textbox.value = charts[charts_index].options.update_interval;
     }
 
     cell.appendChild(textbox);
+    charts[charts_index].dom.table.live_update.interval = d3.select(textbox);
 
     var button = document.createElement("button")
     button.innerHTML = "Update";
     button.onclick = function() {
-	var value = d3.select("#" + location + "_update_interval")[0][0].value;
+	var value = charts[charts_index].dom.table.live_update.interval.property("value");
 	if (!isNaN(value)) {
 	    charts[charts_index].options.update_interval = value;
-	    charts[charts_index].chart.container.select("#playpause")[0][0].__onclick();
-	    charts[charts_index].chart.container.select("#playpause")[0][0].__onclick();
+	    if (charts[charts_index].state.live_update) {
+		//pause
+		charts[charts_index].chart.playpause.on("click")();
+		//unpause
+		charts[charts_index].chart.playpause.on("click")();
+	    }
 	} else {
 	    if (charts[charts_index].options.update_interval) {
-		d3.select("#" + location + "_update_interval")[0][0].value = charts[charts_index].options.update_interval;
+		charts[charts_index].dom.table.live_update.interval.property("value", charts[charts_index].options.update_interval);
 	    }
 	}
     };
