@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "$0 $*" >> $_testlog
+touch $(dirname $(dirname $0))/hist.csv
