@@ -133,6 +133,7 @@ function dataset(index, name, mean, median, values) {
 
 function chart(title, stacked, data_model, x_axis_title, y_axis_title, location, options) {
     this.chart_title = title;
+    this.charts_index = null;
     this.stacked = stacked;
     this.data_model = data_model;
     this.location = location;
@@ -938,7 +939,7 @@ function complete_chart(charts_index) {
 
     charts[charts_index].chart.legend.append("rect")
 	.attr("class", function(d) { d.dom.legend.rect = d3.select(this); return "legendrect"; })
-	.attr("onclick", function(d) { return "toggle_hide(" + charts_index + ", " + d.index + ", false)"; })
+	.attr("onclick", function(d) { return "toggle_hide(" + charts_index + ", " + d.index + ", false, false)"; })
 	.attr("onmouseover", function(d) { return "mouseover_highlight_function(" + charts_index + ", " + d.index + ")"; })
 	.attr("onmouseout", function(d) { return "mouseout_highlight_function(" + charts_index + ", " + d.index + ")"; })
 	.attr("width", 16)
@@ -1335,7 +1336,7 @@ function create_table(charts_index) {
 	    d.dom.table.row = document.createElement("tr");
 	    d.dom.table.row.onclick = function() {
 		if (charts[charts_index].datasets[d.index].hidden) {
-		    toggle_hide(charts_index, d.index, false);
+		    toggle_hide(charts_index, d.index, false, false);
 		    mouseover_highlight_function(charts_index, d.index);
 		} else {
 		    click_highlight_function(charts_index, d.index);
@@ -1600,17 +1601,7 @@ function handle_brush_actions(charts_index) {
     charts[charts_index].x.slider.call(charts[charts_index].x.brush);
     charts[charts_index].y.slider.call(charts[charts_index].y.brush);
 
-    if (charts[charts_index].stacked) {
-	charts[charts_index].chart.container.selectAll("path.area").attr("d", function(d) { return charts[charts_index].functions.area(d.values); });
-	charts[charts_index].chart.container.selectAll("line.points").attr("x1", function(d) { return charts[charts_index].x.scale.chart(d.x) })
-	    .attr("x2", function(d) { return charts[charts_index].x.scale.chart(d.x) })
-	    .attr("y1", function(d) { return charts[charts_index].y.scale.chart(d.y0); })
-	    .attr("y2", function(d) { return charts[charts_index].y.scale.chart(d.y + d.y0); });
-    } else {
-	charts[charts_index].chart.container.selectAll("path.line").attr("d", function(d) { return charts[charts_index].functions.line(d.values); });
-	charts[charts_index].chart.container.selectAll("circle.points").attr("cx", function(d) { return charts[charts_index].x.scale.chart(d.x) })
-	    .attr("cy", function(d) { return charts[charts_index].y.scale.chart(d.y) });
-    }
+    update_dataset_chart_elements(charts_index);
 
     fix_y_axis_labels(charts_index);
 
@@ -1689,17 +1680,7 @@ function zoom_it(charts_index, zoom) {
     charts[charts_index].x.slider.call(charts[charts_index].x.brush);
     charts[charts_index].y.slider.call(charts[charts_index].y.brush);
 
-    if (charts[charts_index].stacked) {
-	charts[charts_index].chart.container.selectAll("path.area").attr("d", function(d) { return charts[charts_index].functions.area(d.values); });
-	charts[charts_index].chart.container.selectAll("line.points").attr("x1", function(d) { return charts[charts_index].x.scale.chart(d.x) })
-	    .attr("x2", function(d) { return charts[charts_index].x.scale.chart(d.x) })
-	    .attr("y1", function(d) { return charts[charts_index].y.scale.chart(d.y0); })
-	    .attr("y2", function(d) { return charts[charts_index].y.scale.chart(d.y + d.y0); });
-    } else {
-	charts[charts_index].chart.container.selectAll("path.line").attr("d", function(d) { return charts[charts_index].functions.line(d.values); });
-	charts[charts_index].chart.container.selectAll("circle.points").attr("cx", function(d) { return charts[charts_index].x.scale.chart(d.x) })
-	    .attr("cy", function(d) { return charts[charts_index].y.scale.chart(d.y) });
-    }
+    update_dataset_chart_elements(charts_index);
 
     fix_y_axis_labels(charts_index);
 
@@ -1710,6 +1691,7 @@ function zoom_it(charts_index, zoom) {
  
 function generate_chart(stacked, data_model, location, chart_title, x_axis_title, y_axis_title, options, callback) {
     var charts_index = charts.push(new chart(chart_title, stacked, data_model, x_axis_title, y_axis_title, location, options)) - 1;
+    charts[charts_index].charts_index = charts_index;
 
     if ((charts[charts_index].data_model == "xy") ||
 	(charts[charts_index].data_model == "timeseries") ||
@@ -1883,17 +1865,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		charts[charts_index].x.slider.call(charts[charts_index].x.brush);
 		charts[charts_index].y.slider.call(charts[charts_index].y.brush);
 
-		if (charts[charts_index].stacked) {
-		    charts[charts_index].chart.container.selectAll("path.area").attr("d", function(d) { return charts[charts_index].functions.area(d.values); });
-		    charts[charts_index].chart.container.selectAll("line.points").attr("x1", function(d) { return x(d.x) })
-			.attr("x2", function(d) { return charts[charts_index].x.scale.chart(d.x) })
-			.attr("y1", function(d) { return charts[charts_index].y.scale.chart(d.y0); })
-			.attr("y2", function(d) { return charts[charts_index].y.scale.chart(d.y + d.y0); });
-		} else {
-		    charts[charts_index].chart.container.selectAll("path.line").attr("d", function(d) { return charts[charts_index].functions.line(d.values); });
-		    charts[charts_index].chart.container.selectAll("circle.points").attr("cx", function(d) { return charts[charts_index].x.scale.chart(d.x) })
-			.attr("cy", function(d) { return charts[charts_index].y.scale.chart(d.y) });
-		}
+		update_dataset_chart_elements(charts_index);
 
 		fix_y_axis_labels(charts_index);
 
@@ -2066,17 +2038,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
 			d.x.slider.call(d.x.brush);
 
-			if (d.stacked) {
-			    d.chart.container.selectAll("path.area").attr("d", function(b) { return d.functions.area(b.values); });
-			    charts[charts_index].chart.container.selectAll("line.points").attr("x1", function(d) { return charts[charts_index].x.scale.chart(d.x) })
-				.attr("x2", function(d) { return charts[charts_index].x.scale.chart(d.x) })
-				.attr("y1", function(d) { return charts[charts_index].y.scale.chart(d.y0); })
-				.attr("y2", function(d) { return charts[charts_index].y.scale.chart(d.y + d.y0); });
-			} else {
-			    d.chart.container.selectAll("path.line").attr("d", function(b) { return d.functions.line(b.values); });
-			    charts[charts_index].chart.container.selectAll("circle.points").attr("cx", function(d) { return charts[charts_index].x.scale.chart(d.x) })
-				.attr("cy", function(d) { return charts[charts_index].y.scale.chart(d.y) });
-			}
+			update_dataset_chart_elements(d.charts_index);
 
 			fix_y_axis_labels(charts_index);
 		    });
@@ -2264,17 +2226,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		charts[charts_index].x.slider.call(charts[charts_index].x.brush);
 		charts[charts_index].y.slider.call(charts[charts_index].y.brush);
 
-		if (charts[charts_index].stacked) {
-		    charts[charts_index].chart.container.selectAll("path.area").attr("d", function(d) { return charts[charts_index].functions.area(d.values); });
-		    charts[charts_index].chart.container.selectAll("line.points").attr("x1", function(d) { return charts[charts_index].x.scale.chart(d.x) })
-			.attr("x2", function(d) { return charts[charts_index].x.scale.chart(d.x) })
-			.attr("y1", function(d) { return charts[charts_index].y.scale.chart(d.y0); })
-			.attr("y2", function(d) { return charts[charts_index].y.scale.chart(d.y + d.y0); });
-		} else {
-		    charts[charts_index].chart.container.selectAll("path.line").attr("d", function(d) { return charts[charts_index].functions.line(d.values); });
-		    charts[charts_index].chart.container.selectAll("circle.points").attr("cx", function(d) { return charts[charts_index].x.scale.chart(d.x) })
-			.attr("cy", function(d) { return charts[charts_index].y.scale.chart(d.y) });
-		}
+		update_dataset_chart_elements(charts_index);
 
 		fix_y_axis_labels(charts_index);
 
@@ -2870,7 +2822,7 @@ function hide_all(charts_index) {
     charts[charts_index].state.visible_datasets = 0;
 }
 
-function toggle_hide(charts_index, datasets_index, skip_update_chart) {
+function toggle_hide(charts_index, datasets_index, skip_update_chart, skip_update_mouse) {
     if (charts[charts_index].datasets[datasets_index].hidden) {
 	charts[charts_index].datasets[datasets_index].hidden = false;
 	charts[charts_index].datasets[datasets_index].dom.path.style("visibility", "visible");
@@ -2892,10 +2844,13 @@ function toggle_hide(charts_index, datasets_index, skip_update_chart) {
 	    dehighlight(charts_index, datasets_index);
 	}
 
-	// once this dataset is marked as hidden it will not be
-	// capable of executing it's mouseout function so call it
-	// manually
-	mouseout_highlight_function(charts_index, datasets_index);
+	// if this call is coming from a mouse action on the table we need to act accordingly
+	if (!skip_update_mouse) {
+	    // once this dataset is marked as hidden it will not be
+	    // capable of executing it's mouseout function so call it
+	    // manually
+	    mouseout_highlight_function(charts_index, datasets_index);
+	}
 
 	charts[charts_index].datasets[datasets_index].hidden = true;
 	charts[charts_index].datasets[datasets_index].dom.path.style("visibility", "hidden");
@@ -2907,6 +2862,7 @@ function toggle_hide(charts_index, datasets_index, skip_update_chart) {
 	charts[charts_index].state.visible_datasets--;
     }
 
+    // check if we are being told to defer this update
     if (!skip_update_chart) {
 	update_chart(charts_index);
     }
@@ -2933,9 +2889,44 @@ function update_threshold_hidden_datasets(charts_index, field) {
 	}
 
 	if (charts[charts_index].datasets[i].hidden != hidden) {
-	    toggle_hide(charts_index, i, true);
+	    // since toggle_hide is potentially called many times here defer the call to update_charts
+	    // since toggle_hide is being called manually skip the mouse update
+	    toggle_hide(charts_index, i, true, true);
 	}
     }
 
+    // make the deferred call to update charts
     update_chart(charts_index);
+}
+
+function update_dataset_chart_elements(charts_index) {
+    if (charts[charts_index].stacked) {
+	for (var i=0; i<charts[charts_index].datasets.length; i++) {
+	    if (charts[charts_index].datasets[i].hidden) {
+		continue;
+	    }
+
+	    charts[charts_index].datasets[i].dom.path.attr("d", function(d) { return charts[charts_index].functions.area(d.values); });
+
+	    if (charts[charts_index].datasets[i].dom.points) {
+		charts[charts_index].datasets[i].dom.points.attr("x1", function(d) { return charts[charts_index].x.scale.chart(d.x) })
+		    .attr("x2", function(d) { return charts[charts_index].x.scale.chart(d.x) })
+		    .attr("y1", function(d) { return charts[charts_index].y.scale.chart(d.y0); })
+		    .attr("y2", function(d) { return charts[charts_index].y.scale.chart(d.y + d.y0); });
+	    }
+	}
+    } else {
+	for (var i=0; i<charts[charts_index].datasets.length; i++) {
+	    if (charts[charts_index].datasets[i].hidden) {
+		continue;
+	    }
+
+	    charts[charts_index].datasets[i].dom.path.attr("d", function(d) { return charts[charts_index].functions.line(d.values); });
+
+	    if (charts[charts_index].datasets[i].dom.points) {
+		charts[charts_index].datasets[i].dom.points.attr("cx", function(d) { return charts[charts_index].x.scale.chart(d.x) })
+		    .attr("cy", function(d) { return charts[charts_index].y.scale.chart(d.y) });
+	    }
+	}
+    }
 }
