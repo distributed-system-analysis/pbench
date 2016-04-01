@@ -32,6 +32,8 @@ var dsv = d3.dsv(" ", "text/plain");
 
 var table_format_print = d3.format(" ,.2f");
 
+var table_int_format_print = d3.format(" ,");
+
 var tooltip_format_print = d3.format(" ,f");
 
 var utc_time_format_print = d3.time.format.utc("%Y-%m-%d %H:%M:%S");
@@ -605,23 +607,17 @@ function update_chart(charts_index) {
 	return;
     }
 
-    if (charts[charts_index].stacked) {
-	charts[charts_index].table.stacked_mean = compute_stacked_mean(charts_index);
-	if (isFinite(charts[charts_index].table.stacked_mean)) {
-	    charts[charts_index].table.stacked_mean = table_format_print(charts[charts_index].table.stacked_mean);
-	}
-	charts[charts_index].dom.table.stacked.mean.text(charts[charts_index].table.stacked_mean);
-
-	charts[charts_index].table.stacked_median = compute_stacked_median(charts_index);
-	if (isFinite(charts[charts_index].table.stacked_median)) {
-	    charts[charts_index].table.stacked_median = table_format_print(charts[charts_index].table.stacked_median);
-	}
-	charts[charts_index].dom.table.stacked.median.text(charts[charts_index].table.stacked_median);
-    }
-
     update_domains(charts_index);
 
     zoom_it(charts_index, 0);
+
+    if (charts[charts_index].stacked) {
+	charts[charts_index].table.stacked_mean = compute_stacked_mean(charts_index);
+	charts[charts_index].dom.table.stacked.mean.text(table_print(charts[charts_index].table.stacked_mean));
+
+	charts[charts_index].table.stacked_median = compute_stacked_median(charts_index);
+	charts[charts_index].dom.table.stacked.median.text(table_print(charts[charts_index].table.stacked_median));
+    }
 }
 
 function live_update(charts_index) {
@@ -1095,471 +1091,319 @@ function create_table(charts_index) {
 	colspan = 4;
     }
 
-    charts[charts_index].table.table = document.createElement("table");
-    charts[charts_index].table.table.className = 'chart';
+    charts[charts_index].table.table = charts[charts_index].dom.table.location.append("table")
+	.attr("class", "chart");
 
-    var table_header_1 = document.createElement("tr");
-    table_header_1.className = 'header';
+    charts[charts_index].table.table.append("tr")
+	.attr("class", "header")
+	.append("th")
+	.attr("colSpan", colspan)
+	.text(charts[charts_index].chart_title);
 
-    var table_header_1_cell = document.createElement("th");
-    table_header_1_cell.colSpan = colspan;
-    table_header_1_cell.innerHTML = charts[charts_index].chart_title;
+    var row = charts[charts_index].table.table.append("tr")
+	.attr("class", "header");
 
-    table_header_1.appendChild(table_header_1_cell);
-    charts[charts_index].table.table.appendChild(table_header_1);
+    var cell = row.append("th")
+	.attr("colSpan", colspan)
+	.text("Threshold: ");
 
-    var row = document.createElement("tr");
-    row.className = "header";
+    charts[charts_index].dom.table.threshold = cell.append("input")
+	.attr("type", "text")
+	.property("value", function() {
+	    if (charts[charts_index].options.hide_dataset_threshold) {
+		return charts[charts_index].options.hide_dataset_threshold;
+	    }
+	});
 
-    var cell = document.createElement("th");
-    cell.colSpan = colspan;
-    cell.innerHTML = "Threshold: ";
+    cell.append("button")
+	.text("Apply Max Y")
+	.on("click", function() {
+	    var value = charts[charts_index].dom.table.threshold.property("value");
 
-    var textbox = document.createElement("input");
-    textbox.type = "text";
-    if (charts[charts_index].options.hide_dataset_threshold) {
-	textbox.value = charts[charts_index].options.hide_dataset_threshold;
-    }
+	    if (!isNaN(value)) {
+		charts[charts_index].options.hide_dataset_threshold = value;
 
-    cell.appendChild(textbox);
-    charts[charts_index].dom.table.threshold = d3.select(textbox);
+		update_threshold_hidden_datasets(charts_index, "max_y");
+	    } else if (charts[charts_index].options.hide_dataset_threshold) {
+		charts[charts_index].dom.table.threshold.property("value", charts[charts_index].options.hide_dataset_threshold);
+	    } else {
+		charts[charts_index].dom.table.threshold.property("value", "");
+	    }
+	});
 
-    var button = document.createElement("button");
-    button.innerHTML = "Apply Max Y";
-    button.onclick = function() {
-	var value = charts[charts_index].dom.table.threshold.property("value");
+    cell.append("button")
+	.text("Apply Y Average")
+	.on("click", function() {
+	    var value = charts[charts_index].dom.table.threshold.property("value");
 
-	if (!isNaN(value)) {
-	    charts[charts_index].options.hide_dataset_threshold = value;
+	    if (!isNaN(value)) {
+		charts[charts_index].options.hide_dataset_threshold = value;
 
-	    update_threshold_hidden_datasets(charts_index, "max_y");
-	} else if (charts[charts_index].options.hide_dataset_threshold) {
-	    charts[charts_index].dom.table.threshold.property("value", charts[charts_index].options.hide_dataset_threshold);
-	} else {
-	    charts[charts_index].dom.table.threshold.property("value", "");
-	}
-    };
-
-    cell.appendChild(button);
-
-    var button = document.createElement("button");
-    button.innerHTML = "Apply Y Average";
-    button.onclick = function() {
-	var value = charts[charts_index].dom.table.threshold.property("value");
-
-	if (!isNaN(value)) {
-	    charts[charts_index].options.hide_dataset_threshold = value;
-
-	    update_threshold_hidden_datasets(charts_index, "mean");
-	} else if (charts[charts_index].options.hide_dataset_threshold) {
-	    charts[charts_index].dom.table.threshold.property("value", charts[charts_index].options.hide_dataset_threshold);
-	} else {
-	    charts[charts_index].dom.table.threshold.property("value", "");
-	}
-    };
-
-    cell.appendChild(button);
-
-    row.appendChild(cell);
-
-    charts[charts_index].table.table.appendChild(row);
+		update_threshold_hidden_datasets(charts_index, "mean");
+	    } else if (charts[charts_index].options.hide_dataset_threshold) {
+		charts[charts_index].dom.table.threshold.property("value", charts[charts_index].options.hide_dataset_threshold);
+	    } else {
+		charts[charts_index].dom.table.threshold.property("value", "");
+	    }
+	});
 
     if (charts[charts_index].options.live_update) {
 	console.log("Creating table controls for chart \"" + charts[charts_index].chart_title + "\"...");
 
-	var row = document.createElement("tr");
-	row.className = "header";
+	var row = charts[charts_index].table.table.append("tr")
+	    .attr("class", "header");
 
-	var cell = document.createElement("th");
-	cell.colSpan = colspan;
-	cell.innerHTML = "History Length: ";
+	var cell = row.append("th")
+	    .attr("colSpan", colspan)
+	    .text("History Length: ");
 
-	var textbox = document.createElement("input");
-	textbox.type = "text";
-	if (charts[charts_index].options.history_length) {
-	    textbox.value = charts[charts_index].options.history_length;
-	}
-
-	cell.appendChild(textbox);
-	charts[charts_index].dom.table.live_update.history = d3.select(textbox);
-
-	var button = document.createElement("button");
-	button.innerHTML = "Update";
-	button.onclick = function() {
-	    var value = charts[charts_index].dom.table.live_update.history.property("value");
-	    if (!isNaN(value)) {
-		charts[charts_index].options.history_length = value;
-	    } else if (charts[charts_index].options.history_length) {
-		charts[charts_index].dom.table.live_update.history.property("value", charts[charts_index].options.history_length);
-	    }
-	};
-
-	cell.appendChild(button);
-
-	row.appendChild(cell);
-
-	charts[charts_index].table.table.appendChild(row);
-
-	var row = document.createElement("tr");
-	row.className = "header";
-
-	var cell = document.createElement("th");
-	cell.colSpan = colspan;
-	cell.innerHTML = "Update Interval: ";
-
-	var textbox = document.createElement("input");
-	textbox.type = "text";
-	if (charts[charts_index].options.update_interval) {
-	    textbox.value = charts[charts_index].options.update_interval;
-	}
-
-	cell.appendChild(textbox);
-	charts[charts_index].dom.table.live_update.interval = d3.select(textbox);
-
-	var button = document.createElement("button")
-	button.innerHTML = "Update";
-	button.onclick = function() {
-	    var value = charts[charts_index].dom.table.live_update.interval.property("value");
-	    if (!isNaN(value)) {
-		charts[charts_index].options.update_interval = value;
-		if (charts[charts_index].state.live_update) {
-		    //pause
-		    charts[charts_index].chart.playpause.on("click")();
-		    //unpause
-		    charts[charts_index].chart.playpause.on("click")();
+	charts[charts_index].dom.table.live_update.history = cell.append("input")
+	    .attr("type", "text")
+	    .property("value", function() {
+		if (charts[charts_index].options.history_length) {
+		    return charts[charts_index].options.history_length;
 		}
-	    } else {
+	    });
+
+	cell.append("button")
+	    .text("Update")
+	    .on("click", function() {
+		var value = charts[charts_index].dom.table.live_update.history.property("value");
+		if (!isNaN(value)) {
+		    charts[charts_index].options.history_length = value;
+		} else if (charts[charts_index].options.history_length) {
+		    charts[charts_index].dom.table.live_update.history.property("value", charts[charts_index].options.history_length);
+		}
+	    });
+
+	var row = charts[charts_index].table.table.append("tr")
+	    .attr("class", "header");
+
+	var cell = row.append("th")
+	    .attr("colSpan", colspan)
+	    .text("Update Interval: ");
+
+	charts[charts_index].dom.table.live_update.interval = cell.append("input")
+	    .attr("type", "text")
+	    .property("value", function() {
 		if (charts[charts_index].options.update_interval) {
-		    charts[charts_index].dom.table.live_update.interval.property("value", charts[charts_index].options.update_interval);
+		    return charts[charts_index].options.update_interval;
 		}
-	    }
-	};
+	    });
 
-	cell.appendChild(button);
-
-	row.appendChild(cell);
-
-	charts[charts_index].table.table.appendChild(row);
+	cell.append("button")
+	    .text("Update")
+	    .on("click", function() {
+		var value = charts[charts_index].dom.table.live_update.interval.property("value");
+		if (!isNaN(value)) {
+		    charts[charts_index].options.update_interval = value;
+		    if (charts[charts_index].state.live_update) {
+			//pause
+			charts[charts_index].chart.playpause.on("click")();
+			//unpause
+			charts[charts_index].chart.playpause.on("click")();
+		    }
+		} else {
+		    if (charts[charts_index].options.update_interval) {
+			charts[charts_index].dom.table.live_update.interval.property("value", charts[charts_index].options.update_interval);
+		    }
+		}
+	    });
 
 	console.log("...finished adding table controls for chart \"" + charts[charts_index].chart_title + "\"");
     }
 
+    var row = charts[charts_index].table.table.append("tr")
+	.attr("class", "header");
+
+    row.append("th")
+	.attr("align", "left")
+	.text("Data Sets");
+
     if (charts[charts_index].data_model == "histogram") {
-	var table_header_2 = document.createElement("tr");
-	table_header_2.className = 'header';
+	row.append("th")
+	    .attr("align", "right")
+	    .text("Average");
 
-	var table_header_2_cell_1 = document.createElement("th");
-	table_header_2_cell_1.align = 'left';
-	table_header_2_cell_1.innerHTML = 'Data Sets';
+	row.append("th")
+	    .attr("align", "right")
+	    .text("Median");
 
-	var table_header_2_cell_2 = document.createElement("th");
-	table_header_2_cell_2.align = 'right';
-	table_header_2_cell_2.innerHTML = 'Average';
+	row.append("th")
+	    .attr("align", "right")
+	    .text("Min");
 
-	var table_header_2_cell_3 = document.createElement("th");
-	table_header_2_cell_3.align = 'right';
-	table_header_2_cell_3.innerHTML = 'Median';
+	row.append("th")
+	    .attr("align", "right")
+	    .text("Max");
 
-	var table_header_2_cell_4 = document.createElement("th");
-	table_header_2_cell_4.align = 'right';
-	table_header_2_cell_4.innerHTML = 'Min';
+	row.append("th")
+	    .attr("align", "right")
+	    .text("90%");
 
-	var table_header_2_cell_5 = document.createElement("th");
-	table_header_2_cell_5.align = 'right';
-	table_header_2_cell_5.innerHTML = 'Max';
+	row.append("th")
+	    .attr("align", "right")
+	    .text("95%");
 
-	var table_header_2_cell_6 = document.createElement("th");
-	table_header_2_cell_6.align = 'right';
-	table_header_2_cell_6.innerHTML = '90%';
+	row.append("th")
+	    .attr("align", "right")
+	    .text("99%");
 
-	var table_header_2_cell_7 = document.createElement("th");
-	table_header_2_cell_7.align = 'right';
-	table_header_2_cell_7.innerHTML = '95%';
+	row.append("th")
+	    .attr("align", "right")
+	    .text("99.99%");
 
-	var table_header_2_cell_8 = document.createElement("th");
-	table_header_2_cell_8.align = 'right';
-	table_header_2_cell_8.innerHTML = '99%';
-
-	var table_header_2_cell_9 = document.createElement("th");
-	table_header_2_cell_9.align = 'right';
-	table_header_2_cell_9.innerHTML = '99.99%';
-
-	var table_header_2_cell_10 = document.createElement("th");
-	table_header_2_cell_10.align = 'right';
-	table_header_2_cell_10.innerHTML = 'Samples';
-
-	table_header_2.appendChild(table_header_2_cell_1);
-	table_header_2.appendChild(table_header_2_cell_2);
-	table_header_2.appendChild(table_header_2_cell_3);
-	table_header_2.appendChild(table_header_2_cell_4);
-	table_header_2.appendChild(table_header_2_cell_5);
-	table_header_2.appendChild(table_header_2_cell_6);
-	table_header_2.appendChild(table_header_2_cell_7);
-	table_header_2.appendChild(table_header_2_cell_8);
-	table_header_2.appendChild(table_header_2_cell_9);
-	table_header_2.appendChild(table_header_2_cell_10);
-
-	charts[charts_index].table.table.appendChild(table_header_2);
-
-	charts[charts_index].dom.table.location.appendChild(charts[charts_index].table.table);
+	row.append("th")
+	    .attr("align", "right")
+	    .text("Samples");
     } else {
-	var table_header_2 = document.createElement("tr");
-	table_header_2.className = 'header';
+	row.append("th")
+	    .attr("align", "right")
+	    .text("Data Set Average");
 
-	var table_header_2_cell_1 = document.createElement("th");
-	table_header_2_cell_1.align = 'left';
-	table_header_2_cell_1.innerHTML = 'Data Sets';
+	row.append("th")
+	    .attr("align", "right")
+	    .text("Data Set Median");
 
-	var table_header_2_cell_2 = document.createElement("th");
-	table_header_2_cell_2.align = 'right';
-	table_header_2_cell_2.innerHTML = 'Data Set Average';
-
-	var table_header_2_cell_3 = document.createElement("th");
-	table_header_2_cell_3.align = 'right';
-	table_header_2_cell_3.innerHTML = 'Data Set Median';
-
-	var table_header_2_cell_4 = document.createElement("th");
-	table_header_2_cell_4.align = 'right';
-	table_header_2_cell_4.innerHTML = 'Samples';
-
-	table_header_2.appendChild(table_header_2_cell_1);
-	table_header_2.appendChild(table_header_2_cell_2);
-	table_header_2.appendChild(table_header_2_cell_3);
-	table_header_2.appendChild(table_header_2_cell_4);
-
-	charts[charts_index].table.table.appendChild(table_header_2);
-
-	charts[charts_index].dom.table.location.appendChild(charts[charts_index].table.table);
+	row.append("th")
+	    .attr("align", "right")
+	    .text("Samples");
     }
 
     charts[charts_index].datasets.map(function(d) {
-	    d.dom.table.row = document.createElement("tr");
-	    d.dom.table.row.onclick = function() {
+	d.dom.table.row = charts[charts_index].table.table.append("tr")
+	    .on("click", function() {
 		if (charts[charts_index].datasets[d.index].hidden) {
 		    toggle_hide(charts_index, d.index, false, false);
 		    mouseover_highlight_function(charts_index, d.index);
 		} else {
 		    click_highlight_function(charts_index, d.index);
 		}
-	    };
-	    d.dom.table.row.onmouseover = function() { mouseover_highlight_function(charts_index, d.index); };
-	    d.dom.table.row.onmouseout = function() { mouseout_highlight_function(charts_index, d.index); };
+	    })
+	    .on("mouseover", function() { mouseover_highlight_function(charts_index, d.index); })
+	    .on("mouseout", function() { mouseout_highlight_function(charts_index, d.index); });
 
-	    var name_cell = document.createElement("td");
-	    name_cell.align = "left";
-	    name_cell.innerHTML = d.name;
-	    d.dom.table.row.appendChild(name_cell);
+	d.dom.table.row.append("td")
+	    .attr("align", "left")
+	    .text(d.name);
 
-	    d.dom.table.mean = document.createElement("td");
-	    d.dom.table.mean.align = "right";
-	    if (charts[charts_index].data_model == "histogram") {
-		if (isFinite(d.histogram.mean)) {
-		    d.dom.table.mean.innerHTML = table_format_print(d.histogram.mean);
+	d.dom.table.mean = d.dom.table.row.append("td")
+	    .attr("align", "right")
+	    .text(function() {
+		if (charts[charts_index].data_model == "histogram") {
+		    return table_print(d.histogram.mean);
 		} else {
-		    d.dom.table.mean.innerHTML = d.histogram.mean;
+		    return table_print(d.mean);
 		}
-	    } else {
-		if (isFinite(d.mean)) {
-		    d.dom.table.mean.innerHTML = table_format_print(d.mean);
+	    });
+
+	d.dom.table.median = d.dom.table.row.append("td")
+	    .attr("align", "right")
+	    .text(function() {
+		if (charts[charts_index].data_model == "histogram") {
+		    return table_print(d.histogram.median);
 		} else {
-		    d.dom.table.mean.innerHTML = d.mean;
+		    return table_print(d.median);
 		}
-	    }
-	    d.dom.table.row.appendChild(d.dom.table.mean);
-	    d.dom.table.mean = d3.select(d.dom.table.mean);
+	    });
 
-	    d.dom.table.median = document.createElement("td");
-	    d.dom.table.median.align = "right";
-	    if (charts[charts_index].data_model == "histogram") {
-		if (isFinite(d.histogram.median)) {
-		    d.dom.table.median.innerHTML = table_format_print(d.histogram.median);
+	if (charts[charts_index].data_model == "histogram") {
+	    d.dom.table.histogram.min = d.dom.table.row.append("td")
+		.attr("align", "right")
+		.text(table_print(d.histogram.min));
+
+	    d.dom.table.histogram.max = d.dom.table.row.append("td")
+		.attr("align", "right")
+		.text(table_print(d.histogram.max));
+
+	    d.dom.table.histogram.p90 = d.dom.table.row.append("td")
+		.attr("align", "right")
+		.text(table_print(d.histogram.p90));
+
+	    d.dom.table.histogram.p95 = d.dom.table.row.append("td")
+		.attr("align", "right")
+		.text(table_print(d.histogram.p95));
+
+	    d.dom.table.histogram.p99 = d.dom.table.row.append("td")
+		.attr("align", "right")
+		.text(table_print(d.histogram.p99));
+
+	    d.dom.table.histogram.p9999 = d.dom.table.row.append("td")
+		.attr("align", "right")
+		.text(table_print(d.histogram.p9999));
+	}
+
+	d.dom.table.samples = d.dom.table.row.append("td")
+	    .attr("align", "right")
+	    .text(function() {
+		if (charts[charts_index].data_model == "histogram") {
+		    return table_int_format_print(d.histogram.samples);
 		} else {
-		    d.dom.table.median.innerHTML = d.histogram.median;
+		    return table_int_format_print(d.values.length);
 		}
-	    } else {
-		if (isFinite(d.median)) {
-		    d.dom.table.median.innerHTML = table_format_print(d.median);
-		} else {
-		    d.dom.table.median.innerHTML = d.median;
-		}
-	    }
-	    d.dom.table.row.appendChild(d.dom.table.median);
-	    d.dom.table.median = d3.select(d.dom.table.median);
+	    });
 
-	    if (charts[charts_index].data_model == "histogram") {
-		d.dom.table.histogram.min = document.createElement("td");
-		d.dom.table.histogram.min.align = "right";
-		if (isFinite(d.histogram.min)) {
-		    d.dom.table.histogram.min.innerHTML = table_format_print(d.histogram.min);
-		} else {
-		    d.dom.table.histogram.min.innerHTML = d.histogram.min;
-		}
-		d.dom.table.row.appendChild(d.dom.table.histogram.min);
-		d.dom.table.histogram.min = d3.select(d.dom.table.histogram.min);
-
-		d.dom.table.histogram.max = document.createElement("td");
-		d.dom.table.histogram.max.align = "right";
-		if (isFinite(d.histogram.max)) {
-		    d.dom.table.histogram.max.innerHTML = table_format_print(d.histogram.max);
-		} else {
-		    d.dom.table.histogram.max.innerHTML = d.histogram.max;
-		}
-		d.dom.table.row.appendChild(d.dom.table.histogram.max);
-		d.dom.table.histogram.max = d3.select(d.dom.table.histogram.max);
-
-		d.dom.table.histogram.p90 = document.createElement("td");
-		d.dom.table.histogram.p90.align = "right";
-		if (isFinite(d.histogram.p90)) {
-		    d.dom.table.histogram.p90.innerHTML = table_format_print(d.histogram.p90);
-		} else {
-		    d.dom.table.histogram.p90.innerHTML = d.histogram.p90;
-		}
-		d.dom.table.row.appendChild(d.dom.table.histogram.p90);
-		d.dom.table.histogram.p90 = d3.select(d.dom.table.histogram.p90);
-
-		d.dom.table.histogram.p95 = document.createElement("td");
-		d.dom.table.histogram.p95.align = "right";
-		if (isFinite(d.histogram.p95)) {
-		    d.dom.table.histogram.p95.innerHTML = table_format_print(d.histogram.p95);
-		} else {
-		    d.dom.table.histogram.p95.innerHTML = d.histogram.p95;
-		}
-		d.dom.table.row.appendChild(d.dom.table.histogram.p95);
-		d.dom.table.histogram.p95 = d3.select(d.dom.table.histogram.p95);
-
-		d.dom.table.histogram.p99 = document.createElement("td");
-		d.dom.table.histogram.p99.align = "right";
-		if (isFinite(d.histogram.p99)) {
-		    d.dom.table.histogram.p99.innerHTML = table_format_print(d.histogram.p99);
-		} else {
-		    d.dom.table.histogram.p99.innerHTML = d.histogram.p99;
-		}
-		d.dom.table.row.appendChild(d.dom.table.histogram.p99);
-		d.dom.table.histogram.p99 = d3.select(d.dom.table.histogram.p99);
-
-		d.dom.table.histogram.p9999 = document.createElement("td");
-		d.dom.table.histogram.p9999.align = "right";
-		if (isFinite(d.histogram.p9999)) {
-		    d.dom.table.histogram.p9999.innerHTML = table_format_print(d.histogram.p9999);
-		} else {
-		    d.dom.table.histogram.p9999.innerHTML = d.histogram.p9999;
-		}
-		d.dom.table.row.appendChild(d.dom.table.histogram.p9999);
-		d.dom.table.histogram.p9999 = d3.select(d.dom.table.histogram.p9999);
-	    }
-
-	    d.dom.table.samples = document.createElement("td");
-	    d.dom.table.samples.align = "right";
-	    if (charts[charts_index].data_model == "histogram") {
-		d.dom.table.samples.innerHTML = table_format_print(d.histogram.samples);
-	    } else {
-		d.dom.table.samples.innerHTML = table_format_print(d.values.length);
-	    }
-	    d.dom.table.row.appendChild(d.dom.table.samples);
-	    d.dom.table.samples = d3.select(d.dom.table.samples);
-
-	    charts[charts_index].table.table.appendChild(d.dom.table.row);
-
-	    d.dom.table.row = d3.select(d.dom.table.row);
-
-	    if (d.hidden) {
-		d.dom.table.row.style("background-color", hidden_dataset_table_row_color);
-	    }
-	});
+	if (d.hidden) {
+	    d.dom.table.row.style("background-color", hidden_dataset_table_row_color);
+	}
+    });
 
     if (charts[charts_index].stacked) {
-	var mean_row = document.createElement("tr");
-	mean_row.className = "footer";
+	var row = charts[charts_index].table.table.append("tr")
+	    .attr("class", "footer");
 
-	var name_cell = document.createElement("th");
-	name_cell.align = "left";
-	name_cell.innerHTML = "Combined Average";
-	mean_row.appendChild(name_cell);
+	row.append("th")
+	    .attr("align", "left")
+	    .text("Combined Average");
 
-	charts[charts_index].dom.table.stacked.mean = document.createElement("td");
-	charts[charts_index].dom.table.stacked.mean.align = "right";
 	charts[charts_index].table.stacked_mean = compute_stacked_mean(charts_index);
-	if (isFinite(charts[charts_index].table.stacked_mean)) {
-	    charts[charts_index].dom.table.stacked.mean.innerHTML = table_format_print(charts[charts_index].table.stacked_mean);
-	} else {
-	    charts[charts_index].dom.table.stacked.mean.innerHTML = "No Samples";
-	}
-	mean_row.appendChild(charts[charts_index].dom.table.stacked.mean);
-	charts[charts_index].dom.table.stacked.mean = d3.select(charts[charts_index].dom.table.stacked.mean);
 
-	var blank_cell = document.createElement("td");
-	blank_cell.innerHTML = "&nbsp;";
-	mean_row.appendChild(blank_cell);
+	charts[charts_index].dom.table.stacked.mean = row.append("td")
+	    .attr("align", "right")
+	    .text(table_print(charts[charts_index].table.stacked_mean));
 
-	if (colspan === 4) {
-	    var blank_cell = document.createElement("td");
-	    blank_cell.innerHTML = "&nbsp;";
-	    mean_row.appendChild(blank_cell);
-	}
+	row.append("td");
 
-	charts[charts_index].table.table.appendChild(mean_row);
+	row.append("td");
 
-	var median_row = document.createElement("tr");
-	median_row.className = "footer";
+	var row = charts[charts_index].table.table.append("tr")
+	    .attr("class", "footer");
 
-	var name_cell = document.createElement("th");
-	name_cell.align = "left";
-	name_cell.innerHTML = "Combined Median";
-	median_row.appendChild(name_cell);
+	row.append("th")
+	    .attr("align", "left")
+	    .text("Combined Median");
 
-	var blank_cell = document.createElement("td");
-	blank_cell.innerHTML = "&nbsp;";
-	median_row.appendChild(blank_cell);
+	row.append("td");
 
-	charts[charts_index].dom.table.stacked.median = document.createElement("td");
-	charts[charts_index].dom.table.stacked.median.align = "right";
 	charts[charts_index].table.stacked_median = compute_stacked_median(charts_index);
-	if (isFinite(charts[charts_index].table.stacked_median)) {
-	    charts[charts_index].dom.table.stacked.median.innerHTML = table_format_print(charts[charts_index].table.stacked_median);
-	} else {
-	    charts[charts_index].dom.table.stacked.median.innerHTML = charts[charts_index].table.stacked_median;
-	}
-	median_row.appendChild(charts[charts_index].dom.table.stacked.median);
-	charts[charts_index].dom.table.stacked.median = d3.select(charts[charts_index].dom.table.stacked.median);
 
-	if (colspan === 4) {
-	    var blank_cell = document.createElement("td");
-	    blank_cell.innerHTML = "&nbsp;";
-	    median_row.appendChild(blank_cell);
-	}
+	charts[charts_index].dom.table.stacked.median = row.append("td")
+	    .attr("align", "right")
+	    .text(table_print(charts[charts_index].table.stacked_median));
 
-	charts[charts_index].table.table.appendChild(median_row);
+	row.append("td");
     }
 
     if (charts[charts_index].options.raw_data_sources.length > 0) {
-	var raw_sources_header_row = document.createElement("tr");
-	raw_sources_header_row.className = "section";
+	var row = charts[charts_index].table.table.append("tr")
+	    .attr("class", "section");
 
-	var label_cell = document.createElement("th");
-	label_cell.align = "left";
-	label_cell.colSpan = colspan;
-	label_cell.innerHTML = "Raw Data Source(s):";
-	raw_sources_header_row.appendChild(label_cell);
+	row.append("th")
+	    .attr("align", "left")
+	    .attr("colSpan", colspan)
+	    .text("Raw Data Source(s):");
 
-	charts[charts_index].table.table.appendChild(raw_sources_header_row);
+	var row = charts[charts_index].table.table.append("tr");
 
-	var raw_sources_content_row = document.createElement("tr");
-
-	var content_cell = document.createElement("td");
-	content_cell.colSpan = colspan;
+	var cell = row.append("td")
+	    .attr("colSpan", colspan);
 
 	charts[charts_index].options.raw_data_sources.map(function(d) {
-		var link = document.createElement("a");
-		link.href = d;
-		link.innerHTML = d.substr(d.lastIndexOf("/") + 1);
-
-		content_cell.appendChild(link);
-		content_cell.appendChild(document.createElement("br"));
-	    });
-
-	raw_sources_content_row.appendChild(content_cell);
-
-	charts[charts_index].table.table.appendChild(raw_sources_content_row);
+	    cell.append("a")
+		.attr("href", d)
+		.text(d.substr(d.lastIndexOf("/") + 1))
+		.append("br");
+	});
     }
 }
 
@@ -1707,9 +1551,9 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
     console.log("Beginning to build chart \"" + charts[charts_index].chart_title + "\"...");
 
-    charts[charts_index].dom.div = document.getElementById(location);
+    charts[charts_index].dom.div = d3.select("#" + location);
 
-    if (charts[charts_index].dom.div == null) {
+    if (charts[charts_index].dom.div.empty()) {
 	console.log("Failed to locate div for \"" + charts[charts_index].chart_title + "\" identified by \"" + charts[charts_index].location + "\"");
 
 	// signal that the chart generation is complete (albeit with an error)
@@ -1717,23 +1561,14 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	return;
     }
 
-    var table = document.createElement("table");
+    var table = charts[charts_index].dom.div.append("table");
 
-    var row = document.createElement("tr");
-    row.vAlign = 'top';
+    var row = table.append("tr")
+	.attr("vAlign", "top");
 
-    var chart_cell = document.createElement("td");
-    row.appendChild(chart_cell);
+    var chart_cell = row.append("td");
 
-    charts[charts_index].dom.table.location = document.createElement("td");
-
-    row.appendChild(charts[charts_index].dom.table.location);
-
-    table.appendChild(row);
-
-    charts[charts_index].dom.div.appendChild(table);
-
-    charts[charts_index].dom.div = d3.select(charts[charts_index].dom.div);
+    charts[charts_index].dom.table.location = row.append("td");
 
     if (charts[charts_index].options.x.scale.linear) {
 	charts[charts_index].x.scale.chart = d3.scale.linear();
@@ -1821,7 +1656,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	    .y(function(d) { return charts[charts_index].y.scale.chart(d.y); });
     }
 
-    charts[charts_index].chart.svg = d3.select(chart_cell).append("svg")
+    charts[charts_index].chart.svg = chart_cell.append("svg")
 	.attr("class", "svg")
 	.attr("id", location + "_svg")
 	.attr("width", width + margin.left + margin.right)
@@ -2928,5 +2763,13 @@ function update_dataset_chart_elements(charts_index) {
 		    .attr("cy", function(d) { return charts[charts_index].y.scale.chart(d.y) });
 	    }
 	}
+    }
+}
+
+function table_print(value) {
+    if (isFinite(value)) {
+	return table_format_print(value);
+    } else {
+	return value;
     }
 }
