@@ -17,9 +17,6 @@
 //     https://github.com/d3/d3-queue
 //     https://github.com/exupero/saveSvgAsPng
 
-// debugging placeholder for development use
-var debug = 0;
-
 var margin = { top: 70, right: 87, bottom: 66, left: 65 },
     legend_properties = { columns: 5, row_height: 30, margin: { top: 37 } },
     total_width = 1000,
@@ -1800,7 +1797,6 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 			string = string + x_values[i] + ",";
 
 			for (var d=0; d<charts[charts_index].datasets.length; d++) {
-			    //console.log("d=" + d);
 			    for (var b=charts[charts_index].datasets[d].tmp_index; b<charts[charts_index].datasets[d].values.length; b++) {
 				if (charts[charts_index].datasets[d].values[b].x == x_values[i]) {
 				    string = string + charts[charts_index].datasets[d].values[b].y;
@@ -2160,8 +2156,6 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.style("text-anchor", "middle")
 	.text("Loading");
 
-    //console.time("\"" + chart_title + "\" Data Load");
-
     if (charts[charts_index].options.csvfiles) {
 	// this path can have no parallelism since it is unknown how
 	// many datasets each CSV file might contain
@@ -2195,8 +2189,6 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
     // block waiting for the queue processing to complete before completing the chart
     charts[charts_index].datasets_queue.await(function(error, results) {
-	    //console.timeEnd("\"" + chart_title + "\" Data Load");
-
 	    console.log("Content load complete for chart \"" + charts[charts_index].chart_title + "\".");
 
 	    if (charts[charts_index].options.sort_datasets) {
@@ -2334,13 +2326,11 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 			if (charts[charts_index].state.live_update) {
 			    charts[charts_index].state.live_update = false;
 			    clearInterval(charts[charts_index].interval);
-			    //svg.select("#playpauselabel").text("Play");
 			} else {
 			    charts[charts_index].state.live_update = true;
 			    charts[charts_index].interval = window.setInterval(function() {
 				live_update(charts_index);
 			    }, charts[charts_index].options.update_interval * 1000);
-			    //svg.select("#playpauselabel").text("Pause");
 			}
 		    })
 		    .on("mouseout", function() {
