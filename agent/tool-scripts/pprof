@@ -147,6 +147,7 @@ ose_pprof() {
 collect_data() {
     while true; do
             $tool_package tool $tool -text -seconds=$interval -output $PPROF_TMPDIR/$(date +%Y-%m-%d:%H:%M:%S)_.txt http://localhost:6060/debug/pprof/profile
+            $tool_package tool $tool -text -seconds=$interval -output $PPROF_TMPDIR/$(date +%Y-%m-%d:%H:%M:%S)_mem.txt http://localhost:6060/debug/pprof/heap
     done 
 } 
 case "$mode" in 
