@@ -157,6 +157,7 @@ case "$mode" in
     ;; 
     start)
         mkdir -p $tool_output_dir
+        cp /bin/openshift $tool_output_dir 
         collect_data
     ;; 
     stop)
