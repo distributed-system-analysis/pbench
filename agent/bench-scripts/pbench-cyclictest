@@ -13,7 +13,6 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 . "$pbench_bin"/base
 
 benchmark="cyclictest"
-benchmark_bin=/usr/bin/$benchmark
 benchmark_rpm=rt-tests
 ver=0.87
 
