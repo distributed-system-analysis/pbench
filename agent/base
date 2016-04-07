@@ -94,7 +94,7 @@ if [ -z "$ssh_opts" ]; then
 fi
 
 function check_install_rpm {
-    local this_rpm=$1
+    local this_rpm=pbench-$1
     if [ ! -z "$2" ]; then
     	local this_version="-$2"
     else
