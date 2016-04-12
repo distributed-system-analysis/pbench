@@ -95,6 +95,7 @@ function dataset(index, name, mean, median, values) {
     this.highlighted = false;
     this.hidden = false;
     this.max_y_value = null;
+    this.cursor_index = null;
     this.histogram = { samples: 0,
 		       sum: 0,
 		       mean: null,
@@ -107,6 +108,7 @@ function dataset(index, name, mean, median, values) {
 		       p9999: null
 		     };
     this.dom = { table: { row: null,
+			  value: null,
 			  mean: null,
 			  median: null,
 			  samples: null,
@@ -123,6 +125,7 @@ function dataset(index, name, mean, median, values) {
 			},
 		 path: null,
 		 points: null,
+		 cursor_point: null,
 		 legend: { rect: null,
 			   label: null
 			 }
@@ -167,6 +170,7 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
 
     this.chart = { svg: null,
 		   container: null,
+		   viewport: null,
 		   show_all: null,
 		   hide_all: null,
 		   selection: null,
@@ -175,6 +179,7 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
 		   plot: null,
 		   group: null,
 		   points: null,
+		   cursor_points: null,
 		   zoomout: null,
 		   zoomin: null,
 		   xcursorline: null,
@@ -194,7 +199,8 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
 		 table: { location: null,
 			  table: null,
 			  stacked: { median: null,
-				     mean: null
+				     mean: null,
+				     value: null
 				   },
 			  live_update: { history: null,
 					 interval: null
@@ -204,7 +210,8 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
 	       };
 
     this.table = { stacked_mean: 0,
-		   stacked_median: 0
+		   stacked_median: 0,
+		   stacked_value: 0
 		 };
 
     this.state = { user_x_zoomed: false,
@@ -214,7 +221,9 @@ function chart(title, stacked, data_model, x_axis_title, y_axis_title, location,
 		   selection_stop: null,
 		   selection_active: false,
 		   live_update: true,
-		   visible_datasets: 0
+		   visible_datasets: 0,
+		   cursor_value: null,
+		   mouse: null
 		 };
 
     this.functions = { area: null,
@@ -691,6 +700,15 @@ function live_update(charts_index) {
 		}
 
 		update_chart(charts_index);
+
+		// if the chart's cursor_value state is not null that
+		// means the cursor is in the viewport; this means the
+		// mousemove event must be fired to perform cursor
+		// updates to reflect the viewport changes that the
+		// live update causes
+		if (charts[charts_index].state.cursor_value) {
+		    charts[charts_index].chart.viewport.on("mousemove")();
+		}
 	    }
 	});
 }
@@ -1076,6 +1094,29 @@ function complete_chart(charts_index) {
 	    });
     }
 
+    charts[charts_index].chart.cursor_points = charts[charts_index].chart.container.append("g")
+	.attr("class", "cursor_points");
+
+    charts[charts_index].datasets.map(function(d) {
+	charts[charts_index].chart.cursor_points.selectAll(".cursor_points")
+	    .data([ d.values[0] ])
+	    .enter().append("circle")
+	    .attr("class", function(b) { d.dom.cursor_point = d3.select(this); return "points"; })
+	    .attr("r", 5)
+	    .attr("clip-path", "url(#clip)")
+	    .style("fill", mycolors(d.index))
+	    .style("stroke", "#000000")
+	    .style("visibility", "hidden")
+	    .attr("cx", function(b) { return charts[charts_index].x.scale.chart(b.x); })
+	    .attr("cy", function(b) {
+		if (charts[charts_index].stacked) {
+		    return charts[charts_index].y.scale.chart(b.y + b.y0);
+		} else {
+		    return charts[charts_index].y.scale.chart(b.y);
+		}
+	    });
+    });
+
     return errors;
 }
 
@@ -1083,9 +1124,9 @@ function create_table(charts_index) {
     var colspan;
 
     if (charts[charts_index].data_model == "histogram") {
-	colspan = 10;
+	colspan = 11;
     } else {
-	colspan = 4;
+	colspan = 5;
     }
 
     charts[charts_index].table.table = charts[charts_index].dom.table.location.append("table")
@@ -1217,15 +1258,19 @@ function create_table(charts_index) {
 	.attr("align", "left")
 	.text("Data Sets");
 
+    row.append("th")
+	.attr("align", "right")
+	.text("Value");
+
+    row.append("th")
+	.attr("align", "right")
+	.text("Average");
+
+    row.append("th")
+	.attr("align", "right")
+	.text("Median");
+
     if (charts[charts_index].data_model == "histogram") {
-	row.append("th")
-	    .attr("align", "right")
-	    .text("Average");
-
-	row.append("th")
-	    .attr("align", "right")
-	    .text("Median");
-
 	row.append("th")
 	    .attr("align", "right")
 	    .text("Min");
@@ -1249,23 +1294,11 @@ function create_table(charts_index) {
 	row.append("th")
 	    .attr("align", "right")
 	    .text("99.99%");
-
-	row.append("th")
-	    .attr("align", "right")
-	    .text("Samples");
-    } else {
-	row.append("th")
-	    .attr("align", "right")
-	    .text("Data Set Average");
-
-	row.append("th")
-	    .attr("align", "right")
-	    .text("Data Set Median");
-
-	row.append("th")
-	    .attr("align", "right")
-	    .text("Samples");
     }
+
+    row.append("th")
+	.attr("align", "right")
+	.text("Samples");
 
     charts[charts_index].datasets.map(function(d) {
 	d.dom.table.row = charts[charts_index].table.table.append("tr")
@@ -1283,6 +1316,9 @@ function create_table(charts_index) {
 	d.dom.table.row.append("td")
 	    .attr("align", "left")
 	    .text(d.name);
+
+	d.dom.table.value = d.dom.table.row.append("td")
+	    .attr("align", "right");
 
 	d.dom.table.mean = d.dom.table.row.append("td")
 	    .attr("align", "right")
@@ -1351,7 +1387,25 @@ function create_table(charts_index) {
 
 	row.append("th")
 	    .attr("align", "left")
+	    .text("Combined Value");
+
+	charts[charts_index].dom.table.stacked.value = row.append("td")
+	    .attr("align", "right");
+
+	row.append("td");
+
+	row.append("td");
+
+	row.append("td");
+
+	var row = charts[charts_index].table.table.append("tr")
+	    .attr("class", "footer");
+
+	row.append("th")
+	    .attr("align", "left")
 	    .text("Combined Average");
+
+	row.append("td");
 
 	charts[charts_index].table.stacked_mean = compute_stacked_mean(charts_index);
 
@@ -1369,6 +1423,8 @@ function create_table(charts_index) {
 	row.append("th")
 	    .attr("align", "left")
 	    .text("Combined Median");
+
+	row.append("td");
 
 	row.append("td");
 
@@ -1981,8 +2037,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.attr("width", charts[charts_index].x.scale.chart(x_domain[1]) - charts[charts_index].x.scale.chart(x_domain[0]))
 	.attr("height", charts[charts_index].y.scale.chart(y_domain[0]) - charts[charts_index].y.scale.chart(y_domain[1]));
 
-    charts[charts_index].chart.container.append("rect")
-	.attr("id", "pane")
+    charts[charts_index].chart.viewport = charts[charts_index].chart.container.append("rect")
 	.attr("class", "pane")
 	.attr("width", width)
 	.attr("height", height)
@@ -2065,46 +2120,58 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		    set_x_axis_timeseries_label(charts_index);
 		}
 
-		if (charts[charts_index].data_model == "timeseries") {
-		    if (charts[charts_index].options.timezone == "local") {
-			charts[charts_index].chart.container.select("#coordinates").style("visibility", "visible")
-			    .text("x:" + local_time_format_print(charts[charts_index].x.scale.chart.invert(charts[charts_index].state.selection_stop[0])) +
-				  " y:" + table_format_print(charts[charts_index].y.scale.chart.invert(charts[charts_index].state.selection_stop[1])));
-		    } else {
-			charts[charts_index].chart.container.select("#coordinates").style("visibility", "visible")
-			    .text("x:" + utc_time_format_print(charts[charts_index].x.scale.chart.invert(charts[charts_index].state.selection_stop[0])) +
-				  " y:" + table_format_print(charts[charts_index].y.scale.chart.invert(charts[charts_index].state.selection_stop[1])));
-		    }
-		} else {
-		    charts[charts_index].chart.container.select("#coordinates").style("visibility", "visible")
-			.text("x:" + table_format_print(charts[charts_index].x.scale.chart.invert(charts[charts_index].state.selection_stop[0])) +
-			      " y:" + table_format_print(charts[charts_index].y.scale.chart.invert(charts[charts_index].state.selection_stop[1])));
-		}
-
 		charts[charts_index].state.user_x_zoomed = true;
 		charts[charts_index].state.user_y_zoomed = true;
+
+		// after the mouseup event has been handled a
+		// mousemove event needs to be programmatically
+		// initiated to update for the new zoom state
+		charts[charts_index].chart.viewport.on("mousemove")();
 	    })
 	.on("mouseout", function() {
 		charts[charts_index].chart.container.selectAll("#coordinates,#xcursorline,#ycursorline,#zoomin,#zoomout,#playpause").style("visibility", "hidden");
 		charts[charts_index].chart.container.select("#selection").remove();
 		charts[charts_index].state.selection_active = false;
+
+		clear_dataset_values(charts_index);
+
+		charts[charts_index].state.mouse = null;
 	    })
 	.on("mousemove", function() {
-		var mouse = d3.mouse(this);
+		var mouse;
+
+		// check if there is a current mouseover event
+		// otherwise use the coordinates that are cached from
+		// a previous event; there is no current event when
+		// the mousemove is called programmatically rather
+		// than from an actual mousemove event (assumes that
+		// without an actual mousemove event that the cursor
+		// is still in the same location); the event may be
+		// the wrong type if mousemove is programmatically
+		// called while another event is active (such as
+		// mouseup)
+		if (d3.event && (d3.event.type == "mousemove")) {
+		    mouse = d3.mouse(this);
+		    charts[charts_index].state.mouse = mouse;
+		} else {
+		    mouse = charts[charts_index].state.mouse;
+		}
+
+		var mouse_values = [ charts[charts_index].x.scale.chart.invert(mouse[0]), charts[charts_index].y.scale.chart.invert(mouse[1]) ];
 
 		charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause,#coordinates,#xcursorline,#ycursorline").style("visibility", "visible");
 
 		if (charts[charts_index].data_model == "timeseries") {
 		    if (charts[charts_index].options.timezone == "local") {
-			charts[charts_index].chart.container.select("#coordinates").text("x:" + local_time_format_print(charts[charts_index].x.scale.chart.invert(mouse[0])) +
-										   " y:" + table_format_print(charts[charts_index].y.scale.chart.invert(mouse[1])));
+			charts[charts_index].chart.container.select("#coordinates").text("x:" + local_time_format_print(mouse_values[0]) +
+										   " y:" + table_format_print(mouse_values[1]));
 		    } else {
-			charts[charts_index].chart.container.select("#coordinates").text("x:" + utc_time_format_print(charts[charts_index].x.scale.chart.invert(mouse[0])) +
-										   " y:" + table_format_print(charts[charts_index].y.scale.chart.invert(mouse[1])));
+			charts[charts_index].chart.container.select("#coordinates").text("x:" + utc_time_format_print(mouse_values[0]) +
+										   " y:" + table_format_print(mouse_values[1]));
 		    }
 		} else {
-		    charts[charts_index].chart.container.select("#coordinates").text("x:" + table_format_print(charts[charts_index].x.scale.chart.invert(mouse[0])) +
-									       " y:" + table_format_print(charts[charts_index].y.scale.chart.invert(mouse[1])));
+		    charts[charts_index].chart.container.select("#coordinates").text("x:" + table_format_print(mouse_values[0]) +
+									       " y:" + table_format_print(mouse_values[1]));
 		}
 
 		var domain = charts[charts_index].y.scale.chart.domain();
@@ -2147,6 +2214,8 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 			.attr("height", selection_height)
 			.style("visibility", "visible");
 		}
+
+		show_dataset_values(charts_index, mouse_values[0]);
 	    });
 
     charts[charts_index].chart.loading = charts[charts_index].chart.container.append("text")
@@ -2761,5 +2830,161 @@ function table_print(value) {
 	return table_format_print(value);
     } else {
 	return value;
+    }
+}
+
+function set_dataset_value(charts_index, dataset_index, values_index) {
+    charts[charts_index].datasets[dataset_index].dom.table.value.text(table_format_print(charts[charts_index].datasets[dataset_index].values[values_index].y));
+    charts[charts_index].datasets[dataset_index].cursor_index = values_index;
+    charts[charts_index].table.stacked_value += charts[charts_index].datasets[dataset_index].values[values_index].y;
+    charts[charts_index].datasets[dataset_index].dom.cursor_point.data([ charts[charts_index].datasets[dataset_index].values[values_index] ]);
+    charts[charts_index].datasets[dataset_index].dom.cursor_point.attr("cx", function(b) { return charts[charts_index].x.scale.chart(b.x); })
+    if (charts[charts_index].stacked) {
+	charts[charts_index].datasets[dataset_index].dom.cursor_point.attr("cy", function(b) { return charts[charts_index].y.scale.chart(b.y + b.y0); })
+    } else {
+	charts[charts_index].datasets[dataset_index].dom.cursor_point.attr("cy", function(b) { return charts[charts_index].y.scale.chart(b.y); })
+    }
+    charts[charts_index].datasets[dataset_index].dom.cursor_point.style("visibility", "visible");
+}
+
+function set_stacked_value(charts_index, value) {
+    charts[charts_index].dom.table.stacked.value.text(value);
+}
+
+function show_dataset_values(charts_index, x_coordinate) {
+    // assume the mouse is moving from left to right
+    var forward_search = true;
+
+    // check if there is a cached cursor_value that can be used to
+    // predict what direction the search should go; by caching the
+    // last value that was searched for and then searching in the
+    // proper direction the number of iterations required to find the
+    // next value can be reduced, possibly significantly
+    if (charts[charts_index].state.cursor_value) {
+	if (charts[charts_index].state.live_update && !d3.event) {
+	    // when live_update is on and there is no mousemove event
+	    // the search direction cannot be flipped despite the fact
+	    // that the coordinates would say it can -- the
+	    // coordinates are dynamically changing without a
+	    // direction
+	    ;
+	} else if (x_coordinate < charts[charts_index].state.cursor_value) {
+	    // assume the mouse is moving from right to left
+	    forward_search = false;
+	}
+    } else {
+	//without a cached cursor_value to base the search direction
+	//off, figure out if the coordinate is closer to the start or
+	//end of the domain and hope that results in a quicker search
+
+	var domain = charts[charts_index].x.scale.zoom.domain();
+
+	var up = x_coordinate - domain[0];
+	var down = domain[1] - x_coordinate;
+
+	if (down < up) {
+	    forward_search = false;
+	}
+    }
+
+    // populate the cursor_value cache
+    charts[charts_index].state.cursor_value = x_coordinate;
+
+    charts[charts_index].table.stacked_value = 0;
+
+    var set = false;
+    var loop = true;
+    var index = 0;
+
+    for (var i=0; i<charts[charts_index].datasets.length; i++) {
+	if (charts[charts_index].datasets[i].hidden) {
+	    continue;
+	}
+
+	// if a dataset has only one value that value is always current
+	if (charts[charts_index].datasets[i].values.length == 1) {
+	    if (!charts[charts_index].datasets[i].cursor_index) {
+		set_dataset_value(charts_index, i, 0);
+	    }
+	    continue;
+	}
+
+	set = false;
+	loop = true;
+
+	// check for a cached index value where the search should
+	// start for the dataset
+	if (charts[charts_index].datasets[i].cursor_index) {
+	    index = charts[charts_index].datasets[i].cursor_index;
+	} else {
+	    // without a cached index value the search will start at
+	    // the beginning of the array if doing a forward search or
+	    // at the end of the array when doing a backward search
+	    if (forward_search) {
+		index = 0;
+	    } else {
+		index = charts[charts_index].datasets[i].values.length - 1;
+	    }
+	}
+
+	while (loop) {
+	    if (index == 0) {
+		if ((charts[charts_index].datasets[i].values[index].x + charts[charts_index].datasets[i].values[index + 1].x)/2 >= x_coordinate) {
+		    set = true;
+		}
+	    } else if (index == (charts[charts_index].datasets[i].values.length - 1)) {
+		if ((charts[charts_index].datasets[i].values[index - 1].x + charts[charts_index].datasets[i].values[index].x)/2 <= x_coordinate) {
+		    set = true;
+		}
+	    } else if (((charts[charts_index].datasets[i].values[index - 1].x + charts[charts_index].datasets[i].values[index].x)/2 <= x_coordinate) &&
+		((charts[charts_index].datasets[i].values[index].x + charts[charts_index].datasets[i].values[index + 1].x)/2 >= x_coordinate)) {
+		set = true;
+	    }
+
+	    if (set) {
+		set_dataset_value(charts_index, i, index);
+		loop = false;
+	    } else if (forward_search) {
+		index++;
+
+		if (index >= (charts[charts_index].datasets[i].length - 1)) {
+		    set_dataset_value(charts_index, i, charts[charts_index].datasets[i].length - 1);
+		    loop = false;
+		}
+	    } else {
+		index--;
+
+		if (index <= 0) {
+		    set_dataset_value(charts_index, i, 0);
+		    loop = false
+		}
+	    }
+	}
+    }
+
+    if (charts[charts_index].stacked) {
+	set_stacked_value(charts_index, table_format_print(charts[charts_index].table.stacked_value));
+    }
+}
+
+function clear_dataset_values(charts_index) {
+    // clear the cursor_value cache
+    charts[charts_index].state.cursor_value = null;
+
+    for (var i=0; i<charts[charts_index].datasets.length; i++) {
+	if (charts[charts_index].datasets[i].hidden) {
+	    continue;
+	}
+
+	charts[charts_index].datasets[i].dom.table.value.text("");
+	charts[charts_index].datasets[i].dom.cursor_point.style("visibility", "hidden");
+
+	// clear the dataset index cache
+	charts[charts_index].datasets[i].cursor_index = null;
+    }
+
+    if (charts[charts_index].stacked) {
+	set_stacked_value(charts_index, "");
+	charts[charts_index].table.stacked_value = 0;
     }
 }
