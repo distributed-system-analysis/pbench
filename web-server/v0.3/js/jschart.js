@@ -370,20 +370,18 @@ function compute_stacked_median(charts_index) {
     var foo = [];
     var bar = [];
 
-    charts[charts_index].datasets.map(function(d) {
-	    if (d.hidden ||
-		(d.values === undefined))
-		{
-		return null;
-	    }
+    for (var i=0; i<charts[charts_index].datasets.length; i++) {
+	if (!charts[charts_index].datasets[i].hidden &&
+	    (charts[charts_index].datasets[i].values !== undefined)) {
+	    for (var x=0; x<charts[charts_index].datasets[i].values.length; x++) {
+		if (foo[charts[charts_index].datasets[i].values[x].x] === undefined) {
+		    foo[charts[charts_index].datasets[i].values[x].x] = 0;
+		}
 
-	    d.values.map(function(c) {
-		    if (foo[c.x] === undefined) {
-			foo[c.x] = 0;
-		    }
-		    foo[c.x] += c.y;
-		});
-	});
+		foo[charts[charts_index].datasets[i].values[x].x] += charts[charts_index].datasets[i].values[x].y;
+	    }
+	}
+    }
 
     for (var key in foo) {
 	bar.push(foo[key]);
@@ -400,14 +398,14 @@ function compute_stacked_mean(charts_index) {
     var sum = 0;
     var counter = 0;
 
-    charts[charts_index].datasets.map(function(d) {
-	if (!d.hidden) {
-	    if (!isNaN(d.mean)) {
-		sum += d.mean;
-		counter++;
+    for (var i=0; i<charts[charts_index].datasets.length; i++) {
+	if (!charts[charts_index].datasets[i].hidden) {
+	    if (!isNaN(charts[charts_index].datasets[i].mean)) {
+		sum += charts[charts_index].datasets[i].mean;
+		counter++;;
 	    }
 	}
-    });
+    }
 
     if (counter) {
 	return sum;
