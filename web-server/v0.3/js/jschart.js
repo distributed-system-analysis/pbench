@@ -706,7 +706,7 @@ function live_update(charts_index) {
 		// updates to reflect the viewport changes that the
 		// live update causes
 		if (charts[charts_index].state.cursor_value) {
-		    charts[charts_index].chart.viewport.on("mousemove")();
+		    charts[charts_index].chart.viewport.on("mousemove")(charts[charts_index]);
 		}
 	    }
 	});
@@ -1018,10 +1018,10 @@ function complete_chart(charts_index) {
     charts[charts_index].chart.axis.x.zoom.call(charts[charts_index].x.axis.zoom);
     charts[charts_index].chart.axis.y.chart.call(charts[charts_index].y.axis.chart);
     charts[charts_index].chart.axis.y.zoom.call(charts[charts_index].y.axis.zoom);
-    fix_y_axis_labels(charts_index);
+    fix_y_axis_labels(charts[charts_index]);
 
     if (charts[charts_index].data_model == "timeseries") {
-	set_x_axis_timeseries_label(charts_index);
+	set_x_axis_timeseries_label(charts[charts_index]);
     }
 
     if (charts[charts_index].stacked) {
@@ -1453,8 +1453,8 @@ function create_table(charts_index) {
     }
 }
 
-function fix_y_axis_labels(charts_index) {
-    var labels = charts[charts_index].chart.container.selectAll("g.y.axis,g.y2.axis").selectAll("g.tick").selectAll("text");
+function fix_y_axis_labels(chart) {
+    var labels = chart.chart.container.selectAll("g.y.axis,g.y2.axis").selectAll("g.tick").selectAll("text");
 
     labels.each(function(d, i) {
 	    if ((this.getBBox().width + 10) >= margin.left) {
@@ -1491,12 +1491,12 @@ function handle_brush_actions(charts_index) {
     charts[charts_index].x.slider.call(charts[charts_index].x.brush);
     charts[charts_index].y.slider.call(charts[charts_index].y.brush);
 
-    update_dataset_chart_elements(charts_index);
+    update_dataset_chart_elements(charts[charts_index]);
 
-    fix_y_axis_labels(charts_index);
+    fix_y_axis_labels(charts[charts_index]);
 
     if (charts[charts_index].data_model == "timeseries") {
-	set_x_axis_timeseries_label(charts_index);
+	set_x_axis_timeseries_label(charts[charts_index]);
     }
 }
 
@@ -1570,12 +1570,12 @@ function zoom_it(charts_index, zoom) {
     charts[charts_index].x.slider.call(charts[charts_index].x.brush);
     charts[charts_index].y.slider.call(charts[charts_index].y.brush);
 
-    update_dataset_chart_elements(charts_index);
+    update_dataset_chart_elements(charts[charts_index]);
 
-    fix_y_axis_labels(charts_index);
+    fix_y_axis_labels(charts[charts_index]);
 
     if (charts[charts_index].data_model == "timeseries") {
-	set_x_axis_timeseries_label(charts_index);
+	set_x_axis_timeseries_label(charts[charts_index]);
     }
 }
  
@@ -1746,12 +1746,12 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		charts[charts_index].x.slider.call(charts[charts_index].x.brush);
 		charts[charts_index].y.slider.call(charts[charts_index].y.brush);
 
-		update_dataset_chart_elements(charts_index);
+		update_dataset_chart_elements(charts[charts_index]);
 
-		fix_y_axis_labels(charts_index);
+		fix_y_axis_labels(charts[charts_index]);
 
 		if (charts[charts_index].data_model == "timeseries") {
-		    set_x_axis_timeseries_label(charts_index);
+		    set_x_axis_timeseries_label(charts[charts_index]);
 		}
 
 		charts[charts_index].state.user_x_zoomed = false;
@@ -1918,9 +1918,9 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
 			d.x.slider.call(d.x.brush);
 
-			update_dataset_chart_elements(d.charts_index);
+			update_dataset_chart_elements(d);
 
-			fix_y_axis_labels(charts_index);
+			fix_y_axis_labels(charts[charts_index]);
 		    });
 	    })
 	.text("Apply X-Axis Zoom to All");
@@ -2030,186 +2030,16 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.attr("width", charts[charts_index].x.scale.chart(x_domain[1]) - charts[charts_index].x.scale.chart(x_domain[0]))
 	.attr("height", charts[charts_index].y.scale.chart(y_domain[0]) - charts[charts_index].y.scale.chart(y_domain[1]));
 
-    charts[charts_index].chart.viewport = charts[charts_index].chart.container.append("rect")
+    charts[charts_index].chart.viewport = charts[charts_index].chart.container.selectAll(".viewport")
+	.data([ charts[charts_index] ])
+	.enter().append("rect")
 	.attr("class", "pane")
 	.attr("width", width)
 	.attr("height", height)
-	.on("mousedown", function() {
-		if (d3.event.button != 0) {
-		    return;
-		}
-
-		charts[charts_index].state.selection_start = d3.mouse(this);
-
-		if (charts[charts_index].chart.selection) {
-		    charts[charts_index].chart.selection.remove();
-		    charts[charts_index].chart.selection = null;
-		}
-
-		charts[charts_index].chart.selection = charts[charts_index].chart.container.insert("rect", "#coordinates")
-		    .attr("id", "selection")
-		    .attr("class", "selection")
-		    .attr("x", 0)
-		    .attr("y", 0)
-		    .attr("width", 1)
-		    .attr("height", 1)
-		    .style("visibility", "hidden");
-
-		charts[charts_index].state.selection_active = true;
-	    })
-	.on("mouseup", function() {
-		if ((d3.event.button != 0) ||
-		    !charts[charts_index].state.selection_active) {
-		    return;
-		}
-
-		charts[charts_index].state.selection_stop = d3.mouse(this);
-
-		charts[charts_index].chart.selection.remove();
-		charts[charts_index].chart.selection = null;
-
-		charts[charts_index].state.selection_active = false;
-
-		if ((charts[charts_index].state.selection_start[0] == charts[charts_index].state.selection_stop[0]) ||
-		    (charts[charts_index].state.selection_start[1] == charts[charts_index].state.selection_stop[1])) {
-		    return;
-		}
-
-		var x_extent = Array(0, 0), y_extent = Array(0, 0);
-
-		if (charts[charts_index].state.selection_start[0] < charts[charts_index].state.selection_stop[0]) {
-		    x_extent[0] = charts[charts_index].x.scale.chart.invert(charts[charts_index].state.selection_start[0]);
-		    x_extent[1] = charts[charts_index].x.scale.chart.invert(charts[charts_index].state.selection_stop[0]);
-		} else {
-		    x_extent[0] = charts[charts_index].x.scale.chart.invert(charts[charts_index].state.selection_stop[0]);
-		    x_extent[1] = charts[charts_index].x.scale.chart.invert(charts[charts_index].state.selection_start[0]);
-		}
-
-		if (charts[charts_index].state.selection_start[1] < charts[charts_index].state.selection_stop[1]) {
-		    y_extent[1] = charts[charts_index].y.scale.chart.invert(charts[charts_index].state.selection_start[1]);
-		    y_extent[0] = charts[charts_index].y.scale.chart.invert(charts[charts_index].state.selection_stop[1]);
-		} else {
-		    y_extent[1] = charts[charts_index].y.scale.chart.invert(charts[charts_index].state.selection_stop[1]);
-		    y_extent[0] = charts[charts_index].y.scale.chart.invert(charts[charts_index].state.selection_start[1]);
-		}
-
-		charts[charts_index].x.brush.extent(x_extent);
-		charts[charts_index].y.brush.extent(y_extent);
-
-		charts[charts_index].x.scale.chart.domain(x_extent);
-		charts[charts_index].y.scale.chart.domain(y_extent);
-
-		charts[charts_index].chart.axis.x.chart.call(charts[charts_index].x.axis.chart);
-		charts[charts_index].chart.axis.y.chart.call(charts[charts_index].y.axis.chart);
-
-		charts[charts_index].x.slider.call(charts[charts_index].x.brush);
-		charts[charts_index].y.slider.call(charts[charts_index].y.brush);
-
-		update_dataset_chart_elements(charts_index);
-
-		fix_y_axis_labels(charts_index);
-
-		if (charts[charts_index].data_model == "timeseries") {
-		    set_x_axis_timeseries_label(charts_index);
-		}
-
-		charts[charts_index].state.user_x_zoomed = true;
-		charts[charts_index].state.user_y_zoomed = true;
-
-		// after the mouseup event has been handled a
-		// mousemove event needs to be programmatically
-		// initiated to update for the new zoom state
-		charts[charts_index].chart.viewport.on("mousemove")();
-	    })
-	.on("mouseout", function() {
-		charts[charts_index].chart.container.selectAll("#coordinates,#xcursorline,#ycursorline,#zoomin,#zoomout,#playpause").style("visibility", "hidden");
-		charts[charts_index].chart.container.select("#selection").remove();
-		charts[charts_index].state.selection_active = false;
-
-		clear_dataset_values(charts_index);
-
-		charts[charts_index].state.mouse = null;
-	    })
-	.on("mousemove", function() {
-		var mouse;
-
-		// check if there is a current mouseover event
-		// otherwise use the coordinates that are cached from
-		// a previous event; there is no current event when
-		// the mousemove is called programmatically rather
-		// than from an actual mousemove event (assumes that
-		// without an actual mousemove event that the cursor
-		// is still in the same location); the event may be
-		// the wrong type if mousemove is programmatically
-		// called while another event is active (such as
-		// mouseup)
-		if (d3.event && (d3.event.type == "mousemove")) {
-		    mouse = d3.mouse(this);
-		    charts[charts_index].state.mouse = mouse;
-		} else {
-		    mouse = charts[charts_index].state.mouse;
-		}
-
-		var mouse_values = [ charts[charts_index].x.scale.chart.invert(mouse[0]), charts[charts_index].y.scale.chart.invert(mouse[1]) ];
-
-		charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause,#coordinates,#xcursorline,#ycursorline").style("visibility", "visible");
-
-		if (charts[charts_index].data_model == "timeseries") {
-		    if (charts[charts_index].options.timezone == "local") {
-			charts[charts_index].chart.container.select("#coordinates").text("x:" + local_time_format_print(mouse_values[0]) +
-										   " y:" + table_format_print(mouse_values[1]));
-		    } else {
-			charts[charts_index].chart.container.select("#coordinates").text("x:" + utc_time_format_print(mouse_values[0]) +
-										   " y:" + table_format_print(mouse_values[1]));
-		    }
-		} else {
-		    charts[charts_index].chart.container.select("#coordinates").text("x:" + table_format_print(mouse_values[0]) +
-									       " y:" + table_format_print(mouse_values[1]));
-		}
-
-		var domain = charts[charts_index].y.scale.chart.domain();
-
-		charts[charts_index].chart.container.select("#xcursorline").attr("x1", mouse[0])
-		    .attr("x2", mouse[0])
-		    .attr("y1", charts[charts_index].y.scale.chart(domain[1]))
-		    .attr("y2", charts[charts_index].y.scale.chart(domain[0]));
-
-		domain = charts[charts_index].x.scale.chart.domain();
-
-		charts[charts_index].chart.container.select("#ycursorline").attr("x1", charts[charts_index].x.scale.chart(domain[0]))
-		    .attr("x2", charts[charts_index].x.scale.chart(domain[1]))
-		    .attr("y1", mouse[1])
-		    .attr("y2", mouse[1]);
-
-		if (charts[charts_index].chart.selection && (charts[charts_index].chart.selection.size() == 1)) {
-		    var selection_x, selection_y,
-			selection_width, selection_height;
-
-		    if (charts[charts_index].state.selection_start[0] < mouse[0]) {
-			selection_x = charts[charts_index].state.selection_start[0];
-			selection_width = mouse[0] - charts[charts_index].state.selection_start[0];
-		    } else {
-			selection_x = mouse[0];
-			selection_width = charts[charts_index].state.selection_start[0] - mouse[0];
-		    }
-
-		    if (charts[charts_index].state.selection_start[1] < mouse[1]) {
-			selection_y = charts[charts_index].state.selection_start[1];
-			selection_height = mouse[1] - charts[charts_index].state.selection_start[1];
-		    } else {
-			selection_y = mouse[1];
-			selection_height = charts[charts_index].state.selection_start[1] - mouse[1];
-		    }
-
-		    charts[charts_index].chart.selection.attr("x", selection_x)
-			.attr("y", selection_y)
-			.attr("width", selection_width)
-			.attr("height", selection_height)
-			.style("visibility", "visible");
-		}
-
-		show_dataset_values(charts_index, mouse_values[0]);
-	    });
+	.on("mousedown", viewport_mousedown)
+	.on("mouseup", viewport_mouseup)
+	.on("mouseout", viewport_mouseout)
+	.on("mousemove", viewport_mousemove);
 
     charts[charts_index].chart.loading = charts[charts_index].chart.container.append("text")
 	.attr("class", "loadinglabel")
@@ -2652,18 +2482,18 @@ function tooltip_off(d, i) {
     d.dom.tooltip = null;
 }
 
-function set_x_axis_timeseries_label(charts_index) {
+function set_x_axis_timeseries_label(chart) {
     var label = "Time ";
 
-    var domain = charts[charts_index].x.scale.chart.domain();
+    var domain = chart.x.scale.chart.domain();
 
-    if (charts[charts_index].options.timezone == "local") {
+    if (chart.options.timezone == "local") {
 	label += "(" + timezone_print(domain[0]) + "): " + local_time_format_print(domain[0]) + " - " + local_time_format_print(domain[1]);
     } else {
 	label += "(UTC/GMT): " + utc_time_format_print(domain[0]) + " - " + utc_time_format_print(domain[1]);
     }
 
-    charts[charts_index].x.axis.title.dom.text(label);
+    chart.x.axis.title.dom.text(label);
 }
 
 function show_all(charts_index) {
@@ -2786,32 +2616,32 @@ function update_threshold_hidden_datasets(charts_index, field) {
     update_chart(charts_index);
 }
 
-function update_dataset_chart_elements(charts_index) {
-    if (charts[charts_index].stacked) {
-	for (var i=0; i<charts[charts_index].datasets.length; i++) {
-	    if (charts[charts_index].datasets[i].hidden) {
+function update_dataset_chart_elements(chart) {
+    if (chart.stacked) {
+	for (var i=0; i<chart.datasets.length; i++) {
+	    if (chart.datasets[i].hidden) {
 		continue;
 	    }
 
-	    charts[charts_index].datasets[i].dom.path.attr("d", get_dataset_area);
+	    chart.datasets[i].dom.path.attr("d", get_dataset_area);
 
-	    if (charts[charts_index].datasets[i].dom.points) {
-		charts[charts_index].datasets[i].dom.points.attr("x1", get_chart_scaled_x)
+	    if (chart.datasets[i].dom.points) {
+		chart.datasets[i].dom.points.attr("x1", get_chart_scaled_x)
 		    .attr("x2", get_chart_scaled_x)
 		    .attr("y1", get_chart_scaled_y0)
 		    .attr("y2", get_chart_Scaled_y_y0);
 	    }
 	}
     } else {
-	for (var i=0; i<charts[charts_index].datasets.length; i++) {
-	    if (charts[charts_index].datasets[i].hidden) {
+	for (var i=0; i<chart.datasets.length; i++) {
+	    if (chart.datasets[i].hidden) {
 		continue;
 	    }
 
-	    charts[charts_index].datasets[i].dom.path.attr("d", get_dataset_line);
+	    chart.datasets[i].dom.path.attr("d", get_dataset_line);
 
-	    if (charts[charts_index].datasets[i].dom.points) {
-		charts[charts_index].datasets[i].dom.points.attr("cx", get_chart_scaled_x)
+	    if (chart.datasets[i].dom.points) {
+		chart.datasets[i].dom.points.attr("cx", get_chart_scaled_x)
 		    .attr("cy", get_chart_scaled_y);
 	    }
 	}
@@ -2826,21 +2656,21 @@ function table_print(value) {
     }
 }
 
-function set_dataset_value(charts_index, dataset_index, values_index) {
-    charts[charts_index].datasets[dataset_index].dom.table.value.text(table_format_print(charts[charts_index].datasets[dataset_index].values[values_index].y));
-    charts[charts_index].datasets[dataset_index].cursor_index = values_index;
-    charts[charts_index].table.stacked_value += charts[charts_index].datasets[dataset_index].values[values_index].y;
-    charts[charts_index].datasets[dataset_index].dom.cursor_point.data([ charts[charts_index].datasets[dataset_index].values[values_index] ]);
-    charts[charts_index].datasets[dataset_index].dom.cursor_point.attr("cx", get_chart_scaled_x)
-    charts[charts_index].datasets[dataset_index].dom.cursor_point.attr("cy", get_chart_scaled_y_stack)
-    charts[charts_index].datasets[dataset_index].dom.cursor_point.style("visibility", "visible");
+function set_dataset_value(chart, dataset_index, values_index) {
+    chart.datasets[dataset_index].dom.table.value.text(table_format_print(chart.datasets[dataset_index].values[values_index].y));
+    chart.datasets[dataset_index].cursor_index = values_index;
+    chart.table.stacked_value += chart.datasets[dataset_index].values[values_index].y;
+    chart.datasets[dataset_index].dom.cursor_point.data([ chart.datasets[dataset_index].values[values_index] ]);
+    chart.datasets[dataset_index].dom.cursor_point.attr("cx", get_chart_scaled_x)
+    chart.datasets[dataset_index].dom.cursor_point.attr("cy", get_chart_scaled_y_stack)
+    chart.datasets[dataset_index].dom.cursor_point.style("visibility", "visible");
 }
 
-function set_stacked_value(charts_index, value) {
-    charts[charts_index].dom.table.stacked.value.text(value);
+function set_stacked_value(chart, value) {
+    chart.dom.table.stacked.value.text(value);
 }
 
-function show_dataset_values(charts_index, x_coordinate) {
+function show_dataset_values(chart, x_coordinate) {
     // assume the mouse is moving from left to right
     var forward_search = true;
 
@@ -2849,15 +2679,15 @@ function show_dataset_values(charts_index, x_coordinate) {
     // last value that was searched for and then searching in the
     // proper direction the number of iterations required to find the
     // next value can be reduced, possibly significantly
-    if (charts[charts_index].state.cursor_value) {
-	if (charts[charts_index].state.live_update && !d3.event) {
+    if (chart.state.cursor_value) {
+	if (chart.state.live_update && !d3.event) {
 	    // when live_update is on and there is no mousemove event
 	    // the search direction cannot be flipped despite the fact
 	    // that the coordinates would say it can -- the
 	    // coordinates are dynamically changing without a
 	    // direction
 	    ;
-	} else if (x_coordinate < charts[charts_index].state.cursor_value) {
+	} else if (x_coordinate < chart.state.cursor_value) {
 	    // assume the mouse is moving from right to left
 	    forward_search = false;
 	}
@@ -2866,7 +2696,7 @@ function show_dataset_values(charts_index, x_coordinate) {
 	//off, figure out if the coordinate is closer to the start or
 	//end of the domain and hope that results in a quicker search
 
-	var domain = charts[charts_index].x.scale.zoom.domain();
+	var domain = chart.x.scale.zoom.domain();
 
 	var up = x_coordinate - domain[0];
 	var down = domain[1] - x_coordinate;
@@ -2877,23 +2707,23 @@ function show_dataset_values(charts_index, x_coordinate) {
     }
 
     // populate the cursor_value cache
-    charts[charts_index].state.cursor_value = x_coordinate;
+    chart.state.cursor_value = x_coordinate;
 
-    charts[charts_index].table.stacked_value = 0;
+    chart.table.stacked_value = 0;
 
     var set = false;
     var loop = true;
     var index = 0;
 
-    for (var i=0; i<charts[charts_index].datasets.length; i++) {
-	if (charts[charts_index].datasets[i].hidden) {
+    for (var i=0; i<chart.datasets.length; i++) {
+	if (chart.datasets[i].hidden) {
 	    continue;
 	}
 
 	// if a dataset has only one value that value is always current
-	if (charts[charts_index].datasets[i].values.length == 1) {
-	    if (!charts[charts_index].datasets[i].cursor_index) {
-		set_dataset_value(charts_index, i, 0);
+	if (chart.datasets[i].values.length == 1) {
+	    if (!chart.datasets[i].cursor_index) {
+		set_dataset_value(chart, i, 0);
 	    }
 	    continue;
 	}
@@ -2903,8 +2733,8 @@ function show_dataset_values(charts_index, x_coordinate) {
 
 	// check for a cached index value where the search should
 	// start for the dataset
-	if (charts[charts_index].datasets[i].cursor_index) {
-	    index = charts[charts_index].datasets[i].cursor_index;
+	if (chart.datasets[i].cursor_index) {
+	    index = chart.datasets[i].cursor_index;
 	} else {
 	    // without a cached index value the search will start at
 	    // the beginning of the array if doing a forward search or
@@ -2912,69 +2742,69 @@ function show_dataset_values(charts_index, x_coordinate) {
 	    if (forward_search) {
 		index = 0;
 	    } else {
-		index = charts[charts_index].datasets[i].values.length - 1;
+		index = chart.datasets[i].values.length - 1;
 	    }
 	}
 
 	while (loop) {
 	    if (index == 0) {
-		if ((charts[charts_index].datasets[i].values[index].x + charts[charts_index].datasets[i].values[index + 1].x)/2 >= x_coordinate) {
+		if ((chart.datasets[i].values[index].x + chart.datasets[i].values[index + 1].x)/2 >= x_coordinate) {
 		    set = true;
 		}
-	    } else if (index == (charts[charts_index].datasets[i].values.length - 1)) {
-		if ((charts[charts_index].datasets[i].values[index - 1].x + charts[charts_index].datasets[i].values[index].x)/2 <= x_coordinate) {
+	    } else if (index == (chart.datasets[i].values.length - 1)) {
+		if ((chart.datasets[i].values[index - 1].x + chart.datasets[i].values[index].x)/2 <= x_coordinate) {
 		    set = true;
 		}
-	    } else if (((charts[charts_index].datasets[i].values[index - 1].x + charts[charts_index].datasets[i].values[index].x)/2 <= x_coordinate) &&
-		((charts[charts_index].datasets[i].values[index].x + charts[charts_index].datasets[i].values[index + 1].x)/2 >= x_coordinate)) {
+	    } else if (((chart.datasets[i].values[index - 1].x + chart.datasets[i].values[index].x)/2 <= x_coordinate) &&
+		((chart.datasets[i].values[index].x + chart.datasets[i].values[index + 1].x)/2 >= x_coordinate)) {
 		set = true;
 	    }
 
 	    if (set) {
-		set_dataset_value(charts_index, i, index);
+		set_dataset_value(chart, i, index);
 		loop = false;
 	    } else if (forward_search) {
 		index++;
 
-		if (index >= (charts[charts_index].datasets[i].length - 1)) {
-		    set_dataset_value(charts_index, i, charts[charts_index].datasets[i].length - 1);
+		if (index >= (chart.datasets[i].length - 1)) {
+		    set_dataset_value(chart, i, chart.datasets[i].length - 1);
 		    loop = false;
 		}
 	    } else {
 		index--;
 
 		if (index <= 0) {
-		    set_dataset_value(charts_index, i, 0);
+		    set_dataset_value(chart, i, 0);
 		    loop = false
 		}
 	    }
 	}
     }
 
-    if (charts[charts_index].stacked) {
-	set_stacked_value(charts_index, table_format_print(charts[charts_index].table.stacked_value));
+    if (chart.stacked) {
+	set_stacked_value(chart, table_format_print(chart.table.stacked_value));
     }
 }
 
-function clear_dataset_values(charts_index) {
+function clear_dataset_values(chart) {
     // clear the cursor_value cache
-    charts[charts_index].state.cursor_value = null;
+    chart.state.cursor_value = null;
 
-    for (var i=0; i<charts[charts_index].datasets.length; i++) {
-	if (charts[charts_index].datasets[i].hidden) {
+    for (var i=0; i<chart.datasets.length; i++) {
+	if (chart.datasets[i].hidden) {
 	    continue;
 	}
 
-	charts[charts_index].datasets[i].dom.table.value.text("");
-	charts[charts_index].datasets[i].dom.cursor_point.style("visibility", "hidden");
+	chart.datasets[i].dom.table.value.text("");
+	chart.datasets[i].dom.cursor_point.style("visibility", "hidden");
 
 	// clear the dataset index cache
-	charts[charts_index].datasets[i].cursor_index = null;
+	chart.datasets[i].cursor_index = null;
     }
 
-    if (charts[charts_index].stacked) {
-	set_stacked_value(charts_index, "");
-	charts[charts_index].table.stacked_value = 0;
+    if (chart.stacked) {
+	set_stacked_value(chart, "");
+	chart.table.stacked_value = 0;
     }
 }
 
@@ -3103,4 +2933,184 @@ function get_stack_layout_y(datapoint) {
 
 function get_dataset_values(dataset) {
     return dataset.values;
+}
+
+function viewport_mousemove(chart) {
+    var mouse;
+
+    // check if there is a current mouseover event
+    // otherwise use the coordinates that are cached from
+    // a previous event; there is no current event when
+    // the mousemove is called programmatically rather
+    // than from an actual mousemove event (assumes that
+    // without an actual mousemove event that the cursor
+    // is still in the same location); the event may be
+    // the wrong type if mousemove is programmatically
+    // called while another event is active (such as
+    // mouseup)
+    if (d3.event && (d3.event.type == "mousemove")) {
+	mouse = d3.mouse(this);
+	chart.state.mouse = mouse;
+    } else {
+	mouse = chart.state.mouse;
+    }
+
+    var mouse_values = [ chart.x.scale.chart.invert(mouse[0]), chart.y.scale.chart.invert(mouse[1]) ];
+
+    chart.chart.container.selectAll("#zoomin,#zoomout,#playpause,#coordinates,#xcursorline,#ycursorline").style("visibility", "visible");
+
+    if (chart.data_model == "timeseries") {
+	if (chart.options.timezone == "local") {
+	    chart.chart.container.select("#coordinates").text("x:" + local_time_format_print(mouse_values[0]) +
+									     " y:" + table_format_print(mouse_values[1]));
+	} else {
+	    chart.chart.container.select("#coordinates").text("x:" + utc_time_format_print(mouse_values[0]) +
+									     " y:" + table_format_print(mouse_values[1]));
+	}
+    } else {
+	chart.chart.container.select("#coordinates").text("x:" + table_format_print(mouse_values[0]) +
+									 " y:" + table_format_print(mouse_values[1]));
+    }
+
+    var domain = chart.y.scale.chart.domain();
+
+    chart.chart.container.select("#xcursorline").attr("x1", mouse[0])
+	.attr("x2", mouse[0])
+	.attr("y1", chart.y.scale.chart(domain[1]))
+	.attr("y2", chart.y.scale.chart(domain[0]));
+
+    domain = chart.x.scale.chart.domain();
+
+    chart.chart.container.select("#ycursorline").attr("x1", chart.x.scale.chart(domain[0]))
+	.attr("x2", chart.x.scale.chart(domain[1]))
+	.attr("y1", mouse[1])
+	.attr("y2", mouse[1]);
+
+    if (chart.chart.selection && (chart.chart.selection.size() == 1)) {
+	var selection_x, selection_y,
+	selection_width, selection_height;
+
+	if (chart.state.selection_start[0] < mouse[0]) {
+	    selection_x = chart.state.selection_start[0];
+	    selection_width = mouse[0] - chart.state.selection_start[0];
+	} else {
+	    selection_x = mouse[0];
+	    selection_width = chart.state.selection_start[0] - mouse[0];
+	}
+
+	if (chart.state.selection_start[1] < mouse[1]) {
+	    selection_y = chart.state.selection_start[1];
+	    selection_height = mouse[1] - chart.state.selection_start[1];
+	} else {
+	    selection_y = mouse[1];
+	    selection_height = chart.state.selection_start[1] - mouse[1];
+	}
+
+	chart.chart.selection.attr("x", selection_x)
+	    .attr("y", selection_y)
+	    .attr("width", selection_width)
+	    .attr("height", selection_height)
+	    .style("visibility", "visible");
+    }
+
+    show_dataset_values(chart, mouse_values[0]);
+}
+
+function viewport_mouseout(chart) {
+    chart.chart.container.selectAll("#coordinates,#xcursorline,#ycursorline,#zoomin,#zoomout,#playpause").style("visibility", "hidden");
+    chart.chart.container.select("#selection").remove();
+    chart.state.selection_active = false;
+
+    clear_dataset_values(chart);
+
+    chart.state.mouse = null;
+}
+
+function viewport_mousedown(chart) {
+    if (d3.event.button != 0) {
+	return;
+    }
+
+    chart.state.selection_start = d3.mouse(this);
+
+    if (chart.chart.selection) {
+	chart.chart.selection.remove();
+	chart.chart.selection = null;
+    }
+
+    chart.chart.selection = chart.chart.container.insert("rect", "#coordinates")
+	.attr("id", "selection")
+	.attr("class", "selection")
+	.attr("x", 0)
+	.attr("y", 0)
+	.attr("width", 1)
+	.attr("height", 1)
+	.style("visibility", "hidden");
+
+    chart.state.selection_active = true;
+}
+
+function viewport_mouseup(chart) {
+    if ((d3.event.button != 0) ||
+	!chart.state.selection_active) {
+	return;
+    }
+
+    chart.state.selection_stop = d3.mouse(this);
+
+    chart.chart.selection.remove();
+    chart.chart.selection = null;
+
+    chart.state.selection_active = false;
+
+    if ((chart.state.selection_start[0] == chart.state.selection_stop[0]) ||
+	(chart.state.selection_start[1] == chart.state.selection_stop[1])) {
+	return;
+    }
+
+    var x_extent = Array(0, 0), y_extent = Array(0, 0);
+
+    if (chart.state.selection_start[0] < chart.state.selection_stop[0]) {
+	x_extent[0] = chart.x.scale.chart.invert(chart.state.selection_start[0]);
+	x_extent[1] = chart.x.scale.chart.invert(chart.state.selection_stop[0]);
+    } else {
+	x_extent[0] = chart.x.scale.chart.invert(chart.state.selection_stop[0]);
+	x_extent[1] = chart.x.scale.chart.invert(chart.state.selection_start[0]);
+    }
+
+    if (chart.state.selection_start[1] < chart.state.selection_stop[1]) {
+	y_extent[1] = chart.y.scale.chart.invert(chart.state.selection_start[1]);
+	y_extent[0] = chart.y.scale.chart.invert(chart.state.selection_stop[1]);
+    } else {
+	y_extent[1] = chart.y.scale.chart.invert(chart.state.selection_stop[1]);
+	y_extent[0] = chart.y.scale.chart.invert(chart.state.selection_start[1]);
+    }
+
+    chart.x.brush.extent(x_extent);
+    chart.y.brush.extent(y_extent);
+
+    chart.x.scale.chart.domain(x_extent);
+    chart.y.scale.chart.domain(y_extent);
+
+    chart.chart.axis.x.chart.call(chart.x.axis.chart);
+    chart.chart.axis.y.chart.call(chart.y.axis.chart);
+
+    chart.x.slider.call(chart.x.brush);
+    chart.y.slider.call(chart.y.brush);
+
+    update_dataset_chart_elements(chart);
+
+    fix_y_axis_labels(chart);
+
+    if (chart.data_model == "timeseries") {
+	set_x_axis_timeseries_label(chart);
+    }
+
+    chart.state.user_x_zoomed = true;
+    chart.state.user_y_zoomed = true;
+
+    // after the mouseup event has been handled a
+    // mousemove event needs to be programmatically
+    // initiated to update for the new zoom state
+    chart.chart.viewport.on("mousemove")(chart);
 }
