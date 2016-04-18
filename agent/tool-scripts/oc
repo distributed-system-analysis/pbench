@@ -110,7 +110,7 @@ oc_data_collect() {
 }
 
 oc_data_once() { 
-    for oc_event in "ev nodes" ; do 
+    for oc_event in ev nodes; do 
         oc get $oc_event -o wide >> "${tool_output_dir}"/"${oc_event}".txt 
     done 
 } 
@@ -125,6 +125,7 @@ case "$mode" in
     ;; 
     start)
         mkdir -p $tool_output_dir
+	check_install_rpm expect 
         oc_data_collect
     ;; 
     stop)
