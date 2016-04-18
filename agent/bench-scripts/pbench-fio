@@ -9,6 +9,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # source the base script
 . "$pbench_bin"/base
 
+benchmark_rpm=$script_name
 benchmark="fio"
 benchmark_bin=/usr/local/bin/$benchmark
 ver=2.2.5
@@ -313,10 +314,10 @@ function fio_process_options() {
 # Ensure the right version of the benchmark is installed
 function fio_install() {
 	if [ "$postprocess_only" == "n" ]; then
-		if check_install_rpm $benchmark $ver; then
-			debug_log "[$script_name]$benchmark is installed"
+		if check_install_rpm $benchmark_rpm $ver; then
+			debug_log "[$script_name]$benchmark_rpm is installed"
 		else
-			debug_log "[$script_name]$benchmark installation failed, exiting"
+			debug_log "[$script_name]$benchmark_rpm installation failed, exiting"
 			exit 1
 		fi 
 	fi

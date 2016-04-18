@@ -18,6 +18,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # source the base script
 . "$pbench_bin"/base
 
+benchmark_rpm=$script_name
 benchmark="specjbb2005"
 
 # Every bench-script follows a similar sequence:

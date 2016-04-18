@@ -22,6 +22,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # source the base script
 . "$pbench_bin"/base
 
+benchmark_rpm=$script_name
 benchmark="uperf"
 if [[ -z "$benchmark_bin" ]]; then
     benchmark_bin=/usr/local/bin/$benchmark
@@ -167,10 +168,10 @@ function stop_server {
 }
 
 function install_uperf {
-	if check_install_rpm $benchmark $ver; then
-		debug_log "[$script_name]$benchmark is installed"
+	if check_install_rpm $benchmark_rpm $ver; then
+		debug_log "[$script_name]$benchmark_rpm is installed"
 	else
-		error_log "[$script_name]$benchmark installation failed, exiting"
+		error_log "[$script_name]$benchmark_rpm installation failed, exiting"
 		exit 1
 	fi
 }
