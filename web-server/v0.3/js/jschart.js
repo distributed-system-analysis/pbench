@@ -647,8 +647,6 @@ function live_update(charts_index) {
 		(json.data_series_names !== undefined) &&
 		(json.x_axis_series !== undefined) &&
 		(json.data !== undefined)) {
-		var timebase = new Date().getTime() / 1000;
-
 		var table = d3.select(charts[charts_index].table.table);
 
 		var x_axis_index = 0;
@@ -677,7 +675,7 @@ function live_update(charts_index) {
 		    }
 
 		    charts[charts_index].datasets[dataset_index].values.map(function(d) {
-			d.x = d.timestamp - timebase;
+			d.x = d.timestamp;
 		    });
 
 		    var mean;
@@ -729,8 +727,6 @@ function load_json(charts_index, callback) {
 		(json.data_series_names !== undefined) &&
 		(json.x_axis_series !== undefined) &&
 		(json.data !== undefined)) {
-		var timebase = new Date().getTime() / 1000;
-
 		var x_axis_index = 0;
 		for (var index=0; index<json.data_series_names.length; index++) {
 		    if (json.data_series_names[index] === json.x_axis_series) {
@@ -746,7 +742,7 @@ function load_json(charts_index, callback) {
 		    charts[charts_index].datasets[dataset_index] = new dataset(index-1, json.data_series_names[index], 0, 0, [], charts[charts_index]);
 
 		    json.data.map(function(d) {
-			charts[charts_index].datasets[dataset_index].values.push(new datapoint(d[x_axis_index] - timebase, d[index], charts[charts_index].datasets[dataset_index], d[x_axis_index]));
+			charts[charts_index].datasets[dataset_index].values.push(new datapoint(d[x_axis_index], d[index], charts[charts_index].datasets[dataset_index], d[x_axis_index]));
 			charts[charts_index].state.visible_datasets++;
 			charts[charts_index].datasets[dataset_index].last_timestamp = d[x_axis_index];
 		    });
