@@ -207,7 +207,9 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
 			  live_update: { history: null,
 					 interval: null
 				       },
-			  threshold: null
+			  threshold: null,
+			  name_filter: null,
+			  data_rows: null
 			}
 	       };
 
@@ -1123,16 +1125,16 @@ function create_table(charts_index) {
 	colspan = 5;
     }
 
-    charts[charts_index].table.table = charts[charts_index].dom.table.location.append("table")
+    charts[charts_index].dom.table.table = charts[charts_index].dom.table.location.append("table")
 	.attr("class", "chart");
 
-    charts[charts_index].table.table.append("tr")
+    charts[charts_index].dom.table.table.append("tr")
 	.attr("class", "header")
 	.append("th")
 	.attr("colSpan", colspan)
 	.text(charts[charts_index].chart_title);
 
-    var row = charts[charts_index].table.table.append("tr")
+    var row = charts[charts_index].dom.table.table.append("tr")
 	.attr("class", "header");
 
     var cell = row.append("th")
@@ -1159,10 +1161,32 @@ function create_table(charts_index) {
 	.text("Apply Y Average")
 	.on("click", apply_y_average_threshold);
 
+    var row = charts[charts_index].dom.table.table.append("tr")
+	.attr("class", "header");
+
+    var cell = row.append("th")
+	.attr("colSpan", colspan)
+	.text("Dataset Name Filter: ");
+
+    charts[charts_index].dom.table.name_filter = cell.append("input")
+	.attr("type", "text");
+
+    cell.selectAll(".apply_name_filter_show")
+	.data([ charts[charts_index] ])
+	.enter().append("button")
+	.text("Show Datasets")
+	.on("click", apply_name_filter_show);
+
+    cell.selectAll(".apply_name_filter_hide")
+	.data([ charts[charts_index] ])
+	.enter().append("button")
+	.text("Hide Datasets")
+	.on("click", apply_name_filter_hide);
+
     if (charts[charts_index].options.live_update) {
 	console.log("Creating table controls for chart \"" + charts[charts_index].chart_title + "\"...");
 
-	var row = charts[charts_index].table.table.append("tr")
+	var row = charts[charts_index].dom.table.table.append("tr")
 	    .attr("class", "header");
 
 	var cell = row.append("th")
@@ -1188,7 +1212,7 @@ function create_table(charts_index) {
 		}
 	    });
 
-	var row = charts[charts_index].table.table.append("tr")
+	var row = charts[charts_index].dom.table.table.append("tr")
 	    .attr("class", "header");
 
 	var cell = row.append("th")
@@ -1225,7 +1249,7 @@ function create_table(charts_index) {
 	console.log("...finished adding table controls for chart \"" + charts[charts_index].chart_title + "\"");
     }
 
-    var row = charts[charts_index].table.table.append("tr")
+    var row = charts[charts_index].dom.table.table.append("tr")
 	.attr("class", "header");
 
     row.append("th")
@@ -1275,9 +1299,10 @@ function create_table(charts_index) {
 	.text("Samples");
 
     charts[charts_index].datasets.map(function(d) {
-	d.dom.table.row = charts[charts_index].table.table.selectAll(".tablerow")
+	d.dom.table.row = charts[charts_index].dom.table.table.selectAll(".tablerow")
 	    .data([ d ])
 	    .enter().append("tr")
+	    .attr("id", "datarow")
 	    .on("click", table_row_click)
 	    .on("mouseover", mouseover_highlight_function)
 	    .on("mouseout", mouseout_highlight_function);
@@ -1350,8 +1375,10 @@ function create_table(charts_index) {
 	}
     });
 
+    charts[charts_index].dom.table.data_rows = charts[charts_index].dom.table.table.selectAll("#datarow");
+
     if (charts[charts_index].stacked) {
-	var row = charts[charts_index].table.table.append("tr")
+	var row = charts[charts_index].dom.table.table.append("tr")
 	    .attr("class", "footer");
 
 	row.append("th")
@@ -1367,7 +1394,7 @@ function create_table(charts_index) {
 
 	row.append("td");
 
-	var row = charts[charts_index].table.table.append("tr")
+	var row = charts[charts_index].dom.table.table.append("tr")
 	    .attr("class", "footer");
 
 	row.append("th")
@@ -1386,7 +1413,7 @@ function create_table(charts_index) {
 
 	row.append("td");
 
-	var row = charts[charts_index].table.table.append("tr")
+	var row = charts[charts_index].dom.table.table.append("tr")
 	    .attr("class", "footer");
 
 	row.append("th")
@@ -1407,7 +1434,7 @@ function create_table(charts_index) {
     }
 
     if (charts[charts_index].options.raw_data_sources.length > 0) {
-	var row = charts[charts_index].table.table.append("tr")
+	var row = charts[charts_index].dom.table.table.append("tr")
 	    .attr("class", "section");
 
 	row.append("th")
@@ -1415,7 +1442,7 @@ function create_table(charts_index) {
 	    .attr("colSpan", colspan)
 	    .text("Raw Data Source(s):");
 
-	var row = charts[charts_index].table.table.append("tr");
+	var row = charts[charts_index].dom.table.table.append("tr");
 
 	var cell = row.append("td")
 	    .attr("colSpan", colspan);
@@ -2497,6 +2524,8 @@ function show_all(chart) {
     }
 
     update_chart(chart.charts_index);
+
+    sort_table(chart);
 }
 
 function hide_all(chart) {
@@ -2517,6 +2546,8 @@ function hide_all(chart) {
     }
 
     chart.state.visible_datasets = 0;
+
+    sort_table(chart);
 }
 
 function toggle_hide_click_event(dataset) {
@@ -2566,6 +2597,8 @@ function toggle_hide(dataset, skip_update_chart, skip_update_mouse) {
     // check if we are being told to defer this update
     if (!skip_update_chart) {
 	update_chart(dataset.chart.charts_index);
+
+	sort_table(dataset.chart);
     }
 }
 
@@ -2598,6 +2631,8 @@ function update_threshold_hidden_datasets(chart, field) {
 
     // make the deferred call to update charts
     update_chart(chart.charts_index);
+
+    sort_table(chart);
 }
 
 function update_dataset_chart_elements(chart) {
@@ -3133,5 +3168,71 @@ function apply_y_average_threshold(chart) {
 	chart.dom.table.threshold.property("value", chart.options.hide_dataset_threshold);
     } else {
 	chart.dom.table.threshold.property("value", "");
+    }
+}
+
+function apply_name_filter_show(chart) {
+    var regex = new RegExp(chart.dom.table.name_filter.property("value"));
+
+    for (var i=0; i<chart.datasets.length; i++) {
+	var hidden = true;
+
+	if (regex.test(chart.datasets[i].name)) {
+	    hidden = false;
+	}
+
+	if (chart.datasets[i].hidden != hidden) {
+	    // since toggle_hide is potentially called many times here defer the call to update_charts
+	    // since toggle_hide is being called manually skip the mouse update
+	    toggle_hide(chart.datasets[i], true, true);
+	}
+    }
+
+    // make the deferred call to update charts
+    update_chart(chart.charts_index);
+
+    sort_table(chart);
+}
+
+function apply_name_filter_hide(chart) {
+    var regex = new RegExp(chart.dom.table.name_filter.property("value"));
+
+    for (var i=0; i<chart.datasets.length; i++) {
+	var hidden = false;
+
+	if (regex.test(chart.datasets[i].name)) {
+	    hidden = true;
+	}
+
+	if (chart.datasets[i].hidden != hidden) {
+	    // since toggle_hide is potentially called many times here defer the call to update_charts
+	    // since toggle_hide is being called manually skip the mouse update
+	    toggle_hide(chart.datasets[i], true, true);
+	}
+    }
+
+    // make the deferred call to update charts
+    update_chart(chart.charts_index);
+
+    sort_table(chart);
+}
+
+function sort_table(chart) {
+    if (chart.options.sort_datasets) {
+	chart.dom.table.data_rows.sort(datarow_sort);
+    }
+}
+
+function datarow_sort(a, b) {
+    if (!a.hidden && b.hidden) {
+	return -1;
+    } else if (a.hidden && !b.hidden) {
+	return 1;
+    } else {
+	if (a.chart.data_model == "histogram") {
+	    return b.histogram.mean - a.histogram.mean;
+	} else {
+	    return b.mean - a.mean;
+	}
     }
 }
