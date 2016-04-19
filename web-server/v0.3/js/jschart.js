@@ -1147,37 +1147,17 @@ function create_table(charts_index) {
 	    }
 	});
 
-    cell.append("button")
+    cell.selectAll(".apply_y_max")
+	.data([ charts[charts_index] ])
+	.enter().append("button")
 	.text("Apply Max Y")
-	.on("click", function() {
-	    var value = charts[charts_index].dom.table.threshold.property("value");
+	.on("click", apply_y_max_threshold);
 
-	    if (!isNaN(value)) {
-		charts[charts_index].options.hide_dataset_threshold = value;
-
-		update_threshold_hidden_datasets(charts_index, "max_y");
-	    } else if (charts[charts_index].options.hide_dataset_threshold) {
-		charts[charts_index].dom.table.threshold.property("value", charts[charts_index].options.hide_dataset_threshold);
-	    } else {
-		charts[charts_index].dom.table.threshold.property("value", "");
-	    }
-	});
-
-    cell.append("button")
+    cell.selectAll(".apply_y_average")
+	.data([ charts[charts_index] ])
+	.enter().append("button")
 	.text("Apply Y Average")
-	.on("click", function() {
-	    var value = charts[charts_index].dom.table.threshold.property("value");
-
-	    if (!isNaN(value)) {
-		charts[charts_index].options.hide_dataset_threshold = value;
-
-		update_threshold_hidden_datasets(charts_index, "mean");
-	    } else if (charts[charts_index].options.hide_dataset_threshold) {
-		charts[charts_index].dom.table.threshold.property("value", charts[charts_index].options.hide_dataset_threshold);
-	    } else {
-		charts[charts_index].dom.table.threshold.property("value", "");
-	    }
-	});
+	.on("click", apply_y_average_threshold);
 
     if (charts[charts_index].options.live_update) {
 	console.log("Creating table controls for chart \"" + charts[charts_index].chart_title + "\"...");
@@ -2585,35 +2565,35 @@ function toggle_hide(dataset, skip_update_chart, skip_update_mouse) {
     }
 }
 
-function update_threshold_hidden_datasets(charts_index, field) {
-    for (var i=0; i < charts[charts_index].datasets.length; i++) {
+function update_threshold_hidden_datasets(chart, field) {
+    for (var i=0; i < chart.datasets.length; i++) {
 	var hidden = false;
 
 	if (field == "max_y") {
-	    if (charts[charts_index].datasets[i].max_y_value < charts[charts_index].options.hide_dataset_threshold) {
+	    if (chart.datasets[i].max_y_value < chart.options.hide_dataset_threshold) {
 		hidden = true;
 	    }
 	} else if (field == "mean") {
-	    if (charts[charts_index].data_model == "histogram") {
-		if (charts[charts_index].datasets[i].histogram.mean < charts[charts_index].options.hide_dataset_threshold) {
+	    if (chart.data_model == "histogram") {
+		if (chart.datasets[i].histogram.mean < chart.options.hide_dataset_threshold) {
 		    hidden = true;
 		}
 	    } else {
-		if (charts[charts_index].datasets[i].mean < charts[charts_index].options.hide_dataset_threshold) {
+		if (chart.datasets[i].mean < chart.options.hide_dataset_threshold) {
 		    hidden = true;
 		}
 	    }
 	}
 
-	if (charts[charts_index].datasets[i].hidden != hidden) {
+	if (chart.datasets[i].hidden != hidden) {
 	    // since toggle_hide is potentially called many times here defer the call to update_charts
 	    // since toggle_hide is being called manually skip the mouse update
-	    toggle_hide(charts[charts_index].datasets[i], true, true);
+	    toggle_hide(chart.datasets[i], true, true);
 	}
     }
 
     // make the deferred call to update charts
-    update_chart(charts_index);
+    update_chart(chart.charts_index);
 }
 
 function update_dataset_chart_elements(chart) {
@@ -3121,5 +3101,33 @@ function table_row_click(dataset) {
 	mouseover_highlight_function(dataset);
     } else {
 	click_highlight_function(dataset);
+    }
+}
+
+function apply_y_max_threshold(chart) {
+    var value = chart.dom.table.threshold.property("value");
+
+    if (!isNaN(value)) {
+	chart.options.hide_dataset_threshold = value;
+
+	update_threshold_hidden_datasets(chart, "max_y");
+    } else if (chart.options.hide_dataset_threshold) {
+	chart.dom.table.threshold.property("value", chart.options.hide_dataset_threshold);
+    } else {
+	chart.dom.table.threshold.property("value", "");
+    }
+}
+
+function apply_y_average_threshold(chart) {
+    var value = chart.dom.table.threshold.property("value");
+
+    if (!isNaN(value)) {
+	chart.options.hide_dataset_threshold = value;
+
+	update_threshold_hidden_datasets(chart, "mean");
+    } else if (chart.options.hide_dataset_threshold) {
+	chart.dom.table.threshold.property("value", chart.options.hide_dataset_threshold);
+    } else {
+	chart.dom.table.threshold.property("value", "");
     }
 }
