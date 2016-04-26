@@ -36,7 +36,7 @@ else
 fi
 
 ARCHIVE=${TOP}/archive/fs-version-001
-LOGSDIR=${TOP}/logs
+LOGSDIR=${TOP_LOCAL}/logs
 INCOMING=${TOP}/public_html/incoming
 # this is where the symlink forest is going to go
 RESULTS=${TOP}/public_html/results
