@@ -23,8 +23,8 @@ section of the [Getting Started
 Guide](http://distributed-system-analysis.github.io/pbench/pbench-agent.html).
 
 For Fedora, CentOS, and RHEL users, we have made available [COPR
-builds](https://copr.fedoraproject.org/coprs/portante/pbench-agent/) for the
-`pbench-agent`.
+builds](https://copr.fedoraproject.org/coprs/ndokos/pbench/) for the
+`pbench-agent`, `configtools`, `pbench-server` and some benchmark packages.
 
 ## How do I use pbench?
 Refer to this [Getting Started
