@@ -83,6 +83,8 @@ echo $TS
 list=$TMP/pbench-unpack-tarballs.$$
 find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | grep -v DUPLICATE | sort -n > $list
 
+trap 'rm -f $list' EXIT INT QUIT
+
 typeset -i ntb=0
 typeset -i ntotal=0
 typeset -i nerrs=0

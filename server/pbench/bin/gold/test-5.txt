@@ -35,7 +35,6 @@ pbench-backup-tarballs: Missing target backup directory argument
 /var/tmp/pbench-test-server/pbench/public_html/incoming
 /var/tmp/pbench-test-server/pbench/public_html/results
 /var/tmp/pbench-test-server/pbench/tmp
-/var/tmp/pbench-test-server/pbench/tmp/pbench-unpack-tarballs.NNNN
 --- pbench tree state
 +++ pbench log file contents
 /var/tmp/pbench-test-server/pbench/logs/pbench-copy-sosreports/pbench-copy-sosreports.log:run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
