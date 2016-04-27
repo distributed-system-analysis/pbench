@@ -1,0 +1,92 @@
+# this file describes the elements of deploying the pbench background tools
+[DEFAULT]
+mailto = admins@example.com
+version = 001
+
+default-host = pbench.example.com
+default-user = pbench
+default-deploy-dir = /home/%(default-user)s
+
+default-script-dir = %(default-deploy-dir)s/bin
+default-lib-dir = %(default-deploy-dir)s/lib
+default-crontab-dir = %(default-deploy-dir)s/crontab
+default-lock-dir = %(default-deploy-dir)s/locks
+
+deploy-script-dir = %(default-script-dir)s
+deploy-lib-dir = %(default-lib-dir)s
+deploy-crontab-dir=%(default-crontab-dir)s
+deploy-lock-dir = %(default-lock-dir)s
+
+## See pbench-server-setup documentation for filesystem setup
+deploy-pbench-dir = /pbench
+deploy-archive-dir = %(deploy-pbench-dir)s/archive/fs-version-%(version)s
+deploy-pbench-local-dir = /pbench-local
+deploy-pbench-backup-dir = /srv/vos/pbench/archive.backup
+
+
+###########################################################################
+## runtime section
+###########################################################################
+[sosreport]
+user = %(default-user)s
+host = pbench-sosreports.example.com
+dir = /path/to/sosreport/dir
+mailto=admins@example.com
+
+###########################################################################
+## deployment section
+###########################################################################
+[pbench-server]
+user=%(default-user)s
+install-dir = %(default-deploy-dir)s
+roles = pbench-results pbench-backup
+
+[pbench-server-internal]
+install-dir = /opt/pbench-server-internal
+
+# we need to install some stuff in the apache document root
+# so we either get it directly or look in the config file.
+# N.B. Different distros use different config files.
+# The following works on Fedora, RHEL, CentOS.
+[apache]
+# configfile = /etc/httpd/conf/httpd.conf
+documentroot = /var/www/html
+
+# this *has* to agree with the setting in the pbench-agent config file
+[results]
+webserver = pbench.example.com
+host_info_url = http://%(webserver)s/pbench-results-host-info.versioned/pbench-results-host-info.URL%(version)s
+
+###########################################################################
+# crontab roles
+[pbench-results]
+host = %(default-host)s
+mailfrom = %(default-user)s@%(host)s
+tasks = pbench-unpack-tarballs, pbench-copy-sosreports, pbench-edit-prefixes, pbench-index,
+        pbench-clean-up-dangling-results
+
+[pbench-backup]
+host = %(default-host)s
+mailfrom = %(default-user)s@%(host)s
+tasks = pbench-backup-tarballs
+
+###########################################################################
+# crontab tasks
+[pbench-backup-tarballs]
+crontab = 41 4 * * *  flock -n %(deploy-lock-dir)s/pbench-backup-tarballs.lock %(deploy-script-dir)s/pbench-backup-tarballs  %(deploy-pbench-dir)s %(deploy-pbench-backup-dir)s
+
+[pbench-unpack-tarballs]
+crontab = * * * * *  flock -n %(deploy-lock-dir)s/pbench-unpack-tarballs.lock %(deploy-script-dir)s/pbench-unpack-tarballs %(deploy-pbench-dir)s %(deploy-pbench-local-dir)s
+
+[pbench-copy-sosreports]
+crontab = 41 * * * *  flock -n %(deploy-lock-dir)s/pbench-copy-sosreports.lock %(deploy-script-dir)s/pbench-copy-sosreports %(deploy-pbench-dir)s
+
+[pbench-edit-prefixes]
+crontab = * * * * *  flock -n %(deploy-lock-dir)s/pbench-edit-prefixes.lock %(deploy-script-dir)s/pbench-edit-prefixes  %(deploy-pbench-dir)s
+
+[pbench-index]
+crontab = 26 * * * *  flock -n %(deploy-lock-dir)s/pbench-index.lock %(deploy-script-dir)s/pbench-index  %(deploy-pbench-dir)s
+
+[pbench-clean-up-dangling-results]
+crontab = 51 3 * * *  flock -n %(deploy-lock-dir)s/pbench-clean-up-dangling-results-links.lock %(deploy-script-dir)s/pbench-clean-up-dangling-results-links %(deploy-pbench-dir)s
+

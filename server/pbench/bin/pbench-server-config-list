@@ -1,0 +1,76 @@
+#! /bin/bash
+# -*- mode: shell-script -*-
+
+prog=$(basename $0)
+usage="$prog [--prefix <dir>]"
+
+opts=$(getopt -o dp: -l directory,prefix: -- $*)
+
+default_pbench_config=/home/pbench/lib/config/pbench-server.cfg
+# try to get the install dir from the environment
+def=$(getconf.py install-dir pbench-server-internal)
+if [ -z $def ] ;then
+    # try to get it using the default config file
+    def=$(getconf.py --config $default_pbench_config install-dir pbench-server-internal)
+fi
+
+if [ -z $def ] ;then
+    # set the prefix to the default config dir
+    prefix=/opt/pbench-server-internal/pbench/lib/config
+else
+    # set the prefix to the config dir of the install dir we found above
+    prefix=$def/pbench/lib/config
+fi
+
+eval set -- "$opts"
+while (( 1 )) ;do
+    case $1 in
+        -p|--prefix)
+            # override with explicit prefix
+            prefix=$2
+            shift 2
+            ;;
+        -d|--directory)
+            printdir=1
+            shift
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            echo $usage
+            exit 1
+    esac
+done
+
+case $# in
+    0)
+        ;;
+    *)
+        echo $usage
+        exit 2
+        ;;
+esac
+
+# check that the configuration directory exists
+if [ ! -d $prefix ] ;then
+    echo "$prog: $prefix directory does not exist"
+    exit 3
+fi
+
+if [[ $printdir == 1 ]] ;then
+    echo $prefix
+    exit 0
+fi
+
+for x in $(ls $prefix) ;do
+    if [ ! -d $prefix/$x ] ;then
+        continue
+    elif [ ! -f $prefix/$x/pbench-server.cfg ] ;then
+        continue
+    else
+        echo $x
+    fi
+done
+exit $?

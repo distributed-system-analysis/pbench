@@ -1,0 +1,30 @@
+[DEFAULT]
+pbench_install_dir = /opt/pbench-agent
+pbench_results_redirector = pbench-test.results.example.com
+pbench_web_server = pbench-test.example.com
+
+[pbench-agent]
+install-dir = %(pbench_install_dir)s
+pbench_user = pbench
+pbench_group = pbench
+pbench_run = /var/lib/pbench-agent
+pbench_log = %(pbench_run)s/pbench.log
+
+[pbench-agent-internal]
+install-dir = /opt/pbench-agent-internal
+
+[results]
+user = pbench
+host_path = http://%(pbench_result_redirector)s/pbench-archive-host
+ssh_opts = -o StrictHostKeyChecking=no
+webserver = %(pbench_web_server)s
+host_info_url = http://%swebserver)s/pbench-results-host-info.versioned/pbench-results-host-info.URL001
+dir = /pbench/public_html/incoming
+
+[pbench/tools]
+default-tool-set = sar, iostat, mpstat, pidstat, proc-vmstat, proc-interrupts, turbostat
+interval = 3
+
+[config]
+path = %(pbench_install_dir)s/config
+files = pbench-agent.cfg

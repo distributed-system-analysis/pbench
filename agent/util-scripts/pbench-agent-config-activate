@@ -1,0 +1,73 @@
+#! /bin/bash
+# -*- mode: shell-script -*-
+
+prog=$(basename $0)
+usage="$prog [--prefix <dir>] <configuration>"
+
+opts=$(getopt -o p: -l prefix: -- $*)
+
+default_pbench_config=/opt/pbench-agent/config/pbench-agent.cfg
+# try to get the install dir from the environment
+def=$(getconf.py install-dir pbench-agent-internal)
+if [ -z $def ] ;then
+    # try to get it using the default config file
+    def=$(getconf.py --config $default_pbench_config install-dir pbench-agent-internal)
+fi
+
+if [ -z $def ] ;then
+    # set the prefix to the default config dir
+    prefix=/opt/pbench-agent-internal/config
+else
+    # set the prefix to the config dir of the install dir we found above
+    prefix=$def/config
+fi
+
+eval set -- "$opts"
+while (( 1 )) ;do
+    case $1 in
+        -p|--prefix)
+            # override with explicit prefix
+            prefix=$2
+            shift 2
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            echo $usage
+            exit 1
+    esac
+done
+
+case $# in
+    1)
+        configuration=$1
+        ;;
+    *)
+        echo $usage
+        exit 2
+        ;;
+esac
+
+# check that the configuration directory exists
+if [ ! -d $prefix/$configuration ] ;then
+    echo "$prog: $prefix/$configuration directory does not exist"
+    exit 3
+fi
+
+# check that it contains a config file
+if [ ! -f $prefix/$configuration/pbench-agent.cfg ] ;then
+    echo "$prog: $prefix/$configuration/pbench-agent.cfg file does not exist"
+    exit 4
+fi
+
+# copy the configuration file to the destination
+# use the "real" config file to get the destination
+dest=$(getconf.py --config $prefix/$configuration/pbench-agent.cfg pbench_install_dir pbench-agent)
+dest=$dest/config
+cp $prefix/$configuration/pbench-agent.cfg $dest
+exit $?
+
+
+

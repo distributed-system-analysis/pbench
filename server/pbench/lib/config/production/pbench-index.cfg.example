@@ -1,0 +1,10 @@
+[Server]
+# host:port - both must be specified.
+server = elasticsearch.example.com:9280
+
+[Settings]
+index_prefix = dsa.pbench
+index_version = 1
+bulk_action_count = 2000
+number_of_shards = 1
+number_of_replicas = 1

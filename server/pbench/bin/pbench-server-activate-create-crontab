@@ -1,0 +1,66 @@
+#! /bin/bash
+
+prog=$(basename $0)
+# This script uses the pbench-server.cfg file just installed, to
+# figure out what tasks to add to the pbench crontab on this
+# machine. After creating the crontab, it does *not* activate it: that
+# is a separate manual step.
+
+usage="Usage: $prog <crontab-path>"
+
+crontabpath=$1
+
+# crontab
+mkdir -p $crontabpath
+chown pbench.pbench $crontabpath
+chmod 755 $crontabpath
+crontab=$crontabpath/crontab
+
+if [ ! -f $CONFIG ]
+then
+    echo "Config file $CONFIG does not exist"
+    exit 2
+fi
+
+roles=$(getconf.py -l roles pbench-server)
+hostname=$(hostname -f)
+
+echo "CONFIG=$CONFIG" > $crontab
+
+for role in $roles ;do
+    host=$(getconf.py host $role)
+    if [ "$host" != "$hostname" ] ;then
+        continue
+    fi
+    mailfrom=$(getconf.py mailfrom $role pbench-server)
+    if [ -z "$mailfrom" ] ;then
+        echo "$role: No mailfrom specified"
+        continue
+    fi
+    mailto=$(getconf.py mailto $role pbench-server)
+    if [ -z "$mailto" ] ;then
+        echo "$role: No mailto specified"
+        continue
+    fi
+    
+    grep -q MAILTO $crontab ||
+        echo "MAILTO=$mailto" >> $crontab
+    grep -q MAILFROM $crontab ||
+        echo "MAILFROM=$mailfrom" >> $crontab
+    tasks=$(getconf.py -l tasks $role)
+    for task in $tasks ;do
+        crontabline=$(getconf.py crontab $task)
+        echo "$crontabline" >> $crontab
+    done
+done
+
+chown pbench.pbench $crontab
+chmod 644 $crontab
+
+# create the lock directory that the cron entries will use
+mkdir -p /home/pbench/locks
+chown pbench.pbench /home/pbench/locks
+
+exit 0
+
+
