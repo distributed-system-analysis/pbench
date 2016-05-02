@@ -1,0 +1,175 @@
+{
+  "collapse": true,
+  "editable": true,
+  "height": "250px",
+  "panels": [
+    {
+      "aliasColors": {
+        "Average io.io-reads.rtps": "#BA43A9"
+      },
+      "bars": false,
+      "datasource": "vos-test",
+      "editable": true,
+      "error": false,
+      "fill": 3,
+      "grid": {
+        "leftLogBase": 1,
+        "leftMax": null,
+        "leftMin": null,
+        "rightLogBase": 1,
+        "rightMax": null,
+        "rightMin": null,
+        "threshold1": null,
+        "threshold1Color": "rgba(216, 200, 27, 0.27)",
+        "threshold2": null,
+        "threshold2Color": "rgba(234, 112, 112, 0.22)",
+        "thresholdLine": false
+      },
+      "id": 10,
+      "leftYAxisLabel": "IOPS",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "hideEmpty": false,
+        "max": false,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 2,
+      "links": [],
+      "nullPointMode": "connected",
+      "percentage": false,
+      "pointradius": 3,
+      "points": false,
+      "renderer": "flot",
+      "rightYAxisLabel": "blocks / sec [1 Block = 512 bytes.]",
+      "seriesOverrides": [
+        {
+          "alias": "Average io.io-writes.bwrtn",
+          "yaxis": 2
+        },
+        {
+          "alias": "Average io.io-reads.bread",
+          "yaxis": 2
+        }
+      ],
+      "span": 12,
+      "stack": false,
+      "steppedLine": true,
+      "targets": [
+        {
+          "bucketAggs": [
+            {
+              "field": "_timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "metrics": [
+            {
+              "field": "io.io-reads.bread",
+              "id": "1",
+              "meta": {},
+              "settings": {},
+              "type": "avg"
+            }
+          ],
+          "refId": "A",
+          "timeField": "_timestamp"
+        },
+        {
+          "bucketAggs": [
+            {
+              "field": "_timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "metrics": [
+            {
+              "field": "io.io-reads.rtps",
+              "id": "1",
+              "meta": {},
+              "settings": {},
+              "type": "avg"
+            }
+          ],
+          "refId": "B",
+          "timeField": "_timestamp"
+        },
+        {
+          "bucketAggs": [
+            {
+              "field": "_timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "metrics": [
+            {
+              "field": "io.io-writes.wtps",
+              "id": "1",
+              "meta": {},
+              "settings": {},
+              "type": "avg"
+            }
+          ],
+          "refId": "C",
+          "timeField": "_timestamp"
+        },
+        {
+          "bucketAggs": [
+            {
+              "field": "_timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "metrics": [
+            {
+              "field": "io.io-writes.bwrtn",
+              "id": "1",
+              "meta": {},
+              "settings": {},
+              "type": "avg"
+            }
+          ],
+          "refId": "D",
+          "timeField": "_timestamp"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "IO transfer rate",
+      "tooltip": {
+        "shared": true,
+        "value_type": "cumulative"
+      },
+      "type": "graph",
+      "x-axis": true,
+      "y-axis": true,
+      "y_formats": [
+        "short",
+        "short"
+      ]
+    }
+  ],
+  "showTitle": true,
+  "title": "I/O and transfer rate statistics"
+}

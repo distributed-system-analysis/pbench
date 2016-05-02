@@ -1,0 +1,20 @@
+{
+  "collapse": false,
+  "editable": true,
+  "height": "150px",
+  "panels": [
+    {
+      "content": "This dashboard has been divided into different kinds of graphs for various parameters, that were obtained from the __sa binary__ that you've uploaded.  \n\n- Description of those parameters could be obtained in detail by running the command `$ man sar` on a linux terminal. \n- Or you could read about them [here on the official man page for sar command](http://linux.die.net/man/1/sar)\n\n`Please Note:` All the rows are currently in collapsed mode, meaning, you need to click on the stats you wanna view.",
+      "editable": true,
+      "error": false,
+      "id": 15,
+      "links": [],
+      "mode": "markdown",
+      "span": 12,
+      "style": {},
+      "title": "System Activity Reporter (SAR)",
+      "type": "text"
+    }
+  ],
+  "title": "SAR Description"
+}

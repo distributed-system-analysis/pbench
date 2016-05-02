@@ -1,0 +1,35 @@
+CREATE TABLE `data_source` (
+`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
+, `org_id` INTEGER NOT NULL
+, `version` INTEGER NOT NULL
+, `type` TEXT NOT NULL
+, `name` TEXT NOT NULL
+, `access` TEXT NOT NULL
+, `url` TEXT NOT NULL
+, `password` TEXT NULL
+, `user` TEXT NULL
+, `database` TEXT NULL
+, `basic_auth` INTEGER NOT NULL
+, `basic_auth_user` TEXT NULL
+, `basic_auth_password` TEXT NULL
+, `is_default` INTEGER NOT NULL
+, `json_data` TEXT NULL
+, `created` DATETIME NOT NULL
+, `updated` DATETIME NOT NULL
+);
+
+
+==================
+
+CREATE TABLE `dashboard` (
+`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
+, `version` INTEGER NOT NULL
+, `slug` TEXT NOT NULL
+, `title` TEXT NOT NULL
+, `data` TEXT NOT NULL
+, `org_id` INTEGER NOT NULL
+, `created` DATETIME NOT NULL
+, `updated` DATETIME NOT NULL
+);
+CREATE INDEX `IDX_dashboard_org_id` ON `dashboard` (`org_id`);
+CREATE UNIQUE INDEX `UQE_dashboard_org_id_slug` ON `dashboard` (`org_id`,`slug`);

@@ -1,0 +1,152 @@
+{
+  "collapse": true,
+  "editable": true,
+  "height": "250px",
+  "panels": [
+    {
+      "aliasColors": {},
+      "bars": false,
+      "datasource": "vos-test",
+      "editable": true,
+      "error": false,
+      "fill": 1,
+      "grid": {
+        "leftLogBase": 1,
+        "leftMax": null,
+        "leftMin": null,
+        "rightLogBase": 1,
+        "rightMax": null,
+        "rightMin": null,
+        "threshold1": null,
+        "threshold1Color": "rgba(216, 200, 27, 0.27)",
+        "threshold2": null,
+        "threshold2Color": "rgba(234, 112, 112, 0.22)"
+      },
+      "id": 9,
+      "legend": {
+        "alignAsTable": false,
+        "avg": false,
+        "current": false,
+        "hideEmpty": false,
+        "max": false,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 2,
+      "links": [],
+      "nullPointMode": "connected",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "Average memory.bufpg",
+          "yaxis": 1
+        },
+        {
+          "alias": "Average memory.campg",
+          "yaxis": 1
+        },
+        {
+          "alias": "Average memory.frmpg",
+          "yaxis": 2
+        }
+      ],
+      "span": 12,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "bucketAggs": [
+            {
+              "field": "_timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "metrics": [
+            {
+              "field": "memory.frmpg",
+              "id": "1",
+              "meta": {},
+              "settings": {},
+              "type": "avg"
+            }
+          ],
+          "refId": "A",
+          "timeField": "_timestamp"
+        },
+        {
+          "bucketAggs": [
+            {
+              "field": "_timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "metrics": [
+            {
+              "field": "memory.bufpg",
+              "id": "1",
+              "meta": {},
+              "settings": {},
+              "type": "avg"
+            }
+          ],
+          "refId": "B",
+          "timeField": "_timestamp"
+        },
+        {
+          "bucketAggs": [
+            {
+              "field": "_timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "metrics": [
+            {
+              "field": "memory.campg",
+              "id": "1",
+              "meta": {},
+              "settings": {},
+              "type": "avg"
+            }
+          ],
+          "refId": "C",
+          "timeField": "_timestamp"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "memory  pages stats",
+      "tooltip": {
+        "shared": true,
+        "value_type": "cumulative"
+      },
+      "type": "graph",
+      "x-axis": true,
+      "y-axis": true,
+      "y_formats": [
+        "short",
+        "short"
+      ]
+    }
+  ],
+  "showTitle": true,
+  "title": "Memory Page usage by system"
+}
