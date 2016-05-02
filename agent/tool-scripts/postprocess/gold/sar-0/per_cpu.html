@@ -3,103 +3,535 @@
   <head>
     <meta charset="utf-8">
     <link href="/static/css/v0.2/nv.d3.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/static/css/v0.2/patternfly.min.css" rel="stylesheet" type="text/css" media="all">
     <link href="/static/css/v0.2/pbench_utils.css" rel="stylesheet" type="text/css" media="all">
+    <link href="https://www.polymer-project.org/0.5/components/paper-ripple/paper-ripple.html" rel="import">
+    <script src="/static/js/v0.2/jquery.min.js"></script>
+    <script src="/static/js/v0.2/jquery-ui.js"></script>
     <script src="/static/js/v0.2/function-bind.js"></script>
     <script src="/static/js/v0.2/fastdom.js"></script>
+    <script src="/static/js/v0.2/saveSvgAsPng.js"></script>
     <script src="/static/js/v0.2/d3.js"></script>
     <script src="/static/js/v0.2/nv.d3.js"></script>
-    <script src="/static/js/v0.2/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.2/angular.js"></script>
+    <script src="/static/js/v0.2/angular-nvd3.js"></script>
+    <script src="/static/js/v0.2/app.js"></script>
     <script src="/static/js/v0.2/pbench_utils.js"></script>
   </head>
-  <body class="with-3d-shadow with-transitions">
+  <body class="with-3d-shadow with-transitions" ng-app="pbench">
+    <script src="/static/js/v0.2/angular.js"></script>
     <h2 class="page-header">sar-0 - per_cpu</h2>
-    <div class="chart">
-      <h3 class="chart-header">cpu_00
-        <button id="save1">Save as Image</button>
-        <div id="svgdataurl1"></div>
-      </h3>
-      <svg id="chart1"></svg>
-      <canvas id="canvas1" style="display:none"></canvas>
-      <script>
-        constructChart("stackedAreaChart", 1, "per_cpu_cpu_00");
-      </script>
+    <div class="chart" id="chartdiv1" ng-controller="graphControl" onload="constructChart("stackedAreaChart", 1, "per_cpu_cpu_00");">
+    <div class="card">
+        <div class="header">
+            <h2 class="header-title">
+              cpu_all_cpu_busy
+            </h2>
+            <div class="dropdown button raised blue">
+                ADVANCED
+                <paper-ripple fit></paper-ripple>
+            </div>
+            <div class="wrapper">
+                <div class="button raised blue" id="saveid1">
+                    Save Image
+                    <paper-ripple fit></paper-ripple>
+                </div>
+                <div class="revert button raised blue" id="restore_button1">
+                    Restore Defaults
+                    <paper-ripple fit></paper-ripple>
+                </div>
+                <p>Graph Type:
+                    <select name="typeSelect" ng-model="options.chart.type">
+                        <option value="lineWithFocusChart">lineWithFocusChart</option>
+                        <option value="lineChart">lineChart</option>
+                        <option value="stackedAreaChart">stackedAreaChart</option>
+                        <option value="multiBarChart">multiBarChart</option>
+                        <option value="cumulativeLineChart">cumulativeLineChart</option>
+                    </select>
+                </p>
+                <p>Height:
+                    <input type="number" ng-model="options.chart.height" />
+                </p>
+                <p>Width:
+                    <input type="number" ng-model="options.chart.width" />
+                </p>
+                <p>Focus Height:
+                    <input type="number" ng-model="options.chart.focusHeight" />
+                </p>
+                <p>Force X:
+                    <input type="number" ng-model="options.chart.forceX" />
+                </p>
+                <p>Force Y:
+                    <input type="number" ng-model="options.chart.forceY" />
+                </p>
+                <p>Focus Force X:
+                    <input type="number" ng-model="options.chart.lines2.forceX" />
+                </p>
+                <p>Focus Force Y:
+                    <input type="number" ng-model="options.chart.lines2.forceY" />
+                </p>
+                <p>Interactive:
+                    <input type="checkbox" ng-model="options.chart.interactive" />
+                </p>
+                <p>Interactive Guideline:
+                    <input type="checkbox" ng-model="options.chart.useInteractiveGuideline" />
+                </p>
+                <p>Show Legend:
+                    <input type="checkbox" ng-model="options.chart.showLegend" />
+                </p>
+            </div>
+        </div>
+        <div id="chart1" class="graph">
+            <nvd3 options="options" data="data"></nvd3>
+        </div>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_01
-        <button id="save2">Save as Image</button>
-        <div id="svgdataurl2"></div>
-      </h3>
-      <svg id="chart2"></svg>
-      <canvas id="canvas2" style="display:none"></canvas>
-      <script>
-        constructChart("stackedAreaChart", 2, "per_cpu_cpu_01");
-      </script>
+    <div class="chart" id="chartdiv2" ng-controller="graphControl" onload="constructChart("stackedAreaChart", 2, "per_cpu_cpu_01");">
+    <div class="card">
+        <div class="header">
+            <h2 class="header-title">
+              cpu_all_cpu_busy
+            </h2>
+            <div class="dropdown button raised blue">
+                ADVANCED
+                <paper-ripple fit></paper-ripple>
+            </div>
+            <div class="wrapper">
+                <div class="button raised blue" id="saveid2">
+                    Save Image
+                    <paper-ripple fit></paper-ripple>
+                </div>
+                <div class="revert button raised blue" id="restore_button2">
+                    Restore Defaults
+                    <paper-ripple fit></paper-ripple>
+                </div>
+                <p>Graph Type:
+                    <select name="typeSelect" ng-model="options.chart.type">
+                        <option value="lineWithFocusChart">lineWithFocusChart</option>
+                        <option value="lineChart">lineChart</option>
+                        <option value="stackedAreaChart">stackedAreaChart</option>
+                        <option value="multiBarChart">multiBarChart</option>
+                        <option value="cumulativeLineChart">cumulativeLineChart</option>
+                    </select>
+                </p>
+                <p>Height:
+                    <input type="number" ng-model="options.chart.height" />
+                </p>
+                <p>Width:
+                    <input type="number" ng-model="options.chart.width" />
+                </p>
+                <p>Focus Height:
+                    <input type="number" ng-model="options.chart.focusHeight" />
+                </p>
+                <p>Force X:
+                    <input type="number" ng-model="options.chart.forceX" />
+                </p>
+                <p>Force Y:
+                    <input type="number" ng-model="options.chart.forceY" />
+                </p>
+                <p>Focus Force X:
+                    <input type="number" ng-model="options.chart.lines2.forceX" />
+                </p>
+                <p>Focus Force Y:
+                    <input type="number" ng-model="options.chart.lines2.forceY" />
+                </p>
+                <p>Interactive:
+                    <input type="checkbox" ng-model="options.chart.interactive" />
+                </p>
+                <p>Interactive Guideline:
+                    <input type="checkbox" ng-model="options.chart.useInteractiveGuideline" />
+                </p>
+                <p>Show Legend:
+                    <input type="checkbox" ng-model="options.chart.showLegend" />
+                </p>
+            </div>
+        </div>
+        <div id="chart2" class="graph">
+            <nvd3 options="options" data="data"></nvd3>
+        </div>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_02
-        <button id="save3">Save as Image</button>
-        <div id="svgdataurl3"></div>
-      </h3>
-      <svg id="chart3"></svg>
-      <canvas id="canvas3" style="display:none"></canvas>
-      <script>
-        constructChart("stackedAreaChart", 3, "per_cpu_cpu_02");
-      </script>
+    <div class="chart" id="chartdiv3" ng-controller="graphControl" onload="constructChart("stackedAreaChart", 3, "per_cpu_cpu_02");">
+    <div class="card">
+        <div class="header">
+            <h2 class="header-title">
+              cpu_all_cpu_busy
+            </h2>
+            <div class="dropdown button raised blue">
+                ADVANCED
+                <paper-ripple fit></paper-ripple>
+            </div>
+            <div class="wrapper">
+                <div class="button raised blue" id="saveid3">
+                    Save Image
+                    <paper-ripple fit></paper-ripple>
+                </div>
+                <div class="revert button raised blue" id="restore_button3">
+                    Restore Defaults
+                    <paper-ripple fit></paper-ripple>
+                </div>
+                <p>Graph Type:
+                    <select name="typeSelect" ng-model="options.chart.type">
+                        <option value="lineWithFocusChart">lineWithFocusChart</option>
+                        <option value="lineChart">lineChart</option>
+                        <option value="stackedAreaChart">stackedAreaChart</option>
+                        <option value="multiBarChart">multiBarChart</option>
+                        <option value="cumulativeLineChart">cumulativeLineChart</option>
+                    </select>
+                </p>
+                <p>Height:
+                    <input type="number" ng-model="options.chart.height" />
+                </p>
+                <p>Width:
+                    <input type="number" ng-model="options.chart.width" />
+                </p>
+                <p>Focus Height:
+                    <input type="number" ng-model="options.chart.focusHeight" />
+                </p>
+                <p>Force X:
+                    <input type="number" ng-model="options.chart.forceX" />
+                </p>
+                <p>Force Y:
+                    <input type="number" ng-model="options.chart.forceY" />
+                </p>
+                <p>Focus Force X:
+                    <input type="number" ng-model="options.chart.lines2.forceX" />
+                </p>
+                <p>Focus Force Y:
+                    <input type="number" ng-model="options.chart.lines2.forceY" />
+                </p>
+                <p>Interactive:
+                    <input type="checkbox" ng-model="options.chart.interactive" />
+                </p>
+                <p>Interactive Guideline:
+                    <input type="checkbox" ng-model="options.chart.useInteractiveGuideline" />
+                </p>
+                <p>Show Legend:
+                    <input type="checkbox" ng-model="options.chart.showLegend" />
+                </p>
+            </div>
+        </div>
+        <div id="chart3" class="graph">
+            <nvd3 options="options" data="data"></nvd3>
+        </div>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_03
-        <button id="save4">Save as Image</button>
-        <div id="svgdataurl4"></div>
-      </h3>
-      <svg id="chart4"></svg>
-      <canvas id="canvas4" style="display:none"></canvas>
-      <script>
-        constructChart("stackedAreaChart", 4, "per_cpu_cpu_03");
-      </script>
+    <div class="chart" id="chartdiv4" ng-controller="graphControl" onload="constructChart("stackedAreaChart", 4, "per_cpu_cpu_03");">
+    <div class="card">
+        <div class="header">
+            <h2 class="header-title">
+              cpu_all_cpu_busy
+            </h2>
+            <div class="dropdown button raised blue">
+                ADVANCED
+                <paper-ripple fit></paper-ripple>
+            </div>
+            <div class="wrapper">
+                <div class="button raised blue" id="saveid4">
+                    Save Image
+                    <paper-ripple fit></paper-ripple>
+                </div>
+                <div class="revert button raised blue" id="restore_button4">
+                    Restore Defaults
+                    <paper-ripple fit></paper-ripple>
+                </div>
+                <p>Graph Type:
+                    <select name="typeSelect" ng-model="options.chart.type">
+                        <option value="lineWithFocusChart">lineWithFocusChart</option>
+                        <option value="lineChart">lineChart</option>
+                        <option value="stackedAreaChart">stackedAreaChart</option>
+                        <option value="multiBarChart">multiBarChart</option>
+                        <option value="cumulativeLineChart">cumulativeLineChart</option>
+                    </select>
+                </p>
+                <p>Height:
+                    <input type="number" ng-model="options.chart.height" />
+                </p>
+                <p>Width:
+                    <input type="number" ng-model="options.chart.width" />
+                </p>
+                <p>Focus Height:
+                    <input type="number" ng-model="options.chart.focusHeight" />
+                </p>
+                <p>Force X:
+                    <input type="number" ng-model="options.chart.forceX" />
+                </p>
+                <p>Force Y:
+                    <input type="number" ng-model="options.chart.forceY" />
+                </p>
+                <p>Focus Force X:
+                    <input type="number" ng-model="options.chart.lines2.forceX" />
+                </p>
+                <p>Focus Force Y:
+                    <input type="number" ng-model="options.chart.lines2.forceY" />
+                </p>
+                <p>Interactive:
+                    <input type="checkbox" ng-model="options.chart.interactive" />
+                </p>
+                <p>Interactive Guideline:
+                    <input type="checkbox" ng-model="options.chart.useInteractiveGuideline" />
+                </p>
+                <p>Show Legend:
+                    <input type="checkbox" ng-model="options.chart.showLegend" />
+                </p>
+            </div>
+        </div>
+        <div id="chart4" class="graph">
+            <nvd3 options="options" data="data"></nvd3>
+        </div>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_04
-        <button id="save5">Save as Image</button>
-        <div id="svgdataurl5"></div>
-      </h3>
-      <svg id="chart5"></svg>
-      <canvas id="canvas5" style="display:none"></canvas>
-      <script>
-        constructChart("stackedAreaChart", 5, "per_cpu_cpu_04");
-      </script>
+    <div class="chart" id="chartdiv5" ng-controller="graphControl" onload="constructChart("stackedAreaChart", 5, "per_cpu_cpu_04");">
+    <div class="card">
+        <div class="header">
+            <h2 class="header-title">
+              cpu_all_cpu_busy
+            </h2>
+            <div class="dropdown button raised blue">
+                ADVANCED
+                <paper-ripple fit></paper-ripple>
+            </div>
+            <div class="wrapper">
+                <div class="button raised blue" id="saveid5">
+                    Save Image
+                    <paper-ripple fit></paper-ripple>
+                </div>
+                <div class="revert button raised blue" id="restore_button5">
+                    Restore Defaults
+                    <paper-ripple fit></paper-ripple>
+                </div>
+                <p>Graph Type:
+                    <select name="typeSelect" ng-model="options.chart.type">
+                        <option value="lineWithFocusChart">lineWithFocusChart</option>
+                        <option value="lineChart">lineChart</option>
+                        <option value="stackedAreaChart">stackedAreaChart</option>
+                        <option value="multiBarChart">multiBarChart</option>
+                        <option value="cumulativeLineChart">cumulativeLineChart</option>
+                    </select>
+                </p>
+                <p>Height:
+                    <input type="number" ng-model="options.chart.height" />
+                </p>
+                <p>Width:
+                    <input type="number" ng-model="options.chart.width" />
+                </p>
+                <p>Focus Height:
+                    <input type="number" ng-model="options.chart.focusHeight" />
+                </p>
+                <p>Force X:
+                    <input type="number" ng-model="options.chart.forceX" />
+                </p>
+                <p>Force Y:
+                    <input type="number" ng-model="options.chart.forceY" />
+                </p>
+                <p>Focus Force X:
+                    <input type="number" ng-model="options.chart.lines2.forceX" />
+                </p>
+                <p>Focus Force Y:
+                    <input type="number" ng-model="options.chart.lines2.forceY" />
+                </p>
+                <p>Interactive:
+                    <input type="checkbox" ng-model="options.chart.interactive" />
+                </p>
+                <p>Interactive Guideline:
+                    <input type="checkbox" ng-model="options.chart.useInteractiveGuideline" />
+                </p>
+                <p>Show Legend:
+                    <input type="checkbox" ng-model="options.chart.showLegend" />
+                </p>
+            </div>
+        </div>
+        <div id="chart5" class="graph">
+            <nvd3 options="options" data="data"></nvd3>
+        </div>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_05
-        <button id="save6">Save as Image</button>
-        <div id="svgdataurl6"></div>
-      </h3>
-      <svg id="chart6"></svg>
-      <canvas id="canvas6" style="display:none"></canvas>
-      <script>
-        constructChart("stackedAreaChart", 6, "per_cpu_cpu_05");
-      </script>
+    <div class="chart" id="chartdiv6" ng-controller="graphControl" onload="constructChart("stackedAreaChart", 6, "per_cpu_cpu_05");">
+    <div class="card">
+        <div class="header">
+            <h2 class="header-title">
+              cpu_all_cpu_busy
+            </h2>
+            <div class="dropdown button raised blue">
+                ADVANCED
+                <paper-ripple fit></paper-ripple>
+            </div>
+            <div class="wrapper">
+                <div class="button raised blue" id="saveid6">
+                    Save Image
+                    <paper-ripple fit></paper-ripple>
+                </div>
+                <div class="revert button raised blue" id="restore_button6">
+                    Restore Defaults
+                    <paper-ripple fit></paper-ripple>
+                </div>
+                <p>Graph Type:
+                    <select name="typeSelect" ng-model="options.chart.type">
+                        <option value="lineWithFocusChart">lineWithFocusChart</option>
+                        <option value="lineChart">lineChart</option>
+                        <option value="stackedAreaChart">stackedAreaChart</option>
+                        <option value="multiBarChart">multiBarChart</option>
+                        <option value="cumulativeLineChart">cumulativeLineChart</option>
+                    </select>
+                </p>
+                <p>Height:
+                    <input type="number" ng-model="options.chart.height" />
+                </p>
+                <p>Width:
+                    <input type="number" ng-model="options.chart.width" />
+                </p>
+                <p>Focus Height:
+                    <input type="number" ng-model="options.chart.focusHeight" />
+                </p>
+                <p>Force X:
+                    <input type="number" ng-model="options.chart.forceX" />
+                </p>
+                <p>Force Y:
+                    <input type="number" ng-model="options.chart.forceY" />
+                </p>
+                <p>Focus Force X:
+                    <input type="number" ng-model="options.chart.lines2.forceX" />
+                </p>
+                <p>Focus Force Y:
+                    <input type="number" ng-model="options.chart.lines2.forceY" />
+                </p>
+                <p>Interactive:
+                    <input type="checkbox" ng-model="options.chart.interactive" />
+                </p>
+                <p>Interactive Guideline:
+                    <input type="checkbox" ng-model="options.chart.useInteractiveGuideline" />
+                </p>
+                <p>Show Legend:
+                    <input type="checkbox" ng-model="options.chart.showLegend" />
+                </p>
+            </div>
+        </div>
+        <div id="chart6" class="graph">
+            <nvd3 options="options" data="data"></nvd3>
+        </div>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_06
-        <button id="save7">Save as Image</button>
-        <div id="svgdataurl7"></div>
-      </h3>
-      <svg id="chart7"></svg>
-      <canvas id="canvas7" style="display:none"></canvas>
-      <script>
-        constructChart("stackedAreaChart", 7, "per_cpu_cpu_06");
-      </script>
+    <div class="chart" id="chartdiv7" ng-controller="graphControl" onload="constructChart("stackedAreaChart", 7, "per_cpu_cpu_06");">
+    <div class="card">
+        <div class="header">
+            <h2 class="header-title">
+              cpu_all_cpu_busy
+            </h2>
+            <div class="dropdown button raised blue">
+                ADVANCED
+                <paper-ripple fit></paper-ripple>
+            </div>
+            <div class="wrapper">
+                <div class="button raised blue" id="saveid7">
+                    Save Image
+                    <paper-ripple fit></paper-ripple>
+                </div>
+                <div class="revert button raised blue" id="restore_button7">
+                    Restore Defaults
+                    <paper-ripple fit></paper-ripple>
+                </div>
+                <p>Graph Type:
+                    <select name="typeSelect" ng-model="options.chart.type">
+                        <option value="lineWithFocusChart">lineWithFocusChart</option>
+                        <option value="lineChart">lineChart</option>
+                        <option value="stackedAreaChart">stackedAreaChart</option>
+                        <option value="multiBarChart">multiBarChart</option>
+                        <option value="cumulativeLineChart">cumulativeLineChart</option>
+                    </select>
+                </p>
+                <p>Height:
+                    <input type="number" ng-model="options.chart.height" />
+                </p>
+                <p>Width:
+                    <input type="number" ng-model="options.chart.width" />
+                </p>
+                <p>Focus Height:
+                    <input type="number" ng-model="options.chart.focusHeight" />
+                </p>
+                <p>Force X:
+                    <input type="number" ng-model="options.chart.forceX" />
+                </p>
+                <p>Force Y:
+                    <input type="number" ng-model="options.chart.forceY" />
+                </p>
+                <p>Focus Force X:
+                    <input type="number" ng-model="options.chart.lines2.forceX" />
+                </p>
+                <p>Focus Force Y:
+                    <input type="number" ng-model="options.chart.lines2.forceY" />
+                </p>
+                <p>Interactive:
+                    <input type="checkbox" ng-model="options.chart.interactive" />
+                </p>
+                <p>Interactive Guideline:
+                    <input type="checkbox" ng-model="options.chart.useInteractiveGuideline" />
+                </p>
+                <p>Show Legend:
+                    <input type="checkbox" ng-model="options.chart.showLegend" />
+                </p>
+            </div>
+        </div>
+        <div id="chart7" class="graph">
+            <nvd3 options="options" data="data"></nvd3>
+        </div>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">cpu_07
-        <button id="save8">Save as Image</button>
-        <div id="svgdataurl8"></div>
-      </h3>
-      <svg id="chart8"></svg>
-      <canvas id="canvas8" style="display:none"></canvas>
-      <script>
-        constructChart("stackedAreaChart", 8, "per_cpu_cpu_07");
-      </script>
+    <div class="chart" id="chartdiv8" ng-controller="graphControl" onload="constructChart("stackedAreaChart", 8, "per_cpu_cpu_07");">
+    <div class="card">
+        <div class="header">
+            <h2 class="header-title">
+              cpu_all_cpu_busy
+            </h2>
+            <div class="dropdown button raised blue">
+                ADVANCED
+                <paper-ripple fit></paper-ripple>
+            </div>
+            <div class="wrapper">
+                <div class="button raised blue" id="saveid8">
+                    Save Image
+                    <paper-ripple fit></paper-ripple>
+                </div>
+                <div class="revert button raised blue" id="restore_button8">
+                    Restore Defaults
+                    <paper-ripple fit></paper-ripple>
+                </div>
+                <p>Graph Type:
+                    <select name="typeSelect" ng-model="options.chart.type">
+                        <option value="lineWithFocusChart">lineWithFocusChart</option>
+                        <option value="lineChart">lineChart</option>
+                        <option value="stackedAreaChart">stackedAreaChart</option>
+                        <option value="multiBarChart">multiBarChart</option>
+                        <option value="cumulativeLineChart">cumulativeLineChart</option>
+                    </select>
+                </p>
+                <p>Height:
+                    <input type="number" ng-model="options.chart.height" />
+                </p>
+                <p>Width:
+                    <input type="number" ng-model="options.chart.width" />
+                </p>
+                <p>Focus Height:
+                    <input type="number" ng-model="options.chart.focusHeight" />
+                </p>
+                <p>Force X:
+                    <input type="number" ng-model="options.chart.forceX" />
+                </p>
+                <p>Force Y:
+                    <input type="number" ng-model="options.chart.forceY" />
+                </p>
+                <p>Focus Force X:
+                    <input type="number" ng-model="options.chart.lines2.forceX" />
+                </p>
+                <p>Focus Force Y:
+                    <input type="number" ng-model="options.chart.lines2.forceY" />
+                </p>
+                <p>Interactive:
+                    <input type="checkbox" ng-model="options.chart.interactive" />
+                </p>
+                <p>Interactive Guideline:
+                    <input type="checkbox" ng-model="options.chart.useInteractiveGuideline" />
+                </p>
+                <p>Show Legend:
+                    <input type="checkbox" ng-model="options.chart.showLegend" />
+                </p>
+            </div>
+        </div>
+        <div id="chart8" class="graph">
+            <nvd3 options="options" data="data"></nvd3>
+        </div>
     </div>
   </body>
 </html>

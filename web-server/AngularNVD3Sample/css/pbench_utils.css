@@ -1,0 +1,106 @@
+/* pbench_utils.css v0.2 */
+
+body {
+    overflow-y: scroll;
+    background: #eeeded;
+}
+
+text {
+    font: 12px sans-serif;
+}
+
+div.chart {
+    margin-top: 6px;
+    padding: 4px;
+    border-style: solid;
+    border-width: 2px;
+}
+
+.chart svg {
+    height: 150px;
+}
+
+.chart-header,
+.page-header,
+.chart-reason {
+    text-align: center;
+}
+
+.wrapper {
+    display: none;
+    width: auto;
+    background-color: #EEEEEE;
+    position: relative;
+    padding-left: 20px;
+    padding-bottom: 5px;;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12)
+}
+
+.advanced {
+    float: right;
+    display: inline;
+}
+
+.button {
+    display: inline-block;
+    position: relative;
+    width: 100px;
+    height: 32px;
+    margin-top: 20px;
+    margin-right: 5px;
+    margin-bottom: 10px;
+    line-height: 32px;
+    text-align: center;
+    border-radius: 2px;
+    background-color: #fff;
+    color: #646464;
+}
+
+.button > paper-ripple {
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.button.blue {
+    background-color: #4285f4;
+    color: #fff;
+}
+
+.button.raised {
+    transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition-delay: 0.2s;
+}
+
+.button.raised:active {
+    box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
+    transition-delay: 0s;
+}
+
+.card {
+    background: #fff;
+    border-radius: 2px;
+    display: block;
+    float: left;
+    margin: 1rem;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 1px rgba(0, 0, 0, 0.24);
+}
+
+.dropdown {
+    display: inline-block;
+    margin-right:20px;
+}
+
+.header-title {
+    display: inline-block;
+    padding: 20px;
+}
+
+.header {
+    border-bottom: 1px solid;
+    border-bottom-color: #E0E0E0;
+}
+
+.graph {
+    padding: 20px;
+}
