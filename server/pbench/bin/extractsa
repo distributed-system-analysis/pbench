@@ -1,0 +1,27 @@
+#!/bin/bash
+
+sa_data_file=$1
+file_path=$(dirname "${sa_data_file}")
+xml_file_path="$2"
+
+sadf_type=$( { ${BASH_SOURCE%/*}/satools/oscode "$sa_data_file"; } 2>&1)
+
+if [[ "$sadf_type" == *Invalid* ]]; then
+    sadf_type="f23"
+    echo "attempting to convert sa binary to compatible format.."
+    conversion_output=$( { LC_ALL=C ${BASH_SOURCE%/*}/vos/analysis/bin/sadf-f23-64 -c "$sa_data_file" > "${sa_data_file%/}".conv ; } 2>&1)
+    if [[ "$conversion_output" == *Invalid* ]]; then
+      echo "invalid input file! check if its a SA *binary* file.."
+      exit 1
+    fi
+    sa_data_file="${sa_data_file%/}".conv
+fi
+
+TZ=UTC LC_ALL=C ${BASH_SOURCE%/*}/vos/analysis/bin/sadf-$sadf_type-64 -x "$sa_data_file" -- -A > "$xml_file_path"
+
+client_nodename=$(${BASH_SOURCE%/*}/detect_nodename $xml_file_path)
+echo "nodename: $client_nodename"
+
+if [[ "$(basename $sa_data_file)" =~ ^.*\.conv$ ]]; then
+  rm "$sa_data_file"
+fi

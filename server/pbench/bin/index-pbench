@@ -7,18 +7,32 @@
 
 from __future__ import print_function
 
-import sys, os, time, re, stat, copy
-import hashlib, json, glob, csv, tarfile
+import sys
+import os
+import re
+import stat
+import csv
+import copy
+import time
+import json
+import glob
+import pathlib
+import hashlib
+import tarfile
+import subprocess
+from shutil import rmtree
+from pprint import pprint
+from collections import defaultdict
+from datetime import datetime, timedelta
+from vos.analysis.lib import tstos, index_sar
+from optparse import OptionParser, make_option
+from urllib3 import exceptions as ul_excs, Timeout
+from elasticsearch import VERSION, Elasticsearch, helpers, exceptions as es_excs
 
 try:
     from configparser import SafeConfigParser, NoSectionError, NoOptionError
-except ImportError:
+except:
     from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
-from optparse import OptionParser, make_option
-from elasticsearch import VERSION, Elasticsearch, helpers, exceptions as es_excs
-from urllib3 import exceptions as ul_excs, Timeout
-from datetime import datetime, timedelta
-from vos.analysis.lib import tstos
 
 _VERSION_ = "0.1.0.0"
 _NAME_    = "index-pbench"
@@ -30,6 +44,11 @@ _dict_const = dict
 # global - passed in through environment by pbench-index
 _tmpdir = None
 
+
+# list of file names present in the pbench tar ball,
+# that use a special indexing method. Currently, sar is supported.
+SPECIAL_PARAMS_LIST = ['sar.data']
+_special_paths = defaultdict(list)
 
 class MappingFileError(Exception):
     pass
@@ -744,6 +763,7 @@ def mk_toc(tb, md5sum, options):
     # by a dictionary with a 'name' key, whose value is the pathname of the dictionary
     # and a 'files' key, which is a list of the files contained in the directory.
     d = _dict_const()
+    global _special_paths
     for m in members:
         if m.isdir():
             dname = os.path.dirname(m.name)[len(prefix):] + os.path.sep
@@ -770,6 +790,11 @@ def mk_toc(tb, md5sum, options):
                 # the directory entry always preceded the file entry
                 # in the tarball.
                 d[dname] = _dict_const(directory=dname, files=[fentry])
+
+            if m.path.split('/')[-1] in SPECIAL_PARAMS_LIST:
+                # import pdb; pdb.set_trace()
+                _special_paths[m.path.split('/')[-1]].append(m)
+
         else:
             # if debug: print(repr(m))
             continue
@@ -826,7 +851,6 @@ def search_by_host(sos_d_list, host):
     return None
 
 def search_by_ip(sos_d_list, ip):
-    # import pdb; pdb.set_trace()
     for sos_d in sos_d_list:
         for l in sos_d.values():
             if type(l) != type([]):
@@ -905,6 +929,7 @@ def ip_address_to_ip_o_addr(s):
     # If not, grovel through the ip_address file, collect the juicy pieces
     # and fake a string that is similar in format to the preferred case -
     # at least similar enough to satisfy the caller of this function.
+
     as_is = True
     pat = re.compile(r'^[0-9]+:')
 
@@ -1344,6 +1369,58 @@ def main(options, args):
         # returns 0 or 1
         if options.debug_time_operations: ts("es_index")
         res = es_index(es, actions)
+
+        if _special_paths:
+            # print("no special paths found (to be indexed separately). " + \
+            #          "indexing pbench-run and pbench-run-toc-entry",
+            #      file=sys.stderr)
+            # define a temporary dir to be used for temporary sar data extraction
+            if not _tmpdir:
+                print("setting /tmp as default since none found in environment variable..")
+                _tmpdir = '/tmp'
+
+            # process contents of _special_paths
+            for special_case in _special_paths:
+                if special_case == 'sar.data':
+                    # convert sar.data files into xml files (to reside inside _tmpdir)
+                    # and then use index_sar.call_indexer() to index them using this
+                    for m in _special_paths[special_case]:
+                        uid = m.name.split('/sar/sar.data')[0]
+                        # now run os_detect and sadf binaries on this path
+                        # and extract xml on same paths
+                        sa_data_file = os.path.join(_tmpdir, m.path)
+                        extracted_xml_path = os.path.join(_tmpdir, '%s_sar.xml' % uid.replace('/','_'))
+                        # call ./extractsa <sa binary path> <temporary .xml path>
+                        p = subprocess.Popen([os.path.join(os.path.dirname(__file__),
+                                            'extractsa'), sa_data_file, extracted_xml_path],
+                                        stdout=subprocess.PIPE)
+                        odata, edata = p.communicate()
+
+                        # TODO: add conversion for files which belong to an older sysstat version
+                        if edata or ('invalid input file' in odata.decode('utf-8')):
+                            print("could not convert binary: %s"%(sa_data_file),
+                                file=sys.stderr)
+                            print("ERROR: %s" % odata.decode('utf-8'), file=sys.stderr)
+                            continue
+
+                        client_nodename = odata.decode().split()[-1]
+
+                        if not client_nodename:
+                            print("could not detect client", file=sys.stderr)
+
+                        # import pdb; pdb.set_trace()
+                        if not options.debug_unittest:
+                            index_sar.call_indexer(file_path=extracted_xml_path,
+                                                   _nodename=client_nodename,
+                                                   cfg_name=cfg_name,
+                                                   run_unique_id=uid,
+                                                   run_md5=ptb.md5sum)
+                        else:
+                            print(open(extracted_xml_path, 'r').read())
+
+                        # TODO: generate grafana dashboard using create_dashboard
+                        # finally, cleanup _tmpdir tmp files (xmls, binaries)
+                        rmtree(os.path.join(_tmpdir, pathlib.Path(m.name).parts[0]))
 
     except ConfigFileNotSpecified as e:
         print(e, file=sys.stderr)

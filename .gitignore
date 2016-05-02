@@ -1,3 +1,14 @@
 doc/*.html
+
 __pycache__
+configtools/bin/getconf.3.py
+configtools/bin/getconf.py
+configtools/bin/gethosts.3.py
+configtools/bin/gethosts.py
+configtools/build
+.build
+.rpm-copy
+.spec-copy
+mock-build.log
+rpm.conf
 *.swp
