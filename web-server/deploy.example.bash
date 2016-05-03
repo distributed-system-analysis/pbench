@@ -31,7 +31,7 @@ function vdeploy {
     scp -r $(dirname $0)/$1/js/*  $USER@$HOST:$PREFIX/public_html/static/js/$1/
 }
 
-vdeploy v0.2
+vdeploy v0.3
 
 echo "Fix up protections"
 ssh $USER@$HOST chmod -R g-w $PREFIX/public_html/d3 $PREFIX/public_html/static

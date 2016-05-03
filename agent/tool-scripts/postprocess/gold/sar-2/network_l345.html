@@ -2,92 +2,47 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <link href="/static/css/v0.2/nv.d3.css" rel="stylesheet" type="text/css" media="all">
-    <link href="/static/css/v0.2/pbench_utils.css" rel="stylesheet" type="text/css" media="all">
-    <script src="/static/js/v0.2/function-bind.js"></script>
-    <script src="/static/js/v0.2/fastdom.js"></script>
-    <script src="/static/js/v0.2/d3.js"></script>
-    <script src="/static/js/v0.2/nv.d3.js"></script>
-    <script src="/static/js/v0.2/saveSvgAsPng.js"></script>
-    <script src="/static/js/v0.2/pbench_utils.js"></script>
+    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">
   </head>
-  <body class="with-3d-shadow with-transitions">
-    <h2 class="page-header">sar-2 - network_l345</h2>
-    <div class="chart">
-      <h3 class="chart-header">icmp
-        <button id="save1">Save as Image</button>
-        <div id="svgdataurl1"></div>
-      </h3>
-      <svg id="chart1"></svg>
-      <canvas id="canvas1" style="display:none"></canvas>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.3/jschart.js"></script>
+    <center><h2>sar-2 - network_l345</h2></center>
+    <div id="chart_1">
       <script>
-        constructChart("lineChart", 1, "network_l345_icmp");
+        create_graph("lineChart", "timeseries", "chart_1", "icmp", null, null, { csvfiles: [ "csv/network_l345_icmp.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">ip
-        <button id="save2">Save as Image</button>
-        <div id="svgdataurl2"></div>
-      </h3>
-      <svg id="chart2"></svg>
-      <canvas id="canvas2" style="display:none"></canvas>
+    <div id="chart_2">
       <script>
-        constructChart("lineChart", 2, "network_l345_ip");
+        create_graph("lineChart", "timeseries", "chart_2", "ip", null, null, { csvfiles: [ "csv/network_l345_ip.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">nfs_client
-        <button id="save3">Save as Image</button>
-        <div id="svgdataurl3"></div>
-      </h3>
-      <svg id="chart3"></svg>
-      <canvas id="canvas3" style="display:none"></canvas>
+    <div id="chart_3">
       <script>
-        constructChart("lineChart", 3, "network_l345_nfs_client");
+        create_graph("lineChart", "timeseries", "chart_3", "nfs_client", null, null, { csvfiles: [ "csv/network_l345_nfs_client.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">nfs_server
-        <button id="save4">Save as Image</button>
-        <div id="svgdataurl4"></div>
-      </h3>
-      <svg id="chart4"></svg>
-      <canvas id="canvas4" style="display:none"></canvas>
+    <div id="chart_4">
       <script>
-        constructChart("lineChart", 4, "network_l345_nfs_server");
+        create_graph("lineChart", "timeseries", "chart_4", "nfs_server", null, null, { csvfiles: [ "csv/network_l345_nfs_server.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">sockets
-        <button id="save5">Save as Image</button>
-        <div id="svgdataurl5"></div>
-      </h3>
-      <svg id="chart5"></svg>
-      <canvas id="canvas5" style="display:none"></canvas>
+    <div id="chart_5">
       <script>
-        constructChart("lineChart", 5, "network_l345_sockets");
+        create_graph("lineChart", "timeseries", "chart_5", "sockets", null, null, { csvfiles: [ "csv/network_l345_sockets.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">tcp_sockets
-        <button id="save6">Save as Image</button>
-        <div id="svgdataurl6"></div>
-      </h3>
-      <svg id="chart6"></svg>
-      <canvas id="canvas6" style="display:none"></canvas>
+    <div id="chart_6">
       <script>
-        constructChart("lineChart", 6, "network_l345_tcp_sockets");
+        create_graph("lineChart", "timeseries", "chart_6", "tcp_sockets", null, null, { csvfiles: [ "csv/network_l345_tcp_sockets.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">udp
-        <button id="save7">Save as Image</button>
-        <div id="svgdataurl7"></div>
-      </h3>
-      <svg id="chart7"></svg>
-      <canvas id="canvas7" style="display:none"></canvas>
+    <div id="chart_7">
       <script>
-        constructChart("lineChart", 7, "network_l345_udp");
+        create_graph("lineChart", "timeseries", "chart_7", "udp", null, null, { csvfiles: [ "csv/network_l345_udp.csv" ] });
       </script>
     </div>
   </body>

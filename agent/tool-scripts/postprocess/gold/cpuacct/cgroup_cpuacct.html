@@ -2,818 +2,377 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <link href="/static/css/v0.2/nv.d3.css" rel="stylesheet" type="text/css" media="all">
-    <link href="/static/css/v0.2/pbench_utils.css" rel="stylesheet" type="text/css" media="all">
-    <script src="/static/js/v0.2/function-bind.js"></script>
-    <script src="/static/js/v0.2/fastdom.js"></script>
-    <script src="/static/js/v0.2/d3.js"></script>
-    <script src="/static/js/v0.2/nv.d3.js"></script>
-    <script src="/static/js/v0.2/saveSvgAsPng.js"></script>
-    <script src="/static/js/v0.2/pbench_utils.js"></script>
+    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">
   </head>
-  <body class="with-3d-shadow with-transitions">
-    <h2 class="page-header">cpuacct - cgroup_cpuacct</h2>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice
-        <button id="save1">Save as Image</button>
-        <div id="svgdataurl1"></div>
-      </h3>
-      <svg id="chart1"></svg>
-      <canvas id="canvas1" style="display:none"></canvas>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.3/jschart.js"></script>
+    <center><h2>cpuacct - cgroup_cpuacct</h2></center>
+    <div id="chart_1">
       <script>
-        constructChart("lineChart", 1, "cgroup_cpuacct_machine.slice");
+        create_graph("lineChart", "timeseries", "chart_1", "machine.slice", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm1
-        <button id="save2">Save as Image</button>
-        <div id="svgdataurl2"></div>
-      </h3>
-      <svg id="chart2"></svg>
-      <canvas id="canvas2" style="display:none"></canvas>
+    <div id="chart_2">
       <script>
-        constructChart("lineChart", 2, "cgroup_cpuacct_machine.slice_machine-qemu-vm1");
+        create_graph("lineChart", "timeseries", "chart_2", "machine.slice_machine-qemu-vm1", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm1.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm10
-        <button id="save3">Save as Image</button>
-        <div id="svgdataurl3"></div>
-      </h3>
-      <svg id="chart3"></svg>
-      <canvas id="canvas3" style="display:none"></canvas>
+    <div id="chart_3">
       <script>
-        constructChart("lineChart", 3, "cgroup_cpuacct_machine.slice_machine-qemu-vm10");
+        create_graph("lineChart", "timeseries", "chart_3", "machine.slice_machine-qemu-vm10", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm10.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm10_emulator
-        <button id="save4">Save as Image</button>
-        <div id="svgdataurl4"></div>
-      </h3>
-      <svg id="chart4"></svg>
-      <canvas id="canvas4" style="display:none"></canvas>
+    <div id="chart_4">
       <script>
-        constructChart("lineChart", 4, "cgroup_cpuacct_machine.slice_machine-qemu-vm10_emulator");
+        create_graph("lineChart", "timeseries", "chart_4", "machine.slice_machine-qemu-vm10_emulator", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm10_emulator.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm10_vcpu0
-        <button id="save5">Save as Image</button>
-        <div id="svgdataurl5"></div>
-      </h3>
-      <svg id="chart5"></svg>
-      <canvas id="canvas5" style="display:none"></canvas>
+    <div id="chart_5">
       <script>
-        constructChart("lineChart", 5, "cgroup_cpuacct_machine.slice_machine-qemu-vm10_vcpu0");
+        create_graph("lineChart", "timeseries", "chart_5", "machine.slice_machine-qemu-vm10_vcpu0", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm10_vcpu0.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm10_vcpu1
-        <button id="save6">Save as Image</button>
-        <div id="svgdataurl6"></div>
-      </h3>
-      <svg id="chart6"></svg>
-      <canvas id="canvas6" style="display:none"></canvas>
+    <div id="chart_6">
       <script>
-        constructChart("lineChart", 6, "cgroup_cpuacct_machine.slice_machine-qemu-vm10_vcpu1");
+        create_graph("lineChart", "timeseries", "chart_6", "machine.slice_machine-qemu-vm10_vcpu1", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm10_vcpu1.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm10_vcpu2
-        <button id="save7">Save as Image</button>
-        <div id="svgdataurl7"></div>
-      </h3>
-      <svg id="chart7"></svg>
-      <canvas id="canvas7" style="display:none"></canvas>
+    <div id="chart_7">
       <script>
-        constructChart("lineChart", 7, "cgroup_cpuacct_machine.slice_machine-qemu-vm10_vcpu2");
+        create_graph("lineChart", "timeseries", "chart_7", "machine.slice_machine-qemu-vm10_vcpu2", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm10_vcpu2.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm10_vcpu3
-        <button id="save8">Save as Image</button>
-        <div id="svgdataurl8"></div>
-      </h3>
-      <svg id="chart8"></svg>
-      <canvas id="canvas8" style="display:none"></canvas>
+    <div id="chart_8">
       <script>
-        constructChart("lineChart", 8, "cgroup_cpuacct_machine.slice_machine-qemu-vm10_vcpu3");
+        create_graph("lineChart", "timeseries", "chart_8", "machine.slice_machine-qemu-vm10_vcpu3", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm10_vcpu3.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm11
-        <button id="save9">Save as Image</button>
-        <div id="svgdataurl9"></div>
-      </h3>
-      <svg id="chart9"></svg>
-      <canvas id="canvas9" style="display:none"></canvas>
+    <div id="chart_9">
       <script>
-        constructChart("lineChart", 9, "cgroup_cpuacct_machine.slice_machine-qemu-vm11");
+        create_graph("lineChart", "timeseries", "chart_9", "machine.slice_machine-qemu-vm11", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm11.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm11_emulator
-        <button id="save10">Save as Image</button>
-        <div id="svgdataurl10"></div>
-      </h3>
-      <svg id="chart10"></svg>
-      <canvas id="canvas10" style="display:none"></canvas>
+    <div id="chart_10">
       <script>
-        constructChart("lineChart", 10, "cgroup_cpuacct_machine.slice_machine-qemu-vm11_emulator");
+        create_graph("lineChart", "timeseries", "chart_10", "machine.slice_machine-qemu-vm11_emulator", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm11_emulator.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm11_vcpu0
-        <button id="save11">Save as Image</button>
-        <div id="svgdataurl11"></div>
-      </h3>
-      <svg id="chart11"></svg>
-      <canvas id="canvas11" style="display:none"></canvas>
+    <div id="chart_11">
       <script>
-        constructChart("lineChart", 11, "cgroup_cpuacct_machine.slice_machine-qemu-vm11_vcpu0");
+        create_graph("lineChart", "timeseries", "chart_11", "machine.slice_machine-qemu-vm11_vcpu0", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm11_vcpu0.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm11_vcpu1
-        <button id="save12">Save as Image</button>
-        <div id="svgdataurl12"></div>
-      </h3>
-      <svg id="chart12"></svg>
-      <canvas id="canvas12" style="display:none"></canvas>
+    <div id="chart_12">
       <script>
-        constructChart("lineChart", 12, "cgroup_cpuacct_machine.slice_machine-qemu-vm11_vcpu1");
+        create_graph("lineChart", "timeseries", "chart_12", "machine.slice_machine-qemu-vm11_vcpu1", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm11_vcpu1.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm11_vcpu2
-        <button id="save13">Save as Image</button>
-        <div id="svgdataurl13"></div>
-      </h3>
-      <svg id="chart13"></svg>
-      <canvas id="canvas13" style="display:none"></canvas>
+    <div id="chart_13">
       <script>
-        constructChart("lineChart", 13, "cgroup_cpuacct_machine.slice_machine-qemu-vm11_vcpu2");
+        create_graph("lineChart", "timeseries", "chart_13", "machine.slice_machine-qemu-vm11_vcpu2", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm11_vcpu2.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm11_vcpu3
-        <button id="save14">Save as Image</button>
-        <div id="svgdataurl14"></div>
-      </h3>
-      <svg id="chart14"></svg>
-      <canvas id="canvas14" style="display:none"></canvas>
+    <div id="chart_14">
       <script>
-        constructChart("lineChart", 14, "cgroup_cpuacct_machine.slice_machine-qemu-vm11_vcpu3");
+        create_graph("lineChart", "timeseries", "chart_14", "machine.slice_machine-qemu-vm11_vcpu3", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm11_vcpu3.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm12
-        <button id="save15">Save as Image</button>
-        <div id="svgdataurl15"></div>
-      </h3>
-      <svg id="chart15"></svg>
-      <canvas id="canvas15" style="display:none"></canvas>
+    <div id="chart_15">
       <script>
-        constructChart("lineChart", 15, "cgroup_cpuacct_machine.slice_machine-qemu-vm12");
+        create_graph("lineChart", "timeseries", "chart_15", "machine.slice_machine-qemu-vm12", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm12.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm12_emulator
-        <button id="save16">Save as Image</button>
-        <div id="svgdataurl16"></div>
-      </h3>
-      <svg id="chart16"></svg>
-      <canvas id="canvas16" style="display:none"></canvas>
+    <div id="chart_16">
       <script>
-        constructChart("lineChart", 16, "cgroup_cpuacct_machine.slice_machine-qemu-vm12_emulator");
+        create_graph("lineChart", "timeseries", "chart_16", "machine.slice_machine-qemu-vm12_emulator", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm12_emulator.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm12_vcpu0
-        <button id="save17">Save as Image</button>
-        <div id="svgdataurl17"></div>
-      </h3>
-      <svg id="chart17"></svg>
-      <canvas id="canvas17" style="display:none"></canvas>
+    <div id="chart_17">
       <script>
-        constructChart("lineChart", 17, "cgroup_cpuacct_machine.slice_machine-qemu-vm12_vcpu0");
+        create_graph("lineChart", "timeseries", "chart_17", "machine.slice_machine-qemu-vm12_vcpu0", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm12_vcpu0.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm12_vcpu1
-        <button id="save18">Save as Image</button>
-        <div id="svgdataurl18"></div>
-      </h3>
-      <svg id="chart18"></svg>
-      <canvas id="canvas18" style="display:none"></canvas>
+    <div id="chart_18">
       <script>
-        constructChart("lineChart", 18, "cgroup_cpuacct_machine.slice_machine-qemu-vm12_vcpu1");
+        create_graph("lineChart", "timeseries", "chart_18", "machine.slice_machine-qemu-vm12_vcpu1", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm12_vcpu1.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm12_vcpu2
-        <button id="save19">Save as Image</button>
-        <div id="svgdataurl19"></div>
-      </h3>
-      <svg id="chart19"></svg>
-      <canvas id="canvas19" style="display:none"></canvas>
+    <div id="chart_19">
       <script>
-        constructChart("lineChart", 19, "cgroup_cpuacct_machine.slice_machine-qemu-vm12_vcpu2");
+        create_graph("lineChart", "timeseries", "chart_19", "machine.slice_machine-qemu-vm12_vcpu2", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm12_vcpu2.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm12_vcpu3
-        <button id="save20">Save as Image</button>
-        <div id="svgdataurl20"></div>
-      </h3>
-      <svg id="chart20"></svg>
-      <canvas id="canvas20" style="display:none"></canvas>
+    <div id="chart_20">
       <script>
-        constructChart("lineChart", 20, "cgroup_cpuacct_machine.slice_machine-qemu-vm12_vcpu3");
+        create_graph("lineChart", "timeseries", "chart_20", "machine.slice_machine-qemu-vm12_vcpu3", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm12_vcpu3.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm1_emulator
-        <button id="save21">Save as Image</button>
-        <div id="svgdataurl21"></div>
-      </h3>
-      <svg id="chart21"></svg>
-      <canvas id="canvas21" style="display:none"></canvas>
+    <div id="chart_21">
       <script>
-        constructChart("lineChart", 21, "cgroup_cpuacct_machine.slice_machine-qemu-vm1_emulator");
+        create_graph("lineChart", "timeseries", "chart_21", "machine.slice_machine-qemu-vm1_emulator", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm1_emulator.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm1_vcpu0
-        <button id="save22">Save as Image</button>
-        <div id="svgdataurl22"></div>
-      </h3>
-      <svg id="chart22"></svg>
-      <canvas id="canvas22" style="display:none"></canvas>
+    <div id="chart_22">
       <script>
-        constructChart("lineChart", 22, "cgroup_cpuacct_machine.slice_machine-qemu-vm1_vcpu0");
+        create_graph("lineChart", "timeseries", "chart_22", "machine.slice_machine-qemu-vm1_vcpu0", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm1_vcpu0.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm1_vcpu1
-        <button id="save23">Save as Image</button>
-        <div id="svgdataurl23"></div>
-      </h3>
-      <svg id="chart23"></svg>
-      <canvas id="canvas23" style="display:none"></canvas>
+    <div id="chart_23">
       <script>
-        constructChart("lineChart", 23, "cgroup_cpuacct_machine.slice_machine-qemu-vm1_vcpu1");
+        create_graph("lineChart", "timeseries", "chart_23", "machine.slice_machine-qemu-vm1_vcpu1", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm1_vcpu1.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm1_vcpu2
-        <button id="save24">Save as Image</button>
-        <div id="svgdataurl24"></div>
-      </h3>
-      <svg id="chart24"></svg>
-      <canvas id="canvas24" style="display:none"></canvas>
+    <div id="chart_24">
       <script>
-        constructChart("lineChart", 24, "cgroup_cpuacct_machine.slice_machine-qemu-vm1_vcpu2");
+        create_graph("lineChart", "timeseries", "chart_24", "machine.slice_machine-qemu-vm1_vcpu2", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm1_vcpu2.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm1_vcpu3
-        <button id="save25">Save as Image</button>
-        <div id="svgdataurl25"></div>
-      </h3>
-      <svg id="chart25"></svg>
-      <canvas id="canvas25" style="display:none"></canvas>
+    <div id="chart_25">
       <script>
-        constructChart("lineChart", 25, "cgroup_cpuacct_machine.slice_machine-qemu-vm1_vcpu3");
+        create_graph("lineChart", "timeseries", "chart_25", "machine.slice_machine-qemu-vm1_vcpu3", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm1_vcpu3.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm2
-        <button id="save26">Save as Image</button>
-        <div id="svgdataurl26"></div>
-      </h3>
-      <svg id="chart26"></svg>
-      <canvas id="canvas26" style="display:none"></canvas>
+    <div id="chart_26">
       <script>
-        constructChart("lineChart", 26, "cgroup_cpuacct_machine.slice_machine-qemu-vm2");
+        create_graph("lineChart", "timeseries", "chart_26", "machine.slice_machine-qemu-vm2", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm2.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm2_emulator
-        <button id="save27">Save as Image</button>
-        <div id="svgdataurl27"></div>
-      </h3>
-      <svg id="chart27"></svg>
-      <canvas id="canvas27" style="display:none"></canvas>
+    <div id="chart_27">
       <script>
-        constructChart("lineChart", 27, "cgroup_cpuacct_machine.slice_machine-qemu-vm2_emulator");
+        create_graph("lineChart", "timeseries", "chart_27", "machine.slice_machine-qemu-vm2_emulator", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm2_emulator.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm2_vcpu0
-        <button id="save28">Save as Image</button>
-        <div id="svgdataurl28"></div>
-      </h3>
-      <svg id="chart28"></svg>
-      <canvas id="canvas28" style="display:none"></canvas>
+    <div id="chart_28">
       <script>
-        constructChart("lineChart", 28, "cgroup_cpuacct_machine.slice_machine-qemu-vm2_vcpu0");
+        create_graph("lineChart", "timeseries", "chart_28", "machine.slice_machine-qemu-vm2_vcpu0", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm2_vcpu0.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm2_vcpu1
-        <button id="save29">Save as Image</button>
-        <div id="svgdataurl29"></div>
-      </h3>
-      <svg id="chart29"></svg>
-      <canvas id="canvas29" style="display:none"></canvas>
+    <div id="chart_29">
       <script>
-        constructChart("lineChart", 29, "cgroup_cpuacct_machine.slice_machine-qemu-vm2_vcpu1");
+        create_graph("lineChart", "timeseries", "chart_29", "machine.slice_machine-qemu-vm2_vcpu1", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm2_vcpu1.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm2_vcpu2
-        <button id="save30">Save as Image</button>
-        <div id="svgdataurl30"></div>
-      </h3>
-      <svg id="chart30"></svg>
-      <canvas id="canvas30" style="display:none"></canvas>
+    <div id="chart_30">
       <script>
-        constructChart("lineChart", 30, "cgroup_cpuacct_machine.slice_machine-qemu-vm2_vcpu2");
+        create_graph("lineChart", "timeseries", "chart_30", "machine.slice_machine-qemu-vm2_vcpu2", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm2_vcpu2.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm2_vcpu3
-        <button id="save31">Save as Image</button>
-        <div id="svgdataurl31"></div>
-      </h3>
-      <svg id="chart31"></svg>
-      <canvas id="canvas31" style="display:none"></canvas>
+    <div id="chart_31">
       <script>
-        constructChart("lineChart", 31, "cgroup_cpuacct_machine.slice_machine-qemu-vm2_vcpu3");
+        create_graph("lineChart", "timeseries", "chart_31", "machine.slice_machine-qemu-vm2_vcpu3", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm2_vcpu3.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm3
-        <button id="save32">Save as Image</button>
-        <div id="svgdataurl32"></div>
-      </h3>
-      <svg id="chart32"></svg>
-      <canvas id="canvas32" style="display:none"></canvas>
+    <div id="chart_32">
       <script>
-        constructChart("lineChart", 32, "cgroup_cpuacct_machine.slice_machine-qemu-vm3");
+        create_graph("lineChart", "timeseries", "chart_32", "machine.slice_machine-qemu-vm3", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm3.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm3_emulator
-        <button id="save33">Save as Image</button>
-        <div id="svgdataurl33"></div>
-      </h3>
-      <svg id="chart33"></svg>
-      <canvas id="canvas33" style="display:none"></canvas>
+    <div id="chart_33">
       <script>
-        constructChart("lineChart", 33, "cgroup_cpuacct_machine.slice_machine-qemu-vm3_emulator");
+        create_graph("lineChart", "timeseries", "chart_33", "machine.slice_machine-qemu-vm3_emulator", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm3_emulator.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm3_vcpu0
-        <button id="save34">Save as Image</button>
-        <div id="svgdataurl34"></div>
-      </h3>
-      <svg id="chart34"></svg>
-      <canvas id="canvas34" style="display:none"></canvas>
+    <div id="chart_34">
       <script>
-        constructChart("lineChart", 34, "cgroup_cpuacct_machine.slice_machine-qemu-vm3_vcpu0");
+        create_graph("lineChart", "timeseries", "chart_34", "machine.slice_machine-qemu-vm3_vcpu0", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm3_vcpu0.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm3_vcpu1
-        <button id="save35">Save as Image</button>
-        <div id="svgdataurl35"></div>
-      </h3>
-      <svg id="chart35"></svg>
-      <canvas id="canvas35" style="display:none"></canvas>
+    <div id="chart_35">
       <script>
-        constructChart("lineChart", 35, "cgroup_cpuacct_machine.slice_machine-qemu-vm3_vcpu1");
+        create_graph("lineChart", "timeseries", "chart_35", "machine.slice_machine-qemu-vm3_vcpu1", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm3_vcpu1.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm3_vcpu2
-        <button id="save36">Save as Image</button>
-        <div id="svgdataurl36"></div>
-      </h3>
-      <svg id="chart36"></svg>
-      <canvas id="canvas36" style="display:none"></canvas>
+    <div id="chart_36">
       <script>
-        constructChart("lineChart", 36, "cgroup_cpuacct_machine.slice_machine-qemu-vm3_vcpu2");
+        create_graph("lineChart", "timeseries", "chart_36", "machine.slice_machine-qemu-vm3_vcpu2", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm3_vcpu2.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm3_vcpu3
-        <button id="save37">Save as Image</button>
-        <div id="svgdataurl37"></div>
-      </h3>
-      <svg id="chart37"></svg>
-      <canvas id="canvas37" style="display:none"></canvas>
+    <div id="chart_37">
       <script>
-        constructChart("lineChart", 37, "cgroup_cpuacct_machine.slice_machine-qemu-vm3_vcpu3");
+        create_graph("lineChart", "timeseries", "chart_37", "machine.slice_machine-qemu-vm3_vcpu3", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm3_vcpu3.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm4
-        <button id="save38">Save as Image</button>
-        <div id="svgdataurl38"></div>
-      </h3>
-      <svg id="chart38"></svg>
-      <canvas id="canvas38" style="display:none"></canvas>
+    <div id="chart_38">
       <script>
-        constructChart("lineChart", 38, "cgroup_cpuacct_machine.slice_machine-qemu-vm4");
+        create_graph("lineChart", "timeseries", "chart_38", "machine.slice_machine-qemu-vm4", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm4.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm4_emulator
-        <button id="save39">Save as Image</button>
-        <div id="svgdataurl39"></div>
-      </h3>
-      <svg id="chart39"></svg>
-      <canvas id="canvas39" style="display:none"></canvas>
+    <div id="chart_39">
       <script>
-        constructChart("lineChart", 39, "cgroup_cpuacct_machine.slice_machine-qemu-vm4_emulator");
+        create_graph("lineChart", "timeseries", "chart_39", "machine.slice_machine-qemu-vm4_emulator", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm4_emulator.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm4_vcpu0
-        <button id="save40">Save as Image</button>
-        <div id="svgdataurl40"></div>
-      </h3>
-      <svg id="chart40"></svg>
-      <canvas id="canvas40" style="display:none"></canvas>
+    <div id="chart_40">
       <script>
-        constructChart("lineChart", 40, "cgroup_cpuacct_machine.slice_machine-qemu-vm4_vcpu0");
+        create_graph("lineChart", "timeseries", "chart_40", "machine.slice_machine-qemu-vm4_vcpu0", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm4_vcpu0.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm4_vcpu1
-        <button id="save41">Save as Image</button>
-        <div id="svgdataurl41"></div>
-      </h3>
-      <svg id="chart41"></svg>
-      <canvas id="canvas41" style="display:none"></canvas>
+    <div id="chart_41">
       <script>
-        constructChart("lineChart", 41, "cgroup_cpuacct_machine.slice_machine-qemu-vm4_vcpu1");
+        create_graph("lineChart", "timeseries", "chart_41", "machine.slice_machine-qemu-vm4_vcpu1", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm4_vcpu1.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm4_vcpu2
-        <button id="save42">Save as Image</button>
-        <div id="svgdataurl42"></div>
-      </h3>
-      <svg id="chart42"></svg>
-      <canvas id="canvas42" style="display:none"></canvas>
+    <div id="chart_42">
       <script>
-        constructChart("lineChart", 42, "cgroup_cpuacct_machine.slice_machine-qemu-vm4_vcpu2");
+        create_graph("lineChart", "timeseries", "chart_42", "machine.slice_machine-qemu-vm4_vcpu2", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm4_vcpu2.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm4_vcpu3
-        <button id="save43">Save as Image</button>
-        <div id="svgdataurl43"></div>
-      </h3>
-      <svg id="chart43"></svg>
-      <canvas id="canvas43" style="display:none"></canvas>
+    <div id="chart_43">
       <script>
-        constructChart("lineChart", 43, "cgroup_cpuacct_machine.slice_machine-qemu-vm4_vcpu3");
+        create_graph("lineChart", "timeseries", "chart_43", "machine.slice_machine-qemu-vm4_vcpu3", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm4_vcpu3.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm5
-        <button id="save44">Save as Image</button>
-        <div id="svgdataurl44"></div>
-      </h3>
-      <svg id="chart44"></svg>
-      <canvas id="canvas44" style="display:none"></canvas>
+    <div id="chart_44">
       <script>
-        constructChart("lineChart", 44, "cgroup_cpuacct_machine.slice_machine-qemu-vm5");
+        create_graph("lineChart", "timeseries", "chart_44", "machine.slice_machine-qemu-vm5", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm5.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm5_emulator
-        <button id="save45">Save as Image</button>
-        <div id="svgdataurl45"></div>
-      </h3>
-      <svg id="chart45"></svg>
-      <canvas id="canvas45" style="display:none"></canvas>
+    <div id="chart_45">
       <script>
-        constructChart("lineChart", 45, "cgroup_cpuacct_machine.slice_machine-qemu-vm5_emulator");
+        create_graph("lineChart", "timeseries", "chart_45", "machine.slice_machine-qemu-vm5_emulator", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm5_emulator.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm5_vcpu0
-        <button id="save46">Save as Image</button>
-        <div id="svgdataurl46"></div>
-      </h3>
-      <svg id="chart46"></svg>
-      <canvas id="canvas46" style="display:none"></canvas>
+    <div id="chart_46">
       <script>
-        constructChart("lineChart", 46, "cgroup_cpuacct_machine.slice_machine-qemu-vm5_vcpu0");
+        create_graph("lineChart", "timeseries", "chart_46", "machine.slice_machine-qemu-vm5_vcpu0", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm5_vcpu0.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm5_vcpu1
-        <button id="save47">Save as Image</button>
-        <div id="svgdataurl47"></div>
-      </h3>
-      <svg id="chart47"></svg>
-      <canvas id="canvas47" style="display:none"></canvas>
+    <div id="chart_47">
       <script>
-        constructChart("lineChart", 47, "cgroup_cpuacct_machine.slice_machine-qemu-vm5_vcpu1");
+        create_graph("lineChart", "timeseries", "chart_47", "machine.slice_machine-qemu-vm5_vcpu1", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm5_vcpu1.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm5_vcpu2
-        <button id="save48">Save as Image</button>
-        <div id="svgdataurl48"></div>
-      </h3>
-      <svg id="chart48"></svg>
-      <canvas id="canvas48" style="display:none"></canvas>
+    <div id="chart_48">
       <script>
-        constructChart("lineChart", 48, "cgroup_cpuacct_machine.slice_machine-qemu-vm5_vcpu2");
+        create_graph("lineChart", "timeseries", "chart_48", "machine.slice_machine-qemu-vm5_vcpu2", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm5_vcpu2.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm5_vcpu3
-        <button id="save49">Save as Image</button>
-        <div id="svgdataurl49"></div>
-      </h3>
-      <svg id="chart49"></svg>
-      <canvas id="canvas49" style="display:none"></canvas>
+    <div id="chart_49">
       <script>
-        constructChart("lineChart", 49, "cgroup_cpuacct_machine.slice_machine-qemu-vm5_vcpu3");
+        create_graph("lineChart", "timeseries", "chart_49", "machine.slice_machine-qemu-vm5_vcpu3", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm5_vcpu3.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm6
-        <button id="save50">Save as Image</button>
-        <div id="svgdataurl50"></div>
-      </h3>
-      <svg id="chart50"></svg>
-      <canvas id="canvas50" style="display:none"></canvas>
+    <div id="chart_50">
       <script>
-        constructChart("lineChart", 50, "cgroup_cpuacct_machine.slice_machine-qemu-vm6");
+        create_graph("lineChart", "timeseries", "chart_50", "machine.slice_machine-qemu-vm6", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm6.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm6_emulator
-        <button id="save51">Save as Image</button>
-        <div id="svgdataurl51"></div>
-      </h3>
-      <svg id="chart51"></svg>
-      <canvas id="canvas51" style="display:none"></canvas>
+    <div id="chart_51">
       <script>
-        constructChart("lineChart", 51, "cgroup_cpuacct_machine.slice_machine-qemu-vm6_emulator");
+        create_graph("lineChart", "timeseries", "chart_51", "machine.slice_machine-qemu-vm6_emulator", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm6_emulator.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm6_vcpu0
-        <button id="save52">Save as Image</button>
-        <div id="svgdataurl52"></div>
-      </h3>
-      <svg id="chart52"></svg>
-      <canvas id="canvas52" style="display:none"></canvas>
+    <div id="chart_52">
       <script>
-        constructChart("lineChart", 52, "cgroup_cpuacct_machine.slice_machine-qemu-vm6_vcpu0");
+        create_graph("lineChart", "timeseries", "chart_52", "machine.slice_machine-qemu-vm6_vcpu0", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm6_vcpu0.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm6_vcpu1
-        <button id="save53">Save as Image</button>
-        <div id="svgdataurl53"></div>
-      </h3>
-      <svg id="chart53"></svg>
-      <canvas id="canvas53" style="display:none"></canvas>
+    <div id="chart_53">
       <script>
-        constructChart("lineChart", 53, "cgroup_cpuacct_machine.slice_machine-qemu-vm6_vcpu1");
+        create_graph("lineChart", "timeseries", "chart_53", "machine.slice_machine-qemu-vm6_vcpu1", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm6_vcpu1.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm6_vcpu2
-        <button id="save54">Save as Image</button>
-        <div id="svgdataurl54"></div>
-      </h3>
-      <svg id="chart54"></svg>
-      <canvas id="canvas54" style="display:none"></canvas>
+    <div id="chart_54">
       <script>
-        constructChart("lineChart", 54, "cgroup_cpuacct_machine.slice_machine-qemu-vm6_vcpu2");
+        create_graph("lineChart", "timeseries", "chart_54", "machine.slice_machine-qemu-vm6_vcpu2", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm6_vcpu2.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm6_vcpu3
-        <button id="save55">Save as Image</button>
-        <div id="svgdataurl55"></div>
-      </h3>
-      <svg id="chart55"></svg>
-      <canvas id="canvas55" style="display:none"></canvas>
+    <div id="chart_55">
       <script>
-        constructChart("lineChart", 55, "cgroup_cpuacct_machine.slice_machine-qemu-vm6_vcpu3");
+        create_graph("lineChart", "timeseries", "chart_55", "machine.slice_machine-qemu-vm6_vcpu3", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm6_vcpu3.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm7
-        <button id="save56">Save as Image</button>
-        <div id="svgdataurl56"></div>
-      </h3>
-      <svg id="chart56"></svg>
-      <canvas id="canvas56" style="display:none"></canvas>
+    <div id="chart_56">
       <script>
-        constructChart("lineChart", 56, "cgroup_cpuacct_machine.slice_machine-qemu-vm7");
+        create_graph("lineChart", "timeseries", "chart_56", "machine.slice_machine-qemu-vm7", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm7.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm7_emulator
-        <button id="save57">Save as Image</button>
-        <div id="svgdataurl57"></div>
-      </h3>
-      <svg id="chart57"></svg>
-      <canvas id="canvas57" style="display:none"></canvas>
+    <div id="chart_57">
       <script>
-        constructChart("lineChart", 57, "cgroup_cpuacct_machine.slice_machine-qemu-vm7_emulator");
+        create_graph("lineChart", "timeseries", "chart_57", "machine.slice_machine-qemu-vm7_emulator", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm7_emulator.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm7_vcpu0
-        <button id="save58">Save as Image</button>
-        <div id="svgdataurl58"></div>
-      </h3>
-      <svg id="chart58"></svg>
-      <canvas id="canvas58" style="display:none"></canvas>
+    <div id="chart_58">
       <script>
-        constructChart("lineChart", 58, "cgroup_cpuacct_machine.slice_machine-qemu-vm7_vcpu0");
+        create_graph("lineChart", "timeseries", "chart_58", "machine.slice_machine-qemu-vm7_vcpu0", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm7_vcpu0.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm7_vcpu1
-        <button id="save59">Save as Image</button>
-        <div id="svgdataurl59"></div>
-      </h3>
-      <svg id="chart59"></svg>
-      <canvas id="canvas59" style="display:none"></canvas>
+    <div id="chart_59">
       <script>
-        constructChart("lineChart", 59, "cgroup_cpuacct_machine.slice_machine-qemu-vm7_vcpu1");
+        create_graph("lineChart", "timeseries", "chart_59", "machine.slice_machine-qemu-vm7_vcpu1", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm7_vcpu1.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm7_vcpu2
-        <button id="save60">Save as Image</button>
-        <div id="svgdataurl60"></div>
-      </h3>
-      <svg id="chart60"></svg>
-      <canvas id="canvas60" style="display:none"></canvas>
+    <div id="chart_60">
       <script>
-        constructChart("lineChart", 60, "cgroup_cpuacct_machine.slice_machine-qemu-vm7_vcpu2");
+        create_graph("lineChart", "timeseries", "chart_60", "machine.slice_machine-qemu-vm7_vcpu2", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm7_vcpu2.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm7_vcpu3
-        <button id="save61">Save as Image</button>
-        <div id="svgdataurl61"></div>
-      </h3>
-      <svg id="chart61"></svg>
-      <canvas id="canvas61" style="display:none"></canvas>
+    <div id="chart_61">
       <script>
-        constructChart("lineChart", 61, "cgroup_cpuacct_machine.slice_machine-qemu-vm7_vcpu3");
+        create_graph("lineChart", "timeseries", "chart_61", "machine.slice_machine-qemu-vm7_vcpu3", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm7_vcpu3.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm8
-        <button id="save62">Save as Image</button>
-        <div id="svgdataurl62"></div>
-      </h3>
-      <svg id="chart62"></svg>
-      <canvas id="canvas62" style="display:none"></canvas>
+    <div id="chart_62">
       <script>
-        constructChart("lineChart", 62, "cgroup_cpuacct_machine.slice_machine-qemu-vm8");
+        create_graph("lineChart", "timeseries", "chart_62", "machine.slice_machine-qemu-vm8", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm8.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm8_emulator
-        <button id="save63">Save as Image</button>
-        <div id="svgdataurl63"></div>
-      </h3>
-      <svg id="chart63"></svg>
-      <canvas id="canvas63" style="display:none"></canvas>
+    <div id="chart_63">
       <script>
-        constructChart("lineChart", 63, "cgroup_cpuacct_machine.slice_machine-qemu-vm8_emulator");
+        create_graph("lineChart", "timeseries", "chart_63", "machine.slice_machine-qemu-vm8_emulator", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm8_emulator.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm8_vcpu0
-        <button id="save64">Save as Image</button>
-        <div id="svgdataurl64"></div>
-      </h3>
-      <svg id="chart64"></svg>
-      <canvas id="canvas64" style="display:none"></canvas>
+    <div id="chart_64">
       <script>
-        constructChart("lineChart", 64, "cgroup_cpuacct_machine.slice_machine-qemu-vm8_vcpu0");
+        create_graph("lineChart", "timeseries", "chart_64", "machine.slice_machine-qemu-vm8_vcpu0", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm8_vcpu0.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm8_vcpu1
-        <button id="save65">Save as Image</button>
-        <div id="svgdataurl65"></div>
-      </h3>
-      <svg id="chart65"></svg>
-      <canvas id="canvas65" style="display:none"></canvas>
+    <div id="chart_65">
       <script>
-        constructChart("lineChart", 65, "cgroup_cpuacct_machine.slice_machine-qemu-vm8_vcpu1");
+        create_graph("lineChart", "timeseries", "chart_65", "machine.slice_machine-qemu-vm8_vcpu1", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm8_vcpu1.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm8_vcpu2
-        <button id="save66">Save as Image</button>
-        <div id="svgdataurl66"></div>
-      </h3>
-      <svg id="chart66"></svg>
-      <canvas id="canvas66" style="display:none"></canvas>
+    <div id="chart_66">
       <script>
-        constructChart("lineChart", 66, "cgroup_cpuacct_machine.slice_machine-qemu-vm8_vcpu2");
+        create_graph("lineChart", "timeseries", "chart_66", "machine.slice_machine-qemu-vm8_vcpu2", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm8_vcpu2.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm8_vcpu3
-        <button id="save67">Save as Image</button>
-        <div id="svgdataurl67"></div>
-      </h3>
-      <svg id="chart67"></svg>
-      <canvas id="canvas67" style="display:none"></canvas>
+    <div id="chart_67">
       <script>
-        constructChart("lineChart", 67, "cgroup_cpuacct_machine.slice_machine-qemu-vm8_vcpu3");
+        create_graph("lineChart", "timeseries", "chart_67", "machine.slice_machine-qemu-vm8_vcpu3", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm8_vcpu3.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm9
-        <button id="save68">Save as Image</button>
-        <div id="svgdataurl68"></div>
-      </h3>
-      <svg id="chart68"></svg>
-      <canvas id="canvas68" style="display:none"></canvas>
+    <div id="chart_68">
       <script>
-        constructChart("lineChart", 68, "cgroup_cpuacct_machine.slice_machine-qemu-vm9");
+        create_graph("lineChart", "timeseries", "chart_68", "machine.slice_machine-qemu-vm9", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm9.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm9_emulator
-        <button id="save69">Save as Image</button>
-        <div id="svgdataurl69"></div>
-      </h3>
-      <svg id="chart69"></svg>
-      <canvas id="canvas69" style="display:none"></canvas>
+    <div id="chart_69">
       <script>
-        constructChart("lineChart", 69, "cgroup_cpuacct_machine.slice_machine-qemu-vm9_emulator");
+        create_graph("lineChart", "timeseries", "chart_69", "machine.slice_machine-qemu-vm9_emulator", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm9_emulator.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm9_vcpu0
-        <button id="save70">Save as Image</button>
-        <div id="svgdataurl70"></div>
-      </h3>
-      <svg id="chart70"></svg>
-      <canvas id="canvas70" style="display:none"></canvas>
+    <div id="chart_70">
       <script>
-        constructChart("lineChart", 70, "cgroup_cpuacct_machine.slice_machine-qemu-vm9_vcpu0");
+        create_graph("lineChart", "timeseries", "chart_70", "machine.slice_machine-qemu-vm9_vcpu0", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm9_vcpu0.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm9_vcpu1
-        <button id="save71">Save as Image</button>
-        <div id="svgdataurl71"></div>
-      </h3>
-      <svg id="chart71"></svg>
-      <canvas id="canvas71" style="display:none"></canvas>
+    <div id="chart_71">
       <script>
-        constructChart("lineChart", 71, "cgroup_cpuacct_machine.slice_machine-qemu-vm9_vcpu1");
+        create_graph("lineChart", "timeseries", "chart_71", "machine.slice_machine-qemu-vm9_vcpu1", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm9_vcpu1.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm9_vcpu2
-        <button id="save72">Save as Image</button>
-        <div id="svgdataurl72"></div>
-      </h3>
-      <svg id="chart72"></svg>
-      <canvas id="canvas72" style="display:none"></canvas>
+    <div id="chart_72">
       <script>
-        constructChart("lineChart", 72, "cgroup_cpuacct_machine.slice_machine-qemu-vm9_vcpu2");
+        create_graph("lineChart", "timeseries", "chart_72", "machine.slice_machine-qemu-vm9_vcpu2", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm9_vcpu2.csv" ] });
       </script>
     </div>
-    <div class="chart">
-      <h3 class="chart-header">machine.slice_machine-qemu-vm9_vcpu3
-        <button id="save73">Save as Image</button>
-        <div id="svgdataurl73"></div>
-      </h3>
-      <svg id="chart73"></svg>
-      <canvas id="canvas73" style="display:none"></canvas>
+    <div id="chart_73">
       <script>
-        constructChart("lineChart", 73, "cgroup_cpuacct_machine.slice_machine-qemu-vm9_vcpu3");
+        create_graph("lineChart", "timeseries", "chart_73", "machine.slice_machine-qemu-vm9_vcpu3", null, null, { csvfiles: [ "csv/cgroup_cpuacct_machine.slice_machine-qemu-vm9_vcpu3.csv" ] });
       </script>
     </div>
   </body>
