@@ -947,14 +947,20 @@ function complete_chart(charts_index) {
         .attr("transform", function(d, i) { return "translate(" + (-margin.left + 5 + (i % charts[charts_index].legend_columns) * (total_width / charts[charts_index].legend_columns)) + "," + (height + legend_properties.margin.top + (Math.floor(i / charts[charts_index].legend_columns) * legend_properties.row_height)) + ")"; });
 
     charts[charts_index].chart.legend.append("rect")
+	.attr("class", "legendrectoutline")
+	.attr("width", 16)
+	.attr("height", 16)
+	.style("stroke", function(d) { return mycolors(d.index); } );
+
+    charts[charts_index].chart.legend.append("rect")
 	.attr("class", function(d) { d.dom.legend.rect = d3.select(this); return "legendrect"; })
 	.on("click", toggle_hide_click_event)
 	.on("mouseover", mouseover_highlight_function)
 	.on("mouseout", mouseout_highlight_function)
-	.attr("width", 16)
-	.attr("height", 16)
+	.attr("width", 12)
+	.attr("height", 12)
+	.attr("transform", "translate(2, 2)")
 	.style("opacity", function(d) { if (d.hidden) { return hidden_opacity; } else { return default_opacity; } })
-	.style("outline-color", function(d) { return mycolors(d.index); } )
 	.style("fill", function(d) { return mycolors(d.index); } );
 
     var legend_label_offset = 25;
