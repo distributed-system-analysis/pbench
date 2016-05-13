@@ -170,7 +170,6 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
 		   loading: null,
 		   legend: null,
 		   plot: null,
-		   group: null,
 		   points: null,
 		   cursor_points: null,
 		   zoomout: null,
@@ -185,7 +184,9 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
 			   y: { chart: null,
 				zoom: null
 			      }
-			 }
+			 },
+		   viewport_controls: null,
+		   viewport_elements: null
 		 };
 
     this.dom = { div: null,
@@ -638,8 +639,6 @@ function live_update(charts_index) {
 		(json.data_series_names !== undefined) &&
 		(json.x_axis_series !== undefined) &&
 		(json.data !== undefined)) {
-		var table = d3.select(charts[charts_index].table.table);
-
 		var x_axis_index = 0;
 		for (var index=0; index<json.data_series_names.length; index++) {
 		    if (json.data_series_names[index] === json.x_axis_series) {
@@ -1037,10 +1036,7 @@ function complete_chart(charts_index) {
 		    return;
 		}
 
-		charts[charts_index].chart.group = d3.select(d.dom.path[0][0].parentNode).append("g")
-		    .classed("points", true);
-
-		charts[charts_index].chart.group.selectAll(".points")
+		d3.select(d.dom.path[0][0].parentNode).selectAll(".points")
 		    .data(d.values)
 		    .enter().append("line")
 		    .classed("points", function(b) { d.dom.points = d3.select(this); return true; })
@@ -1071,10 +1067,7 @@ function complete_chart(charts_index) {
 		    return;
 		}
 
-		charts[charts_index].chart.group = d3.select(d.dom.path[0][0].parentNode).append("g")
-		    .classed("points", true);
-
-		charts[charts_index].chart.group.selectAll(".points")
+		d3.select(d.dom.path[0][0].parentNode).selectAll(".points")
 		    .data(d.values)
 		    .enter().append("circle")
 		    .classed("points", function(b) { d.dom.points = d3.select(this); return true; })
@@ -2024,6 +2017,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.classed("pane", true)
 	.attr("width", width)
 	.attr("height", height)
+	.on("mouseenter", viewport_mouseenter)
 	.on("mousedown", viewport_mousedown)
 	.on("mouseup", viewport_mouseup)
 	.on("mouseout", viewport_mouseout)
@@ -2110,7 +2104,6 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	    }
 
 	    charts[charts_index].chart.zoomout = charts[charts_index].chart.container.append("g")
-		.attr("id", "zoomout")
 		.classed("chartbutton", true)
 		.classed("hidden", true)
 		.on("click", function() {
@@ -2119,10 +2112,10 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 			charts[charts_index].state.user_y_zoomed = true;
 		    })
 		.on("mouseout", function() {
-			charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause").classed("hidden", true);
+			charts[charts_index].chart.viewport_controls.classed("hidden", true);
 		    })
 		.on("mouseover", function() {
-			charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause").classed("hidden", false);
+			charts[charts_index].chart.viewport_controls.classed("hidden", false);
 		    });
 
 	    charts[charts_index].chart.zoomout.append("circle")
@@ -2137,7 +2130,6 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		.text("-");
 
 	    charts[charts_index].chart.zoomin = charts[charts_index].chart.container.append("g")
-		.attr("id", "zoomin")
 		.classed("chartbutton", true)
 		.classed("hidden", true)
 		.on("click", function() {
@@ -2146,11 +2138,14 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 			charts[charts_index].state.user_y_zoomed = true;
 		    })
 		.on("mouseout", function() {
-			charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause").classed("hidden", true);
+			charts[charts_index].chart.viewport_controls.classed("hidden", true);
 		    })
 		.on("mouseover", function() {
-			charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause").classed("hidden", false);
+			charts[charts_index].chart.viewport_controls.classed("hidden", false);
 		    });
+
+	    charts[charts_index].chart.viewport_controls = d3.selectAll([charts[charts_index].chart.zoomout.node(),
+									 charts[charts_index].chart.zoomin.node()]);
 
 	    charts[charts_index].chart.zoomin.append("circle")
 		.attr("cx", 50)
@@ -2164,29 +2159,28 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		.text("+");
 
 	    charts[charts_index].chart.xcursorline = charts[charts_index].chart.container.append("line")
-		.attr("id", "xcursorline")
-		.classed("cursorline", true)
+		.classed("cursorline hidden", true)
 		.attr("x1", 0)
 		.attr("y1", 0)
 		.attr("x2", 1)
-		.attr("y2", 1)
-		.classed("hidden", true);
+		.attr("y2", 1);
 
 	    charts[charts_index].chart.ycursorline = charts[charts_index].chart.container.append("line")
-		.attr("id", "ycursorline")
-		.classed("cursorline", true)
+		.classed("cursorline hidden", true)
 		.attr("x1", 0)
 		.attr("y1", 0)
 		.attr("x2", 1)
-		.attr("y2", 1)
-		.classed("hidden", true);
+		.attr("y2", 1);
 
 	    charts[charts_index].chart.coordinates = charts[charts_index].chart.container.append("text")
-		.attr("id", "coordinates")
 		.classed("coordinates endtext hidden", true)
 		.attr("x", width - 5)
 		.attr("y", 15)
 		.text("coordinates");
+
+	    charts[charts_index].chart.viewport_elements = d3.selectAll([charts[charts_index].chart.xcursorline.node(),
+									 charts[charts_index].chart.ycursorline.node(),
+									 charts[charts_index].chart.coordinates.node()]);
 
 	    console.log("...finished building chart \"" + charts[charts_index].chart_title + "\"");
 
@@ -2196,7 +2190,6 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		}, charts[charts_index].options.update_interval * 1000);
 
 		charts[charts_index].chart.playpause = charts[charts_index].chart.container.append("g")
-		    .attr("id", "playpause")
 		    .classed("chartbutton", true)
 		    .classed("hidden", true)
 		    .on("click", function() {
@@ -2211,11 +2204,15 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 			}
 		    })
 		    .on("mouseout", function() {
-			charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause").classed("hidden", true);
+			charts[charts_index].chart.viewport_controls.classed("hidden", true);
 		    })
 		    .on("mouseover", function() {
-			charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause").classed("hidden", false);
+			charts[charts_index].chart.viewport_controls.classed("hidden", false);
 		    });
+
+		charts[charts_index].chart.viewport_controls = d3.selectAll([charts[charts_index].chart.zoomout.node(),
+									     charts[charts_index].chart.zoomin.node(),
+									     charts[charts_index].chart.playpause.node()]);
 
 		charts[charts_index].chart.playpause.append("circle")
 		    .attr("cx", 35)
@@ -2950,6 +2947,11 @@ function get_dataset_values(dataset) {
     return dataset.values;
 }
 
+function viewport_mouseenter(chart) {
+    chart.chart.viewport_controls.classed("hidden", false);
+    chart.chart.viewport_elements.classed("hidden", false);
+}
+
 function viewport_mousemove(chart) {
     var mouse;
 
@@ -2972,31 +2974,29 @@ function viewport_mousemove(chart) {
 
     var mouse_values = [ chart.x.scale.chart.invert(mouse[0]), chart.y.scale.chart.invert(mouse[1]) ];
 
-    chart.chart.container.selectAll("#zoomin,#zoomout,#playpause,#coordinates,#xcursorline,#ycursorline").classed("hidden", false);
-
     if (chart.data_model == "timeseries") {
 	if (chart.options.timezone == "local") {
-	    chart.chart.container.select("#coordinates").text("x:" + local_time_format_print(mouse_values[0]) +
-									     " y:" + table_format_print(mouse_values[1]));
+	    chart.chart.coordinates.text("x:" + local_time_format_print(mouse_values[0]) +
+					 " y:" + table_format_print(mouse_values[1]));
 	} else {
-	    chart.chart.container.select("#coordinates").text("x:" + utc_time_format_print(mouse_values[0]) +
-									     " y:" + table_format_print(mouse_values[1]));
+	    chart.chart.coordinates.text("x:" + utc_time_format_print(mouse_values[0]) +
+					 " y:" + table_format_print(mouse_values[1]));
 	}
     } else {
-	chart.chart.container.select("#coordinates").text("x:" + table_format_print(mouse_values[0]) +
-									 " y:" + table_format_print(mouse_values[1]));
+	chart.chart.coordinates.text("x:" + table_format_print(mouse_values[0]) +
+				     " y:" + table_format_print(mouse_values[1]));
     }
 
     var domain = chart.y.scale.chart.domain();
 
-    chart.chart.container.select("#xcursorline").attr("x1", mouse[0])
+    chart.chart.xcursorline.attr("x1", mouse[0])
 	.attr("x2", mouse[0])
 	.attr("y1", chart.y.scale.chart(domain[1]))
 	.attr("y2", chart.y.scale.chart(domain[0]));
 
     domain = chart.x.scale.chart.domain();
 
-    chart.chart.container.select("#ycursorline").attr("x1", chart.x.scale.chart(domain[0]))
+    chart.chart.ycursorline.attr("x1", chart.x.scale.chart(domain[0]))
 	.attr("x2", chart.x.scale.chart(domain[1]))
 	.attr("y1", mouse[1])
 	.attr("y2", mouse[1]);
@@ -3032,8 +3032,12 @@ function viewport_mousemove(chart) {
 }
 
 function viewport_mouseout(chart) {
-    chart.chart.container.selectAll("#coordinates,#xcursorline,#ycursorline,#zoomin,#zoomout,#playpause").classed("hidden", true);
-    chart.chart.container.select("#selection").remove();
+    chart.chart.viewport_controls.classed("hidden", true);
+    chart.chart.viewport_elements.classed("hidden", true);
+    if (chart.chart.selection) {
+	chart.chart.selection.remove();
+	chart.chart.selection = null;
+    }
     chart.state.selection_active = false;
 
     clear_dataset_values(chart);
@@ -3054,7 +3058,6 @@ function viewport_mousedown(chart) {
     }
 
     chart.chart.selection = chart.chart.container.insert("rect", "#coordinates")
-	.attr("id", "selection")
 	.classed("selection hidden", true)
 	.attr("x", 0)
 	.attr("y", 0)
