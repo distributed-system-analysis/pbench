@@ -2413,15 +2413,28 @@ function tooltip_on(d, i) {
     var svg = d3.select(object[0][0].ownerSVGElement);
     var coordinates = d3.mouse(object[0][0].ownerSVGElement);
 
-    var string = d.name;
+    var string;
 
-    if (!isNaN(string)) {
-	string = tooltip_format_print(d);
+    // if d is an object (ex. legend label) then a reference to the
+    // tooltip can be embedded in the object.  if d is a literal
+    // (ex. axis label) then a reference to the tooltip must be
+    // embedded in the element object where the tooltip_on event
+    // originates
+    if (typeof d != "object") {
+	string = d;
+	d = this;
+    } else {
+	string = d.name;
+	d = d.dom;
     }
 
-    d.dom.tooltip = svg.append("g");
+    if (!isNaN(string)) {
+	string = tooltip_format_print(string);
+    }
 
-    var text = d.dom.tooltip.append("text")
+    d.tooltip = svg.append("g");
+
+    var text = d.tooltip.append("text")
 	.classed("bold tooltip starttext", true)
 	.attr("x", coordinates[0] + 20)
 	.attr("y", coordinates[1] - 20)
@@ -2437,13 +2450,13 @@ function tooltip_on(d, i) {
     if ((dimensions.x + dimensions.width + tooltip_margin) > total_width) {
 	text.attr("x", dimensions.x + (total_width - (dimensions.x + dimensions.width + tooltip_margin + 5)));
 
-	// update the dimenions since they have changed
+	// update the dimensions since they have changed
 	dimensions = text[0][0].getBBox();
     }
 
     // insert the box before the text so that the text appears on top
     // of it rather than below it
-    d.dom.tooltip.insert("rect", ".tooltip")
+    d.tooltip.insert("rect", ".tooltip")
 	.classed("bold tooltip", true)
 	.attr("x", dimensions.x - tooltip_margin)
 	.attr("y", dimensions.y - tooltip_margin)
@@ -2454,8 +2467,19 @@ function tooltip_on(d, i) {
 }
 
 function tooltip_off(d, i) {
-    d.dom.tooltip.remove();
-    d.dom.tooltip = null;
+    // if d is an object (ex. legend label) then a reference to the
+    // tooltip can be obtained from the object.  if d is a literal
+    // (ex. axis label) then a reference to the tooltip must be
+    // obtained from the element object where the tooltip_off event
+    // originates
+    if (typeof d != "object") {
+	d = this;
+    } else {
+	d = d.dom;
+    }
+
+    d.tooltip.remove();
+    delete d.tooltip;
 }
 
 function set_x_axis_timeseries_label(chart) {
