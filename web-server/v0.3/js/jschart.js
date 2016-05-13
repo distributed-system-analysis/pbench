@@ -1446,18 +1446,19 @@ function create_table(charts_index) {
     }
 }
 
-function fix_y_axis_labels(chart) {
-    var labels = chart.chart.container.selectAll("g.y.axis,g.y2.axis").selectAll("g.tick").selectAll("text");
+function update_y_axis_label(d, i) {
+    if ((this.getBBox().width + 10) >= margin.left) {
+	var label = d3.select(this);
+	label.on("mouseover", tooltip_on)
+	    .on("mouseout", tooltip_off)
+	    .attr("lengthAdjust", "spacingAndGlyphs")
+	    .attr("textLength", margin.left - 10);
+    }
+}
 
-    labels.each(function(d, i) {
-	    if ((this.getBBox().width + 10) >= margin.left) {
-		var label = d3.select(this);
-		label.on("mouseover", tooltip_on)
-		    .on("mouseout", tooltip_off)
-		    .attr("lengthAdjust", "spacingAndGlyphs")
-		    .attr("textLength", margin.left - 10);
-	    }
-	});
+function fix_y_axis_labels(chart) {
+    chart.chart.axis.y.chart.selectAll("g.tick").selectAll("text").each(update_y_axis_label);
+    chart.chart.axis.y.zoom.selectAll("g.tick").selectAll("text").each(update_y_axis_label);
 }
 
 function handle_brush_actions(charts_index) {
