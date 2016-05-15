@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# This script is designed to be called by a %postinstall action
+# in the pbench-server-internal package: that package contains
+# the site-specific config files that are needed for pbench server
+# setup and operation. The generic pbench-server package available
+# on COPR contains example configuration files only.
+
+# This is the first step of activating a local server installation.
+# Subsequent step include:
+
+# pbench-activate-create-crontab: creates a crontab based on the config files
+# copied in this step.
+
+# pbench-activate-setup-results-host-info: in the local apache document root,
+# create the files necessary to allow the pbench-agent move-results script to
+# copy results to the server.
+
+# Other steps TBD.
+
+# This script *cannot* depend on a config file: all it needs has to come
+# from the arguments.
+
+usage="Usage: pbench-activate-copy-config-files <from-path> <to-path>"
+
+from=$1
+to=$2
+crontabpath=$3
+
+if [ -z "$1" -o -z "$2" ]
+then
+    echo $usage
+    exit 1
+fi
+
+cp -r $from/* $to
+chown -R pbench.pbench $to
+find $to -type d | xargs chmod 755
+find $to -type f | xargs chmod 644
+
+exit 0
