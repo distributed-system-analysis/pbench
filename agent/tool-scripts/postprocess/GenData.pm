@@ -233,7 +233,6 @@ sub gen_data {
 		printf TOOL_HTML "    <script src=\"/static/js/v0.2/angular.js\"></script>\n";
 		printf TOOL_HTML "    <script src=\"/static/js/v0.2/angular-nvd3.js\"></script>\n";
 		printf TOOL_HTML "    <script src=\"/static/js/v0.2/app.js\"></script>\n";
-		printf TOOL_HTML "    <script src=\"/static/js/v0.2/pbench_utils.js\"></script>\n";
 		printf TOOL_HTML "  </head>\n";
 		printf TOOL_HTML "  <body class=\"with-3d-shadow with-transitions\" ng-app=\"pbench\">\n";
 		printf TOOL_HTML "    <script src=\"/static/js/v0.2/angular.js\"></script>\n";
@@ -256,14 +255,14 @@ sub gen_data {
 					$this_graph_type = $graph_types{$htmlpage}{$chart};
 				}
 				if ( defined $thresholds{$htmlpage}{$chart} ) {
-					printf TOOL_HTML "    <div class=\"chart\" id=\"chartdiv%d\" ng-controller=\"graphControl\" onload=\"constructChart(\"%s\", %d, \"%s\", %.2f);\">\n", $chartnum, $this_graph_type, $chartnum, $htmlpage . '_' . $chart, $thresholds{$htmlpage}{$chart};
+					printf TOOL_HTML "    <div class=\"chart\" id=\"chartdiv%d\" ng-controller=\"graphControl\" onload=\"constructChart(\'%s\', %d, \'%s\', %.2f)\">\n", $chartnum, $this_graph_type, $chartnum, $htmlpage . '_' . $chart, $thresholds{$htmlpage}{$chart};
 				} else {
-					printf TOOL_HTML "    <div class=\"chart\" id=\"chartdiv%d\" ng-controller=\"graphControl\" onload=\"constructChart(\"%s\", %d, \"%s\");\">\n", $chartnum, $this_graph_type, $chartnum, $htmlpage . '_' . $chart;
+					printf TOOL_HTML "    <div class=\"chart\" id=\"chartdiv%d\" ng-controller=\"graphControl\" onload=\"constructChart(\'%s\', %d, \'%s\')\">\n", $chartnum, $this_graph_type, $chartnum, $htmlpage . '_' . $chart;
 				}
 				printf TOOL_HTML "    <div class=\"card\">\n";
 				printf TOOL_HTML "        <div class=\"header\">\n";
 				printf TOOL_HTML "            <h2 class=\"header-title\">\n";
-				printf TOOL_HTML "              cpu_all_cpu_busy\n";
+				printf TOOL_HTML "              %s", $chart;
 				printf TOOL_HTML "            </h2>\n";
 				printf TOOL_HTML "            <div class=\"dropdown button raised blue\">\n";
 				printf TOOL_HTML "                ADVANCED\n";
@@ -323,6 +322,14 @@ sub gen_data {
 				printf TOOL_HTML "            <nvd3 options=\"options\" data=\"data\"></nvd3>\n";
 				printf TOOL_HTML "        </div>\n";
 				printf TOOL_HTML "    </div>\n";
+				printf TOOL_HTML "    </div>\n";
+				printf TOOL_HTML "    <script>";
+                                if ( defined $thresholds{$htmlpage}{$chart} ) {
+                                        printf TOOL_HTML "              constructChart(\'%s\', %d, \'%s\', %.2f);", $this_graph_type, $chartnum, $htmlpage . '_' . $chart, $thresholds{$htmlpage}{$chart};
+                                } else {
+                                        printf TOOL_HTML "              constructChart(\'%s\', %d, \'%s\');", $this_graph_type, $chartnum, $htmlpage . '_' . $chart;
+                                }
+				printf TOOL_HTML "   </script>";
 				$chartnum++;
 			}
 		}
