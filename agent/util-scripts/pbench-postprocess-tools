@@ -92,6 +92,13 @@ fi
 tool_output_dir="$dir/tools-$group"
 mkdir -p $tool_output_dir
 
+# Try to prevent a cascade of tools running.
+if [ "$action" == "start" ] ;then
+	# Kill any tools running from a previous incantation before
+	# starting this one.
+	pbench-kill-tools --group $group
+fi
+
 function move_tool_data {
 	local remote_host=$1
 	local remote_label=$2
@@ -100,6 +107,12 @@ function move_tool_data {
 	tool_data_size=`ssh $ssh_opts -n $remote_host du -sm $tool_output_dir | awk '{print $1}'`
 	debug_log "[$script_name]started: copying tool data ($tool_data_size MB) from $remote_host"
 	ssh $ssh_opts -n $remote_host "cd $tool_output_dir && tar cf - *" | tar mxf -
+	rc=$?
+	if [ $rc != 0 ] ;then
+		debug_log "[$script_name]copying tool data failed for remote $remote_host"
+		popd > /dev/null
+		return $rc
+	fi
 	# if the full hostname was used in pbench-register-tool --remote, make sure that is preserved in the directory name
 	if [ $remote_host != "$remote_shost" ]; then
 		if [ -e "$remote_label:$remote_shost" ]; then

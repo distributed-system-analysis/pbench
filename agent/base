@@ -1,6 +1,10 @@
 #!/bin/bash
 
 export PBENCH_debug_mode=0
+# pipeline status is set to the status of the last command that *failed*
+# in the pipeline (or 0 if all succeed): this way "ssh foo | sed '...' "
+# will catch any ssh failure
+set -o pipefail
 
 # very first thing to do is figure out which pbench
 # we are

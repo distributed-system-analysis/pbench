@@ -1,4 +1,5 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
 
 script_path=`dirname $0`
 script_name=`basename $0`
@@ -58,6 +59,8 @@ pushd $pbench_run >/dev/null
 # this tool group's directory which stores options, etc.
 tool_group_dir="tools-$group"
 if [ -d "$tool_group_dir" ]; then
+        typeset -i nerrs=0
+        ssh_opts="$ssh_opts -o ConnectTimeout=1"
 	for this_tool_file in `/bin/ls $tool_group_dir`; do
 		if [ "$this_tool_file" == "label" ]; then
 			continue;
@@ -72,6 +75,17 @@ if [ -d "$tool_group_dir" ]; then
 			remote_hostname=`echo $this_tool_file | awk -F@ '{print $2}'`
 			echo running ". ${pbench_install_dir}/profile; pbench-clear-tools $group_opt $name_opt" on $remote_hostname
 			ssh $ssh_opts -n $remote_hostname ". ${pbench_install_dir}/profile; pbench-clear-tools $group_opt $name_opt" | sed -e 's/\(.*\)/['$remote_hostname']\1/g'
+                        rc=$?
+                        if [ $rc != 0 ] ;then
+				nerrs=$nerrs+1
+				# we can't get to the remote but if the intent is to clear all tools
+				# then we remove the local entry for the remote
+				if [ -z "$name" ] ;then
+					echo "Removing the remote $this_tool_file"
+					/bin/rm -f "$tool_group_dir/$this_tool_file"
+				fi
+				continue
+			fi
 			remaining_remote_tools=`ssh $ssh_opts -n $remote_hostname ". ${pbench_install_dir}/profile; pbench-list-tools $group_opt"`
 			if [ -z "$remaining_remote_tools" ]; then
 				echo "The remote host $remote_hostname no longer has tools registered for $group group, so the "remote@$remote" entry in the local $tool_group_dir directory will be removed"
@@ -96,3 +110,4 @@ if [ -d "$tool_group_dir" ]; then
 	fi
 fi
 popd >/dev/null
+exit $nerrs
