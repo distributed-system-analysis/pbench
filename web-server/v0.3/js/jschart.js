@@ -17,54 +17,11 @@
 //     https://github.com/d3/d3-queue
 //     https://github.com/exupero/saveSvgAsPng
 
-var margin = { top: 70, right: 87, bottom: 66, left: 65 },
-    legend_properties = { columns: 5, row_height: 30, margin: { top: 37 } },
-    total_width = 1000,
-    total_height = 510,
-    width = total_width - margin.left - margin.right,
-    height = total_height - margin.top - margin.bottom,
-    pixels_per_letter = 7.2;
-
-var dsv = d3.dsv(" ", "text/plain");
-
-var table_format_print = d3.format(" ,.2f");
-
-var table_int_format_print = d3.format(" ,");
-
-var tooltip_format_print = d3.format(" ,f");
-
-var utc_time_format_print = d3.time.format.utc("%Y-%m-%d %H:%M:%S");
-
-var utc_time_format_tick = d3.time.format.utc("%M:%S");
-
-var local_time_format_print = d3.time.format("%Y-%m-%d %H:%M:%S");
-
-var local_time_format_tick = d3.time.format("%M:%S");
-
-var timezone_print = d3.time.format("UTC/GMT %Z");
-
-var zoom_rate = 0.03;
-
-// percentage to overscale the y-axis by default
-var y_axis_overscale = 2;
-
 // array to store objects for each chart, with references to often used variables
 var charts = [];
 
 // queue to use for generating charts, 1 at a time to limit the total amount of concurrency
 var charts_queue = d3_queue.queue(1);
-
-var help = "This chart provides interactive features to assist the user in interpreting the data.\n\n";
-help += "You can \"lock\" a dataset to be hightlighted by clicking it's text in the legend or it's row in the table to the right of the chart.  Click either to \"unlock\" the selection.\n\n";
-help += "You can show or hide all datasets using the \"Show\" or \"Hide\" buttons at the top of the chart area.  Individual datasets can be hidden or unhidden by clicking the legend icon for that dataset.  A hidden dataset can also be unhidden by clicking it's table row.\n\n";
-help += "When moving your mouse around the chart area, the coordinates will be displayed in the upper right part of the chart area.\n\n";
-help += "You can zoom into a selected area by clicking in the chart area and dragging the cursor to the opposite corner of the rectangular area you would like to focus on.  When you release the cursor the selection will be zoomed.\n\n";
-help += "You can also zoom in/out using the +/- controls which are visible when the mouse is over the chart area.\n\n";
-help += "You can control the panning and/or zooming using the slider controls above and to the right of the chart area.\n\n";
-help += "You can apply any x-axis zooming to all charts on the page by clicking the \"Apply X-Axis Zoom to All\" button (as long as the x-axis domains match).\n\n";
-help += "To reset the chart area to it's original state after being panned/zoomed, hit the \"Reset Zoom/Pan\" button in the upper right.\n\n";
-help += "You can download a CSV file for the data by clicking the \"Export Data as CSV\" button located under the chart title.  The exported data is limited by x-axis zooming, if performed.\n\n";
-help += "When the page has completed generating all charts, the background will change colors to signal that loading is complete.\n";
 
 function datapoint(x, y, dataset, timestamp) {
     this.x = x;
@@ -132,7 +89,6 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
     this.stacked = stacked;
     this.data_model = data_model;
     this.location = location;
-    this.legend_columns = legend_properties.columns;
     this.dataset_count = 0;
 
     this.x = { scale: { chart: null,
@@ -261,6 +217,46 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
 		   };
 
     this.interval = null;
+    this.zoom_rate = 3;
+    this.y_axis_overscale = 2;
+
+    this.dimensions = { margin: { top: 70,
+				  right: 87,
+				  bottom: 66,
+				  left: 65
+				},
+			legend_properties: { columns: 5,
+					     row_height: 30,
+					     margin: { top: 37
+						       }
+					   },
+			total_width: 1000,
+			total_height: 510,
+			pixels_per_letter: 7.2
+		      };
+
+    this.dimensions.viewport_width = this.dimensions.total_width -
+	this.dimensions.margin.left - this.dimensions.margin.right;
+
+    this.dimensions.viewport_height = this.dimensions.total_height -
+	this.dimensions.margin.top - this.dimensions.margin.bottom;
+
+    this.formatting = { table: { float: d3.format(" ,.2f"),
+				 integer: d3.format(" ,")
+			       },
+			tooltip: d3.format(" ,f"),
+			time: { utc: { long: d3.time.format.utc("%Y-%m-%d %H:%M:%S"),
+				       short: d3.time.format.utc("%M:%S")
+				     },
+				local: { long: d3.time.format("%Y-%m-%d %H:%M:%S"),
+					 short: d3.time.format("%M:%S")
+				       },
+				timezone: d3.time.format("UTC/GMT %Z")
+			      }
+		      };
+
+    this.parsers = { space: d3.dsv(" ", "text/plain")
+		   };
 
     // option(s) "parsing"
     if (this.data_model == "timeseries") {
@@ -426,7 +422,7 @@ function parse_plot_file(chart, datasets_index, text) {
     chart.datasets[datasets_index] = new dataset(datasets_index, "", "No Samples", "No Samples", [], chart);
     chart.state.visible_datasets++;
 
-    dsv.parseRows(text).map(function(row) {
+    chart.parsers.space.parseRows(text).map(function(row) {
 	var index = row[0].indexOf("#LABEL:");
 
 	if (index == -1) {
@@ -591,7 +587,7 @@ function update_domains(chart) {
     if (chart.options.y.max) {
 	domain[1] = chart.options.y.max;
     } else {
-	domain[1] *= (1 + y_axis_overscale/100);
+	domain[1] *= (1 + chart.y_axis_overscale/100);
     }
 
     chart.y.scale.chart.domain(domain);
@@ -613,10 +609,10 @@ function update_chart(chart) {
 
     if (chart.stacked) {
 	compute_stacked_mean(chart);
-	chart.dom.table.stacked.mean.text(table_print(chart.table.stacked_mean));
+	chart.dom.table.stacked.mean.text(table_print(chart, chart.table.stacked_mean));
 
 	compute_stacked_median(chart);
-	chart.dom.table.stacked.median.text(table_print(chart.table.stacked_median));
+	chart.dom.table.stacked.median.text(table_print(chart, chart.table.stacked_median));
     }
 }
 
@@ -682,8 +678,8 @@ function live_update(chart) {
 		    chart.datasets[dataset_index].mean = mean;
 		    chart.datasets[dataset_index].median = median;
 
-		    chart.datasets[dataset_index].dom.table.mean.text(table_format_print(mean));
-		    chart.datasets[dataset_index].dom.table.median.text(table_format_print(median));
+		    chart.datasets[dataset_index].dom.table.mean.text(chart.formatting.table.float(mean));
+		    chart.datasets[dataset_index].dom.table.median.text(chart.formatting.table.float(median));
 		    chart.datasets[dataset_index].dom.table.samples.text(chart.datasets[dataset_index].values.length);
 
 		    dataset_index++;
@@ -926,15 +922,15 @@ function navigate_to_chart(target) {
 function complete_chart(chart) {
     update_domains(chart);
 
-    if (chart.datasets.length < chart.legend_columns) {
-	chart.legend_columns = chart.datasets.length;
+    if (chart.datasets.length < chart.dimensions.legend_properties.columns) {
+	chart.dimensions.legend_properties.columns = chart.datasets.length;
     }
 
     chart.chart.legend = chart.chart.container.selectAll(".legend")
         .data(chart.datasets)
 	.enter().append("g")
         .classed("legend", true)
-        .attr("transform", function(d, i) { return "translate(" + (-margin.left + 5 + (i % chart.legend_columns) * (total_width / chart.legend_columns)) + "," + (height + legend_properties.margin.top + (Math.floor(i / chart.legend_columns) * legend_properties.row_height)) + ")"; });
+        .attr("transform", function(d, i) { return "translate(" + (-chart.dimensions.margin.left + 5 + (i % chart.dimensions.legend_properties.columns) * (chart.dimensions.total_width / chart.dimensions.legend_properties.columns)) + "," + (chart.dimensions.viewport_height + chart.dimensions.legend_properties.margin.top + (Math.floor(i / chart.dimensions.legend_properties.columns) * chart.dimensions.legend_properties.row_height)) + ")"; });
 
     chart.chart.legend.append("rect")
 	.classed("legendrectoutline", true)
@@ -968,7 +964,7 @@ function complete_chart(chart) {
 	.each(function(d, i) {
 		var label_width = this.getBBox().width;
 
-		if (label_width >= (total_width / chart.legend_columns - legend_label_offset)) {
+		if (label_width >= (chart.dimensions.total_width / chart.dimensions.legend_properties.columns - legend_label_offset)) {
 		    var label = d3.select(this);
 
 		    label.text(d.name.substr(0, 21) + '...')
@@ -982,12 +978,12 @@ function complete_chart(chart) {
 	    .data(chart.options.legend_entries)
 	    .enter().append("g")
 	    .classed("legend", true)
-	    .attr("transform", function(d, i) { return "translate(" + (-margin.left + 5) + ", " + (height + legend_properties.margin.top + ((Math.floor(chart.datasets.length / chart.legend_columns) + i) * legend_properties.row_height)) + ")"; });
+	    .attr("transform", function(d, i) { return "translate(" + (-chart.dimensions.margin.left + 5) + ", " + (chart.dimensions.viewport_height + chart.dimensions.legend_properties.margin.top + ((Math.floor(chart.datasets.length / chart.dimensions.legend_properties.columns) + i) * chart.dimensions.legend_properties.row_height)) + ")"; });
 
 	legend_entries.append("text")
 	    .attr("y", 13.5)
 	    .attr("lengthAdjust", "spacingAndGlyphs")
-	    .attr("textLength", function(d, i) { if ((d.length * pixels_per_letter) >= total_width) { return (total_width - 5).toFixed(0); } })
+	    .attr("textLength", function(d, i) { if ((d.length * chart.dimensions.pixels_per_letter) >= chart.dimensions.total_width) { return (chart.dimensions.total_width - 5).toFixed(0); } })
 	    .text(function(d) { return d; });
     }
 
@@ -1301,55 +1297,55 @@ function create_table(chart) {
 	    .attr("align", "right")
 	    .text(function() {
 		if (chart.data_model == "histogram") {
-		    return table_print(d.histogram.mean);
+		    return table_print(chart, d.histogram.mean);
 		} else {
-		    return table_print(d.mean);
+		    return table_print(chart, d.mean);
 		}
 	    });
 
 	d.dom.table.median = d.dom.table.row.append("td")
 	    .attr("align", "right")
 	    .text(function() {
-		if (charts.data_model == "histogram") {
-		    return table_print(d.histogram.median);
+		if (chart.data_model == "histogram") {
+		    return table_print(chart, d.histogram.median);
 		} else {
-		    return table_print(d.median);
+		    return table_print(chart, d.median);
 		}
 	    });
 
 	if (chart.data_model == "histogram") {
 	    d.dom.table.histogram.min = d.dom.table.row.append("td")
 		.attr("align", "right")
-		.text(table_print(d.histogram.min));
+		.text(table_print(chart, d.histogram.min));
 
 	    d.dom.table.histogram.max = d.dom.table.row.append("td")
 		.attr("align", "right")
-		.text(table_print(d.histogram.max));
+		.text(table_print(chart, d.histogram.max));
 
 	    d.dom.table.histogram.p90 = d.dom.table.row.append("td")
 		.attr("align", "right")
-		.text(table_print(d.histogram.p90));
+		.text(table_print(chart, d.histogram.p90));
 
 	    d.dom.table.histogram.p95 = d.dom.table.row.append("td")
 		.attr("align", "right")
-		.text(table_print(d.histogram.p95));
+		.text(table_print(chart, d.histogram.p95));
 
 	    d.dom.table.histogram.p99 = d.dom.table.row.append("td")
 		.attr("align", "right")
-		.text(table_print(d.histogram.p99));
+		.text(table_print(chart, d.histogram.p99));
 
 	    d.dom.table.histogram.p9999 = d.dom.table.row.append("td")
 		.attr("align", "right")
-		.text(table_print(d.histogram.p9999));
+		.text(table_print(chart, d.histogram.p9999));
 	}
 
 	d.dom.table.samples = d.dom.table.row.append("td")
 	    .attr("align", "right")
 	    .text(function() {
 		if (chart.data_model == "histogram") {
-		    return table_int_format_print(d.histogram.samples);
+		    return chart.formatting.table.integer(d.histogram.samples);
 		} else {
-		    return table_int_format_print(d.values.length);
+		    return chart.formatting.table.integer(d.values.length);
 		}
 	    });
 
@@ -1440,12 +1436,14 @@ function create_table(chart) {
 }
 
 function update_y_axis_label(d, i) {
-    if ((this.getBBox().width + 10) >= margin.left) {
+    var chart = this.ownerSVGElement.__data__;
+
+    if ((this.getBBox().width + 10) >= chart.dimensions.margin.left) {
 	var label = d3.select(this);
 	label.on("mouseover", tooltip_on)
 	    .on("mouseout", tooltip_off)
 	    .attr("lengthAdjust", "spacingAndGlyphs")
-	    .attr("textLength", margin.left - 10);
+	    .attr("textLength", chart.dimensions.margin.left - 10);
     }
 }
 
@@ -1487,7 +1485,7 @@ function handle_brush_actions(chart) {
     }
 }
 
-function zoom_it(chart, zoom) {
+function zoom_it(chart, zoom_factor) {
     var x_extent = chart.x.brush.extent();
     var x_domain = chart.x.scale.zoom.domain();
 
@@ -1504,11 +1502,11 @@ function zoom_it(chart, zoom) {
     var x_center = (x_extent[1] - x_extent[0]) / 2;
     var y_center = (y_extent[1] - y_extent[0]) / 2;
 
-    x_extent[0] = x_extent[0] - (x_center * zoom);
-    x_extent[1] = x_extent[1] + (x_center * zoom);
+    x_extent[0] = x_extent[0] - (x_center * zoom_factor * chart.zoom_rate/100);
+    x_extent[1] = x_extent[1] + (x_center * zoom_factor * chart.zoom_rate/100);
 
-    y_extent[0] = y_extent[0] - (y_center * zoom);
-    y_extent[1] = y_extent[1] + (y_center * zoom);
+    y_extent[0] = y_extent[0] - (y_center * zoom_factor * chart.zoom_rate/100);
+    y_extent[1] = y_extent[1] + (y_center * zoom_factor * chart.zoom_rate/100);
 
     if (x_extent[0] < x_domain[0]) {
 	x_extent[0] = x_domain[0];
@@ -1620,10 +1618,10 @@ function build_chart(chart) {
 	chart.x.scale.zoom = d3.scale.log();
     }
 
-    chart.x.scale.chart.range([0, width]);
+    chart.x.scale.chart.range([0, chart.dimensions.viewport_width]);
 
     chart.x.scale.zoom.clamp(true)
-	.range([0, width]);
+	.range([0, chart.dimensions.viewport_width]);
 
     if (chart.options.y.scale.linear) {
 	chart.y.scale.chart = d3.scale.linear();
@@ -1633,15 +1631,15 @@ function build_chart(chart) {
 	chart.y.scale.zoom = d3.scale.log();
     }
 
-    chart.y.scale.chart.range([height, 0]);
+    chart.y.scale.chart.range([chart.dimensions.viewport_height, 0]);
 
     chart.y.scale.zoom.clamp(true)
-	.range([height, 0]);
+	.range([chart.dimensions.viewport_height, 0]);
 
     chart.x.axis.chart = d3.svg.axis()
 	.scale(chart.x.scale.chart)
 	.orient("bottom")
-	.tickSize(-height);
+	.tickSize(-chart.dimensions.viewport_height);
 
     chart.x.axis.zoom = d3.svg.axis()
 	.scale(chart.x.scale.zoom)
@@ -1650,11 +1648,11 @@ function build_chart(chart) {
 
     if (chart.options.x.scale.time) {
 	if (chart.options.timezone == "local") {
-	    chart.x.axis.chart.tickFormat(local_time_format_tick);
-	    chart.x.axis.zoom.tickFormat(local_time_format_tick);
+	    chart.x.axis.chart.tickFormat(chart.formatting.time.local.short);
+	    chart.x.axis.zoom.tickFormat(chart.formatting.time.local.short);
 	} else {
-	    chart.x.axis.chart.tickFormat(utc_time_format_tick);
-	    chart.x.axis.zoom.tickFormat(utc_time_format_tick);
+	    chart.x.axis.chart.tickFormat(chart.formatting.time.utc.short);
+	    chart.x.axis.zoom.tickFormat(chart.formatting.time.utc.short);
 	}
     }
 
@@ -1664,7 +1662,7 @@ function build_chart(chart) {
     chart.y.axis.chart = d3.svg.axis()
 	.scale(chart.y.scale.chart)
 	.orient("left")
-	.tickSize(-width);
+	.tickSize(-chart.dimensions.viewport_width);
 
     chart.y.axis.zoom = d3.svg.axis()
 	.scale(chart.y.scale.zoom)
@@ -1689,32 +1687,34 @@ function build_chart(chart) {
 	    .y(get_chart_scaled_y);
     }
 
-    chart.chart.svg = chart_cell.append("svg")
+    chart.chart.svg = chart_cell.selectAll(".svg")
+	.data([chart])
+	.enter().append("svg")
 	.classed("svg", true)
 	.attr("id", location + "_svg")
-	.attr("width", width + margin.left + margin.right)
-	.attr("height", height + margin.top + margin.bottom + ((Math.ceil(chart.dataset_count / legend_properties.columns) - 1 + chart.options.legend_entries.length) * legend_properties.row_height));
+	.attr("width", chart.dimensions.viewport_width + chart.dimensions.margin.left + chart.dimensions.margin.right)
+	.attr("height", chart.dimensions.viewport_height + chart.dimensions.margin.top + chart.dimensions.margin.bottom + ((Math.ceil(chart.dataset_count / chart.dimensions.legend_properties.columns) - 1 + chart.options.legend_entries.length) * chart.dimensions.legend_properties.row_height));
 
     chart.chart.container = chart.chart.svg.append("g")
-	.attr("transform", "translate(" + margin.left + ", " + margin.top +")");
+	.attr("transform", "translate(" + chart.dimensions.margin.left + ", " + chart.dimensions.margin.top +")");
 
     chart.chart.container.append("rect")
 	.classed("titlebox", true)
-	.attr("x", -margin.left)
-	.attr("y", -margin.top)
-	.attr("width", width + margin.left + margin.right + 2)
+	.attr("x", -chart.dimensions.margin.left)
+	.attr("y", -chart.dimensions.margin.top)
+	.attr("width", chart.dimensions.viewport_width + chart.dimensions.margin.left + chart.dimensions.margin.right + 2)
 	.attr("height", 15);
 
     chart.chart.container.append("text")
 	.classed("title middletext", true)
-	.attr("x", (width/2))
-	.attr("y", -margin.top + 11)
+	.attr("x", (chart.dimensions.viewport_width/2))
+	.attr("y", -chart.dimensions.margin.top + 11)
 	.text(chart.chart_title);
 
     chart.chart.container.append("text")
 	.classed("actionlabel endtext", true)
-	.attr("x", width + margin.right - 10)
-	.attr("y", -margin.top + 29)
+	.attr("x", chart.dimensions.viewport_width + chart.dimensions.margin.right - 10)
+	.attr("y", -chart.dimensions.margin.top + 29)
 	.on("click", function() {
 		chart.x.scale.chart.domain(chart.x.scale.zoom.domain());
 		chart.y.scale.chart.domain(chart.y.scale.zoom.domain());
@@ -1746,19 +1746,17 @@ function build_chart(chart) {
 
     chart.chart.container.append("text")
 	.classed("actionlabel middletext", true)
-	.attr("x", (-margin.left/2))
-	.attr("y", (height + 30))
-	.on("click", function() {
-		alert(help);
-	    })
+	.attr("x", (-chart.dimensions.margin.left/2))
+	.attr("y", (chart.dimensions.viewport_height + 30))
+	.on("click", display_help)
 	.text("Help");
 
     // make sure that the library was properly loaded prior to adding the "Save as PNG" link
     if (typeof saveSvgAsPng == 'function') {
 	chart.chart.container.append("text")
 	    .classed("actionlabel middletext", true)
-	    .attr("x", (width / 4) * 2)
-	    .attr("y", -margin.top + 29)
+	    .attr("x", (chart.dimensions.viewport_width / 4) * 2)
+	    .attr("y", -chart.dimensions.margin.top + 29)
 	    .on("click", function() {
 		saveSvgAsPng(document.getElementById(location + "_svg"), chart.chart_title + ".png", {
 		    backgroundColor: "#FFFFFF"
@@ -1771,34 +1769,34 @@ function build_chart(chart) {
 	.data([ chart ])
 	.enter().append("text")
 	.classed("actionlabel middletext", true)
-	.attr("x", (width / 4 * 3 - 40))
-	.attr("y", -margin.top + 29)
+	.attr("x", (chart.dimensions.viewport_width / 4 * 3 - 40))
+	.attr("y", -chart.dimensions.margin.top + 29)
 	.text("Show");
 
     chart.chart.container.append("text")
 	.classed("middletext", true)
-	.attr("x", (width / 4 * 3 - 14))
-	.attr("y", -margin.top + 29)
+	.attr("x", (chart.dimensions.viewport_width / 4 * 3 - 14))
+	.attr("y", -chart.dimensions.margin.top + 29)
 	.text("/");
 
     chart.chart.hide_all = chart.chart.container.selectAll(".hide")
 	.data([ chart ])
 	.enter().append("text")
 	.classed("actionlabel middletext", true)
-	.attr("x", (width / 4 * 3 + 11))
-	.attr("y", -margin.top + 29)
+	.attr("x", (chart.dimensions.viewport_width / 4 * 3 + 11))
+	.attr("y", -chart.dimensions.margin.top + 29)
 	.text("Hide");
 
     chart.chart.container.append("text")
 	.classed("middletext", true)
-	.attr("x", (width / 4 * 3 + 43))
-	.attr("y", -margin.top + 29)
+	.attr("x", (chart.dimensions.viewport_width / 4 * 3 + 43))
+	.attr("y", -chart.dimensions.margin.top + 29)
 	.text("All");
 
     chart.chart.container.append("text")
 	.classed("actionlabel middletext", true)
-	.attr("x", (width / 4))
-	.attr("y", -margin.top + 29)
+	.attr("x", (chart.dimensions.viewport_width / 4))
+	.attr("y", -chart.dimensions.margin.top + 29)
 	.on("click", function() {
 		var string = "\"" + chart.chart_title + "\"\n\"" + chart.x.axis.title.text + "\"";
 		var x_values = [];
@@ -1852,12 +1850,12 @@ function build_chart(chart) {
 
     chart.chart.container.append("text")
 	.classed("actionlabel middletext", true)
-	.attr("x", (width - 10))
-	.attr("y", (height + 30))
+	.attr("x", (chart.dimensions.viewport_width - 10))
+	.attr("y", (chart.dimensions.viewport_height + 30))
 	.on("click", function() {
 		var x_domain = chart.x.scale.chart.domain();
 
-		charts.map(function(d) {
+		chart.charts.map(function(d) {
 			if (d.chart.container == chart.chart.container) {
 			    // skip applying zoom to myself
 			    return;
@@ -1910,13 +1908,13 @@ function build_chart(chart) {
 
     chart.chart.axis.x.chart = chart.chart.container.append("g")
 	.classed("axis", true)
-	.attr("transform", "translate(0," + height +")")
+	.attr("transform", "translate(0," + chart.dimensions.viewport_height +")")
 	.call(chart.x.axis.chart);
 
     chart.x.axis.title.dom = chart.chart.axis.x.chart.append("text")
 	.classed("bold middletext", true)
 	.attr("y", 30)
-	.attr("x", (width/2))
+	.attr("x", (chart.dimensions.viewport_width/2))
 	.text(chart.x.axis.title.text);
 
     chart.chart.axis.x.zoom = chart.chart.container.append("g")
@@ -1947,13 +1945,13 @@ function build_chart(chart) {
 
     chart.y.axis.title.dom = chart.chart.axis.y.chart.append("text")
 	.classed("bold starttext", true)
-	.attr("x", -margin.left + 10)
+	.attr("x", -chart.dimensions.margin.left + 10)
 	.attr("y", -40)
 	.text(chart.y.axis.title.text);
 
     chart.chart.axis.y.zoom = chart.chart.container.append("g")
 	.classed("axis", true)
-	.attr("transform", "translate(" + (width + 15) + ", 0)")
+	.attr("transform", "translate(" + (chart.dimensions.viewport_width + 15) + ", 0)")
 	.call(chart.y.axis.zoom);
 
     var y_arc = d3.svg.arc()
@@ -1966,11 +1964,11 @@ function build_chart(chart) {
 	.call(chart.y.brush);
 
     chart.y.slider.selectAll(".resize").append("path")
-	.attr("transform", "translate(" + (width+15) + ", 0)")
+	.attr("transform", "translate(" + (chart.dimensions.viewport_width + 15) + ", 0)")
 	.attr("d", y_arc);
 
     chart.y.slider.selectAll("rect")
-	.attr("transform", "translate(" + (width + 5) + ", 0)")
+	.attr("transform", "translate(" + (chart.dimensions.viewport_width + 5) + ", 0)")
 	.attr("width", 20);
 
     chart.chart.show_all.on("click", show_all);
@@ -2015,8 +2013,8 @@ function build_chart(chart) {
 	.data([ chart ])
 	.enter().append("rect")
 	.classed("pane", true)
-	.attr("width", width)
-	.attr("height", height)
+	.attr("width", chart.dimensions.viewport_width)
+	.attr("height", chart.dimensions.viewport_height)
 	.on("mouseenter", viewport_mouseenter)
 	.on("mousedown", viewport_mousedown)
 	.on("mouseup", viewport_mouseup)
@@ -2082,7 +2080,7 @@ function build_chart(chart) {
 
 	    if (chart.datasets.length > chart.dataset_count) {
 		console.log("Resizing SVG for chart \"" + chart.chart_title + "\".");
-		chart.chart.svg.attr("height", height + margin.top + margin.bottom + ((Math.ceil(chart.datasets.length / legend_properties.columns) - 1 + chart.options.legend_entries.length) * legend_properties.row_height))
+		chart.chart.svg.attr("height", chart.dimensions.viewport_height + chart.dimensions.margin.top + chart.dimensions.margin.bottom + ((Math.ceil(chart.datasets.length / chart.dimensions.legend_properties.columns) - 1 + chart.options.legend_entries.length) * chart.dimensions.legend_properties.row_height))
 	    }
 
 	    console.log("Creating table for chart \"" + chart.chart_title + "\"...");
@@ -2107,7 +2105,7 @@ function build_chart(chart) {
 		.classed("chartbutton", true)
 		.classed("hidden", true)
 		.on("click", function() {
-			zoom_it(chart, zoom_rate);
+			zoom_it(chart, 1);
 			chart.state.user_x_zoomed = true;
 			chart.state.user_y_zoomed = true;
 		    })
@@ -2133,7 +2131,7 @@ function build_chart(chart) {
 		.classed("chartbutton", true)
 		.classed("hidden", true)
 		.on("click", function() {
-			zoom_it(chart, -1 * zoom_rate);
+			zoom_it(chart, -1);
 			chart.state.user_x_zoomed = true;
 			chart.state.user_y_zoomed = true;
 		    })
@@ -2174,7 +2172,7 @@ function build_chart(chart) {
 
 	    chart.chart.coordinates = chart.chart.container.append("text")
 		.classed("coordinates endtext hidden", true)
-		.attr("x", width - 5)
+		.attr("x", chart.dimensions.viewport_width - 5)
 		.attr("y", 15)
 		.text("coordinates");
 
@@ -2407,6 +2405,7 @@ function tooltip_on(d, i) {
     var object = d3.select(this);
     var svg = d3.select(object[0][0].ownerSVGElement);
     var coordinates = d3.mouse(object[0][0].ownerSVGElement);
+    var chart = object[0][0].ownerSVGElement.__data__;
 
     var string;
 
@@ -2424,7 +2423,7 @@ function tooltip_on(d, i) {
     }
 
     if (!isNaN(string)) {
-	string = tooltip_format_print(string);
+	string = chart.formatting.tooltip(string);
     }
 
     d.tooltip = svg.append("g");
@@ -2442,8 +2441,8 @@ function tooltip_on(d, i) {
     // check if the box will flow off the right side of the chart
     // before drawing it and update the location of the text if it
     // will
-    if ((dimensions.x + dimensions.width + tooltip_margin) > total_width) {
-	text.attr("x", dimensions.x + (total_width - (dimensions.x + dimensions.width + tooltip_margin + 5)));
+    if ((dimensions.x + dimensions.width + tooltip_margin) > chart.dimensions.total_width) {
+	text.attr("x", dimensions.x + (chart.dimensions.total_width - (dimensions.x + dimensions.width + tooltip_margin + 5)));
 
 	// update the dimensions since they have changed
 	dimensions = text[0][0].getBBox();
@@ -2483,9 +2482,9 @@ function set_x_axis_timeseries_label(chart) {
     var domain = chart.x.scale.chart.domain();
 
     if (chart.options.timezone == "local") {
-	label += "(" + timezone_print(domain[0]) + "): " + local_time_format_print(domain[0]) + " - " + local_time_format_print(domain[1]);
+	label += "(" + chart.formatting.timezone(domain[0]) + "): " + chart.formatting.time.local.long(domain[0]) + " - " + chart.formatting.time.local.long(domain[1]);
     } else {
-	label += "(UTC/GMT): " + utc_time_format_print(domain[0]) + " - " + utc_time_format_print(domain[1]);
+	label += "(UTC/GMT): " + chart.formatting.time.utc.long(domain[0]) + " - " + chart.formatting.time.utc.long(domain[1]);
     }
 
     chart.x.axis.title.dom.text(label);
@@ -2657,16 +2656,16 @@ function update_dataset_chart_elements(chart) {
     }
 }
 
-function table_print(value) {
+function table_print(chart, value) {
     if (isFinite(value)) {
-	return table_format_print(value);
+	return chart.formatting.table.float(value);
     } else {
 	return value;
     }
 }
 
 function set_dataset_value(chart, dataset_index, values_index) {
-    chart.datasets[dataset_index].dom.table.value.text(table_format_print(chart.datasets[dataset_index].values[values_index].y));
+    chart.datasets[dataset_index].dom.table.value.text(chart.formatting.table.float(chart.datasets[dataset_index].values[values_index].y));
     chart.datasets[dataset_index].cursor_index = values_index;
     chart.table.stacked_value += chart.datasets[dataset_index].values[values_index].y;
     chart.datasets[dataset_index].dom.cursor_point.data([ chart.datasets[dataset_index].values[values_index] ]);
@@ -2791,7 +2790,7 @@ function show_dataset_values(chart, x_coordinate) {
     }
 
     if (chart.stacked) {
-	set_stacked_value(chart, table_format_print(chart.table.stacked_value));
+	set_stacked_value(chart, chart.formatting.table.float(chart.table.stacked_value));
     }
 }
 
@@ -2973,15 +2972,15 @@ function viewport_mousemove(chart) {
 
     if (chart.data_model == "timeseries") {
 	if (chart.options.timezone == "local") {
-	    chart.chart.coordinates.text("x:" + local_time_format_print(mouse_values[0]) +
-					 " y:" + table_format_print(mouse_values[1]));
+	    chart.chart.coordinates.text("x:" + chart.formatting.time.local.long(mouse_values[0]) +
+					 " y:" + chart.formatting.table.float(mouse_values[1]));
 	} else {
-	    chart.chart.coordinates.text("x:" + utc_time_format_print(mouse_values[0]) +
-					 " y:" + table_format_print(mouse_values[1]));
+	    chart.chart.coordinates.text("x:" + chart.formatting.time.utc.long(mouse_values[0]) +
+					 " y:" + chart.formatting.table.float(mouse_values[1]));
 	}
     } else {
-	chart.chart.coordinates.text("x:" + table_format_print(mouse_values[0]) +
-				     " y:" + table_format_print(mouse_values[1]));
+	chart.chart.coordinates.text("x:" + chart.formatting.table.float(mouse_values[0]) +
+				     " y:" + chart.formatting.table.float(mouse_values[1]));
     }
 
     var domain = chart.y.scale.chart.domain();
@@ -3230,4 +3229,20 @@ function datarow_sort(a, b) {
 	    return b.mean - a.mean;
 	}
     }
+}
+
+function display_help() {
+    var help = "This chart provides interactive features to assist the user in interpreting the data.\n\n";
+    help += "You can \"lock\" a dataset to be hightlighted by clicking it's text in the legend or it's row in the table to the right of the chart.  Click either to \"unlock\" the selection.\n\n";
+    help += "You can show or hide all datasets using the \"Show\" or \"Hide\" buttons at the top of the chart area.  Individual datasets can be hidden or unhidden by clicking the legend icon for that dataset.  A hidden dataset can also be unhidden by clicking it's table row.\n\n";
+    help += "When moving your mouse around the chart area, the coordinates will be displayed in the upper right part of the chart area.\n\n";
+    help += "You can zoom into a selected area by clicking in the chart area and dragging the cursor to the opposite corner of the rectangular area you would like to focus on.  When you release the cursor the selection will be zoomed.\n\n";
+    help += "You can also zoom in/out using the +/- controls which are visible when the mouse is over the chart area.\n\n";
+    help += "You can control the panning and/or zooming using the slider controls above and to the right of the chart area.\n\n";
+    help += "You can apply any x-axis zooming to all charts on the page by clicking the \"Apply X-Axis Zoom to All\" button (as long as the x-axis domains match).\n\n";
+    help += "To reset the chart area to it's original state after being panned/zoomed, hit the \"Reset Zoom/Pan\" button in the upper right.\n\n";
+    help += "You can download a CSV file for the data by clicking the \"Export Data as CSV\" button located under the chart title.  The exported data is limited by x-axis zooming, if performed.\n\n";
+    help += "When the page has completed generating all charts, the background will change colors to signal that loading is complete.\n";
+
+    alert(help);
 }
