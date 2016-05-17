@@ -48,15 +48,6 @@ var zoom_rate = 0.03;
 // percentage to overscale the y-axis by default
 var y_axis_overscale = 2;
 
-// global opacity values
-var hidden_opacity = 0;
-var default_opacity = 0.9;
-var unhighlighted_opacity = 0.15;
-
-// global rgba values
-var hidden_dataset_table_row_color = "rgba(152, 152, 152, 1)";
-var default_table_row_color = "rgba(0, 0, 0, 0)";
-
 // array to store objects for each chart, with references to often used variables
 var charts = [];
 
@@ -943,36 +934,36 @@ function complete_chart(charts_index) {
     charts[charts_index].chart.legend = charts[charts_index].chart.container.selectAll(".legend")
         .data(charts[charts_index].datasets)
 	.enter().append("g")
-        .attr("class", "legend")
+        .classed("legend", true)
         .attr("transform", function(d, i) { return "translate(" + (-margin.left + 5 + (i % charts[charts_index].legend_columns) * (total_width / charts[charts_index].legend_columns)) + "," + (height + legend_properties.margin.top + (Math.floor(i / charts[charts_index].legend_columns) * legend_properties.row_height)) + ")"; });
 
     charts[charts_index].chart.legend.append("rect")
-	.attr("class", "legendrectoutline")
+	.classed("legendrectoutline", true)
 	.attr("width", 16)
 	.attr("height", 16)
 	.style("stroke", function(d) { return mycolors(d.index); } );
 
     charts[charts_index].chart.legend.append("rect")
-	.attr("class", function(d) { d.dom.legend.rect = d3.select(this); return "legendrect"; })
+	.classed("legendrect", function(d) { d.dom.legend.rect = d3.select(this); return true; })
 	.on("click", toggle_hide_click_event)
 	.on("mouseover", mouseover_highlight_function)
 	.on("mouseout", mouseout_highlight_function)
 	.attr("width", 12)
 	.attr("height", 12)
 	.attr("transform", "translate(2, 2)")
-	.style("opacity", function(d) { if (d.hidden) { return hidden_opacity; } else { return default_opacity; } })
+	.classed("invisible", function(d) { if (d.hidden) { return true; } else { return false; } })
 	.style("fill", function(d) { return mycolors(d.index); } );
 
     var legend_label_offset = 25;
 
     charts[charts_index].chart.legend.append("text")
-	.attr("class", function(d) { d.dom.legend.label = d3.select(this); return "legendlabel"; })
+	.classed("legendlabel", true)
 	.on("click", click_highlight_function)
 	.on("mouseover", mouseover_highlight_function)
 	.on("mouseout", mouseout_highlight_function)
 	.attr("x", legend_label_offset)
 	.attr("y", 13.5)
-	.text(function(d) { return d.name; });
+	.text(function(d) { d.dom.legend.label = d3.select(this); return d.name; });
 
     charts[charts_index].chart.container.selectAll(".legendlabel")
 	.each(function(d, i) {
@@ -991,11 +982,10 @@ function complete_chart(charts_index) {
 	var legend_entries = charts[charts_index].chart.container.selectAll(".legendentries")
 	    .data(charts[charts_index].options.legend_entries)
 	    .enter().append("g")
-	    .attr("class", "legend")
+	    .classed("legend", true)
 	    .attr("transform", function(d, i) { return "translate(" + (-margin.left + 5) + ", " + (height + legend_properties.margin.top + ((Math.floor(charts[charts_index].datasets.length / charts[charts_index].legend_columns) + i) * legend_properties.row_height)) + ")"; });
 
 	legend_entries.append("text")
-	    .attr("class", "legendlabel")
 	    .attr("y", 13.5)
 	    .attr("lengthAdjust", "spacingAndGlyphs")
 	    .attr("textLength", function(d, i) { if ((d.length * pixels_per_letter) >= total_width) { return (total_width - 5).toFixed(0); } })
@@ -1033,13 +1023,13 @@ function complete_chart(charts_index) {
 	charts[charts_index].chart.plot = charts[charts_index].chart.container.selectAll(".plot")
 	    .data(charts[charts_index].datasets)
 	    .enter().append("g")
-	    .attr("class", "plot");
+	    .classed("plot", true);
 
 	charts[charts_index].chart.plot.append("path")
-	    .attr("class", function(d) { d.dom.path = d3.select(this); return "area"; })
+	    .classed("area", function(d) { d.dom.path = d3.select(this); return true; })
 	    .attr("d", function(d) { if (d.values === undefined) { return null; } return charts[charts_index].functions.area(d.values); })
 	    .style("fill", function(d) { return mycolors(d.index); })
-	    .style("visibility", function(d) { if (d.hidden) { return "hidden"; } else { return "visible"; }; })
+	    .classed("hidden", function(d) { if (d.hidden) { return true; } else { return false; }; })
 	    .attr("clip-path", "url(#clip)");
 
 	charts[charts_index].datasets.map(function(d) {
@@ -1048,16 +1038,16 @@ function complete_chart(charts_index) {
 		}
 
 		charts[charts_index].chart.group = d3.select(d.dom.path[0][0].parentNode).append("g")
-		    .attr("class", "points");
+		    .classed("points", true);
 
 		charts[charts_index].chart.group.selectAll(".points")
 		    .data(d.values)
 		    .enter().append("line")
-		    .attr("class", function(b) { d.dom.points = d3.select(this); return "points"; })
+		    .classed("points", function(b) { d.dom.points = d3.select(this); return true; })
 		    .attr("r", 3)
 		    .attr("clip-path", "url(#clip)")
 		    .style("stroke", mycolors(d.index))
-		    .style("visibility", function(d) { if (d.hidden) { return "hidden"; } else { return "visible"; }; })
+		    .classed("hidden", function(d) { if (d.hidden) { return true; } else { return false; }; })
 		    .attr("x1", get_chart_scaled_x)
 		    .attr("x2", get_chart_scaled_x)
 		    .attr("y1", get_chart_scaled_y0)
@@ -1067,13 +1057,13 @@ function complete_chart(charts_index) {
 	charts[charts_index].chart.plot = charts[charts_index].chart.container.selectAll(".plot")
 	    .data(charts[charts_index].datasets)
 	    .enter().append("g")
-	    .attr("class", "plot");
+	    .classed("plot", true);
 
 	charts[charts_index].chart.plot.append("path")
-	    .attr("class", function(d) { d.dom.path = d3.select(this); return "line"; })
+	    .classed("line", function(d) { d.dom.path = d3.select(this); return true; })
 	    .attr("d", function(d) { if (d.values === undefined) { return null; } return charts[charts_index].functions.line(d.values); })
 	    .style("stroke", function(d) { return mycolors(d.index) })
-	    .style("visibility", function(d) { if (d.hidden) { return "hidden"; } else { return "visible"; }; })
+	    .classed("hidden", function(d) { if (d.hidden) { return true; } else { return false; }; })
 	    .attr("clip-path", "url(#clip)");
 
 	charts[charts_index].datasets.map(function(d) {
@@ -1082,35 +1072,33 @@ function complete_chart(charts_index) {
 		}
 
 		charts[charts_index].chart.group = d3.select(d.dom.path[0][0].parentNode).append("g")
-		    .attr("class", "points");
+		    .classed("points", true);
 
 		charts[charts_index].chart.group.selectAll(".points")
 		    .data(d.values)
 		    .enter().append("circle")
-		    .attr("class", function(b) { d.dom.points = d3.select(this); return "points"; })
+		    .classed("points", function(b) { d.dom.points = d3.select(this); return true; })
 		    .attr("r", 3)
 		    .attr("clip-path", "url(#clip)")
 		    .style("fill", mycolors(d.index))
 		    .style("stroke", mycolors(d.index))
-		    .style("visibility", function(d) { if (d.hidden) { return "hidden"; } else { return "visible"; }; })
+		    .classed("hidden", function(d) { if (d.hidden) { return true; } else { return false; }; })
 		    .attr("cx", get_chart_scaled_x)
 		    .attr("cy", get_chart_scaled_y);
 	    });
     }
 
     charts[charts_index].chart.cursor_points = charts[charts_index].chart.container.append("g")
-	.attr("class", "cursor_points");
+	.classed("cursor_points", true);
 
     charts[charts_index].datasets.map(function(d) {
 	charts[charts_index].chart.cursor_points.selectAll(".cursor_points")
 	    .data([ d.values[0] ])
 	    .enter().append("circle")
-	    .attr("class", function(b) { d.dom.cursor_point = d3.select(this); return "points"; })
+	    .classed("value_points hidden", function(b) { d.dom.cursor_point = d3.select(this); return true; })
 	    .attr("r", 5)
 	    .attr("clip-path", "url(#clip)")
 	    .style("fill", mycolors(d.index))
-	    .style("stroke", "#000000")
-	    .style("visibility", "hidden")
 	    .attr("cx", get_chart_scaled_x)
 	    .attr("cy", get_chart_scaled_y_stack);
     });
@@ -1128,16 +1116,16 @@ function create_table(charts_index) {
     }
 
     charts[charts_index].dom.table.table = charts[charts_index].dom.table.location.append("table")
-	.attr("class", "chart");
+	.classed("chart", true);
 
     charts[charts_index].dom.table.table.append("tr")
-	.attr("class", "header")
+	.classed("header", true)
 	.append("th")
 	.attr("colSpan", colspan)
 	.text(charts[charts_index].chart_title);
 
     var row = charts[charts_index].dom.table.table.append("tr")
-	.attr("class", "header");
+	.classed("header", true);
 
     var cell = row.append("th")
 	.attr("colSpan", colspan)
@@ -1164,7 +1152,7 @@ function create_table(charts_index) {
 	.on("click", apply_y_average_threshold);
 
     var row = charts[charts_index].dom.table.table.append("tr")
-	.attr("class", "header");
+	.classed("header", true);
 
     var cell = row.append("th")
 	.attr("colSpan", colspan)
@@ -1189,7 +1177,7 @@ function create_table(charts_index) {
 	console.log("Creating table controls for chart \"" + charts[charts_index].chart_title + "\"...");
 
 	var row = charts[charts_index].dom.table.table.append("tr")
-	    .attr("class", "header");
+	    .classed("header", true);
 
 	var cell = row.append("th")
 	    .attr("colSpan", colspan)
@@ -1215,7 +1203,7 @@ function create_table(charts_index) {
 	    });
 
 	var row = charts[charts_index].dom.table.table.append("tr")
-	    .attr("class", "header");
+	    .classed("header", true);
 
 	var cell = row.append("th")
 	    .attr("colSpan", colspan)
@@ -1252,7 +1240,7 @@ function create_table(charts_index) {
     }
 
     var row = charts[charts_index].dom.table.table.append("tr")
-	.attr("class", "header");
+	.classed("header", true);
 
     row.append("th")
 	.attr("align", "left")
@@ -1373,7 +1361,7 @@ function create_table(charts_index) {
 	    });
 
 	if (d.hidden) {
-	    d.dom.table.row.style("background-color", hidden_dataset_table_row_color);
+	    d.dom.table.row.classed("hiddenrow", true);
 	}
     });
 
@@ -1381,7 +1369,7 @@ function create_table(charts_index) {
 
     if (charts[charts_index].stacked) {
 	var row = charts[charts_index].dom.table.table.append("tr")
-	    .attr("class", "footer");
+	    .classed("footer", true);
 
 	row.append("th")
 	    .attr("align", "left")
@@ -1397,7 +1385,7 @@ function create_table(charts_index) {
 	row.append("td");
 
 	var row = charts[charts_index].dom.table.table.append("tr")
-	    .attr("class", "footer");
+	    .classed("footer", true);
 
 	row.append("th")
 	    .attr("align", "left")
@@ -1416,7 +1404,7 @@ function create_table(charts_index) {
 	row.append("td");
 
 	var row = charts[charts_index].dom.table.table.append("tr")
-	    .attr("class", "footer");
+	    .classed("footer", true);
 
 	row.append("th")
 	    .attr("align", "left")
@@ -1437,7 +1425,7 @@ function create_table(charts_index) {
 
     if (charts[charts_index].options.raw_data_sources.length > 0) {
 	var row = charts[charts_index].dom.table.table.append("tr")
-	    .attr("class", "section");
+	    .classed("section", true);
 
 	row.append("th")
 	    .attr("align", "left")
@@ -1458,18 +1446,19 @@ function create_table(charts_index) {
     }
 }
 
-function fix_y_axis_labels(chart) {
-    var labels = chart.chart.container.selectAll("g.y.axis,g.y2.axis").selectAll("g.tick").selectAll("text");
+function update_y_axis_label(d, i) {
+    if ((this.getBBox().width + 10) >= margin.left) {
+	var label = d3.select(this);
+	label.on("mouseover", tooltip_on)
+	    .on("mouseout", tooltip_off)
+	    .attr("lengthAdjust", "spacingAndGlyphs")
+	    .attr("textLength", margin.left - 10);
+    }
+}
 
-    labels.each(function(d, i) {
-	    if ((this.getBBox().width + 10) >= margin.left) {
-		var label = d3.select(this);
-		label.on("mouseover", tooltip_on)
-		    .on("mouseout", tooltip_off)
-		    .attr("lengthAdjust", "spacingAndGlyphs")
-		    .attr("textLength", margin.left - 10);
-	    }
-	});
+function fix_y_axis_labels(chart) {
+    chart.chart.axis.y.chart.selectAll("g.tick").selectAll("text").each(update_y_axis_label);
+    chart.chart.axis.y.zoom.selectAll("g.tick").selectAll("text").each(update_y_axis_label);
 }
 
 function handle_brush_actions(charts_index) {
@@ -1708,7 +1697,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
     }
 
     charts[charts_index].chart.svg = chart_cell.append("svg")
-	.attr("class", "svg")
+	.classed("svg", true)
 	.attr("id", location + "_svg")
 	.attr("width", width + margin.left + margin.right)
 	.attr("height", height + margin.top + margin.bottom + ((Math.ceil(charts[charts_index].dataset_count / legend_properties.columns) - 1 + charts[charts_index].options.legend_entries.length) * legend_properties.row_height));
@@ -1717,24 +1706,22 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.attr("transform", "translate(" + margin.left + ", " + margin.top +")");
 
     charts[charts_index].chart.container.append("rect")
-	.attr("class", "titlebox")
+	.classed("titlebox", true)
 	.attr("x", -margin.left)
 	.attr("y", -margin.top)
 	.attr("width", width + margin.left + margin.right + 2)
 	.attr("height", 15);
 
     charts[charts_index].chart.container.append("text")
-	.attr("class", "title")
+	.classed("title middletext", true)
 	.attr("x", (width/2))
 	.attr("y", -margin.top + 11)
-	.style("text-anchor", "middle")
 	.text(charts[charts_index].chart_title);
 
     charts[charts_index].chart.container.append("text")
-	.attr("class", "actionlabel")
+	.classed("actionlabel endtext", true)
 	.attr("x", width + margin.right - 10)
 	.attr("y", -margin.top + 29)
-	.style("text-anchor", "end")
 	.on("click", function() {
 		charts[charts_index].x.scale.chart.domain(charts[charts_index].x.scale.zoom.domain());
 		charts[charts_index].y.scale.chart.domain(charts[charts_index].y.scale.zoom.domain());
@@ -1765,10 +1752,9 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.text("Reset Zoom/Pan");
 
     charts[charts_index].chart.container.append("text")
-	.attr("class", "actionlabel")
+	.classed("actionlabel middletext", true)
 	.attr("x", (-margin.left/2))
 	.attr("y", (height + 30))
-	.attr("text-anchor", "middle")
 	.on("click", function() {
 		alert(help);
 	    })
@@ -1777,10 +1763,9 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
     // make sure that the library was properly loaded prior to adding the "Save as PNG" link
     if (typeof saveSvgAsPng == 'function') {
 	charts[charts_index].chart.container.append("text")
-	    .attr("class", "actionlabel")
+	    .classed("actionlabel middletext", true)
 	    .attr("x", (width / 4) * 2)
 	    .attr("y", -margin.top + 29)
-	    .style("text-anchor", "middle")
 	    .on("click", function() {
 		saveSvgAsPng(document.getElementById(location + "_svg"), charts[charts_index].chart_title + ".png", {
 		    backgroundColor: "#FFFFFF"
@@ -1792,38 +1777,35 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
     charts[charts_index].chart.show_all = charts[charts_index].chart.container.selectAll(".show")
 	.data([ charts[charts_index] ])
 	.enter().append("text")
-	.attr("class", "actionlabel")
-	.attr("x", (width / 4 * 3 - 41))
+	.classed("actionlabel middletext", true)
+	.attr("x", (width / 4 * 3 - 40))
 	.attr("y", -margin.top + 29)
-	.style("text-anchro", "middle")
 	.text("Show");
 
     charts[charts_index].chart.container.append("text")
-	.attr("x", (width / 4 * 3 - 10))
+	.classed("middletext", true)
+	.attr("x", (width / 4 * 3 - 14))
 	.attr("y", -margin.top + 29)
-	.style("text-anchro", "middle")
 	.text("/");
 
     charts[charts_index].chart.hide_all = charts[charts_index].chart.container.selectAll(".hide")
 	.data([ charts[charts_index] ])
 	.enter().append("text")
-	.attr("class", "actionlabel")
-	.attr("x", (width / 4 * 3 + 15))
+	.classed("actionlabel middletext", true)
+	.attr("x", (width / 4 * 3 + 11))
 	.attr("y", -margin.top + 29)
-	.style("text-anchor", "middle")
 	.text("Hide");
 
     charts[charts_index].chart.container.append("text")
-	.attr("x", (width / 4 * 3 + 42))
+	.classed("middletext", true)
+	.attr("x", (width / 4 * 3 + 43))
 	.attr("y", -margin.top + 29)
-	.style("text-anchor", "middle")
 	.text("All");
 
     charts[charts_index].chart.container.append("text")
-	.attr("class", "actionlabel")
+	.classed("actionlabel middletext", true)
 	.attr("x", (width / 4))
 	.attr("y", -margin.top + 29)
-	.style("text-anchor", "middle")
 	.on("click", function() {
 		var string = "\"" + charts[charts_index].chart_title + "\"\n\"" + charts[charts_index].x.axis.title.text + "\"";
 		var x_values = [];
@@ -1876,10 +1858,9 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.text("Export Data as CSV");
 
     charts[charts_index].chart.container.append("text")
-	.attr("class", "actionlabel")
+	.classed("actionlabel middletext", true)
 	.attr("x", (width - 10))
 	.attr("y", (height + 30))
-	.attr("text-anchor", "middle")
 	.on("click", function() {
 		var x_domain = charts[charts_index].x.scale.chart.domain();
 
@@ -1935,19 +1916,18 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.text("Apply X-Axis Zoom to All");
 
     charts[charts_index].chart.axis.x.chart = charts[charts_index].chart.container.append("g")
-	.attr("class", "x axis")
+	.classed("axis", true)
 	.attr("transform", "translate(0," + height +")")
 	.call(charts[charts_index].x.axis.chart);
 
     charts[charts_index].x.axis.title.dom = charts[charts_index].chart.axis.x.chart.append("text")
-	.attr("class", "axislabel")
+	.classed("bold middletext", true)
 	.attr("y", 30)
 	.attr("x", (width/2))
-	.style("text-anchor", "middle")
 	.text(charts[charts_index].x.axis.title.text);
 
     charts[charts_index].chart.axis.x.zoom = charts[charts_index].chart.container.append("g")
-	.attr("class", "x2 axis")
+	.classed("axis", true)
 	.attr("transform", "translate(0, -15)")
 	.call(charts[charts_index].x.axis.zoom);
 
@@ -1957,7 +1937,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.endAngle(function(d, i) { if (i) { return 2 * Math.PI; } else { return Math.PI; } });
 
     charts[charts_index].x.slider = charts[charts_index].chart.container.append("g")
-	.attr("class", "x slider")
+	.classed("slider", true)
 	.call(charts[charts_index].x.brush);
 
     charts[charts_index].x.slider.selectAll(".resize").append("path")
@@ -1969,18 +1949,17 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.attr("height", 20);
 
     charts[charts_index].chart.axis.y.chart = charts[charts_index].chart.container.append("g")
-	.attr("class", "y axis")
+	.classed("axis", true)
 	.call(charts[charts_index].y.axis.chart);
 
     charts[charts_index].y.axis.title.dom = charts[charts_index].chart.axis.y.chart.append("text")
-	.attr("class", "axislabel")
+	.classed("bold starttext", true)
 	.attr("x", -margin.left + 10)
 	.attr("y", -40)
-	.style("text-anchor", "start")
 	.text(charts[charts_index].y.axis.title.text);
 
     charts[charts_index].chart.axis.y.zoom = charts[charts_index].chart.container.append("g")
-	.attr("class", "y2 axis")
+	.classed("axis", true)
 	.attr("transform", "translate(" + (width + 15) + ", 0)")
 	.call(charts[charts_index].y.axis.zoom);
 
@@ -1990,7 +1969,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.endAngle(function(d, i) { if (i) { return 1.5 * Math.PI; } else { return 0.5 * Math.PI; } });
 
     charts[charts_index].y.slider = charts[charts_index].chart.container.append("g")
-	.attr("class", "y slider")
+	.classed("slider", true)
 	.call(charts[charts_index].y.brush);
 
     charts[charts_index].y.slider.selectAll(".resize").append("path")
@@ -2042,7 +2021,7 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
     charts[charts_index].chart.viewport = charts[charts_index].chart.container.selectAll(".viewport")
 	.data([ charts[charts_index] ])
 	.enter().append("rect")
-	.attr("class", "pane")
+	.classed("pane", true)
 	.attr("width", width)
 	.attr("height", height)
 	.on("mousedown", viewport_mousedown)
@@ -2051,10 +2030,9 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 	.on("mousemove", viewport_mousemove);
 
     charts[charts_index].chart.loading = charts[charts_index].chart.container.append("text")
-	.attr("class", "loadinglabel")
+	.classed("loadinglabel middletext", true)
 	.attr("x", (charts[charts_index].x.scale.chart(x_domain[1]) - charts[charts_index].x.scale.chart(x_domain[0])) / 2)
 	.attr("y", (charts[charts_index].y.scale.chart(y_domain[0]) - charts[charts_index].y.scale.chart(y_domain[1])) / 2 + 35)
-	.style("text-anchor", "middle")
 	.text("Loading");
 
     if (charts[charts_index].options.csvfiles) {
@@ -2133,18 +2111,18 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
 	    charts[charts_index].chart.zoomout = charts[charts_index].chart.container.append("g")
 		.attr("id", "zoomout")
-		.attr("class", "chartbutton")
-		.style("visibility", "hidden")
+		.classed("chartbutton", true)
+		.classed("hidden", true)
 		.on("click", function() {
 			zoom_it(charts_index, zoom_rate);
 			charts[charts_index].state.user_x_zoomed = true;
 			charts[charts_index].state.user_y_zoomed = true;
 		    })
 		.on("mouseout", function() {
-			charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause").style("visibility", "hidden");
+			charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause").classed("hidden", true);
 		    })
 		.on("mouseover", function() {
-			charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause").style("visibility", "visible");
+			charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause").classed("hidden", false);
 		    });
 
 	    charts[charts_index].chart.zoomout.append("circle")
@@ -2153,25 +2131,25 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		.attr("r", 11);
 
 	    charts[charts_index].chart.zoomout.append("text")
+		.classed("middletext", true)
 		.attr("x", 20)
 		.attr("y", 24)
-		.style("text-anchor", "middle")
 		.text("-");
 
 	    charts[charts_index].chart.zoomin = charts[charts_index].chart.container.append("g")
 		.attr("id", "zoomin")
-		.attr("class", "chartbutton")
-		.style("visibility", "hidden")
+		.classed("chartbutton", true)
+		.classed("hidden", true)
 		.on("click", function() {
 			zoom_it(charts_index, -1 * zoom_rate);
 			charts[charts_index].state.user_x_zoomed = true;
 			charts[charts_index].state.user_y_zoomed = true;
 		    })
 		.on("mouseout", function() {
-			charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause").style("visibility", "hidden");
+			charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause").classed("hidden", true);
 		    })
 		.on("mouseover", function() {
-			charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause").style("visibility", "visible");
+			charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause").classed("hidden", false);
 		    });
 
 	    charts[charts_index].chart.zoomin.append("circle")
@@ -2180,36 +2158,34 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		.attr("r", 11);
 
 	    charts[charts_index].chart.zoomin.append("text")
+		.classed("middletext", true)
 		.attr("x", 50)
 		.attr("y", 24)
-		.style("text-anchor", "middle")
 		.text("+");
 
 	    charts[charts_index].chart.xcursorline = charts[charts_index].chart.container.append("line")
 		.attr("id", "xcursorline")
-		.attr("class", "cursorline")
+		.classed("cursorline", true)
 		.attr("x1", 0)
 		.attr("y1", 0)
 		.attr("x2", 1)
 		.attr("y2", 1)
-		.style("visibility", "hidden");
+		.classed("hidden", true);
 
 	    charts[charts_index].chart.ycursorline = charts[charts_index].chart.container.append("line")
 		.attr("id", "ycursorline")
-		.attr("class", "cursorline")
+		.classed("cursorline", true)
 		.attr("x1", 0)
 		.attr("y1", 0)
 		.attr("x2", 1)
 		.attr("y2", 1)
-		.style("visibility", "hidden");
+		.classed("hidden", true);
 
 	    charts[charts_index].chart.coordinates = charts[charts_index].chart.container.append("text")
 		.attr("id", "coordinates")
-		.attr("class", "coordinates")
+		.classed("coordinates endtext hidden", true)
 		.attr("x", width - 5)
 		.attr("y", 15)
-		.style("text-anchor", "end")
-		.style("visibility", "hidden")
 		.text("coordinates");
 
 	    console.log("...finished building chart \"" + charts[charts_index].chart_title + "\"");
@@ -2221,8 +2197,8 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 
 		charts[charts_index].chart.playpause = charts[charts_index].chart.container.append("g")
 		    .attr("id", "playpause")
-		    .attr("class", "chartbutton")
-		    .style("visibility", "hidden")
+		    .classed("chartbutton", true)
+		    .classed("hidden", true)
 		    .on("click", function() {
 			if (charts[charts_index].state.live_update) {
 			    charts[charts_index].state.live_update = false;
@@ -2235,10 +2211,10 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 			}
 		    })
 		    .on("mouseout", function() {
-			charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause").style("visibility", "hidden");
+			charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause").classed("hidden", true);
 		    })
 		    .on("mouseover", function() {
-			charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause").style("visibility", "visible");
+			charts[charts_index].chart.container.selectAll("#zoomin,#zoomout,#playpause").classed("hidden", false);
 		    });
 
 		charts[charts_index].chart.playpause.append("circle")
@@ -2247,18 +2223,18 @@ function generate_chart(stacked, data_model, location, chart_title, x_axis_title
 		    .attr("r", 11);
 
 		charts[charts_index].chart.playpause.append("polygon")
-		    .attr("class", "playicon")
+		    .classed("playicon", true)
 		    .attr("points", "29,42 29,49 34,45");
 
 		charts[charts_index].chart.playpause.append("line")
-		    .attr("class", "pauseicon")
+		    .classed("pauseicon", true)
 		    .attr("x1", 37)
 		    .attr("y1", 41)
 		    .attr("x2", 37)
 		    .attr("y2", 50);
 
 		charts[charts_index].chart.playpause.append("line")
-		    .attr("class", "pauseicon")
+		    .classed("pauseicon", true)
 		    .attr("x1", 41)
 		    .attr("y1", 41)
 		    .attr("x2", 41)
@@ -2284,7 +2260,7 @@ function create_graph(stacked, data_model, location, chart_title, x_axis_title, 
 function finish_page() {
     // wait for chart generation to complete before logging that it is done and changing the page background
     charts_queue.await(function(error, results) {
-	    d3.select("body").style("background-color", "#CCCCCC");
+	    d3.select("body").classed("completedpage", true);
 	    console.log("Finished generating all charts");
 	});
 }
@@ -2331,7 +2307,7 @@ function mouseout_highlight_function(dataset) {
 }
 
 function highlight(dataset) {
-    dataset.dom.legend.label.style("font-weight", "bold");
+    dataset.dom.legend.label.classed("bold", true);
 
     if (dataset.chart.stacked) {
 	for (var i = 0; i < dataset.chart.datasets.length; i++) {
@@ -2340,18 +2316,17 @@ function highlight(dataset) {
 	    }
 
 	    if (i == dataset.index) {
-		dataset.chart.datasets[i].dom.path.style("opacity", default_opacity);
+		dataset.chart.datasets[i].dom.path.classed("unhighlighted", false);
 
 		if (dataset.chart.datasets[i].dom.points) {
-		    dataset.chart.datasets[i].dom.points.style("opacity", default_opacity)
-			.style("stroke-width", "5.0px");
+		    dataset.chart.datasets[i].dom.points.classed({"unhighlighted": false, "highlightedpoint": true});
 		}
 
 	    } else {
-		dataset.chart.datasets[i].dom.path.style("opacity", unhighlighted_opacity);
+		dataset.chart.datasets[i].dom.path.classed("unhighlighted", true);
 
 		if (dataset.chart.datasets[i].dom.points) {
-		    dataset.chart.datasets[i].dom.points.style("opacity", unhighlighted_opacity);
+		    dataset.chart.datasets[i].dom.points.classed({"unhighlighted": true, "highlightedpoint": false});
 		}
 	    }
 	}
@@ -2362,19 +2337,17 @@ function highlight(dataset) {
 	    }
 
 	    if (i == dataset.index) {
-		dataset.chart.datasets[i].dom.path.style("opacity", default_opacity)
-		    .style("stroke-width", "3.0px");
+		dataset.chart.datasets[i].dom.path.classed({"unhighlighted": false, "highlightedline": true });
 
 		if (dataset.chart.datasets[i].dom.points) {
-		    dataset.chart.datasets[i].dom.points.style("opacity", default_opacity)
+		    dataset.chart.datasets[i].dom.points.classed("unhighlighted", false)
 			.attr("r", 4);
 		}
 	    } else {
-		dataset.chart.datasets[i].dom.path.style("opacity", unhighlighted_opacity)
-		    .style("stroke-width", "1.5px");
+		dataset.chart.datasets[i].dom.path.classed({"unhighlighted": true, "highlightedline": false });
 
 		if (dataset.chart.datasets[i].dom.points) {
-		    dataset.chart.datasets[i].dom.points.style("opacity", unhighlighted_opacity);
+		    dataset.chart.datasets[i].dom.points.classed("unhighlighted", true);
 		}
 	    }
 	}
@@ -2386,18 +2359,17 @@ function highlight(dataset) {
 	}
 
 	if (i == dataset.index) {
-	    dataset.chart.datasets[i].dom.legend.rect.style("opacity", default_opacity);
+	    dataset.chart.datasets[i].dom.legend.rect.classed("unhighlighted", false);
 	} else {
-	    dataset.chart.datasets[i].dom.legend.rect.style("opacity", unhighlighted_opacity);
+	    dataset.chart.datasets[i].dom.legend.rect.classed("unhighlighted", true);
 	}
     }
 
-    dataset.dom.table.row.style("background-color", "black")
-	.style("color", "white");
+    dataset.dom.table.row.classed("highlightedrow", true);
 }
 
 function dehighlight(dataset) {
-    dataset.dom.legend.label.style("font-weight", "normal");
+    dataset.dom.legend.label.classed("bold", false);
 
     if (dataset.chart.stacked) {
 	for (var i = 0; i < dataset.chart.datasets.length; i++) {
@@ -2405,11 +2377,10 @@ function dehighlight(dataset) {
 		continue;
 	    }
 
-	    dataset.chart.datasets[i].dom.path.style("opacity", default_opacity);
+	    dataset.chart.datasets[i].dom.path.classed("unhighlighted", false);
 
 	    if (dataset.chart.datasets[i].dom.points) {
-		dataset.chart.datasets[i].dom.points.style("opacity", default_opacity)
-		    .style("stroke-width", "3.0px");
+		dataset.chart.datasets[i].dom.points.classed({"unhighlighted": false, "highlightedpoint": false});
 	    }
 	}
     } else {
@@ -2418,11 +2389,10 @@ function dehighlight(dataset) {
 		continue;
 	    }
 
-	    dataset.chart.datasets[i].dom.path.style("opacity", default_opacity)
-		.style("stroke-width", "1.5px");
+	    dataset.chart.datasets[i].dom.path.classed({"unhighlighted": false, "highlightedline": false});
 
 	    if (dataset.chart.datasets[i].dom.points) {
-		dataset.chart.datasets[i].dom.points.style("opacity", default_opacity)
+		dataset.chart.datasets[i].dom.points.classed("unhighlighted", false)
 		    .attr("r", 3);
 	    }
 	}
@@ -2433,11 +2403,10 @@ function dehighlight(dataset) {
 	    continue;
 	}
 
-	dataset.chart.datasets[i].dom.legend.rect.style("opacity", default_opacity);
+	dataset.chart.datasets[i].dom.legend.rect.classed("unhighlighted", false);
     }
 
-    dataset.dom.table.row.style("background-color", default_table_row_color)
-	.style("color", "black");
+    dataset.dom.table.row.classed("highlightedrow", false);
 }
 
 function tooltip_on(d, i) {
@@ -2445,19 +2414,31 @@ function tooltip_on(d, i) {
     var svg = d3.select(object[0][0].ownerSVGElement);
     var coordinates = d3.mouse(object[0][0].ownerSVGElement);
 
-    var string = d.name;
+    var string;
 
-    if (!isNaN(string)) {
-	string = tooltip_format_print(d);
+    // if d is an object (ex. legend label) then a reference to the
+    // tooltip can be embedded in the object.  if d is a literal
+    // (ex. axis label) then a reference to the tooltip must be
+    // embedded in the element object where the tooltip_on event
+    // originates
+    if (typeof d != "object") {
+	string = d;
+	d = this;
+    } else {
+	string = d.name;
+	d = d.dom;
     }
 
-    d.dom.tooltip = svg.append("g");
+    if (!isNaN(string)) {
+	string = tooltip_format_print(string);
+    }
 
-    var text = d.dom.tooltip.append("text")
-	.attr("class", "tooltip")
+    d.tooltip = svg.append("g");
+
+    var text = d.tooltip.append("text")
+	.classed("bold tooltip starttext", true)
 	.attr("x", coordinates[0] + 20)
 	.attr("y", coordinates[1] - 20)
-	.style("text-anchor", "start")
 	.text(string);
 
     var dimensions = text[0][0].getBBox();
@@ -2470,14 +2451,14 @@ function tooltip_on(d, i) {
     if ((dimensions.x + dimensions.width + tooltip_margin) > total_width) {
 	text.attr("x", dimensions.x + (total_width - (dimensions.x + dimensions.width + tooltip_margin + 5)));
 
-	// update the dimenions since they have changed
+	// update the dimensions since they have changed
 	dimensions = text[0][0].getBBox();
     }
 
     // insert the box before the text so that the text appears on top
     // of it rather than below it
-    d.dom.tooltip.insert("rect", ".tooltip")
-	.attr("class", "tooltip")
+    d.tooltip.insert("rect", ".tooltip")
+	.classed("bold tooltip", true)
 	.attr("x", dimensions.x - tooltip_margin)
 	.attr("y", dimensions.y - tooltip_margin)
 	.attr("rx", 10)
@@ -2487,8 +2468,19 @@ function tooltip_on(d, i) {
 }
 
 function tooltip_off(d, i) {
-    d.dom.tooltip.remove();
-    d.dom.tooltip = null;
+    // if d is an object (ex. legend label) then a reference to the
+    // tooltip can be obtained from the object.  if d is a literal
+    // (ex. axis label) then a reference to the tooltip must be
+    // obtained from the element object where the tooltip_off event
+    // originates
+    if (typeof d != "object") {
+	d = this;
+    } else {
+	d = d.dom;
+    }
+
+    d.tooltip.remove();
+    delete d.tooltip;
 }
 
 function set_x_axis_timeseries_label(chart) {
@@ -2512,12 +2504,12 @@ function show_all(chart) {
 	if (chart.datasets[i].hidden) {
 	    chart.datasets[i].hidden = false;
 	    chart.state.visible_datasets++;
-	    chart.datasets[i].dom.path.style("visibility", "visible");
+	    chart.datasets[i].dom.path.classed("hidden", false);
 	    if (chart.datasets[i].dom.points) {
-		chart.datasets[i].dom.points.style("visibility", "visible");
+		chart.datasets[i].dom.points.classed("hidden", false);
 	    }
-	    chart.datasets[i].dom.legend.rect.style("opacity", default_opacity);
-	    chart.datasets[i].dom.table.row.style("background-color", default_table_row_color);
+	    chart.datasets[i].dom.legend.rect.classed("invisible", false);
+	    chart.datasets[i].dom.table.row.classed("hiddenrow", false);
 	}
     }
 
@@ -2538,12 +2530,12 @@ function hide_all(chart) {
     for (var i = 0; i < chart.datasets.length; i++) {
 	if (! chart.datasets[i].hidden) {
 	    chart.datasets[i].hidden = true;
-	    chart.datasets[i].dom.path.style("visibility", "hidden");
+	    chart.datasets[i].dom.path.classed("hidden", true);
 	    if (chart.datasets[i].dom.points) {
-		chart.datasets[i].dom.points.style("visibility", "hidden");
+		chart.datasets[i].dom.points.classed("hidden", true);
 	    }
-	    chart.datasets[i].dom.legend.rect.style("opacity", hidden_opacity);
-	    chart.datasets[i].dom.table.row.style("background-color", hidden_dataset_table_row_color);
+	    chart.datasets[i].dom.legend.rect.classed("invisible", true);
+	    chart.datasets[i].dom.table.row.classed("hiddenrow", true);
 	}
     }
 
@@ -2559,17 +2551,19 @@ function toggle_hide_click_event(dataset) {
 function toggle_hide(dataset, skip_update_chart, skip_update_mouse) {
     if (dataset.hidden) {
 	dataset.hidden = false;
-	dataset.dom.path.style("visibility", "visible");
+	dataset.dom.path.classed("hidden", false);
 	if (dataset.dom.points) {
-	    dataset.dom.points.style("visibility", "visible");
+	    dataset.dom.points.classed("hidden", false);
 	}
-	dataset.dom.legend.rect.style("opacity", default_opacity);
-	dataset.dom.table.row.style("background-color", default_table_row_color);
+	dataset.dom.legend.rect.classed("invisible", false);
+	dataset.dom.table.row.classed("hiddenrow", false);
 	dataset.chart.state.visible_datasets++;
 
 	if (dataset.chart.state.chart_selection != -1) {
-	    dataset.dom.legend.rect.style("opacity", unhighlighted_opacity);
-	    dataset.dom.path.style("opacity", unhighlighted_opacity);
+	    dataset.dom.legend.rect.classed("unhighlighted", true);
+	    dataset.dom.path.classed("unhighlighted", true);
+	} else {
+	    dataset.dom.legend.rect.classed("unhighlighted", false);
 	}
     } else {
 	if ((dataset.chart.state.chart_selection != -1) &&
@@ -2587,12 +2581,12 @@ function toggle_hide(dataset, skip_update_chart, skip_update_mouse) {
 	}
 
 	dataset.hidden = true;
-	dataset.dom.path.style("visibility", "hidden");
+	dataset.dom.path.classed("hidden", true);
 	if (dataset.dom.points) {
-	    dataset.dom.points.style("visibility", "hidden");
+	    dataset.dom.points.classed("hidden", true);
 	}
-	dataset.dom.legend.rect.style("opacity", hidden_opacity);
-	dataset.dom.table.row.style("background-color", hidden_dataset_table_row_color);
+	dataset.dom.legend.rect.classed("invisible", true);
+	dataset.dom.table.row.classed("hiddenrow", true);
 	dataset.chart.state.visible_datasets--;
     }
 
@@ -2684,7 +2678,7 @@ function set_dataset_value(chart, dataset_index, values_index) {
     chart.datasets[dataset_index].dom.cursor_point.data([ chart.datasets[dataset_index].values[values_index] ]);
     chart.datasets[dataset_index].dom.cursor_point.attr("cx", get_chart_scaled_x)
     chart.datasets[dataset_index].dom.cursor_point.attr("cy", get_chart_scaled_y_stack)
-    chart.datasets[dataset_index].dom.cursor_point.style("visibility", "visible");
+    chart.datasets[dataset_index].dom.cursor_point.classed("hidden", false);
 }
 
 function set_stacked_value(chart, value) {
@@ -2817,7 +2811,7 @@ function clear_dataset_values(chart) {
 	}
 
 	chart.datasets[i].dom.table.value.text("");
-	chart.datasets[i].dom.cursor_point.style("visibility", "hidden");
+	chart.datasets[i].dom.cursor_point.classed("hidden", true);
 
 	// clear the dataset index cache
 	chart.datasets[i].cursor_index = null;
@@ -2978,7 +2972,7 @@ function viewport_mousemove(chart) {
 
     var mouse_values = [ chart.x.scale.chart.invert(mouse[0]), chart.y.scale.chart.invert(mouse[1]) ];
 
-    chart.chart.container.selectAll("#zoomin,#zoomout,#playpause,#coordinates,#xcursorline,#ycursorline").style("visibility", "visible");
+    chart.chart.container.selectAll("#zoomin,#zoomout,#playpause,#coordinates,#xcursorline,#ycursorline").classed("hidden", false);
 
     if (chart.data_model == "timeseries") {
 	if (chart.options.timezone == "local") {
@@ -3031,14 +3025,14 @@ function viewport_mousemove(chart) {
 	    .attr("y", selection_y)
 	    .attr("width", selection_width)
 	    .attr("height", selection_height)
-	    .style("visibility", "visible");
+	    .classed("hidden", false);
     }
 
     show_dataset_values(chart, mouse_values[0]);
 }
 
 function viewport_mouseout(chart) {
-    chart.chart.container.selectAll("#coordinates,#xcursorline,#ycursorline,#zoomin,#zoomout,#playpause").style("visibility", "hidden");
+    chart.chart.container.selectAll("#coordinates,#xcursorline,#ycursorline,#zoomin,#zoomout,#playpause").classed("hidden", true);
     chart.chart.container.select("#selection").remove();
     chart.state.selection_active = false;
 
@@ -3061,12 +3055,11 @@ function viewport_mousedown(chart) {
 
     chart.chart.selection = chart.chart.container.insert("rect", "#coordinates")
 	.attr("id", "selection")
-	.attr("class", "selection")
+	.classed("selection hidden", true)
 	.attr("x", 0)
 	.attr("y", 0)
 	.attr("width", 1)
-	.attr("height", 1)
-	.style("visibility", "hidden");
+	.attr("height", 1);
 
     chart.state.selection_active = true;
 }

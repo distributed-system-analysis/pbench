@@ -9,25 +9,30 @@
   details.
 */
 
+.completedpage { background-color: #CCCCCC; }
 .axis path, .axis line { fill: none; stroke: #000; shape-rendering: crispEdges; }
 .tick line { stroke: #CCCCCC; }
 .line { fill: none; stroke-width: 1.5px; cursor: crosshair; pointer-events: none; }
 circle.points { cursor: crosshair; pointer-events: none; }
+circle.value_points { cursor: crosshair; pointer-events: none; stroke: black; }
 line.points { stroke-width: 1.5px; cursor: crosshair; pointer-events: none; }
 .svg { font: 12px monospace; border: 2px solid black; background-color: white; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -o-user-select: none; user-select: none; }
-.axislabel { font-weight: bold; }
 .title { fill: #FFFFFF; font-weight: bold; }
 .titlebox { fill: #033E6B; }
-.legendlabel { }
 .area { opacity: 0.9; cursor: crosshair; pointer-events: none; }
 .legendrect { opacity: 0.9; }
 .legendrectoutline { stroke-width: 2px; fill-opacity: 0; }
+.unhighlighted { opacity: 0.15; }
+.highlightedline { stroke-width: 3.0px; }
+.highlightedpoint { stroke-width: 5.0px; }
+.highlightedrow { background-color: black; color: white; }
 rect.pane { cursor: crosshair; fill: none; pointer-events: all; }
 .actionlabel { cursor: pointer; fill: blue; }
 .actionlabel:hover { text-decoration: underline; font-weight: bold; fill: red; }
-.hidden { opacity: 0; }
+.invisible { opacity: 0; }
+.hidden { visibility: hidden; }
+.hiddenrow { background-color: rgba(152, 152, 152, 1); }
 .loadinglabel { opacity: 0.75; font: 120px monospace; color: black; pointer-events: none; }
-text.tooltip { font-weight: bold; }
 rect.tooltip { fill: #CCCCCC; stroke-width: 2px; stroke: black; }
 .slider path { fill: #033E6B;  stroke: black;  }
 .slider rect { fill-opacity: 0.25; }
@@ -38,6 +43,10 @@ rect.tooltip { fill: #CCCCCC; stroke-width: 2px; stroke: black; }
 .playicon { fill-opacity: 1.0; fill: #333333; pointer-events: all; cursor: pointer; }
 .pauseicon { pointer-events: all; cursor: pointer; }
 text { font-size: 12px; font-family: monospace; }
+text.starttext { text-anchor: start; }
+text.middletext { text-anchor: middle; }
+text.endtext { text-anchor: end; }
+text.bold { font-weight: bold; }
 
 .chart { border: 2px solid black; border-collapse: collapse; font-family: monospace; background-color: white; }
 .chart TH { padding-left: 6px; padding-right: 6px; padding-top: 2px; padding-bottom: 2px; border: 1px solid silver; }
