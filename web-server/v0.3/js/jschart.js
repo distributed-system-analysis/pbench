@@ -422,25 +422,26 @@ function parse_plot_file(chart, datasets_index, text) {
     chart.datasets[datasets_index] = new dataset(datasets_index, "", "No Samples", "No Samples", [], chart);
     chart.state.visible_datasets++;
 
-    chart.parsers.space.parseRows(text).map(function(row) {
-	var index = row[0].indexOf("#LABEL:");
+    var file = chart.parsers.space.parseRows(text);
+
+    for (var i=0; i<file.length; i++) {
+	var index = file[i][0].indexOf("#LABEL:");
 
 	if (index == -1) {
 	    if (chart.data_model == "histogram") {
-		chart.datasets[datasets_index].histogram.samples += +row[1];
-		chart.datasets[datasets_index].histogram.sum += (+row[0] * +row[1]);
+		chart.datasets[datasets_index].histogram.samples += +file[i][1];
+		chart.datasets[datasets_index].histogram.sum += (+file[i][0] * +file[i][1]);
 	    }
-	    chart.datasets[datasets_index].values.push(new datapoint(+row[0], +row[1], chart.datasets[datasets_index], null));
+	    chart.datasets[datasets_index].values.push(new datapoint(+file[i][0], +file[i][1], chart.datasets[datasets_index], null));
 	} else {
-	    var tmp = row[0].substring(7);
-	    row.shift();
-	    row.map(function(d) {
-		tmp = tmp + " " + d;
-	    });
+	    var tmp = file[i][0].substring(7);
+	    for (var x=1; x<file[i].length; x++) {
+		tmp += " " + file[i][x]
+	    }
 
 	    chart.datasets[datasets_index].name = tmp;
 	}
-    });
+    }
 
     if (chart.datasets[datasets_index].values.length > 0) {
 	chart.datasets[datasets_index].mean = d3.mean(chart.datasets[datasets_index].values, get_datapoint_y);
@@ -647,10 +648,10 @@ function live_update(chart) {
 			continue;
 		    }
 
-		    json.data.map(function(d) {
-			chart.datasets[dataset_index].values.push(new datapoint(null, d[index], chart.datasets[dataset_index], d[0]));
-			chart.datasets[dataset_index].last_timestamp = d[0];
-		    });
+		    for (var i=0; i<json.data.length; i++) {
+			chart.datasets[dataset_index].values.push(new datapoint(null, json.data[i][index], chart.datasets[dataset_index], json.data[i][0]));
+			chart.datasets[dataset_index].last_timestamp = json.data[i][0];
+		    }
 
 		    if (chart.options.history_length) {
 			var delta = chart.datasets[dataset_index].values.length - chart.options.history_length;
@@ -660,9 +661,9 @@ function live_update(chart) {
 			}
 		    }
 
-		    chart.datasets[dataset_index].values.map(function(d) {
-			d.x = d.timestamp;
-		    });
+		    for (var i=0; i<chart.datasets[dataset_index].values.length; i++) {
+			chart.datasets[dataset_index].values[i].x = chart.datasets[dataset_index].values[i].timestamp;
+		    }
 
 		    var mean;
 		    var median;
@@ -727,11 +728,11 @@ function load_json(chart, callback) {
 
 		    chart.datasets[dataset_index] = new dataset(index-1, json.data_series_names[index], 0, 0, [], chart);
 
-		    json.data.map(function(d) {
-			chart.datasets[dataset_index].values.push(new datapoint(d[x_axis_index], d[index], chart.datasets[dataset_index], d[x_axis_index]));
+		    for (var i=0; i<json.data.length; i++) {
+			chart.datasets[dataset_index].values.push(new datapoint(json.data[i][x_axis_index], json.data[i][index], chart.datasets[dataset_index], json.data[i][x_axis_index]));
 			chart.state.visible_datasets++;
-			chart.datasets[dataset_index].last_timestamp = d[x_axis_index];
-		    });
+			chart.datasets[dataset_index].last_timestamp = json.data[i][x_axis_index];
+		    }
 
 		    if (chart.datasets[dataset_index].values.length > 0) {
 			chart.datasets[dataset_index].mean = d3.mean(chart.datasets[dataset_index].values, get_datapoint_y);
@@ -778,29 +779,31 @@ function load_csv_files(url, chart, callback) {
 
 		var sample_counter = 0;
 
-		var data = d3.csv.parseRows(text).map(function(row) {
+		var data = d3.csv.parseRows(text);
+
+		for (var x=0; x<data.length; x++) {
 		    if (sample_counter == 0) {
-			for (var i=1; i<row.length; i++) {
-			    chart.datasets[index_base + i - 1] = new dataset(index_base + i - 1, row[i], "No Samples", "No Samples", [], chart);
+			for (var i=1; i<data[x].length; i++) {
+			    chart.datasets[index_base + i - 1] = new dataset(index_base + i - 1, data[x][i], "No Samples", "No Samples", [], chart);
 			    chart.state.visible_datasets++;
 			}
 		    } else {
-			for (var i=1; i<row.length; i++) {
-			    if (row[i] == "") {
+			for (var i=1; i<data[x].length; i++) {
+			    if (data[x][i] == "") {
 				continue;
 			    }
 
-			    chart.datasets[index_base + i - 1].values.push(new datapoint(+row[0], +row[i], chart.datasets[index_base + i - 1], null));
+			    chart.datasets[index_base + i - 1].values.push(new datapoint(+data[x][0], +data[x][i], chart.datasets[index_base + i - 1], null));
 
 			    if (chart.data_model == "histogram") {
-				chart.datasets[index_base + i -1].histogram.samples += +row[i];
-				chart.datasets[index_base + i -1].histogram.sum += (+row[0] * +row[i]);
+				chart.datasets[index_base + i -1].histogram.samples += +data[x][i];
+				chart.datasets[index_base + i -1].histogram.sum += (+data[x][0] * +data[x][i]);
 			    }
 			}
 		    }
 
 		    sample_counter++;
-		});
+		}
 
 		for (var i=index_base; i<chart.datasets.length; i++) {
 		    if (chart.datasets[i].values.length) {
@@ -1027,24 +1030,24 @@ function complete_chart(chart) {
 	    .classed("hidden", function(d) { if (d.hidden) { return true; } else { return false; }; })
 	    .attr("clip-path", "url(#clip)");
 
-	chart.datasets.map(function(d) {
-		if (d.values.length > 1) {
-		    return;
-		}
+	for (var i=0; i<chart.datasets.length; i++) {
+	    if (chart.datasets[i].values.length > 1) {
+		continue;
+	    }
 
-		d3.select(d.dom.path[0][0].parentNode).selectAll(".points")
-		    .data(d.values)
-		    .enter().append("line")
-		    .classed("points", function(b) { d.dom.points = d3.select(this); return true; })
-		    .attr("r", 3)
-		    .attr("clip-path", "url(#clip)")
-		    .style("stroke", mycolors(d.index))
-		    .classed("hidden", function(d) { if (d.hidden) { return true; } else { return false; }; })
-		    .attr("x1", get_chart_scaled_x)
-		    .attr("x2", get_chart_scaled_x)
-		    .attr("y1", get_chart_scaled_y0)
-		    .attr("y2", get_chart_scaled_y_y0);
-	    });
+	    chart.datasets[i].dom.points = d3.select(chart.datasets[i].dom.path[0][0].parentNode).selectAll(".points")
+		.data(chart.datasets[i].values)
+		.enter().append("line")
+		.classed("points", true)
+		.attr("r", 3)
+		.attr("clip-path", "url(#clip)")
+		.style("stroke", mycolors(chart.datasets[i].index))
+		.classed("hidden", function(d) { if (d.hidden) { return true; } else { return false; }; })
+		.attr("x1", get_chart_scaled_x)
+		.attr("x2", get_chart_scaled_x)
+		.attr("y1", get_chart_scaled_y0)
+		.attr("y2", get_chart_scaled_y_y0);
+	}
     } else {
 	chart.chart.plot = chart.chart.container.selectAll(".plot")
 	    .data(chart.datasets)
@@ -1058,39 +1061,39 @@ function complete_chart(chart) {
 	    .classed("hidden", function(d) { if (d.hidden) { return true; } else { return false; }; })
 	    .attr("clip-path", "url(#clip)");
 
-	chart.datasets.map(function(d) {
-		if (d.values.length > 1) {
-		    return;
-		}
+	for (var i=0; i<chart.datasets.length; i++) {
+	    if (chart.datasets[i].values.length > 1) {
+		continue;
+	    }
 
-		d3.select(d.dom.path[0][0].parentNode).selectAll(".points")
-		    .data(d.values)
-		    .enter().append("circle")
-		    .classed("points", function(b) { d.dom.points = d3.select(this); return true; })
-		    .attr("r", 3)
-		    .attr("clip-path", "url(#clip)")
-		    .style("fill", mycolors(d.index))
-		    .style("stroke", mycolors(d.index))
-		    .classed("hidden", function(d) { if (d.hidden) { return true; } else { return false; }; })
-		    .attr("cx", get_chart_scaled_x)
-		    .attr("cy", get_chart_scaled_y);
-	    });
+	    chart.datasets[i].dom.points = d3.select(chart.datasets[i].dom.path[0][0].parentNode).selectAll(".points")
+		.data(chart.datasets[i].values)
+		.enter().append("circle")
+		.classed("points", true)
+		.attr("r", 3)
+		.attr("clip-path", "url(#clip)")
+		.style("fill", mycolors(chart.datasets[i].index))
+		.style("stroke", mycolors(chart.datasets[i].index))
+		.classed("hidden", function(d) { if (d.hidden) { return true; } else { return false; }; })
+		.attr("cx", get_chart_scaled_x)
+		.attr("cy", get_chart_scaled_y);
+	}
     }
 
     chart.chart.cursor_points = chart.chart.container.append("g")
 	.classed("cursor_points", true);
 
-    chart.datasets.map(function(d) {
-	chart.chart.cursor_points.selectAll(".cursor_points")
-	    .data([ d.values[0] ])
+    for (var i=0; i<chart.datasets.length; i++) {
+	chart.datasets[i].dom.cursor_point = chart.chart.cursor_points.selectAll(".cursor_points")
+	    .data([ chart.datasets[i].values[0] ])
 	    .enter().append("circle")
-	    .classed("value_points hidden", function(b) { d.dom.cursor_point = d3.select(this); return true; })
+	    .classed("value_points hidden", true)
 	    .attr("r", 5)
 	    .attr("clip-path", "url(#clip)")
-	    .style("fill", mycolors(d.index))
+	    .style("fill", mycolors(chart.datasets[i].index))
 	    .attr("cx", get_chart_scaled_x)
 	    .attr("cy", get_chart_scaled_y_stack);
-    });
+    }
 
     return errors;
 }
@@ -1277,82 +1280,82 @@ function create_table(chart) {
 	.attr("align", "right")
 	.text("Samples");
 
-    chart.datasets.map(function(d) {
-	d.dom.table.row = chart.dom.table.table.selectAll(".tablerow")
-	    .data([ d ])
+    for (var i=0; i<chart.datasets.length; i++) {
+	chart.datasets[i].dom.table.row = chart.dom.table.table.selectAll(".tablerow")
+	    .data([ chart.datasets[i] ])
 	    .enter().append("tr")
 	    .attr("id", "datarow")
 	    .on("click", table_row_click)
 	    .on("mouseover", mouseover_highlight_function)
 	    .on("mouseout", mouseout_highlight_function);
 
-	d.dom.table.row.append("td")
+	chart.datasets[i].dom.table.row.append("td")
 	    .attr("align", "left")
-	    .text(d.name);
+	    .text(chart.datasets[i].name);
 
-	d.dom.table.value = d.dom.table.row.append("td")
+	chart.datasets[i].dom.table.value = chart.datasets[i].dom.table.row.append("td")
 	    .attr("align", "right");
 
-	d.dom.table.mean = d.dom.table.row.append("td")
+	chart.datasets[i].dom.table.mean = chart.datasets[i].dom.table.row.append("td")
 	    .attr("align", "right")
 	    .text(function() {
 		if (chart.data_model == "histogram") {
-		    return table_print(chart, d.histogram.mean);
+		    return table_print(chart, chart.datasets[i].histogram.mean);
 		} else {
-		    return table_print(chart, d.mean);
+		    return table_print(chart, chart.datasets[i].mean);
 		}
 	    });
 
-	d.dom.table.median = d.dom.table.row.append("td")
+	chart.datasets[i].dom.table.median = chart.datasets[i].dom.table.row.append("td")
 	    .attr("align", "right")
 	    .text(function() {
 		if (chart.data_model == "histogram") {
-		    return table_print(chart, d.histogram.median);
+		    return table_print(chart, chart.datasets[i].histogram.median);
 		} else {
-		    return table_print(chart, d.median);
+		    return table_print(chart, chart.datasets[i].median);
 		}
 	    });
 
 	if (chart.data_model == "histogram") {
-	    d.dom.table.histogram.min = d.dom.table.row.append("td")
+	    chart.datasets[i].dom.table.histogram.min = chart.datasets[i].dom.table.row.append("td")
 		.attr("align", "right")
-		.text(table_print(chart, d.histogram.min));
+		.text(table_print(chart, chart.datasets[i].histogram.min));
 
-	    d.dom.table.histogram.max = d.dom.table.row.append("td")
+	    chart.datasets[i].dom.table.histogram.max = chart.datasets[i].dom.table.row.append("td")
 		.attr("align", "right")
-		.text(table_print(chart, d.histogram.max));
+		.text(table_print(chart, chart.datasets[i].histogram.max));
 
-	    d.dom.table.histogram.p90 = d.dom.table.row.append("td")
+	    chart.datasets[i].dom.table.histogram.p90 = chart.datasets[i].dom.table.row.append("td")
 		.attr("align", "right")
-		.text(table_print(chart, d.histogram.p90));
+		.text(table_print(chart, chart.datasets[i].histogram.p90));
 
-	    d.dom.table.histogram.p95 = d.dom.table.row.append("td")
+	    chart.datasets[i].dom.table.histogram.p95 = chart.datasets[i].dom.table.row.append("td")
 		.attr("align", "right")
-		.text(table_print(chart, d.histogram.p95));
+		.text(table_print(chart, chart.datasets[i].histogram.p95));
 
-	    d.dom.table.histogram.p99 = d.dom.table.row.append("td")
+	    chart.datasets[i].dom.table.histogram.p99 = chart.datasets[i].dom.table.row.append("td")
 		.attr("align", "right")
-		.text(table_print(chart, d.histogram.p99));
+		.text(table_print(chart, chart.datasets[i].histogram.p99));
 
-	    d.dom.table.histogram.p9999 = d.dom.table.row.append("td")
+	    chart.datasets[i].dom.table.histogram.p9999 = chart.datasets[i].dom.table.row.append("td")
 		.attr("align", "right")
-		.text(table_print(chart, d.histogram.p9999));
+		.text(table_print(chart, chart.datasets[i].histogram.p9999));
 	}
 
-	d.dom.table.samples = d.dom.table.row.append("td")
+	chart.datasets[i].dom.table.samples = chart.datasets[i].dom.table.row.append("td")
 	    .attr("align", "right")
 	    .text(function() {
 		if (chart.data_model == "histogram") {
-		    return chart.formatting.table.integer(d.histogram.samples);
+		    return chart.formatting.table.integer(chart.datasets[i].histogram.samples);
 		} else {
-		    return chart.formatting.table.integer(d.values.length);
+		    return chart.formatting.table.integer(chart.datasets[i].values.length);
 		}
 	    });
 
-	if (d.hidden) {
-	    d.dom.table.row.classed("hiddenrow", true);
+	if (chart.datasets[i].hidden) {
+	    chart.datasets[i].dom.table.row.classed("hiddenrow", true);
 	}
-    });
+    }
 
     chart.dom.table.data_rows = chart.dom.table.table.selectAll("#datarow");
 
@@ -1426,12 +1429,12 @@ function create_table(chart) {
 	var cell = row.append("td")
 	    .attr("colSpan", colspan);
 
-	chart.options.raw_data_sources.map(function(d) {
+	for (var i=0; i<chart.options.raw_data_sources.length; i++) {
 	    cell.append("a")
-		.attr("href", d)
-		.text(d.substr(d.lastIndexOf("/") + 1))
+		.attr("href", chart.options.raw_data_sources[i])
+		.text(chart.options.raw_data_sources[i].substr(chart.options.raw_data_sources[i].lastIndexOf("/") + 1))
 		.append("br");
-	});
+	}
     }
 }
 
@@ -1799,17 +1802,17 @@ function build_chart(chart) {
 	.on("click", function() {
 		var string = "\"" + chart.chart_title + "\"\n\"" + chart.x.axis.title.text + "\"";
 		var x_values = [];
-		chart.datasets.map(function(d) {
-			string = string + ",\"" + d.name + " (" + chart.y.axis.title.text + ")\"";
+		for (var i=0; i<chart.datasets.length; i++) {
+		    string = string + ",\"" + chart.datasets[i].name + " (" + chart.y.axis.title.text + ")\"";
 
-			// create a temporary placeholder for storing
-			// the next index to start searching at below
-			d.tmp_index = 0;
+		    // create a temporary placeholder for storing
+		    // the next index to start searching at below
+		    chart.datasets[i].tmp_index = 0;
 
-			d.values.map(function(b) {
-				x_values.push(b.x);
-			    });
-		    });
+		    for (var x=0; x<chart.datasets[i].values.length; x++) {
+			x_values.push(chart.datasets[i].values[x].x);
+		    }
+		}
 		string = string + "\n";
 
 		x_values.sort(function(a, b) { return a - b; });
@@ -1854,54 +1857,52 @@ function build_chart(chart) {
 	.on("click", function() {
 		var x_domain = chart.x.scale.chart.domain();
 
-		chart.charts.map(function(d) {
-			if (d.chart.container == chart.chart.container) {
-			    // skip applying zoom to myself
-			    return;
-			}
+		for (var i=0; i<chart.charts.length; i++) {
+		    if (chart.charts[i].chart.container == chart.chart.container) {
+			// skip applying zoom to myself
+			continue;
+		    }
 
-			var target_domain = d.x.scale.zoom.domain();
-			var source_domain = chart.x.scale.zoom.domain();
+		    var target_domain = chart.charts[i].x.scale.zoom.domain();
+		    var source_domain = chart.x.scale.zoom.domain();
 
-			var domain_check = 0;
+		    var domain_check = 0;
 
-			if (chart.data_model == "timeseries") {
-			    if (d.data_model == "timeseries") {
-				if ((target_domain[0].getTime() !== source_domain[0].getTime()) ||
-				    (target_domain[1].getTime() !== source_domain[1].getTime())) {
-				    domain_check = 1;
-				}
-			    } else {
+		    if (chart.data_model == "timeseries") {
+			if (chart.charts[i].data_model == "timeseries") {
+			    if ((target_domain[0].getTime() !== source_domain[0].getTime()) ||
+				(target_domain[1].getTime() !== source_domain[1].getTime())) {
 				domain_check = 1;
 			    }
 			} else {
-			    if (d.data_model == "timeseries") {
+			    domain_check = 1;
+			}
+		    } else {
+			if (chart.charts[i].data_model == "timeseries") {
+			    domain_check = 1;
+			} else {
+			    if ((target_domain[0] !== source_domain[0]) ||
+				(target_domain[1] !== source_domain[1])) {
 				domain_check = 1;
-			    } else {
-				if ((target_domain[0] !== source_domain[0]) ||
-				    (target_domain[1] !== source_domain[1])) {
-				    domain_check = 1;
-				}
 			    }
 			}
+		    }
 
-			if (domain_check) {
-			    console.log("Skipping application of X-Axis zoom from \"" + chart.chart_title + "\" to \"" + d.chart_title + "\" because data domains are not a match");
-			    return;
-			}
+		    if (domain_check) {
+			console.log("Skipping application of X-Axis zoom from \"" + chart.chart_title + "\" to \"" + chart.charts[i].chart_title + "\" because data domains are not a match");
+			return;
+		    }
 
-			d.x.scale.chart.domain(x_domain);
+		    chart.charts[i].x.scale.chart.domain(x_domain);
 
-			d.x.brush.extent(x_domain);
+		    chart.charts[i].x.brush.extent(x_domain);
 
-			d.chart.axis.x.chart.call(d.x.axis.chart);
+		    chart.charts[i].chart.axis.x.chart.call(chart.charts[i].x.axis.chart);
 
-			d.x.slider.call(d.x.brush);
+		    chart.charts[i].x.slider.call(chart.charts[i].x.brush);
 
-			update_dataset_chart_elements(d);
-
-			fix_y_axis_labels(chart);
-		    });
+		    update_dataset_chart_elements(chart.charts[i]);
+		}
 	    })
 	.text("Apply X-Axis Zoom to All");
 
