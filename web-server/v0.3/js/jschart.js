@@ -1691,7 +1691,6 @@ function build_chart(chart) {
 	.data([chart])
 	.enter().append("svg")
 	.classed("svg", true)
-	.attr("id", location + "_svg")
 	.attr("width", chart.dimensions.viewport_width + chart.dimensions.margin.left + chart.dimensions.margin.right)
 	.attr("height", chart.dimensions.viewport_height + chart.dimensions.margin.top + chart.dimensions.margin.bottom + ((Math.ceil(chart.dataset_count / chart.dimensions.legend_properties.columns) - 1 + chart.options.legend_entries.length) * chart.dimensions.legend_properties.row_height));
 
@@ -1758,7 +1757,7 @@ function build_chart(chart) {
 	    .attr("x", (chart.dimensions.viewport_width / 4) * 2)
 	    .attr("y", -chart.dimensions.margin.top + 29)
 	    .on("click", function() {
-		saveSvgAsPng(document.getElementById(location + "_svg"), chart.chart_title + ".png", {
+		saveSvgAsPng(this.ownerSVGElement, chart.chart_title + ".png", {
 		    backgroundColor: "#FFFFFF"
 		});
 	    })
