@@ -43,6 +43,7 @@ function dataset(index, name, mean, median, values, chart) {
     this.median = median;
     this.highlighted = false;
     this.hidden = false;
+    this.invalid = false;
     this.max_y_value = null;
     this.cursor_index = null;
     this.histogram = { samples: 0,
@@ -184,7 +185,9 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
 		     };
 
     this.datasets_queue = null;
-    this.datasets = [];
+    this.datasets = { all: [],
+		      valid: []
+		    };
 
     this.options = { timezone: null,
 		     legend_entries: null,
@@ -361,15 +364,15 @@ function compute_stacked_median(chart) {
     var foo = [];
     var bar = [];
 
-    for (var i=0; i<chart.datasets.length; i++) {
-	if (!chart.datasets[i].hidden &&
-	    (chart.datasets[i].values !== undefined)) {
-	    for (var x=0; x<chart.datasets[i].values.length; x++) {
-		if (foo[chart.datasets[i].values[x].x] === undefined) {
-		    foo[chart.datasets[i].values[x].x] = 0;
+    for (var i=0; i<chart.datasets.valid.length; i++) {
+	if (!chart.datasets.valid[i].hidden &&
+	    (chart.datasets.valid[i].values !== undefined)) {
+	    for (var x=0; x<chart.datasets.valid[i].values.length; x++) {
+		if (foo[chart.datasets.valid[i].values[x].x] === undefined) {
+		    foo[chart.datasets.valid[i].values[x].x] = 0;
 		}
 
-		foo[chart.datasets[i].values[x].x] += chart.datasets[i].values[x].y;
+		foo[chart.datasets.valid[i].values[x].x] += chart.datasets.valid[i].values[x].y;
 	    }
 	}
     }
@@ -389,10 +392,10 @@ function compute_stacked_mean(chart) {
     var sum = 0;
     var counter = 0;
 
-    for (var i=0; i<chart.datasets.length; i++) {
-	if (!chart.datasets[i].hidden) {
-	    if (!isNaN(chart.datasets[i].mean)) {
-		sum += chart.datasets[i].mean;
+    for (var i=0; i<chart.datasets.valid.length; i++) {
+	if (!chart.datasets.valid[i].hidden) {
+	    if (!isNaN(chart.datasets.valid[i].mean)) {
+		sum += chart.datasets.valid[i].mean;
 		counter++;;
 	    }
 	}
@@ -419,7 +422,7 @@ function mycolors(index) {
 }
 
 function parse_plot_file(chart, datasets_index, text) {
-    chart.datasets[datasets_index] = new dataset(datasets_index, "", "No Samples", "No Samples", [], chart);
+    chart.datasets.all[datasets_index] = new dataset(datasets_index, "", "No Samples", "No Samples", [], chart);
     chart.state.visible_datasets++;
 
     var file = chart.parsers.space.parseRows(text);
@@ -429,81 +432,84 @@ function parse_plot_file(chart, datasets_index, text) {
 
 	if (index == -1) {
 	    if (chart.data_model == "histogram") {
-		chart.datasets[datasets_index].histogram.samples += +file[i][1];
-		chart.datasets[datasets_index].histogram.sum += (+file[i][0] * +file[i][1]);
+		chart.datasets.all[datasets_index].histogram.samples += +file[i][1];
+		chart.datasets.all[datasets_index].histogram.sum += (+file[i][0] * +file[i][1]);
 	    }
-	    chart.datasets[datasets_index].values.push(new datapoint(+file[i][0], +file[i][1], chart.datasets[datasets_index], null));
+	    chart.datasets.all[datasets_index].values.push(new datapoint(+file[i][0], +file[i][1], chart.datasets.all[datasets_index], null));
 	} else {
 	    var tmp = file[i][0].substring(7);
 	    for (var x=1; x<file[i].length; x++) {
 		tmp += " " + file[i][x]
 	    }
 
-	    chart.datasets[datasets_index].name = tmp;
+	    chart.datasets.all[datasets_index].name = tmp;
 	}
     }
 
-    if (chart.datasets[datasets_index].values.length > 0) {
-	chart.datasets[datasets_index].mean = d3.mean(chart.datasets[datasets_index].values, get_datapoint_y);
-	chart.datasets[datasets_index].median = d3.median(chart.datasets[datasets_index].values, get_datapoint_y);
+    if (chart.datasets.all[datasets_index].values.length > 0) {
+	chart.datasets.all[datasets_index].mean = d3.mean(chart.datasets.all[datasets_index].values, get_datapoint_y);
+	chart.datasets.all[datasets_index].median = d3.median(chart.datasets.all[datasets_index].values, get_datapoint_y);
 
 	if (chart.data_model == "histogram") {
-	    chart.datasets[datasets_index].histogram.mean = chart.datasets[datasets_index].histogram.sum / chart.datasets[datasets_index].histogram.samples;
-	    chart.datasets[datasets_index].histogram.min = chart.datasets[datasets_index].values[0].x;
-	    chart.datasets[datasets_index].histogram.max = chart.datasets[datasets_index].values[chart.datasets[datasets_index].values.length - 1].x;
+	    chart.datasets.all[datasets_index].histogram.mean = chart.datasets.all[datasets_index].histogram.sum / chart.datasets.all[datasets_index].histogram.samples;
+	    chart.datasets.all[datasets_index].histogram.min = chart.datasets.all[datasets_index].values[0].x;
+	    chart.datasets.all[datasets_index].histogram.max = chart.datasets.all[datasets_index].values[chart.datasets.all[datasets_index].values.length - 1].x;
 
 	    var count = 0;
-	    var threshold = chart.datasets[datasets_index].histogram.samples * 0.5;
-	    var threshold_p90 = chart.datasets[datasets_index].histogram.samples * 0.9;
-	    var threshold_p95 = chart.datasets[datasets_index].histogram.samples * 0.95;
-	    var threshold_p99 = chart.datasets[datasets_index].histogram.samples * 0.99;
-	    var threshold_p9999 = chart.datasets[datasets_index].histogram.samples * 0.9999;
-	    for (var i=0; i < chart.datasets[datasets_index].values.length; i++) {
-		count += chart.datasets[datasets_index].values[i].y;
-		if ((chart.datasets[datasets_index].histogram.median === null) && (count >= threshold)) {
-		    chart.datasets[datasets_index].histogram.median = chart.datasets[datasets_index].values[i].x;
+	    var threshold = chart.datasets.all[datasets_index].histogram.samples * 0.5;
+	    var threshold_p90 = chart.datasets.all[datasets_index].histogram.samples * 0.9;
+	    var threshold_p95 = chart.datasets.all[datasets_index].histogram.samples * 0.95;
+	    var threshold_p99 = chart.datasets.all[datasets_index].histogram.samples * 0.99;
+	    var threshold_p9999 = chart.datasets.all[datasets_index].histogram.samples * 0.9999;
+	    for (var i=0; i < chart.datasets.all[datasets_index].values.length; i++) {
+		count += chart.datasets.all[datasets_index].values[i].y;
+		if ((chart.datasets.all[datasets_index].histogram.median === null) && (count >= threshold)) {
+		    chart.datasets.all[datasets_index].histogram.median = chart.datasets.all[datasets_index].values[i].x;
 		}
-		if ((chart.datasets[datasets_index].histogram.p90 === null) && (count >= threshold_p90)) {
-		    chart.datasets[datasets_index].histogram.p90 = chart.datasets[datasets_index].values[i].x;
+		if ((chart.datasets.all[datasets_index].histogram.p90 === null) && (count >= threshold_p90)) {
+		    chart.datasets.all[datasets_index].histogram.p90 = chart.datasets.all[datasets_index].values[i].x;
 		}
-		if ((chart.datasets[datasets_index].histogram.p95 === null) && (count >= threshold_p95)) {
-		    chart.datasets[datasets_index].histogram.p95 = chart.datasets[datasets_index].values[i].x;
+		if ((chart.datasets.all[datasets_index].histogram.p95 === null) && (count >= threshold_p95)) {
+		    chart.datasets.all[datasets_index].histogram.p95 = chart.datasets.all[datasets_index].values[i].x;
 		}
-		if ((chart.datasets[datasets_index].histogram.p99 === null) && (count >= threshold_p99)) {
-		    chart.datasets[datasets_index].histogram.p99 = chart.datasets[datasets_index].values[i].x;
+		if ((chart.datasets.all[datasets_index].histogram.p99 === null) && (count >= threshold_p99)) {
+		    chart.datasets.all[datasets_index].histogram.p99 = chart.datasets.all[datasets_index].values[i].x;
 		}
-		if ((chart.datasets[datasets_index].histogram.p9999 === null) && (count >= threshold_p9999)) {
-		    chart.datasets[datasets_index].histogram.p9999 = chart.datasets[datasets_index].values[i].x;
+		if ((chart.datasets.all[datasets_index].histogram.p9999 === null) && (count >= threshold_p9999)) {
+		    chart.datasets.all[datasets_index].histogram.p9999 = chart.datasets.all[datasets_index].values[i].x;
 		}
 	    }
 	}
     } else {
-	chart.datasets[datasets_index].mean = "No Samples";
-	chart.datasets[datasets_index].median = "No Samples";
+	chart.datasets.all[datasets_index].invalid = true;
+	chart.datasets.all[datasets_index].hidden = true;
+
+	chart.datasets.all[datasets_index].mean = "No Samples";
+	chart.datasets.all[datasets_index].median = "No Samples";
 
 	if (chart.data_model == "histogram") {
-	    chart.datasets[datasets_index].histogram.mean = "No Samples";
-	    chart.datasets[datasets_index].histogram.median = "No Samples";
-	    chart.datasets[datasets_index].histogram.min = "No Samples";
-	    chart.datasets[datasets_index].histogram.max = "No Samples";
-	    chart.datasets[datasets_index].histogram.p90 = "No Samples";
-	    chart.datasets[datasets_index].histogram.p95 = "No Samples";
-	    chart.datasets[datasets_index].histogram.p99 = "No Samples";
-	    chart.datasets[datasets_index].histogram.p9999 = "No Samples";
+	    chart.datasets.all[datasets_index].histogram.mean = "No Samples";
+	    chart.datasets.all[datasets_index].histogram.median = "No Samples";
+	    chart.datasets.all[datasets_index].histogram.min = "No Samples";
+	    chart.datasets.all[datasets_index].histogram.max = "No Samples";
+	    chart.datasets.all[datasets_index].histogram.p90 = "No Samples";
+	    chart.datasets.all[datasets_index].histogram.p95 = "No Samples";
+	    chart.datasets.all[datasets_index].histogram.p99 = "No Samples";
+	    chart.datasets.all[datasets_index].histogram.p9999 = "No Samples";
 	}
     }
 
     if (chart.options.hide_dataset_threshold &&
-	(chart.datasets[i].max_y_value < chart.options.hide_dataset_threshold)) {
-	chart.datasets[i].hidden = true;
+	(chart.datasets.all[i].max_y_value < chart.options.hide_dataset_threshold)) {
+	chart.datasets.all[i].hidden = true;
 	chart.state.visible_datasets--;
     }
 }
 
 function update_domains(chart) {
     chart.x.scale.chart.domain([
-	d3.min(chart.datasets, get_dataset_min_x),
-	d3.max(chart.datasets, get_dataset_max_x)
+	d3.min(chart.datasets.valid, get_dataset_min_x),
+	d3.max(chart.datasets.valid, get_dataset_max_x)
     ]);
 
     var domain = chart.x.scale.chart.domain();
@@ -542,16 +548,16 @@ function update_domains(chart) {
     }
 
     if (chart.stacked) {
-	chart.datasets = chart.functions.stack(chart.datasets);
+	chart.datasets.valid = chart.functions.stack(chart.datasets.valid);
 
 	chart.y.scale.chart.domain([
-	    d3.min(chart.datasets, get_dataset_min_y_stack),
-	    d3.max(chart.datasets, get_dataset_max_y_stack)
+	    d3.min(chart.datasets.valid, get_dataset_min_y_stack),
+	    d3.max(chart.datasets.valid, get_dataset_max_y_stack)
 	]);
     } else {
 	chart.y.scale.chart.domain([
-	    d3.min(chart.datasets, get_dataset_min_y),
-	    d3.max(chart.datasets, get_dataset_max_y)
+	    d3.min(chart.datasets.valid, get_dataset_min_y),
+	    d3.max(chart.datasets.valid, get_dataset_max_y)
 	]);
     }
 
@@ -619,8 +625,8 @@ function update_chart(chart) {
 
 function live_update(chart) {
     var last_timestamp = 0;
-    if (chart.datasets.length) {
-	last_timestamp = chart.datasets[0].last_timestamp;
+    if (chart.datasets.valid.length) {
+	last_timestamp = chart.datasets.valid[0].last_timestamp;
     }
 
     var post_data = "time=" + last_timestamp;
@@ -649,39 +655,39 @@ function live_update(chart) {
 		    }
 
 		    for (var i=0; i<json.data.length; i++) {
-			chart.datasets[dataset_index].values.push(new datapoint(null, json.data[i][index], chart.datasets[dataset_index], json.data[i][0]));
-			chart.datasets[dataset_index].last_timestamp = json.data[i][0];
+			chart.datasets.valid[dataset_index].values.push(new datapoint(null, json.data[i][index], chart.datasets.valid[dataset_index], json.data[i][0]));
+			chart.datasets.valid[dataset_index].last_timestamp = json.data[i][0];
 		    }
 
 		    if (chart.options.history_length) {
-			var delta = chart.datasets[dataset_index].values.length - chart.options.history_length;
+			var delta = chart.datasets.valid[dataset_index].values.length - chart.options.history_length;
 
 			if (delta > 0) {
-			    chart.datasets[dataset_index].values.splice(0, delta);
+			    chart.datasets.valid[dataset_index].values.splice(0, delta);
 			}
 		    }
 
-		    for (var i=0; i<chart.datasets[dataset_index].values.length; i++) {
-			chart.datasets[dataset_index].values[i].x = chart.datasets[dataset_index].values[i].timestamp;
+		    for (var i=0; i<chart.datasets.valid[dataset_index].values.length; i++) {
+			chart.datasets.valid[dataset_index].values[i].x = chart.datasets.valid[dataset_index].values[i].timestamp;
 		    }
 
 		    var mean;
 		    var median;
 
-		    if (chart.datasets[dataset_index].values.length > 0) {
-			mean = d3.mean(chart.datasets[dataset_index].values, get_datapoint_y);
-			median = d3.median(chart.datasets[dataset_index].values, get_datapoint_y);
+		    if (chart.datasets.valid[dataset_index].values.length > 0) {
+			mean = d3.mean(chart.datasets.valid[dataset_index].values, get_datapoint_y);
+			median = d3.median(chart.datasets.valid[dataset_index].values, get_datapoint_y);
 		    } else {
 			mean = "No Samples";
 			median = "No Samples"
 		    }
 
-		    chart.datasets[dataset_index].mean = mean;
-		    chart.datasets[dataset_index].median = median;
+		    chart.datasets.valid[dataset_index].mean = mean;
+		    chart.datasets.valid[dataset_index].median = median;
 
-		    chart.datasets[dataset_index].dom.table.mean.text(chart.formatting.table.float(mean));
-		    chart.datasets[dataset_index].dom.table.median.text(chart.formatting.table.float(median));
-		    chart.datasets[dataset_index].dom.table.samples.text(chart.datasets[dataset_index].values.length);
+		    chart.datasets.valid[dataset_index].dom.table.mean.text(chart.formatting.table.float(mean));
+		    chart.datasets.valid[dataset_index].dom.table.median.text(chart.formatting.table.float(median));
+		    chart.datasets.valid[dataset_index].dom.table.samples.text(chart.datasets.valid[dataset_index].values.length);
 
 		    dataset_index++;
 		}
@@ -726,28 +732,42 @@ function load_json(chart, callback) {
 			continue;
 		    }
 
-		    chart.datasets[dataset_index] = new dataset(index-1, json.data_series_names[index], 0, 0, [], chart);
+		    chart.datasets.all[dataset_index] = new dataset(index-1, json.data_series_names[index], 0, 0, [], chart);
 
 		    for (var i=0; i<json.data.length; i++) {
-			chart.datasets[dataset_index].values.push(new datapoint(json.data[i][x_axis_index], json.data[i][index], chart.datasets[dataset_index], json.data[i][x_axis_index]));
+			chart.datasets.all[dataset_index].values.push(new datapoint(json.data[i][x_axis_index], json.data[i][index], chart.datasets.all[dataset_index], json.data[i][x_axis_index]));
 			chart.state.visible_datasets++;
-			chart.datasets[dataset_index].last_timestamp = json.data[i][x_axis_index];
+			chart.datasets.all[dataset_index].last_timestamp = json.data[i][x_axis_index];
 		    }
 
-		    if (chart.datasets[dataset_index].values.length > 0) {
-			chart.datasets[dataset_index].mean = d3.mean(chart.datasets[dataset_index].values, get_datapoint_y);
-			chart.datasets[dataset_index].median = d3.median(chart.datasets[dataset_index].values, get_datapoint_y);
+		    if (chart.datasets.all[dataset_index].values.length > 0) {
+			chart.datasets.all[dataset_index].mean = d3.mean(chart.datasets.all[dataset_index].values, get_datapoint_y);
+			chart.datasets.all[dataset_index].median = d3.median(chart.datasets.all[dataset_index].values, get_datapoint_y);
 		    } else {
-			chart.datasets[dataset_index].mean = "No Samples";
-			chart.datasets[dataset_index].median = "No Samples";
+			chart.datasets.all[dataset_index].invalid = true;
+			chart.datasets.all[dataset_index].hidden = true;
+
+			chart.datasets.all[dataset_index].mean = "No Samples";
+			chart.datasets.all[dataset_index].median = "No Samples";
+
+			if (chart.data_model == "histogram") {
+			    chart.datasets.all[datasets_index].histogram.mean = "No Samples";
+			    chart.datasets.all[datasets_index].histogram.median = "No Samples";
+			    chart.datasets.all[datasets_index].histogram.min = "No Samples";
+			    chart.datasets.all[datasets_index].histogram.max = "No Samples";
+			    chart.datasets.all[datasets_index].histogram.p90 = "No Samples";
+			    chart.datasets.all[datasets_index].histogram.p95 = "No Samples";
+			    chart.datasets.all[datasets_index].histogram.p99 = "No Samples";
+			    chart.datasets.all[datasets_index].histogram.p9999 = "No Samples";
+			}
 		    }
 
 		    dataset_index++;
 		}
 
 		if (chart.options.hide_dataset_threshold &&
-		    (chart.datasets[i].max_y_value < chart.options.hide_dataset_threshold)) {
-		    chart.datasets[i].hidden = true;
+		    (chart.datasets.all[i].max_y_value < chart.options.hide_dataset_threshold)) {
+		    chart.datasets.all[i].hidden = true;
 		    chart.state.visible_datasets--;
 		}
 	    }
@@ -763,14 +783,16 @@ function load_csv_files(url, chart, callback) {
     // populating the graph, avoiding parallelism issues
     d3.text(url, "text/plain")
 	.get(function(error, text) {
-		var index_base = chart.datasets.length;
+		var index_base = chart.datasets.all.length;
 
 		if ((text === undefined) ||
 		    (error !== null)) {
-		    console.log("Error %O loading %s", error, url);
+		    console.log("ERROR: Loading \"%s\" resulted in error \"%O\".", url, error);
 
 		    // create an error object with minimal properties
-		    chart.datasets[index_base - 1] = new dataset(index_base - 1, "Error loading " + url, "No Samples", "No Samples", [], chart);
+		    chart.datasets.all[index_base - 1] = new dataset(index_base - 1, "Error loading " + url, "No Samples", "No Samples", [], chart);
+		    chart.datasets.all[index_base - 1].invalid = true;
+		    chart.datasets.all[index_base - 1].hidden = true;
 
 		    // signal that we are finished asynchronously failing to load the data
 		    callback();
@@ -784,7 +806,7 @@ function load_csv_files(url, chart, callback) {
 		for (var x=0; x<data.length; x++) {
 		    if (sample_counter == 0) {
 			for (var i=1; i<data[x].length; i++) {
-			    chart.datasets[index_base + i - 1] = new dataset(index_base + i - 1, data[x][i], "No Samples", "No Samples", [], chart);
+			    chart.datasets.all[index_base + i - 1] = new dataset(index_base + i - 1, data[x][i], "No Samples", "No Samples", [], chart);
 			    chart.state.visible_datasets++;
 			}
 		    } else {
@@ -793,11 +815,11 @@ function load_csv_files(url, chart, callback) {
 				continue;
 			    }
 
-			    chart.datasets[index_base + i - 1].values.push(new datapoint(+data[x][0], +data[x][i], chart.datasets[index_base + i - 1], null));
+			    chart.datasets.all[index_base + i - 1].values.push(new datapoint(+data[x][0], +data[x][i], chart.datasets.all[index_base + i - 1], null));
 
 			    if (chart.data_model == "histogram") {
-				chart.datasets[index_base + i -1].histogram.samples += +data[x][i];
-				chart.datasets[index_base + i -1].histogram.sum += (+data[x][0] * +data[x][i]);
+				chart.datasets.all[index_base + i -1].histogram.samples += +data[x][i];
+				chart.datasets.all[index_base + i -1].histogram.sum += (+data[x][0] * +data[x][i]);
 			    }
 			}
 		    }
@@ -805,46 +827,49 @@ function load_csv_files(url, chart, callback) {
 		    sample_counter++;
 		}
 
-		for (var i=index_base; i<chart.datasets.length; i++) {
-		    if (chart.datasets[i].values.length) {
-			chart.datasets[i].mean = d3.mean(chart.datasets[i].values, get_datapoint_y);
-			chart.datasets[i].median = d3.median(chart.datasets[i].values, get_datapoint_y);
+		for (var i=index_base; i<chart.datasets.all.length; i++) {
+		    if (chart.datasets.all[i].values.length) {
+			chart.datasets.all[i].mean = d3.mean(chart.datasets.all[i].values, get_datapoint_y);
+			chart.datasets.all[i].median = d3.median(chart.datasets.all[i].values, get_datapoint_y);
 
 			if (chart.data_model == "histogram") {
-			    chart.datasets[i].histogram.mean = chart.datasets[i].histogram.sum / chart.datasets[i].histogram.samples;
-			    chart.datasets[i].histogram.min = chart.datasets[i].values[0].x;
-			    chart.datasets[i].histogram.max = chart.datasets[i].values[chart.datasets[i].values.length - 1].x;
+			    chart.datasets.all[i].histogram.mean = chart.datasets.all[i].histogram.sum / chart.datasets.all[i].histogram.samples;
+			    chart.datasets.all[i].histogram.min = chart.datasets.all[i].values[0].x;
+			    chart.datasets.all[i].histogram.max = chart.datasets.all[i].values[chart.datasets.all[i].values.length - 1].x;
 
 			    var count = 0;
-			    var threshold = chart.datasets[i].histogram.samples * 0.5;
-			    var threshold_p90 = chart.datasets[i].histogram.samples * 0.9;
-			    var threshold_p95 = chart.datasets[i].histogram.samples * 0.95;
-			    var threshold_p99 = chart.datasets[i].histogram.samples * 0.99;
-			    var threshold_p9999 = chart.datasets[i].histogram.samples * 0.9999;
-			    for (var p=0; p < chart.datasets[i].values.length; p++) {
-				count += chart.datasets[i].values[p].y;
-				if ((chart.datasets[i].histogram.median === null) && (count >= threshold)) {
-				    chart.datasets[i].histogram.median = chart.datasets[i].values[p].x;
+			    var threshold = chart.datasets.all[i].histogram.samples * 0.5;
+			    var threshold_p90 = chart.datasets.all[i].histogram.samples * 0.9;
+			    var threshold_p95 = chart.datasets.all[i].histogram.samples * 0.95;
+			    var threshold_p99 = chart.datasets.all[i].histogram.samples * 0.99;
+			    var threshold_p9999 = chart.datasets.all[i].histogram.samples * 0.9999;
+			    for (var p=0; p < chart.datasets.all[i].values.length; p++) {
+				count += chart.datasets.all[i].values[p].y;
+				if ((chart.datasets.all[i].histogram.median === null) && (count >= threshold)) {
+				    chart.datasets.all[i].histogram.median = chart.datasets.all[i].values[p].x;
 				}
-				if ((chart.datasets[i].histogram.p90 === null) && (count >= threshold_p90)) {
-				    chart.datasets[i].histogram.p90 = chart.datasets[i].values[p].x;
+				if ((chart.datasets.all[i].histogram.p90 === null) && (count >= threshold_p90)) {
+				    chart.datasets.all[i].histogram.p90 = chart.datasets.all[i].values[p].x;
 				}
-				if ((chart.datasets[i].histogram.p95 === null) && (count >= threshold_p95)) {
-				    chart.datasets[i].histogram.p95 = chart.datasets[i].values[p].x;
+				if ((chart.datasets.all[i].histogram.p95 === null) && (count >= threshold_p95)) {
+				    chart.datasets.all[i].histogram.p95 = chart.datasets.all[i].values[p].x;
 				}
-				if ((chart.datasets[i].histogram.p99 === null) && (count >= threshold_p99)) {
-				    chart.datasets[i].histogram.p99 = chart.datasets[i].values[p].x;
+				if ((chart.datasets.all[i].histogram.p99 === null) && (count >= threshold_p99)) {
+				    chart.datasets.all[i].histogram.p99 = chart.datasets.all[i].values[p].x;
 				}
-				if ((chart.datasets[i].histogram.p9999 === null) && (count >= threshold_p9999)) {
-				    chart.datasets[i].histogram.p9999 = chart.datasets[i].values[p].x;
+				if ((chart.datasets.all[i].histogram.p9999 === null) && (count >= threshold_p9999)) {
+				    chart.datasets.all[i].histogram.p9999 = chart.datasets.all[i].values[p].x;
 				}
 			    }
 			}
+		    } else {
+			chart.datasets.all[i].invalid = true;
+			chart.datasets.all[i].hidden = true;
 		    }
 
 		    if (chart.options.hide_dataset_threshold &&
-			(chart.datasets[i].max_y_value < chart.options.hide_dataset_threshold)) {
-			chart.datasets[i].hidden = true;
+			(chart.datasets.all[i].max_y_value < chart.options.hide_dataset_threshold)) {
+			chart.datasets.all[i].hidden = true;
 			chart.state.visible_datasets--;
 		    }
 		}
@@ -866,10 +891,12 @@ function load_plot_files(url, chart, index, callback) {
 	.get(function(error, text) {
 		if ((text === undefined) ||
 		    (error !== null)) {
-		    console.log("Error %O loading %s", error, url);
+		    console.log("ERROR: Loading \"%s\" resulted in error \"%O\".", url, error);
 
 		    // create an error object with minimal properties
-		    chart.datasets[index] = new dataset(index, "Error loading " + url, "No Samples", "No Samples", [], chart);
+		    chart.datasets.all[index] = new dataset(index, "Error loading " + url, "No Samples", "No Samples", [], chart);
+		    chart.datasets.all[index].invalid = true;
+		    chart.datasets.all[index].hidden = true;
 
 		    // signal that we are finished asynchronously failing to load the data
 		    callback();
@@ -925,12 +952,12 @@ function navigate_to_chart(target) {
 function complete_chart(chart) {
     update_domains(chart);
 
-    if (chart.datasets.length < chart.dimensions.legend_properties.columns) {
-	chart.dimensions.legend_properties.columns = chart.datasets.length;
+    if (chart.datasets.all.length < chart.dimensions.legend_properties.columns) {
+	chart.dimensions.legend_properties.columns = chart.datasets.all.length;
     }
 
     chart.chart.legend = chart.chart.container.selectAll(".legend")
-        .data(chart.datasets)
+        .data(chart.datasets.all)
 	.enter().append("g")
         .classed("legend", true)
         .attr("transform", function(d, i) { return "translate(" + (-chart.dimensions.margin.left + 5 + (i % chart.dimensions.legend_properties.columns) * (chart.dimensions.total_width / chart.dimensions.legend_properties.columns)) + "," + (chart.dimensions.viewport_height + chart.dimensions.legend_properties.margin.top + (Math.floor(i / chart.dimensions.legend_properties.columns) * chart.dimensions.legend_properties.row_height)) + ")"; });
@@ -971,8 +998,8 @@ function complete_chart(chart) {
 		    var label = d3.select(this);
 
 		    label.text(d.name.substr(0, 21) + '...')
-			.on("mouseover", tooltip_on)
-			.on("mouseout", tooltip_off);
+			.on("mouseover.tooltip", tooltip_on)
+			.on("mouseout.tooltip", tooltip_off);
 		}
 	    });
 
@@ -981,30 +1008,13 @@ function complete_chart(chart) {
 	    .data(chart.options.legend_entries)
 	    .enter().append("g")
 	    .classed("legend", true)
-	    .attr("transform", function(d, i) { return "translate(" + (-chart.dimensions.margin.left + 5) + ", " + (chart.dimensions.viewport_height + chart.dimensions.legend_properties.margin.top + ((Math.floor(chart.datasets.length / chart.dimensions.legend_properties.columns) + i) * chart.dimensions.legend_properties.row_height)) + ")"; });
+	    .attr("transform", function(d, i) { return "translate(" + (-chart.dimensions.margin.left + 5) + ", " + (chart.dimensions.viewport_height + chart.dimensions.legend_properties.margin.top + ((Math.floor(chart.datasets.all.length / chart.dimensions.legend_properties.columns) + i) * chart.dimensions.legend_properties.row_height)) + ")"; });
 
 	legend_entries.append("text")
 	    .attr("y", 13.5)
 	    .attr("lengthAdjust", "spacingAndGlyphs")
 	    .attr("textLength", function(d, i) { if ((d.length * chart.dimensions.pixels_per_letter) >= chart.dimensions.total_width) { return (chart.dimensions.total_width - 5).toFixed(0); } })
 	    .text(function(d) { return d; });
-    }
-
-    var errors = 0;
-
-    // since the legend has been processed, remove any datasets that failed to load prior to creating the chart entries
-    var loop = 1;
-    while(loop) {
-	loop = 0;
-
-	for(var i=0; i<chart.datasets.length; i++) {
-	    if (chart.datasets[i].values.length == 0) {
-		chart.datasets.splice(i, 1);
-		loop = 1;
-		errors++;
-		break;
-	    }
-	}
     }
 
     chart.chart.axis.x.chart.call(chart.x.axis.chart);
@@ -1019,7 +1029,7 @@ function complete_chart(chart) {
 
     if (chart.stacked) {
 	chart.chart.plot = chart.chart.container.selectAll(".plot")
-	    .data(chart.datasets)
+	    .data(chart.datasets.valid)
 	    .enter().append("g")
 	    .classed("plot", true);
 
@@ -1030,18 +1040,18 @@ function complete_chart(chart) {
 	    .classed("hidden", function(d) { if (d.hidden) { return true; } else { return false; }; })
 	    .attr("clip-path", "url(#clip)");
 
-	for (var i=0; i<chart.datasets.length; i++) {
-	    if (chart.datasets[i].values.length > 1) {
+	for (var i=0; i<chart.datasets.valid.length; i++) {
+	    if (chart.datasets.valid[i].values.length > 1) {
 		continue;
 	    }
 
-	    chart.datasets[i].dom.points = d3.select(chart.datasets[i].dom.path[0][0].parentNode).selectAll(".points")
-		.data(chart.datasets[i].values)
+	    chart.datasets.valid[i].dom.points = d3.select(chart.datasets.valid[i].dom.path[0][0].parentNode).selectAll(".points")
+		.data(chart.datasets.valid[i].values)
 		.enter().append("line")
 		.classed("points", true)
 		.attr("r", 3)
 		.attr("clip-path", "url(#clip)")
-		.style("stroke", mycolors(chart.datasets[i].index))
+		.style("stroke", mycolors(chart.datasets.valid[i].index))
 		.classed("hidden", function(d) { if (d.hidden) { return true; } else { return false; }; })
 		.attr("x1", get_chart_scaled_x)
 		.attr("x2", get_chart_scaled_x)
@@ -1050,7 +1060,7 @@ function complete_chart(chart) {
 	}
     } else {
 	chart.chart.plot = chart.chart.container.selectAll(".plot")
-	    .data(chart.datasets)
+	    .data(chart.datasets.valid)
 	    .enter().append("g")
 	    .classed("plot", true);
 
@@ -1061,19 +1071,19 @@ function complete_chart(chart) {
 	    .classed("hidden", function(d) { if (d.hidden) { return true; } else { return false; }; })
 	    .attr("clip-path", "url(#clip)");
 
-	for (var i=0; i<chart.datasets.length; i++) {
-	    if (chart.datasets[i].values.length > 1) {
+	for (var i=0; i<chart.datasets.valid.length; i++) {
+	    if (chart.datasets.valid[i].values.length > 1) {
 		continue;
 	    }
 
-	    chart.datasets[i].dom.points = d3.select(chart.datasets[i].dom.path[0][0].parentNode).selectAll(".points")
-		.data(chart.datasets[i].values)
+	    chart.datasets.valid[i].dom.points = d3.select(chart.datasets.valid[i].dom.path[0][0].parentNode).selectAll(".points")
+		.data(chart.datasets.valid[i].values)
 		.enter().append("circle")
 		.classed("points", true)
 		.attr("r", 3)
 		.attr("clip-path", "url(#clip)")
-		.style("fill", mycolors(chart.datasets[i].index))
-		.style("stroke", mycolors(chart.datasets[i].index))
+		.style("fill", mycolors(chart.datasets.valid[i].index))
+		.style("stroke", mycolors(chart.datasets.valid[i].index))
 		.classed("hidden", function(d) { if (d.hidden) { return true; } else { return false; }; })
 		.attr("cx", get_chart_scaled_x)
 		.attr("cy", get_chart_scaled_y);
@@ -1083,19 +1093,17 @@ function complete_chart(chart) {
     chart.chart.cursor_points = chart.chart.container.append("g")
 	.classed("cursor_points", true);
 
-    for (var i=0; i<chart.datasets.length; i++) {
-	chart.datasets[i].dom.cursor_point = chart.chart.cursor_points.selectAll(".cursor_points")
-	    .data([ chart.datasets[i].values[0] ])
+    for (var i=0; i<chart.datasets.valid.length; i++) {
+	chart.datasets.valid[i].dom.cursor_point = chart.chart.cursor_points.selectAll(".cursor_points")
+	    .data([ chart.datasets.valid[i].values[0] ])
 	    .enter().append("circle")
 	    .classed("value_points hidden", true)
 	    .attr("r", 5)
 	    .attr("clip-path", "url(#clip)")
-	    .style("fill", mycolors(chart.datasets[i].index))
+	    .style("fill", mycolors(chart.datasets.valid[i].index))
 	    .attr("cx", get_chart_scaled_x)
 	    .attr("cy", get_chart_scaled_y_stack);
     }
-
-    return errors;
 }
 
 function create_table(chart) {
@@ -1280,80 +1288,81 @@ function create_table(chart) {
 	.attr("align", "right")
 	.text("Samples");
 
-    for (var i=0; i<chart.datasets.length; i++) {
-	chart.datasets[i].dom.table.row = chart.dom.table.table.selectAll(".tablerow")
-	    .data([ chart.datasets[i] ])
+    for (var i=0; i<chart.datasets.all.length; i++) {
+	chart.datasets.all[i].dom.table.row = chart.dom.table.table.selectAll(".tablerow")
+	    .data([ chart.datasets.all[i] ])
 	    .enter().append("tr")
 	    .attr("id", "datarow")
 	    .on("click", table_row_click)
+	    .classed("invalidrow", chart.datasets.all[i].invalid)
 	    .on("mouseover", mouseover_highlight_function)
 	    .on("mouseout", mouseout_highlight_function);
 
-	chart.datasets[i].dom.table.row.append("td")
+	chart.datasets.all[i].dom.table.row.append("td")
 	    .attr("align", "left")
-	    .text(chart.datasets[i].name);
+	    .text(chart.datasets.all[i].name);
 
-	chart.datasets[i].dom.table.value = chart.datasets[i].dom.table.row.append("td")
+	chart.datasets.all[i].dom.table.value = chart.datasets.all[i].dom.table.row.append("td")
 	    .attr("align", "right");
 
-	chart.datasets[i].dom.table.mean = chart.datasets[i].dom.table.row.append("td")
+	chart.datasets.all[i].dom.table.mean = chart.datasets.all[i].dom.table.row.append("td")
 	    .attr("align", "right")
 	    .text(function() {
 		if (chart.data_model == "histogram") {
-		    return table_print(chart, chart.datasets[i].histogram.mean);
+		    return table_print(chart, chart.datasets.all[i].histogram.mean);
 		} else {
-		    return table_print(chart, chart.datasets[i].mean);
+		    return table_print(chart, chart.datasets.all[i].mean);
 		}
 	    });
 
-	chart.datasets[i].dom.table.median = chart.datasets[i].dom.table.row.append("td")
+	chart.datasets.all[i].dom.table.median = chart.datasets.all[i].dom.table.row.append("td")
 	    .attr("align", "right")
 	    .text(function() {
 		if (chart.data_model == "histogram") {
-		    return table_print(chart, chart.datasets[i].histogram.median);
+		    return table_print(chart, chart.datasets.all[i].histogram.median);
 		} else {
-		    return table_print(chart, chart.datasets[i].median);
+		    return table_print(chart, chart.datasets.all[i].median);
 		}
 	    });
 
 	if (chart.data_model == "histogram") {
-	    chart.datasets[i].dom.table.histogram.min = chart.datasets[i].dom.table.row.append("td")
+	    chart.datasets.all[i].dom.table.histogram.min = chart.datasets.all[i].dom.table.row.append("td")
 		.attr("align", "right")
-		.text(table_print(chart, chart.datasets[i].histogram.min));
+		.text(table_print(chart, chart.datasets.all[i].histogram.min));
 
-	    chart.datasets[i].dom.table.histogram.max = chart.datasets[i].dom.table.row.append("td")
+	    chart.datasets.all[i].dom.table.histogram.max = chart.datasets.all[i].dom.table.row.append("td")
 		.attr("align", "right")
-		.text(table_print(chart, chart.datasets[i].histogram.max));
+		.text(table_print(chart, chart.datasets.all[i].histogram.max));
 
-	    chart.datasets[i].dom.table.histogram.p90 = chart.datasets[i].dom.table.row.append("td")
+	    chart.datasets.all[i].dom.table.histogram.p90 = chart.datasets.all[i].dom.table.row.append("td")
 		.attr("align", "right")
-		.text(table_print(chart, chart.datasets[i].histogram.p90));
+		.text(table_print(chart, chart.datasets.all[i].histogram.p90));
 
-	    chart.datasets[i].dom.table.histogram.p95 = chart.datasets[i].dom.table.row.append("td")
+	    chart.datasets.all[i].dom.table.histogram.p95 = chart.datasets.all[i].dom.table.row.append("td")
 		.attr("align", "right")
-		.text(table_print(chart, chart.datasets[i].histogram.p95));
+		.text(table_print(chart, chart.datasets.all[i].histogram.p95));
 
-	    chart.datasets[i].dom.table.histogram.p99 = chart.datasets[i].dom.table.row.append("td")
+	    chart.datasets.all[i].dom.table.histogram.p99 = chart.datasets.all[i].dom.table.row.append("td")
 		.attr("align", "right")
-		.text(table_print(chart, chart.datasets[i].histogram.p99));
+		.text(table_print(chart, chart.datasets.all[i].histogram.p99));
 
-	    chart.datasets[i].dom.table.histogram.p9999 = chart.datasets[i].dom.table.row.append("td")
+	    chart.datasets.all[i].dom.table.histogram.p9999 = chart.datasets.all[i].dom.table.row.append("td")
 		.attr("align", "right")
-		.text(table_print(chart, chart.datasets[i].histogram.p9999));
+		.text(table_print(chart, chart.datasets.all[i].histogram.p9999));
 	}
 
-	chart.datasets[i].dom.table.samples = chart.datasets[i].dom.table.row.append("td")
+	chart.datasets.all[i].dom.table.samples = chart.datasets.all[i].dom.table.row.append("td")
 	    .attr("align", "right")
 	    .text(function() {
 		if (chart.data_model == "histogram") {
-		    return chart.formatting.table.integer(chart.datasets[i].histogram.samples);
+		    return chart.formatting.table.integer(chart.datasets.all[i].histogram.samples);
 		} else {
-		    return chart.formatting.table.integer(chart.datasets[i].values.length);
+		    return chart.formatting.table.integer(chart.datasets.all[i].values.length);
 		}
 	    });
 
-	if (chart.datasets[i].hidden) {
-	    chart.datasets[i].dom.table.row.classed("hiddenrow", true);
+	if (chart.datasets.all[i].hidden) {
+	    chart.datasets.all[i].dom.table.row.classed("hiddenrow", true);
 	}
     }
 
@@ -1802,15 +1811,15 @@ function build_chart(chart) {
 	.on("click", function() {
 		var string = "\"" + chart.chart_title + "\"\n\"" + chart.x.axis.title.text + "\"";
 		var x_values = [];
-		for (var i=0; i<chart.datasets.length; i++) {
-		    string = string + ",\"" + chart.datasets[i].name + " (" + chart.y.axis.title.text + ")\"";
+		for (var i=0; i<chart.datasets.all.length; i++) {
+		    string = string + ",\"" + chart.datasets.all[i].name + " (" + chart.y.axis.title.text + ")\"";
 
 		    // create a temporary placeholder for storing
 		    // the next index to start searching at below
-		    chart.datasets[i].tmp_index = 0;
+		    chart.datasets.all[i].tmp_index = 0;
 
-		    for (var x=0; x<chart.datasets[i].values.length; x++) {
-			x_values.push(chart.datasets[i].values[x].x);
+		    for (var x=0; x<chart.datasets.all[i].values.length; x++) {
+			x_values.push(chart.datasets.all[i].values[x].x);
 		    }
 		}
 		string = string + "\n";
@@ -1829,12 +1838,12 @@ function build_chart(chart) {
 			(x_values[i] <= x_domain[1])) {
 			string = string + x_values[i] + ",";
 
-			for (var d=0; d<chart.datasets.length; d++) {
-			    for (var b=chart.datasets[d].tmp_index; b<chart.datasets[d].values.length; b++) {
-				if (chart.datasets[d].values[b].x == x_values[i]) {
-				    string = string + chart.datasets[d].values[b].y;
+			for (var d=0; d<chart.datasets.all.length; d++) {
+			    for (var b=chart.datasets.all[d].tmp_index; b<chart.datasets.all[d].values.length; b++) {
+				if (chart.datasets.all[d].values[b].x == x_values[i]) {
+				    string = string + chart.datasets.all[d].values[b].y;
 				    // store the next index to start searching at
-				    chart.datasets[d].tmp_index = b + 1;
+				    chart.datasets.all[d].tmp_index = b + 1;
 				    break;
 				}
 			    }
@@ -1844,6 +1853,10 @@ function build_chart(chart) {
 
 			string = string + "\n";
 		    }
+		}
+
+		for (var d=0; d<chart.datasets.all.length; d++) {
+		    delete chart.datasets.all[d].tmp_index;
 		}
 
 		create_download(chart.chart_title + '.csv', 'text/csv', 'utf-8', string);
@@ -2060,27 +2073,38 @@ function build_chart(chart) {
 
     // block waiting for the queue processing to complete before completing the chart
     chart.datasets_queue.await(function(error, results) {
+	    chart.chart.loading.remove();
+	    chart.chart.loading = null;
+
 	    console.log("Content load complete for chart \"" + chart.chart_title + "\".");
 
 	    if (chart.options.sort_datasets) {
 		if (chart.data_model == "histogram") {
 		    console.log("Sorting datasets descending by histogram mean for chart \"" + chart.chart_title + "\"...");
-		    chart.datasets.sort(function(a, b) { return b.histogram.mean - a.histogram.mean; });
+		    chart.datasets.all.sort(dataset_histogram_sort);
 		} else {
 		    console.log("Sorting datasets descending by mean for chart \"" + chart.chart_title + "\"...");
-		    chart.datasets.sort(function(a, b) { return b.mean - a.mean; });
+		    chart.datasets.all.sort(dataset_sort);
 		}
 		console.log("...finished sorting datasets for chart \"" + chart.chart_title + "\"...");
 
 		// the dataset indexes need to be updated after sorting
-		for (var i=0; i<chart.datasets.length; i++) {
-		    chart.datasets[i].index = i;
+		for (var i=0; i<chart.datasets.all.length; i++) {
+		    chart.datasets.all[i].index = i;
 		}
 	    }
 
-	    if (chart.datasets.length > chart.dataset_count) {
+	    for (var i=0; i<chart.datasets.all.length; i++) {
+		if (!chart.datasets.all[i].invalid) {
+		    chart.datasets.valid.push(chart.datasets.all[i]);
+		} else {
+		    console.log("ERROR: Dataset \"" + chart.datasets.all[i].name + "\" for chart \"" + chart.chart_title + "\" is empty.  It has been flagged as invalid and many user actions will be ignored for this dataset.");
+		}
+	    }
+
+	    if (chart.datasets.all.length > chart.dataset_count) {
 		console.log("Resizing SVG for chart \"" + chart.chart_title + "\".");
-		chart.chart.svg.attr("height", chart.dimensions.viewport_height + chart.dimensions.margin.top + chart.dimensions.margin.bottom + ((Math.ceil(chart.datasets.length / chart.dimensions.legend_properties.columns) - 1 + chart.options.legend_entries.length) * chart.dimensions.legend_properties.row_height))
+		chart.chart.svg.attr("height", chart.dimensions.viewport_height + chart.dimensions.margin.top + chart.dimensions.margin.bottom + ((Math.ceil(chart.datasets.all.length / chart.dimensions.legend_properties.columns) - 1 + chart.options.legend_entries.length) * chart.dimensions.legend_properties.row_height))
 	    }
 
 	    console.log("Creating table for chart \"" + chart.chart_title + "\"...");
@@ -2088,18 +2112,11 @@ function build_chart(chart) {
 	    console.log("...finished adding table for chart \"" + chart.chart_title + "\"");
 
 	    console.log("Processing datasets for chart \"" + chart.chart_title + "\"...");
-	    var errors = complete_chart(chart);
+	    complete_chart(chart);
 	    console.log("...finished processing datasets for chart \"" + chart.chart_title + "\"");
 
 	    chart.x.slider.call(chart.x.brush.event);
 	    chart.y.slider.call(chart.y.brush.event);
-
-	    if (errors) {
-		chart.chart.loading.text("Load Errors");
-	    } else {
-		chart.chart.loading.remove();
-		chart.chart.loading = null;
-	    }
 
 	    chart.chart.zoomout = chart.chart.container.append("g")
 		.classed("chartbutton", true)
@@ -2258,15 +2275,15 @@ function finish_page() {
 }
 
 function click_highlight_function(dataset) {
-    if (dataset.hidden) {
+    if (dataset.hidden || dataset.invalid) {
 	return;
     }
 
     if ((dataset.chart.state.chart_selection == -1) ||
 	(dataset.chart.state.chart_selection != dataset.index)) {
 	if (dataset.chart.state.chart_selection != -1) {
-	    dehighlight(dataset.chart.datasets[dataset.chart.state.chart_selection]);
-	    dataset.chart.datasets[dataset.chart.state.chart_selection].highlighted = false;
+	    dehighlight(dataset.chart.datasets.all[dataset.chart.state.chart_selection]);
+	    dataset.chart.datasets.all[dataset.chart.state.chart_selection].highlighted = false;
 	}
 	dataset.highlighted = true;
 	dataset.chart.state.chart_selection = dataset.index;
@@ -2279,7 +2296,7 @@ function click_highlight_function(dataset) {
 }
 
 function mouseover_highlight_function(dataset) {
-    if (dataset.hidden) {
+    if (dataset.hidden || dataset.invalid) {
 	return;
     }
 
@@ -2289,7 +2306,7 @@ function mouseover_highlight_function(dataset) {
 }
 
 function mouseout_highlight_function(dataset) {
-    if (dataset.hidden) {
+    if (dataset.hidden || dataset.invalid) {
 	return;
     }
 
@@ -2299,61 +2316,65 @@ function mouseout_highlight_function(dataset) {
 }
 
 function highlight(dataset) {
+    if (dataset.invalid) {
+	return;
+    }
+
     dataset.dom.legend.label.classed("bold", true);
 
     if (dataset.chart.stacked) {
-	for (var i = 0; i < dataset.chart.datasets.length; i++) {
-	    if (dataset.chart.datasets[i].hidden) {
+	for (var i = 0; i < dataset.chart.datasets.valid.length; i++) {
+	    if (dataset.chart.datasets.valid[i].hidden) {
 		continue;
 	    }
 
-	    if (i == dataset.index) {
-		dataset.chart.datasets[i].dom.path.classed("unhighlighted", false);
+	    if (dataset.chart.datasets.valid[i].index == dataset.index) {
+		dataset.chart.datasets.valid[i].dom.path.classed("unhighlighted", false);
 
-		if (dataset.chart.datasets[i].dom.points) {
-		    dataset.chart.datasets[i].dom.points.classed({"unhighlighted": false, "highlightedpoint": true});
+		if (dataset.chart.datasets.valid[i].dom.points) {
+		    dataset.chart.datasets.valid[i].dom.points.classed({"unhighlighted": false, "highlightedpoint": true});
 		}
 
 	    } else {
-		dataset.chart.datasets[i].dom.path.classed("unhighlighted", true);
+		dataset.chart.datasets.valid[i].dom.path.classed("unhighlighted", true);
 
-		if (dataset.chart.datasets[i].dom.points) {
-		    dataset.chart.datasets[i].dom.points.classed({"unhighlighted": true, "highlightedpoint": false});
+		if (dataset.chart.datasets.valid[i].dom.points) {
+		    dataset.chart.datasets.valid[i].dom.points.classed({"unhighlighted": true, "highlightedpoint": false});
 		}
 	    }
 	}
     } else {
-	for (var i = 0; i < dataset.chart.datasets.length; i++) {
-	    if (dataset.chart.datasets[i].hidden) {
+	for (var i = 0; i < dataset.chart.datasets.valid.length; i++) {
+	    if (dataset.chart.datasets.valid[i].hidden) {
 		continue;
 	    }
 
-	    if (i == dataset.index) {
-		dataset.chart.datasets[i].dom.path.classed({"unhighlighted": false, "highlightedline": true });
+	    if (dataset.chart.datasets.valid[i].index == dataset.index) {
+		dataset.chart.datasets.valid[i].dom.path.classed({"unhighlighted": false, "highlightedline": true });
 
-		if (dataset.chart.datasets[i].dom.points) {
-		    dataset.chart.datasets[i].dom.points.classed("unhighlighted", false)
+		if (dataset.chart.datasets.valid[i].dom.points) {
+		    dataset.chart.datasets.valid[i].dom.points.classed("unhighlighted", false)
 			.attr("r", 4);
 		}
 	    } else {
-		dataset.chart.datasets[i].dom.path.classed({"unhighlighted": true, "highlightedline": false });
+		dataset.chart.datasets.valid[i].dom.path.classed({"unhighlighted": true, "highlightedline": false });
 
-		if (dataset.chart.datasets[i].dom.points) {
-		    dataset.chart.datasets[i].dom.points.classed("unhighlighted", true);
+		if (dataset.chart.datasets.valid[i].dom.points) {
+		    dataset.chart.datasets.valid[i].dom.points.classed("unhighlighted", true);
 		}
 	    }
 	}
     }
 
-    for (var i = 0; i < dataset.chart.datasets.length; i++) {
-	if (dataset.chart.datasets[i].hidden) {
+    for (var i = 0; i < dataset.chart.datasets.valid.length; i++) {
+	if (dataset.chart.datasets.valid[i].hidden) {
 	    continue;
 	}
 
-	if (i == dataset.index) {
-	    dataset.chart.datasets[i].dom.legend.rect.classed("unhighlighted", false);
+	if (dataset.chart.datasets.valid[i].index == dataset.index) {
+	    dataset.chart.datasets.valid[i].dom.legend.rect.classed("unhighlighted", false);
 	} else {
-	    dataset.chart.datasets[i].dom.legend.rect.classed("unhighlighted", true);
+	    dataset.chart.datasets.valid[i].dom.legend.rect.classed("unhighlighted", true);
 	}
     }
 
@@ -2361,41 +2382,45 @@ function highlight(dataset) {
 }
 
 function dehighlight(dataset) {
+    if (dataset.invalid) {
+	return;
+    }
+
     dataset.dom.legend.label.classed("bold", false);
 
     if (dataset.chart.stacked) {
-	for (var i = 0; i < dataset.chart.datasets.length; i++) {
-	    if (dataset.chart.datasets[i].hidden) {
+	for (var i = 0; i < dataset.chart.datasets.valid.length; i++) {
+	    if (dataset.chart.datasets.valid[i].hidden) {
 		continue;
 	    }
 
-	    dataset.chart.datasets[i].dom.path.classed("unhighlighted", false);
+	    dataset.chart.datasets.valid[i].dom.path.classed("unhighlighted", false);
 
-	    if (dataset.chart.datasets[i].dom.points) {
-		dataset.chart.datasets[i].dom.points.classed({"unhighlighted": false, "highlightedpoint": false});
+	    if (dataset.chart.datasets.valid[i].dom.points) {
+		dataset.chart.datasets.valid[i].dom.points.classed({"unhighlighted": false, "highlightedpoint": false});
 	    }
 	}
     } else {
-	for (var i = 0; i < dataset.chart.datasets.length; i++) {
-	    if (dataset.chart.datasets[i].hidden) {
+	for (var i = 0; i < dataset.chart.datasets.valid.length; i++) {
+	    if (dataset.chart.datasets.valid[i].hidden) {
 		continue;
 	    }
 
-	    dataset.chart.datasets[i].dom.path.classed({"unhighlighted": false, "highlightedline": false});
+	    dataset.chart.datasets.valid[i].dom.path.classed({"unhighlighted": false, "highlightedline": false});
 
-	    if (dataset.chart.datasets[i].dom.points) {
-		dataset.chart.datasets[i].dom.points.classed("unhighlighted", false)
+	    if (dataset.chart.datasets.valid[i].dom.points) {
+		dataset.chart.datasets.valid[i].dom.points.classed("unhighlighted", false)
 		    .attr("r", 3);
 	    }
 	}
     }
 
-    for (var i = 0; i < dataset.chart.datasets.length; i++) {
-	if (dataset.chart.datasets[i].hidden) {
+    for (var i = 0; i < dataset.chart.datasets.valid.length; i++) {
+	if (dataset.chart.datasets.valid[i].hidden) {
 	    continue;
 	}
 
-	dataset.chart.datasets[i].dom.legend.rect.classed("unhighlighted", false);
+	dataset.chart.datasets.valid[i].dom.legend.rect.classed("unhighlighted", false);
     }
 
     dataset.dom.table.row.classed("highlightedrow", false);
@@ -2493,21 +2518,21 @@ function set_x_axis_timeseries_label(chart) {
 function show_all(chart) {
     var opacity;
 
-    for (var i = 0; i < chart.datasets.length; i++) {
-	if (chart.datasets[i].hidden) {
-	    chart.datasets[i].hidden = false;
+    for (var i = 0; i < chart.datasets.valid.length; i++) {
+	if (chart.datasets.valid[i].hidden) {
+	    chart.datasets.valid[i].hidden = false;
 	    chart.state.visible_datasets++;
-	    chart.datasets[i].dom.path.classed("hidden", false);
-	    if (chart.datasets[i].dom.points) {
-		chart.datasets[i].dom.points.classed("hidden", false);
+	    chart.datasets.valid[i].dom.path.classed("hidden", false);
+	    if (chart.datasets.valid[i].dom.points) {
+		chart.datasets.valid[i].dom.points.classed("hidden", false);
 	    }
-	    chart.datasets[i].dom.legend.rect.classed("invisible", false);
-	    chart.datasets[i].dom.table.row.classed("hiddenrow", false);
+	    chart.datasets.valid[i].dom.legend.rect.classed("invisible", false);
+	    chart.datasets.valid[i].dom.table.row.classed("hiddenrow", false);
 	}
     }
 
     if (chart.state.chart_selection != -1) {
-	highlight(chart.datasets[chart.state.chart_selection]);
+	highlight(chart.datasets.all[chart.state.chart_selection]);
     }
 
     update_chart(chart);
@@ -2517,18 +2542,18 @@ function show_all(chart) {
 
 function hide_all(chart) {
     if (chart.state.chart_selection != -1) {
-	click_highlight_function(chart.datasets[chart.state.chart_selection]);
+	click_highlight_function(chart.datasets.all[chart.state.chart_selection]);
     }
 
-    for (var i = 0; i < chart.datasets.length; i++) {
-	if (! chart.datasets[i].hidden) {
-	    chart.datasets[i].hidden = true;
-	    chart.datasets[i].dom.path.classed("hidden", true);
-	    if (chart.datasets[i].dom.points) {
-		chart.datasets[i].dom.points.classed("hidden", true);
+    for (var i = 0; i < chart.datasets.valid.length; i++) {
+	if (! chart.datasets.valid[i].hidden) {
+	    chart.datasets.valid[i].hidden = true;
+	    chart.datasets.valid[i].dom.path.classed("hidden", true);
+	    if (chart.datasets.valid[i].dom.points) {
+		chart.datasets.valid[i].dom.points.classed("hidden", true);
 	    }
-	    chart.datasets[i].dom.legend.rect.classed("invisible", true);
-	    chart.datasets[i].dom.table.row.classed("hiddenrow", true);
+	    chart.datasets.valid[i].dom.legend.rect.classed("invisible", true);
+	    chart.datasets.valid[i].dom.table.row.classed("hiddenrow", true);
 	}
     }
 
@@ -2542,6 +2567,10 @@ function toggle_hide_click_event(dataset) {
 }
 
 function toggle_hide(dataset, skip_update_chart, skip_update_mouse) {
+    if (dataset.invalid) {
+	return;
+    }
+
     if (dataset.hidden) {
 	dataset.hidden = false;
 	dataset.dom.path.classed("hidden", false);
@@ -2592,29 +2621,29 @@ function toggle_hide(dataset, skip_update_chart, skip_update_mouse) {
 }
 
 function update_threshold_hidden_datasets(chart, field) {
-    for (var i=0; i < chart.datasets.length; i++) {
+    for (var i=0; i < chart.datasets.valid.length; i++) {
 	var hidden = false;
 
 	if (field == "max_y") {
-	    if (chart.datasets[i].max_y_value < chart.options.hide_dataset_threshold) {
+	    if (chart.datasets.valid[i].max_y_value < chart.options.hide_dataset_threshold) {
 		hidden = true;
 	    }
 	} else if (field == "mean") {
 	    if (chart.data_model == "histogram") {
-		if (chart.datasets[i].histogram.mean < chart.options.hide_dataset_threshold) {
+		if (chart.datasets.valid[i].histogram.mean < chart.options.hide_dataset_threshold) {
 		    hidden = true;
 		}
 	    } else {
-		if (chart.datasets[i].mean < chart.options.hide_dataset_threshold) {
+		if (chart.datasets.valid[i].mean < chart.options.hide_dataset_threshold) {
 		    hidden = true;
 		}
 	    }
 	}
 
-	if (chart.datasets[i].hidden != hidden) {
+	if (chart.datasets.valid[i].hidden != hidden) {
 	    // since toggle_hide is potentially called many times here defer the call to update_charts
 	    // since toggle_hide is being called manually skip the mouse update
-	    toggle_hide(chart.datasets[i], true, true);
+	    toggle_hide(chart.datasets.valid[i], true, true);
 	}
     }
 
@@ -2626,30 +2655,30 @@ function update_threshold_hidden_datasets(chart, field) {
 
 function update_dataset_chart_elements(chart) {
     if (chart.stacked) {
-	for (var i=0; i<chart.datasets.length; i++) {
-	    if (chart.datasets[i].hidden) {
+	for (var i=0; i<chart.datasets.valid.length; i++) {
+	    if (chart.datasets.valid[i].hidden) {
 		continue;
 	    }
 
-	    chart.datasets[i].dom.path.attr("d", get_dataset_area);
+	    chart.datasets.valid[i].dom.path.attr("d", get_dataset_area);
 
-	    if (chart.datasets[i].dom.points) {
-		chart.datasets[i].dom.points.attr("x1", get_chart_scaled_x)
+	    if (chart.datasets.valid[i].dom.points) {
+		chart.datasets.valid[i].dom.points.attr("x1", get_chart_scaled_x)
 		    .attr("x2", get_chart_scaled_x)
 		    .attr("y1", get_chart_scaled_y0)
 		    .attr("y2", get_chart_Scaled_y_y0);
 	    }
 	}
     } else {
-	for (var i=0; i<chart.datasets.length; i++) {
-	    if (chart.datasets[i].hidden) {
+	for (var i=0; i<chart.datasets.valid.length; i++) {
+	    if (chart.datasets.valid[i].hidden) {
 		continue;
 	    }
 
-	    chart.datasets[i].dom.path.attr("d", get_dataset_line);
+	    chart.datasets.valid[i].dom.path.attr("d", get_dataset_line);
 
-	    if (chart.datasets[i].dom.points) {
-		chart.datasets[i].dom.points.attr("cx", get_chart_scaled_x)
+	    if (chart.datasets.valid[i].dom.points) {
+		chart.datasets.valid[i].dom.points.attr("cx", get_chart_scaled_x)
 		    .attr("cy", get_chart_scaled_y);
 	    }
 	}
@@ -2657,7 +2686,9 @@ function update_dataset_chart_elements(chart) {
 }
 
 function table_print(chart, value) {
-    if (isFinite(value)) {
+    if (value === null) {
+	return "-";
+    } else if (isFinite(value)) {
 	return chart.formatting.table.float(value);
     } else {
 	return value;
@@ -2665,13 +2696,13 @@ function table_print(chart, value) {
 }
 
 function set_dataset_value(chart, dataset_index, values_index) {
-    chart.datasets[dataset_index].dom.table.value.text(chart.formatting.table.float(chart.datasets[dataset_index].values[values_index].y));
-    chart.datasets[dataset_index].cursor_index = values_index;
-    chart.table.stacked_value += chart.datasets[dataset_index].values[values_index].y;
-    chart.datasets[dataset_index].dom.cursor_point.data([ chart.datasets[dataset_index].values[values_index] ]);
-    chart.datasets[dataset_index].dom.cursor_point.attr("cx", get_chart_scaled_x)
-    chart.datasets[dataset_index].dom.cursor_point.attr("cy", get_chart_scaled_y_stack)
-    chart.datasets[dataset_index].dom.cursor_point.classed("hidden", false);
+    chart.datasets.valid[dataset_index].dom.table.value.text(chart.formatting.table.float(chart.datasets.valid[dataset_index].values[values_index].y));
+    chart.datasets.valid[dataset_index].cursor_index = values_index;
+    chart.table.stacked_value += chart.datasets.valid[dataset_index].values[values_index].y;
+    chart.datasets.valid[dataset_index].dom.cursor_point.data([ chart.datasets.valid[dataset_index].values[values_index] ]);
+    chart.datasets.valid[dataset_index].dom.cursor_point.attr("cx", get_chart_scaled_x)
+    chart.datasets.valid[dataset_index].dom.cursor_point.attr("cy", get_chart_scaled_y_stack)
+    chart.datasets.valid[dataset_index].dom.cursor_point.classed("hidden", false);
 }
 
 function set_stacked_value(chart, value) {
@@ -2723,14 +2754,14 @@ function show_dataset_values(chart, x_coordinate) {
     var loop = true;
     var index = 0;
 
-    for (var i=0; i<chart.datasets.length; i++) {
-	if (chart.datasets[i].hidden) {
+    for (var i=0; i<chart.datasets.valid.length; i++) {
+	if (chart.datasets.valid[i].hidden) {
 	    continue;
 	}
 
 	// if a dataset has only one value that value is always current
-	if (chart.datasets[i].values.length == 1) {
-	    if (!chart.datasets[i].cursor_index) {
+	if (chart.datasets.valid[i].values.length == 1) {
+	    if (!chart.datasets.valid[i].cursor_index) {
 		set_dataset_value(chart, i, 0);
 	    }
 	    continue;
@@ -2741,8 +2772,8 @@ function show_dataset_values(chart, x_coordinate) {
 
 	// check for a cached index value where the search should
 	// start for the dataset
-	if (chart.datasets[i].cursor_index) {
-	    index = chart.datasets[i].cursor_index;
+	if (chart.datasets.valid[i].cursor_index) {
+	    index = chart.datasets.valid[i].cursor_index;
 	} else {
 	    // without a cached index value the search will start at
 	    // the beginning of the array if doing a forward search or
@@ -2750,21 +2781,21 @@ function show_dataset_values(chart, x_coordinate) {
 	    if (forward_search) {
 		index = 0;
 	    } else {
-		index = chart.datasets[i].values.length - 1;
+		index = chart.datasets.valid[i].values.length - 1;
 	    }
 	}
 
 	while (loop) {
 	    if (index == 0) {
-		if ((chart.datasets[i].values[index].x + chart.datasets[i].values[index + 1].x)/2 >= x_coordinate) {
+		if ((chart.datasets.valid[i].values[index].x + chart.datasets.valid[i].values[index + 1].x)/2 >= x_coordinate) {
 		    set = true;
 		}
-	    } else if (index == (chart.datasets[i].values.length - 1)) {
-		if ((chart.datasets[i].values[index - 1].x + chart.datasets[i].values[index].x)/2 <= x_coordinate) {
+	    } else if (index == (chart.datasets.valid[i].values.length - 1)) {
+		if ((chart.datasets.valid[i].values[index - 1].x + chart.datasets.valid[i].values[index].x)/2 <= x_coordinate) {
 		    set = true;
 		}
-	    } else if (((chart.datasets[i].values[index - 1].x + chart.datasets[i].values[index].x)/2 <= x_coordinate) &&
-		((chart.datasets[i].values[index].x + chart.datasets[i].values[index + 1].x)/2 >= x_coordinate)) {
+	    } else if (((chart.datasets.valid[i].values[index - 1].x + chart.datasets.valid[i].values[index].x)/2 <= x_coordinate) &&
+		((chart.datasets.valid[i].values[index].x + chart.datasets.valid[i].values[index + 1].x)/2 >= x_coordinate)) {
 		set = true;
 	    }
 
@@ -2774,8 +2805,8 @@ function show_dataset_values(chart, x_coordinate) {
 	    } else if (forward_search) {
 		index++;
 
-		if (index >= (chart.datasets[i].length - 1)) {
-		    set_dataset_value(chart, i, chart.datasets[i].length - 1);
+		if (index >= (chart.datasets.valid[i].length - 1)) {
+		    set_dataset_value(chart, i, chart.datasets.valid[i].length - 1);
 		    loop = false;
 		}
 	    } else {
@@ -2798,16 +2829,16 @@ function clear_dataset_values(chart) {
     // clear the cursor_value cache
     chart.state.cursor_value = null;
 
-    for (var i=0; i<chart.datasets.length; i++) {
-	if (chart.datasets[i].hidden) {
+    for (var i=0; i<chart.datasets.valid.length; i++) {
+	if (chart.datasets.valid[i].hidden) {
 	    continue;
 	}
 
-	chart.datasets[i].dom.table.value.text("");
-	chart.datasets[i].dom.cursor_point.classed("hidden", true);
+	chart.datasets.valid[i].dom.table.value.text("");
+	chart.datasets.valid[i].dom.cursor_point.classed("hidden", true);
 
 	// clear the dataset index cache
-	chart.datasets[i].cursor_index = null;
+	chart.datasets.valid[i].cursor_index = null;
     }
 
     if (chart.stacked) {
@@ -2837,7 +2868,7 @@ function get_datapoint_y_y0(datapoint) {
 }
 
 function get_dataset_min_x(dataset) {
-    if (dataset.hidden || (dataset.values === undefined)) {
+    if (dataset.invalid || dataset.hidden || (dataset.values === undefined)) {
 	return null;
     }
 
@@ -2845,7 +2876,7 @@ function get_dataset_min_x(dataset) {
 }
 
 function get_dataset_max_x(dataset) {
-    if (dataset.hidden || (dataset.values === undefined)) {
+    if (dataset.invalid || dataset.hidden || (dataset.values === undefined)) {
 	return null;
     }
 
@@ -2853,7 +2884,7 @@ function get_dataset_max_x(dataset) {
 }
 
 function get_dataset_min_y(dataset) {
-    if (dataset.hidden || (dataset.values === undefined)) {
+    if (dataset.invalid || dataset.hidden || (dataset.values === undefined)) {
 	return null;
     }
 
@@ -2861,7 +2892,7 @@ function get_dataset_min_y(dataset) {
 }
 
 function get_dataset_max_y(dataset) {
-    if (dataset.hidden || (dataset.values === undefined)) {
+    if (dataset.invalid || dataset.hidden || (dataset.values === undefined)) {
 	return null;
     }
 
@@ -2869,7 +2900,7 @@ function get_dataset_max_y(dataset) {
 }
 
 function get_dataset_min_y_stack(dataset) {
-    if (dataset.hidden || (dataset.values === undefined)) {
+    if (dataset.invalid || dataset.hidden || (dataset.values === undefined)) {
 	return null;
     }
 
@@ -2877,7 +2908,7 @@ function get_dataset_min_y_stack(dataset) {
 }
 
 function get_dataset_max_y_stack(dataset) {
-    if (dataset.hidden || (dataset.values === undefined)) {
+    if (dataset.invalid || dataset.hidden || (dataset.values === undefined)) {
 	return null;
     }
 
@@ -3129,6 +3160,10 @@ function viewport_mouseup(chart) {
 }
 
 function table_row_click(dataset) {
+    if (dataset.invalid) {
+	return;
+    }
+
     if (dataset.hidden) {
 	toggle_hide(dataset, false, false);
 	mouseover_highlight_function(dataset);
@@ -3168,17 +3203,17 @@ function apply_y_average_threshold(chart) {
 function apply_name_filter_show(chart) {
     var regex = new RegExp(chart.dom.table.name_filter.property("value"));
 
-    for (var i=0; i<chart.datasets.length; i++) {
+    for (var i=0; i<chart.datasets.valid.length; i++) {
 	var hidden = true;
 
-	if (regex.test(chart.datasets[i].name)) {
+	if (regex.test(chart.datasets.valid[i].name)) {
 	    hidden = false;
 	}
 
-	if (chart.datasets[i].hidden != hidden) {
+	if (chart.datasets.valid[i].hidden != hidden) {
 	    // since toggle_hide is potentially called many times here defer the call to update_charts
 	    // since toggle_hide is being called manually skip the mouse update
-	    toggle_hide(chart.datasets[i], true, true);
+	    toggle_hide(chart.datasets.valid[i], true, true);
 	}
     }
 
@@ -3191,17 +3226,17 @@ function apply_name_filter_show(chart) {
 function apply_name_filter_hide(chart) {
     var regex = new RegExp(chart.dom.table.name_filter.property("value"));
 
-    for (var i=0; i<chart.datasets.length; i++) {
+    for (var i=0; i<chart.datasets.valid.length; i++) {
 	var hidden = false;
 
-	if (regex.test(chart.datasets[i].name)) {
+	if (regex.test(chart.datasets.valid[i].name)) {
 	    hidden = true;
 	}
 
-	if (chart.datasets[i].hidden != hidden) {
+	if (chart.datasets.valid[i].hidden != hidden) {
 	    // since toggle_hide is potentially called many times here defer the call to update_charts
 	    // since toggle_hide is being called manually skip the mouse update
-	    toggle_hide(chart.datasets[i], true, true);
+	    toggle_hide(chart.datasets.valid[i], true, true);
 	}
     }
 
@@ -3218,7 +3253,13 @@ function sort_table(chart) {
 }
 
 function datarow_sort(a, b) {
-    if (!a.hidden && b.hidden) {
+    if (!a.invalid && b.invalid) {
+	return 1;
+    } else if (a.invalid && !b.invalid) {
+	return -1;
+    } else if (a.invalid && b.invalid) {
+	return 0;
+    } else if (!a.hidden && b.hidden) {
 	return -1;
     } else if (a.hidden && !b.hidden) {
 	return 1;
@@ -3228,6 +3269,30 @@ function datarow_sort(a, b) {
 	} else {
 	    return b.mean - a.mean;
 	}
+    }
+}
+
+function dataset_sort(a, b) {
+    if (!a.invalid && b.invalid) {
+	return 1;
+    } else if (a.invalid && !b.invalid) {
+	return -1;
+    } else if (a.invalid && b.invalid) {
+	return 0;
+    } else {
+	return b.mean - a.mean;
+    }
+}
+
+function dataset_histogram_sort(a, b) {
+    if (!a.invalid && b.invalid) {
+	return 1;
+    } else if (a.invalid && !b.invalid) {
+	return -1;
+    } else if (a.invalid && b.invalid) {
+	return 0;
+    } else {
+	return b.histogram.mean - a.histogram.mean;
     }
 }
 
@@ -3242,6 +3307,7 @@ function display_help() {
     help += "You can apply any x-axis zooming to all charts on the page by clicking the \"Apply X-Axis Zoom to All\" button (as long as the x-axis domains match).\n\n";
     help += "To reset the chart area to it's original state after being panned/zoomed, hit the \"Reset Zoom/Pan\" button in the upper right.\n\n";
     help += "You can download a CSV file for the data by clicking the \"Export Data as CSV\" button located under the chart title.  The exported data is limited by x-axis zooming, if performed.\n\n";
+    help += "Datasets highlighted in yellow in the table have been marked as invalid due to a problem while loading.  These datasets are permanently hidden and will ignore many user initiated events.\n\n";
     help += "When the page has completed generating all charts, the background will change colors to signal that loading is complete.\n";
 
     alert(help);

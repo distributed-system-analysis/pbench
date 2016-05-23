@@ -32,6 +32,7 @@ rect.pane { cursor: crosshair; fill: none; pointer-events: all; }
 .invisible { opacity: 0; }
 .hidden { visibility: hidden; }
 .hiddenrow { background-color: rgba(152, 152, 152, 1); }
+.invalidrow { background-color: yellow; }
 .loadinglabel { opacity: 0.75; font: 120px monospace; color: black; pointer-events: none; }
 rect.tooltip { fill: #CCCCCC; stroke-width: 2px; stroke: black; }
 .slider path { fill: #033E6B;  stroke: black;  }
