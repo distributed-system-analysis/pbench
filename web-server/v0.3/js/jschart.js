@@ -28,6 +28,7 @@ function datapoint(x, y, dataset, timestamp) {
     this.y = y;
     this.dataset = dataset;
     this.timestamp = timestamp;
+    this.percentile = null;
 
     if (!this.dataset.max_y_value ||
 	(this.dataset.max_y_value < this.y)) {
@@ -478,6 +479,7 @@ function parse_plot_file(chart, datasets_index, text) {
 		if ((chart.datasets.all[datasets_index].histogram.p9999 === null) && (count >= threshold_p9999)) {
 		    chart.datasets.all[datasets_index].histogram.p9999 = chart.datasets.all[datasets_index].values[i].x;
 		}
+		chart.datasets.all[datasets_index].values[i].percentile = count / chart.datasets.all[datasets_index].histogram.samples * 100;
 	    }
 	}
     } else {
@@ -860,6 +862,7 @@ function load_csv_files(url, chart, callback) {
 				if ((chart.datasets.all[i].histogram.p9999 === null) && (count >= threshold_p9999)) {
 				    chart.datasets.all[i].histogram.p9999 = chart.datasets.all[i].values[p].x;
 				}
+				chart.datasets.all[i].values[p].percentile = count / chart.datasets.all[i].histogram.samples * 100;
 			    }
 			}
 		    } else {
@@ -1110,7 +1113,7 @@ function create_table(chart) {
     var colspan;
 
     if (chart.data_model == "histogram") {
-	colspan = 11;
+	colspan = 12;
     } else {
 	colspan = 5;
     }
@@ -1250,6 +1253,12 @@ function create_table(chart) {
 	.attr("align", "right")
 	.text("Value");
 
+    if (chart.data_model == "histogram") {
+	row.append("th")
+	    .attr("align", "right")
+	    .text("Percentile");
+    }
+
     row.append("th")
 	.attr("align", "right")
 	.text("Average");
@@ -1304,6 +1313,11 @@ function create_table(chart) {
 
 	chart.datasets.all[i].dom.table.value = chart.datasets.all[i].dom.table.row.append("td")
 	    .attr("align", "right");
+
+	if (chart.data_model == "histogram") {
+	     chart.datasets.all[i].dom.table.percentile = chart.datasets.all[i].dom.table.row.append("td")
+		.attr("align", "right");
+	}
 
 	chart.datasets.all[i].dom.table.mean = chart.datasets.all[i].dom.table.row.append("td")
 	    .attr("align", "right")
@@ -2697,6 +2711,9 @@ function table_print(chart, value) {
 
 function set_dataset_value(chart, dataset_index, values_index) {
     chart.datasets.valid[dataset_index].dom.table.value.text(chart.formatting.table.float(chart.datasets.valid[dataset_index].values[values_index].y));
+    if (chart.data_model == "histogram") {
+	chart.datasets.valid[dataset_index].dom.table.percentile.text(chart.formatting.table.float(chart.datasets.valid[dataset_index].values[values_index].percentile));
+    }
     chart.datasets.valid[dataset_index].cursor_index = values_index;
     chart.table.stacked_value += chart.datasets.valid[dataset_index].values[values_index].y;
     chart.datasets.valid[dataset_index].dom.cursor_point.data([ chart.datasets.valid[dataset_index].values[values_index] ]);
@@ -2835,6 +2852,9 @@ function clear_dataset_values(chart) {
 	}
 
 	chart.datasets.valid[i].dom.table.value.text("");
+	if (chart.data_model == "histogram") {
+	    chart.datasets.valid[i].dom.table.percentile.text("");
+	}
 	chart.datasets.valid[i].dom.cursor_point.classed("hidden", true);
 
 	// clear the dataset index cache
