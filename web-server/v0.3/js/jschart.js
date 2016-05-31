@@ -1041,7 +1041,7 @@ function complete_chart(chart) {
 	    .attr("d", function(d) { if (d.values === undefined) { return null; } return chart.functions.area(d.values); })
 	    .style("fill", function(d) { return mycolors(d.index); })
 	    .classed("hidden", function(d) { if (d.hidden) { return true; } else { return false; }; })
-	    .attr("clip-path", "url(#clip)");
+	    .attr("clip-path", "url(#clip_" + chart.charts_index + ")");
 
 	for (var i=0; i<chart.datasets.valid.length; i++) {
 	    if (chart.datasets.valid[i].values.length > 1) {
@@ -1053,7 +1053,7 @@ function complete_chart(chart) {
 		.enter().append("line")
 		.classed("points", true)
 		.attr("r", 3)
-		.attr("clip-path", "url(#clip)")
+		.attr("clip-path", "url(#clip_" + chart.charts_index + ")")
 		.style("stroke", mycolors(chart.datasets.valid[i].index))
 		.classed("hidden", function(d) { if (d.hidden) { return true; } else { return false; }; })
 		.attr("x1", get_chart_scaled_x)
@@ -1072,7 +1072,7 @@ function complete_chart(chart) {
 	    .attr("d", function(d) { if (d.values === undefined) { return null; } return chart.functions.line(d.values); })
 	    .style("stroke", function(d) { return mycolors(d.index) })
 	    .classed("hidden", function(d) { if (d.hidden) { return true; } else { return false; }; })
-	    .attr("clip-path", "url(#clip)");
+	    .attr("clip-path", "url(#clip_" + chart.charts_index + ")");
 
 	for (var i=0; i<chart.datasets.valid.length; i++) {
 	    if (chart.datasets.valid[i].values.length > 1) {
@@ -1084,7 +1084,7 @@ function complete_chart(chart) {
 		.enter().append("circle")
 		.classed("points", true)
 		.attr("r", 3)
-		.attr("clip-path", "url(#clip)")
+		.attr("clip-path", "url(#clip_" + chart.charts_index + ")")
 		.style("fill", mycolors(chart.datasets.valid[i].index))
 		.style("stroke", mycolors(chart.datasets.valid[i].index))
 		.classed("hidden", function(d) { if (d.hidden) { return true; } else { return false; }; })
@@ -1102,7 +1102,7 @@ function complete_chart(chart) {
 	    .enter().append("circle")
 	    .classed("value_points hidden", true)
 	    .attr("r", 5)
-	    .attr("clip-path", "url(#clip)")
+	    .attr("clip-path", "url(#clip_" + chart.charts_index + ")")
 	    .style("fill", mycolors(chart.datasets.valid[i].index))
 	    .attr("cx", get_chart_scaled_x)
 	    .attr("cy", get_chart_scaled_y_stack);
@@ -2029,7 +2029,7 @@ function build_chart(chart) {
     var y_domain = chart.y.scale.chart.domain();
 
     chart.chart.container.append("clipPath")
-	.attr("id", "clip")
+	.attr("id", "clip_" + chart.charts_index)
 	.append("rect")
 	.attr("x", chart.x.scale.chart(x_domain[0]))
 	.attr("y", chart.y.scale.chart(y_domain[1]))
