@@ -112,7 +112,7 @@ while true; do
 		--patterns) # for pidstat only
 		shift;
 		if [ -n "$1" ]; then
-			pattern="-C `echo $1 | sed -e s/','/'|'/g`"
+			pattern="-C \"$(echo $1 | sed -e 's/,/|/g')\" "
 			shift
 		fi
 		;;
@@ -144,7 +144,7 @@ case "$script_name" in
 	tool_cmd="$tool_bin $options $default_options -o $tool_data_file $interval"
 	;;
 	pidstat)
-	default_options="-l -w -u -h -d -r $thread -p ALL $pattern"
+	default_options="-l -w -u -h -d -r $threads -p ALL $pattern"
 	tool_cmd="$tool_bin $options $default_options $interval"
 	;;
 esac
