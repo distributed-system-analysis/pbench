@@ -144,7 +144,8 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
 			      }
 			 },
 		   viewport_controls: null,
-		   viewport_elements: null
+		   viewport_elements: null,
+		   highlight_points: null
 		 };
 
     this.dom = { div: null,
@@ -1754,6 +1755,15 @@ function build_chart(chart) {
 	.attr("width", chart.dimensions.viewport_width + chart.dimensions.margin.left + chart.dimensions.margin.right)
 	.attr("height", chart.dimensions.viewport_height + chart.dimensions.margin.top + chart.dimensions.margin.bottom + ((Math.ceil(chart.dataset_count / chart.dimensions.legend_properties.columns) - 1 + chart.options.legend_entries.length) * chart.dimensions.legend_properties.row_height));
 
+    var foo = chart.chart.svg.append("defs");
+    var bar = foo.append("marker")
+	.attr("id", "datapoint_" + chart.charts_index)
+	.attr("viewBox", "-2,-2,4,4")
+	.attr("markerWidth", 2)
+	.attr("marerHeight", 2);
+    chart.chart.highlight_points = bar.append("circle")
+	.attr("r", 2);
+
     chart.chart.container = chart.chart.svg.append("g")
 	.attr("transform", "translate(" + chart.dimensions.margin.left + ", " + chart.dimensions.margin.top +")");
 
@@ -2398,7 +2408,12 @@ function highlight(dataset) {
 	    }
 
 	    if (dataset.chart.datasets.valid[i].index == dataset.index) {
-		dataset.chart.datasets.valid[i].dom.path.classed({"unhighlighted": false, "highlightedline": true });
+		dataset.chart.datasets.valid[i].dom.path.classed({"unhighlighted": false, "highlightedline": true })
+		    .attr("marker-mid", "url(#datapoint_" + dataset.chart.charts_index + ")")
+		    .attr("marker-start", "url(#datapoint_" + dataset.chart.charts_index + ")")
+		    .attr("marker-end", "url(#datapoint_" + dataset.chart.charts_index + ")");
+
+		dataset.chart.chart.highlight_points.style("fill", mycolors(dataset.chart.datasets.valid[i].index));
 
 		if (dataset.chart.datasets.valid[i].dom.points) {
 		    dataset.chart.datasets.valid[i].dom.points.classed("unhighlighted", false)
@@ -2454,7 +2469,10 @@ function dehighlight(dataset) {
 		continue;
 	    }
 
-	    dataset.chart.datasets.valid[i].dom.path.classed({"unhighlighted": false, "highlightedline": false});
+	    dataset.chart.datasets.valid[i].dom.path.classed({"unhighlighted": false, "highlightedline": false})
+		.attr("marker-mid", null)
+		.attr("marker-start", null)
+		.attr("marker-end", null);
 
 	    if (dataset.chart.datasets.valid[i].dom.points) {
 		dataset.chart.datasets.valid[i].dom.points.classed("unhighlighted", false)
