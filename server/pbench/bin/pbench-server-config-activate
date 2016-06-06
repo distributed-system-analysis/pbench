@@ -1,0 +1,35 @@
+#! /bin/bash
+# -*- mode: shell-script -*-
+
+prog=$(basename $0)
+usage="$prog <config file path>"
+
+case $# in
+    1)
+        configfile=$1
+        ;;
+    *)
+        echo $usage
+        exit 2
+        ;;
+esac
+
+if [ ! -f $configfile ] ;then
+    echo "$prog: $configfile does not exist"
+    exit 4
+fi
+
+configdir=$(dirname $configfile)
+config_files=$(ls $configdir)
+# copy the configuration file to the standard place
+dest=$(getconf.py --config $configfile install-dir pbench-server)
+dest=$dest/lib/config
+for x in $config_files ;do
+    echo "cp $configdir/$x $dest"
+    cp $configdir/$x $dest
+done
+
+exit $?
+
+
+

@@ -1,0 +1,31 @@
+#! /bin/bash
+# -*- mode: shell-script -*-
+
+prog=$(basename $0)
+usage="$prog <path-to-config-file>"
+
+case $# in
+    1)
+        configfile=$1
+        ;;
+    *)
+        echo $usage
+        exit 2
+        ;;
+esac
+
+# check that the config file exists
+if [ ! -f $configfile] ;then
+    echo "$prog: $configfile file does not exist"
+    exit 4
+fi
+
+# copy the configuration file to the destination
+# use the "real" config file to get the destination
+dest=$(getconf.py --config $configfile pbench_install_dir pbench-agent)
+dest=$dest/config/pbench-agent.cfg
+cp $configfile $dest
+exit $?
+
+
+
