@@ -1,0 +1,49 @@
+#! /bin/bash
+
+prog=$(basename $0)
+usage="Usage: $prog [<test-dir-prefix>]"
+
+testdir=$1
+
+if [ ! -f $CONFIG ] ;then
+    echo "$CONFIG does not exist"
+    exit 2
+fi
+
+pbench_dir=$(getconf.py deploy-pbench-dir results)
+if [ -z "$pbench_dir" ] ;then
+    echo "deploy-pbench_dir is undefined in section \"results\" of config file."
+    exit 3
+fi
+
+archive_dir=$(getconf.py deploy-archive-dir results)
+if [ -z "$archive_dir" ] ;then
+    echo "deploy-archive_dir is undefined in section \"results\" of config file."
+    exit 4
+fi
+
+user=$(getconf.py default-user results)
+if [ -z "$user" ] ;then
+    echo "default-user is undefined in section \"results\" of config file."
+    exit 5
+fi
+
+group=$(getconf.py default-group results)
+if [ -z "$group" ] ;then
+    echo "default-group is undefined in section \"results\" of config file."
+    exit 5
+fi
+
+if [ ! -z "$testdir" ] ;then
+    pbench_dir=${testdir}${pbench_dir}
+    archive_dir=${testdir}${archive_dir}
+fi
+
+mkdir -p $archive_dir  || exit 6
+mkdir -p $pbench_dir/public_html/incoming || exit 7
+mkdir -p $pbench_dir/public_html/results || exit 8
+
+# chown -R $user.$group $pbench_dir || exit 9
+
+exit 0
+

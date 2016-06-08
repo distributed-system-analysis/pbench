@@ -22,12 +22,12 @@ if [[ ! -d $_testdir ]]; then
     exit 1
 fi
 
-# is this necessary?
-export CONFIG=${_tdir}/../../config/run.conf
-
 # Fixed timestamp output
 export _PBENCH_SERVER_TEST=1
 res=0
+
+# mock out some stuff
+PATH=$_tdir/test-bin:$PATH
 
 function _run {
     tname=$1
@@ -36,6 +36,7 @@ function _run {
     $_tdir/$tname $_testdir $@ >> $_testout 2>&1
     echo "--- Finished $tname (status=$?}" >> $_testout
 }
+
 function _run_index {
     dname=$1
     shift
@@ -43,8 +44,21 @@ function _run_index {
     echo "+++ Running indexing on $dname" >> $_testout
     PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_tlib}/config/pbench-index.cfg.example $dname.tar.xz >> $_testout 2>&1
     echo "--- Finished indexing on $dname (status=$?)" >> $_testout
-    sed -i '/File "\/home\//s;/home/.*/pbench/server/;/home/user/repo/pbench/server/;' $_testout
+    _serverdir=$(dirname $(dirname $_tdir))
+    sed -i '/File "\/home\//s;'$_serverdir';/home/user/repo/pbench/server;' $_testout
 }
+
+function _run_activate {
+    rootdir=${1%/}
+    $_tdir/pbench-server-config-activate ${rootdir}/pbench-server-internal/pbench/lib/config/pbench-server.cfg ${_testdir} >> $_testout
+    rc=$?
+    if [ $rc != 0 ] ;then
+        return 1
+    fi
+    PATH=$_tdir:$PATH
+    $_tdir/pbench-server-activate ${_testdir}/opt/pbench-server/lib/config/pbench-server.cfg ${_testdir} >> $_testout
+}
+
 function _run_allscripts {
     _run pbench-backup-tarballs
     # These next three are related and would flow in this order
@@ -102,6 +116,17 @@ function _reset_state {
         exit 1
     fi
 }
+
+# uniformize tests - WIP
+# for t in $(seq 1 6) ;do
+#     _setup_state test-$t
+#     _run_allscripts
+#     _save_tree; _dump_logs
+#     _verify_output $res test-$t
+#     res=$?
+#     _reset_state
+# done
+# exit 0
 
 #
 # 1. Verify all scripts fail without a temporary directory
@@ -215,5 +240,12 @@ for i in {1..5} ;do
     res=$?
     _reset_state
 done    
+
+# activation unit test
+_setup_state test-8
+_run_activate $_testroot/test-8
+_save_tree; _dump_logs
+_verify_output $res test-8
+res=$?
 
 exit $res

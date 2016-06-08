@@ -1,0 +1,86 @@
+#! /bin/bash
+
+prog=$(basename $0)
+# This script uses the pbench-server.cfg file just installed, to
+# figure out what tasks to add to the pbench crontab on this
+# machine. After creating the crontab, it does *not* activate it: that
+# is a separate manual step.
+
+usage="Usage: $prog <crontab-path> [<test-dir-prefix>]"
+
+crontabpath=$1
+testdir=$2
+
+if [ ! -z "$testdir" ] ;then
+    crontabpath=${testdir}${crontabpath}
+fi
+
+# crontab
+mkdir -p $crontabpath
+chmod 755 $crontabpath
+crontab=$crontabpath/crontab
+
+if [ ! -f $CONFIG ]
+then
+    echo "Config file $CONFIG does not exist"
+    exit 2
+fi
+
+echo "CONFIG=$CONFIG" > $crontab
+
+roles=$(getconf.py -l roles pbench-server)
+hostname=$(hostname -f)
+
+for role in $roles ;do
+    host=$(getconf.py host $role)
+    if [ "$host" != "$hostname" ] ;then
+        continue
+    fi
+    mailfrom=$(getconf.py mailfrom $role pbench-server)
+    if [ -z "$mailfrom" ] ;then
+        echo "$role: No mailfrom specified"
+        continue
+    fi
+    mailto=$(getconf.py mailto $role pbench-server)
+    if [ -z "$mailto" ] ;then
+        echo "$role: No mailto specified"
+        continue
+    fi
+    
+    grep -q MAILTO $crontab ||
+        echo "MAILTO=$mailto" >> $crontab
+    grep -q MAILFROM $crontab ||
+        echo "MAILFROM=$mailfrom" >> $crontab
+    tasks=$(getconf.py -l tasks $role)
+    for task in $tasks ;do
+        crontabline=$(getconf.py crontab $task)
+        echo "$crontabline" >> $crontab
+    done
+done
+
+chmod 644 $crontab
+
+# create the lock directory that the cron entries will use
+lockdir=$(getconf.py deploy-lock-dir pbench-server)
+if [ ! -z "$testdir" ] ;then
+    lockdir=${testdir}${lockdir}
+fi
+mkdir -p ${lockdir}
+chmod 755 ${lockdir}
+
+user=$(getconf.py default-user results)
+if [ -z "$user" ] ;then
+    echo "default-user is undefined in section \"results\" of config file."
+    exit 5
+fi
+
+group=$(getconf.py default-group results)
+if [ -z "$group" ] ;then
+    echo "default-group is undefined in section \"results\" of config file."
+    exit 5
+fi
+
+chown $user.$group ${crontab}
+chown -R $user.$group ${lockdir}
+
+exit 0
