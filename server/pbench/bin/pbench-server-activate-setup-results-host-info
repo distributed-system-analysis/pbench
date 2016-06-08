@@ -15,7 +15,9 @@ prog=$(basename $0)
 # pbench-activate-local-server-installation script has run,
 # so that the config file is already installed.
 
-usage="Usage: $prog"
+usage="Usage: $prog [<test-dir-prefix>]"
+
+testdir=$1
 
 if [ ! -f $CONFIG ]
 then
@@ -39,6 +41,10 @@ if [ -z "$documentroot" ] ;then
         exit 4
 fi
 
+if [ ! -z "$testdir" ] ;then
+    documentroot=${testdir}${documentroot}
+    mkdir -p ${documentroot}
+fi
 cd $documentroot || exit 1
 
 # the directory and filename are specified in the agent config file as the value of
@@ -52,10 +58,11 @@ if [ -z "$results_host_info_url" ] ;then
     exit 5
 fi
 
+# path is relative to documentroot
 path=$(echo $results_host_info_url | sed 's/http:\/\///' | sed 's/[^/]*\///')
 
 mkdir -p $(dirname $path)
-cd $(dirname $path) || exit 6
+cd $(dirname $path) >/dev/null 2>&1 || exit 6
 prefix=$(basename $path)
 user=$(getconf.py user pbench-server)
 host=$(getconf.py default-host pbench-server)

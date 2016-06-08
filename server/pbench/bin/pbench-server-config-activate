@@ -2,11 +2,15 @@
 # -*- mode: shell-script -*-
 
 prog=$(basename $0)
-usage="$prog <config file path>"
+usage="$prog <config file path> <test-path>"
 
 case $# in
     1)
         configfile=$1
+        ;;
+    2)
+        configfile=$1
+        testdir=$2
         ;;
     *)
         echo $usage
@@ -24,12 +28,30 @@ config_files=$(ls $configdir)
 # copy the configuration file to the standard place
 dest=$(getconf.py --config $configfile install-dir pbench-server)
 dest=$dest/lib/config
+
+# for unit testing
+if [ ! -z "$testdir" ] ;then
+    mkdir -p ${testdir}${dest}
+    dest=${testdir}${dest}
+fi
+
 for x in $config_files ;do
-    echo "cp $configdir/$x $dest"
+    #echo "cp $configdir/$x $dest"
     cp $configdir/$x $dest
 done
 
+user=$(getconf.py --config $configfile user pbench-server)
+if [ -z "$user" ] ;then
+    echo "user is undefined in section \"pbench-server\" of config file."
+    exit 4
+fi
+
+group=$(getconf.py --config $configfile group pbench-server)
+if [ -z "$group" ] ;then
+    echo "group is undefined in section \"pbench-server\" of config file."
+    exit 5
+fi
+
+chown -R $user.$group $dest
+
 exit $?
-
-
-

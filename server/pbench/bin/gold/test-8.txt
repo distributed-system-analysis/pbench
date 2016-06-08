@@ -1,0 +1,30 @@
+chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/config
+chown pbench.pbench /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/crontab/crontab
+chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/locks
++++ pbench tree state
+/var/tmp/pbench-test-server/pbench
+/var/tmp/pbench-test-server/pbench/opt
+/var/tmp/pbench-test-server/pbench/opt/pbench-server
+/var/tmp/pbench-test-server/pbench/opt/pbench-server/lib
+/var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/config
+/var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/config/pbench-index.cfg
+/var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/config/pbench-server.cfg
+/var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/crontab
+/var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/crontab/crontab
+/var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/locks
+/var/tmp/pbench-test-server/pbench/pbench
+/var/tmp/pbench-test-server/pbench/pbench/archive
+/var/tmp/pbench-test-server/pbench/pbench/archive/fs-version-001
+/var/tmp/pbench-test-server/pbench/pbench/public_html
+/var/tmp/pbench-test-server/pbench/pbench/public_html/incoming
+/var/tmp/pbench-test-server/pbench/pbench/public_html/results
+/var/tmp/pbench-test-server/pbench/var
+/var/tmp/pbench-test-server/pbench/var/www
+/var/tmp/pbench-test-server/pbench/var/www/html
+/var/tmp/pbench-test-server/pbench/var/www/html/pbench-results-host-info.versioned
+/var/tmp/pbench-test-server/pbench/var/www/html/pbench-results-host-info.versioned/pbench-results-host-info.URL001
+/var/tmp/pbench-test-server/pbench/var/www/html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+/var/tmp/pbench-test-server/pbench/var/www/html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+--- pbench tree state
++++ pbench log file contents
+--- pbench log file contents

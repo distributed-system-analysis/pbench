@@ -1,7 +1,9 @@
 #! /bin/bash
 
 prog=$(basename $0)
-usage="Usage: $prog"
+usage="Usage: $prog [<test-dir-prefix>]"
+
+testdir=$1
 
 if [ ! -f $CONFIG ] ;then
     echo "$CONFIG does not exist"
@@ -26,11 +28,22 @@ if [ -z "$user" ] ;then
     exit 5
 fi
 
+group=$(getconf.py default-group results)
+if [ -z "$group" ] ;then
+    echo "default-group is undefined in section \"results\" of config file."
+    exit 5
+fi
+
+if [ ! -z "$testdir" ] ;then
+    pbench_dir=${testdir}${pbench_dir}
+    archive_dir=${testdir}${archive_dir}
+fi
+
 mkdir -p $archive_dir  || exit 6
 mkdir -p $pbench_dir/public_html/incoming || exit 7
 mkdir -p $pbench_dir/public_html/results || exit 8
 
-chown -R $user.$user $pbench_dir || exit 9
+# chown -R $user.$group $pbench_dir || exit 9
 
 exit 0
 

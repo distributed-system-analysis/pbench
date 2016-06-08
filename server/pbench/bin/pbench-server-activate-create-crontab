@@ -6,13 +6,17 @@ prog=$(basename $0)
 # machine. After creating the crontab, it does *not* activate it: that
 # is a separate manual step.
 
-usage="Usage: $prog <crontab-path>"
+usage="Usage: $prog <crontab-path> [<test-dir-prefix>]"
 
 crontabpath=$1
+testdir=$2
+
+if [ ! -z "$testdir" ] ;then
+    crontabpath=${testdir}${crontabpath}
+fi
 
 # crontab
 mkdir -p $crontabpath
-chown pbench.pbench $crontabpath
 chmod 755 $crontabpath
 crontab=$crontabpath/crontab
 
@@ -22,10 +26,10 @@ then
     exit 2
 fi
 
+echo "CONFIG=$CONFIG" > $crontab
+
 roles=$(getconf.py -l roles pbench-server)
 hostname=$(hostname -f)
-
-echo "CONFIG=$CONFIG" > $crontab
 
 for role in $roles ;do
     host=$(getconf.py host $role)
@@ -54,11 +58,29 @@ for role in $roles ;do
     done
 done
 
-chown pbench.pbench $crontab
 chmod 644 $crontab
 
 # create the lock directory that the cron entries will use
-mkdir -p /home/pbench/locks
-chown pbench.pbench /home/pbench/locks
+lockdir=$(getconf.py deploy-lock-dir pbench-server)
+if [ ! -z "$testdir" ] ;then
+    lockdir=${testdir}${lockdir}
+fi
+mkdir -p ${lockdir}
+chmod 755 ${lockdir}
+
+user=$(getconf.py default-user results)
+if [ -z "$user" ] ;then
+    echo "default-user is undefined in section \"results\" of config file."
+    exit 5
+fi
+
+group=$(getconf.py default-group results)
+if [ -z "$group" ] ;then
+    echo "default-group is undefined in section \"results\" of config file."
+    exit 5
+fi
+
+chown $user.$group ${crontab}
+chown -R $user.$group ${lockdir}
 
 exit 0

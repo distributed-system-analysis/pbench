@@ -7,24 +7,24 @@ version = 001
 # CHANGE ME!
 default-host = pbench.example.com
 default-user = pbench
+default-group = pbench
 default-deploy-dir = /opt/pbench-server
 
 default-script-dir = %(default-deploy-dir)s/bin
 default-lib-dir = %(default-deploy-dir)s/lib
-default-crontab-dir = %(default-deploy-dir)s/crontab
-default-lock-dir = %(default-deploy-dir)s/locks
+default-crontab-dir = %(default-lib-dir)s/crontab
+default-lock-dir = %(default-lib-dir)s/locks
 
 deploy-script-dir = %(default-script-dir)s
 deploy-lib-dir = %(default-lib-dir)s
 deploy-crontab-dir=%(default-crontab-dir)s
 deploy-lock-dir = %(default-lock-dir)s
 
-## See pbench-server-setup documentation for filesystem setup
+## See pbench server setup documentation for filesystem setup
 deploy-pbench-dir = /pbench
 deploy-archive-dir = %(deploy-pbench-dir)s/archive/fs-version-%(version)s
 deploy-pbench-local-dir = /pbench-local
-deploy-pbench-backup-dir = /srv/vos/pbench/archive.backup
-
+deploy-pbench-backup-dir = %(deploy-pbench-local-dir)s/archive.backup
 
 ###########################################################################
 ## runtime section
@@ -41,7 +41,8 @@ mailto=admins@example.com
 ## deployment section
 ###########################################################################
 [pbench-server]
-user=%(default-user)s
+user = %(default-user)s
+group = %(default-group)s
 install-dir = %(default-deploy-dir)s
 # CHANGE ME!
 roles = pbench-results pbench-backup
