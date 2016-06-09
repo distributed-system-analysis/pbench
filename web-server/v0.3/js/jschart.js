@@ -805,23 +805,57 @@ function load_csv_files(url, chart, callback) {
 
 		var data = d3.csv.parseRows(text);
 
+		// csv_format
+		// 1 = ts,d0,d1,d2,...,dN
+		// 2 = ts0,d0,ts1,d1,ts2,d2,...,tsN,dN
+		var csv_format = 1;
+		var incrementer;
+
 		for (var x=0; x<data.length; x++) {
 		    if (sample_counter == 0) {
-			for (var i=1; i<data[x].length; i++) {
-			    chart.datasets.all[index_base + i - 1] = new dataset(index_base + i - 1, data[x][i], "No Samples", "No Samples", [], chart);
+			var timestamp_columns = 0;
+			for (var i=0; i<data[x].length; i+=2) {
+			    if (data[x][i].startsWith("timestamp_") && data[x][i].endsWith("_ms")) {
+				timestamp_columns++;
+			    }
+			}
+
+			if (timestamp_columns == 1) {
+			    csv_format = 1;
+			} else if (timestamp_columns > 1) {
+			    csv_format = 2;
+			}
+
+			if (csv_format == 1) {
+			    incrementer = 1;
+			} else if (csv_format == 2) {
+			    incrementer = 2;
+			}
+
+			for (var i=1,counter=0; i<data[x].length; i+=incrementer,counter++) {
+			    chart.datasets.all[index_base + counter] = new dataset(index_base + counter, data[x][i], "No Samples", "No Samples", [], chart);
 			    chart.state.visible_datasets++;
 			}
 		    } else {
-			for (var i=1; i<data[x].length; i++) {
+			var counter = 0;
+			var ts_index = 0;
+
+			for (var i=1,counter=0; i<data[x].length; i+=incrementer,counter++) {
 			    if (data[x][i] == "") {
 				continue;
 			    }
 
-			    chart.datasets.all[index_base + i - 1].values.push(new datapoint(+data[x][0], +data[x][i], chart.datasets.all[index_base + i - 1], null));
+			    if (csv_format == 1) {
+				ts_index = 0;
+			    } else if (csv_format == 2) {
+				ts_index = i - 1;
+			    }
+
+			    chart.datasets.all[index_base + counter].values.push(new datapoint(+data[x][ts_index], +data[x][i], chart.datasets.all[index_base + counter], null));
 
 			    if (chart.data_model == "histogram") {
-				chart.datasets.all[index_base + i -1].histogram.samples += +data[x][i];
-				chart.datasets.all[index_base + i -1].histogram.sum += (+data[x][0] * +data[x][i]);
+				chart.datasets.all[index_base + counter].histogram.samples += +data[x][i];
+				chart.datasets.all[index_base + counter].histogram.sum += (+data[x][ts_index] * +data[x][i]);
 			    }
 			}
 		    }
