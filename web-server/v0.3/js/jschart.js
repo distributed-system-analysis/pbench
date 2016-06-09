@@ -71,7 +71,8 @@ function dataset(index, name, mean, median, values, chart) {
 				       p90: null,
 				       p95: null,
 				       p99: null,
-				       p9999: null
+				       p9999: null,
+				       buckets: null
 				     }
 			},
 		 path: null,
@@ -1148,7 +1149,7 @@ function create_table(chart) {
     var colspan;
 
     if (chart.data_model == "histogram") {
-	colspan = 12;
+	colspan = 13;
     } else {
 	colspan = 5;
     }
@@ -1326,6 +1327,10 @@ function create_table(chart) {
 	row.append("th")
 	    .attr("align", "right")
 	    .text("99.99%");
+
+	row.append("th")
+	    .attr("align", "right")
+	    .text("Buckets");
     }
 
     row.append("th")
@@ -1398,6 +1403,10 @@ function create_table(chart) {
 	    chart.datasets.all[i].dom.table.histogram.p9999 = chart.datasets.all[i].dom.table.row.append("td")
 		.attr("align", "right")
 		.text(table_print(chart, chart.datasets.all[i].histogram.p9999));
+
+	    chart.datasets.all[i].dom.table.histogram.buckets = chart.datasets.all[i].dom.table.row.append("td")
+		.attr("align", "right")
+		.text(chart.formatting.table.integer(chart.datasets.all[i].values.length));
 	}
 
 	chart.datasets.all[i].dom.table.samples = chart.datasets.all[i].dom.table.row.append("td")
