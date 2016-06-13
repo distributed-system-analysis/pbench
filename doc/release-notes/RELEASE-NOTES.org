@@ -1,0 +1,172 @@
+# Created 2016-06-14 Tue 13:39
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:t
+#+OPTIONS: html-preamble:t html-scripts:t html-style:t
+#+OPTIONS: html5-fancy:nil tex:t
+#+OPTIONS: ^:{} H:2
+#+TITLE: PBench release notes
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+KEYWORDS: pbench
+#+HTML_LINK_HOME: 
+#+HTML_LINK_UP: 
+#+HTML_MATHJAX: 
+#+HTML_HEAD_EXTRA: 
+#+SUBTITLE: 
+#+INFOJS_OPT: 
+#+LATEX_HEADER: 
+
+* Version 0.38
+
+** Installation                                                    :external:
+There are no installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install.
+
+After installation or update, you should have version 0.38-1g0db11ba
+of the pbench-agent RPM installed.
+
+** agent
+*** Backward incompatibilities
+In the v0.36 timeframe, all pbench scripts and benchmarks that are
+normally accessible were renamed: those that did not have a prefix at
+all were renamed with a "pbench-" prefix; the benchmarks had a
+"pbench_" prefix and were renamed for consistency with a "pbench-"
+prefix as well.
+
+In v0.37, there were compatibility links to the old names in util-scripts.
+
+In v0.38, these links have been deleted: you will have to make sure
+that you use (and all your scripts use) the names with the "pbench-"
+prefix.
+
+*** New features
+Please submit suggestions/issues to the [[https://github.com/distributed-system-analysis/pbench/issues][issue tracker]].
+
+**** New graphs
+
+The major change in this release is the replacement of the original
+nvd3 graphs with graphs produced by a library written by Karl Rister.
+The advantage of this library is that it is much less demanding on
+the browser than the original graph library.
+
+Note that it uses the same CSV files that the original graphs used,
+which it downloads from the server[fn:1]: big data sets are still
+going to incur long time penalties for the transfer. The difference is
+that once the download is complete, your browser will stand a much
+better chance of staying alive and able to display the graphs.
+
+[fn:1] Unless you install locally - see [[http://pbench.example.com/server/pbench-web-server.html][PBench web server]] for instructions.
+
+*** Bug fixes
+
+**** Fixed the RPM names for tools and benchmarks to include the pbench- prefix
+PBench will now be able to find and install the correct RPMs (with the
+current exception of pbench-iperf as noted above).
+
+**** Fixed the URL for the COPR repo
+The documentation on GitHub was pointing to a non-existent place for
+the COPR pbench-agent RPM: it used a sanitized =example.com=
+address. This was fixed, but note that the documentation still
+contains dead links and will undergo a significant overhaul for
+the next release.
+
+**** The pbench-kiil-tools symlink in the repo was wrong.
+That was fixed, but the bug did not and does not have any effect on a
+local installation: those symlinks are created on the fly by an RPM
+%post action.
+
+**** The sar script was modified to handle user-defined options.
+Note however that if you use non-standard options, the postprocessing
+step for the sar tool (and its relatives) will be skipped, since
+pbench does not know how to handle the modified output.
+
+
+** server                                                          :external:
+The server has now been organized in the same way as the agent: there
+is an external RPM available from COPR that includes all the scripts,
+and some configuration scripts that can be used to install the config
+file and perform the rest of the server configuration. See the [[file:../server/installation.org][server
+installation guide]].
+
+** web-server
+
+There is an RPM available on COPR that allows local viewing of graphs,
+both in the v0.2 format (Andrew's graphs using nvd3) or in the v0.3
+format (Karl's graphs using d3). This now includes Karl's latest fixes.
+If you have installed an older version, please upgrade. The current version
+on COPR is 0.3-10.
+
+** Fedora 24 RPMs on COPR
+
+Fedora 24 has been added to the build list and Fedora 21 has been
+deleted from it, for all the RPMS (benchmarks, tools,
+pbench-agent, pbench-server, pbench-web-server, configtools).
+
+One benchmark RPM (=pbench-iperf=) is currently failing to build. This
+will be fixed shortly.
+
+** Changelog
+- 4a65484 Version bump.
+- 0d5a976 Delete compatibility wrapper.
+- 2dff665 Wrong link for pbench-kill-tools.
+- 58dbb63 Update jschart and fix a small bug by cleaning up the y axis label updating code
+- a9ac750 Fix a bug in the jschart tooltip implementation when the tooltip belongs to an Y axis label
+- 8ca3d37 Long overdue cleanup of the jschart style and class code
+- 99fc942 Update the jschart legend rectangle outlining code to work with Firefox and vector zooming
+- ef211e8 Update jschart live_update to a timeseries data model which uses milliseconds since the epoch timestamps
+- b4372f6 Update jschart with a new filtering capability based on the dataset name and resort the table (if sorting is enabled) when datasets are hidden or unhidden
+- 281d89c Update the jschart show/hide all events to use static functions with locally scoped variables
+- 9453829 Update jschart threshold application events to use static functions with locally scoped variables
+- 76590ed Update the the jschart dataset mouseover, mouseout, and click events to use static functions with locally scoped variables
+- 844b87b Update the jschart viewport event handlers to use static functions with locally scoped variables instead of closures
+- 3bef541 Update jschart to eliminate some calls to map that are made often during some runtime behaviors
+- 6dbc809 Update jschart by replacing many data accesor closures with static functions
+- 82a0151 Update jschart to display the datasets value in the table that most closely aligns with the cursor's position in the viewport
+- 3a8cd33 Remove some dead code from jschart
+- 94c0808 Update the jschart table creations to use D3 principles to improve maintainability and reduce code bloat
+- c332ef9 Update jschart to improve maintainability and performance
+- 5d83c24 Update jschart to be able to apply a dynamic threshold based on a a dataset's maximum y value or y mean
+- 325f17e Update the jschart live update controls to fix some bugs introduced with the recent code churn
+- 25bf0b1 Update jschart to automatically sort the datasets in descending order based on their mean by default
+- 5ea4df3 Update jschart to honor the threshold and use it to determine if datasets should be automatically hidden
+- b276f78 Move some jschart hard coded values into global variables for easier maintanance and use moving forward
+- 3a45dfa Update jschart to be more dynamic when hiding and unhiding datasets
+- 44d5238 Allow hidden datasets in jschart to be unhidden by clicking their table row
+- 9b000bf Add jschart support for log scale on the x and y axis
+- 3534f88 Update the jschart axes references to conform to other chart object references
+- 3bce44d Update the jschart axes without doing DOM searches
+- a1af8da Refactor the code to use a global array of chart objects with references to all chart elements and data that may be accessed at runtime
+- b1e93ea Squash some tooltip bugs
+- 69813a4 Add the ability to hide all or individual datasets and the requisite ability to unhide them
+- 09f33a5 Refactor the dataset highlighting code to track state and improve performance
+- 5f0e909 Add a link from a chart_ref to it's datasets and links from the datasets to their DOM objects
+- bf5732f Update the legend boxes to always have a constant colored outline
+- e15db96 Update the description and dependency information for jschart
+- bbc21f0 Update the wording that refers to the EPL LICENSE.TXT file locations
+- dcbf39b Update the verbage in the demo web server to better reflect it's usage
+- 388d319 Add a simple web server from LPCPU for use in demoing/testing jschart
+- 43ed280 Add a jschart demo for testing purposes
+- db0ece1 Add support for a new data model type called histogram
+- c99c7d3 More jschart whitespace formatting cleanups
+- c8cfe1e Fix a bug in the jschart "Apply X-Axis Zoom to All" feature caused by the new support for timeseries charts
+- a2f1056 Fix some bugs in the zoom_it function in jschart when the data model is timeseries:
+- e471473 Remove dead code from the handle_brush_actions function in jschart
+- 87c7647 Update the mouse coordinate display to support when the chart is timeseries
+- 583ef9e Fixup timezone and time formatting support, defaulting to UTC
+- 9f0a3a7 Update jschart to use a dynamic x-axis label showing the (zoomed) time range when the chart is timeseries
+- 3534125 Update GenData to use jschart
+- bb36819 Update jschart to be compatible with GenData chart type specifications
+- 3b3889f Update the jschart highlight functions to have more descriptive names
+- 1f354a7 Update D3 Queue initialization to match d3-queue code available via npm
+- 28d51b9 Add support for saveSvgAsPng to jschart
+- 3029052 Add support for specifying whether a jschart is a XY plot or timeseries
+- 247216b Remove the jschart assertion that the x-axis domain should have a minimum=0 unless otherwise specified
+- 72a42e9 Add support for loading CSV data files into jschart
+- 785b27c Update jschart.js to dynamically build the summary table at runtime
+- c8b781a Initial commit of jschart files pulled from LPCPU
+- 7224a5a Clean up the list file.
+- ef3f12b Fix the COPR repo URL.
+- 6a1e74f Store cron job script logs in the local file system.
+- fc9d61d modified oc scrit -> fixed typo -> if decided to start too, instructed to install 'expect' package - necessary for unbuffer
+- 02eb062 Fix the calls to check_installed_rpm in all the benchmarks.
+- 6c48dbe Script rename: metadata-log --> pbench-metadata-log
+- 2b8b991 Modify the sar script (and its relatives) to handle user-defined options.
