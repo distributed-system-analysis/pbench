@@ -7,7 +7,7 @@ benchmarks across one or more systems, while properly collecting the
 configuration of those systems, their logs, and specified telemetry from
 various tools (`sar`, `vmstat`, `perf`, etc.).
 
-The second sub-system included here is `bgtasks`, or "back-ground tasks",
+The second sub-system included here is `pbench-server`,
 which is responsible for archiving result tar balls, indexing them, and
 unpacking them for display.
 
