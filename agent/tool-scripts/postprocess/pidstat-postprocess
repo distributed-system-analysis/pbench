@@ -144,6 +144,8 @@ while ($line = <PIDSTAT_TXT>) {
 		$pidstat{memory_faults}{major_faults_sec}{$pid}{$timestamp_ms} = $major_faults;
 		$pidstat{context_switches}{voluntary_switches_sec}{$pid}{$timestamp_ms} = $cswitches;
 		$pidstat{context_switches}{nonvoluntary_switches_sec}{$pid}{$timestamp_ms} = $nvcswitches;
+		$pidstat{memory_usage}{virtual_size}{$pid}{$timestamp_ms} = $vsz;
+		$pidstat{memory_usage}{resident_set_size}{$pid}{$timestamp_ms} = $rss;
 		$timestamps{$timestamp_ms}++;
 	}
 }
@@ -174,4 +176,6 @@ $graph_threshold{memory_faults}{minor_faults_sec} = 150;
 $graph_threshold{memory_faults}{major_faults_sec} = 150;
 $graph_threshold{context_switches}{voluntary_switches_sec} = 100;
 $graph_threshold{context_switches}{nonvoluntary_switches_sec} = 100;
+$graph_threshold{memory_usage}{virtual_size} = 100;
+$graph_threshold{memory_usage}{resident_set_size} = 100;
 gen_data(\%pidstat, \%graph_type, \%graph_threshold, $dir);
