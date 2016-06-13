@@ -17,23 +17,21 @@ or by the `pbench-agent` during benchmark and tool post-processing steps.
 
 ## How is it installed?
 Instructions on installing `pbench-agent`, and other components, can be found
-in the "[How to
-Install](http://distributed-system-analysis.github.io/pbench/pbench-agent.html#sec-5)"
-section of the [Getting Started
-Guide](http://distributed-system-analysis.github.io/pbench/pbench-agent.html).
+in the "[PBench agent installation](http://ndokos.github.io/pbench/doc/doc/agent/installation.html)"
+
 
 For Fedora, CentOS, and RHEL users, we have made available [COPR
 builds](https://copr.fedoraproject.org/coprs/ndokos/pbench/) for the
-`pbench-agent`, `configtools`, `pbench-server` and some benchmark packages.
+`pbench-agent`, `configtools`, `pbench-server`, `pbench-web-server`
+and some benchmark and tool packages.
 
 ## How do I use pbench?
-Refer to this [Getting Started
-Guide](http://distributed-system-analysis.github.io/pbench/pbench-agent.html)
+Refer to this "[PBench User Guide](http://ndokos.github.io/pbench/doc/doc/agent/user-guide.html)".
 
-TL;DR? See [Section
-4](http://distributed-system-analysis.github.io/pbench/pbench-agent.html#sec-4) of the
-[Getting Started
-Guide](http://distributed-system-analysis.github.io/pbench/pbench-agent.html) for a
+TL;DR? See [TL;DR - How to set up pbench and run a benchmark
+](http://ndokos.github.io/pbench/doc/doc/agent/user-guide.html#org9c5bc26) of the
+[PBench User
+Guide](http://ndokos.github.io/pbench/doc/doc/agent/user-guide.html) for a
 super quick set of introductory steps.
 
 ## Where is the source kept?
