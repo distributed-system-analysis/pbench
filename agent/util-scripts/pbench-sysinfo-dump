@@ -40,16 +40,6 @@ function collect_libvirt {
 	fi
 }
 
-function collect_ethtool {
-	debug_log "[$script_name]collecting ethtool data"
-	mkdir -p $dir/ethtool
-	for i in `/bin/ls /sys/class/net`; do
-		ethtool -g $i >$dir/ethtool/$i.txt 2>/dev/null
-		ethtool -c $i >>$dir/ethtool/$i.txt 2>/dev/null
-	done
-	debug_log "[$script_name]done collecting ethtool data"
-}
-
 function collect_topology {
 	debug_log "[$script_name]collecting system topology"
 	if [[ -f /usr/bin/lstopo ]]; then
@@ -99,7 +89,6 @@ function collect_sos {
 }
 
 collect_libvirt &
-collect_ethtool &
 collect_topology &
 collect_sos &
 collect_block &
