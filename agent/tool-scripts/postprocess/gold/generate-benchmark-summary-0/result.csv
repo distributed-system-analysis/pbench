@@ -1,0 +1,10 @@
+iteration_number,iteration_name,Gb_sec:client_hostname:perf102-server_hostname:perf104-server_port:22000,Gb_sec:client_hostname:perf102-server_hostname:perf104-server_port:21000,Gb_sec:client_hostname:all-server_hostname:all-server_port:all-server_port:all,trans_sec:client_hostname:perf102-server_hostname:perf104-server_port:22000,trans_sec:client_hostname:perf102-server_hostname:perf104-server_port:21000,trans_sec:client_hostname:all-server_hostname:all-server_port:all-server_port:all,cpu_busy:hostname:perf104,cpu_busy:hostname:perf102,usec:client_hostname:perf102-server_hostname:perf104-server_port:22000,usec:client_hostname:perf102-server_hostname:perf104-server_port:21000,usec:client_hostname:all-server_hostname:all-server_port:all-server_port:all,Gb_sec/cpu_busy:client_hostname:perf102-server_hostname:perf104-server_port:21000/hostname:perf102,Gb_sec/cpu_busy:client_hostname:perf102-server_hostname:perf104-server_port:22000/hostname:perf102,trans_sec/cpu_busy:client_hostname:perf102-server_hostname:perf104-server_port:21000/hostname:perf102,trans_sec/cpu_busy:client_hostname:perf102-server_hostname:perf104-server_port:22000/hostname:perf102
+1,tcp_rr-64B-1i,,,, 10732.2736, 10731.8276,  21279.8422, 2.1710, 0.1833,   93.2581,   93.2466,   92.3897,,, 59593.2753, 59353.2699,
+2,tcp_rr-64B-8i,,,, 76369.9860, 76216.0009, 151717.1876, 0.8021, 3.0614,  104.8525,  105.0712,  103.6800,,, 86562.3366, 88623.8209,
+3,tcp_rr-16384B-1i,,,,  2350.9019,  2351.2774,   4713.2637, 0.1638, 2.1500,  425.5927,  425.5382,  424.3418,,, 13881.8579, 13809.7679,
+4,tcp_rr-16384B-8i,,,,  3521.2263,  3522.8464,   7048.4166, 0.2084, 2.1993, 2272.0620, 2272.8631, 2270.0135,,, 16622.1390, 16611.8924,
+5,tcp_stream-64B-1i, 0.4462, 0.5367, 0.9570,,,, 3.0667, 0.7042,,,, 0.7229, 0.5720,,,
+6,tcp_stream-64B-8i, 0.4917, 0.5293, 0.9722,,,, 0.7067, 3.0459,,,, 0.6968, 0.5962,,,
+7,tcp_stream-16384B-1i, 0.4380, 0.5065, 0.9415,,,, 2.1299, 0.0999,,,, 5.3748, 4.6203,,,
+8,tcp_stream-16384B-8i, 0.4935, 0.5540, 0.9744,,,, 0.1052, 2.1385,,,, 5.5306, 4.3399,,,
+

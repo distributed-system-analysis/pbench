@@ -1,0 +1,347 @@
+#!/usr/bin/perl
+#
+## Author: Andrew Theurer
+# Post-process a result sample for moongen opnfv-vsperf.lua benchmark
+# Currently this script will only find the total average rate of received packets per second
+# Later we will add latency data as well as tool and efficiency metrics
+
+use strict;
+use warnings;
+# This script produces a JSON format of a benchmark iteration sample,
+# and uses the standard metric types for pbench, which are:
+# %workload{parameters,throughput|latency|resource|efficiency}
+# The result is a "result.json" file with a JSON array, "sample = {...}"
+#
+# This is the data layout used in perl to construct the JSON array:
+#
+my %workload;   # root hash for all data, contains hash refs to
+		# %paramters, %throughput, %latency, %resource, %efficiency
+		
+my %parameters;	# a hash of parameter-type:parameter-value that was
+		# $parameters{benchmark[0].rate}
+my @benchmark;	# each array element contains a hash with:
+		# benchmark_name:
+	    	# :
+	    	# role:
+	    	# description:
+
+my %resource;	# a hash of resource-type:array-of-resource-values,
+		# for example $resource{cpu_busy[0..1]}
+my @cpu_busy;	# each array element contains a hash with
+		# hostname: hostname or IP
+		# role: client, server, host, kvm-host, container-host, etc.
+		# timeseries: a hash of timestamp:value key-pairs
+
+my %efficiency; # a hash of throughput-per-resource-type:array-of-throughput-per-resource-values
+		# for example $efficincy{Mframes_cpu[0..1]}
+my @Mframes_cpu;# each array element contains a hash with:
+		# hostname:
+	    	# port_id:
+	    	# role:
+	    	# description:
+	    	# timeseries: a hash of timestamp,value elements
+
+my %latency;    # a hash of latency-type:array-of-latency-values,
+		# for example $latency{usec[0..1]}
+		#
+		# each array element contains a hash with:
+	    	# hostname:
+	    	# port_id:
+	    	# role:
+	    	# description:
+my @usec_avg;
+my @usec_min;
+my @usec_max;
+my @usec_95th;	
+my @usec_99th;
+my @usec_99_99th;
+
+
+my %throughput; # a hash of throughput-type:array-of-throughput-values,
+		# for example $throughput{Mframes_sec[0..1]
+my @Mframes_sec;# each array element contains a hash with:
+	    	# hostname:
+	    	# port_id:
+	    	# role: packet-generator
+	    	# value: the number value for millions of frames per second
+my @Gb_sec;     # each array element contains a hash with:
+	    	# hostname:
+	    	# port_id:
+	    	# role: packet-generator
+	    	# the number value for 10^9 bits per second, which is equal to frame_rate *8 +64 +96
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+my $_test_alt_bench_lib;
+BEGIN {
+	my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+		$_test_alt_tools_lib = "$_pbench_tspp_dir";
+	}
+	my $_pbench_bspp_dir = $ENV{'pbench_bspp_dir'};
+	$_test_alt_bench_lib=$ENV{_TEST_ALTERNATE_BENCH_LIBRARY};
+	if (not defined $_test_alt_bench_lib or not -d $_test_alt_bench_lib) {
+		$_test_alt_bench_lib = "$_pbench_bspp_dir";
+	}
+}
+use lib "$_test_alt_tools_lib";
+use lib "$_test_alt_bench_lib";
+no lib ".";
+use BenchPostprocess qw(get_cpubusy_series calc_ratio_series calc_sum_series);
+use File::Basename;
+use Data::Dumper;
+use List::Util('sum');
+use JSON;
+
+sub mean {
+    return sum(@_)/@_;
+}
+
+my $script = basename($0);
+my $dir = $ARGV[0];
+my $test = $ARGV[1];
+my $test_type = $ARGV[2];
+my $tool_label_pattern = $ARGV[3];
+my $tool_group = $ARGV[4];
+my %uperf_sample;
+my %uperf_rate;
+my $timestamp_ms = 0;
+my $prev_timestamp_ms = 0;
+my $timestamp_ms_diff;
+my $line;
+my %avg;
+my %total;
+my $uperf_primary_metric="Mframes_sec";
+
+# Load the data from moongen-result.txt and create throughput metrics
+my $frame_size;
+open( TXT, "<$dir/moongen-result.txt" ) or die "Can't open $dir/moongen-result.txt: $!";
+while ( <TXT> ) {
+	# [REPORT]Device 0->1: Tx frames: 10004131 Rx Frames: 10004131 frame loss: 0, 0.000000% Rx Mpps: 1.000188
+	if (/^\[REPORT\]Device\s(\d+)..(\d+):\s+Tx\sframes:\s+(\d+)\s+Rx\s[f|F]rames:\s+(\d+)\s+frame\sloss:\s+([-]*\d+),\s+([-]*\d+\.\d+)%\s+Rx Mpps:\s+(\d+\.\d+)/) {
+		my $tx_port = $1;
+		my $rx_port = $2;
+		my $loss = $5;
+		my $loss_pct = $6;
+		my $rx_rate = $7;
+		my $uid = "tx_port:%tx_port%-rx_port:%rx_port%";
+		push(@Mframes_sec, { 'description' => "The number of Ethernet frames (in millions) received per second",
+		     		'uid' => $uid,
+				'tx_port' => $rx_port,
+				'rx_port' => $tx_port,
+		     		'value' => $rx_rate } );
+		push(@Gb_sec, { 'description' => "The number of bits (in billions) received from Ethernet phsycial layer per second",
+		     		'uid' => $uid,
+				'tx_port' => $rx_port,
+				'rx_port' => $tx_port,
+				'value' => ($frame_size *8 +64 +96) *$rx_rate /1000 } );
+	}
+	# [REPORT]      total: Tx frames: 6002348 Rx Frames: 6002348 frame loss: 0, 0.000000% Tx Mpps: 0.100000 Rx Mpps: 0.099990
+	if (/^\[REPORT\]\s+total:\s+Tx\sframes:\s+(\d+)\s+Rx\s[f|F]rames:\s+(\d+)\s+frame\sloss:\s+([-]*\d+),\s+([-]*\d+\.\d+)%\s+Tx Mpps:\s+(\d+\.\d+)\s+Rx Mpps:\s+(\d+\.\d+)/) {
+		my $rx_rate = $6;
+		my $tx_rate = $5;
+		my $loss_pct = $4;
+		my $loss = $3;
+		my $uid = "tx_port:%tx_port%-rx_port:%rx_port%";
+		push(@Mframes_sec, { 'description' => "The number of Ethernet frames (in millions) received per second",
+		     		'uid' => $uid,
+				'tx_port' => "all",
+				'rx_port' => "all",
+		     		'value' => $rx_rate } );
+		push(@Gb_sec, { 'description' => "The number of bits (in billions) received from Ethernet phsycial layer per second",
+		     		'uid' => $uid,
+				'tx_port' => "all",
+				'rx_port' => "all",
+				'value' => ($frame_size *8 +64 +96) *$rx_rate /1000 } );
+	}
+	# [Histogram port 0 to port 1] Samples: 23034, Average: 8336.7 ns, StdDev: 659.4 ns, Quartiles: 7878.4/8320.0/8787.2 ns
+	if (/^\[Histogram port (\d+) to port (\d+)\]\s+Samples:\s+(\d+), Average: (\d+\.\d+) ns, StdDev: (\d+\.\d+) ns,.*/) {
+		my $tx_port = $1;
+		my $rx_port = $2;
+		my $samples = $3;
+		my $lat_average = $4/1000;
+		my $stddev = $5;
+		my $hist_file = $dir . "/hist:" . $tx_port . "-" . $rx_port . ".csv";
+		open( HIST, "<$hist_file" ) or die "Can't open $hist_file: $!";
+		my $hist_line;
+		my @values;
+		while ( $hist_line = <HIST> ) {
+			if ($hist_line =~ /(\d+\.\d+),(\d+)/) {
+				my $value = $1/1000;
+				my $count = $2;
+				for (my $i = 0; $i < $count; $i++) {
+					push(@values, $value); 
+				}
+			}
+		}
+		@values = sort {$a <=> $b} @values;
+		my $lat_95th =  $values[sprintf("%.0f",(0.95*($#values)))];
+		my $lat_99th =  $values[sprintf("%.0f",(0.99*($#values)))];
+		my $lat_99_99th =  $values[sprintf("%.0f",(0.9999*($#values)))];
+		my $lat_min = $values[0];
+		my $lat_max = $values[-1];
+		my $uid = "tx_port:%tx_port%-rx_port:%rx_port%";
+		push(@usec_95th, { 'description' => "The 95th percentile for elapsed time in nanoseconds between frame transmission and reception",
+				'uid' => $uid,
+				'tx_port' => $tx_port,
+				'rx_port' => $rx_port,
+				'value' => $lat_95th } );
+		push(@usec_avg, { 'description' => "The average elapsed time in nanoseconds between frame transmission and reception",
+				'uid' => $uid,
+				'tx_port' => $tx_port,
+				'rx_port' => $rx_port,
+				'value' => $lat_average } );
+		push(@usec_min, { 'description' => "The minimum elapsed time in nanoseconds between frame transmission and reception",
+				'uid' => $uid,
+				'tx_port' => $tx_port,
+				'rx_port' => $rx_port,
+				'value' => $lat_min } );
+		push(@usec_max, { 'description' => "The maximum elapsed time in nanoseconds between frame transmission and reception",
+				'uid' => $uid,
+				'tx_port' => $tx_port,
+				'rx_port' => $rx_port,
+				'value' => $lat_max } );
+		push(@usec_99th, { 'description' => "The 99th percentile for elapsed time in nanoseconds between frame transmission and reception",
+				'uid' => $uid,
+				'tx_port' => $tx_port,
+				'rx_port' => $rx_port,
+				'value' => $lat_99th } );
+		push(@usec_99_99th, { 'description' => "The 99.99th percentile for elapsed time in nanoseconds between frame transmission and reception",
+				'uid' => $uid,
+				'tx_port' => $tx_port,
+				'rx_port' => $rx_port,
+				'value' => $lat_99_99th } );
+	}
+	# [PARAMETERS] startRate: 5 frameSize: 256 runBidirec: true searchRunTime: 60 validationRunTime: 60 acceptableLossPct: 1 ports: 1,2
+	if (/^\[PARAMETERS\]\s+startRate:\s+(\d+[\.\d+]*)\snrFlows:\s+(\d+)\s+frameSize:\s+(\d+)\s+runBidirec:\s+(\w+)\s+searchRunTime:\s+(\d+)\s+validationRunTime:\s+(\d+)\s+acceptableLossPct:\s+(\d+[\.\d+]*)\s+ports:\s+(\d,\d[,\d,\d]*)/) {
+		my $start_rate = $1;
+		my $nr_flows = $2;
+		$frame_size = $3;
+		my $run_bidirec = $4;
+		my $search_run_time = $5;
+		my $validation_run_time = $6;
+		my $acceptable_loss_pct = $7;
+		my $port_list = $7;
+		push(@benchmark, { 'name' => "MoonGen",
+				   'description' => "Test parameters for MoonGen",
+				   'role' => "packet-generator",
+				   'uid' => "benchmark:%name%",
+				   'start_rate' => "$start_rate",
+				   'frame_size' => $frame_size,
+				   'run_bidirec' => "$run_bidirec",
+				   'search_run_time' => "$search_run_time",
+				   'validation_run_time' => "$validation_run_time",
+				   'acceptable_loss_pct' => "$acceptable_loss_pct",
+				   'port_list' => "$port_list" } );
+	}
+	
+	# [PARAMETERS] startRate: 4.000000 frameSize: 64 runBidirec: false latencyRunTime: 15 ports: 1,2
+	if (/^\[PARAMETERS\]\s+startRate:\s+(\d+[\.\d+]*)\snrFlows:\s+(\d+)\s+frameSize:\s+(\d+)\s+runBidirec:\s+(\w+)\s+latencyRunTime:\s+(\d+)\s+ports:\s+(\d,\d[,\d,\d]*)/) {
+		my $start_rate = $1;
+		my $nr_flows = $2;
+		$frame_size = $3;
+		my $run_bidirec = $4;
+		my $latency_run_time = $5;
+		my $port_list = $6;
+		push(@benchmark, { 'name' => "MoonGen",
+				   'description' => "Test parameters for MoonGen",
+				   'role' => "packet-generator",
+				   'uid' => "benchmark:%name%",
+				   'start_rate' => "$start_rate",
+				   'nr_flows' => $nr_flows,
+				   'frame_size' => $frame_size,
+				   'run_bidirec' => "$run_bidirec",
+				   'search_run_time' => "$latency_run_time",
+				   'port_list' => "$port_list" } );
+	}
+	# [PARAMETERS] startRate: 2.000000 nrFlows: 1024 frameSize: 64 runBidirec: false latencyRunTime: 1800 searchRunTime: 10 validationRunTime: 10 acceptableLossPct: 1.000000 ports: 1,2
+	if (/^\[PARAMETERS\]\s+startRate:\s+(\d+[\.\d+]*)\snrFlows:\s+(\d+)\s+frameSize:\s+(\d+)\s+runBidirec:\s+(\w+)\s+latencyRunTime:\s+(\d+)\s+searchRunTime:\s+(\d+)\s+validationRunTime:\s+(\d+)\s+acceptableLossPct:\s+(\d+[\.\d+]*)\s+ports:\s+(\d,\d[,\d,\d]*)/) {
+		my $start_rate = $1;
+		my $nr_flows = $2;
+		$frame_size = $3;
+		my $run_bidirec = $4;
+		my $latency_run_time = $5;
+		my $search_run_time = $6;
+		my $validation_run_time = $7;
+		my $acceptable_loss_pct = $8;
+		my $port_list = $9;
+		push(@benchmark, { 'name' => "MoonGen",
+				   'description' => "Test parameters for MoonGen",
+				   'role' => "packet-generator",
+				   'uid' => "benchmark:%name%",
+				   'start_rate' => "$start_rate",
+				   'frame_size' => $frame_size,
+				   'run_bidirec' => "$run_bidirec",
+				   'latency_run_time' => "$latency_run_time",
+				   'search_run_time' => "$search_run_time",
+				   'validation_run_time' => "$validation_run_time",
+				   'acceptable_loss_pct' => "$acceptable_loss_pct",
+				   'port_list' => "$port_list" } );
+	}
+}
+close TXT;
+
+# construct what we have so far in a master workload hash for:
+# throughput metrics
+if ( @Mframes_sec ) {
+	$throughput{'Mframes_sec'} = \@Mframes_sec;
+}
+if ( @Gb_sec ) {
+	$throughput{'Gb_sec'} = \@Gb_sec;
+}
+if ( %throughput ) {
+	$workload{'throughput'} = \%throughput;
+}
+# parameters
+if ( @benchmark ) {
+	$parameters{'benchmark'} = \@benchmark;
+}
+if ( %parameters ) {
+	$workload{'parameters'} = \%parameters;
+}
+
+# efficiency
+if ( @Mframes_cpu ) {
+	$efficiency{'Mframes_sec'} = \@Mframes_cpu;
+}
+if ( %efficiency ) {
+	$workload{'efficiency'} = \%efficiency;
+}
+
+# latency
+if ( @usec_avg ) {
+	$latency{'usec_avg'} = \@usec_avg;
+}
+if ( @usec_min ) {
+	$latency{'usec_min'} = \@usec_min;
+}
+if ( @usec_max ) {
+	$latency{'usec_max'} = \@usec_max;
+}
+if ( @usec_95th ) {
+	$latency{'usec_95th'} = \@usec_95th;
+}
+if ( @usec_99th ) {
+	$latency{'usec_99th'} = \@usec_99th;
+}
+if ( @usec_99_99th ) {
+	$latency{'usec_99_99th'} = \@usec_99_99th;
+}
+if ( %latency ) {
+	$workload{'latency'} = \%latency;
+}
+
+# resource
+if ( @cpu_busy ) {
+	$resource{'cpu_busy'} = \@cpu_busy;
+}
+if ( %resource ) {
+	$workload{'resource'} = \%resource;
+}
+
+my $json_file = $dir . "/result.json";
+my $json_text   = to_json( \%workload, { ascii => 1, pretty => 1 } );
+open(JSON, ">$json_file") || die "$script: could not open file $json_file: $!\n";
+print JSON $json_text;
+close(JSON);

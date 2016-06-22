@@ -1,6 +1,0 @@
-Number of writes: 500  Average response time for writes is: 6.7818us
-Number of reads: 499  Average response time for reads is: 48.4248us
-Average transaction latency: 55.2066us
-95th percentile transaction latency: 59.3970us
-99.995th percentile transaction latency: 96.1700us
-Maximum transaction latency: 96.1700us

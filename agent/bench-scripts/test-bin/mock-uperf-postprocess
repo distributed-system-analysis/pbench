@@ -10,18 +10,10 @@ else:
     with open(outfn, "a") as outf:
         outf.write(' '.join(sys.argv) + '\n')
 
-#echo "dir=$1"
-#echo "iteration=$2"
-#echo "toollabelprefix=$3"
-#echo "toolgroup=$4"
-#"${count}-${protocol}_${test_type}-${message_size}B-${instance}i"
-
 # FIX-ME how does uperf-postprocess get the test_type?
 test_type = os.environ.get("test_type")
 if not test_type:
-    iteration = sys.argv[2]
-    parts = iteration.split('-')
-    protocol, test_type = parts[1].split('_')
+    test_type = sys.argv[4]
 #print "test_type = %r" % test_type
 
 with open(os.path.join(sys.argv[1], "uperf-average.txt"), "w") as avgf:

@@ -7,13 +7,12 @@ perl:
 before_install:
  - sudo apt-get update
 install:
- - sudo apt-get update
  - sudo apt-get install python python-pip bc libjson-perl realpath
  - sudo pip install configtools elasticsearch
  - sudo apt-get install python-software-properties
  - sudo add-apt-repository ppa:fkrull/deadsnakes -y
  - sudo apt-get update
- - sudo apt-get install python3.5
+ - sudo apt-get install python3.5 --force-yes -y
  - sudo wget -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py
  - sudo python3.5 /tmp/get-pip.py
  - sudo pip install configtools elasticsearch

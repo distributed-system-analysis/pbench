@@ -14,6 +14,7 @@
 #
 # This script will also generate a "summary-results.txt" with a table of all
 # results, efficiency, and other stats.
+pbench_cmd="$@"
 
 script_path=`dirname $0`
 script_name=`basename $0`
@@ -57,8 +58,8 @@ postprocess_only=n
 log_response_times=n
 kvm_host=""
 start_iteration_num=1
+tar_nonref_data="n"
 keep_failed_tool_data="y"
-tar_nonref_data="y"
 orig_cmd="$*"
 tool_group=default
 tool_label_pattern="uperf-"
@@ -66,92 +67,53 @@ server_nodes=""
 client_nodes=""
 
 function gen_xml {
+	local h=$1
+	local proto=$2
+	local runtime=$3
+	local size=$4
+	local nthr=$5
+	local test_type=$6
 
+	echo "<?xml version=\"1.0\"?>"
+	echo "<profile name=\"$proto-$test_type-${size}B-${nthr}i\">"
+	echo "  <group nthreads=\"$nthr\">"
 	case $test_type in
-	rr)
-	echo '<?xml version="1.0"?>'
-	echo '<profile name="$profile">'
-	echo '<group nthreads="$nthr">'
-		echo '<transaction iterations="1">'
-		echo '<flowop type="connect" options="remotehost=$h protocol=$proto"/>'
-		echo '</transaction>'
-		echo '<transaction duration="$runtime">'
-		echo '<flowop type="write" options="size=$size"/>'
-		echo '<flowop type="read"  options="size=$size"/>'
-		echo '</transaction>'
-		echo '<transaction iterations="1">'
-		echo '<flowop type="disconnect" />'
-		echo '</transaction>'
-	echo '</group>'
-	echo ''
-	echo '</profile>'
-	;;
-	stream)
-	echo '<?xml version="1.0"?>'
-	echo '<profile name="$profile">'
-	echo '<group nthreads="$nthr">'
-		echo '<transaction iterations="1">'
-		echo '<flowop type="connect" options="remotehost=$h protocol=$proto"/>'
-		echo '</transaction>'
-		echo '<transaction duration="$runtime">'
-		echo '<flowop type="write" options="count=16 size=$size"/>'
-		echo '</transaction>'
-		echo '<transaction iterations="1">'
-		echo '<flowop type="disconnect" />'
-		echo '</transaction>'
-	echo '</group>'
-	echo ''
-	echo '</profile>'
-	;;
-	maerts) # "stream" in reverse direction
-	echo '<?xml version="1.0"?>'
-	echo '<profile name="$profile">'
-	echo '<group nthreads="$nthr">'
-		echo '<transaction iterations="1">'
-		echo '<flowop type="accept" options="remotehost=$h protocol=$proto"/>'
-		echo '</transaction>'
-		echo '<transaction duration="$runtime">'
-		echo '<flowop type="read" options="count=16 size=$size"/>'
-		echo '</transaction>'
-		echo '<transaction iterations="1">'
-		echo '<flowop type="disconnect" />'
-		echo '</transaction>'
-	echo '</group>'
-	echo ''
-	echo '</profile>'
-	;;
-	bidirec) # A streaming test in both directions at the same time
-	echo '<?xml version="1.0"?>'
-	echo '<profile name="$profile">'
-	echo '<group nthreads="$nthr">'
-		echo '<transaction iterations="1">'
-		echo '<flowop type="connect" options="remotehost=$h protocol=$proto"/>'
-		echo '</transaction>'
-		echo '<transaction duration="$runtime">'
-		echo '<flowop type="write" options="count=16 size=$size"/>'
-		echo '</transaction>'
-		echo '<transaction iterations="1">'
-		echo '<flowop type="disconnect" />'
-		echo '</transaction>'
-	echo '</group>'
-	echo '<group nthreads="$nthr">'
-		echo '<transaction iterations="1">'
-		echo '<flowop type="accept" options="remotehost=$h protocol=$proto"/>'
-		echo '</transaction>'
-		echo '<transaction duration="$runtime">'
-		echo '<flowop type="read" options="count=16 size=$size"/>'
-		echo '</transaction>'
-		echo '<transaction iterations="1">'
-		echo '<flowop type="disconnect" />'
-		echo '</transaction>'
-	echo '</group>'
-	echo ''
-	echo '</profile>'
-	;;
-	*)
-	echo "This test type is not available: $test_type"
-	;;
+		rr)
+		echo "    <transaction iterations=\"1\">"
+		echo "      <flowop type=\"connect\" options=\"remotehost=$h protocol=$proto\"/>"
+		echo "    </transaction>"
+		echo "    <transaction duration=\"$runtime\">"
+		echo "      <flowop type=\"write\" options=\"size=$size\"/>"
+		echo "      <flowop type=\"read\"  options=\"size=$size\"/>"
+		echo "    <transaction iterations=\"1\">"
+		echo "      <flowop type=\"disconnect\" />"
+		echo "    </transaction>"
+		;;
+		stream|bidirec)
+		echo "    <transaction iterations=\"1\">"
+		echo "      <flowop type=\"connect\" options=\"remotehost=$h protocol=$proto\"/>"
+		echo "    </transaction>"
+		echo "    <transaction duration=\"$runtime\">"
+		echo "      <flowop type=\"write\" options=\"count=16 size=$size\"/>"
+		echo "    </transaction>"
+		echo "    <transaction iterations=\"1\">"
+		echo "      <flowop type=\"disconnect\" />"
+		echo "    </transaction>"
+		;;
+		maerts|bidirec)
+		echo "    <transaction iterations=\"1\">"
+		echo "      <flowop type=\"accept\" options=\"remotehost=$h protocol=$proto\"/>"
+		echo "    </transaction>"
+		echo "    <transaction duration=\"$runtime\">"
+		echo "      <flowop type=\"read\" options=\"count=16 size=$size\"/>"
+		echo "    </transaction>"
+		echo "    <transaction iterations=\"1\">"
+		echo "      <flowop type=\"disconnect\" />"
+		echo "    </transaction>"
+		;;
 	esac
+	echo "  </group>"
+	echo "</profile>"
 }
 
 function stop_server {
@@ -175,31 +137,6 @@ function install_uperf {
 		exit 1
 	fi
 }
-
-function print_iteration {
-	# printing a iteration assumes this must be a new row, so include \n first
-	printf "\n%28s" "$1" >>$benchmark_summary_txt_file
-	printf "\n%s" "$1" >>$benchmark_summary_csv_file
-	printf "\n%28s <a href=./$iteration/reference-result/uperf.html>%s</a> <a href=./$iteration/reference-result/tools-$tool_group>%s</a>" "$1" "summary" "tools">>$benchmark_summary_html_file
-}
-
-function print_value {
-	printf "%${spacing}s" "$1[+/-$2]" >>$benchmark_summary_txt_file
-	printf "%s" ",$1,$2" >>$benchmark_summary_csv_file
-	printf "%${spacing}s" "$1[+/-$2]" >>$benchmark_summary_html_file
-}
-
-function print_header {
-	printf "\n\n%28s" "iteration" >>$benchmark_summary_txt_file
-	printf "\n\n%s" "iteration" >>$benchmark_summary_csv_file
-	printf "\n\n%28s %s %s" "iteration" "       " "     " >>$benchmark_summary_html_file
-	for i in $1; do
-		printf "%${spacing}s" "$i" >>$benchmark_summary_txt_file
-		printf "%s" ",$i,stddevpct" >>$benchmark_summary_csv_file
-		printf "%${spacing}s" "$i" >>$benchmark_summary_html_file
-	done
-}
-
 
 # Process options and arguments
 opts=$(getopt -q -o i:c:t:r:m:p:M:S:C: --longoptions "server-node:,server-nodes:,client-node:,client-nodes:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,kvm-host:,log-response-times:,postprocess-only:,run-dir:,tool-group:" -n "getopt.sh" -- "$@")
@@ -356,7 +293,8 @@ while true; do
 		-r|--runtime)
 		shift
 		if [ -n "$1" ]; then
-			runtime="$1"
+			# runtime is padded by 6 seconds to allow 3 seconds ramp up and ramp down
+			runtime=`echo "$1 + 6" | bc`
 			shift
 		fi
 		;;
@@ -467,7 +405,7 @@ if [ "$postprocess_only" != "y" ]; then
 	err_clients=""
 	for client in `echo $clients | sed -e s/,/" "/g`; do
 		debug_log "checking for uperf on client $client"
-		ssh $ssh_opts $client $script_name --install
+		ssh $ssh_opts $client pbench-uperf --install
 		if [ $? -ne 0 ]; then
 			let err_cnt=err_cnt+1
 			err_clients="$err_clients $client"
@@ -476,7 +414,7 @@ if [ "$postprocess_only" != "y" ]; then
 	err_servers=""
 	for server in `echo $servers | sed -e s/,/" "/g`; do
 		debug_log "checking for uperf on server $server"
-		ssh $ssh_opts $server $script_name --install
+		ssh $ssh_opts $server pbench-uperf --install
 		if [ $? -ne 0 ]; then
 			let err_cnt=err_cnt+1
 			err_servers="$err_servers $server"
@@ -491,18 +429,12 @@ if [ "$postprocess_only" != "y" ]; then
 fi
 
 mkdir -p $benchmark_run_dir/.running
-benchmark_summary_txt_file="$benchmark_run_dir/summary-result.txt"
-rm -f $benchmark_summary_txt_file
-benchmark_summary_csv_file="$benchmark_run_dir/summary-result.csv"
-rm -f $benchmark_summary_csv_file
-benchmark_summary_html_file="$benchmark_run_dir/summary-result.html"
-rm -f $benchmark_summary_html_file
+# save a copy of the command, in case the test needs to be reproduced or post-processed again
+echo "$script_name $pbench_cmd" >$benchmark_run_dir/$script_name.cmd
+chmod +x $benchmark_run_dir/$script_name.cmd
+
 
 ## Run the benchmark and start/stop perf analysis tools
-printf "# these results generated with:\n# uperf %s\n\n" "$orig_cmd" >$benchmark_summary_txt_file
-printf "<pre>\n# these results generated with:\n# uperf %s\n\n" "$orig_cmd" >$benchmark_summary_html_file
-printf "\n" >>$benchmark_summary_txt_file
-printf "\n" >>$benchmark_summary_html_file
 
 count=0
 for protocol in `echo $protocols | sed -e s/,/" "/g`; do
@@ -516,12 +448,23 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 done
 let total_iterations=count
 count=1
-max_key_length=0
 export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 # start the server processes
 for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 	for test_type in `echo $test_types | sed -e s/,/" "/g`; do
+		case $test_type in
+			rr)
+			primary_metric="trans_sec"
+			;;
+			stream|maerts|bidirec)
+			primary_metric="Gb_sec"
+			;;
+			*)
+			error_log "$script_name: test type \"$test_type\" is not suported"
+			continue
+			;;
+		esac
 		for message_size in `echo $message_sizes | sed -e s/,/" "/g`; do
 			for instance in `echo $instances | sed -e s/,/" "/g`; do
 				if [ $count -ge $start_iteration_num ]; then
@@ -536,7 +479,9 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 							echo "Restarting iteration $iteration ($count of $total_iterations)"
 							log "Restarting iteration $iteration ($count of $total_iterations)"
 						fi
-						mkdir -p $iteration_dir
+						if [ $postprocess_only == "n" ]; then
+							mkdir -p $iteration_dir
+						fi
 						# each attempt at a test config requires multiple samples to get stddev
 						for sample in `seq 1 $nr_samples`; do
 							benchmark_results_dir="$iteration_dir/sample$sample"
@@ -549,11 +494,12 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									server_node=`echo "$server_nodes," | cut -d, -f$server_nr`
 									client_node=`echo "$client_nodes," | cut -d, -f$server_nr`
 									server_port=`echo "1000 * $server_nr + $server_base_port" | bc`
-									xml_file="$iteration_dir/uperf-config-$server:$server_port.xml"
-									benchmark_client_cmd_file="$iteration_dir/uperf-client-$server:$server_port.cmd"
-									result_file=$benchmark_results_dir/result-$server:$server_port.txt
-									benchmark_server_cmd_file="$iteration_dir/uperf-server-$server:$server_port.cmd"
-									gen_xml $test_type $message_size $protocol $instance $server >$xml_file
+									uperf_identifier="client::$client-server::$server:$server_port"
+									xml_file="$iteration_dir/$uperf_identifier--test_config.xml"
+									benchmark_client_cmd_file="$iteration_dir/$uperf_identifier--client_start.sh"
+									benchmark_server_cmd_file="$iteration_dir/$uperf_identifier--server_start.sh"
+									result_file="$benchmark_results_dir/$uperf_identifier--client_output.txt"
+									gen_xml $server $protocol ${runtime}s $message_size $instance $test_type >$xml_file
 
 									# construct the server command
 									benchmark_server_cmd="/usr/local/bin/uperf -s -P $server_port"
@@ -570,9 +516,10 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 
 									# construct the client command
 									if [ "$log_response_times" == "y" ]; then
-										resp_opt=" -X $benchmark_results_dir/response-times-$server:$server_port.txt"
+										resp_opt=" -X $benchmark_results_dir/$uperf_identifier--response-times.txt"
 									fi
-									benchmark_client_cmd="profile=${protocol}_$test_type test=$test_type nthr=$instance size=$message_size h=$server proto=$protocol runtime=${runtime}s $benchmark_bin -m $xml_file -x -a -i 1 $resp_opt -P $server_port >$result_file 2>&1"
+									#benchmark_client_cmd="profile=${protocol}_$test_type test=$test_type nthr=$instance size=$message_size h=$server proto=$protocol runtime=${runtime}s $benchmark_bin -m $xml_file -x -a -i 1 $resp_opt -P $server_port >$result_file 2>&1"
+									benchmark_client_cmd="$benchmark_bin -m $xml_file -x -a -i 1 $resp_opt -P $server_port >$result_file 2>&1"
 									# adjust client command for NUMA binding
 									if [ ! -z "$client_node" ]; then
 										if [ $client_node -ge 0 ]; then
@@ -630,8 +577,13 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 										client="127.0.0.1"
 									fi
 									server_port=`echo "1000 * $server_nr + $server_base_port" | bc`
-									benchmark_client_cmd_file="$iteration_dir/uperf-client-$server:$server_port.cmd"
-									result_file=$benchmark_results_dir/result-$server:$server_port.txt
+									uperf_identifier="client::$client-server::$server:$server_port"
+									xml_file="$iteration_dir/$uperf_identifier--test_config.xml"
+									benchmark_client_cmd_file="$iteration_dir/$uperf_identifier--client_start.sh"
+									#benchmark_server_cmd_file="$iteration_dir/$uperf_identifier--server_start.sh"
+									result_file="$benchmark_results_dir/$uperf_identifier--client_output.txt"
+									#benchmark_client_cmd_file="$iteration_dir/uperf-client-$server:$server_port.cmd"
+									#result_file=$benchmark_results_dir/result-$server:$server_port.txt
 									debug_log "client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
 									echo "client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
 
@@ -653,16 +605,28 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 
 								server_nr=1
 								for server in `echo $servers | sed -e s/,/" "/g`; do
+									client=`echo $clients | cut -d, -f$server_nr`
 									server_port=`echo "1000 * $server_nr + $server_base_port" | bc`
+									uperf_identifier="client::$client-server::$server:$server_port"
 									stop_server $server $server_port 0
 									if [ ! -z "$clients" ]; then
-										client=`echo $clients | cut -d, -f$server_nr`
-										result_file=$benchmark_results_dir/result-$server:$server_port.txt
+										result_file="$benchmark_results_dir/$uperf_identifier--client_output.txt"
 										scp $ssh_opts $client:$result_file $result_file >/dev/null
 									fi
 									((server_nr++))
 								done
-							else
+							else # only postprocessing
+								let fail_num=$failures+1
+								set -x
+								if [ ! -e $iteration_dir -a -e $iteration_dir-fail$fail_num ]; then
+									mv $iteration_dir-fail$fail_num $iteration_dir
+								fi
+								set +x
+								pushd $iteration_dir >/dev/null
+								if [ ! -e sample$sample -a -e sample$sample.tar.xz ]; then
+									tar Jxf sample$sample.tar.xz && /bin/rm -rf sample$sample.tar.xz
+								fi
+								popd >/dev/null
 								if [[ ! -d $benchmark_results_dir ]]; then
 									error_log "Results directory $benchmark_results_dir does not exist, skipping post-processing"
 									continue
@@ -670,110 +634,25 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								echo "Not going to run uperf.  Only postprocesing existing data"
 								log "Not going to run uperf.  Only postprocesing existing data"
 							fi
-							$script_path/postprocess/$benchmark-postprocess $benchmark_results_dir $iteration "$tool_label_pattern" "$tool_group"
-							mv $benchmark_results_dir/uperf-average.txt $benchmark_results_dir/result.txt
+							echo "$script_path/postprocess/$benchmark-postprocess \"$benchmark_results_dir\" \"$protocol\" \"$message_size\" \"$instance\" \"$test_type\" \"$clients\" \"$servers\" \"$tool_label_pattern\" \"$tool_group\" \"$ver\"" >"$benchmark_results_dir/$benchmark-postprocess.cmd"
+							chmod +x "$benchmark_results_dir/$benchmark-postprocess.cmd"
+							$benchmark_results_dir/$benchmark-postprocess.cmd
 						done
-
-						# find the keys that we will compute avg & stddev
-						# NOTE: we always choose "sample1" since it is
-						# always present and shares the same keys with
-						# every other sample
-						keys=`cat $iteration_dir/sample1/result.txt  | awk -F= '{print $1}'`
-						s_keys=""
-						key_nr=0
-						# for each key, get the average & stddev
-						for key in $keys; do
-							# the s_key is used in the summary reports to save space, it is just an abbreviated key
-							s_key=`echo $key | cut  -d- -f2-`
-							# remove the label pattern from the s_key
-							s_key=`echo $s_key | sed -e s/"$tool_label_pattern"//`
-							s_key=`echo $s_key | sed -e s/"transactions"/"trans"/`
-							# store these in reverse order as the keys and be sure to print values in reverse order later
-							s_keys="$s_key $s_keys"
-							s_key_length=`echo $s_key | wc -m`
-							if [ $s_key_length -gt $max_key_length ]; then
-								max_key_length=$s_key_length
-							fi
-							iteration_samples=""
-							for sample in `seq 1 $nr_samples`; do
-								value=`grep -- "$key" $iteration_dir/sample$sample/result.txt | awk -F= '{print $2}'`
-								iteration_samples="$iteration_samples $value"
-							done
-							avg_stddev_result=`pbench-avg-stddev $iteration_samples`
-							samples[$key_nr]="$iteration_samples"
-							avg[$key_nr]=`echo $avg_stddev_result | awk '{print $1}'`
-							stddev[$key_nr]=`echo $avg_stddev_result | awk '{print $2}'`
-							stddevpct[$key_nr]=`echo $avg_stddev_result | awk '{print $3}'`
-							closest[$key_nr]=`echo $avg_stddev_result | awk '{print $4}'`
-							if echo $key | grep -q "Throughput"; then
-								if echo $key | grep -q -v "Per_Server"; then
-									tput_index=$key_nr
-									tput_metric=$key
-								fi
-							fi
-							((key_nr++))
-						done
-
-						for sample in `seq 1 $nr_samples`; do
-							sample_dir="sample$sample"
-							# create a symlink to the result dir which most accurately represents the average result
-							if [ $sample -eq ${closest[$tput_index]} ]; then
-								msg="'######' $tput_metric: ${samples[$tput_index]}  average: ${avg[$tput_index]} stddev: ${stddevpct[$tput_index]}%  closest-sample: $sample"
-								echo $msg | tee $iteration_dir/sample-runs-summary.txt
-								log $msg
-								pushd "$iteration_dir" >/dev/null; /bin/rm -rf reference-result; ln -sf $sample_dir reference-result; popd >/dev/null
-							else
-								# delete the tool data [and respose time log for rr tests] from the other samples to save space
-								# this option is off by default
-								if [ "$keep_failed_tool_data" == "n" ]; then
-									/bin/rm -rf $iteration_dir/$sample_dir/tools-* $iteration_dir/$sample_dir/response-times.txt
-								fi
-								# since non reference-result sample data is rarely referenced, tar it up to reduce the number of files used
-								if [ "$tar_nonref_data" == "y" ]; then
-									pushd "$iteration_dir" >/dev/null; tar --create --xz --force-local --file=$sample_dir.tar.xz $sample_dir && /bin/rm -rf $sample_dir; popd >/dev/null
-								fi
-							fi
-						done
-						# if we did not achieve the stddevpct, then move this result out of the way and try again
-						fail=0
-						if [[ $(echo "if (${stddevpct[$tput_index]} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; then
-							fail=1
-						fi
+						echo "$script_path/postprocess/process-iteration-samples \"$iteration_dir\" \"$primary_metric\" \"$maxstddevpct\" \"$failures\" \"$max_failures\" \"$tar_nonref_data\" \"$keep_failed_tool_data\"" >"$iteration_dir/process-iteration-samples.cmd"
+						chmod +x "$iteration_dir/process-iteration-samples.cmd"
+						$iteration_dir/process-iteration-samples.cmd
+						fail=$?
 						if [ $fail -eq 1 ]; then
-							let failures=$failures+1
-							msg="$iteration: the percent standard deviation (${stddevpct[$tput_index]}%) was not within maximum allowed (${maxstddevpct}%)"
-							echo $msg
-							log $msg
-							msg="This iteration will be repeated until either standard deviation is below the maximum allowed, or $max_failures failed attempts."
-							echo $msg
-							log $msg
-							msg="Changing the standard deviation percent can be done with --max-stddev= and the maximum failures with --max-failures="
-							echo $msg
-							log $msg
-							# tar up the failed iteration.  We may need to look at it later, but don't waste space by keeping it uncompressed
-							# if all attempts failed, leaving no good result, leave the last attempt uncompressed
-							if [ $failures -le $max_failures ]; then
-								pushd $benchmark_run_dir >/dev/null
-								mv $iteration $iteration-fail$failures
-								tar --create --xz --force-local --file=$iteration-fail$failures.tar.xz $iteration-fail$failures &&\
-								/bin/rm -rf $iteration-fail$failures
-								popd >/dev/null
-							fi
+							((failures++))
+						fi
+						if [ $fail -gt 1 ]; then
+							# failed in a really bad way, abort this iteration
+							break
 						fi
 						if [ $fail -eq 0 -o $failures -ge $max_failures ]; then
 							break
 						fi
 					done # break out of this loop only if the $result_stddevpct & $eff_stddevpct lower than $maxstddevpct
-					spacing=`echo "$max_key_length + 1" | bc`
-					if [ "$last_test_type" != "$test_type" ]; then
-						print_header "$s_keys"
-					fi
-					print_iteration $iteration
-					((key_nr--))
-					for s_key in $s_keys; do
-						print_value "${avg[$key_nr]}" "${stddevpct[$key_nr]}%"
-						((key_nr--))
-					done
 					echo "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
 					log "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
 				else
@@ -786,7 +665,9 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 		done
 	done
 done
-printf -- "</pre>\n" >>$benchmark_summary_html_file
+echo "$script_path/postprocess/generate-benchmark-summary \"$benchmark\" \"$orig_cmd\" \"$benchmark_run_dir\"" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
+chmod +x "$benchmark_run_dir/generate-benchmark-summary.cmd"
+$script_path/postprocess/generate-benchmark-summary "$benchmark" "$orig_cmd" "$benchmark_run_dir"
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 
 rmdir $benchmark_run_dir/.running

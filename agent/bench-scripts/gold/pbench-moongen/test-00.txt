@@ -1,0 +1,190 @@
++++ Running test-00 pbench-moongen
+Total number of benchmark iterations: 4
+Starting iteration[1-throughput-unidirec-64B-1024flows-0pct_drop] (1 of 4)
+test sample 1 of 3
+test sample 2 of 3
+test sample 3 of 3
+Iteration 1-throughput-unidirec-64B-1024flows-0pct_drop complete (1 of 4), with 1 pass and 0 failures
+Starting iteration[2-throughput-unidirec-1024B-1024flows-0pct_drop] (2 of 4)
+test sample 1 of 3
+test sample 2 of 3
+test sample 3 of 3
+Iteration 2-throughput-unidirec-1024B-1024flows-0pct_drop complete (2 of 4), with 1 pass and 0 failures
+Starting iteration[3-throughput-unidirec-64B-1024flows-1pct_drop] (3 of 4)
+test sample 1 of 3
+test sample 2 of 3
+test sample 3 of 3
+Iteration 3-throughput-unidirec-64B-1024flows-1pct_drop complete (3 of 4), with 1 pass and 0 failures
+Starting iteration[4-throughput-unidirec-1024B-1024flows-1pct_drop] (4 of 4)
+test sample 1 of 3
+test sample 2 of 3
+test sample 3 of 3
+Iteration 4-throughput-unidirec-1024B-1024flows-1pct_drop complete (4 of 4), with 1 pass and 0 failures
+--- Finished test-00 pbench-moongen (status=0}
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/moongen-client.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/process-iteration-samples.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample1
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample1/hist.csv
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample1/moongen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample1/moongen-result.txt
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample2
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample2/hist.csv
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample2/moongen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample2/moongen-result.txt
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample3
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample3/hist.csv
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample3/moongen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample3/moongen-result.txt
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/moongen-client.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/process-iteration-samples.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample1
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample1/hist.csv
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample1/moongen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample1/moongen-result.txt
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample2
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample2/hist.csv
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample2/moongen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample2/moongen-result.txt
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample3
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample3/hist.csv
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample3/moongen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample3/moongen-result.txt
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/moongen-client.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/process-iteration-samples.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample1
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample1/hist.csv
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample1/moongen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample1/moongen-result.txt
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample2
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample2/hist.csv
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample2/moongen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample2/moongen-result.txt
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample3
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample3/hist.csv
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample3/moongen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample3/moongen-result.txt
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/moongen-client.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/process-iteration-samples.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample1
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample1/hist.csv
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample1/moongen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample1/moongen-result.txt
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample2
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample2/hist.csv
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample2/moongen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample2/moongen-result.txt
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample3
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample3/hist.csv
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample3/moongen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample3/moongen-result.txt
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/generate-benchmark-summary.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/pbench-moongen.cmd
+/var/tmp/pbench-test-bench/pbench/pbench.log
+/var/tmp/pbench-test-bench/pbench/tmp
+/var/tmp/pbench-test-bench/pbench/tools-default
+/var/tmp/pbench-test-bench/pbench/tools-default/mpstat
+/var/tmp/pbench-test-bench/pbench/tools-default/sar
+--- pbench tree state
++++ pbench.log file contents
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-moongen]processing options
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration[1-throughput-unidirec-64B-1024flows-0pct_drop] (1 of 4)
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 3 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 3 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 3 of 3 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] Moving to the next iteration
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 1-throughput-unidirec-64B-1024flows-0pct_drop complete (1 of 4), with 1 pass and 0 failures
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration[2-throughput-unidirec-1024B-1024flows-0pct_drop] (2 of 4)
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 3 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 3 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 3 of 3 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] Moving to the next iteration
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 2-throughput-unidirec-1024B-1024flows-0pct_drop complete (2 of 4), with 1 pass and 0 failures
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration[3-throughput-unidirec-64B-1024flows-1pct_drop] (3 of 4)
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 3 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 3 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 3 of 3 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] Moving to the next iteration
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 3-throughput-unidirec-64B-1024flows-1pct_drop complete (3 of 4), with 1 pass and 0 failures
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration[4-throughput-unidirec-1024B-1024flows-1pct_drop] (4 of 4)
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 3 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 3 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 3 of 3 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] Moving to the next iteration
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 4-throughput-unidirec-1024B-1024flows-1pct_drop complete (4 of 4), with 1 pass and 0 failures
+--- pbench.log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00 beg
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-throughput-unidirec-64B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample1
+/var/tmp/pbench-test-bench/test-execution.log:./build/MoonGen ./examples/opnfv-vsperf.lua
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-throughput-unidirec-64B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-throughput-unidirec-64B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/moongen-postprocess /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample1 1-throughput-unidirec-64B-1024flows-0pct_drop throughput moongen- default
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-throughput-unidirec-64B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample2
+/var/tmp/pbench-test-bench/test-execution.log:./build/MoonGen ./examples/opnfv-vsperf.lua
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-throughput-unidirec-64B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample2
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-throughput-unidirec-64B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample2
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/moongen-postprocess /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample2 1-throughput-unidirec-64B-1024flows-0pct_drop throughput moongen- default
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-throughput-unidirec-64B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample3
+/var/tmp/pbench-test-bench/test-execution.log:./build/MoonGen ./examples/opnfv-vsperf.lua
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-throughput-unidirec-64B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample3
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-throughput-unidirec-64B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample3
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/moongen-postprocess /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample3 1-throughput-unidirec-64B-1024flows-0pct_drop throughput moongen- default
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/1-throughput-unidirec-64B-1024flows-0pct_drop Mframes_sec 5 0 6 n y
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-throughput-unidirec-1024B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample1
+/var/tmp/pbench-test-bench/test-execution.log:./build/MoonGen ./examples/opnfv-vsperf.lua
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-throughput-unidirec-1024B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-throughput-unidirec-1024B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/moongen-postprocess /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample1 2-throughput-unidirec-1024B-1024flows-0pct_drop throughput moongen- default
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-throughput-unidirec-1024B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample2
+/var/tmp/pbench-test-bench/test-execution.log:./build/MoonGen ./examples/opnfv-vsperf.lua
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-throughput-unidirec-1024B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample2
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-throughput-unidirec-1024B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample2
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/moongen-postprocess /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample2 2-throughput-unidirec-1024B-1024flows-0pct_drop throughput moongen- default
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-throughput-unidirec-1024B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample3
+/var/tmp/pbench-test-bench/test-execution.log:./build/MoonGen ./examples/opnfv-vsperf.lua
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-throughput-unidirec-1024B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample3
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-throughput-unidirec-1024B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample3
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/moongen-postprocess /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop/sample3 2-throughput-unidirec-1024B-1024flows-0pct_drop throughput moongen- default
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/2-throughput-unidirec-1024B-1024flows-0pct_drop Mframes_sec 5 0 6 n y
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-throughput-unidirec-64B-1024flows-1pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample1
+/var/tmp/pbench-test-bench/test-execution.log:./build/MoonGen ./examples/opnfv-vsperf.lua
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-throughput-unidirec-64B-1024flows-1pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-throughput-unidirec-64B-1024flows-1pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/moongen-postprocess /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample1 3-throughput-unidirec-64B-1024flows-1pct_drop throughput moongen- default
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-throughput-unidirec-64B-1024flows-1pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample2
+/var/tmp/pbench-test-bench/test-execution.log:./build/MoonGen ./examples/opnfv-vsperf.lua
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-throughput-unidirec-64B-1024flows-1pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample2
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-throughput-unidirec-64B-1024flows-1pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample2
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/moongen-postprocess /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample2 3-throughput-unidirec-64B-1024flows-1pct_drop throughput moongen- default
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-throughput-unidirec-64B-1024flows-1pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample3
+/var/tmp/pbench-test-bench/test-execution.log:./build/MoonGen ./examples/opnfv-vsperf.lua
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-throughput-unidirec-64B-1024flows-1pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample3
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-throughput-unidirec-64B-1024flows-1pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample3
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/moongen-postprocess /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop/sample3 3-throughput-unidirec-64B-1024flows-1pct_drop throughput moongen- default
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/3-throughput-unidirec-64B-1024flows-1pct_drop Mframes_sec 5 0 6 n y
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-throughput-unidirec-1024B-1024flows-1pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample1
+/var/tmp/pbench-test-bench/test-execution.log:./build/MoonGen ./examples/opnfv-vsperf.lua
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-throughput-unidirec-1024B-1024flows-1pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-throughput-unidirec-1024B-1024flows-1pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/moongen-postprocess /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample1 4-throughput-unidirec-1024B-1024flows-1pct_drop throughput moongen- default
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-throughput-unidirec-1024B-1024flows-1pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample2
+/var/tmp/pbench-test-bench/test-execution.log:./build/MoonGen ./examples/opnfv-vsperf.lua
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-throughput-unidirec-1024B-1024flows-1pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample2
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-throughput-unidirec-1024B-1024flows-1pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample2
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/moongen-postprocess /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample2 4-throughput-unidirec-1024B-1024flows-1pct_drop throughput moongen- default
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-throughput-unidirec-1024B-1024flows-1pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample3
+/var/tmp/pbench-test-bench/test-execution.log:./build/MoonGen ./examples/opnfv-vsperf.lua
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-throughput-unidirec-1024B-1024flows-1pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample3
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-throughput-unidirec-1024B-1024flows-1pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample3
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/moongen-postprocess /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample3 4-throughput-unidirec-1024B-1024flows-1pct_drop throughput moongen- default
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/4-throughput-unidirec-1024B-1024flows-1pct_drop Mframes_sec 5 0 6 n y
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary moongen --test-type=throughput --samples=3 --search-runtime=10 --validation-runtime=10 --max-drop-pct=0,1 --frame-sizes=64,1024 /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00 end
+--- test-execution.log file contents

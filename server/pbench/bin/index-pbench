@@ -884,7 +884,7 @@ def main(options, args):
         actions = mk_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, options)
 
         if options.unittest:
-            pprint(actions)
+            pprint(actions, width=100)
             return 0
 
         # returns 0 0r 1

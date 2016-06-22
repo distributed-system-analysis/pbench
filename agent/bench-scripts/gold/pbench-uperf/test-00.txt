@@ -4,14 +4,12 @@ test sample 1 of 2
 client[127.0.0.1]protocol[tcp]test[rr]instances[1]size[64] <-> server[127.0.0.1]
 test sample 2 of 2
 client[127.0.0.1]protocol[tcp]test[rr]instances[1]size[64] <-> server[127.0.0.1]
-'######' Throughput-transactions_sec: 5000.000000 5000.000000 average: 5000.0000 stddev: 0.0000% closest-sample: 1
 Iteration 1-tcp_rr-64B-1i complete (1 of 2), with 1 pass and 0 failures
 Starting iteration 1-tcp_rr-64B-1i (2 of 2)
 test sample 1 of 2
 client[127.0.0.1]protocol[tcp]test[stream]instances[1]size[64] <-> server[127.0.0.1]
 test sample 2 of 2
 client[127.0.0.1]protocol[tcp]test[stream]instances[1]size[64] <-> server[127.0.0.1]
-'######' Throughput-Gb_sec: 5.000000 5.000000 average: 5.0000 stddev: 0.0000% closest-sample: 1
 Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 --- Finished test-00 pbench-uperf (status=0}
 +++ pbench tree state
@@ -23,26 +21,29 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/tools-default/sar
 /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00
 /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i
-/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/reference-result
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/client::-server::127.0.0.1:21000--client_start.sh
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/client::-server::127.0.0.1:21000--server_start.sh
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/client::-server::127.0.0.1:21000--test_config.xml
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample1
-/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample1/result.txt
-/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample2.tar.xz
-/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample-runs-summary.txt
-/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/uperf-client-127.0.0.1:21000.cmd
-/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/uperf-config-127.0.0.1:21000.xml
-/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/uperf-server-127.0.0.1:21000.cmd
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample1/uperf-average.txt
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample1/uperf-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample2
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample2/uperf-average.txt
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample2/uperf-postprocess.cmd
 /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i
-/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/reference-result
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/client::-server::127.0.0.1:21000--client_start.sh
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/client::-server::127.0.0.1:21000--server_start.sh
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/client::-server::127.0.0.1:21000--test_config.xml
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample1
-/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample1/result.txt
-/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample2.tar.xz
-/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample-runs-summary.txt
-/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/uperf-client-127.0.0.1:21000.cmd
-/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/uperf-config-127.0.0.1:21000.xml
-/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/uperf-server-127.0.0.1:21000.cmd
-/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/summary-result.csv
-/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/summary-result.html
-/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/summary-result.txt
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample1/uperf-average.txt
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample1/uperf-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample2
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample2/uperf-average.txt
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample2/uperf-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/generate-benchmark-summary.cmd
+/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/pbench-uperf.cmd
 --- pbench tree state
 +++ pbench.log file contents
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-uperf]processing options
@@ -51,20 +52,18 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration  (1 of 2)
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 2 
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[127.0.0.1]protocol[tcp]test[rr]instances[1]size[64] <-> server[127.0.0.1]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/uperf-client-127.0.0.1:21000.cmd
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/client::127.0.0.1-server::127.0.0.1:21000--client_start.sh
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 2 
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[127.0.0.1]protocol[tcp]test[rr]instances[1]size[64] <-> server[127.0.0.1]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/uperf-client-127.0.0.1:21000.cmd
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] '######'
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/client::127.0.0.1-server::127.0.0.1:21000--client_start.sh
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 1-tcp_rr-64B-1i complete (1 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration 1-tcp_rr-64B-1i (2 of 2)
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 2 
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[127.0.0.1]protocol[tcp]test[stream]instances[1]size[64] <-> server[127.0.0.1]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/uperf-client-127.0.0.1:21000.cmd
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/client::127.0.0.1-server::127.0.0.1:21000--client_start.sh
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 2 
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[127.0.0.1]protocol[tcp]test[stream]instances[1]size[64] <-> server[127.0.0.1]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/uperf-client-127.0.0.1:21000.cmd
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] '######'
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/client::127.0.0.1-server::127.0.0.1:21000--client_start.sh
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 --- pbench.log file contents
 +++ test-execution.log file contents
@@ -73,52 +72,55 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 pbench-uperf --install
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00 beg
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 mkdir -p /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/uperf-server-127.0.0.1:21000.cmd 127.0.0.1:/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/uperf-server-127.0.0.1:21000.cmd
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/client::-server::127.0.0.1:21000--server_start.sh 127.0.0.1:/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/client::-server::127.0.0.1:21000--server_start.sh
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 netstat -tlnp
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 systemctl stop firewalld
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 screen -dmS uperf-server /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/uperf-server-127.0.0.1:21000.cmd
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 screen -dmS uperf-server /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/client::-server::127.0.0.1:21000--server_start.sh
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-tcp_rr-64B-1i --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/uperf-client-127.0.0.1:21000.cmd
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/sleep 20
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/client::127.0.0.1-server::127.0.0.1:21000--client_start.sh
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/sleep 26
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-tcp_rr-64B-1i --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-tcp_rr-64B-1i --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 netstat -tlnp
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample1 1-tcp_rr-64B-1i uperf- default
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample1 tcp 64 1 rr  127.0.0.1 uperf- default 1.0.4
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 mkdir -p /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample2
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/uperf-server-127.0.0.1:21000.cmd 127.0.0.1:/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/uperf-server-127.0.0.1:21000.cmd
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/client::-server::127.0.0.1:21000--server_start.sh 127.0.0.1:/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/client::-server::127.0.0.1:21000--server_start.sh
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 netstat -tlnp
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 systemctl stop firewalld
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 screen -dmS uperf-server /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/uperf-server-127.0.0.1:21000.cmd
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 screen -dmS uperf-server /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/client::-server::127.0.0.1:21000--server_start.sh
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-tcp_rr-64B-1i --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample2
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/uperf-client-127.0.0.1:21000.cmd
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/sleep 20
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/client::127.0.0.1-server::127.0.0.1:21000--client_start.sh
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/sleep 26
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-tcp_rr-64B-1i --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample2
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-tcp_rr-64B-1i --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample2
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 netstat -tlnp
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample2 1-tcp_rr-64B-1i uperf- default
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i/sample2 tcp 64 1 rr  127.0.0.1 uperf- default 1.0.4
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/1-tcp_rr-64B-1i trans_sec 5 0 6 n y
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 mkdir -p /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/uperf-server-127.0.0.1:21000.cmd 127.0.0.1:/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/uperf-server-127.0.0.1:21000.cmd
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/client::-server::127.0.0.1:21000--server_start.sh 127.0.0.1:/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/client::-server::127.0.0.1:21000--server_start.sh
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 netstat -tlnp
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 systemctl stop firewalld
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 screen -dmS uperf-server /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/uperf-server-127.0.0.1:21000.cmd
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 screen -dmS uperf-server /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/client::-server::127.0.0.1:21000--server_start.sh
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-tcp_stream-64B-1i --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/uperf-client-127.0.0.1:21000.cmd
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/sleep 20
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/client::127.0.0.1-server::127.0.0.1:21000--client_start.sh
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/sleep 26
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-tcp_stream-64B-1i --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-tcp_stream-64B-1i --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 netstat -tlnp
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample1 2-tcp_stream-64B-1i uperf- default
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample1 tcp 64 1 stream  127.0.0.1 uperf- default 1.0.4
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 mkdir -p /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample2
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/uperf-server-127.0.0.1:21000.cmd 127.0.0.1:/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/uperf-server-127.0.0.1:21000.cmd
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/client::-server::127.0.0.1:21000--server_start.sh 127.0.0.1:/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/client::-server::127.0.0.1:21000--server_start.sh
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 netstat -tlnp
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 systemctl stop firewalld
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 screen -dmS uperf-server /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/uperf-server-127.0.0.1:21000.cmd
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 screen -dmS uperf-server /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/client::-server::127.0.0.1:21000--server_start.sh
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-tcp_stream-64B-1i --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample2
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/uperf-client-127.0.0.1:21000.cmd
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/sleep 20
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/client::127.0.0.1-server::127.0.0.1:21000--client_start.sh
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/sleep 26
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-tcp_stream-64B-1i --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample2
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-tcp_stream-64B-1i --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample2
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 netstat -tlnp
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample2 2-tcp_stream-64B-1i uperf- default
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i/sample2 tcp 64 1 stream  127.0.0.1 uperf- default 1.0.4
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00/2-tcp_stream-64B-1i Gb_sec 5 0 6 n y
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary uperf --config=test-00 --test-types=rr,stream --message-sizes=64 --instances=1 --protocols=tcp --runtime=20 --samples=2 /var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-00_1900-01-01_00:00:00 end
 --- test-execution.log file contents
