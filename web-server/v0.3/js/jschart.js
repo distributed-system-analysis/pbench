@@ -21,7 +21,7 @@
 var charts = [];
 
 // queue to use for generating charts, 1 at a time to limit the total amount of concurrency
-var charts_queue = d3_queue.queue(1);
+var charts_queue = d3.queue(1);
 
 function datapoint(x, y, dataset, timestamp) {
     this.x = x;
@@ -2091,7 +2091,7 @@ function build_chart(chart) {
     if (chart.options.csvfiles) {
 	// this path can have no parallelism since it is unknown how
 	// many datasets each CSV file might contain
-	chart.datasets_queue = d3_queue.queue(1);
+	chart.datasets_queue = d3.queue(1);
 
 	for (var i=0; i<chart.options.csvfiles.length; i++) {
 	    // add a dataset load to the queue
@@ -2100,7 +2100,7 @@ function build_chart(chart) {
     } else {
 	// this path can have some parallelism, but place a limit on
 	// it to keep things under control
-	chart.datasets_queue = d3_queue.queue(512);
+	chart.datasets_queue = d3.queue(512);
 
 	if (chart.options.packed && chart.options.plotfile) {
 	    // add a packed dataset load to the queue
