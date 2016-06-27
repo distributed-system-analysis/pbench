@@ -1,0 +1,30 @@
+# Created 2016-06-14 Tue 10:36
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:t
+#+OPTIONS: html-preamble:t html-scripts:t html-style:t
+#+OPTIONS: html5-fancy:nil tex:t
+#+OPTIONS: H:1
+#+OPTIONS: toc:nil html-postamble:nil num:nil
+#+TITLE: PBench Documentation and Quick Links
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+KEYWORDS: pbench
+#+HTML_LINK_HOME: 
+#+HTML_LINK_UP: 
+#+HTML_MATHJAX: 
+#+HTML_HEAD_EXTRA: 
+#+SUBTITLE: 
+#+INFOJS_OPT: 
+#+LATEX_HEADER: 
+
+* User documentation
+** [[file:./release-notes/RELEASE-NOTES.org][Release notes]].
+** [[file:./agent/installation.org][PBench agent installation instructions]].
+** [[file:./agent/user-guide.org][PBench agent user guide]].
+** [[file:./server/pbench-web-server.org][PBench web server installation instructions and use]].
+
+* Admin documentation
+** [[file:./server/installation.org][PBench server installation instructions]].
+
+* Quick links                                                      :external:
+
+** [[https://copr.fedorainfracloud.org/coprs/ndokos/pbench/][COPR pbench repos]] (select appropriate one for your distro).

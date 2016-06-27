@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2016-06-14 Tue 14:46 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PBench release notes</title>
+<meta name="generator" content="Org-mode" />
+<meta name="author" content="Nick Dokos" />
+<meta name="keywords" content="pbench" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" href="../../stylesheets/normalize.css" type="text/css"/>
+<link rel="stylesheet" href="../../stylesheets/stylesheet.css" type="text/css"/>
+<link rel="stylesheet" href="../../stylesheets/github-light.css" type="text/css"/>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">PBench release notes</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org44eb0d4">Version 0.38</a>
+<ul>
+<li><a href="#orgc88f7e9">Installation</a></li>
+<li><a href="#orgf0b47d9">agent</a></li>
+<li><a href="#orgaa0617d">server</a></li>
+<li><a href="#org4ff4a7f">web-server</a></li>
+<li><a href="#org05ee379">Fedora 24 RPMs on COPR</a></li>
+<li><a href="#org44c8691">Changelog</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org44eb0d4" class="outline-2">
+<h2 id="org44eb0d4">Version 0.38</h2>
+<div class="outline-text-2" id="text-org44eb0d4">
+</div><div id="outline-container-orgc88f7e9" class="outline-3">
+<h3 id="orgc88f7e9">Installation</h3>
+<div class="outline-text-3" id="text-orgc88f7e9">
+<p>
+There are no installation changes in this release: see the
+<a href="../agent/installation.html">Installation Instructions</a> for how to install.
+</p>
+
+<p>
+After installation or update, you should have version 0.38-1g0db11ba
+of the pbench-agent RPM installed.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgf0b47d9" class="outline-3">
+<h3 id="orgf0b47d9">agent</h3>
+<div class="outline-text-3" id="text-orgf0b47d9">
+</div><ul class="org-ul"><li><a id="org69c2388"></a>Backward incompatibilities<br  /><div class="outline-text-4" id="text-org69c2388">
+<p>
+In the v0.36 timeframe, all pbench scripts and benchmarks that are
+normally accessible were renamed: those that did not have a prefix at
+all were renamed with a "pbench-" prefix; the benchmarks had a
+"pbench_" prefix and were renamed for consistency with a "pbench-"
+prefix as well.
+</p>
+
+<p>
+In v0.37, there were compatibility links to the old names in util-scripts.
+</p>
+
+<p>
+In v0.38, these links have been deleted: you will have to make sure
+that you use (and all your scripts use) the names with the "pbench-"
+prefix.
+</p>
+</div></li>
+
+<li><a id="org8262212"></a>New features<br  /><div class="outline-text-4" id="text-org8262212">
+<p>
+Please submit suggestions/issues to the <a href="https://github.com/distributed-system-analysis/pbench/issues">issue tracker</a>.
+</p>
+</div>
+
+<ul class="org-ul"><li><a id="org8646570"></a>New graphs<br  /><div class="outline-text-5" id="text-org8646570">
+<p>
+The major change in this release is the replacement of the original
+nvd3 graphs with graphs produced by a library written by Karl Rister.
+The advantage of this library is that it is much less demanding on
+the browser than the original graph library.
+</p>
+
+<p>
+Note that it uses the same CSV files that the original graphs used,
+which it downloads from the server<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>: big data sets are still
+going to incur long time penalties for the transfer. The difference is
+that once the download is complete, your browser will stand a much
+better chance of staying alive and able to display the graphs.
+</p>
+</div></li></ul></li>
+
+<li><a id="orgc0d383b"></a>Bug fixes<br  /><ul class="org-ul"><li><a id="org2cbf66b"></a>Fixed the RPM names for tools and benchmarks to include the pbench- prefix<br  /><div class="outline-text-5" id="text-org2cbf66b">
+<p>
+PBench will now be able to find and install the correct RPMs (with the
+current exception of pbench-iperf as noted above).
+</p>
+</div></li>
+
+<li><a id="orgb61afa4"></a>Fixed the URL for the COPR repo<br  /><div class="outline-text-5" id="text-orgb61afa4">
+<p>
+The documentation on GitHub was pointing to a non-existent place for
+the COPR pbench-agent RPM: it used a sanitized <code>example.com</code>
+address. This was fixed, but note that the documentation still
+contains dead links and will undergo a significant overhaul for
+the next release.
+</p>
+</div></li>
+
+<li><a id="org91cdbb0"></a>The pbench-kiil-tools symlink in the repo was wrong.<br  /><div class="outline-text-5" id="text-org91cdbb0">
+<p>
+That was fixed, but the bug did not and does not have any effect on a
+local installation: those symlinks are created on the fly by an RPM
+%post action.
+</p>
+</div></li>
+
+<li><a id="orgb9edfac"></a>The sar script was modified to handle user-defined options.<br  /><div class="outline-text-5" id="text-orgb9edfac">
+<p>
+Note however that if you use non-standard options, the postprocessing
+step for the sar tool (and its relatives) will be skipped, since
+pbench does not know how to handle the modified output.
+</p>
+</div></li></ul></li></ul>
+</div>
+
+
+<div id="outline-container-orgaa0617d" class="outline-3">
+<h3 id="orgaa0617d">server</h3>
+<div class="outline-text-3" id="text-orgaa0617d">
+<p>
+The server has now been organized in the same way as the agent: there
+is an external RPM available from COPR that includes all the scripts,
+and some configuration scripts that can be used to install the config
+file and perform the rest of the server configuration. See the <a href="../server/installation.html">server
+installation guide</a>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org4ff4a7f" class="outline-3">
+<h3 id="org4ff4a7f">web-server</h3>
+<div class="outline-text-3" id="text-org4ff4a7f">
+<p>
+There is an RPM available on COPR that allows local viewing of graphs,
+both in the v0.2 format (Andrew's graphs using nvd3) or in the v0.3
+format (Karl's graphs using d3). This now includes Karl's latest fixes.
+If you have installed an older version, please upgrade. The current version
+on COPR is 0.3-10.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org05ee379" class="outline-3">
+<h3 id="org05ee379">Fedora 24 RPMs on COPR</h3>
+<div class="outline-text-3" id="text-org05ee379">
+<p>
+Fedora 24 has been added to the build list and Fedora 21 has been
+deleted from it, for all the RPMS (benchmarks, tools,
+pbench-agent, pbench-server, pbench-web-server, configtools).
+</p>
+
+<p>
+One benchmark RPM (<code>pbench-iperf</code>) is currently failing to build. This
+will be fixed shortly.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org44c8691" class="outline-3">
+<h3 id="org44c8691">Changelog</h3>
+<div class="outline-text-3" id="text-org44c8691">
+<ul class="org-ul">
+<li>4a65484 Version bump.</li>
+<li>0d5a976 Delete compatibility wrapper.</li>
+<li>2dff665 Wrong link for pbench-kill-tools.</li>
+<li>58dbb63 Update jschart and fix a small bug by cleaning up the y axis label updating code</li>
+<li>a9ac750 Fix a bug in the jschart tooltip implementation when the tooltip belongs to an Y axis label</li>
+<li>8ca3d37 Long overdue cleanup of the jschart style and class code</li>
+<li>99fc942 Update the jschart legend rectangle outlining code to work with Firefox and vector zooming</li>
+<li>ef211e8 Update jschart live_update to a timeseries data model which uses milliseconds since the epoch timestamps</li>
+<li>b4372f6 Update jschart with a new filtering capability based on the dataset name and resort the table (if sorting is enabled) when datasets are hidden or unhidden</li>
+<li>281d89c Update the jschart show/hide all events to use static functions with locally scoped variables</li>
+<li>9453829 Update jschart threshold application events to use static functions with locally scoped variables</li>
+<li>76590ed Update the the jschart dataset mouseover, mouseout, and click events to use static functions with locally scoped variables</li>
+<li>844b87b Update the jschart viewport event handlers to use static functions with locally scoped variables instead of closures</li>
+<li>3bef541 Update jschart to eliminate some calls to map that are made often during some runtime behaviors</li>
+<li>6dbc809 Update jschart by replacing many data accesor closures with static functions</li>
+<li>82a0151 Update jschart to display the datasets value in the table that most closely aligns with the cursor's position in the viewport</li>
+<li>3a8cd33 Remove some dead code from jschart</li>
+<li>94c0808 Update the jschart table creations to use D3 principles to improve maintainability and reduce code bloat</li>
+<li>c332ef9 Update jschart to improve maintainability and performance</li>
+<li>5d83c24 Update jschart to be able to apply a dynamic threshold based on a a dataset's maximum y value or y mean</li>
+<li>325f17e Update the jschart live update controls to fix some bugs introduced with the recent code churn</li>
+<li>25bf0b1 Update jschart to automatically sort the datasets in descending order based on their mean by default</li>
+<li>5ea4df3 Update jschart to honor the threshold and use it to determine if datasets should be automatically hidden</li>
+<li>b276f78 Move some jschart hard coded values into global variables for easier maintanance and use moving forward</li>
+<li>3a45dfa Update jschart to be more dynamic when hiding and unhiding datasets</li>
+<li>44d5238 Allow hidden datasets in jschart to be unhidden by clicking their table row</li>
+<li>9b000bf Add jschart support for log scale on the x and y axis</li>
+<li>3534f88 Update the jschart axes references to conform to other chart object references</li>
+<li>3bce44d Update the jschart axes without doing DOM searches</li>
+<li>a1af8da Refactor the code to use a global array of chart objects with references to all chart elements and data that may be accessed at runtime</li>
+<li>b1e93ea Squash some tooltip bugs</li>
+<li>69813a4 Add the ability to hide all or individual datasets and the requisite ability to unhide them</li>
+<li>09f33a5 Refactor the dataset highlighting code to track state and improve performance</li>
+<li>5f0e909 Add a link from a chart_ref to it's datasets and links from the datasets to their DOM objects</li>
+<li>bf5732f Update the legend boxes to always have a constant colored outline</li>
+<li>e15db96 Update the description and dependency information for jschart</li>
+<li>bbc21f0 Update the wording that refers to the EPL LICENSE.TXT file locations</li>
+<li>dcbf39b Update the verbage in the demo web server to better reflect it's usage</li>
+<li>388d319 Add a simple web server from LPCPU for use in demoing/testing jschart</li>
+<li>43ed280 Add a jschart demo for testing purposes</li>
+<li>db0ece1 Add support for a new data model type called histogram</li>
+<li>c99c7d3 More jschart whitespace formatting cleanups</li>
+<li>c8cfe1e Fix a bug in the jschart "Apply X-Axis Zoom to All" feature caused by the new support for timeseries charts</li>
+<li>a2f1056 Fix some bugs in the zoom_it function in jschart when the data model is timeseries:</li>
+<li>e471473 Remove dead code from the handle_brush_actions function in jschart</li>
+<li>87c7647 Update the mouse coordinate display to support when the chart is timeseries</li>
+<li>583ef9e Fixup timezone and time formatting support, defaulting to UTC</li>
+<li>9f0a3a7 Update jschart to use a dynamic x-axis label showing the (zoomed) time range when the chart is timeseries</li>
+<li>3534125 Update GenData to use jschart</li>
+<li>bb36819 Update jschart to be compatible with GenData chart type specifications</li>
+<li>3b3889f Update the jschart highlight functions to have more descriptive names</li>
+<li>1f354a7 Update D3 Queue initialization to match d3-queue code available via npm</li>
+<li>28d51b9 Add support for saveSvgAsPng to jschart</li>
+<li>3029052 Add support for specifying whether a jschart is a XY plot or timeseries</li>
+<li>247216b Remove the jschart assertion that the x-axis domain should have a minimum=0 unless otherwise specified</li>
+<li>72a42e9 Add support for loading CSV data files into jschart</li>
+<li>785b27c Update jschart.js to dynamically build the summary table at runtime</li>
+<li>c8b781a Initial commit of jschart files pulled from LPCPU</li>
+<li>7224a5a Clean up the list file.</li>
+<li>ef3f12b Fix the COPR repo URL.</li>
+<li>6a1e74f Store cron job script logs in the local file system.</li>
+<li>fc9d61d modified oc scrit -&gt; fixed typo -&gt; if decided to start too, instructed to install 'expect' package - necessary for unbuffer</li>
+<li>02eb062 Fix the calls to check_installed_rpm in all the benchmarks.</li>
+<li>6c48dbe Script rename: metadata-log &#x2013;&gt; pbench-metadata-log</li>
+<li>2b8b991 Modify the sar script (and its relatives) to handle user-defined options.</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">
+Unless you install locally - see <a href="http://pbench.example.com/server/pbench-web-server.html">PBench web server</a> for instructions.
+</p></div></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<p class="date">Page updated: 2016-06-14 Tue 14:46</p>
+</div>
+</body>
+</html>

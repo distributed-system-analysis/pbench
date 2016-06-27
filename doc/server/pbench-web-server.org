@@ -1,0 +1,71 @@
+# Created 2016-06-14 Tue 14:46
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:t
+#+OPTIONS: html-preamble:t html-scripts:t html-style:t
+#+OPTIONS: html5-fancy:nil tex:t
+#+TITLE: PBench web server
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+KEYWORDS: pbench
+#+HTML_LINK_HOME: 
+#+HTML_LINK_UP: 
+#+HTML_MATHJAX: 
+#+HTML_HEAD_EXTRA: 
+#+SUBTITLE: 
+#+INFOJS_OPT: 
+#+LATEX_HEADER: 
+
+* Introduction
+These are the bits of Javascript, CSS and such that are necessary to render
+the graphs that pbench produces. They are packaged up in an RPM for easy installation.
+The RPM is used by the pbench server installation, but it can also be used to
+allow viewing of pbench graphs locally. This is what is described in this document.
+
+* Installation
+The RPM is available from the standard pbench repo on COPR. If you
+have a pbench-agent installed already, the repo should be already
+available. If not, consult the [[file:../agent/installation.org::*External%20repo][PBench agent installation instructions]]
+for details.
+
+Once the repo is installed, the RPM itself can be installed with:
+#+BEGIN_EXAMPLE
+dnf install pbench-web-server
+# or ...
+yum install pbench-web-server
+#+END_EXAMPLE
+The RPM defines a =post-trans= action that uses the =Node.js= package
+manager =npm= to install various Javascript libraries, in particular
+=d3= and =nvd3=. The RPM requires the =npm= package, so if it is not
+installed already, it will be installed as a dependency[fn:1]. The action
+then calls =npm install= on the various packages.
+
+[fn:1] RHEL[6,7] requires the addition of the [[https://fedoraproject.org/wiki/EPEL][EPEL]] repo in order to be
+able to get the npm package. 
+
+* Local configuration
+It is assumed that you have an HTTP server installed and running. Here
+I will assume =apache=, but similar considerations apply to other servers.
+
+The HTTP server will need access to the JS/CSS files that the pbench HTML
+files require: these are assumed to reside in a subdirectory of the document
+root of the server, called =static=. Assuming that the document root is
+the default =/var/www/html=, the easiest way to accomplish that is to
+plant a symlink in the document root that points to the installed =static=
+directory:
+#+BEGIN_EXAMPLE
+ln -sf /opt/pbench-web-server/html/static /var/www/html
+#+END_EXAMPLE
+
+In addition, you will need to bring the =pbench-agent= data directory
+into the purview of the server. Again, a symlink is the simplest solution:
+#+BEGIN_EXAMPLE
+ln -sf /var/lib/pbench-agent /var/www/html
+#+END_EXAMPLE
+
+* Viewing pbench data locally
+
+Now browse to
+#+BEGIN_EXAMPLE
+http://localhost/pbench-agent
+#+END_EXAMPLE
+You should be able view graphs on you local system the same way that you can
+view graphs on the pbench server.
