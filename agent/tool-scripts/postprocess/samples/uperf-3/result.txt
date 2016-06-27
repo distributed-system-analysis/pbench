@@ -1,4 +1,0 @@
-Latency-latency_usec=57.591601
-Per_Server_Latency-172.168.10.88-latency_us=57.825040
-Per_Server_Transaction_Rate-172.168.10.88-trans_sec=17379.910589
-Transaction_Rate-transactions_sec=17378.335215

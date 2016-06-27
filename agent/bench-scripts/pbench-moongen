@@ -1,0 +1,431 @@
+#!/bin/bash
+
+# This is a script to run the moongen benchmark
+# Author: Andrew Theurer
+
+# This script attempts to automate potentially a very large number of tests for moongen
+
+# This script will take multiple samples of the same test type and try to achieve a standard deviation of <3%
+#
+# This script will repeat a test type 6 times in order to try to achieve target stddev.
+# If a run (with several samples) fails the stddev, its directory is appended with -fail
+#
+# This script will also generate a "summary-results.txt" with a table of all
+# results, efficiency, and other stats.
+
+pbench_cmd="$@"
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+benchmark_name="moongen"
+if [ -z "$moongen_dir" ]; then
+	moongen_dir="/root/MoonGen"
+fi
+if [ ! -d "$moongen_dir" ]; then
+	error_log "The MoonGen directory, $moongen_dir, does not exist as a directory"
+	exit 1
+fi
+benchmark_bin=/usr/local/bin/$benchmark_name
+
+# Every bench-script follows a similar sequence:
+# 1) process bench script arguments
+# 2) ensure the right version of the benchmark is installed
+# 3) gather pre-run state
+# 4) run the benchmark and start/stop perf analysis tools
+# 5) gather post-run state
+# 6) postprocess benchmark data
+# 7) postprocess analysis tool data
+
+# Defaults
+benchmark_run_dir=""
+test_type="throughput"
+traffic="unidirec"
+max_drop_pcts="0"
+rates=""
+portlist="0,1"
+frame_sizes="64" # in bytes
+config=""
+nr_flows="1024"
+nr_samples=5
+maxstddevpct=5 # maximum allowable standard deviation in percent
+max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
+latency_runtime=60
+search_runtime=60
+validation_runtime=120
+servers=127.0.0.1
+postprocess_only=n
+log_response_times=n
+start_iteration_num=1
+keep_failed_tool_data="y"
+tar_nonref_data="n"
+orig_cmd="$*"
+tool_group=default
+tool_label_pattern="$benchmark_name-"
+install_only="n"
+one_shot="n"
+
+# Process options and arguments
+opts=$(getopt -q -o i:c:t:r:m:p:M:S:C:o --longoptions "portlist:,rate:,rates:,max-drop-pct:,max-drop-pcts:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,nr-flows:,test-type:,traffic:,latency-runtime:,search-runtime:,validation-runtime:,frame-sizes:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,one-shot" -n "getopt.sh" -- "$@")
+if [ $? -ne 0 ]; then
+	printf -- "$*\n"
+	printf "\n"
+	printf "\t${benchmark_name}: you specified an invalid option\n\n"
+	printf "\tThe following options are available:\n\n"
+	#              1   2         3         4         5         6         7         8         9         0         1         2         3
+	#              678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
+	printf -- "\t\t-c str       --config=str               name of the test config (i.e. jumbo_frames_and_network_throughput)\n"
+	printf -- "\t\t-r float     --rate[s]	               list of rates in millions of packets/sec (multiple rates can be used for latency tests)\n"
+	printf -- "\t\t             --portlist=int,int[,int,int]  list of DPDK ports to use (multiples of 2)\n"
+	printf -- "\t\t-t str[,str] --test-type=str            throughput, latency, or throughput-latency (default $test_type)\n"
+	printf -- "\t\t					       throuhgput: find max throuhgput with a binary search\n"
+	printf -- "\t\t					       latency: find latency (histogram) at a specified packet rate\n"
+	printf -- "\t\t					       throughput-latency: first find max throuhgput with a binary search, then\n"
+	printf -- "\t\t								   find latency (histogram) at the max throughput\n"
+	printf -- "\t\t-o	    --one-shot		       only run one test for throughput and then quit (no binary search)\n"
+	printf -- "\t\t-t str[,str] --traffic=str[,str]        list of one or more: unidirec or bidirec (default $traffic)\n"
+	printf -- "\t\t-r int       --latency-runtime=int      test measurement period in seconds when running a latency test (default is $latency_runtime)\n"
+	printf -- "\t\t-r int       --search-runtime=int       test measurement period in seconds when searching for max throughput (default is $search_runtime)\n"
+	printf -- "\t\t-r int       --validation-runtime=int   test measurement period in seconds when running final validation (default is $validation_runtime)\n"
+	printf -- "\t\t             --max-drop-pct[s]=fl,[fl]  list of maximum allowed percentage of dropped frames (default is $max_drop_pcts)\n"
+	printf -- "\t\t-m int[,int] --frame-sizes=str[,str]    list of frame sizes in bytes (default is $frame_sizes)\n"
+	printf -- "\t\t-i int[,int] --nr-flows=int[,int]       list of number of packet flows to run (default is $nr_flows)\n"
+	printf -- "\t\t             --samples=int              the number of times each different test is run (to compute average &\n"
+	printf    "\t\t                                        standard deviations)\n"
+	printf -- "\t\t             --max-failures=int         the maximm number of failures to get below stddev\n"
+	printf -- "\t\t             --max-stddev=int           the maximm percent stddev allowed to pass\n"
+	printf -- "\t\t             --postprocess-only=y|n     don't run the benchmark, but postprocess data from previous test\n"
+	printf -- "\t\t             --run-dir=str              optionally specify what directory should be used (usually only used\n"
+	printf    "\t\t                                        if postprocess-only=y)\n"
+	printf -- "\t\t             --start-iteration-num=int  optionally skip the first (n-1) tests\n"
+	printf -- "\t\t             --tool-label-pattern=str   $benchmark_name will provide CPU and efficiency information for any tool directory\n"
+	printf    "\t\t                                        with a \"^<pattern>\" in the name, provided \"sar\" is one of the\n"
+	printf    "\t\t                                        registered tools.\n"
+	printf    "\t\t                                        a default pattern, \"$bechmark_name-\" is used if none is provided.\n"
+	printf    "\t\t                                        simply register your tools with \"--label=$benchmark_name-\$X\", and this script\n"
+	printf    "\t\t                                        will genrate CPU_$benchmark_name-\$X and Gbps/CPU_$benchmark_name-\$X or\n"
+	printf    "\t\t                                        trans_sec/CPU-$benchmark_name-\$X for all tools which have that pattern as a\n"
+	printf    "\t\t                                        prefix.  if you don't want to register your tools with \"$benchmark_name-\" as\n"
+	printf    "\t\t                                        part of the label, just use --tool-label-pattern= to tell this script\n"
+	printf    "\t\t                                        the prefix pattern to use for CPU information.\n"
+	printf -- "\t\t             --tool-group=str\n"
+	exit 1
+fi
+eval set -- "$opts"
+debug_log "[$script_name]processing options"
+while true; do
+	case "$1" in
+		--install)
+		shift
+		install_only="y"
+		exit
+		;;
+		--tool-label-pattern)
+		shift
+		if [ -n "$1" ]; then
+			tool_label_pattern="$1"
+			shift
+		fi
+		;;
+		--postprocess-only)
+		shift
+		if [ -n "$1" ]; then
+			postprocess_only="$1"
+			shift
+		fi
+		;;
+		--run-dir)
+		shift
+		if [ -n "$1" ]; then
+			benchmark_run_dir="$1"
+			shift
+		fi
+		;;
+		--max-stddev)
+		shift
+		if [ -n "$1" ]; then
+			maxstddevpct="$1"
+			shift
+		fi
+		;;
+		--max-failures)
+		shift
+		if [ -n "$1" ]; then
+			max_failures="$1"
+			shift
+		fi
+		;;
+		--samples)
+		shift
+		if [ -n "$1" ]; then
+			nr_samples="$1"
+			shift
+		fi
+		;;
+		-i|--nr-flows)
+		shift
+		if [ -n "$1" ]; then
+			nr_flows="$1"
+			shift
+		fi
+		;;
+		-r|--rate|--rates)
+		shift
+		if [ -n "$1" ]; then
+			rates="$1"
+			shift
+		fi
+		;;
+		--max-drop-pct|--max-drop-pcts)
+		shift
+		if [ -n "$1" ]; then
+			max_drop_pcts="$1"
+			shift
+		fi
+		;;
+		--traffic)
+		shift
+		if [ -n "$1" ]; then
+			traffic="$1"
+			shift
+		fi
+		;;
+		-t|--test-type)
+		shift
+		if [ -n "$1" ]; then
+			test_type="$1"
+			shift
+		fi
+		;;
+		--tool-group)
+		shift
+		if [ -n "$1" ]; then
+			tool_group="$1"
+			shift
+		fi
+		;;
+		-m|--frame-sizes)
+		shift
+		if [ -n "$1" ]; then
+			frame_sizes="$1"
+			shift
+		fi
+		;;
+		--latency-runtime)
+		shift
+		if [ -n "$1" ]; then
+			latency_runtime="$1"
+			shift
+		fi
+		;;
+		--search-runtime)
+		shift
+		if [ -n "$1" ]; then
+			search_runtime="$1"
+			shift
+		fi
+		;;
+		--validation-runtime)
+		shift
+		if [ -n "$1" ]; then
+			validation_runtime="$1"
+			shift
+		fi
+		;;
+		--portlist)
+		shift
+		if [ -n "$1" ]; then
+			portlist="$1"
+			shift
+		fi
+		;;
+		-c|--config)
+		shift
+		if [ -n "$1" ]; then
+			config="$1"
+			shift
+		fi
+		;;
+		--start-iteration-num)
+		shift
+		if [ -n "$1" ]; then
+			start_iteration_num=$1
+			shift
+		fi
+		;;
+		-o|--one-shot)
+		shift
+		one_shot="y"
+		;;
+		--)
+		shift
+		break
+		;;
+		*)
+		error_log "[$script_name] bad option, \"$1 $2\""
+		break
+		;;
+	esac
+done
+if [[ -z "$benchmark_run_dir" ]]; then
+	# We don't have an explicit run directory, construct one
+	benchmark_run_dir="$pbench_run/${benchmark_name}_${config}_$date"
+else
+	# We have an explicit run directory provided by --run-dir, so warn
+	# the user if they also used --config
+	if [[ ! -z "$config" ]]; then
+		warn_log "[$script_name] ignoring --config=\"$config\" in favor of --rundir=\"$benchmark_run_dir\""
+	fi
+fi
+mkdir -p $benchmark_run_dir/.running
+# save a copy of the command, in case the test needs to be reproduced or post-processed again
+echo "$script_name $pbench_cmd" >$benchmark_run_dir/$script_name.cmd
+chmod +x $benchmark_run_dir/$script_name.cmd
+
+total_iterations=0
+for traffic_direction in `echo $traffic | sed -e s/,/" "/g`; do
+	for max_drop_pct in `echo $max_drop_pcts | sed -e s/,/" "/g`; do
+		for frame_size in `echo $frame_sizes | sed -e s/,/" "/g`; do
+			for nr_flow in `echo $nr_flows | sed -e s/,/" "/g`; do
+				((total_iterations++))
+			done
+		done
+	done
+done
+echo "Total number of benchmark iterations: $total_iterations"
+count=1
+mkdir -p $benchmark_run_dir/.running
+export benchmark_name config
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+# start the server processes
+if [ -z "$rates" ]; then
+	if [ "$test_type" == "latency" ]; then
+		# use a very low default rate for latency test if none is specified
+		rates=0.1
+	else
+		# a rate of "none" is valid if this is a throuhgput test.  The opnfv-vsperf.lua
+		# script will start with line-rate for the binary search
+		rates="none"
+	fi
+fi
+for rate in `echo $rates | sed -e s/,/" "/g`; do
+	for traffic_direction in `echo $traffic | sed -e s/,/" "/g`; do
+		for max_drop_pct in `echo $max_drop_pcts | sed -e s/,/" "/g`; do
+			for frame_size in `echo $frame_sizes | sed -e s/,/" "/g`; do
+				for nr_flow in `echo $nr_flows | sed -e s/,/" "/g`; do
+					if [ $count -ge $start_iteration_num ]; then
+						if [ "$test_type" == "latency" ]; then
+							iteration="${count}-${test_type}-${traffic_direction}-${frame_size}B-${nr_flow}flows-${rate}Mpps"
+						else 
+							iteration="${count}-${test_type}-${traffic_direction}-${frame_size}B-${nr_flow}flows-${max_drop_pct}pct_drop"
+						fi
+						iteration_dir="$benchmark_run_dir/$iteration"
+						result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
+						failures=0
+						echo "Starting iteration[$iteration] ($count of $total_iterations)"
+						log "Starting iteration[$iteration] ($count of $total_iterations)"
+						while [[ $(echo "if (${result_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; do
+							if [[ $failures -gt 0 ]]; then
+								echo "Restarting iteration[$iteration] ($count of $total_iterations)"
+								log "Restarting iteration[$iteration] ($count of $total_iterations)"
+							fi
+							mkdir -p $iteration_dir
+							if [ "$postprocess_only" != "y" ]; then
+								if [ $traffic_direction == "unidirec" ]; then
+									bidirec_opt=false
+								else
+									bidirec_opt=true
+								fi
+								cfg_file="$iteration_dir/opnfv-vsperf-cfg.lua"
+								echo "VSPERF {" >$cfg_file
+								if [ "$rate" != "none" ]; then
+        								echo "startRate = $rate," >>$cfg_file
+								fi
+        							echo "nrFlows = $nr_flow," >>$cfg_file
+        							echo "testType = \"$test_type\"," >>$cfg_file
+        							echo "runBidirec = $bidirec_opt," >>$cfg_file
+								if [ "$test_type" == "latency" ]; then
+									echo "latencyRunTime = $latency_runtime,">>$cfg_file
+								else
+        								echo "searchRunTime = $search_runtime,">>$cfg_file
+        								echo "validationRunTime = $validation_runtime,">> $cfg_file
+        								echo "acceptableLossPct = $max_drop_pct," >>$cfg_file
+									if [ "$one_shot" == "y" ]; then
+										echo "oneShot = true," >>$cfg_file
+									fi
+								fi
+        							echo "frameSize = $frame_size,">>$cfg_file
+        							echo "ports = {$portlist}" >>$cfg_file
+								echo "}">>$cfg_file
+								cp $cfg_file $moongen_dir/
+								if [ "$test_type" == "throughput" ]; then
+									rm $cfg_file
+								fi
+							fi
+							# each attempt at a test config requires multiple samples to get stddev
+							for sample in `seq 1 $nr_samples`; do
+								benchmark_results_dir="$iteration_dir/sample$sample"
+								if [ "$postprocess_only" != "y" ]; then
+									mkdir -p $benchmark_results_dir
+									echo "test sample $sample of $nr_samples"
+									log "test sample $sample of $nr_samples "
+									benchmark_client_cmd_file="$iteration_dir/$benchmark_name-client.cmd"
+									result_file=$benchmark_results_dir/moongen-result.txt
+									# save benchmark command in file for debugging or running manually
+
+									echo "pushd >/dev/null $moongen_dir" >$benchmark_client_cmd_file
+									echo "./build/MoonGen ./examples/opnfv-vsperf.lua" >>$benchmark_client_cmd_file
+									echo "popd >/dev/null" >>$benchmark_client_cmd_file
+									chmod +x $benchmark_client_cmd_file
+
+									rm -f $moongen_dir/hist*.csv
+									pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+									$benchmark_client_cmd_file | tee $result_file
+									pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+									pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+									cp $moongen_dir/hist*.csv $benchmark_results_dir
+								else
+									if [[ ! -d $benchmark_results_dir ]]; then
+										error_log "Results directory $benchmark_results_dir does not exist, skipping post-processing"
+										continue
+									fi
+									echo "Not going to run $benchmark_name.  Only postprocesing existing data"
+									log "Not going to run $benchmnark_name.  Only postprocesing existing data"
+								fi
+								echo "$script_path/postprocess/$benchmark_name-postprocess $benchmark_results_dir $iteration $test_type $tool_label_pattern $tool_group" >"$benchmark_results_dir/$benchmark_name-postprocess.cmd"
+								chmod +x "$benchmark_results_dir/$benchmark_name-postprocess.cmd"
+								$benchmark_results_dir/$benchmark_name-postprocess.cmd
+							done
+							echo "$script_path/postprocess/process-iteration-samples $iteration_dir Mframes_sec $maxstddevpct $failures $max_failures $tar_nonref_data $keep_failed_tool_data" >"$iteration_dir/process-iteration-samples.cmd"
+							chmod +x "$iteration_dir/process-iteration-samples.cmd"
+							$iteration_dir/process-iteration-samples.cmd
+							fail=$?
+							if [ $fail -eq 1 ]; then
+								error_log "This test iteration failed"
+								((failures++))
+							fi
+							if [ $fail -eq 0 -o $failures -ge $max_failures ]; then
+								debug_log "Moving to the next iteration"
+								break
+							fi
+						done # break out of this loop only if the $result_stddevpct is lower than $maxstddevpct
+						echo "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
+						log "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
+					else
+						echo "Skipping iteration $iteration ($count of $total_iterations)"
+						log "Skipping iteration $iteration ($count of $total_iterations)"
+					fi
+					last_test_type="$test_type"
+					let count=$count+1 # now we can move to the next iteration
+				done
+			done
+		done
+	done
+done
+echo "$script_path/postprocess/generate-benchmark-summary $benchmark_name $orig_cmd $benchmark_run_dir" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
+$script_path/postprocess/generate-benchmark-summary "$benchmark_name" "$orig_cmd" "$benchmark_run_dir"
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+rmdir $benchmark_run_dir/.running
