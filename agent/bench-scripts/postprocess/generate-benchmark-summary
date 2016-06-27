@@ -1,0 +1,490 @@
+#!/usr/bin/perl
+#
+# Author: Andrew Theurer
+# This script will process csv result files from each benchmark iteration, generating
+# a summary of all iterations in txt, csv, html, and json.
+# 
+# usage:
+# $script <benchmark-name> <original_command> <benchmark-results-directory>
+
+use strict;
+use warnings;
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+my $_test_alt_bench_lib;
+BEGIN {
+	my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+		$_test_alt_tools_lib = "$_pbench_tspp_dir";
+	}
+	my $_pbench_bspp_dir = $ENV{'pbench_bspp_dir'};
+	$_test_alt_bench_lib=$ENV{_TEST_ALTERNATE_BENCH_LIBRARY};
+	if (not defined $_test_alt_bench_lib or not -d $_test_alt_bench_lib) {
+		$_test_alt_bench_lib = "$_pbench_bspp_dir";
+	}
+}
+use lib "$_test_alt_tools_lib";
+use lib "$_test_alt_bench_lib";
+no lib ".";
+
+use JSON;
+use File::Basename;
+use Data::Dumper;
+use BenchPostprocess qw(get_label get_uid get_length);
+my $script = basename($0);
+my $benchmark_name = $ARGV[0];
+my $orig_cmd = $ARGV[1];
+my $benchmark_run_dir = $ARGV[2];
+my %spacing;
+
+opendir(my $dh, $benchmark_run_dir) || die "$script: could not open directory $benchmark_run_dir: $!\n";
+my @dirs = readdir($dh);
+my $iteration_dir;
+my $line = "";
+my $dir;
+my %metrics;
+my %iterations_by_num;
+my %all_metric_names_by_type;
+my $iter_num = $1;
+my $iter_name = $2;
+my @iterations;
+my $iteration_data_field = 'iteration_data';
+my $iteration_name_field = 'iteration_name';
+my $iteration_number_field = 'iteration_number';
+# build an array from all of the iterations 
+foreach $dir (sort @dirs) {
+	$iteration_dir = $benchmark_run_dir . "/" . $dir;
+	if ((-d $iteration_dir) && ($dir =~ /(\d+)-(.+)/)) {
+		$iter_num = $1;
+		$iter_name = $2;
+		my $length;
+		# collect spacing info for output later
+		$length = get_length($iter_num);
+		if (  ! defined $spacing{iter_num} || $spacing{iter_num} < $length ) {
+			$spacing{iter_num} = $length;
+		}
+		$length = get_length($iter_name);
+		if ( ! defined $spacing{iter_name} || $spacing{iter_name} < $length ) {
+			$spacing{iter_name} = $length;
+		}
+		$iterations_by_num{$iter_num} = $iter_name;
+		my $result_json_file = $iteration_dir . "/result.json";
+		open(ITERATION_JSON, "$result_json_file") || die "$script: could not open file $result_json_file: $!\n";
+		my $json_text;
+                while ( <ITERATION_JSON> ) {
+                        $json_text = $json_text . $_;
+                        }
+                close TXT;
+                my $perl_scalar = from_json( $json_text );
+		my %iteration = ( $iteration_number_field => int $iter_num, $iteration_name_field => $iter_name, $iteration_data_field => $perl_scalar );
+                push @iterations, \%iteration;
+	}
+}
+my $json_text  = to_json( \@iterations, { ascii => 1, pretty => 1, canonical => 1 } );
+my $json_file = $benchmark_run_dir . "/result.json";
+open(JSON, ">$json_file") || die "$script: could not open file $json_file: $!\n";
+print JSON $json_text;
+close(JSON);
+
+my $iteration_name;
+my $iteration_num;
+my $metric_name;
+my $metric_type;
+my $metric_label;
+my $length;
+my $padding = 1;
+my $i;
+my $this_metric_type_name_spacing;
+my %metric_labels;
+my %metric_types;
+my @iteration_numbers = (keys %iterations_by_num);
+my $first_iteration_num = $iteration_numbers[0];
+my @all_metric_types = ('throughput', 'latency', 'resource', 'efficiency');
+my @all_metric_labels = (get_label('mean_label'), get_label('stddevpct_label'), get_label('closest_sample_label'));
+
+# calculate spacing such that we have enough space for each column, but non extra (other than $padding)
+my %this_metric_type_spacing;
+foreach $metric_type (@all_metric_types) {
+	$this_metric_type_spacing{$metric_type} = 0;
+}
+my %this_iteration;
+for ($i = 0; $i < scalar @iterations; $i++) {
+	$iteration_name = $iterations[$i]{$iteration_name_field};
+	$iteration_num = $iterations[$i]{$iteration_number_field};
+	$length = get_length($iteration_num) + $padding;
+	if ( ! defined ($spacing{iter_num}) || $spacing{iter_num} < $length) {
+		$spacing{iter_num} = $length;
+	}
+	$length = get_length($iteration_name) + $padding;
+	if ( ! defined ($spacing{iter_name}) || $spacing{iter_name} < $length) {
+		$spacing{iter_name} = $length;
+	} # Note that while actual iteration numbers are 1..N, but $iterations[$i] are 0..N-1
+	foreach $metric_type (keys %{ $iterations[$i]{$iteration_data_field} }) {  #parameters, throughput, resource, efficiency, latency
+		$metric_types{$metric_type}++;
+		foreach $metric_name (sort keys %{ $iterations[$i]{$iteration_data_field}{$metric_type} } ) { #Gb_sec, MB_sec, trans_sec, usec, Gb_sec_cpu
+			$this_metric_type_name_spacing = 0;
+			$all_metric_names_by_type{$metric_type}{$metric_name}++;
+			my $j;
+			for ($j=0; $j < scalar @{$iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}}; $j++) { # Multiple elements of Gb_sec, or MB_sec, etc.
+				$spacing{$metric_type}{$metric_name}[$j+1]{'header'} = 0;
+				foreach $metric_label ( sort keys %{ $iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j] } ) { #mean, stddevpct, closest_sample
+					if ( grep(/^$metric_label$/, @all_metric_labels) ) {
+						$metric_labels{$metric_label}++;
+						if ( defined $iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j]{$metric_label} ) {
+							if ( $metric_label ne get_label('closest_sample_label') ) {
+								# convert numbers to standard format
+								$iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j]{$metric_label} = sprintf("%.4f", $iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j]{$metric_label});
+							}
+							$iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j]{$metric_label} = sprintf("%s", $iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j]{$metric_label});
+							$length = get_length($iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j]{$metric_label}) + $padding;
+							
+							# Note that for spacing, index 0 is reserved for the header spacing [that spans across all metric elements of this type], and so spacing for metric elements start with index "1"
+							if ( ! defined $spacing{$metric_type}{$metric_name}[$j+1]{$metric_label} || $length > $spacing{$metric_type}{$metric_name}[$j+1]{$metric_label} ) {
+								$spacing{$metric_type}{$metric_name}[$j+1]{$metric_label} = $length;
+							}
+						}
+						# check to see if the name length of the label itself is longer than the longest label-value
+						$length = get_length($metric_label) + $padding;
+						if ( ! defined $spacing{$metric_type}{$metric_name}[$j+1]{$metric_label} || $spacing{$metric_type}{$metric_name}[$j+1]{$metric_label} < $length) {
+							$spacing{$metric_type}{$metric_name}[$j+1]{$metric_label} = $length;
+						}
+						# this_metric_type_name specing is calculated by summing metric label lengths
+						$spacing{$metric_type}{$metric_name}[$j+1]{'header'} += $spacing{$metric_type}{$metric_name}[$j+1]{$metric_label};
+					}
+				
+				} # loop $metric_label = mean, stddevpct, closest_sample
+				$spacing{$metric_type}{$metric_name}[$j+1]{'uid'} = get_length(get_uid($iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j]{'uid'}, \%{ $iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j] }));
+			} # $j = elements of a metric_type (Gb_sec[0..N]
+		}
+		if ( ! defined $spacing{$metric_type}{'header'} || $spacing{$metric_type}{'header'} < $this_metric_type_spacing{$metric_type}) {
+			$spacing{$metric_type}{'header'} = $this_metric_type_spacing{$metric_type};
+		}
+	} # loop $metric_type = parameters, throughput, resource, efficiency, latency
+} # loop $ over @iterations;
+
+# get the header spacing for all metric_name elements
+foreach $metric_type (sort keys %spacing) {
+	if ( grep(/^$metric_type$/, @all_metric_types) ) {
+		foreach $metric_name (sort keys %{ $spacing{$metric_type} } ) {
+			if ( $metric_name eq 'header' ) {
+				next;
+			}
+			for ($i = 1; $i < scalar @{$spacing{$metric_type}{$metric_name}}; $i++) {
+				$spacing{$metric_type}{$metric_name}[$i]{'header'} = 0;
+				# find the sum of the metric_label lengths
+				foreach $metric_label ( sort keys %{ $spacing{$metric_type}{$metric_name}[$i] } ) { #mean, stddevpct, closest_sample
+					if ( grep(/^$metric_label$/, @all_metric_labels) ) {
+						$spacing{$metric_type}{$metric_name}[$i]{'header'} += $spacing{$metric_type}{$metric_name}[$i]{$metric_label};
+					}
+				}
+				# each metric_name element has a unique UID
+				# check to see if the name length of the metric UID is longer than the current metric spacing
+				if ( $spacing{$metric_type}{$metric_name}[$i]{'header'} < $spacing{$metric_type}{$metric_name}[$i]{'uid'} ) {
+					$spacing{$metric_type}{$metric_name}[$i]{'header'} = $spacing{$metric_type}{$metric_name}[$i]{'uid'};
+				}
+				$spacing{$metric_type}{$metric_name}[$i]{'header'} += $padding;
+			}
+		}
+	}
+}
+# get the metric_name header spacing
+foreach $metric_type (sort keys %spacing) {
+	if ( grep(/^$metric_type$/, @all_metric_types) ) {
+		foreach $metric_name (sort keys %{ $spacing{$metric_type} } ) {
+			if ( $metric_name eq 'header' ) {
+				next;
+			}
+			$spacing{$metric_type}{$metric_name}[0]{'header'} = 0;
+			for ($i = 1; $i < scalar @{$spacing{$metric_type}{$metric_name}}; $i++) {
+				$spacing{$metric_type}{$metric_name}[0]{'header'} += $spacing{$metric_type}{$metric_name}[$i]{'header'};
+			}
+			# check to see if the name length of the metric name itself is longer than the current metric spacing
+			$length = scalar split("", $metric_name);
+			if ( $spacing{$metric_type}{$metric_name}[0]{'header'} < $length) {
+				$spacing{$metric_type}{$metric_name}[0]{'header'} = $length;
+			}
+			# finally, add the padding
+			$spacing{$metric_type}{$metric_name}[0]{'header'} += $padding;
+		}
+	}
+}
+# get the metric_type header spacing
+foreach $metric_type (sort keys %spacing) {
+	if ( grep(/^$metric_type$/, @all_metric_types) ) {
+		$spacing{$metric_type}{'header'} = 0;
+		foreach $metric_name (sort keys %{ $spacing{$metric_type} } ) {
+			if ( $metric_name eq 'header' ) {
+				next;
+			}
+			$spacing{$metric_type}{'header'} += $spacing{$metric_type}{$metric_name}[0]{'header'}
+		}
+		# check to see if the name length of the metric type itself is longer than the metric type values
+		$length = scalar split("", $metric_type) + $padding;
+		if ( $spacing{$metric_type}{'header'} < $length) {
+			$spacing{$metric_type}{'header'} = $length;
+		}
+		$spacing{$metric_type}{'header'} += $padding;
+	}
+}
+
+# generate all of the summary files
+my $txt_file = $benchmark_run_dir . "/result.txt";
+my $csv_file = $benchmark_run_dir . "/result.csv";
+my $html_file = $benchmark_run_dir . "/result.html";
+open(TXT, ">$txt_file") || die "$script: could not open file $txt_file: $!\n";
+open(CSV, ">$csv_file") || die "$script: could not open file $csv_file: $!\n";
+open(HTML, ">$html_file") || die "$script: could not open file $html_file: $!\n";
+print HTML "<!DOCTYPE html>\n<html>\n<head>\n<title>HTML Tables</title>\n</head>\n<body>\n\n<table cellpadding=\"6\" border=\"1\" style=\"border: 1pt solid #000000; border-Collapse: collapse\">\n";
+
+$iteration_name = $iterations_by_num{$first_iteration_num};
+
+# print the headers for metric types (Throuhgput, Resource, Efficiency)
+printf TXT "%$spacing{iter_num}s%$spacing{iter_name}s", "", "";
+printf HTML "<tr><td>%s</td><td>%s</td>", "", "";
+foreach $metric_type (reverse sort keys %spacing) {
+	if ( grep(/^$metric_type$/, @all_metric_types) ) {
+		#my $colspan = scalar (keys %{ $spacing{$metric_type} }) - 1; 
+		my $colspan = 0; 
+		foreach $metric_name (sort keys %{ $spacing{$metric_type} } ) {
+			if ( $metric_name eq 'header' ) {
+				next;
+			}
+			$colspan += (scalar @{ $spacing{$metric_type}{$metric_name} } - 1);
+		}
+		$colspan *= scalar @all_metric_labels;
+		$length = scalar split("", $metric_type);
+		if ( $length + $padding > $spacing{$metric_type}{header} ) {
+			printf "warning: length of metric_type [$metric_type] (%d) is longer than spacing for $metric_type header (%s)\n", $length, $spacing{$metric_type}{header};
+		}
+		printf TXT "%$spacing{$metric_type}{header}s|", $metric_type;
+		printf HTML "<th colspan=$colspan><div align=\"center\">%s</div></th>", "$metric_type";
+	}
+}
+printf TXT "\n";
+printf HTML "</tr>\n";
+
+# print the headers for individual metrics in each metric type (aggregate_Gb_sec)
+# [TXT, HTML] first some spacing for interation num and name columns
+printf TXT "%$spacing{iter_num}s%$spacing{iter_name}s", "", "";
+printf HTML "<tr><td>%s</td><td>%s</td>", "", "";
+# [CSV] first two headers for interation num & name
+#printf CSV "%s,%s,", "iteration-number", "iteration-name";
+# then print the headers for individual metrics
+foreach $metric_type (reverse sort keys %spacing) {
+	if ( grep(/^$metric_type$/, @all_metric_types) ) {
+		my $metric_section;
+		foreach $metric_name (sort keys %{ $spacing{$metric_type} } ) {
+			if ( $metric_name eq 'header' ) {
+				next;
+			}
+			my $colspan = (scalar @{ $spacing{$metric_type}{$metric_name} } - 1) * scalar @all_metric_labels;
+			$metric_section = $metric_section . sprintf "%$spacing{$metric_type}{$metric_name}[0]{header}s", $metric_name;
+			printf HTML "<td colspan=$colspan><div align=\"center\">%s</div></td>", $metric_name;
+		}
+		$length = scalar split("", $metric_section);
+		if ( $length + $padding > $spacing{$metric_type}{header} ) {
+			printf "warning: length of metric_section [$metric_section] (%d) is longer than spacing for [$metric_type] header (%s)\n", $length, $spacing{$metric_type}{header};
+		}
+		printf TXT "%$spacing{$metric_type}{header}s|", $metric_section;
+	}
+}
+printf TXT "\n";
+printf HTML "<tr>\n";
+
+# print the uid of the array members of metric_names
+printf TXT "%$spacing{iter_num}s%$spacing{iter_name}s", "", "";
+printf HTML "<tr><td>%s</td><td>%s</td>", "", "";
+printf CSV "%s,%s", "iteration_number", "iteration_name";
+my $colspan = scalar @all_metric_labels;
+foreach $metric_type (reverse sort keys %spacing) {
+	if ( grep(/^$metric_type$/, @all_metric_types) ) {
+		my $metric_section;
+		foreach $metric_name (sort keys %{ $spacing{$metric_type} } ) {
+			if ( $metric_name eq 'header' ) {
+				next;
+			}
+			my $i;
+			for ($i = 1; $i < scalar @{ $spacing{$metric_type}{$metric_name} }; $i++) {
+				my $mapped_uid;
+				# find out which iteration has a uid under $metric_type and $metric_name
+				my $found_iteration;
+				my $found_element;
+				my $j;
+				my $num_iterations = scalar @iterations;
+				$mapped_uid = "[missing-uid]";
+				for ($j = 0; $j < $num_iterations; $j++) {
+					if ( $iterations[$j]{$iteration_data_field}{$metric_type}{$metric_name}[$i-1]{'uid'} ) {
+						$mapped_uid = get_uid($iterations[$j]{$iteration_data_field}{$metric_type}{$metric_name}[$i-1]{'uid'}, \%{ $iterations[$j]{$iteration_data_field}{$metric_type}{$metric_name}[$i-1] });
+						last;
+					}
+				}
+				$length = get_length($mapped_uid);
+				if ( $length > $spacing{$metric_type}{$metric_name}[$i]{header} ) {
+					printf "iteration: %d metric_name_index: %d warning: length of mapped_uid_section [%s] (%d) is longer than spacing for metric_name [%s] header (%s)\n", $j, $i, $mapped_uid, $length, $metric_name, $spacing{$metric_type}{$metric_name}[$i]{'header'};
+				}
+				printf HTML "<td colspan=$colspan><div align=\"center\">%s</div></td>", $mapped_uid;
+				printf CSV ",%s", $metric_name . ":" . $mapped_uid;
+				$metric_section = $metric_section . sprintf "%$spacing{$metric_type}{$metric_name}[$i]{'header'}s", $mapped_uid;
+			}
+		}
+		$length = get_length($metric_section);
+		if ( $length + $padding > $spacing{$metric_type}{'header'} ) {
+			printf "warning: length of metric_uid_section [$metric_section] (%d) is longer than spacing for metric_type [$metric_type] header (%s)\n", $length, $spacing{$metric_type}{'header'};
+		}
+		printf TXT "%$spacing{$metric_type}{'header'}s|", $metric_section;
+	}
+}
+printf TXT "\n";
+printf CSV "\n";
+	
+# print a horizontal separator 
+printf TXT "%$spacing{iter_num}s%$spacing{iter_name}s", "", "";
+#printf HTML "%$spacing{iter_num}s%$spacing{iter_name}s", "", "";
+foreach $metric_type (reverse sort keys %spacing) {
+	if ( grep(/^$metric_type$/, @all_metric_types) ) {
+		my $metric_section = "";
+		foreach $metric_name (sort keys %{ $spacing{$metric_type} } ) {
+			if ( $metric_name eq 'header' ) {
+				next;
+			}
+			my $i;
+			for ($i = 1; $i < scalar @{ $spacing{$metric_type}{$metric_name} }; $i++) {
+				my $metric_underline = "";
+				my $j;
+				for ($j = 0; $j < ($spacing{$metric_type}{$metric_name}[$i]{header} - $padding); $j++) {
+					$metric_underline = $metric_underline . sprintf "%s", "-";
+				}
+				$metric_section = $metric_section . sprintf("%$spacing{$metric_type}{$metric_name}[$i]{header}s", $metric_underline);
+			}
+		}
+		$length = scalar split("", $metric_section);
+		if ( $length + $padding > $spacing{$metric_type}{header} ) {
+			printf "warning: length of $metric_section (%d) is longer than spacing for $metric_type header (%s)\n", $length, $spacing{$metric_type}{header};
+		}
+		printf TXT "%$spacing{$metric_type}{header}s+", $metric_section;
+	}
+}
+printf TXT "\n";
+#printf HTML "\n";
+
+# print the headers for the metric-labels (mean, stddevpct, closest_sample)
+$iteration_name = $iterations_by_num{$first_iteration_num};
+printf TXT "%$spacing{iter_num}s%$spacing{iter_name}s", "", "";
+printf HTML "<tr><td>%s</td><td>%s</td>", "", "";
+foreach $metric_type (reverse sort keys %spacing) {
+	if ( grep(/^$metric_type$/, @all_metric_types) ) {
+		my $metric_section = "";
+		foreach $metric_name (sort keys %{ $spacing{$metric_type} } ) {
+			if ( $metric_name eq 'header' ) {
+				next;
+			}
+			my $i;
+			for ($i = 1; $i < scalar @{ $spacing{$metric_type}{$metric_name} }; $i++) {
+				my $label_section = "";
+				foreach $metric_label ( @all_metric_labels ) {
+					$label_section = $label_section . sprintf "%$spacing{$metric_type}{$metric_name}[$i]{$metric_label}s", "$metric_label";
+					printf HTML "<td>%s</td>", $metric_label;
+				}
+				$length = scalar split("", $label_section);
+				if ( $length + $padding > $spacing{$metric_type}{$metric_name}[0]{header} ) {
+					printf "warning: length of label_section [%s] (%d) is longer than spacing for metric_name [%s] header (%s)\n", $label_section, $length, $metric_name, $spacing{$metric_type}{$metric_name}[0]{header};
+				}
+				$metric_section = $metric_section . sprintf "%$spacing{$metric_type}{$metric_name}[$i]{header}s", $label_section;
+			}
+		}
+		$length = scalar split("", $metric_section);
+		if ( $length + $padding > $spacing{$metric_type}{header} ) {
+			printf "warning: length of metric_section [$metric_section] (%d) is longer than spacing for metric_type [$metric_type] header (%s)\n", $length, $spacing{$metric_type}{header};
+		}
+		printf TXT "%$spacing{$metric_type}{header}s|", $metric_section;
+	}
+}
+printf TXT "\n";
+printf HTML "</tr>\n";
+
+# for all iterations, print the *values* for the metric labels (mean, stddevpct, closest_sample)
+for ($i = 0; $i < scalar @iterations; $i++) {
+	#print Dumper \%{ $iterations[$i]};
+	$iteration_name = $iterations[$i]{$iteration_name_field};
+	my $cell_bgcolor;
+	$iteration_num = $iterations[$i]{$iteration_number_field};
+	printf TXT "%$spacing{iter_num}s%$spacing{iter_name}s", $iteration_num, $iteration_name;
+	printf CSV "%s,%s,", $iteration_num, $iteration_name;
+	my $href_spacing = $spacing{iter_name} - (scalar split("", $iteration_name));
+	printf HTML "<tr><td>%s</td><td nowrap><tt>%s</tt></td>", $iteration_num, "<a href=./$iteration_num-$iteration_name>$iteration_name</a>";
+	foreach $metric_type (reverse sort keys %spacing) {
+		if ( grep(/^$metric_type$/, @all_metric_types) ) {
+			my $metric_section;
+			my $csv_metric_section = "";
+			foreach $metric_name (sort keys %{ $spacing{$metric_type} } ) {
+				if ( $metric_name eq 'header' ) {
+					next;
+				}
+				my $j;
+				for ($j = 1; $j < scalar @{ $spacing{$metric_type}{$metric_name} }; $j++) {
+					my $label_section = "";
+					my $csv_label_section = "";
+					foreach $metric_label ( @all_metric_labels ) {
+						if ( grep(/^$metric_label$/, @all_metric_labels) ) {
+							if ( defined ($iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j-1]{$metric_label}) ) {
+								my $metric_label_string;
+								$metric_label_string = sprintf "%$spacing{$metric_type}{$metric_name}[$j]{$metric_label}s", $iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j-1]{$metric_label};
+								if ( $metric_label eq get_label('closest_sample_label') ) { # embed a link to the closest sample
+									printf HTML "<td><div align=\"right\"><a href=\"./$iteration_num-$iteration_name/sample$iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j-1]{$metric_label}\">$metric_label_string</a></dev></td>";
+								} elsif ($metric_type and
+									 $metric_type eq 'throughput' and
+									 $metric_label eq get_label('stddevpct_label') and
+									 $iterations[$i]{'iteration_data'}{metric_type}{metric_name}[$j-1]{get_label('role_label')} and
+									 $iterations[$i]{'iteration_data'}{metric_type}{metric_name}[$j-1]{get_label('role_label')} eq 'aggregate' and
+									 $iterations[$i]{'iteration_data'}{'parameters'}{'benchmark'}[0]{get_label('primary_metric_label')} and
+									 $iterations[$i]{'iteration_data'}{'parameters'}{'benchmark'}[0]{get_label('primary_metric_label')} eq $metric_name and
+									 $iterations[$i]{'iteration_data'}{'parameters'}{'benchmark'}[0]{get_label('max_stddevpct_label')} <= $iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j-1]{$metric_label}) {
+									printf HTML "<td bgcolor=#FFAAAA><div align=\"right\"><tt><b>$metric_label_string</b></tt></dev></td>";
+								} else {
+									printf HTML "<td><div align=\"right\"><tt><b>$metric_label_string</b></tt></dev></td>";
+								}
+								$length = scalar split("", $metric_label_string);
+								if ( $length > $spacing{$metric_type}{$metric_name}[$j]{$metric_label} ) {
+									printf "warning: length of [%s] (%d) is longer than spacing for [%s] header (%s)\n", $metric_label_string, $length + $padding, $metric_label, $spacing{$metric_type}{$metric_name}[$j]{$metric_label};
+								}
+								$label_section = $label_section . sprintf "%$spacing{$metric_type}{$metric_name}[$j]{$metric_label}s", "$metric_label_string";
+								if ( $metric_label eq get_label('mean_label') ) {
+									$csv_label_section = sprintf "%s,", "$metric_label_string";
+								}
+							} else {
+								printf HTML "<td></td>";
+								$label_section = $label_section . sprintf "%$spacing{$metric_type}{$metric_name}[$j]{$metric_label}s", "";
+								if ( $metric_label eq get_label('mean_label') ) {
+									$csv_label_section = $csv_label_section = sprintf "%s,", "";
+								}
+							}
+						}
+					}
+					$length = scalar split("", $label_section);
+					if ( $length + $padding > $spacing{$metric_type}{$metric_name}[0]{header} ) {
+						printf "warning: length of [%s] (%d) is longer than spacing for [%s] header (%s)\n", $label_section, $length, $metric_name, $spacing{$metric_type}{$metric_name}[0]{header};
+					}
+					$metric_section = $metric_section . sprintf "%$spacing{$metric_type}{$metric_name}[$j]{header}s", $label_section;
+					$csv_metric_section = $csv_metric_section . sprintf "%s", $csv_label_section;
+				}
+			}
+			$length = scalar split("", $metric_section);
+			if ( $length + $padding > $spacing{$metric_type}{'header'} ) {
+				printf "warning: length of $metric_section (%d) is longer than spacing for $metric_type header (%s)\n", $length, $spacing{$metric_type}{'header'};
+			}
+			printf TXT "%$spacing{$metric_type}{'header'}s|", $metric_section;
+			printf CSV "%s", $csv_metric_section;
+		}
+	}
+	printf TXT "\n";
+	printf CSV "\n";
+	printf HTML "</tr>\n";
+}
+printf TXT "\n";
+printf CSV "\n";
+printf HTML "\n</table>\n\n</body>\n</html>\n";
+close(TXT);
+close(CSV);
+close(HTML);

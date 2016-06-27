@@ -61,8 +61,36 @@ function remove_sample_data {
     done
 }
 
+function testprocessiterationsamples {
+    echo "Testing bench-scripts/postprocess/process-iteration-samples under sample $1 ..."
 
-# Test uperf benchmark post-processing
+    mkdir /tmp/GenData/$1
+    cp -r samples/$1/* /tmp/GenData/$1
+
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
+        ../../bench-scripts/postprocess/process-iteration-samples /tmp/GenData/$1 `cat /tmp/GenData/$1/process-iteration-samples-args` > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+
+    remove_sample_data $1
+
+    diff -cr gold/$1/ /tmp/GenData/$1
+    return $?
+}
+
+function testgeneratebenchmarksummary {
+    echo "Testing bench-scripts/postprocess/generate-benchmark-summary under sample $1 ..."
+
+    mkdir /tmp/GenData/$1
+    cp -r samples/$1/* /tmp/GenData/$1
+
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
+        ../../bench-scripts/postprocess/generate-benchmark-summary $1 unused-orig-cmd /tmp/GenData/$1 > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+
+    remove_sample_data $1
+
+    diff -qr gold/$1/ /tmp/GenData/$1
+    return $?
+}
+
 function testuperf {
     echo "Testing bench-scripts/postprocess/uperf-postprocess under sample $1 ..."
 
@@ -70,8 +98,10 @@ function testuperf {
     cp -r samples/$1/* /tmp/GenData/$1
 
     _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
-        ../../bench-scripts/postprocess/uperf-postprocess /tmp/GenData/$1 1-tcp_rr-64B-1i uperf- default > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+        ../../bench-scripts/postprocess/uperf-postprocess /tmp/GenData/$1 `cat /tmp/GenData/$1/uperf-postprocess-args` > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
 
+    /usr/bin/perl -e 'use JSON; print $INC{"JSON.pm"} . "\n"; print $JSON::VERSION . "\n"'
+    ./perl-JSON-version
     remove_sample_data $1
 
     diff -cr gold/$1/ /tmp/GenData/$1
@@ -89,7 +119,6 @@ function testpcp {
     return $?
 }
 
-# Test fio benchmark post-processing
 function testfio {
     echo "Testing bench-scripts/postprocess/fio-postprocess under sample $1 ..."
 
@@ -123,6 +152,7 @@ function testcmpr {
 }
 
 res=0
+
 for i in $(ls -1 samples/) ; do
     if [[ ! -z "$testname" ]]; then
         if [[ "$testname" != "$i" ]]; then
@@ -146,6 +176,14 @@ for i in $(ls -1 samples/) ; do
             testcmpr $i
             sts=$?
             ;;
+	process-iteration-samples-*)
+	    testprocessiterationsamples $i
+	    sts=$?
+	    ;;
+	generate-benchmark-summary-*)
+	    testgeneratebenchmarksummary $i
+	    sts=$?
+	    ;;
         *)
             testit $i ${i%-[0-9]}
             sts=$?

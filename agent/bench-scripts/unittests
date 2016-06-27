@@ -22,6 +22,9 @@ _testopt=$_testroot/opt/pbench-agent
 res=0
 mkdir -p $_testopt/bench-scripts/postprocess
 let res=res+$?
+export moongen_dir=$_testroot/MoonGen
+mkdir -p $moongen_dir/build
+let res=res+$?
 cp $_tdir/../base $_testopt/
 let res=res+$?
 for script in $_tdir/pbench-* ; do
@@ -37,6 +40,14 @@ let res=res+$?
 mv $_testopt/unittest-scripts/mock-uperf-postprocess $_testopt/bench-scripts/postprocess/uperf-postprocess
 let res=res+$?
 mv $_testopt/unittest-scripts/mock-dbench-postprocess $_testopt/bench-scripts/postprocess/dbench-postprocess
+let res=res+$?
+mv $_testopt/unittest-scripts/mock-moongen-postprocess $_testopt/bench-scripts/postprocess/moongen-postprocess
+let res=res+$?
+mv $_testopt/unittest-scripts/mock-generate-benchmark-summary $_testopt/bench-scripts/postprocess/generate-benchmark-summary
+let res=res+$?
+mv $_testopt/unittest-scripts/mock-process-iteration-samples $_testopt/bench-scripts/postprocess/process-iteration-samples
+let res=res+$?
+mv $_testopt/unittest-scripts/mock-MoonGen $moongen_dir/build/MoonGen
 let res=res+$?
 if [[ $res -ne 0 ]]; then
     echo "ERROR: failed to construct unittest execution directory hierarchy" \
@@ -151,6 +162,19 @@ res=$?
 _save_tree
 _dump_logs
 _verify_output $res test-00 pbench-dbench
+res=$?
+let errs=$errs+$res
+_reset_state
+
+#
+# 4. Verify moongen
+#
+_setup_state
+_run test-00 pbench-moongen --test-type=throughput --samples=3 --search-runtime=10 --validation-runtime=10 --max-drop-pct=0,1 --frame-sizes=64,1024
+res=$?
+_save_tree
+_dump_logs
+_verify_output $res test-00 pbench-moongen
 res=$?
 let errs=$errs+$res
 _reset_state

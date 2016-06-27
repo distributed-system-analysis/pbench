@@ -1,0 +1,111 @@
+Starting 1 threads running profile:tcp-rr-64b-1i ...   0.00 seconds
+timestamp_ms:1459955122641.3384 name:Txn1 nr_bytes:0 nr_ops:0
+timestamp_ms:1459955123642.3594 name:Txn1 nr_bytes:0 nr_ops:1
+
+timestamp_ms:1459955123642.3875 name:Txn2 nr_bytes:0 nr_ops:0
+timestamp_ms:1459955124643.4026 name:Txn2 nr_bytes:1374272 nr_ops:21473
+timestamp_ms:1459955125644.4233 name:Txn2 nr_bytes:2748352 nr_ops:42943
+timestamp_ms:1459955126645.4446 name:Txn2 nr_bytes:4123584 nr_ops:64431
+timestamp_ms:1459955127646.4663 name:Txn2 nr_bytes:5499840 nr_ops:85935
+timestamp_ms:1459955128647.4880 name:Txn2 nr_bytes:6877120 nr_ops:107455
+timestamp_ms:1459955129648.5098 name:Txn2 nr_bytes:8252480 nr_ops:128945
+timestamp_ms:1459955130649.5315 name:Txn2 nr_bytes:9626688 nr_ops:150417
+timestamp_ms:1459955131650.5532 name:Txn2 nr_bytes:11001152 nr_ops:171893
+timestamp_ms:1459955132651.5762 name:Txn2 nr_bytes:12377792 nr_ops:193403
+timestamp_ms:1459955133652.5977 name:Txn2 nr_bytes:13752000 nr_ops:214875
+timestamp_ms:1459955134653.6196 name:Txn2 nr_bytes:15127488 nr_ops:236367
+timestamp_ms:1459955135654.6418 name:Txn2 nr_bytes:16502464 nr_ops:257851
+timestamp_ms:1459955136655.6648 name:Txn2 nr_bytes:17876032 nr_ops:279313
+timestamp_ms:1459955137656.6873 name:Txn2 nr_bytes:19249728 nr_ops:300777
+timestamp_ms:1459955138657.7100 name:Txn2 nr_bytes:20624448 nr_ops:322257
+timestamp_ms:1459955139658.7327 name:Txn2 nr_bytes:21999936 nr_ops:343749
+timestamp_ms:1459955140659.7554 name:Txn2 nr_bytes:23375680 nr_ops:365245
+timestamp_ms:1459955141660.7781 name:Txn2 nr_bytes:24752064 nr_ops:386751
+timestamp_ms:1459955142661.8018 name:Txn2 nr_bytes:26128448 nr_ops:408257
+timestamp_ms:1459955143662.8250 name:Txn2 nr_bytes:27504704 nr_ops:429761
+timestamp_ms:1459955144663.8552 name:Txn2 nr_bytes:28880704 nr_ops:451261
+timestamp_ms:1459955145664.8848 name:Txn2 nr_bytes:30257088 nr_ops:472767
+timestamp_ms:1459955146665.9089 name:Txn2 nr_bytes:31633472 nr_ops:494273
+timestamp_ms:1459955147666.9443 name:Txn2 nr_bytes:33009472 nr_ops:515773
+timestamp_ms:1459955148667.9736 name:Txn2 nr_bytes:34383424 nr_ops:537241
+timestamp_ms:1459955149669.0029 name:Txn2 nr_bytes:35759936 nr_ops:558749
+timestamp_ms:1459955150670.0374 name:Txn2 nr_bytes:37135808 nr_ops:580247
+timestamp_ms:1459955151671.0667 name:Txn2 nr_bytes:38512960 nr_ops:601765
+timestamp_ms:1459955152672.0918 name:Txn2 nr_bytes:39891520 nr_ops:623305
+timestamp_ms:1459955153673.1167 name:Txn2 nr_bytes:41269568 nr_ops:644837
+timestamp_ms:1459955154674.1465 name:Txn2 nr_bytes:42646464 nr_ops:666351
+timestamp_ms:1459955155675.1765 name:Txn2 nr_bytes:44021824 nr_ops:687841
+timestamp_ms:1459955156676.2021 name:Txn2 nr_bytes:45397952 nr_ops:709343
+timestamp_ms:1459955157677.2285 name:Txn2 nr_bytes:46774976 nr_ops:730859
+timestamp_ms:1459955158678.2534 name:Txn2 nr_bytes:48151744 nr_ops:752371
+timestamp_ms:1459955159679.2834 name:Txn2 nr_bytes:49526272 nr_ops:773848
+timestamp_ms:1459955160680.3140 name:Txn2 nr_bytes:50902080 nr_ops:795345
+timestamp_ms:1459955161681.3394 name:Txn2 nr_bytes:52277184 nr_ops:816831
+timestamp_ms:1459955162682.3655 name:Txn2 nr_bytes:53651648 nr_ops:838307
+timestamp_ms:1459955163683.3909 name:Txn2 nr_bytes:55026496 nr_ops:859789
+timestamp_ms:1459955164684.4207 name:Txn2 nr_bytes:56403008 nr_ops:881297
+timestamp_ms:1459955165685.4463 name:Txn2 nr_bytes:57779136 nr_ops:902799
+timestamp_ms:1459955166686.4719 name:Txn2 nr_bytes:59154880 nr_ops:924295
+timestamp_ms:1459955167687.4983 name:Txn2 nr_bytes:60531776 nr_ops:945809
+timestamp_ms:1459955168688.5293 name:Txn2 nr_bytes:61908288 nr_ops:967317
+timestamp_ms:1459955169689.5601 name:Txn2 nr_bytes:63284160 nr_ops:988815
+timestamp_ms:1459955170690.5862 name:Txn2 nr_bytes:64659136 nr_ops:1010299
+timestamp_ms:1459955171691.6118 name:Txn2 nr_bytes:66032576 nr_ops:1031759
+timestamp_ms:1459955172692.6382 name:Txn2 nr_bytes:67407680 nr_ops:1053245
+timestamp_ms:1459955173693.6648 name:Txn2 nr_bytes:68782784 nr_ops:1074731
+timestamp_ms:1459955174694.6912 name:Txn2 nr_bytes:70156480 nr_ops:1096195
+timestamp_ms:1459955175695.7173 name:Txn2 nr_bytes:71531456 nr_ops:1117679
+timestamp_ms:1459955176696.7493 name:Txn2 nr_bytes:72906688 nr_ops:1139167
+timestamp_ms:1459955177697.7759 name:Txn2 nr_bytes:74281664 nr_ops:1160651
+timestamp_ms:1459955178698.8030 name:Txn2 nr_bytes:75673408 nr_ops:1182397
+timestamp_ms:1459955179699.8293 name:Txn2 nr_bytes:77128000 nr_ops:1205125
+timestamp_ms:1459955180700.8552 name:Txn2 nr_bytes:78582208 nr_ops:1227847
+timestamp_ms:1459955181700.9482 name:Txn2 nr_bytes:80031808 nr_ops:1250497
+timestamp_ms:1459955182701.9763 name:Txn2 nr_bytes:81463104 nr_ops:1272861
+timestamp_ms:1459955183903.0339 name:Txn2 nr_bytes:82840768 nr_ops:1294387
+
+timestamp_ms:1459955183903.1030 name:Txn3 nr_bytes:0 nr_ops:0
+timestamp_ms:1459955183903.1074 name:Txn3 nr_bytes:0 nr_ops:0
+
+-------------------------------------------------------------------------------
+timestamp_ms:1459955184003.2366 name:Total nr_bytes:82840768 nr_ops:1294388
+Group Details
+-------------------------------------------------------------------------------
+timestamp_ms:1459955183903.1353 name:Group0 nr_bytes:0 nr_ops:1
+
+
+Strand Details
+-------------------------------------------------------------------------------
+timestamp_ms:1459955183903.1355 name:Thr0 nr_bytes:82840768 nr_ops:1294390
+
+
+Txn                Count         avg         cpu         max         min 
+-------------------------------------------------------------------------------
+Txn0                   1     16.19ms      0.00ns     16.19ms     16.19ms 
+Txn1              647194     92.74us      0.00ns      2.98ms     71.57us 
+Txn2                   1     24.75us      0.00ns     24.75us     24.75us 
+
+
+Flowop             Count         avg         cpu         max         min 
+-------------------------------------------------------------------------------
+connect                1     16.19ms      0.00ns     16.19ms     16.19ms 
+write             647194      1.70us      0.00ns     49.80us      1.02us 
+read              647193     90.93us      0.00ns      2.98ms     46.92us 
+disconnect             1     24.34us      0.00ns     24.34us     24.34us 
+
+
+Netstat statistics for this run
+-------------------------------------------------------------------------------
+Nic       opkts/s     ipkts/s      obits/s      ibits/s
+em1         20199       20206    21.65Mb/s    21.66Mb/s 
+-------------------------------------------------------------------------------
+
+Run Statistics
+Hostname            Time       Data   Throughput   Operations      Errors
+-------------------------------------------------------------------------------
+perf104           62.36s    79.00MB    10.63Mb/s      1294389        0.00
+master            62.36s    79.00MB    10.63Mb/s      1294390        0.00
+-------------------------------------------------------------------------------
+Difference(%)     -0.00%      0.00%        0.00%        0.00%       0.00%
+
+

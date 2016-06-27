@@ -44,8 +44,8 @@ function _run_index {
     echo "+++ Running indexing on $dname" >> $_testout
     PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_tlib}/config/pbench-index.cfg.example $dname.tar.xz >> $_testout 2>&1
     echo "--- Finished indexing on $dname (status=$?)" >> $_testout
-    _serverdir=$(dirname $(dirname $_tdir))
-    sed -i '/File "\/home\//s;'$_serverdir';/home/user/repo/pbench/server;' $_testout
+    _gitdir=$(dirname $(dirname $(dirname $_tdir)))
+    sed -i '/File "'$(echo ${_gitdir} | sed 's;/;\\/;g')'/s;'${_gitdir}'/server/;/home/user/repo/pbench/server/;' $_testout
 }
 
 function _run_activate {
@@ -229,10 +229,7 @@ _reset_state
 # indexing unit tests
 PATH=/usr/local/bin:$PATH
 
-# leave out tests 7.6 and 7.7 for now: they fail spuriously
-# I'll revisit them after the release.
-# for i in {1..7} ;do
-for i in {1..5} ;do
+for i in {1..7} ;do
     _setup_state test-7.$i
     _run_index $_testroot/test-7.$i
     _save_tree; _dump_logs

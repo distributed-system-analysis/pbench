@@ -1,8 +1,7 @@
-CPU_usage-CPU_uperf-client:perf86=0.509369
-CPU_usage-CPU_uperf-server:perf88=0.465761
-Efficiency-transactions_sec/CPU_uperf-client:perf86=34563.983356
-Efficiency-transactions_sec/CPU_uperf-server:perf88=37864.158577
-Latency-latency_usec=57.591601
-Per_Server_Latency-172.168.10.88-latency_us=57.825040
-Per_Server_Throughput-172.168.10.88-trans_sec=17379.910589
-Throughput-transactions_sec=17378.335215
+Gb_sec-client_hostname:all-server_hostname:all-server_port:all-server_port:all=0.941541
+Gb_sec-client_hostname:perf102-server_hostname:perf104-server_port:21000=0.493183
+Gb_sec-client_hostname:perf102-server_hostname:perf104-server_port:22000=0.448558
+Gb_sec_per_cpu_busy-client_hostname:perf102-server_hostname:perf104-server_port:21000/hostname:perf102=4.994355
+Gb_sec_per_cpu_busy-client_hostname:perf102-server_hostname:perf104-server_port:22000/hostname:perf102=4.541450
+cpu_busy-hostname:perf102=0.105922
+cpu_busy-hostname:perf104=2.150296

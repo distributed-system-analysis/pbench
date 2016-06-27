@@ -1,18 +1,3 @@
-file.list
-# pbench-[0-9]*.*
 doc/*.html
-*/__pycache__
-configtools/src/__pycache__
-configtools/bin/getconf.3.py
-configtools/bin/getconf.py
-configtools/bin/gethosts.3.py
-configtools/bin/gethosts.py
-configtools/build
-.build
-.rpm-copy
-.spec-copy
-mock-build.log
-rpm.conf
+__pycache__
 *.swp
-rpm/benchmarks/dbench/dbench
-rpm/benchmarks/smallfile/smallfile
