@@ -74,6 +74,7 @@ while true; do
 	esac
 done
 
+iteration_num=`echo $iteration | awk -F- '{print $1}'`
 # this tool group's directory which stores options, etc.
 if [ -d "$pbench_run/tools-$group" ]; then
 	tool_group_dir="$pbench_run/tools-$group"
@@ -137,17 +138,19 @@ for this_tool_file in `/bin/ls $tool_group_dir`; do
 			((i++))
 		done < "$tool_group_dir/$this_tool_file"
 		name="$this_tool_file"
-		debug_log "$pbench_bin/tool-scripts/$name --$action --iteration=$iteration --group=$group --dir=$dir ${tool_opts[@]}"
+		screen_name="pbench-tool-$name-$group-$iteration_num"
+		debug_log "[$script_name] $pbench_bin/tool-scripts/$name --$action --iteration=$iteration --group=$group --dir=$dir ${tool_opts[@]}"
 		if [ "$action" == "start" ]; then 
 			# using screen to avoid tty issues and guarantee tool is backgrounded
-			screen -dmS "pbench-tool-$name-$group-$iteration" $pbench_bin/tool-scripts/$name --$action --iteration=$iteration --group=$group --dir=$dir "${tool_opts[@]}"
+			debug_log "[$script_name] screen -dmS $screen_name $pbench_bin/tool-scripts/$name --$action --iteration=$iteration --group=$group --dir=$dir ${tool_opts[@]}"
+			screen -dmS $screen_name $pbench_bin/tool-scripts/$name --$action --iteration=$iteration --group=$group --dir=$dir "${tool_opts[@]}"
 			rc=$?
 			if [ $rc -ne 0 ]; then
-				error_log "screen command failed: screen -dmS pbench-tool-$name-$group-$iteration $pbench_bin/tool-scripts/$name --$action --iteration=$iteration --group=$group --dir=$dir ${tool_opts[@]}"
+				error_log "screen command failed: screen -dmS $scren_name $pbench_bin/tool-scripts/$name --$action --iteration=$iteration --group=$group --dir=$dir ${tool_opts[@]}"
 			fi
 		else
 			if [ "$action" == "kill" ]; then
-				screens_to_kill=`screen -ls | grep "pbench-tool-$name" | awk '{print $1}'`
+				screens_to_kill=`screen -ls | grep "screen_name" | awk '{print $1}'`
 				pids_to_kill=`echo $screens_to_kill | awk -F. '{print $1}'`
 				echo "killing the following screen sessions for $name:"
 				echo "$screens_to_kill"
