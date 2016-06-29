@@ -1,0 +1,10 @@
+[controller]
+
+[remote]
+
+[controller:vars]
+clear_tools=True
+register_controller_tools=False
+register_remote_tools=True
+benchmark=pbench-fio
+move_results=False

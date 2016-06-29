@@ -1,0 +1,18 @@
+--- 
+- name: check if pbench-agent is installed
+  shell: rpm -q pbench-agent
+  register: pbench_status
+  
+- block:
+   - name: install pbench-agent RPM itself via dnf
+     dnf: name={{ item }} state=latest
+     with_items:
+       - pbench-agent
+     when: ansible_pkg_mgr == 'dnf'
+
+   - name: install the pbench-agent-internal RPM itself via yum
+     yum: name={{ item }} state=latest
+     with_items:
+       - pbench-agent
+     when: ansible_pkg_mgr == 'yum'
+  when: pbench_status.rc !=0
