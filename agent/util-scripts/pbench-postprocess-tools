@@ -150,7 +150,7 @@ for this_tool_file in `/bin/ls $tool_group_dir`; do
 			fi
 		else
 			if [ "$action" == "kill" ]; then
-				screens_to_kill=`screen -ls | grep "screen_name" | awk '{print $1}'`
+				screens_to_kill=`screen -ls | grep "$screen_name" | awk '{print $1}'`
 				pids_to_kill=`echo $screens_to_kill | awk -F. '{print $1}'`
 				echo "killing the following screen sessions for $name:"
 				echo "$screens_to_kill"
