@@ -40,7 +40,7 @@ if [ $? -ne 0 ]; then
 	printf -- "\t                        will store and process data\n"
 	printf "\n"
 	printf -- "\t-i str --iteration=num, num = a number representing the\n"
-	printf -- "\t                              iteration data was collected for"
+s	printf -- "\t                              iteration data was collected for"
 	exit 1
 fi
 eval set -- "$opts";
@@ -91,28 +91,14 @@ fi
 tool_output_dir="$dir/tools-$group"
 mkdir -p $tool_output_dir
 
+export INVENTORY=/tmp/inventory.$$
+pbench-get-hosts $tool_group_dir > ${INVENTORY}
+trap "rm -f $INVENTORY" QUIT INT EXIT
+
 function move_tool_data {
-	local remote_host=$1
-	local remote_label=$2
-	local remote_shost=`echo $remote_host | awk -F. '{print $1}'`
-	pushd $tool_output_dir >/dev/null
-	tool_data_size=`ssh $ssh_opts -n $remote_host du -sm $tool_output_dir | awk '{print $1}'`
-	debug_log "[$script_name]started: copying tool data ($tool_data_size MB) from $remote_host"
-	ssh $ssh_opts -n $remote_host "cd $tool_output_dir && tar cf - *" | tar mxf -
-	# if the full hostname was used in pbench-register-tool --remote, make sure that is preserved in the directory name
-	if [ $remote_host != "$remote_shost" ]; then
-		if [ -e "$remote_label:$remote_shost" ]; then
-			mv $remote_label:$remote_shost $remote_label:$remote_host
-		fi
-		if [ -e "$remote_shost" ]; then
-			mv $remote_shost $remote_host
-		fi
-	fi
-	debug_log "[$script_name]completed: copying of tool data on $remote_host"
-	debug_log "[$script_name]started: deleting tool data on $remote_host"
-	ssh $ssh_opts -n $remote_host "cd $tool_output_dir && /bin/rm -rf *"
-	debug_log "[$script_name]completed: deleting tool data on $remote_host"
-	popd >/dev/null
+        debug_log " moving tool data"
+        echo "moving tool data"
+        ansible-playbook -i ${INVENTORY} --extra-vars '{"TOOL_OUTPUT_DIR":"'$tool_output_dir'", "REMOTE_HOST":"'$remote_host'"}' /opt/pbench-agent/util-scripts/pbench-postprocess-tools.yml &>>/var/lib/pbench-agent/pbench.log
 }
 
 ### phase 1: for each tool, call the tool script with --$action (start, stop, or postprocess)
@@ -178,14 +164,8 @@ if [ "$action" == "postprocess" ]; then
 		fi
 	done
 	
-	### phase 3: copy over data from remote hosts
-	# for the remote tools, copy over the postprocess data
-	for this_tool_file in `/bin/ls $tool_group_dir | grep "^remote"`; do
-		remote_hostname=`echo "$this_tool_file" | awk -F@ '{print $2}'`
-		label=`cat $tool_group_dir/$this_tool_file`
-		# copy over the data from postprocessing
-		move_tool_data $remote_hostname $label &
-	done
-	wait
+	## phase 3: copy over data from remote hosts
+	#for the remote tools, copy over the postprocess data
+        move_tool_data 
 fi
 debug_log "[$script_name]completed: $@"

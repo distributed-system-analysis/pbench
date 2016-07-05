@@ -1,0 +1,81 @@
+---
+- hosts: controller
+  user: root
+  vars:
+    - sysinfo_path: "{{ SYSINFO_PATH }}"
+  tasks:
+    - name: Install sos
+      shell: yum install sos -y
+    - name: create sysinfo dir
+      file: path="{{ sysinfo_path }}" state=directory
+    - name: get sos_version
+      shell: rpm -q sos | awk -F- '{print $2}' | awk -F. '{print $1}'
+      register: sos_ver
+    - name: get sos_version
+      shell: rpm -q sos | awk -F- '{print $2}' | awk -F. '{print $2}'
+      register: sosreport_ver
+    - name: copy validity check script
+      copy: src=/opt/pbench-agent/util-scripts/sosreport.py dest=/tmp/sosreport.py
+    - name: check libvirt compatability
+      command: python3 /tmp/sosreport.py libvirt
+      register: plugin1
+    - name: check lstopo compatability
+      command: python3 /tmp/sosreport.py lstopo
+      register: plugin2
+    - name: flags check
+      set_fact:
+        flag: '-o'
+      when: plugin1.stdout == "libvirt"
+    - name: flag check
+      set_fact:
+        flag: ' '
+      when: plugin2.stdout != "libvirt"
+    - name: flags check
+      set_fact:
+        flags: '-o'
+      when: plugin2.stdout == "lstopo"
+    - name: set flags
+      set_fact:
+        flags: ' '
+      when: plugin2.stdout != "lstopo"
+    - name: check if label exists
+      stat: path=/var/lib/pbench-agent/tools-default/label
+      register: getlabel
+    - name: getting the label
+      command: cat "/var/lib/pbench-agent/tools-default/label"
+      register: label
+      when: getlabel.stat.exists == True
+    - name: create sysinfo dir with label on controller
+      shell: mkdir -p "{{ sysinfo_path }}/{{ label.stdout }}:{{ ansible_hostname }}/ethtool"
+      when: getlabel.stat.exists == True
+    - name: ethtool and block result
+      shell: for i in `/bin/ls /sys/class/net`;do ethtool -g $i >{{ sysinfo_path }}/{{ label.stdout }}:{{ ansible_hostname }}/ethtool/$i.txt; ethtool -c $i >>{{ sysinfo_path }}/{{ label.stdout }}:{{ ansible_hostname }}/ethtool/$i.txt; done
+      shell: for n in /sys/block/[s,h,v]d\*[a-z]/; do find $n  -type f -printf "%p " -exec cat '{}' \; done >{{ sysinfo_path }}/{{ label.stdout }}:{{ ansible_hostname }}/ethtool/block-params.log
+      when: getlabel.stat.exists == True
+      ignore_errors: yes
+    - name: create sysinfo direc
+      shell: mkdir -p "{{ sysinfo_path }}/{{ ansible_hostname }}/ethtool"
+      when: getlabel.stat.exists == False
+    - name: ethtool and block result
+      shell: for n in /sys/block/[s,h,v]d\*[a-z]/; do find $n  -type f -printf "%p " -exec cat '{}' \; done >{{ sysinfo_path }}/{{ ansible_hostname }}/ethtool/block-params.log
+      shell: for i in `/bin/ls /sys/class/net`;do ethtool -g $i >{{ sysinfo_path }}/{{ ansible_hostname}}/ethtool/$i.txt; ethtool -c $i >>{{ sysinfo_path }}/{{ ansible_hostname }}/ethtool/$i.txt; done
+      when: getlabel.stat.exists == False
+      ignore_errors: yes
+    - name: run sos report
+      shell: sosreport -o general -o kernel -o filesys -o devicemapper -o system -o memory -o hardware -o networking -o lsbrelease -o block -o processor -o tuned {{ flag }} {{ plugin1.stdout }} {{ flags }} {{ plugin2.stdout }} --batch --quiet --tmp-dir "{{ sysinfo_path }}/{{ ansible_hostname }}"
+      when: sos_ver.stdout == "3" and sosreport_ver != "0" and getlabel.stat.exists == False
+    - name: run sos report
+      shell: sosreport -o general -o kernel -o filesys -o devicemapper -o system -o memory -o hardware -o networking -o lsbrelease -o block -o processor {{ flag }} {{ plugin1.stdout }} {{ flags }} {{ plugin2.stdout }} --batch --quiet --tmp-dir "{{ sysinfo_path }}/{{ ansible_hostname }}"
+      when: sos_ver.stdout == "3" and sosreport_ver == "0" and getlabel.stat.exists == False
+    - name: run sos report
+      shell: sosreport -o general -o kernel -o filesys -o devicemapper -o system -o memory -o hardware -o networking -o lsbrelease {{ flag }} {{ plugin1.stdout }} {{ b }} {{ plugin2.stdout }} --batch --quiet --tmp-dir "{{ sysinfo_path }}/{{ ansible_hostname }}"
+      when: sos_ver.stdout != "3" and getlabel.stat.exists == False
+    - name: run sos report
+      shell: sosreport -o general -o kernel -o filesys -o devicemapper -o system -o memory -o hardware -o networking -o lsbrelease -o block -o processor -o tuned {{ flag }} {{ plugin1.stdout }} {{ flags }} {{ plugin2.stdout }} --batch --quiet --tmp-dir "{{ sysinfo_path }}/{{ label.stdout }}:{{ ansible_hostname }}"
+      when: sos_ver.stdout == "3" and sosreport_ver != "0" and getlabel.stat.exists == True
+    - name: run sos report
+      shell: sosreport -o general -o kernel -o filesys -o devicemapper -o system -o memory -o hardware -o networking -o lsbrelease -o block -o processor {{ flag }} {{ plugin1.stdout }} {{ flags }} {{ plugin2.stdout }} --batch --quiet --tmp-dir "{{ sysinfo_path }}/{{ label.stdout }}:{{ ansible_hostname }}"
+      when: sos_ver.stdout == "3" and sosreport_ver == "0" and getlabel.stat.exists == True
+    - name: run sos report
+      shell: sosreport -o general -o kernel -o filesys -o devicemapper -o system -o memory -o hardware -o networking -o lsbrelease {{ flag }} {{ plugin1.stdout }} {{ b }} {{ plugin2.stdout }} --batch --quiet --tmp-dir "{{ sysinfo_path }}/{{ label.stdout }}:{{ ansible_hostname }}"
+      when: sos_ver.stdout != "3" and getlabel.stat.exists == True
