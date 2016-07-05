@@ -1,0 +1,9 @@
+#! /bin/bash
+
+tools_group_dir=$1
+
+echo "[test]"
+hostname
+
+echo "[remote]"
+ls $tools_group_dir | awk -F@ '/^remote/ {print $2};'

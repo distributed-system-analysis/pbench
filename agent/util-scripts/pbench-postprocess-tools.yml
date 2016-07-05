@@ -1,0 +1,22 @@
+---
+- hosts: test
+  user: root
+  tasks:
+    - name: Install rsync, other dependencies
+      dnf: name=rsync state=latest
+- hosts: remote
+  user: root
+  vars:
+    - tool_output_dir: "{{ TOOL_OUTPUT_DIR }}"
+    - remote: "{{ REMOTE_HOST }}"
+  tasks:
+    - name: Install Rsync
+      dnf: name=rsync state=latest
+    - name: Sync results
+      synchronize:
+          src: "{{ tool_output_dir }}/"
+          dest: "{{ tool_output_dir }}"
+          mode: pull
+          archive: yes
+    - name: Delete the results
+      shell: cd "{{ tool_output_dir }}" && /bin/rm -rf *
