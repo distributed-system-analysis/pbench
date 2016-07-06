@@ -17,7 +17,7 @@ or by the `pbench-agent` during benchmark and tool post-processing steps.
 
 ## How is it installed?
 Instructions on installing `pbench-agent`, can be found
-in the [PBench agent installation](http://ndokos.github.io/pbench/doc/agent/installation.html) guide.
+in the [PBench agent installation](http://distributed-system-analysis.github.io/pbench/doc/agent/installation.html) guide.
 
 For Fedora, CentOS, and RHEL users, we have made available [COPR
 builds](https://copr.fedoraproject.org/coprs/ndokos/pbench/) for the
@@ -26,24 +26,24 @@ and some benchmark and tool packages.
 
 This assumes that somebody has already installed the server bits. The
 procedure to do that is described in the [PBench Server
-Installation](http://ndokos.github.io/pbench/doc/server/installation.html)
+Installation](http://distributed-system-analysis.github.io/pbench/doc/server/installation.html)
 guide.
 
 You can install the `web-server` subsystem
 on the machine where you run `pbench` from. That allows you to view the graphs before sending
 the results to the server, or even if there is no server to send the results to. See
-the [PBench web server installation](http://ndokos.github.io/pbench/doc/server/pbench-web-server.html)
+the [PBench web server installation](http://distributed-system-analysis.github.io/pbench/doc/server/pbench-web-server.html)
 guide.
 
-You might want to browse through the [rest of the documentation](http://ndokos.github.io/pbench/doc/).
+You might want to browse through the [rest of the documentation](http://distributed-system-analysis.github.io/pbench/doc/).
 
 ## How do I use pbench?
-Refer to the [PBench User Guide](http://ndokos.github.io/pbench/doc/agent/user-guide.html).
+Refer to the [PBench User Guide](http://distributed-system-analysis.github.io/pbench/doc/agent/user-guide.html).
 
 TL;DR? See [TL;DR - How to set up pbench and run a benchmark
-](http://ndokos.github.io/pbench/doc/agent/user-guide.html#org9c5bc26) of the
+](http://distributed-system-analysis.github.io/pbench/doc/agent/user-guide.html#org9c5bc26) of the
 [PBench User
-Guide](http://ndokos.github.io/pbench/doc/agent/user-guide.html) for a
+Guide](http://distributed-system-analysis.github.io/pbench/doc/agent/user-guide.html) for a
 super quick set of introductory steps.
 
 ## Where is the source kept?
