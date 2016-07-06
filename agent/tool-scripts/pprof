@@ -15,8 +15,8 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 
 # Defaults
 tool=pprof
-tool_bin=/usr/bin/$tool
-tool_package=go
+tool_bin=/usr/bin/go
+tool_package=golang
 group=default
 dir="/tmp"
 mode=""
@@ -146,7 +146,7 @@ ose_pprof() {
 
 collect_data() {
     while true; do
-            $tool_package tool $tool -text -seconds=$interval -output $PPROF_TMPDIR/$(date +%Y-%m-%d:%H:%M:%S)_.txt http://localhost:6060/debug/pprof/profile
+            $tool_bin tool $tool -text -seconds=$interval -output $PPROF_TMPDIR/$(date +%Y-%m-%d:%H:%M:%S)_.txt http://localhost:6060/debug/pprof/profile
     done 
 } 
 case "$mode" in 
