@@ -32,7 +32,7 @@ else
 	pathins $prefix/configtools/bin
     fi
 
-    export CONFIG=$prefix/config/pbench-agent.conf
+    export CONFIG=$prefix/config/pbench-agent.cfg
 
     pathins $prefix/bench-scripts
     pathins $prefix/util-scripts
