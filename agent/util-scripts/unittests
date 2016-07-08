@@ -29,6 +29,7 @@ let res=res+$?
 cp $_tdir/../tool-scripts/mpstat $_testopt/tool-scripts
 let res=res+$?
 scripts="$_tdir/pbench-register-tool $_tdir/pbench-metadata-log"
+scripts="$_tdir/pbench-*"
 for script in $scripts ; do
     cp $script $_testopt/util-scripts/
     let res=res+$?
@@ -111,10 +112,20 @@ function _verify_output {
     return $sts
 }
 function _setup_state {
+    local tool
+    local tst
+    tst=$1
+    tool=$2
+
     mkdir $_testdir
     if [[ $? -ne 0 ]]; then
         echo "ERROR: failed to create test pbench directory, \"$_testdir\"" >&2
         exit 1
+    fi
+    if [ ! -z "$tool" -a ! -z "$tst" ] ;then
+        if [ -d $_tdir/samples/$tool/$tst ] ;then
+            cp -r $_tdir/samples/$tool/$tst/* $_testdir
+        fi
     fi
 }
 function _reset_state {
@@ -127,77 +138,38 @@ function _reset_state {
 
 let errs=0
 
-#
-# 1. Verify pbench-register-tool
-#
-_setup_state
-_run test-00 pbench-register-tool --name=mpstat --group=default -- --interval=10
-res=$?
-_save_tree
-_dump_logs
-_verify_output $res test-00 pbench-register-tool
-res=$?
-let errs=$errs+$res
-_reset_state
+tests="$*"
+if [ -z "$tests" ] ;then
+    tests="test-00 test-01 test-02 test-03 test-04"
+fi
 
-#
-# 2. Verify metadata-log - compatibility mode: tools.default file
-#
-_setup_state
-cp $_tdir/samples/metadata-log/test-01/tools.default $_testdir
-_run test-01 pbench-metadata-log --dir=$_testdir/tmp beg
-res=$?
-_save_tree
-_dump_logs
-_verify_output $res test-01 pbench-metadata-log
-res=$?
-let errs=$errs+$res
-_reset_state
+declare -A tools=([test-00]="pbench-register-tool"
+                  [test-01]="pbench-metadata-log"
+                  [test-02]="pbench-metadata-log"
+                  [test-03]="pbench-metadata-log"
+                  [test-04]="pbench-metadata-log"
+                 )
+declare -A options=([test-00]="--name=mpstat --group=default -- --interval=10"
+                    [test-01]="--dir=$_testdir/tmp beg"
+                    [test-02]="--dir=$_testdir/tmp beg"
+                    [test-03]="--dir=$_testdir/tmp beg"
+                    [test-04]="--dir=$_testdir/tmp beg"
+                   )
 
-#
-# 3. Verify metadata-log - standard mode: tools-default directory
-#                                         default pbench-register-tool-set content
-#
-_setup_state
-cp -r $_tdir/samples/metadata-log/test-02/tools-default $_testdir
-_run test-02 pbench-metadata-log --dir=$_testdir/tmp beg
-res=$?
-_save_tree
-_dump_logs
-_verify_output $res test-02 pbench-metadata-log
-res=$?
-let errs=$errs+$res
- _reset_state
 
-#
-# 4. Verify metadata-log - standard mode: tools-default directory
-#                                         remotes
-#
-_setup_state
-cp -r $_tdir/samples/metadata-log/test-03/tools-default $_testdir
-_run test-03 pbench-metadata-log --dir=$_testdir/tmp beg
-res=$?
-_save_tree
-_dump_logs
-_verify_output $res test-03 pbench-metadata-log
-res=$?
-let errs=$errs+$res
-_reset_state
-
-#
-# 5. Verify metadata-log - standard mode: tools-default directory
-#                                         multiple options
-#
-_setup_state
-cp -r $_tdir/samples/metadata-log/test-04/tools-default $_testdir
-_run test-04 pbench-metadata-log --dir=$_testdir/tmp beg
-res=$?
-_save_tree
-_dump_logs
-_verify_output $res test-04 pbench-metadata-log
-res=$?
-let errs=$errs+$res
-_reset_state
+for tst in $tests; do
+    tool=${tools[$tst]}
+    opts=${options[$tst]}
+    _setup_state $tst $tool
+    _run $tst $tool $opts
+    res=$?
+    _save_tree
+    _dump_logs
+    _verify_output $res $tst $tool
+    res=$?
+    let errs=$errs+$res
+    _reset_state
+done
 
 if [[ $errs -gt 0 ]]; then
     sts=1
