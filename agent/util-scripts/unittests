@@ -28,7 +28,7 @@ cp $_tdir/../base $_testopt/
 let res=res+$?
 mkdir -p $_testopt/tool-scripts
 let res=res+$?
-cp $_tdir/../tool-scripts/mpstat $_testopt/tool-scripts
+cp $_tdir/../tool-scripts/{iostat,kvmstat,mpstat,numastat,perf,pidstat,proc-interrupts,proc-vmstat,sar,turbostat,vmstat} $_testopt/tool-scripts
 let res=res+$?
 scripts="$_tdir/pbench-register-tool $_tdir/pbench-metadata-log"
 scripts="$_tdir/pbench-*"
@@ -142,7 +142,7 @@ let errs=0
 
 tests="$*"
 if [ -z "$tests" ] ;then
-    tests="test-00 test-01 test-02 test-03 test-04 test-14"
+    tests="$(seq -f "test-%02g" 0 10) test-14"
 fi
 
 declare -A tools=([test-00]="pbench-register-tool"
@@ -150,6 +150,12 @@ declare -A tools=([test-00]="pbench-register-tool"
                   [test-02]="pbench-metadata-log"
                   [test-03]="pbench-metadata-log"
                   [test-04]="pbench-metadata-log"
+                  [test-05]="pbench-stop-tools"
+                  [test-06]="pbench-stop-tools"
+                  [test-07]="pbench-stop-tools"
+                  [test-08]="pbench-stop-tools"
+                  [test-09]="pbench-stop-tools"
+                  [test-10]="pbench-stop-tools"
                   [test-14]="pbench-agent-config-activate"
                  )
 declare -A options=([test-00]="--name=mpstat --group=default -- --interval=10"
@@ -157,9 +163,14 @@ declare -A options=([test-00]="--name=mpstat --group=default -- --interval=10"
                     [test-02]="--dir=$_testdir/tmp beg"
                     [test-03]="--dir=$_testdir/tmp beg"
                     [test-04]="--dir=$_testdir/tmp beg"
+                    [test-05]="--dir=$_testdir/tmp"
+                    [test-06]="--dir=$_testdir/tmp"
+                    [test-07]="--dir=$_testdir/tmp"
+                    [test-08]="--dir=$_testdir/tmp"
+                    [test-09]="--dir=$_testdir/tmp"
+                    [test-10]="--dir=$_testdir/tmp"
                     [test-14]="$_testdir/tmp/pbench-agent.cfg"
                    )
-
 
 for tst in $tests; do
     tool=${tools[$tst]}

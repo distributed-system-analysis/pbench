@@ -1,0 +1,34 @@
+#!/bin/bash
+
+echo "$0 $*" >> $_testlog
+
+case $1 in
+    turbostat)
+        # test-05
+        # multiple pids to trigger the warning
+        # 123463 is unkillable 
+        echo 123463 123464
+        ;;
+    kvmstat)
+        # test-06
+        # single unkillable pid
+        echo 123463
+        ;;
+    vmstat|iostat)
+        # test-07 and test-09
+        # list of killable pids
+        # no effect for iostat: does not go through safe_kill currently.
+        echo 123456 123457
+        ;;
+    numastat|sar)
+        # test-09 and test-10
+        # killable pid
+        # no effect on sar: does not go through safe_kill currently.
+        echo 123456
+        ;;
+    *)
+        echo 123400
+        ;;
+esac
+
+exit 0

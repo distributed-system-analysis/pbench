@@ -245,7 +245,7 @@ function safe_kill() {
 	# failure.  Eat any error message.
 	local tool=$1
 	local pid=$2
-	local signal${3:-TERM}
+	local signal=${3:-TERM}
 	local pidlist p pid_to_kill len rc
 
 	if [ -z "$pid" ] ;then
@@ -260,7 +260,6 @@ function safe_kill() {
 		len=$len+1
 		if [[ $p == $pid ]] ;then
 			pid_to_kill=$pid
-			break
 		fi
 	done
 	if [[ $len > 1 ]] ;then
@@ -357,28 +356,31 @@ case "$mode" in
 	stop)
 	debug_log "stopping $script_name"
 	pid=`cat $tool_pid_file`
-	if [ "$tool" == "kvmtrace" ]; then
-		if [ -z "$sleep_cmd" ]; then
-			# kill the perf cmd
-			safe_kill $tool $pid INT
-		else
-			# kill the sleep process if it still exists
-			sleep_pid=`ps --ppid $pid | pgrep sleep`
-			if [ ! -z "$sleep_pid" ]; then
-				kill $sleep_pid
+	if [ ! -z "$pid" ] ;then
+		if [ "$tool" == "kvmtrace" ]; then
+			if [ -z "$sleep_cmd" ]; then
+				# kill the perf cmd
+				safe_kill $tool $pid INT
+			else
+				# kill the sleep process if it still exists
+				sleep_pid=`ps --ppid $pid | pgrep sleep`
+				if [ ! -z "$sleep_pid" ]; then
+					safe_kill $tool $sleep_pid
+				fi
 			fi
+			# wait for the trace-cmd pid to complete
+			while [ -d /proc/$pid ]; do
+				debug_log "waiting for PID $pid to die"
+				sleep 0.5
+			done
+			rc=0
+		else
+			safe_kill $tool $pid
+			rc=$?
+			/bin/rm -f "$tool_pid_file"
 		fi
-		# wait for the trace-cmd pid to complete
-		while [ -d /proc/$pid ]; do
-			debug_log "waiting for PID $pid to die"
-			sleep 0.5
-		done
-		rc=0
-	else
-		safe_kill $tool $pid
-		rc=$?
-		/bin/rm -f "$tool_pid_file"
 	fi
+	set +x
 	;;
 	postprocess)
 	pushd $tool_output_dir >/dev/null

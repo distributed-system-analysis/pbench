@@ -138,3 +138,9 @@ function verify_tool_group {
 	fi
 	return 0
 }
+
+if [[ "${_PBENCH_BENCH_TESTS}" == 1 ]] ;then
+    # for unit tests, we use a mock kill
+    # disable the built-in
+    enable -n kill
+fi

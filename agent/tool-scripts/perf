@@ -18,7 +18,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 tool=perf
 tool_bin=/usr/bin/$tool
 group=default
-dir="/tmp"
+dir=""
 mode=""
 iteration="1"
 options="none"
@@ -116,6 +116,8 @@ tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
 tool_cmd_file="$tool_output_dir/$tool.cmd"
 tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
 tool_output_file=$tool_output_dir/$tool.txt
+
+mkdir $tool_output_dir
 case "$mode" in
 	install)
         ;;
@@ -123,7 +125,6 @@ case "$mode" in
 	if ! cat /proc/mounts | grep -q debugfs; then
 		mount -t debugfs none /sys/kernel/debug
 	fi
-	mkdir $tool_output_dir
 	pushd $tool_output_dir >/dev/null
         echo "$tool_cmd" >$tool_cmd_file
 	# call the tool and background it...

@@ -84,7 +84,7 @@ else
 	tool_group_dir="$pbench_run/tools-default"
 fi
 if [ ! -d "$tool_group_dir" ]; then
-	error_log "[$script_name] failed to find tools group directroy, \"$tool_group_dir\""
+	error_log "[$script_name] failed to find tools group directory, \"$tool_group_dir\""
 	exit 1
 fi
 
