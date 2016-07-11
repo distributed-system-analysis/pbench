@@ -5,3 +5,24 @@ echo "$0 $*" >> $_testlog
 if [[ "$4" == "netstat" && "$5" == "-tlpn" ]]; then
     echo "tcp        0      0 0.0.0.0:21000               0.0.0.0:*                   LISTEN      5830/uperf"
 fi
+
+while true ;do
+    case $1 in
+        -o)
+            shift 2
+            ;;
+        -n)
+            shift 1
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+remote=$1
+
+if [[ "$remote" == "fubar" ]] ;then
+    exit 255
+else
+    exit 0
+fi

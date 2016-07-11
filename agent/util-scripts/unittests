@@ -25,12 +25,14 @@ let res=res+$?
 mkdir -p $_testopt/util-scripts
 let res=res+$?
 cp $_tdir/../base $_testopt/
+mkdir -p $_testopt/config
+cp $_tdir/samples/pbench-agent.cfg $_testopt/config
 let res=res+$?
 mkdir -p $_testopt/tool-scripts
 let res=res+$?
 cp $_tdir/../tool-scripts/{iostat,kvmstat,mpstat,numastat,perf,pidstat,proc-interrupts,proc-vmstat,sar,turbostat,vmstat} $_testopt/tool-scripts
 let res=res+$?
-scripts="$_tdir/pbench-register-tool $_tdir/pbench-metadata-log"
+# scripts="$_tdir/pbench-register-tool $_tdir/pbench-metadata-log"
 scripts="$_tdir/pbench-*"
 for script in $scripts ; do
     cp $script $_testopt/util-scripts/
@@ -49,11 +51,14 @@ fi
 # Fixed timestamp output
 export _PBENCH_BENCH_TESTS=1
 # Allows us to intercept scp, ssh, rsync, etc.
-export PATH=$_testopt/tool-scripts:$_testopt/unittest-scripts:$_tconfigtoolsbin:$PATH
+export PATH=$_testopt/util-scripts:$_testopt/tool-scripts:$_testopt/unittest-scripts:$PATH
+export CONFIG=$_testopt/config/pbench-agent.cfg
 
 res=0
 
 function _run {
+    local sts
+    
     tname=$1
     shift
     tscrpt=$1
@@ -70,10 +75,12 @@ function _save_tree {
     echo "+++ pbench tree state" >> $_testout
     find $_testdir | sort >> $_testout
     if [ -d $_testdir/tools-default ] ;then
-        for x in $_testdir/tools-default/* ;do
-            echo $x:
+        pushd $_testdir/tools-default >/dev/null
+        for x in $(ls) ;do
+            echo $_testdir/tools-default/$x:
             cat $x
         done
+        popd >/dev/null
     elif [ -f $_testdir/tools.default ]; then
         echo $_testdir/tools.default: 
         cat $_testdir/tools.default
@@ -95,9 +102,11 @@ function _dump_logs {
     rm -f $_testroot/test-execution.log
 }
 function _verify_output {
+    local sts tname tscrpt
     sts=$1
     tname=$2
     tscrpt=$3
+    expected_status=${4:-0}
     diff -cw $_tdir/gold/${tscrpt}/${tname}.txt $_testout
     if [[ $? -gt 0 ]]; then
         echo "FAIL - $tname"
@@ -107,6 +116,10 @@ function _verify_output {
         if [[ $sts -eq 0 ]]; then
             echo "PASS - $tname"
             rm $_testout
+        elif [[ $sts -eq $expected_status ]] ; then
+            echo "PASS - $tname failed with expected exit status: $sts"
+            rm $_testout
+            sts=0
         else
             echo "FAIL - $tname: PASS output but execution returned non-zero exit status"
         fi
@@ -142,45 +155,64 @@ let errs=0
 
 tests="$*"
 if [ -z "$tests" ] ;then
-    tests="$(seq -f "test-%02g" 0 10) test-14"
+
+    tests="$(seq -f "test-%02g" 0 14)"
 fi
 
-declare -A tools=([test-00]="pbench-register-tool"
-                  [test-01]="pbench-metadata-log"
-                  [test-02]="pbench-metadata-log"
-                  [test-03]="pbench-metadata-log"
-                  [test-04]="pbench-metadata-log"
-                  [test-05]="pbench-stop-tools"
-                  [test-06]="pbench-stop-tools"
-                  [test-07]="pbench-stop-tools"
-                  [test-08]="pbench-stop-tools"
-                  [test-09]="pbench-stop-tools"
-                  [test-10]="pbench-stop-tools"
-                  [test-14]="pbench-agent-config-activate"
-                 )
-declare -A options=([test-00]="--name=mpstat --group=default -- --interval=10"
-                    [test-01]="--dir=$_testdir/tmp beg"
-                    [test-02]="--dir=$_testdir/tmp beg"
-                    [test-03]="--dir=$_testdir/tmp beg"
-                    [test-04]="--dir=$_testdir/tmp beg"
-                    [test-05]="--dir=$_testdir/tmp"
-                    [test-06]="--dir=$_testdir/tmp"
-                    [test-07]="--dir=$_testdir/tmp"
-                    [test-08]="--dir=$_testdir/tmp"
-                    [test-09]="--dir=$_testdir/tmp"
-                    [test-10]="--dir=$_testdir/tmp"
-                    [test-14]="$_testdir/tmp/pbench-agent.cfg"
-                   )
+declare -A tools=(
+    [test-00]="pbench-register-tool"
+    [test-01]="pbench-metadata-log"
+    [test-02]="pbench-metadata-log"
+    [test-03]="pbench-metadata-log"
+    [test-04]="pbench-metadata-log"
+    [test-05]="pbench-stop-tools"
+    [test-06]="pbench-stop-tools"
+    [test-07]="pbench-stop-tools"
+    [test-08]="pbench-stop-tools"
+    [test-09]="pbench-stop-tools"
+    [test-10]="pbench-stop-tools"
+    [test-11]="pbench-register-tool-set"
+    [test-12]="pbench-clear-tools"
+    [test-13]="pbench-postprocess-tools"
+    [test-14]="pbench-agent-config-activate"
+)
+declare -A options=(
+    [test-00]="--name=mpstat --group=default -- --interval=10"
+    [test-01]="--dir=$_testdir/tmp beg"
+    [test-02]="--dir=$_testdir/tmp beg"
+    [test-03]="--dir=$_testdir/tmp beg"
+    [test-04]="--dir=$_testdir/tmp beg"
+    [test-05]="--dir=$_testdir/tmp"
+    [test-06]="--dir=$_testdir/tmp"
+    [test-07]="--dir=$_testdir/tmp"
+    [test-08]="--dir=$_testdir/tmp"
+    [test-09]="--dir=$_testdir/tmp"
+    [test-10]="--dir=$_testdir/tmp"
+    # fubar is assumed to *NOT* exist
+    [test-11]="--remote=fubar"
+    [test-13]="--dir=$_testdir/tmp --group=default --iteration=1"
+    [test-14]="$_testdir/tmp/pbench-agent.cfg"
+)
+
+declare -A expected_status=(
+    [test-05]=1
+    [test-06]=1
+    [test-11]=4
+    [test-12]=1
+    [test-13]=2
+)
 
 for tst in $tests; do
     tool=${tools[$tst]}
     opts=${options[$tst]}
+    status=${expected_status[$tst]}
+
     _setup_state $tst $tool
     _run $tst $tool $opts
     res=$?
     _save_tree
     _dump_logs
-    _verify_output $res $tst $tool
+    _verify_output $res $tst $tool $status
     res=$?
     let errs=$errs+$res
     _reset_state

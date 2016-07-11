@@ -40,7 +40,7 @@ if [ $? -ne 0 ]; then
 	printf -- "\t                        will store and process data\n"
 	printf "\n"
 	printf -- "\t-i str --iteration=num, num = a number representing the\n"
-	printf -- "\t                              iteration data was collected for"
+	printf -- "\t                              iteration data was collected for\n"
 	exit 1
 fi
 eval set -- "$opts";
