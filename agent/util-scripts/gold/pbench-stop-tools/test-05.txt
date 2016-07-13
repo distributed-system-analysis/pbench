@@ -1,5 +1,5 @@
 +++ Running test-05 pbench-stop-tools
-[warn][1900-01-01T00:00:00.000000] Too many pids for turbostat: 123463 123464 -- maybe old tools running? Use pbench-kill-tools.
+[warn][1900-01-01T00:00:00.000000] Too many pids for turbostat: 123463 123464 123465 123466 123467 -- maybe old tools running? Use pbench-kill-tools.
 --- Finished test-05 pbench-stop-tools (status=0}
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -15,15 +15,15 @@
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]started: --dir=/var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/turbostat --stop --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/tmp --interval=3
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] stopping turbostat
-/var/tmp/pbench-test-utils/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] Too many pids for turbostat: 123463 123464 -- maybe old tools running? Use pbench-kill-tools.
+/var/tmp/pbench-test-utils/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] Too many pids for turbostat: 123463 123464 123465 123466 123467 -- maybe old tools running? Use pbench-kill-tools.
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]completed: 
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof turbostat
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x turbostat
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/kill -s TERM 123463
 /var/tmp/pbench-test-utils/test-execution.log:TERM/123463
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/kill -s TERM 123463 exited with 1
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof turbostat
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x turbostat
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/kill -s KILL 123463
 /var/tmp/pbench-test-utils/test-execution.log:KILL/123463
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/kill -s KILL 123463 exited with 0

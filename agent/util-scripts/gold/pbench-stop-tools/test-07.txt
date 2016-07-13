@@ -1,5 +1,5 @@
 +++ Running test-07 pbench-stop-tools
-[warn][1900-01-01T00:00:00.000000] Too many pids for vmstat: 123456 123457 -- maybe old tools running? Use pbench-kill-tools.
+[warn][1900-01-01T00:00:00.000000] Too many pids for vmstat: 123456 123457 123458 123459 -- maybe old tools running? Use pbench-kill-tools.
 --- Finished test-07 pbench-stop-tools (status=0}
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -15,11 +15,11 @@
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]started: --dir=/var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/vmstat --stop --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/tmp --interval=50
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] stopping vmstat
-/var/tmp/pbench-test-utils/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] Too many pids for vmstat: 123456 123457 -- maybe old tools running? Use pbench-kill-tools.
+/var/tmp/pbench-test-utils/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] Too many pids for vmstat: 123456 123457 123458 123459 -- maybe old tools running? Use pbench-kill-tools.
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]completed: 
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof vmstat
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x vmstat
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/kill -s TERM 123456
 /var/tmp/pbench-test-utils/test-execution.log:TERM/123456
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/kill -s TERM 123456 exited with 0

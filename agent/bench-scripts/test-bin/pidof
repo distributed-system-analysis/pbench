@@ -3,11 +3,16 @@
 echo "$0 $*" >> $_testlog
 
 case $1 in
+    -x)
+        shift
+        ;;
+esac
+case $1 in
     turbostat)
         # test-05
         # multiple pids to trigger the warning
         # 123463 is unkillable 
-        echo 123463 123464
+        echo 123463 123464 123465 123466 123467
         ;;
     kvmstat)
         # test-06
@@ -18,7 +23,7 @@ case $1 in
         # test-07 and test-09
         # list of killable pids
         # no effect for iostat: does not go through safe_kill currently.
-        echo 123456 123457
+        echo 123456 123457 123458 123459
         ;;
     numastat|sar)
         # test-09 and test-10
