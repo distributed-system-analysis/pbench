@@ -15,7 +15,7 @@ case $# in
 esac
 
 # check that the config file exists
-if [ ! -f $configfile] ;then
+if [ ! -f $configfile ] ;then
     echo "$prog: $configfile file does not exist"
     exit 4
 fi
@@ -23,7 +23,11 @@ fi
 # copy the configuration file to the destination
 # use the "real" config file to get the destination
 dest=$(getconf.py --config $configfile pbench_install_dir pbench-agent)
-dest=$dest/config/pbench-agent.cfg
+if [[ $_PBENCH_BENCH_TESTS -eq 1 ]] ;then
+    dest=$pbench_config/config/pbench-agent.cfg
+else
+    dest=$dest/config/pbench-agent.cfg
+fi
 cp $configfile $dest
 exit $?
 
