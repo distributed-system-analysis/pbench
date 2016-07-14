@@ -156,7 +156,7 @@ let errs=0
 tests="$*"
 if [ -z "$tests" ] ;then
 
-    tests="$(seq -f "test-%02g" 0 14)"
+    tests="$(seq -f "test-%02g" 0 19)"
 fi
 
 declare -A tools=(
@@ -175,6 +175,11 @@ declare -A tools=(
     [test-12]="pbench-clear-tools"
     [test-13]="pbench-postprocess-tools"
     [test-14]="pbench-agent-config-activate"
+    [test-15]="pbench-get-hosts"
+    [test-16]="pbench-get-hosts"
+    [test-17]="pbench-get-hosts"
+    [test-18]="pbench-collect-sysinfo"
+    [test-19]="pbench-collect-sysinfo"
 )
 declare -A options=(
     [test-00]="--name=mpstat --group=default -- --interval=10"
@@ -192,6 +197,11 @@ declare -A options=(
     [test-11]="--remote=fubar"
     [test-13]="--dir=$_testdir/tmp --group=default --iteration=1"
     [test-14]="$_testdir/tmp/pbench-agent.cfg"
+    [test-15]="$_testdir/tools-default"
+    [test-16]="$_testdir/tools-default"
+    [test-17]="$_testdir/tools-default"
+    [test-18]="--dir=$_testdir/tmp --group=default beg"
+    [test-19]="--dir=$_testdir/tmp --group=default beg"
 )
 
 declare -A expected_status=(
@@ -199,7 +209,7 @@ declare -A expected_status=(
     [test-06]=1
     [test-11]=4
     [test-12]=1
-    [test-13]=2
+    [test-13]=1
 )
 
 for tst in $tests; do
