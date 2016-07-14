@@ -1,0 +1,17 @@
+---
+- hosts: remote
+  user: root
+  vars:
+    - sysinfo_path: "{{ SYSINFO_PATH }}"
+  tasks:
+    - name: getting the label
+      command: cat "/var/lib/pbench-agent/tools-default/label"
+      register: label
+    - name: sysinfo
+      shell: pbench-remote-sysinfo-dump "{{ sysinfo_path }}" "{{ label.stdout }}"
+    - name: Sync results
+      synchronize:
+        src: "{{ sysinfo_path }}/"
+        dest: "{{ sysinfo_path }}"
+        mode: pull
+        archive: yes
