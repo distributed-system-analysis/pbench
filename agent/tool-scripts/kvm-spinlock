@@ -264,7 +264,7 @@ function safe_kill() {
 	done
 	# hack: individual tools will have a different number of pids running.
 	# we might just delete the warning if it gets too cumbersome.
-	if [ $len -ge 4 -o $len -ge 3 -a $tool!="turbostat" ] ;then
+	if [[ $len > 4 || ($len > 3 && $tool != "turbostat") ]] ;then
 		warn_log "Too many pids for $tool: $pidlist -- maybe old tools running? Use pbench-kill-tools."
 	fi
 	
