@@ -1,0 +1,23 @@
++++ Running test-09 pbench-stop-tools
+--- Finished test-09 pbench-stop-tools (status=0}
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tmp/tools-default
+/var/tmp/pbench-test-utils/pbench/tools-default
+/var/tmp/pbench-test-utils/pbench/tools-default/iostat
+/var/tmp/pbench-test-utils/pbench/tools-default/iostat:
+--interval=3
+--- pbench tree state
++++ pbench.log file contents
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]started: --dir=/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/iostat --stop --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/tmp --interval=3
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] stopping iostat
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]completed: 
+--- pbench.log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/kill 123456
+/var/tmp/pbench-test-utils/test-execution.log:NONE/123456
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/kill 123456 exited with 0
+--- test-execution.log file contents

@@ -84,7 +84,7 @@ else
 	tool_group_dir="$pbench_run/tools-default"
 fi
 if [ ! -d "$tool_group_dir" ]; then
-	error_log "[$script_name] failed to find tools group directroy, \"$tool_group_dir\""
+	error_log "[$script_name] failed to find tools group directory, \"$tool_group_dir\""
 	exit 1
 fi
 
@@ -152,9 +152,11 @@ for this_tool_file in `/bin/ls $tool_group_dir`; do
 			if [ "$action" == "kill" ]; then
 				screens_to_kill=`screen -ls | grep "$screen_name" | awk '{print $1}'`
 				pids_to_kill=`echo $screens_to_kill | awk -F. '{print $1}'`
-				echo "killing the following screen sessions for $name:"
-				echo "$screens_to_kill"
-				kill $pids_to_kill
+				if [ ! -z "$pids_to_kill" ] ;then
+					echo -n "killing the following screen sessions for $name: "
+					echo "$screens_to_kill"
+					kill $pids_to_kill
+				fi
 			else
 				$pbench_bin/tool-scripts/$name --$action --iteration=$iteration --group=$group --dir=$dir "${tool_opts[@]}" &
 			fi

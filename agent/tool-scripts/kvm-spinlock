@@ -1,4 +1,5 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
 
 script_path=`dirname $0`
 script_name=`basename $0`
@@ -235,6 +236,63 @@ case "$tool" in
 	tool_cmd="$script_path/datalog/$tool-datalog $interval $username $password $tool_stdout_file"
 	;;
 esac
+
+function safe_kill() {
+	# safer kill: check for strange situations and deal with them.
+	# If there is a pid, try to kill it.  If the kill succeeds,
+	# return success, but if it fails, try to see if the pid is
+	# still running: if so, try to kill it with a KILL and return
+	# failure.  Eat any error message.
+	local tool=$1
+	local pid=$2
+	local signal=${3:-TERM}
+	local pidlist p pid_to_kill len rc
+
+	if [ -z "$pid" ] ;then
+		# should not happen
+		return 1
+	fi
+	
+	# check that the pid corresponds to the tool
+	pidlist=$(pidof -x $tool)
+	typeset -i len=0
+	for p in $pidlist ;do
+		len=$len+1
+		if [[ $p == $pid ]] ;then
+			pid_to_kill=$pid
+		fi
+	done
+	# hack: individual tools will have a different number of pids running.
+	# we might just delete the warning if it gets too cumbersome.
+	if [ $len -ge 4 -o $len -ge 3 -a $tool!="turbostat" ] ;then
+		warn_log "Too many pids for $tool: $pidlist -- maybe old tools running? Use pbench-kill-tools."
+	fi
+	
+	rc=0
+	if [ ! -z "$pid_to_kill" ] ;then
+		kill -s $signal $pid_to_kill 2>/dev/null
+		rc=$?
+	fi
+	
+	[[ $rc == 0 ]] && return 0
+
+	# check if the process is still running.
+	pidlist=$(pidof -x $tool)
+	for p in $pidlist ;do
+		if [[ $p == $pid ]] ;then
+			# why is the pid still there?
+			kill -s KILL $pid 2>/dev/null
+			return 2
+		# else
+			# why are there other tool processes running?
+			# should we kill them?
+		fi
+	done
+	return 0
+}
+
+# return code
+rc=0
 case "$mode" in
 	install)
 	case "$tool" in
@@ -294,29 +352,35 @@ case "$mode" in
 	debug_log "$script_name: running $tool_cmd"
 	"$tool_cmd_file" 2>"$tool_stderr_file" & echo $! >"$tool_pid_file"
 	wait
+	rc=0
 	popd >/dev/null
 	;;
 	stop)
 	debug_log "stopping $script_name"
 	pid=`cat $tool_pid_file`
-	if [ "$tool" == "kvmtrace" ]; then
-		if [ -z "$sleep_cmd" ]; then
-			# kill the perf cmd
-			kill -s SIGINT $pid
-		else
-			# kill the sleep process if it still exists
-			sleep_pid=`ps --ppid $pid | pgrep sleep`
-			if [ ! -z "$sleep_pid" ]; then
-				kill $sleep_pid
+	if [ ! -z "$pid" ] ;then
+		if [ "$tool" == "kvmtrace" ]; then
+			if [ -z "$sleep_cmd" ]; then
+				# kill the perf cmd
+				safe_kill $tool $pid INT
+			else
+				# kill the sleep process if it still exists
+				sleep_pid=`ps --ppid $pid | pgrep sleep`
+				if [ ! -z "$sleep_pid" ]; then
+					safe_kill $tool $sleep_pid
+				fi
 			fi
+			# wait for the trace-cmd pid to complete
+			while [ -d /proc/$pid ]; do
+				debug_log "waiting for PID $pid to die"
+				sleep 0.5
+			done
+			rc=0
+		else
+			safe_kill $tool $pid
+			rc=$?
+			/bin/rm -f "$tool_pid_file"
 		fi
-		# wait for the trace-cmd pid to complete
-		while [ -d /proc/$pid ]; do
-			debug_log "waiting for PID $pid to die"
-			sleep 0.5
-		done
-	else
-		kill $pid && /bin/rm -f "$tool_pid_file"
 	fi
 	;;
 	postprocess)
@@ -328,6 +392,7 @@ case "$mode" in
 		done
 		pushd $tool_output_dir >/dev/null
 		blkparse $devs >blkparse-stdout.txt 2>blkparse-stderr.txt
+		rc=$?
 		bzip2 blkparse-stdout.txt &
 		for dev in $devs; do
 			bzip2 $dev.blktrace.* &
@@ -344,6 +409,7 @@ case "$mode" in
 		fi
 		ssh $vm cat /proc/kallsyms >kallsyms-guest.txt
 		$script_path/postprocess/kvmtrace-postprocess .
+		rc=$?
 		bzip2 --fast kvmtrace-report-stdout.txt &
 		bzip2 --fast trace.dat &
 		bzip2 --fast kallsyms-guest.txt &
@@ -352,8 +418,11 @@ case "$mode" in
 		*)
 		debug_log "postprocessing $script_name"
 		$script_path/postprocess/$script_name-postprocess "$tool_output_dir"
+		rc=$?
 		;;
 	esac
 	popd >/dev/null
 	;;
 esac
+
+exit $rc
