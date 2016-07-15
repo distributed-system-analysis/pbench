@@ -179,3 +179,4 @@ else    # register this tool on the remote host
 		echo "$label" >"$this_tool_file"
 	fi
 fi
+exit $rc

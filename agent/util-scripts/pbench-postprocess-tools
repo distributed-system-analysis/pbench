@@ -40,7 +40,7 @@ if [ $? -ne 0 ]; then
 	printf -- "\t                        will store and process data\n"
 	printf "\n"
 	printf -- "\t-i str --iteration=num, num = a number representing the\n"
-	printf -- "\t                              iteration data was collected for"
+	printf -- "\t                              iteration data was collected for\n"
 	exit 1
 fi
 eval set -- "$opts";
@@ -74,6 +74,7 @@ while true; do
 	esac
 done
 
+typeset -i nerrs=0
 iteration_num=`echo $iteration | awk -F- '{print $1}'`
 # this tool group's directory which stores options, etc.
 if [ -d "$pbench_run/tools-$group" ]; then
@@ -92,6 +93,13 @@ fi
 tool_output_dir="$dir/tools-$group"
 mkdir -p $tool_output_dir
 
+# Try to prevent a cascade of tools running.
+if [ "$action" == "start" ] ;then
+	# Kill any tools running from a previous incantation before
+	# starting this one.
+	pbench-kill-tools --group $group
+fi
+
 function move_tool_data {
 	local remote_host=$1
 	local remote_label=$2
@@ -100,6 +108,12 @@ function move_tool_data {
 	tool_data_size=`ssh $ssh_opts -n $remote_host du -sm $tool_output_dir | awk '{print $1}'`
 	debug_log "[$script_name]started: copying tool data ($tool_data_size MB) from $remote_host"
 	ssh $ssh_opts -n $remote_host "cd $tool_output_dir && tar cf - *" | tar mxf -
+	rc=$?
+	if [ $rc != 0 ] ;then
+		debug_log "[$script_name]copying tool data failed for remote $remote_host"
+		popd > /dev/null
+		return $rc
+	fi
 	# if the full hostname was used in pbench-register-tool --remote, make sure that is preserved in the directory name
 	if [ $remote_host != "$remote_shost" ]; then
 		if [ -e "$remote_label:$remote_shost" ]; then
@@ -112,11 +126,14 @@ function move_tool_data {
 	debug_log "[$script_name]completed: copying of tool data on $remote_host"
 	debug_log "[$script_name]started: deleting tool data on $remote_host"
 	ssh $ssh_opts -n $remote_host "cd $tool_output_dir && /bin/rm -rf *"
+	rc=$?
 	debug_log "[$script_name]completed: deleting tool data on $remote_host"
 	popd >/dev/null
+	return $rc
 }
 
 ### phase 1: for each tool, call the tool script with --$action (start, stop, or postprocess)
+pids=""
 for this_tool_file in `/bin/ls $tool_group_dir`; do
 	if [ "$this_tool_file" == "label" ]; then
 		continue;
@@ -128,6 +145,7 @@ for this_tool_file in `/bin/ls $tool_group_dir`; do
 		# tool options are stored on the remote host's tool file, so no need to pass it here
 		debug_log "[$script_name]running this tool on $remote: ssh $ssh_opts -n $remote pbench-$action-tools --iteration=$iteration --group=$group --dir=$dir"
 		ssh $ssh_opts -n $remote pbench-$action-tools --iteration=$iteration --group=$group --dir=$dir &
+		pids="$pids $!"
 	else
 		# tool is local
 		# assemble the tool options in to an array
@@ -159,12 +177,19 @@ for this_tool_file in `/bin/ls $tool_group_dir`; do
 				fi
 			else
 				$pbench_bin/tool-scripts/$name --$action --iteration=$iteration --group=$group --dir=$dir "${tool_opts[@]}" &
+				pids="$pids $!"
 			fi
 		fi
 		
 	fi
 done
-wait
+for p in $pids ;do
+	wait $p
+	rc=$?
+	if [[ $rc -ne 0 ]] ;then
+		nerrs=$nerrs+1
+	fi
+done
 if [ "$action" == "postprocess" ]; then
 	# phase 2: now that the local results are ready, move them
 	# down to $tool_output_dir/[$label:]$hostname.
@@ -185,12 +210,21 @@ if [ "$action" == "postprocess" ]; then
 	
 	### phase 3: copy over data from remote hosts
 	# for the remote tools, copy over the postprocess data
+	pids=""
 	for this_tool_file in `/bin/ls $tool_group_dir | grep "^remote"`; do
 		remote_hostname=`echo "$this_tool_file" | awk -F@ '{print $2}'`
 		label=`cat $tool_group_dir/$this_tool_file`
 		# copy over the data from postprocessing
 		move_tool_data $remote_hostname $label &
+		pids="$pids $!"
 	done
-	wait
+	for p in $pids ;do
+		wait $p
+		rc=$?
+		if [[ $rc -ne 0 ]] ;then
+			nerrs=$nerrs+1
+		fi
+	done
 fi
 debug_log "[$script_name]completed: $@"
+exit $nerrs

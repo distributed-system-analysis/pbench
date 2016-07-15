@@ -90,13 +90,24 @@ if [ -z "$interval" ] ;then
 	interval=3
 fi
 
+typeset -i nerrs=0
 default_tool_set=$(getconf.py -l default-tool-set pbench/tools)
 case "$toolset" in
 	default)
 	for i in $default_tool_set; do
 		pbench-register-tool --name=$i $remote $label $group -- --interval="$interval"
+		rc=$?
+		if [ $rc != 0 ] ;then
+			nerrs=$nerrs+1
+		fi
 	done
 	# low overhead perf
 	pbench-register-tool --name=perf $remote $label $group -- --record-opts="record -a --freq=100"
+	rc=$?
+	if [ $rc != 0 ] ;then
+		nerrs=$nerrs+1
+	fi
 	;;
 esac
+
+exit $nerrs
