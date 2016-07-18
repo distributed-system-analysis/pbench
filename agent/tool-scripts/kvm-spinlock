@@ -306,6 +306,7 @@ case "$mode" in
 		# no version is provided here because we rely on a 
 		# distribution provided package and we take whatever we can get
 		check_install_rpm trace-cmd
+		rc=$?
 		;;
 		turbostat)
 		release=$(awk '{x=$7; split(x, a, "."); print a[1];}' /etc/redhat-release)
@@ -318,9 +319,9 @@ case "$mode" in
 			;;
 		esac
 		check_install_rpm $pkg
+		rc=$?
 		if grep -q KVM /sys/devices/virtual/dmi/id/product_name ; then
-			error_log "pbench is running inside a KVM guest.  Disabling turbostat."
-			exit 1
+			warn_log "pbench is running inside a KVM guest.  Disabling turbostat."
 		fi
 		;;
 		dm-cache)
