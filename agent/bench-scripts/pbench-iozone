@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# pbench_iozone 0.01 initial version 
-# TODO:
+# pbench-iozone 0.01 initial version 
+# TODO
 # 1) write results in pbench standard file names and formats
 # 2) add support to run mulitple samples and get stddev
 # 3) add support for multiple local or remote copies of benchmark running concurrently
@@ -9,7 +9,7 @@
 
 # script to run the iozone benchmark test 
 
-# usage ./pbench_iozone --config="string" --targets=/location/file --number_of_runs --file_sizes=1,2,3 --record_sizes=1,2,4 
+# usage ./pbench-iozone --config="string" --targets=/location/file --number_of_runs --file_sizes=1,2,3 --record_sizes=1,2,4 
 # file_sizes are in GB, record sizes are in MB 
 
 script_path=`dirname $0`
@@ -22,7 +22,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 benchmark_rpm=$script_name
 benchmark="iozone"
 benchmark_bin=/usr/local/bin/$benchmark
-ver=3.429
+ver=3.430
 
 # Every bench-script follows a similar sequence:
 # 1) process bench script arguments
@@ -175,7 +175,7 @@ pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_r
 for file_size in $(echo $file_sizes | sed -e s/,/" "/g); do
 	for record_size in $(echo $record_sizes | sed -e s/,/" "/g); do 
 		for run in $(seq 1 ${number_of_runs}); do
-			iozone -i0 -i1 -i2 -i3 -i4 -i5 -i6 -i7 -i8 -i9 -i10 -i11 -i12  -c -e -f $targets -s ${file_size}g -r ${record_size}m >> $benchmark_results_dir/$(hostname)_$run.iozone          
+			$benchmark_bin -i0 -i1 -i2 -i3 -i4 -i5 -i6 -i7 -i8 -i9 -i10 -i11 -i12  -c -e -f $targets -s ${file_size}g -r ${record_size}m >> $benchmark_results_dir/$(hostname)_$run.iozone          
 		done
 	done
 done 

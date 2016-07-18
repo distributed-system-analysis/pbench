@@ -36,7 +36,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 benchmark_rpm=$script_name
 benchmark="netperf"
 benchmark_bin=/usr/bin/$benchmark
-ver=2.6.0
+ver=2.7.0
 spacing=25
 
 
@@ -361,7 +361,7 @@ if [ "$postprocess_only" != "y" ]; then
 	err_clients=""
 	for client in `echo $clients | sed -e s/,/" "/g`; do
 		debug_log "checking for netperf on client $client"
-		ssh $ssh_opts $client pbench_netperf --install
+		ssh $ssh_opts $client pbench-netperf --install
 		if [ $? -ne 0 ]; then
 			let err_cnt=err_cnt+1
 			err_clients="$err_clients $client"
@@ -370,7 +370,7 @@ if [ "$postprocess_only" != "y" ]; then
 	err_servers=""
 	for server in `echo $servers | sed -e s/,/" "/g`; do
 		debug_log "checking for netperf on server $server"
-		ssh $ssh_opts $server pbench_netperf --install
+		ssh $ssh_opts $server pbench-netperf --install
 		if [ $? -ne 0 ]; then
 			let err_cnt=err_cnt+1
 			err_servers="$err_servers $server"
