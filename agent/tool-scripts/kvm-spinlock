@@ -299,7 +299,7 @@ case "$mode" in
 		kvmtrace)
 		# ensure debugfs is mounted
 		if cat /proc/mounts | grep -q debugfs; then
-			echo "debugfs is already mounted"
+			log "debugfs is already mounted"
 		else
 			mount -t debugfs none /sys/kernel/debug
 		fi
@@ -319,21 +319,21 @@ case "$mode" in
 		esac
 		check_install_rpm $pkg
 		if grep -q KVM /sys/devices/virtual/dmi/id/product_name ; then
-			echo "pbench is running inside a KVM guest.  Disabling turbostat."
+			error_log "pbench is running inside a KVM guest.  Disabling turbostat."
 			exit 1
 		fi
 		;;
 		dm-cache)
 		kmod=dm_cache
 		if ! grep -q $kmod /proc/modules ; then
-			echo "$kmod not loaded, exiting"
+			error_log "$kmod not loaded, exiting"
 			exit 1
 		fi
 		;;
 		rabbit)
 		tool_bin="/usr/bin/rabbitmqadmin"
 		if [ ! -e $tool_bin ]; then
-			echo "$tool_bin not installed, exiting"
+			error_log "$tool_bin not installed, exiting"
 			exit 1
 		fi
 		;;
