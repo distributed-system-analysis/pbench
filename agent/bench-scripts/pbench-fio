@@ -12,7 +12,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 benchmark_rpm=$script_name
 benchmark="fio"
 benchmark_bin=/usr/local/bin/$benchmark
-ver=2.2.5
+ver=2.2.11
 
 # Every bench-script follows a similar sequence:
 # 1) process bench script arguments
