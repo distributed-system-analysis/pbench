@@ -1,4 +1,4 @@
-# Created 2016-06-14 Tue 13:43
+# Created 2016-07-22 Fri 12:59
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
@@ -28,17 +28,7 @@ Prerequisite: Somebody has already done the server setup.
 The following steps assume that only a single node participates in the benchmark run. If you
 want a multi-node setup, you have to read up on the =--remote= options of various commands
 (in particular, =pbench-register-tool-set=):
-- Copy the appropriate yum repo file from
-  [[https://copr.fedorainfracloud.org/coprs/ndokos/pbench/]]; e.g. for
-  RHEL7/Centos7:
-  #+BEGIN_EXAMPLE
-  wget -O /etc/yum.repos.d/pbench.repo https://copr.fedorainfracloud.org/coprs/ndokos/pbench/repo/epel-7/ndokos-pbench-epel-7.repo
-  #+END_EXAMPLE
-- Install the agent:
-  #+BEGIN_EXAMPLE
-  yum install pbench-agent -y
-  # or dnf install pbench-agent -y
-  #+END_EXAMPLE
+- [[file:installation.org][Install the agent]].
 - Customize the agent for your server environment. This will vary from
   installation to installation, but it fundamentally involves copying
   two files that should be made available to you somehow by an admin
@@ -58,7 +48,9 @@ want a multi-node setup, you have to read up on the =--remote= options of variou
 - Visit the Results URL in your browser to see the results: the URL
   depends on who the server is; assuming that the server is
   "pbench.example.com" and assuming you ran the above on a host named
-  "myhost", the results will be found at
+  "myhost", the results will be found at (*N.B.*: this is a fake link
+  serving as an example only - talk to your local administrator to find out
+  what server to use to get to pbench results):
   [[http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS]].
 
 For explanations and details, see subsequent sections.
@@ -78,14 +70,12 @@ pbench-register-tool-set
 
 You can then run a built-in benchmark by invoking its pbench script -
 pbench will install the benchmark if necessary[fn:1]:
-
 #+BEGIN_EXAMPLE
 pbench-fio
 #+END_EXAMPLE
-
 When the benchmark finishes, the tools will be stopped as well. The
 results can be collected and shipped to the standard storage location[fn:2]
-with
+with:
 #+BEGIN_EXAMPLE
 pbench-move-results
 #+END_EXAMPLE
@@ -155,8 +145,8 @@ results_repo_dir=/pbench/public_html/incoming
 ssh_opts='-o StrictHostKeyChecking=no'
 #+END_EXAMPLE
 
-These are now specified in the config file
-=/opt/pbench-agent/config/pbench.conf=.
+Somne of these are now specified in the config file
+=/opt/pbench-agent/config/pbench-agent.cfg=.
 
 * Available tools
 The configured default set of tools (what you would get by running
@@ -181,16 +171,13 @@ or unregistered (e.g. some people prefer to run without perf):
 #+BEGIN_EXAMPLE
 pbench-unregister-tool --name perf
 #+END_EXAMPLE
-
 Note that perf is run in a "low overhead" mode with options "record -a
 --freq=100", but if you want to run it differently, you can always
 unregister it and register it again with different options:
-
 #+BEGIN_EXAMPLE
 pbench-unregister-tool --name=perf
 pbench-register-tool --name=perf -- --record-opts="record -a --freq=200"
 #+END_EXAMPLE
-
 Tools can be also be registered, started and stopped on remote hosts
 (see the =--remote= option described in [[*What does =--remote= do?][What does =--remote= do?]]).
 
@@ -199,7 +186,7 @@ Tools can be also be registered, started and stopped on remote hosts
 PBench provides a set of pre-packaged script to run some common benchmarks
 using the collection tools and other facilities that pbench provides.  These
 are found in the =bench-scripts= directory of the pbench installation
-(=/opt/pbench-agent/bench-scripts= by default). The current set consists of
+(=/opt/pbench-agent/bench-scripts= by default). The current set includes:
 
 - =pbench-dbench=
 - =pbench-fio=
@@ -271,19 +258,14 @@ take a =--remote= option (see [[*What does =--remote= do?][What does =--remote= 
 allow the starting/stopping of tools and the postprocessing of results
 on multiple remote hosts.
 
-There is also a set of miscellaneous tools for doing various and
+There is a set of miscellaneous tools for doing various and
 sundry things - although the name of the script indicates its purpose,
 if you want more information on these, you will have to read the code:
 - =pbench-avg-stddev=
-- XXX bind-ethernet-ints-to-node
-- XXX check-vcpu-prio.sh
-- XXX cpu-hog
-- XXX disable-ht
 - =pbench-log-timestamp=
-- XXX offline-node-cpus
-- XXX set-vcpu-prio-rt.sh
-- XXX sync-clocks
-- XXX wait-until-sshable
+These are used by various pieces of pbench. There is also a =contrib=
+directory that contains completely unsupported tools that various people
+have found useful.
 
 * Second steps
 
@@ -515,14 +497,20 @@ run:
 #+BEGIN_EXAMPLE
 pbench-kill-tools --group=$group
 #+END_EXAMPLE
-
+If you run pbench from your own script, you should add a signal handler to
+do this:
+#+BEGIN_EXAMPLE
+trap "pbench-kill-tools --group=$group" EXIT INT QUIT
+#+END_EXAMPLE
 ** Clear tools
 This tool will delete the tools.$group file on the local host as well
 as on all the remote hosts specified therein.  After doing that, you
 will need to re-register all the tools that you want to use. In
 combination with =pbench-clear-results=, this tool creates a blank slate
 where you can start from scratch. You probably don't want to call
-this much, but it may be useful in certain isolated cases.
+this much, but it may be useful in certain cases (e.g. when the
+remotes are created for the test and then disappear at the end - it's
+a good idea to call =pbench-clear-tools= from a trap in that case).
 
 ** Register tools
 Some tools have *required* options[fn:9] and you *have* to specify
@@ -582,7 +570,7 @@ location and what happens there. It also describes the =--prefix= option to =pbe
 (and =pbench-copy-results=) and a utility script, =pbench-edit-prefix=, that allows you to change how
 the results are viewed.
 
-N.B. This section applies to the pbench RPM version 0.31-108gf016ed6 and later. If you are
+*N.B.* This section applies to the pbench RPM version 0.31-108gf016ed6 and later. If you are
 using an earlier version, please upgrade at your earliest convenience.
 
 *** Where to go to see results                                     :external:
@@ -824,7 +812,6 @@ the data points and an HTML file that uses the nv3 library to plot
 the data graphically in a browser. See the [[https://github.com/distributed-system-analysis/pbench/blob/master/agent/tool-scripts/postprocess][postprocess]] directory for
 examples, e.g. [[https://github.com/distributed-system-analysis/pbench/blob/master/agent/tool-scripts/postprocess/iostat-postprocess][the iostat postprocessing tool]].
 
-
 ** How to add a benchmark
 TBD
 ** How do I collect data for a short time while my benchmark is running?
@@ -874,7 +861,7 @@ for exp in experiment1 experiment2 experiment3 ;do
 done
 pbench-move-results
 #+END_EXAMPLE
-N.B. You need to invoke the =pbench-{start,stop,postprocess}-tools= scripts
+*N.B.* You need to invoke the =pbench-{start,stop,postprocess}-tools= scripts
 with the *same* arguments.
 
 ** How do I install pbench-agent?
