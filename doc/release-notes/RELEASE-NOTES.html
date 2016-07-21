@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-06-14 Tue 14:46 -->
+<!-- 2016-07-21 Thu 18:18 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench release notes</title>
@@ -235,6 +235,15 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
+<li><a href="#org9786e1e">Version 0.39</a>
+<ul>
+<li><a href="#orgc88f7e9">Installation</a></li>
+<li><a href="#orgf0b47d9">agent</a></li>
+<li><a href="#orgaa0617d">server</a></li>
+<li><a href="#org4ff4a7f">web-server</a></li>
+<li><a href="#org44c8691">Changelog</a></li>
+</ul>
+</li>
 <li><a href="#org44eb0d4">Version 0.38</a>
 <ul>
 <li><a href="#orgc88f7e9">Installation</a></li>
@@ -246,6 +255,216 @@ for the JavaScript code in this tag.
 </ul>
 </li>
 </ul>
+</div>
+</div>
+<p>
+u#  -*- after-save-hook: org-html-export-to-html; org-export-in-background: t; -*-
+</p>
+
+<div id="outline-container-org9786e1e" class="outline-2">
+<h2 id="org9786e1e">Version 0.39</h2>
+<div class="outline-text-2" id="text-org9786e1e">
+</div><div id="outline-container-orgc88f7e9" class="outline-3">
+<h3 id="orgc88f7e9">Installation</h3>
+<div class="outline-text-3" id="text-orgc88f7e9">
+<p>
+There are no installation changes in this release: see the
+<a href="../agent/installation.html">Installation Instructions</a> for how to install.
+</p>
+
+<p>
+After installation or update, you should have version 0.39-3g4f9ab11
+of the pbench-agent RPM installed.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgf0b47d9" class="outline-3">
+<h3 id="orgf0b47d9">agent</h3>
+<div class="outline-text-3" id="text-orgf0b47d9">
+</div><ul class="org-ul"><li><a id="org69c2388"></a>Backward incompatibilities<br  /><ul class="org-ul"><li><a id="org14b6ab3"></a>pbench-agent config file renamed<br  /><div class="outline-text-5" id="text-org14b6ab3">
+<p>
+All configuration files now have a suffix of ".cfg", rather than
+".conf".  In particular, the default pbench-agent config file is now
+<code>/opt/pbench-agent/config/pbench-agent.cfg</code>.  You might have to rename
+your existing config file:
+</p>
+<pre class="example">
+cd /opt/pbench-agent/config
+mv pbench-agent.conf pbench-agent.cfg
+</pre>
+<p>
+If you have problems (e.g. <code>pbench-register-tool-set</code> only registers the <code>perf</code>
+tool, rather than a complete set; <code>pbench-move-results</code> fails because it cannot
+find a server), check with:
+</p>
+<pre class="example">
+cat $CONFIG
+</pre>
+<p>
+If that fails, then pbench cannot find the config file, most probably because
+of the renaming described above.
+</p>
+</div></li>
+<li><a id="orgc333774"></a>pbench-netperf script has bit-rotted<br  /><div class="outline-text-5" id="text-orgc333774">
+<p>
+The pbench-netperf script seems to have bit-rotted. We are trying to
+decide whether to fix it or abandon it. If you have an opinion, please
+comment at <a href="https://github.com/distributed-system-analysis/pbench/issues/291">https://github.com/distributed-system-analysis/pbench/issues/291</a>.
+</p>
+</div></li></ul></li>
+
+<li><a id="org8262212"></a>New features<br  /><div class="outline-text-4" id="text-org8262212">
+<p>
+Please submit suggestions/issues to the <a href="https://github.com/distributed-system-analysis/pbench/issues">issue tracker</a>.
+</p>
+</div>
+
+<ul class="org-ul"><li><a id="org0d94078"></a>JSON files for pbench-uperf<br  /><div class="outline-text-5" id="text-org0d94078">
+<p>
+The postprocessing now produces JSON files that we are planning to use
+in order to index benchmark results and tool output into ES. The
+backend work necessary to index these results will be done between
+v0.39 and v0.40 and might necessitate changes to the JSON output. So
+pbench-uperf is treated as a guinea pig and once the output format
+solidifies, the rest of the benchmarks are going to be converted as
+well, probably starting with pbench-fio.
+</p>
+
+<p>
+A large part of the work for pbench-uperf has been to refactor the
+pbench-uperf script, so that the resulting pieces can be
+reused. Andrew hopes to have 90% of each benchmark script code in
+reusable packages, which will also simplify adding new scripts in the
+future.
+</p>
+</div></li>
+
+<li><a id="orgd696bf4"></a>The pbench docs on github have been revamped<br  /><div class="outline-text-5" id="text-orgd696bf4">
+<p>
+The docs can now be processed in two ways: to produce "internal"
+documents, including the more automated installation that is possible
+internally, as well as "external" documents that are more generic and
+depend only on externally available resources.
+</p>
+
+<p>
+The docs on github have been replaced by the "external" documents:
+there are still some <code>example.com</code> fake URLs (clearly marked, we hope)
+but almost all URLs now point to their correct refer587908ent and the instructions
+should be enough to get pbench-agent/pbench-server/pbench-web-server installed
+in an arbitrary environment, but with some manual work required (again, clearly
+described, we hope, even if it is somewhat laborious).
+</p>
+</div></li></ul></li>
+
+<li><a id="orgc0d383b"></a>Bug fixes<br  /><ul class="org-ul"><li><a id="orgf8a0e70"></a>Better error handling by utility scripts<br  /><div class="outline-text-5" id="text-orgf8a0e70">
+<p>
+In particular, errors in ssh invocations in pipelines are caught and returned
+properly. More work is planned in this area for upcoming releases, in particular
+hardening the benchmark scripts so that they deal better with errors and signals.
+</p>
+</div></li>
+
+<li><a id="orgedf4f86"></a>Safer killing of tools<br  /><div class="outline-text-5" id="text-orgedf4f86">
+<p>
+A safer kill has been implemented for all the tools that are linked to
+<code>kvm-spinlock</code>.  Assuming no problems surface, the sar-based tools
+will get the same treatment in upcoming releases.
+</p>
+</div></li>
+
+<li><a id="org105398c"></a>Fixes to graph rendering<br  /><div class="outline-text-5" id="text-org105398c">
+<p>
+See <a href="#org4ff4a7f">web-server</a> below.
+</p>
+</div></li></ul></li></ul>
+</div>
+
+<div id="outline-container-orgaa0617d" class="outline-3">
+<h3 id="orgaa0617d">server</h3>
+<div class="outline-text-3" id="text-orgaa0617d">
+<p>
+Server installation was simplified in v0.38: there is an RPM on COPR that can be used
+for installation, but as for the pbench-agent, it is not completely self-contained: one
+needs to install various configuration files and generate a directory structure for apache,
+a directory structure for results and a crontab that invokes the various scripts to process
+incoming results and make them available for viewing on the web.
+</p>
+
+<p>
+This release adds scripts to do these tasks somewhat more conveniently. It is possible to
+use these scripts from an RPM that installs the config files and then invokes the scripts to
+finish the installation. But it is also possible to do these steps manually. See the
+<a href="file:///home/nick/src/internal/pbench/doc/server/installation.html">server installation guide</a> for details.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org4ff4a7f" class="outline-3">
+<h3 id="org4ff4a7f">web-server</h3>
+<div class="outline-text-3" id="text-org4ff4a7f">
+<p>
+The pbench-web-server RPM has been updated with many fixes, so if you have it installed you
+probably want to update:
+</p>
+<pre class="example">
+dnf clean expire-cache
+dnf update pbench-web-serbver
+</pre>
+<p>
+(or the yum equivalents.)  The current version available from COPR
+is 0.3-19gaf1ffe4.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org44c8691" class="outline-3">
+<h3 id="org44c8691">Changelog</h3>
+<div class="outline-text-3" id="text-org44c8691">
+<ul class="org-ul">
+<li>9c2554f Bump versions for various benchmarks.</li>
+<li>a02ad33 Bump VERSION.</li>
+<li>48b8c27 Fix condition for warning of already running tools.</li>
+<li>f4f5618 Add unit tests.</li>
+<li>cf59a06 Check status of backgrounded commands in pbench-postprocess-tools.</li>
+<li>fe15a81 Catch pipeline failures and return proper error status.</li>
+<li>75ca51c Use pidof -x to get list of pids.</li>
+<li>7bbb4dd Revert the change to perf.</li>
+<li>11a0ad9 Add unit tests for safe_kill.</li>
+<li>fa80b08 Safer kill: check for strange situations and deal with them.</li>
+<li>862e68b Change the name of the config file in profile.</li>
+<li>9e0ecef Fix pbench-agent-config-activate and add unit test.</li>
+<li>19039eb Allow partial execution of unittests.</li>
+<li>57b56e7 Fix links to point to DSA github.io area.</li>
+<li>d720f61 updated pprof to point to correct package name for "go" it is golang, not go - added tool_bin to point to /usr/bin/go</li>
+<li>13c1193 Merge pull request #271 from atheurer/issue-270</li>
+<li>ee321d6 Add missing '$'</li>
+<li>d38ba9b Reduce screen session name to avoid screen error</li>
+<li>66c6996 Update jschart's d3-queue support from version 2 to version 3</li>
+<li>bc34df8 Update jschart to support alternative csv file formatting</li>
+<li>343f715 Fix a jschart bug where the wrong clip-path is referenced</li>
+<li>333978c Update jschart to add percentiles to the values displayed in the table when the mouse is moving across a histogram chart</li>
+<li>8608c57 Update jschart to better handle errors while loading datasets</li>
+<li>cae9788 Update jschart by eliminating the use of map</li>
+<li>2423475 Bug fix for jschart to pass a proper reference to the SVG to saveSvgAsPng</li>
+<li>826e5d7 Update jschart by eliminating as many global variables as possible to avoid out of scope references</li>
+<li>521cb95 Update jschart to minimize global variable references to the charts object</li>
+<li>74b30a8 Update jschart with cleanups and optimizations</li>
+<li>932679a Benchmark and iteration summary/processing scripts, JSON files and MoonGen benchmark support</li>
+<li>775f208 Remove duplicate data collected by sosreports</li>
+<li>a395811 Links to revised documentation.</li>
+<li>e6605d6 Add memory usage pidstat graphs</li>
+<li>124c787 Server installation link added.</li>
+<li>feb8aed bgtasks &#x2013;&gt; pbench-server</li>
+<li>f51df98 Links to revised docs.</li>
+<li>d21eefa Server version bump.</li>
+<li>66382bb Add server activation unit test.</li>
+<li>455c7f8 Fix command path.</li>
+<li>df7aaab Allow different set-ups during server activation.</li>
+<li>b63bdf5 Fix quoting of patterns for pidstat.</li>
+</ul>
+</div>
 </div>
 </div>
 
@@ -475,7 +694,7 @@ Unless you install locally - see <a href="http://pbench.example.com/server/pbenc
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2016-06-14 Tue 14:46</p>
+<p class="date">Page updated: 2016-07-21 Thu 18:18</p>
 </div>
 </body>
 </html>

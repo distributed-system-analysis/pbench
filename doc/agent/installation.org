@@ -1,4 +1,4 @@
-# Created 2016-06-14 Tue 13:43
+# Created 2016-07-21 Thu 18:17
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
@@ -53,13 +53,13 @@ the internal repo on every machine where you are planning to run
 
 If your system supports =dnf=, then you can copy the repo locally with:
 #+BEGIN_EXAMPLE
-dnf copr enable ndokos-pbench
+dnf copr enable ndokos/pbench
 #+END_EXAMPLE
 If your system only supports =yum=, you may be able to install the COPR plugin
 and install similarly:
 #+BEGIN_EXAMPLE
 yum install yum-plugin-copr
-yum copr enable ndokos-pbench
+yum copr enable ndokos/pbench
 #+END_EXAMPLE
 If all else fails, you can manually download the repo, by visiting
 [[https://copr.fedorainfracloud.org/coprs/ndokos/pbench/]] and clicking
@@ -68,6 +68,7 @@ Save it into =/etc/yum.repos.d/ndokos-pbench.repo=. Or use e.g. =wget=:
 #+BEGIN_EXAMPLE
 wget -O /etc/yum.repos.d/_copr_ndokos-pbench.repo https://copr.fedorainfracloud.org/coprs/ndokos/pbench/repo/epel-6/ndokos-pbench-epel-6.repo
 #+END_EXAMPLE
+for a RHEL6 or Centos 6 system.
 
 ** Internal repo                                                   :external:
 
@@ -82,15 +83,6 @@ In order to simplify installation, the =pbench-agent= RPM requires the
 installation of a few tools that should be available from the distribution's
 standard repo(s), plus one package (=configtools=) that is available from
 the external repo above.
-
-In turn, the =pbench-agent-internal= RPM requires the =pbench-agent= RPM
-at a version equal or greater than a specified version. In other words, the
-two RPMs are fairly tightly synchronized: the major versions of the two should
-be the same (although we are looking to relax this in the future).
-
-As a result, you only ever need to install/update *one* package: the
-=pbench-agent-internal= package. Because of the dependencies, it will pull
-in the appropriate version of the external package and all its dependencies.
 
 * Installing =pbench-agent=                                        :external:
 Once you have the COPR repo installed, you can install the =pbench-agent= RPM
@@ -113,7 +105,7 @@ pbench-agent-config-ssh-key /path/to/pbench/private/key/id_rsa
 #+END_EXAMPLE
 You should be ready to roll.
 
-* Administrator responsibility: Config file and ssh private key file
+* Administrator responsibility: Config file and ssh private key file :external:
 If you are the administrator for this installation, you will have to
 create a config file and make it available to your users. How you make
 it available is up to you. This section describes how to create the config file
@@ -129,6 +121,6 @@ The ssh key pair can be generated with
 ssh-keygen -t rsa
 #+END_EXAMPLE
 and an empty passphrase. The private key has to be made available to users
-so they can complete their installation of =pbench-agent= as shown above.
+so they can complete their installation of =pbench-agent= as described above.
 The public key should be added to the =authorized-keys= file of the =pbench=
 user on the server where the results are copied.

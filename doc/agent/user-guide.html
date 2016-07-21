@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-06-14 Tue 14:46 -->
+<!-- 2016-07-21 Thu 18:18 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench User Guide</title>
@@ -331,21 +331,7 @@ want a multi-node setup, you have to read up on the <code>--remote</code> option
 (in particular, <code>pbench-register-tool-set</code>):
 </p>
 <ul class="org-ul">
-<li><p>
-Copy the appropriate yum repo file from
-<a href="https://copr.fedorainfracloud.org/coprs/ndokos/pbench/">https://copr.fedorainfracloud.org/coprs/ndokos/pbench/</a>; e.g. for
-RHEL7/Centos7:
-</p>
-<pre class="example">
-wget -O /etc/yum.repos.d/pbench.repo https://copr.fedorainfracloud.org/coprs/ndokos/pbench/repo/epel-7/ndokos-pbench-epel-7.repo
-</pre></li>
-<li><p>
-Install the agent:
-</p>
-<pre class="example">
-yum install pbench-agent -y
-# or dnf install pbench-agent -y
-</pre></li>
+<li><a href="installation.html">Install the agent</a>.</li>
 <li>Customize the agent for your server environment. This will vary from
 installation to installation, but it fundamentally involves copying
 two files that should be made available to you somehow by an admin
@@ -367,7 +353,9 @@ pbench-move-results
 <li>Visit the Results URL in your browser to see the results: the URL
 depends on who the server is; assuming that the server is
 "pbench.example.com" and assuming you ran the above on a host named
-"myhost", the results will be found at
+"myhost", the results will be found at (<b>N.B.</b>: this is a fake link
+serving as an example only - talk to your local administrator to find out
+what server to use to get to pbench results):
 <a href="http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS">http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS</a>.</li>
 </ul>
 
@@ -406,15 +394,13 @@ pbench-register-tool-set
 You can then run a built-in benchmark by invoking its pbench script -
 pbench will install the benchmark if necessary<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>:
 </p>
-
 <pre class="example">
 pbench-fio
 </pre>
-
 <p>
 When the benchmark finishes, the tools will be stopped as well. The
 results can be collected and shipped to the standard storage location<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>
-with
+with:
 </p>
 <pre class="example">
 pbench-move-results
@@ -503,8 +489,8 @@ ssh_opts='-o StrictHostKeyChecking=no'
 </pre>
 
 <p>
-These are now specified in the config file
-<code>/opt/pbench-agent/config/pbench.conf</code>.
+Somne of these are now specified in the config file
+<code>/opt/pbench-agent/config/pbench-agent.cfg</code>.
 </p>
 </div>
 </div>
@@ -548,18 +534,15 @@ or unregistered (e.g. some people prefer to run without perf):
 <pre class="example">
 pbench-unregister-tool --name perf
 </pre>
-
 <p>
 Note that perf is run in a "low overhead" mode with options "record -a
 &#x2013;freq=100", but if you want to run it differently, you can always
 unregister it and register it again with different options:
 </p>
-
 <pre class="example">
 pbench-unregister-tool --name=perf
 pbench-register-tool --name=perf -- --record-opts="record -a --freq=200"
 </pre>
-
 <p>
 Tools can be also be registered, started and stopped on remote hosts
 (see the <code>--remote</code> option described in <a href="#org3a381f1">What does <code>--remote</code> do?</a>).
@@ -574,7 +557,7 @@ Tools can be also be registered, started and stopped on remote hosts
 PBench provides a set of pre-packaged script to run some common benchmarks
 using the collection tools and other facilities that pbench provides.  These
 are found in the <code>bench-scripts</code> directory of the pbench installation
-(<code>/opt/pbench-agent/bench-scripts</code> by default). The current set consists of
+(<code>/opt/pbench-agent/bench-scripts</code> by default). The current set includes:
 </p>
 
 <ul class="org-ul">
@@ -672,22 +655,19 @@ on multiple remote hosts.
 </p>
 
 <p>
-There is also a set of miscellaneous tools for doing various and
+There is a set of miscellaneous tools for doing various and
 sundry things - although the name of the script indicates its purpose,
 if you want more information on these, you will have to read the code:
 </p>
 <ul class="org-ul">
 <li><code>pbench-avg-stddev</code></li>
-<li>XXX bind-ethernet-ints-to-node</li>
-<li>XXX check-vcpu-prio.sh</li>
-<li>XXX cpu-hog</li>
-<li>XXX disable-ht</li>
 <li><code>pbench-log-timestamp</code></li>
-<li>XXX offline-node-cpus</li>
-<li>XXX set-vcpu-prio-rt.sh</li>
-<li>XXX sync-clocks</li>
-<li>XXX wait-until-sshable</li>
 </ul>
+<p>
+These are used by various pieces of pbench. There is also a <code>contrib</code>
+directory that contains completely unsupported tools that various people
+have found useful.
+</p>
 </div>
 </div>
 
@@ -1014,9 +994,15 @@ run:
 <pre class="example">
 pbench-kill-tools --group=$group
 </pre>
+<p>
+If you run pbench from your own script, you should add a signal handler to
+do this:
+</p>
+<pre class="example">
+trap "pbench-kill-tools --group=$group" EXIT INT QUIT
+</pre>
 </div>
 </div>
-
 <div id="outline-container-org44468b6" class="outline-3">
 <h3 id="org44468b6">Clear tools</h3>
 <div class="outline-text-3" id="text-org44468b6">
@@ -1026,7 +1012,9 @@ as on all the remote hosts specified therein.  After doing that, you
 will need to re-register all the tools that you want to use. In
 combination with <code>pbench-clear-results</code>, this tool creates a blank slate
 where you can start from scratch. You probably don't want to call
-this much, but it may be useful in certain isolated cases.
+this much, but it may be useful in certain cases (e.g. when the
+remotes are created for the test and then disappear at the end - it's
+a good idea to call <code>pbench-clear-tools</code> from a trap in that case).
 </p>
 </div>
 </div>
@@ -1123,7 +1111,7 @@ the results are viewed.
 </p>
 
 <p>
-N.B. This section applies to the pbench RPM version 0.31-108gf016ed6 and later. If you are
+<b>N.B.</b> This section applies to the pbench RPM version 0.31-108gf016ed6 and later. If you are
 using an earlier version, please upgrade at your earliest convenience.
 </p>
 </div>
@@ -1458,7 +1446,6 @@ examples, e.g. <a href="https://github.com/distributed-system-analysis/pbench/bl
 </div>
 </div>
 
-
 <div id="outline-container-org71a548f" class="outline-3">
 <h3 id="org71a548f">How to add a benchmark</h3>
 <div class="outline-text-3" id="text-org71a548f">
@@ -1532,7 +1519,7 @@ done
 pbench-move-results
 </pre>
 <p>
-N.B. You need to invoke the <code>pbench-{start,stop,postprocess}-tools</code> scripts
+<b>N.B.</b> You need to invoke the <code>pbench-{start,stop,postprocess}-tools</code> scripts
 with the <b>same</b> arguments.
 </p>
 </div>
@@ -1595,7 +1582,7 @@ all available tools - the current workaround is to check the contents of
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2016-06-14 Tue 14:46</p>
+<p class="date">Page updated: 2016-07-21 Thu 18:18</p>
 </div>
 </body>
 </html>

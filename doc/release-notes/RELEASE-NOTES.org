@@ -1,9 +1,10 @@
-# Created 2016-06-14 Tue 13:39
+# Created 2016-07-21 Thu 18:17
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
 #+OPTIONS: ^:{} H:2
 #+TITLE: PBench release notes
+u#  -*- after-save-hook: org-html-export-to-html; org-export-in-background: t; -*-
 #+HTML_DOCTYPE: xhtml-strict
 #+HTML_CONTAINER: div
 #+KEYWORDS: pbench
@@ -14,6 +15,149 @@
 #+SUBTITLE: 
 #+INFOJS_OPT: 
 #+LATEX_HEADER: 
+
+* Version 0.39
+
+** Installation                                                    :external:
+There are no installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install.
+
+After installation or update, you should have version 0.39-3g4f9ab11
+of the pbench-agent RPM installed.
+
+** agent
+*** Backward incompatibilities
+**** pbench-agent config file renamed
+All configuration files now have a suffix of ".cfg", rather than
+".conf".  In particular, the default pbench-agent config file is now
+~/opt/pbench-agent/config/pbench-agent.cfg~.  You might have to rename
+your existing config file:
+#+BEGIN_EXAMPLE
+cd /opt/pbench-agent/config
+mv pbench-agent.conf pbench-agent.cfg
+#+END_EXAMPLE
+If you have problems (e.g. =pbench-register-tool-set= only registers the ~perf~
+tool, rather than a complete set; =pbench-move-results= fails because it cannot
+find a server), check with:
+#+BEGIN_EXAMPLE
+cat $CONFIG
+#+END_EXAMPLE
+If that fails, then pbench cannot find the config file, most probably because
+of the renaming described above.
+**** pbench-netperf script has bit-rotted
+The pbench-netperf script seems to have bit-rotted. We are trying to
+decide whether to fix it or abandon it. If you have an opinion, please
+comment at [[https://github.com/distributed-system-analysis/pbench/issues/291]].
+
+*** New features
+Please submit suggestions/issues to the [[https://github.com/distributed-system-analysis/pbench/issues][issue tracker]].
+
+**** JSON files for pbench-uperf
+The postprocessing now produces JSON files that we are planning to use
+in order to index benchmark results and tool output into ES. The
+backend work necessary to index these results will be done between
+v0.39 and v0.40 and might necessitate changes to the JSON output. So
+pbench-uperf is treated as a guinea pig and once the output format
+solidifies, the rest of the benchmarks are going to be converted as
+well, probably starting with pbench-fio.
+
+A large part of the work for pbench-uperf has been to refactor the
+pbench-uperf script, so that the resulting pieces can be
+reused. Andrew hopes to have 90% of each benchmark script code in
+reusable packages, which will also simplify adding new scripts in the
+future.
+
+**** The pbench docs on github have been revamped
+The docs can now be processed in two ways: to produce "internal"
+documents, including the more automated installation that is possible
+internally, as well as "external" documents that are more generic and
+depend only on externally available resources.
+
+The docs on github have been replaced by the "external" documents:
+there are still some ~example.com~ fake URLs (clearly marked, we hope)
+but almost all URLs now point to their correct refer587908ent and the instructions
+should be enough to get pbench-agent/pbench-server/pbench-web-server installed
+in an arbitrary environment, but with some manual work required (again, clearly
+described, we hope, even if it is somewhat laborious).
+
+*** Bug fixes
+
+**** Better error handling by utility scripts
+In particular, errors in ssh invocations in pipelines are caught and returned
+properly. More work is planned in this area for upcoming releases, in particular
+hardening the benchmark scripts so that they deal better with errors and signals.
+
+**** Safer killing of tools
+A safer kill has been implemented for all the tools that are linked to
+=kvm-spinlock=.  Assuming no problems surface, the sar-based tools
+will get the same treatment in upcoming releases.
+
+**** Fixes to graph rendering
+See [[*web-server][web-server]] below.
+
+** server
+Server installation was simplified in v0.38: there is an RPM on COPR that can be used
+for installation, but as for the pbench-agent, it is not completely self-contained: one
+needs to install various configuration files and generate a directory structure for apache,
+a directory structure for results and a crontab that invokes the various scripts to process
+incoming results and make them available for viewing on the web.
+
+This release adds scripts to do these tasks somewhat more conveniently. It is possible to
+use these scripts from an RPM that installs the config files and then invokes the scripts to
+finish the installation. But it is also possible to do these steps manually. See the
+[[file:~/src/internal/pbench/doc/server/installation.org][server installation guide]] for details.
+
+** web-server
+The pbench-web-server RPM has been updated with many fixes, so if you have it installed you
+probably want to update:
+#+BEGIN_EXAMPLE
+dnf clean expire-cache
+dnf update pbench-web-serbver
+#+END_EXAMPLE
+(or the yum equivalents.)  The current version available from COPR
+is 0.3-19gaf1ffe4.
+
+** Changelog
+- 9c2554f Bump versions for various benchmarks.
+- a02ad33 Bump VERSION.
+- 48b8c27 Fix condition for warning of already running tools.
+- f4f5618 Add unit tests.
+- cf59a06 Check status of backgrounded commands in pbench-postprocess-tools.
+- fe15a81 Catch pipeline failures and return proper error status.
+- 75ca51c Use pidof -x to get list of pids.
+- 7bbb4dd Revert the change to perf.
+- 11a0ad9 Add unit tests for safe_kill.
+- fa80b08 Safer kill: check for strange situations and deal with them.
+- 862e68b Change the name of the config file in profile.
+- 9e0ecef Fix pbench-agent-config-activate and add unit test.
+- 19039eb Allow partial execution of unittests.
+- 57b56e7 Fix links to point to DSA github.io area.
+- d720f61 updated pprof to point to correct package name for "go" it is golang, not go - added tool_bin to point to /usr/bin/go
+- 13c1193 Merge pull request #271 from atheurer/issue-270
+- ee321d6 Add missing '$'
+- d38ba9b Reduce screen session name to avoid screen error
+- 66c6996 Update jschart's d3-queue support from version 2 to version 3
+- bc34df8 Update jschart to support alternative csv file formatting
+- 343f715 Fix a jschart bug where the wrong clip-path is referenced
+- 333978c Update jschart to add percentiles to the values displayed in the table when the mouse is moving across a histogram chart
+- 8608c57 Update jschart to better handle errors while loading datasets
+- cae9788 Update jschart by eliminating the use of map
+- 2423475 Bug fix for jschart to pass a proper reference to the SVG to saveSvgAsPng
+- 826e5d7 Update jschart by eliminating as many global variables as possible to avoid out of scope references
+- 521cb95 Update jschart to minimize global variable references to the charts object
+- 74b30a8 Update jschart with cleanups and optimizations
+- 932679a Benchmark and iteration summary/processing scripts, JSON files and MoonGen benchmark support
+- 775f208 Remove duplicate data collected by sosreports
+- a395811 Links to revised documentation.
+- e6605d6 Add memory usage pidstat graphs
+- 124c787 Server installation link added.
+- feb8aed bgtasks --> pbench-server
+- f51df98 Links to revised docs.
+- d21eefa Server version bump.
+- 66382bb Add server activation unit test.
+- 455c7f8 Fix command path.
+- df7aaab Allow different set-ups during server activation.
+- b63bdf5 Fix quoting of patterns for pidstat.
 
 * Version 0.38
 

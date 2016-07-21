@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-06-14 Tue 14:46 -->
+<!-- 2016-07-21 Thu 18:18 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench agent installation</title>
@@ -307,7 +307,7 @@ the internal repo on every machine where you are planning to run
 If your system supports <code>dnf</code>, then you can copy the repo locally with:
 </p>
 <pre class="example">
-dnf copr enable ndokos-pbench
+dnf copr enable ndokos/pbench
 </pre>
 <p>
 If your system only supports <code>yum</code>, you may be able to install the COPR plugin
@@ -315,7 +315,7 @@ and install similarly:
 </p>
 <pre class="example">
 yum install yum-plugin-copr
-yum copr enable ndokos-pbench
+yum copr enable ndokos/pbench
 </pre>
 <p>
 If all else fails, you can manually download the repo, by visiting
@@ -326,6 +326,9 @@ Save it into <code>/etc/yum.repos.d/ndokos-pbench.repo</code>. Or use e.g. <code
 <pre class="example">
 wget -O /etc/yum.repos.d/_copr_ndokos-pbench.repo https://copr.fedorainfracloud.org/coprs/ndokos/pbench/repo/epel-6/ndokos-pbench-epel-6.repo
 </pre>
+<p>
+for a RHEL6 or Centos 6 system.
+</p>
 </div>
 </div>
 
@@ -353,19 +356,6 @@ In order to simplify installation, the <code>pbench-agent</code> RPM requires th
 installation of a few tools that should be available from the distribution's
 standard repo(s), plus one package (<code>configtools</code>) that is available from
 the external repo above.
-</p>
-
-<p>
-In turn, the <code>pbench-agent-internal</code> RPM requires the <code>pbench-agent</code> RPM
-at a version equal or greater than a specified version. In other words, the
-two RPMs are fairly tightly synchronized: the major versions of the two should
-be the same (although we are looking to relax this in the future).
-</p>
-
-<p>
-As a result, you only ever need to install/update <b>one</b> package: the
-<code>pbench-agent-internal</code> package. Because of the dependencies, it will pull
-in the appropriate version of the external package and all its dependencies.
 </p>
 </div>
 </div>
@@ -428,7 +418,7 @@ ssh-keygen -t rsa
 </pre>
 <p>
 and an empty passphrase. The private key has to be made available to users
-so they can complete their installation of <code>pbench-agent</code> as shown above.
+so they can complete their installation of <code>pbench-agent</code> as described above.
 The public key should be added to the <code>authorized-keys</code> file of the <code>pbench</code>
 user on the server where the results are copied.
 </p>
@@ -436,7 +426,7 @@ user on the server where the results are copied.
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2016-06-14 Tue 14:46</p>
+<p class="date">Page updated: 2016-07-21 Thu 18:18</p>
 </div>
 </body>
 </html>
