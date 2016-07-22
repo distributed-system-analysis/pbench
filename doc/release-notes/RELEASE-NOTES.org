@@ -4,6 +4,7 @@
 #+OPTIONS: html5-fancy:nil tex:t
 #+OPTIONS: ^:{} H:2
 #+TITLE: PBench release notes
+#  -*- after-save-hook: org-html-export-to-html; org-export-in-background: t; -*-
 #+HTML_DOCTYPE: xhtml-strict
 #+HTML_CONTAINER: div
 #+KEYWORDS: pbench
