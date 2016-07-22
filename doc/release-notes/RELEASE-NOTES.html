@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-07-21 Thu 18:18 -->
+<!-- 2016-07-22 Fri 13:47 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench release notes</title>
@@ -257,9 +257,6 @@ for the JavaScript code in this tag.
 </ul>
 </div>
 </div>
-<p>
-u#  -*- after-save-hook: org-html-export-to-html; org-export-in-background: t; -*-
-</p>
 
 <div id="outline-container-org9786e1e" class="outline-2">
 <h2 id="org9786e1e">Version 0.39</h2>
@@ -351,7 +348,7 @@ depend only on externally available resources.
 <p>
 The docs on github have been replaced by the "external" documents:
 there are still some <code>example.com</code> fake URLs (clearly marked, we hope)
-but almost all URLs now point to their correct refer587908ent and the instructions
+but almost all URLs now point to their correct referent and the instructions
 should be enough to get pbench-agent/pbench-server/pbench-web-server installed
 in an arbitrary environment, but with some manual work required (again, clearly
 described, we hope, even if it is somewhat laborious).
@@ -374,6 +371,14 @@ will get the same treatment in upcoming releases.
 </p>
 </div></li>
 
+<li><a id="orgf888211"></a>Screen session names were too long<br  /><div class="outline-text-5" id="text-orgf888211">
+<p>
+The screen command fails when the name of the screen session (-S) is
+very long. This happens when the iteration full name is quite long. A
+fix for this uses only the iteration number, reducing the screen
+name to a safe length.
+</p>
+</div></li>
 <li><a id="org105398c"></a>Fixes to graph rendering<br  /><div class="outline-text-5" id="text-org105398c">
 <p>
 See <a href="#org4ff4a7f">web-server</a> below.
@@ -405,8 +410,20 @@ finish the installation. But it is also possible to do these steps manually. See
 <h3 id="org4ff4a7f">web-server</h3>
 <div class="outline-text-3" id="text-org4ff4a7f">
 <p>
-The pbench-web-server RPM has been updated with many fixes, so if you have it installed you
-probably want to update:
+The pbench-web-server RPM has been updated with many fixes, cleanups
+and optimizations.  Changes that are user-visible are:
+</p>
+
+<ul class="org-ul">
+<li>Update jschart to better handle errors while loading datasets</li>
+<li>Update jschart to support alternative csv file formatting</li>
+<li>Fix a jschart bug where the wrong clip-path is referenced</li>
+<li>Update jschart to add percentiles to the values displayed in the
+table when the mouse is moving across a histogram chart</li>
+</ul>
+
+<p>
+If you have it installed, you probably want to update:
 </p>
 <pre class="example">
 dnf clean expire-cache
@@ -438,7 +455,6 @@ is 0.3-19gaf1ffe4.
 <li>19039eb Allow partial execution of unittests.</li>
 <li>57b56e7 Fix links to point to DSA github.io area.</li>
 <li>d720f61 updated pprof to point to correct package name for "go" it is golang, not go - added tool_bin to point to /usr/bin/go</li>
-<li>13c1193 Merge pull request #271 from atheurer/issue-270</li>
 <li>ee321d6 Add missing '$'</li>
 <li>d38ba9b Reduce screen session name to avoid screen error</li>
 <li>66c6996 Update jschart's d3-queue support from version 2 to version 3</li>
@@ -694,7 +710,7 @@ Unless you install locally - see <a href="http://pbench.example.com/server/pbenc
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2016-07-21 Thu 18:18</p>
+<p class="date">Page updated: 2016-07-22 Fri 13:47</p>
 </div>
 </body>
 </html>

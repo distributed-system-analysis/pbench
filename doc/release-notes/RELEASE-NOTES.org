@@ -1,10 +1,10 @@
-# Created 2016-07-21 Thu 18:17
+# Created 2016-07-22 Fri 12:59
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
 #+OPTIONS: ^:{} H:2
 #+TITLE: PBench release notes
-u#  -*- after-save-hook: org-html-export-to-html; org-export-in-background: t; -*-
+#  -*- after-save-hook: org-html-export-to-html; org-export-in-background: t; -*-
 #+HTML_DOCTYPE: xhtml-strict
 #+HTML_CONTAINER: div
 #+KEYWORDS: pbench
@@ -75,7 +75,7 @@ depend only on externally available resources.
 
 The docs on github have been replaced by the "external" documents:
 there are still some ~example.com~ fake URLs (clearly marked, we hope)
-but almost all URLs now point to their correct refer587908ent and the instructions
+but almost all URLs now point to their correct referent and the instructions
 should be enough to get pbench-agent/pbench-server/pbench-web-server installed
 in an arbitrary environment, but with some manual work required (again, clearly
 described, we hope, even if it is somewhat laborious).
@@ -92,6 +92,11 @@ A safer kill has been implemented for all the tools that are linked to
 =kvm-spinlock=.  Assuming no problems surface, the sar-based tools
 will get the same treatment in upcoming releases.
 
+**** Screen session names were too long
+The screen command fails when the name of the screen session (-S) is
+very long. This happens when the iteration full name is quite long. A
+fix for this uses only the iteration number, reducing the screen
+name to a safe length.
 **** Fixes to graph rendering
 See [[*web-server][web-server]] below.
 
@@ -108,8 +113,16 @@ finish the installation. But it is also possible to do these steps manually. See
 [[file:~/src/internal/pbench/doc/server/installation.org][server installation guide]] for details.
 
 ** web-server
-The pbench-web-server RPM has been updated with many fixes, so if you have it installed you
-probably want to update:
+The pbench-web-server RPM has been updated with many fixes, cleanups
+and optimizations.  Changes that are user-visible are:
+
+- Update jschart to better handle errors while loading datasets
+- Update jschart to support alternative csv file formatting
+- Fix a jschart bug where the wrong clip-path is referenced
+- Update jschart to add percentiles to the values displayed in the
+  table when the mouse is moving across a histogram chart
+
+If you have it installed, you probably want to update:
 #+BEGIN_EXAMPLE
 dnf clean expire-cache
 dnf update pbench-web-serbver
@@ -133,7 +146,6 @@ is 0.3-19gaf1ffe4.
 - 19039eb Allow partial execution of unittests.
 - 57b56e7 Fix links to point to DSA github.io area.
 - d720f61 updated pprof to point to correct package name for "go" it is golang, not go - added tool_bin to point to /usr/bin/go
-- 13c1193 Merge pull request #271 from atheurer/issue-270
 - ee321d6 Add missing '$'
 - d38ba9b Reduce screen session name to avoid screen error
 - 66c6996 Update jschart's d3-queue support from version 2 to version 3
