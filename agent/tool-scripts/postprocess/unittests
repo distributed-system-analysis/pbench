@@ -100,8 +100,8 @@ function testuperf {
     _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
         ../../bench-scripts/postprocess/uperf-postprocess /tmp/GenData/$1 `cat /tmp/GenData/$1/uperf-postprocess-args` > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
 
-    /usr/bin/perl -e 'use JSON; print $INC{"JSON.pm"} . "\n"; print $JSON::VERSION . "\n"'
-    ./perl-JSON-version
+    # /usr/bin/perl -e 'use JSON; print $INC{"JSON.pm"} . "\n"; print $JSON::VERSION . "\n"'
+    # ./perl-JSON-version
     remove_sample_data $1
 
     diff -cr gold/$1/ /tmp/GenData/$1
