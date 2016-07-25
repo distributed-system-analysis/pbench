@@ -17,7 +17,7 @@ $| = 1;
 
 my $iteration=$ARGV[0]; # which iteratoin number to start with (required)
 my $benchmark_results_dir=$ARGV[1];
-my $script="tool-trigger";
+my $script="pbench-tool-trigger";
 my %start_t;
 my %started;
 my %stop_t;
@@ -41,7 +41,7 @@ while (<STDIN>) {
 	printf;
 	foreach $group (keys %stop_t) {
 		if ((/$stop_t{$group}/) && $started{$group}) {
-			$cmd="stop-tools --group=$group --iteration=$iteration --dir=$benchmark_results_dir\n";
+			$cmd="pbench-stop-tools --group=$group --iteration=$iteration --dir=$benchmark_results_dir\n";
 			print "[$script]$cmd";
 			system("$cmd");
 			$started{$group} = 0;
@@ -49,7 +49,7 @@ while (<STDIN>) {
 	}
 	foreach $group (keys %start_t) {
 		if ((/$start_t{$group}/) && !$started{$group}) {
-			$cmd="start-tools --group=$group --iteration=$iteration --dir=$benchmark_results_dir\n";
+			$cmd="pbench-start-tools --group=$group --iteration=$iteration --dir=$benchmark_results_dir\n";
 			print "[$script]$cmd";
 			system("$cmd");
 			$started{$group} = 1;
