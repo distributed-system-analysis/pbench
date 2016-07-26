@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
 script_path=`dirname $0`
 script_name=`basename $0`
 pbench_bin="`cd ${script_path}/..; /bin/pwd`"
@@ -18,40 +18,21 @@ with_options=0
 
 # Process options and arguments
 
-opts=$(getopt -q -o tno:g: --longoptions "name:,group:" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o to:g: --longoptions "group:" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"
-	printf "The following options are available (use neither, one, or the other, but not both):\n\n"
-	printf -- "\t-n str --name=str, list the perftool groups which str is used\n"
-	printf "\n"
-	printf -- "\t-g str --group=str, list the tools used in this str\n"
-
-
+	printf "The following option is available: \n\n"
+	printf -- "\t-g str --group=str, list the triggers used by this group\n"
 	exit 1
 fi
 eval set -- "$opts";
 while true; do
 	case "$1" in
-		-n|--name)
-		shift;
-		if [ -n "$1" -a "$group" = "" ]; then
-			name="$1"
-			shift;
-		else
-			printf "You cannot specify both group and a name\n"
-			exit 1
-		fi
-		;;
 		-g|--group)
 		shift;
-		if [ -n "$1" -a "$name" = "" ]; then
-			group="$1"
-			shift;
-		else
-			printf "You cannot specify both group and a name\n"
-			exit 1
-		fi
+		group="$1"
+		shift;
 		;;
 		--)
 		shift;
@@ -61,41 +42,15 @@ while true; do
 done
 if [ -d "$pbench_run" ]; then
 	pushd "$pbench_run" >/dev/null
-	if [ -z $name ]; then
-		# list tool triggers in one or all groups
-		if [ -z "$group" ]; then
-			groups=`/bin/ls tool-trigger.* 2>/dev/null | sed -e s/^tool-trigger\.//g`
-		else
-			groups="$group"
-		fi
-		for group in $groups; do
-			for tool in `cat tool-trigger.$group | awk -F: '{print $1}'`; do
-				if echo $tool | grep -q "@"; then
-                                	remote_host=`echo $tool | awk -F@ '{print $2}'`
-                                	tool=`echo $tool | awk -F@ '{print $1}'`
-                                	remote_tools=`ssh $ssh_opts -n $remote_host ". ${pbench_install_dir}/profile; pbench-list-tools $with_options_opt --group=$group" | sed -e s/"^$group: "//`
-					tools=",$remote_host[$remote_tools]$tools"
-                        	else
-					if [ $with_options -eq 1 ]; then
-						tool="$tool `grep ^$tool tools.$group | cut -d: -f2-`"
-					fi
-					tools=",$tool$tools"
-                        	fi
-			done
-			tools=`echo $tools | sed -e s/"^,"//`
-			# do not print anything for this group if there are no tools
-			if [ ! -z "$tools" ]; then
-				printf "%s: %s\n" "$group" "$tools"
-			fi
-		done
-	else 
-		# list the groups which include this tool
-		for group in `/bin/ls tools.* 2>/dev/null | sed -e s/^tools\.//g`; do
-			if grep -q "^$name\|" tools.$group; then
-				groups="$groups $group"
-			fi
-		done
-		printf "name: $name groups: $groups\n"
+	# list tool triggers in one or all groups
+	if [ -z "$group" ]; then
+		groups=`/bin/cat tool-triggers 2>/dev/null | grep -v '^#' | sed -e s/:.*//`
+	else
+		groups="$group"
 	fi
-	popd "$pbench_run" >/dev/null
+
+	for grp in $groups ;do
+		sed -n '/^'$grp'/p' tool-triggers
+	done
+	popd  >/dev/null
 fi

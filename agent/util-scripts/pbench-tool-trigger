@@ -21,7 +21,17 @@ my $script="pbench-tool-trigger";
 my %start_t;
 my %started;
 my %stop_t;
-my $t_file = $ENV{pbench_run} . "/tool-triggers";
+my $pbrun = $ENV{'pbench_run'};
+print "$pbrun\n";
+if (!$pbrun) {
+        $pbrun = `getconf.py pbench_run pbench-agent`;
+        chop $pbrun;
+}
+
+
+my $t_file =  $pbrun  . "/tool-triggers";
+print "$t_file\n";
+
 open(TRIG, "<$t_file") || die "Could not open $t_file\n";
 while (<TRIG>) {
 	if (/^#/) {
