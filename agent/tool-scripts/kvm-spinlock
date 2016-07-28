@@ -43,36 +43,36 @@ if [ $? -ne 0 ]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"
 	printf "The following options are available: \n\n"
-	printf -- "\t--install,			install this perf tool\n"
+	printf -- "\t--install,                install this perf tool\n"
 	printf "\n"
-	printf -- "\t--start|stop|postprocess	start/stop/postprocess the data collection\n"
-	printf -- "\t--iteration=int 		the iteration (required)\n"
-	printf -- "\t--group=str		the perftool group (required)\n"
-	printf -- "\t--dir=str			directory to store data collection (required)\n"
-	printf -- "\t--interval=int		number of seconds between each data collection\n"
+	printf -- "\t--start|stop|postprocess  start/stop/postprocess the data collection\n"
+	printf -- "\t--iteration=int           the iteration (required)\n"
+	printf -- "\t--group=str               the perftool group (required)\n"
+	printf -- "\t--dir=str                 directory to store data collection (required)\n"
+	printf -- "\t--interval=int            number of seconds between each data collection\n"
 	if [ "$script_name" == "sysfs" ]; then
-		printf -- "\t--pattern=str		a pattern passed to -name option of find command to filter files\n"
-		printf -- "\t--path=str			a path (beyond the /sysfs prefix) passed to -name option of find command to filter files\n"
-		printf -- "\t--maxdepth=int		a maxdepth passed to -name option of find command to filter files\n"
+		printf -- "\t--pattern=str             a pattern passed to -name option of find command to filter files\n"
+		printf -- "\t--path=str                a path (beyond the /sysfs prefix) passed to -name option of find command to filter files\n"
+		printf -- "\t--maxdepth=int            a maxdepth passed to -name option of find command to filter files\n"
 	fi
 	if [ "$script_name" == "virsh-migrate" ]; then
-		printf -- "\t--vm=str			the name of the VM being migrated\n"
+		printf -- "\t--vm=str                  the name of the VM being migrated\n"
 	fi
 	if [ "$script_name" == "blktrace" ]; then
-		printf -- "\t--devices=str,[str]	the list of block devices to trace\n"
+		printf -- "\t--devices=str,[str]       the list of block devices to trace\n"
 	fi
 	if [ "$script_name" == "kvmtrace" ]; then
-		printf -- "\t--vm=str			the hostname of the vm running (to get kallsyms)\n"
-		printf -- "\t--timeout=int		how long the trace will run (default is 1 second).  If 0 is used, the trace will not stop until stop-tools is called\n"
-		printf -- "\t--start-delay=int		sleep this many seconds before starting the trace\n"
+		printf -- "\t--vm=str                  the hostname of the vm running (to get kallsyms)\n"
+		printf -- "\t--timeout=int             how long the trace will run (default is 1 second).  If 0 is used, the trace will not stop until stop-tools is called\n"
+		printf -- "\t--start-delay=int         sleep this many seconds before starting the trace\n"
 	fi
 	if [ "$script_name" == "tcpdump" ]; then
-		printf -- "\t--interface=str		the network interface to monitor\n"
-		printf -- "\t--packets=	int		the number of packets to monitor before exiting\n"
+		printf -- "\t--interface=str           the network interface to monitor\n"
+		printf -- "\t--packets=	int            the number of packets to monitor before exiting\n"
 	fi
 	if [ "$script_name" == "rabbit" ]; then
-		printf -- "\t--username=str         rabbit user name (default is "$username")\n"
-		printf -- "\t--password=int         rabbit password (default is "$password")\n"
+		printf -- "\t--username=str            rabbit user name (default is "$username")\n"
+		printf -- "\t--password=int            rabbit password (default is "$password")\n"
 	fi
 	exit 1
 fi
@@ -299,46 +299,47 @@ case "$mode" in
 		kvmtrace)
 		# ensure debugfs is mounted
 		if cat /proc/mounts | grep -q debugfs; then
-			echo "debugfs is already mounted"
+			log "debugfs is already mounted"
 		else
 			mount -t debugfs none /sys/kernel/debug
 		fi
 		# no version is provided here because we rely on a 
 		# distribution provided package and we take whatever we can get
 		check_install_rpm trace-cmd
+		rc=$?
 		;;
 		turbostat)
 		release=$(awk '{x=$7; split(x, a, "."); print a[1];}' /etc/redhat-release)
 		case $release in
-    			6)
-        		pkg=cpupowerutils
-        		;;
-    			*)
-        		pkg=kernel-tools
-        		;;
+			6)
+			pkg=cpupowerutils
+			;;
+			*)
+			pkg=kernel-tools
+			;;
 		esac
 		check_install_rpm $pkg
+		rc=$?
 		if grep -q KVM /sys/devices/virtual/dmi/id/product_name ; then
-			echo "pbench is running inside a KVM guest.  Disabling turbostat."
-		exit 1
+			warn_log "pbench is running inside a KVM guest.  Disabling turbostat."
 		fi
 		;;
 		dm-cache)
 		kmod=dm_cache
 		if ! grep -q $kmod /proc/modules ; then
-            		echo "$kmod not loaded, exiting"
-            	exit 1
+			error_log "$kmod not loaded, exiting"
+			exit 1
 		fi
-        	;;
+		;;
 		rabbit)
 		tool_bin="/usr/bin/rabbitmqadmin"
 		if [ ! -e $tool_bin ]; then
-			echo "$tool_bin not installed, exiting"
+			error_log "$tool_bin not installed, exiting"
 			exit 1
 		fi
 		;;
 	esac
-        ;;
+	;;
 	start)
 	if [ "$tool" == "kvmtrace" ]; then
 		if [ ! -z "$start_delay" ]; then
