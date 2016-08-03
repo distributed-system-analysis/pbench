@@ -278,4 +278,4 @@ if [ $anything -gt 0 ]; then
     fi
     debug_log "successfully $op $runs_copied runs, encountered $failures failures"
 fi
-exit 0
+exit $failures
