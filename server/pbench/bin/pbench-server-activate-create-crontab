@@ -9,6 +9,7 @@ prog=$(basename $0)
 usage="Usage: $prog <crontab-path> [<test-dir-prefix>]"
 
 crontabpath=$1
+# testdir is only used for unit tests
 testdir=$2
 
 if [ ! -z "$testdir" ] ;then

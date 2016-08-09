@@ -17,6 +17,7 @@ prog=$(basename $0)
 
 usage="Usage: $prog [<test-dir-prefix>]"
 
+# testdir is only used for unittests
 testdir=$1
 
 if [ ! -f $CONFIG ]

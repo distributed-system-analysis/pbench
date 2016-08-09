@@ -44,11 +44,11 @@ case $opts in
 esac
 
 case $# in
-    4|5)
+    3)
         :
         ;;
     *)
-        echo "Usage: $PROG <prefix> <remotehost> <remotearchive> <TOP> [<TOP_LOCAL>]"
+        echo "Usage: $PROG <prefix> <remotehost> <remotearchive>"
         exit 1
         ;;
 esac
@@ -59,8 +59,7 @@ remotearchive=$3
 
 shift 3
 
-TOP=$1
-TOP_LOCAL=$2
+# TOP, TMP, LOGSDIR, ARCHIVE, TS are all defined in pbench-base.sh
 . $dir/pbench-base.sh
 
 if [[ -z "$mail_recipients" ]] ;then

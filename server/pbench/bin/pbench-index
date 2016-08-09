@@ -50,13 +50,7 @@ case $opts in
         ;;
 esac
 
-if [[ -z "$1" ]]; then
-    echo "$PROG: Missing source pbench directory argument" >&2
-    exit 1
-fi
-TOP="$1"
-TOP_LOCAL="$2"
-
+# TOP, ARCHIVE, TMP are defined by the base file
 . $dir/pbench-base.sh
 ###########################################################################
 

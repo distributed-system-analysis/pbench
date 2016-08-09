@@ -2,6 +2,7 @@
 # do all the setup
 
 config=$1
+# testdir is only used for unit tests
 testdir=$2
 
 # we *must* have a config file at this point

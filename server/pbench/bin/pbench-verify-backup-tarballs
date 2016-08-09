@@ -23,9 +23,6 @@
 # pbench-base.sh.  This is the same convention that is used by
 # pbench-backup-tarballs.
 
-BDIR=$1
-shift
-
 # load common things
 opts=$SHELLOPTS
 case $opts in
@@ -39,13 +36,7 @@ case $opts in
         ;;
 esac
 
-if [[ -z "$1" ]]; then
-    echo "$PROG: Missing source pbench directory argument" >&2
-    exit 1
-fi
-TOP="$1"
-TOP_LOCAL="$2"
-
+# TOP, ARCHIVE, BDIR, TMP, LOGSDIR defined in pbench-base.sh
 . $dir/pbench-base.sh
 
 primary=$ARCHIVE
