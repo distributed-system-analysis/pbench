@@ -116,6 +116,16 @@ function move_tool_data {
 	popd >/dev/null
 }
 
+# create inventory file
+export INVENTORY=/tmp/inventory.$$
+pbench-get-hosts $tool_group_dir > ${INVENTORY}
+trap "rm -f $INVENTORY" QUIT INT EXIT
+
+# collect ansible_facts
+function collect_ansible_facts {
+        ansible -i ${INVENTORY} -m setup all --tree $tool_output_dir/ansible_facts --private-key $HOME/.ssh/id_rsa -u root
+}
+
 ### phase 1: for each tool, call the tool script with --$action (start, stop, or postprocess)
 for this_tool_file in `/bin/ls $tool_group_dir`; do
 	if [ "$this_tool_file" == "label" ]; then
@@ -189,6 +199,8 @@ if [ "$action" == "postprocess" ]; then
 		# copy over the data from postprocessing
 		move_tool_data $remote_hostname $label &
 	done
+        # collect ansible_facts for contoller and remotes.
+        collect_ansible_facts &>/dev/null
 	wait
 fi
 debug_log "[$script_name]completed: $@"
