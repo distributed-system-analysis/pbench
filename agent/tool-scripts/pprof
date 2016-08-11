@@ -15,7 +15,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 
 # Defaults
 tool=pprof
-tool_bin=/usr/bin/go
+tool_bin=${GOROOT:-/usr}/bin/go
 tool_package=golang
 group=default
 dir="/tmp"
