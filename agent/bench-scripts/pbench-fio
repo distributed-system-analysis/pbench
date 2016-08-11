@@ -325,7 +325,7 @@ function fio_install() {
 		debug_log "verifying clients have fio installed"
 		echo "verifying clients have fio installed"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
-			ssh $ssh_opts $client ${pbench_install_dir}/bench-scripts/pbench_fio --install &
+			ssh $ssh_opts $client ${pbench_install_dir}/bench-scripts/$script_name --install &
 		done
 		wait
 	elif [ ! -z "$clients" ] && [ "$noinstall" == "y" ]; then 
