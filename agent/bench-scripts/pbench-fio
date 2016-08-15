@@ -105,6 +105,8 @@ function fio_usage() {
 		printf "\t\tprovide the path to an existing directory where fio operations will be performed\n"
 		printf -- "\t--numjobs=<int>\n"
 		printf "\t\tnumber of jobs to run, if not given then fio default of numjobs=1 will be used\n"
+		printf -- "\t--samples=<int>\n"
+		printf "\t\tnumber of samples to use per test iteration (default is $nr_sanples)\n"
 }
 
 function fio_process_options() {
