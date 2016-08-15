@@ -512,11 +512,11 @@ function fio_run_job() {
 				let max_jobs=$max_jobs+1
 			fi 
 		done
-		client_opts="$client_opts --max-jobs=$max_jobs $bench_opts"
+		client_opts="$client_opts --max-jobs=$max_jobs"
 	fi
 	
 	# create a command file and keep it with the results for debugging later, or user can run outside of pbench
-	echo "$bench_cmd $bench_opts $client_opts" >$benchmark_results_dir/fio.cmd
+	echo "$bench_cmd $client_opts $bench_opts" >$benchmark_results_dir/fio.cmd
 	chmod +x $benchmark_results_dir/fio.cmd
 	debug_log "$benchmark: Going to run [$bench_cmd $bench_opts $client_opts]"
 	pushd $benchmark_results_dir >/dev/null
