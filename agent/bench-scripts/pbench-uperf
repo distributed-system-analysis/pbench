@@ -491,6 +491,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								# the following loop does all of the pre-benchmark execution work
 								for server in `echo $servers | sed -e s/,/" "/g`; do
 
+									client=`echo $clients | cut -d, -f$server_nr`
 									server_node=`echo "$server_nodes," | cut -d, -f$server_nr`
 									client_node=`echo "$client_nodes," | cut -d, -f$server_nr`
 									server_port=`echo "1000 * $server_nr + $server_base_port" | bc`
@@ -533,7 +534,6 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 
 									# prepare test files and dirs if using remote clients
 									if [ ! -z "$clients" ]; then
-										client=`echo $clients | cut -d, -f$server_nr`
 										ssh $ssh_opts $client mkdir -p $benchmark_results_dir
 										scp $ssh_opts $xml_file $client:$xml_file >/dev/null
 										scp $ssh_opts $benchmark_client_cmd_file $client:$benchmark_client_cmd_file >/dev/null
@@ -560,6 +560,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								for server in `echo $servers | sed -e s/","/" "/g`; do
 									server_nodeinfo=""
 									client_nodeinfo=""
+									client=`echo $clients | cut -d, -f$server_nr`
 									server_node=`echo "$server_nodes," | cut -d, -f$server_nr`
 									client_node=`echo "$client_nodes," | cut -d, -f$server_nr`
 									if [ ! -z "$client_node" ]; then
@@ -572,7 +573,6 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 											server_nodeinfo="node[$server_node]"
 										fi
 									fi
-									client=`echo $clients | cut -d, -f$server_nr`
 									if [ -z "$client" ]; then
 										client="127.0.0.1"
 									fi
