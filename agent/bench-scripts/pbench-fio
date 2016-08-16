@@ -14,6 +14,8 @@ benchmark="fio"
 benchmark_bin=/usr/local/bin/$benchmark
 ver=2.2.11
 
+job_file="${script_path}/templates/fio.job"
+
 # Every bench-script follows a similar sequence:
 # 1) process bench script arguments
 # 2) ensure the right version of the benchmark is installed
@@ -42,14 +44,14 @@ block_sizes="4,64,1024"
 targets="/tmp/fio"
 directory=""
 numjobs=""
-runtime=30
-ramptime=5
-iodepth=32
-ioengine="libaio"
+runtime=""
+ramptime=""
+iodepth=""
+ioengine=""
 job_mode="concurrent" # serial or concurrent
-file_size="4096M"
-direct=1 # don't cache IO's by default
-sync=0 # don't sync IO's by default
+file_size=""
+direct="" # don't cache IO's by default
+sync="" # don't sync IO's by default
 clients="" # A list of hostnames (hosta,hostb,hostc) where you want fio to run.  Note: if you use this, pbench must be installed on these systems already.
 tool_label_pattern="fio-"
 tool_group="default"
@@ -80,9 +82,9 @@ function fio_usage() {
 		printf -- "\t-b int[,int] --block-sizes=str[,str] (default is $block_sizes)\n"
 		printf "\t\tone or more block sizes in KiB (default is $block_sizes)\n"
 		printf "\n"
-                printf -- "\t-s int[,int] --file-size=str[,str] (default is $file_size)\n"
-                printf "\t\tfile sizes in MiB: %s\n"
-                printf "\n"
+		printf -- "\t-s int[,int] --file-size=str[,str] (default is $file_size)\n"
+		printf "\t\tfile sizes in MiB: %s\n"
+		printf "\n"
 		printf -- "\t-d str[,str] --targets=str[,str]\n"
 		printf "\t\tone or more directories or block devices (default is $targets)\n"
 		printf "\t\t(persistent names for devices highly recommended)\n"
@@ -106,12 +108,14 @@ function fio_usage() {
 		printf "\t\tprovide the path to an existing directory where fio operations will be performed\n"
 		printf -- "\t--numjobs=<int>\n"
 		printf "\t\tnumber of jobs to run, if not given then fio default of numjobs=1 will be used\n"
+		printf -- "\t--job-file=<path>\n"
+		printf "\t\tprovide the path of a fio job config file, (default is $job_file)\n"
 		printf -- "\t--samples=<int>\n"
 		printf "\t\tnumber of samples to use per test iteration (default is $nr_sanples)\n"
 }
 
 function fio_process_options() {
-	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,noinstall:" -n "getopt.sh" -- "$@");
+	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,job-file:,noinstall:" -n "getopt.sh" -- "$@");
 	if [ $? -ne 0 ]; then
 		printf "\t${benchmark}: you specified an invalid option\n\n"
 		fio_usage
@@ -177,13 +181,13 @@ function fio_process_options() {
 				shift;
 			fi
 			;;
-                        -s|--file-size)
-                        shift;
-                        if [ -n "$1" ]; then
-                                file_size="$1"
-                                shift;
-                        fi
-                        ;;
+			-s|--file-size)
+			shift;
+			if [ -n "$1" ]; then
+				file_size="$1"
+				shift;
+			fi
+			;;
 			--ramptime)
 			shift;
 			if [ -n "$1" ]; then
@@ -294,13 +298,20 @@ function fio_process_options() {
 				shift;
 			fi 
 			;;
+			--job-file)
+			shift;
+			if [ -n "$1" ]; then
+				job_file="$1"
+				shift;
+			fi
+			;; 
 			--noinstall)
 				shift;
 				if [ -n "$1" ]; then 
 					noinstall="$1"
 					shift;
 				fi
-			;; 
+			;;
 			--)
 			shift;
 			break;
@@ -345,11 +356,11 @@ function fio_install() {
 		wait
 	elif [ ! -z "$clients" ] && [ "$noinstall" == "y" ]; then 
 		debug_log "verifying clients have fio installed" 
-                echo "verifying clients have fio installed"
+		echo "verifying clients have fio installed"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			if ( ssh $ssh_opts $clients "[ ! -e $benchmark_bin ]" ); then
 				debug_log "[$script_name]$benchmark is not installed on $client and option noinstall specified. Cannot proceed, remove noinstall or install $benchmark manually"
-                                echo "$script_name $benchmark is not installed on $client and option noinstall specified. Cannot proceed, remove noinstall or install $benchmark manually"
+				echo "$script_name $benchmark is not installed on $client and option noinstall specified. Cannot proceed, remove noinstall or install $benchmark manually"
 				exit 0 
 		
 			fi 
@@ -420,54 +431,20 @@ function fio_device_check() {
 }
 
 function fio_create_jobfile() {
-	local test_type="$1"
-	local ioengine="$2"
-	local block_size="$3"
-	local iodepth="$4"
-	local direct="$5"
-	local sync="$6"
-	local runtime="$7"
-	local ramptime="$8"
-	local size="$9"
-	local rate_iops="${10}"
-	local targets="${11}"
 	local fio_job_file="${12}"
-	local job_num=1
-	local job_dir=`dirname "$fio_job_file"`
-	local target
 
-	mkdir -p $job_dir
-	printf "[global]\n"		 >$fio_job_file
-	printf "bs=%sk\n" $block_size	>>$fio_job_file
-	printf "ioengine=$ioengine\n"	>>$fio_job_file
-	printf "iodepth=$iodepth\n"	>>$fio_job_file
-	printf "direct=$direct\n"	>>$fio_job_file
-	printf "sync=$sync\n"		>>$fio_job_file
-	printf "time_based=1\n"		>>$fio_job_file
-	printf "runtime=$runtime\n"	>>$fio_job_file
-	printf "clocksource=gettimeofday\n" >>$fio_job_file 
-	printf "ramp_time=$ramptime\n" >>$fio_job_file 
-	for target in `echo $targets | sed -e s/,/" "/g`; do
-		printf "[job%d]\n" $job_num	>>$fio_job_file
-		printf "rw=%s\n" $test_type	>>$fio_job_file
-		printf "size=%s\n" "$size"	>>$fio_job_file # only used if actual file is used
-		printf "write_bw_log=fio\n"	>>$fio_job_file
-		printf "write_iops_log=fio\n"	>>$fio_job_file
-		printf "write_lat_log=fio\n"	>>$fio_job_file
-		printf "log_avg_msec=1000\n"	>>$fio_job_file
-		if [ ! -z "$rate_iops" ]; then
-			printf "rate_iops=$rate_iops\n"	>>$fio_job_file
-		fi
-		if [ ! -z "$directory" ]; then 
-			printf "directory=$directory\n" >>$fio_job_file
-		else
-			printf "filename=%s\n" $target  >>$fio_job_file
-		fi 
-		if [ ! -z "$numjobs" ]; then 
-			printf "numjobs=$numjobs\n"	>>$fio_job_file
-		fi 
-		let job_num=$job_num+1
-	done
+	mkdir -p "`dirname \"$fio_job_file\"`"
+	"${script_path}/templates/make-fio-jobfile.py" -j $job_file \
+		-bs="`printf \"%sk\" $3`" -rw="$1" \
+		-ioengine="$2" \
+		-iodepth="$4" \
+		-direct="$5" \
+		-sync="$6" \
+		-runtime="$7" \
+		-ramptime="$8" \
+		-size="$9" \
+		-rate_iops="${10}" \
+		-targets `echo "${11}" | sed -e s/,/" "/g` > $fio_job_file
 
 	echo "The following jobfile was created: $fio_job_file"
 	cat $fio_job_file
