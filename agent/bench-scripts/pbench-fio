@@ -36,7 +36,6 @@ maxstddevpct=5 # maximum allowable standard deviation in percent
 max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
 supported_test_types="read,write,rw,randread,randwrite,randrw"
 install_only="n"
-noinstall="n"
 config=""
 rate_iops=""
 test_types="read,randread"		# default is -non- destructive
@@ -89,16 +88,23 @@ function fio_usage() {
 		printf "\t\tone or more directories or block devices (default is $targets)\n"
 		printf "\t\t(persistent names for devices highly recommended)\n"
 		printf "\n"
-		printf -- "\t-j str --job-mode=str    str=[serial|concurrent]  (default is $jon_mode)\n"
+		printf -- "\t-j str --job-mode=str    str=[serial|concurrent]  (default is $job_mode)\n"
 		printf "\n"
 		printf -- "\t--ioengine=str           str= any ioengine fio supports (default is $ioengine)\n"
 		printf "\n"
-		printf -- "\t--clients=str[,str]      str= one or more remote systems to run fio\n"
+		printf -- "\t--iodepth=<int>"
+                printf "\t\tSet the iodepth config variable in the fio job file\n"
+		printf "\n"
+		printf -- "\t-c str[,str] --clients=str[,str]      str= one or more remote systems to run fio\n"
 		printf -- "\t                         If no clients are specified, fio is run locally\n"
 		printf -- "\t--client-file=str        str= file (with absolute path) which contains 1 client per line\n"
+
+		printf -- "\t--config=str\n"
+		printf "\t\tname of the test configuration\n"
+		printf "\n"
 		printf -- "\t--tool-group=str\n"
 		printf "\n"
-		printf -- "\t--postprocess_only=[y|n]\n"
+		printf -- "\t--postprocess-only=[y|n]\n"
 		printf "\t\tuse this only if you want to postprocess an existing result again\n"
 		printf "\t\tyou must use --run-dir option with this\n"
 		printf "\n"
@@ -112,10 +118,17 @@ function fio_usage() {
 		printf "\t\tprovide the path of a fio job config file, (default is $job_file)\n"
 		printf -- "\t--samples=<int>\n"
 		printf "\t\tnumber of samples to use per test iteration (default is $nr_sanples)\n"
+	        printf -- "\t--max-stddev=<int>\n"
+                printf "\t\tthe maximum percent stddev allowed to pass\n"
+                printf -- "\t--max-failures=<int>\n"
+                printf "\t\tthe maximum number of failures to get below stddev\n"
+                printf -- "\t--install\n"
+                printf "\t\tinstall only\n"
+                printf "\t\tDefault is n\n"
 }
 
 function fio_process_options() {
-	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,job-file:,noinstall:" -n "getopt.sh" -- "$@");
+	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,job-file:" -n "getopt.sh" -- "$@");
 	if [ $? -ne 0 ]; then
 		printf "\t${benchmark}: you specified an invalid option\n\n"
 		fio_usage
@@ -242,7 +255,7 @@ function fio_process_options() {
 				shift;
 			fi
 			;;
-			-j|--config)
+			--config)
 			shift;
 			if [ -n "$1" ]; then
 				config="$1"
@@ -305,13 +318,6 @@ function fio_process_options() {
 				shift;
 			fi
 			;; 
-			--noinstall)
-				shift;
-				if [ -n "$1" ]; then 
-					noinstall="$1"
-					shift;
-				fi
-			;;
 			--)
 			shift;
 			break;
@@ -347,24 +353,13 @@ function fio_install() {
 			exit 1
 		fi 
 	fi
-	if [ ! -z "$clients" ] && [ "$noinstall" == "n" ] ; then
+	if [ ! -z "$clients" ] ; then
 		debug_log "verifying clients have fio installed"
 		echo "verifying clients have fio installed"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			ssh $ssh_opts $client ${pbench_install_dir}/bench-scripts/$script_name --install &
 		done
 		wait
-	elif [ ! -z "$clients" ] && [ "$noinstall" == "y" ]; then 
-		debug_log "verifying clients have fio installed" 
-		echo "verifying clients have fio installed"
-		for client in `echo $clients | sed -e s/,/" "/g`; do
-			if ( ssh $ssh_opts $clients "[ ! -e $benchmark_bin ]" ); then
-				debug_log "[$script_name]$benchmark is not installed on $client and option noinstall specified. Cannot proceed, remove noinstall or install $benchmark manually"
-				echo "$script_name $benchmark is not installed on $client and option noinstall specified. Cannot proceed, remove noinstall or install $benchmark manually"
-				exit 0 
-		
-			fi 
-		done 
 	fi
 	if [ "$install_only" == "y" ]; then
 		exit 0
