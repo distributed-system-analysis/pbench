@@ -82,7 +82,7 @@ sub get_uid {
 	while ( $uid && $uid =~ s/^([^%]*)%([^%]+)%// ) {
 		my $before_uid_marker = $1;
 		my $uid_marker = $2;
-		if ( $$uid_sources_ref{$uid_marker} ) {
+		if ( exists $$uid_sources_ref{$uid_marker} ) {
 			$mapped_uid = $mapped_uid . $before_uid_marker . $$uid_sources_ref{$uid_marker};
 		} else {
 			$mapped_uid = $mapped_uid . $before_uid_marker . "%" . $uid_marker . "%";
