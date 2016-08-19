@@ -48,6 +48,8 @@ max_drop_pcts="0"
 rates=""
 portlist="0,1"
 frame_sizes="64" # in bytes
+queues_per_task="3"
+mpps_per_queue="5"
 config=""
 nr_flows="1024"
 nr_samples=5
@@ -69,7 +71,7 @@ install_only="n"
 one_shot="n"
 
 # Process options and arguments
-opts=$(getopt -q -o i:c:t:r:m:p:M:S:C:o --longoptions "portlist:,rate:,rates:,max-drop-pct:,max-drop-pcts:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,nr-flows:,test-type:,traffic:,latency-runtime:,search-runtime:,validation-runtime:,frame-sizes:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,one-shot" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o i:c:t:r:m:p:M:S:C:o --longoptions "portlist:,rate:,rates:,max-drop-pct:,max-drop-pcts:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,nr-flows:,test-type:,traffic:,latency-runtime:,search-runtime:,validation-runtime:,frame-sizes:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,one-shot,mpps-per-queue:,queues-per-task:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
@@ -112,6 +114,8 @@ if [ $? -ne 0 ]; then
 	printf    "\t\t                                        part of the label, just use --tool-label-pattern= to tell this script\n"
 	printf    "\t\t                                        the prefix pattern to use for CPU information.\n"
 	printf -- "\t\t             --tool-group=str\n"
+	printf -- "\t\t             --mpps-per-queue=int       how many millions of packets to process per queue (default $mpps_per_queue)\n"
+	printf -- "\t\t             --queues-per-task=int      how many tasks queues to bind to each task (default $queues_per_task)\n"
 	exit 1
 fi
 eval set -- "$opts"
@@ -264,6 +268,20 @@ while true; do
 		shift
 		break
 		;;
+		--mpps-per-queue)
+		shift
+		if [ -n "$1" ]; then
+		    mpps_per_queue="$1"
+		    shift
+		fi
+		;;
+		--queues-per-task)
+		shift
+		if [ -n "$1" ]; then
+		    queues_per_task="$1"
+		    shift
+		fi
+		;;
 		*)
 		error_log "[$script_name] bad option, \"$1 $2\""
 		break
@@ -358,6 +376,8 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 									fi
 								fi
         							echo "frameSize = $frame_size,">>$cfg_file
+								echo "mppsPerQueue = $mpps_per_queue," >>$cfg_file
+								echo "queuesPerTask = $queues_per_task," >>$cfg_file
         							echo "ports = {$portlist}" >>$cfg_file
 								echo "}">>$cfg_file
 								cp $cfg_file $moongen_dir/
