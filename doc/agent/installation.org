@@ -100,8 +100,9 @@ administrator provides.
 
 You can install these two as follows:
 #+BEGIN_EXAMPLE
-pbench-agent-config-activate /path/to/config/file/pbench-agent.cfg
-pbench-agent-config-ssh-key /path/to/pbench/private/key/id_rsa
+cfg=/path/to/config/file/pbench-agent.cfg
+pbench-agent-config-activate $cfg
+pbench-agent-config-ssh-key $cfg /path/to/pbench/private/key/id_rsa
 #+END_EXAMPLE
 You should be ready to roll.
 

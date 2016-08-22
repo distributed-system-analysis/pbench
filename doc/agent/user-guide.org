@@ -145,7 +145,7 @@ results_repo_dir=/pbench/public_html/incoming
 ssh_opts='-o StrictHostKeyChecking=no'
 #+END_EXAMPLE
 
-Somne of these are now specified in the config file
+Some of these are now specified in the config file
 =/opt/pbench-agent/config/pbench-agent.cfg=.
 
 * Available tools
@@ -349,7 +349,7 @@ arguments. The built-in benchmark scripts do that already, but if you go your ow
 make sure to follow this dictum.
 
 - =--dir= :: specify the run directory for all the collections tools. This argument
-  *must* be used by =pbench-start/stop/postrprocess-tools=, so that all the results files
+  *must* be used by =pbench-start/stop/postprocess-tools=, so that all the results files
   are in known places:
   #+BEGIN_EXAMPLE
   pbench-start-tools --dir=/var/lib/pbench-agent/foo
@@ -674,7 +674,7 @@ should make sure that different iterations of your benchmark use a
 overwrite earlier ones.
 
 *N.B.* If you want to run =pbench-move-results= or =pbench-copy-results= after the
-end of the run, your resuls should be under =/var/lib/pbench-agent=:
+end of the run, your results should be under =/var/lib/pbench-agent=:
 =pbench-move/copy-results= does not know anything about your choice for this
 option; it only looks in =/var/lib/pbench-agent= for results to upload. So
 if you are planning to use =pbench-move/copy-results=, make sure that the
