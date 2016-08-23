@@ -94,7 +94,7 @@ while read size result ;do
     ntotal=$ntotal+1
 
     link=$(readlink -e $result)
-    if [ ! -f $link ] ;then
+    if [ ! -f "$link" ] ;then
         echo "$TS: $link does not exist" >&4
         nerrs=$nerrs+1
         continue
@@ -161,10 +161,13 @@ while read size result ;do
     md5tar=$(md5sum $link 2> /dev/null | cut -d' ' -f1)
     if [ "$md5" != "$md5tar" ] ;then
         echo "$TS: MD5 check failed on $link" >&4
+        # move the link so that the script does not report the error continuously
+        mv $result $(echo $result | sed 's/TODO/BAD-MD5/')
         nerrs=$nerrs+1
         continue
     fi
 
+    let start_time=$(date +%s)
     # unpack the tarball into a temp area
     pushd $TMP/$PROG/$hostname > /dev/null 2>&1
     tar --extract --no-same-owner --no-overwrite-dir --touch --file="$result"
@@ -254,9 +257,10 @@ while read size result ;do
         nerrs=$nerrs+1
         continue
     fi
-
+    let end_time=$(date +%s)
+    let duration=end_time-start_time
     # log the success
-    echo "$TS: $hostname/$resultname: success"
+    echo "$TS: $hostname/$resultname: success - elapsed time (secs): $duration - size (bytes): $size"
     ntb=$ntb+1
 done < $list
 
