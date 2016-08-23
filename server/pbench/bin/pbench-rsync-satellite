@@ -1,0 +1,123 @@
+#! /bin/bash
+
+# This script rsyncs the archive of pbench tarballs of a satellite server
+# to the archive of the internal production server. In the process, it
+# renames the local copy of each remote host directory by prepending a prefix.
+# That way, hosts associated with the satellite are disambiguated and distinguished from
+# every other host (internal or from another satellite).
+
+# Any newly downloaded tarballs are then linked into the TODO directory of the host,
+# just as if pbench-move-results had moved the tarball here.
+
+# The tarballs will be sorted by size and any tarball bigger than 100MB will be
+# tagged for future handling, in order to prevent delays to current data sets.
+
+# load common things
+opts=$SHELLOPTS
+case $opts in
+    *xtrace*)
+        dir=$(dirname $(which $0))
+        PROG=$(basename $(which $0))
+        ;;
+    *)
+        dir=$(dirname $0)
+        PROG=$(basename $0)
+        ;;
+esac
+
+case $# in
+    4|5)
+        :
+        ;;
+    *)
+        echo "Usage: $PROG <prefix> <remotehost> <remotearchive> <TOP> [<TOP_LOCAL>]"
+        exit 1
+        ;;
+esac
+
+prefix=$1
+remotehost=$2
+remotearchive=$3
+
+shift 3
+
+TOP=$1
+TOP_LOCAL=$2
+. $dir/pbench-base.sh
+
+# for testing, limit it to a few hosts and stay away from the largest tarballs
+# hosts=$(ssh $remotehost "cd $remotearchive; ls | grep -v 300 | sed 4q")
+hosts=$(ssh $remotehost "cd $remotearchive; ls")
+
+tmp=$TMP/$PROG.$$
+
+trap "rm -rf $tmp" EXIT
+
+mkdir -p $tmp
+
+exclude=$tmp/exclude
+cat <<EOF > $exclude
+TODO
+TO-INDEX
+TO-COPY-SOS
+INDEXED
+DONE
+WONT-INDEX*
+EOF
+
+log_init $(basename $0)
+logdir=$LOGSDIR/$(basename $0)
+
+let start_time=$(date +%s)
+echo "run-$TS: start - $(date +%Y-%m-%dT%H:%M:%S)"
+let failures=0
+for host in $hosts ;do
+    localdir=$ARCHIVE/$prefix::$host
+    if [ ! -d $localdir ] ;then
+        mkdir -p $localdir || exit 1
+    fi
+    pushd $localdir 2>/dev/null || exit 2
+    if [ ! -d $logdir/$prefix-$host ] ;then
+        mkdir -p $logdir/$prefix-$host
+    fi
+    echo "rsync -av --exclude-from=$exclude --log-file=$logdir/$prefix-$ost/rsync.$TS $remotehost:$remotearchive/$host/ ."
+    rsync -av --exclude-from=$exclude --log-file=$logdir/$prefix-$host/rsync.$TS $remotehost:$remotearchive/$host/ .
+    rc=$?
+    if [[ $rc != 0 ]] ;then
+        echo "FAILED:    rsync -av $remotehost:$remotearchive/$host/ ."
+        let failures=failures+1
+    fi
+    # make the state dirs: TODO, TO-INDEX, TO-COPY-SOS etc.
+    mk_dirs $prefix::$host
+    popd > /dev/null
+done
+
+# generate a list of downloaded files in the form "<prefix>::<host>/<file>" from the rsync log files
+list=$tmp/tb.list
+for host in $hosts ;do
+    rsync_log=$logdir/$prefix-$host/rsync.$TS
+    cat $rsync_log | grep '>f' | awk -v prefix=$prefix -v host=$host '{printf("%s::%s/%s\n", prefix, host, $5);}'
+done | sort > $list
+
+# decorate the list with the sizes and sort by size
+cd $ARCHIVE
+for host in $hosts ;do
+    find $prefix::$host -type f -name '*.tar.xz' -printf "%p\t%s\n" 
+done | sort | join - $list | sort -k 2 -n > $logdir/$PROG.$TS.wq
+
+# we now have a work queue - we add a link to the TODO directory for each tarball that we want
+# processed and we let pbench-unpack-tarballs take care of the rest.
+$dir/pbench-rsync-satellite-process-work-queue --archive=$ARCHIVE $logdir/$PROG.$TS.wq
+rc=$?
+if [[ $rc == 1 ]] ;then
+    echo "pbench-rsync-satellite-process-work-queue exited with status 1"
+    echo "Check $logdir/$PROG.$TS.wq.todo and $logdir/$PROG.$TS.wq.files"
+else
+    echo "pbench-rsync-satellite-process-work-queue exited with non-zero status $rc - why?"
+fi
+let end_time=$(date +%s)
+let duration=end_time-start_time
+echo "run-$TS: end - $(date +%Y-%m-%dT%H:%M:%S)"
+echo "run-$TS: duration (secs): $duration"
+
+exit $failures

@@ -1,0 +1,142 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+process the work queue: it consists of pairs (filename, size).
+
+The work list is processed in size order (smallest to largest).
+We bite off a chunk and send it for processing, then we sleep,
+waking up occasionally to check if the last of the chunk is done.
+If not, sleep some more; if yes, submit the next chunk. 
+
+We limit the size of each chunk to the number of files whose sizes
+sum to less than some limit (the limit is supposed to make sure that
+the processing does not take inordinately long). Files bigger than
+the limit are *not* processed: the list is mailed to a human, who
+can then inject them into the processing queue by hand, at whatever
+time it is deemed convenient to minimize the chance of inconveniencing
+current users.
+
+"""
+import os, sys, time
+from optparse import OptionParser
+
+# global wq file - absolute path
+workq = None
+
+class tball(object):
+    archive = None
+    
+    def __init__(self, name, size):
+        self.name = name
+        self.size = size
+        self.link_name = os.path.join(os.path.dirname(name), "TODO", os.path.basename(name))
+        
+    def __repr__(self):
+        return "{}: {} ({})".format(os.path.join(self.archive, self.name), self.size, self.link_name)
+
+
+def totalsize(files, maxsize):
+    """
+    Return a portion of the files list whose total size does not exceed
+    maxsize. Actually, the first n-1 do not exceed maxsize, but adding
+    the nth will. If n > 1, return n-1 to stay within the limitation,
+    but otherwise return 1.  That guarantees that at least one file
+    will be dealt with, so we will continue to make progress through
+    the list, albeit slowly.
+
+    """
+    total = 0
+    n = 0
+    while total < maxsize and n < len(files):
+        total += files[n].size
+        n += 1
+    if n > 1:
+        return n-1
+    else:
+        return 1
+
+def process(todo, options):
+    for x in todo:
+        if options.verbose:
+            print("os.symlink({}, {})".format(os.path.join(x.archive, x.name), x.link_name))
+        if not options.dryrun:
+            os.symlink(os.path.join(x.archive, x.name), x.link_name)
+
+def processed(f, options):
+    import stat
+
+    # this just checks a single symlink (the caller passes it the last symlink
+    # in the todo list.
+
+    if options.verbose:
+        print(f)
+    if options.dryrun:
+        return True
+    try:
+        # if it exists, it'd better be a link, in which case we are *NOT* done yet.
+        return not stat.S_ISLNK(os.lstat(f.link_name).st_mode)
+    except OSError:
+        # no link found - we are done
+        return True
+
+def dump(tag, files):
+    dumpf = open("{}.{}".format(workq, tag), "w")
+    for f in files:
+        dumpf.write("{}\t{}\n".format(f.name, f.size))
+    dumpf.close()
+    
+def main(options, args):
+    # print(options)
+    if options.archive:
+        os.chdir(options.archive)
+        tball.archive = options.archive
+    else:
+        sys.exit(9)
+        
+    workq = args[0]
+    files = [tball(x.split()[0], int(x.split()[1]))  for x in open(args[0]).readlines() if x.find("TO-COPY") == -1]
+
+    maxsize = 50*1024*1024
+    while files:
+        # get n files whose total size is roughly maxsize
+        n = totalsize(files, maxsize)
+        todo = files[0:n]
+        files = files[n:]
+
+        process(todo, options)
+        if options.verbose:
+            print(len(todo), len(files))
+        nsleep = 0
+        while True:
+            if not options.dryrun:
+                time.sleep(60)
+            nsleep += 1
+            # check the last one: if that is done, all the others are too.
+            if processed(todo[n-1], options):
+                break
+            elif nsleep % 10 == 0:
+                if options.verbose:
+                    print("Not done yet: {} minutes".format(nsleep))
+            elif nsleep > 30:
+                if options.verbose:
+                    print("Process taking more than 30 minutes - dumping the work queue for manual processing")
+                dump("todo", todo)
+                dump("files", files)
+                return 1
+    return 0
+
+if __name__ == '__main__':
+    parser = OptionParser()
+    parser.add_option("-a", "--archive", dest="archive",
+                      help="Archive location (absolute pathname)", metavar="FILE")
+    parser.add_option("-v", "--verbose",
+                      action="store_true", dest="verbose", default=False,
+                      help="print status messages to stdout")
+    parser.add_option("-n", "--dry-run",
+                      action="store_true", dest="dryrun", default=False,
+                      help="don't process tarballs or wait for them to be processed")
+
+    (options, args) = parser.parse_args()
+    status = main(options, args)
+    sys.exit(status)
