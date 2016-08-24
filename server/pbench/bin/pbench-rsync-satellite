@@ -89,6 +89,12 @@ for host in $hosts ;do
     fi
     # make the state dirs: TODO, TO-INDEX, TO-COPY-SOS etc.
     mk_dirs $prefix::$host
+    # check md5
+    md5sum -c *.md5 > $logdir/$prefix-host/md5-checks.txt
+    # delete all that check
+    for x in $(sed '/OK$/s/: OK//' $logdir/$prefix-host/md5-checks.txt) ;do
+        echo $x $x.md5
+    done | ssh $remotehost "cd $remotearchive/$host; xargs rm"
     popd > /dev/null
 done
 
