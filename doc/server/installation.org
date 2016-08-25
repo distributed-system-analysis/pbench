@@ -1,4 +1,4 @@
-# Created 2016-07-22 Fri 12:59
+# Created 2016-08-25 Thu 14:14
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
@@ -17,7 +17,7 @@
 * Introduction
 Server installation is done through two packages: an externally
 available, upstream package containing all the relevant scripts and an
-internal package that contains the local configuration files. The
+internal package that contains the local configuration files[fn:1]. The
 upstream bits include a script that the internal package calls to
 install the local config files in the appropriate places. It also
 creates a crontab from the information in the configuration files
@@ -32,6 +32,11 @@ ElasticSearch, etc.
 In addition to the generic bits, some localization is needed. This is
 discussed in some detail below.
 
+[fn:1] Although this document describes installation in terms of an "internal"
+package, note that that may be a convenient fiction. If there *is* one available,
+then installing it should take care of the config files and the rest of the setup
+described in [[*Server installation (generic)][Server installation (generic)]].
+
 * Overview
 A user running the pbench agent produces results that are stored
 locally, until the user calls =pbench-move-results=. The results are then
@@ -44,13 +49,14 @@ sosreports on to other services for further processing.
 
 * Prerequisites
 The host that runs the server has to run apache. It should also
-have a fairly hefty filesystem for storing results. 
+have a fairly hefty filesystem for storing results. Of course, the
+more results you produce, the bigger the filesystem should be.
 
 In our setup, we have a machine that runs apache and mounts a 27TB
 gluster volume on /pbench. For experimental purposes, a filesystem
 on a SATA/SAS disk with capacity of a few TB should be more than enough.
 
-In addition, we index the results into Elastic Search. This setup
+In addition, we index the results into ElasticSearch. This setup
 is beyond the scope of this document.
 
 If your local pbench admins provide an "internal" RPM available, you should use it

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-07-22 Fri 13:47 -->
+<!-- 2016-08-25 Thu 14:15 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench server installation</title>
@@ -176,6 +176,7 @@
     { font-size: 10px; font-weight: bold; white-space: nowrap; }
   .org-info-js_search-highlight
     { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
   /*]]>*/-->
 </style>
 <link rel="stylesheet" href="../../stylesheets/normalize.css" type="text/css"/>
@@ -257,7 +258,7 @@ for the JavaScript code in this tag.
 <p>
 Server installation is done through two packages: an externally
 available, upstream package containing all the relevant scripts and an
-internal package that contains the local configuration files. The
+internal package that contains the local configuration files<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>. The
 upstream bits include a script that the internal package calls to
 install the local config files in the appropriate places. It also
 creates a crontab from the information in the configuration files
@@ -300,7 +301,8 @@ sosreports on to other services for further processing.
 <div class="outline-text-2" id="text-org96ad6f7">
 <p>
 The host that runs the server has to run apache. It should also
-have a fairly hefty filesystem for storing results. 
+have a fairly hefty filesystem for storing results. Of course, the
+more results you produce, the bigger the filesystem should be.
 </p>
 
 <p>
@@ -310,7 +312,7 @@ on a SATA/SAS disk with capacity of a few TB should be more than enough.
 </p>
 
 <p>
-In addition, we index the results into Elastic Search. This setup
+In addition, we index the results into ElasticSearch. This setup
 is beyond the scope of this document.
 </p>
 
@@ -491,9 +493,22 @@ are correctly done.
 </p>
 </div>
 </div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">
+Although this document describes installation in terms of an "internal"
+package, note that that may be a convenient fiction. If there <b>is</b> one available,
+then installing it should take care of the config files and the rest of the setup
+described in <a href="#orgff77cda">Server installation (generic)</a>.
+</p></div></div>
+
+
 </div>
+</div></div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2016-07-22 Fri 13:47</p>
+<p class="date">Page updated: 2016-08-25 Thu 14:15</p>
 </div>
 </body>
 </html>

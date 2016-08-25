@@ -1,4 +1,4 @@
-# Created 2016-07-22 Fri 12:59
+# Created 2016-08-25 Thu 14:14
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
@@ -100,8 +100,10 @@ administrator provides.
 
 You can install these two as follows:
 #+BEGIN_EXAMPLE
-pbench-agent-config-activate /path/to/config/file/pbench-agent.cfg
-pbench-agent-config-ssh-key /path/to/pbench/private/key/id_rsa
+configfile=/path/to/config/file/pbench-agent.cfg
+keyfile=/path/to/pbench/private/key/id_rsa
+pbench-agent-config-activate $configfile
+pbench-agent-config-ssh-key $configfile $keyfile
 #+END_EXAMPLE
 You should be ready to roll.
 

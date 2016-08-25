@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-07-22 Fri 13:47 -->
+<!-- 2016-08-25 Thu 14:15 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench User Guide</title>
@@ -176,6 +176,7 @@
     { font-size: 10px; font-weight: bold; white-space: nowrap; }
   .org-info-js_search-highlight
     { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
   /*]]>*/-->
 </style>
 <link rel="stylesheet" href="../../stylesheets/normalize.css" type="text/css"/>
@@ -489,7 +490,7 @@ ssh_opts='-o StrictHostKeyChecking=no'
 </pre>
 
 <p>
-Somne of these are now specified in the config file
+These are now specified in the config file
 <code>/opt/pbench-agent/config/pbench-agent.cfg</code>.
 </p>
 </div>
@@ -791,7 +792,7 @@ make sure to follow this dictum.
 <dl class="org-dl">
 <dt><code>--dir</code></dt><dd><p>
 specify the run directory for all the collections tools. This argument
-<b>must</b> be used by <code>pbench-start/stop/postrprocess-tools</code>, so that all the results files
+<b>must</b> be used by <code>pbench-start/stop/postprocess-tools</code>, so that all the results files
 are in known places:
 </p>
 <pre class="example">
@@ -1261,7 +1262,7 @@ overwrite earlier ones.
 
 <p>
 <b>N.B.</b> If you want to run <code>pbench-move-results</code> or <code>pbench-copy-results</code> after the
-end of the run, your resuls should be under <code>/var/lib/pbench-agent</code>:
+end of the run, your results should be under <code>/var/lib/pbench-agent</code>:
 <code>pbench-move/copy-results</code> does not know anything about your choice for this
 option; it only looks in <code>/var/lib/pbench-agent</code> for results to upload. So
 if you are planning to use <code>pbench-move/copy-results</code>, make sure that the
@@ -1582,7 +1583,7 @@ all available tools - the current workaround is to check the contents of
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2016-07-22 Fri 13:47</p>
+<p class="date">Page updated: 2016-08-25 Thu 14:15</p>
 </div>
 </body>
 </html>
