@@ -27,6 +27,8 @@ origin_master="/etc/sysconfig/origin-master"
 origin_node="/etc/sysconfig/origin-node"
 ose_openshift_master="/etc/sysconfig/atomic-openshift-master"
 ose_openshift_node="/etc/sysconfig/atomic-openshift-node"
+ose_openshift_master_api="/etc/sysconfig/atomic-openshift-master-api"
+ose_openshift_master_controllers="/etc/sysconfig/atomic-openshift-master-controllers"
 
 opts=$(getopt -o d --longoptions "dir:,group:,iteration:,osecomponent:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
 
@@ -117,11 +119,23 @@ ose_pprof() {
                     systemctl restart openshift-master.service
                 fi
             else
-                if grep -q "^OPENSHIFT_PROFILE=web" $ose_openshift_master; then 
-                    systemctl restart atomic-openshift-master
+                #check if openshift-master service is master, that means its a ha installation
+                if [ $(systemctl list-unit-files | grep atomic-openshift-master.service | awk {'print $2'}) == "masked" ]; then
+                    if grep -q "^OPENSHIFT_PROFILE=web" $ose_openshift_master_api; then
+                        systemctl restart atomic-openshift-master-api atomic-openshift-master-controllers
+                    else
+                        echo "OPENSHIFT_PROFILE=web" >> $ose_openshift_master_api
+                        echo "OPENSHIFT_PROFILE=web" >> $ose_openshift_master_controllers
+                        echo "OPENSHIFT_PROFILE_PORT=6061" >> $ose_openshift_master_api
+                        systemctl restart atomic-openshift-master-api.service atomic-openshift-master-controllers.service
+                    fi
                 else
-                    echo "OPENSHIFT_PROFILE=web" >> $ose_openshift_master
-                    systemctl restart atomic-openshift-master.service
+                    if grep -q "^OPENSHIFT_PROFILE=web" $ose_openshift_master; then
+                        systemctl restart atomic-openshift-master
+                    else
+                        echo "OPENSHIFT_PROFILE=web" >> $ose_openshift_master
+                        systemctl restart atomic-openshift-master.service
+                    fi
                 fi
             fi 
             ;;
@@ -146,7 +160,12 @@ ose_pprof() {
 
 collect_data() {
     while true; do
-            $tool_bin tool $tool -text -seconds=$interval -output $PPROF_TMPDIR/$(date +%Y-%m-%d:%H:%M:%S)_.txt http://localhost:6060/debug/pprof/profile
+        if [ $(systemctl list-unit-files | grep atomic-openshift-master.service | awk {'print $2'}) == "masked" ]; then
+            $tool_bin tool $tool -text -seconds=$interval -output $PPROF_TMPDIR/$(date +%Y-%m-%d:%H:%M:%S)_controller.txt http://localhost:6060/debug/pprof/profile &
+            $tool_bin tool $tool -text -seconds=$interval -output $PPROF_TMPDIR/$(date +%Y-%m-%d:%H:%M:%S)_api.txt http://localhost:6061/debug/pprof/profile &
+        else
+            $tool_bin tool $tool -text -seconds=$interval -output $PPROF_TMPDIR/$(date +%Y-%m-%d:%H:%M:%S).txt http://localhost:6060/debug/pprof/profile &
+        fi
     done 
 } 
 case "$mode" in 
