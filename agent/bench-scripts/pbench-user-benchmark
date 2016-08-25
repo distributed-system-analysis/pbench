@@ -76,6 +76,8 @@ verify_tool_group $tool_group
 iteration="1" # there can be only 1 iteration for user-benchmark
 benchmark_bin="$@"
 benchmark_run_dir="$pbench_run/${benchmark}_${config}_$date"
+# make the run dir available to the user script
+export benchmark_run_dir
 benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
 mkdir -p $benchmark_results_dir/.running
 export benchmark_results_dir=$benchmark_results_dir
