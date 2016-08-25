@@ -2,11 +2,21 @@
 use strict;
 use warnings;
 use JSON;
+use Cwd 'abs_path';
 
 my $dir = $ARGV[0];
 my $iteration = $ARGV[1];
 my $tool_group = $ARGV[2];
 my $js_str;
+
+# Determine histogram interval based on value used in job file. Should really make
+# this an option, but perfectly reasonable default.
+my $interval = `cat $dir/fio.job | grep "^log_hist_msec" | cut -f2 -d= | head -n1 | xargs echo -n`;
+if ( ! $interval =~ /^\s*$/ ) {
+	system("mkdir -p $dir/hist");
+	system("fiologparser_hist.py -i $interval $dir/clients/*/*_clat_hist.* > $dir/hist/hist.csv");
+	system(abs_path($0) . "-viz.py $dir/hist");
+}
 
 open( JS, "<$dir/fio-result.txt" ) or die "Can't open $dir/fio-result.txt: $!";
 # there may be more than one json array, and we want only the last one

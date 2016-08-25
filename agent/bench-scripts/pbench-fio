@@ -375,11 +375,20 @@ function print_iteration {
 	# printing a iteration assumes this must be a new row, so include \n first
 	printf "\n%28s" "$1" >>$benchmark_summary_txt_file
 	printf "\n%s" "$1" >>$benchmark_summary_csv_file
+	hist_interval=`cat $iteration_dir/reference-result/fio.job | grep "^log_hist_msec" | cut -f2 -d= | head -n1 | xargs echo -n`
 	if [ $1 == "iteration" ]; then
 		# this is just a label, so no links here
-		printf "\n%28s %s %s" "iteration" "summary" "tools">>$benchmark_summary_html_file
+		if [ ! -z "$hist_interval" ]; then
+			printf "\n%28s %s %s %s" "iteration" "summary" "hist-results" "tools">>$benchmark_summary_html_file
+		else
+			printf "\n%28s %s %s %s" "iteration" "summary" "tools">>$benchmark_summary_html_file
+		fi
 	else
-		printf "\n%28s <a href=./$iteration/reference-result/summary-result.html>%s</a> <a href=./$iteration/reference-result/tools-$tool_group>%s</a>" "$1" "summary" "tools">>$benchmark_summary_html_file
+		if [ ! -z "$hist_interval" ]; then
+			printf "\n%28s <a href=./$iteration/reference-result/summary-result.html>%s</a> <a href='./$iteration/reference-result/hist/results.html' />hist-results</a> <a href=./$iteration/reference-result/tools-$tool_group>%s</a>" "$1" "summary" "tools">>$benchmark_summary_html_file
+		else
+			printf "\n%28s <a href=./$iteration/reference-result/summary-result.html>%s</a> <a href=./$iteration/reference-result/tools-$tool_group>%s</a>" "$1" "summary" "tools">>$benchmark_summary_html_file
+		fi
 	fi
 }
 
@@ -638,6 +647,18 @@ function fio_run_benchmark() {
 							fi
 						done
 						if [ $sample_failed -eq 0 ]; then
+
+							hist_interval=`cat $iteration_dir/sample1/fio.job | grep "^log_hist_msec" | cut -f2 -d= | head -n1 | xargs echo -n`
+							if [ ! -z "$hist_interval" ]; then
+								hist_results=$iteration_dir/hist
+								mkdir -p $hist_results
+								# Use sample1 here, since all of the samples have the same log_hist_msec value
+								# NOTE: If --log_unix_epoch gets enabled in fio.job, then fiologparser_hist.py will not merge
+								# histograms into an "average" across the samples.
+								fiologparser_hist.py -i $hist_interval $iteration_dir/sample*/clients/*/*_clat_hist.* > $hist_results/hist.csv
+								$script_path/postprocess/$benchmark-postprocess-viz.py $hist_results
+							fi
+
 							# find the keys that we will compute avg & stddev
 							# NOTE: we always choose "sample1" since it is
 							# always present and shares the same keys with
