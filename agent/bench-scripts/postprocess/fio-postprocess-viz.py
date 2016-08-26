@@ -1,6 +1,10 @@
 #!/usr/bin/env python2.7
 import os
 join = os.path.join
+try:
+    from configparser import SafeConfigParser
+except ImportError:
+    from ConfigParser import SafeConfigParser
 
 html = \
 """
@@ -16,7 +20,7 @@ html = \
 <script src="/static/js/v0.3/saveSvgAsPng.js" charset="utf-8"></script>
 <div id='jschart_latency'>
   <script>
-    create_graph(0, "xy", "jschart_latency", "Percentiles", "Time (s)", "Latency (s)",
+    create_graph(0, "%s", "jschart_latency", "Percentiles", "Time (s)", "Latency (s)",
         { plotfiles: [ "avg.log", "median.log", "p90.log",
                        "p99.log", "min.log", "max.log" ],
           sort_datasets: false, x_log_scale: false
@@ -41,15 +45,26 @@ def main(ctx):
     for line in csv:
       vs = line.split(', ')
       for i in range(len(columns)):
-        out_files[i].write("%.4f %s\n" % (int(vs[0]) / 1000.0, vs[i+1].rstrip()))
+        out_files[i].write("%d %s\n" % (int(vs[0]), vs[i+1].rstrip()))
 
+  chart_type = "xy"
+  cp = SafeConfigParser(allow_no_value=True)
+  cp.read(ctx.job_file)
+  for s in cp.sections():
+    try:
+      epoch = cp.get(s, 'log_unix_epoch')
+      chart_type = "timeseries"
+    except:
+      pass
+  print ("Chart Type: %s" % chart_type)
   with open(join(ctx.DIR, 'results.html'), 'w') as fp:
-    fp.write(html)
+    fp.write(html % (chart_type,))
 
 if __name__ == '__main__':
   import argparse
   p = argparse.ArgumentParser()
   arg = p.add_argument
+  arg('-j', '--job-file', help='fio job file')
   arg('DIR', help='results directory')
   main(p.parse_args())
 

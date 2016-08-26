@@ -59,12 +59,12 @@ except AttributeError:
     SafeConfigParser.read_dict = _read_dict
 
 def parse_config(filename):
-    cp = SafeConfigParser()
+    cp = SafeConfigParser(allow_no_value=True)
     cp.read(filename)
     return cp._sections
 
 def write_config(dictionary, out=sys.stdout):
-    cp = SafeConfigParser()
+    cp = SafeConfigParser(allow_no_value=True)
     cp.read_dict(dictionary)
     cp.write(out)
 
@@ -75,7 +75,7 @@ def replace_all(dct, old, new):
     for k in keys:
         if isinstance(dct[k], dict):
             dct[k] = replace_all(dct[k], old, new)
-        else:
+        elif dct[k] is not None:
             old_val = dct[k]
             del dct[k]
             k = k.replace(old, new)
@@ -90,7 +90,7 @@ def replace_val(dct, magic, delta):
         if isinstance(dct[k], dict):
             dct[k] = replace_val(dct[k], delta)
         else:
-            if magic in dct[k]:
+            if (dct[k] is not None) and magic in dct[k]:
                 dct[k] = dct[k].replace(magic, delta[k])
 
 # Other arguments that can override those given in the job file:
