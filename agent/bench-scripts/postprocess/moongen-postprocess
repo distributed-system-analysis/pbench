@@ -118,6 +118,23 @@ my $uperf_primary_metric="Mframes_sec";
 my $frame_size;
 open( TXT, "<$dir/moongen-result.txt" ) or die "Can't open $dir/moongen-result.txt: $!";
 while ( <TXT> ) {
+	# ensure that only the final output is processed by removing
+	# any previously found data.  if multiple validation attempts
+	# are required there may be multiple result entries but only
+	# the last one should be used.
+	if (/\[INFO\]  Stopping final validation/) {
+		@Mframes_sec = ();
+		@Gb_sec = ();
+		@Mframes_sec = ();
+		@Gb_sec = ();
+		@usec_95th = ();
+		@usec_avg = ();
+		@usec_min = ();
+		@usec_max = ();
+		@usec_99th = ();
+		@usec_99_99th = ();
+		@benchmark = ();
+	}
 	# [REPORT]Device 0->1: Tx frames: 10004131 Rx Frames: 10004131 frame loss: 0, 0.000000% Rx Mpps: 1.000188
 	if (/^\[REPORT\]Device\s(\d+)..(\d+):\s+Tx\sframes:\s+(\d+)\s+Rx\s[f|F]rames:\s+(\d+)\s+frame\sloss:\s+([-]*\d+),\s+([-]*\d+\.\d+)%\s+Rx Mpps:\s+(\d+\.\d+)/) {
 		my $tx_port = $1;
