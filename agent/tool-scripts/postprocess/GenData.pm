@@ -252,7 +252,7 @@ sub gen_data {
 					$threshold = ", threshold: " . $thresholds{$htmlpage}{$chart};
 				}
 
-				printf TOOL_HTML "        create_graph(\"%s\", \"%s\", \"%s\", \"%s\", null, null, { csvfiles: [ \"csv/%s.csv\" ]%s });\n", $this_graph_type, "timeseries", "chart_" . $chartnum, $chart, $htmlpage . '_' . $chart, $threshold;
+				printf TOOL_HTML "        create_jschart(\"%s\", \"%s\", \"%s\", \"%s\", null, null, { csvfiles: [ \"csv/%s.csv\" ]%s });\n", $this_graph_type, "timeseries", "chart_" . $chartnum, $chart, $htmlpage . '_' . $chart, $threshold;
 
 				printf TOOL_HTML "      </script>\n";
 				printf TOOL_HTML "    </div>\n";
