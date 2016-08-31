@@ -11,11 +11,11 @@ my $js_str;
 
 # Determine histogram interval based on value used in job file. Should really make
 # this an option, but perfectly reasonable default.
-my $interval = `cat $dir/fio.job | grep "^log_hist_msec" | cut -f2 -d= | head -n1 | xargs echo -n`;
+my $interval = `cat $dir/fio.job | grep "^log_hist_msec"`;
 if ( ! $interval =~ /^\s*$/ ) {
 	system("mkdir -p $dir/hist");
-	system("fiologparser_hist.py -i $interval $dir/clients/*/*_clat_hist.* > $dir/hist/hist.csv");
-	system(abs_path($0) . "-viz.py $dir/hist");
+	system("fiologparser_hist.py --job-file=$dir/fio.job $dir/clients/*/*_clat_hist.* > $dir/hist/hist.csv");
+	system(abs_path($0) . "-viz.py --job-file=$dir/fio.job $dir/hist");
 }
 
 open( JS, "<$dir/fio-result.txt" ) or die "Can't open $dir/fio-result.txt: $!";
