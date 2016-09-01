@@ -41,3 +41,6 @@ pbench-backup-tarballs: Missing target backup directory argument
 /var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 0 (skipped 0) results, 0 errors
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:pbench-unpack-tarballs: Bad INCOMING=/var/tmp/pbench-test-server/pbench/public_html/incoming
 --- pbench log file contents
++++ test-execution.log file contents
+grep: /var/tmp/pbench-test-server/test-execution.log: No such file or directory
+--- test-execution.log file contents
