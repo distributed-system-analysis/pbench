@@ -60,7 +60,7 @@ fi
 mail_recipients=$(getconf.py mailto pbench-server)
 
 # make all the state directories for the pipeline and any others needed
-LINKDIRS="TODO TO-COPY-SOS TO-INDEX INDEXED WONT-INDEX DONE"
+LINKDIRS="TODO TO-COPY-SOS TO-INDEX INDEXED WONT-INDEX DONE BAD-MD5"
 
 function mk_dirs {
     hostname=$1
