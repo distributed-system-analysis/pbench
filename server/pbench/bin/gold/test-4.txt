@@ -1,6 +1,3 @@
-+++ Running pbench-backup-tarballs
-pbench-backup-tarballs: Missing target backup directory argument
---- Finished pbench-backup-tarballs (status=1}
 +++ Running pbench-unpack-tarballs
 --- Finished pbench-unpack-tarballs (status=1}
 +++ Running pbench-copy-sosreports

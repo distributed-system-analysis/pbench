@@ -4,6 +4,7 @@
 /var/tmp/pbench-test-server/pbench
 /var/tmp/pbench-test-server/pbench/archive
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001
+/var/tmp/pbench-test-server/pbench/backup
 /var/tmp/pbench-test-server/pbench/logs
 /var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs
 /var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.error
@@ -18,7 +19,7 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:end-1900-01-01T00:00:00-UTC
 --- pbench log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/rsync -va --stats --exclude=TODO --exclude=TO-COPY-SOS --exclude=TO-INDEX --exclude=INDEXED --exclude=WONT-INDEX --exclude=DONE /var/tmp/pbench-test-server/pbench/archive/fs-version-001/ /var/tmp/pbench-test-server/pbench.backup
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/rsync -va --stats --exclude=TODO --exclude=TO-COPY-SOS --exclude=TO-INDEX --exclude=INDEXED --exclude=WONT-INDEX --exclude=DONE /var/tmp/pbench-test-server/pbench/archive/fs-version-001/ /var/tmp/pbench-test-server/pbench/backup
 /var/tmp/pbench-test-server/test-execution.log:
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Number of files: 1 (dir: 1)
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Number of created files: 0

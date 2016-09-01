@@ -1,0 +1,153 @@
+#! /bin/bash
+
+# Usage: pbench-verify-backup-tarballs <primary> <backup> <pbench> [ <pbench-local> ]
+
+# Method: in each directory, concatenate all the .md5 files and
+# pass them to md5sum for verification (eliminate DUPLICATEs for now: they
+# are handled incorrectly by pbench-{move,copy}-results and that needs to
+# be fixed).
+
+# For each directory, select all the files that don't pass the md5 check
+# and report them. TBD: Report also whether the two sets match between directories
+# (IOW, if they were corrupted to begin with).
+
+# Then compare the rest: there might be a few more files in the primary dir
+# than in the backup dir, if any additional tarballs have been sent and the
+# backup has not dealt with them yet. That is reported but it's only temporary
+# so it's OK.
+
+# Any other discrepancy is flagged and reported.
+
+# The second argument is specific to this script: it's the backup
+# directory.  The first and the (optional) third arg are consumed by
+# pbench-base.sh.  This is the same convention that is used by
+# pbench-backup-tarballs.
+
+BDIR=$1
+shift
+
+# load common things
+opts=$SHELLOPTS
+case $opts in
+    *xtrace*)
+        dir=$(dirname $(which $0))
+        PROG=$(basename $(which $0))
+        ;;
+    *)
+        dir=$(dirname $0)
+        PROG=$(basename $0)
+        ;;
+esac
+
+if [[ -z "$1" ]]; then
+    echo "$PROG: Missing source pbench directory argument" >&2
+    exit 1
+fi
+TOP="$1"
+TOP_LOCAL="$2"
+
+. $dir/pbench-base.sh
+
+primary=$ARCHIVE
+backup=$BDIR
+
+echo $CONFIG
+echo $mail_recipients
+# make sure pbench_base has already defined mail_recipients
+# and exit if not, otherwise we'll do a lot of work for nothing.
+if [ -z "$mail_recipients" ] ;then
+    exit 2
+fi
+
+# work files
+listp=$TMP/$PROG/primary.$$
+listb=$TMP/$PROG/backup.$$
+tmp=$TMP/$PROG/tmp.$$
+ponly=$TMP/$PROG/primary.only
+bonly=$TMP/$PROG/backup.only
+report=$TMP/$PROG/report.$$
+
+# make sure the directory exists
+mkdir -p $TMP/$PROG
+
+controllers=$TMP/$PROG/controllers.$$
+trap "rm -f $controllers $listp $listp.failed $listb $listb.failed $tmp $ponly $bonly $report; rmdir $TMP/$PROG" EXIT INT QUIT
+
+> $listp
+if cd $primary ;then
+    find . -maxdepth 1 -type d | grep -v '^\.$' > $controllers
+    while read d ;do
+        pushd $d > /dev/null || exit 5
+        files=$(ls | grep md5 | grep -v DUPLICATE__NAME)
+        if [ ! -z "${files}" ] ;then
+            md5sum -c ${files} | sed 's;^;'$d/';'
+        fi 
+        popd >/dev/null
+    done < $controllers | sort > $listp
+fi
+
+# backup location
+> $listb
+if cd $backup ;then
+    find . -maxdepth 1 -type d | grep -v '^\.$' > $controllers
+    while read d ;do
+        pushd $d > /dev/null || exit 6
+        files=$(ls | grep md5 | grep -v DUPLICATE__NAME)
+        if [ ! -z "${files}" ] ;then
+            md5sum -c ${files} | sed 's;^;'$d/';'
+        fi 
+        popd >/dev/null
+    done < $controllers | sort > $listb
+fi
+
+# construct the report
+> $report
+let ret=0
+grep FAIL $listp > $listp.failed
+if [ -s $listp.failed ] ;then
+    (echo "* In $primary: The calculated MD5 of the following entries failed to match the stored MD5"
+     cat $listp.failed | sed 's;^\.;'$primary';'; echo) >> $report
+elif [ -s $listp -a ! -s $listp.failed ] ;then
+    :
+else
+    echo "Primary list is empty - is $primary mounted?" >> $report
+    ret=7
+fi
+
+grep FAIL $listb > $listb.failed
+if [ -s $listb.failed ] ;then
+    (echo "* In $backup: The calculated MD5 of the following entries failed to match the stored MD5"
+     cat $listb.failed | sed 's;^\.;'$backup';'; echo) >> $report
+elif [ -s $listb -a ! -s $listb.failed ] ;then
+    :
+else
+    echo "Backup list is empty - is $backup mounted?" >> $report
+    ret=8
+fi
+
+# TBD: compare the two lists of FAILED files and report appropriately.
+
+# Check for discrepancies but only if both files are non-empty: if for whatever reason,
+# one of the mount points is not available, we will get the underlying directory which
+# will be empty.
+
+if [[ $ret == 0 ]] ;then
+    comm -13 $listp $listb > $bonly
+    comm -23 $listp $listb > $ponly
+
+    if [ -s $ponly ] ;then
+        (echo "* Files that exist only in primary directory - extra files in this list are probably OK: they just have not been backed up yet.";
+         cat $ponly | sed 's;^\.;'$primary';') >> $report
+    fi
+
+    if [ -s $bonly ] ;then
+        (echo "* Files that exist only in backup directory - this should not happen.";
+         cat $bonly | sed 's;^\.;'$backup';') >> $report
+    fi
+fi
+
+# send it
+subj="$PROG.$TS"
+mailx -s "$subj" $mail_recipients < $report
+
+exit $ret

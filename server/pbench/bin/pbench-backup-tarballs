@@ -17,16 +17,18 @@ case $opts in
 esac
 
 if [[ -z "$1" ]]; then
+    echo "$PROG: Missing target backup directory argument" >&2
+    exit 1
+fi
+BDIR="$1"
+shift
+
+if [[ -z "$1" ]]; then
     echo "$PROG: Missing source pbench directory argument" >&2
     exit 1
 fi
 TOP="$1"
-if [[ -z "$2" ]]; then
-    echo "$PROG: Missing target backup directory argument" >&2
-    exit 1
-fi
-BDIR="$2"
-TOP_LOCAL="$3"
+TOP_LOCAL="$2"
 
 . $dir/pbench-base.sh
 
