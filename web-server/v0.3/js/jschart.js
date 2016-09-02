@@ -572,7 +572,26 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
 				       },
 			  threshold: null,
 			  name_filter: null,
-			  data_rows: null
+			  data_rows: null,
+			  view_port: { table: null,
+				       rows: { header: null,
+					       x: null,
+					       y: null,
+					       update: null
+					     },
+				       toggle_hide: null,
+				       inputs: { x: { domain: { min: null,
+								max: null
+							      },
+						      clamping: null
+						    },
+						 y: { domain: { min: null,
+								max: null
+							      },
+						      clamping: null
+						    }
+					       }
+				     }
 			}
 	       };
 
@@ -590,7 +609,9 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
 		   live_update: true,
 		   visible_datasets: 0,
 		   cursor_value: null,
-		   mouse: null
+		   mouse: null,
+		   view_port_table_controls_visible: true,
+		   custom_domain: false
 		 };
 
     this.functions = { area: null,
@@ -921,40 +942,46 @@ function parse_plot_file(chart, datasets_index, text) {
 }
 
 function update_domains(chart) {
-    chart.x.scale.chart.domain([
-	d3.min(chart.datasets.valid, get_dataset_min_x),
-	d3.max(chart.datasets.valid, get_dataset_max_x)
-    ]);
+    if (!chart.state.custom_domain) {
+	chart.x.scale.chart.domain([
+	    d3.min(chart.datasets.valid, get_dataset_min_x),
+	    d3.max(chart.datasets.valid, get_dataset_max_x)
+	]);
+	set_view_port_table_control_x_domain(chart);
+    }
 
     var domain = chart.x.scale.chart.domain();
 
-    if (isNaN(domain[0])) {
-	domain[0] = 0;
-    }
+    if (!chart.state.custom_domain) {
+	if (isNaN(domain[0])) {
+	    domain[0] = 0;
+	}
 
-    if (isNaN(domain[1])) {
-	domain[1] = 1;
-    }
+	if (isNaN(domain[1])) {
+	    domain[1] = 1;
+	}
 
-    // ensure that the domain is not "empty"
-    if (domain[0] == domain[1]) {
-	domain[0] *= 0.95;
-	domain[1] *= 1.05;
-
+	// ensure that the domain is not "empty"
 	if (domain[0] == domain[1]) {
-	    domain[1]++;
+	    domain[0] *= 0.95;
+	    domain[1] *= 1.05;
+
+	    if (domain[0] == domain[1]) {
+		domain[1]++;
+	    }
+	}
+
+	if (chart.options.x.min) {
+	    domain[0] = chart.options.x.min;
+	}
+
+	if (chart.options.x.max) {
+	    domain[1] = chart.options.x.max;
 	}
     }
 
-    if (chart.options.x.min) {
-	domain[0] = chart.options.x.min;
-    }
-
-    if (chart.options.x.max) {
-	domain[1] = chart.options.x.max;
-    }
-
     chart.x.scale.chart.domain(domain);
+    set_view_port_table_control_x_domain(chart);
     chart.x.scale.zoom.domain(chart.x.scale.chart.domain());
 
     if (! chart.state.user_x_zoomed) {
@@ -963,55 +990,63 @@ function update_domains(chart) {
 
     if (chart.stacked) {
 	chart.datasets.valid = chart.functions.stack(chart.datasets.valid);
+    }
 
-	chart.y.scale.chart.domain([
-	    d3.min(chart.datasets.valid, get_dataset_min_y_stack),
-	    d3.max(chart.datasets.valid, get_dataset_max_y_stack)
-	]);
-    } else {
-	chart.y.scale.chart.domain([
-	    d3.min(chart.datasets.valid, get_dataset_min_y),
-	    d3.max(chart.datasets.valid, get_dataset_max_y)
-	]);
+    if (!chart.state.custom_domain) {
+	if (chart.stacked) {
+	    chart.y.scale.chart.domain([
+		d3.min(chart.datasets.valid, get_dataset_min_y_stack),
+		d3.max(chart.datasets.valid, get_dataset_max_y_stack)
+	    ]);
+	} else {
+	    chart.y.scale.chart.domain([
+		d3.min(chart.datasets.valid, get_dataset_min_y),
+		d3.max(chart.datasets.valid, get_dataset_max_y)
+	    ]);
+	}
+	set_view_port_table_control_y_domain(chart);
     }
 
     var domain = chart.y.scale.chart.domain();
 
-    if (isNaN(domain[0])) {
-	domain[0] = 0;
-    }
+    if (!chart.state.custom_domain) {
+	if (isNaN(domain[0])) {
+	    domain[0] = 0;
+	}
 
-    if (isNaN(domain[1])) {
-	domain[1] = 1;
-    }
+	if (isNaN(domain[1])) {
+	    domain[1] = 1;
+	}
 
-    // ensure that the domain is not "empty"
-    if (domain[0] == domain[1]) {
-	domain[0] *= 0.95;
-	domain[1] *= 1.05;
-
+	// ensure that the domain is not "empty"
 	if (domain[0] == domain[1]) {
-	    domain[1]++;
+	    domain[0] *= 0.95;
+	    domain[1] *= 1.05;
+
+	    if (domain[0] == domain[1]) {
+		domain[1]++;
+	    }
+	}
+
+	if (!chart.stacked &&
+	    !chart.options.y.scale.log &&
+	    (domain[0] > 0)) {
+	    domain[0] = 0;
+	}
+
+	if (chart.options.y.min) {
+	    domain[0] = chart.options.y.min;
+	}
+
+	if (chart.options.y.max) {
+	    domain[1] = chart.options.y.max;
+	} else {
+	    domain[1] *= (1 + chart.y_axis_overscale/100);
 	}
     }
 
-    if (!chart.stacked &&
-	!chart.options.y.scale.log &&
-	(domain[0] > 0)) {
-	domain[0] = 0;
-    }
-
-    if (chart.options.y.min) {
-	domain[0] = chart.options.y.min;
-    }
-
-    if (chart.options.y.max) {
-	domain[1] = chart.options.y.max;
-    } else {
-	domain[1] *= (1 + chart.y_axis_overscale/100);
-    }
-
     chart.y.scale.chart.domain(domain);
+    set_view_port_table_control_y_domain(chart);
     chart.y.scale.zoom.domain(chart.y.scale.chart.domain());
 
     if (! chart.state.user_y_zoomed) {
@@ -1684,9 +1719,101 @@ function create_table(chart) {
 		    }
 		}
 	    });
-
-	console.log("...finished adding table controls for chart \"" + chart.chart_title + "\"");
     }
+
+    var row = chart.dom.table.table.append("tr");
+    var cell = row.append("td")
+	.attr("align", "center")
+	.attr("colSpan", colspan);
+
+    chart.dom.table.view_port.table = cell.append("table")
+	.attr("width", "100%")
+	.classed("noborders", true);
+
+    chart.dom.table.view_port.rows.header = chart.dom.table.view_port.table.selectAll(".view_port_table_controls")
+	.data([ chart ])
+	.enter().append("tr")
+	.on("click", toggle_hide_view_port_table_controls);
+
+    chart.dom.table.view_port.toggle_hide = chart.dom.table.view_port.rows.header.append("th")
+	.attr("colSpan", 4)
+	.text("View Port Controls");
+
+    chart.dom.table.view_port.rows.x = chart.dom.table.view_port.table.append("tr")
+	.classed("controls", true);
+
+    chart.dom.table.view_port.rows.x.append("th")
+	.text("X Axis");
+
+    var cell = chart.dom.table.view_port.rows.x.append("td")
+	.text("Min: ");
+
+    chart.dom.table.view_port.inputs.x.domain.min = cell.append("input")
+	.attr("type", "text");
+
+    var cell = chart.dom.table.view_port.rows.x.append("td")
+	.text("Max: ");
+
+    chart.dom.table.view_port.inputs.x.domain.max = cell.append("input")
+	.attr("type", "text");
+
+    var cell = chart.dom.table.view_port.rows.x.append("td")
+	.text("Clamping: ");
+
+    chart.dom.table.view_port.inputs.x.clamping = cell.selectAll(".x_clamp_checkbox")
+	.data([ chart ])
+	.enter().append("input")
+	.attr("type", "checkbox")
+	.on("click", toggle_x_axis_clamp);
+
+    chart.dom.table.view_port.rows.y = chart.dom.table.view_port.table.append("tr")
+	.classed("controls", true);
+
+    chart.dom.table.view_port.rows.y.append("th")
+	.text("Y Axis");
+
+    var cell = chart.dom.table.view_port.rows.y.append("td")
+	.text("Min: ");
+
+    chart.dom.table.view_port.inputs.y.domain.min = cell.append("input")
+	.attr("type", "text");
+
+    var cell = chart.dom.table.view_port.rows.y.append("td")
+	.text("Max: ");
+
+    chart.dom.table.view_port.inputs.y.domain.max = cell.append("input")
+	.attr("type", "text");
+
+    var cell = chart.dom.table.view_port.rows.y.append("td")
+	.text("Clamping: ");
+
+    chart.dom.table.view_port.inputs.y.clamping = cell.selectAll(".y_clamp_checkbox")
+	.data([ chart ])
+	.enter().append("input")
+	.attr("type", "checkbox")
+	.on("click", toggle_y_axis_clamp);
+
+    chart.dom.table.view_port.rows.update = chart.dom.table.view_port.table.append("tr")
+	.classed("controls", true);
+
+    var cell = chart.dom.table.view_port.rows.update.append("th")
+	.attr("colSpan", 4);
+
+    cell.selectAll(".updates_axes")
+	.data([ chart ])
+	.enter().append("button")
+	.text("Update Axes")
+	.on("click", update_axes_domains);
+
+    cell.selectAll(".reset_axes")
+	.data([ chart ])
+	.enter().append("button")
+	.text("Reset Axes")
+	.on("click", reset_axes_domains);
+
+    toggle_hide_view_port_table_controls(chart);
+
+    console.log("...finished adding table controls for chart \"" + chart.chart_title + "\"");
 
     var row = chart.dom.table.table.append("tr")
 	.classed("header", true);
@@ -1948,7 +2075,9 @@ function handle_brush_actions(chart) {
     var y_domain = chart.y.scale.zoom.domain();
 
     chart.x.scale.chart.domain(x_extent);
+    set_view_port_table_control_x_domain(chart);
     chart.y.scale.chart.domain(y_extent);
+    set_view_port_table_control_y_domain(chart);
 
     chart.chart.axis.x.chart.call(chart.x.axis.chart);
     chart.chart.axis.y.chart.call(chart.y.axis.chart);
@@ -2021,7 +2150,9 @@ function zoom_it(chart, zoom_factor) {
     }
 
     chart.x.scale.chart.domain(x_extent);
+    set_view_port_table_control_x_domain(chart);
     chart.y.scale.chart.domain(y_extent);
+    set_view_port_table_control_y_domain(chart);
 
     chart.x.brush.extent(x_extent);
     chart.y.brush.extent(y_extent);
@@ -2199,37 +2330,13 @@ function build_chart(chart) {
 	.attr("y", -chart.dimensions.margin.top + 11)
 	.text(chart.chart_title);
 
-    chart.chart.container.append("text")
+    chart.chart.container.selectAll("._reset_zoom_pan")
+	.data([ chart ])
+	.enter().append("text")
 	.classed("actionlabel endtext", true)
 	.attr("x", chart.dimensions.viewport_width + chart.dimensions.margin.right - 10)
 	.attr("y", -chart.dimensions.margin.top + 29)
-	.on("click", function() {
-		chart.x.scale.chart.domain(chart.x.scale.zoom.domain());
-		chart.y.scale.chart.domain(chart.y.scale.zoom.domain());
-
-		chart.x.brush.extent(chart.x.scale.zoom.domain());
-		chart.y.brush.extent(chart.y.scale.zoom.domain());
-
-		chart.chart.axis.x.chart.call(chart.x.axis.chart);
-		chart.chart.axis.x.zoom.call(chart.x.axis.zoom);
-
-		chart.chart.axis.y.chart.call(chart.y.axis.chart);
-		chart.chart.axis.y.zoom.call(chart.y.axis.zoom);
-
-		chart.x.slider.call(chart.x.brush);
-		chart.y.slider.call(chart.y.brush);
-
-		update_dataset_chart_elements(chart);
-
-		fix_y_axis_labels(chart);
-
-		if (chart.data_model == "timeseries") {
-		    set_x_axis_timeseries_label(chart);
-		}
-
-		chart.state.user_x_zoomed = false;
-		chart.state.user_y_zoomed = false;
-	    })
+	.on("click", reset_zoom_pan)
 	.text("Reset Zoom/Pan");
 
     chart.chart.container.append("text")
@@ -2384,6 +2491,7 @@ function build_chart(chart) {
 		    }
 
 		    chart.charts[i].x.scale.chart.domain(x_domain);
+		    set_view_port_table_control_x_domain(chart.charts[i]);
 
 		    chart.charts[i].x.brush.extent(x_domain);
 
@@ -3630,7 +3738,9 @@ function viewport_mouseup(chart) {
     chart.y.brush.extent(y_extent);
 
     chart.x.scale.chart.domain(x_extent);
+    set_view_port_table_control_x_domain(chart);
     chart.y.scale.chart.domain(y_extent);
+    set_view_port_table_control_y_domain(chart);
 
     chart.chart.axis.x.chart.call(chart.x.axis.chart);
     chart.chart.axis.y.chart.call(chart.y.axis.chart);
@@ -3792,8 +3902,155 @@ function dataset_histogram_sort(a, b) {
     }
 }
 
+function reset_zoom_pan(chart) {
+    chart.x.scale.chart.domain(chart.x.scale.zoom.domain());
+    set_view_port_table_control_x_domain(chart);
+    chart.y.scale.chart.domain(chart.y.scale.zoom.domain());
+    set_view_port_table_control_y_domain(chart);
+
+    chart.x.brush.extent(chart.x.scale.zoom.domain());
+    chart.y.brush.extent(chart.y.scale.zoom.domain());
+
+    chart.chart.axis.x.chart.call(chart.x.axis.chart);
+    chart.chart.axis.x.zoom.call(chart.x.axis.zoom);
+
+    chart.chart.axis.y.chart.call(chart.y.axis.chart);
+    chart.chart.axis.y.zoom.call(chart.y.axis.zoom);
+
+    chart.x.slider.call(chart.x.brush);
+    chart.y.slider.call(chart.y.brush);
+
+    update_dataset_chart_elements(chart);
+
+    fix_y_axis_labels(chart);
+
+    if (chart.data_model == "timeseries") {
+	set_x_axis_timeseries_label(chart);
+    }
+
+    chart.state.user_x_zoomed = false;
+    chart.state.user_y_zoomed = false;
+}
+
+function toggle_hide_view_port_table_controls(chart) {
+    if (chart.state.view_port_table_controls_visible) {
+	chart.dom.table.view_port.toggle_hide.text("+ View Port Controls");
+	chart.dom.table.view_port.rows.x.classed("nodisplay", true);
+	chart.dom.table.view_port.rows.y.classed("nodisplay", true);
+	chart.dom.table.view_port.rows.update.classed("nodisplay", true);
+	chart.state.view_port_table_controls_visible = false;
+    } else {
+	chart.dom.table.view_port.toggle_hide.text("- View Port Controls");
+	chart.dom.table.view_port.rows.x.classed("nodisplay", false);
+	chart.dom.table.view_port.rows.y.classed("nodisplay", false);
+	chart.dom.table.view_port.rows.update.classed("nodisplay", false);
+	chart.state.view_port_table_controls_visible = true;
+    }
+}
+
+function toggle_x_axis_clamp(chart) {
+    if (chart.dom.table.view_port.inputs.x.clamping.property("checked")) {
+	chart.x.scale.chart.clamp(true);
+	zoom_it(chart, 0);
+    } else {
+	chart.x.scale.chart.clamp(false);
+	zoom_it(chart, 0);
+    }
+}
+
+function toggle_y_axis_clamp(chart) {
+    if (chart.dom.table.view_port.inputs.y.clamping.property("checked")) {
+	chart.y.scale.chart.clamp(true);
+	zoom_it(chart, 0);
+    } else {
+	chart.y.scale.chart.clamp(false);
+	zoom_it(chart, 0);
+    }
+}
+
+function set_view_port_table_control_x_domain(chart) {
+    var domain = chart.x.scale.chart.domain();
+
+    if (chart.data_model == "timeseries") {
+	if (chart.options.timezone == "local") {
+	    domain[0] = chart.formatting.time.local.long(domain[0]);
+	    domain[1] = chart.formatting.time.local.long(domain[1]);
+	} else {
+	    domain[0] = chart.formatting.time.utc.long(domain[0]);
+	    domain[1] = chart.formatting.time.utc.long(domain[1]);
+	}
+    }
+
+    chart.dom.table.view_port.inputs.x.domain.min.property("value", domain[0]);
+    chart.dom.table.view_port.inputs.x.domain.max.property("value", domain[1]);
+}
+
+function set_view_port_table_control_y_domain(chart) {
+    var domain = chart.y.scale.chart.domain();
+
+    chart.dom.table.view_port.inputs.y.domain.min.property("value", domain[0]);
+    chart.dom.table.view_port.inputs.y.domain.max.property("value", domain[1]);
+}
+
+function update_axes_domains(chart) {
+    var x_domain = [ chart.dom.table.view_port.inputs.x.domain.min.property("value"), chart.dom.table.view_port.inputs.x.domain.max.property("value") ];
+    var y_domain = [ chart.dom.table.view_port.inputs.y.domain.min.property("value"), chart.dom.table.view_port.inputs.y.domain.max.property("value") ];
+
+    if (chart.data_model == "timeseries") {
+	if (chart.options.timezone == "local") {
+	    x_domain[0] = chart.formatting.time.local.long.parse(x_domain[0]);
+	    x_domain[1] = chart.formatting.time.local.long.parse(x_domain[1]);
+	} else {
+	    x_domain[0] = chart.formatting.time.utc.long.parse(x_domain[0]);
+	    x_domain[1] = chart.formatting.time.utc.long.parse(x_domain[1]);
+	}
+    }
+
+    var failed_x_validation = false;
+    var failed_y_validation = false;
+
+    if (isNaN(y_domain[0]) || isNaN(y_domain[1])) {
+	set_view_port_table_control_y_domain(chart);
+	failed_x_validation = true;
+    }
+
+    if (chart.data_model == "timeseries") {
+	if (!x_domain[0] || !x_domain[1]) {
+	    failed_x_validation = true;
+	}
+    } else {
+	if (isNaN(x_domain[0]) || isNaN(x_domain[1])) {
+	    failed_x_validation = true;
+	}
+    }
+
+    if (failed_x_validation) {
+	set_view_port_table_control_x_domain(chart);
+    }
+
+    if (!failed_x_validation && !failed_y_validation) {
+	chart.x.scale.chart.domain(x_domain);
+	chart.y.scale.chart.domain(y_domain);
+
+	chart.state.custom_domain = true;
+
+	update_domains(chart);
+
+	zoom_it(chart, 0);
+    }
+}
+
+function reset_axes_domains(chart) {
+    chart.state.custom_domain = false;
+
+    update_domains(chart);
+
+    reset_zoom_pan(chart);
+}
+
 function display_help() {
-    var help = "This chart provides interactive features to assist the user in interpreting the data.\n\n";
+    var help = "JSCHART Help:  If this message is cut off by your browser check your javascript console for the full output.\n\n";
+    help += "This chart provides interactive features to assist the user in interpreting the data.\n\n";
     help += "You can \"lock\" a dataset to be hightlighted by clicking it's text in the legend or it's row in the table to the right of the chart.  Click either to \"unlock\" the selection.\n\n";
     help += "You can show or hide all datasets using the \"Show\" or \"Hide\" buttons at the top of the chart area.  Individual datasets can be hidden or unhidden by clicking the legend icon for that dataset.  A hidden dataset can also be unhidden by clicking it's table row.\n\n";
     help += "When moving your mouse around the chart area, the coordinates will be displayed in the upper right part of the chart area.\n\n";
@@ -3804,7 +4061,9 @@ function display_help() {
     help += "To reset the chart area to it's original state after being panned/zoomed, hit the \"Reset Zoom/Pan\" button in the upper right.\n\n";
     help += "You can download a CSV file for the data by clicking the \"Export Data as CSV\" button located under the chart title.  The exported data is limited by x-axis zooming, if performed.\n\n";
     help += "Datasets highlighted in yellow in the table have been marked as invalid due to a problem while loading.  These datasets are permanently hidden and will ignore many user initiated events.\n\n";
+    help += "There is a hidden control panel in the table marked as \"View Port Controls\".  The panel can be unhidden/hidden by clicking the row with the panel title.  This panel can be used to manipulate the view port beyond what is possible with the normal zooming and panning controls.  Setting the X or Y axis minimum and maximum values will reset the scales to these values instead of basing them on the viewable data.  These controls are probably only useful in select scenarios such as when there are significant outliers or when extreme zooming is desired.  Clamping can also be enabled and disabled (default) on each axis in order to avoid potential rendering issues such as datasets not appearing when they should (very rare but happens sometimes when a dataset has a large outlier).\n\n";
     help += "When the page has completed generating all charts, the background will change colors to signal that loading is complete.\n";
 
+    console.log(help);
     alert(help);
 }

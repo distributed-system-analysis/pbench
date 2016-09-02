@@ -52,9 +52,15 @@ text.bold { font-weight: bold; }
 .chart { border: 2px solid black; border-collapse: collapse; font-family: monospace; background-color: white; }
 .chart TH { padding-left: 6px; padding-right: 6px; padding-top: 2px; padding-bottom: 2px; border: 1px solid silver; }
 .chart TD { padding-left: 6px; padding-right: 6px; padding-top: 2px; padding-bottom: 2px; border: 1px solid silver; }
-.chart TR.header { border-bottom: 2px solid black; }
+.chart TR.header { border-bottom: 2px solid black; border-top: 2px solid black; }
 .chart TR.footer { border-top: 2px solid black; }
 .chart TR.section { border-bottom: 2px solid black; border-top: 2px solid black; }
+
+.noborders TABLE { border: none; font-family: monospace; background-color: white; border-collapse: collapse; }
+.noborders TH { border: none; }
+.noborders TD { border: none; }
+
+.nodisplay { display: none; }
 
 body { font-family: monospace; }
 a { text-decoration: none; color: blue; }
