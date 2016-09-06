@@ -7,6 +7,8 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # source the base script
 . "$pbench_bin"/base
 
+pbench_log=${pbench_run}/pbench.log
+
 # This script will collect sysinfo data from all registered
 # tools hosts for a specific group. This is typically called
 # at the beginning and end of a benchmark script to capture
@@ -98,30 +100,14 @@ if [ ! -d $sysinfo_path ]; then
 	exit 1
 fi
 
+INVENTORY=/tmp/hosts.$$
+pbench-get-hosts $tool_group_dir > ${INVENTORY}
+trap "rm -f $INVENTORY" QUIT INT EXIT
 
 function gather_remote_sysinfo_data {
-	local remote_host=$1
-	local remote_label=$2
-	debug_log "[$script_name]running sysinfo-dump on $remote_host"
-	cmd="ssh $ssh_opts -n $remote_host pbench-remote-sysinfo-dump $sysinfo_path $remote_label"
-	debug_log "[$script_name] $cmd > $sysinfo_path/$remote_label$remote_host.tar.xz 2> $sysinfo_path/$remote_label$remote_host.err"
-	$cmd > $sysinfo_path/$remote_label$remote_host.tar.xz 2> $sysinfo_path/$remote_label$remote_host.err
-	if [ $? -ne 0 ]; then
-		error_log "Remote sysinfo-dump failed"
-		error_log "$(cat $sysinfo_path/$remote_label$remote_host.err)"
-	else
-		debug_log "[$script_name]completed: deleting sysinfo-dump data on $remote_host"
-		debug_log "$(cat $sysinfo_path/$remote_label$remote_host.err)"
-		pushd "$sysinfo_path" >/dev/null
-		tar xf $remote_label$remote_host.tar.xz
-		tar_status=$?
-		popd >/dev/null
-		if [ $tar_status -ne 0 ]; then
-			error_log "Remote tar ball was bad: $sysinfo_path/$remote_label$remote_host.tar.xz"
-		fi
-	fi
-	rm -f $sysinfo_path/$remote_label$remote_host.tar.xz
-	rm -f $sysinfo_path/$remote_label$remote_host.err
+        debug_log "gather_remote_sysinfo_data"
+        echo "gathering remote sysinfo data"
+        ansible-playbook -i ${INVENTORY} --extra-vars '{ "SYSINFO_PATH":"'$sysinfo_path'" }' /opt/pbench-agent/util-scripts/pbench-collect-sysinfo.yml &>>$pbench_log
 }
 
 
@@ -131,24 +117,26 @@ lcl_label=""
 let lcl_cnt=0
 for this_tool_file in `/bin/ls $tool_group_dir`; do
         if [ "$this_tool_file" == "label" ]; then
-		lcl_label=`cat $tool_group_dir/label`
 		let lcl_cnt=lcl_cnt+1
                 continue;
         fi
-	if echo "$this_tool_file" | grep -q "^remote"; then
-		remote_hostname=`echo "$this_tool_file" | awk -F@ '{print $2}'`
-		label=`cat $tool_group_dir/$this_tool_file`
+        if echo "$this_tool_file" | grep -q "^remote"; then
 		debug_log "gather_remote_sysinfo_data $remote_hostname $label"
-		gather_remote_sysinfo_data $remote_hostname $label &
 	else
 		# any other file is assumed to be a local tool
 		let lcl_cnt=lcl_cnt+1
-	fi
+        fi
 done
+if /bin/ls "$tool_group_dir" | grep -q "^remote"; then
+        gather_remote_sysinfo_data
+fi
+
 if [ $lcl_cnt -gt 0 ]; then
 	# We found local tools, or a label, specified in the tools group
 	# file, so we should collect sysinfo data locally
-        pbench-sysinfo-dump "$sysinfo_path" $lcl_label &
+        debug_log "gather_local_sysinfo_data"
+        echo "gathering local sysinfo data"
+        ansible-playbook -i ${INVENTORY} --extra-vars '{ "SYSINFO_PATH":"'$sysinfo_path'" }' /opt/pbench-agent/util-scripts/pbench-collect-local-sysinfo.yml &>>$pbench_log
 fi
 wait
 
@@ -157,4 +145,3 @@ pbench-metadata-log --group=$group --dir=$dir $name
 status=$?
 
 exit $status
-

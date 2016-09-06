@@ -1,7 +1,6 @@
 +++ Running test-13 pbench-postprocess-tools
-tar: This does not look like a tar archive
-tar: Exiting with failure status due to previous errors
---- Finished test-13 pbench-postprocess-tools (status=2}
+moving tool data
+--- Finished test-13 pbench-postprocess-tools (status=1}
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/pbench.log
@@ -14,12 +13,10 @@ tar: Exiting with failure status due to previous errors
 +++ pbench.log file contents
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]started: --dir=/var/tmp/pbench-test-utils/pbench/tmp --group=default --iteration=1
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]running this tool on fubar: ssh -o StrictHostKeyChecking=no -n fubar pbench-postprocess-tools --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/tmp
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]started: copying tool data ( MB) from fubar
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]copying tool data failed for remote fubar
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000]  moving tool data
+/var/tmp/pbench-test-utils/pbench/pbench.log:Running ansible-playbook
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]completed: 
 --- pbench.log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no -n fubar pbench-postprocess-tools --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/tmp
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no -n fubar du -sm /var/tmp/pbench-test-utils/pbench/tmp/tools-default
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no -n fubar cd /var/tmp/pbench-test-utils/pbench/tmp/tools-default && tar cf - *
 --- test-execution.log file contents

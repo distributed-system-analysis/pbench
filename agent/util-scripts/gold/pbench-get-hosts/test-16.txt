@@ -1,0 +1,18 @@
++++ Running test-16 pbench-get-hosts
+[controller]
+foo.dept.com
+[remote]
+--- Finished test-16 pbench-get-hosts (status=0}
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/tools-default
+/var/tmp/pbench-test-utils/pbench/tools-default/iostat
+/var/tmp/pbench-test-utils/pbench/tools-default/iostat:
+--interval=3
+--- pbench tree state
++++ pbench.log file contents
+grep: /var/tmp/pbench-test-utils/pbench/pbench.log: No such file or directory
+--- pbench.log file contents
++++ test-execution.log file contents
+grep: /var/tmp/pbench-test-utils/test-execution.log: No such file or directory
+--- test-execution.log file contents

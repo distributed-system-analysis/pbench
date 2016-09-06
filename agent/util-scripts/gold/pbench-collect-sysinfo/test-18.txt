@@ -1,0 +1,39 @@
++++ Running test-18 pbench-collect-sysinfo
+Collecting system information
+gathering remote sysinfo data
+--- Finished test-18 pbench-collect-sysinfo (status=0}
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tmp/metadata.log
+/var/tmp/pbench-test-utils/pbench/tmp/sysinfo
+/var/tmp/pbench-test-utils/pbench/tmp/sysinfo/beg
+/var/tmp/pbench-test-utils/pbench/tools-default
+/var/tmp/pbench-test-utils/pbench/tools-default/remote@fubar
+/var/tmp/pbench-test-utils/pbench/tools-default/remote@fubar:
+/var/tmp/pbench-test-utils/pbench/tmp/metadata.log:
+[pbench]
+name: tmp
+script: 
+config: 
+date: 1900-01-01_00:00:00
+rpm-version: 
+
+[tools]
+hosts: fubar 
+
+[tools/fubar]
+
+[run]
+controller: testhost.example.com
+--- pbench tree state
++++ pbench.log file contents
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] gather_remote_sysinfo_data  
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] gather_remote_sysinfo_data
+/var/tmp/pbench-test-utils/pbench/pbench.log:Running ansible-playbook
+--- pbench.log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/yum list installed pbench-agent
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh fubar /bin/ls /var/tmp/pbench-test-utils/pbench/tools-default
+--- test-execution.log file contents
