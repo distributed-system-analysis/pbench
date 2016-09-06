@@ -12,37 +12,37 @@
     <center><h2>iostat-1 - disk</h2></center>
     <div id="chart_1">
       <script>
-        create_graph("lineChart", "timeseries", "chart_1", "IOPS", null, null, { csvfiles: [ "csv/disk_IOPS.csv" ], threshold: 1 });
+        create_jschart("lineChart", "timeseries", "chart_1", "IOPS", null, null, { csvfiles: [ "csv/disk_IOPS.csv" ], threshold: 1 });
       </script>
     </div>
     <div id="chart_2">
       <script>
-        create_graph("lineChart", "timeseries", "chart_2", "Queue_Size", null, null, { csvfiles: [ "csv/disk_Queue_Size.csv" ], threshold: 0.01 });
+        create_jschart("lineChart", "timeseries", "chart_2", "Queue_Size", null, null, { csvfiles: [ "csv/disk_Queue_Size.csv" ], threshold: 0.01 });
       </script>
     </div>
     <div id="chart_3">
       <script>
-        create_graph("lineChart", "timeseries", "chart_3", "Request_Merges", null, null, { csvfiles: [ "csv/disk_Request_Merges.csv" ], threshold: 0.1 });
+        create_jschart("lineChart", "timeseries", "chart_3", "Request_Merges", null, null, { csvfiles: [ "csv/disk_Request_Merges.csv" ], threshold: 0.1 });
       </script>
     </div>
     <div id="chart_4">
       <script>
-        create_graph("lineChart", "timeseries", "chart_4", "Request_Size", null, null, { csvfiles: [ "csv/disk_Request_Size.csv" ], threshold: 0.1 });
+        create_jschart("lineChart", "timeseries", "chart_4", "Request_Size", null, null, { csvfiles: [ "csv/disk_Request_Size.csv" ], threshold: 0.1 });
       </script>
     </div>
     <div id="chart_5">
       <script>
-        create_graph("lineChart", "timeseries", "chart_5", "Throughput", null, null, { csvfiles: [ "csv/disk_Throughput.csv" ], threshold: 1 });
+        create_jschart("lineChart", "timeseries", "chart_5", "Throughput", null, null, { csvfiles: [ "csv/disk_Throughput.csv" ], threshold: 1 });
       </script>
     </div>
     <div id="chart_6">
       <script>
-        create_graph("lineChart", "timeseries", "chart_6", "Utilization", null, null, { csvfiles: [ "csv/disk_Utilization.csv" ], threshold: 1 });
+        create_jschart("lineChart", "timeseries", "chart_6", "Utilization", null, null, { csvfiles: [ "csv/disk_Utilization.csv" ], threshold: 1 });
       </script>
     </div>
     <div id="chart_7">
       <script>
-        create_graph("lineChart", "timeseries", "chart_7", "Wait_Time", null, null, { csvfiles: [ "csv/disk_Wait_Time.csv" ], threshold: 0.1 });
+        create_jschart("lineChart", "timeseries", "chart_7", "Wait_Time", null, null, { csvfiles: [ "csv/disk_Wait_Time.csv" ], threshold: 0.1 });
       </script>
     </div>
   </body>
