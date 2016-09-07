@@ -1,4 +1,5 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
 
 # This is a script to run the fio benchmark
 
@@ -52,6 +53,7 @@ file_size=""
 direct="" # don't cache IO's by default
 sync="" # don't sync IO's by default
 clients="" # A list of hostnames (hosta,hostb,hostc) where you want fio to run.  Note: if you use this, pbench must be installed on these systems already.
+client_file="" # A file containing a list of hostnames
 tool_label_pattern="fio-"
 tool_group="default"
 max_key_length=20
@@ -224,6 +226,10 @@ function fio_process_options() {
 			;;
 			-c|--clients)
 			shift;
+			if [ ! -z "$client_file" ] ;then
+				printf "--clients and --client-file are mutually exclusive"
+				exit 1
+			fi
 			if [ -n "$1" ]; then
 				clients="$1"
 				shift;
@@ -231,8 +237,13 @@ function fio_process_options() {
 			;;
 			--client-file)
 			shift;
+			if [ ! -z "$clients" ] ;then
+				printf "--clients and --client-file are mutually exclusive"
+				exit 1
+			fi
 			if [ -n "$1" ]; then
 				if [ -e $1 ]; then
+					client_file=$1
 					while read line; do
 						clients="$clients,$line"
 					done <$1
@@ -501,7 +512,11 @@ function fio_run_job() {
 	fi
 	pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	local client_opts=""
-	if [ ! -z "$clients" ]; then
+
+        if [ ! -z "$client_file" ] ;then
+		typeset -i nclients=$(wc -l $client_file)
+		client_opts="--client=$client_file --max-jobs=$nclients"
+	elif [ ! -z "$clients" ]; then
 		local max_jobs=0
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			client_opts="$client_opts --client=$client"
@@ -651,7 +666,6 @@ function fio_run_benchmark() {
 								# NOTE: If --log_unix_epoch gets enabled in fio.job, then fiologparser_hist.py will not merge
 								# histograms into an "average" across the samples.
 								fiologparser_hist.py \
-									--job-file=$iteration_dir/sample1/fio.job \
 									$iteration_dir/sample*/clients/*/*_clat_hist.* \
 									> $hist_results/hist.csv
 								$script_path/postprocess/$benchmark-postprocess-viz.py \
