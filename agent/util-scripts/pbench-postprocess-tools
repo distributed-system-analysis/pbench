@@ -146,6 +146,14 @@ for this_tool_file in `/bin/ls $tool_group_dir`; do
 		debug_log "[$script_name]running this tool on $remote: ssh $ssh_opts -n $remote pbench-$action-tools --iteration=$iteration --group=$group --dir=$dir"
 		ssh $ssh_opts -n $remote pbench-$action-tools --iteration=$iteration --group=$group --dir=$dir &
 		pids="$pids $!"
+	elif [ -d $tool_group_dir/$this_tool_file ] ;then
+		# skip spurious subdirectory of $tool_group_dir
+		warn_log "[$script_name]$this_tool_file is a directory in $tool_group_dir; that should not happen. Please consider deleting it."
+		continue
+	elif [ ! -e "$pbench_bin/tool-scripts/$this_tool_file" ] ;then
+		# skip spurious file - not a tool.
+		warn_log "[$script_name]$this_tool_file does not exist in $pbench_bin/tool-scripts; spurious file perhaps? Please consider deleting it."
+		continue
 	else
 		# tool is local
 		# assemble the tool options in to an array
@@ -195,6 +203,17 @@ if [ "$action" == "postprocess" ]; then
 	# down to $tool_output_dir/[$label:]$hostname.
 	for this_tool_file in `/bin/ls $tool_group_dir`; do
 		if echo $this_tool_file | grep -q -v "@"; then
+			if [ -d $tool_group_dir/$this_tool_file ] ;then
+				# skip spurious subdirectory of $tool_group_dir
+				warn_log "[$script_name]$this_tool_file is a directory in $tool_group_dir; that should not happen. Please consider deleting it."
+				continue
+			fi
+			if [ ! -e "$pbench_bin/tool-scripts/$this_tool_file" ] ;then
+				# skip spurious file - not a tool.
+				warn_log "[$script_name]$this_tool_file does not exist in $pbench_bin/tool-scripts; spurious file perhaps? Please consider deleting it."
+				continue
+			fi
+			
 			pushd $tool_output_dir >/dev/null
 			if [ -f "$tool_group_dir/label" ]; then
 				label="`cat "$tool_group_dir/label"`"
