@@ -22,6 +22,8 @@ _testopt=$_testroot/opt/pbench-agent
 res=0
 mkdir -p $_testopt/bench-scripts/postprocess
 let res=res+$?
+cp $_tdir/postprocess/* $_testopt/bench-scripts/postprocess
+let res=res+$?
 export moongen_dir=$_testroot/MoonGen
 mkdir -p $moongen_dir/build
 let res=res+$?
@@ -31,28 +33,22 @@ for script in $_tdir/pbench-* ; do
     cp $script $_testopt/bench-scripts/
     let res=res+$?
 done
-cp $_tdir/pbench-user-benchmark $_testopt/bench-scripts/
-let res=res+$?
+
 mkdir -p $_testopt/unittest-scripts/
 let res=res+$?
-cp $_tdir/test-bin/* $_testopt/unittest-scripts/
+cp -rH $_tdir/test-bin/* $_testopt/unittest-scripts/
 let res=res+$?
 mkdir -p $_testopt/bench-scripts/templates
 let res=res+$?
 cp $_tdir/templates/* $_testopt/bench-scripts/templates
 let res=res+$?
-mv $_testopt/unittest-scripts/mock-uperf-postprocess $_testopt/bench-scripts/postprocess/uperf-postprocess
-let res=res+$?
-mv $_testopt/unittest-scripts/mock-dbench-postprocess $_testopt/bench-scripts/postprocess/dbench-postprocess
-let res=res+$?
-mv $_testopt/unittest-scripts/mock-moongen-postprocess $_testopt/bench-scripts/postprocess/moongen-postprocess
-let res=res+$?
-mv $_testopt/unittest-scripts/mock-generate-benchmark-summary $_testopt/bench-scripts/postprocess/generate-benchmark-summary
-let res=res+$?
-mv $_testopt/unittest-scripts/mock-process-iteration-samples $_testopt/bench-scripts/postprocess/process-iteration-samples
-let res=res+$?
+
+# replace real postprocessing scripts with mocked ones
+mv $_testopt/unittest-scripts/mock-postprocess/* $_testopt/bench-scripts/postprocess
+# moongen needs Special Treatment
 mv $_testopt/unittest-scripts/mock-MoonGen $moongen_dir/build/MoonGen
 let res=res+$?
+
 if [[ $res -ne 0 ]]; then
     echo "ERROR: failed to construct unittest execution directory hierarchy" \
          "under, \"$_testroot\"" >&2
@@ -90,7 +86,7 @@ function _dump_logs {
     grep -HvF "\-\-should-n0t-ex1st--" $_testdir/pbench.log >> $_testout 2>&1
     echo "--- pbench.log file contents" >> $_testout
     echo "+++ test-execution.log file contents" >> $_testout
-    grep -HvF "\-\-should-n0t-ex1st--" $_testroot/test-execution.log >> $_testout 2>&1
+    grep -HvF "\-\-should-n0t-ex1st--" $_testroot/test-execution.log | sort >> $_testout 2>&1
     echo "--- test-execution.log file contents" >> $_testout
     rm -f $_testroot/test-execution.log
 }
@@ -183,19 +179,38 @@ res=$?
 let errs=$errs+$res
 _reset_state
 
-
 #
 # 5. Verify fio
 #
 _setup_state
-_run test-04 pbench-fio --test-type=throughput --samples=3
+_run test-04 pbench-fio --test-types=rw,randrw
 res=$?
 _save_tree
 _dump_logs
 _verify_output $res test-04 pbench-fio
 res=$?
 let errs=$errs+$res
-#_reset_state
+_reset_state
+
+_setup_state
+_run test-05 pbench-fio --test-type=throughput --samples=1 --clients=foo,bar
+res=$?
+_save_tree
+_dump_logs
+_verify_output $res test-05 pbench-fio
+res=$?
+let errs=$errs+$res
+_reset_state
+
+_setup_state
+_run test-06 pbench-fio --test-type=throughput --samples=1 --client-file=foo
+res=$?
+_save_tree
+_dump_logs
+_verify_output $res test-06 pbench-fio
+res=$?
+let errs=$errs+$res
+_reset_state
 
 if [[ $errs -gt 0 ]]; then
     sts=1

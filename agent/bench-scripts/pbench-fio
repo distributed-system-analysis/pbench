@@ -12,8 +12,11 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 
 benchmark_rpm=$script_name
 benchmark="fio"
-benchmark_bin=/usr/local/bin/$benchmark
-ver=2.2.11
+# allow unit tests to override
+if [[ -z "$benchmark_bin" ]]; then
+	benchmark_bin=/usr/local/bin/$benchmark
+fi	
+ver=2.14
 
 job_file="${script_path}/templates/fio.job"
 
@@ -119,7 +122,7 @@ function fio_usage() {
 		printf -- "\t--job-file=<path>\n"
 		printf "\t\tprovide the path of a fio job config file, (default is $job_file)\n"
 		printf -- "\t--samples=<int>\n"
-		printf "\t\tnumber of samples to use per test iteration (default is $nr_sanples)\n"
+		printf "\t\tnumber of samples to use per test iteration (default is $nr_samples)\n"
 	        printf -- "\t--max-stddev=<int>\n"
                 printf "\t\tthe maximum percent stddev allowed to pass\n"
                 printf -- "\t--max-failures=<int>\n"
@@ -578,6 +581,10 @@ function fio_run_benchmark() {
 		# if each target is separated by a space, there will be one job for each in next for loop
 		targets=`echo $targets | sed -e s/,/" "/g`
 	fi
+	typeset -i ntargets=$(echo $targets | wc -w)
+	typeset -i ntesttypes=$(echo $test_types | sed -e 's/,/ /g' | wc -w)
+	typeset -i nblocksizes=$(echo $block_sizes | sed -e 's/,/ /g' | wc -w)
+	typeset -i total_iterations=$ntargets*$ntesttypes*$nblocksizes
 	for dev in $targets; do
 		for test_type in `echo $test_types | sed -e s/,/" "/g`; do
 			for block_size in `echo $block_sizes | sed -e s/,/" "/g`; do
@@ -813,6 +820,7 @@ function fio_print_summary() {
 fio_process_options "$@"
 fio_install
 
+mkdir -p $benchmark_run_dir
 export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 fio_run_benchmark

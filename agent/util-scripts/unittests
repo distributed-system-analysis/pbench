@@ -40,7 +40,7 @@ for script in $scripts ; do
 done
 mkdir -p $_testopt/unittest-scripts/
 let res=res+$?
-cp $_tdir/test-bin/* $_testopt/unittest-scripts/
+cp -r $_tdir/test-bin/* $_testopt/unittest-scripts/
 let res=res+$?
 if [[ $res -ne 0 ]]; then
     echo "ERROR: failed to construct unittest execution directory hierarchy" \
