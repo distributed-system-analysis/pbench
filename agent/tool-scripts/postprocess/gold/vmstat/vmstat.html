@@ -12,32 +12,32 @@
     <center><h2>vmstat - vmstat</h2></center>
     <div id="chart_1">
       <script>
-        create_graph("lineChart", "timeseries", "chart_1", "block", null, null, { csvfiles: [ "csv/vmstat_block.csv" ] });
+        create_jschart("lineChart", "timeseries", "chart_1", "block", null, null, { csvfiles: [ "csv/vmstat_block.csv" ] });
       </script>
     </div>
     <div id="chart_2">
       <script>
-        create_graph("stackedAreaChart", "timeseries", "chart_2", "cpu", null, null, { csvfiles: [ "csv/vmstat_cpu.csv" ] });
+        create_jschart("stackedAreaChart", "timeseries", "chart_2", "cpu", null, null, { csvfiles: [ "csv/vmstat_cpu.csv" ] });
       </script>
     </div>
     <div id="chart_3">
       <script>
-        create_graph("stackedAreaChart", "timeseries", "chart_3", "memory", null, null, { csvfiles: [ "csv/vmstat_memory.csv" ] });
+        create_jschart("stackedAreaChart", "timeseries", "chart_3", "memory", null, null, { csvfiles: [ "csv/vmstat_memory.csv" ] });
       </script>
     </div>
     <div id="chart_4">
       <script>
-        create_graph("lineChart", "timeseries", "chart_4", "procs", null, null, { csvfiles: [ "csv/vmstat_procs.csv" ] });
+        create_jschart("lineChart", "timeseries", "chart_4", "procs", null, null, { csvfiles: [ "csv/vmstat_procs.csv" ] });
       </script>
     </div>
     <div id="chart_5">
       <script>
-        create_graph("lineChart", "timeseries", "chart_5", "swap", null, null, { csvfiles: [ "csv/vmstat_swap.csv" ] });
+        create_jschart("lineChart", "timeseries", "chart_5", "swap", null, null, { csvfiles: [ "csv/vmstat_swap.csv" ] });
       </script>
     </div>
     <div id="chart_6">
       <script>
-        create_graph("lineChart", "timeseries", "chart_6", "system", null, null, { csvfiles: [ "csv/vmstat_system.csv" ] });
+        create_jschart("lineChart", "timeseries", "chart_6", "system", null, null, { csvfiles: [ "csv/vmstat_system.csv" ] });
       </script>
     </div>
   </body>

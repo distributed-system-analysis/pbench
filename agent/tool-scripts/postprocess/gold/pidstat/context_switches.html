@@ -12,12 +12,12 @@
     <center><h2>pidstat - context_switches</h2></center>
     <div id="chart_1">
       <script>
-        create_graph("lineChart", "timeseries", "chart_1", "nonvoluntary_switches_sec", null, null, { csvfiles: [ "csv/context_switches_nonvoluntary_switches_sec.csv" ], threshold: 100 });
+        create_jschart("lineChart", "timeseries", "chart_1", "nonvoluntary_switches_sec", null, null, { csvfiles: [ "csv/context_switches_nonvoluntary_switches_sec.csv" ], threshold: 100 });
       </script>
     </div>
     <div id="chart_2">
       <script>
-        create_graph("lineChart", "timeseries", "chart_2", "voluntary_switches_sec", null, null, { csvfiles: [ "csv/context_switches_voluntary_switches_sec.csv" ], threshold: 100 });
+        create_jschart("lineChart", "timeseries", "chart_2", "voluntary_switches_sec", null, null, { csvfiles: [ "csv/context_switches_voluntary_switches_sec.csv" ], threshold: 100 });
       </script>
     </div>
   </body>

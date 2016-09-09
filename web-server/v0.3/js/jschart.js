@@ -13,9 +13,420 @@
 //
 // This library depends on 3 external packages: d3.js, d3-queue.js, and saveSvgAsPng.js
 // Those packages are available here or via npm:
-//     https://github.com/mbostock/d3
-//     https://github.com/d3/d3-queue
+//     https://github.com/mbostock/d3 -- API version 3
+//     https://github.com/d3/d3-queue -- API version 3
 //     https://github.com/exupero/saveSvgAsPng
+
+/*
+
+Using jschart:
+
+From a developer user perspective jschart is consumed by calling the
+create_jschart function:
+
+  create_jschart(<stacked>, <data model>, <location>, <chart title>, <x axis title>, <y axis title>, <options>);
+
+Here is a summary of each parameter:
+
+  1. <stacked>
+
+     This parameter tells the library whether the chart is a simple
+     line chart or a stacked area chart.  There are two different
+     methodologies of supplying this parameter.  In the original
+     invocation it was a simple boolean field: '1' or 'true' for a
+     stacked area chart and '0' or 'false' for a regular line chart.
+     When jschart was ported to pbench, support for two additional
+     values were added: 'stackedAreaChart' and 'lineChart'.  These new
+     parameters were simply mapped to the existing values for
+     compatilibity purposes.
+
+  2. <data model>
+
+     This parameter tells the library what kind of chart is being
+     built, which ultimately results in configuring how the X axis is
+     setup.  There are three possible values for <data model>:
+
+       a. 'xy'
+       b. 'timeseries'
+       c. 'histogram'
+
+     An 'xy' chart means that the supplied data is just a series of
+     X/Y value pairs to be plotted without any additional processing.
+     A 'timeseries' chart differs from the 'xy' chart because the X
+     axis values are milliseconds since epoch timestamps.  When the
+     chart is being drawn the integer timestamps are used just like a
+     regular X/Y value pair but at the presentation layer the
+     timestamps are converted into user decipherable timestamps,
+     generally of the form 'YYYY-MM-DD HH:MM:SS'.  A 'histogram' chart
+     is treated very similarly to an 'xy' chart from a plotting
+     perspective, but the values are interpreted to be a bucket/count
+     pair rather than simple X/Y coordinates.  When the data table is
+     populated this results in different statistics being conveyed to
+     the user than a normal 'xy' chart.
+
+  3. <location>
+
+     The <location> parameter tells the library where to insert the
+     chart and its accompanying table into the HTML DOM.  This is
+     usually implemented in the following fashion:
+
+     ...
+     <div id='foo'>
+       <script>
+         create_jschart(<stacked>, <data model>, 'foo', <chart title>, <x axis title>, <y axis title>, <options>);
+       </script>
+     </div>
+     ...
+
+     This could also be implemented with a much less direct linkage,
+     such as:
+
+     ...
+     <script>
+       ...
+       create_jschart(<stacked>, <data model>, 'bar', <chart title>, <x axis title>, <y axis title>, <options>);
+       ...
+     </script>
+     ...
+     <div id='bar'/>
+     ...
+
+  4. <chart title>
+
+     This is simply the title printed at the top of the chart.
+
+  5. <x axis title>
+
+     This is the title printed below the X axis.
+
+  6. <y axis title>
+
+     This is the title printed above the Y axis.
+
+  7. <options>
+
+     The <options> parameter is a javascript object that is a
+     catch-all for many parameters.  All of the parameters supplied
+     here are optional, but there must be something here.  For
+     example, there are many different ways of supplying data files,
+     but at least one of them must be used in order to achieve a
+     working chart.
+
+     Here is a list of the available options:
+
+       a. timeseries_timezone
+       b. legend_entries
+       c. plotfiles[]
+       d. plotfile
+       e. packed
+       f. csvfiles[]
+       g. json_plotfile
+       h. json_args
+       i. update_interval
+       j. history_length
+       k. raw_data_sources[]
+       l. threshold
+       m. sort_datasets
+       n. x_min
+       o. x_max
+       p. y_min
+       q. y_max
+       r. x_log_scale
+       s. y_log_scale
+
+     Now it is time to break these options down in detail:
+
+       a. timeseries_timezone
+
+          This option is used to configure what time zone is used for
+          the 'timeseries' data model.  Currently only 'local' or
+          'utc' is supported.
+
+	  Example:
+
+	    { ..., timeseries_timezone: "local" }
+
+       b. legend_entries
+
+          The legend_entries options is a variable sized array
+          defining arbitrary entries that should be added to the chart
+          legend.  This is meant to provide a convenient method
+          through which comments can easily be added to a chart.
+
+          Example:
+
+	    { ..., legend_entries: [ "entry #1", "entry #2" ] }
+
+       c. plotfiles[]
+
+          A plot file is the original data file supported by jschart
+          and originally comes from multiple generations of charting
+          programs that predated jschart.  The plot file format is
+          extremely simple, it consists of a header row which defines
+          the data series name and then rows of value pairs which are
+          typically X/Y pairs.  It looks like this:
+
+	    #LABEL:data series name
+	    5 0
+	    10 2
+	    15 8
+	    20 3
+	    25 1
+
+	  In most cases the file consisted of X axis values which were
+	  the interval that a tool produced a sample, in the above
+	  example that interval is 5 seconds.  The Y axis values are
+	  the arbitrary value produced by the tool for that interval's
+	  sample.
+
+	  The jschart library supports multiple plot files to be
+	  specified, so the plotfiles parameter is an arbitrarily
+	  sized array.  It would be used like this in the options
+	  parameter:
+
+	    { plotfiles: [ "plotfiles/file1.plot", "plotfiles/file2.plot", ... ] }
+
+       d. plotfile
+
+          The plotfile options is a simplified version of the
+          plotfiles option which only supports a single plot file
+          being supplied to the jschart library.  It is most
+          applicable when combined with the packed option which is
+          discussed next.
+
+       e. packed
+
+          The packed option is optionally used in conjunction with the
+          plotfile option.  The original plotfile file format only
+          supported a single data series, meaning multiple data series
+          required multiple files.  When jschart was written this
+          demonstrated scalability issues in environments with very
+          large data series counts.  A modified version of the plot
+          file format called a packed plot file was created which
+          combined multiple plot files into a single file with
+          delineations between each data series.  It was a requirement
+          that jschart know in advance the number of data series
+          packed into the single file which is the point of this
+          variable.  Here is an example of how this option could be
+          used and the accompanying plot file:
+
+	  { packed: 2, plotfile: 'plotfiles/2-packed.plot' }
+
+	  Contents of plotfiles/2-packed.plot:
+
+	    --- JSChart Packed Plot File V1 ---
+	    #LABEL:data series 1
+	    5 10
+	    10 9
+	    15 11
+	    20 13
+	    25 7
+	    --- JSChart Packed Plot File V1 ---
+	    #LABEL:data series 2
+	    5 8
+	    10 9
+	    15 5
+	    20 6
+	    25 4
+
+       f. csvfiles[]
+
+          The csvfiles parameter is an arbitrarily sized array that
+          points to one or more CSV formatted data files.  CSV file
+          support was added to jschart when it was adopted by pbench
+          in order to handle the data files that pbench was already
+          producing.  The CSV file format support is similar to the
+          plot file format support, yet still different.  The csvfiles
+          option is an abitrary array like the plotfiles options but
+          since a CSV file can include multiple datasets there is no
+          hackish entity like the packed plot file.  A chart can be
+          populated with one or more CSV files and each CSV file can
+          have one or more data series in it.
+
+	  The jschart library understands two different CSV file
+	  formats which can be briefly described by the following
+	  examples:
+
+	    i.  ts,d0,d1,d2,...,dN
+	    ii. ts0,d0,ts1,d1,ts2,d2,...,tsN,dN
+
+	  In the first format each data sample row has a single
+	  timestamp with an interval sample for each data series at
+	  that timestamp.  In practice, this looks like the following:
+
+	    timestamp_ms,data series 1,data series 2
+	    1461027782000,0,5
+	    1461027783000,4,1
+
+	  The timestamps are in milliseconds since the epoch.
+
+	  The second format has individual timestamps for each data
+	  series sample, even those on the same row of the file.  This
+	  could look something like the following:
+
+	    timestamp_data_series_1_ms,data series 1,timestamp_data_series_2_ms,data series 2
+	    1461027782000,0,1461027782500,5
+	    1461027783000,4,1461027783500,1
+
+	  Using the csvfiles option to jschart would look something
+	  like this:
+
+	    { csvfiles: [ "data-files/samples.csv" ] }
+
+       g. json_plotfile
+
+          The json_plotfile allows jschart to use JSON formatted data
+          files.  Since it is JSON the file format is fairly dynamic,
+          but there are some basic assumptions that must be met.  The
+          JSON output should be based on the following:
+
+	    {
+	      'x_axis_series': <string>,
+	      'data_series_names': [],
+	      'data': []
+	    }
+
+	  The 'data_series_name' and 'data' properties are arrays
+	  which share the same indexes.  The 'x_axis_series' property
+	  defines which entry in the 'data_series_names' array
+	  contains the X axis value of the X/Y pairs for each dataset.
+	  In practice this would look something like this:
+
+	    {
+	      'x_axis_series': 'time',
+	      'data_series_names': [ 'time', 'data series 1', 'data series 2' ],
+	      'data': [ [ 1461027782000, 0, 1],
+                        [ 1461027783000, 4, 5] ]
+	    }
+
+	  Currently an assumption is made that the JSON output is used
+	  for a 'timeseries' data model and the X axis values are
+	  expected to be in milliseconds since the epoch.
+
+	  It should be noted that the JSON features of jschart have
+	  had limited usage at this time and could probably be
+	  improved upon if required.
+
+       h. json_args
+       i. update_interval
+       j. history_length
+
+          These three options are only used in conjunction with the
+          json_plotfile option, and most often all together (although
+          update_interval and history_length may not be required).
+
+	  The json_args option defines post data that is sent to the
+	  HTTP server when requesting the data pointed to by
+	  json_plotfile.  Typically this would be used to tell the
+	  HTTP server what data is being requested if json_plotfile
+	  refers to a URL whose response is dynamically generated.
+	  For example:
+
+	    { json_plotfile: 'http://some.server.somewhere', json_args: 'type=foo' }
+
+	  In this example, supplying different values for 'type' could
+	  alter the response that the server sends depending on its
+	  implementation.
+
+	  The update_interval options tells the jschart library that
+	  the data being requested is dynamic and should be
+	  re-requested periodically on the defined interval.  This is
+	  typically used for pseudo realtime data monitoring.  After
+	  the initial request is made, subsequent requests are made
+	  every update_interval number of seconds.  These additional
+	  requests will include any json_args that were provided and
+	  will additionally add a 'time=<timestamp>' entry to the post
+	  data so that the server can try to optimize the transfer by
+	  only sending new samples since <timestamp> and avoid
+	  retransmission of existing data.
+
+	  The history_length parameter tells the jschart library how
+	  many data samples should be retained when new data is being
+	  dynamically added.  This prevents the arrays that contain
+	  the sample data from growing without bounds which would
+	  eventually cause a memory related issue.
+
+	  All combined, these parameters could be used like this:
+
+	    { json_plotfile: 'http://some.server.somewhere', json_args: 'type=foo', update_interval: 5, history_length: 300 }
+
+	  This example would request the available data every 5
+	  seconds and maintain a history of 300 samples.
+
+       k. raw_data_sources[]
+
+          The raw_data_sources option is an arbitrarily sized array
+          that contains links that should be appended to the table
+          associated with each chart.  This is typically used to
+          provide a way to access the raw tool output that the charted
+          data was generated with, hence the name.
+
+	  Example:
+
+	    { csvfiles: [ "data-files/processed.csv" ], raw_data_sources: [ "data-files/tool1.out", "data-files/tool2.out" ] }
+
+       l. threshold
+
+          The threshold option defines a value which is compared
+          against the maximum Y axis value for each dataset.  If the
+          threshold value is larger than the dataset's value then that
+          dataset is automatically hidden by default.  This provides a
+          mechanism which is used to filter out noise from tools that
+          produce large numbers of datasets.  At run time the user can
+          achieve the same functionality through the UI and also
+          apply the threshold against the dataset average instead of
+          its maximum value.  The UI controls do not require that any
+          options be provided in the code.
+
+	  Example:
+
+	    { ..., threshold: 5 }
+
+       m. sort_datasets
+
+          The sort_datasets option is a boolean value that determines
+          the order in which datasets are presented to the user.  By
+          default sort_datasets is enabled, unless live_update is used
+          (this is due to the requirement of consistent ordering
+          between the existing and new sample data).  If sort_datasets
+          is disabled by setting it to false then datasets are
+          presented in the order they are supplied to the library
+          (note: this was the default behavior prior to the addition
+          of sort_datasets).
+
+	  Example:
+
+	    { ..., sort_datasets: false }
+
+       n. x_min
+       o. x_max
+       p. y_min
+       q. y_max
+
+          These four options control the default axes domain of the
+          chart view port.  There are many different reasons for doing
+          this but the most common is probably to set a strict range
+          for a known set of values, such as a CPU usage graph which
+          will be a percentage between 0 and 100.
+
+	  Example:
+
+	    { ..., y_min: 0, y_max: 100 }
+
+       r. x_log_scale
+       s. y_log_scale
+
+          These two options are boolean values that control whether or
+          not the corresponding axis scale should be presented with a
+          logarithmic scale (instead of the default linear scale).
+          The one exception to this is if the 'timeseries' data model
+          is used, in that case the x_log_scale option is ignored.
+
+	  Example:
+
+	    { ..., y_log_scale: true }
+
+*/
 
 // array to store objects for each chart, with references to often used variables
 var charts = [];
@@ -71,7 +482,8 @@ function dataset(index, name, mean, median, values, chart) {
 				       p90: null,
 				       p95: null,
 				       p99: null,
-				       p9999: null
+				       p9999: null,
+				       buckets: null
 				     }
 			},
 		 path: null,
@@ -144,7 +556,8 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
 			      }
 			 },
 		   viewport_controls: null,
-		   viewport_elements: null
+		   viewport_elements: null,
+		   highlight_points: null
 		 };
 
     this.dom = { div: null,
@@ -159,7 +572,26 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
 				       },
 			  threshold: null,
 			  name_filter: null,
-			  data_rows: null
+			  data_rows: null,
+			  view_port: { table: null,
+				       rows: { header: null,
+					       x: null,
+					       y: null,
+					       update: null
+					     },
+				       toggle_hide: null,
+				       inputs: { x: { domain: { min: null,
+								max: null
+							      },
+						      clamping: null
+						    },
+						 y: { domain: { min: null,
+								max: null
+							      },
+						      clamping: null
+						    }
+					       }
+				     }
 			}
 	       };
 
@@ -177,7 +609,9 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
 		   live_update: true,
 		   visible_datasets: 0,
 		   cursor_value: null,
-		   mouse: null
+		   mouse: null,
+		   view_port_table_controls_visible: true,
+		   custom_domain: false
 		 };
 
     this.functions = { area: null,
@@ -196,7 +630,6 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
 		     plotfiles: null,
 		     csvfiles: null,
 		     plotfile: null,
-		     plotfiles: null,
 		     json_plotfile: null,
 		     json_args: null,
 		     raw_data_source: [],
@@ -509,40 +942,46 @@ function parse_plot_file(chart, datasets_index, text) {
 }
 
 function update_domains(chart) {
-    chart.x.scale.chart.domain([
-	d3.min(chart.datasets.valid, get_dataset_min_x),
-	d3.max(chart.datasets.valid, get_dataset_max_x)
-    ]);
+    if (!chart.state.custom_domain) {
+	chart.x.scale.chart.domain([
+	    d3.min(chart.datasets.valid, get_dataset_min_x),
+	    d3.max(chart.datasets.valid, get_dataset_max_x)
+	]);
+	set_view_port_table_control_x_domain(chart);
+    }
 
     var domain = chart.x.scale.chart.domain();
 
-    if (isNaN(domain[0])) {
-	domain[0] = 0;
-    }
+    if (!chart.state.custom_domain) {
+	if (isNaN(domain[0])) {
+	    domain[0] = 0;
+	}
 
-    if (isNaN(domain[1])) {
-	domain[1] = 1;
-    }
+	if (isNaN(domain[1])) {
+	    domain[1] = 1;
+	}
 
-    // ensure that the domain is not "empty"
-    if (domain[0] == domain[1]) {
-	domain[0] *= 0.95;
-	domain[1] *= 1.05;
-
+	// ensure that the domain is not "empty"
 	if (domain[0] == domain[1]) {
-	    domain[1]++;
+	    domain[0] *= 0.95;
+	    domain[1] *= 1.05;
+
+	    if (domain[0] == domain[1]) {
+		domain[1]++;
+	    }
+	}
+
+	if (chart.options.x.min) {
+	    domain[0] = chart.options.x.min;
+	}
+
+	if (chart.options.x.max) {
+	    domain[1] = chart.options.x.max;
 	}
     }
 
-    if (chart.options.x.min) {
-	domain[0] = chart.options.x.min;
-    }
-
-    if (chart.options.x.max) {
-	domain[1] = chart.options.x.max;
-    }
-
     chart.x.scale.chart.domain(domain);
+    set_view_port_table_control_x_domain(chart);
     chart.x.scale.zoom.domain(chart.x.scale.chart.domain());
 
     if (! chart.state.user_x_zoomed) {
@@ -551,55 +990,63 @@ function update_domains(chart) {
 
     if (chart.stacked) {
 	chart.datasets.valid = chart.functions.stack(chart.datasets.valid);
+    }
 
-	chart.y.scale.chart.domain([
-	    d3.min(chart.datasets.valid, get_dataset_min_y_stack),
-	    d3.max(chart.datasets.valid, get_dataset_max_y_stack)
-	]);
-    } else {
-	chart.y.scale.chart.domain([
-	    d3.min(chart.datasets.valid, get_dataset_min_y),
-	    d3.max(chart.datasets.valid, get_dataset_max_y)
-	]);
+    if (!chart.state.custom_domain) {
+	if (chart.stacked) {
+	    chart.y.scale.chart.domain([
+		d3.min(chart.datasets.valid, get_dataset_min_y_stack),
+		d3.max(chart.datasets.valid, get_dataset_max_y_stack)
+	    ]);
+	} else {
+	    chart.y.scale.chart.domain([
+		d3.min(chart.datasets.valid, get_dataset_min_y),
+		d3.max(chart.datasets.valid, get_dataset_max_y)
+	    ]);
+	}
+	set_view_port_table_control_y_domain(chart);
     }
 
     var domain = chart.y.scale.chart.domain();
 
-    if (isNaN(domain[0])) {
-	domain[0] = 0;
-    }
+    if (!chart.state.custom_domain) {
+	if (isNaN(domain[0])) {
+	    domain[0] = 0;
+	}
 
-    if (isNaN(domain[1])) {
-	domain[1] = 1;
-    }
+	if (isNaN(domain[1])) {
+	    domain[1] = 1;
+	}
 
-    // ensure that the domain is not "empty"
-    if (domain[0] == domain[1]) {
-	domain[0] *= 0.95;
-	domain[1] *= 1.05;
-
+	// ensure that the domain is not "empty"
 	if (domain[0] == domain[1]) {
-	    domain[1]++;
+	    domain[0] *= 0.95;
+	    domain[1] *= 1.05;
+
+	    if (domain[0] == domain[1]) {
+		domain[1]++;
+	    }
+	}
+
+	if (!chart.stacked &&
+	    !chart.options.y.scale.log &&
+	    (domain[0] > 0)) {
+	    domain[0] = 0;
+	}
+
+	if (chart.options.y.min) {
+	    domain[0] = chart.options.y.min;
+	}
+
+	if (chart.options.y.max) {
+	    domain[1] = chart.options.y.max;
+	} else {
+	    domain[1] *= (1 + chart.y_axis_overscale/100);
 	}
     }
 
-    if (!chart.stacked &&
-	!chart.options.y.scale.log &&
-	(domain[0] > 0)) {
-	domain[0] = 0;
-    }
-
-    if (chart.options.y.min) {
-	domain[0] = chart.options.y.min;
-    }
-
-    if (chart.options.y.max) {
-	domain[1] = chart.options.y.max;
-    } else {
-	domain[1] *= (1 + chart.y_axis_overscale/100);
-    }
-
     chart.y.scale.chart.domain(domain);
+    set_view_port_table_control_y_domain(chart);
     chart.y.scale.zoom.domain(chart.y.scale.chart.domain());
 
     if (! chart.state.user_y_zoomed) {
@@ -1147,7 +1594,7 @@ function create_table(chart) {
     var colspan;
 
     if (chart.data_model == "histogram") {
-	colspan = 12;
+	colspan = 13;
     } else {
 	colspan = 5;
     }
@@ -1272,9 +1719,101 @@ function create_table(chart) {
 		    }
 		}
 	    });
-
-	console.log("...finished adding table controls for chart \"" + chart.chart_title + "\"");
     }
+
+    var row = chart.dom.table.table.append("tr");
+    var cell = row.append("td")
+	.attr("align", "center")
+	.attr("colSpan", colspan);
+
+    chart.dom.table.view_port.table = cell.append("table")
+	.attr("width", "100%")
+	.classed("noborders", true);
+
+    chart.dom.table.view_port.rows.header = chart.dom.table.view_port.table.selectAll(".view_port_table_controls")
+	.data([ chart ])
+	.enter().append("tr")
+	.on("click", toggle_hide_view_port_table_controls);
+
+    chart.dom.table.view_port.toggle_hide = chart.dom.table.view_port.rows.header.append("th")
+	.attr("colSpan", 4)
+	.text("View Port Controls");
+
+    chart.dom.table.view_port.rows.x = chart.dom.table.view_port.table.append("tr")
+	.classed("controls", true);
+
+    chart.dom.table.view_port.rows.x.append("th")
+	.text("X Axis");
+
+    var cell = chart.dom.table.view_port.rows.x.append("td")
+	.text("Min: ");
+
+    chart.dom.table.view_port.inputs.x.domain.min = cell.append("input")
+	.attr("type", "text");
+
+    var cell = chart.dom.table.view_port.rows.x.append("td")
+	.text("Max: ");
+
+    chart.dom.table.view_port.inputs.x.domain.max = cell.append("input")
+	.attr("type", "text");
+
+    var cell = chart.dom.table.view_port.rows.x.append("td")
+	.text("Clamping: ");
+
+    chart.dom.table.view_port.inputs.x.clamping = cell.selectAll(".x_clamp_checkbox")
+	.data([ chart ])
+	.enter().append("input")
+	.attr("type", "checkbox")
+	.on("click", toggle_x_axis_clamp);
+
+    chart.dom.table.view_port.rows.y = chart.dom.table.view_port.table.append("tr")
+	.classed("controls", true);
+
+    chart.dom.table.view_port.rows.y.append("th")
+	.text("Y Axis");
+
+    var cell = chart.dom.table.view_port.rows.y.append("td")
+	.text("Min: ");
+
+    chart.dom.table.view_port.inputs.y.domain.min = cell.append("input")
+	.attr("type", "text");
+
+    var cell = chart.dom.table.view_port.rows.y.append("td")
+	.text("Max: ");
+
+    chart.dom.table.view_port.inputs.y.domain.max = cell.append("input")
+	.attr("type", "text");
+
+    var cell = chart.dom.table.view_port.rows.y.append("td")
+	.text("Clamping: ");
+
+    chart.dom.table.view_port.inputs.y.clamping = cell.selectAll(".y_clamp_checkbox")
+	.data([ chart ])
+	.enter().append("input")
+	.attr("type", "checkbox")
+	.on("click", toggle_y_axis_clamp);
+
+    chart.dom.table.view_port.rows.update = chart.dom.table.view_port.table.append("tr")
+	.classed("controls", true);
+
+    var cell = chart.dom.table.view_port.rows.update.append("th")
+	.attr("colSpan", 4);
+
+    cell.selectAll(".updates_axes")
+	.data([ chart ])
+	.enter().append("button")
+	.text("Update Axes")
+	.on("click", update_axes_domains);
+
+    cell.selectAll(".reset_axes")
+	.data([ chart ])
+	.enter().append("button")
+	.text("Reset Axes")
+	.on("click", reset_axes_domains);
+
+    toggle_hide_view_port_table_controls(chart);
+
+    console.log("...finished adding table controls for chart \"" + chart.chart_title + "\"");
 
     var row = chart.dom.table.table.append("tr")
 	.classed("header", true);
@@ -1325,6 +1864,10 @@ function create_table(chart) {
 	row.append("th")
 	    .attr("align", "right")
 	    .text("99.99%");
+
+	row.append("th")
+	    .attr("align", "right")
+	    .text("Buckets");
     }
 
     row.append("th")
@@ -1397,6 +1940,10 @@ function create_table(chart) {
 	    chart.datasets.all[i].dom.table.histogram.p9999 = chart.datasets.all[i].dom.table.row.append("td")
 		.attr("align", "right")
 		.text(table_print(chart, chart.datasets.all[i].histogram.p9999));
+
+	    chart.datasets.all[i].dom.table.histogram.buckets = chart.datasets.all[i].dom.table.row.append("td")
+		.attr("align", "right")
+		.text(chart.formatting.table.integer(chart.datasets.all[i].values.length));
 	}
 
 	chart.datasets.all[i].dom.table.samples = chart.datasets.all[i].dom.table.row.append("td")
@@ -1528,7 +2075,9 @@ function handle_brush_actions(chart) {
     var y_domain = chart.y.scale.zoom.domain();
 
     chart.x.scale.chart.domain(x_extent);
+    set_view_port_table_control_x_domain(chart);
     chart.y.scale.chart.domain(y_extent);
+    set_view_port_table_control_y_domain(chart);
 
     chart.chart.axis.x.chart.call(chart.x.axis.chart);
     chart.chart.axis.y.chart.call(chart.y.axis.chart);
@@ -1601,7 +2150,9 @@ function zoom_it(chart, zoom_factor) {
     }
 
     chart.x.scale.chart.domain(x_extent);
+    set_view_port_table_control_x_domain(chart);
     chart.y.scale.chart.domain(y_extent);
+    set_view_port_table_control_y_domain(chart);
 
     chart.x.brush.extent(x_extent);
     chart.y.brush.extent(y_extent);
@@ -1623,7 +2174,7 @@ function zoom_it(chart, zoom_factor) {
 	set_x_axis_timeseries_label(chart);
     }
 }
- 
+
 function generate_chart(stacked, data_model, location, chart_title, x_axis_title, y_axis_title, options, callback) {
     var charts_index = charts.push(new chart(charts, chart_title, stacked, data_model, x_axis_title, y_axis_title, location, options)) - 1;
     charts[charts_index].charts_index = charts_index;
@@ -1754,6 +2305,15 @@ function build_chart(chart) {
 	.attr("width", chart.dimensions.viewport_width + chart.dimensions.margin.left + chart.dimensions.margin.right)
 	.attr("height", chart.dimensions.viewport_height + chart.dimensions.margin.top + chart.dimensions.margin.bottom + ((Math.ceil(chart.dataset_count / chart.dimensions.legend_properties.columns) - 1 + chart.options.legend_entries.length) * chart.dimensions.legend_properties.row_height));
 
+    var foo = chart.chart.svg.append("defs");
+    var bar = foo.append("marker")
+	.attr("id", "datapoint_" + chart.charts_index)
+	.attr("viewBox", "-2,-2,4,4")
+	.attr("markerWidth", 2)
+	.attr("marerHeight", 2);
+    chart.chart.highlight_points = bar.append("circle")
+	.attr("r", 2);
+
     chart.chart.container = chart.chart.svg.append("g")
 	.attr("transform", "translate(" + chart.dimensions.margin.left + ", " + chart.dimensions.margin.top +")");
 
@@ -1770,37 +2330,13 @@ function build_chart(chart) {
 	.attr("y", -chart.dimensions.margin.top + 11)
 	.text(chart.chart_title);
 
-    chart.chart.container.append("text")
+    chart.chart.container.selectAll("._reset_zoom_pan")
+	.data([ chart ])
+	.enter().append("text")
 	.classed("actionlabel endtext", true)
 	.attr("x", chart.dimensions.viewport_width + chart.dimensions.margin.right - 10)
 	.attr("y", -chart.dimensions.margin.top + 29)
-	.on("click", function() {
-		chart.x.scale.chart.domain(chart.x.scale.zoom.domain());
-		chart.y.scale.chart.domain(chart.y.scale.zoom.domain());
-
-		chart.x.brush.extent(chart.x.scale.zoom.domain());
-		chart.y.brush.extent(chart.y.scale.zoom.domain());
-
-		chart.chart.axis.x.chart.call(chart.x.axis.chart);
-		chart.chart.axis.x.zoom.call(chart.x.axis.zoom);
-
-		chart.chart.axis.y.chart.call(chart.y.axis.chart);
-		chart.chart.axis.y.zoom.call(chart.y.axis.zoom);
-
-		chart.x.slider.call(chart.x.brush);
-		chart.y.slider.call(chart.y.brush);
-
-		update_dataset_chart_elements(chart);
-
-		fix_y_axis_labels(chart);
-
-		if (chart.data_model == "timeseries") {
-		    set_x_axis_timeseries_label(chart);
-		}
-
-		chart.state.user_x_zoomed = false;
-		chart.state.user_y_zoomed = false;
-	    })
+	.on("click", reset_zoom_pan)
 	.text("Reset Zoom/Pan");
 
     chart.chart.container.append("text")
@@ -1955,6 +2491,7 @@ function build_chart(chart) {
 		    }
 
 		    chart.charts[i].x.scale.chart.domain(x_domain);
+		    set_view_port_table_control_x_domain(chart.charts[i]);
 
 		    chart.charts[i].x.brush.extent(x_domain);
 
@@ -2303,7 +2840,12 @@ function build_chart(chart) {
 	});
 }
 
+// backwards compatible user call
 function create_graph(stacked, data_model, location, chart_title, x_axis_title, y_axis_title, options) {
+    create_jschart(stacked, data_model, location, chart_title, x_axis_title, y_axis_title, options);
+}
+
+function create_jschart(stacked, data_model, location, chart_title, x_axis_title, y_axis_title, options) {
     if (stacked === "stackedAreaChart") {
 	stacked = 1;
     } else if (stacked === "lineChart") {
@@ -2398,7 +2940,12 @@ function highlight(dataset) {
 	    }
 
 	    if (dataset.chart.datasets.valid[i].index == dataset.index) {
-		dataset.chart.datasets.valid[i].dom.path.classed({"unhighlighted": false, "highlightedline": true });
+		dataset.chart.datasets.valid[i].dom.path.classed({"unhighlighted": false, "highlightedline": true })
+		    .attr("marker-mid", "url(#datapoint_" + dataset.chart.charts_index + ")")
+		    .attr("marker-start", "url(#datapoint_" + dataset.chart.charts_index + ")")
+		    .attr("marker-end", "url(#datapoint_" + dataset.chart.charts_index + ")");
+
+		dataset.chart.chart.highlight_points.style("fill", mycolors(dataset.chart.datasets.valid[i].index));
 
 		if (dataset.chart.datasets.valid[i].dom.points) {
 		    dataset.chart.datasets.valid[i].dom.points.classed("unhighlighted", false)
@@ -2454,7 +3001,10 @@ function dehighlight(dataset) {
 		continue;
 	    }
 
-	    dataset.chart.datasets.valid[i].dom.path.classed({"unhighlighted": false, "highlightedline": false});
+	    dataset.chart.datasets.valid[i].dom.path.classed({"unhighlighted": false, "highlightedline": false})
+		.attr("marker-mid", null)
+		.attr("marker-start", null)
+		.attr("marker-end", null);
 
 	    if (dataset.chart.datasets.valid[i].dom.points) {
 		dataset.chart.datasets.valid[i].dom.points.classed("unhighlighted", false)
@@ -3188,7 +3738,9 @@ function viewport_mouseup(chart) {
     chart.y.brush.extent(y_extent);
 
     chart.x.scale.chart.domain(x_extent);
+    set_view_port_table_control_x_domain(chart);
     chart.y.scale.chart.domain(y_extent);
+    set_view_port_table_control_y_domain(chart);
 
     chart.chart.axis.x.chart.call(chart.x.axis.chart);
     chart.chart.axis.y.chart.call(chart.y.axis.chart);
@@ -3350,8 +3902,155 @@ function dataset_histogram_sort(a, b) {
     }
 }
 
+function reset_zoom_pan(chart) {
+    chart.x.scale.chart.domain(chart.x.scale.zoom.domain());
+    set_view_port_table_control_x_domain(chart);
+    chart.y.scale.chart.domain(chart.y.scale.zoom.domain());
+    set_view_port_table_control_y_domain(chart);
+
+    chart.x.brush.extent(chart.x.scale.zoom.domain());
+    chart.y.brush.extent(chart.y.scale.zoom.domain());
+
+    chart.chart.axis.x.chart.call(chart.x.axis.chart);
+    chart.chart.axis.x.zoom.call(chart.x.axis.zoom);
+
+    chart.chart.axis.y.chart.call(chart.y.axis.chart);
+    chart.chart.axis.y.zoom.call(chart.y.axis.zoom);
+
+    chart.x.slider.call(chart.x.brush);
+    chart.y.slider.call(chart.y.brush);
+
+    update_dataset_chart_elements(chart);
+
+    fix_y_axis_labels(chart);
+
+    if (chart.data_model == "timeseries") {
+	set_x_axis_timeseries_label(chart);
+    }
+
+    chart.state.user_x_zoomed = false;
+    chart.state.user_y_zoomed = false;
+}
+
+function toggle_hide_view_port_table_controls(chart) {
+    if (chart.state.view_port_table_controls_visible) {
+	chart.dom.table.view_port.toggle_hide.text("+ View Port Controls");
+	chart.dom.table.view_port.rows.x.classed("nodisplay", true);
+	chart.dom.table.view_port.rows.y.classed("nodisplay", true);
+	chart.dom.table.view_port.rows.update.classed("nodisplay", true);
+	chart.state.view_port_table_controls_visible = false;
+    } else {
+	chart.dom.table.view_port.toggle_hide.text("- View Port Controls");
+	chart.dom.table.view_port.rows.x.classed("nodisplay", false);
+	chart.dom.table.view_port.rows.y.classed("nodisplay", false);
+	chart.dom.table.view_port.rows.update.classed("nodisplay", false);
+	chart.state.view_port_table_controls_visible = true;
+    }
+}
+
+function toggle_x_axis_clamp(chart) {
+    if (chart.dom.table.view_port.inputs.x.clamping.property("checked")) {
+	chart.x.scale.chart.clamp(true);
+	zoom_it(chart, 0);
+    } else {
+	chart.x.scale.chart.clamp(false);
+	zoom_it(chart, 0);
+    }
+}
+
+function toggle_y_axis_clamp(chart) {
+    if (chart.dom.table.view_port.inputs.y.clamping.property("checked")) {
+	chart.y.scale.chart.clamp(true);
+	zoom_it(chart, 0);
+    } else {
+	chart.y.scale.chart.clamp(false);
+	zoom_it(chart, 0);
+    }
+}
+
+function set_view_port_table_control_x_domain(chart) {
+    var domain = chart.x.scale.chart.domain();
+
+    if (chart.data_model == "timeseries") {
+	if (chart.options.timezone == "local") {
+	    domain[0] = chart.formatting.time.local.long(domain[0]);
+	    domain[1] = chart.formatting.time.local.long(domain[1]);
+	} else {
+	    domain[0] = chart.formatting.time.utc.long(domain[0]);
+	    domain[1] = chart.formatting.time.utc.long(domain[1]);
+	}
+    }
+
+    chart.dom.table.view_port.inputs.x.domain.min.property("value", domain[0]);
+    chart.dom.table.view_port.inputs.x.domain.max.property("value", domain[1]);
+}
+
+function set_view_port_table_control_y_domain(chart) {
+    var domain = chart.y.scale.chart.domain();
+
+    chart.dom.table.view_port.inputs.y.domain.min.property("value", domain[0]);
+    chart.dom.table.view_port.inputs.y.domain.max.property("value", domain[1]);
+}
+
+function update_axes_domains(chart) {
+    var x_domain = [ chart.dom.table.view_port.inputs.x.domain.min.property("value"), chart.dom.table.view_port.inputs.x.domain.max.property("value") ];
+    var y_domain = [ chart.dom.table.view_port.inputs.y.domain.min.property("value"), chart.dom.table.view_port.inputs.y.domain.max.property("value") ];
+
+    if (chart.data_model == "timeseries") {
+	if (chart.options.timezone == "local") {
+	    x_domain[0] = chart.formatting.time.local.long.parse(x_domain[0]);
+	    x_domain[1] = chart.formatting.time.local.long.parse(x_domain[1]);
+	} else {
+	    x_domain[0] = chart.formatting.time.utc.long.parse(x_domain[0]);
+	    x_domain[1] = chart.formatting.time.utc.long.parse(x_domain[1]);
+	}
+    }
+
+    var failed_x_validation = false;
+    var failed_y_validation = false;
+
+    if (isNaN(y_domain[0]) || isNaN(y_domain[1])) {
+	set_view_port_table_control_y_domain(chart);
+	failed_x_validation = true;
+    }
+
+    if (chart.data_model == "timeseries") {
+	if (!x_domain[0] || !x_domain[1]) {
+	    failed_x_validation = true;
+	}
+    } else {
+	if (isNaN(x_domain[0]) || isNaN(x_domain[1])) {
+	    failed_x_validation = true;
+	}
+    }
+
+    if (failed_x_validation) {
+	set_view_port_table_control_x_domain(chart);
+    }
+
+    if (!failed_x_validation && !failed_y_validation) {
+	chart.x.scale.chart.domain(x_domain);
+	chart.y.scale.chart.domain(y_domain);
+
+	chart.state.custom_domain = true;
+
+	update_domains(chart);
+
+	zoom_it(chart, 0);
+    }
+}
+
+function reset_axes_domains(chart) {
+    chart.state.custom_domain = false;
+
+    update_domains(chart);
+
+    reset_zoom_pan(chart);
+}
+
 function display_help() {
-    var help = "This chart provides interactive features to assist the user in interpreting the data.\n\n";
+    var help = "JSCHART Help:  If this message is cut off by your browser check your javascript console for the full output.\n\n";
+    help += "This chart provides interactive features to assist the user in interpreting the data.\n\n";
     help += "You can \"lock\" a dataset to be hightlighted by clicking it's text in the legend or it's row in the table to the right of the chart.  Click either to \"unlock\" the selection.\n\n";
     help += "You can show or hide all datasets using the \"Show\" or \"Hide\" buttons at the top of the chart area.  Individual datasets can be hidden or unhidden by clicking the legend icon for that dataset.  A hidden dataset can also be unhidden by clicking it's table row.\n\n";
     help += "When moving your mouse around the chart area, the coordinates will be displayed in the upper right part of the chart area.\n\n";
@@ -3362,7 +4061,9 @@ function display_help() {
     help += "To reset the chart area to it's original state after being panned/zoomed, hit the \"Reset Zoom/Pan\" button in the upper right.\n\n";
     help += "You can download a CSV file for the data by clicking the \"Export Data as CSV\" button located under the chart title.  The exported data is limited by x-axis zooming, if performed.\n\n";
     help += "Datasets highlighted in yellow in the table have been marked as invalid due to a problem while loading.  These datasets are permanently hidden and will ignore many user initiated events.\n\n";
+    help += "There is a hidden control panel in the table marked as \"View Port Controls\".  The panel can be unhidden/hidden by clicking the row with the panel title.  This panel can be used to manipulate the view port beyond what is possible with the normal zooming and panning controls.  Setting the X or Y axis minimum and maximum values will reset the scales to these values instead of basing them on the viewable data.  These controls are probably only useful in select scenarios such as when there are significant outliers or when extreme zooming is desired.  Clamping can also be enabled and disabled (default) on each axis in order to avoid potential rendering issues such as datasets not appearing when they should (very rare but happens sometimes when a dataset has a large outlier).\n\n";
     help += "When the page has completed generating all charts, the background will change colors to signal that loading is complete.\n";
 
+    console.log(help);
     alert(help);
 }
