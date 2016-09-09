@@ -22,7 +22,7 @@
 Using jschart:
 
 From a developer user perspective jschart is consumed by calling the
-create_graph function:
+create_jschart function:
 
   create_jschart(<stacked>, <data model>, <location>, <chart title>, <x axis title>, <y axis title>, <options>);
 
@@ -31,11 +31,11 @@ Here is a summary of each parameter:
   1. <stacked>
 
      This parameter tells the library whether the chart is a simple
-     line chart or an stacked area chart.  There are two different
+     line chart or a stacked area chart.  There are two different
      methodologies of supplying this parameter.  In the original
      invocation it was a simple boolean field: '1' or 'true' for a
      stacked area chart and '0' or 'false' for a regular line chart.
-     When jschart was ported to pbench support for two additional
+     When jschart was ported to pbench, support for two additional
      values were added: 'stackedAreaChart' and 'lineChart'.  These new
      parameters were simply mapped to the existing values for
      compatilibity purposes.
@@ -53,10 +53,10 @@ Here is a summary of each parameter:
      An 'xy' chart means that the supplied data is just a series of
      X/Y value pairs to be plotted without any additional processing.
      A 'timeseries' chart differs from the 'xy' chart because the X
-     axis values are milliseconds sinc epoch timestamps.  When the
+     axis values are milliseconds since epoch timestamps.  When the
      chart is being drawn the integer timestamps are used just like a
      regular X/Y value pair but at the presentation layer the
-     timestamps are converted into user deciperable timestamps,
+     timestamps are converted into user decipherable timestamps,
      generally of the form 'YYYY-MM-DD HH:MM:SS'.  A 'histogram' chart
      is treated very similarly to an 'xy' chart from a plotting
      perspective, but the values are interpreted to be a bucket/count
@@ -67,7 +67,7 @@ Here is a summary of each parameter:
   3. <location>
 
      The <location> parameter tells the library where to insert the
-     chart and it's accompanying table into the HTML DOM.  This is
+     chart and its accompanying table into the HTML DOM.  This is
      usually implemented in the following fashion:
 
      ...
@@ -192,7 +192,7 @@ Here is a summary of each parameter:
           plotfiles option which only supports a single plot file
           being supplied to the jschart library.  It is most
           applicable when combined with the packed option which is
-          discuused next.
+          discussed next.
 
        e. packed
 
@@ -287,7 +287,7 @@ Here is a summary of each parameter:
 	    }
 
 	  The 'data_series_name' and 'data' properties are arrays
-	  which shared the same indexes.  The 'x_axis_series' property
+	  which share the same indexes.  The 'x_axis_series' property
 	  defines which entry in the 'data_series_names' array
 	  contains the X axis value of the X/Y pairs for each dataset.
 	  In practice this would look something like this:
@@ -325,7 +325,7 @@ Here is a summary of each parameter:
 	    { json_plotfile: 'http://some.server.somewhere', json_args: 'type=foo' }
 
 	  In this example, supplying different values for 'type' could
-	  alter the response that server sends depending on it's
+	  alter the response that the server sends depending on its
 	  implementation.
 
 	  The update_interval options tells the jschart library that
@@ -340,7 +340,7 @@ Here is a summary of each parameter:
 	  only sending new samples since <timestamp> and avoid
 	  retransmission of existing data.
 
-	  The history_length parameter is tell the jschart library how
+	  The history_length parameter tells the jschart library how
 	  many data samples should be retained when new data is being
 	  dynamically added.  This prevents the arrays that contain
 	  the sample data from growing without bounds which would
@@ -373,9 +373,9 @@ Here is a summary of each parameter:
           dataset is automatically hidden by default.  This provides a
           mechanism which is used to filter out noise from tools that
           produce large numbers of datasets.  At run time the user can
-          achieve the same functionallity through the UI and also
+          achieve the same functionality through the UI and also
           apply the threshold against the dataset average instead of
-          it's maximum value.  The UI controls do not require that any
+          its maximum value.  The UI controls do not require that any
           options be provided in the code.
 
 	  Example:
