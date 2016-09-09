@@ -12,8 +12,8 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # groups contain a specific tool
 
 # Defaults
-name=""
-group=""
+namearg=""
+grouparg=""
 with_options=0
 
 # Process options and arguments
@@ -27,30 +27,29 @@ if [ $? -ne 0 ]; then
 	printf "\n"
 	printf -- "\t-g str --group=str, list the tools used in this str\n"
 
-
 	exit 1
 fi
 eval set -- "$opts";
 while true; do
 	case "$1" in
 		-n|--name)
-		shift;
-		if [ -n "$1" -a "$group" = "" ]; then
-			name="$1"
 			shift;
-		else
-			printf "You cannot specify both group and a name\n"
-			exit 1
-		fi
-		;;
+			if [ -n "$1" -a "$grouparg" = "" ]; then
+				namearg="$1"
+				shift;
+			else
+				printf "You cannot specify both group and a name\n"
+				exit 1
+			fi
+			;;
 		-g|--group)
-		shift;
-		if [ -n "$1" -a "$name" = "" ]; then
-			group="$1"
 			shift;
-		else
-			printf "You cannot specify both group and a name\n"
-			exit 1
+			if [ -n "$1" -a "$namearg" = "" ]; then
+				grouparg="$1"
+				shift;
+			else
+				printf "You cannot specify both group and a name\n"
+				exit 1
 		fi
 		;;
 		--)
@@ -61,12 +60,12 @@ while true; do
 done
 if [ -d "$pbench_run" ]; then
 	pushd "$pbench_run" >/dev/null
-	if [ -z $name ]; then
+	if [ -z $namearg ]; then
 		# list tool triggers in one or all groups
-		if [ -z "$group" ]; then
+		if [ -z "$grouparg" ]; then
 			groups=`/bin/ls tool-trigger.* 2>/dev/null | sed -e s/^tool-trigger\.//g`
 		else
-			groups="$group"
+			groups="$grouparg"
 		fi
 		for group in $groups; do
 			for tool in `cat tool-trigger.$group | awk -F: '{print $1}'`; do
@@ -75,12 +74,14 @@ if [ -d "$pbench_run" ]; then
                                 	tool=`echo $tool | awk -F@ '{print $1}'`
                                 	remote_tools=`ssh $ssh_opts -n $remote_host ". ${pbench_install_dir}/profile; pbench-list-tools $with_options_opt --group=$group" | sed -e s/"^$group: "//`
 					tools=",$remote_host[$remote_tools]$tools"
-                        	else
+				else
 					if [ $with_options -eq 1 ]; then
-						tool="$tool `grep ^$tool tools.$group | cut -d: -f2-`"
+						if [ -f tools-$group/$tool ]; then
+							tool="$tool $(cat tools-$group/$tool)"
+						fi
 					fi
 					tools=",$tool$tools"
-                        	fi
+				fi
 			done
 			tools=`echo $tools | sed -e s/"^,"//`
 			# do not print anything for this group if there are no tools
@@ -88,14 +89,14 @@ if [ -d "$pbench_run" ]; then
 				printf "%s: %s\n" "$group" "$tools"
 			fi
 		done
-	else 
+	else
 		# list the groups which include this tool
 		for group in `/bin/ls tools.* 2>/dev/null | sed -e s/^tools\.//g`; do
-			if grep -q "^$name\|" tools.$group; then
+			if [ -f tools-$group/$tool ]; then
 				groups="$groups $group"
 			fi
 		done
-		printf "name: $name groups: $groups\n"
+		printf "name: $namearg groups: $groups\n"
 	fi
 	popd "$pbench_run" >/dev/null
 fi
