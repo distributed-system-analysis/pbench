@@ -98,7 +98,7 @@ if [ -d "$tool_group_dir" ]; then
 			# if a tool name was provided, only remove that tool.  If not, all tools should be removed
 			if [ -z "$name" -o "$name" == "$this_tool_file" ]; then
 				echo "removing $tool_group_dir/$this_tool_file"
-				/bin/rm -f "$tool_group_dir/$this_tool_file"
+				/bin/rm -rf "$tool_group_dir/$this_tool_file"
 			fi
 		fi
 	done

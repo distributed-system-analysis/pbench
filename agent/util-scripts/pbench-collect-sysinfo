@@ -1,4 +1,5 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
 
 script_path=`dirname $0`
 script_name=`basename $0`
@@ -140,6 +141,14 @@ for this_tool_file in `/bin/ls $tool_group_dir`; do
 		label=`cat $tool_group_dir/$this_tool_file`
 		debug_log "gather_remote_sysinfo_data $remote_hostname $label"
 		gather_remote_sysinfo_data $remote_hostname $label &
+	elif [ -d $tool_group_dir/$this_tool_file ] ;then
+		# skip spurious subdirectory of $tool_group_dir
+		warn_log "[$script_name]$this_tool_file is a directory in $tool_group_dir; that should not happen. Please consider deleting it."
+		continue
+	elif [ ! -e "$pbench_bin/tool-scripts/$this_tool_file" ] ;then
+		# skip spurious file - not a tool.
+		warn_log "[$script_name]$this_tool_file does not exist in $pbench_bin/tool-scripts; spurious file perhaps? Please consider deleting it."
+		continue
 	else
 		# any other file is assumed to be a local tool
 		let lcl_cnt=lcl_cnt+1

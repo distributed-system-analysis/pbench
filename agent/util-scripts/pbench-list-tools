@@ -1,4 +1,5 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
 
 script_path=`dirname $0`
 script_name=`basename $0`
@@ -90,6 +91,14 @@ if [ -d "$pbench_run" ]; then
                                 	tool=`echo $this_tool_file | awk -F@ '{print $1}'`
                                 	remote_tools=`ssh $ssh_opts -n $remote_host ". ${pbench_install_dir}/profile; pbench-list-tools $with_options_opt --group=$group" | sed -e s/"^$group: "//`
 					tools="$tools,$remote_host[$remote_tools]"
+	                        elif [ -d $tool_group_dir/$this_tool_file ] ;then
+					# skip spurious subdirectory of $tool_group_dir
+					warn_log "[$script_name]$this_tool_file is a directory in $tool_group_dir; that should not happen. Please consider deleting it."
+					continue
+	                        elif [ ! -e "$pbench_bin/tool-scripts/$this_tool_file" ] ;then
+					# skip spurious file - not a tool.
+					warn_log "[$script_name]$this_tool_file does not exist in $pbench_bin/tool-scripts; spurious file perhaps? Please consider deleting it."
+					continue
                         	else
 					if [ $with_options -eq 1 ]; then
 						this_tool_file="$this_tool_file `cat $tool_group_dir/$this_tool_file`"
