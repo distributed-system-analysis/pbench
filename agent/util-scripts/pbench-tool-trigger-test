@@ -1,0 +1,7 @@
+#! /bin/bash
+
+(echo "foo"
+echo "START DEFAULT"
+echo "bar"
+echo "STOP DEFAULT"
+echo "baz") | pbench-tool-trigger

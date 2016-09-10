@@ -1,0 +1,30 @@
++++ Running test-19 pbench-tool-trigger-test
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/tool-triggers
+[pbench-tool-trigger]found trigger: group:default start-trigger:START DEFAULT stop-trigger:STOP DEFAULT
+[pbench-tool-trigger]found trigger: group:foo start-trigger:START FOO stop-trigger:STOP FOO
+foo
+START DEFAULT
+[pbench-tool-trigger]pbench-start-tools --group=default --iteration= --dir=
+bar
+STOP DEFAULT
+[pbench-tool-trigger]pbench-stop-tools --group=default --iteration= --dir=
+baz
+--- Finished test-19 pbench-tool-trigger-test (status=0}
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/opt
+/var/tmp/pbench-test-utils/pbench/opt/config
+/var/tmp/pbench-test-utils/pbench/opt/config/pbench-agent.cfg
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tmp/.empty
+/var/tmp/pbench-test-utils/pbench/tool-triggers
+/var/tmp/pbench-test-utils/pbench/tmp/.empty:
+--- pbench tree state
++++ pbench.log file contents
+grep: /var/tmp/pbench-test-utils/pbench/pbench.log: No such file or directory
+--- pbench.log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration= --dir=
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration= --dir=
+--- test-execution.log file contents

@@ -1,0 +1,3 @@
+#group:start-trigger:stop-trigger
+default:START DEFAULT:STOP DEFAULT
+foo:START FOO:STOP FOO
