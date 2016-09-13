@@ -24,7 +24,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -54,7 +53,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -84,7 +82,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -114,7 +111,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -144,7 +140,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -174,12 +169,9 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
-cat: '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/reference-result/fio.job': No such file or directory
-cat: '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/reference-result/fio.job': No such file or directory
 Iteration 1-rw-4KiB complete (1 of 6), with 1 pass and 6 failures
 The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
 [global]
@@ -206,7 +198,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -236,7 +227,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -266,7 +256,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -296,7 +285,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -326,7 +314,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -356,11 +343,9 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
-cat: '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/reference-result/fio.job': No such file or directory
 Iteration 2-rw-64KiB complete (2 of 6), with 1 pass and 6 failures
 The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
 [global]
@@ -387,7 +372,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -417,7 +401,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -447,7 +430,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -477,7 +459,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -507,7 +488,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -537,11 +517,9 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
-cat: '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/reference-result/fio.job': No such file or directory
 Iteration 3-rw-1024KiB complete (3 of 6), with 1 pass and 6 failures
 The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
 [global]
@@ -568,7 +546,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -598,7 +575,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -628,7 +604,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -658,7 +633,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -688,7 +662,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -718,12 +691,9 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
-cat: '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/reference-result/fio.job': No such file or directory
-cat: '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/reference-result/fio.job': No such file or directory
 Iteration 4-randrw-4KiB complete (4 of 6), with 1 pass and 6 failures
 The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
 [global]
@@ -750,7 +720,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -780,7 +749,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -810,7 +778,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -840,7 +807,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -870,7 +836,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -900,11 +865,9 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
-cat: '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/reference-result/fio.job': No such file or directory
 Iteration 5-randrw-64KiB complete (5 of 6), with 1 pass and 6 failures
 The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
 [global]
@@ -931,7 +894,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -961,7 +923,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -991,7 +952,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -1021,7 +981,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -1051,7 +1010,6 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
@@ -1081,11 +1039,9 @@ log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
-mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio*.log': No such file or directory
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
-cat: '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/reference-result/fio.job': No such file or directory
 Iteration 6-randrw-1024KiB complete (6 of 6), with 1 pass and 6 failures
 # these results generated with:
 # pbench-fio --test-types=rw,randrw

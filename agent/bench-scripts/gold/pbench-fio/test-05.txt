@@ -173,8 +173,6 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-th
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
-cat: '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-throughput-4KiB/reference-result/fio.job': No such file or directory
-cat: '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-throughput-4KiB/reference-result/fio.job': No such file or directory
 Iteration 1-throughput-4KiB complete (1 of 3), with 1 pass and 6 failures
 The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-throughput-64KiB/sample1/fio.job
 [global]
@@ -349,7 +347,6 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-th
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
-cat: '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-throughput-64KiB/reference-result/fio.job': No such file or directory
 Iteration 2-throughput-64KiB complete (2 of 3), with 1 pass and 6 failures
 The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-throughput-1024KiB/sample1/fio.job
 [global]
@@ -524,7 +521,6 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-th
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
-cat: '/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-throughput-1024KiB/reference-result/fio.job': No such file or directory
 Iteration 3-throughput-1024KiB complete (3 of 3), with 1 pass and 6 failures
 # these results generated with:
 # pbench-fio --test-type=throughput --samples=1 --clients=foo,bar

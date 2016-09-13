@@ -384,7 +384,7 @@ function print_iteration {
 	# printing a iteration assumes this must be a new row, so include \n first
 	printf "\n%28s" "$1" >>$benchmark_summary_txt_file
 	printf "\n%s" "$1" >>$benchmark_summary_csv_file
-	hists=`cat $iteration_dir/reference-result/fio.job | grep "^log_hist_msec"`
+	hists=`cat $iteration_dir/reference-result/fio.job 2>/dev/null | grep "^log_hist_msec"`
 	if [ $1 == "iteration" ]; then
 		# this is just a label, so no links here
 		if [ ! -z "$hist_interval" ]; then
@@ -553,7 +553,7 @@ function fio_run_job() {
 		done
 		wait
 	else
-		mv $benchmark_results_dir/fio*.log $benchmark_results_dir/clients/localhost/
+		mv $benchmark_results_dir/fio*.log $benchmark_results_dir/clients/localhost/ 2>/dev/null
 	fi
 	pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	echo "fio job complete"
@@ -665,7 +665,7 @@ function fio_run_benchmark() {
 						done
 						if [ $sample_failed -eq 0 ]; then
 
-							hists=`cat $iteration_dir/sample1/fio.job | grep "^log_hist_msec"`
+							hists=`cat $iteration_dir/sample1/fio.job 2>/dev/null | grep "^log_hist_msec"`
 							if [ ! -z "$hists" ]; then
 								hist_results=$iteration_dir/hist
 								mkdir -p $hist_results
