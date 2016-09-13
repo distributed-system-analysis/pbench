@@ -175,6 +175,7 @@ declare -A tools=(
     [test-17]="pbench-list-triggers"
     [test-18]="pbench-list-triggers"
     [test-19]="pbench-tool-trigger-test"
+    [test-20]="pbench-postprocess-tools"
 )
 declare -A options=(
     [test-00]="--name=mpstat --group=default -- --interval=10"
@@ -195,6 +196,7 @@ declare -A options=(
     [test-15]="--group=default --start-trigger=\"START DEFAULT\" --stop-trigger=\"STOP DEFAULT\""
     [test-17]="--group=default"
     [test-18]="--group=foo"
+    [test-20]="--dir=$_testdir/tmp --group=default --iteration=1"
 )
 
 declare -A expected_status=(
@@ -203,6 +205,8 @@ declare -A expected_status=(
     [test-11]=4
     [test-12]=1
     [test-13]=2
+    # XXX - this is wrong: it needs iostat-postprocess in order to return 0
+    [test-20]=1
 )
 
 tests="$*"
