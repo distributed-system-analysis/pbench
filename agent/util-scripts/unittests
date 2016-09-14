@@ -31,6 +31,10 @@ let res=res+$?
 mkdir -p $_testopt/tool-scripts
 let res=res+$?
 cp $_tdir/../tool-scripts/{iostat,kvmstat,mpstat,numastat,perf,pidstat,proc-interrupts,proc-vmstat,sar,turbostat,vmstat} $_testopt/tool-scripts
+
+mkdir -p $_testopt/tool-scripts/postprocess
+let res=res+$?
+cp $_tdir/test-bin/iostat-postprocess $_testopt/tool-scripts/postprocess
 let res=res+$?
 # scripts="$_tdir/pbench-register-tool $_tdir/pbench-metadata-log"
 scripts="$_tdir/pbench-*"
@@ -41,6 +45,8 @@ done
 mkdir -p $_testopt/unittest-scripts/
 let res=res+$?
 cp $_tdir/test-bin/* $_testopt/unittest-scripts/
+let res=res+$?
+cp $_tdir/test-bin/iostat-postprocess $_testopt/tool-scripts/postprocess
 let res=res+$?
 if [[ $res -ne 0 ]]; then
     echo "ERROR: failed to construct unittest execution directory hierarchy" \
@@ -205,8 +211,6 @@ declare -A expected_status=(
     [test-11]=4
     [test-12]=1
     [test-13]=2
-    # XXX - this is wrong: it needs iostat-postprocess in order to return 0
-    [test-20]=1
 )
 
 tests="$*"
