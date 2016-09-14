@@ -36,6 +36,7 @@ maxstddevpct=5 # maximum allowable standard deviation in percent
 max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
 supported_test_types="read,write,rw,randread,randwrite,randrw"
 install_only="n"
+sysinfo="y"
 config=""
 rate_iops=""
 test_types="read,randread"		# default is -non- destructive
@@ -125,10 +126,15 @@ function fio_usage() {
                 printf -- "\t--install\n"
                 printf "\t\tinstall only\n"
                 printf "\t\tDefault is n\n"
+
+		printf -- "\t--sysinfo\n"
+		printf "\t\tcollect system configuration\n"
+		printf "\t\tDefault is y\n"
+		printf "\t\trecommend you turn it off only when debugging workload\n"
 }
 
 function fio_process_options() {
-	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,job-file:" -n "getopt.sh" -- "$@");
+	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,job-file:,sysinfo:" -n "getopt.sh" -- "$@");
 	if [ $? -ne 0 ]; then
 		printf "\t${benchmark}: you specified an invalid option\n\n"
 		fio_usage
@@ -318,6 +324,14 @@ function fio_process_options() {
 				shift;
 			fi
 			;; 
+			--sysinfo)
+				shift;
+				if [ -n "$1" ]; then
+					sysinfo=$1
+					shift
+				fi
+			;;
+
 			--)
 			shift;
 			break;
@@ -800,9 +814,13 @@ fio_process_options "$@"
 fio_install
 
 export benchmark config
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+if [ "$sysinfo" = "y" ] ; then
+	pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+fi
 fio_run_benchmark
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+if [ "$sysinfo" = "y" ] ; then
+	pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+fi
 fio_print_summary
 
 rmdir $benchmark_run_dir/.running
