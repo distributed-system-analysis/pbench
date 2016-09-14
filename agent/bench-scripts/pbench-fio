@@ -516,7 +516,7 @@ function fio_run_job() {
 	pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	local client_opts=""
 
-        if [ ! -z "$client_file" ] ;then
+	if [ ! -z "$client_file" ] ;then
 		typeset -i nclients=$(wc -l $client_file)
 		client_opts="--client=$client_file --max-jobs=$nclients"
 	elif [ ! -z "$clients" ]; then
@@ -811,6 +811,10 @@ function fio_run_benchmark() {
 	done
 	printf "</pre>\n" >>$benchmark_summary_html_file
 	printf "\n" >>$benchmark_summary_txt_file
+
+	if [ ! -z "$client_file" ] ;then
+		cp $client_file $benchmark_run_dir/fio-client.file
+	fi
 }
 
 function fio_print_summary() {
