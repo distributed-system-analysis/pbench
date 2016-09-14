@@ -40,6 +40,7 @@ maxstddevpct=5 # maximum allowable standard deviation in percent
 max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
 supported_test_types="read,write,rw,randread,randwrite,randrw"
 install_only="n"
+remote_only="n"
 config=""
 rate_iops=""
 test_types="read,randread"		# default is -non- destructive
@@ -134,10 +135,12 @@ function fio_usage() {
                 printf -- "\t--install\n"
                 printf "\t\tinstall only\n"
                 printf "\t\tDefault is n\n"
+		printf -- "\t--remote-only\n"
+		printf "\trun this on the remotes only\n"
 }
 
 function fio_process_options() {
-	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,job-file:,pre-iteration-script:," -n "getopt.sh" -- "$@");
+	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,remote-only,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,job-file:" -n "getopt.sh" -- "$@");
 	if [ $? -ne 0 ]; then
 		printf "\t${benchmark}: you specified an invalid option\n\n"
 		fio_usage
@@ -153,6 +156,10 @@ function fio_process_options() {
 			--install)
 			shift;
 			install_only="y"
+			;;
+			--remote-only)
+			shift;
+			remote_only="y"
 			;;
 			--max-stddev)
 			shift;
@@ -377,22 +384,34 @@ function fio_process_options() {
 function fio_install() {
 	if [ "$postprocess_only" == "n" ]; then
 		if check_install_rpm $benchmark_rpm $ver; then
-			debug_log "[$script_name]$benchmark_rpm is installed"
+			debug_log "[$script_name]$benchmark_rpm $ver is installed"
 		else
-			debug_log "[$script_name]$benchmark_rpm installation failed, exiting"
+			debug_log "[$script_name]$benchmark_rpm $ver installation failed, exiting"
 			exit 1
-		fi 
+		fi
+                
 	fi
 	if [ ! -z "$clients" ] ; then
 		debug_log "verifying clients have fio installed"
 		echo "verifying clients have fio installed"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
-			ssh $ssh_opts $client ${pbench_install_dir}/bench-scripts/$script_name --install &
+			ssh $ssh_opts $client ${pbench_install_dir}/bench-scripts/$script_name --remote-only --install &
 		done
 		wait
 	fi
-	if [ "$install_only" == "y" ]; then
-		exit 0
+}
+
+# install python-pandas on the controller: fiologparser_hist.py needs it
+function pandas_install() {
+	if [ "$postprocess_only" == "n" ]; then
+		if check_install_rpm python-pandas; then
+			debug_log "[$script_name]python-pandas is installed"
+		else
+			debug_log "[$script_name]python-pandas installation failed, exiting."
+                    	debug_log "[$script_name]On RHEL, python-pandas is in the EPEL repo."
+                    	debug_log "[$script_name]See https://fedoraproject.org/wiki/EPEL for details."
+			exit 1
+		fi
 	fi
 }
 
@@ -543,7 +562,7 @@ function fio_run_job() {
 	local client_opts=""
 
 	if [ ! -z "$client_file" ] ;then
-		typeset -i nclients=$(wc -l $client_file)
+		typeset -i nclients=$(wc -l $client_file | cut -d ' ' -f 1)
 		client_opts="--client=$client_file --max-jobs=$nclients"
 	elif [ ! -z "$clients" ]; then
 		local max_jobs=0
@@ -849,6 +868,14 @@ function fio_print_summary() {
 
 fio_process_options "$@"
 fio_install
+
+# pandas installed only on controller
+if [ "$remote_only" = "n" ] ;then
+	pandas_install
+fi
+if [ "$install_only" == "y" ]; then
+	exit 0
+fi
 
 mkdir -p $benchmark_run_dir
 export benchmark config
