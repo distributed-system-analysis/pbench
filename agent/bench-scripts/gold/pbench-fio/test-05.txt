@@ -1,4 +1,5 @@
 +++ Running test-05 pbench-fio
+pbench-fio 2.14
 verifying clients have fio installed
 The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-throughput-4KiB/sample1/fio.job
 [global]
@@ -805,7 +806,6 @@ Iteration 3-throughput-1024KiB complete (3 of 3), with 1 pass and 6 failures
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-throughput-1024KiB/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-throughput-1024KiB/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/rpm --query pbench-fio-2.14
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-throughput-4KiB/sample1/clients/bar/
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-throughput-4KiB/sample1/clients/bar/
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-throughput-4KiB/sample1/clients/bar/
@@ -1024,5 +1024,4 @@ Iteration 3-throughput-1024KiB complete (3 of 3), with 1 pass and 6 failures
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/yum --debuglevel=0 install -y pbench-fio-2.14
 --- test-execution.log file contents

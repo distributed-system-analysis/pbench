@@ -1,4 +1,5 @@
 +++ Running test-00 pbench-register-tool
+pbench-sysstat 11.2.0
 mpstat tool is now registered in group default
 --- Finished test-00 pbench-register-tool (status=0}
 +++ pbench tree state
@@ -15,6 +16,5 @@ mpstat tool is now registered in group default
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query pbench-sysstat-11.2.0
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/yum --debuglevel=0 install -y pbench-sysstat-11.2.0
+grep: /var/tmp/pbench-test-utils/test-execution.log: No such file or directory
 --- test-execution.log file contents
