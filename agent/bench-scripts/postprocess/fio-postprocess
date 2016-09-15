@@ -14,7 +14,7 @@ my $js_str;
 my $interval = `cat $dir/fio.job | grep "^log_hist_msec"`;
 if ( ! $interval =~ /^\s*$/ ) {
 	system("mkdir -p $dir/hist");
-	system("fiologparser_hist.py --job-file=$dir/fio.job $dir/clients/*/*_clat_hist.* > $dir/hist/hist.csv");
+	system("fiologparser_hist.py $dir/clients/*/*_clat_hist.* > $dir/hist/hist.csv");
 	system(abs_path($0) . "-viz.py --job-file=$dir/fio.job $dir/hist");
 }
 

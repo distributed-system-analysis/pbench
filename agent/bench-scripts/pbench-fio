@@ -1,4 +1,5 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
 
 # This is a script to run the fio benchmark
 
@@ -11,8 +12,11 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 
 benchmark_rpm=$script_name
 benchmark="fio"
-benchmark_bin=/usr/local/bin/$benchmark
-ver=2.2.11
+# allow unit tests to override
+if [[ -z "$benchmark_bin" ]]; then
+	benchmark_bin=/usr/local/bin/$benchmark
+fi	
+ver=2.14
 
 job_file="${script_path}/templates/fio.job"
 
@@ -52,6 +56,7 @@ file_size=""
 direct="" # don't cache IO's by default
 sync="" # don't sync IO's by default
 clients="" # A list of hostnames (hosta,hostb,hostc) where you want fio to run.  Note: if you use this, pbench must be installed on these systems already.
+client_file="" # A file containing a list of hostnames
 tool_label_pattern="fio-"
 tool_group="default"
 max_key_length=20
@@ -117,7 +122,7 @@ function fio_usage() {
 		printf -- "\t--job-file=<path>\n"
 		printf "\t\tprovide the path of a fio job config file, (default is $job_file)\n"
 		printf -- "\t--samples=<int>\n"
-		printf "\t\tnumber of samples to use per test iteration (default is $nr_sanples)\n"
+		printf "\t\tnumber of samples to use per test iteration (default is $nr_samples)\n"
 	        printf -- "\t--max-stddev=<int>\n"
                 printf "\t\tthe maximum percent stddev allowed to pass\n"
                 printf -- "\t--max-failures=<int>\n"
@@ -224,6 +229,10 @@ function fio_process_options() {
 			;;
 			-c|--clients)
 			shift;
+			if [ ! -z "$client_file" ] ;then
+				printf "--clients and --client-file are mutually exclusive"
+				exit 1
+			fi
 			if [ -n "$1" ]; then
 				clients="$1"
 				shift;
@@ -231,8 +240,13 @@ function fio_process_options() {
 			;;
 			--client-file)
 			shift;
+			if [ ! -z "$clients" ] ;then
+				printf "--clients and --client-file are mutually exclusive"
+				exit 1
+			fi
 			if [ -n "$1" ]; then
 				if [ -e $1 ]; then
+					client_file=$1
 					while read line; do
 						clients="$clients,$line"
 					done <$1
@@ -370,7 +384,7 @@ function print_iteration {
 	# printing a iteration assumes this must be a new row, so include \n first
 	printf "\n%28s" "$1" >>$benchmark_summary_txt_file
 	printf "\n%s" "$1" >>$benchmark_summary_csv_file
-	hists=`cat $iteration_dir/reference-result/fio.job | grep "^log_hist_msec"`
+	hists=`cat $iteration_dir/reference-result/fio.job 2>/dev/null | grep "^log_hist_msec"`
 	if [ $1 == "iteration" ]; then
 		# this is just a label, so no links here
 		if [ ! -z "$hist_interval" ]; then
@@ -501,7 +515,11 @@ function fio_run_job() {
 	fi
 	pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	local client_opts=""
-	if [ ! -z "$clients" ]; then
+
+	if [ ! -z "$client_file" ] ;then
+		typeset -i nclients=$(wc -l $client_file)
+		client_opts="--client=$client_file --max-jobs=$nclients"
+	elif [ ! -z "$clients" ]; then
 		local max_jobs=0
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			client_opts="$client_opts --client=$client"
@@ -535,7 +553,7 @@ function fio_run_job() {
 		done
 		wait
 	else
-		mv $benchmark_results_dir/fio*.log $benchmark_results_dir/clients/localhost/
+		mv $benchmark_results_dir/fio*.log $benchmark_results_dir/clients/localhost/ 2>/dev/null
 	fi
 	pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	echo "fio job complete"
@@ -563,6 +581,10 @@ function fio_run_benchmark() {
 		# if each target is separated by a space, there will be one job for each in next for loop
 		targets=`echo $targets | sed -e s/,/" "/g`
 	fi
+	typeset -i ntargets=$(echo $targets | wc -w)
+	typeset -i ntesttypes=$(echo $test_types | sed -e 's/,/ /g' | wc -w)
+	typeset -i nblocksizes=$(echo $block_sizes | sed -e 's/,/ /g' | wc -w)
+	typeset -i total_iterations=$ntargets*$ntesttypes*$nblocksizes
 	for dev in $targets; do
 		for test_type in `echo $test_types | sed -e s/,/" "/g`; do
 			for block_size in `echo $block_sizes | sed -e s/,/" "/g`; do
@@ -643,7 +665,7 @@ function fio_run_benchmark() {
 						done
 						if [ $sample_failed -eq 0 ]; then
 
-							hists=`cat $iteration_dir/sample1/fio.job | grep "^log_hist_msec"`
+							hists=`cat $iteration_dir/sample1/fio.job 2>/dev/null | grep "^log_hist_msec"`
 							if [ ! -z "$hists" ]; then
 								hist_results=$iteration_dir/hist
 								mkdir -p $hist_results
@@ -651,7 +673,6 @@ function fio_run_benchmark() {
 								# NOTE: If --log_unix_epoch gets enabled in fio.job, then fiologparser_hist.py will not merge
 								# histograms into an "average" across the samples.
 								fiologparser_hist.py \
-									--job-file=$iteration_dir/sample1/fio.job \
 									$iteration_dir/sample*/clients/*/*_clat_hist.* \
 									> $hist_results/hist.csv
 								$script_path/postprocess/$benchmark-postprocess-viz.py \
@@ -790,6 +811,10 @@ function fio_run_benchmark() {
 	done
 	printf "</pre>\n" >>$benchmark_summary_html_file
 	printf "\n" >>$benchmark_summary_txt_file
+
+	if [ ! -z "$client_file" ] ;then
+		cp $client_file $benchmark_run_dir/fio-client.file
+	fi
 }
 
 function fio_print_summary() {
@@ -799,6 +824,7 @@ function fio_print_summary() {
 fio_process_options "$@"
 fio_install
 
+mkdir -p $benchmark_run_dir
 export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 fio_run_benchmark
