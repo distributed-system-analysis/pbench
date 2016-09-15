@@ -1,5 +1,5 @@
 +++ Running test-00 pbench-register-tool
-pbench-sysstat 11.2.0
+pbench-sysstat
 mpstat tool is now registered in group default
 --- Finished test-00 pbench-register-tool (status=0}
 +++ pbench tree state

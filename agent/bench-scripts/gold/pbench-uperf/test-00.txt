@@ -1,5 +1,5 @@
 +++ Running test-00 pbench-uperf
-pbench-uperf 1.0.4
+pbench-uperf
 Starting iteration  (1 of 2)
 test sample 1 of 2
 client[127.0.0.1]protocol[tcp]test[rr]instances[1]size[64] <-> server[127.0.0.1]

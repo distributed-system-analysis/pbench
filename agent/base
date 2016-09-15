@@ -133,7 +133,8 @@ if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
 
 else
     function check_install_rpm {
-        echo $@
+        echo $1
+        #$2 is the version which will vary
         return 0
     }
 fi
