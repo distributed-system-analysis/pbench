@@ -31,6 +31,10 @@ let res=res+$?
 mkdir -p $_testopt/tool-scripts
 let res=res+$?
 cp $_tdir/../tool-scripts/{iostat,kvmstat,mpstat,numastat,perf,pidstat,proc-interrupts,proc-vmstat,sar,turbostat,vmstat} $_testopt/tool-scripts
+
+mkdir -p $_testopt/tool-scripts/postprocess
+let res=res+$?
+cp $_tdir/test-bin/iostat-postprocess $_testopt/tool-scripts/postprocess
 let res=res+$?
 # scripts="$_tdir/pbench-register-tool $_tdir/pbench-metadata-log"
 scripts="$_tdir/pbench-*"
@@ -41,6 +45,8 @@ done
 mkdir -p $_testopt/unittest-scripts/
 let res=res+$?
 cp -r $_tdir/test-bin/* $_testopt/unittest-scripts/
+let res=res+$?
+cp $_tdir/test-bin/iostat-postprocess $_testopt/tool-scripts/postprocess
 let res=res+$?
 if [[ $res -ne 0 ]]; then
     echo "ERROR: failed to construct unittest execution directory hierarchy" \
@@ -175,6 +181,7 @@ declare -A tools=(
     [test-17]="pbench-list-triggers"
     [test-18]="pbench-list-triggers"
     [test-19]="pbench-tool-trigger-test"
+    [test-20]="pbench-postprocess-tools"
 )
 declare -A options=(
     [test-00]="--name=mpstat --group=default -- --interval=10"
@@ -195,6 +202,7 @@ declare -A options=(
     [test-15]="--group=default --start-trigger=\"START DEFAULT\" --stop-trigger=\"STOP DEFAULT\""
     [test-17]="--group=default"
     [test-18]="--group=foo"
+    [test-20]="--dir=$_testdir/tmp --group=default --iteration=1"
 )
 
 declare -A expected_status=(

@@ -208,7 +208,7 @@ if [ "$action" == "postprocess" ]; then
 				warn_log "[$script_name]$this_tool_file is a directory in $tool_group_dir; that should not happen. Please consider deleting it."
 				continue
 			fi
-			if [ ! -e "$pbench_bin/tool-scripts/$this_tool_file" ] ;then
+			if [ "$this_tool_file" != "label" -a ! -e "$pbench_bin/tool-scripts/$this_tool_file" ] ;then
 				# skip spurious file - not a tool.
 				warn_log "[$script_name]$this_tool_file does not exist in $pbench_bin/tool-scripts; spurious file perhaps? Please consider deleting it."
 				continue
