@@ -51,6 +51,7 @@ runtime=""
 ramptime=""
 iodepth=""
 ioengine=""
+cache_drop_script=""
 job_mode="concurrent" # serial or concurrent
 file_size=""
 direct="" # don't cache IO's by default
@@ -121,6 +122,9 @@ function fio_usage() {
 		printf "\t\tnumber of jobs to run, if not given then fio default of numjobs=1 will be used\n"
 		printf -- "\t--job-file=<path>\n"
 		printf "\t\tprovide the path of a fio job config file, (default is $job_file)\n"
+		printf -- "\t--cache-drop-script=str\n"
+		printf -- "\t\tuse executable script/program to drop cache on storage servers\n"
+		printf -- "\t\texample: --cache-drop-script=\$HOME/drop-cache.sh\n"
 		printf -- "\t--samples=<int>\n"
 		printf "\t\tnumber of samples to use per test iteration (default is $nr_samples)\n"
 	        printf -- "\t--max-stddev=<int>\n"
@@ -133,7 +137,7 @@ function fio_usage() {
 }
 
 function fio_process_options() {
-	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,job-file:" -n "getopt.sh" -- "$@");
+	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,job-file:,cache-drop-script:" -n "getopt.sh" -- "$@");
 	if [ $? -ne 0 ]; then
 		printf "\t${benchmark}: you specified an invalid option\n\n"
 		fio_usage
@@ -330,6 +334,18 @@ function fio_process_options() {
 			if [ -n "$1" ]; then
 				job_file="$1"
 				shift;
+
+			fi
+			;;
+			--cache-drop-script)
+			shift;
+			if [ -n "$1" ]; then
+				cache_drop_script="$1"
+				if [ ! -x $cache_drop_script ]; then
+					printf "ERROR: $cache_drop_script must be executable\n"
+					exit 1
+				fi
+				shift;
 			fi
 			;; 
 			--)
@@ -512,6 +528,16 @@ function fio_run_job() {
 		wait
 	else
 		mkdir -p $benchmark_results_dir/clients/localhost
+	fi
+
+	# cache dropping is a bit hard on the system, give it a few
+	# seconds to start caching OS directories and files again
+	# by putting this before pbench-start-tools, 
+	# also ensures that pbench files will be cached
+
+	if [ -n "$cache_drop_script" ] ; then
+		printf "running cache-drop command: $cache_drop_script\n"
+		eval "$cache_drop_script"
 	fi
 	pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	local client_opts=""
