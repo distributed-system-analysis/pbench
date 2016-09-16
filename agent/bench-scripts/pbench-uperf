@@ -53,8 +53,7 @@ max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to 
 runtime=60
 mode="loopback"
 servers=127.0.0.1
-server_base_port=20000
-port_number_gap=10
+server_port=20000
 postprocess_only=n
 log_response_times=n
 kvm_host=""
@@ -495,7 +494,6 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									client=`echo $clients | cut -d, -f$server_nr`
 									server_node=`echo "$server_nodes," | cut -d, -f$server_nr`
 									client_node=`echo "$client_nodes," | cut -d, -f$server_nr`
-									server_port=`echo "$port_number_gap * $server_nr + $server_base_port" | bc`
 									uperf_identifier="client::$client-server::$server:$server_port"
 									xml_file="$iteration_dir/$uperf_identifier--test_config.xml"
 									benchmark_client_cmd_file="$iteration_dir/$uperf_identifier--client_start.sh"
@@ -577,7 +575,6 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									if [ -z "$client" ]; then
 										client="127.0.0.1"
 									fi
-									server_port=`echo "$port_number_gap * $server_nr + $server_base_port" | bc`
 									uperf_identifier="client::$client-server::$server:$server_port"
 									xml_file="$iteration_dir/$uperf_identifier--test_config.xml"
 									benchmark_client_cmd_file="$iteration_dir/$uperf_identifier--client_start.sh"
@@ -607,7 +604,6 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								server_nr=1
 								for server in `echo $servers | sed -e s/,/" "/g`; do
 									client=`echo $clients | cut -d, -f$server_nr`
-									server_port=`echo "$port_number_gap * $server_nr + $server_base_port" | bc`
 									uperf_identifier="client::$client-server::$server:$server_port"
 									stop_server $server $server_port 0
 									if [ ! -z "$clients" ]; then
