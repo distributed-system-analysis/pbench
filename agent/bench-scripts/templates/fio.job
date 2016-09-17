@@ -16,6 +16,7 @@ sync = 0
 time_based = 1
 clocksource = gettimeofday
 ramp_time = 5
+fsync_on_close = 0
 
 [job-$target]
 filename = $target

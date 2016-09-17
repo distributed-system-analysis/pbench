@@ -53,6 +53,7 @@ iodepth=""
 ioengine=""
 job_mode="concurrent" # serial or concurrent
 file_size=""
+fsync_on_close=""
 direct="" # don't cache IO's by default
 sync="" # don't sync IO's by default
 clients="" # A list of hostnames (hosta,hostb,hostc) where you want fio to run.  Note: if you use this, pbench must be installed on these systems already.
@@ -89,6 +90,9 @@ function fio_usage() {
 		printf -- "\t-s int[,int] --file-size=str[,str] (default is $file_size)\n"
 		printf "\t\tfile sizes in MiB: %s\n"
 		printf "\n"
+                printf -- "\t--fsync-on-close=[0/1]\n"
+                printf "\t\t1 = fsync_on_close enabled, 0 = fsync_on_close disabled (defalt)\n"
+                printf "\n"
 		printf -- "\t-d str[,str] --targets=str[,str]\n"
 		printf "\t\tone or more directories or block devices (default is $targets)\n"
 		printf "\t\t(persistent names for devices highly recommended)\n"
@@ -103,7 +107,6 @@ function fio_usage() {
 		printf -- "\t-c str[,str] --clients=str[,str]      str= one or more remote systems to run fio\n"
 		printf -- "\t                         If no clients are specified, fio is run locally\n"
 		printf -- "\t--client-file=str        str= file (with absolute path) which contains 1 client per line\n"
-
 		printf -- "\t--config=str\n"
 		printf "\t\tname of the test configuration\n"
 		printf "\n"
@@ -133,7 +136,7 @@ function fio_usage() {
 }
 
 function fio_process_options() {
-	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,job-file:" -n "getopt.sh" -- "$@");
+	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,fsync-on-close:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,job-file:" -n "getopt.sh" -- "$@");
 	if [ $? -ne 0 ]; then
 		printf "\t${benchmark}: you specified an invalid option\n\n"
 		fio_usage
@@ -311,6 +314,13 @@ function fio_process_options() {
 				shift;
 			fi
 			;;
+                        --fsync-on-close)
+                        shift;
+                        if [ -n "$1" ]; then
+                                fsync_on_close="$1"
+                                shift;
+                        fi
+                        ;;
 			--directory)
 			shift;
 			if [ -n "$1" ]; then 
@@ -449,7 +459,7 @@ function fio_device_check() {
 }
 
 function fio_create_jobfile() {
-	local fio_job_file="${12}"
+	local fio_job_file="${13}"
 
 	mkdir -p "`dirname \"$fio_job_file\"`"
 	"${script_path}/templates/make-fio-jobfile.py" -j $job_file \
@@ -462,7 +472,8 @@ function fio_create_jobfile() {
 		-ramptime="$8" \
 		-size="$9" \
 		-rate_iops="${10}" \
-		-targets `echo "${11}" | sed -e 's/,/" "/g'` \
+                -fsync_on_close="${11}" \
+		-targets `echo "${12}" | sed -e 's/,/" "/g'` \
 		| sed -e 's/ = /=/g' > $fio_job_file
 
 	if [ $? -ne 0 ]; then
@@ -636,7 +647,7 @@ function fio_run_benchmark() {
 							if [ "$postprocess_only" == "n" ]; then
 								mkdir -p $benchmark_results_dir
 								fio_job_file="$benchmark_results_dir/fio.job"
-								fio_create_jobfile "$test_type" "$ioengine" "$block_size" "$iodepth" "$direct" "$sync" "$runtime" "$ramptime" "$file_size" "$rate_iops" "$dev" "$fio_job_file"
+								fio_create_jobfile "$test_type" "$ioengine" "$block_size" "$iodepth" "$direct" "$sync" "$runtime" "$ramptime" "$file_size" "$rate_iops" "$fsync_on_close" "$dev" "$fio_job_file"
 								fio_run_job "$iteration" "$benchmark_results_dir" "$fio_job_file" "$clients"
 							else
 								# if we are only postprocessing, then we might have to untar an existing result
