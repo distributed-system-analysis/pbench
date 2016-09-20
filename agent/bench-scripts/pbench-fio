@@ -259,6 +259,10 @@ function fio_process_options() {
 			if [ -n "$1" ]; then
 				if [ -e $1 ]; then
 					client_file=$1
+					if [[ "$client_file" != /* ]] ;then
+						# make it absolute
+						client_file=$PWD/$client_file
+					fi
 					while read line; do
 						clients="$clients,$line"
 					done <$1
