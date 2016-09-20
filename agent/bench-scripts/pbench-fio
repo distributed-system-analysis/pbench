@@ -594,12 +594,12 @@ function fio_run_job() {
 		debug_log "getting log files from clients"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			mkdir -p $benchmark_results_dir/clients/$client
-			scp $ssh_opts $client:"$benchmark_results_dir/*.log" $benchmark_results_dir/clients/$client/ >/dev/null &
+			scp $ssh_opts $client:"$benchmark_results_dir/*.log" $benchmark_results_dir/clients/$client/ 2>/dev/null &
 		done
 		wait
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			mkdir -p $benchmark_results_dir/clients/$client
-			ssh $ssh_opts $client /bin/rm "$benchmark_results_dir/*.log"  &
+			ssh $ssh_opts $client /bin/rm -f "$benchmark_results_dir/*.log"  &
 		done
 		wait
 	else
@@ -723,7 +723,7 @@ function fio_run_benchmark() {
 								# NOTE: If --log_unix_epoch gets enabled in fio.job, then fiologparser_hist.py will not merge
 								# histograms into an "average" across the samples.
 								fiologparser_hist.py \
-									$iteration_dir/sample*/clients/*/*_clat_hist.* \
+									$iteration_dir/sample*/fio_clat_hist.*.log.* \
 									> $hist_results/hist.csv
 								$script_path/postprocess/$benchmark-postprocess-viz.py \
 									--job-file=$iteration_dir/sample1/fio.job \
