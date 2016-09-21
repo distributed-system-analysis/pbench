@@ -170,50 +170,84 @@ $dir/pbench-rsync-satellite-process-work-queue --archive=$ARCHIVE $logdir/$PROG.
 rc=$?
 
 # prepare some mail with the status
-(echo Failed removals: ;
- for host in $hosts ;do
-     if [ -s $logdir/$prefix/$host/rm.log ] ;then
-         echo $host:
-         cat $logdir/$prefix/$host/rm.log
-         echo
-     fi
- done;
+failed_rm=$tmp/failed_rm.log
+for host in $hosts ;do
+    if [ -s $logdir/$prefix/$host/rm.log ] ;then
+        echo $host:
+        cat $logdir/$prefix/$host/rm.log
+        echo
+    fi
+done > $failed_rm
+
+failed_md5=$tmp/failed_md5.log
+for host in $hosts ;do
+    if [ -n "$(grep -v 'OK$' $logdir/$host/md5-checks.log 2>/dev/null)" ] ;then
+        echo $host:
+        grep -v 'OK$' $logdir/$prefix/$host/md5-checks.log
+        echo
+    fi
+done > $failed_md5
+
+nprocessed=0
+nfailed_rm=0
+nfailed_md5=0
+nskipped=0
+ncurrent=0
+nremaining=0
+
+(echo Processed files:;
+ if [ -s $PROG.wq.trimmed ] ;then
+     cat $PROG.wq.trimmed
+     nprocessed=$(wc -l < $PROG.wq.trimmed)
+ else
+     echo None
+ fi;
  echo;
  echo =================;
- echo Failed MD5 checks:;
- for host in $hosts ;do
-     if [ -n "$(grep -v 'OK$' $logdir/$host/md5-checks.log 2>/dev/null)" ] ;then
-         echo $host:
-         grep -v 'OK$' $logdir/$prefix/$host/md5-checks.log
-         echo
-     fi
- done;
- echo;
- echo =================;
+ if [ -s $failed_rm ] ;then
+     echo Failed removals:;
+     cat $failed_rm
+     nfailed_rm=$(wc -l < $failed_rm)
+     echo;
+     echo =================;
+ fi;
+ if [ -s $failed_md5 ] ;then
+     echo Failed MD5 checks:;
+     cat $failed_md5
+     nfailed_md5=$(wc -l < $failed_md5)
+     echo;
+     echo =================;
+ fi;
  if [ -f "$logdir/$PROG.wq.skipped" ] ;then
      echo Skipped tarballs:;
      cat $logdir/$PROG.wq.skipped;
+     nskipped=$(wc -l < $logdir/$PROG.wq.skipped)
      echo;
      echo =================;
  fi;
  if [[ $rc == 1 ]] ;then
-     echo "pbench-rsync-satellite-process-work-queue exited with status 1"
-     echo "Check $logdir/$PROG.wq.current-batch and $logdir/$PROG.wq.remaining"
+     echo "pbench-rsync-satellite-process-work-queue exited with status 1";
+     echo "Check $logdir/$PROG.wq.current-batch and $logdir/$PROG.wq.remaining";
      if [ -f $logdir/$PROG.wq.current-batch ] ;then
          echo "Current batch (some of these may have been processed already):"
          cat $logdir/$PROG.wq.current-batch
+         ncurrent=$(wc -l $logdir/$PROG.wq.current-batch)
          echo
          echo =================
      fi;
      if [ -f "$logdir/$PROG.wq.files" ] ;then
          echo "Remaining tarballs:"
-         cat  $logdir/$PROG.wq.remaining
+         cat $logdir/$PROG.wq.remaining
+         nremaining=$(wc -l $logdir/$PROG.wq.remaining)
          echo
          echo =================
-     fi
+     fi;
+     echo;
+     echo "$ncurrent files in current batch, $nremaining files remaining to be processed";
+     echo "Call 1-800-GHOSTBUSTERS and tell ndk about it"
  elif [[ $rc != 0 ]] ;then
      echo "pbench-rsync-satellite-process-work-queue exited with non-zero status $rc - why?"
- fi) | mailx -s "$PROG: pbench-rsync-satellite-process-work-queue exited with status 1" \
+ fi) | mailx -s "$PROG: $nprocessed files processed, $nfailed_rm remove failures, $nfailed_md5 md5 failures" \
              $mail_recipients
 let end_time=$(date +%s)
 let duration=end_time-start_time
