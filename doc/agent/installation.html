@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-08-25 Thu 14:15 -->
+<!-- 2016-09-22 Thu 16:24 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench agent installation</title>
@@ -75,6 +75,7 @@
   pre.src-ledger:before { content: 'Ledger'; }
   pre.src-lisp:before { content: 'Lisp'; }
   pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
   pre.src-matlab:before { content: 'MATLAB'; }
   pre.src-mscgen:before { content: 'Mscgen'; }
   pre.src-ocaml:before { content: 'Objective Caml'; }
@@ -236,23 +237,23 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgcb49ca8">Introduction</a></li>
-<li><a href="#org1d671fb">Repos</a>
+<li><a href="#orgc5045e5">Introduction</a></li>
+<li><a href="#orgef04383">Repos</a>
 <ul>
-<li><a href="#org0566a64">External repo</a></li>
-<li><a href="#org3503710">Internal repo</a></li>
+<li><a href="#org4e10b6b">External repo</a></li>
+<li><a href="#org1cecd0e">Internal repo</a></li>
 </ul>
 </li>
-<li><a href="#org738787c">Package dependencies</a></li>
-<li><a href="#org3a2e9a2">Installing <code>pbench-agent</code></a></li>
-<li><a href="#org3470fdc">Administrator responsibility: Config file and ssh private key file</a></li>
+<li><a href="#orgc601fe2">Package dependencies</a></li>
+<li><a href="#orgae4be18">Installing <code>pbench-agent</code></a></li>
+<li><a href="#orgdda6a15">Administrator responsibility: Config file and ssh private key file</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgcb49ca8" class="outline-2">
-<h2 id="orgcb49ca8">Introduction</h2>
-<div class="outline-text-2" id="text-orgcb49ca8">
+<div id="outline-container-orgc5045e5" class="outline-2">
+<h2 id="orgc5045e5">Introduction</h2>
+<div class="outline-text-2" id="text-orgc5045e5">
 <p>
 The pbench agent requires the installation of some generic bits, but it
 also requires some localization: it needs to know where to send the results
@@ -291,9 +292,9 @@ for mixed installations</b>.
 </div>
 </div>
 
-<div id="outline-container-org1d671fb" class="outline-2">
-<h2 id="org1d671fb">Repos</h2>
-<div class="outline-text-2" id="text-org1d671fb">
+<div id="outline-container-orgef04383" class="outline-2">
+<h2 id="orgef04383">Repos</h2>
+<div class="outline-text-2" id="text-orgef04383">
 <p>
 You will need to install both the external repo and (if applicable)
 the internal repo on every machine where you are planning to run
@@ -301,9 +302,9 @@ the internal repo on every machine where you are planning to run
 </p>
 </div>
 
-<div id="outline-container-org0566a64" class="outline-3">
-<h3 id="org0566a64">External repo</h3>
-<div class="outline-text-3" id="text-org0566a64">
+<div id="outline-container-org4e10b6b" class="outline-3">
+<h3 id="org4e10b6b">External repo</h3>
+<div class="outline-text-3" id="text-org4e10b6b">
 <p>
 If your system supports <code>dnf</code>, then you can copy the repo locally with:
 </p>
@@ -333,9 +334,9 @@ for a RHEL6 or Centos 6 system.
 </div>
 </div>
 
-<div id="outline-container-org3503710" class="outline-3">
-<h3 id="org3503710">Internal repo</h3>
-<div class="outline-text-3" id="text-org3503710">
+<div id="outline-container-org1cecd0e" class="outline-3">
+<h3 id="org1cecd0e">Internal repo</h3>
+<div class="outline-text-3" id="text-org1cecd0e">
 <p>
 Refer to your local installation guide or ask your local pbench guru for help.
 </p>
@@ -343,15 +344,15 @@ Refer to your local installation guide or ask your local pbench guru for help.
 <p>
 If there is no such repo, you will need to install the <code>pbench-agent</code> RPM and
 then manually install the config file and the pbench private key which will allow
-you to send results to the server. Refer to <a href="#org3a2e9a2">Installing <code>pbench-agent</code></a> below.
+you to send results to the server. Refer to <a href="#orgae4be18">Installing <code>pbench-agent</code></a> below.
 </p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org738787c" class="outline-2">
-<h2 id="org738787c">Package dependencies</h2>
-<div class="outline-text-2" id="text-org738787c">
+<div id="outline-container-orgc601fe2" class="outline-2">
+<h2 id="orgc601fe2">Package dependencies</h2>
+<div class="outline-text-2" id="text-orgc601fe2">
 <p>
 In order to simplify installation, the <code>pbench-agent</code> RPM requires the
 installation of a few tools that should be available from the distribution's
@@ -361,9 +362,9 @@ the external repo above.
 </div>
 </div>
 
-<div id="outline-container-org3a2e9a2" class="outline-2">
-<h2 id="org3a2e9a2">Installing <code>pbench-agent</code></h2>
-<div class="outline-text-2" id="text-org3a2e9a2">
+<div id="outline-container-orgae4be18" class="outline-2">
+<h2 id="orgae4be18">Installing <code>pbench-agent</code></h2>
+<div class="outline-text-2" id="text-orgae4be18">
 <p>
 Once you have the COPR repo installed, you can install the <code>pbench-agent</code> RPM
 and source the startup file to initialize your PATH and CONFIG environment
@@ -396,9 +397,9 @@ You should be ready to roll.
 </div>
 </div>
 
-<div id="outline-container-org3470fdc" class="outline-2">
-<h2 id="org3470fdc">Administrator responsibility: Config file and ssh private key file</h2>
-<div class="outline-text-2" id="text-org3470fdc">
+<div id="outline-container-orgdda6a15" class="outline-2">
+<h2 id="orgdda6a15">Administrator responsibility: Config file and ssh private key file</h2>
+<div class="outline-text-2" id="text-orgdda6a15">
 <p>
 If you are the administrator for this installation, you will have to
 create a config file and make it available to your users. How you make
@@ -429,7 +430,7 @@ user on the server where the results are copied.
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2016-08-25 Thu 14:15</p>
+<p class="date">Page updated: 2016-09-22 Thu 16:24</p>
 </div>
 </body>
 </html>

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-08-25 Thu 14:15 -->
+<!-- 2016-09-22 Thu 16:24 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench release notes</title>
@@ -75,6 +75,7 @@
   pre.src-ledger:before { content: 'Ledger'; }
   pre.src-lisp:before { content: 'Lisp'; }
   pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
   pre.src-matlab:before { content: 'MATLAB'; }
   pre.src-mscgen:before { content: 'Mscgen'; }
   pre.src-ocaml:before { content: 'Objective Caml'; }
@@ -236,35 +237,274 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org9786e1e">Version 0.39</a>
+<li><a href="#org792aea6">Version 0.40</a>
 <ul>
-<li><a href="#orgc88f7e9">Installation</a></li>
-<li><a href="#orgf0b47d9">agent</a></li>
-<li><a href="#orgaa0617d">server</a></li>
-<li><a href="#org4ff4a7f">web-server</a></li>
-<li><a href="#org44c8691">Changelog</a></li>
+<li><a href="#org04923a4">Installation</a></li>
+<li><a href="#orgd3f6193">agent</a></li>
+<li><a href="#org1fee9c4">server</a></li>
+<li><a href="#web-server-0.40">web-server</a></li>
+<li><a href="#org1ea8a3f">Changelog</a></li>
 </ul>
 </li>
-<li><a href="#org44eb0d4">Version 0.38</a>
+<li><a href="#org47fcef8">Version 0.39</a>
 <ul>
-<li><a href="#orgc88f7e9">Installation</a></li>
-<li><a href="#orgf0b47d9">agent</a></li>
-<li><a href="#orgaa0617d">server</a></li>
-<li><a href="#org4ff4a7f">web-server</a></li>
-<li><a href="#org05ee379">Fedora 24 RPMs on COPR</a></li>
-<li><a href="#org44c8691">Changelog</a></li>
+<li><a href="#org7a43342">Installation</a></li>
+<li><a href="#orgecc39b4">agent</a></li>
+<li><a href="#org4081a1e">server</a></li>
+<li><a href="#web-server-0.39">web-server</a></li>
+<li><a href="#org2ce6861">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#orge79d8b1">Version 0.38</a>
+<ul>
+<li><a href="#org9841bf6">Installation</a></li>
+<li><a href="#org42b61d6">agent</a></li>
+<li><a href="#orgee941b1">server</a></li>
+<li><a href="#orgf42df0a">web-server</a></li>
+<li><a href="#org0c88b7c">Fedora 24 RPMs on COPR</a></li>
+<li><a href="#orgadb8e3f">Changelog</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org9786e1e" class="outline-2">
-<h2 id="org9786e1e">Version 0.39</h2>
-<div class="outline-text-2" id="text-org9786e1e">
-</div><div id="outline-container-orgc88f7e9" class="outline-3">
-<h3 id="orgc88f7e9">Installation</h3>
-<div class="outline-text-3" id="text-orgc88f7e9">
+<div id="outline-container-org792aea6" class="outline-2">
+<h2 id="org792aea6">Version 0.40</h2>
+<div class="outline-text-2" id="text-org792aea6">
+</div><div id="outline-container-org04923a4" class="outline-3">
+<h3 id="org04923a4">Installation</h3>
+<div class="outline-text-3" id="text-org04923a4">
+<p>
+There are no installation changes in this release: see the
+<a href="../agent/installation.html">Installation Instructions</a> for how to install.
+</p>
+
+<p>
+After installation or update, you should have version 0.40-1gf281562
+of the pbench-agent RPM installed.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgd3f6193" class="outline-3">
+<h3 id="orgd3f6193">agent</h3>
+<div class="outline-text-3" id="text-orgd3f6193">
+</div><ul class="org-ul"><li><a id="orgcf85d57"></a>Backward incompatibilities<br  /><div class="outline-text-4" id="text-orgcf85d57">
+<p>
+None known.
+</p>
+</div></li>
+
+<li><a id="org7de627a"></a>Bug fixes and enhancements<br  /><div class="outline-text-4" id="text-org7de627a">
+<p>
+User-visible changes include:
+</p>
+</div>
+
+<ul class="org-ul"><li><a id="org9fc8259"></a><code>pbench-fio</code><br  /><div class="outline-text-5" id="text-org9fc8259">
+<p>
+The pbench-fio script has undergone significant enhancements in order
+to take advantage of several facilities implemented in the upstream fio
+project. In particular, it gathers and reports latency histograms as
+implemented by Karl Cronburg.
+</p>
+
+<p>
+<b>N.B.</b> The script that processes the logs to get the histograms uses the
+Python Pandas library. This script only runs on the controller, so the
+library has to be installed there. <code>pbench-fio</code> tries to install the library
+and it should succeed e.g. on Fedora systems. On RHEL systems however, the
+<code>python-pandas</code> library is available from EPEL, but not from the standard
+installation repos. You will therefore need to install the EPEL repo before
+running <code>pbench-fio</code> on your controller. Details on EPEL can be found <a href="https://fedoraproject.org/wiki/EPEL">here</a>.
+</p>
+
+<p>
+The process is as follows: on your RHEL7 controller (and similarly for RHEL6)
+</p>
+<pre class="example">
+cd /tmp
+curl --output ./epel-release-latest-7.noarch.rpm  https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum install ./epel-release-latest-7.noarch.rpm
+</pre>
+<p>
+After that, the <code>pbench-fio</code> script should be able to find and install
+the <code>python-pandas</code> package.
+</p>
+
+<p>
+<b>N.B.</b> You need the 2.14-9 (or later) version of the pbench-fio RPM,
+which is available from the COPR pbench repo. This RPM is based on current
+upstream fio master. The <code>pbench-fio</code> script will check for and install
+this version, but please bear the dependency in mind if something goes
+wrong.
+</p>
+
+<p>
+You can now explicitly pass a fio job file to the script, instead of
+or in addition to specifying fio options on the command line. We generally
+recommend using the command line options for simple usage where that suffices,
+but if you need options that <code>pbench-fio</code> does not implement, then using
+a job file will be necessary.
+</p>
+
+<p>
+You can run fio on a set of clients either by using the &#x2013;clients=&#x2026; option
+to <code>pbench-fio</code>, explicitly listing the set of clients; or you can use the
+&#x2013;client-file=&#x2026; option to pass a file containing the list of clients, one
+client per line.
+</p>
+</div></li>
+
+<li><a id="org8ca6b06"></a><code>pbench-moongen</code><br  /><div class="outline-text-5" id="text-org8ca6b06">
+<p>
+New options.
+</p>
+</div></li>
+
+<li><a id="org991edcd"></a>pbench-user-benchmark<br  /><div class="outline-text-5" id="text-org991edcd">
+<p>
+The variable specifying the run directory, <code>benchmark_run_dir</code>, is now
+exported by the main script, making it available to the user-provided
+benchmark script (e.g. for squirreling away stuff to package up with the
+rest of the data for storage/processing on the server).
+</p>
+
+<p>
+This is only one part of a larger <a href="https://github.com/distributed-system-analysis/pbench/issues/349">issue #349</a>.
+</p>
+</div></li>
+
+<li><a id="orge980a2d"></a>Triggers<br  /><div class="outline-text-5" id="text-orge980a2d">
+<p>
+Trigger functionality has been restored.
+</p>
+</div></li>
+
+<li><a id="org79d8fb2"></a>Hardening of tools-&lt;group&gt; directory handling<br  /><div class="outline-text-5" id="text-org79d8fb2">
+<p>
+In some cases, additional files or subdirectories in the tools-default (or
+more generally, tools-&lt;group&gt;) directory have caused problems. We now skip
+subdirectories and check files against the available tools list, skipping
+any that don't match. A warning is issued in either case suggesting that
+the suspect file/subdirectory be removed.
+</p>
+</div></li>
+
+<li><a id="orgcf74786"></a>Fixes to graph rendering<br  /><div class="outline-text-5" id="text-orgcf74786">
+<p>
+See <a href="#web-server-0.40">web-server</a> below.
+</p>
+</div></li></ul></li></ul>
+</div>
+
+<div id="outline-container-org1fee9c4" class="outline-3">
+<h3 id="org1fee9c4">server</h3>
+<div class="outline-text-3" id="text-org1fee9c4">
+<ul class="org-ul">
+<li>Add mail notifications to the scripts that backs up results tarballs
+for safekeeping.</li>
+
+<li>Add verification script to detect bit-rot in tarballs.</li>
+
+<li>We now run a cron job to fetch tarballs from "satellite" servers and
+store them on our "production" server. The intent is to relieve some
+of the disk space pressure on the satellite, and to take advantage
+of the backup and bit-rot detection facilities that we employ on the
+production server.</li>
+
+<li>An additional script to age out results on a satellite server is in
+the works but is not running yet.</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org6e48d61" class="outline-3">
+<h3 id="web-server-0.40"><a id="org6e48d61"></a>web-server</h3>
+<div class="outline-text-3" id="text-web-server-0.40">
+<p>
+The pbench-web-server RPM has been updated with many fixes, cleanups
+and optimizations. The major user-visible change is better handling
+of outliers - see <a href="https://github.com/distributed-system-analysis/pbench/issues/317">issue #317</a>.
+</p>
+
+<p>
+If you have it installed, you probably want to update:
+</p>
+<pre class="example">
+dnf clean expire-cache
+dnf update pbench-web-server
+</pre>
+<p>
+(or the yum equivalents.)  The current version available from COPR
+is 0.40-1gf281562.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org1ea8a3f" class="outline-3">
+<h3 id="org1ea8a3f">Changelog</h3>
+<div class="outline-text-3" id="text-org1ea8a3f">
+<p>
+This is the list of visible (non-merge, non-unit-test-related) commits
+since v0.39:
+</p>
+
+<ul class="org-ul">
+<li>5409667 Make client file pathname absolute</li>
+<li>0192eda Check for and install python-pandas</li>
+<li>fa328b4 use a smaller port number increment to allow greater scalability</li>
+<li>7e98d63 change &#x2013;cache-drop-script to &#x2013;pre-iteration-script</li>
+<li>988c586 Add &#x2013;dst-macs option to pbench-moongen</li>
+<li>c7420f9 Save client file in the run directory</li>
+<li>19cf29d Redirect various "No such file or directory" messages to /dev/null</li>
+<li>1301c1a Fix label complaint in tools-&lt;group&gt; sanity checking code</li>
+<li>de11f82 Pass file from &#x2013;client-file option directly to fio</li>
+<li>f53293a pbench-list-triggers rewrite.</li>
+<li>cd3dfb5 Grammar and spelling updates to the jschart docs</li>
+<li>fa45c15 Check for spurious files/subdirectories of tools-&lt;group&gt; dir</li>
+<li>e19d81a Fix triggers</li>
+<li>4a83b02 Update jschart API call in fio-postprocess-viz.py</li>
+<li>ad84dca Update unit tests for new jschart API</li>
+<li>0cfe6b7 Add View Port Controls to jschart</li>
+<li>1fd5b11 Use the create_jschart interface</li>
+<li>5dad7d0 Add documentation to jschart and do minor cleanups</li>
+<li>60f2a52 Update jschart to include the number of histogram buckets in the table</li>
+<li>abdcec5 Update jschart to show the datapoints on highlighted datasets for histogram and xy charts</li>
+<li>1cb8864 Delete remote tarballs after checking.</li>
+<li>480b20a Sync satellite to master.</li>
+<li>4c1f1e4 Move bad-md5 links to their own state directory.</li>
+<li>9202d3d Fix some typos in pbench-uperf help strings.</li>
+<li>7d0f360 Add/fix help string to pbench_fio.</li>
+<li>65de78b Add verify script for backup tarballs.</li>
+<li>cc8594a Fix a subsitution bug in BenchPostprocess::get_uid</li>
+<li>b8995ed Add new MoonGen queue control options</li>
+<li>3a13b5a Process only the last moongen validation phase</li>
+<li>d21fd21 Add mail notification for pbench-backup-tarballs</li>
+<li>0465506 Fixes to fully handle epoch time: - Parse job file from fio-postprocess-viz.py to detect when log_unix_epoch is present (using 'timeseries' instead of 'xy' in jschart) - jschart expects ms not s (no more divide by 1000 on time values) - Pass job file parameter whenever we call fiologparser_hist.py and fio-postproces-viz.py - Update to make-fio-jobfile.py to handle config options without values (e.g. 'stonewall' in fio)</li>
+<li>b0fff69 Add pprof heap support</li>
+<li>930ee68 Run fiologparser_hist.py during postprocessing, and generate jschart HTML docs showing the histogram data for each individual sample as well as (merged) across all samples for a particular iteration.</li>
+<li>1c52ee2 Make the run directory available to the called user script.</li>
+<li>debc148 Templating prototype for `pbench-fio`, using config files to specify fio parameters. The order of precedence used is as follows: (from high to low)</li>
+<li>5958d94 Add &#x2013;client-file option to specify a list of clients</li>
+<li>3fd2741 Remove redundant $bench_opts</li>
+<li>bbe6b9b Ensure &#x2013;samples is documented in &#x2013;help</li>
+<li>f9d939e Ensure $client is assigned before it is referenced</li>
+<li>a5ed3eb use correct benchmark name</li>
+<li>da5928e Respect GOROOT env var if set</li>
+<li>5969500 Fix exit status of pbench-{move/copy}-results.</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org47fcef8" class="outline-2">
+<h2 id="org47fcef8">Version 0.39</h2>
+<div class="outline-text-2" id="text-org47fcef8">
+</div><div id="outline-container-org7a43342" class="outline-3">
+<h3 id="org7a43342">Installation</h3>
+<div class="outline-text-3" id="text-org7a43342">
 <p>
 There are no installation changes in this release: see the
 <a href="../agent/installation.html">Installation Instructions</a> for how to install.
@@ -277,10 +517,10 @@ of the pbench-agent RPM installed.
 </div>
 </div>
 
-<div id="outline-container-orgf0b47d9" class="outline-3">
-<h3 id="orgf0b47d9">agent</h3>
-<div class="outline-text-3" id="text-orgf0b47d9">
-</div><ul class="org-ul"><li><a id="org69c2388"></a>Backward incompatibilities<br  /><ul class="org-ul"><li><a id="org14b6ab3"></a>pbench-agent config file renamed<br  /><div class="outline-text-5" id="text-org14b6ab3">
+<div id="outline-container-orgecc39b4" class="outline-3">
+<h3 id="orgecc39b4">agent</h3>
+<div class="outline-text-3" id="text-orgecc39b4">
+</div><ul class="org-ul"><li><a id="org7d852c4"></a>Backward incompatibilities<br  /><ul class="org-ul"><li><a id="orgd372e53"></a>pbench-agent config file renamed<br  /><div class="outline-text-5" id="text-orgd372e53">
 <p>
 All configuration files now have a suffix of ".cfg", rather than
 ".conf".  In particular, the default pbench-agent config file is now
@@ -304,7 +544,7 @@ If that fails, then pbench cannot find the config file, most probably because
 of the renaming described above.
 </p>
 </div></li>
-<li><a id="orgc333774"></a>pbench-netperf script has bit-rotted<br  /><div class="outline-text-5" id="text-orgc333774">
+<li><a id="orgf7f4fb1"></a>pbench-netperf script has bit-rotted<br  /><div class="outline-text-5" id="text-orgf7f4fb1">
 <p>
 The pbench-netperf script seems to have bit-rotted. We are trying to
 decide whether to fix it or abandon it. If you have an opinion, please
@@ -312,13 +552,13 @@ comment at <a href="https://github.com/distributed-system-analysis/pbench/issues
 </p>
 </div></li></ul></li>
 
-<li><a id="org8262212"></a>New features<br  /><div class="outline-text-4" id="text-org8262212">
+<li><a id="orgac3f8d7"></a>New features<br  /><div class="outline-text-4" id="text-orgac3f8d7">
 <p>
 Please submit suggestions/issues to the <a href="https://github.com/distributed-system-analysis/pbench/issues">issue tracker</a>.
 </p>
 </div>
 
-<ul class="org-ul"><li><a id="org0d94078"></a>JSON files for pbench-uperf<br  /><div class="outline-text-5" id="text-org0d94078">
+<ul class="org-ul"><li><a id="org98558bf"></a>JSON files for pbench-uperf<br  /><div class="outline-text-5" id="text-org98558bf">
 <p>
 The postprocessing now produces JSON files that we are planning to use
 in order to index benchmark results and tool output into ES. The
@@ -338,7 +578,7 @@ future.
 </p>
 </div></li>
 
-<li><a id="orgd696bf4"></a>The pbench docs on github have been revamped<br  /><div class="outline-text-5" id="text-orgd696bf4">
+<li><a id="orge0edba1"></a>The pbench docs on github have been revamped<br  /><div class="outline-text-5" id="text-orge0edba1">
 <p>
 The docs can now be processed in two ways: to produce "internal"
 documents, including the more automated installation that is possible
@@ -356,7 +596,7 @@ described, we hope, even if it is somewhat laborious).
 </p>
 </div></li></ul></li>
 
-<li><a id="orgc0d383b"></a>Bug fixes<br  /><ul class="org-ul"><li><a id="orgf8a0e70"></a>Better error handling by utility scripts<br  /><div class="outline-text-5" id="text-orgf8a0e70">
+<li><a id="org32cf842"></a>Bug fixes<br  /><ul class="org-ul"><li><a id="orgc73b784"></a>Better error handling by utility scripts<br  /><div class="outline-text-5" id="text-orgc73b784">
 <p>
 In particular, errors in ssh invocations in pipelines are caught and returned
 properly. More work is planned in this area for upcoming releases, in particular
@@ -364,7 +604,7 @@ hardening the benchmark scripts so that they deal better with errors and signals
 </p>
 </div></li>
 
-<li><a id="orgedf4f86"></a>Safer killing of tools<br  /><div class="outline-text-5" id="text-orgedf4f86">
+<li><a id="org52ad324"></a>Safer killing of tools<br  /><div class="outline-text-5" id="text-org52ad324">
 <p>
 A safer kill has been implemented for all the tools that are linked to
 <code>kvm-spinlock</code>.  Assuming no problems surface, the sar-based tools
@@ -372,7 +612,7 @@ will get the same treatment in upcoming releases.
 </p>
 </div></li>
 
-<li><a id="orgf888211"></a>Screen session names were too long<br  /><div class="outline-text-5" id="text-orgf888211">
+<li><a id="org8bb200f"></a>Screen session names were too long<br  /><div class="outline-text-5" id="text-org8bb200f">
 <p>
 The screen command fails when the name of the screen session (-S) is
 very long. This happens when the iteration full name is quite long. A
@@ -380,16 +620,16 @@ fix for this uses only the iteration number, reducing the screen
 name to a safe length.
 </p>
 </div></li>
-<li><a id="org105398c"></a>Fixes to graph rendering<br  /><div class="outline-text-5" id="text-org105398c">
+<li><a id="orgc492335"></a>Fixes to graph rendering<br  /><div class="outline-text-5" id="text-orgc492335">
 <p>
-See <a href="#org4ff4a7f">web-server</a> below.
+See <a href="#web-server-0.39">web-server</a> below.
 </p>
 </div></li></ul></li></ul>
 </div>
 
-<div id="outline-container-orgaa0617d" class="outline-3">
-<h3 id="orgaa0617d">server</h3>
-<div class="outline-text-3" id="text-orgaa0617d">
+<div id="outline-container-org4081a1e" class="outline-3">
+<h3 id="org4081a1e">server</h3>
+<div class="outline-text-3" id="text-org4081a1e">
 <p>
 Server installation was simplified in v0.38: there is an RPM on COPR that can be used
 for installation, but as for the pbench-agent, it is not completely self-contained: one
@@ -407,9 +647,9 @@ finish the installation. But it is also possible to do these steps manually. See
 </div>
 </div>
 
-<div id="outline-container-org4ff4a7f" class="outline-3">
-<h3 id="org4ff4a7f">web-server</h3>
-<div class="outline-text-3" id="text-org4ff4a7f">
+<div id="outline-container-orgb1dfe1b" class="outline-3">
+<h3 id="web-server-0.39"><a id="orgb1dfe1b"></a>web-server</h3>
+<div class="outline-text-3" id="text-web-server-0.39">
 <p>
 The pbench-web-server RPM has been updated with many fixes, cleanups
 and optimizations.  Changes that are user-visible are:
@@ -428,7 +668,7 @@ If you have it installed, you probably want to update:
 </p>
 <pre class="example">
 dnf clean expire-cache
-dnf update pbench-web-serbver
+dnf update pbench-web-server
 </pre>
 <p>
 (or the yum equivalents.)  The current version available from COPR
@@ -437,9 +677,9 @@ is 0.3-19gaf1ffe4.
 </div>
 </div>
 
-<div id="outline-container-org44c8691" class="outline-3">
-<h3 id="org44c8691">Changelog</h3>
-<div class="outline-text-3" id="text-org44c8691">
+<div id="outline-container-org2ce6861" class="outline-3">
+<h3 id="org2ce6861">Changelog</h3>
+<div class="outline-text-3" id="text-org2ce6861">
 <ul class="org-ul">
 <li>9c2554f Bump versions for various benchmarks.</li>
 <li>a02ad33 Bump VERSION.</li>
@@ -485,12 +725,12 @@ is 0.3-19gaf1ffe4.
 </div>
 </div>
 
-<div id="outline-container-org44eb0d4" class="outline-2">
-<h2 id="org44eb0d4">Version 0.38</h2>
-<div class="outline-text-2" id="text-org44eb0d4">
-</div><div id="outline-container-orgc88f7e9" class="outline-3">
-<h3 id="orgc88f7e9">Installation</h3>
-<div class="outline-text-3" id="text-orgc88f7e9">
+<div id="outline-container-orge79d8b1" class="outline-2">
+<h2 id="orge79d8b1">Version 0.38</h2>
+<div class="outline-text-2" id="text-orge79d8b1">
+</div><div id="outline-container-org9841bf6" class="outline-3">
+<h3 id="org9841bf6">Installation</h3>
+<div class="outline-text-3" id="text-org9841bf6">
 <p>
 There are no installation changes in this release: see the
 <a href="../agent/installation.html">Installation Instructions</a> for how to install.
@@ -503,10 +743,10 @@ of the pbench-agent RPM installed.
 </div>
 </div>
 
-<div id="outline-container-orgf0b47d9" class="outline-3">
-<h3 id="orgf0b47d9">agent</h3>
-<div class="outline-text-3" id="text-orgf0b47d9">
-</div><ul class="org-ul"><li><a id="org69c2388"></a>Backward incompatibilities<br  /><div class="outline-text-4" id="text-org69c2388">
+<div id="outline-container-org42b61d6" class="outline-3">
+<h3 id="org42b61d6">agent</h3>
+<div class="outline-text-3" id="text-org42b61d6">
+</div><ul class="org-ul"><li><a id="org458503e"></a>Backward incompatibilities<br  /><div class="outline-text-4" id="text-org458503e">
 <p>
 In the v0.36 timeframe, all pbench scripts and benchmarks that are
 normally accessible were renamed: those that did not have a prefix at
@@ -526,13 +766,13 @@ prefix.
 </p>
 </div></li>
 
-<li><a id="org8262212"></a>New features<br  /><div class="outline-text-4" id="text-org8262212">
+<li><a id="org81e6287"></a>New features<br  /><div class="outline-text-4" id="text-org81e6287">
 <p>
 Please submit suggestions/issues to the <a href="https://github.com/distributed-system-analysis/pbench/issues">issue tracker</a>.
 </p>
 </div>
 
-<ul class="org-ul"><li><a id="org8646570"></a>New graphs<br  /><div class="outline-text-5" id="text-org8646570">
+<ul class="org-ul"><li><a id="org7b17c86"></a>New graphs<br  /><div class="outline-text-5" id="text-org7b17c86">
 <p>
 The major change in this release is the replacement of the original
 nvd3 graphs with graphs produced by a library written by Karl Rister.
@@ -549,14 +789,14 @@ better chance of staying alive and able to display the graphs.
 </p>
 </div></li></ul></li>
 
-<li><a id="orgc0d383b"></a>Bug fixes<br  /><ul class="org-ul"><li><a id="org2cbf66b"></a>Fixed the RPM names for tools and benchmarks to include the pbench- prefix<br  /><div class="outline-text-5" id="text-org2cbf66b">
+<li><a id="org1f5b9fb"></a>Bug fixes<br  /><ul class="org-ul"><li><a id="org7b0de96"></a>Fixed the RPM names for tools and benchmarks to include the pbench- prefix<br  /><div class="outline-text-5" id="text-org7b0de96">
 <p>
 PBench will now be able to find and install the correct RPMs (with the
 current exception of pbench-iperf as noted above).
 </p>
 </div></li>
 
-<li><a id="orgb61afa4"></a>Fixed the URL for the COPR repo<br  /><div class="outline-text-5" id="text-orgb61afa4">
+<li><a id="orgcb03e2a"></a>Fixed the URL for the COPR repo<br  /><div class="outline-text-5" id="text-orgcb03e2a">
 <p>
 The documentation on GitHub was pointing to a non-existent place for
 the COPR pbench-agent RPM: it used a sanitized <code>example.com</code>
@@ -566,7 +806,7 @@ the next release.
 </p>
 </div></li>
 
-<li><a id="org91cdbb0"></a>The pbench-kiil-tools symlink in the repo was wrong.<br  /><div class="outline-text-5" id="text-org91cdbb0">
+<li><a id="org662405b"></a>The pbench-kiil-tools symlink in the repo was wrong.<br  /><div class="outline-text-5" id="text-org662405b">
 <p>
 That was fixed, but the bug did not and does not have any effect on a
 local installation: those symlinks are created on the fly by an RPM
@@ -574,7 +814,7 @@ local installation: those symlinks are created on the fly by an RPM
 </p>
 </div></li>
 
-<li><a id="orgb9edfac"></a>The sar script was modified to handle user-defined options.<br  /><div class="outline-text-5" id="text-orgb9edfac">
+<li><a id="org260beea"></a>The sar script was modified to handle user-defined options.<br  /><div class="outline-text-5" id="text-org260beea">
 <p>
 Note however that if you use non-standard options, the postprocessing
 step for the sar tool (and its relatives) will be skipped, since
@@ -584,9 +824,9 @@ pbench does not know how to handle the modified output.
 </div>
 
 
-<div id="outline-container-orgaa0617d" class="outline-3">
-<h3 id="orgaa0617d">server</h3>
-<div class="outline-text-3" id="text-orgaa0617d">
+<div id="outline-container-orgee941b1" class="outline-3">
+<h3 id="orgee941b1">server</h3>
+<div class="outline-text-3" id="text-orgee941b1">
 <p>
 The server has now been organized in the same way as the agent: there
 is an external RPM available from COPR that includes all the scripts,
@@ -597,9 +837,9 @@ installation guide</a>.
 </div>
 </div>
 
-<div id="outline-container-org4ff4a7f" class="outline-3">
-<h3 id="org4ff4a7f">web-server</h3>
-<div class="outline-text-3" id="text-org4ff4a7f">
+<div id="outline-container-orgf42df0a" class="outline-3">
+<h3 id="orgf42df0a">web-server</h3>
+<div class="outline-text-3" id="text-orgf42df0a">
 <p>
 There is an RPM available on COPR that allows local viewing of graphs,
 both in the v0.2 format (Andrew's graphs using nvd3) or in the v0.3
@@ -610,9 +850,9 @@ on COPR is 0.3-10.
 </div>
 </div>
 
-<div id="outline-container-org05ee379" class="outline-3">
-<h3 id="org05ee379">Fedora 24 RPMs on COPR</h3>
-<div class="outline-text-3" id="text-org05ee379">
+<div id="outline-container-org0c88b7c" class="outline-3">
+<h3 id="org0c88b7c">Fedora 24 RPMs on COPR</h3>
+<div class="outline-text-3" id="text-org0c88b7c">
 <p>
 Fedora 24 has been added to the build list and Fedora 21 has been
 deleted from it, for all the RPMS (benchmarks, tools,
@@ -626,9 +866,9 @@ will be fixed shortly.
 </div>
 </div>
 
-<div id="outline-container-org44c8691" class="outline-3">
-<h3 id="org44c8691">Changelog</h3>
-<div class="outline-text-3" id="text-org44c8691">
+<div id="outline-container-orgadb8e3f" class="outline-3">
+<h3 id="orgadb8e3f">Changelog</h3>
+<div class="outline-text-3" id="text-orgadb8e3f">
 <ul class="org-ul">
 <li>4a65484 Version bump.</li>
 <li>0d5a976 Delete compatibility wrapper.</li>
@@ -711,7 +951,7 @@ Unless you install locally - see <a href="http://pbench.example.com/server/pbenc
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2016-08-25 Thu 14:15</p>
+<p class="date">Page updated: 2016-09-22 Thu 16:24</p>
 </div>
 </body>
 </html>

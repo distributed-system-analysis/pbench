@@ -1,4 +1,4 @@
-# Created 2016-08-25 Thu 14:14
+# Created 2016-09-22 Thu 16:15
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
@@ -196,10 +196,90 @@ are found in the =bench-scripts= directory of the pbench installation
 - =pbench-uperf=
 - =pbench-user-benchmark= (see [[*Running pbench collection tools with an arbitrary benchmark][Running pbench collection tools with an arbitrary benchmark]] below for more on this)
 
-Note that in many of these scripts the default tool group is hard-wired: if you want them to run
-a different tool group, you need to edit the script[fn:4].
+You can run any of these with the =--help= option to get basic
+information about how to run the script. Most of these scripts accept
+a standard set of generic options, some semi-generic ones that are
+common to a bunch of benchmarks, as well as some benchmark specific
+options that vary from benchmark to benchmark.
+
+The generic options are:
+
+- =--help= :: show the set of options that the benchmark accepts.
+- =--config= :: the name of the testing configuration (user specified).
+- =--tool-group= :: the name of the tool group specifying the tools to run during execution of the benchmark.
+- =--install= :: just install the benchmark (and any other needed packages) - do not run the benchmark.
+
+The semi-generic ones are:
+- =--test-types= :: the test types for the given benchmark - the values are benchmark-specific and can be obtained using =--help=.
+- =--runtime= :: maximum runtime in seconds.
+- =--clients= :: list of hostnames (or IPs) of systems that run the client (drive the test).
+- =--samples= :: the number of samples per iteration.
+- =--max-stddev= :: the percent maximum standard deviation allowed in order to consider the iteration to pass.
+- =--max-failures= :: the maximum number of failures to achieve the allowed standard deviation.
+- =--postprocess-only= :: 
+
+- =--run-dir= :: 
+
+- =--start-iteration-num= :: 
+
+- =--tool-label-pattern= :: 
+Benchmark-specific options are called out in the following sections for each benchmark.
+
+Note that in some of these scripts the default tool group is hard-wired: if you want them to run
+a different tool group, you need to edit the script[fn:4]. 
 
 [fn:4] That will be handled by a configuration file in the future.
+
+** pbench-dbench
+- =--threads= :: 
+
+** pbench-fio
+Iterations are the cartesian product =targets X test-types X block-sizes=.
+More information on many of the following can be obtained from the =fio= man page.
+
+- =--direct= :: O_DIRECT enabled or not (1/0) - default is 1.
+- =--sync= :: O_SYNC enabled or not (1/0) - default is 0.
+- =--rate-iops= :: IOP rate not to be exceeded (per job, per client)
+- =--ramptime= :: seconds - time to warm up test before measurement.
+- =--block-sizes= :: list of block sizes - default is 4, 64, 1024.
+- =--file-size= :: fio will create files of this size during the job run.
+- =--targets= :: file locations (list of directory/block device).
+- =--job-mode= :: serial/concurrent - default is =concurrent=.
+- =--ioengine= :: any IO engine that fio supports (see the fio man page) - default is =psync=.
+- =--iodepth= :: number of I/O units to keep in flight against the file.
+- =--client-file= :: file containing list of clients, one per line.
+- =--numjobs= :: number of clones (processes/threads performing the same workload) of this job - default is 1.
+- =--job-file= :: if you need to go beyond the recognized options, you can use a fio job file.
+
+** pbench-linpack
+TBD
+
+** pbench-migrate
+TBD
+
+** pbench-tpcc
+TBD
+
+** pbench-uperf
+- =--kvm-host= :: 
+
+- =--message-sizes= :: 
+
+- =--protocols= :: 
+
+- =--instances= :: 
+
+- =--servers= :: 
+
+- =--server-nodes= :: 
+
+- =--client-nodes= :: 
+
+- =--log-response-times= :: 
+
+** pbench-user-benchmark
+TBD
+
 
 * Utility scripts
 This section is needed as preparation for the [[*Second steps][Second steps]] section below.

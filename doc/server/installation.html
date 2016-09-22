@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-08-25 Thu 14:15 -->
+<!-- 2016-09-22 Thu 16:24 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench server installation</title>
@@ -75,6 +75,7 @@
   pre.src-ledger:before { content: 'Ledger'; }
   pre.src-lisp:before { content: 'Lisp'; }
   pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
   pre.src-matlab:before { content: 'MATLAB'; }
   pre.src-mscgen:before { content: 'Mscgen'; }
   pre.src-ocaml:before { content: 'Objective Caml'; }
@@ -236,25 +237,25 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgb919fac">Introduction</a></li>
-<li><a href="#orgae7c2f5">Overview</a></li>
-<li><a href="#org96ad6f7">Prerequisites</a></li>
-<li><a href="#orgff77cda">Server installation (generic)</a>
+<li><a href="#org29f149f">Introduction</a></li>
+<li><a href="#orgd8462e1">Overview</a></li>
+<li><a href="#org63c3d41">Prerequisites</a></li>
+<li><a href="#orgf76ba82">Server installation (generic)</a>
 <ul>
-<li><a href="#org53b679f">Installing the RPM</a></li>
-<li><a href="#org770b366">Customizing the installation with the local settings.</a></li>
-<li><a href="#org4b33128">Config files</a></li>
-<li><a href="#org70b305a">The rest of the setup</a></li>
+<li><a href="#org95b4111">Installing the RPM</a></li>
+<li><a href="#orga7df7c1">Customizing the installation with the local settings.</a></li>
+<li><a href="#org4c64df0">Config files</a></li>
+<li><a href="#org2468c3d">The rest of the setup</a></li>
 </ul>
 </li>
-<li><a href="#org497593b">Testing</a></li>
+<li><a href="#orgdd37bf0">Testing</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgb919fac" class="outline-2">
-<h2 id="orgb919fac">Introduction</h2>
-<div class="outline-text-2" id="text-orgb919fac">
+<div id="outline-container-org29f149f" class="outline-2">
+<h2 id="org29f149f">Introduction</h2>
+<div class="outline-text-2" id="text-org29f149f">
 <p>
 Server installation is done through two packages: an externally
 available, upstream package containing all the relevant scripts and an
@@ -280,9 +281,9 @@ discussed in some detail below.
 </div>
 </div>
 
-<div id="outline-container-orgae7c2f5" class="outline-2">
-<h2 id="orgae7c2f5">Overview</h2>
-<div class="outline-text-2" id="text-orgae7c2f5">
+<div id="outline-container-orgd8462e1" class="outline-2">
+<h2 id="orgd8462e1">Overview</h2>
+<div class="outline-text-2" id="text-orgd8462e1">
 <p>
 A user running the pbench agent produces results that are stored
 locally, until the user calls <code>pbench-move-results</code>. The results are then
@@ -296,9 +297,9 @@ sosreports on to other services for further processing.
 </div>
 </div>
 
-<div id="outline-container-org96ad6f7" class="outline-2">
-<h2 id="org96ad6f7">Prerequisites</h2>
-<div class="outline-text-2" id="text-org96ad6f7">
+<div id="outline-container-org63c3d41" class="outline-2">
+<h2 id="org63c3d41">Prerequisites</h2>
+<div class="outline-text-2" id="text-org63c3d41">
 <p>
 The host that runs the server has to run apache. It should also
 have a fairly hefty filesystem for storing results. Of course, the
@@ -323,18 +324,18 @@ and then customizing the installation with the local settings.
 </p>
 
 <p>
-If there is no "internal" RPM available, install the "external" RPM (see <a href="#orgff77cda">here</a> for details).
-You will then have to customize the installation by hand (see <a href="#org770b366">here</a> for details).
+If there is no "internal" RPM available, install the "external" RPM (see <a href="#orgf76ba82">here</a> for details).
+You will then have to customize the installation by hand (see <a href="#orga7df7c1">here</a> for details).
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgff77cda" class="outline-2">
-<h2 id="orgff77cda">Server installation (generic)</h2>
-<div class="outline-text-2" id="text-orgff77cda">
-</div><div id="outline-container-org53b679f" class="outline-3">
-<h3 id="org53b679f">Installing the RPM</h3>
-<div class="outline-text-3" id="text-org53b679f">
+<div id="outline-container-orgf76ba82" class="outline-2">
+<h2 id="orgf76ba82">Server installation (generic)</h2>
+<div class="outline-text-2" id="text-orgf76ba82">
+</div><div id="outline-container-org95b4111" class="outline-3">
+<h3 id="org95b4111">Installing the RPM</h3>
+<div class="outline-text-3" id="text-org95b4111">
 <p>
 The repo is the standard <a href="https://copr.fedorainfracloud.org/coprs/ndokos/pbench/">COPR pbench repo</a>, installed with
 </p>
@@ -363,9 +364,9 @@ default location is <code>/opt/pbench-server</code>: scripts under
 </div>
 </div>
 
-<div id="outline-container-org770b366" class="outline-3">
-<h3 id="org770b366">Customizing the installation with the local settings.</h3>
-<div class="outline-text-3" id="text-org770b366">
+<div id="outline-container-orga7df7c1" class="outline-3">
+<h3 id="orga7df7c1">Customizing the installation with the local settings.</h3>
+<div class="outline-text-3" id="text-orga7df7c1">
 <p>
 The home directory of the <code>pbench</code> user is only used for ssh purposes:
 the public key of the <code>pbench agent</code> is copied in to allow <code>pbench-move-results</code>
@@ -382,9 +383,9 @@ config file is <code>/opt/pbench-server/lib/config/pbench-server.cfg</code>.
 </div>
 </div>
 
-<div id="outline-container-org4b33128" class="outline-3">
-<h3 id="org4b33128">Config files</h3>
-<div class="outline-text-3" id="text-org4b33128">
+<div id="outline-container-org4c64df0" class="outline-3">
+<h3 id="org4c64df0">Config files</h3>
+<div class="outline-text-3" id="text-org4c64df0">
 <p>
 Example config files are installed under <code>/opt/pbench-server/lib/config</code>. You should
 make copies of these files:
@@ -433,9 +434,9 @@ as described in the next section.
 </div>
 </div>
 
-<div id="outline-container-org70b305a" class="outline-3">
-<h3 id="org70b305a">The rest of the setup</h3>
-<div class="outline-text-3" id="text-org70b305a">
+<div id="outline-container-org2468c3d" class="outline-3">
+<h3 id="org2468c3d">The rest of the setup</h3>
+<div class="outline-text-3" id="text-org2468c3d">
 <p>
 Let us assume you now have a saved <code>pbench-server.cfg</code> file in some
 safe place. The rest of the setup goes as follows:
@@ -480,9 +481,9 @@ crontab /opt/pbench-server/lib/crontab/crontab
 </div>
 </div>
 
-<div id="outline-container-org497593b" class="outline-2">
-<h2 id="org497593b">Testing</h2>
-<div class="outline-text-2" id="text-org497593b">
+<div id="outline-container-orgdd37bf0" class="outline-2">
+<h2 id="orgdd37bf0">Testing</h2>
+<div class="outline-text-2" id="text-orgdd37bf0">
 <p>
 You should then test the whole shebang by setting up a <code>pbench-agent</code>
 (see <a href="../agent/installation.html">PBench agent installation</a>), running a simple benchmark and moving
@@ -501,14 +502,14 @@ are correctly done.
 Although this document describes installation in terms of an "internal"
 package, note that that may be a convenient fiction. If there <b>is</b> one available,
 then installing it should take care of the config files and the rest of the setup
-described in <a href="#orgff77cda">Server installation (generic)</a>.
+described in <a href="#orgf76ba82">Server installation (generic)</a>.
 </p></div></div>
 
 
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2016-08-25 Thu 14:15</p>
+<p class="date">Page updated: 2016-09-22 Thu 16:24</p>
 </div>
 </body>
 </html>

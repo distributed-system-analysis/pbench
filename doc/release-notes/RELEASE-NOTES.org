@@ -1,4 +1,4 @@
-# Created 2016-08-25 Thu 14:14
+# Created 2016-09-22 Thu 16:24
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
@@ -14,6 +14,167 @@
 #+SUBTITLE: 
 #+INFOJS_OPT: 
 #+LATEX_HEADER: 
+
+* Version 0.40
+
+** Installation                                                    :external:
+There are no installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install.
+
+After installation or update, you should have version 0.40-1gf281562
+of the pbench-agent RPM installed.
+
+** agent
+
+*** Backward incompatibilities
+None known.
+
+*** Bug fixes and enhancements
+
+User-visible changes include:
+
+**** =pbench-fio=
+The pbench-fio script has undergone significant enhancements in order
+to take advantage of several facilities implemented in the upstream fio
+project. In particular, it gathers and reports latency histograms as
+implemented by Karl Cronburg.
+
+*N.B.* The script that processes the logs to get the histograms uses the
+Python Pandas library. This script only runs on the controller, so the
+library has to be installed there. =pbench-fio= tries to install the library
+and it should succeed e.g. on Fedora systems. On RHEL systems however, the
+=python-pandas= library is available from EPEL, but not from the standard
+installation repos. You will therefore need to install the EPEL repo before
+running =pbench-fio= on your controller. Details on EPEL can be found [[https://fedoraproject.org/wiki/EPEL][here]].
+
+The process is as follows: on your RHEL7 controller (and similarly for RHEL6)
+#+BEGIN_EXAMPLE
+cd /tmp
+curl --output ./epel-release-latest-7.noarch.rpm  https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum install ./epel-release-latest-7.noarch.rpm
+#+END_EXAMPLE
+After that, the =pbench-fio= script should be able to find and install
+the =python-pandas= package.
+
+*N.B.* You need the 2.14-9 (or later) version of the pbench-fio RPM,
+which is available from the COPR pbench repo. This RPM is based on current
+upstream fio master. The =pbench-fio= script will check for and install
+this version, but please bear the dependency in mind if something goes
+wrong.
+
+You can now explicitly pass a fio job file to the script, instead of
+or in addition to specifying fio options on the command line. We generally
+recommend using the command line options for simple usage where that suffices,
+but if you need options that =pbench-fio= does not implement, then using
+a job file will be necessary.
+
+You can run fio on a set of clients either by using the --clients=... option
+to =pbench-fio=, explicitly listing the set of clients; or you can use the
+--client-file=... option to pass a file containing the list of clients, one
+client per line.
+
+**** =pbench-moongen=
+New options.
+
+**** pbench-user-benchmark
+The variable specifying the run directory, =benchmark_run_dir=, is now
+exported by the main script, making it available to the user-provided
+benchmark script (e.g. for squirreling away stuff to package up with the
+rest of the data for storage/processing on the server).
+
+This is only one part of a larger [[https://github.com/distributed-system-analysis/pbench/issues/349][issue #349]].
+
+**** Triggers
+Trigger functionality has been restored.
+
+**** Hardening of tools-<group> directory handling
+In some cases, additional files or subdirectories in the tools-default (or
+more generally, tools-<group>) directory have caused problems. We now skip
+subdirectories and check files against the available tools list, skipping
+any that don't match. A warning is issued in either case suggesting that
+the suspect file/subdirectory be removed.
+
+**** Fixes to graph rendering
+See [[#web-server-0.40][web-server]] below.
+
+** server
+
+- Add mail notifications to the scripts that backs up results tarballs
+  for safekeeping.
+
+- Add verification script to detect bit-rot in tarballs.
+
+- We now run a cron job to fetch tarballs from "satellite" servers and
+  store them on our "production" server. The intent is to relieve some
+  of the disk space pressure on the satellite, and to take advantage
+  of the backup and bit-rot detection facilities that we employ on the
+  production server.
+
+- An additional script to age out results on a satellite server is in
+  the works but is not running yet.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.40
+:END:
+The pbench-web-server RPM has been updated with many fixes, cleanups
+and optimizations. The major user-visible change is better handling
+of outliers - see [[https://github.com/distributed-system-analysis/pbench/issues/317][issue #317]].
+
+If you have it installed, you probably want to update:
+#+BEGIN_EXAMPLE
+dnf clean expire-cache
+dnf update pbench-web-server
+#+END_EXAMPLE
+(or the yum equivalents.)  The current version available from COPR
+is 0.40-1gf281562.
+
+** Changelog
+This is the list of visible (non-merge, non-unit-test-related) commits
+since v0.39:
+
+- 5409667 Make client file pathname absolute
+- 0192eda Check for and install python-pandas
+- fa328b4 use a smaller port number increment to allow greater scalability
+- 7e98d63 change --cache-drop-script to --pre-iteration-script
+- 988c586 Add --dst-macs option to pbench-moongen
+- c7420f9 Save client file in the run directory
+- 19cf29d Redirect various "No such file or directory" messages to /dev/null
+- 1301c1a Fix label complaint in tools-<group> sanity checking code
+- de11f82 Pass file from --client-file option directly to fio
+- f53293a pbench-list-triggers rewrite.
+- cd3dfb5 Grammar and spelling updates to the jschart docs
+- fa45c15 Check for spurious files/subdirectories of tools-<group> dir
+- e19d81a Fix triggers
+- 4a83b02 Update jschart API call in fio-postprocess-viz.py
+- ad84dca Update unit tests for new jschart API
+- 0cfe6b7 Add View Port Controls to jschart
+- 1fd5b11 Use the create_jschart interface
+- 5dad7d0 Add documentation to jschart and do minor cleanups
+- 60f2a52 Update jschart to include the number of histogram buckets in the table
+- abdcec5 Update jschart to show the datapoints on highlighted datasets for histogram and xy charts
+- 1cb8864 Delete remote tarballs after checking.
+- 480b20a Sync satellite to master.
+- 4c1f1e4 Move bad-md5 links to their own state directory.
+- 9202d3d Fix some typos in pbench-uperf help strings.
+- 7d0f360 Add/fix help string to pbench_fio.
+- 65de78b Add verify script for backup tarballs.
+- cc8594a Fix a subsitution bug in BenchPostprocess::get_uid
+- b8995ed Add new MoonGen queue control options
+- 3a13b5a Process only the last moongen validation phase
+- d21fd21 Add mail notification for pbench-backup-tarballs
+- 0465506 Fixes to fully handle epoch time: - Parse job file from fio-postprocess-viz.py to detect when log_unix_epoch is present (using 'timeseries' instead of 'xy' in jschart) - jschart expects ms not s (no more divide by 1000 on time values) - Pass job file parameter whenever we call fiologparser_hist.py and fio-postproces-viz.py - Update to make-fio-jobfile.py to handle config options without values (e.g. 'stonewall' in fio)
+- b0fff69 Add pprof heap support
+- 930ee68 Run fiologparser_hist.py during postprocessing, and generate jschart HTML docs showing the histogram data for each individual sample as well as (merged) across all samples for a particular iteration.
+- 1c52ee2 Make the run directory available to the called user script.
+- debc148 Templating prototype for `pbench-fio`, using config files to specify fio parameters. The order of precedence used is as follows: (from high to low)
+- 5958d94 Add --client-file option to specify a list of clients
+- 3fd2741 Remove redundant $bench_opts
+- bbe6b9b Ensure --samples is documented in --help
+- f9d939e Ensure $client is assigned before it is referenced
+- a5ed3eb use correct benchmark name
+- da5928e Respect GOROOT env var if set
+- 5969500 Fix exit status of pbench-{move/copy}-results.
 
 * Version 0.39
 
@@ -97,7 +258,7 @@ very long. This happens when the iteration full name is quite long. A
 fix for this uses only the iteration number, reducing the screen
 name to a safe length.
 **** Fixes to graph rendering
-See [[*web-server][web-server]] below.
+See [[#web-server-0.39][web-server]] below.
 
 ** server
 Server installation was simplified in v0.38: there is an RPM on COPR that can be used
@@ -112,6 +273,9 @@ finish the installation. But it is also possible to do these steps manually. See
 [[file:~/src/internal/pbench/doc/server/installation.org][server installation guide]] for details.
 
 ** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.39
+:END:
 The pbench-web-server RPM has been updated with many fixes, cleanups
 and optimizations.  Changes that are user-visible are:
 
@@ -124,7 +288,7 @@ and optimizations.  Changes that are user-visible are:
 If you have it installed, you probably want to update:
 #+BEGIN_EXAMPLE
 dnf clean expire-cache
-dnf update pbench-web-serbver
+dnf update pbench-web-server
 #+END_EXAMPLE
 (or the yum equivalents.)  The current version available from COPR
 is 0.3-19gaf1ffe4.

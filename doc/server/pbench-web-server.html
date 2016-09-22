@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-08-25 Thu 14:15 -->
+<!-- 2016-09-22 Thu 16:24 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench web server</title>
@@ -75,6 +75,7 @@
   pre.src-ledger:before { content: 'Ledger'; }
   pre.src-lisp:before { content: 'Lisp'; }
   pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
   pre.src-matlab:before { content: 'MATLAB'; }
   pre.src-mscgen:before { content: 'Mscgen'; }
   pre.src-ocaml:before { content: 'Objective Caml'; }
@@ -236,17 +237,17 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgc3afb0e">Introduction</a></li>
-<li><a href="#orgdc0168a">Installation</a></li>
-<li><a href="#org69df32a">Local configuration</a></li>
-<li><a href="#orgb128cdf">Viewing pbench data locally</a></li>
+<li><a href="#org50ad252">Introduction</a></li>
+<li><a href="#org249a810">Installation</a></li>
+<li><a href="#orgc7a7d0a">Local configuration</a></li>
+<li><a href="#orgb29e1aa">Viewing pbench data locally</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgc3afb0e" class="outline-2">
-<h2 id="orgc3afb0e">Introduction</h2>
-<div class="outline-text-2" id="text-orgc3afb0e">
+<div id="outline-container-org50ad252" class="outline-2">
+<h2 id="org50ad252">Introduction</h2>
+<div class="outline-text-2" id="text-org50ad252">
 <p>
 These are the bits of Javascript, CSS and such that are necessary to render
 the graphs that pbench produces. They are packaged up in an RPM for easy installation.
@@ -256,13 +257,13 @@ allow viewing of pbench graphs locally. This is what is described in this docume
 </div>
 </div>
 
-<div id="outline-container-orgdc0168a" class="outline-2">
-<h2 id="orgdc0168a">Installation</h2>
-<div class="outline-text-2" id="text-orgdc0168a">
+<div id="outline-container-org249a810" class="outline-2">
+<h2 id="org249a810">Installation</h2>
+<div class="outline-text-2" id="text-org249a810">
 <p>
 The RPM is available from the standard pbench repo on COPR. If you
 have a pbench-agent installed already, the repo should be already
-available. If not, consult the <a href="../agent/installation.html#orgd1fde89">PBench agent installation instructions</a>
+available. If not, consult the <a href="../agent/installation.html#org7625fdc">PBench agent installation instructions</a>
 for details.
 </p>
 
@@ -284,9 +285,9 @@ then calls <code>npm install</code> on the various packages.
 </div>
 </div>
 
-<div id="outline-container-org69df32a" class="outline-2">
-<h2 id="org69df32a">Local configuration</h2>
-<div class="outline-text-2" id="text-org69df32a">
+<div id="outline-container-orgc7a7d0a" class="outline-2">
+<h2 id="orgc7a7d0a">Local configuration</h2>
+<div class="outline-text-2" id="text-orgc7a7d0a">
 <p>
 It is assumed that you have an HTTP server installed and running. Here
 I will assume <code>apache</code>, but similar considerations apply to other servers.
@@ -314,9 +315,9 @@ ln -sf /var/lib/pbench-agent /var/www/html
 </div>
 </div>
 
-<div id="outline-container-orgb128cdf" class="outline-2">
-<h2 id="orgb128cdf">Viewing pbench data locally</h2>
-<div class="outline-text-2" id="text-orgb128cdf">
+<div id="outline-container-orgb29e1aa" class="outline-2">
+<h2 id="orgb29e1aa">Viewing pbench data locally</h2>
+<div class="outline-text-2" id="text-orgb29e1aa">
 <p>
 Now browse to
 </p>
@@ -342,7 +343,7 @@ able to get the npm package.
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2016-08-25 Thu 14:15</p>
+<p class="date">Page updated: 2016-09-22 Thu 16:24</p>
 </div>
 </body>
 </html>
