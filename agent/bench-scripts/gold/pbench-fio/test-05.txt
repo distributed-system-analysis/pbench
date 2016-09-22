@@ -1,6 +1,7 @@
 +++ Running test-05 pbench-fio
-pbench-fio 2.14
+pbench-fio
 verifying clients have fio installed
+python-pandas
 The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-throughput-4KiB/sample1/fio.job
 [global]
 bs=4k
@@ -565,8 +566,9 @@ Iteration 3-throughput-1024KiB complete (3 of 3), with 1 pass and 6 failures
 /var/tmp/pbench-test-bench/pbench/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio is installed
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio 2.14 is installed
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] verifying clients have fio installed
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-fio]python-pandas is installed
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio_device_check() /tmp/fio foo,bar
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
@@ -914,7 +916,7 @@ Iteration 3-throughput-1024KiB complete (3 of 3), with 1 pass and 6 failures
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-throughput-1024KiB/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-throughput-1024KiB/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /opt/pbench-agent/bench-scripts/pbench-fio --install
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /opt/pbench-agent/bench-scripts/pbench-fio --remote-only --install
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
@@ -1005,7 +1007,7 @@ Iteration 3-throughput-1024KiB complete (3 of 3), with 1 pass and 6 failures
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-throughput-1024KiB/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-throughput-1024KiB/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /opt/pbench-agent/bench-scripts/pbench-fio --install
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /opt/pbench-agent/bench-scripts/pbench-fio --remote-only --install
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
