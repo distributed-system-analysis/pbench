@@ -45,9 +45,16 @@ if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
     function timestamp {
         echo "$(date +'%Y-%m-%dT%H:%M:%S-%Z')"
     }
+    function timestamp-seconds-since-epoch {
+        echo "$(date +s)"
+    }
 else
     function timestamp {
         echo "1900-01-01T00:00:00-UTC"
+    }
+    function timestamp-seconds-since-epoch {
+        # 2001/01/01T00:00:00
+        echo "978282000"
     }
 fi
 

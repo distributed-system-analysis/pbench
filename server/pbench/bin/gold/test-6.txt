@@ -38,5 +38,5 @@
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:sent ### bytes  received ### bytes  ###.## bytes/sec
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:total size is 0  speedup is 0.00
 /var/tmp/pbench-test-server/test-execution.log:
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/mailx -s pbench-backup-tarballs - run-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/mailx -s pbench-backup-tarballs - run-1900-01-01T00:00:00-UTC perf-dept-admins@example.com
 --- test-execution.log file contents

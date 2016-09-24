@@ -166,6 +166,9 @@ declare -A cmds=(
     [test-9.4]="_run pbench-verify-backup-tarballs $_testroot/pbench/backup $_testroot/pbench"
     # bad md5 in backup
     [test-9.5]="_run pbench-verify-backup-tarballs $_testroot/pbench/backup $_testroot/pbench"
+
+    # pbench-rsync-satellite
+    [test-10]="_run pbench-rsync-satellite TEST foo.bar.com $_testroot/pbench/archive $_testroot/pbench"
 )
 
 # indexing unit tests - why is this necessary?
