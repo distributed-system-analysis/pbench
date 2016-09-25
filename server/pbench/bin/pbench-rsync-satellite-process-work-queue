@@ -1,21 +1,19 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-process the work queue: it consists of pairs (filename, size).
+"""process the work queue: it consists of pairs (filename, size).
 
-The work list is processed in size order (smallest to largest).
-We bite off a chunk and send it for processing, then we sleep,
-waking up occasionally to check if the last of the chunk is done.
-If not, sleep some more; if yes, submit the next chunk. 
+The work queue is assumed to be sorted in size order (smallest to
+largest) and is processed that way: we bite off a chunk and send it
+for processing, then we sleep, waking up occasionally to check if the
+last of the chunk is done.  If not, sleep some more; if yes, submit
+the next chunk. TBD: inotify.
 
-We limit the size of each chunk to the number of files whose sizes
-sum to less than some limit (the limit is supposed to make sure that
-the processing does not take inordinately long). Files bigger than
-the limit are *not* processed: the list is mailed to a human, who
-can then inject them into the processing queue by hand, at whatever
-time it is deemed convenient to minimize the chance of inconveniencing
-current users.
+We limit the size of each chunk to the number of files whose sizes sum
+to less than some limit (the limit is supposed to make sure that the
+processing does not take inordinately long). The chunk consists of at
+least one file, so that files bigger than the limit are processed one
+at a time.
 
 """
 import os, sys, time
@@ -23,6 +21,7 @@ from optparse import OptionParser
 
 # global wq file - absolute path
 workq = None
+skipped = []
 
 class tball(object):
     archive = None
@@ -61,7 +60,10 @@ def process(todo, options):
         if options.verbose:
             print("os.symlink({}, {})".format(os.path.join(x.archive, x.name), x.link_name))
         if not options.dryrun:
-            os.symlink(os.path.join(x.archive, x.name), x.link_name)
+            try:
+                os.symlink(os.path.join(x.archive, x.name), x.link_name)
+            except OSError:
+                skipped.append(x)
 
 def processed(f, options):
     import stat
@@ -121,9 +123,11 @@ def main(options, args):
             elif nsleep > 30:
                 if options.verbose:
                     print("Process taking more than 30 minutes - dumping the work queue for manual processing")
-                dump("todo", todo)
-                dump("files", files)
+                dump("current-batch", todo)
+                dump("remaining", files)
                 return 1
+    if skipped:
+        dump("skipped", skipped)
     return 0
 
 if __name__ == '__main__':
