@@ -32,11 +32,10 @@ echo "CONFIG=$CONFIG" > $crontab
 roles=$(getconf.py -l roles pbench-server)
 hostname=$(hostname -f)
 
-for role in $roles ;do
-    host=$(getconf.py host $role)
-    if [ "$host" != "$hostname" ] ;then
-        continue
-    fi
+function crontab_normal() {
+    local role=$1
+    local host mailfrom mailto
+
     mailfrom=$(getconf.py mailfrom $role pbench-server)
     if [ -z "$mailfrom" ] ;then
         echo "$role: No mailfrom specified"
@@ -57,6 +56,37 @@ for role in $roles ;do
         crontabline=$(getconf.py crontab $task)
         echo "$crontabline" >> $crontab
     done
+}
+
+function crontab_with_substitutions() {
+    local section=$1
+    local task=$2
+
+    crontabline=$(getconf.py crontab $task)
+    echo "$crontabline" | sed "$(getconf.py -a $section | grep = | awk -F' = ' '{gsub(/-/, "_", $1); printf "s;$%s;%s;g\n", toupper($1) , $2;}')"  >> $crontab
+}
+
+for role in $roles ;do
+    host=$(getconf.py host $role)
+    if [ "$host" != "$hostname" ] ;then
+        if [ "${_PBENCH_SERVER_TEST}" != "1" ] ;then 
+            continue
+        fi
+    fi
+    case $role in
+        pbench-rsync-satellites)
+            satellites=$(getconf.py -l satellites $role)
+            tasks=$(getconf.py -l tasks $role)
+            for satellite in $satellites ;do
+                for task in $tasks; do
+                    crontab_with_substitutions $satellite $task
+                done
+            done
+            ;;
+        *)
+            crontab_normal $role
+            ;;
+    esac
 done
 
 chmod 644 $crontab
