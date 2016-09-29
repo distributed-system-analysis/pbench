@@ -151,7 +151,7 @@ if [ $? -ne 0 ]; then
 	printf -- "\t\t             --kvm-host=str\n"
 	printf -- "\t\t             --tool-group=str\n"
 	printf -- "\t\t-c str       --config=str               name of the test config (e.g. jumbo_frames_and_network_throughput)\n"
-	printf -- "\t\t-t str[,str] --test-types=str[,str]     can be stream, maerts, bidirect, and/or rr (default $test_types)\n"
+	printf -- "\t\t-t str[,str] --test-types=str[,str]     can be stream, maerts, bidirec, and/or rr (default $test_types)\n"
 	printf -- "\t\t-r int       --runtime=int              test measurement period in seconds (default is $runtime)\n"
 	printf -- "\t\t-m int[,int] --message-sizes=str[,str]  list of message sizes in bytes (default is $message_sizes)\n"
 	printf -- "\t\t-p str[,str] --protocols=str[,str]      tcp and/or udp (default is $protocols)\n"
