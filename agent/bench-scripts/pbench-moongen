@@ -23,7 +23,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 
 benchmark_name="moongen"
 if [ -z "$moongen_dir" ]; then
-	moongen_dir="/root/MoonGen"
+	moongen_dir="/root/lua-trafficgen/MoonGen"
 fi
 if [ ! -d "$moongen_dir" ]; then
 	error_log "The MoonGen directory, $moongen_dir, does not exist as a directory"
@@ -413,16 +413,19 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 									# save benchmark command in file for debugging or running manually
 
 									echo "pushd >/dev/null $moongen_dir" >$benchmark_client_cmd_file
-									echo "./build/MoonGen ./examples/opnfv-vsperf.lua" >>$benchmark_client_cmd_file
+									echo "./build/MoonGen /root/lua-trafficgen/trafficgen.lua" >>$benchmark_client_cmd_file
 									echo "popd >/dev/null" >>$benchmark_client_cmd_file
 									chmod +x $benchmark_client_cmd_file
 
-									rm -f $moongen_dir/latency*.csv
+									rm -f $moongen_dir/latency*.csv 2> /dev/null
 									pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-									$benchmark_client_cmd_file | tee $result_file
+									$benchmark_client_cmd_file 2>&1 | tee $result_file
 									pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 									pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-									cp $moongen_dir/latency*.csv $benchmark_results_dir
+									if [ "$test_type" == "latency" -o "$test_type" == "throughput-latency" ]; then
+									    cp $moongen_dir/latency*.csv $benchmark_results_dir
+									    xz $benchmark_results_dir/latency:samples*.csv
+									fi
 								else
 									if [[ ! -d $benchmark_results_dir ]]; then
 										error_log "Results directory $benchmark_results_dir does not exist, skipping post-processing"
