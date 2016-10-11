@@ -70,9 +70,10 @@ tool_group=default
 tool_label_pattern="$benchmark_name-"
 install_only="n"
 one_shot="n"
+accept_negative_loss="n"
 
 # Process options and arguments
-opts=$(getopt -q -o i:c:t:r:m:p:M:S:C:o --longoptions "portlist:,rate:,rates:,max-drop-pct:,max-drop-pcts:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,nr-flows:,test-type:,traffic:,latency-runtime:,search-runtime:,validation-runtime:,frame-sizes:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,one-shot,mpps-per-queue:,queues-per-task:,dst-macs:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o i:c:t:r:m:p:M:S:C:o --longoptions "portlist:,rate:,rates:,max-drop-pct:,max-drop-pcts:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,nr-flows:,test-type:,traffic:,latency-runtime:,search-runtime:,validation-runtime:,frame-sizes:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,one-shot,accept-negative-loss,mpps-per-queue:,queues-per-task:,dst-macs:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
@@ -89,6 +90,7 @@ if [ $? -ne 0 ]; then
 	printf -- "\t\t					       throughput-latency: first find max throuhgput with a binary search, then\n"
 	printf -- "\t\t								   find latency (histogram) at the max throughput\n"
 	printf -- "\t\t-o	    --one-shot		       only run one test for throughput and then quit (no binary search)\n"
+	printf -- "\t\t             --accept-negative-loss     allow attempts with negative packet loss to pass\n"
 	printf -- "\t\t-t str[,str] --traffic=str[,str]        list of one or more: unidirec or bidirec (default $traffic)\n"
 	printf -- "\t\t-r int       --latency-runtime=int      test measurement period in seconds when running a latency test (default is $latency_runtime)\n"
 	printf -- "\t\t-r int       --search-runtime=int       test measurement period in seconds when searching for max throughput (default is $search_runtime)\n"
@@ -266,6 +268,10 @@ while true; do
 		shift
 		one_shot="y"
 		;;
+		--accept-negative-loss)
+		shift
+		accept_negative_loss="y"
+		;;
 		--)
 		shift
 		break
@@ -383,6 +389,9 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 									if [ "$one_shot" == "y" ]; then
 										echo "oneShot = true," >>$cfg_file
 									fi
+								fi
+								if [ "$accept_negative_loss" == "y" ]; then
+									echo "negativeLossRetry = false," >>$cfg_file
 								fi
         							echo "frameSize = $frame_size,">>$cfg_file
 								echo "mppsPerQueue = $mpps_per_queue," >>$cfg_file
