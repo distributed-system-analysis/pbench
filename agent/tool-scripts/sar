@@ -19,7 +19,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # Defaults
 tool=$script_name
 tool_package_name="pbench-sysstat"
-tool_package_ver="11.5.1"
+tool_package_ver="11.2.0"
 tool_bin=/usr/local/bin/$tool
 group=default
 dir="/tmp"
