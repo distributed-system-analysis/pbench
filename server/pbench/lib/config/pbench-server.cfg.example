@@ -37,9 +37,9 @@ deploy-pbench-tmp-dir = /srv/tmp
 
 [pbench-files]
 pbench-top-dir = %(deploy-pbench-dir)s
-pbench-backup-dir = %(deploy-pbench-backup-dir)
-pbench-logs-dir = %(deploy-pbench-logs-dir)
-pbench-tmp-dir = %(deploy-pbench-tmp-dir)
+pbench-backup-dir = %(deploy-pbench-backup-dir)s
+pbench-logs-dir = %(deploy-pbench-logs-dir)s
+pbench-tmp-dir = %(deploy-pbench-tmp-dir)s
 
 ###########################################################################
 ## runtime section
