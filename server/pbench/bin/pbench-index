@@ -70,7 +70,11 @@ linkerrdest=WONT-INDEX
 # get the list of files we'll be operating on
 #list=$(ls $ARCHIVE/*/$linksrc/*.tar.xz 2>/dev/null)
 # Better: avoids long command line problems and sorts by size
-list=$TMP/pbench-index.$$
+TMPDIR=$TMP/pbench-index.$$
+# index-pbench need to get at it
+export $TMPDIR
+
+list=$TMPDIR/list
 find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | sort -n > $list
 
 log_init $(basename $0)
@@ -78,14 +82,14 @@ log_init $(basename $0)
 echo "$TS: starting at $(timestamp)"
 
 typeset -i nidx=0
-indexed=$TMP/$PROG.$TS.indexed.$$
+indexed=$TMPDIR/$PROG.$TS.indexed
 typeset -i nerrs=0
-erred=$TMP/$PROG.$TS.erred.$$
+erred=$TMPDIR/$PROG.$TS.erred
 typeset -i nskip=0
-skipped=$TMP/$PROG.$TS.skipped.$$
-mail_body=$TMP/$PROG.$TS.mail.$$
+skipped=$TMPDIR/$PROG.$TS.skipped
+mail_body=$TMPDIR/$PROG.$TS.mail
 
-trap "rm -f $indexed $erred $skipped $mail_body $list" EXIT QUIT INT
+trap "rm -rf $TMPDIR" EXIT QUIT INT
 
 > $indexed
 > $erred
