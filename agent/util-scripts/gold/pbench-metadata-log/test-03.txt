@@ -48,6 +48,7 @@ rpm-version:
 
 [tools]
 hosts: testhost dhcp31-174 perf104 
+group: default
 
 [tools/testhost]
 iostat: --interval=3

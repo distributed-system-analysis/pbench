@@ -1,4 +1,6 @@
 +++ Running test-01 pbench-metadata-log
+ls: cannot access '/var/tmp/pbench-test-utils/pbench/tools-default/': No such file or directory
+/bin/ls: cannot access '/var/tmp/pbench-test-utils/pbench/tools-default': No such file or directory
 --- Finished test-01 pbench-metadata-log (status=0}
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -15,12 +17,6 @@ config:
 date: 1900-01-01_00:00:00
 rpm-version: 
 
-[tools]
-hosts: testhost 
-
-[tools/testhost]
-mpstat: --interval="10"
- 
 [run]
 controller: testhost.example.com
 --- pbench tree state
