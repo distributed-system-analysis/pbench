@@ -104,7 +104,9 @@ if [[ $? -ne 0 ]]; then
 	exit 1
 fi
 
-benchmark_run_dir="$pbench_run/${benchmark}_${config}_$date"
+benchmark_fullname="${benchmark}_${config}_${date}"
+benchmark_run_dir="$pbench_run/${benchmark_fullname}"
+benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
 benchmark_summary_txt_file="$benchmark_run_dir/$benchmark-summary.txt"
 benchmark_summary_html_file="$benchmark_run_dir/$benchmark-summary.html"
 if [ ! -z "$cpu" ]; then
@@ -137,6 +139,7 @@ for runtime in `echo $runtimes | sed -e s/,/" "/g`; do
 	if [ ! -z "$cpu" ]; then
 		iteration="$iteration-cpu_$cpu"
 	fi
+        echo $iteration >> $benchmark_iterations
 	benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result/"
 	result_file=$benchmark_results_dir/result.txt
 	benchmark_cmd_file=$benchmark_results_dir/cyclictest.cmd

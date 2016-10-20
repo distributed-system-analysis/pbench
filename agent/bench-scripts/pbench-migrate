@@ -1,4 +1,5 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
 
 # This is a script to run the migrate benchmark
 # Author: Andrew Theurer
@@ -309,11 +310,14 @@ function do_migrate() {
 
 if [ "$postprocess" = "only" ]; then
 	# user provides directory for previous test
+	benchmark_fullname=$(basename $benchmark_data_dir)
 	benchmark_run_dir="$benchmark_data_dir"
 else
 	config="from_${src_host}_to_${dest_host}--$config"
-	benchmark_run_dir="$pbench_run/${benchmark}_${config}_$date"
+	benchmark_fullname="${benchmark}_${config}_${date}"
+	benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 fi
+benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
 benchmark_summary_txt_file="$benchmark_run_dir/$benchmark-summary.txt"
 benchmark_summary_html_file="$benchmark_run_dir/$benchmark-summary.html"
 
@@ -328,6 +332,7 @@ export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 for i in `seq 1 $loops`; do
 	iteration="$count-from-$src_host-to-$dest_host"
+	echo $iteration >> $benchmark_iterations
 	benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
 	if [ "$postprocess" != "only" ]; then
 		mkdir -p $benchmark_results_dir
