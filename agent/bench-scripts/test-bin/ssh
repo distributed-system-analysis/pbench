@@ -2,10 +2,6 @@
 
 echo "$0 $*" >> $_testlog
 
-if [[ "$4" == "netstat" && "$5" == "-tlpn" ]]; then
-    echo "tcp        0      0 0.0.0.0:21000               0.0.0.0:*                   LISTEN      5830/uperf"
-fi
-
 while true ;do
     case $1 in
         -o)
@@ -20,6 +16,14 @@ while true ;do
     esac
 done
 remote=$1
+
+if [[ "$2" == "netstat" && "$3" == "-tlnp" ]]; then
+    echo "tcp        0      0 0.0.0.0:21000               0.0.0.0:*                   LISTEN      5830/uperf"
+fi
+
+if [[ "$2" == "hostname" && "$3" == "-s" ]]; then
+    echo "$remote"
+fi
 
 if [[ "$remote" == "fubar" ]] ;then
     exit 255
