@@ -62,76 +62,28 @@ function usage {
 }
 
 function metadata_log_tools {
-    log=$1
+    local log=$1
 
-    if [ -d $pbench_run/tools-$group ] ;then
-        metadata_log_tools_dir $log
-    else
-        metadata_log_tools_file $log
-    fi
-}
-
-function metadata_log_tools_file {
-    # This is provided for backwards compatibility.
-    # v0.35 introduced the tools-<group> directory: if that
-    # directory exists, we assume that it is authoritative.
-    # If it does not, we fall back to the tools.<group> file.
-
-    # Get the remotes from the local tools.$group file
-    # then get the remote tools.$group files for each remote
-
-    remotes="$(grep @ $pbench_run/tools.$group | sed 's/.*@//
-s/:[^:]*$//' | tr '\n' ' ')"
- 
-    # check if the local tools.$group file includes any local tools
-    local=0
-    if grep -v @ $pbench_run/tools.$group > /dev/null 2>&1 ;then
-        local=1
-    fi
-
-    # if yes ...
-    if [ $local == 1 ] ;then
-        cat >> $log <<EOF
-[tools]
-hosts: $hostname $remotes
-
-[tools/$hostname]
-$(cat $pbench_run/tools.$group)
- 
-EOF
-     else
-        # just remotes
-        if [ ! -z "$remotes" ] ;then
-            cat >> $log <<EOF
-[tools]
-hosts: $remotes
-
-EOF
-        fi
-    fi
-    
-    for remote in $remotes ;do
-        cat >> $log <<EOF
-[tools/$remote]
-$(ssh $ssh_opts $remote cat $pbench_run/tools.$group)
-
-EOF
-    done
-}
-
-function metadata_log_tools_dir {
-    # we have a tools-<group> dir.
-    
-    log=$1
     # get the remotes from the local tools-$group directory
     # then get the remote tools-$group dirs for each remote
-    
-    remotes="$(ls $pbench_run/tools-$group/ | grep @ | sed 's/.*@//
+    local remotes="$(/bin/ls $pbench_run/tools-$group/ 2> /dev/null | grep @ | sed 's/.*@//
 s/:[^:]*$//' | tr '\n' ' ')"
+
+    # the remotes may have different names than what the controller uses,
+    # so go ask them - the names of the remotes in the metadata log have to
+    # agree with the names of the remotes used when postprocessing the tool
+    # results, otherwise the indexing will fail.
+    local rems=""
+    for remote in $remotes ;do
+        # if the ssh fails, just leave the name alone
+        rem=$(ssh $ssh_opts -n $remote hostname -s 2>/dev/null || echo $remote)
+        rems="$rems $rem"
+    done
+    remotes=$rems
 
     # check if the local tools-$group directory includes any local tools
     local=0
-    if /bin/ls $pbench_run/tools-$group | grep -q -v "^remote@" ;then
+    if /bin/ls $pbench_run/tools-$group 2> /dev/null | grep -q -v "^remote@" ;then
         local=1
     fi
 
@@ -140,10 +92,11 @@ s/:[^:]*$//' | tr '\n' ' ')"
         cat >> $log <<EOF
 [tools]
 hosts: $hostname $remotes
+group: $group
 
 [tools/$hostname]
 EOF
-        for tool in $(/bin/ls $pbench_run/tools-$group) ;do
+        for tool in $(/bin/ls $pbench_run/tools-$group 2> /dev/null) ;do
             # add the options with a space in front, effectively making them continuation
             # lines as far the python config module is concerned.
             echo $tool: $(cat $pbench_run/tools-$group/$tool | sed 's/^/ /')
@@ -155,6 +108,7 @@ EOF
             cat >> $log <<EOF
 [tools]
 hosts: $remotes
+group: $group
 
 EOF
         fi
@@ -172,12 +126,13 @@ EOF
 }
 
 function metadata_log_start {
-    dir=$1
-    ts=$2
-    log=$dir/metadata.log
+    local dir=$1
+    local group=$2
+    local ts=$3
+    local log=$dir/metadata.log
 
     if [ -z "$ts" ] ;then
-        ts=$(date --utc '+%F_%H:%M:%S.%N')
+        ts=$(timestamp)
     fi
     cat > $log <<EOF
 [pbench]
@@ -188,7 +143,7 @@ date: $date
 rpm-version: $(yum list installed pbench-agent 2>/dev/null | tail -n 1 | awk '{print $2}')
 
 EOF
-    metadata_log_tools $log
+    metadata_log_tools $log $group
     cat >> $log <<EOF
 [run]
 controller: $full_hostname
@@ -197,9 +152,10 @@ EOF
 }
 
 function metadata_log_end {
-    dir=$1
-    int=$2
-    log=$dir/metadata.log
+    local dir=$1
+    local group=$2
+    local int=$3
+    local log=$dir/metadata.log
 
     if [ ! -f $log ] ;then
         # Somehow, metadata_log_start was never called !?!?
@@ -207,11 +163,11 @@ function metadata_log_end {
         # Manufacture a start_run timestamp and pass it
         # explicitly. The manufactured stamp is the date that
         # the base file calculates (now in UTC).
-        start_ts=$date
-        metadata_log_start $dir $start_ts
+        local start_ts=$(timestamp)
+        metadata_log_start $dir $group $start_ts
     fi
     if ! grep -q end_run $log ;then
-        echo "end_run: $(date --utc '+%F_%H:%M:%S.%N')" >> $log
+        echo "end_run: $(timestamp)" >> $log
     fi
     if [ "$int" == "int" ] ;then
         echo "run_interrupted: true" >> $log
@@ -221,13 +177,17 @@ function metadata_log_end {
 mkdir -p $dir
 case $1 in
     beg)
-        metadata_log_start $dir
+        metadata_log_start $dir $group
         ;;
     end)
-        metadata_log_end $dir
+        metadata_log_end $dir $group
+        name=$(basename $dir)
+        if [ -f $pbench_tmp/$name.iterations ] ;then
+            pbench-add-metalog-option $pbench_tmp/$name.iterations $dir/metadata.log iterations
+        fi
         ;;
     int)
-        metadata_log_end $dir int
+        metadata_log_end $dir $group int
         ;;
     *)
         usage
