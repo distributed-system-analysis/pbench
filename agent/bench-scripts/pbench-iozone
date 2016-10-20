@@ -1,4 +1,5 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
 
 # pbench-iozone 0.01 initial version 
 # TODO
@@ -155,7 +156,9 @@ done
 
 verify_tool_group $tool_group
 
-benchmark_run_dir="$pbench_run/${benchmark}_${config}_$date"
+benchmark_fullname="${benchmark}_${config}_${date}"
+benchmark_run_dir="$pbench_run/${benchmark_fullname}"
+benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
 benchmark_summary_file="$benchmark_run_dir/$benchmark-summary.txt"
 
 mkdir -p $benchmark_run_dir/.running
@@ -163,7 +166,7 @@ export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 
 benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
-
+echo $iteration >> $benchmark_iterations
 benchmark_tools_dir="$benchmark_results_dir/tools-$tool_group"
 mkdir -p $benchmark_results_dir $benchmark_tools_dir
 

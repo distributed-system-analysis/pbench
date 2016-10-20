@@ -562,6 +562,7 @@ Iteration 3-throughput-1024KiB complete (3 of 3), with 1 pass and 6 failures
 /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/summary-result.txt
 /var/tmp/pbench-test-bench/pbench/pbench.log
 /var/tmp/pbench-test-bench/pbench/tmp
+/var/tmp/pbench-test-bench/pbench/tmp/fio__1900-01-01_00:00:00.iterations
 /var/tmp/pbench-test-bench/pbench/tools-default
 /var/tmp/pbench-test-bench/pbench/tools-default/mpstat
 /var/tmp/pbench-test-bench/pbench/tools-default/sar
