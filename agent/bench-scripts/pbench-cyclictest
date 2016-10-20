@@ -137,6 +137,7 @@ for runtime in `echo $runtimes | sed -e s/,/" "/g`; do
 	if [ ! -z "$cpu" ]; then
 		iteration="$iteration-cpu_$cpu"
 	fi
+        echo $iteration >> $pbench_tmp/$benchmark_run_dir.iterations
 	benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result/"
 	result_file=$benchmark_results_dir/result.txt
 	benchmark_cmd_file=$benchmark_results_dir/cyclictest.cmd

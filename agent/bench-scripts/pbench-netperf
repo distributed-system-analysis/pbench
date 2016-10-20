@@ -1,4 +1,5 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
 
 # This is a script to run the netperf benchmark
 # Note: This script is under development, and since netperf and uperf have very similar
@@ -410,6 +411,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 			for instance in `echo $instances | sed -e s/,/" "/g`; do
 				if [ $count -ge $start_iteration_num ]; then
 					iteration="${count}-${protocol}_${test_type}-${message_size}B-${instance}i"
+					echo $iteration >> $pbench_tmp/$benchmark_run_dir.iterations
 					iteration_dir="$benchmark_run_dir/$iteration"
 					result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
 					failures=0

@@ -1,4 +1,5 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
 
 # This is a script to run the migrate benchmark
 # Author: Andrew Theurer
@@ -328,6 +329,7 @@ export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 for i in `seq 1 $loops`; do
 	iteration="$count-from-$src_host-to-$dest_host"
+	echo $iteration >> $pbench_tmp/$benchmark_run_dir.iterations
 	benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
 	if [ "$postprocess" != "only" ]; then
 		mkdir -p $benchmark_results_dir

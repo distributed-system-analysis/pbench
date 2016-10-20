@@ -638,6 +638,8 @@ function fio_run_benchmark() {
 			for block_size in `echo $block_sizes | sed -e s/,/" "/g`; do
 				job_num=1
 				iteration="${count}-${test_type}-${block_size}KiB"
+				   
+                                echo $iteration >> $pbench_tmp/$benchmark_run_dir.iterations
 				iteration_dir=$benchmark_run_dir/$iteration
 				result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
 				failures=0
