@@ -1,0 +1,20 @@
+{
+    "_all": { "enabled": true },
+    "_source": { "enabled": true },
+    "date_detection": false,
+    "properties": {
+        "@metadata": {
+            "properties": {
+                "experiment":  { "type": "string", "index": "not_analyzed" },
+                "host":  { "type": "string", "index": "not_analyzed" },
+                "iteration":  { "type": "string", "index": "not_analyzed" },
+                "iterseqno":  { "type": "string", "index": "not_analyzed" },
+                "runid": { "type": "string", "index": "not_analyzed" },
+                "runtstamp": { "type": "date" },
+                "sample":  { "type": "string", "index": "not_analyzed" },
+                "toolgroup":  { "type": "string", "index": "not_analyzed" }
+            }
+        },
+        "@timestamp": { "type": "date" }
+    }
+}

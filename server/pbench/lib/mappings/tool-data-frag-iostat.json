@@ -1,0 +1,39 @@
+{
+    "properties": {
+        "disk": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
+                "iops": {
+                    "properties": {
+                        "read": { "type": "float" },
+                        "write": { "type": "float" }
+                    }
+                },
+                "qsize": { "type": "float" },
+                "reqmerges": {
+                    "properties": {
+                        "read": { "type": "float" },
+                        "write": { "type": "float" }
+                    }
+                },
+                "reqsize": { "type": "float" },
+                "tput": {
+                    "properties": {
+                        "read": { "type": "float" },
+                        "write": { "type": "float" }
+                    }
+                },
+                "util": { "type": "float" },
+                "wtime": {
+                    "properties": {
+                        "read": { "type": "float" },
+                        "write": { "type": "float" }
+                    }
+                }
+            }
+        }
+    }
+}
