@@ -1,0 +1,221 @@
+#!/bin/bash
+
+export MESSAGE_SIZE=1024
+export SSH_OPTS=""
+
+app_path=`dirname $0`
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+benchmark_rpm="msg-perf-tool"
+benchmark="mpt"
+ver=0.1.1
+
+#Defaults
+broker_url=amqp://localhost:5672/test.performance.queue
+
+# TODO: find the appropriate balance here. Ideally, messaging-performance
+# tests should be able to determine the sustainable performance. Too short
+# runs may not be able to hit performance bottlenecks on the broker. Too long
+# runs may exhaust resources, not be feasible, etc.
+duration=10
+message_sizes=32,256
+
+# TODO: possibly a bit too conservative ...
+parallel_instances=1,5
+
+throttle=0
+
+function mpt_usage() {
+  printf "The following options are available:\n"
+  printf "\n"
+  printf -- "\t-b str --broker-url=str    (default is $broker_url)\n"
+  printf "\t\tURL to access the broker (ie: amqp://hostname:5672/queue.name or stomp://hostname:5672/queue.name)\n"
+  printf -- "\t-d int --duration=int    (default is $duration)\n"
+  printf "\t\tduration of the performance test in minutes\n"
+  printf -- "\t-s int[,int] --message-sizes=int[,int] (default is $message_sizes)\n"
+  printf "\t\tmessage sizes in bytes (default is $message_sizes)\n"
+  printf -- "\t-p int[,int] --parallel-instances=int[,int] (default is $parallel_instances)\n"
+  printf "\t\tnumber of concurrent instances of the sender and receiver (default is $parallel_instances)\n"
+  printf -- "\t-T int --throttle=int (default is $throttle)\n"
+  printf "\t\tmaximum number of mesages (per second) allowed per sender connection (default is $throttle, 0 means unlimited)\n"
+
+
+}
+
+function mpt_process_options() {
+  ARGS=$(getopt -o hb:d:s:p:T: -n "$0" -- "$@");
+  eval set -- "$ARGS";
+  while true; do
+    case "$1" in
+      -b)
+        shift
+        export broker_url="$1"
+        shift
+      ;;
+      -d)
+        shift
+        export duration="$1"
+        shift
+      ;;
+      -s)
+        shift
+        export message_sizes="$1"
+        shift
+      ;;
+      -p)
+        shift
+        export parallel_instances="$1"
+        shift
+      ;;
+      -t)
+        shift
+        export throttle="$1"
+        shift
+      ;;
+      -h)
+        shift
+        mpt_usage
+        exit 0
+      ;;
+      --)
+        shift
+        break
+      ;;
+    esac
+  done
+
+  benchmark_run_dir="$pbench_run/${benchmark}_${config}_$date"
+  echo "Saving mpt test results to ${benchmark_run_dir}"
+}
+
+function mpt_check_options() {
+  if [[ -z "${broker_url}" ]] ; then
+    echo -e "Broker is a required option (-b)\n"
+
+    mpt_usage
+    exit 1
+  fi
+
+  if [[ -z "${duration}" ]] ; then
+    echo -e "Either the test duration or the message count should be informed (-d or -c)\n"
+    mpt_usage
+    exit 1
+  fi
+
+  if [[ -z "${parallel_instances}" ]] ; then
+    echo -e "Parallel instances is a required option (-p)\n"
+    mpt_usage
+    exit 1
+  fi
+
+  echo "Broker URL: ${broker_url}"
+  if [[ -z ${throttle}="$1" ]] ; then
+    export throttle="0"
+  else
+    echo "Throttling the sender"
+  fi
+
+}
+
+function mpt_stop_test() {
+  echo "Stopping the test"
+
+  killall -INT mpt-receiver
+  killall -INT mpt-sender
+
+  killall -TERM mpt-receiver || echo ""
+  killall -TERM mpt-sender || echo ""
+
+  exit
+}
+
+# Explanation: we trap the exit/kill/termination of the script, so that if the
+# test is aborted, we terminate the daeamons
+trap mpt_stop_test SIGINT SIGTERM
+
+
+function mpt_run_by_duration() {
+  local message_size=$1
+  local instance_count=$2
+  local log_dir=$3
+
+
+  echo "Lauching the receiver"
+  export pid_receiver=`mpt-receiver -b ${broker_url} --log-level=STAT --duration=${duration} -p ${instance_count} --logdir=${log_dir} -s ${message_size} --daemon`
+
+  echo "Lauching the sender"
+  export pid_sender=`mpt-sender -b ${broker_url} -t ${throttle} --log-level=STAT --duration ${duration} -p ${instance_count} --logdir=${log_dir} -s ${message_size} --daemon`
+
+  # Sleeps for a little longer than the test duration so that it gives some time
+  # for the program to finish and flush data
+
+  echo "Sleeping for ${duration}m15s"
+  sleep 15s "${duration}m"
+}
+
+function mpt_run_test() {
+  typeset -i ninstances=$(echo ${parallel_instances} | sed -e 's/,/ /g' | wc -w)
+  typeset -i nmsgsizes=$(echo ${message_sizes} | sed -e 's/,/ /g' | wc -w)
+
+  test_start_time=$(date '+%Y-%m-%d %H:%M:%S')
+  echo "Test start time: ${test_start_time}"
+
+  # TODO: multiple test iterations may require coordination with the broker
+  # (ie: do we want to ensure the broker is cold by stopping it after every
+  # test iteration? )
+  local count=1
+  for parallel_instance in `echo $parallel_instances | sed -e s/,/" "/g`; do
+    for message_size in `echo $message_sizes | sed -e s/,/" "/g`; do
+      it_start_time=$(date '+%Y-%m-%d %H:%M:%S')
+      echo "Iteration (p${parallel_instance} ${message_size}KiB) start time: ${it_start_time}"
+
+      iteration="${count}-p${parallel_instance}-${message_size}KiB"
+      iteration_dir=$benchmark_run_dir/$iteration
+      mkdir -p ${iteration_dir}
+      mpt_run_by_duration ${message_size} ${parallel_instance} ${iteration_dir}
+
+      it_end_time=$(date '+%Y-%m-%d %H:%M:%S')
+      echo "Iteration (p${parallel_instance} ${message_size}KiB) end time: ${it_end_time}"
+    done
+  done
+
+  test_end_time=$(date '+%Y-%m-%d %H:%M:%S')
+  echo "Test end time: ${test_end_time}"
+}
+
+
+# Ensure the right version of the benchmark is installed
+function mpt_install() {
+  # TODO: since msg-perf-tool is installed via COPR, check what is the
+  # recommended approach
+
+	if [ "$postprocess_only" = "n" ]; then
+		if check_install_rpm $benchmark_rpm $ver; then
+			debug_log "[$script_name]$benchmark_rpm $ver is installed"
+		else
+			debug_log "[$script_name]$benchmark_rpm $ver installation failed, exiting"
+			exit 1
+		fi
+	fi
+
+	if [ ! -z "$clients" ] ; then
+		debug_log "verifying clients have msg-perf-tool installed"
+		echo "verifying clients have msg-perf-tool installed"
+		for client in `echo $clients | sed -e s/,/" "/g`; do
+			ssh $ssh_opts $client ${pbench_install_dir}/bench-scripts/$script_name --remote-only --install &
+		done
+		wait
+	fi
+}
+
+mpt_process_options "$@"
+mpt_check_options
+
+
+mpt_run_test
