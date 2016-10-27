@@ -1,8 +1,5 @@
 #!/bin/bash
 
-export MESSAGE_SIZE=1024
-export SSH_OPTS=""
-
 app_path=`dirname $0`
 
 script_path=`dirname $0`
@@ -160,9 +157,6 @@ function mpt_run_by_duration() {
 }
 
 function mpt_run_test() {
-  typeset -i ninstances=$(echo ${parallel_instances} | sed -e 's/,/ /g' | wc -w)
-  typeset -i nmsgsizes=$(echo ${message_sizes} | sed -e 's/,/ /g' | wc -w)
-
   test_start_time=$(date '+%Y-%m-%d %H:%M:%S')
   echo "Test start time: ${test_start_time}"
 
