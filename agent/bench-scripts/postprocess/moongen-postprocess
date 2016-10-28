@@ -172,19 +172,20 @@ while ( <TXT> ) {
 				'rx_port' => "all",
 				'value' => ($frame_size *8 +64 +96) *$rx_rate /1000 } );
 	}
-	# [Histogram port 0 to port 1] Samples: 23034, Average: 8336.7 ns, StdDev: 659.4 ns, Quartiles: 7878.4/8320.0/8787.2 ns
-	if (/^\[Histogram port (\d+) to port (\d+)\]\s+Samples:\s+(\d+), Average: (\d+\.\d+) ns, StdDev: (\d+\.\d+) ns,.*/) {
+	# [Histogram port 0 to port 1 at rate 5.25 Mpps] Samples: 11067, Average: 10043.6 ns, StdDev: 1748.7 ns, Quartiles: 9177.0/9687.0/10320.0 ns
+	if (/^\[Histogram port (\d+) to port (\d+) at rate (\d+\.\d+) Mpps\]\s+Samples:\s+(\d+), Average: (\d+\.\d+) ns, StdDev: (\d+\.\d+) ns,.*/) {
 		my $tx_port = $1;
 		my $rx_port = $2;
-		my $samples = $3;
-		my $lat_average = $4/1000;
-		my $stddev = $5;
-		my $hist_file = $dir . "/hist:" . $tx_port . "-" . $rx_port . ".csv";
+		my $tx_rate = $3;
+		my $samples = $4;
+		my $lat_average = $5/1000;
+		my $stddev = $6;
+		my $hist_file = $dir . "/latency:histogram_dev:" . $tx_port . "-" . $rx_port . "_rate:" . $tx_rate . ".csv";
 		open( HIST, "<$hist_file" ) or die "Can't open $hist_file: $!";
 		my $hist_line;
 		my @values;
 		while ( $hist_line = <HIST> ) {
-			if ($hist_line =~ /(\d+\.\d+),(\d+)/) {
+			if ($hist_line =~ /([0-9\.]+),(\d+)/) {
 				my $value = $1/1000;
 				my $count = $2;
 				for (my $i = 0; $i < $count; $i++) {
