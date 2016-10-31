@@ -26,14 +26,14 @@ from pprint import pprint
 
 _VERSION_ = "0.0.0.3"
 _NAME_    = "index-pbench"
-_DEBUG    = 0
+_DEBUG    = 9
+
+# global - passed in through environment by pbench-index
+tmpdir = None
+
 
 class MappingFileError(Exception):
     pass
-
-# global - obtained from the environment. We unpack tarballs in this directory,
-# to get around the inefficiencies of tarfile.extract/extractfile
-tmpdir = None
 
 ###########################################################################
 # Fetch the mapping file for pbench metadata.
@@ -91,23 +91,25 @@ def es_index(es, actions, dbg=0):
         sys.stdout.flush()
     while True:
         try:
-            res = helpers.bulk_index(es, actions)
+            res = helpers.bulk(es, actions)
         except es_excs.ConnectionError as err:
-                end = time.time()
-                if isinstance(err.info, ul_excs.ReadTimeoutError):
-                    tries -= 1
-                    if tries > 0:
-                        print("\t\tWARNING (end ts: %s, duration: %.2fs):"
-                              " read timeout, delaying %d seconds before"
-                              " retrying (%d attempts remaining)..." % (
-                                  tstos(end), end - beg, delay, tries),
-                                  file=sys.stderr)
-                        time.sleep(delay)
-                        delay *= 2
-                        beg, end = time.time(), None
-                        print("\t\tWARNING (beg ts: %s): retrying..." % (
-                            tstos(beg)), file=sys.stderr)
-                        continue
+            end = time.time()
+            if isinstance(err.info, ul_excs.ReadTimeoutError):
+                tries -= 1
+                if tries > 0:
+                    print("\t\tWARNING (end ts: %s, duration: %.2fs):"
+                          " read timeout, delaying %d seconds before"
+                          " retrying (%d attempts remaining)..." % (
+                              tstos(end), end - beg, delay, tries),
+                          file=sys.stderr)
+                    time.sleep(delay)
+                    delay *= 2
+                    beg, end = time.time(), None
+                    print("\t\tWARNING (beg ts: %s): retrying..." % (
+                        tstos(beg)), file=sys.stderr)
+                    if _DEBUG > 8:
+                        import pdb; pdb.set_trace()
+                    continue
                 print("\tERROR(%s) (end ts: %s, duration: %.2fs): %s" % (
                     _NAME_, tstos(end), end - start, err), file=sys.stderr)
                 return 1
@@ -185,65 +187,8 @@ def es_index(es, actions, dbg=0):
 def get_mdconfig(mdf):
 
     mdfconfig = SafeConfigParser()
-    # XXX - review
-    # ^%*&%(&% encoding: the read() returns bytes but configparser
-    # wants a string somewhere deep inside and I don't know how to
-    # tell it. So read it as bytes and convert it to string assuming ascii
-    # encoding - and have configparser read the config from the string.
     mdfconfig.read(mdf)
     return mdfconfig
-
-###########################################################################
-# old tarballs do not contain a metadata.log, so we are
-# left to fend for ourselves. We troll through the pbench.log
-# file and get beginning and ending timestamps: unfortunately, they
-# are in local time, so we assume they are run on machines in BOS
-# or RDU, which use EST/EDT/
-
-def convert_to_utc(t):
-    """ convert it to UTC, assuming it is EST/EDT"""
-
-    import pytz
-    local = pytz.timezone("America/New_York")
-    local_dt = local.localize(t)
-    # return it as UTC
-    return local_dt.astimezone(pytz.utc)
-
-def utc_ts(s):
-    from datetime import datetime
-
-    # parse string of form '[debug][<TS>].*\n'
-    ifmt = "%Y%m%d_%H:%M:%S.%f"
-    ts = s.split(']')[1].replace('[', '')
-    df = ts.split('.')
-    # python can only do microseconds
-    ts = "%s.%.6s" % (df[0], df[1])
-    t = datetime.strptime(ts, ifmt)
-    t = convert_to_utc(t)
-    ofmt =  "%Y-%m-%d_%H:%M:%S.%f"
-    return t.strftime(ofmt)
-
-def get_start_end_time_utc(pbf):
-
-    start = utc_ts(str(pbf.readline(), 'ascii'))
-    pbf.seek(-1024, 2)
-    end = utc_ts(str(pbf.readlines()[-1], 'ascii'))
-    return (start, end)
-
-# 
-def get_pb(dirname):
-    member_name = "%s/pbench.log" % (dirname)
-    pblog = tb.getmember(member_name)
-    d = get_metadata_pb(os.path.join(tmpdir, member_name))
-
-def get_metadata_pb(pbf):
-    # no metadata.log file :-(
-    # grovel through pbench.log and try to extract as much info as possible
-    d = {}
-    runtimes = get_start_end_time_utc(pbf)
-    d['start_run'] = runtimes[0]
-    d['end_run'] = runtimes[1]
-    return d
 
 ###########################################################################
 # generic metadata routines
@@ -372,20 +317,56 @@ def get_csv_files(iteration, sample, host, tool, mdlog, tb):
     path = os.path.join(iteration, sample, "tools-default", host, tool, "csv")
     return [x for x in tb.getnames() if x.find(path) >= 0 and tb.getmember(x).isfile()]
 
+class ToolData(object):
+    def __init__(self, experiment, iteration, sample, host, tool, toolgroup, dfile, dfilepath, tb):
+        self.experiment = experiment
+        self.iteration = iteration
+        self.sample = sample
+        self.host = host
+        self.tool = tool
+        self.toolgroup = toolgroup
+        self.dfile = dfile
+        self.dfilepath = dfilepath
+        self.data = get_tool_data(dfilepath, tb)
+
+    def make_source(self):
+        fixed = {
+            "experiment": self.experiment,
+            "iteration": self.iteration,
+            "sample": self.sample,
+            "host": self.host,
+            "toolname": self.tool,
+            "toolgroup": self.toolgroup,
+            "datafile": self.dfile,
+            "datafilepath": self.dfilepath,
+        }
+        source = []
+        for datum in self.data:
+            d = fixed.copy()
+            d.update(datum)
+            source.append(d)
+        return source
+    
 def get_tool_data(dfile, tb):
     import csv
-    import codecs
     global tmpdir
     
-    d = {}
+    data = []
 #    reader = csv.reader(codecs.iterdecode(tb.extractfile(dfile), 'utf-8'))
-    reader = csv.reader(os.path.join(tmpdir,dfile))
-    d["header"] = next(reader)
-    d["data"] = [x for x in reader]
-    return d
+    reader = csv.reader(open(os.path.join(tmpdir,dfile)))
+    header = next(reader)
+    for row in reader:
+        datum = {}
+        for i in range(len(row)):
+            datum["value"] = row[i]
+            datum["timestamp"] = row[0]
+            datum["colname" ] = header[i]
+            data.append(datum)
+    return data
 
 def mk_tool_data(mdlog, tb):
-    tool_data = {}
+    tool_data = []
+    experiment = mdlog.get("pbench", "name")
     iterations = get_iterations(mdlog, tb)
     for iteration in iterations:
         samples = get_samples(iteration, mdlog, tb)
@@ -394,9 +375,14 @@ def mk_tool_data(mdlog, tb):
             for host in hosts:
                 tools = get_tools(iteration, sample, host, mdlog, tb)
                 for tool in tools:
+                    if tool == 'pidstat':
+                        continue
                     data_files = get_csv_files(iteration, sample, host, tool, mdlog, tb)
                     for dfile in data_files:
-                        tool_data[(iteration, sample, host, tool, os.path.basename(dfile))] = get_tool_data(dfile, tb)
+                        tool_data.append(
+                            ToolData(experiment, iteration, sample, host,
+                                     tool, "default",
+                                     os.path.basename(dfile), dfile, tb))
     return tool_data
 
 ###########################################################################
@@ -550,7 +536,7 @@ def if_ip_from_sosreport(ip_addr_f):
     for inet and inet6.
     """
 
-    s = open(ip_addr_f).read()
+    s = str(ip_addr_f.read(), 'iso8859-1')
     d = {}
     # if it's an ip_address file, convert it to ip_-o_addr format
     s = ip_address_to_ip_o_addr(s)
@@ -567,18 +553,18 @@ def if_ip_from_sosreport(ip_addr_f):
 
     return d
     
-def hostnames_if_ip_from_sosreport(sostb):
+def hostnames_if_ip_from_sosreport(sos):
     """Return a dict with hostname info (both short and fqdn) and
     ip addresses of all the network interfaces we find at sosreport time."""
 
+    sostb = tarfile.open(fileobj=sos)
     hostname_files = [x for x in sostb.getnames() if x.find('sos_commands/general/hostname') >= 0]
 
     # Fetch the hostname -f and hostname file contents
     hostname_f_file = [x for x in hostname_files if x.endswith('hostname_-f')]
     if hostname_f_file:
         try:
-            # import pdb; pdb.set_trace()
-            hostname_f = open(os.path.join(tmpdir, hostname_f_file[0])).read()[:-1]
+            hostname_f = str(sostb.extractfile(hostname_f_file[0]).read(), 'iso8859-1')[:-1]
         except IOError as e:
             raise Exception("Failure to fetch a hostname-f from the sosreport")
         if hostname_f == 'hostname: Name or service not known':
@@ -588,7 +574,7 @@ def hostnames_if_ip_from_sosreport(sostb):
     hostname_s_file = [x for x in hostname_files if x.endswith('hostname')]
     if hostname_s_file:
         try:
-            hostname_s = open(os.path.join(tmpdir, hostname_s_file[0])).read()[:-1]
+            hostname_s = str(sostb.extractfile(hostname_s_file[0]).read(), 'iso8859-1')[:-1]
         except IOError as e:
             raise Exception("Failure to fetch a hostname from the sosreport")
     else:
@@ -649,12 +635,12 @@ def hostnames_if_ip_from_sosreport(sostb):
     ipfiles = [x for x in sostb.getnames() if x.find('sos_commands/networking/ip_') >= 0]
     ip_files = [x for x in ipfiles if x.find('sos_commands/networking/ip_-o_addr') >= 0]
     if ip_files:
-        d.update(if_ip_from_sosreport(os.path.join(tmpdir, ip_files[0])))
+        d.update(if_ip_from_sosreport(sostb.extractfile(ip_files[0])))
     else:
         # try the ip_address file instead
         ip_files = [x for x in ipfiles if x.find('sos_commands/networking/ip_address') >= 0]
         if ip_files:
-            d.update(if_ip_from_sosreport(os.path.join(tmpdir, ip_files[0])))
+            d.update(if_ip_from_sosreport(sostb.extractfile(ip_files[0])))
     return d
 
 def mk_sosreports(tb):
@@ -670,9 +656,7 @@ def mk_sosreports(tb):
             d['name'] = sos
             d['md5'] = tb.extractfile(x).read().decode('ascii')[:-1]
             # get hostname (short and FQDN) from sosreport
-            sostb = tarfile.open(os.path.join(tmpdir, sos))
-            sostb.extractall(path=tmpdir)
-            d.update(hostnames_if_ip_from_sosreport(sostb))
+            d.update(hostnames_if_ip_from_sosreport(tb.extractfile(sos)))
             sosreportlist.append(d)
             
     return sosreportlist
@@ -706,20 +690,20 @@ def mk_source(hostname, tbname, dirname, dirprefix, tb, mdconf, md5sum, options)
     
     rec = {}
 
-    if options.timeit: ts("mk_metadata")
-    rec['_metadata'] = mk_metadata(tbname, tb, mdconf, md5sum)
-    #if options.timeit: ts("mk_pbench_metadata")
+    timeit = options.timeit
+    timeit = False
+    if timeit: ts("mk_metadata")
+    rec['@metadata'] = mk_metadata(tbname, tb, mdconf, md5sum)
+    #if timeit: ts("mk_pbench_metadata")
     #rec['pbench'] = mk_pbench_metadata(mdconf)
-    if options.timeit: ts("mk_run_metadata")
+    if timeit: ts("mk_run_metadata")
     rec['run'] = mk_run_metadata(mdconf,dirname, dirprefix)
-    if options.timeit: ts("mk_sosreports")
+    if timeit: ts("mk_sosreports")
     rec['sosreports'] = sos_d = mk_sosreports(tb)
-    if options.timeit: ts("mk_tool_info")
+    if timeit: ts("mk_tool_info")
     rec['host_tools_info'] = mk_tool_info(sos_d, mdconf)
-    if options.timeit: ts("mk_tool_data")
-    rec['host_tools_data'] = mk_tool_data(mdconf, tb)
 
-    if options.timeit: ts("Done!", newline=True)
+    if timeit: ts("Done!", newline=True)
     
     return rec
 
@@ -768,7 +752,8 @@ def mk_toc(tb, md5sum):
 def mk_results_action(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, ts, options):
 
     """Extract metadata from the named tarball and create an indexing
-       action out of them.  We don't index the data (yet).
+       action out of them.
+
        There are two kinds of metadata: what goes into _source[_metadata]
        is metadata about the tarball itself - not things that are *part* of
        the tarball: its name, size, md5, mtime.
@@ -782,10 +767,27 @@ def mk_results_action(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname,
         "_index": idxname,
         "_type" : "pbench-run",
         "_id"   : md5sum,
-        "_timestamp" : ts,
+        "@timestamp" : ts,
         "_source"    : source,
     }
     return action
+
+def mk_tool_data_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, tstamp, options):
+
+    actions = []
+    for td in mk_tool_data(mdconf, tb):
+        sources = td.make_source()
+        for source in sources:
+            action = {
+                "_op_type": "create",
+                "_index": idxname,
+                "_type" : "pbench-tool-data",
+                "@timestamp" : tstamp,
+                "_source"    : source,
+                "_parent"    : md5sum
+            }
+            actions.append(action)
+    return actions
 
 def get_md5sum_toc(tb):
     """Calculate the md5 sum of all the names in the toc"""
@@ -829,8 +831,14 @@ def mk_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, option
         tstamp = datetime.now()
     md5sum = get_md5sum(tbname)
     actions = []
+    timeit = options.timeit
+    if timeit: ts("mk_results_action")
     actions.append(mk_results_action(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, tstamp, options))
+    if timeit: ts("mk_tool_data_actions")
+    actions.extend(mk_tool_data_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, tstamp, options))
+    if timeit: ts("mk_toc_actions")
     actions.extend(mk_toc_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, tstamp, options))
+    if timeit: ts("", newline=True)
     return actions
     
 ###########################################################################
@@ -968,7 +976,7 @@ def main(options, args):
             mdlog = tb.getmember(member_name)
         except:
             raise UnsupportedTarballFormat(tbname)
-        # import pdb; pdb.set_trace()
+        
         try:
             mdconf = get_mdconfig(os.path.join(tmpdir, member_name))
         except:
@@ -987,13 +995,27 @@ def main(options, args):
                 raise TemplateError(e)
 
         actions = mk_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, options)
+
+        print("len(actions) = {}".format(len(actions)), file=sys.stderr)
+        timeit = options.timeit
         
         if options.unittest:
-            # pprint(actions, width=100)
+            # print(len(actions))
+            # for x in actions:
+            #     try:
+            #         print("{} {}\n".format(x["_type"], len(x["_source"]["host_tools_data"].keys())))
+            #     except:
+            #         print("{} {}\n".format(x["_type"], len(x["_source"].keys())))
+            if timeit: ts("pprint")
+            pprint(actions, width=100)
+            if timeit: ts("Done", newline=True)
             return 0
 
         # returns 0 0r 1
-        return es_index(es, actions)
+        if timeit: ts("es_index")
+        res =  es_index(es, actions)
+        if timeit: ts("Done", newline=True)
+        return res
 
     except ConfigFileNotSpecified as e:
         print(e, file=sys.stderr)
