@@ -1,11 +1,12 @@
 [Server]
 # CHANGE ME!
 # host:port - both must be specified.
-server = elasticsearch.example.com:9280
+# server = elasticsearch.example.com:9280
+server = elasticsearch.perf.lab.eng.bos.redhat.com:80
 
 [Settings]
 index_prefix = pbench
 index_version = 1
 bulk_action_count = 2000
 number_of_shards = 1
-number_of_replicas = 1
+number_of_replicas = 0
