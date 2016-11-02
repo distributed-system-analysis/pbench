@@ -50,40 +50,40 @@ function mpt_usage() {
 }
 
 function mpt_process_options() {
-  ARGS=$(getopt -o hib:d:s:p:T: -n "$0" -- "$@");
+  ARGS=$(getopt -o hib:d:s:p:T: --longoptions "help,install,broker:,duration:,message-sizes:,parallel-instances:,throttle:" -n "$0" -- "$@");
   eval set -- "$ARGS";
   while true; do
     case "$1" in
-      -i)
+      -i|--install)
         shift
         export install_only="y"
       ;;
-      -b)
+      -b|--broker)
         shift
         export broker_url="$1"
         shift
       ;;
-      -d)
+      -d|--duration)
         shift
         export duration="$1"
         shift
       ;;
-      -s)
+      -s|--message-sizes)
         shift
         export message_sizes="$1"
         shift
       ;;
-      -p)
+      -p|--parallel-instances)
         shift
         export parallel_instances="$1"
         shift
       ;;
-      -t)
+      -t|--throttle)
         shift
         export throttle="$1"
         shift
       ;;
-      -h)
+      -h|--help)
         shift
         mpt_usage
         exit 0
