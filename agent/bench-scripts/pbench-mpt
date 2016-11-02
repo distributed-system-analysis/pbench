@@ -97,7 +97,6 @@ function mpt_process_options() {
   done
 
   benchmark_run_dir="$pbench_run/${benchmark}_${config}_$date"
-  echo "Saving mpt test results to ${benchmark_run_dir}"
 }
 
 function mpt_check_options() {
@@ -162,6 +161,8 @@ function mpt_run_test() {
   # Explanation: we trap the exit/kill/termination of the script, so that if the
   # test is aborted, we terminate the daeamons
   trap mpt_stop_test SIGINT SIGTERM
+
+  echo "Saving mpt test results to ${benchmark_run_dir}"
 
   test_start_time=$(date '+%Y-%m-%d %H:%M:%S')
   echo "Test start time: ${test_start_time}"
