@@ -101,6 +101,10 @@ function mpt_process_options() {
 }
 
 function mpt_check_options() {
+  if [ ${install_only} == "y" ] ; then
+    return
+  fi
+
   if [[ -z "${broker_url}" ]] ; then
     echo -e "Broker is a required option (-b)\n"
 
