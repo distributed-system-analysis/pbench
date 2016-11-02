@@ -34,6 +34,10 @@ install_only=n
 function mpt_usage() {
   printf "The following options are available:\n"
   printf "\n"
+  printf -- "\t-h --help\n"
+  printf "\t\tdisplay this help message\n"
+  printf -- "\t--install\n"
+  printf "\t\tinstall only\n"
   printf -- "\t-b str --broker-url=str    (default is $broker_url)\n"
   printf "\t\tURL to access the broker (ie: amqp://hostname:5672/queue.name or stomp://hostname:5672/queue.name)\n"
   printf -- "\t-d int --duration=int    (default is $duration)\n"
@@ -44,9 +48,6 @@ function mpt_usage() {
   printf "\t\tnumber of concurrent instances of the sender and receiver (default is $parallel_instances)\n"
   printf -- "\t-T int --throttle=int (default is $throttle)\n"
   printf "\t\tmaximum number of mesages (per second) allowed per sender connection (default is $throttle, 0 means unlimited)\n"
-  printf -- "\t--install\n"
-  printf "\t\tinstall only\n"
-
 }
 
 function mpt_process_options() {
