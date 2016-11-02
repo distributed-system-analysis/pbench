@@ -120,12 +120,6 @@ function mpt_check_options() {
   fi
 
   echo "Broker URL: ${broker_url}"
-  if [[ -z ${throttle}="$1" ]] ; then
-    export throttle="0"
-  else
-    echo "Throttling the sender"
-  fi
-
 }
 
 function mpt_stop_test() {
