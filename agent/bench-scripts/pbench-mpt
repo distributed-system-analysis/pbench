@@ -26,7 +26,10 @@ message_sizes=32,256
 # TODO: possibly a bit too conservative ...
 parallel_instances=1,5
 
+# TODO: this should be determined automatically
 throttle=0
+
+install_only=n
 
 function mpt_usage() {
   printf "The following options are available:\n"
@@ -41,15 +44,20 @@ function mpt_usage() {
   printf "\t\tnumber of concurrent instances of the sender and receiver (default is $parallel_instances)\n"
   printf -- "\t-T int --throttle=int (default is $throttle)\n"
   printf "\t\tmaximum number of mesages (per second) allowed per sender connection (default is $throttle, 0 means unlimited)\n"
-
+  printf -- "\t--install\n"
+  printf "\t\tinstall only\n"
 
 }
 
 function mpt_process_options() {
-  ARGS=$(getopt -o hb:d:s:p:T: -n "$0" -- "$@");
+  ARGS=$(getopt -o hib:d:s:p:T: -n "$0" -- "$@");
   eval set -- "$ARGS";
   while true; do
     case "$1" in
+      -i)
+        shift
+        export install_only="y"
+      ;;
       -b)
         shift
         export broker_url="$1"
@@ -132,11 +140,6 @@ function mpt_stop_test() {
   exit
 }
 
-# Explanation: we trap the exit/kill/termination of the script, so that if the
-# test is aborted, we terminate the daeamons
-trap mpt_stop_test SIGINT SIGTERM
-
-
 function mpt_run_by_duration() {
   local message_size=$1
   local instance_count=$2
@@ -157,6 +160,10 @@ function mpt_run_by_duration() {
 }
 
 function mpt_run_test() {
+  # Explanation: we trap the exit/kill/termination of the script, so that if the
+  # test is aborted, we terminate the daeamons
+  trap mpt_stop_test SIGINT SIGTERM
+
   test_start_time=$(date '+%Y-%m-%d %H:%M:%S')
   echo "Test start time: ${test_start_time}"
 
@@ -189,27 +196,28 @@ function mpt_install() {
   # TODO: since msg-perf-tool is installed via COPR, check what is the
   # recommended approach
 
-	if [ "$postprocess_only" = "n" ]; then
-		if check_install_rpm $benchmark_rpm $ver; then
-			debug_log "[$script_name]$benchmark_rpm $ver is installed"
-		else
-			debug_log "[$script_name]$benchmark_rpm $ver installation failed, exiting"
-			exit 1
-		fi
+  check_enable_copr orpiske litestomp
+  check_enable_copr orpiske msg-perf-tool
+
+	if check_install_rpm $benchmark_rpm $ver; then
+		debug_log "[$script_name]$benchmark_rpm $ver is installed"
+	else
+		debug_log "[$script_name]$benchmark_rpm $ver installation failed, exiting"
+		exit 1
 	fi
 
-	if [ ! -z "$clients" ] ; then
-		debug_log "verifying clients have msg-perf-tool installed"
-		echo "verifying clients have msg-perf-tool installed"
-		for client in `echo $clients | sed -e s/,/" "/g`; do
-			ssh $ssh_opts $client ${pbench_install_dir}/bench-scripts/$script_name --remote-only --install &
-		done
-		wait
-	fi
+  # TODO:support clients? remote testing?
 }
 
 mpt_process_options "$@"
 mpt_check_options
 
+echo "Installing the packages"
+mpt_install
 
+if [ ${install_only} == "y" ] ; then
+  exit 0
+fi
+
+echo "Running the test"
 mpt_run_test
