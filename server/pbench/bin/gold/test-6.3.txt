@@ -16,7 +16,7 @@
 --- pbench tree state
 +++ pbench log file contents
 /var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:start-1900-01-01T00:00:00-UTC
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:pbench-backup-tarballs: Specified backup directory does not resolve to a real location, /var/tmp/pbench-test-server/foo/backup
+/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:pbench-backup-tarballs: Specified backup directory does not resolve to a directory, /var/tmp/pbench-test-server/pbench/archive.backup
 --- pbench log file contents
 +++ test-execution.log file contents
 grep: /var/tmp/pbench-test-server/test-execution.log: No such file or directory

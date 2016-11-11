@@ -3,18 +3,18 @@
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
 /var/tmp/pbench-test-server/pbench/archive
+/var/tmp/pbench-test-server/pbench/archive.backup
+/var/tmp/pbench-test-server/pbench/archive.backup/controller
+/var/tmp/pbench-test-server/pbench/archive.backup/controller/fio__2016-08-16_22:03:11.tar.xz
+/var/tmp/pbench-test-server/pbench/archive.backup/controller/fio__2016-08-16_22:03:11.tar.xz.md5
+/var/tmp/pbench-test-server/pbench/archive.backup/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
+/var/tmp/pbench-test-server/pbench/archive.backup/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz.md5
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
-/var/tmp/pbench-test-server/pbench/backup
-/var/tmp/pbench-test-server/pbench/backup/controller
-/var/tmp/pbench-test-server/pbench/backup/controller/fio__2016-08-16_22:03:11.tar.xz
-/var/tmp/pbench-test-server/pbench/backup/controller/fio__2016-08-16_22:03:11.tar.xz.md5
-/var/tmp/pbench-test-server/pbench/backup/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
-/var/tmp/pbench-test-server/pbench/backup/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
 /var/tmp/pbench-test-server/pbench/logs
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/pbench-rsync-satellite.error
@@ -35,7 +35,7 @@
 --- pbench log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/ssh foo.bar.com cd /var/tmp/pbench-test-server/pbench/archive; ls
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/mailx -s pbench-rsync-satellite: TEST: 0 files processed, 0 remove failures, 0 md5 failures perf-dept-admins@example.com
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/mailx -s pbench-rsync-satellite: TEST: 0 files processed, 0 remove failures, 0 md5 failures admins@example.com
 /var/tmp/pbench-test-server/test-execution.log:Processed files:
 /var/tmp/pbench-test-server/test-execution.log:None
 /var/tmp/pbench-test-server/test-execution.log:
