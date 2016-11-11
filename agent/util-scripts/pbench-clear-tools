@@ -19,7 +19,7 @@ group="default"
 
 # Process options and arguments
 
-opts=$(getopt -q -o d:g: --longoptions "group:,name:" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o g:n: --longoptions "group:,name:" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"
