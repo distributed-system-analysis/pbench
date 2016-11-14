@@ -610,6 +610,10 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
 		   live_update: true,
 		   visible_datasets: 0,
 		   cursor_value: null,
+		   cursor_lock: false,
+		   cursor_lock_mouse_coordinates: { x: null,
+						    y: null
+						  },
 		   mouse: null,
 		   view_port_table_controls_visible: true,
 		   custom_domain: false
@@ -2093,6 +2097,10 @@ function handle_brush_actions(chart) {
     if (chart.data_model == "timeseries") {
 	set_x_axis_timeseries_label(chart);
     }
+
+    if (chart.state.cursor_lock) {
+	chart.chart.viewport.on("mousemove")(chart);
+    }
 }
 
 function zoom_it(chart, zoom_factor) {
@@ -2173,6 +2181,10 @@ function zoom_it(chart, zoom_factor) {
 
     if (chart.data_model == "timeseries") {
 	set_x_axis_timeseries_label(chart);
+    }
+
+    if (chart.state.cursor_lock) {
+	chart.chart.viewport.on("mousemove")(chart);
     }
 }
 
@@ -2618,7 +2630,8 @@ function build_chart(chart) {
 	.on("mousedown", viewport_mousedown)
 	.on("mouseup", viewport_mouseup)
 	.on("mouseout", viewport_mouseout)
-	.on("mousemove", viewport_mousemove);
+	.on("mousemove", viewport_mousemove)
+	.on("contextmenu", function() { d3.event.preventDefault(); return false; });
 
     chart.chart.loading = chart.chart.container.append("text")
 	.classed("loadinglabel middletext", true)
@@ -2926,12 +2939,15 @@ function highlight(dataset) {
 		    dataset.chart.datasets.valid[i].dom.points.classed({"unhighlighted": false, "highlightedpoint": true});
 		}
 
+		dataset.chart.datasets.valid[i].dom.cursor_point.classed("unhighlighted", false);
 	    } else {
 		dataset.chart.datasets.valid[i].dom.path.classed("unhighlighted", true);
 
 		if (dataset.chart.datasets.valid[i].dom.points) {
 		    dataset.chart.datasets.valid[i].dom.points.classed({"unhighlighted": true, "highlightedpoint": false});
 		}
+
+		dataset.chart.datasets.valid[i].dom.cursor_point.classed("unhighlighted", true);
 	    }
 	}
     } else {
@@ -2952,12 +2968,16 @@ function highlight(dataset) {
 		    dataset.chart.datasets.valid[i].dom.points.classed("unhighlighted", false)
 			.attr("r", 4);
 		}
+
+		dataset.chart.datasets.valid[i].dom.cursor_point.classed("unhighlighted", false);
 	    } else {
 		dataset.chart.datasets.valid[i].dom.path.classed({"unhighlighted": true, "highlightedline": false });
 
 		if (dataset.chart.datasets.valid[i].dom.points) {
 		    dataset.chart.datasets.valid[i].dom.points.classed("unhighlighted", true);
 		}
+
+		dataset.chart.datasets.valid[i].dom.cursor_point.classed("unhighlighted", true);
 	    }
 	}
     }
@@ -2995,6 +3015,8 @@ function dehighlight(dataset) {
 	    if (dataset.chart.datasets.valid[i].dom.points) {
 		dataset.chart.datasets.valid[i].dom.points.classed({"unhighlighted": false, "highlightedpoint": false});
 	    }
+
+	    dataset.chart.datasets.valid[i].dom.cursor_point.classed("unhighlighted", false);
 	}
     } else {
 	for (var i = 0; i < dataset.chart.datasets.valid.length; i++) {
@@ -3011,6 +3033,8 @@ function dehighlight(dataset) {
 		dataset.chart.datasets.valid[i].dom.points.classed("unhighlighted", false)
 		    .attr("r", 3);
 	    }
+
+	    dataset.chart.datasets.valid[i].dom.cursor_point.classed("unhighlighted", false);
 	}
     }
 
@@ -3127,6 +3151,10 @@ function show_all(chart) {
 	    }
 	    chart.datasets.valid[i].dom.legend.rect.classed("invisible", false);
 	    chart.datasets.valid[i].dom.table.row.classed("hiddenrow", false);
+
+	    if (chart.state.cursor_lock) {
+		chart.datasets.valid[i].dom.cursor_point.classed("hidden", false);
+	    }
 	}
     }
 
@@ -3153,6 +3181,10 @@ function hide_all(chart) {
 	    }
 	    chart.datasets.valid[i].dom.legend.rect.classed("invisible", true);
 	    chart.datasets.valid[i].dom.table.row.classed("hiddenrow", true);
+
+	    if (chart.state.cursor_lock) {
+		chart.datasets.valid[i].dom.cursor_point.classed("hidden", true);
+	    }
 	}
     }
 
@@ -3179,6 +3211,10 @@ function toggle_hide(dataset, skip_update_chart, skip_update_mouse) {
 	dataset.dom.legend.rect.classed("invisible", false);
 	dataset.dom.table.row.classed("hiddenrow", false);
 	dataset.chart.state.visible_datasets++;
+
+	if (dataset.chart.state.cursor_lock) {
+	    dataset.dom.cursor_point.classed("hidden", false);
+	}
 
 	if (dataset.chart.state.chart_selection != -1) {
 	    dataset.dom.legend.rect.classed("unhighlighted", true);
@@ -3209,6 +3245,10 @@ function toggle_hide(dataset, skip_update_chart, skip_update_mouse) {
 	dataset.dom.legend.rect.classed("invisible", true);
 	dataset.dom.table.row.classed("hiddenrow", true);
 	dataset.chart.state.visible_datasets--;
+
+	if (dataset.chart.state.cursor_lock) {
+	    dataset.dom.cursor_point.classed("hidden", true);
+	}
     }
 
     // check if we are being told to defer this update
@@ -3295,8 +3335,8 @@ function table_print(chart, value) {
 }
 
 function set_dataset_value(chart, dataset_index, values_index) {
-    chart.datasets.valid[dataset_index].dom.table.value.text(chart.formatting.table.float(chart.datasets.valid[dataset_index].values[values_index].y));
     chart.datasets.valid[dataset_index].values_index = values_index;
+    chart.datasets.valid[dataset_index].dom.table.value.text(chart.formatting.table.float(get_datapoint_y(chart.datasets.valid[dataset_index].values[values_index])));
     if (chart.data_model == "histogram") {
 	chart.datasets.valid[dataset_index].dom.table.percentile.text(chart.formatting.table.float(chart.datasets.valid[dataset_index].values[values_index].percentile));
     }
@@ -3305,7 +3345,9 @@ function set_dataset_value(chart, dataset_index, values_index) {
     chart.datasets.valid[dataset_index].dom.cursor_point.data([ chart.datasets.valid[dataset_index].values[values_index] ]);
     chart.datasets.valid[dataset_index].dom.cursor_point.attr("cx", get_chart_scaled_x)
     chart.datasets.valid[dataset_index].dom.cursor_point.attr("cy", get_chart_scaled_y_stack)
-    chart.datasets.valid[dataset_index].dom.cursor_point.classed("hidden", false);
+    if (! chart.datasets.valid[dataset_index].hidden) {
+	chart.datasets.valid[dataset_index].dom.cursor_point.classed("hidden", false);
+    }
 }
 
 function set_stacked_value(chart, value) {
@@ -3316,40 +3358,42 @@ function show_dataset_values(chart, x_coordinate) {
     // assume the mouse is moving from left to right
     var forward_search = true;
 
-    // check if there is a cached cursor_value that can be used to
-    // predict what direction the search should go; by caching the
-    // last value that was searched for and then searching in the
-    // proper direction the number of iterations required to find the
-    // next value can be reduced, possibly significantly
-    if (chart.state.cursor_value) {
-	if (chart.state.live_update && !d3.event) {
-	    // when live_update is on and there is no mousemove event
-	    // the search direction cannot be flipped despite the fact
-	    // that the coordinates would say it can -- the
-	    // coordinates are dynamically changing without a
-	    // direction
-	    ;
-	} else if (x_coordinate < chart.state.cursor_value) {
-	    // assume the mouse is moving from right to left
-	    forward_search = false;
+    if (! chart.state.cursor_lock) {
+	// check if there is a cached cursor_value that can be used to
+	// predict what direction the search should go; by caching the
+	// last value that was searched for and then searching in the
+	// proper direction the number of iterations required to find the
+	// next value can be reduced, possibly significantly
+	if (chart.state.cursor_value) {
+	    if (chart.state.live_update && !d3.event) {
+		// when live_update is on and there is no mousemove event
+		// the search direction cannot be flipped despite the fact
+		// that the coordinates would say it can -- the
+		// coordinates are dynamically changing without a
+		// direction
+		;
+	    } else if (x_coordinate < chart.state.cursor_value) {
+		// assume the mouse is moving from right to left
+		forward_search = false;
+	    }
+	} else {
+	    //without a cached cursor_value to base the search direction
+	    //off, figure out if the coordinate is closer to the start or
+	    //end of the domain and hope that results in a quicker search
+
+	    var domain = chart.x.scale.zoom.domain();
+
+	    var up = x_coordinate - domain[0];
+	    var down = domain[1] - x_coordinate;
+
+	    if (down < up) {
+		forward_search = false;
+	    }
 	}
-    } else {
-	//without a cached cursor_value to base the search direction
-	//off, figure out if the coordinate is closer to the start or
-	//end of the domain and hope that results in a quicker search
 
-	var domain = chart.x.scale.zoom.domain();
-
-	var up = x_coordinate - domain[0];
-	var down = domain[1] - x_coordinate;
-
-	if (down < up) {
-	    forward_search = false;
-	}
+	// populate the cursor_value cache
+	chart.state.cursor_value = x_coordinate;
     }
-
-    // populate the cursor_value cache
-    chart.state.cursor_value = x_coordinate;
 
     chart.table.stacked_value = 0;
 
@@ -3358,7 +3402,10 @@ function show_dataset_values(chart, x_coordinate) {
     var index = 0;
 
     for (var i=0; i<chart.datasets.valid.length; i++) {
-	if (chart.datasets.valid[i].hidden) {
+	// if the cursor_lock is on then the values are not changing
+	// so the existing values_index can be used
+	if (chart.state.cursor_lock) {
+	    set_dataset_value(chart, i, chart.datasets.valid[i].values_index);
 	    continue;
 	}
 
@@ -3433,10 +3480,6 @@ function clear_dataset_values(chart) {
     chart.state.cursor_value = null;
 
     for (var i=0; i<chart.datasets.valid.length; i++) {
-	if (chart.datasets.valid[i].hidden) {
-	    continue;
-	}
-
 	chart.datasets.valid[i].dom.table.value.text("");
 	chart.datasets.valid[i].values_index = -1;
 	if (chart.data_model == "histogram") {
@@ -3582,8 +3625,11 @@ function get_dataset_values(dataset) {
 }
 
 function viewport_mouseenter(chart) {
+    if (! chart.state.cursor_lock) {
+	chart.chart.viewport_elements.classed("hidden", false);
+    }
+
     chart.chart.viewport_controls.classed("hidden", false);
-    chart.chart.viewport_elements.classed("hidden", false);
 }
 
 function viewport_mousemove(chart) {
@@ -3605,35 +3651,6 @@ function viewport_mousemove(chart) {
     } else {
 	mouse = chart.state.mouse;
     }
-
-    var mouse_values = [ chart.x.scale.chart.invert(mouse[0]), chart.y.scale.chart.invert(mouse[1]) ];
-
-    if (chart.data_model == "timeseries") {
-	if (chart.options.timezone == "local") {
-	    chart.chart.coordinates.text("x:" + chart.formatting.time.local.long(mouse_values[0]) +
-					 " y:" + chart.formatting.table.float(mouse_values[1]));
-	} else {
-	    chart.chart.coordinates.text("x:" + chart.formatting.time.utc.long(mouse_values[0]) +
-					 " y:" + chart.formatting.table.float(mouse_values[1]));
-	}
-    } else {
-	chart.chart.coordinates.text("x:" + chart.formatting.table.float(mouse_values[0]) +
-				     " y:" + chart.formatting.table.float(mouse_values[1]));
-    }
-
-    var domain = chart.y.scale.chart.domain();
-
-    chart.chart.xcursorline.attr("x1", mouse[0])
-	.attr("x2", mouse[0])
-	.attr("y1", chart.y.scale.chart(domain[1]))
-	.attr("y2", chart.y.scale.chart(domain[0]));
-
-    domain = chart.x.scale.chart.domain();
-
-    chart.chart.ycursorline.attr("x1", chart.x.scale.chart(domain[0]))
-	.attr("x2", chart.x.scale.chart(domain[1]))
-	.attr("y1", mouse[1])
-	.attr("y2", mouse[1]);
 
     if (chart.chart.selection && (chart.chart.selection.size() == 1)) {
 	var selection_x, selection_y,
@@ -3662,30 +3679,76 @@ function viewport_mousemove(chart) {
 	    .classed("hidden", false);
     }
 
+    var mouse_values;
+
+    if (chart.state.cursor_lock) {
+	mouse_values = [ chart.x.scale.chart.invert(chart.state.cursor_lock_mouse_coordinates.x), chart.y.scale.chart.invert(chart.state.cursor_lock_mouse_coordinates.y) ];
+    } else {
+	mouse_values = [ chart.x.scale.chart.invert(mouse[0]), chart.y.scale.chart.invert(mouse[1]) ];
+    }
+
+    if (chart.data_model == "timeseries") {
+	if (chart.options.timezone == "local") {
+	    chart.chart.coordinates.text("x:" + chart.formatting.time.local.long(mouse_values[0]) +
+					 " y:" + chart.formatting.table.float(mouse_values[1]));
+	} else {
+	    chart.chart.coordinates.text("x:" + chart.formatting.time.utc.long(mouse_values[0]) +
+					 " y:" + chart.formatting.table.float(mouse_values[1]));
+	}
+    } else {
+	chart.chart.coordinates.text("x:" + chart.formatting.table.float(mouse_values[0]) +
+				     " y:" + chart.formatting.table.float(mouse_values[1]));
+    }
+
+    var domain = chart.y.scale.chart.domain();
+
+    chart.chart.xcursorline.attr("x1", chart.x.scale.chart(mouse_values[0]))
+	.attr("x2", chart.x.scale.chart(mouse_values[0]))
+	.attr("y1", chart.y.scale.chart(domain[1]))
+	.attr("y2", chart.y.scale.chart(domain[0]));
+
+
+    domain = chart.x.scale.chart.domain();
+
+    chart.chart.ycursorline.attr("x1", chart.x.scale.chart(domain[0]))
+	.attr("x2", chart.x.scale.chart(domain[1]))
+	.attr("y1", chart.y.scale.chart(mouse_values[1]))
+	.attr("y2", chart.y.scale.chart(mouse_values[1]));
+
     show_dataset_values(chart, mouse_values[0]);
     sort_table_by_value(chart);
 }
 
 function viewport_mouseout(chart) {
     chart.chart.viewport_controls.classed("hidden", true);
-    chart.chart.viewport_elements.classed("hidden", true);
     if (chart.chart.selection) {
 	chart.chart.selection.remove();
 	chart.chart.selection = null;
     }
     chart.state.selection_active = false;
 
-    clear_dataset_values(chart);
-
     chart.state.mouse = null;
+
+    if (! chart.state.cursor_lock) {
+	chart.chart.viewport_elements.classed("hidden", true);
+
+	clear_dataset_values(chart);
+	sort_table(chart);
+    }
 }
 
 function viewport_mousedown(chart) {
-    if (d3.event.button != 0) {
-	return;
-    }
+    var mouse = d3.mouse(this);
 
-    chart.state.selection_start = d3.mouse(this);
+    if (d3.event.button == 0) {
+	viewport_mousedown_primary(chart, mouse);
+    } else if (d3.event.button == 2) {
+	viewport_mousedown_secondary(chart, mouse);
+    }
+}
+
+function viewport_mousedown_primary(chart, mouse) {
+    chart.state.selection_start = mouse;
 
     if (chart.chart.selection) {
 	chart.chart.selection.remove();
@@ -3702,13 +3765,32 @@ function viewport_mousedown(chart) {
     chart.state.selection_active = true;
 }
 
-function viewport_mouseup(chart) {
-    if ((d3.event.button != 0) ||
-	!chart.state.selection_active) {
-	return;
-    }
+function viewport_mousedown_secondary(chart, mouse) {
+    if (chart.state.cursor_lock) {
+	chart.state.cursor_lock = false;
+	chart.state.mouse = mouse;
+	chart.state.cursor_lock_mouse_coordinates.x = null;
+	chart.state.cursor_lock_mouse_coordinates.y = null;
 
-    chart.state.selection_stop = d3.mouse(this);
+	viewport_mousemove(chart);
+    } else {
+	chart.state.cursor_lock = true;
+	chart.state.cursor_lock_mouse_coordinates.x = mouse[0];
+	chart.state.cursor_lock_mouse_coordinates.y = mouse[1];
+    }
+}
+
+function viewport_mouseup(chart) {
+    var mouse = d3.mouse(this);
+
+    if ((d3.event.button == 0) &&
+	chart.state.selection_active) {
+	viewport_mouseup_primary(chart, mouse);
+    }
+}
+
+function viewport_mouseup_primary(chart, mouse) {
+    chart.state.selection_stop = mouse;
 
     chart.chart.selection.remove();
     chart.chart.selection = null;
@@ -3962,6 +4044,10 @@ function reset_zoom_pan(chart) {
 
     chart.state.user_x_zoomed = false;
     chart.state.user_y_zoomed = false;
+
+    if (chart.state.cursor_lock) {
+	chart.chart.viewport.on("mousemove")(chart);
+    }
 }
 
 function toggle_hide_view_port_table_controls(chart) {
@@ -4086,6 +4172,7 @@ function display_help() {
     help += "You can \"lock\" a dataset to be hightlighted by clicking it's text in the legend or it's row in the table to the right of the chart.  Click either to \"unlock\" the selection.\n\n";
     help += "You can show or hide all datasets using the \"Show\" or \"Hide\" buttons at the top of the chart area.  Individual datasets can be hidden or unhidden by clicking the legend icon for that dataset.  A hidden dataset can also be unhidden by clicking it's table row.\n\n";
     help += "When moving your mouse around the chart area, the coordinates will be displayed in the upper right part of the chart area.\n\n";
+    help += "When moving your mouse around the chart area, right clicking will \"lock\" the dynamic features so that the cursor can leave the chart area without losing the current state of those features.  Right click again in the chart area to \"unlock\" those features.\n\n";
     help += "You can zoom into a selected area by clicking in the chart area and dragging the cursor to the opposite corner of the rectangular area you would like to focus on.  When you release the cursor the selection will be zoomed.\n\n";
     help += "You can also zoom in/out using the +/- controls which are visible when the mouse is over the chart area.\n\n";
     help += "You can control the panning and/or zooming using the slider controls above and to the right of the chart area.\n\n";
