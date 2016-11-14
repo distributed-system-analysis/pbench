@@ -1,0 +1,23 @@
+#! /bin/bash
+# -*- mode: shell-interaction -*-
+
+#CONFIG=/home/nick/src/pbench-index-test/config/pbench-index-test.cfg
+#CONFIG=/home/nick/src/internal/pbench/bgtasks/pbench/lib/config/pbench-index-test.cfg
+CONFIG=/home/nick/src/github/pbench/worktrees/wip-indexing/server/pbench/lib/config/pbench-index.cfg.example
+
+export CONFIG
+
+QUERYDIR=/hone/nick/lib/es/queries
+
+server=$(getconf.py server Server)
+month=${1:-$(date +%m)}
+year=$(date +%Y)
+idx=pbench.$year-$month
+
+curl -X DELETE $server/$idx
+
+echo
+
+exit 0
+
+
