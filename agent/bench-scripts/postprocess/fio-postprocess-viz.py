@@ -20,7 +20,7 @@ html = \
 <script src="/static/js/v0.3/saveSvgAsPng.js" charset="utf-8"></script>
 <div id='jschart_latency'>
   <script>
-    create_jschart(0, "%s", "jschart_latency", "Percentiles", "Time (s)", "Latency (s)",
+    create_jschart(0, "%s", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
         { plotfiles: [ "avg.log", "median.log", "p90.log",
                        "p99.log", "min.log", "max.log" ],
           sort_datasets: false, x_log_scale: false
