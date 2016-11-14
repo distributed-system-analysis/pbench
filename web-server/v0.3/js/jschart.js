@@ -494,6 +494,7 @@ function dataset(index, name, mean, median, values, chart) {
 			 }
 	       };
     this.values = [];
+    this.values_index = -1;
 }
 
 function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, location, options) {
@@ -3295,6 +3296,7 @@ function table_print(chart, value) {
 
 function set_dataset_value(chart, dataset_index, values_index) {
     chart.datasets.valid[dataset_index].dom.table.value.text(chart.formatting.table.float(chart.datasets.valid[dataset_index].values[values_index].y));
+    chart.datasets.valid[dataset_index].values_index = values_index;
     if (chart.data_model == "histogram") {
 	chart.datasets.valid[dataset_index].dom.table.percentile.text(chart.formatting.table.float(chart.datasets.valid[dataset_index].values[values_index].percentile));
     }
@@ -3436,6 +3438,7 @@ function clear_dataset_values(chart) {
 	}
 
 	chart.datasets.valid[i].dom.table.value.text("");
+	chart.datasets.valid[i].values_index = -1;
 	if (chart.data_model == "histogram") {
 	    chart.datasets.valid[i].dom.table.percentile.text("");
 	}
@@ -3660,6 +3663,7 @@ function viewport_mousemove(chart) {
     }
 
     show_dataset_values(chart, mouse_values[0]);
+    sort_table_by_value(chart);
 }
 
 function viewport_mouseout(chart) {
@@ -3858,6 +3862,12 @@ function sort_table(chart) {
     }
 }
 
+function sort_table_by_value(chart) {
+    if (chart.options.sort_datasets) {
+	chart.dom.table.data_rows.sort(datarow_sort_by_value);
+    }
+}
+
 function datarow_sort(a, b) {
     if (!a.invalid && b.invalid) {
 	return 1;
@@ -3875,6 +3885,28 @@ function datarow_sort(a, b) {
 	} else {
 	    return b.mean - a.mean;
 	}
+    }
+}
+
+function datarow_sort_by_value(a, b) {
+    if (!a.invalid && b.invalid) {
+	return 1;
+    } else if (a.invalid && !b.invalid) {
+	return -1;
+    } else if (a.invalid && b.invalid) {
+	return 0;
+    } else if (!a.hidden && b.hidden) {
+	return -1;
+    } else if (a.hidden && !b.hidden) {
+	return 1;
+    } else if ((b.values_index == -1) && (a.values_index == -1)) {
+	return 0;
+    } else if ((b.values_index == -1) && (a.values_index != -1)) {
+	return -1;
+    } else if ((b.vaues_index != -1) && (a.values_index == -1)) {
+	return 1;
+    } else {
+	return b.values[b.values_index].y - a.values[a.values_index].y;
     }
 }
 
