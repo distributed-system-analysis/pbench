@@ -1,0 +1,18 @@
+#! /bin/bash
+# -*- mode: shell-interaction -*-
+
+conf=/home/nick/src/github/pbench/worktrees/wip-indexing/server/pbench/lib/config/pbench-index.cfg.example
+ESDIR=/hone/nick/lib/es/queries
+
+server=$(getconf.py -C $conf server Server)
+month=${1:-$(date +%m)}
+year=$(date +%Y)
+idx=pbench.$year-$month
+
+curl -X PUT $server/$idx
+
+echo
+
+exit 0
+
+
