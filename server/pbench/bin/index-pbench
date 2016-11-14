@@ -220,7 +220,7 @@ def _to_utc(l, u):
     return (lts - timedelta(0, int(res*60*60), 0)).isoformat()
 
     
-def mk_run_metadata(mdconf, dirname, dirprefix):
+def mk_run_metadata(mdconf, md5sum, dirname, dirprefix):
     try:
         d = {}
         d.update(mdconf.items('run'))
@@ -231,6 +231,9 @@ def mk_run_metadata(mdconf, dirname, dirprefix):
         # Convert the date to UTC: date and start-run are supposed to be close
         # (except that date may be in local time and start-run is UTC).
         d['date'] = _to_utc(d['date'].replace('_', 'T'), d['start_run'])
+        # the run id here is the md5sum that's the _id of the main document.
+        # it's what ties all of the relevant documents together.
+        d['id'] = md5sum
         d['tarball-dirname'] = dirname
         d['tarball-toc-prefix'] = dirprefix
         del d['rpm-version']
@@ -318,7 +321,9 @@ def get_csv_files(iteration, sample, host, tool, mdlog, tb):
     return [x for x in tb.getnames() if x.find(path) >= 0 and tb.getmember(x).isfile()]
 
 class ToolData(object):
-    def __init__(self, experiment, iteration, sample, host, tool, toolgroup, dfile, dfilepath, tb):
+    def __init__(self, md5sum, experiment, iteration, sample, host, tool, toolgroup,
+                 dfile, dfilepath, tb):
+        self.runid = md5sum
         self.experiment = experiment
         self.iteration = iteration
         self.sample = sample
@@ -326,11 +331,11 @@ class ToolData(object):
         self.tool = tool
         self.toolgroup = toolgroup
         self.dfile = dfile
-        self.dfilepath = dfilepath
         self.data = get_tool_data(dfilepath, tb)
 
     def make_source(self):
         fixed = {
+            "runid": self.runid,
             "experiment": self.experiment,
             "iteration": self.iteration,
             "sample": self.sample,
@@ -338,7 +343,6 @@ class ToolData(object):
             "toolname": self.tool,
             "toolgroup": self.toolgroup,
             "datafile": self.dfile,
-            "datafilepath": self.dfilepath,
         }
         source = []
         for datum in self.data:
@@ -364,9 +368,13 @@ def get_tool_data(dfile, tb):
             data.append(datum)
     return data
 
-def mk_tool_data(mdlog, tb):
+def mk_tool_data(mdlog, md5sum, tb):
     tool_data = []
     experiment = mdlog.get("pbench", "name")
+    try:
+        toolsgroup = mdlog.get("tools", "group")
+    except:
+        toolsgroup = "default"
     iterations = get_iterations(mdlog, tb)
     for iteration in iterations:
         samples = get_samples(iteration, mdlog, tb)
@@ -380,8 +388,8 @@ def mk_tool_data(mdlog, tb):
                     data_files = get_csv_files(iteration, sample, host, tool, mdlog, tb)
                     for dfile in data_files:
                         tool_data.append(
-                            ToolData(experiment, iteration, sample, host,
-                                     tool, "default",
+                            ToolData(md5sum, experiment, iteration, sample, host,
+                                     tool, toolsgroup,
                                      os.path.basename(dfile), dfile, tb))
     return tool_data
 
@@ -697,7 +705,7 @@ def mk_source(hostname, tbname, dirname, dirprefix, tb, mdconf, md5sum, options)
     #if timeit: ts("mk_pbench_metadata")
     #rec['pbench'] = mk_pbench_metadata(mdconf)
     if timeit: ts("mk_run_metadata")
-    rec['run'] = mk_run_metadata(mdconf,dirname, dirprefix)
+    rec['run'] = mk_run_metadata(mdconf, md5sum, dirname, dirprefix)
     if timeit: ts("mk_sosreports")
     rec['sosreports'] = sos_d = mk_sosreports(tb)
     if timeit: ts("mk_tool_info")
@@ -775,16 +783,15 @@ def mk_results_action(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname,
 def mk_tool_data_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, tstamp, options):
 
     actions = []
-    for td in mk_tool_data(mdconf, tb):
+    for td in mk_tool_data(mdconf, md5sum, tb):
         sources = td.make_source()
         for source in sources:
             action = {
-                "_op_type": "create",
-                "_index": idxname,
-                "_type" : "pbench-tool-data",
+                "_op_type"   : "create",
+                "_index"     : idxname,
+                "_type"      : "pbench-tool-data",
                 "@timestamp" : tstamp,
                 "_source"    : source,
-                "_parent"    : md5sum
             }
             actions.append(action)
     return actions
