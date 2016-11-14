@@ -21,7 +21,7 @@ html = \
 <div id='jschart_latency'>
   <script>
     create_jschart(0, "%s", "jschart_latency", "Percentiles", "Time (s)", "Latency (s)",
-        { plotfiles: [ "avg.log", "median.log", "p90.log",
+        { plotfiles: [ "avg.log", "median.log", "p90.log", "p95.log",
                        "p99.log", "min.log", "max.log" ],
           sort_datasets: false, x_log_scale: false
         });
