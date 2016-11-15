@@ -244,7 +244,11 @@ def mk_run_metadata(mdconf, md5sum, dirname, dirprefix):
             raise Exception(e)
         print("Tarball: %s - %s is missing in metadata.log\n" % (dirname, e), file=sys.stdout)
         return {}
-    
+
+def mk_user_specified_metadata(options):
+    # parse the JSON into a dict and return it
+    return json.loads(options.metadata_string)
+
 def mk_metadata(fname, tb, mdconf, md5sum):
     """Return a dict with metadata about a tarball"""
     mtime = datetime.fromtimestamp(os.stat(fname)[stat.ST_MTIME])
@@ -702,6 +706,9 @@ def mk_source(hostname, tbname, dirname, dirprefix, tb, mdconf, md5sum, options)
     timeit = False
     if timeit: ts("mk_metadata")
     rec['@metadata'] = mk_metadata(tbname, tb, mdconf, md5sum)
+    if options.metadata_string:
+        if options.timeit: ts("mk_user_specified_metadata")
+        rec['user_specifified_metadata'] = mk_user_specified_metadata(options)
     #if timeit: ts("mk_pbench_metadata")
     #rec['pbench'] = mk_pbench_metadata(mdconf)
     if timeit: ts("mk_run_metadata")
@@ -1069,7 +1076,8 @@ def main(options, args):
 prog_options = [
     make_option("-C", "--config", dest="cfg_name", help="Specify config file"),
     make_option("-U", "--unittest", action="store_true", dest="unittest", help="Run in unittest mode"),
-    make_option("-T", "--timeit", action="store_true", dest="timeit", help="Time action making routines")
+    make_option("-T", "--timeit", action="store_true", dest="timeit", help="Time action making routines"),
+    make_option("-M", "--metadata", dest="metadata_string", help="Specify additional metadata (e.g. for browbeat) as a JSON document"),
 ]
 
 if __name__ == '__main__':
