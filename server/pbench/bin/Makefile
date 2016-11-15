@@ -1,8 +1,9 @@
 UTEST =
 UTIME =
 TB = uperf__2016-10-06_16:34:03.tar.xz
-TB = uperf__2016-10-12_16:31:34.tar.xz
-
+#TB = uperf__2016-10-12_16:31:34.tar.xz
+META =
+META = --metadata "{\"browbeat_uuid\": \"abcd1234\"}"
 # on perf42
 dir=/home/pbench/testing
 # on alphaville
@@ -16,9 +17,8 @@ run:
 	mkdir -p $$TMPDIR; \
 	./es/es-index-create 10; \
 	./es/es-settings start > settings.json; \
-	time PYTHONPATH=${dir}/lib:$$PYTHONPATH python3 index-pbench ${UTEST} ${UTIME} -C ${dir}/lib/config/pbench-index.cfg.example ${dir}/bin/state/tmp/${TB}; \
+	time PYTHONPATH=${dir}/lib:$$PYTHONPATH python3 index-pbench ${UTEST} ${UTIME} -C ${dir}/lib/config/pbench-index.cfg.example ${META} ${dir}/bin/state/tmp/${TB} > foo; \
 	./es/es-settings end >> settings.json'
-
 
 test:
 	bash -c '\
