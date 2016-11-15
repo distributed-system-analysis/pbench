@@ -246,8 +246,12 @@ def mk_run_metadata(mdconf, md5sum, dirname, dirprefix):
         return {}
 
 def mk_user_specified_metadata(options):
-    # parse the JSON into a dict and return it
-    return json.loads(options.metadata_string)
+    # parse the JSON string into a dict and return it
+    try:
+        return json.loads(options.metadata_string)
+    except:
+        print("Cannot parse JSON string: {}\n".format(options.metadata_string))
+        return {}
 
 def mk_metadata(fname, tb, mdconf, md5sum):
     """Return a dict with metadata about a tarball"""
@@ -261,8 +265,6 @@ def mk_metadata(fname, tb, mdconf, md5sum):
               'md5': md5sum
     }
     return mddict
-
-
 
 
 ###########################################################################
@@ -702,23 +704,24 @@ def mk_source(hostname, tbname, dirname, dirprefix, tb, mdconf, md5sum, options)
     
     rec = {}
 
-    timeit = options.timeit
-    timeit = False
-    if timeit: ts("mk_metadata")
+    # debug: -T options will cause each call below to be timed
+    # and the elapsed interval printed.
+    debug_time_operations = options.debug_time_operations
+    if debug_time_operations: ts("mk_metadata")
     rec['@metadata'] = mk_metadata(tbname, tb, mdconf, md5sum)
     if options.metadata_string:
-        if options.timeit: ts("mk_user_specified_metadata")
-        rec['user_specifified_metadata'] = mk_user_specified_metadata(options)
-    #if timeit: ts("mk_pbench_metadata")
+        if debug_time_operations: ts("mk_user_specified_metadata")
+        rec['user_specified_metadata'] = mk_user_specified_metadata(options)
+    #if debug_time_operations: ts("mk_pbench_metadata")
     #rec['pbench'] = mk_pbench_metadata(mdconf)
-    if timeit: ts("mk_run_metadata")
+    if debug_time_operations: ts("mk_run_metadata")
     rec['run'] = mk_run_metadata(mdconf, md5sum, dirname, dirprefix)
-    if timeit: ts("mk_sosreports")
+    if debug_time_operations: ts("mk_sosreports")
     rec['sosreports'] = sos_d = mk_sosreports(tb)
-    if timeit: ts("mk_tool_info")
+    if debug_time_operations: ts("mk_tool_info")
     rec['host_tools_info'] = mk_tool_info(sos_d, mdconf)
 
-    if timeit: ts("Done!", newline=True)
+    if debug_time_operations: ts("Done!", newline=True)
     
     return rec
 
@@ -828,7 +831,7 @@ def mk_toc_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md
         }
         actions.append(action)
 
-    if options.unittest:
+    if options.debug_unittest:
         # sort the list to produce a predictable result for comparison to gold output
         actions.sort(key=lambda x: x["_source"]["dirname"])
 
@@ -839,20 +842,20 @@ def get_md5sum(name):
     return open("%s.md5" % (name)).read().split()[0]
 
 def mk_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, options):
-    if options.unittest:
+    if options.debug_unittest:
         tstamp = datetime.strptime("1900-01-01T00:00:00", "%Y-%m-%dT%H:%M:%S")
     else:
         tstamp = datetime.now()
     md5sum = get_md5sum(tbname)
     actions = []
-    timeit = options.timeit
-    if timeit: ts("mk_results_action")
+    debug_time_operations = options.debug_time_operations
+    if debug_time_operations: ts("mk_results_action")
     actions.append(mk_results_action(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, tstamp, options))
-    if timeit: ts("mk_tool_data_actions")
+    if debug_time_operations: ts("mk_tool_data_actions")
     actions.extend(mk_tool_data_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, tstamp, options))
-    if timeit: ts("mk_toc_actions")
+    if debug_time_operations: ts("mk_toc_actions")
     actions.extend(mk_toc_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, tstamp, options))
-    if timeit: ts("", newline=True)
+    if debug_time_operations: ts("", newline=True)
     return actions
     
 ###########################################################################
@@ -961,7 +964,7 @@ def main(options, args):
             mappings=pbench_mappings)
 
         hosts = get_hosts(config)
-        if options.unittest:
+        if options.debug_unittest:
             es = None
         else:
             es = Elasticsearch(hosts, max_retries=0)
@@ -1002,7 +1005,7 @@ def main(options, args):
         template_name = INDEX_PREFIX
         idxname = "%s.%d-%02d" % (INDEX_PREFIX, year, month)
         # create the index with the indicated mappings
-        if not options.unittest:
+        if not options.debug_unittest:
             try:
                 res = es.indices.put_template(name=template_name, body=pbench_body)
             except Exception as e:
@@ -1011,24 +1014,24 @@ def main(options, args):
         actions = mk_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, options)
 
         print("len(actions) = {}".format(len(actions)), file=sys.stderr)
-        timeit = options.timeit
+        debug_time_operations = options.debug_time_operations
         
-        if options.unittest:
+        if options.debug_unittest:
             # print(len(actions))
             # for x in actions:
             #     try:
             #         print("{} {}\n".format(x["_type"], len(x["_source"]["host_tools_data"].keys())))
             #     except:
             #         print("{} {}\n".format(x["_type"], len(x["_source"].keys())))
-            if timeit: ts("pprint")
-            pprint(actions, width=100)
-            if timeit: ts("Done", newline=True)
+            if debug_time_operations: ts("pprint")
+            pprint(actions[0:100], width=100)
+            if debug_time_operations: ts("Done", newline=True)
             return 0
 
         # returns 0 0r 1
-        if timeit: ts("es_index")
+        if debug_time_operations: ts("es_index")
         res =  es_index(es, actions)
-        if timeit: ts("Done", newline=True)
+        if debug_time_operations: ts("Done", newline=True)
         return res
 
     except ConfigFileNotSpecified as e:
@@ -1075,9 +1078,10 @@ def main(options, args):
 
 prog_options = [
     make_option("-C", "--config", dest="cfg_name", help="Specify config file"),
-    make_option("-U", "--unittest", action="store_true", dest="unittest", help="Run in unittest mode"),
-    make_option("-T", "--timeit", action="store_true", dest="timeit", help="Time action making routines"),
     make_option("-M", "--metadata", dest="metadata_string", help="Specify additional metadata (e.g. for browbeat) as a JSON document"),
+    # options for debuggging and unit testing
+    make_option("-U", "--unittest", action="store_true", dest="debug_unittest", help="Run in unittest mode"),
+    make_option("-T", "--time-ops", action="store_true", dest="debug_time_operations", help="Time action making routines"),
 ]
 
 if __name__ == '__main__':
@@ -1087,7 +1091,5 @@ if __name__ == '__main__':
         
     (options, args) = parser.parse_args()
 
-    # if options.unittest:
-    #     options.timeit = True
     status = main(options, args)
     sys.exit(status)
