@@ -1,4 +1,5 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
 
 script_path=`dirname $0`
 script_name=`basename $0`
@@ -28,6 +29,12 @@ if [[ ! -d "$dir" ]]; then
 	error_log "Failed to create the sysinfo directory, \"$dir\""
 	exit 1
 fi
+
+function collect_kernel_config {
+	if [[ -e /boot/config-$(uname -r) ]] ;then
+		cp /boot/config-$(uname -r) $dir
+	fi
+}
 
 function collect_libvirt {
 	if [[ -e /var/log/libvirt && -e /etc/libvirt ]]; then
@@ -88,6 +95,7 @@ function collect_sos {
 	fi
 }
 
+collect_kernel_config &
 collect_libvirt &
 collect_topology &
 collect_sos &
