@@ -72,17 +72,17 @@ while (my $line = <IOSTAT_TXT>) {
 		# and another write-ops chart), so each series needs "-read" or
 		# "-write" appended to keep them distinct.
 
-		$iostat{disk}{"Utilization (percent)"}{$dev}{$timestamp_ms} = $util;
-		$iostat{disk}{"Throughput (MB per sec)"}{$dev . "-read"}{$timestamp_ms} = $rtput;
-		$iostat{disk}{"Throughput (MB per sec)"}{$dev . "-write"}{$timestamp_ms} = $wtput;
-		$iostat{disk}{"Request Merges per sec"}{$dev . "-read"}{$timestamp_ms} = $rrqm;
-		$iostat{disk}{"Request Merges per sec"}{$dev . "-write"}{$timestamp_ms} = $wrqm;
+		$iostat{disk}{"Utilization_percent"}{$dev}{$timestamp_ms} = $util;
+		$iostat{disk}{"Throughput_MB_per_sec"}{$dev . "-read"}{$timestamp_ms} = $rtput;
+		$iostat{disk}{"Throughput_MB_per_sec"}{$dev . "-write"}{$timestamp_ms} = $wtput;
+		$iostat{disk}{"Request_Merges_per_sec"}{$dev . "-read"}{$timestamp_ms} = $rrqm;
+		$iostat{disk}{"Request_Merges_per_sec"}{$dev . "-write"}{$timestamp_ms} = $wrqm;
 		$iostat{disk}{IOPS}{$dev . "-read"}{$timestamp_ms} = $riops;
 		$iostat{disk}{IOPS}{$dev . "-write"}{$timestamp_ms} = $wiops;
-		$iostat{disk}{"Request_Size (512-byte sectors)"}{$dev}{$timestamp_ms} = $reqsize;
+		$iostat{disk}{"Request_Size_in_512_byte_sectors"}{$dev}{$timestamp_ms} = $reqsize;
 		$iostat{disk}{Queue_Size}{$dev}{$timestamp_ms} = $qsize;
-		$iostat{disk}{"Wait_Time (msec)"}{$dev . "-read"}{$timestamp_ms} = $rwait;
-		$iostat{disk}{"Wait_Time (msec)"}{$dev . "-write"}{$timestamp_ms} = $wwait;
+		$iostat{disk}{"Wait_Time_msec"}{$dev . "-read"}{$timestamp_ms} = $rwait;
+		$iostat{disk}{"Wait_Time_msec"}{$dev . "-write"}{$timestamp_ms} = $wwait;
 	}
 }
 close(IOSTAT_TXT);
@@ -93,12 +93,12 @@ my %graph_type;
 
 # threshold for displying a series in a graph
 my %graph_threshold;
-$graph_threshold{disk}{"Utilization (percent)"} = 1;
-$graph_threshold{disk}{"Throughput (MB per sec)"} = 1;
+$graph_threshold{disk}{"Utilization_percent"} = 1;
+$graph_threshold{disk}{"Throughput_MB_per_sec"} = 1;
 $graph_threshold{disk}{IOPS} = 1;
-$graph_threshold{disk}{"Wait_Time (msec)"} = 0.1;
-$graph_threshold{disk}{"Request_Size (512-byte sectors)"} = 0.1;
-$graph_threshold{disk}{"Request Merges per sec"} = 0.1;
+$graph_threshold{disk}{"Wait_Time_msec"} = 0.1;
+$graph_threshold{disk}{"Request_Size_in_512_byte_sectors"} = 0.1;
+$graph_threshold{disk}{"Request_Merges_per_sec"} = 0.1;
 $graph_threshold{disk}{Queue_Size} = 0.01;
 
 gen_data(\%iostat, \%graph_type, \%graph_threshold, $dir);
