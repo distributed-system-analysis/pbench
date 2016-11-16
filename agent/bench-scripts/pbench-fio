@@ -602,8 +602,6 @@ function fio_run_job() {
 			ssh $ssh_opts $client /bin/rm -f "$benchmark_results_dir/*.log"  &
 		done
 		wait
-	else
-		mv $benchmark_results_dir/fio*.log $benchmark_results_dir/clients/localhost/ 2>/dev/null
 	fi
 	pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	echo "fio job complete"
@@ -714,22 +712,6 @@ function fio_run_benchmark() {
 							fi
 						done
 						if [ $sample_failed -eq 0 ]; then
-
-							hists=`cat $iteration_dir/sample1/fio.job 2>/dev/null | grep "^log_hist_msec"`
-							if [ ! -z "$hists" ]; then
-								hist_results=$iteration_dir/hist
-								mkdir -p $hist_results
-								# Use sample1 here, since all of the samples have the same log_hist_msec value
-								# NOTE: If --log_unix_epoch gets enabled in fio.job, then fiologparser_hist.py will not merge
-								# histograms into an "average" across the samples.
-								fiologparser_hist.py \
-									$iteration_dir/sample*/fio_clat_hist.*.log.* \
-									> $hist_results/hist.csv
-								$script_path/postprocess/$benchmark-postprocess-viz.py \
-									--job-file=$iteration_dir/sample1/fio.job \
-									$hist_results
-							fi
-
 							# find the keys that we will compute avg & stddev
 							# NOTE: we always choose "sample1" since it is
 							# always present and shares the same keys with
