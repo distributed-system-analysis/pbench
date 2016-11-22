@@ -592,7 +592,15 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
 						      clamping: null
 						    }
 					       }
-				     }
+				     },
+			  misc_controls: { table: null,
+					   rows: { header: null,
+						   sorting: null
+						 },
+					   toggle_hide: null,
+					   inputs: { sort_datasets: null
+						   }
+					 }
 			}
 	       };
 
@@ -616,6 +624,7 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
 						  },
 		   mouse: null,
 		   view_port_table_controls_visible: true,
+		   misc_controls_table_controls_visible: true,
 		   custom_domain: false
 		 };
 
@@ -1726,7 +1735,9 @@ function create_table(chart) {
 	    });
     }
 
-    var row = chart.dom.table.table.append("tr");
+    var row = chart.dom.table.table.append("tr")
+	.classed("header", true);
+
     var cell = row.append("td")
 	.attr("align", "center")
 	.attr("colSpan", colspan);
@@ -1817,6 +1828,51 @@ function create_table(chart) {
 	.on("click", reset_axes_domains);
 
     toggle_hide_view_port_table_controls(chart);
+
+    var row = chart.dom.table.table.append("tr")
+	.classed("header", true);
+
+    var cell = row.append("td")
+	.attr("align", "center")
+	.attr("colSpan", colspan);
+
+    chart.dom.table.misc_controls.table = cell.append("table")
+	.attr("width", "100%")
+	.classed("noborders", true);
+
+    chart.dom.table.misc_controls.rows.header = chart.dom.table.misc_controls.table.selectAll(".misc_controls_table_controls")
+	.data([ chart ])
+	.enter().append("tr")
+	.on("click", toggle_hide_misc_controls_table_controls);
+
+    chart.dom.table.misc_controls.toggle_hide = chart.dom.table.misc_controls.rows.header.append("th")
+	.attr("colSpan", 4)
+	.text("Misc. Controls");
+
+    chart.dom.table.misc_controls.rows.sorting = chart.dom.table.misc_controls.table.append("tr")
+	.classed("controls", true);
+
+    chart.dom.table.misc_controls.rows.sorting.append("th")
+	.text("Sorting");
+
+    var cell = chart.dom.table.misc_controls.rows.sorting.append("td")
+	.attr("colSpan", 3)
+	.text("Table Datasets: ");
+
+    chart.dom.table.misc_controls.inputs.sort_datasets = cell.selectAll(".table_sort_datasets")
+	.data([ chart ])
+	.enter().append("input")
+	.attr("type", "checkbox")
+	.property("checked", function() {
+	    if (chart.options.sort_datasets) {
+		return true;
+	    } else {
+		return false;
+	    }
+	})
+	.on("click", toggle_table_sort_datasets);
+
+    toggle_hide_misc_controls_table_controls(chart);
 
     console.log("...finished adding table controls for chart \"" + chart.chart_title + "\"");
 
@@ -4066,6 +4122,26 @@ function toggle_hide_view_port_table_controls(chart) {
     }
 }
 
+function toggle_hide_misc_controls_table_controls(chart) {
+    if (chart.state.misc_controls_table_controls_visible) {
+	chart.dom.table.misc_controls.toggle_hide.text("+ Misc. Controls");
+	chart.dom.table.misc_controls.rows.sorting.classed("nodisplay", true);
+	chart.state.misc_controls_table_controls_visible = false;
+    } else {
+	chart.dom.table.misc_controls.toggle_hide.text("- Misc. Controls");
+	chart.dom.table.misc_controls.rows.sorting.classed("nodisplay", false);
+	chart.state.misc_controls_table_controls_visible = true;
+    }
+}
+
+function toggle_table_sort_datasets(chart) {
+    if (chart.dom.table.misc_controls.inputs.sort_datasets.property("checked")) {
+	chart.options.sort_datasets = true;
+    } else {
+	chart.options.sort_datasets = false;
+    }
+}
+
 function toggle_x_axis_clamp(chart) {
     if (chart.dom.table.view_port.inputs.x.clamping.property("checked")) {
 	chart.x.scale.chart.clamp(true);
@@ -4180,6 +4256,7 @@ function display_help() {
     help += "To reset the chart area to it's original state after being panned/zoomed, hit the \"Reset Zoom/Pan\" button in the upper right.\n\n";
     help += "You can download a CSV file for the data by clicking the \"Export Data as CSV\" button located under the chart title.  The exported data is limited by x-axis zooming, if performed.\n\n";
     help += "Datasets highlighted in yellow in the table have been marked as invalid due to a problem while loading.  These datasets are permanently hidden and will ignore many user initiated events.\n\n";
+    help += "There is a hidden control panel the table marked as \"Misc. Controls\".  The panel can be unhidden/hidden by clicking the row with the panel title.  Currently this panel contains a control for enabling/disabling the live sorting of the datasets in the table while the cursor is scrolling through the view port.\n\n";
     help += "There is a hidden control panel in the table marked as \"View Port Controls\".  The panel can be unhidden/hidden by clicking the row with the panel title.  This panel can be used to manipulate the view port beyond what is possible with the normal zooming and panning controls.  Setting the X or Y axis minimum and maximum values will reset the scales to these values instead of basing them on the viewable data.  These controls are probably only useful in select scenarios such as when there are significant outliers or when extreme zooming is desired.  Clamping can also be enabled and disabled (default) on each axis in order to avoid potential rendering issues such as datasets not appearing when they should (very rare but happens sometimes when a dataset has a large outlier).\n\n";
     help += "When the page has completed generating all charts, the background will change colors to signal that loading is complete.\n";
 
