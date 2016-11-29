@@ -1,10 +1,10 @@
 cpu_busy-hostname:perf102=0.181052
 cpu_busy-hostname:perf104=2.162409
-trans_sec-client_hostname:all-server_hostname:all-server_port:all-server_port:all=4700.718379
+trans_sec-client_hostname:all-server_hostname:all-server_port:all-server_port:all=4700.757614
 trans_sec-client_hostname:perf102-server_hostname:perf104-server_port:21000=2350.383907
 trans_sec-client_hostname:perf102-server_hostname:perf104-server_port:22000=2350.383888
 trans_sec_per_cpu_busy-client_hostname:perf102-server_hostname:perf104-server_port:21000/hostname:perf102=13171.517012
 trans_sec_per_cpu_busy-client_hostname:perf102-server_hostname:perf104-server_port:22000/hostname:perf102=13171.622066
-usec-client_hostname:all-server_hostname:all-server_port:all-server_port:all=425.467061
+usec-client_hostname:all-server_hostname:all-server_port:all-server_port:all=425.463517
 usec-client_hostname:perf102-server_hostname:perf104-server_port:21000=425.462580
 usec-client_hostname:perf102-server_hostname:perf104-server_port:22000=425.462604
