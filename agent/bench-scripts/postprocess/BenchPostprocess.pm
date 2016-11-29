@@ -13,7 +13,7 @@ use Exporter qw(import);
 use List::Util qw(max);
 use Data::Dumper;
 
-our @EXPORT_OK = qw(trim_series get_label create_uid get_length get_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash);
+our @EXPORT_OK = qw(value_exists trim_series get_label create_uid get_length get_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash);
 
 my $script = "BenchPostprocess";
 
@@ -36,6 +36,7 @@ sub get_label {
 			'benchmark_version_label' => 'benchmark_version',
 			'test_type_label' => 'test_type',
 			'message_size_bytes_label' => 'message_size_bytes',
+			'block_size_kbytes_label' => 'block_size_kbytes',
 			'instances_label' => 'instances',
 			'clients_label' => 'clients',
 			'servers_label' => 'servers',
@@ -82,7 +83,7 @@ sub get_uid {
 	while ( $uid && $uid =~ s/^([^%]*)%([^%]+)%// ) {
 		my $before_uid_marker = $1;
 		my $uid_marker = $2;
-		if ( exists $$uid_sources_ref{$uid_marker} ) {
+		if ( $$uid_sources_ref{$uid_marker} ) {
 			$mapped_uid = $mapped_uid . $before_uid_marker . $$uid_sources_ref{$uid_marker};
 		} else {
 			$mapped_uid = $mapped_uid . $before_uid_marker . "%" . $uid_marker . "%";
@@ -141,12 +142,15 @@ sub put_value {
 sub remove_timestamp {
 	my $array_ref = shift;
 	my $timestamp = shift;
+	my $found = 0;
 	my $i;
 	for ($i=0; $i < scalar @{ $array_ref }; $i++) {
 		if ( $$array_ref[$i]{'date'} == $timestamp ) {
 			splice(@$array_ref, $i, 1);
+			$found = 1;
 		}
 	}
+	return $found;
 }
 
 # in a array of { 'date' => x, 'value' => y } hashes, return an array of only timestamps
@@ -157,7 +161,7 @@ sub get_timestamps {
 	foreach $timestamp_value_ref (@{ $array_ref }) {
 		push(@timestamps, $$timestamp_value_ref{'date'});
 	}
-	return @timestamps = sort @timestamps;
+	return @timestamps = sort {$a<=>$b} @timestamps;
 }
 
 sub trim_series {
@@ -167,21 +171,23 @@ sub trim_series {
 	my @timestamps = get_timestamps($array_ref);
 	my $timestamp;
 
-	if ( $begin_trim > 0 ) {
+	if ( $begin_trim > 0 and scalar @timestamps) {
 		my $first_timestamp = shift(@timestamps);
 		$timestamp = $first_timestamp;
-		while ( ($timestamp - $first_timestamp) <= ($begin_trim * 1000) ) {
-			remove_timestamp($array_ref, $timestamp);
-			$timestamp = shift(@timestamps);
+		while ( ($timestamp - $first_timestamp) <= ($begin_trim * 1000) and remove_timestamp($array_ref, $timestamp)) {
+			if (scalar @timestamps) {
+				$timestamp = shift(@timestamps);
+			}
 		}
 	}
 
-	if ( $end_trim > 0 ) {
+	if ( $end_trim > 0 and scalar @timestamps) {
 		my $last_timestamp = pop(@timestamps);
 		$timestamp = $last_timestamp;
-		while ( ($last_timestamp - $timestamp) <= ($end_trim * 1000) ) {
-			remove_timestamp($array_ref, $timestamp);
-			$timestamp = pop(@timestamps);
+		while ( ($last_timestamp - $timestamp) <= ($end_trim * 1000) and remove_timestamp($array_ref, $timestamp)) {
+			if (scalar @timestamps) {
+				$timestamp = pop(@timestamps);
+			}
 		}
 	}
 }
@@ -268,8 +274,6 @@ sub get_cpubusy_series {
 			}
 		}
 		close(SAR_ALLCPU_CSV);
-		#print "count: $cnt\n";
-		#print Dumper $cpu_busy_ref;
 		if ($cnt > 0) {
 			return 0;
 		} else {
@@ -302,25 +306,22 @@ sub calc_ratio_series {
 	# is no guarantee of that.  What we do is key off the timestamps of the second hash and interpolate a value from the first hash.
 	my $count = 0;
 	my $prev_numerator_timestamp_ms = 0;
-	#my @numerator_timestamps = (sort {$a<=>$b} keys %{$numerator});
 	my @numerator_timestamps = get_timestamps($numerator);
 	if ( scalar @numerator_timestamps == 0 ) {
 		print "warning: no timestamps found for numerator in calc_ratio_series()\n";
 		return 1;
 	}
-	#my @denominator_timestamps = (sort {$a<=>$b} keys %{$denominator});
 	my @denominator_timestamps = get_timestamps($denominator);
 	if ( scalar @denominator_timestamps == 0 ) {
 		print "warning: no timestamps found for denominator in calc_ratio_series()\n";
 		return 2;
 	}
-	while ($denominator_timestamps[0] < $numerator_timestamps[0]) {
+	while ($denominator_timestamps[0] and $numerator_timestamps[0] and $denominator_timestamps[0] < $numerator_timestamps[0]) {
 		shift(@denominator_timestamps) || last;
 	}
 	# remove any "trailing" timestamps: timestamps from denominator that come after the last timestamp in numerator
-	while ($denominator_timestamps[-1] >= $numerator_timestamps[-1]) {
+	while ($denominator_timestamps[-1] and $numerator_timestamps[-1] and $denominator_timestamps[-1] >= $numerator_timestamps[-1]) {
 		my $unneeded_denominator_timestamp = pop(@denominator_timestamps);
-		## delete $$denominator{$unneeded_denominator_timestamp} || last;
 		remove_timestamp(\@{ $denominator }, $unneeded_denominator_timestamp);
 	}
 	my $numerator_timestamp_ms = shift(@numerator_timestamps);
@@ -333,7 +334,6 @@ sub calc_ratio_series {
 		# find a pair of consecutive numerator timestamps which are before & after the denominator timestamp
 		# these timestamps are ordered, so once the first numerator timestamp is found that is >= denominator timestamp,
 		# the previous numerator timestamp should be < denominator timestamp.
-		# print "looking for suitable pair of timestamps\n";
 		while ($numerator_timestamp_ms <= $denominator_timestamp_ms) {
 			$prev_numerator_timestamp_ms = $numerator_timestamp_ms;
 			$numerator_timestamp_ms = shift(@numerator_timestamps) || last;
@@ -355,11 +355,10 @@ sub calc_ratio_series {
 
 sub calc_sum_series {
 	# This takes the sum of two hashes (hash references $add_from_ref and $add_to_ref)
-	# and stores the values in $add_to_hash.  This is essentially:
+	# and stores the values in $add_to_ref.  This is essentially:
 	# %add_to_hash = %add_from_hash + %add_to_hash
 	# Each hash is a time series, with a value for each timestamp key
 	# The timestamp keys do not need to match exactly.  Values are interrepted linearly
-	
 	# These hashes need to be used by reference in order to preserve the changes made
 	my $params = shift;
 	my $add_from_ref = $params;
@@ -371,58 +370,59 @@ sub calc_sum_series {
 	my $count = 0;
 	my $prev_stat1_timestamp_ms = 0;
 	my @stat1_timestamps = get_timestamps(\@{$add_from_ref});
-	# print "stat1_timestamps: @stat1_timestamps\n";
 	my @stat2_timestamps = get_timestamps(\@{$add_to_ref});
-	# print "stat2_timestamps: @stat2_timestamps\n";
 	# remove any "leading" timestamps: timestamps from stat2 that come before first timestamp in stat1
-	# print "removing leading samples\n";
-	while ($stat2_timestamps[0] < $stat1_timestamps[0]) {
-		# print "stat2:$stat2_timestamps[0] < stat1:$stat1_timestamps[0]\n";
+	while ($stat2_timestamps[0] and $stat1_timestamps[0] and $stat2_timestamps[0] < $stat1_timestamps[0]) {
 		my $unneeded_stat2_timestamp = shift(@stat2_timestamps);
-		##delete $$add_to_ref{$unneeded_stat2_timestamp} || last;
 		remove_timestamp (\@{ $add_to_ref}, $unneeded_stat2_timestamp) || last;
 	}
 	# remove any "trailing" timestamps: timestamps from stat2 that come after the last timestamp in stat1
-	# print "removing trailing samples\n";
-	while ($stat2_timestamps[-1] >= $stat1_timestamps[-1]) {
+	while ($stat2_timestamps[-1] and $stat1_timestamps[-1] and $stat2_timestamps[-1] > $stat1_timestamps[-1]) {
 		my $unneeded_stat2_timestamp = pop(@stat2_timestamps);
-		#printf "deleting this timestamp from stat2: $unneeded_stat2_timestamp value: $$add_to_ref{$unneeded_stat2_timestamp}\n";
-		##delete $$add_to_ref{$unneeded_stat2_timestamp} || last;
 		remove_timestamp(\@{ $add_to_ref}, $unneeded_stat2_timestamp) || last;
 	}
-	my $stat1_timestamp_ms = shift(@stat1_timestamps);
-	my $stat2_timestamp_ms;
-	for $stat2_timestamp_ms (@stat2_timestamps) {
-		# find a pair of consecutive stat1 timestamps which are before & after the stat2 timestamp
-		# these timestamps are ordered, so once the first stat1 timestamp is found that is >= stat2 timestamp,
-		# the previous stat1 timestamp should be < stat2 timestamp.
-		# print "looking for suitable pair of timestamps\n";
-		while ($stat1_timestamp_ms <= $stat2_timestamp_ms) {
-			# print "looking for a stat1_timestamp_ms:$stat1_timestamp_ms that is > $stat2_timestamp_ms\n";
-			$prev_stat1_timestamp_ms = $stat1_timestamp_ms;
-			$stat1_timestamp_ms = shift(@stat1_timestamps) || return;
+	if (scalar @stat1_timestamps) {
+		my $stat1_timestamp_ms = shift(@stat1_timestamps);
+		my $stat2_timestamp_ms;
+		for $stat2_timestamp_ms (@stat2_timestamps) {
+			# find a pair of consecutive stat1 timestamps which are before & after the stat2 timestamp
+			# these timestamps are ordered, so once the first stat1 timestamp is found that is >= stat2 timestamp,
+			# the previous stat1 timestamp should be < stat2 timestamp.
+			while ($stat1_timestamp_ms <= $stat2_timestamp_ms) {
+				$prev_stat1_timestamp_ms = $stat1_timestamp_ms;
+				$stat1_timestamp_ms = shift(@stat1_timestamps) || return;
+			}
+			my $stat1_value_base = get_value($add_from_ref, $prev_stat1_timestamp_ms);
+			# if the stat2 timestamp is different from the first $stat1 timestamp, then adjust the value based on the difference of time and values
+			my $stat2_prev_stat1_timestamp_diff_ms = ($stat2_timestamp_ms - $prev_stat1_timestamp_ms);
+			my $value_adj = 0;
+			if ($stat2_prev_stat1_timestamp_diff_ms != 0) {
+				my $stat1_prev_stat1_timestamp_diff_ms = ($stat1_timestamp_ms - $prev_stat1_timestamp_ms);
+				my $value_diff = get_value($add_from_ref, $stat1_timestamp_ms) - $stat1_value_base;
+				$value_adj = $value_diff * $stat2_prev_stat1_timestamp_diff_ms/$stat1_prev_stat1_timestamp_diff_ms;
+			}
+			my $stat1_value_interp = $stat1_value_base + $value_adj;
+			put_value($add_to_ref, $stat2_timestamp_ms,  get_value($add_to_ref,$stat2_timestamp_ms) + $stat1_value_interp);
+			$count++;
 		}
-		# print "[$prev_stat1_timestamp_ms] - [$stat1_timestamp_ms]\n";
-		##my $stat1_value_base = $$add_from_ref{$prev_stat1_timestamp_ms};
-		my $stat1_value_base = get_value($add_from_ref, $prev_stat1_timestamp_ms);
-		# if the stat2 timestamp is different from the first $stat1 timestamp, then adjust the value based on the difference of time and values
-		my $stat2_prev_stat1_timestamp_diff_ms = ($stat2_timestamp_ms - $prev_stat1_timestamp_ms);
-		my $value_adj = 0;
-		if ($stat2_prev_stat1_timestamp_diff_ms != 0) {
-			my $stat1_prev_stat1_timestamp_diff_ms = ($stat1_timestamp_ms - $prev_stat1_timestamp_ms);
-			##my $value_diff = $$add_from_ref{$stat1_timestamp_ms} - $stat1_value_base;
-			my $value_diff = get_value($add_from_ref, $stat1_timestamp_ms) - $stat1_value_base;
-			$value_adj = $value_diff * $stat2_prev_stat1_timestamp_diff_ms/$stat1_prev_stat1_timestamp_diff_ms;
-		}
-		my $stat1_value_interp = $stat1_value_base + $value_adj;
-		# if ($count == 0) {print "add_from: $stat1_value_interp  add_to(current): $$add_to_ref{$stat2_timestamp_ms}  ";}
-		##$$add_to_ref{$stat2_timestamp_ms} = $$add_to_ref{$stat2_timestamp_ms} + $stat1_value_interp;
-		put_value($add_to_ref, $stat2_timestamp_ms,  get_value($add_to_ref,$stat2_timestamp_ms) + $stat1_value_interp);
-		# printf " timestamp: $stat2_timestamp_ms  value: $$add_to_ref{$stat2_timestamp_ms}\n";
-		# if ($count  == 0) { print "add_to(new): $$add_to_ref{$stat2_timestamp_ms} ]\n";}
-		$count++;
 	}
 }
+sub value_exists {
+	my $params = shift;
+	my $key = $params;
+	$params = shift;
+	my $value = $params;
+	$params = shift;
+	my $array_ref = $params;
+	my $i;
+	for ($i=0; $i < scalar @{$array_ref}; $i++) {
+		if ($$array_ref[$i]{$key} == $value) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
 sub div_series {
 	my $params = shift;
 	my $div_from_ref = $params;
@@ -445,33 +445,50 @@ sub calc_aggregate_metrics {
 		if ($$workload_ref{$metric_class}) {
 			my $metric_type;
 			foreach $metric_type (keys %{ $$workload_ref{$metric_class} }) {
-				my %aggregate_dataset; # a new dataset for aggregated results
-				$aggregate_dataset{get_label('description_label')} = $$workload_ref{$metric_class}{$metric_type}[0]{get_label('description_label')};
-				$aggregate_dataset{get_label('role_label')} = "aggregate";
-				$aggregate_dataset{get_label('client_hostname_label')} = "all";
-				$aggregate_dataset{get_label('server_hostname_label')} = "all";
-				$aggregate_dataset{get_label('server_port_label')} = "all";
-				$aggregate_dataset{get_label('uid_label')} = create_uid('client_hostname_label', 'server_hostname_label', 'server_port_label', 'server_port_label');
-				# use the same timstamps from the first data
-				my @ref_timestamps = get_timestamps(\@{ $$workload_ref{$metric_class}{$metric_type}[0]{get_label('timeseries_label')}});
-				my @aggregate_samples;
-				# our new timeseries array for aggregate starts off with 0s
-				foreach my $timestamp_ms (@ref_timestamps) {
-					my %aggregate_sample = ( get_label('date_label') => int $timestamp_ms, get_label('value_label') => 0);
-					push(@aggregate_samples, \%aggregate_sample);
+				my %agg_dataset; # a new dataset for aggregated results
+				$agg_dataset{get_label('description_label')} = $$workload_ref{$metric_class}{$metric_type}[0]{get_label('description_label')};
+				$agg_dataset{get_label('role_label')} = "aggregate";
+				$agg_dataset{get_label('client_hostname_label')} = "all";
+				$agg_dataset{get_label('server_hostname_label')} = "all";
+				$agg_dataset{get_label('server_port_label')} = "all";
+				$agg_dataset{get_label('uid_label')} = create_uid('client_hostname_label', 'server_hostname_label', 'server_port_label', 'server_port_label');
+				# find the latest first timestamp and the earliest last timestamp among all of the data series
+				my $first_timestamp_ms = 0;
+				my $last_timestamp_ms = -1;
+				my $timestamp_interval = 0; # the average time between samples
+				my $count = 0;
+				for (my $i = 0; $i < scalar @{ $$workload_ref{$metric_class}{$metric_type} }; $i++) {
+					my @timestamps = get_timestamps(\@{ $$workload_ref{$metric_class}{$metric_type}[$i]{get_label('timeseries_label')}});
+					if (scalar @timestamps) {
+						$timestamp_interval += ($timestamps[-1] - $timestamps[0]) / (scalar @timestamps - 1);
+						$count++;
+						if ($timestamps[0] > $first_timestamp_ms) {
+							$first_timestamp_ms = $timestamps[0]
+						}
+						if ($last_timestamp_ms == -1 or $timestamps[-1] < $last_timestamp_ms) {
+							$last_timestamp_ms = $timestamps[-1]
+						}
+					}
+				}
+				$timestamp_interval /= $count;
+				my @agg_samples;
+				# our new timeseries array for aggregate starts off with values from first data series
+				for (my $agg_timestamp_ms = $first_timestamp_ms; $agg_timestamp_ms <= $last_timestamp_ms; $agg_timestamp_ms += $timestamp_interval) {
+					my %agg_sample = ( get_label('date_label') => int $agg_timestamp_ms, get_label('value_label') => 0);
+					push(@agg_samples, \%agg_sample);
 				}
 				# And now we add the values from each per server result to that hash one at a time
 				my $i;
 				for ($i=0; $i < scalar @{ $$workload_ref{$metric_class}{$metric_type} }; $i++) {
-					calc_sum_series(\@{ $$workload_ref{$metric_class}{$metric_type}[$i]{get_label('timeseries_label')} }, \@aggregate_samples);
+					calc_sum_series(\@{ $$workload_ref{$metric_class}{$metric_type}[$i]{get_label('timeseries_label')} }, \@agg_samples);
 				}
 				if ( $metric_class eq 'latency' ) {
-					div_series(\@aggregate_samples, $i);
+					div_series(\@agg_samples, $i);
 				}
-				$aggregate_dataset{get_label('value_label')} = get_mean(\@aggregate_samples);
-				$aggregate_dataset{get_label('timeseries_label')} = \@aggregate_samples;
+				$agg_dataset{get_label('value_label')} = get_mean(\@agg_samples);
+				$agg_dataset{get_label('timeseries_label')} = \@agg_samples;
 				# The aggregate data should be the first in the array
-				unshift(@{ $$workload_ref{$metric_class}{$metric_type} }, \%aggregate_dataset);
+				unshift(@{ $$workload_ref{$metric_class}{$metric_type} }, \%agg_dataset);
 			}
 		}
 	}
