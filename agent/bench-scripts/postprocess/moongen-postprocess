@@ -173,7 +173,7 @@ while ( <TXT> ) {
 				'value' => ($frame_size *8 +64 +96) *$rx_rate /1000 } );
 	}
 	# [Histogram port 0 to port 1 at rate 5.25 Mpps] Samples: 11067, Average: 10043.6 ns, StdDev: 1748.7 ns, Quartiles: 9177.0/9687.0/10320.0 ns
-	if (/^\[Histogram port (\d+) to port (\d+) at rate (\d+\.\d+) Mpps\]\s+Samples:\s+(\d+), Average: (\d+\.\d+) ns, StdDev: (\d+\.\d+) ns,.*/) {
+	if (/^\[Histogram port (\d+) to port (\d+) at rate (\d+\.?\d*) Mpps\]\s+Samples:\s+(\d+), Average: (\d+\.\d+) ns, StdDev: (\d+\.\d+) ns,.*/) {
 		my $tx_port = $1;
 		my $rx_port = $2;
 		my $tx_rate = $3;
