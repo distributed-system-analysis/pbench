@@ -56,7 +56,7 @@ haproxy_data_collect() {
     while true ; do
         for router in $routers ; do
             cmd="echo 'show stat' | socat - UNIX-CONNECT:/var/lib/haproxy/run/haproxy.sock"
- 
+
             date '+timestamp: %s.%N' >> $tool_output_dir/${router}.csv
             oc exec "${router}" -n ${router_namespace} -- /bin/sh -c "$cmd" >> $tool_output_dir/${router}.csv &
         done
@@ -188,7 +188,7 @@ case "$mode" in
     start)
         mkdir -p $tool_output_dir
         pushd $tool_output_dir >/dev/null
-        echo "${BASH_SOURCE} --dir=${dir} --interval=${interval} --collect" >$tool_cmd_file
+        echo "${0} --dir=${dir} --interval=${interval} --collect" >$tool_cmd_file
         chmod +x $tool_cmd_file
         debug_log "$script_name: running $tool_cmd"
         test "${counters_clear_all}" = Y && haproxy_counters_clear
