@@ -12,8 +12,10 @@
 
 # TODO
 # ~~~~
-# - scalability: JavaScript in Firefox cannot handle 1800+ routes depending on 
-#                desktop configuration.  Don't use NVD3?  Limit the number of routes?
+# - scalability: JavaScript in Firefox cannot handle 1800+ routes depending on desktop
+#   configuration.  Do not use NVD3?  Limit the number of routes?
+# - sane defaults for @haproxy_show, disable some graphs by default and look into customising
+#   output for others
 
 use strict;
 use warnings;
@@ -41,69 +43,69 @@ my $index_page='index.html';
 
 # http://cbonte.github.io/haproxy-dconv/1.5/configuration.html#9.1
 my @haproxy_show=(
-  # enabled, key, name,
-  [0, 'pxname', 'proxy name'],
-  [0, 'svname', 'service name'], # FRONTEND for frontend, BACKEND for backend, any name for server/listener
-  [1, 'qcur', 'current queued requests'], # For the backend this reports the number queued without a server assigned
-  [1, 'qmax', 'max value of qcur'],
-  [1, 'scur', 'current sessions'],
-  [1, 'smax', 'max sessions'],
-  [1, 'slim', 'configured session limit'],
-  [1, 'stot', 'cumulative number of connections'],
-  [1, 'bin', 'bytes in'],
-  [1, 'bout', 'bytes out'],
-  [1, 'dreq', 'requests denied because of security concerns'],
-  [1, 'dresp', 'responses denied because of security concerns'],
-  [1, 'ereq', 'request errors'],
-  [1, 'econ', 'number of requests that encountered an error trying to connect to a backend server'],
-  [1, 'eresp', 'response errors including srv_abrt'],
-  [1, 'wretr', 'number of times a connection to a server was retried'],
-  [1, 'wredis', 'number of times a request was redispatched to another'],
-  [0, 'status', 'status (UP/DOWN/NOLB/MAINT/MAINT(via)...)'],
-  [1, 'weight', 'total weight (backend), server weight (server)'],
-  [1, 'act', 'number of active servers (backend), server is active (server)'],
-  [1, 'bck', 'number of backup servers (backend), server is backup (server)'],
-  [1, 'chkfail', 'number of failed checks'], # Only counts checks failed when the server is up
-  [1, 'chkdown', 'number of UP->DOWN transitions'],
-  [1, 'lastchg', 'number of seconds since the last UP<->DOWN transition'],
-  [1, 'downtime', 'total downtime (in seconds)'],
-  [1, 'qlimit', 'configured maxqueue for the server'], # or nothing in the value is 0 (default, meaning no limit)
-  [1, 'pid', 'process id (0 for first instance, 1 for second, ...)'],
-  [1, 'iid', 'unique proxy id'],
-  [1, 'sid', 'server id (unique inside a proxy)'],
-  [1, 'throttle', 'current throttle percentage for the server'],
-  [1, 'lbtot', 'total number of times a server was selected'],
-  [1, 'tracked', 'id of proxy/server if tracking is enabled'],
-  [1, 'type', '(0:frontend, 1:backend, 2:server, 3:socket/listener)'],
-  [1, 'rate', 'number of sessions per second over last elapsed second'],
-  [1, 'rate_lim', 'configured limit on new sessions per second'],
-  [1, 'rate_max', 'max number of new sessions per second'],
-  [0, 'check_status', 'status of last health check'],
-  [1, 'check_code', 'layer5-7 code, if available'],
-  [1, 'check_duration', 'time in ms took to finish last health check'],
-  [1, 'hrsp_1xx', 'http responses with 1xx code'],
-  [1, 'hrsp_2xx', 'http responses with 2xx code'],
-  [1, 'hrsp_3xx', 'http responses with 3xx code'],
-  [1, 'hrsp_4xx', 'http responses with 4xx code'],
-  [1, 'hrsp_5xx', 'http responses with 5xx code'],
-  [1, 'hrsp_other', 'http responses with other codes (protocol error)'],
-  [1, 'hanafail', 'failed health checks details'],
-  [1, 'req_rate', 'HTTP requests per second over last elapsed second'],
-  [1, 'req_rate_max', 'max number of HTTP requests per second observed'],
-  [1, 'req_tot', 'total number of HTTP requests received'],
-  [1, 'cli_abrt', 'number of data transfers aborted by the client'],
-  [1, 'srv_abrt', 'number of data transfers aborted by the server'],
-  [1, 'comp_in', 'number of HTTP response bytes fed to the compressor'],
-  [1, 'comp_out', 'number of HTTP response bytes emitted by the compressor'],
-  [1, 'comp_byp', 'number of bytes that bypassed the HTTP compressor'],
-  [1, 'comp_rsp', 'number of HTTP responses that were compressed'],
-  [1, 'lastsess', 'number of seconds since last session assigned to server/backend'],
-  [0, 'last_chk', 'last health check contents or textual error'],
-  [0, 'last_agt', 'last agent check contents or textual error'],
-  [1, 'qtime', 'the average queue time in ms over the 1024 last requests'],
-  [1, 'ctime', 'the average connect time in ms over the 1024 last requests'],
-  [0, 'rtime', 'the average response time in ms over the 1024 last requests'], # 0 for TCP
-  [1, 'ttime', 'the average total session time in ms over the 1024 last'],
+  # enabled, dashboard, key, name,
+  [0, 0, 'pxname', 'proxy name'],
+  [0, 0, 'svname', 'service name'], # FRONTEND for frontend, BACKEND for backend, any name for server/listener
+  [1, 0, 'qcur', 'current queued requests'], # For the backend this reports the number queued without a server assigned
+  [1, 0, 'qmax', 'max value of qcur'],
+  [1, 1, 'scur', 'current sessions'],
+  [1, 1, 'smax', 'max sessions'],
+  [1, 0, 'slim', 'configured session limit'],
+  [1, 0, 'stot', 'cumulative number of connections'],
+  [1, 0, 'bin', 'bytes in'],
+  [1, 0, 'bout', 'bytes out'],
+  [1, 0, 'dreq', 'requests denied because of security concerns'],
+  [1, 0, 'dresp', 'responses denied because of security concerns'],
+  [1, 0, 'ereq', 'request errors'],
+  [1, 0, 'econ', 'number of requests that encountered an error trying to connect to a backend server'],
+  [1, 0, 'eresp', 'response errors including srv_abrt'],
+  [1, 0, 'wretr', 'number of times a connection to a server was retried'],
+  [1, 0, 'wredis', 'number of times a request was redispatched to another'],
+  [0, 0, 'status', 'status (UP/DOWN/NOLB/MAINT/MAINT(via)...)'],
+  [1, 0, 'weight', 'total weight (backend), server weight (server)'],
+  [1, 0, 'act', 'number of active servers (backend), server is active (server)'],
+  [1, 0, 'bck', 'number of backup servers (backend), server is backup (server)'],
+  [1, 1, 'chkfail', 'number of failed checks'], # Only counts checks failed when the server is up
+  [1, 0, 'chkdown', 'number of UP->DOWN transitions'],
+  [1, 0, 'lastchg', 'number of seconds since the last UP<->DOWN transition'],
+  [1, 0, 'downtime', 'total downtime (in seconds)'],
+  [1, 0, 'qlimit', 'configured maxqueue for the server'], # or nothing in the value is 0 (default, meaning no limit)
+  [1, 0, 'pid', 'process id (0 for first instance, 1 for second, ...)'],
+  [1, 0, 'iid', 'unique proxy id'],
+  [1, 0, 'sid', 'server id (unique inside a proxy)'],
+  [1, 0, 'throttle', 'current throttle percentage for the server'],
+  [1, 0, 'lbtot', 'total number of times a server was selected'],
+  [1, 0, 'tracked', 'id of proxy/server if tracking is enabled'],
+  [1, 0, 'type', '(0:frontend, 1:backend, 2:server, 3:socket/listener)'],
+  [1, 1, 'rate', 'number of sessions per second over last elapsed second'],
+  [1, 0, 'rate_lim', 'configured limit on new sessions per second'],
+  [1, 1, 'rate_max', 'max number of new sessions per second'],
+  [0, 0, 'check_status', 'status of last health check'],
+  [1, 0, 'check_code', 'layer5-7 code, if available'],
+  [1, 1, 'check_duration', 'time in ms took to finish last health check'],
+  [1, 0, 'hrsp_1xx', 'http responses with 1xx code'],
+  [1, 0, 'hrsp_2xx', 'http responses with 2xx code'],
+  [1, 0, 'hrsp_3xx', 'http responses with 3xx code'],
+  [1, 0, 'hrsp_4xx', 'http responses with 4xx code'],
+  [1, 0, 'hrsp_5xx', 'http responses with 5xx code'],
+  [1, 0, 'hrsp_other', 'http responses with other codes (protocol error)'],
+  [1, 0, 'hanafail', 'failed health checks details'],
+  [1, 1, 'req_rate', 'HTTP requests per second over last elapsed second'],
+  [1, 1, 'req_rate_max', 'max number of HTTP requests per second observed'],
+  [1, 0, 'req_tot', 'total number of HTTP requests received'],
+  [1, 0, 'cli_abrt', 'number of data transfers aborted by the client'],
+  [1, 0, 'srv_abrt', 'number of data transfers aborted by the server'],
+  [1, 0, 'comp_in', 'number of HTTP response bytes fed to the compressor'],
+  [1, 0, 'comp_out', 'number of HTTP response bytes emitted by the compressor'],
+  [1, 0, 'comp_byp', 'number of bytes that bypassed the HTTP compressor'],
+  [1, 0, 'comp_rsp', 'number of HTTP responses that were compressed'],
+  [1, 0, 'lastsess', 'number of seconds since last session assigned to server/backend'],
+  [0, 0, 'last_chk', 'last health check contents or textual error'],
+  [0, 0, 'last_agt', 'last agent check contents or textual error'],
+  [1, 0, 'qtime', 'the average queue time in ms over the 1024 last requests'],
+  [1, 0, 'ctime', 'the average connect time in ms over the 1024 last requests'],
+  [0, 0, 'rtime', 'the average response time in ms over the 1024 last requests'], # 0 for TCP
+  [1, 0, 'ttime', 'the average total session time in ms over the 1024 last'],
 );
 
 sub e2z {
@@ -117,7 +119,7 @@ sub graph_name {
   my $key = shift;
   my $name = shift;
   my $graph_name;
-   
+
   $graph_name="$key: $name";
   $graph_name=~tr/\//-/;  # used as filename -> issues with '/' being interpreted as path separator!
   return $graph_name;
@@ -126,7 +128,7 @@ sub graph_name {
 sub html_head {
     my $fh = shift;
     my $title = "index"; $title = shift if @_;
-  
+
     print $fh <<"_HTML_HEAD_";
 <!DOCTYPE HTML>
 <html>
@@ -154,8 +156,8 @@ sub html_router_index {
     my $graph_name;
     foreach my $obj (@haproxy_show) {
         next if !@$obj[0];
-        my $key=@$obj[1];
-        my $name=@$obj[2];
+        my $key=@$obj[2];
+        my $name=@$obj[3];
 
         html_ln($fh, "${router_name}-${key}.html", graph_name($key, $name));
         print $fh "<br>\n";
@@ -176,9 +178,11 @@ html_head($index_page_fh);
 foreach my $csv (@router_csv) {
     my $router_index = $csv; $router_index =~ s/\.csv$/.html/;
     my $router_name = $csv; $router_name =~ s/^.*\/([^\/]*)\.csv$/$1/;
-    open(ROUTER_CSV, "$csv") || die "could not find `$csv'\n"; 
+    open(ROUTER_CSV, "$csv") || die "could not find `$csv'\n";
     open(my $router_index_fh, ">$router_index") || die "could not open `$router_index' for writing\n";
     html_ln($index_page_fh, "${router_name}.html", $router_name);
+    html_ln($index_page_fh, "${router_name}-dashboard.html", "dashboard");
+    html_ln($index_page_fh, "config", "config");
     html_ln($index_page_fh, "logs", "logs");
     print $index_page_fh "<br>\n";
     html_head($router_index_fh, $router_name);
@@ -209,12 +213,13 @@ foreach my $csv (@router_csv) {
             my ($val, $graph_name);
             foreach my $obj (@haproxy_show) {
                 next if !@$obj[0];
-                my $key=@$obj[1];
-                my $name=@$obj[2];
+                my $key=@$obj[2];
+                my $name=@$obj[3];
 
                 $val=eval('"$' . $key . '"');
                 $graph_name=graph_name($key, $name);
                 $haproxy{"$router_name-$key"}{"$graph_name"}{"${pxname}_${svname}"}{$timestamp_ms} = e2z($val);
+                $haproxy{"$router_name-dashboard"}{"$graph_name"}{"${pxname}_${svname}"}{$timestamp_ms} = e2z($val) if @$obj[1];
             }
         }
     }
@@ -227,4 +232,4 @@ close($index_page_fh);
 
 my %graph_threshold;
 my %graph_type;
-gen_data(\%haproxy, \%graph_type, \%graph_threshold, $dir); 
+gen_data(\%haproxy, \%graph_type, \%graph_threshold, $dir);

@@ -76,10 +76,10 @@ haproxy_counters_clear() {
 haproxy_config_collect() {
     local tag=$1
     local haproxy_config=/var/lib/haproxy/conf/haproxy.config
-    local log_dir=$tool_output_dir/logs/$tag
-    mkdir -p $log_dir
+    local config_dir=$tool_output_dir/config/$tag
+    mkdir -p $config_dir
     for router in $(oc get pod --no-headers -n ${router_namespace} | awk '/^router-/ {print $1}') ; do
-        oc exec "${router}" -n ${router_namespace} -- /bin/sh -c "cat ${haproxy_config}" >> $log_dir/${router}-haproxy.config &
+        oc exec "${router}" -n ${router_namespace} -- /bin/sh -c "cat ${haproxy_config}" >> $config_dir/${router}-haproxy.config &
     done
     wait
 }
