@@ -1,4 +1,4 @@
-# Created 2016-09-22 Thu 16:15
+# Created 2016-12-02 Fri 10:40
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
@@ -51,7 +51,7 @@ want a multi-node setup, you have to read up on the =--remote= options of variou
   "myhost", the results will be found at (*N.B.*: this is a fake link
   serving as an example only - talk to your local administrator to find out
   what server to use to get to pbench results):
-  [[http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS]].
+  http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS.
 
 For explanations and details, see subsequent sections.
 

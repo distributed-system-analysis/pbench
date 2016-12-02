@@ -1,4 +1,4 @@
-# Created 2016-09-22 Thu 16:24
+# Created 2016-12-02 Fri 10:40
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
@@ -14,6 +14,106 @@
 #+SUBTITLE: 
 #+INFOJS_OPT: 
 #+LATEX_HEADER: 
+
+* Version 0.41
+
+** Installation                                                    :external:
+There are no installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install.
+
+After installation or update, you should have version 0.40-1gf281562
+of the pbench-agent RPM installed.
+
+** agent
+
+*** Backward incompatibilities
+None known.
+
+*** Bug fixes and enhancements
+
+User-visible changes include:
+
+**** New pbench-mpt benchmark
+Thanks to Ottavio Piske for this addition which runs msg-perf-tool.
+
+**** =pbench-fio=
+Various fixes to the recently added latency histogram functionality.
+
+**** iostat graphs
+Improve the graph descriptions by adding units to them. This is
+probably just a stopgap first step: there are plans to make various
+graph characteristics specified easily and in some cases customizable
+by the user.
+
+**** =pbench-moongen=
+Add latency data plus various fixes.
+
+**** Fixes to graph rendering
+See [[#web-server-0.41][web-server]] below.
+
+** server
+
+- Various fixes to rsyncing from satellite servers.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.41
+:END:
+The pbench-web-server RPM has been updated with many fixes, cleanups
+and optimizations: sort table datasets by value, dataset cursor value
+locking, add a "Misc. Controls" panel to the table.
+
+If you have it installed, you probably want to update:
+#+BEGIN_EXAMPLE
+dnf clean expire-cache
+dnf update pbench-web-server
+#+END_EXAMPLE
+(or the yum equivalents.)  The current version available from COPR
+is 0.41-1g97296c4.
+
+** Changelog
+This is the list of visible (non-merge, non-unit-test-related) commits
+since v0.40:
+
+- f780656 Fix a latency processing bug in moongen-postprocess
+- 8a9f445 Unit test gold files changes for PR#434
+- bc787eb Fix benchmark postprocessing infloop
+- d8ef7ff Add a "Misc. Controls" panel to the jschart table
+- eced272 Don't call fiologparser_hist.py twice
+- 49fafc2 Fix iostat unit tests.
+- aca5ffc Change the iostat keys to more accurately reflect the nature of the metrics
+- 4580156 Fix iostat unit tests
+- eadcde1 Change the keys of the iostat hash to make them more descriptive
+- 9672161 Collect the kernel config file
+- f9bc55a use correct units for fio histogram-derived latency graph
+- e1a6825 add 95th percentile to fio histogram-derived latency graph
+- acfff77 Update jschart by adding dataset cursor value locking
+- 5426fab Update jschart to sort the table datasets by value
+- f902160 pass job file to fiologparser_hist.py
+- 5068ed0 Fix short-form -n option
+- be6172f Only display the information about the location of the test results when actually running a test
+- 2a80577 The script does not require any options for the install-only mode, therefore prevent checking the test options
+- b487f24 Changes the order on which the help options are presented to the user to match the order they are declared
+- a505370 Fixes handling of long options, which were missing in the previous versions of the script
+- f207c4b Removes the logic to set the default throttle because it is already set earlier
+- 02d8ae7 Added support for 'install only' option, which can be used to install mpt dependencies on the test host
+- 27547a3 Added support for installing packages from Fedora COPR repositories (WIP)
+- 076f496 Minor cleanups by removing unused code on pbench-mpt script
+- 1badc9e Added a simple runner script for msg-perf-tool.
+- 35ee777 Fix incorrect addressing of 'webserver' variable that would prevent rendering host_info_url setting.
+- dc14a7b Downgrade sysstat further to 11.2.0
+- 84878ca Downgrade pbench-sysstat req to 11.4.1
+- d413085 Allow the user to tell pbench-moongen to accept negative packet loss
+- 7bb0c24 Update pbench-moongen to use lua-trafficgen
+- 47cca9c Parse new moongen output to find latency data
+- 5f898e3 Bump the required sysstat version to 11.5.1
+- 6ac5318 Event collection has to be for all namespaces
+- 3e03486 Typo
+- dbefb1b Crontab entries for satellite handling
+- e4d9fe9 Define all relevant variables in pbench-base.sh
+- 4b473f7 Improvements to status email
+- d23a302 Clean up the status mail
+- bbffa61 pbench-rsync-satellite: Fix tarball deletions and send status email
 
 * Version 0.40
 
@@ -207,7 +307,7 @@ of the renaming described above.
 **** pbench-netperf script has bit-rotted
 The pbench-netperf script seems to have bit-rotted. We are trying to
 decide whether to fix it or abandon it. If you have an opinion, please
-comment at [[https://github.com/distributed-system-analysis/pbench/issues/291]].
+comment at https://github.com/distributed-system-analysis/pbench/issues/291.
 
 *** New features
 Please submit suggestions/issues to the [[https://github.com/distributed-system-analysis/pbench/issues][issue tracker]].
