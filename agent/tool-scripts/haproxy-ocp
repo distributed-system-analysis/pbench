@@ -79,6 +79,7 @@ haproxy_config_collect() {
     local config_dir=$tool_output_dir/config/$tag
     mkdir -p $config_dir
     for router in $(oc get pod --no-headers -n ${router_namespace} | awk '/^router-/ {print $1}') ; do
+        oc exec "${router}" -n ${router_namespace} -- /bin/sh -c "haproxy -vv" >> $config_dir/${router}-haproxy-vv.txt &
         oc exec "${router}" -n ${router_namespace} -- /bin/sh -c "cat ${haproxy_config}" >> $config_dir/${router}-haproxy.config &
     done
     wait
