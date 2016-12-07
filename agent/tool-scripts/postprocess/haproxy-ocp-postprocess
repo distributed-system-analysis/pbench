@@ -36,6 +36,8 @@ use File::Find;
 
 my $dir=$ARGV[0];
 my %haproxy;
+my %graph_threshold;
+my %graph_type;
 my $timestamp;
 my $timestamp_ms;
 my @router_csv;
@@ -220,6 +222,8 @@ foreach my $csv (@router_csv) {
                 $graph_name=graph_name($key, $name);
                 $haproxy{"$router_name-$key"}{"$graph_name"}{"${pxname}_${svname}"}{$timestamp_ms} = e2z($val);
                 $haproxy{"$router_name-dashboard"}{"$graph_name"}{"${pxname}_${svname}"}{$timestamp_ms} = e2z($val) if @$obj[1];
+		$graph_threshold{"$router_name-$key"}{"$graph_name"} = 0;
+		$graph_threshold{"$router_name-dashboard"}{"$graph_name"} = 0;
             }
         }
     }
@@ -230,6 +234,4 @@ foreach my $csv (@router_csv) {
 html_tail($index_page_fh);
 close($index_page_fh);
 
-my %graph_threshold;
-my %graph_type;
 gen_data(\%haproxy, \%graph_type, \%graph_threshold, $dir);
