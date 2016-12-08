@@ -1,0 +1,25 @@
+#!/bin/bash
+
+tool_output_dir=$1
+tools_group_dir=$2
+function generate_inventory {
+        export INVENTORY=/tmp/inventory.$$
+        echo "[controller]"
+        echo $HOSTNAME
+        echo "[remote]"
+        ls $tools_group_dir | awk -F@ '/^remote/ {print $2};'
+        trap "rm -f $INVENTORY" QUIT INT EXIT
+}
+
+function collect_ansible_facts {
+        mkdir $tool_output_dir/ansible-facts
+        ansible -i ${INVENTORY} -m setup all --tree $tool_output_dir/ansible-facts --private-key $HOME/.ssh/id_rsa -u root
+}
+
+function collect_ara_data {
+#        mkdir -p $tool_output_dir
+        ansible-playbook -vvv -i ${INVENTORY} --extra-vars '{"TOOL_OUTPUT_DIR":"'$tool_output_dir'"}' /opt/pbench-agent/ansible/ara.yml
+}
+generate_inventory >> /tmp/inventory.$$
+collect_ara_data
+collect_ansible_facts &>/dev/null
