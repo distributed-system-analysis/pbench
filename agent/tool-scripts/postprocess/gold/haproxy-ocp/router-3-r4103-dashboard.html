@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">
+  </head>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.3/jschart.js"></script>
+    <center><h2>haproxy-ocp - router-3-r4103-dashboard</h2></center>
+    <div id="chart_1">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_1", "check_duration: time in ms took to finish last health check", null, null, { csvfiles: [ "csv/router-3-r4103-dashboard_check_duration: time in ms took to finish last health check.csv" ], threshold: 0 });
+      </script>
+    </div>
+    <div id="chart_2">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_2", "rate: number of sessions per second over last elapsed second", null, null, { csvfiles: [ "csv/router-3-r4103-dashboard_rate: number of sessions per second over last elapsed second.csv" ], threshold: 0 });
+      </script>
+    </div>
+    <div id="chart_3">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_3", "rate_max: max number of new sessions per second", null, null, { csvfiles: [ "csv/router-3-r4103-dashboard_rate_max: max number of new sessions per second.csv" ], threshold: 0 });
+      </script>
+    </div>
+    <div id="chart_4">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_4", "req_rate: HTTP requests per second over last elapsed second", null, null, { csvfiles: [ "csv/router-3-r4103-dashboard_req_rate: HTTP requests per second over last elapsed second.csv" ], threshold: 0 });
+      </script>
+    </div>
+    <div id="chart_5">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_5", "req_rate_max: max number of HTTP requests per second observed", null, null, { csvfiles: [ "csv/router-3-r4103-dashboard_req_rate_max: max number of HTTP requests per second observed.csv" ], threshold: 0 });
+      </script>
+    </div>
+    <div id="chart_6">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_6", "scur: current sessions", null, null, { csvfiles: [ "csv/router-3-r4103-dashboard_scur: current sessions.csv" ], threshold: 0 });
+      </script>
+    </div>
+    <div id="chart_7">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_7", "smax: max sessions", null, null, { csvfiles: [ "csv/router-3-r4103-dashboard_smax: max sessions.csv" ], threshold: 0 });
+      </script>
+    </div>
+  </body>
+</html>

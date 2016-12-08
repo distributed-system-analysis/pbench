@@ -134,6 +134,17 @@ function testfio {
     return $?
 }
 
+function testhaproxy_ocp {
+    echo "Testing haproxy-ocp-postprocess under sample $1 ..."
+
+    mkdir /tmp/GenData/$1
+    cp samples/$1/router*.csv /tmp/GenData/$1/
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./haproxy-ocp-postprocess /tmp/GenData/$1 > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+
+    diff -cr gold/$1/ /tmp/GenData/$1
+    return $?
+}
+
 function testcmpr {
     echo "Testing bench-scripts/postprocess/compare-bench-results under sample $1 ..."
 
@@ -166,6 +177,10 @@ for i in $(ls -1 samples/) ; do
             ;;
         fio-*)
             testfio $i
+            sts=$?
+            ;;
+        haproxy-ocp)
+            testhaproxy_ocp $i
             sts=$?
             ;;
         pcp-*)

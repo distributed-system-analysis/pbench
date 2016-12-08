@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">
+  </head>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.3/jschart.js"></script>
+    <center><h2>haproxy-ocp - router-3-r4103-sid</h2></center>
+    <div id="chart_1">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_1", "sid: server id (unique inside a proxy)", null, null, { csvfiles: [ "csv/router-3-r4103-sid_sid: server id (unique inside a proxy).csv" ], threshold: 0 });
+      </script>
+    </div>
+  </body>
+</html>
