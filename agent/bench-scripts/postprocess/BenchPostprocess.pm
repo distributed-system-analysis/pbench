@@ -11,7 +11,6 @@ use File::Basename;
 use Cwd 'abs_path';
 use Exporter qw(import);
 use List::Util qw(max);
-use Data::Dumper;
 
 our @EXPORT_OK = qw(value_exists trim_series get_label create_uid get_length get_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash);
 
@@ -348,7 +347,6 @@ sub calc_ratio_series {
 		}
 		my $numerator_value_interp = $numerator_value_base + $value_adj;
 		put_value($ratio, $denominator_timestamp_ms, $numerator_value_interp/get_value($denominator, $denominator_timestamp_ms));
-		# print "$$ratio{$denominator_timestamp_ms} :  $numerator_value_interp / $$denominator{$denominator_timestamp_ms}\n";
 		$count++;
 	}
 }
@@ -455,11 +453,11 @@ sub calc_aggregate_metrics {
 				# find the latest first timestamp and the earliest last timestamp among all of the data series
 				my $first_timestamp_ms = 0;
 				my $last_timestamp_ms = -1;
-				my $timestamp_interval = 0; # the average time between samples
+				my $timestamp_interval = 0; # what will be the average time between samples for aggregate series
 				my $count = 0;
 				for (my $i = 0; $i < scalar @{ $$workload_ref{$metric_class}{$metric_type} }; $i++) {
 					my @timestamps = get_timestamps(\@{ $$workload_ref{$metric_class}{$metric_type}[$i]{get_label('timeseries_label')}});
-					if (scalar @timestamps) {
+					if (scalar @timestamps > 1) {
 						$timestamp_interval += ($timestamps[-1] - $timestamps[0]) / (scalar @timestamps - 1);
 						$count++;
 						if ($timestamps[0] > $first_timestamp_ms) {
@@ -468,7 +466,11 @@ sub calc_aggregate_metrics {
 						if ($last_timestamp_ms == -1 or $timestamps[-1] < $last_timestamp_ms) {
 							$last_timestamp_ms = $timestamps[-1]
 						}
+					} else {
 					}
+				}
+				if ( $count == 0 ) {
+					next;
 				}
 				$timestamp_interval /= $count;
 				my @agg_samples;
