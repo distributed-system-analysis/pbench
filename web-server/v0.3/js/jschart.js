@@ -2054,7 +2054,7 @@ function create_table(chart) {
 
 	chart.dom.table.stacked.mean = row.append("td")
 	    .attr("align", "right")
-	    .text(table_print(chart.table.stacked_mean));
+	    .text(table_print(chart, chart.table.stacked_mean));
 
 	row.append("td");
 
@@ -2075,7 +2075,7 @@ function create_table(chart) {
 
 	chart.dom.table.stacked.median = row.append("td")
 	    .attr("align", "right")
-	    .text(table_print(chart.table.stacked_median));
+	    .text(table_print(chart, chart.table.stacked_median));
 
 	row.append("td");
     }
