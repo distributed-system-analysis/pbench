@@ -17,6 +17,7 @@ install:
  - sudo python3.5 /tmp/get-pip.py
  - sudo pip install 'configtools<0.4.0' elasticsearch
  - sudo ln -sf python3.5 /usr/bin/python3
+ - sudo pip install watches
 script:
  - ./agent/bench-scripts/unittests
  - ./agent/tool-scripts/postprocess/unittests

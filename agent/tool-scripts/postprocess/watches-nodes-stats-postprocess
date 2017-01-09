@@ -1,0 +1,444 @@
+#!/usr/bin/perl
+
+# Author: Lukas Vlcek (lvlcek@redhat.com)
+#
+# usage: <tool>-postprocess <dir>  dir = directory where tool txt file can be found
+#
+# The purpose of this script is to
+# -output the chart data in JSON format (watches.js)
+# -output html file(s) with embedded javascript, using d3.js libraries
+# The result should be one or more graphs
+
+use strict;
+use warnings;
+use JSON::XS qw( decode_json );
+use Date::Parse qw( str2time );
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+BEGIN {
+        my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+        $_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+        if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+                $_test_alt_tools_lib = "$_pbench_tspp_dir";
+        }
+}
+use lib "$_test_alt_tools_lib";
+no lib ".";
+use GenData qw(gen_data);
+
+my $tool = "watches-nodes-stats";
+my $dir=$ARGV[0]; # the directory where the txt file is
+my %stats;
+my $timestamp_ms;
+
+# read the test file
+my $input_file_name = $dir . "/" . $tool . "-stdout.txt";
+open(TOOL_TXT, $input_file_name) || die "could not find $input_file_name\n";
+#my $mode="search"; # ??
+while (my $line = <TOOL_TXT>) {
+	chomp $line;
+
+	my $doc = decode_json($line);
+
+	# Each JSON object contains top-level "timestamp" field with value
+	# having format in either UTC in ISO 8601 or timestamp (millis).
+	# Example.: "2017-01-13T15:04:41.838840Z" or "1484319364862"
+	# When we find this, update our timestamp for the hash.
+	$timestamp_ms = $doc->{timestamp};
+
+	if ( $timestamp_ms =~ /\b[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.\d+Z\b/) {
+		# Convert to millis if ISO format detected
+		$timestamp_ms = str2time($timestamp_ms, "UTC")*1000;
+	}
+
+	# now find the data we are interested in store them in hash for later processing
+	# data is stored this way:
+	# $stats{htmlpage}{graph}{series}{sample}
+	# if you are -not- using a subdirectory to store these files, the "{htmlpage}" should at least have the tool name in it
+	# if you are using a subdirectory, the subdirectory name is the name of the tool, so the htmlpage does not necessarily need the tool name in it
+
+	# Iterate over individual nodes:
+	if (exists $doc->{nodes}) {
+		my $nodes = $doc->{nodes};
+		while(my ($node_id, $node_details) = each %{$nodes}) {
+
+			my $graph_name = "TBD";
+			my $node_name = $node_details->{name};
+			# Each node details has it's own timestamp provided by ES.
+			# Note some node subsections has its own timestamp as well !!!
+			$timestamp_ms = $node_details->{timestamp};
+
+			# ================================
+
+			# --------------------------------
+			# Node thread_pool
+			my $node_tp = $node_details->{thread_pool};
+
+			while(my ($tp_type, $tp_details) = each %{$node_tp}) {
+				$graph_name = "node_thread_pool_".$tp_type.": " . $node_id . " (" . $node_name . ")";
+				$stats{$tool}{$graph_name}{completed}{$timestamp_ms} = $tp_details->{completed};
+				$stats{$tool}{$graph_name}{rejected}{$timestamp_ms} = $tp_details->{rejected};
+				$stats{$tool}{$graph_name}{queue}{$timestamp_ms} = $tp_details->{queue};
+				$stats{$tool}{$graph_name}{threads}{$timestamp_ms} = $tp_details->{threads};
+				$stats{$tool}{$graph_name}{largest}{$timestamp_ms} = $tp_details->{largest};
+				$stats{$tool}{$graph_name}{active}{$timestamp_ms} = $tp_details->{active};
+			}
+
+			# --------------------------------
+			# Node http
+			$graph_name = "node_http: " . $node_id . " (" . $node_name . ")";
+			my $node_http = $node_details->{http};
+			$stats{$tool}{$graph_name}{total_opened}{$timestamp_ms} = $node_http->{total_opened};
+			$stats{$tool}{$graph_name}{current_open}{$timestamp_ms} = $node_http->{current_open};
+
+			# --------------------------------
+			# Node script
+			# Skipping out for now. Probably not important for the first
+			# pbench integration. Though, we should include it later.
+
+			# --------------------------------
+			# Node process
+			my $node_process = $node_details->{process};
+			my $node_process_timestamp_ms = $node_process->{timestamp};
+
+			## Node process mem
+			$graph_name = "node_process_mem: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{total_virtual_in_bytes}{$node_process_timestamp_ms} =
+				$node_process->{mem}->{total_virtual_in_bytes};
+
+			## Node process file_descriptors
+			$graph_name = "node_process_fd: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{open_file_descriptors}{$node_process_timestamp_ms} =
+				$node_process->{open_file_descriptors};
+			$stats{$tool}{$graph_name}{max_file_descriptors}{$node_process_timestamp_ms} =
+				$node_process->{max_file_descriptors};
+
+			## Node process cpu (percent)
+			$graph_name = "node_process_cpu_percent: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{percent}{$node_process_timestamp_ms} =
+				$node_process->{cpu}->{percent};
+
+			## Node process cpu millis
+			$graph_name = "node_process_cpu_millis: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{total_in_millis}{$node_process_timestamp_ms} =
+				$node_process->{cpu}->{total_in_millis};
+			# This (^^) creats just a cumulative chart, which is not much useful.
+			# It would be better to create "diff" or "1st derivation" chart instead.
+
+			# --------------------------------
+			# TODO: Node breakers
+
+			# --------------------------------
+			# Node fs
+			my $node_fs = $node_details->{fs};
+			my $node_fs_timestamp_ms = $node_fs->{timestamp};
+
+			$graph_name = "node_fs_total: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{free_in_bytes}{$node_fs_timestamp_ms} = $node_fs->{total}->{free_in_bytes};
+			$stats{$tool}{$graph_name}{total_in_bytes}{$node_fs_timestamp_ms} = $node_fs->{total}->{total_in_bytes};
+			$stats{$tool}{$graph_name}{available_in_bytes}{$node_fs_timestamp_ms} = $node_fs->{total}->{available_in_bytes};
+
+			# For now we pull only total FS stats (^^). The node stats data provide also
+			# detailed breakdown over all mounted stores where ES is configured to store
+			# the data: my @data = $node_fs->{data};
+			# We are not processing this data ATM.
+
+			# --------------------------------
+			# Node jvm
+			my $node_jvm = $node_details->{jvm};
+			my $node_jvm_timestamp_ms = $node_jvm->{timestamp};
+
+			## mem
+			$graph_name = "node_jvm_mem_heap: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{heap_max_in_bytes}{$node_jvm_timestamp_ms} =
+				$node_jvm->{mem}->{heap_max_in_bytes};
+			$stats{$tool}{$graph_name}{heap_used_in_bytes}{$node_jvm_timestamp_ms} =
+				$node_jvm->{mem}->{heap_used_in_bytes};
+			$stats{$tool}{$graph_name}{heap_committed_in_bytes}{$node_jvm_timestamp_ms} =
+				$node_jvm->{mem}->{heap_committed_in_bytes};
+
+			$graph_name = "node_jvm_mem_non_heap: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{non_heap_used_in_bytes}{$node_jvm_timestamp_ms} =
+				$node_jvm->{mem}->{non_heap_used_in_bytes};
+			$stats{$tool}{$graph_name}{non_heap_committed_in_bytes}{$node_jvm_timestamp_ms} =
+				$node_jvm->{mem}->{non_heap_committed_in_bytes};
+
+			## mem.heap_used_percent
+			## This percent parameter is so important parameter that it is worth creating an extra chart for it.
+			$graph_name = "node_jvm_mem_heap_used_percent: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{heap_used_percent}{$node_jvm_timestamp_ms} =
+				$node_jvm->{mem}->{heap_used_percent};
+
+			## mem.pools
+			my $node_jvm_mem_pools = $node_jvm->{mem}->{pools};
+			while(my ($pool_type, $pool_details) = each %{$node_jvm_mem_pools}) {
+				my $metric_type = "node_jvm_mem_pool_".$pool_type;
+				$graph_name = $metric_type.": " . $node_id . " (" . $node_name . ")";
+				$stats{$tool}{$graph_name}{max_in_bytes}{$node_jvm_timestamp_ms} = $pool_details->{max_in_bytes};
+				$stats{$tool}{$graph_name}{peak_max_in_bytes}{$node_jvm_timestamp_ms} = $pool_details->{peak_max_in_bytes};
+				$stats{$tool}{$graph_name}{peak_used_in_bytes}{$node_jvm_timestamp_ms} = $pool_details->{peak_used_in_bytes};
+				$stats{$tool}{$graph_name}{used_in_bytes}{$node_jvm_timestamp_ms} = $pool_details->{used_in_bytes};
+			}
+
+			## threads
+			$graph_name = "node_jvm_threads: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{count}{$node_jvm_timestamp_ms} = $node_jvm->{threads}->{count};
+			$stats{$tool}{$graph_name}{peak_count}{$node_jvm_timestamp_ms} = $node_jvm->{threads}->{peak_count};
+
+			## mem.gc.collectors
+			my $node_jvm_gc_collectors = $node_jvm->{gc}->{collectors};
+			while(my ($col_type, $col_details) = each %{$node_jvm_gc_collectors}) {
+				# count
+				$graph_name = "node_jvm_gc_collector_".$col_type."_count: " . $node_id . " (" . $node_name . ")";
+				$stats{$tool}{$graph_name}{collection_count}{$node_jvm_timestamp_ms} = $col_details->{collection_count};
+				# time in millis
+				$graph_name = "node_jvm_gc_collector_".$col_type."_millis: " . $node_id . " (" . $node_name . ")";
+				$stats{$tool}{$graph_name}{collection_time_in_millis}{$node_jvm_timestamp_ms} = $col_details->{collection_time_in_millis};
+			}
+
+			## mem.buffer_pools
+			my $node_jvm_buffer_pools = $node_jvm->{buffer_pools};
+			while(my ($pool_type, $pool_details) = each %{$node_jvm_buffer_pools}) {
+				# count
+				$graph_name = "node_jvm_buffer_pool_".$pool_type."_count: " . $node_id . " (" . $node_name . ")";
+				$stats{$tool}{$graph_name}{count}{$node_jvm_timestamp_ms} = $pool_details->{count};
+				# in bytes
+				$graph_name = "node_jvm_buffer_pool_".$pool_type.": " . $node_id . " (" . $node_name . ")";
+				$stats{$tool}{$graph_name}{total_capacity_in_bytes}{$node_jvm_timestamp_ms} = $pool_details->{total_capacity_in_bytes};
+				$stats{$tool}{$graph_name}{used_in_bytes}{$node_jvm_timestamp_ms} = $pool_details->{used_in_bytes};
+			}
+
+			# --------------------------------
+			# Node indices
+			my $node_indices = $node_details->{indices};
+
+			## completion
+			$graph_name = "node_indices_completion: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{size_in_bytes}{$timestamp_ms} = $node_indices->{completion}->{size_in_bytes};
+
+			## suggest.current # Skip current, cumulative total is more precise.
+			## suggest.total
+			$graph_name = "node_indices_suggest: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{total}{$timestamp_ms} = $node_indices->{suggest}->{total};
+			## suggest.time_in_millis
+			$graph_name = "node_indices_suggest_in_millis: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{time_in_millis}{$timestamp_ms} = $node_indices->{suggest}->{time_in_millis};
+
+			## search.*_current # Skip current, cumulative total is more precise.
+			## search
+			$graph_name = "node_indices_search: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{query_total}{$timestamp_ms} = $node_indices->{search}->{query_total};
+			$stats{$tool}{$graph_name}{scroll_total}{$timestamp_ms} = $node_indices->{search}->{scroll_total};
+			$stats{$tool}{$graph_name}{fetch_total}{$timestamp_ms} = $node_indices->{search}->{fetch_total};
+			### search.open_contexts # skip ??
+			### search.*_time_in_millis
+			$graph_name = "node_indices_search_in_millis: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{query_time_in_millis}{$timestamp_ms} = $node_indices->{search}->{query_time_in_millis};
+			$stats{$tool}{$graph_name}{scroll_time_in_millis}{$timestamp_ms} = $node_indices->{search}->{scroll_time_in_millis};
+			$stats{$tool}{$graph_name}{fetch_time_in_millis}{$timestamp_ms} = $node_indices->{search}->{fetch_time_in_millis};
+
+			## fielddata.evictions
+			$graph_name = "node_indices_fielddata: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{evictions}{$timestamp_ms} = $node_indices->{fielddata}->{evictions};
+			## fielddata.memory_size_in_bytes
+			$graph_name = "node_indices_fielddata_memsize: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{memory_size_in_bytes}{$timestamp_ms} = $node_indices->{fielddata}->{memory_size_in_bytes};
+
+			## get.total(s)
+			$graph_name = "node_indices_get: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{total}{$timestamp_ms} = $node_indices->{get}->{total};
+			$stats{$tool}{$graph_name}{missing_total}{$timestamp_ms} = $node_indices->{get}->{missing_total};
+			$stats{$tool}{$graph_name}{exists_total}{$timestamp_ms} = $node_indices->{get}->{exists_total};
+			## get.*_in_millis
+			$graph_name = "node_indices_get_in_millis: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{time_in_millis}{$timestamp_ms} = $node_indices->{get}->{time_in_millis};
+			$stats{$tool}{$graph_name}{missing_time_in_millis}{$timestamp_ms} = $node_indices->{get}->{missing_time_in_millis};
+			$stats{$tool}{$graph_name}{exists_time_in_millis}{$timestamp_ms} = $node_indices->{get}->{exists_time_in_millis};
+
+			## translog.operations
+			$graph_name = "node_indices_translog: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{operations}{$timestamp_ms} = $node_indices->{translog}->{operations};
+			## translog.size_in_bytes
+			$graph_name = "node_indices_translog_size: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{size_in_bytes}{$timestamp_ms} = $node_indices->{translog}->{size_in_bytes};
+
+			## docs
+			$graph_name = "node_indices_docs: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{count}{$timestamp_ms} = $node_indices->{docs}->{count};
+			$stats{$tool}{$graph_name}{deleted}{$timestamp_ms} = $node_indices->{docs}->{deleted};
+
+			## segments.count
+			$graph_name = "node_indices_segments_count: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{count}{$timestamp_ms} = $node_indices->{segments}->{count};
+			## segments.*_in_bytes
+			$graph_name = "node_indices_segments_in_bytes: " . $node_id . " (" . $node_name . ")";
+			# may be we shall rather loop over keys ending with "_in_bytes" here...
+			$stats{$tool}{$graph_name}{term_vectors_memory_in_bytes}{$timestamp_ms} = $node_indices->{segments}->{term_vectors_memory_in_bytes};
+			$stats{$tool}{$graph_name}{version_map_memory_in_bytes}{$timestamp_ms} = $node_indices->{segments}->{version_map_memory_in_bytes};
+			$stats{$tool}{$graph_name}{index_writer_max_memory_in_bytes}{$timestamp_ms} = $node_indices->{segments}->{index_writer_max_memory_in_bytes};
+			$stats{$tool}{$graph_name}{norms_memory_in_bytes}{$timestamp_ms} = $node_indices->{segments}->{norms_memory_in_bytes};
+			$stats{$tool}{$graph_name}{stored_fields_memory_in_bytes}{$timestamp_ms} = $node_indices->{segments}->{stored_fields_memory_in_bytes};
+			$stats{$tool}{$graph_name}{doc_values_memory_in_bytes}{$timestamp_ms} = $node_indices->{segments}->{doc_values_memory_in_bytes};
+			$stats{$tool}{$graph_name}{fixed_bit_set_memory_in_bytes}{$timestamp_ms} = $node_indices->{segments}->{fixed_bit_set_memory_in_bytes};
+			$stats{$tool}{$graph_name}{terms_memory_in_bytes}{$timestamp_ms} = $node_indices->{segments}->{terms_memory_in_bytes};
+			$stats{$tool}{$graph_name}{memory_in_bytes}{$timestamp_ms} = $node_indices->{segments}->{memory_in_bytes};
+			$stats{$tool}{$graph_name}{index_writer_memory_in_bytes}{$timestamp_ms} = $node_indices->{segments}->{index_writer_memory_in_bytes};
+
+			## flush.total
+			$graph_name = "node_indices_flush: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{total}{$timestamp_ms} = $node_indices->{flush}->{total};
+			## flush.total_time_in_millis
+			$graph_name = "node_indices_flush_in_millis: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{total_time_in_millis}{$timestamp_ms} = $node_indices->{flush}->{total_time_in_millis};
+
+			## indexing.total(s)
+			$graph_name = "node_indices_indexing: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{noop_update_total}{$timestamp_ms} = $node_indices->{indexing}->{noop_update_total};
+			$stats{$tool}{$graph_name}{index_total}{$timestamp_ms} = $node_indices->{indexing}->{index_total};
+			$stats{$tool}{$graph_name}{delete_total}{$timestamp_ms} = $node_indices->{indexing}->{delete_total};
+			$stats{$tool}{$graph_name}{index_failed}{$timestamp_ms} = $node_indices->{indexing}->{index_failed}; #< this is interesting!
+			## indexing.*_in_millis
+			$graph_name = "node_indices_indexing_in_millis: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{delete_time_in_millis}{$timestamp_ms} = $node_indices->{indexing}->{delete_time_in_millis};
+			$stats{$tool}{$graph_name}{throttle_time_in_millis}{$timestamp_ms} = $node_indices->{indexing}->{throttle_time_in_millis};
+			$stats{$tool}{$graph_name}{index_time_in_millis}{$timestamp_ms} = $node_indices->{indexing}->{index_time_in_millis};
+
+			## refresh.total
+			$graph_name = "node_indices_refresh: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{total}{$timestamp_ms} = $node_indices->{refresh}->{total};
+			## refresh.total_time_in_millis
+			$graph_name = "node_indices_refresh_in_millis: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{total_time_in_millis}{$timestamp_ms} = $node_indices->{refresh}->{total_time_in_millis};
+
+			## query_cache
+			$graph_name = "node_indices_query_cache_size: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{memory_size_in_bytes}{$timestamp_ms} = $node_indices->{query_cache}->{memory_size_in_bytes};
+			## query_cache.count(s)
+			$graph_name = "node_indices_query_cache: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{miss_count}{$timestamp_ms} = $node_indices->{query_cache}->{miss_count};
+			$stats{$tool}{$graph_name}{total_count}{$timestamp_ms} = $node_indices->{query_cache}->{total_count};
+			$stats{$tool}{$graph_name}{evictions}{$timestamp_ms} = $node_indices->{query_cache}->{evictions};
+			#$stats{$tool}{$graph_name}{cache_size}{$timestamp_ms} = $node_indices->{query_cache}->{cache_size}; # skip - this seems to be human readable value
+			$stats{$tool}{$graph_name}{cache_count}{$timestamp_ms} = $node_indices->{query_cache}->{cache_count};
+
+			## warmer.current # Skip current, cumulative total is more precise.
+			## warmer.total
+			$graph_name = "node_indices_warmer: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{total}{$timestamp_ms} = $node_indices->{warmer}->{total};
+			## warmer.total_time_in_millis
+			$graph_name = "node_indices_warmer_in_millis: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{total_time_in_millis}{$timestamp_ms} = $node_indices->{warmer}->{total_time_in_millis};
+
+			## request_cache
+			$graph_name = "node_indices_request_cache_size: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{memory_size_in_bytes}{$timestamp_ms} = $node_indices->{request_cache}->{memory_size_in_bytes};
+			## request_cache.count(s)
+			$graph_name = "node_indices_request_cache: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{evictions}{$timestamp_ms} = $node_indices->{request_cache}->{evictions};
+			$stats{$tool}{$graph_name}{miss_count}{$timestamp_ms} = $node_indices->{request_cache}->{miss_count};
+			$stats{$tool}{$graph_name}{hit_count}{$timestamp_ms} = $node_indices->{request_cache}->{hit_count};
+
+			## percolate
+			$graph_name = "node_indices_percolate_size: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{memory_size_in_bytes}{$timestamp_ms} = $node_indices->{percolate}->{memory_size_in_bytes};
+			## percolate.count(s)
+			$graph_name = "node_indices_percolate: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{queries}{$timestamp_ms} = $node_indices->{percolate}->{queries};
+			$stats{$tool}{$graph_name}{total}{$timestamp_ms} = $node_indices->{percolate}->{total};
+			## percolate
+			$graph_name = "node_indices_percolate_in_millis: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{time_in_millis}{$timestamp_ms} = $node_indices->{percolate}->{time_in_millis};
+
+			## merges.count(s)
+			$graph_name = "node_indices_merges: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{total}{$timestamp_ms} = $node_indices->{merges}->{total};
+			## merges.docs
+			$graph_name = "node_indices_merges_docs: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{total_docs}{$timestamp_ms} = $node_indices->{merges}->{total_docs};
+			## merges.size
+			$graph_name = "node_indices_merges_size: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{total_auto_throttle_in_bytes}{$timestamp_ms} = $node_indices->{merges}->{total_auto_throttle_in_bytes};
+			$stats{$tool}{$graph_name}{total_size_in_bytes}{$timestamp_ms} = $node_indices->{merges}->{total_size_in_bytes};
+			## merges.*_in_millis
+			$graph_name = "node_indices_merges_in_millis: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{total_throttled_time_in_millis}{$timestamp_ms} = $node_indices->{merges}->{total_throttled_time_in_millis};
+			$stats{$tool}{$graph_name}{total_time_in_millis}{$timestamp_ms} = $node_indices->{merges}->{total_time_in_millis};
+			$stats{$tool}{$graph_name}{total_stopped_time_in_millis}{$timestamp_ms} = $node_indices->{merges}->{total_stopped_time_in_millis};
+
+			## store.size*
+			$graph_name = "node_indices_store_size: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{size_in_bytes}{$timestamp_ms} = $node_indices->{store}->{size_in_bytes};
+			## store.throttle...
+			$graph_name = "node_indices_store_throttle: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{throttle_time_in_millis}{$timestamp_ms} = $node_indices->{store}->{throttle_time_in_millis};
+
+			## recovery
+			$graph_name = "node_indices_recovery: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{current_as_target}{$timestamp_ms} = $node_indices->{recovery}->{current_as_target};
+			$stats{$tool}{$graph_name}{current_as_source}{$timestamp_ms} = $node_indices->{recovery}->{current_as_source};
+			## recovery.throttle*
+			$graph_name = "node_indices_recovery_throttle: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{throttle_time_in_millis}{$timestamp_ms} = $node_indices->{recovery}->{throttle_time_in_millis};
+
+
+			# --------------------------------
+			# Node os
+			my $node_os = $node_details->{os};
+			my $node_os_timestamp_ms = $node_details->{timestamp};
+
+			## load average
+			$graph_name = "node_os_load_average: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{load_average}{$node_os_timestamp_ms} = $node_os->{load_average};
+
+			## cpu (percent)
+			$graph_name = "node_os_cpu_percent: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{load_average}{$node_os_timestamp_ms} = $node_os->{cpu_percent};
+
+			## mem
+			$graph_name = "node_os_mem: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{free_in_bytes}{$node_os_timestamp_ms} = $node_os->{mem}->{free_in_bytes};
+			$stats{$tool}{$graph_name}{used_in_bytes}{$node_os_timestamp_ms} = $node_os->{mem}->{used_in_bytes};
+			$stats{$tool}{$graph_name}{total_in_bytes}{$node_os_timestamp_ms} = $node_os->{mem}->{total_in_bytes};
+
+			## mem (percent)
+			$graph_name = "node_os_mem_percent: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{free_percent}{$node_os_timestamp_ms} = $node_os->{mem}->{free_percent};
+			$stats{$tool}{$graph_name}{used_percent}{$node_os_timestamp_ms} = $node_os->{mem}->{used_percent};
+
+			## swap
+			$graph_name = "node_os_swap: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{free_in_bytes}{$node_os_timestamp_ms} = $node_os->{swap}->{free_in_bytes};
+			$stats{$tool}{$graph_name}{used_in_bytes}{$node_os_timestamp_ms} = $node_os->{swap}->{used_in_bytes};
+			$stats{$tool}{$graph_name}{total_in_bytes}{$node_os_timestamp_ms} = $node_os->{swap}->{total_in_bytes};
+
+			# --------------------------------
+			# Node transport
+			my $node_tr = $node_details->{transport};
+
+			$graph_name = "node_transport_TX_RX_cnt: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{tx_count}{$timestamp_ms} = $node_tr->{tx_count};
+			$stats{$tool}{$graph_name}{rx_count}{$timestamp_ms} = $node_tr->{rx_count};
+
+			$graph_name = "node_transport_TX_RX_size: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{tx_size_in_bytes}{$timestamp_ms} = $node_tr->{tx_size_in_bytes};
+			$stats{$tool}{$graph_name}{rx_size_in_bytes}{$timestamp_ms} = $node_tr->{rx_size_in_bytes};
+
+			$graph_name = "node_transport_server_open: " . $node_id . " (" . $node_name . ")";
+			$stats{$tool}{$graph_name}{server_open}{$timestamp_ms} = $node_tr->{server_open};
+
+		}
+	}
+
+}
+close(TOOL_TXT);
+
+# define the graph types
+# if you want something other than lineChart, put it here
+my %graph_type;
+
+# threshold for displaying a series in a graph
+my %graph_threshold;
+
+gen_data(\%stats, \%graph_type, \%graph_threshold, $dir);
+

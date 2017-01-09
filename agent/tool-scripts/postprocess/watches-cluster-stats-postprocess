@@ -1,0 +1,164 @@
+#!/usr/bin/perl
+
+# Author: Lukas Vlcek (lvlcek@redhat.com)
+#
+# usage: <tool>-postprocess <dir>  dir = directory where tool txt file can be found
+#
+# The purpose of this script is to
+# -output the chart data in JSON format (watches.js)
+# -output html file(s) with embedded javascript, using d3.js libraries
+# The result should be one or more graphs
+
+use strict;
+use warnings;
+use JSON::XS qw( decode_json );
+use Date::Parse qw( str2time );
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+BEGIN {
+        my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+        $_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+        if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+                $_test_alt_tools_lib = "$_pbench_tspp_dir";
+        }
+}
+use lib "$_test_alt_tools_lib";
+no lib ".";
+use GenData qw(gen_data);
+
+my $tool = "watches-cluster-stats";
+my $dir=$ARGV[0]; # the directory where the txt file is
+my %stats;
+my $timestamp_ms;
+
+# read the test file
+my $input_file_name = $dir . "/" . $tool . "-stdout.txt";
+open(TOOL_TXT, $input_file_name) || die "could not find $input_file_name\n";
+#my $mode="search"; # ??
+while (my $line = <TOOL_TXT>) {
+	chomp $line;
+
+	my $doc = decode_json($line);
+
+	# Each JSON object contains top-level "timestamp" field with value
+	# having format in either UTC in ISO 8601 or timestamp (millis).
+	# Example.: "2017-01-13T15:04:41.838840Z" or "1484319364862"
+	# When we find this, update our timestamp for the hash.
+	$timestamp_ms = $doc->{timestamp};
+
+	if ( $timestamp_ms =~ /\b[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.\d+Z\b/) {
+		# Convert to millis if ISO format detected
+		$timestamp_ms = str2time($timestamp_ms, "UTC")*1000;
+	}
+
+	# now find the data we are interested in store them in hash for later processing
+	# data is stored this way:
+	# $stats{htmlpage}{graph}{series}{sample}
+	# if you are -not- using a subdirectory to store these files, the "{htmlpage}" should at least have the tool name in it
+	# if you are using a subdirectory, the subdirectory name is the name of the tool, so the htmlpage does not necessarily need the tool name in it
+
+	# Cluster nodes count
+	my $cluster_nodes_data_only = $doc->{nodes}->{count}->{data_only};
+	my $cluster_nodes_master_data = $doc->{nodes}->{count}->{master_data};
+	my $cluster_nodes_total = $doc->{nodes}->{count}->{total};
+	my $cluster_nodes_master_only = $doc->{nodes}->{count}->{master_only};
+	my $cluster_nodes_clinet = $doc->{nodes}->{count}->{client};
+	$stats{$tool}{cluster_nodes_count}{data_only}{$timestamp_ms} = $cluster_nodes_data_only;
+	$stats{$tool}{cluster_nodes_count}{master_data}{$timestamp_ms} = $cluster_nodes_master_data;
+	$stats{$tool}{cluster_nodes_count}{total}{$timestamp_ms} = $cluster_nodes_total;
+	$stats{$tool}{cluster_nodes_count}{master_only}{$timestamp_ms} = $cluster_nodes_master_only;
+	$stats{$tool}{cluster_nodes_count}{client}{$timestamp_ms} = $cluster_nodes_clinet;
+
+	# Cluster nodes fs
+	my $cluster_nodes_fs_free_in_bytes = $doc->{nodes}->{fs}->{free_in_bytes};
+	my $cluster_nodes_fs_total_in_bytes = $doc->{nodes}->{fs}->{total_in_bytes};
+	my $cluster_nodes_fs_available_in_bytes = $doc->{nodes}->{fs}->{available_in_bytes};
+	$stats{$tool}{cluster_nodes_fs}{free_in_bytes}{$timestamp_ms} = $cluster_nodes_fs_free_in_bytes;
+	$stats{$tool}{cluster_nodes_fs}{total_in_bytes}{$timestamp_ms} = $cluster_nodes_fs_total_in_bytes;
+	$stats{$tool}{cluster_nodes_fs}{available_in_bytes}{$timestamp_ms} = $cluster_nodes_fs_available_in_bytes;
+
+	# Cluster nodes process file descriptors
+	my $fd_max = $doc->{nodes}->{process}->{open_file_descriptors}->{max};
+	my $fd_min = $doc->{nodes}->{process}->{open_file_descriptors}->{min};
+	my $fd_avg = $doc->{nodes}->{process}->{open_file_descriptors}->{avg};
+	$stats{$tool}{cluster_nodes_fd}{file_descriptors_max}{$timestamp_ms} = $fd_max;
+	$stats{$tool}{cluster_nodes_fd}{file_descriptors_min}{$timestamp_ms} = $fd_min;
+	$stats{$tool}{cluster_nodes_fd}{file_descriptors_avg}{$timestamp_ms} = $fd_avg;
+
+	# Cluster nodes process CPU
+	my $cpu_percent = $doc->{nodes}->{process}->{cpu}->{percent};
+	$stats{$tool}{cluster_nodes_CPU}{percent}{$timestamp_ms} = $cpu_percent;
+
+	# Cluster nodes JVM mem
+	my $jvm_mem_heap_used_in_bytes = $doc->{nodes}->{jvm}->{mem}->{heap_used_in_bytes};
+	my $jvm_mem_heap_max_in_bytes = $doc->{nodes}->{jvm}->{mem}->{heap_max_in_bytes};
+	$stats{$tool}{cluster_nodes_jvm_mem}{heap_used_in_bytes}{$timestamp_ms} = $jvm_mem_heap_used_in_bytes;
+	$stats{$tool}{cluster_nodes_jvm_mem}{heap_max_in_bytes}{$timestamp_ms} = $jvm_mem_heap_max_in_bytes;
+
+	# Cluster nodes JVM threads
+	my $jvm_threads = $doc->{nodes}->{jvm}->{threads};
+	$stats{$tool}{cluster_nodes_jvm_threads}{count}{$timestamp_ms} = $jvm_threads;
+
+	# Cluster nodes JVM max_uptime_in_millis
+	my $jvm_max_uptime_in_millis = $doc->{nodes}->{jvm}->{max_uptime_in_millis};
+	$stats{$tool}{cluster_nodes_jvm_max_uptime}{max_uptime}{$timestamp_ms} = $jvm_max_uptime_in_millis;
+
+	# Cluster OS mem used in bytes
+	my $total_os_mem_in_bytes = $doc->{nodes}->{os}->{mem}->{total_in_bytes};
+	$stats{$tool}{cluster_nodes_os}{mem_in_bytes}{$timestamp_ms} = $total_os_mem_in_bytes;
+
+	# Cluster OS processors
+	my $total_os_allocated_processors = $doc->{nodes}->{os}->{allocated_processors};
+	my $total_os_available_processors = $doc->{nodes}->{os}->{available_processors};
+	$stats{$tool}{cluster_os}{allocated_processors}{$timestamp_ms} = $total_os_allocated_processors;
+	$stats{$tool}{cluster_os}{available_processors}{$timestamp_ms} = $total_os_available_processors;
+
+	# Cluster indices
+	my $indices_count = $doc->{indices}->{count};
+	$stats{$tool}{cluster_indices_count}{count}{$timestamp_ms} = $indices_count;
+
+	# Cluster Lucene segments
+	my $indices_segments_count = $doc->{indices}->{segments}->{count};
+	$stats{$tool}{cluster_indices_segments}{count}{$timestamp_ms} = $indices_segments_count;
+
+	# Cluster index shards
+	my $indices_shards_total = $doc->{indices}->{shards}->{total};
+	my $indices_shards_primaries = $doc->{indices}->{shards}->{primaries};
+	my $indices_shards_replication = $doc->{indices}->{shards}->{replication};
+	$stats{$tool}{cluster_indices_shards}{total}{$timestamp_ms} = $indices_shards_total;
+	$stats{$tool}{cluster_indices_shards}{primaries}{$timestamp_ms} = $indices_shards_primaries;
+	$stats{$tool}{cluster_indices_shards}{replication}{$timestamp_ms} = $indices_shards_replication;
+
+	# Cluster documents
+	my $indices_docs_count = $doc->{indices}->{docs}->{count};
+	my $indices_docs_deleted = $doc->{indices}->{docs}->{deleted};
+	$stats{$tool}{cluster_indices_documents}{count}{$timestamp_ms} = $indices_docs_count;
+	$stats{$tool}{cluster_indices_documents}{deleted}{$timestamp_ms} = $indices_docs_deleted;
+
+	# Cluster indices store size
+	my $indices_store_size_in_bytes = $doc->{indices}->{store}->{size_in_bytes};
+	$stats{$tool}{cluster_indices_store_size}{size_in_bytes}{$timestamp_ms} = $indices_store_size_in_bytes;
+
+	# Cluster indices store throttle time
+	my $indices_store_throttle_time_in_millis = $doc->{indices}->{store}->{throttle_time_in_millis};
+	$stats{$tool}{cluster_indices_store_throttle}{throttle_time_in_millis}{$timestamp_ms} = $indices_store_throttle_time_in_millis;
+
+	# Cluster status (it is a string value: ["green", "yellow", "red"])
+	$stats{$tool}{cluster_status}{green}{$timestamp_ms} = 0;
+	$stats{$tool}{cluster_status}{yellow}{$timestamp_ms} = 0;
+	$stats{$tool}{cluster_status}{red}{$timestamp_ms} = 0;
+	$stats{$tool}{cluster_status}{$doc->{status}}{$timestamp_ms} = 1;
+
+}
+close(TOOL_TXT);
+
+# define the graph types
+# if you want something other than lineChart, put it here
+my %graph_type;
+
+# threshold for displaying a series in a graph
+my %graph_threshold;
+
+gen_data(\%stats, \%graph_type, \%graph_threshold, $dir);
+

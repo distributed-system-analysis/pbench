@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">
+  </head>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.3/jschart.js"></script>
+    <center><h2>watches-cluster-health - watches-cluster-health</h2></center>
+    <div id="chart_1">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_1", "cluster_health_status", null, null, { csvfiles: [ "csv/watches-cluster-health_cluster_health_status.csv" ] });
+      </script>
+    </div>
+    <div id="chart_2">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_2", "cluster_index_shards", null, null, { csvfiles: [ "csv/watches-cluster-health_cluster_index_shards.csv" ] });
+      </script>
+    </div>
+    <div id="chart_3">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_3", "cluster_nodes", null, null, { csvfiles: [ "csv/watches-cluster-health_cluster_nodes.csv" ] });
+      </script>
+    </div>
+    <div id="chart_4">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_4", "cluster_task_max_waiting", null, null, { csvfiles: [ "csv/watches-cluster-health_cluster_task_max_waiting.csv" ] });
+      </script>
+    </div>
+    <div id="chart_5">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_5", "cluster_tasks", null, null, { csvfiles: [ "csv/watches-cluster-health_cluster_tasks.csv" ] });
+      </script>
+    </div>
+    <div id="chart_6">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_6", "shards_of_index: wiki1", null, null, { csvfiles: [ "csv/watches-cluster-health_shards_of_index: wiki1.csv" ] });
+      </script>
+    </div>
+    <div id="chart_7">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_7", "shards_of_index: wiki2", null, null, { csvfiles: [ "csv/watches-cluster-health_shards_of_index: wiki2.csv" ] });
+      </script>
+    </div>
+    <div id="chart_8">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_8", "shards_of_index: wiki3", null, null, { csvfiles: [ "csv/watches-cluster-health_shards_of_index: wiki3.csv" ] });
+      </script>
+    </div>
+    <div id="chart_9">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_9", "status_of_index: wiki1", null, null, { csvfiles: [ "csv/watches-cluster-health_status_of_index: wiki1.csv" ] });
+      </script>
+    </div>
+    <div id="chart_10">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_10", "status_of_index: wiki2", null, null, { csvfiles: [ "csv/watches-cluster-health_status_of_index: wiki2.csv" ] });
+      </script>
+    </div>
+    <div id="chart_11">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_11", "status_of_index: wiki3", null, null, { csvfiles: [ "csv/watches-cluster-health_status_of_index: wiki3.csv" ] });
+      </script>
+    </div>
+  </body>
+</html>

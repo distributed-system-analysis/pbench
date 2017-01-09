@@ -1,0 +1,136 @@
+#!/usr/bin/perl
+
+# Author: Lukas Vlcek (lvlcek@redhat.com)
+#
+# usage: <tool>-postprocess <dir>  dir = directory where tool txt file can be found
+#
+# The purpose of this script is to
+# -output the chart data in JSON format (watches.js)
+# -output html file(s) with embedded javascript, using d3.js libraries
+# The result should be one or more graphs
+
+use strict;
+use warnings;
+use JSON::XS qw( decode_json );
+use Date::Parse qw( str2time );
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+BEGIN {
+    my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+    $_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+    if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+        $_test_alt_tools_lib = "$_pbench_tspp_dir";
+    }
+}
+use lib "$_test_alt_tools_lib";
+no lib ".";
+use GenData qw(gen_data);
+
+my $tool = "watches-cluster-health";
+my $dir=$ARGV[0]; # the directory where the txt file is
+my %stats;
+my $timestamp_ms;
+
+# read the test file
+my $input_file_name = $dir . "/" . $tool . "-stdout.txt";
+open(TOOL_TXT, $input_file_name) || die "could not find $input_file_name\n";
+#my $mode="search"; # ??
+while (my $line = <TOOL_TXT>) {
+    chomp $line;
+
+    my $doc = decode_json($line);
+
+    # Each JSON object contains top-level "timestamp" field with value
+    # having format in either UTC in ISO 8601 or timestamp (millis).
+    # Example.: "2017-01-13T15:04:41.838840Z" or "1484319364862"
+    # When we find this, update our timestamp for the hash.
+    $timestamp_ms = $doc->{timestamp};
+
+    if ( $timestamp_ms =~ /\b[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.\d+Z\b/) {
+        # Convert to millis if ISO format detected
+        $timestamp_ms = str2time($timestamp_ms, "UTC")*1000;
+    }
+
+    # now find the data we are interested in store them in hash for later processing
+    # data is stored this way:
+    # $stats{htmlpage}{graph}{series}{sample}
+    # if you are -not- using a subdirectory to store these files, the "{htmlpage}" should at least have the tool name in it
+    # if you are using a subdirectory, the subdirectory name is the name of the tool, so the htmlpage does not necessarily need the tool name in it
+
+    # Cluster level details:
+    # ----------------------
+
+    # Cluster status (it is a string value: ["green", "yellow", "red"])
+    $stats{$tool}{cluster_health_status}{green}{$timestamp_ms} = 0;
+    $stats{$tool}{cluster_health_status}{yellow}{$timestamp_ms} = 0;
+    $stats{$tool}{cluster_health_status}{red}{$timestamp_ms} = 0;
+    $stats{$tool}{cluster_health_status}{$doc->{status}}{$timestamp_ms} = 1;
+
+    # Cluster nodes
+    my $cluster_number_of_nodes = $doc->{number_of_nodes};
+    my $cluster_number_of_data_nodes = $doc->{number_of_data_nodes};
+    $stats{$tool}{cluster_nodes}{number_of_nodes}{$timestamp_ms} = $cluster_number_of_nodes;
+    $stats{$tool}{cluster_nodes}{number_of_data_nodes}{$timestamp_ms} = $cluster_number_of_data_nodes;
+
+    # Cluster index shards
+    my $cluster_unassigned_shards = $doc->{unassigned_shards};
+    my $cluster_active_primary_shards = $doc->{active_primary_shards};
+    my $cluster_active_shards = $doc->{active_shards};
+    my $cluster_initializing_shards = $doc->{initializing_shards};
+    my $cluster_delayed_unassigned_shards = $doc->{delayed_unassigned_shards};
+    my $cluster_relocating_shards = $doc->{relocating_shards};
+    $stats{$tool}{cluster_index_shards}{unassigned_shards}{$timestamp_ms} = $cluster_unassigned_shards;
+    $stats{$tool}{cluster_index_shards}{active_primary_shards}{$timestamp_ms} = $cluster_active_primary_shards;
+    $stats{$tool}{cluster_index_shards}{active_shards}{$timestamp_ms} = $cluster_active_shards;
+    $stats{$tool}{cluster_index_shards}{initializing_shards}{$timestamp_ms} = $cluster_initializing_shards;
+    $stats{$tool}{cluster_index_shards}{delayed_unassigned_shards}{$timestamp_ms} = $cluster_delayed_unassigned_shards;
+    $stats{$tool}{cluster_index_shards}{relocating_shards}{$timestamp_ms} = $cluster_relocating_shards;
+
+    # Cluster tasks
+    my $cluster_number_of_pending_tasks = $doc->{number_of_pending_tasks};
+    my $cluster_number_of_in_flight_fetch = $doc->{number_of_in_flight_fetch};
+    $stats{$tool}{cluster_tasks}{number_of_pending_tasks}{$timestamp_ms} = $cluster_number_of_pending_tasks;
+    $stats{$tool}{cluster_tasks}{number_of_in_flight_fetch}{$timestamp_ms} = $cluster_number_of_in_flight_fetch;
+
+    # Cluster task_max_waiting_in_queue_millis
+    my $cluster_task_max_waiting_in_queue_millis = $doc->{task_max_waiting_in_queue_millis};
+    $stats{$tool}{cluster_task_max_waiting}{task_max_waiting_in_queue_millis}{$timestamp_ms} = $cluster_task_max_waiting_in_queue_millis;
+
+    # Cluster indices level details:
+    # ------------------------------
+    if (exists $doc->{indices}) { # safe check in case appropriate "watches --level" option was left out
+        my $indices = $doc->{indices};
+        while(my ($k, $v) = each %{$indices}) {
+
+            my $index_shards_key = "shards_of_index: ".$k;
+            my $index_number_of_shards = $v->{number_of_shards};
+            my $index_number_of_replicas = $v->{number_of_replicas};
+            my $index_unassigned_shards = $v->{unassigned_shards};
+            $stats{$tool}{$index_shards_key}{number_of_shards}{$timestamp_ms} = $index_number_of_shards;
+            $stats{$tool}{$index_shards_key}{number_of_replicas}{$timestamp_ms} = $index_number_of_replicas;
+            $stats{$tool}{$index_shards_key}{unassigned_shards}{$timestamp_ms} = $index_unassigned_shards;
+
+            my $index_status_key = "status_of_index: ".$k;
+            $stats{$tool}{$index_status_key}{green}{$timestamp_ms} = 0;
+            $stats{$tool}{$index_status_key}{yellow}{$timestamp_ms} = 0;
+            $stats{$tool}{$index_status_key}{red}{$timestamp_ms} = 0;
+            $stats{$tool}{$index_status_key}{$v->{status}}{$timestamp_ms} = 1;
+        }
+    }
+
+    # Cluster index shards level details not processed for now (this will lead to high explosion in number of charts).
+    # Note this means that datalog tool can use "--level=indices" option when calling "watches" to decrease log file size.
+
+}
+close(TOOL_TXT);
+
+# define the graph types
+# if you want something other than lineChart, put it here
+my %graph_type;
+
+# threshold for displaying a series in a graph
+my %graph_threshold;
+
+gen_data(\%stats, \%graph_type, \%graph_threshold, $dir);
+

@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+
+tool_name=$1
+interval=$2
+file=$3
+url=$4
+sniff=$5
+buffer=$6
+username=$7
+password=$8
+http_header=$9
+
+# If security is used we need to provide appropriate options
+security_options=""
+if [[ "x$username" != "x" && "x$password" != "x" ]]; then
+  ${security_options}="--username=$username --password=$password"
+fi
+
+http_header_options=""
+if [[ "x$http_header" != "x" ]]; then
+  ${http_header_options}="--header=$http_header_options"
+fi
+
+# Additional watches options:
+# -l single line output (we will always want single line output)
+additional_options="-l"
+
+if [ "$sniff" == "true" ]; then
+  # use sniffing, add -s option
+  ${additional_options}="${additional_options}s"
+fi
+
+if [ "$buffer" == "false" ]; then
+  # disable buffering, add -b option
+  ${additional_options}="${additional_options}b"
+fi
+
+cat /dev/null > ${file}
+
+case "$tool_name" in
+    watches-cluster-health)
+
+    # add timestamp option
+    ${additional_options}="${additional_options}t"
+
+    watches cluster_health \
+        -d -1 -i ${interval} \
+        --url=${url} \
+        --level=indices \
+        ${additional_options} \
+        ${security_options} \
+        ${http_header_options} \
+        >> ${file}
+
+    ;;
+    watches-cluster-stats)
+
+    watches cluster_stats \
+        -d -1 -i ${interval} \
+        --url=${url} \
+        -f cluster_name \
+        -f timestamp \
+        -f status \
+        -f indices \
+        -f nodes.count \
+        -f nodes.fs \
+        -f nodes.process \
+        -f nodes.jvm.mem \
+        -f nodes.jvm.threads \
+        -f nodes.jvm.max_uptime_in_millis \
+        -f nodes.os.mem \
+        -f nodes.os.allocated_processors \
+        -f nodes.os.available_processors \
+        ${additional_options} \
+        ${security_options} \
+        ${http_header_options} \
+        >> ${file}
+
+    ;;
+    watches-nodes-stats)
+
+    # add timestamp option
+    ${additional_options}="${additional_options}t"
+
+    watches nodes_stats \
+        -d -1 -i ${interval} \
+        --url=${url} \
+        ${additional_options} \
+        ${security_options} \
+        ${http_header_options} \
+        >> ${file}
+
+    ;;
+esac

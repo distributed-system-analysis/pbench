@@ -1,0 +1,94 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">
+  </head>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.3/jschart.js"></script>
+    <center><h2>watches-cluster-stats - watches-cluster-stats</h2></center>
+    <div id="chart_1">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_1", "cluster_indices_count", null, null, { csvfiles: [ "csv/watches-cluster-stats_cluster_indices_count.csv" ] });
+      </script>
+    </div>
+    <div id="chart_2">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_2", "cluster_indices_documents", null, null, { csvfiles: [ "csv/watches-cluster-stats_cluster_indices_documents.csv" ] });
+      </script>
+    </div>
+    <div id="chart_3">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_3", "cluster_indices_segments", null, null, { csvfiles: [ "csv/watches-cluster-stats_cluster_indices_segments.csv" ] });
+      </script>
+    </div>
+    <div id="chart_4">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_4", "cluster_indices_shards", null, null, { csvfiles: [ "csv/watches-cluster-stats_cluster_indices_shards.csv" ] });
+      </script>
+    </div>
+    <div id="chart_5">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_5", "cluster_indices_store_size", null, null, { csvfiles: [ "csv/watches-cluster-stats_cluster_indices_store_size.csv" ] });
+      </script>
+    </div>
+    <div id="chart_6">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_6", "cluster_indices_store_throttle", null, null, { csvfiles: [ "csv/watches-cluster-stats_cluster_indices_store_throttle.csv" ] });
+      </script>
+    </div>
+    <div id="chart_7">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_7", "cluster_nodes_CPU", null, null, { csvfiles: [ "csv/watches-cluster-stats_cluster_nodes_CPU.csv" ] });
+      </script>
+    </div>
+    <div id="chart_8">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_8", "cluster_nodes_count", null, null, { csvfiles: [ "csv/watches-cluster-stats_cluster_nodes_count.csv" ] });
+      </script>
+    </div>
+    <div id="chart_9">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_9", "cluster_nodes_fd", null, null, { csvfiles: [ "csv/watches-cluster-stats_cluster_nodes_fd.csv" ] });
+      </script>
+    </div>
+    <div id="chart_10">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_10", "cluster_nodes_fs", null, null, { csvfiles: [ "csv/watches-cluster-stats_cluster_nodes_fs.csv" ] });
+      </script>
+    </div>
+    <div id="chart_11">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_11", "cluster_nodes_jvm_max_uptime", null, null, { csvfiles: [ "csv/watches-cluster-stats_cluster_nodes_jvm_max_uptime.csv" ] });
+      </script>
+    </div>
+    <div id="chart_12">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_12", "cluster_nodes_jvm_mem", null, null, { csvfiles: [ "csv/watches-cluster-stats_cluster_nodes_jvm_mem.csv" ] });
+      </script>
+    </div>
+    <div id="chart_13">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_13", "cluster_nodes_jvm_threads", null, null, { csvfiles: [ "csv/watches-cluster-stats_cluster_nodes_jvm_threads.csv" ] });
+      </script>
+    </div>
+    <div id="chart_14">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_14", "cluster_nodes_os", null, null, { csvfiles: [ "csv/watches-cluster-stats_cluster_nodes_os.csv" ] });
+      </script>
+    </div>
+    <div id="chart_15">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_15", "cluster_os", null, null, { csvfiles: [ "csv/watches-cluster-stats_cluster_os.csv" ] });
+      </script>
+    </div>
+    <div id="chart_16">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_16", "cluster_status", null, null, { csvfiles: [ "csv/watches-cluster-stats_cluster_status.csv" ] });
+      </script>
+    </div>
+  </body>
+</html>
