@@ -42,7 +42,7 @@ if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
         echo "$(date +'%Y-%m-%dT%H:%M:%S-%Z')"
     }
     function timestamp-seconds-since-epoch {
-        echo "$(date +s)"
+        echo "$(date +'%s')"
     }
 else
     function timestamp {
