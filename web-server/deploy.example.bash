@@ -25,7 +25,7 @@ function vdeploy {
         echo "Can't find local $1 directory tree to deploy"
         exit 1
     fi
-    echo "Copying $1/css, $1/js to $USER@$HOST:$PREFIX/html/static/css/$1, /static/js/$1, /static/pages/$1"
+    echo "Copying $1/css, $1/js, $1/html to $USER@$HOST:$PREFIX/html/static/css/$1, /static/js/$1, /static/pages/$1"
     ssh $USER@$HOST mkdir -p $PREFIX/html/static/css/$1 $PREFIX/html/static/js/$1 $PREFIX/html/static/pages/$1
     scp -r $(dirname $0)/$1/css/* $USER@$HOST:$PREFIX/html/static/css/$1/
     scp -r $(dirname $0)/$1/js/*  $USER@$HOST:$PREFIX/html/static/js/$1/
@@ -35,6 +35,6 @@ function vdeploy {
 vdeploy v0.2
 
 echo "Fix up protections"
-ssh $USER@$HOST chmod -R g-w $PREFIX/public_html/static
+ssh $USER@$HOST chmod -R g-w /var/www/html/static
 
 exit 0
