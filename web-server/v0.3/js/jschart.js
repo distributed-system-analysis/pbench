@@ -133,6 +133,7 @@ Here is a summary of each parameter:
        q. y_max
        r. x_log_scale
        s. y_log_scale
+       t. scatterplot
 
      Now it is time to break these options down in detail:
 
@@ -426,6 +427,18 @@ Here is a summary of each parameter:
 
 	    { ..., y_log_scale: true }
 
+       t. scatterplot
+
+          The scatterplot option is a boolean value that changes the
+          chart from a traditional line graph to scatterplot where
+          only the individual data points of a series are visible
+          without a line connecting them.  This option only makes
+          sense for non-stacked charts.
+
+	  Example:
+
+	    { ..., scatterplot: true }
+
 */
 
 // array to store objects for each chart, with references to often used variables
@@ -489,6 +502,7 @@ function dataset(index, name, mean, median, values, chart) {
 		 path: null,
 		 points: null,
 		 cursor_point: null,
+		 markers: null,
 		 legend: { rect: null,
 			   label: null
 			 }
@@ -558,7 +572,8 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
 			 },
 		   viewport_controls: null,
 		   viewport_elements: null,
-		   highlight_points: null
+		   highlight_points: null,
+		   defs: null
 		 };
 
     this.dom = { div: null,
@@ -665,6 +680,7 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
 				   log: false
 				 }
 			},
+		     scatterplot: false
 		   };
 
     this.interval = null;
@@ -805,6 +821,10 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
 
     if (options.threshold !== undefined) {
 	this.options.hide_dataset_threshold = options.threshold;
+    }
+
+    if (!this.stacked && (options.scatterplot !== undefined) && options.scatterplot) {
+	this.options.scatterplot = true;
     }
 }
 
@@ -1571,6 +1591,22 @@ function complete_chart(chart) {
 
 	for (var i=0; i<chart.datasets.valid.length; i++) {
 	    if (chart.datasets.valid[i].values.length > 1) {
+		if (chart.options.scatterplot) {
+		    chart.datasets.valid[i].dom.markers = chart.chart.defs.append("marker")
+			.attr("id", "dataset_" + chart.charts_index + "_" + i)
+			.attr("viewBox", "-2,-2,4,4")
+			.attr("markerWidth", 2)
+			.attr("markerHeight", 2);
+		    chart.datasets.valid[i].dom.markers.append("circle")
+			.style("fill", mycolors(i))
+			.attr("r", 2);
+
+		    chart.datasets.valid[i].dom.path.classed("scatterplot", true)
+			.attr("marker-mid", "url(#dataset_" + chart.charts_index + "_" + i)
+			.attr("marker-starter", "url(#dataset_" + chart.charts_index + "_" + i)
+			.attr("marker-end", "url(#dataset_" + chart.charts_index + "_" + i);
+		}
+
 		continue;
 	    }
 
@@ -2374,14 +2410,16 @@ function build_chart(chart) {
 	.attr("width", chart.dimensions.viewport_width + chart.dimensions.margin.left + chart.dimensions.margin.right)
 	.attr("height", chart.dimensions.viewport_height + chart.dimensions.margin.top + chart.dimensions.margin.bottom + ((Math.ceil(chart.dataset_count / chart.dimensions.legend_properties.columns) - 1 + chart.options.legend_entries.length) * chart.dimensions.legend_properties.row_height));
 
-    var foo = chart.chart.svg.append("defs");
-    var bar = foo.append("marker")
-	.attr("id", "datapoint_" + chart.charts_index)
-	.attr("viewBox", "-2,-2,4,4")
-	.attr("markerWidth", 2)
-	.attr("marerHeight", 2);
-    chart.chart.highlight_points = bar.append("circle")
-	.attr("r", 2);
+    chart.chart.defs = chart.chart.svg.append("defs");
+    if (!chart.options.scatterplot) {
+	var bar = chart.chart.defs.append("marker")
+	    .attr("id", "datapoint_" + chart.charts_index)
+	    .attr("viewBox", "-2,-2,4,4")
+	    .attr("markerWidth", 2)
+	    .attr("markerHeight", 2);
+	chart.chart.highlight_points = bar.append("circle")
+	    .attr("r", 2);
+    }
 
     chart.chart.container = chart.chart.svg.append("g")
 	.attr("transform", "translate(" + chart.dimensions.margin.left + ", " + chart.dimensions.margin.top +")");
@@ -3013,12 +3051,16 @@ function highlight(dataset) {
 	    }
 
 	    if (dataset.chart.datasets.valid[i].index == dataset.index) {
-		dataset.chart.datasets.valid[i].dom.path.classed({"unhighlighted": false, "highlightedline": true })
-		    .attr("marker-mid", "url(#datapoint_" + dataset.chart.charts_index + ")")
-		    .attr("marker-start", "url(#datapoint_" + dataset.chart.charts_index + ")")
-		    .attr("marker-end", "url(#datapoint_" + dataset.chart.charts_index + ")");
+		if (dataset.chart.options.scatterplot) {
+		    dataset.chart.datasets.valid[i].dom.path.classed({"unhighlighted": false, "highlightedline": true });
+		} else {
+		    dataset.chart.datasets.valid[i].dom.path.classed({"unhighlighted": false, "highlightedline": true })
+			.attr("marker-mid", "url(#datapoint_" + dataset.chart.charts_index + ")")
+			.attr("marker-start", "url(#datapoint_" + dataset.chart.charts_index + ")")
+			.attr("marker-end", "url(#datapoint_" + dataset.chart.charts_index + ")");
 
-		dataset.chart.chart.highlight_points.style("fill", mycolors(dataset.chart.datasets.valid[i].index));
+		    dataset.chart.chart.highlight_points.style("fill", mycolors(dataset.chart.datasets.valid[i].index));
+		}
 
 		if (dataset.chart.datasets.valid[i].dom.points) {
 		    dataset.chart.datasets.valid[i].dom.points.classed("unhighlighted", false)
@@ -3080,10 +3122,14 @@ function dehighlight(dataset) {
 		continue;
 	    }
 
-	    dataset.chart.datasets.valid[i].dom.path.classed({"unhighlighted": false, "highlightedline": false})
-		.attr("marker-mid", null)
-		.attr("marker-start", null)
-		.attr("marker-end", null);
+	    if (dataset.chart.options.scatterplot) {
+		dataset.chart.datasets.valid[i].dom.path.classed({"unhighlighted": false, "highlightedline": false});
+	    } else {
+		dataset.chart.datasets.valid[i].dom.path.classed({"unhighlighted": false, "highlightedline": false})
+		    .attr("marker-mid", null)
+		    .attr("marker-start", null)
+		    .attr("marker-end", null);
+	    }
 
 	    if (dataset.chart.datasets.valid[i].dom.points) {
 		dataset.chart.datasets.valid[i].dom.points.classed("unhighlighted", false)

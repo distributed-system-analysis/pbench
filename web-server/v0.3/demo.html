@@ -23,6 +23,16 @@
     create_jschart(0, "xy", "jschart_xy", "XY Demo", null, null, { csvfiles: [ "demo-data/xy.csv" ] });
   </script>
 </div>
+<div id='jschart_jitter'>
+  <script>
+    create_graph(0, "xy", "jschart_jitter", "Jitter Samples", "Samples", "Latency (ns)", { csvfiles: [ "demo-data/jitter.csv" ] });
+  </script>
+</div>
+<div id='jschart_jitter_scatter'>
+  <script>
+    create_graph(0, "xy", "jschart_jitter_scatter", "Jitter Samples: Scatterplot", "Samples", "Latency (ns)", { csvfiles: [ "demo-data/jitter.csv" ], scatterplot: true });
+  </script>
+</div>
 
 <script>finish_page()</script>
 
