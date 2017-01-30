@@ -1,8 +1,11 @@
 chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/config
 chown pbench.pbench /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/crontab/crontab
 chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/locks
+chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/logs
+chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/tmp
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
+/var/tmp/pbench-test-server/pbench/logs
 /var/tmp/pbench-test-server/pbench/opt
 /var/tmp/pbench-test-server/pbench/opt/pbench-server
 /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib
@@ -18,6 +21,7 @@ chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/
 /var/tmp/pbench-test-server/pbench/pbench/public_html
 /var/tmp/pbench-test-server/pbench/pbench/public_html/incoming
 /var/tmp/pbench-test-server/pbench/pbench/public_html/results
+/var/tmp/pbench-test-server/pbench/tmp
 /var/tmp/pbench-test-server/pbench/var
 /var/tmp/pbench-test-server/pbench/var/www
 /var/tmp/pbench-test-server/pbench/var/www/html

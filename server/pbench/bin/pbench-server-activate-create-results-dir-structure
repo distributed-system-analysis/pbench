@@ -46,5 +46,26 @@ mkdir -p $pbench_dir/public_html/results || exit 8
 
 # chown -R $user.$group $pbench_dir || exit 9
 
+if selinuxenabled ;then
+    # make sure restorecon and semanage are available (but not in the unit tests: they don't run as root)
+    if [ ${_PBENCH_SERVER_TEST} != 1 ] ;then
+        yum install -y policycoreutils policycoreutils-python-utils
+        # fix up the public_html subdirs for selinux
+        semanage fcontext -a -t httpd_sys_content_t $pbench_dir/public_html/incoming'(/.*)?'
+        semanage fcontext -a -t httpd_sys_content_t $pbench_dir/public_html/results'(/.*)?'
+        restorecon -R -v $pbench_dir/public_html
+    fi
+fi
+
+# create the logs directory
+logsdir=$(getconf.py deploy-pbench-logs-dir results)
+mkdir -p $logsdir || exit 9
+chown -R $user.$group $logsdir || exit 10
+
+# create the tmp directory
+tmpdir=$(getconf.py deploy-pbench-tmp-dir results)
+mkdir -p $tmpdir || exit 11
+chown -R $user.$group $tmpdir || exit 11
+
 exit 0
 
