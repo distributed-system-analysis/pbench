@@ -190,9 +190,9 @@ if [[ $nidx -gt 0 || $nskip -gt 0 || $nerrs -gt 0 ]]; then
     elif [[ $nskip > 0 ]] ;then
         subj='$PROG.$TS - Indexed $nidx results, skipped $nskip results'
     elif [[ $nerrs > 0 ]] ;then
-        subj='$PROG.$TS - Indexed $nidx results, w/ $nerrs errors'
+        subj='$PROG.$TS($PBENCH_ENV) - Indexed $nidx results, w/ $nerrs errors'
     else
-        subj='$PROG.$TS - Indexed $nidx results'
+        subj='$PROG.$TS($PBENCH_ENV) - Indexed $nidx results'
     fi
     if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
         # send mail if not unit testing

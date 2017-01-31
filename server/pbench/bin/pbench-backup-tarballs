@@ -64,6 +64,6 @@ log_finish
 
 # Back up some way and find the empty line separating the list of files
 # from the stats.
-tail -n 20 $stats | sed -n '/^$/,$p' | mailx -s "$PROG - $TS" $mail_recipients 
+tail -n 20 $stats | sed -n '/^$/,$p' | mailx -s "$PROG.$TS($PBENCH_ENV)" $mail_recipients 
 
 exit 0
