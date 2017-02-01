@@ -643,12 +643,8 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 						chmod +x "$iteration_dir/process-iteration-samples.cmd"
 						$iteration_dir/process-iteration-samples.cmd
 						fail=$?
-						if [ $fail -eq 1 ]; then
+						if [ $fail -ne 0 ]; then
 							((failures++))
-						fi
-						if [ $fail -gt 1 ]; then
-							# failed in a really bad way, abort this iteration
-							break
 						fi
 						if [ $fail -eq 0 -o $failures -ge $max_failures ]; then
 							break
