@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ "$1" == "" ]; then
-    USER=gkalsi
+    USER=pbench
 else
     USER=$1
 fi
@@ -25,16 +25,17 @@ function vdeploy {
         echo "Can't find local $1 directory tree to deploy"
         exit 1
     fi
-    echo "Copying $1/css, $1/js, $1/html to $USER@$HOST:$PREFIX/html/static/css/$1, /static/js/$1, /static/pages/$1"
-    ssh $USER@$HOST mkdir -p $PREFIX/html/static/css/$1 $PREFIX/html/static/js/$1 $PREFIX/html/static/pages/$1
-    scp -r $(dirname $0)/$1/css/* $USER@$HOST:$PREFIX/html/static/css/$1/
-    scp -r $(dirname $0)/$1/js/*  $USER@$HOST:$PREFIX/html/static/js/$1/
-    scp -r $(dirname $0)/$1/pages/* $USER@$HOST:$PREFIX/html/static/pages/$1/
+    echo "Copying $1/css, $1/js, $1/html, $1/dist to $USER@$HOST:$PREFIX/public_html/static/css/$1, /static/js/$1, /static/pages/$1, /static/dist/$1"
+    ssh $USER@$HOST mkdir -p $PREFIX/public_html/static/css/$1 $PREFIX/public_html/static/js/$1 $PREFIX/public_html/static/pages/$1 $PREFIX/public_html/static/dist/$1
+    scp -r $(dirname $0)/$1/css/* $USER@$HOST:$PREFIX/public_html/static/css/$1/
+    scp -r $(dirname $0)/$1/js/*  $USER@$HOST:$PREFIX/public_html/static/js/$1/
+    scp -r $(dirname $0)/$1/pages/* $USER@$HOST:$PREFIX/public_html/static/pages/$1/
+    scp -r $(dirname $0)/$1/dist/* $USER@$HOST:$PREFIX/public_html/static/dist/$1/
 }
 
 vdeploy v0.2
 
 echo "Fix up protections"
-ssh $USER@$HOST chmod -R g-w /var/www/html/static
+ssh $USER@$HOST chmod -R g-w $PREFIX/public_html/static
 
 exit 0
