@@ -20,7 +20,7 @@ function clickHandler() {
 
 function retrieveJSON() {
 	//Controller and results count handler
-	$.getJSON('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/pbench.pbench-0.*/_search?search_type=count&source={ "aggs": { "run": { "terms": { "field": "controller", "size": 0 } } } }', function (data) {
+	$.getJSON('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?search_type=count&source={ "aggs": { "run": { "terms": { "field": "controller", "size": 0 } } } }', function (data) {
         var controllers = data.aggregations.run.buckets;
 		for (var i = 0; i < controllers.length; i++)
 		{
@@ -28,7 +28,7 @@ function retrieveJSON() {
                             count: controllers[i].doc_count
                           };
 			//Date range handler
-			$.ajax({ dataType: "json", context: context, url: 'http://es-perf44.perf.lab.eng.bos.redhat.com:9280/pbench.pbench-0.*/_search?source={"query": {"match": {"run.controller": "' + context.controllerName + '"}}, "fields": [ "run.start_run", "run.end_run" ], "size": ' + context.count.toString(10) + ' }', success: function (data) {
+			$.ajax({ dataType: "json", context: context, url: 'http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?source={"query": {"match": {"run.controller": "' + context.controllerName + '"}}, "fields": [ "run.start_run", "run.end_run" ], "size": ' + context.count.toString(10) + ' }', success: function (data) {
                 var startRun = "", endRun = "";
                 var hits = data.hits.hits;
                 var uniq_hits = Object(), uniq_count = 0;

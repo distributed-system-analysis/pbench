@@ -6,7 +6,7 @@ function retrieveData() {
 
 function retrieveJSON(resultName) {
 	// Get result metadata
-    $.ajax({ dataType: "json", url: 'http://es-perf44.perf.lab.eng.bos.redhat.com:9280/pbench.pbench-0.*/_search?source={ "query": { "match": { "run.name": "' + resultName + '" } }, "sort": "_index" }&_source_exclude=table-of-contents', success: function (data) {
+    $.ajax({ dataType: "json", url: 'http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?source={ "query": { "match": { "run.name": "' + resultName + '" } }, "sort": "_index" }', success: function (data) {
         if (data.hits.hits.length < 1) {
             var dbHTML = document.getElementById("dbstart");
             dbHTML.innerHTML = "Dashboard load for result " + resultName + " failed. :(";
@@ -35,12 +35,12 @@ function retrieveJSON(resultName) {
 		var fileNameHTML = document.getElementById("file_name");
 		fileNameHTML.innerHTML = result._metadata["file-name"];
         var pbenchVerHTML = document.getElementById("pbench_version");
-        pbenchVerHTML.innerHTML = result.pbench["pbench-rpm-version"];
+        pbenchVerHTML.innerHTML = result._metadata["pbench-agent-version"];
 
         // Update tools information on right sidebar
-        if (result.tools.length > 0) {
+        if (result.host_tools_info.length > 0) {
             // FIX-ME: create a datatable for all hosts and tool options as a pop-up
-            var tool = result.tools[0];
+            var tool = result.host_tools_info[0];
 	        // tools.host
 		    var hostHTML = document.getElementById("host");
 		    hostHTML.innerHTML = tool.host;
