@@ -68,7 +68,12 @@ if [[ -z "$mail_recipients" ]] ;then
 fi
 # for testing, limit it to a few hosts and stay away from the largest tarballs
 # hosts=$(ssh $remotehost "cd $remotearchive; ls | grep -v 300 | sed 4q")
-hosts=$(ssh $remotehost "cd $remotearchive; ls")
+hosts=$(ssh $remotehost "if cd $remotearchive;then ls ;else exit 1 ;fi")
+rc=$?
+if [[ $rc != 0 ]] ;then
+    echo "$PROG: ssh $remotehost \"cd $remotearchive; ls\" failed."
+    exit -2
+fi
 
 tmp=$TMP/$PROG.$$
 
