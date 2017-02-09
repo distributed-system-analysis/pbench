@@ -144,7 +144,7 @@ while read size result ;do
                 "python ${PROGLOC}/bin/index-pbench --config ${PROGLOC}/lib/config/pbench-index.cfg $link"
             status=$?
         else
-            echo "index-pbench needs python3, either directory or through SCL" >&4
+            echo "index-pbench needs python3, either directly or through SCL" >&4
             # this is fatal
             exit 127
         fi
