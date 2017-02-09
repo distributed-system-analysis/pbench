@@ -1,0 +1,37 @@
+---
+- hosts: pbench-controller
+  user: root
+  vars:
+    - default_tools_interval: "{{ DEFAULT_TOOLS_INTERVAL|default('10') }}"
+    - ose_master_interval: "{{ OSE_MASTER_INTERVAL|default('10') }}"
+    - ose_node_interval: "{{ OSE_NODE_INTERVAL|default('10') }}"
+    - file: /run/pbench/register.hosts
+  tasks:
+    - name: create pbench directory
+      file: path=/run/pbench state=directory
+    - name: clear file contents
+      file: path={{ file }} state=absent
+    - name: copy, set permissions on the register script
+      copy:
+        src: register.sh
+        dest: /run/pbench/register.sh
+        owner: root
+        group: root
+        mode: 0755
+    - name: add masters to the file
+      shell: echo -e {{ item.1 }} master {{ item.0 }} svt_master_{{ item.0}} >> {{ file }}
+      with_indexed_items:
+       - "{{ groups['masters'] }}"
+    - name: add nodes to the file
+      shell: echo -e {{ item.1 }} node {{ item.0 }} svt_node_{{ item.0}} >> {{ file }}
+      with_indexed_items: 
+       - "{{ groups['nodes'][-1] }}" 
+       - "{{ groups['nodes'][-2] }}"
+    - name: add etcd nodes to the file
+      shell: echo -e {{ item.1 }} etcd {{ item.0 }} svt_etcd_{{ item.0 }} >> {{ file }}
+      with_indexed_items: "{{ groups['etcd'] }}"
+    - name: add lb to the file
+      shell: echo -e {{ item.1}} lb {{ item.0 }} svt_lb_{{ item.0}} >> {{ file }}
+      with_indexed_items: "{{ groups['lb'] }}"
+    - name: register tools
+      shell: sh /run/pbench/register.sh {{ default_tools_interval }} {{ ose_master_interval }} {{ ose_node_interval }} {{ file }}
