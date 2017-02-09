@@ -13,6 +13,7 @@
 .axis path, .axis line { fill: none; stroke: #000; shape-rendering: crispEdges; }
 .tick line { stroke: #CCCCCC; }
 .line { fill: none; stroke-width: 1.5px; cursor: crosshair; pointer-events: none; }
+.line.scatterplot { stroke-opacity: 0 }
 circle.points { cursor: crosshair; pointer-events: none; }
 circle.value_points { cursor: crosshair; pointer-events: none; stroke: black; }
 line.points { stroke-width: 1.5px; cursor: crosshair; pointer-events: none; }
