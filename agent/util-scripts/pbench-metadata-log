@@ -113,7 +113,7 @@ EOF
     for remote in $remotes ;do
         cat >> $log <<EOF
 [tools/$remote]
-$(ssh $remote cat $pbench_run/tools.$group)
+$(ssh $ssh_opts $remote cat $pbench_run/tools.$group)
 
 EOF
     done
@@ -164,8 +164,8 @@ EOF
         cat >> $log <<EOF
 [tools/$remote]
 EOF
-        for tool in $(ssh $remote /bin/ls $pbench_run/tools-$group) ;do
-            echo $tool: $(ssh $remote cat $pbench_run/tools-$group/$tool | sed 's/^/ /')
+        for tool in $(ssh $ssh_opts $remote /bin/ls $pbench_run/tools-$group) ;do
+            echo $tool: $(ssh $ssh_opts $remote cat $pbench_run/tools-$group/$tool | sed 's/^/ /')
         done >> $log
         echo "" >> $log
     done
