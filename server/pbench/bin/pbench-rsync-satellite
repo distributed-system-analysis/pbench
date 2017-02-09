@@ -139,14 +139,13 @@ for host in $hosts ;do
     rsync_log=$logdir/$host/rsync.log
     cat $rsync_log | grep '>f' |
         awk -v prefix=$prefix -v host=$host '{printf("%s::%s/%s\n", prefix, host, $5);}'
-done | sort > $list
-
+done | sort -k1,1 > $list
 
 # decorate the list with the sizes and sort by size
 cd $ARCHIVE
 for host in $hosts ;do
     find $prefix::$host -type f -name '*.tar.xz' -printf "%p\t%s\n" 
-done | sort | join - $list | sort -k 2 -n > $logdir/$PROG.wq
+done | sort -k1,1 | join - $list | sort -k2,2 -n > $logdir/$PROG.wq
 
 # we now have a work queue - process-work-queue dequeues a number of
 # them (the current batch), and for each one, adds a link to the TODO
