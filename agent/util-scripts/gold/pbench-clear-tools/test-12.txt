@@ -12,5 +12,5 @@ Removing the remote remote@fubar
 grep: /var/tmp/pbench-test-utils/pbench/pbench.log: No such file or directory
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no -o ConnectTimeout=1 -n fubar . /opt/pbench-agent/profile; pbench-clear-tools --group default 
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no -o ConnectTimeout=1 -n fubar . /opt/pbench-agent/profile; pbench-clear-tools --group default
 --- test-execution.log file contents
