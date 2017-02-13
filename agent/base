@@ -159,7 +159,7 @@ if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
 	    yum --debuglevel=0 install -y ${this_rpm}$this_version >> $pbench_log 2>&1
 	    rc=$?
         else
-	    local installed_rpm_version=`echo $rpm_status | awk -F- '{print $2"-"$3}'`
+           local installed_rpm_version=`rpm -q --qf "-%{VERSION}" ${this_rpm}`
 	    if [ ! -z "$this_version" -a "$this_version" != "$installed_rpm_version" ]; then
 	        yum --debuglevel=0 install -y ${this_rpm}$this_version >> $pbench_log 2>&1
 	        rc=$?
