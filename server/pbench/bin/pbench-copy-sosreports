@@ -183,9 +183,9 @@ log_finish
 
 if [[ $ntotal -gt 0 || $nerrs -gt 0 ]]; then
     if [[ $nerrs -gt 0 ]]; then
-        subj="$PROG.$TS - w/ $nerrs errors"
+        subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
     else
-        subj="$PROG.$TS"
+        subj="$PROG.$TS($PBENCH_ENV)"
     fi
     # don't send mail when running unittests
     if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then

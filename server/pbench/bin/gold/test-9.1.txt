@@ -25,5 +25,5 @@ admins@example.com
 +++ pbench log file contents
 --- pbench log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/mailx -s pbench-verify-backup-tarballs.run-1900-01-01T00:00:00-UTC admins@example.com
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/mailx -s pbench-verify-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test) admins@example.com
 --- test-execution.log file contents

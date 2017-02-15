@@ -138,7 +138,7 @@ if [[ $ret == 0 ]] ;then
 fi
 
 # send it
-subj="$PROG.$TS"
+subj="$PROG.$TS($PBENCH_ENV)"
 mailx -s "$subj" $mail_recipients < $report
 
 exit $ret

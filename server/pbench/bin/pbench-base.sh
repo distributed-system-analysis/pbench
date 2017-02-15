@@ -25,6 +25,7 @@ else
 fi
 
 TMP=$(getconf.py pbench-tmp-dir pbench-files)
+PBENCH_ENV=$(getconf.py pbench-environment results)
 
 test -d $TMP || doexit "Bad TMP=$TMP"
 
@@ -36,6 +37,7 @@ ARCHIVE=${TOP}/archive/fs-version-001
 INCOMING=${TOP}/public_html/incoming
 # this is where the symlink forest is going to go
 RESULTS=${TOP}/public_html/results
+
 
 if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
     function timestamp {

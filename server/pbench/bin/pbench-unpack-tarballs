@@ -263,7 +263,7 @@ echo "$TS: Processed $ntb tarballs"
 log_finish
 
 if [[ $nerrs -gt 0 ]]; then
-    subj="$PROG.$TS - w/ $nerrs errors"
+    subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
     # don't send mail when running unittests
     if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
         echo "Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates" | mailx -s "$subj" $mail_recipients
