@@ -74,6 +74,6 @@ grep: /var/tmp/pbench-test-utils/pbench/pbench.log: No such file or directory
 --- pbench.log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/yum list installed pbench-agent
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh dhcp31-174 /bin/ls /var/tmp/pbench-test-utils/pbench/tools-default
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh perf104 /bin/ls /var/tmp/pbench-test-utils/pbench/tools-default
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no dhcp31-174 /bin/ls /var/tmp/pbench-test-utils/pbench/tools-default
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no perf104 /bin/ls /var/tmp/pbench-test-utils/pbench/tools-default
 --- test-execution.log file contents
