@@ -3,6 +3,7 @@
         "_parent": {
             "type": "pbench-run"
         },
+        "date_detection": false,
         "properties": {
             "dirname": {
                 "type": "string",
@@ -29,5 +30,3 @@
         }
     }
 }
-
-

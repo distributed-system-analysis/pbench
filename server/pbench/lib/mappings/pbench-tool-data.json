@@ -1,12 +1,19 @@
 {
     "pbench-tool-data": {
         "_source": {
-            "enabled": false
+            "enabled": true
         },
         "_all": {
-            "enabled": false
+            "enabled": true
         },
+        "date_detection": false,
         "properties": {
+            "@timestamp": {
+                "type": "date"
+            },
+            "runtstamp": {
+                "type": "date"
+            },
             "runid": {
                 "type": "string",
                 "index": "not_analyzed"
@@ -42,20 +49,7 @@
             "datafilepath": {
                 "type": "string",
                 "index": "not_analyzed"
-            },
-            "value": {
-                "type" :"float"
-            },
-            "timestamp": {
-                "type": "float"
-            },
-            "colname": {
-                "type": "string",
-                "index": "not_analyzed"
             }
         }
     }
 }
-
-
-

@@ -1,14 +1,11 @@
 {
     "pbench-run": {
-        "_timestamp": {
-            "enabled": true,
-            "store": true,
-            "fielddata": {
-                "format": "doc_values"
-            }
-        },
+        "date_detection": false,
         "properties": {
-            "_metadata": {
+            "@timestamp": {
+                "type": "date"
+            },
+            "@metadata": {
                 "properties": {
                     "md5": {
                         "type": "string",
@@ -19,7 +16,6 @@
                         "index": "not_analyzed"
                     },
                     "file-date": {
-                        "format": "dateOptionalTime",
                         "type": "date"
                     },
                     "pbench-agent-version": {
@@ -75,15 +71,12 @@
                         "index": "not_analyzed"
                     },
                     "date": {
-                        "format": "dateOptionalTime",
                         "type": "date"
                     },
                     "start_run": {
-                        "format": "dateOptionalTime",
                         "type": "date"
                     },
                     "end_run": {
-                        "format": "dateOptionalTime",
                         "type": "date"
                     }
                 }
@@ -133,7 +126,7 @@
                         }
                     }
                 }
-            }            
+            }
         }
     }
 }
