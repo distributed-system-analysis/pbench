@@ -48,9 +48,11 @@ function _run {
 function _run_index {
     dname=$1
     shift
-    mkdir -p $_testdir
+    # Will get deleted by _reset_state
+    mkdir -p $_testroot/pbench
+    mkdir -p $_testroot/tmp
     echo "+++ Running indexing on $dname" >> $_testout
-    PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_tlib}/config/pbench-index.cfg.example $(readlink -f $dname.tar.xz) >> $_testout 2>&1
+    TMPDIR=$_testroot/tmp PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_tlib}/config/pbench-index.cfg.example $(readlink -f $dname.tar.xz) >> $_testout 2>&1
     echo "--- Finished indexing on $dname (status=$?)" >> $_testout
     _gitdir=$(dirname $(dirname $(dirname $_tdir)))
     sed -i '/File "'$(echo ${_gitdir} | sed 's;/;\\/;g')'/s;'${_gitdir}'/server/;/home/user/repo/pbench/server/;' $_testout
@@ -126,6 +128,11 @@ function _reset_state {
     rm -rf $_testdir
     if [[ -d $_testdir ]]; then
         echo "ERROR: unable to remove pbench hierarchy" >&2
+        exit 1
+    fi
+    rm -rf $_testroot/tmp
+    if [[ -d $_testroot/tmp ]]; then
+        echo "ERROR: unable to remove tmp hierarchy" >&2
         exit 1
     fi
 }
