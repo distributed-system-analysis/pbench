@@ -73,10 +73,7 @@ linkerrdest=WONT-INDEX
 # Better: avoids long command line problems and sorts by size
 TMPDIR=$TMP/pbench-index.$$
 # index-pbench need to get at it
-export $TMPDIR
-
-list=$TMPDIR/list
-find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | sort -n > $list
+export TMPDIR
 
 log_init $(basename $0)
 
@@ -90,12 +87,16 @@ typeset -i nskip=0
 skipped=$TMPDIR/$PROG.$TS.skipped
 mail_body=$TMPDIR/$PROG.$TS.mail
 
+mkdir -p $TMPDIR
 trap "rm -rf $TMPDIR" EXIT QUIT INT
 
 > $indexed
 > $erred
 > $skipped
 > $mail_body
+
+list=$TMPDIR/list
+find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | sort -n > $list
 
 while read size result ;do
     echo "   $(timestamp): Starting $result (size $size)"
