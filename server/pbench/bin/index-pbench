@@ -12,7 +12,7 @@ import hashlib, json, glob
 
 try:
     from configparser import SafeConfigParser, NoSectionError, NoOptionError
-except: 
+except ImportError: 
     from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
     
 from optparse import OptionParser, make_option
@@ -188,6 +188,12 @@ def get_mdconfig(mdf):
 
     mdfconfig = SafeConfigParser()
     mdfconfig.read(mdf)
+
+    # FIXME: verify start_run and end_run dictionary items are present
+    d = {}
+    d.update(mdfconfig.items('run'))
+    if "start_run" not in d or "end_run" not in d:
+        raise Exception('Missing start_run or end_run elements')
     return mdfconfig
 
 ###########################################################################
@@ -200,7 +206,7 @@ def mk_pbench_metadata(mdconf):
     d = {}
     try:
         d['pbench-rpm-version'] = mdconf.get("pbench", "rpm-version")
-    except:
+    except Exception:
         d['pbench-rpm-version'] = "Unknown"
     return d
 
@@ -239,9 +245,6 @@ def mk_run_metadata(mdconf, md5sum, dirname, dirprefix):
         del d['rpm-version']
         return d
     except KeyError as e:
-        # import pdb; pdb.set_trace()
-        if str(e) == "'start_run'" or str(e) == "'end_run'":
-            raise Exception(e)
         print("Tarball: %s - %s is missing in metadata.log\n" % (dirname, e), file=sys.stdout)
         return {}
 
@@ -249,7 +252,7 @@ def mk_user_specified_metadata(options):
     # parse the JSON string into a dict and return it
     try:
         return json.loads(options.metadata_string)
-    except:
+    except Exception:
         print("Cannot parse JSON string: {}\n".format(options.metadata_string))
         return {}
 
@@ -282,7 +285,7 @@ def get_iterations(mdlog, tb):
     
     try:
         return mdlog.get("pbench", "iterations").split(', ')
-    except:
+    except Exception:
         # TBD - trawl through tb with some heuristics
         iterations = []
         for x in tb.getnames():
@@ -312,13 +315,13 @@ def get_pbench_hosts(iteration, sample, mdlog, tb):
     try:
         # N.B. Space-separated list
         return mdlog.get("tools", "hosts").split(' ')
-    except:
+    except Exception:
         return []
 
 def get_tools(iteration, sample, host, mdlog, tb):
     try:
         return mdlog.options("tools/{}".format(host))
-    except:
+    except Exception:
         return []
 
 def get_csv_files(iteration, sample, host, tool, mdlog, tb):
@@ -379,7 +382,7 @@ def mk_tool_data(mdlog, md5sum, tb):
     experiment = mdlog.get("pbench", "name")
     try:
         toolsgroup = mdlog.get("tools", "group")
-    except:
+    except Exception:
         toolsgroup = "default"
     iterations = get_iterations(mdlog, tb)
     for iteration in iterations:
@@ -406,7 +409,7 @@ def valid_ip(address):
     try: 
         socket.inet_aton(address)
         return True
-    except:
+    except Exception:
         return False
 
 def search_by_host(sos_d_list, host):
@@ -567,6 +570,9 @@ def if_ip_from_sosreport(ip_addr_f):
 
     return d
     
+class SosreportHostname(Exception):
+    pass
+
 def hostnames_if_ip_from_sosreport(sos):
     """Return a dict with hostname info (both short and fqdn) and
     ip addresses of all the network interfaces we find at sosreport time."""
@@ -580,7 +586,7 @@ def hostnames_if_ip_from_sosreport(sos):
         try:
             hostname_f = str(sostb.extractfile(hostname_f_file[0]).read(), 'iso8859-1')[:-1]
         except IOError as e:
-            raise Exception("Failure to fetch a hostname-f from the sosreport")
+            raise SosreportHostname("Failure to fetch a hostname-f from the sosreport")
         if hostname_f == 'hostname: Name or service not known':
             hostname_f = ""
     else:
@@ -590,12 +596,12 @@ def hostnames_if_ip_from_sosreport(sos):
         try:
             hostname_s = str(sostb.extractfile(hostname_s_file[0]).read(), 'iso8859-1')[:-1]
         except IOError as e:
-            raise Exception("Failure to fetch a hostname from the sosreport")
+            raise SosreportHostname("Failure to fetch a hostname from the sosreport")
     else:
         hostname_s = ""
 
     if not hostname_f and not hostname_s:
-        raise Exception("We do not have a hostname recorded in the sosreport")
+        raise SosreportHostname("We do not have a hostname recorded in the sosreport")
 
     # import pdb; pdb.set_trace()
     if hostname_f and hostname_s:
@@ -628,7 +634,7 @@ def hostnames_if_ip_from_sosreport(sos):
         hostname_s = hostname_f.split('.')[0]
     else:
         # both undefined
-        raise Exception("Hostname undefined (both short and long)")
+        raise SosreportHostname("Hostname undefined (both short and long)")
         
     if hostname_f == "localhost" and hostname_s != "localhost":
         hostname_f = hostname_s
@@ -636,7 +642,7 @@ def hostnames_if_ip_from_sosreport(sos):
     elif hostname_f != "localhost" and hostname_s == "localhost":
         hostname_s = hostname_f.split('.')[0]
     elif hostname_f == "localhost" and hostname_s == "localhost":
-        raise Exception("The sosreport did not collect a hostname other than 'localhost'")
+        raise SosreportHostname("The sosreport did not collect a hostname other than 'localhost'")
     else:
         pass
         
@@ -869,7 +875,7 @@ def run_start_date(mdconf, tbname):
         # N.B. the start_run timestamp is in UTC.
         tstamp = mdconf.get('run', 'start_run').split('_')
         date = [ int(x) for x in tstamp[0].split("-") ]
-    except:
+    except Exception:
         raise BadDate(tbname)
     # for future reference
     # time = [ int(x) for x in tstamp[1].split(":") ]
@@ -913,7 +919,7 @@ def main(options, args):
         config=SafeConfigParser()
         try:
             cfg_name = options.cfg_name
-        except:
+        except Exception:
             cfg_name = os.environ.get("ES_CONFIG_PATH")
 
         if not cfg_name:
@@ -977,8 +983,8 @@ def main(options, args):
         try:
             tmpdir = os.environ['TMPDIR']
             tb.extractall(path=tmpdir)
-        except:
-            print("Can't unpack tarball into {}".format(tmpdir), file=sys.stderr)
+        except Exception as e:
+            print("Can't unpack tarball into {}: {}".format(tmpdir, e), file=sys.stderr)
             return 12
 
         # this is the top-level name of the run - it should be the common
@@ -991,12 +997,12 @@ def main(options, args):
         member_name = "%s/metadata.log" % (dirname)
         try:
             mdlog = tb.getmember(member_name)
-        except:
+        except Exception:
             raise UnsupportedTarballFormat(tbname)
         
         try:
             mdconf = get_mdconfig(os.path.join(tmpdir, member_name))
-        except:
+        except Exception:
             raise BadMDLogFormat(tbname)
 
         # index name is of the form "pbench.<YEAR>-<MONTH>-<PBENCH-VERSION>-<INDEX_VERSION>"
@@ -1021,7 +1027,7 @@ def main(options, args):
             # for x in actions:
             #     try:
             #         print("{} {}\n".format(x["_type"], len(x["_source"]["host_tools_data"].keys())))
-            #     except:
+            #     except Exception:
             #         print("{} {}\n".format(x["_type"], len(x["_source"].keys())))
             if debug_time_operations: ts("pprint")
             pprint(actions[0:100], width=100)
@@ -1065,6 +1071,10 @@ def main(options, args):
     except TemplateError as e:
         print(repr(err), file=sys.stderr)
         return 9
+
+    except SosreportHostname as e:
+        print("Bad hostname in sosreport: ", e, file=sys.stderr)
+        return 10
 
     # this is Spinal Tap
     except Exception as e:
