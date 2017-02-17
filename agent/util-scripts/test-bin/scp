@@ -1,0 +1,22 @@
+#!/bin/bash
+
+echo "$0 $*" >> $_testlog
+
+# this gets the last argument
+tools=${@:$#}
+
+# pretend that we copied a tools-<dir> from the remote
+
+mkdir -p $tools
+echo foo  > $tools/iostat
+echo bar > $tools/mpstat
+echo baz > $tools/perf
+echo hunoz > $tools/pidstat
+echo hukerz > $tools/proc-interrupts
+echo foobar > $tools/proc-vmstat
+echo foo > $tools/sar
+echo bar > $tools/turbostat
+for x in $(find $tools -type f | sort); do
+    echo -n $x: ; cat $x
+done >> $_testlog
+

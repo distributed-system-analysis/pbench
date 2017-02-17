@@ -42,7 +42,7 @@ benchmark_bin=/usr/local/bin/$benchmark_name
 # 7) postprocess analysis tool data
 
 # Defaults
-benchmark_run_dir=""
+export benchmark_run_dir=""
 test_type="throughput"
 traffic="unidirec"
 max_drop_pcts="0"

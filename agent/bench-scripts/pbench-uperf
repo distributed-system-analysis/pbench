@@ -42,7 +42,7 @@ ver=1.0.4
 
 # Defaults
 
-benchmark_run_dir=""
+export benchmark_run_dir=""
 protocols="tcp,udp"
 test_types="stream,maerts,bidirec,rr"
 message_sizes="1,64,1024,16384" # in bytes

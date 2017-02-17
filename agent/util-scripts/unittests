@@ -44,9 +44,9 @@ for script in $scripts ; do
 done
 mkdir -p $_testopt/unittest-scripts/
 let res=res+$?
-cp -r $_tdir/test-bin/* $_testopt/unittest-scripts/
+cp -rL $_tdir/test-bin/* $_testopt/unittest-scripts/
 let res=res+$?
-cp $_tdir/test-bin/iostat-postprocess $_testopt/tool-scripts/postprocess
+cp -L $_tdir/test-bin/iostat-postprocess $_testopt/tool-scripts/postprocess
 let res=res+$?
 if [[ $res -ne 0 ]]; then
     echo "ERROR: failed to construct unittest execution directory hierarchy" \
@@ -71,7 +71,7 @@ function _run {
     shift
     echo "$tname $tscrpt $@"
     echo "+++ Running $tname $tscrpt" >> $_testout
-    benchmark_bin=$_testopt/unittest-scripts/bm pbench_run=$_testdir pbench_log=$_testdir/pbench.log pbench_config=$_testopt $_testopt/util-scripts/$tscrpt $@ >> $_testout 2>&1
+    benchmark_bin=$_testopt/unittest-scripts/bm pbench_run=$_testdir pbench_log=$_testdir/pbench.log pbench_config=$_testopt  benchmark_run_dir=$_testdir $_testopt/util-scripts/$tscrpt $@ >> $_testout 2>&1
     sts=$?
     echo "--- Finished $tname $tscrpt (status=$sts)" >> $_testout
     return $sts

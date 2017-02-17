@@ -53,7 +53,7 @@ spacing=25
 # Defaults
 
 benchmark_fullname=""
-benchmark_run_dir=""
+export benchmark_run_dir=""
 benchmark_iterations=""
 protocols="tcp,udp"
 test_types="stream,maerts,bidirec,rr"

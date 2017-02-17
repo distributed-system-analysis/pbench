@@ -308,6 +308,7 @@ function do_migrate() {
 	pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
 }
 
+export benchmark_run_dir=""
 if [ "$postprocess" = "only" ]; then
 	# user provides directory for previous test
 	benchmark_fullname=$(basename $benchmark_data_dir)

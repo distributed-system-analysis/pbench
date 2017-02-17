@@ -36,7 +36,7 @@ ver=4.00
 
 # Defaults
 
-benchmark_run_dir=""
+export benchmark_run_dir=""
 config=""
 dir="/tmp"
 loadfile="/usr/local/share/doc/dbench/loadfiles/client.txt"
