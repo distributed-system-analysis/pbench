@@ -12,6 +12,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 
 benchmark_rpm=$script_name
 benchmark="fio"
+export benchmark_run_dir=""
 # allow unit tests to override
 if [[ -z "$benchmark_bin" ]]; then
 	benchmark_bin=/usr/local/bin/$benchmark

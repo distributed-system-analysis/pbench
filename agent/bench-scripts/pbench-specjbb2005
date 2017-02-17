@@ -160,7 +160,7 @@ fi
 ## Ensure the right version of the benchmark is installed
 
 benchmark_fullname="${benchmark}_${config}_${date_suffix}"
-benchmark_run_dir="$pbench_run/${benchmark_fullname}"
+export benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
 benchmark_summary_txt_file="$benchmark_run_dir/$benchmark-summary.txt"
 benchmark_summary_html_file="$benchmark_run_dir/$benchmark-summary.html"
