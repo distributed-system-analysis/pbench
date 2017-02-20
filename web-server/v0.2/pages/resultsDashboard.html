@@ -106,18 +106,31 @@
               <h3 class="list-group-item-heading">File Name</h3>
               <p class="list-group-item-text" id="file_name"></p>
             </li>
-            <li class="list-group-item">
-              <h3 class="list-group-item-heading">Pbench Version</h3>
-              <p class="list-group-item-text" id="pbench_version"></p>
-            </li>
-            <li class="list-group-item">
-              <h3 class="list-group-item-heading">Indexer Name</h3>
-              <p class="list-group-item-text" id="generated_by"></p>
-            </li>
-            <li class="list-group-item">
-              <h3 class="list-group-item-heading">Indexer Version</h3>
-              <p class="list-group-item-text" id="generated_by_version"></p>
-            </li>
+            <div class="panel-group" id="accordion-markup">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion-markup" href="#collapseOne">
+                      Additional Details
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse">
+                  <div class="panel-body">
+                    <br>
+                    <h3 class="list-group-item-heading">Pbench Version</h3>
+                    <p class="list-group-item-text" id="pbench_version"></p>
+                    <br>
+                    <h3 class="list-group-item-heading">Indexer Name</h3>
+                    <p class="list-group-item-text" id="generated_by"></p>
+                    <br>
+                    <h3 class="list-group-item-heading">Indexer Version</h3>
+                    <p class="list-group-item-text" id="generated_by_version"></p>
+                    <br>
+                  </div>
+                </div>
+              </div>
+            </div>
           </ul>
           <div class="sidebar-header sidebar-header-bleed-left sidebar-header-bleed-right">
             <h2 class="h5">Tools and Parameters</h2>
