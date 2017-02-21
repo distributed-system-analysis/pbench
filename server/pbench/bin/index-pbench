@@ -1030,7 +1030,7 @@ def main(options, args):
             #     except Exception:
             #         print("{} {}\n".format(x["_type"], len(x["_source"].keys())))
             if debug_time_operations: ts("pprint")
-            pprint(actions[0:100], width=100)
+            pprint(actions[0:100], width=120)
             if debug_time_operations: ts("Done", newline=True)
             return 0
 
