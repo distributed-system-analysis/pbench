@@ -83,7 +83,9 @@ function debug_log {
 # Some standard global vars - try the config file first and fall back on hardwired defaults
 # which are valid today.
 if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
-    date=`date --utc "+%F_%H:%M:%S"`
+    if [ -z "$date" ] ;then
+        export date=`date --utc "+%F_%H:%M:%S"`
+    fi
     hostname=`hostname -s`
     full_hostname=`hostname`
 else
