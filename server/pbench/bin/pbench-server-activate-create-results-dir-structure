@@ -46,7 +46,7 @@ mkdir -p $pbench_dir/public_html/results || exit 8
 
 # chown -R $user.$group $pbench_dir || exit 9
 
-if selinuxenabled ;then
+if which selinuxenabled > /dev/null 2>&1 && selinuxenabled ;then
     # make sure restorecon and semanage are available (but not in the unit tests: they don't run as root)
     if [ ${_PBENCH_SERVER_TEST} != 1 ] ;then
         yum install -y policycoreutils policycoreutils-python-utils
