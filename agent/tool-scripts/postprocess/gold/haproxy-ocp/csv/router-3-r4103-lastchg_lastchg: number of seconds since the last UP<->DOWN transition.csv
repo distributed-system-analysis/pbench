@@ -1,0 +1,9 @@
+timestamp_ms,be_http_nginx-1_nginx-route-example-1_BACKEND,be_http_nginx-1_nginx-route-example-1_c4173fc2d0aa1ebf0b998bf010731eeb,be_http_nginx-1_nginx-route-example-2_206d0c663116f7c8feae92074f63883b,be_http_nginx-1_nginx-route-example-2_BACKEND,be_http_nginx-1_nginx-route-example-3_6648c1fe0dda9a584adbaba05212a90c,be_http_nginx-1_nginx-route-example-3_BACKEND,be_no_sni_BACKEND,be_no_sni_fe_no_sni,be_sni_BACKEND,be_sni_fe_sni,be_tcp_default_docker-registry_8eb0adda9290e79c24d873e246b0aaa7,be_tcp_default_docker-registry_BACKEND,be_tcp_default_registry-console_1429c99ec28de79a5ddf80aff26fd489,be_tcp_default_registry-console_BACKEND,fe_no_sni_FRONTEND,fe_sni_FRONTEND,openshift_default_BACKEND,public_FRONTEND,public_ssl_FRONTEND,stats_BACKEND,stats_FRONTEND
+1481113774977.92,106,106,106,106,106,106,106,0,106,0,106,106,106,106,0,0,106,0,0,106,0
+1481113785352.22,116,116,116,116,116,116,116,0,116,0,116,116,116,116,0,0,116,0,0,116,0
+1481113795654.35,126,126,126,126,126,126,126,0,126,0,126,126,126,126,0,0,126,0,0,126,0
+1481113805976.01,137,137,137,137,137,137,137,0,137,0,137,137,137,137,0,0,137,0,0,137,0
+1481113816287.39,147,147,147,147,147,147,147,0,147,0,147,147,147,147,0,0,147,0,0,147,0
+1481113826604.6,157,157,157,157,157,157,157,0,157,0,157,157,157,157,0,0,157,0,0,157,0
+1481113836919.43,168,168,168,168,168,168,168,0,168,0,168,168,168,168,0,0,168,0,0,168,0
+1481113847244.29,178,178,178,178,178,178,178,0,178,0,178,178,178,178,0,0,178,0,0,178,0
