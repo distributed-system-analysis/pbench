@@ -71,17 +71,21 @@ foreach $dir (sort @dirs) {
 		}
 		$iterations_by_num{$iter_num} = $iter_name;
 		my $result_json_file = $iteration_dir . "/result.json";
-		open(ITERATION_JSON, "$result_json_file") || die "$script: could not open file $result_json_file: $!\n";
-		my $json_text;
-                while ( <ITERATION_JSON> ) {
-                        $json_text = $json_text . $_;
-                        }
-                close TXT;
-                my $perl_scalar = from_json( $json_text );
-		my %iteration = ( $iteration_number_field => int $iter_num, $iteration_name_field => $iter_name, $iteration_data_field => $perl_scalar );
-                push @iterations, \%iteration;
+		if (open(ITERATION_JSON, "$result_json_file")) {
+			my $json_text;
+                	while ( <ITERATION_JSON> ) {
+                        	$json_text = $json_text . $_;
+                        	}
+                	close TXT;
+                	my $perl_scalar = from_json( $json_text );
+			my %iteration = ( $iteration_number_field => int $iter_num, $iteration_name_field => $iter_name, $iteration_data_field => $perl_scalar );
+                	push @iterations, \%iteration;
+		 } else {
+			print "could not find file $result_json_file\n";
+		}
 	}
 }
+
 my $json_text  = to_json( \@iterations, { ascii => 1, pretty => 1, canonical => 1 } );
 my $json_file = $benchmark_run_dir . "/result.json";
 open(JSON, ">$json_file") || die "$script: could not open file $json_file: $!\n";
