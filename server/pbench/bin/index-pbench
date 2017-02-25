@@ -456,7 +456,7 @@ class ToolData(object):
             # about them, a csv reader object, and the header line from each
             # file.
             self.csv_files = ToolData.get_csv_files(
-                    self.handler, iteration, sample, host, tool, mdlog, tb)
+                    self.handler, iteration, sample, host, tool, toolgroup, mdlog, tb)
 
     def _make_source_unified(self):
         """Process each .csv file at the same time, reading one row from each,
@@ -481,7 +481,8 @@ class ToolData(object):
         for csv in self.csv_files:
             assert csv['header'][0] == 'timestamp_ms'
             header = csv['header']
-            colpat = self.handler[csv['basename']]['colpat']
+            handler = self.handler[csv['basename']]
+            colpat = handler['colpat']
             if csv['basename'] not in field_mapping:
                 field_mapping[csv['basename']] = _dict_const()
             for idx,col in enumerate(header):
@@ -495,6 +496,11 @@ class ToolData(object):
                     subfield = m.group('subfield')
                 except IndexError:
                     subfield = None
+                else:
+                    if subfield not in handler['subfields']:
+                        raise Exception(
+                            "Handler subfields, %r, do not match header subfield"
+                            " name %s" % (handler['subfields'], subfield))
                 field_mapping[csv['basename']][idx] = (identifier, subfield)
 
         while True:
@@ -584,13 +590,12 @@ class ToolData(object):
         return gen
 
     @staticmethod
-    def get_csv_files(handler, iteration, sample, host, tool, mdlog, tb):
+    def get_csv_files(handler, iteration, sample, host, tool, toolgroup, mdlog, tb):
         """
         Fetch the list of .csv files for this tool, fetch their headers, and
         return a dictionary mapping their column headers to their field names. 
         """
-        # FIXME: We need to be able to handle other tool groups
-        path = os.path.join(iteration, sample, "tools-default", host, tool, "csv")
+        path = os.path.join(iteration, sample, "tools-%s" % (toolgroup,), host, tool, "csv")
         paths = [x for x in tb.getnames() if x.find(path) >= 0 and tb.getmember(x).isfile()]
         datafiles = []
         for p in paths:
