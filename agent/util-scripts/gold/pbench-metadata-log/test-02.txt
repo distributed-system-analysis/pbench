@@ -39,6 +39,7 @@ rpm-version:
 
 [tools]
 hosts: testhost 
+group: default
 
 [tools/testhost]
 iostat: --interval=3

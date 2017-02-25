@@ -76,6 +76,7 @@ Iteration 4-throughput-unidirec-1024B-1024flows-1pct_drop complete (4 of 4), wit
 /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01_00:00:00/pbench-moongen.cmd
 /var/tmp/pbench-test-bench/pbench/pbench.log
 /var/tmp/pbench-test-bench/pbench/tmp
+/var/tmp/pbench-test-bench/pbench/tmp/moongen__1900-01-01_00:00:00.iterations
 /var/tmp/pbench-test-bench/pbench/tools-default
 /var/tmp/pbench-test-bench/pbench/tools-default/mpstat
 /var/tmp/pbench-test-bench/pbench/tools-default/sar

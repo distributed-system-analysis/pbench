@@ -1,4 +1,5 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
 
 # This is a script to run the specjbb2005 benchmark
 # Author: Andrew Theurer
@@ -158,7 +159,9 @@ if [ "$stop_warehouses" == "default" ]; then
 fi
 ## Ensure the right version of the benchmark is installed
 
-benchmark_run_dir="$pbench_run/${benchmark}_${config}_$date"
+benchmark_fullname="${benchmark}_${config}_${date}"
+benchmark_run_dir="$pbench_run/${benchmark_fullname}"
+benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
 benchmark_summary_txt_file="$benchmark_run_dir/$benchmark-summary.txt"
 benchmark_summary_html_file="$benchmark_run_dir/$benchmark-summary.html"
 benchmark_results_dir="$benchmark_run_dir"
@@ -214,6 +217,7 @@ for i in `seq $start_warehouses $inc_warehouses $stop_warehouses`; do
 	# for each of the test iterations (each test with a specific number of warehouses), copy the raw result data for that iteration in iteraration directory
 	grep "test$i" SPECjbb.raw >$i/reference-result/SPECjbb.raw
 	new_iteration_name="$iteration-warehouses:$i"
+        echo $new_iteration_name >> $benchmark_iterations
 	mv $iteration $new_iteration_name
 	pbench-postprocess-tools --group=$tool_group --iteration=$new_iteration_name --dir=$benchmark_results_dir/$new_iteration_name/reference-result
 	let iteration=$iteration+1

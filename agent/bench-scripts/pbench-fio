@@ -372,14 +372,17 @@ function fio_process_options() {
 		esac
 	done
 	if [ "$postprocess_only" = "n" ]; then
-		benchmark_run_dir="$pbench_run/${benchmark}_${config}_$date"
+		benchmark_fullname="${benchmark}_${config}_${date}"
+		benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 	else
 		if [ -z "$run_dir" ]; then
-			echo "I need a directory if postprocessing an existing result (--run-dir=)"
-		else
-			benchmark_run_dir="$run_dir"
+			err_log "I need a directory if postprocessing an existing result (--run-dir=)"
+			exit 1
 		fi
+		benchmark_fullname="$(basename $run_dir)"
+		benchmark_run_dir="$run_dir"
 	fi
+	benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
 
 	verify_tool_group $tool_group
 }
@@ -638,6 +641,8 @@ function fio_run_benchmark() {
 			for block_size in `echo $block_sizes | sed -e s/,/" "/g`; do
 				job_num=1
 				iteration="${count}-${test_type}-${block_size}KiB"
+				   
+                                echo $iteration >> $benchmark_iterations
 				iteration_dir=$benchmark_run_dir/$iteration
 				result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
 				failures=0
