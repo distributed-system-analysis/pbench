@@ -341,11 +341,13 @@ def get_csv_files(iteration, sample, host, tool, mdlog, tb):
 class ToolData(object):
     def __init__(self, tstamp, md5sum, experiment, iteration, sample, host, tool, toolgroup,
                  dfile, dfilepath, tb):
+        (iterseqno, itername) = iteration.split('-', 1)
         self.run_metadata = {
             "runtstamp": tstamp,
             "runid": md5sum,
             "experiment": experiment,
-            "iteration": iteration,
+            "iteration": itername,
+            "iterseqno": iterseqno,
             "sample": sample,
             "host": host,
             "toolname": tool,
