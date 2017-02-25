@@ -1,60 +1,100 @@
 +++ Running indexing on /var/tmp/pbench-test-server/test-7.7
 len(actions) = 4
-[{'_id': '3a58d0784827289ecf52b40dbd2d8b05',
-  '_index': 'pbench.2015-09',
-  '_op_type': 'create',
-  '_source': {'@metadata': {'file-date': '2015-09-28',
-                            'file-name': '/var/tmp/pbench-test-server/test-7.7.tar.xz',
-                            'generated-by': 'index-pbench',
-                            'generated-by-version': '0.0.0.3',
-                            'md5': '3a58d0784827289ecf52b40dbd2d8b05',
-                            'pbench-agent-version': 'plugins:'},
-              '@timestamp': datetime.datetime(1900, 1, 1, 0, 0),
-              'host_tools_info': [{'hostname': 'alphaville',
-                                   'hostname-f': None,
-                                   'tools': {'iostat': '--interval="10"',
-                                             'mpstat': '--interval="10"',
-                                             'perf': '--record-opts="record -a --freq=100"',
-                                             'pidstat': '--interval="10"',
-                                             'proc-interrupts': '--interval="10"',
-                                             'proc-vmstat': '--interval="10"',
-                                             'sar': '--interval="10"',
-                                             'turbostat': '--interval="10"'}}],
-              'run': {'config': '',
-                      'controller': 'alphaville.usersys.redhat.com',
-                      'date': '2015-09-21T19:31:08',
-                      'end_run': '2015-09-21T19:32:12.673292621',
-                      'id': '3a58d0784827289ecf52b40dbd2d8b05',
-                      'name': 'testdir',
-                      'script': '',
-                      'start_run': '2015-09-21T19:31:12.673292621',
-                      'tarball-dirname': 'test-7.7',
-                      'tarball-toc-prefix': 'test-7.7'},
-              'sosreports': [{'hostname-f': 'foo.bar.com\n',
-                              'hostname-s': 'foo',
-                              'md5': 'df774a38494229ea9d265877363711a8  sosreport.tar.xz',
-                              'name': 'test-7.7/sysinfo/foo/end/sosreport.tar.xz'}]},
-  '_type': 'pbench-run'},
- {'_id': '6d0299a2221a19fba9c8fa68ded82081',
-  '_index': 'pbench.2015-09',
-  '_op_type': 'create',
-  '_parent': '3a58d0784827289ecf52b40dbd2d8b05',
-  '_source': {'@timestamp': datetime.datetime(1900, 1, 1, 0, 0),
-              'directory': '/',
-              'files': [{'mode': 436, 'name': 'metadata.log', 'size': 484}]},
-  '_type': 'pbench-run-toc-entry'},
- {'_id': '554a015e90cb3b60dd912707425a4f6d',
-  '_index': 'pbench.2015-09',
-  '_op_type': 'create',
-  '_parent': '3a58d0784827289ecf52b40dbd2d8b05',
-  '_source': {'@timestamp': datetime.datetime(1900, 1, 1, 0, 0), 'directory': '/sysinfo/'},
-  '_type': 'pbench-run-toc-entry'},
- {'_id': '01812ea8b446ebab1e9cd13a7be42306',
-  '_index': 'pbench.2015-09',
-  '_op_type': 'create',
-  '_parent': '3a58d0784827289ecf52b40dbd2d8b05',
-  '_source': {'@timestamp': datetime.datetime(1900, 1, 1, 0, 0), 'directory': '/sysinfo/foo/'},
-  '_type': 'pbench-run-toc-entry'}]
+[
+    {
+        "_id": "3a58d0784827289ecf52b40dbd2d8b05",
+        "_index": "pbench.results.2015-09",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "file-date": "2015-09-28",
+                "file-name": "/var/tmp/pbench-test-server/test-7.7.tar.xz",
+                "generated-by": "index-pbench",
+                "generated-by-version": "0.1.0.0",
+                "md5": "3a58d0784827289ecf52b40dbd2d8b05",
+                "pbench-agent-version": "plugins:"
+            },
+            "@timestamp": "2015-09-21T19:31:12.673292621",
+            "host_tools_info": [
+                {
+                    "hostname": "alphaville",
+                    "hostname-f": null,
+                    "tools": {
+                        "iostat": "--interval=\"10\"",
+                        "mpstat": "--interval=\"10\"",
+                        "perf": "--record-opts=\"record -a --freq=100\"",
+                        "pidstat": "--interval=\"10\"",
+                        "proc-interrupts": "--interval=\"10\"",
+                        "proc-vmstat": "--interval=\"10\"",
+                        "sar": "--interval=\"10\"",
+                        "turbostat": "--interval=\"10\""
+                    }
+                }
+            ],
+            "run": {
+                "config": "",
+                "controller": "alphaville.usersys.redhat.com",
+                "date": "2015-09-21T19:31:08",
+                "end_run": "2015-09-21T19:32:12.673292621",
+                "id": "3a58d0784827289ecf52b40dbd2d8b05",
+                "name": "testdir",
+                "script": "",
+                "start_run": "2015-09-21T19:31:12.673292621",
+                "tarball-dirname": "test-7.7",
+                "tarball-toc-prefix": "test-7.7"
+            },
+            "sosreports": [
+                {
+                    "hostname-f": "foo.bar.com\n",
+                    "hostname-s": "foo",
+                    "md5": "df774a38494229ea9d265877363711a8  sosreport.tar.xz",
+                    "name": "test-7.7/sysinfo/foo/end/sosreport.tar.xz"
+                }
+            ]
+        },
+        "_type": "pbench-run"
+    },
+    {
+        "_id": "9eab538194ae447786fe5c29559cbd7c",
+        "_index": "pbench.results.2015-09",
+        "_op_type": "create",
+        "_parent": "3a58d0784827289ecf52b40dbd2d8b05",
+        "_source": {
+            "@timestamp": "2015-09-21T19:31:12.673292621",
+            "directory": "/",
+            "files": [
+                {
+                    "mode": "0o664",
+                    "name": "metadata.log",
+                    "size": 484
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "554a015e90cb3b60dd912707425a4f6d",
+        "_index": "pbench.results.2015-09",
+        "_op_type": "create",
+        "_parent": "3a58d0784827289ecf52b40dbd2d8b05",
+        "_source": {
+            "@timestamp": "2015-09-21T19:31:12.673292621",
+            "directory": "/sysinfo/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "01812ea8b446ebab1e9cd13a7be42306",
+        "_index": "pbench.results.2015-09",
+        "_op_type": "create",
+        "_parent": "3a58d0784827289ecf52b40dbd2d8b05",
+        "_source": {
+            "@timestamp": "2015-09-21T19:31:12.673292621",
+            "directory": "/sysinfo/foo/"
+        },
+        "_type": "pbench-run-toc-entry"
+    }
+]
 --- Finished indexing on /var/tmp/pbench-test-server/test-7.7 (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench

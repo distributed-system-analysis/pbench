@@ -8,33 +8,79 @@
 from __future__ import print_function
 
 import sys, os, time, re, stat
-import hashlib, json, glob
+import hashlib, json, glob, csv
+import tarfile
 
 try:
     from configparser import SafeConfigParser, NoSectionError, NoOptionError
 except ImportError:
     from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
-
 from optparse import OptionParser, make_option
 from elasticsearch import VERSION, Elasticsearch, helpers, exceptions as es_excs
 from urllib3 import exceptions as ul_excs, Timeout
-from datetime import datetime
-import tarfile
+from datetime import datetime, timedelta
 from vos.analysis.lib import tstos
 
-from pprint import pprint
-
-_VERSION_ = "0.0.0.3"
+_VERSION_ = "0.1.0.0"
 _NAME_    = "index-pbench"
 _DEBUG    = 9
 
+# global - defaults to normal dict, ordered dict for unittests
+_dict_const = dict
+
 # global - passed in through environment by pbench-index
-tmpdir = None
+_tmpdir = None
 
 
 class MappingFileError(Exception):
     pass
 
+
+class BadDate(Exception):
+    pass
+
+
+class ConfigFileNotSpecified(Exception):
+    pass
+
+
+class ConfigFileError(Exception):
+    pass
+
+
+class BadMDLogFormat(Exception):
+    pass
+
+
+class TemplateError(Exception):
+    pass
+
+
+class UnsupportedTarballFormat(Exception):
+    pass
+
+
+class SosreportHostname(Exception):
+    pass
+
+
+###########################################################################
+# Debugging helpers
+
+_ts_start = None
+def ts(msg, newline=False):
+    global _ts_start
+
+    now = datetime.now()
+    if _ts_start:
+        print(now - _ts_start, file=sys.stderr)
+    _ts_start = now
+    if newline:
+        print(msg, file=sys.stderr)
+        _ts_start = None
+    else:
+        print(msg, end=' ', file=sys.stderr)
+    sys.stderr.flush()
 
 ###########################################################################
 # Fetch the mapping file for pbench metadata.
@@ -78,10 +124,96 @@ def get_hosts(config):
 
 _op_type = "create"
 
+def es_template(es, config):
+    #def es_template(es, INDEX_PREFIX, settings):
+    #
+    # FIXME: We should query to see if ian template exists, and only
+    # create it if it does not, or if the version of it is older than
+    # expected.
+    if not es:
+        # Don't do anything if we don't have an Elasticsearch client object.
+        return
+
+    index_settings = dict(
+        gateway=dict(
+            local=dict(
+                sync='1m')),
+        merge=dict(
+            scheduler=dict(
+                max_thread_count=1)),
+        translog=dict(
+            flush_threshold_size='1g'),
+    )
+
+    try:
+        NUMBER_OF_SHARDS = config.get('Settings', 'number_of_shards')
+    except Exception:
+        pass
+    else:
+        index_settings['number_of_shards'] = NUMBER_OF_SHARDS
+
+    try:
+        NUMBER_OF_REPLICAS = config.get('Settings', 'number_of_replicas')
+    except Exception:
+        pass
+    else:
+        index_settings['number_of_replicas'] = NUMBER_OF_REPLICAS
+
+    # where to find the mappings
+    LIBDIR = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))),
+        'lib', 'mappings')
+
+    pbench_mappings = {}
+    for mapping_fn in glob.iglob(os.path.join(LIBDIR, "*.json")):
+        key, mapping = fetch_mapping(mapping_fn)
+        pbench_mappings[key] = mapping
+
+    # The API body for the create() contains a dictionary with the settings and
+    # the mappings.
+    pbench_body = dict(
+        template='%s.20*-*' % (INDEX_PREFIX,),
+        settings=index_settings,
+        mappings=pbench_mappings)
+
+    try:
+        # Pbench Run template
+        res = es.indices.put_template(name=run_template_name, body=run_template_body)
+        # Pbench ToC template
+        res = es.indices.put_template(name=toc_template_name, body=toc_template_body)
+        # Pbench Tool Data template
+        res = es.indices.put_template(name=tool_data_template_name, body=tool_data_template_body)
+    except Exception as e:
+        raise TemplateError(e)
+
 def es_index(es, actions, dbg=0):
     """
     Now do the indexing specified by the actions.
     """
+    if not es:
+        # If we don't have an actual ES client object, just emit a sample of
+        # the actions we have been given.
+        global options
+        if options.debug_time_operations: ts("pprint")
+        actions_l = []
+        tocs = 3
+        tods = 15
+        for action in actions:
+            if action['_type'] == 'pbench-run-toc-entry':
+                tocs -= 1
+                if tocs >= 0:
+                    actions_l.append(action)
+            elif action['_type'] == 'pbench-tool-data':
+                tods -= 1
+                if tods >= 0:
+                    actions_l.append(action)
+            else:
+                actions_l.append(action)
+        print("len(actions) = {}".format(len(actions_l)))
+        print(json.dumps(actions_l, indent=4, sort_keys=True))
+        if options.debug_time_operations: ts("Done", newline=True)
+        return 0
+
     delay = _read_timeout
     tries = 20
 
@@ -187,99 +319,303 @@ def es_index(es, actions, dbg=0):
             break
     return 0
 
-###########################################################################
-# get metadata from metadata.log
-# metadata.log is in the format expected by configparser,
-# so we just get and return a configparser object.
-def get_mdconfig(mdf):
-
-    mdfconfig = SafeConfigParser()
-    mdfconfig.read(mdf)
-
-    # FIXME: verify start_run and end_run dictionary items are present
-    d = {}
-    d.update(mdfconfig.items('run'))
-    if "start_run" not in d or "end_run" not in d:
-        raise Exception('Missing start_run or end_run elements')
-    return mdfconfig
 
 ###########################################################################
-# generic metadata routines
+# Tool data routines
 
-class UnsupportedTarballFormat(Exception):
-    pass
+# Handlers data table / dictionary describing how to process a given tools
+# .csv files.  The outer dictionary holds one dictionary for each tool. Each
+# tool entry has one '@prospectus' entry, which records behavior and handling
+# controls, and then on entry for each .csv file name emitted by the tool.
+#
+# For each .csv file, we record the metric "class", and its name, "metric".
+# E.g. The metadata path hierarchy for iostat disk_IOPS.csv data would be,
+# 'iostat.disk.iops', for disk_Queue_Size.csv it would be 'iostat.disk.qsize',
+# etc.
+#
+# We record the metrics "display" name (human readable, or really what is
+# currently used by pbench today in generated html charts), and the "units"
+# for the metric, but neither field is currently indexed (FIXME!).
+#
+# The "colpat" field, or column pattern, describes as a regular express the
+# constituent components of the .csv file column header. Currently, the "id"
+# and "subfield" match groups are the only two expected groups, with
+# "subfield" considered optional.
+#
+# The "subfields" field contents in the handler data structure itself is
+# meant to be a programmatic way to ensure any subfield derived from a column
+# header can be checked, but that is not currently used (FIXME!).
+_known_csv_handlers = {
+    'iostat': {
+        '@prospectus': {
+            # For iostat .csv files, we want to merge all columns into one
+            # JSON document
+            'handling': 'unify'
+        },
+        'disk_IOPS.csv': {
+            'class': 'disk',
+            'metric': 'iops',
+            'display': 'IOPS',
+            'units': 'count_per_sec',
+            'subfields': [ 'read', 'write' ],
+            'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)')
+        },
+        'disk_Queue_Size.csv': {
+            'class': 'disk',
+            'metric': 'qsize',
+            'display': 'Queue_Size',
+            'units': 'count',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        },
+        'disk_Request_Merges_per_sec.csv': {
+            'class': 'disk',
+            'metric': 'reqmerges',
+            'display': 'Request_Merges',
+            'units': 'count_per_sec',
+            'subfields': [ 'read', 'write' ],
+            'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)')
+        },
+        'disk_Request_Size_in_512_byte_sectors.csv': {
+            'class': 'disk',
+            'metric': 'reqsize',
+            'display': 'Request_Size',
+            'units': 'count_512b_sectors',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        },
+        'disk_Throughput_MB_per_sec.csv': {
+            'class': 'disk',
+            'metric': 'tput',
+            'display': 'Throughput',
+            'units': 'MB_per_sec',
+            'subfields': [ 'read', 'write' ],
+            'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)')
+        },
+        'disk_Utilization_percent.csv': {
+            'class': 'disk',
+            'metric': 'util',
+            'display': 'Utilization',
+            'units': 'percent',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        },
+        'disk_Wait_Time_msec.csv': {
+            'class': 'disk',
+            'metric': 'wtime',
+            'display': 'Wait_Time',
+            'units': 'msec',
+            'subfields': [ 'read', 'write' ],
+            'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)')
+        }
+    },
+    'proc-interrupts': {
+        '@prospectus': {
+            # For proc-interrupts .csv files, we want to individually index
+            # each column entry as its own JSON document
+            'handling': 'individual'
+        },
+    },
+    'sar': {},
+    'turbostat': {}
+}
+# If we need to deal with old .csv file names, place an alias here to map to
+# an existing handler above.
+_aliases = {
+    'disk_Request_Merges.csv': 'disk_Request_Merges_per_sec.csv',
+    'disk_Request_Size.csv': 'disk_Request_Size_in_512_byte_sectors.csv',
+    'disk_Throughput.csv': 'disk_Throughput_MB_per_sec.csv',
+    'disk_Utilization.csv': 'disk_Utilization_percent.csv',
+    'disk_Wait_Time.csv': 'disk_Wait_Time_msec.csv',
+}
 
 
-def mk_pbench_metadata(mdconf):
-    d = {}
-    try:
-        d['pbench-rpm-version'] = mdconf.get("pbench", "rpm-version")
-    except Exception:
-        d['pbench-rpm-version'] = "Unknown"
-    return d
+class ToolData(object):
+    def __init__(self, tstamp, md5sum, experiment, iteration, sample, host, tool, toolgroup,
+                 mdlog, tb):
+        self.toolname = tool
+        (iterseqno, itername) = iteration.split('-', 1)
+        self.run_metadata = {
+            "runtstamp": tstamp,
+            "runid": md5sum,
+            "experiment": experiment,
+            # FIXME: What are the constituent parts of an iteration name?
+            "iteration": itername,
+            "iterseqno": iterseqno,
+            "sample": sample,
+            "host": host,
+            "toolgroup": toolgroup,
+        }
+        try:
+            self.handler = _known_csv_handlers[tool]
+        except KeyError:
+            self.handler = None
+            self.csv_files = None
+        else:
+            # Fetch all the .csv files as a dictionary containing metadata
+            # about them, a csv reader object, and the header line from each
+            # file.
+            self.csv_files = ToolData.get_csv_files(
+                    self.handler, iteration, sample, host, tool, mdlog, tb)
 
-def _to_utc(l, u):
-    """l is a timestamp in local time and u is one in UTC. These are
-    supposed to be close, so we calculate an offset rounded to a
-    half-hour and add it to the local date. We then convert back to an
-    ISO format date.
+    def _make_source_unified(self):
+        """Process each .csv file at the same time, reading one row from each,
+        unifying them into one record per column identifier when the
+        timestamps match."""
+        # Class list is generated from the handler data
+        class_list = _dict_const()
+        # The metric mapping provides (klass, metric) tuples for a given
+        # .csv file.
+        metric_mapping = _dict_const()
+        for k,v in self.handler.items():
+            if k.startswith('@'):
+                continue
+            class_list[v['class']] = True
+            metric_mapping[k] = (v['class'], v['metric'])
+        # The list of identifiers is generated from the combined headers,
+        # parsing out the IDs
+        identifiers = _dict_const()
+        # The field mapping provides (identifier, subfield) tuples for all
+        # columns of all files.
+        field_mapping = _dict_const()
+        for csv in self.csv_files:
+            assert csv['header'][0] == 'timestamp_ms'
+            header = csv['header']
+            colpat = self.handler[csv['basename']]['colpat']
+            if csv['basename'] not in field_mapping:
+                field_mapping[csv['basename']] = _dict_const()
+            for idx,col in enumerate(header):
+                if idx == 0:
+                    field_mapping[csv['basename']][idx] = None
+                    continue
+                m = colpat.match(col)
+                identifier = m.group('id')
+                identifiers[identifier] = True
+                try:
+                    subfield = m.group('subfield')
+                except IndexError:
+                    subfield = None
+                field_mapping[csv['basename']][idx] = (identifier, subfield)
 
-    """
-    from datetime import datetime, timedelta
+        while True:
+            # Read a row from each .csv file
+            rows = _dict_const()
+            for csv in self.csv_files:
+                try:
+                    rows[csv['basename']] = next(csv['reader'])
+                except StopIteration:
+                    # This should handle the case of mismatched number of
+                    # rows across all .csv files. All readers which have
+                    # finished will emit a StopIteration.
+                    pass
+            if not rows:
+                # None of the csv file readers returned any rows to process,
+                # so we're done.
+                break
+            # Verify timestamps are all the same
+            tstamp = None
+            first = None
+            for fname in rows.keys():
+                tstamp = rows[fname][0]
+                if not first:
+                    first = tstamp
+                else:
+                    assert(first == tstamp)
+            # Create the base document per identifier; the timestamp is taken
+            # from the "first" timestamp, converted to a floating point
+            # seconds value, and then formatted as a string.
+            first = int(first)/1000
+            ts = datetime.utcfromtimestamp(first)
+            ts_str = ts.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+            datum = _dict_const()
+            for identifier in identifiers.keys():
+                datum[identifier] = _dict_const([
+                    # Since they are all the same, we use the first to generate the
+                    # real timestamp.
+                    ('@timestamp', ts_str),
+                    ('@metadata', self.run_metadata)
+                ])
+                datum[identifier][self.toolname] = _dict_const()
+                for klass in class_list.keys():
+                    datum[identifier][self.toolname][klass] = _dict_const([('id',identifier)])
+            # Now we can perform the mapping from multiple .csv files to JSON
+            # documents using a known field hierarchy (no identifiers in field
+            # names) with the identifiers as additional metadata. Note that we
+            # are constructing this document just from the current row of data
+            # taken from all .csv files (assumes timestamps are the same).
+            for fname,row in rows.items():
+                klass, metric = metric_mapping[fname]
+                for idx,val in enumerate(row):
+                    if idx == 0:
+                        continue
+                    # Given an fname and a column offset, return the
+                    # identifier from the header
+                    identifier, subfield = field_mapping[fname][idx]
+                    if subfield:
+                        if metric not in datum[identifier][self.toolname][klass]:
+                            datum[identifier][self.toolname][klass][metric] = _dict_const()
+                        datum[identifier][self.toolname][klass][metric][subfield] = val
+                    else:
+                        datum[identifier][self.toolname][klass][metric] = val
+            # At this point we have fully mapped all data from all .csv files
+            # to their proper fields for each identifier. Now we can yield
+            # record for the identifiers.
+            for key,source in datum.items():
+                yield source
+        return
 
-    lts = datetime.strptime(l, "%Y-%m-%dT%H:%M:%S")
-    uts = datetime.strptime(u[:u.rfind('.')] , "%Y-%m-%dT%H:%M:%S")
-    offset = lts - uts
-    res = round(float(offset.seconds) / 60 / 60 + offset.days * 24, 1)
-    return (lts - timedelta(0, int(res*60*60), 0)).isoformat()
+    def _make_source_individual(self):
+        """Read .csv files individually, emitting records for each row and
+        column coordinate."""
+        pass
 
+    def make_source(self):
+        """Simple jump method to pick the write source generator based on the
+        handler's prospectus."""
+        if not self.csv_files:
+            # If we do not have any csv files for this tool, ignore it.
+            return
+        if self.handler['@prospectus']['handling'] == 'unify':
+            gen = self._make_source_unified()
+        elif self.handler['@prospectus']['handling'] == 'individual':
+            gen = self._make_source_individual()
+        else:
+            raise Exception("Logic bomb!")
+        return gen
 
-def mk_run_metadata(mdconf, md5sum, dirname, dirprefix):
-    try:
-        d = {}
-        d.update(mdconf.items('run'))
-        d.update(mdconf.items('pbench'))
-        # Fix up old format dates so ES won't barf on them.
-        d['start_run'] = d['start_run'].replace('_', 'T')
-        d['end_run'] = d['end_run'].replace('_', 'T')
-        # Convert the date to UTC: date and start-run are supposed to be close
-        # (except that date may be in local time and start-run is UTC).
-        d['date'] = _to_utc(d['date'].replace('_', 'T'), d['start_run'])
-        # the run id here is the md5sum that's the _id of the main document.
-        # it's what ties all of the relevant documents together.
-        d['id'] = md5sum
-        d['tarball-dirname'] = dirname
-        d['tarball-toc-prefix'] = dirprefix
-        del d['rpm-version']
-        return d
-    except KeyError as e:
-        print("Tarball: %s - %s is missing in metadata.log\n" % (dirname, e), file=sys.stdout)
-        return {}
+    @staticmethod
+    def get_csv_files(handler, iteration, sample, host, tool, mdlog, tb):
+        """
+        Fetch the list of .csv files for this tool, fetch their headers, and
+        return a dictionary mapping their column headers to their field names. 
+        """
+        # FIXME: We need to be able to handle other tool groups
+        path = os.path.join(iteration, sample, "tools-default", host, tool, "csv")
+        paths = [x for x in tb.getnames() if x.find(path) >= 0 and tb.getmember(x).isfile()]
+        datafiles = []
+        for p in paths:
+            fname = os.path.basename(p)
+            try:
+                handler_rec = handler[fname]
+            except KeyError:
+                # Try an alias
+                alias_name = fname
+                try:
+                    fname = _aliases[alias_name]
+                    handler_rec = handler[fname]
+                except KeyError:
+                    # Ignore .csv files for which we don't have a handler
+                    #print("WARNING: no .csv handler for %s\n" % (p,), file=sys.stdout)
+                    continue
+            datafile = { "path": p, "basename": fname, 'handler': handler_rec }
+            # FIXME: we might have to deal with UTF-8 decoding issues
+            # reader = csv.reader(codecs.iterdecode(tb.extractfile(dfilepath), 'utf-8'))
+            datafile['reader'] = reader = csv.reader(open(os.path.join(_tmpdir, p)))
+            # FIXME: how should we handle .csv files that are empty?
+            datafile['header'] = next(reader)
+            datafiles.append(datafile)
+        return datafiles
 
-def mk_user_specified_metadata(options):
-    # parse the JSON string into a dict and return it
-    try:
-        return json.loads(options.metadata_string)
-    except Exception:
-        print("Cannot parse JSON string: {}\n".format(options.metadata_string))
-        return {}
-
-def mk_metadata(fname, tb, mdconf, md5sum):
-    """Return a dict with metadata about a tarball"""
-    mtime = datetime.fromtimestamp(os.stat(fname)[stat.ST_MTIME])
-
-    mddict = {'generated-by': _NAME_,
-              'generated-by-version': _VERSION_,
-              'pbench-agent-version': mdconf.get("pbench", "rpm-version"),
-              'file-date': mtime.strftime("%Y-%m-%d"),
-              'file-name': fname,
-              'md5': md5sum
-    }
-    return mddict
-
-
-###########################################################################
-# data routines
 
 # tool data are stored in csv files in the tarball.
 # the structure is
@@ -290,7 +626,6 @@ def mk_metadata(fname, tb, mdconf, md5sum):
 # tarball and using heuristics.
 
 def get_iterations(mdlog, tb):
-
     try:
         return mdlog.get("pbench", "iterations").split(', ')
     except Exception:
@@ -306,7 +641,6 @@ def get_iterations(mdlog, tb):
         return iterations
 
 def get_samples(iteration, mdlog, tb):
-
     samples = []
     for x in tb.getnames():
         if x.find("{}/".format(iteration)) < 0:
@@ -332,53 +666,6 @@ def get_tools(iteration, sample, host, mdlog, tb):
     except Exception:
         return []
 
-def get_csv_files(iteration, sample, host, tool, mdlog, tb):
-
-    path = os.path.join(iteration, sample, "tools-default", host, tool, "csv")
-    return [x for x in tb.getnames() if x.find(path) >= 0 and tb.getmember(x).isfile()]
-
-
-class ToolData(object):
-    def __init__(self, tstamp, md5sum, experiment, iteration, sample, host, tool, toolgroup,
-                 dfile, dfilepath, tb):
-        (iterseqno, itername) = iteration.split('-', 1)
-        self.run_metadata = {
-            "runtstamp": tstamp,
-            "runid": md5sum,
-            "experiment": experiment,
-            "iteration": itername,
-            "iterseqno": iterseqno,
-            "sample": sample,
-            "host": host,
-            "toolname": tool,
-            "toolgroup": toolgroup,
-            "datafile": dfile
-        }
-        self.data = ToolData.get_tool_data(dfilepath, tb)
-
-    def make_source(self):
-        for datum in self.data:
-            datum['@metadata'] = self.run_metadata
-            yield datum
-        return
-
-    @staticmethod
-    def get_tool_data(dfile, tb):
-        import csv
-        global tmpdir
-
-        # FIXME: we might have to deal with UTF-8 decoding issues
-        # reader = csv.reader(codecs.iterdecode(tb.extractfile(dfile), 'utf-8'))
-        reader = csv.reader(open(os.path.join(tmpdir, dfile)))
-        header = next(reader)
-        for row in reader:
-            datum = { "@timestamp": row[0] }
-            for i in range(1, len(row)):
-                datum[header[i]] = row[i]
-            yield datum
-        return
-
-
 def mk_tool_data(mdlog, md5sum, tb, tstamp):
     experiment = mdlog.get("pbench", "name")
     try:
@@ -393,19 +680,113 @@ def mk_tool_data(mdlog, md5sum, tb, tstamp):
             for host in hosts:
                 tools = get_tools(iteration, sample, host, mdlog, tb)
                 for tool in tools:
-                    if tool == 'pidstat':
-                        # FIXME - Skipping indexing of pidstat data for now
-                        continue
-                    data_files = get_csv_files(
-                        iteration, sample, host, tool, mdlog, tb)
-                    for dfile in data_files:
-                        yield ToolData(
-                            tstamp, md5sum, experiment, iteration, sample,
-                            host, tool, toolsgroup, os.path.basename(dfile),
-                            dfile, tb)
+                    yield ToolData(
+                        tstamp, md5sum, experiment, iteration, sample,
+                        host, tool, toolsgroup, mdlog, tb)
+    return
+
+def mk_tool_data_actions(ptb, options, INDEX_PREFIX):
+    index_name_template = "%s.tool-%%s" % INDEX_PREFIX
+    for td in mk_tool_data(ptb.mdconf, ptb.md5sum, ptb.tb, ptb.start_run):
+        # Each ToolData object, td, that is returned here represents how
+        # data collected for that tool across all hosts is to be returned.
+        # The make_source method returns a generator that will emit each
+        # source document for the appropriate unit of tool data.  Each has
+        # the option of constructing that data as best fits its tool data.
+        # The tool data for each tool is kept in its own index to allow
+        # for different curation policies for each tool.
+        index_name_template_for_tool = (index_name_template % td.toolname) + '.'
+        asource = td.make_source()
+        if not asource:
+            continue
+        for source in asource:
+            action = {
+                "_op_type": "create",
+                "_index":   index_name_template_for_tool + source['@timestamp'].split('T', 1)[0],
+                "_type":    "pbench-tool-data",
+                # FIXME: we should generate our own JSON doc ID
+                #"_id":      source_id,
+                "_source":  source
+            }
+            yield action
     return
 
 ###########################################################################
+# Build tar ball table-of-contents (toc) source documents.
+
+def mk_toc(tb, md5sum, options):
+    members = tb.getmembers()
+    prefix = members[0].name.split(os.path.sep)[0]
+    # create a list of dicts where each directory that contains files is represented
+    # by a dictionary with a 'name' key, whose value is the pathname of the dictionary
+    # and a 'files' key, which is a list of the files contained in the directory.
+    d = _dict_const()
+    for m in members:
+        if m.isdir():
+            dname = os.path.dirname(m.name)[len(prefix):] + os.path.sep
+            if dname not in d:
+                d[dname] = _dict_const(directory=dname)
+        elif m.isfile() or m.issym():
+            dname = os.path.dirname(m.name)[len(prefix):] + os.path.sep
+            fentry = _dict_const(
+                    name=os.path.basename(m.name),
+                    size=m.size,
+                    mode=oct(m.mode)
+            )
+            if m.issym():
+                fentry['linkpath'] = m.linkpath
+            if dname in d:
+                # we may have created an empty dir entry already
+                # without a 'files' entry, so we now make sure that
+                # there is an empty 'files' entry that we can populate.
+                if 'files' not in d[dname]:
+                    d[dname]['files'] = []
+                d[dname]['files'].append(fentry)
+            else:
+                # presumably we'll never fall through here any more:
+                # the directory entry always preceded the file entry
+                # in the tarball.
+                d[dname] = _dict_const(directory=dname, files=[fentry])
+        else:
+            # if debug: print(repr(m))
+            continue
+    return (prefix, d)
+
+def get_md5sum_of_dir(dir, parentid):
+    """Calculate the md5 sum of all the names in the toc"""
+    h = hashlib.md5()
+    h.update(parentid.encode('utf-8'))
+    h.update(dir['directory'].encode('utf-8'))
+    if 'files' in dir:
+        for f in dir['files']:
+            for k in sorted(f.keys()):
+                h.update(repr(f[k]).encode('utf-8'))
+    return h.hexdigest()
+
+def mk_toc_actions(ptb, options, INDEX_PREFIX):
+    """Construct Table-of-Contents actions.
+
+    These are indexed into the results index along side the runs."""
+    index_name_template = "%s.results.%%d-%%02d" % INDEX_PREFIX
+    tstamp = ptb.start_run.replace('_', 'T')
+    prefix, dirs = mk_toc(ptb.tb, ptb.md5sum, options)
+    assert(prefix == ptb.dirprefix)
+    for dname,d in dirs.items():
+        d["@timestamp"] = tstamp
+        action = {
+            "_id":      get_md5sum_of_dir(d, ptb.md5sum),
+            "_op_type": "create",
+            "_index":   index_name_template % (int(ptb.date[0]), int(ptb.date[1])),
+            "_type":    "pbench-run-toc-entry",
+            "_source":  d,
+            "_parent":  ptb.md5sum
+        }
+        yield action
+    return
+
+###########################################################################
+# Build results source document
+
 # routines for handling sosreports, hostnames, and tools
 def valid_ip(address):
     import socket
@@ -501,8 +882,6 @@ def ip_address_to_ip_o_addr(s):
     # If not, grovel through the ip_address file, collect the juicy pieces
     # and fake a string that is similar in format to the preferred case -
     # at least similar enough to satisfy the caller of this function.
-
-    import re
     as_is = True
     pat = re.compile(r'^[0-9]+:')
 
@@ -572,11 +951,6 @@ def if_ip_from_sosreport(ip_addr_f):
         d[ifproto].append({"ifname": ifname, "ipaddr" : ifip})
 
     return d
-
-
-class SosreportHostname(Exception):
-    pass
-
 
 def hostnames_if_ip_from_sosreport(sos):
     """Return a dict with hostname info (both short and fqdn) and
@@ -686,116 +1060,71 @@ def mk_sosreports(tb):
 
     return sosreportlist
 
-###########################################################################
-# mk_actions, mk_source
-from datetime import datetime
-ts_start = None
+def mk_pbench_metadata(mdconf):
+    d = {}
+    try:
+        d['pbench-rpm-version'] = mdconf.get("pbench", "rpm-version")
+    except Exception:
+        d['pbench-rpm-version'] = "Unknown"
+    return d
 
-def ts(msg, newline=False):
-    global ts_start
+def _to_utc(l, u):
+    """l is a timestamp in local time and u is one in UTC. These are
+    supposed to be close, so we calculate an offset rounded to a
+    half-hour and add it to the local date. We then convert back to an
+    ISO format date.
+    """
+    lts = datetime.strptime(l, "%Y-%m-%dT%H:%M:%S")
+    uts = datetime.strptime(u[:u.rfind('.')] , "%Y-%m-%dT%H:%M:%S")
+    offset = lts - uts
+    res = round(float(offset.seconds) / 60 / 60 + offset.days * 24, 1)
+    return (lts - timedelta(0, int(res*60*60), 0)).isoformat()
 
-    now = datetime.now()
-    if ts_start:
-        print(now - ts_start, file=sys.stderr)
-    ts_start = now
-    if newline:
-        print(msg, file=sys.stderr)
-        ts_start = None
-    else:
-        print(msg, end=' ', file=sys.stderr)
-    sys.stderr.flush()
-
-def mk_source(hostname, tbname, dirname, dirprefix, tb, mdconf, md5sum, ts, options):
-    # a dict containing:
-    #   metadata about the tarball,
-    #   pbench metadata
-    #   run metadata
-    #   tool info
-    #   tarball toc
-
-    rec = { '@timestamp': ts }
-
-    # debug: -T options will cause each call below to be timed
-    # and the elapsed interval printed.
-    debug_time_operations = options.debug_time_operations
-    if debug_time_operations: ts("mk_metadata")
-    rec['@metadata'] = mk_metadata(tbname, tb, mdconf, md5sum)
-    if options.metadata_string:
-        if debug_time_operations: ts("mk_user_specified_metadata")
-        rec['user_specified_metadata'] = mk_user_specified_metadata(options)
-    #if debug_time_operations: ts("mk_pbench_metadata")
-    #rec['pbench'] = mk_pbench_metadata(mdconf)
-    if debug_time_operations: ts("mk_run_metadata")
-    rec['run'] = mk_run_metadata(mdconf, md5sum, dirname, dirprefix)
-    if debug_time_operations: ts("mk_sosreports")
-    rec['sosreports'] = sos_d = mk_sosreports(tb)
-    if debug_time_operations: ts("mk_tool_info")
-    rec['host_tools_info'] = mk_tool_info(sos_d, mdconf)
-
-    if debug_time_operations: ts("Done!", newline=True)
-
-    return rec
-
-###########################################################################
-# mk-toc-source
-
-def mk_toc(tb, md5sum):
-    members = tb.getmembers()
-    prefix = members[0].name.split(os.path.sep)[0]
-    # create a list of dicts where each directory that contains files is represented
-    # by a dictionary with a 'name' key, whose value is the pathname of the dictionary
-    # and a 'files' key, which is a list of the files contained in the directory.
-    if options.debug_unittest:
-        # sort the list to produce a predictable result for comparison to gold output
-        import collections
-        d = collections.OrderedDict()
-    else:
+def mk_run_metadata(mdconf, md5sum, dirname, dirprefix):
+    try:
         d = {}
-    for m in members:
-        if m.isdir():
-            dname = os.path.dirname(m.name)[len(prefix):] + os.path.sep
-            if dname not in d:
-                d[dname] = { 'directory': dname }
-        elif m.isfile() or m.issym():
-            dname = os.path.dirname(m.name)[len(prefix):] + os.path.sep
-            fentry = { 'name' : os.path.basename(m.name),
-                       'size' : m.size,
-                       'mode' : oct(m.mode)
-            }
-            if m.issym():
-                fentry['linkpath'] = m.linkpath
-            if dname in d:
-                # we may have created an empty dir entry already
-                # without a 'files' entry, so we now make sure that
-                # there is an empty 'files' entry that we can populate.
-                if 'files' not in d[dname]:
-                    d[dname]['files'] = []
-                d[dname]['files'].append(fentry)
-            else:
-                # presumably we'll never fall through here any more:
-                # the directory entry always preceded the file entry
-                # in the tarball.
-                d[dname] = { 'directory': dname, 'files': [fentry] }
-        else:
-            # if debug: print(repr(m))
-            continue
-    return (prefix, d)
+        d.update(mdconf.items('run'))
+        d.update(mdconf.items('pbench'))
+        # Fix up old format dates so ES won't barf on them.
+        d['start_run'] = d['start_run'].replace('_', 'T')
+        d['end_run'] = d['end_run'].replace('_', 'T')
+        # Convert the date to UTC: date and start-run are supposed to be close
+        # (except that date may be in local time and start-run is UTC).
+        d['date'] = _to_utc(d['date'].replace('_', 'T'), d['start_run'])
+        # the run id here is the md5sum that's the _id of the main document.
+        # it's what ties all of the relevant documents together.
+        d['id'] = md5sum
+        d['tarball-dirname'] = dirname
+        d['tarball-toc-prefix'] = dirprefix
+        del d['rpm-version']
+        return d
+    except KeyError as e:
+        print("Tarball: %s - %s is missing in metadata.log\n" % (dirname, e), file=sys.stdout)
+        return {}
 
-def get_md5sum_of_dir(dir, parentid):
-    """Calculate the md5 sum of all the names in the toc"""
-    import hashlib
+def mk_user_specified_metadata(options):
+    # parse the JSON string into a dict and return it
+    try:
+        return json.loads(options.metadata_string)
+    except Exception:
+        print("Cannot parse JSON string: {}\n".format(options.metadata_string))
+        return {}
 
-    h = hashlib.md5()
-    h.update(parentid.encode('utf-8'))
-    h.update(dir['directory'].encode('utf-8'))
-    if 'files' in dir:
-        for f in dir['files']:
-            for k in sorted(f.keys()):
-                h.update(repr(f[k]).encode('utf-8'))
-    return h.hexdigest()
+def mk_metadata(fname, tb, mdconf, md5sum):
+    """Return a dict with metadata about a tarball"""
+    mtime = datetime.fromtimestamp(os.stat(fname)[stat.ST_MTIME])
 
-def mk_results_action(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, ts, options):
+    mddict = {'generated-by': _NAME_,
+              'generated-by-version': _VERSION_,
+              'pbench-agent-version': mdconf.get("pbench", "rpm-version"),
+              'file-date': mtime.strftime("%Y-%m-%d"),
+              'file-name': fname,
+              'md5': md5sum
+    }
+    return mddict
 
+def mk_results_action(ptb, options, INDEX_PREFIX):
+    #mk_results_action(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, ts, options):
     """Extract metadata from the named tarball and create an indexing
        action out of them.
 
@@ -804,126 +1133,135 @@ def mk_results_action(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname,
        the tarball: its name, size, md5, mtime.
        Metadata about the run are *data* to be indexed.
     """
+    source = { '@timestamp': ptb.start_run.replace('_', 'T') }
+
+    # debug: -T options will cause each call below to be timed
+    # and the elapsed interval printed.
+    debug_time_operations = options.debug_time_operations
+    if debug_time_operations: ts("mk_metadata")
+    source['@metadata'] = mk_metadata(ptb.tbname, ptb.tb, ptb.mdconf, ptb.md5sum)
+    if options.metadata_string:
+        if debug_time_operations: ts("mk_user_specified_metadata")
+        source['user_specified_metadata'] = mk_user_specified_metadata(options)
+    #if debug_time_operations: ts("mk_pbench_metadata")
+    #source['pbench'] = mk_pbench_metadata(mdconf)
+    if debug_time_operations: ts("mk_run_metadata")
+    source['run'] = mk_run_metadata(ptb.mdconf, ptb.md5sum, ptb.dirname, ptb.dirprefix)
+    if debug_time_operations: ts("mk_sosreports")
+    source['sosreports'] = sos_d = mk_sosreports(ptb.tb)
+    if debug_time_operations: ts("mk_tool_info")
+    source['host_tools_info'] = mk_tool_info(sos_d, ptb.mdconf)
 
     # make a simple action for indexing
-    source = mk_source(hostname, tbname, dirname, dirprefix, tb, mdconf, md5sum, ts, options)
+    index_name_template = "%s.results.%%d-%%02d" % INDEX_PREFIX
     action = {
         "_op_type": "create",
-        "_index":   idxname,
+        "_index":   index_name_template % (int(ptb.date[0]), int(ptb.date[1])),
         "_type":    "pbench-run",
-        "_id":      md5sum,
+        "_id":      ptb.md5sum,
         "_source":  source,
     }
+    if debug_time_operations: ts("Done!", newline=True)
     return action
 
-def mk_tool_data_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, tstamp, options):
-    for td in mk_tool_data(mdconf, md5sum, tb, tstamp):
-        for source in td.make_source():
-            action = {
-                "_op_type"   : "create",
-                "_index"     : idxname,
-                "_type"      : "pbench-tool-data",
-                "_source"    : source,
-            }
-            yield action
-    return
-
-def mk_toc_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, tstamp, options):
-    """Construct Table-of-Contents actions"""
-    prefix, dirs = mk_toc(tb, md5sum)
-    assert(prefix == dirprefix)
-    for d in dirs:
-        dirs[d]["@timestamp"] = tstamp
-        action = {
-            "_id":      get_md5sum_of_dir(dirs[d], md5sum),
-            "_op_type": "create",
-            "_index":   idxname,
-            "_type":    "pbench-run-toc-entry",
-            "_source":  dirs[d],
-            "_parent":  md5sum
-        }
-        yield action
-    return
-
-def get_tarball_md5sum(name):
-    """Open the MD5 file of the tarball and read the MD5 sum from it."""
-    return open("%s.md5" % (name)).read().split()[0]
-
-def mk_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, options):
-    if options.debug_unittest:
-        tstamp = datetime.strptime("1900-01-01T00:00:00", "%Y-%m-%dT%H:%M:%S")
-    else:
-        tstamp = datetime.now()
-    md5sum = get_tarball_md5sum(tbname)
+def make_all_actions(ptb, options, INDEX_PREFIX, INDEX_VERSION):
+    """Driver for generating all actions on source documents for indexing
+    into Elasticsearch. This generator drives the generation of the results
+    source document, the table-of-contents tar ball documents, and finally
+    all the tool data.
+    """
     debug_time_operations = options.debug_time_operations
     if debug_time_operations: ts("mk_results_action")
-    yield mk_results_action(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, tstamp, options)
+    yield mk_results_action(ptb, options, INDEX_PREFIX)
     if debug_time_operations: ts("mk_toc_actions")
-    for action in mk_toc_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, tstamp, options):
+    for action in mk_toc_actions(ptb, options, INDEX_PREFIX):
         yield action
     if debug_time_operations: ts("mk_tool_data_actions")
-    for action in mk_tool_data_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, tstamp, options):
+    for action in mk_tool_data_actions(ptb, options, INDEX_PREFIX):
         yield action
     if debug_time_operations: ts("", newline=True)
     return
 
-###########################################################################
-# We get the start date out of the metadata log.
 
-class BadDate(Exception):
-    pass
+class PbenchTarBall(object):
+    def __init__(self, tbarg):
+        global _tmpdir
 
+        self.tbname = tbarg
+        self.hostname = os.path.basename(os.path.dirname(self.tbname))
+        self.tb = tarfile.open(self.tbname)
 
-def run_start_date(mdconf, tbname):
-    # import pdb; pdb.set_trace()
-    try:
-        # N.B. the start_run timestamp is in UTC.
-        tstamp = mdconf.get('run', 'start_run').split('_')
-        date = [ int(x) for x in tstamp[0].split("-") ]
-    except Exception:
-        raise BadDate(tbname)
-    # for future reference
-    # time = [ int(x) for x in tstamp[1].split(":") ]
+        # This is the top-level name of the run - it should be the common
+        # first component of every member of the tarball.
+        dirname = os.path.basename(self.tbname)
+        # FIXME: should we handle result tarballs that are uncompressed, or
+        # compressed with a different compression mechanism from xz?
+        self.dirname = dirname[:dirname.rfind('.tar.xz')]
+        # ... but let's make sure.
+        # FIXME: how are we making sure it is the first component of every
+        # member of the tar ball?  Here we seem to be only looking at the
+        # first, and not comparing it to self.dirname.
+        self.dirprefix = self.tb.getmembers()[0].name.split(os.path.sep)[0]
 
-    return date
+        # Verify we have a metadata.log file in the tar ball before we
+        # start extracting.
+        member_name = "%s/metadata.log" % (self.dirname)
+        try:
+            self.mdlog = self.tb.getmember(member_name)
+        except KeyError:
+            raise UnsupportedTarballFormat(self.tbname)
+
+        # FIXME: Should we have the option of using an already extracted
+        # version of the tar ball?
+        # FIXME: Is this a temporary extraction or permanent? If temporary,
+        # where does it get cleaned up?
+        self.tb.extractall(path=_tmpdir)
+        try:
+            self.mdconf = PbenchTarBall.get_mdconfig(os.path.join(_tmpdir, member_name))
+        except Exception:
+            raise BadMDLogFormat(self.tbname)
+        # We get the start date out of the metadata log.
+        try:
+            # N.B. the start_run timestamp is in UTC.
+            self.start_run = self.mdconf.get('run', 'start_run').replace('_', 'T')
+            split_date_str = self.start_run.split('T')
+            # List of constituent date components, year [0], month [1], day [2]
+            self.date = [ int(x) for x in split_date_str[0].split("-") ]
+        except Exception:
+            raise BadDate(self.tbname)
+        # Open the MD5 file of the tarball and read the MD5 sum from it.
+        self.md5sum = open("%s.md5" % (self.tbname)).read().split()[0]
+        # FIXME: at this point, do we assume the MD5 sum of the tar ball is good?
+
+    @staticmethod
+    def get_mdconfig(mdf):
+        """Get metadata from a metadata.log file.
+
+        metadata.log is in the format expected by configparser,
+        so we just get and return a configparser object."""
+        mdfconfig = SafeConfigParser()
+        mdfconfig.read(mdf)
+
+        # FIXME: verify start_run and end_run dictionary items are present
+        d = {}
+        d.update(mdfconfig.items('run'))
+        if "start_run" not in d or "end_run" not in d:
+            raise Exception('Missing start_run or end_run elements')
+        return mdfconfig
+
 
 ###########################################################################
 # main: create index from template if necessary, prepare the action and ship
 # it to ES for indexing.
 
-# status codes: these are used by pbench-index to segregate tarballs into
-#               classes: should we retry (perhaps after fixing bugs in the
-#               indexing) or should we just forget about them?
-#       0 - normal exit, no errors.
-#       1 - operational error (bad mapping file, no config file).
-#       2 - tarball does not contain a metadata.log file, do not try to index again.
-#       3 - tarball name does not encode the date, do not try to index again.
-#       4 - generic error, needs to be investigated and can be retried after
-#           any indexing bugs are fixed.
-
-class ConfigFileNotSpecified(Exception):
-    pass
-
-
-class ConfigFileError(Exception):
-    pass
-
-
-class BadMDLogFormat(Exception):
-    pass
-
-
-class TemplateError(Exception):
-    pass
-
-
 def main(options, args):
-    global tmpdir
+    global _tmpdir
 
     # ^$!@!#%# compatibility
     # FileNotFoundError is python 3.3 and the travis-ci hosts still (2015-10-01) run
     # python 3.2
     filenotfounderror = getattr(__builtins__, 'FileNotFoundError', IOError)
+
     try:
         config=SafeConfigParser()
         try:
@@ -941,179 +1279,97 @@ def main(options, args):
         except Exception as e:
             raise ConfigFileError(e)
 
-        settings = dict(
-            gateway=dict(
-                local=dict(
-                    sync='1m')),
-            merge=dict(
-                scheduler=dict(
-                    max_thread_count=1)),
-            translog=dict(
-                flush_threshold_size='1g'),
-        )
+        _tmpdir = os.environ['TMPDIR']
 
-        try:
-            NUMBER_OF_SHARDS = config.get('Settings', 'number_of_shards')
-        except Exception:
-            pass
-        else:
-            settings['number_of_shards'] = NUMBER_OF_SHARDS
-
-        try:
-            NUMBER_OF_REPLICAS = config.get('Settings', 'number_of_replicas')
-        except Exception:
-            pass
-        else:
-            settings['number_of_replicas'] = NUMBER_OF_REPLICAS
-
-        # where to find the mappings
-        LIBDIR = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))),
-            'lib', 'mappings')
-
-        pbench_mappings = {}
-        pbench_settings = settings
-        for mapping_fn in glob.iglob(os.path.join(LIBDIR, "*.json")):
-            key, mapping = fetch_mapping(mapping_fn)
-            pbench_mappings[key] = mapping
-
-        # The API body for the create() contains a dictionary with the settings and
-        # the mappings.
-        pbench_body = dict(
-            template='%s.20*-*' % (INDEX_PREFIX,),
-            settings=pbench_settings,
-            mappings=pbench_mappings)
-
-        hosts = get_hosts(config)
         if options.debug_unittest:
             es = None
+            import collections
+            global _dict_const
+            _dict_const = collections.OrderedDict
         else:
+            hosts = get_hosts(config)
             es = Elasticsearch(hosts, max_retries=0)
 
         # prepare the actions - the tarball name is the only argument.
-        hostname = os.path.basename(os.path.dirname(args[0]))
-        tbname = args[0]
-        tb = tarfile.open(tbname)
+        ptb = PbenchTarBall(args[0])
+        actions = make_all_actions(ptb, options, INDEX_PREFIX, INDEX_VERSION)
 
-        try:
-            tmpdir = os.environ['TMPDIR']
-            tb.extractall(path=tmpdir)
-        except Exception as e:
-            print("Can't unpack tarball into {}: {}".format(tmpdir, e), file=sys.stderr)
-            return 12
+        # Create the various index templates
+        if options.debug_time_operations: ts("es_template")
+        es_template(es, config)
 
-        # this is the top-level name of the run - it should be the common
-        # first component of every member of the tarball.
-        dirname = os.path.basename(tbname)
-        dirname = dirname[:dirname.rfind('.tar.xz')]
-        # ... but let's make sure.
-        dirprefix = tb.getmembers()[0].name.split(os.path.sep)[0]
-
-        member_name = "%s/metadata.log" % (dirname)
-        try:
-            mdlog = tb.getmember(member_name)
-        except Exception:
-            raise UnsupportedTarballFormat(tbname)
-
-        try:
-            mdconf = get_mdconfig(os.path.join(tmpdir, member_name))
-        except Exception:
-            raise BadMDLogFormat(tbname)
-
-        # index name is of the form "pbench.<YEAR>-<MONTH>-<PBENCH-VERSION>-<INDEX_VERSION>"
-        year, month, day = run_start_date(mdconf, tbname)
-
-        template_name = INDEX_PREFIX
-        idxname = "%s.%d-%02d" % (INDEX_PREFIX, year, month)
-        # create the index with the indicated mappings
-        if not options.debug_unittest:
-            # FIXME: We should query to see if the template exists, and only
-            # create it if it does not, or if the version of it is older than
-            # ours.
-            try:
-                res = es.indices.put_template(name=template_name, body=pbench_body)
-            except Exception as e:
-                raise TemplateError(e)
-
-        actions = mk_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, options)
-
-        debug_time_operations = options.debug_time_operations
-
-        if options.debug_unittest:
-            # print(len(actions))
-            # for x in actions:
-            #     try:
-            #         print("{} {}\n".format(x["_type"], len(x["_source"]["host_tools_data"].keys())))
-            #     except Exception:
-            #         print("{} {}\n".format(x["_type"], len(x["_source"].keys())))
-            if debug_time_operations: ts("pprint")
-            actions_l = []
-            tocs = 3
-            tods = 15
-            for action in actions:
-                if action['_type'] == 'pbench-run-toc-entry':
-                    tocs -= 1
-                    if tocs >= 0:
-                        actions_l.append(action)
-                elif action['_type'] == 'pbench-tool-data':
-                    tods -= 1
-                    if tods >= 0:
-                        actions_l.append(action)
-                else:
-                    actions_l.append(action)
-            print("len(actions) = {}".format(len(actions_l)))
-            pprint(actions_l, width=120)
-            if debug_time_operations: ts("Done", newline=True)
-            return 0
-
-        # returns 0 0r 1
-        if debug_time_operations: ts("es_index")
-        res =  es_index(es, actions)
-        if debug_time_operations: ts("Done", newline=True)
-        return res
+        # returns 0 or 1
+        if options.debug_time_operations: ts("es_index")
+        res = es_index(es, actions)
 
     except ConfigFileNotSpecified as e:
         print(e, file=sys.stderr)
-        return 2
+        res = 2
 
     except ConfigFileError as e:
         print(e, file=sys.stderr)
-        return 3
+        res = 3
 
     except UnsupportedTarballFormat as e:
         print("Unsupported Tarball Format - no metadata.log: ", e, file=sys.stderr)
-        return 4
+        res = 4
 
     except BadDate as e:
         print("Bad Date: ", e, file=sys.stderr)
-        return 5
+        res = 5
 
     except filenotfounderror as e:
         print("No such file: ", e, file=sys.stderr)
-        return 6
+        res = 6
 
     except BadMDLogFormat as e:
         print("The metadata.log file is curdled in tarball: ", e, file=sys.stderr)
-        return 7
+        res = 7
 
     except MappingFileError as e:
         print(e, file=sys.stderr)
-        return 8
+        res = 8
 
     except TemplateError as e:
-        print(repr(err), file=sys.stderr)
-        return 9
+        print(repr(e), file=sys.stderr)
+        res = 9
 
     except SosreportHostname as e:
         print("Bad hostname in sosreport: ", e, file=sys.stderr)
-        return 10
+        res = 10
+
+    except tarfile.TarError as e:
+        print("Can't unpack tarball into {}: {}".format(_tmpdir, e), file=sys.stderr)
+        res = 11
 
     # this is Spinal Tap
     except Exception as e:
         print("Other error", e, file=sys.stderr)
         import traceback
         print(traceback.format_exc())
-        return 11
+        res = 12
+
+    finally:
+        if options.debug_time_operations: ts("Done", newline=True)
+
+    # status codes: these are used by pbench-index to segregate tarballs into
+    #               classes: should we retry (perhaps after fixing bugs in the
+    #               indexing) or should we just forget about them?
+    #       0 - normal, successful exit, no errors
+    #       1 - Operational error while indexing
+    #       2 - Configuration file not specified
+    #       3 - Bad configuration file
+    #       4 - Tar ball does not contain a metadata.log file
+    #       5 - Bad start run date value encountered
+    #       6 - File Not Found error
+    #       7 - Bad metadata.log file encountered
+    #       8 - Error reading a mapping file for Elasticsearch templates
+    #       9 - Error creating one of the Elasticsearch templates
+    #      10 - Bad hostname in a sosreport
+    #      11 - Failure unpacking the tar ball
+    #      12 - generic error, needs to be investigated and can be retried after
+    #           any indexing bugs are fixed.
+    return res
 
 ###########################################################################
 # Options handling
