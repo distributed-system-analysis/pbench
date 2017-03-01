@@ -760,7 +760,7 @@ def mk_toc(tb, md5sum):
             dname = os.path.dirname(m.name)[len(prefix):] + os.path.sep
             fentry = { 'name' : os.path.basename(m.name),
                        'size' : m.size,
-                       'mode' : m.mode
+                       'mode' : oct(m.mode)
             }
             if m.issym():
                 fentry['linkpath'] = m.linkpath
