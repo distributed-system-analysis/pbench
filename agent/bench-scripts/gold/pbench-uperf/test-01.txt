@@ -65,6 +65,7 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900-01-01T00:00:00/2-tcp_stream-64B-1i/sample2/uperf-average.txt
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900-01-01T00:00:00/2-tcp_stream-64B-1i/sample2/uperf-postprocess.cmd
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900-01-01T00:00:00/generate-benchmark-summary.cmd
+/var/tmp/pbench-test-bench/pbench/uperf_test-01_1900-01-01T00:00:00/metadata.log
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900-01-01T00:00:00/pbench-uperf.cmd
 --- pbench tree state
 +++ pbench.log file contents
@@ -286,3 +287,21 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no s3 systemctl stop firewalld
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no s3 systemctl stop firewalld
 --- test-execution.log file contents
+[pbench]
+
+[iterations/1-tcp_rr-64B-1i]
+iteration_number = 1
+protocol = tcp
+test_type = rr
+message_size_bytes = 64
+instances = 1
+iteration_name = 1-tcp_rr-64B-1i
+
+[iterations/2-tcp_stream-64B-1i]
+iteration_number = 2
+protocol = tcp
+test_type = stream
+message_size_bytes = 64
+instances = 1
+iteration_name = 2-tcp_stream-64B-1i
+

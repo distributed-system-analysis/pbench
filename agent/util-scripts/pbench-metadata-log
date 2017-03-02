@@ -167,10 +167,10 @@ function metadata_log_end {
         metadata_log_start $dir $group $start_ts
     fi
     if ! grep -q end_run $log ;then
-        echo "end_run: $(timestamp)" >> $log
+        echo "$(timestamp)" | pbench-add-metalog-option $dir/metadata.log run end_run
     fi
     if [ "$int" == "int" ] ;then
-        echo "run_interrupted: true" >> $log
+        echo "true"  | pbench-add-metalog-option $dir/metadata.log run run_interrupted
     fi
 }
 
@@ -183,7 +183,8 @@ case $1 in
         metadata_log_end $dir $group
         name=$(basename $dir)
         if [ -f $pbench_tmp/$name.iterations ] ;then
-            pbench-add-metalog-option $pbench_tmp/$name.iterations $dir/metadata.log iterations
+            cat $pbench_tmp/$name.iterations |
+                pbench-add-metalog-option $dir/metadata.log pbench iterations
         fi
         ;;
     int)
