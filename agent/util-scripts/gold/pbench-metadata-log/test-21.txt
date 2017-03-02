@@ -44,7 +44,7 @@ iter3
 /var/tmp/pbench-test-utils/pbench/metadata.log:name = pbench
 /var/tmp/pbench-test-utils/pbench/metadata.log:script = 
 /var/tmp/pbench-test-utils/pbench/metadata.log:config = 
-/var/tmp/pbench-test-utils/pbench/metadata.log:date = 1900-01-01_00:00:00
+/var/tmp/pbench-test-utils/pbench/metadata.log:date = 1900-01-01T00:00:00
 /var/tmp/pbench-test-utils/pbench/metadata.log:rpm-version = 
 /var/tmp/pbench-test-utils/pbench/metadata.log:iterations = iter1, iter2, iter3
 /var/tmp/pbench-test-utils/pbench/metadata.log:
