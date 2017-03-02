@@ -387,6 +387,20 @@ function fio_process_options() {
 	verify_tool_group $tool_group
 }
 
+function record_iteration {
+	local count=$1
+	local test_type=$2
+	local block_size=$3
+	local iteration=$4
+
+	mdlog=${benchmark_run_dir}/metadata.log
+	echo ${iteration} >> ${benchmark_iterations}
+	echo $count | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_number
+	echo $test_type | pbench-add-metalog-option ${mdlog} iterations/${iteration} test_type
+	echo $block_size | pbench-add-metalog-option ${mdlog} iterations/${iteration} block_size_KiB
+	echo $iteration | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
+}
+
 
 # Ensure the right version of the benchmark is installed
 function fio_install() {
@@ -641,8 +655,7 @@ function fio_run_benchmark() {
 			for block_size in `echo $block_sizes | sed -e s/,/" "/g`; do
 				job_num=1
 				iteration="${count}-${test_type}-${block_size}KiB"
-				   
-                                echo $iteration >> $benchmark_iterations
+				record_iteration ${count} ${test_type} ${block_size} ${iteration}
 				iteration_dir=$benchmark_run_dir/$iteration
 				result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
 				failures=0
