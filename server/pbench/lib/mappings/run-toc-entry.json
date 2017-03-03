@@ -10,6 +10,7 @@
                 "index": "not_analyzed"
             },
             "files": {
+                "type": "nested",
                 "properties": {
                     "name" : {
                         "type": "string",

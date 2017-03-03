@@ -7,9 +7,8 @@
 
 from __future__ import print_function
 
-import sys, os, time, re, stat
-import hashlib, json, glob, csv
-import tarfile
+import sys, os, time, re, stat, copy
+import hashlib, json, glob, csv, tarfile
 
 try:
     from configparser import SafeConfigParser, NoSectionError, NoOptionError
@@ -64,11 +63,10 @@ class SosreportHostname(Exception):
     pass
 
 
-###########################################################################
-# Debugging helpers
-
 _ts_start = None
 def ts(msg, newline=False):
+    """Debugging helper for emitting a timestamp aiding timing.
+    """
     global _ts_start
 
     now = datetime.now()
@@ -82,54 +80,34 @@ def ts(msg, newline=False):
         print(msg, end=' ', file=sys.stderr)
     sys.stderr.flush()
 
-###########################################################################
-# Fetch the mapping file for pbench metadata.
-# It is passed to the index creation routine.
-def fetch_mapping(mapping_fn):
+def load_json_mapping(mapping_fn):
     with open(mapping_fn, "r") as mappingfp:
         try:
             mapping = json.load(mappingfp)
         except ValueError as err:
             raise MappingFileError("%s: %s" % (mapping_fn, err))
+    return mapping
 
+def fetch_mapping(mapping_fn):
+    """Fetch the mapping JSON data from the given file.
+
+    Returns a tuple consisting of the mapping name pulled from the file, and
+    the python dictionary loaded from the JSON file.
+
+    Raises MappingFileError if it encounters any problem loading the file.
+    """
+    mapping = load_json_mapping(mapping_fn)
     keys = list(mapping.keys())
     if len(keys) != 1:
         raise MappingFileError("Invalid mapping file: %s" % mapping_fn)
     return keys[0], mapping
 
-###########################################################################
-# this is cribbed from the vos sosreport index stuff and should be
-# made generic and imported.
-_read_timeout = 30
+def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config):
+    """Load the various Elasticsearch index templates required by pbench.
 
-def get_hosts(config):
+    We first load the pbench-run index templates, and then we construct and
+    load the templates for each tool data index.
     """
-    Return list of dicts (a single dict for now) -
-    that's what ES is expecting.
-    """
-    try:
-        URL = config.get('Server', 'server')
-    except NoSectionError:
-        print("Need a [Server] section with host and port defined in %s"
-              " configuration file" % (" ".join(config.__files__)),
-                file=sys.stderr)
-        return None
-    except NoOptionError:
-        host = config.get('Server', 'host')
-        port = config.get('Server', 'port')
-    else:
-        host, port = URL.rsplit(':', 1)
-    timeoutobj = Timeout(total=1200, connect=10, read=_read_timeout)
-    return [dict(host=host, port=port, timeout=timeoutobj),]
-
-_op_type = "create"
-
-def es_template(es, config):
-    #def es_template(es, INDEX_PREFIX, settings):
-    #
-    # FIXME: We should query to see if ian template exists, and only
-    # create it if it does not, or if the version of it is older than
-    # expected.
     if not es:
         # Don't do anything if we don't have an Elasticsearch client object.
         return
@@ -160,31 +138,71 @@ def es_template(es, config):
         index_settings['number_of_replicas'] = NUMBER_OF_REPLICAS
 
     # where to find the mappings
-    LIBDIR = os.path.join(
+    MAPPING_DIR = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))),
         'lib', 'mappings')
 
-    pbench_mappings = {}
-    for mapping_fn in glob.iglob(os.path.join(LIBDIR, "*.json")):
+    run_mappings = {}
+    for mapping_fn in glob.iglob(os.path.join(MAPPING_DIR, "run*.json")):
         key, mapping = fetch_mapping(mapping_fn)
-        pbench_mappings[key] = mapping
+        run_mappings[key] = mapping
 
     # The API body for the create() contains a dictionary with the settings and
     # the mappings.
-    pbench_body = dict(
-        template='%s.20*-*' % (INDEX_PREFIX,),
+    run_template_name = '%s.run' % (INDEX_PREFIX,)
+    run_template_body = dict(
+        template='%s.run.*' % (INDEX_PREFIX,),
         settings=index_settings,
-        mappings=pbench_mappings)
+        mappings=run_mappings)
 
+    # Now for the tool data mappings. First we fetch the base skeleton they
+    # all share.
+    skel = load_json_mapping(os.path.join(MAPPING_DIR, "tool-data-skel.json"))
+
+    # Next we load all the tool fragments
+    fpat = re.compile(r'tool-data-frag-(?P<toolname>.+)\.json')
+    tool_mapping_frags = {}
+    for mapping_fn in glob.iglob(os.path.join(MAPPING_DIR, "tool-data-frag-*.json")):
+        m = fpat.match(os.path.basename(mapping_fn))
+        toolname = m.group('toolname')
+        tool_mapping_frags[toolname] = load_json_mapping(mapping_fn)
+
+    tool_templates = []
+    for toolname,frag in tool_mapping_frags.items():
+        tool_skel = copy.deepcopy(skel)
+        tool_skel['properties'][toolname] = frag
+        tool_mapping = { "pbench-tool-data-%s" % toolname: tool_skel }
+        tool_template_body = dict(
+            template='%s.tool-data-%s.*' % (INDEX_PREFIX, toolname),
+            settings=index_settings,
+            mappings=tool_mapping)
+        tool_templates.append((toolname, tool_template_body))
+
+    if not es:
+        # Don't do anything if we don't have an Elasticsearch client object.
+        print(run_template_name, json.dumps(run_template_body, indent=4, sort_keys=True))
+        for name, body in tool_templates:
+            print(name, json.dumps(body, indent=4, sort_keys=True))
+        return
+
+    # FIXME: We should query to see if a template exists, and only
+    # create it if it does not, or if the version of it is older than
+    # expected.
     try:
         # Pbench Run template
         res = es.indices.put_template(name=run_template_name, body=run_template_body)
-        # Pbench ToC template
-        res = es.indices.put_template(name=toc_template_name, body=toc_template_body)
-        # Pbench Tool Data template
-        res = es.indices.put_template(name=tool_data_template_name, body=tool_data_template_body)
+        # Pbench Tool Data templates
+        for name, body in tool_templates:
+            tool_template_name = '%s.tool-data-%s' % (INDEX_PREFIX,name)
+            res = es.indices.put_template(name=tool_template_name, body=body)
     except Exception as e:
         raise TemplateError(e)
+
+###########################################################################
+# FIXME: this is cribbed from the vos sosreport index stuff and should be
+# made generic and imported.
+_read_timeout = 30
+_op_type = "create"
 
 def es_index(es, actions, dbg=0):
     """
@@ -194,7 +212,7 @@ def es_index(es, actions, dbg=0):
         # If we don't have an actual ES client object, just emit a sample of
         # the actions we have been given.
         global options
-        if options.debug_time_operations: ts("pprint")
+        if options.debug_time_operations: ts("dumps")
         actions_l = []
         tocs = 3
         tods = 15
@@ -203,7 +221,7 @@ def es_index(es, actions, dbg=0):
                 tocs -= 1
                 if tocs >= 0:
                     actions_l.append(action)
-            elif action['_type'] == 'pbench-tool-data':
+            elif action['_type'].startswith('pbench-tool-data'):
                 tods -= 1
                 if tods >= 0:
                     actions_l.append(action)
@@ -593,7 +611,7 @@ class ToolData(object):
     def get_csv_files(handler, iteration, sample, host, tool, toolgroup, mdlog, tb):
         """
         Fetch the list of .csv files for this tool, fetch their headers, and
-        return a dictionary mapping their column headers to their field names. 
+        return a dictionary mapping their column headers to their field names.
         """
         path = os.path.join(iteration, sample, "tools-%s" % (toolgroup,), host, tool, "csv")
         paths = [x for x in tb.getnames() if x.find(path) >= 0 and tb.getmember(x).isfile()]
@@ -691,7 +709,7 @@ def mk_tool_data(mdlog, md5sum, tb, tstamp):
     return
 
 def mk_tool_data_actions(ptb, options, INDEX_PREFIX):
-    index_name_template = "%s.tool-%%s" % INDEX_PREFIX
+    index_name_template = "%s.tool-data-%%s" % INDEX_PREFIX
     for td in mk_tool_data(ptb.mdconf, ptb.md5sum, ptb.tb, ptb.start_run):
         # Each ToolData object, td, that is returned here represents how
         # data collected for that tool across all hosts is to be returned.
@@ -706,9 +724,9 @@ def mk_tool_data_actions(ptb, options, INDEX_PREFIX):
             continue
         for source in asource:
             action = {
-                "_op_type": "create",
+                "_op_type": _op_type,
                 "_index":   index_name_template_for_tool + source['@timestamp'].split('T', 1)[0],
-                "_type":    "pbench-tool-data",
+                "_type":    "pbench-tool-data-%s" % td.toolname,
                 # FIXME: we should generate our own JSON doc ID
                 #"_id":      source_id,
                 "_source":  source
@@ -771,8 +789,8 @@ def get_md5sum_of_dir(dir, parentid):
 def mk_toc_actions(ptb, options, INDEX_PREFIX):
     """Construct Table-of-Contents actions.
 
-    These are indexed into the results index along side the runs."""
-    index_name_template = "%s.results.%%d-%%02d" % INDEX_PREFIX
+    These are indexed into the run index along side the runs."""
+    index_name_template = "%s.run.%%d-%%02d" % INDEX_PREFIX
     tstamp = ptb.start_run.replace('_', 'T')
     prefix, dirs = mk_toc(ptb.tb, ptb.md5sum, options)
     assert(prefix == ptb.dirprefix)
@@ -780,7 +798,7 @@ def mk_toc_actions(ptb, options, INDEX_PREFIX):
         d["@timestamp"] = tstamp
         action = {
             "_id":      get_md5sum_of_dir(d, ptb.md5sum),
-            "_op_type": "create",
+            "_op_type": _op_type,
             "_index":   index_name_template % (int(ptb.date[0]), int(ptb.date[1])),
             "_type":    "pbench-run-toc-entry",
             "_source":  d,
@@ -790,7 +808,7 @@ def mk_toc_actions(ptb, options, INDEX_PREFIX):
     return
 
 ###########################################################################
-# Build results source document
+# Build run source document
 
 # routines for handling sosreports, hostnames, and tools
 def valid_ip(address):
@@ -1128,8 +1146,8 @@ def mk_metadata(fname, tb, mdconf, md5sum):
     }
     return mddict
 
-def mk_results_action(ptb, options, INDEX_PREFIX):
-    #mk_results_action(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, ts, options):
+def mk_run_action(ptb, options, INDEX_PREFIX):
+    #mk_run_action(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, ts, options):
     """Extract metadata from the named tarball and create an indexing
        action out of them.
 
@@ -1158,9 +1176,9 @@ def mk_results_action(ptb, options, INDEX_PREFIX):
     source['host_tools_info'] = mk_tool_info(sos_d, ptb.mdconf)
 
     # make a simple action for indexing
-    index_name_template = "%s.results.%%d-%%02d" % INDEX_PREFIX
+    index_name_template = "%s.run.%%d-%%02d" % INDEX_PREFIX
     action = {
-        "_op_type": "create",
+        "_op_type": _op_type,
         "_index":   index_name_template % (int(ptb.date[0]), int(ptb.date[1])),
         "_type":    "pbench-run",
         "_id":      ptb.md5sum,
@@ -1171,13 +1189,13 @@ def mk_results_action(ptb, options, INDEX_PREFIX):
 
 def make_all_actions(ptb, options, INDEX_PREFIX, INDEX_VERSION):
     """Driver for generating all actions on source documents for indexing
-    into Elasticsearch. This generator drives the generation of the results
+    into Elasticsearch. This generator drives the generation of the run
     source document, the table-of-contents tar ball documents, and finally
     all the tool data.
     """
     debug_time_operations = options.debug_time_operations
-    if debug_time_operations: ts("mk_results_action")
-    yield mk_results_action(ptb, options, INDEX_PREFIX)
+    if debug_time_operations: ts("mk_run_action")
+    yield mk_run_action(ptb, options, INDEX_PREFIX)
     if debug_time_operations: ts("mk_toc_actions")
     for action in mk_toc_actions(ptb, options, INDEX_PREFIX):
         yield action
@@ -1255,6 +1273,26 @@ class PbenchTarBall(object):
         return mdfconfig
 
 
+def get_hosts(config):
+    """
+    Return list of dicts (a single dict for now) -
+    that's what ES is expecting.
+    """
+    try:
+        URL = config.get('Server', 'server')
+    except NoSectionError:
+        print("Need a [Server] section with host and port defined in %s"
+              " configuration file" % (" ".join(config.__files__)),
+                file=sys.stderr)
+        return None
+    except NoOptionError:
+        host = config.get('Server', 'host')
+        port = config.get('Server', 'port')
+    else:
+        host, port = URL.rsplit(':', 1)
+    timeoutobj = Timeout(total=1200, connect=10, read=_read_timeout)
+    return [dict(host=host, port=port, timeout=timeoutobj),]
+
 ###########################################################################
 # main: create index from template if necessary, prepare the action and ship
 # it to ES for indexing.
@@ -1301,7 +1339,7 @@ def main(options, args):
 
         # Create the various index templates
         if options.debug_time_operations: ts("es_template")
-        es_template(es, config)
+        es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config)
 
         # returns 0 or 1
         if options.debug_time_operations: ts("es_index")

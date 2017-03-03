@@ -3,7 +3,7 @@ len(actions) = 19
 [
     {
         "_id": "c5deab694ef0599c3a2315888f8cb847",
-        "_index": "pbench.results.2016-10",
+        "_index": "pbench.run.2016-10",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -282,7 +282,7 @@ len(actions) = 19
     },
     {
         "_id": "e1c0ed1631aa464df2a017e69bdb2552",
-        "_index": "pbench.results.2016-10",
+        "_index": "pbench.run.2016-10",
         "_op_type": "create",
         "_parent": "c5deab694ef0599c3a2315888f8cb847",
         "_source": {
@@ -335,7 +335,7 @@ len(actions) = 19
     },
     {
         "_id": "5910d4015fc1916f15f43def76163ab7",
-        "_index": "pbench.results.2016-10",
+        "_index": "pbench.run.2016-10",
         "_op_type": "create",
         "_parent": "c5deab694ef0599c3a2315888f8cb847",
         "_source": {
@@ -373,7 +373,7 @@ len(actions) = 19
     },
     {
         "_id": "bc6d9742ae90bfa76ff4daf371653d40",
-        "_index": "pbench.results.2016-10",
+        "_index": "pbench.run.2016-10",
         "_op_type": "create",
         "_parent": "c5deab694ef0599c3a2315888f8cb847",
         "_source": {
@@ -410,7 +410,7 @@ len(actions) = 19
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_index": "pbench.tool-iostat.2016-10-06",
+        "_index": "pbench.tool-data-iostat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -449,10 +449,10 @@ len(actions) = 19
                 }
             }
         },
-        "_type": "pbench-tool-data"
+        "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-iostat.2016-10-06",
+        "_index": "pbench.tool-data-iostat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -491,10 +491,10 @@ len(actions) = 19
                 }
             }
         },
-        "_type": "pbench-tool-data"
+        "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-iostat.2016-10-06",
+        "_index": "pbench.tool-data-iostat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -533,10 +533,10 @@ len(actions) = 19
                 }
             }
         },
-        "_type": "pbench-tool-data"
+        "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-iostat.2016-10-06",
+        "_index": "pbench.tool-data-iostat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -575,10 +575,10 @@ len(actions) = 19
                 }
             }
         },
-        "_type": "pbench-tool-data"
+        "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-iostat.2016-10-06",
+        "_index": "pbench.tool-data-iostat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -617,10 +617,10 @@ len(actions) = 19
                 }
             }
         },
-        "_type": "pbench-tool-data"
+        "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-iostat.2016-10-06",
+        "_index": "pbench.tool-data-iostat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -659,10 +659,10 @@ len(actions) = 19
                 }
             }
         },
-        "_type": "pbench-tool-data"
+        "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-iostat.2016-10-06",
+        "_index": "pbench.tool-data-iostat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -701,10 +701,10 @@ len(actions) = 19
                 }
             }
         },
-        "_type": "pbench-tool-data"
+        "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-iostat.2016-10-06",
+        "_index": "pbench.tool-data-iostat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -743,10 +743,10 @@ len(actions) = 19
                 }
             }
         },
-        "_type": "pbench-tool-data"
+        "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-iostat.2016-10-06",
+        "_index": "pbench.tool-data-iostat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -785,10 +785,10 @@ len(actions) = 19
                 }
             }
         },
-        "_type": "pbench-tool-data"
+        "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-iostat.2016-10-06",
+        "_index": "pbench.tool-data-iostat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -827,10 +827,10 @@ len(actions) = 19
                 }
             }
         },
-        "_type": "pbench-tool-data"
+        "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-iostat.2016-10-06",
+        "_index": "pbench.tool-data-iostat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -869,10 +869,10 @@ len(actions) = 19
                 }
             }
         },
-        "_type": "pbench-tool-data"
+        "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-iostat.2016-10-06",
+        "_index": "pbench.tool-data-iostat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -911,10 +911,10 @@ len(actions) = 19
                 }
             }
         },
-        "_type": "pbench-tool-data"
+        "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-iostat.2016-10-06",
+        "_index": "pbench.tool-data-iostat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -953,10 +953,10 @@ len(actions) = 19
                 }
             }
         },
-        "_type": "pbench-tool-data"
+        "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-iostat.2016-10-06",
+        "_index": "pbench.tool-data-iostat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -995,10 +995,10 @@ len(actions) = 19
                 }
             }
         },
-        "_type": "pbench-tool-data"
+        "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-iostat.2016-10-06",
+        "_index": "pbench.tool-data-iostat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -1037,7 +1037,7 @@ len(actions) = 19
                 }
             }
         },
-        "_type": "pbench-tool-data"
+        "_type": "pbench-tool-data-iostat"
     }
 ]
 --- Finished indexing on /var/tmp/pbench-test-server/test-7.8 (status=0)

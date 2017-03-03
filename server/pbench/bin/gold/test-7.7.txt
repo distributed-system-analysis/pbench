@@ -3,7 +3,7 @@ len(actions) = 4
 [
     {
         "_id": "3a58d0784827289ecf52b40dbd2d8b05",
-        "_index": "pbench.results.2015-09",
+        "_index": "pbench.run.2015-09",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -56,7 +56,7 @@ len(actions) = 4
     },
     {
         "_id": "9eab538194ae447786fe5c29559cbd7c",
-        "_index": "pbench.results.2015-09",
+        "_index": "pbench.run.2015-09",
         "_op_type": "create",
         "_parent": "3a58d0784827289ecf52b40dbd2d8b05",
         "_source": {
@@ -74,7 +74,7 @@ len(actions) = 4
     },
     {
         "_id": "554a015e90cb3b60dd912707425a4f6d",
-        "_index": "pbench.results.2015-09",
+        "_index": "pbench.run.2015-09",
         "_op_type": "create",
         "_parent": "3a58d0784827289ecf52b40dbd2d8b05",
         "_source": {
@@ -85,7 +85,7 @@ len(actions) = 4
     },
     {
         "_id": "01812ea8b446ebab1e9cd13a7be42306",
-        "_index": "pbench.results.2015-09",
+        "_index": "pbench.run.2015-09",
         "_op_type": "create",
         "_parent": "3a58d0784827289ecf52b40dbd2d8b05",
         "_source": {
