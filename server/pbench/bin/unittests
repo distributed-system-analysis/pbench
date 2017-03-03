@@ -48,9 +48,11 @@ function _run {
 function _run_index {
     dname=$1
     shift
-    mkdir -p $_testdir
+    # Will get deleted by _reset_state
+    mkdir -p $_testroot/pbench
+    mkdir -p $_testroot/tmp
     echo "+++ Running indexing on $dname" >> $_testout
-    PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_tlib}/config/pbench-index.cfg.example $dname.tar.xz >> $_testout 2>&1
+    TMPDIR=$_testroot/tmp PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_tlib}/config/pbench-index.cfg.example $(readlink -f $dname.tar.xz) >> $_testout 2>&1
     echo "--- Finished indexing on $dname (status=$?)" >> $_testout
     _gitdir=$(dirname $(dirname $(dirname $_tdir)))
     sed -i '/File "'$(echo ${_gitdir} | sed 's;/;\\/;g')'/s;'${_gitdir}'/server/;/home/user/repo/pbench/server/;' $_testout
@@ -116,7 +118,7 @@ function _verify_output {
 }
 function _setup_state {
     _state_tb=$_tdir/state/${1}.tar.xz
-    (cd $_testroot; tar xf $_state_tb)
+    (cd $_testroot; tar xf $_state_tb; if [ ! -z "${2}" ] ;then ln -s ${2}.tar.xz ${1}.tar.xz ;fi)
     if [[ $? -gt 0 ]]; then
         echo "ERROR: unable to create pbench hierarchy for state $1" >&2
         exit 1
@@ -126,6 +128,11 @@ function _reset_state {
     rm -rf $_testdir
     if [[ -d $_testdir ]]; then
         echo "ERROR: unable to remove pbench hierarchy" >&2
+        exit 1
+    fi
+    rm -rf $_testroot/tmp
+    if [[ -d $_testroot/tmp ]]; then
+        echo "ERROR: unable to remove tmp hierarchy" >&2
         exit 1
     fi
 }
@@ -162,6 +169,8 @@ declare -A cmds=(
     [test-7.5]="_run_index $_testroot/test-7.5"
     [test-7.6]="_run_index $_testroot/test-7.6"
     [test-7.7]="_run_index $_testroot/test-7.7"
+    # uperf tarball
+    [test-7.8]="_run_index $_testroot/test-7.8"
 
     # activation test
     [test-8]="_run_activate $_testroot/test-8"
@@ -182,6 +191,10 @@ declare -A cmds=(
     [test-10]="_run pbench-rsync-satellite TEST foo.bar.com $_testroot/pbench/archive"
 )
 
+declare -A links=(
+    [test-7.8]="uperf__2016-10-06_16:34:03"
+)
+
 # indexing unit tests - why is this necessary?
 PATH=/usr/local/bin:$PATH
 
@@ -192,7 +205,7 @@ fi
 
 let failures=0
 for test in  $tests ;do
-    _setup_state ${test}
+    _setup_state ${test} ${links[$test]}
     cmd=${cmds[$test]}
     # echo ${test}: ${cmd}
     ${cmd}
@@ -202,7 +215,7 @@ for test in  $tests ;do
     if [[ $res != 0 ]] ;then
         let failures=failures+1
     fi
-   _reset_state
+    _reset_state
 done
 exit $failures
 

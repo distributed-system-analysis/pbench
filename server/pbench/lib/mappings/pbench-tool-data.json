@@ -1,0 +1,55 @@
+{
+    "pbench-tool-data": {
+        "_source": {
+            "enabled": true
+        },
+        "_all": {
+            "enabled": true
+        },
+        "date_detection": false,
+        "properties": {
+            "@timestamp": {
+                "type": "date"
+            },
+            "runtstamp": {
+                "type": "date"
+            },
+            "runid": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "experiment":  {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "iteration":  {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "sample":  {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "host":  {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "toolname":  {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "toolgroup":  {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "datafile": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "datafilepath": {
+                "type": "string",
+                "index": "not_analyzed"
+            }
+        }
+    }
+}

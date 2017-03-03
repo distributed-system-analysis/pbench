@@ -3,6 +3,7 @@
         "_parent": {
             "type": "pbench-run"
         },
+        "date_detection": false,
         "properties": {
             "dirname": {
                 "type": "string",
@@ -15,7 +16,8 @@
                         "index": "not_analyzed"
                     },
                     "mode" : {
-                        "type": "integer"
+                        "type": "string",
+                        "index": "not_analyzed"
                     },
                     "size" : {
                         "type": "long"
@@ -29,5 +31,3 @@
         }
     }
 }
-
-
