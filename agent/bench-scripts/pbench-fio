@@ -377,13 +377,11 @@ function fio_process_options() {
 		benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 	else
 		if [ -z "$run_dir" ]; then
-			err_log "I need a directory if postprocessing an existing result (--run-dir=)"
-			exit 1
+			echo "I need a directory if postprocessing an existing result (--run-dir=)"
+		else
+			benchmark_run_dir="$run_dir"
 		fi
-		benchmark_fullname="$(basename $run_dir)"
-		benchmark_run_dir="$run_dir"
 	fi
-	benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
 
 	verify_tool_group $tool_group
 }
@@ -436,45 +434,6 @@ function pandas_install() {
 			exit 1
 		fi
 	fi
-}
-
-function print_iteration {
-	# printing a iteration assumes this must be a new row, so include \n first
-	printf "\n%28s" "$1" >>$benchmark_summary_txt_file
-	printf "\n%s" "$1" >>$benchmark_summary_csv_file
-	hists=`cat $iteration_dir/reference-result/fio.job 2>/dev/null | grep "^log_hist_msec"`
-	if [ "$1" = "iteration" ]; then
-		# this is just a label, so no links here
-		if [ ! -z "$hist_interval" ]; then
-			printf "\n%28s %s %s %s" "iteration" "summary" "hist-results" "tools">>$benchmark_summary_html_file
-		else
-			printf "\n%28s %s %s %s" "iteration" "summary" "tools">>$benchmark_summary_html_file
-		fi
-	else
-		if [ ! -z "$hist_interval" ]; then
-			printf "\n%28s <a href=./$iteration/reference-result/summary-result.html>%s</a> <a href='./$iteration/reference-result/hist/results.html' />hist-results</a> <a href=./$iteration/reference-result/tools-$tool_group>%s</a>" "$1" "summary" "tools">>$benchmark_summary_html_file
-		else
-			printf "\n%28s <a href=./$iteration/reference-result/summary-result.html>%s</a> <a href=./$iteration/reference-result/tools-$tool_group>%s</a>" "$1" "summary" "tools">>$benchmark_summary_html_file
-		fi
-	fi
-}
-
-function print_value {
-	if [ -z "$2" ]; then
-		printf "%${spacing}s" "$1" >>$benchmark_summary_txt_file
-		printf "%s" ",$1,stddevpct" >>$benchmark_summary_csv_file
-		printf "%${spacing}s" "$1" >>$benchmark_summary_html_file
-	else
-		printf "%${spacing}s" "$1[+/-$2]" >>$benchmark_summary_txt_file
-		printf "%s" ",$1,$2" >>$benchmark_summary_csv_file
-		printf "%${spacing}s" "$1[+/-$2]" >>$benchmark_summary_html_file
-	fi
-}
-
-function print_newline {
-	printf "\n" >>$benchmark_summary_txt_file
-	printf "\n" >>$benchmark_summary_csv_file
-	printf "\n" >>$benchmark_summary_html_file
 }
 
 # Make sure this devices exists
@@ -609,19 +568,35 @@ function fio_run_job() {
 	popd >/dev/null
 	pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	if [ ! -z "$clients" ]; then
-		debug_log "getting log files from clients"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			mkdir -p $benchmark_results_dir/clients/$client
-			scp $ssh_opts $client:"$benchmark_results_dir/*.log" $benchmark_results_dir/clients/$client/ 2>/dev/null &
+			/bin/mv $benchmark_results_dir/*.log.$client $benchmark_results_dir/clients/$client/
+			# remove the trialing client name in the log files
+			pushd $benchmark_results_dir/clients/$client >/dev/null
+			for i in `/bin/ls | grep log`; do
+				mv $i `echo $i | sed -e s/\.$client//`
+			done
+        		# Process the histograms
+      			# Determine histogram interval based on value used in job file. Should really make
+       			# this an option, but perfectly reasonable default.
+       			#my $log_interval = `cat $dir/fio.job | grep "^log_hist_msec"`;
+        		#if [ ! $log_interval =~ /^\s*$/ ]; then 
+			if grep -q "^log_hist_msec" $fio_job_file; then
+                		mkdir -p $benchmark_results_dir/clients/$client/hist
+				# fiologparser_hist needs the polling interval to do its job,
+				# it gets that from the job file containing log_hist_msec parameter
+                		fiologparser_hist.py --job-file=$benchmark_results_dir/fio.job $benchmark_results_dir/clients/$client/fio_clat_hist.*.log* >$benchmark_results_dir/clients/$client/hist/hist.csv
+                		#if [ -e $benchmark_results_dir/clients/$client/hist/hist.csv ]; then
+					$script_path/postprocess/$benchmark-postprocess-viz.py --job-file=$fio_job_file $benchmark_results_dir/clients/$client/hist
+				#fi
+			fi
+			popd >/dev/null
 		done
-		wait
-		for client in `echo $clients | sed -e s/,/" "/g`; do
-			mkdir -p $benchmark_results_dir/clients/$client
-			ssh $ssh_opts $client /bin/rm -f "$benchmark_results_dir/*.log"  &
-		done
-		wait
 	fi
 	pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+	if [ -z "$clients" ]; then
+		/bin/mv $benchmark_results_dir/*.log $benchmark_results_dir/clients/localhost/
+	fi
 	echo "fio job complete"
 }
 
@@ -629,17 +604,6 @@ function fio_run_job() {
 # Run the benchmark and start/stop perf analysis tools
 function fio_run_benchmark() {
 	fio_device_check "$targets" "$clients"
-	benchmark_summary_txt_file="$benchmark_run_dir/summary-result.txt"
-	rm -f $benchmark_summary_txt_file
-	benchmark_summary_csv_file="$benchmark_run_dir/summary-result.csv"
-	rm -f $benchmark_summary_csv_file
-	benchmark_summary_html_file="$benchmark_run_dir/summary-result.html"
-	rm -f $benchmark_summary_html_file
-
-	printf "# these results generated with:\n# $script_name %s\n\n" "$orig_cmd" >$benchmark_summary_txt_file
-	printf "<pre>\n# these results generated with:\n# $script_name %s\n\n" "$orig_cmd" >$benchmark_summary_html_file
-	printf "\n" >>$benchmark_summary_txt_file
-	printf "\n" >>$benchmark_summary_html_file
 
 	mkdir -p $benchmark_run_dir/.running
 	local count=1
@@ -701,6 +665,9 @@ function fio_run_benchmark() {
 							benchmark_results_dir="$iteration_dir/sample$sample"
 							benchmark_tools_dir="$benchmark_results_dir/tools-$tool_group"
 							if [ "$postprocess_only" = "n" ]; then
+								if [ -e $benchmark_results_dir ]; then
+									/bin/rm -rf $benchmark_results_dir
+								fi
 								mkdir -p $benchmark_results_dir
 								fio_job_file="$benchmark_results_dir/fio.job"
 								fio_create_jobfile "$test_type" "$ioengine" "$block_size" "$iodepth" "$direct" "$sync" "$runtime" "$ramptime" "$file_size" "$rate_iops" "$dev" "$fio_job_file"
@@ -718,7 +685,9 @@ function fio_run_benchmark() {
 								popd >/dev/null
 							fi
 							debug_log "post-processing fio result"
-							$script_path/postprocess/$benchmark-postprocess $benchmark_results_dir $iteration $tool_group
+							echo "$script_path/postprocess/$benchmark-postprocess \"$benchmark_results_dir\" \"$tool_label_pattern\" \"$tool_group\"" >"$benchmark_results_dir/$benchmark-postprocess.cmd"
+							chmod +x "$benchmark_results_dir/$benchmark-postprocess.cmd"
+							$benchmark_results_dir/$benchmark-postprocess.cmd
 							rc=$?
 							# if for any reason the benchmark postprocessing script fails, consider this a failure to get a sample
 							if [ $rc -ne 0 ]; then
@@ -730,146 +699,26 @@ function fio_run_benchmark() {
 								break
 							fi
 						done
-						if [ $sample_failed -eq 0 ]; then
-							# find the keys that we will compute avg & stddev
-							# NOTE: we always choose "sample1" since it is
-							# always present and shares the same keys with
-							# every other sample
-							keys=`cat $iteration_dir/sample1/result.txt  | awk -F= '{print $1}'`
-							key_nr=0
-							# for each key, get the average & stddev
-							for key in $keys; do
-								# the s_key is used in the summary reports to save space, it is just an abbreviated key
-								s_key=`echo $key | cut  -d- -f2-`
-								# remove the label pattern from the s_key
-								s_key=`echo $s_key | sed -e s/"$tool_label_pattern"//`
-								s_key=`echo $s_key | sed -e s/"transactions"/"trans"/`
-								# store these in reverse order as the keys and be sure to print values in reverse order later
-								s_keys[$key_nr]="$s_key"
-								s_key_length=`echo $s_key | wc -m`
-								if [ $s_key_length -gt $max_key_length ]; then
-									max_key_length=$s_key_length
-								fi
-								iteration_samples=""
-								for sample in `seq 1 $nr_samples`; do
-									value=`grep -- "^$key" $iteration_dir/sample$sample/result.txt | awk -F= '{print $2}'`
-									iteration_samples="$iteration_samples $value"
-								done
-								avg_stddev_result=`pbench-avg-stddev $iteration_samples`
-								samples[$key_nr]="$iteration_samples"
-								avg[$key_nr]=`echo $avg_stddev_result | awk '{print $1}'`
-								avg[$key_nr]=`printf "%.2f" ${avg[$key_nr]}`
-								stddev[$key_nr]=`echo $avg_stddev_result | awk '{print $2}'`
-								stddevpct[$key_nr]=`echo $avg_stddev_result | awk '{print $3}'`
-								stddevpct[$key_nr]=`printf "%.1f" ${stddevpct[$key_nr]}`
-								closest[$key_nr]=`echo $avg_stddev_result | awk '{print $4}'`
-								if echo $key | grep -q "$primary_metric"; then
-									tput_index=$key_nr
-									tput_metric=$key
-								fi
-								((key_nr++))
-							done
-			
-							# create a symlink to the result dir which most accurately represents the average result
-							for sample in `seq 1 $nr_samples`; do
-								sample_dir="sample$sample"
-								if [ $sample -eq ${closest[$tput_index]} ]; then
-									msg="$tput_metric: ${samples[$tput_index]}  average: ${avg[$tput_index]} stddev: ${stddevpct[$tput_index]}%  closest-sample: $sample"
-									rm -f $iteration_dir/sample-runs-summary.txt
-									echo $msg | tee $iteration_dir/sample-runs-summary.txt
-									log $msg
-									pushd "$iteration_dir" >/dev/null; /bin/rm -rf reference-result; ln -sf $sample_dir reference-result; popd >/dev/null
-								else
-									# delete the tool data [and respose time log for rr tests] from the other samples to save space
-									# this option is off by default
-									if [ "$keep_failed_tool_data" = "n" ]; then
-										/bin/rm -rf $iteration_dir/$sample_dir/tools-* $iteration_dir/$sample_dir/response-times.txt
-									fi
-									# since non reference-result sample data is rarely referenced, tar it up to reduce the number of files used
-									if [ "$tar_nonref_data" = "y" ]; then
-										pushd "$iteration_dir" >/dev/null; tar --create --xz --force-local --file=$sample_dir.tar.xz $sample_dir && /bin/rm -rf $sample_dir; popd >/dev/null
-									fi
-								fi
-							done
-	
-							# if result is not within stddevpct, consider it a failed attempt
-							if [[ $(echo "if (${stddevpct[$tput_index]} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; then
-								iteration_failed=1
-								msg="$iteration: the percent standard deviation (${stddevpct[$tput_index]}%) was not within maximum allowed (${maxstddevpct}%)"
-								echo $msg
-								log $msg
-								msg="This iteration will be repeated until either standard deviation is below the maximum allowed, or $max_failures failed attempts."
-								echo $msg
-								log $msg
-								msg="Changing the standard deviation percent can be done with --max-stddev= and the maximum failures with --max-failures="
-								echo $msg
-								log $msg
-							fi
-						else
-							# failed at getting sample, so this iteration attempt is a failure
-							iteration_failed=1
-						fi
-
-						# failure cleanup
-						if [ $iteration_failed -eq 1 ]; then
-							let failures=$failures+1
-							# tar up the failed iteration.  We may need to look at it later, but don't waste space by keeping it uncompressed
-							# if all attempts failed, leaving no good result, leave the last attempt uncompressed
-							if [ $failures -le $max_failures ]; then
-								pushd $benchmark_run_dir >/dev/null
-								mv $iteration $iteration-fail$failures
-								tar --create --xz --force-local --file=$iteration-fail$failures.tar.xz $iteration-fail$failures &&\
-								/bin/rm -rf $iteration-fail$failures
-								popd >/dev/null
-							fi
-						fi
-
-						# break out of this multi-attempt iteration loop if passed or too many failures
-						if [ $iteration_failed -eq 0 -o $failures -ge $max_failures ]; then
-							break
-						fi
-					else # $iteration_dir missing
-						echo "$iteration_dir missing, so this iteration is being skipped (what happened?)"
-						iteration_failed=1
+					fi
+					echo "$script_path/postprocess/process-iteration-samples \"$iteration_dir\" \"$primary_metric\" \"$maxstddevpct\" \"$failures\" \"$max_failures\" \"$tar_nonref_data\" \"$keep_failed_tool_data\"" >"$iteration_dir/process-iteration-samples.cmd"
+					chmod +x "$iteration_dir/process-iteration-samples.cmd"
+					$iteration_dir/process-iteration-samples.cmd
+					fail=$?
+					if [ $fail -ne  0 ]; then
+						((failures++))
+					fi
+					if [ $fail -eq 0 -o $failures -ge $max_failures ]; then
 						break
 					fi
 				done
-				spacing=`echo "$max_key_length + 1" | bc`
-				
-				((key_nr--))
-				# print the labels for this group
-				if [ "$last_test_type" != "$test_type" ]; then
-					print_newline
-					print_iteration "iteration"
-					for i in `seq 0 $key_nr`; do
-						print_value "${s_keys[$i]}"
-					done
-				fi
-				# print the correspnding values
-				print_iteration $iteration
-				if [ $iteration_failed -eq 0 ]; then
-					for i in `seq 0 $key_nr`; do
-						print_value "${avg[$i]}" "${stddevpct[$i]}%"
-					done
-				fi
-
-				echo "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
-				log "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
-				last_test_type="$test_type"
-				let count=$count+1 # now we can move to the next iteration
+			let count=$count+1 # now we can move to the next iteration
 			done
 		done
 	done
-	printf "</pre>\n" >>$benchmark_summary_html_file
-	printf "\n" >>$benchmark_summary_txt_file
 
 	if [ ! -z "$client_file" ] ;then
 		cp $client_file $benchmark_run_dir/fio-client.file
 	fi
-}
-
-function fio_print_summary() {
-	cat $benchmark_summary_txt_file
 }
 
 fio_process_options "$@"
@@ -889,7 +738,9 @@ pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 fio_run_benchmark
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
+echo "$script_path/postprocess/generate-benchmark-summary \"$benchmark\" \"$orig_cmd\" \"$benchmark_run_dir\"" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
+chmod +x "$benchmark_run_dir/generate-benchmark-summary.cmd"
+$script_path/postprocess/generate-benchmark-summary "$benchmark" "$orig_cmd" "$benchmark_run_dir"
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
-fio_print_summary
 
 rmdir $benchmark_run_dir/.running
