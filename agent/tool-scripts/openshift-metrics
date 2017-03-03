@@ -115,7 +115,7 @@ tool_stderr_file=$tool_output_dir/$tool-stderr.txt
 ## create directory to save the keys from openshift master, hosts
 mkdir -p /run/pbench/keys
 ## parse openshift inventory file
-cat "$inventory" | awk -F " " '{ print $1 }' | sed -n '/masters/,/^$/p' | grep "ec2" > /run/pbench/inv_hosts
+cat "$inventory" | awk -F " " '{ print $1 }' | sed -n '/^\[masters\]/,/^$/p' | awk '{if (NR!=1) {print}}' > /run/pbench/inv_hosts
 case "$mode" in
 	install)
         ;;
