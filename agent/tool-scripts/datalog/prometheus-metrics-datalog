@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+
+import time
+import sys, json
+import os,subprocess,warnings,logging
+
+interval = int(sys.argv[2])
+master = sys.argv[1]
+tool_log = sys.argv[3]
+os.system('scp "%s:/etc/origin/master/admin.crt" "/run/pbench/keys/admin.crt"' % (master) )
+os.system('scp "%s:/etc/origin/master/admin.key" "/run/pbench/keys/admin.key"' % (master) )
+while True:
+    time_stamp = int(time.time())
+    next_start = time_stamp + interval
+    command = "prom2json --cert=/run/pbench/keys/admin.crt --key=/run/pbench/keys/admin.key https://%s:8443/metrics" % (master)
+    command_out = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    prom2json_out = command_out.communicate()[0]
+    metrics_list = json.loads(prom2json_out)
+    if type(metrics_list) is list:
+        for item in metrics_list:
+            del item['help']
+            item["@timestamp"] = time_stamp
+            print json.dumps(item)
+        endtime = time.time()
+        if endtime > next_start:
+            logging.warn("[%d] [prometheus-metrics] please change the interval to atleast %d seconds\n" %(time_stamp, endtime - next_start))
+        if endtime < next_start:
+            time.sleep(next_start - endtime)
+    else:
+        logging.warn("json.load(prom2json_out) did not return a list")
