@@ -187,7 +187,8 @@ declare -A tools=(
     [test-18]="pbench-list-triggers"
     [test-19]="pbench-tool-trigger-test"
     [test-20]="pbench-postprocess-tools"
-    [test-21]="pbench-metadata-log"
+    [test-21]="pbench-clear-tools"
+    [test-22]="pbench-metadata-log"
 )
 declare -A options=(
     [test-00]="--name=mpstat --group=default -- --interval=10"
@@ -209,7 +210,8 @@ declare -A options=(
     [test-17]="--group=default"
     [test-18]="--group=foo"
     [test-20]="--dir=$_testdir/tmp --group=default --iteration=1"
-    [test-21]="--dir=$_testdir end"
+    [test-21]="--remote=fubar2"
+    [test-22]="--dir=$_testdir end"
 )
 
 declare -A expected_status=(
