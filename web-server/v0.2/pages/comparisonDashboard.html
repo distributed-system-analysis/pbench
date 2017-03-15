@@ -1,16 +1,17 @@
 <!DOCTYPE HTML>
 <html>
-  <head>
+
+<head>
     <title>Dashboard Tools</title>
-  	<meta charset="utf-8">
-  	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/static/components/patternfly/img/apple-touch-icon-144-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/static/components/patternfly/img/apple-touch-icon-114-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72"   href="/static/components/patternfly/img/apple-touch-icon-72-precomposed.png">
-    <link rel="apple-touch-icon-precomposed"                 href="/static/components/patternfly/img/apple-touch-icon-57-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/static/components/patternfly/img/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="/static/components/patternfly/img/apple-touch-icon-57-precomposed.png">
 
-	  <link href="/static/components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css"	media="screen, print">
+    <link href="/static/components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" media="screen, print">
     <link href="/static/components/patternfly/css/patternfly.min.css" rel="stylesheet" media="screen, print">
 
     <link href="/static/css/v0.2/nv.d3.css" rel="stylesheet" type="text/css" media="all">
@@ -22,237 +23,58 @@
     <script src="/static/components/datatables/media/js/jquery.dataTables.js"></script>
     <script src="/static/components/patternfly/js/patternfly.min.js"></script>
 
-  	<script src="/static/js/v0.2/function-bind.js"></script>
-  	<script src="/static/js/v0.2/d3.v3.js"></script>
-  	<script src="/static/js/v0.2/nv.d3.js"></script>
-  	<script src="/static/js/v0.2/saveSvgAsPng.js"></script>
-  	<script src="/static/js/v0.2/pbench_utils.js"></script>
+    <script src="/static/js/v0.2/function-bind.js"></script>
+    <script src="/static/js/v0.2/d3.v3.js"></script>
+    <script src="/static/js/v0.2/nv.d3.js"></script>
+    <script src="/static/js/v0.2/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.2/pbench_utils.js"></script>
     <script src="/static/js/v0.2/comparisonDashboard.js"></script>
-  </head>
-  <body class=with-3d-shadow with-transitions>
+</head>
+
+<body class=with-3d-shadow with-transitions>
     <nav class="navbar navbar-default navbar-pf" role="navigation">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
           <span class="sr-only">Toggle navigation</span>
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/">
+            <a class="navbar-brand" href="/">
           Dashboard Tools
         </a>
-      </div>
-      <div class="collapse navbar-collapse navbar-collapse-1">
-        <ul class="nav navbar-nav navbar-utility">
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <span class="pficon pficon-user"></span>
-              Pbench User<b class="caret"></b>
-            </a>
-          </li>
-        </ul>
-        <ul class="nav navbar-nav navbar-primary">
-          <li class="active">
-            <a href="mainDashboard.html" class="active">Controllers</a>
-          </li>
-          <li>
-        </ul>
-      </div>
+        </div>
+        <div class="collapse navbar-collapse navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-utility">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <span class="pficon pficon-user"></span> Pbench User<b class="caret"></b>
+                    </a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-primary">
+                <li class="active">
+                    <a href="mainDashboard.html" class="active">Controllers</a>
+                </li>
+                <li>
+            </ul>
+        </div>
     </nav>
     <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-12">
-          <div class="col-sm-6 border-right-0">
-            <h3 id="controller_id_1">
-              <div id="svgdataurl1"></div>
-            </h3>
-            <div class="card-pf card-pf-view card-pf-view-select card-pf-view-single-select">
-              <div class="sidebar-header">
-                <h2 class="h5">Result Metadata</h2>
-              </div>
-              <ul class="list-group">
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">Configuration</h3>
-                  <p class="list-group-item-text" id="config"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">Controller</h3>
-                  <p class="list-group-item-text" id="controller"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">File Name</h3>
-                  <p class="list-group-item-text" id="file_name"></p>
-                </li>
-                <div class="panel-group" id="accordion-markup">
-                  <div class="panel panel-default">
-                    <div class="panel-heading">
-                      <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#accordion-markup" href="#collapseOne">
-                          Additional Details
-                        </a>
-                      </h4>
-                    </div>
-                    <div id="collapseOne" class="panel-collapse collapse">
-                      <div class="panel-body">
-                        <br>
-                        <h3 class="list-group-item-heading">Pbench Version</h3>
-                        <p class="list-group-item-text" id="pbench_version"></p>
-                        <br>
-                        <h3 class="list-group-item-heading">Indexer Name</h3>
-                        <p class="list-group-item-text" id="generated_by"></p>
-                        <br>
-                        <h3 class="list-group-item-heading">Indexer Version</h3>
-                        <p class="list-group-item-text" id="generated_by_version"></p>
-                        <br>
-                      </div>
-                    </div>
-                  </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="col-sm-6 border-right-0">
+                  <h3 id="controller_title_1"></h3>
+                  <div id="controller_id_1"></div>
                 </div>
-              </ul>
-              <div class="sidebar-header">
-                <h2 class="h5">Tools and Parameters</h2>
-              </div>
-              <ul class="list-group">
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">Host</h3>
-                  <p class="list-group-item-text" id="host"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">Label</h3>
-                  <p class="list-group-item-text" id="label"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">mpstat</h3>
-                  <p class="list-group-item-text" id="mpstat"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">perf</h3>
-                  <p class="list-group-item-text" id="perf"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">proc-interrupts</h3>
-                  <p class="list-group-item-text" id="proc-interrupts"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">proc-vmstat</h3>
-                  <p class="list-group-item-text" id="proc-vmstat"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">sar</h3>
-                  <p class="list-group-item-text" id="sar"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">pidstat</h3>
-                  <p class="list-group-item-text" id="pidstat"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">turbostat</h3>
-                  <p class="list-group-item-text" id="turbostat"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">iostat</h3>
-                  <p class="list-group-item-text" id="iostat"></p>
-                </li>
-              </ul>
-            </div>
-      	  </div>
-      	  <div class="col-sm-6">
-            <h3 id="controller_id_2">
-              <div id="svgdataurl2"></div>
-            </h3>
-            <div class="card-pf card-pf-view card-pf-view-select card-pf-view-single-select">
-              <div class="sidebar-header">
-                <h2 class="h5">Result Metadata</h2>
-              </div>
-              <ul class="list-group">
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">Configuration</h3>
-                  <p class="list-group-item-text" id="config2"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">Controller</h3>
-                  <p class="list-group-item-text" id="controller2"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">File Name</h3>
-                  <p class="list-group-item-text" id="file_name2"></p>
-                </li>
-                <div class="panel-group" id="accordion-markup">
-                  <div class="panel panel-default">
-                    <div class="panel-heading">
-                      <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#accordion-markup" href="#collapseTwo">
-                          Additional Details
-                        </a>
-                      </h4>
-                    </div>
-                    <div id="collapseTwo" class="panel-collapse collapse">
-                      <div class="panel-body">
-                        <br>
-                        <h3 class="list-group-item-heading">Pbench Version</h3>
-                        <p class="list-group-item-text" id="pbench_version2"></p>
-                        <br>
-                        <h3 class="list-group-item-heading">Indexer Name</h3>
-                        <p class="list-group-item-text" id="generated_by2"></p>
-                        <br>
-                        <h3 class="list-group-item-heading">Indexer Version</h3>
-                        <p class="list-group-item-text" id="generated_by_version2"></p>
-                        <br>
-                      </div>
-                    </div>
-                  </div>
+                <div class="col-sm-6">
+                  <h3 id="controller_title_2"></h3>
+                  <div id="controller_id_2"></div>
                 </div>
-              </ul>
-              <div class="sidebar-header">
-                <h2 class="h5">Tools and Parameters</h2>
-              </div>
-              <ul class="list-group">
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">Host</h3>
-                  <p class="list-group-item-text" id="host2"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">Label</h3>
-                  <p class="list-group-item-text" id="label2"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">mpstat</h3>
-                  <p class="list-group-item-text" id="mpstat2"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">perf</h3>
-                  <p class="list-group-item-text" id="perf2"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">proc-interrupts</h3>
-                  <p class="list-group-item-text" id="proc-interrupts2"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">proc-vmstat</h3>
-                  <p class="list-group-item-text" id="proc-vmstat2"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">sar</h3>
-                  <p class="list-group-item-text" id="sar2"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">pidstat</h3>
-                  <p class="list-group-item-text" id="pidstat2"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">turbostat</h3>
-                  <p class="list-group-item-text" id="turbostat2"></p>
-                </li>
-                <li class="list-group-item">
-                  <h3 class="list-group-item-heading">iostat</h3>
-                  <p class="list-group-item-text" id="iostat2"></p>
-                </li>
-              </ul>
             </div>
-      	  </div>
-      	  </div>
         </div>
-      </div>
     </div>
-  </body>
+    </div>
+</body>
+
 </html>
