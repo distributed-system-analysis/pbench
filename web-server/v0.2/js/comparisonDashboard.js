@@ -14,7 +14,7 @@ function getResultMetadata(resultNameOne, resultNameTwo) {
         dataType: "json",
         url: 'http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?source={ "query": { "match": { "run.name": "' + resultNameOne + '" } }, "sort": "_index" }',
         success: function(data) {
-            fillResultMetadata(data, 1);
+            fillResultMetadata(data, 1, resultNameOne);
         }
     });
 
@@ -22,7 +22,7 @@ function getResultMetadata(resultNameOne, resultNameTwo) {
         dataType: "json",
         url: 'http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?source={ "query": { "match": { "run.name": "' + resultNameTwo + '" } }, "sort": "_index" }',
         success: function(data) {
-            fillResultMetadata(data, 2);
+            fillResultMetadata(data, 2, resultNameTwo);
         }
     });
 }
