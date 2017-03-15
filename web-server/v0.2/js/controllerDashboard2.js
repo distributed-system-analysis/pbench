@@ -8,28 +8,50 @@ function retrieveData() {
 
 function retrieveJSON(controllerName) {
 	//Get result name
-	$.getJSON('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/_search?search_type=count&source={ "query": { "match": { "controller": "' + controllerName + '" } }, "aggs": { "run": { "terms": { "field": "name", "size": 0 } } } }', function (data) {
-		for (i = 0; i <= data.aggregations.run.buckets.length; i++)
-		{
-			var resultName = data.aggregations.run.buckets[i].key;
-			$.getJSON('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/_search?search_type=count&source={ "query": { "match": { "name": "' + resultName + '" } }, "aggs": { "run": { "terms": { "field": "start_run", "size": 0 } } } }', function (data) {
-				var startRun = data.aggregations.run.buckets[0].key;
-				$.getJSON('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/_search?search_type=count&source={ "query": { "match": { "name": "' + resultName + '" } }, "aggs": { "run": { "terms": { "field": "end_run", "size": 0 } } } }', function (data) {
-					var endRun = data.aggregations.run.buckets[0].key;
-					$('.datatable').dataTable().fnAddData(
-						['<input type="checkbox"/>', resultName, 0, 0, 0, startRun, endRun ]
-					);
-					$('#table-body').on('click', 'tr', function(evt) {
-						var resultName = $('td', this).eq(1).text();
-						passResultData(resultName);
-						var $cell = $(evt.target).closest('td');
-						if ($cell.index() > 0) {
-							location.href = "resultsDashboard.html";
-						}
-					});
-				});
-			});
-			
+	$.getJSON('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?search_type=count&source={ "query": { "match": { "run.controller": "' + controllerName + '" } }, "aggs": { "run": { "terms": { "field": "run.name", "size": 0 } } } }', function (data) {
+        var results = data.aggregations.run.buckets;
+		for (var i = 0; i < results.length; i++) {
+			var context = { resultName: results[i].key };
+			$.ajax({ dataType: "json", context: context, url: 'http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?source={ "query": { "match": { "run.name": "' + context.resultName + '" } }, "fields": [ "run.name", "run.config", "run.start_run", "run.end_run", "run.script" ], "sort": "_index" }', success: function (data) {
+                            var hits = data.hits.hits;
+                            if (hits.length == 0) {
+                                console.log("Result search failed", this.resultName);
+                                return;
+                            }
+                            // Take the result from the most recent index
+                            var hit = hits[hits.length - 1];
+                            var startRun_res, endRun_res, bmname_res;
+                            var startRun_val, endRun_val, bmname_val;
+                            startRun_res = hit.fields['run.start_run'];
+                            if (startRun_res === undefined) {
+                                startRun_val = '(not recorded)';
+                            } else {
+                                startRun_val = startRun_res[0];
+                            }
+                            endRun_res = hit.fields['run.end_run'];
+                            if (endRun_res === undefined) {
+                                endRun_val = '(not recorded)';
+                            } else {
+				endRun_val = endRun_res[0];
+                            }
+                            bmname_res = hit.fields['run.script'];
+                            if (bmname_res === undefined) {
+                                bmname_val = '(not recorded)';
+                            } else {
+				bmname_val = bmname_res[0];
+                            }
+			    $('.datatable').dataTable().fnAddData(
+				['<input type="checkbox"/>', this.resultName, 0, bmname_val, 0, startRun_val, endRun_val ]
+			    );
+			    $('#table-body').on('click', 'tr', function(evt) {
+				var resultName = $('td', this).eq(1).text();
+				passResultData(resultName);
+				var $cell = $(evt.target).closest('td');
+				if ($cell.index() > 0) {
+				    location.href = "/static/pages/v0.2/resultsDashboard.html";
+				}
+			    });
+			}});
 		}
 	});
 }
@@ -50,13 +72,13 @@ function clickHandler() {
 	for (i = 0; i < rows.length; i++) {
 		var currentRow = rows[i];
 		var currentCell = currentRow.cells[1];
-		var createClickHandler = 
+		var createClickHandler =
 			function(row) {
 				return function() {
 					var cell = row.getElementsByTagName("td")[1];
 					var id = cell.innerHTML;
 					passResultData(id);
-					location.href = "http://localhost/static/js/v0.1/dashboardTools/resultsDashboard.html";
+					location.href = "/static/pages/v0.2/resultsDashboard.html";
 				};
 			};
 		currentRow.onclick = createClickHandler(currentRow);
@@ -89,7 +111,7 @@ function compareButtonHandler() {
 		}
 	}
 	passComparatorData(checkedResultValues[0], checkedResultValues[1]);
-	location.href = "http://localhost/static/js/v0.1/dashboardTools/comparisonDashboard.html"
+	location.href = "/static/pages/v0.2/comparisonDashboard.html"
 }
 
 function checkboxlimit(checkgroup, limit) {

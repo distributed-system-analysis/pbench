@@ -3,13 +3,13 @@ function clickHandler() {
 	var rows = document.getElementsByTagName("tr");
 	for (i = 0; i < rows.length; i++) {
 		var currentRow = rows[i];
-		var createClickHandler = 
+		var createClickHandler =
 			function(row) {
 				return function() {
 					var cell = row.getElementsByTagName("td")[0];
 					var id = cell.innerHTML;
 					passData(id);
-					location.href = "http://localhost/static/js/v0.1/dashboardTools/controllerDashboard2.html";
+					location.href = "/static/pages/v0.2/controllerDashboard2.html";
 				};
 			};
 		currentRow.onclick = createClickHandler(currentRow);
@@ -18,35 +18,63 @@ function clickHandler() {
 
 //Data Handling Functions
 
-/*function readJSON(directory) {
-	var request = new XMLHttpRequest();
-	request.open("GET", directory, false);
-	request.send(null);
-	var jsonObject = JSON.parse(request.responseText);
-	createControllerDivs(jsonObject._source.run.controller, jsonObject._source.run.date, 1);
-}*/
-
 function retrieveJSON() {
 	//Controller and results count handler
-	$.getJSON('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/_search?search_type=count&source={ "aggs": { "run": { "terms": { "field": "controller", "size": 0 } } } }', function (data) {
-		for (i = 0; i <= data.aggregations.run.buckets.length; i++) 
+	$.getJSON('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?search_type=count&source={ "aggs": { "run": { "terms": { "field": "controller", "size": 0 } } } }', function (data) {
+        var controllers = data.aggregations.run.buckets;
+		for (var i = 0; i < controllers.length; i++)
 		{
-			var controllerName = data.aggregations.run.buckets[i].key;
+			var context = { controllerName: controllers[i].key,
+                            count: controllers[i].doc_count
+                          };
 			//Date range handler
-			$.getJSON('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/_search?search_type=count&source={"query": {"match": {"controller": "' + controllerName + '"}},"aggs": {"run": {"terms": {"field": "start_run","size": 0}}}}', function (data) {
-				var startRun = data.aggregations.run.buckets[0].key;
-				$.getJSON('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/_search?search_type=count&source={"query": {"match": {"controller": "' + controllerName + '"}},"aggs": {"run": {"terms": {"field": "end_run","size": 0}}}}', function (data) {
-					var endRun = data.aggregations.run.buckets[0].key;
-					$('.datatable').dataTable().fnAddData( [
-							data.aggregations.run.buckets[i].key, startRun + ' - ' + endRun, data.aggregations.run.buckets[i].doc_count  ]
-					);
-					$('#table-body').on('click', 'tr', function() {
-						var controllerName = $('td', this).eq(0).text();
-						passData(controllerName);
-						location.href = "controllerDashboard2.html";
-					});
+			$.ajax({ dataType: "json", context: context, url: 'http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?source={"query": {"match": {"run.controller": "' + context.controllerName + '"}}, "fields": [ "run.start_run", "run.end_run" ], "size": ' + context.count.toString(10) + ' }', success: function (data) {
+                var startRun = "", endRun = "";
+                var hits = data.hits.hits;
+                var uniq_hits = Object(), uniq_count = 0;
+                for (var j = 0; j < hits.length; j++) {
+                    var curr_id = hits[j]._id;
+                    if (uniq_hits[curr_id] !== undefined) {
+                        // Not that we need to, but ignore any duplicate IDs,
+                        // keeping the records from newer indexes
+                        // FIXME - we should not have duplicates
+                        if (uniq_hits[curr_id]._index < hits[j]._index) {
+                            uniq_hits[curr_id] = hits[j];
+                        }
+                    } else {
+                        uniq_hits[curr_id] = hits[j];
+                        uniq_count += 1;
+                    }
+                    var startRun_res, endRun_res;
+                    var startRun_val, endRun_val;
+                    startRun_res = hits[j].fields['run.start_run'];
+                    if (startRun_res === undefined) {
+                        // Sort "not recorded" start times as the latest
+                        startRun_val = '[not recorded]';
+                    } else {
+                        startRun_val = startRun_res[0];
+                    }
+                    if (startRun == "" || (startRun > startRun_val)) {
+				        startRun = startRun_val;
+                    }
+                    endRun_res = hits[j].fields['run.end_run'];
+                    if (endRun_res === undefined) {
+                        // Sort "not recorded" end times as the earliest
+                        endRun_val = '(not recorded)';
+                    } else {
+				        endRun_val = endRun_res[0];
+                    }
+                    if (endRun == "" || (endRun < endRun_val)) {
+				        endRun = endRun_val;
+                    }
+                }
+				$('.datatable').dataTable().fnAddData( [ this.controllerName, startRun, endRun, uniq_count ] );
+				$('#table-body').on('click', 'tr', function() {
+					var controllerName = $('td', this).eq(0).text();
+					passData(controllerName);
+					location.href = "/static/pages/v0.2/controllerDashboard2.html";
 				});
-			});
+			}});
 		}
 	});
 }
@@ -57,8 +85,6 @@ function passData(controllerName) {
 }
 
 function onStart() {
-	/*readJSON("http://localhost/static/js/v0.1/dashboardTools/jsonFiles/alphaville.json");
-	readJSON("http://localhost/static/js/v0.1/dashboardTools/jsonFiles/betaville.json");*/
 	retrieveJSON();
 }
 
