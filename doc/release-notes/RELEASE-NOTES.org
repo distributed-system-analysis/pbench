@@ -1,4 +1,4 @@
-# Created 2016-12-02 Fri 10:40
+# Created 2017-03-16 Thu 04:19
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
@@ -14,6 +14,96 @@
 #+SUBTITLE: 
 #+INFOJS_OPT: 
 #+LATEX_HEADER: 
+
+* Version 0.42
+
+** Installation                                                    :external:
+There are no installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.42-1g<mumble>
+of the pbench-agent RPM installed.
+
+** agent
+
+*** Backward incompatibilities
+None known.
+
+*** Bug fixes and enhancements
+
+User-visible changes include:
+
+- HAProxy OCP plugin has been merged
+- openshift-metrics tool has been merged
+- pbench-clear-tools regained its --remote option (it was lost some time ago).
+- pbench-uperf post-processing catches more errors and recovers much better
+  than before.
+
+One thing that did not make it is the JSON output for =pbench-fio=:
+there were some problems which we didn't have time to address in this
+cycle. It will be in v0.43.
+
+** server
+
+Indexing work has been proceeding on a branch. It has not been merged onto the master
+branch yet and is not part of this release. The plan is to merge it after the release and
+deploy it with the next release.
+
+The server has seen fixes for installing into different environments.
+
+*** Instructions                                                   :external:
+TBD.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.42
+:END:
+The pbench-web-server RPM has been updated with scatterplot support
+and a number of fixes.
+
+If you have it installed, you will want to update:
+#+BEGIN_EXAMPLE
+dnf clean expire-cache
+dnf update pbench-web-server
+#+END_EXAMPLE
+(or the yum equivalents.)  The current version available from COPR
+is 0.42-1g<mumble>.
+
+** Changelog
+This is the list of visible (non-merge, non-unit-test-related) commits
+since v0.41:
+
+- 00d4fe0 Fix command to parse openshift inv
+- e9c6634 White space fixes - also fixed some typos
+- fc479c4 pbench-metadata-log changes to record iterations
+- 1d3508a All pbench benchmark scripts record their iterations
+- 78a3b6b Pbench agent base script: do not recalculate $date
+- c07a010 Check whether selinuxenabled exists before calling it
+- eadc311 Add remote option to pbench-clear-tools
+- fab942f Added test fix too
+- 0e13532 Fix typo
+- 15a8bd1 playbook to register pbench-tools on openshift cluster
+- ced507a Fixes distributed-system-analysis/pbench#479
+- d24406d Specify the sorting columns explicitly
+- 8151b84 Fix invocation of index-pbench
+- b38b247 openshift-metrics tool for pbench
+- cf950a8 Check ssh status in pbench-rsync-satellite
+- 0f545e3 generate-benchmark-summary: skip over missing result.json iterations
+- c851d60 pbench-uperf: allow any process-iteration-samples failure to re-try
+- ab0cb7b Fix unit tests
+- 45a571e Decorate the mail sent by server scripts with environment information
+- d120260 Update to pbench-uperf --help
+- 29b2929 Fill gaps in server installation
+- fee78ab Add scatterplot support to jschart
+- 6600716 Correct invalid jschart API calls
+- 683c0d1 Fix date format for seconds since epoch
+- b58ff7b BenchPostprocess.pm: fix div by zero and other small clean-ups
+- eebd592 Added haproxy-ocp unittests.
+- ff46508 Set thresholds on graphs with 0 values.
+- 702aa8f Collect HAProxy's version and default settings.  Set thresholds on graphs with 0 values.
+- c16d833 - Split logs directory to config/logs. ...
+- d103e31 Replacing BASH_SOURCE variable.  Assuming plugins will not be 'sourced' by other scripts.
+- cda6444 Adding HAProxy OCP plugin.
 
 * Version 0.41
 
