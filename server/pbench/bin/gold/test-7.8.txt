@@ -1039,7 +1039,19 @@ len(actions) = 19
         },
         "_type": "pbench-tool-data-iostat"
     }
-]
+]could not convert binary: /var/tmp/pbench-test-server/tmp/uperf__2016-10-06_16:34:03/1-tcp_stream-16384B-32i/sample1/tools-default/flat8_40gb/sar/sar.data
+ERROR: attempting to convert sa binary to compatible format..
+invalid input file! check if its a SA *binary* file..
+
+could not convert binary: /var/tmp/pbench-test-server/tmp/uperf__2016-10-06_16:34:03/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/sar/sar.data
+ERROR: attempting to convert sa binary to compatible format..
+invalid input file! check if its a SA *binary* file..
+
+could not convert binary: /var/tmp/pbench-test-server/tmp/uperf__2016-10-06_16:34:03/1-tcp_stream-16384B-32i/sample1/tools-default/master_40gb/sar/sar.data
+ERROR: attempting to convert sa binary to compatible format..
+invalid input file! check if its a SA *binary* file..
+
+
 --- Finished indexing on /var/tmp/pbench-test-server/test-7.8 (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench

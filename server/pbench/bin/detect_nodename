@@ -1,0 +1,3 @@
+#!/bin/bash
+
+head $1 | grep nodename | awk -F'=' '{print$2}' | sed 's#[">]##g'
