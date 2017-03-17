@@ -7,7 +7,7 @@ len(actions) = 19
         "_op_type": "create",
         "_source": {
             "@metadata": {
-                "file-date": "2017-02-23",
+                "file-date": "2017-02-22",
                 "file-name": "/var/tmp/pbench-test-server/uperf__2016-10-06_16:34:03.tar.xz",
                 "generated-by": "index-pbench",
                 "generated-by-version": "0.1.0.0",
