@@ -73,13 +73,13 @@ foreach $dir (sort @dirs) {
 		my $result_json_file = $iteration_dir . "/result.json";
 		if (open(ITERATION_JSON, "$result_json_file")) {
 			my $json_text;
-                	while ( <ITERATION_JSON> ) {
-                        	$json_text = $json_text . $_;
-                        	}
-                	close TXT;
-                	my $perl_scalar = from_json( $json_text );
+			while ( <ITERATION_JSON> ) {
+				$json_text = $json_text . $_;
+				}
+			close ITERATION_JSON;
+			my $perl_scalar = from_json( $json_text );
 			my %iteration = ( $iteration_number_field => int $iter_num, $iteration_name_field => $iter_name, $iteration_data_field => $perl_scalar );
-                	push @iterations, \%iteration;
+			push @iterations, \%iteration;
 		 } else {
 			print "could not find file $result_json_file\n";
 		}
