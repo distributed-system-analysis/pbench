@@ -449,7 +449,7 @@ If you want to take advantage of pbench's data collection and other
 goodies, but your benchmark is not part of the set above (see [[*Available benchmark scripts][Available benchmark scripts]]),
 or you want to run it differently so
 that the pre-packaged script does not work for you, that's no problem
-(but, if possible, heed the [[*Second steps][WARNING]] above). The various pbench phases
+(but, if possible, reed the [[*Second steps][WARNING]] above). The various pbench phases
 can be run separately and you can fit your benchmark into the
 appropriate slot:
 #+BEGIN_EXAMPLE
