@@ -11,3 +11,6 @@ bulk_action_count = 2000
 # defaults for shards per index or replica count per index.
 #number_of_shards = 1
 #number_of_replicas = 0
+
+[SAR]
+sadf_binaries_path = /usr/local/bin/

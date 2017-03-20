@@ -2,16 +2,16 @@
 len(actions) = 22
 [
     {
-        "_id": "c5deab694ef0599c3a2315888f8cb847",
+        "_id": "10e262c5eefedd10e2b4e18762e0b2db",
         "_index": "pbench.run.2016-10",
         "_op_type": "create",
         "_source": {
             "@metadata": {
-                "file-date": "2017-02-22",
+                "file-date": "2017-03-20",
                 "file-name": "/var/tmp/pbench-test-server/uperf__2016-10-06_16:34:03.tar.xz",
                 "generated-by": "index-pbench",
                 "generated-by-version": "0.1.0.0",
-                "md5": "c5deab694ef0599c3a2315888f8cb847",
+                "md5": "10e262c5eefedd10e2b4e18762e0b2db",
                 "pbench-agent-version": "0.40-2g191b627"
             },
             "@timestamp": "2016-10-06T16:34:08.098427807",
@@ -64,7 +64,7 @@ len(actions) = 22
                 "controller": "master_40gb",
                 "date": "2016-10-06T16:34:03",
                 "end_run": "2016-10-06T17:05:26.924033362",
-                "id": "c5deab694ef0599c3a2315888f8cb847",
+                "id": "10e262c5eefedd10e2b4e18762e0b2db",
                 "name": "uperf__2016-10-06_16:34:03",
                 "script": "uperf",
                 "start_run": "2016-10-06T16:34:08.098427807",
@@ -281,10 +281,10 @@ len(actions) = 22
         "_type": "pbench-run"
     },
     {
-        "_id": "e1c0ed1631aa464df2a017e69bdb2552",
+        "_id": "ea686a07c9dd57d3787ceb0310dfe751",
         "_index": "pbench.run.2016-10",
         "_op_type": "create",
-        "_parent": "c5deab694ef0599c3a2315888f8cb847",
+        "_parent": "10e262c5eefedd10e2b4e18762e0b2db",
         "_source": {
             "@timestamp": "2016-10-06T16:34:08.098427807",
             "directory": "/",
@@ -334,10 +334,10 @@ len(actions) = 22
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "5910d4015fc1916f15f43def76163ab7",
+        "_id": "0345d58f7a4355614daef5025d8bc4bb",
         "_index": "pbench.run.2016-10",
         "_op_type": "create",
-        "_parent": "c5deab694ef0599c3a2315888f8cb847",
+        "_parent": "10e262c5eefedd10e2b4e18762e0b2db",
         "_source": {
             "@timestamp": "2016-10-06T16:34:08.098427807",
             "directory": "/1-tcp_stream-16384B-32i/",
@@ -372,10 +372,10 @@ len(actions) = 22
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "bc6d9742ae90bfa76ff4daf371653d40",
+        "_id": "f307d68beae8f8326039801861879938",
         "_index": "pbench.run.2016-10",
         "_op_type": "create",
-        "_parent": "c5deab694ef0599c3a2315888f8cb847",
+        "_parent": "10e262c5eefedd10e2b4e18762e0b2db",
         "_source": {
             "@timestamp": "2016-10-06T16:34:08.098427807",
             "directory": "/1-tcp_stream-16384B-32i/sample1/",
@@ -415,7 +415,7 @@ len(actions) = 22
         "_source": {
             "@metadata": {
                 "experiment": "uperf__2016-10-06_16:34:03",
-                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runid": "10e262c5eefedd10e2b4e18762e0b2db",
                 "runtstamp": "2016-10-06T16:34:08.098427807"
             },
             "@timestamp": "2016-10-06T16:34:08.098427807",
@@ -14875,7 +14875,7 @@ len(actions) = 22
         "_source": {
             "@metadata": {
                 "experiment": "uperf__2016-10-06_16:34:03",
-                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runid": "10e262c5eefedd10e2b4e18762e0b2db",
                 "runtstamp": "2016-10-06T16:34:08.098427807"
             },
             "@timestamp": "2016-10-06T16:34:08.098427807",
@@ -29329,7 +29329,7 @@ len(actions) = 22
         "_source": {
             "@metadata": {
                 "experiment": "uperf__2016-10-06_16:34:03",
-                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runid": "10e262c5eefedd10e2b4e18762e0b2db",
                 "runtstamp": "2016-10-06T16:34:08.098427807"
             },
             "@timestamp": "2016-10-06T16:34:08.098427807",
@@ -43769,7 +43769,7 @@ len(actions) = 22
                 "host": "master_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
-                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runid": "10e262c5eefedd10e2b4e18762e0b2db",
                 "runtstamp": "2016-10-06T16:34:08.098427807",
                 "sample": "sample1",
                 "toolgroup": "default"
@@ -43811,7 +43811,7 @@ len(actions) = 22
                 "host": "master_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
-                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runid": "10e262c5eefedd10e2b4e18762e0b2db",
                 "runtstamp": "2016-10-06T16:34:08.098427807",
                 "sample": "sample1",
                 "toolgroup": "default"
@@ -43853,7 +43853,7 @@ len(actions) = 22
                 "host": "master_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
-                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runid": "10e262c5eefedd10e2b4e18762e0b2db",
                 "runtstamp": "2016-10-06T16:34:08.098427807",
                 "sample": "sample1",
                 "toolgroup": "default"
@@ -43895,7 +43895,7 @@ len(actions) = 22
                 "host": "master_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
-                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runid": "10e262c5eefedd10e2b4e18762e0b2db",
                 "runtstamp": "2016-10-06T16:34:08.098427807",
                 "sample": "sample1",
                 "toolgroup": "default"
@@ -43937,7 +43937,7 @@ len(actions) = 22
                 "host": "master_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
-                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runid": "10e262c5eefedd10e2b4e18762e0b2db",
                 "runtstamp": "2016-10-06T16:34:08.098427807",
                 "sample": "sample1",
                 "toolgroup": "default"
@@ -43979,7 +43979,7 @@ len(actions) = 22
                 "host": "master_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
-                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runid": "10e262c5eefedd10e2b4e18762e0b2db",
                 "runtstamp": "2016-10-06T16:34:08.098427807",
                 "sample": "sample1",
                 "toolgroup": "default"
@@ -44021,7 +44021,7 @@ len(actions) = 22
                 "host": "master_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
-                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runid": "10e262c5eefedd10e2b4e18762e0b2db",
                 "runtstamp": "2016-10-06T16:34:08.098427807",
                 "sample": "sample1",
                 "toolgroup": "default"
@@ -44063,7 +44063,7 @@ len(actions) = 22
                 "host": "master_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
-                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runid": "10e262c5eefedd10e2b4e18762e0b2db",
                 "runtstamp": "2016-10-06T16:34:08.098427807",
                 "sample": "sample1",
                 "toolgroup": "default"
@@ -44105,7 +44105,7 @@ len(actions) = 22
                 "host": "master_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
-                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runid": "10e262c5eefedd10e2b4e18762e0b2db",
                 "runtstamp": "2016-10-06T16:34:08.098427807",
                 "sample": "sample1",
                 "toolgroup": "default"
@@ -44147,7 +44147,7 @@ len(actions) = 22
                 "host": "flat7_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
-                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runid": "10e262c5eefedd10e2b4e18762e0b2db",
                 "runtstamp": "2016-10-06T16:34:08.098427807",
                 "sample": "sample1",
                 "toolgroup": "default"
@@ -44189,7 +44189,7 @@ len(actions) = 22
                 "host": "flat7_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
-                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runid": "10e262c5eefedd10e2b4e18762e0b2db",
                 "runtstamp": "2016-10-06T16:34:08.098427807",
                 "sample": "sample1",
                 "toolgroup": "default"
@@ -44231,7 +44231,7 @@ len(actions) = 22
                 "host": "flat7_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
-                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runid": "10e262c5eefedd10e2b4e18762e0b2db",
                 "runtstamp": "2016-10-06T16:34:08.098427807",
                 "sample": "sample1",
                 "toolgroup": "default"
@@ -44273,7 +44273,7 @@ len(actions) = 22
                 "host": "flat7_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
-                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runid": "10e262c5eefedd10e2b4e18762e0b2db",
                 "runtstamp": "2016-10-06T16:34:08.098427807",
                 "sample": "sample1",
                 "toolgroup": "default"
@@ -44315,7 +44315,7 @@ len(actions) = 22
                 "host": "flat7_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
-                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runid": "10e262c5eefedd10e2b4e18762e0b2db",
                 "runtstamp": "2016-10-06T16:34:08.098427807",
                 "sample": "sample1",
                 "toolgroup": "default"
@@ -44357,7 +44357,7 @@ len(actions) = 22
                 "host": "flat7_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
-                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runid": "10e262c5eefedd10e2b4e18762e0b2db",
                 "runtstamp": "2016-10-06T16:34:08.098427807",
                 "sample": "sample1",
                 "toolgroup": "default"
