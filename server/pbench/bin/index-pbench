@@ -1135,7 +1135,7 @@ def mk_user_specified_metadata(options):
 
 def mk_metadata(fname, tb, mdconf, md5sum):
     """Return a dict with metadata about a tarball"""
-    mtime = datetime.fromtimestamp(os.stat(fname)[stat.ST_MTIME])
+    mtime = datetime.utcfromtimestamp(os.stat(fname)[stat.ST_MTIME])
 
     mddict = {'generated-by': _NAME_,
               'generated-by-version': _VERSION_,
