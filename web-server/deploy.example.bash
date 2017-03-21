@@ -6,7 +6,7 @@ else
     USER=$1
 fi
 if [ "$2" == "" ]; then
-    HOST=archivehost.example.com
+    HOST=dhcp31-187.perf.lab.eng.bos.redhat.com
 else
     HOST="$2"
 fi
@@ -25,15 +25,17 @@ function vdeploy {
         echo "Can't find local $1 directory tree to deploy"
         exit 1
     fi
-    echo "Copying $1/css, $1/js to $USER@$HOST:$PREFIX/public_html/static/css/$1, /static/js/$1"
-    ssh $USER@$HOST mkdir -p $PREFIX/public_html/static/css/$1 $PREFIX/public_html/static/js/$1
+    echo "Copying $1/css, $1/js, $1/html, $1/components to $USER@$HOST:$PREFIX/public_html/static/css/$1, /static/js/$1, /static/pages/$1, /static/components/$1"
+    ssh $USER@$HOST mkdir -p $PREFIX/public_html/static/css/$1 $PREFIX/public_html/static/js/$1 $PREFIX/public_html/static/pages/$1 $PREFIX/public_html/static/components/$1
     scp -r $(dirname $0)/$1/css/* $USER@$HOST:$PREFIX/public_html/static/css/$1/
     scp -r $(dirname $0)/$1/js/*  $USER@$HOST:$PREFIX/public_html/static/js/$1/
+    scp -r $(dirname $0)/$1/pages/* $USER@$HOST:$PREFIX/public_html/static/pages/$1/
+    scp -r $(dirname $0)/$1/components/* $USER@$HOST:$PREFIX/public_html/static/components/
 }
 
-vdeploy v0.3
+vdeploy v0.2
 
 echo "Fix up protections"
-ssh $USER@$HOST chmod -R g-w $PREFIX/public_html/d3 $PREFIX/public_html/static
+ssh $USER@$HOST chmod -R g-w $PREFIX/public_html/static
 
 exit 0

@@ -1,0 +1,22 @@
+#! /bin/bash
+
+conf=$PWD/../lib/config/pbench-index.cfg.example;\
+es=$(getconf.py -C $conf server Server)
+index=pbench.2016-10
+ESDIR=/home/nick/lib/es/settings
+
+if [ "$1" == "start" ] ;then
+    interval="-1"
+    throttle_type="none"
+else
+    interval="1"
+    throttle_type="merge"
+fi
+
+cat $ESDIR/set-refresh-interval.es | sed "s/%INTERVAL/$interval/" |
+    curl -s -X PUT http://$es/$index/_settings -d @-
+
+cat $ESDIR/set-throttle-type.es | sed "s/%TYPE/${throttle_type}/" |
+    curl -s -X PUT http://$es/_cluster/settings -d @-
+
+exit 0

@@ -1,0 +1,16 @@
+v0.2 - Contents from v0.1 with upgrades to d3 and nvd3
+
+The contents of the /v0.2 hierarchy is just a copy of the v0.1 hierarchy
+but with the d3 and nvd3 libraries updated to version 3.5.5 and 1.8.1-alpha,
+respectively, along with the use of "minified" or "uglified" javascript
+and css files.
+
+NOTE: This hierarchy deploys as:
+
+  http://pbench.perf...redhat.com/static/css/v0.2/*
+  http://pbench.perf...redhat.com/static/js/v0.2/*
+
+*** Please do not change these files unless absolutely necessary ***
+
+** If you need to make an incompatible change, please create a new
+   version.
