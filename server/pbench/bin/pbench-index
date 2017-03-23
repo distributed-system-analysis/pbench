@@ -140,8 +140,8 @@ while read size result ;do
         PROGLOC=$(getconf.py install-dir pbench-server)
         if which python3 > /dev/null 2>&1 ;then
             # we have a python3 here
-            PYTHONPATH=${PROGLOC}/../lib:$PYTHONPATH eval\
-                "python3 ${PROGLOC}/index-pbench --config ${PROGLOC}/../lib/config/pbench-index.cfg $link"
+            PYTHONPATH=${PROGLOC}/lib:$PYTHONPATH eval\
+                "python3 ${PROGLOC}/bin/index-pbench --config ${PROGLOC}/lib/config/pbench-index.cfg $link"
             status=$?
         elif which scl > /dev/null 2>&1 ;then
             # we fall back to SCL
