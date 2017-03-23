@@ -118,7 +118,7 @@ function _verify_output {
 }
 function _setup_state {
     _state_tb=$_tdir/state/${1}.tar.xz
-    (cd $_testroot; tar xf $_state_tb; if [ ! -z "${2}" ] ;then ln -s ${2}.tar.xz ${1}.tar.xz ;fi)
+    (cd $_testroot; tar xf $_state_tb; if [ ! -z "${2}" ] ;then /bin/ln -s ${2}.tar.xz ${1}.tar.xz ;fi)
     if [[ $? -gt 0 ]]; then
         echo "ERROR: unable to create pbench hierarchy for state $1" >&2
         exit 1
