@@ -8,7 +8,7 @@
 # To run a custom benchmark, run "user-benchmark --config="your-config-description" -- "your benchmark's executable with any options"
 #			for example: user-benchmark --config="specjbb2005-4-JVMs" -- /root/SPECjbb/run_specjbb4.sh
 #
-# for running in docker example would be 
+# for running in docker example would be
 #
 # user-benchmark --config="specjbb2005-4-JVMs" -- docker run -it _docker_image_ /root/SPECjbb/run_specjbb4.sh
 # for example: user-benchmark --config="docker-specjbb2005-4-JVMs" -- docker run -it r7perf /root/SPECjbb/run_specjbb4.sh
@@ -32,9 +32,10 @@ benchmark="pbench-user-benchmark"
 # Defaults
 config=""
 tool_group=default
+sysinfo=default
 
 # Process options and arguments
-opts=$(getopt -q -o C: --longoptions "config:,tool-group:" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o C: --longoptions "config:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
@@ -42,6 +43,8 @@ if [ $? -ne 0 ]; then
 	printf "\tThe following options are available:\n\n"
 	printf -- "\t\t-C str --config=str            name of the test config\n"
 	printf -- "\t\t       --tool-group=str\n"
+	printf -- "\t\t       --sysinfo=str,          str = comma seperated values of sysinfo to be collected\n"
+	printf -- "\t\t                                     available: $(pbench-collect-sysinfo --options)\n"
 	exit 1
 fi
 eval set -- "$opts";
@@ -62,6 +65,19 @@ while true; do
 			shift;
 		fi
 		;;
+                --sysinfo)
+                shift;
+                if [ -n "$1" ]; then
+			sysinfo="$1"
+			pbench-collect-sysinfo --sysinfo=$sysinfo --check
+			if [ $? == 0 ]; then
+				:
+			else
+				exit 1
+			fi
+			shift;
+                fi
+                ;;
 		--)
 		shift;
 		break;
@@ -105,6 +121,5 @@ echo $iteration >> $benchmark_iterations
 $benchmark_bin 2>&1 | tee $benchmark_results_dir/result.txt
 pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
-
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 rmdir $benchmark_results_dir/.running
