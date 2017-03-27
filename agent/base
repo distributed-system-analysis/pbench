@@ -44,9 +44,12 @@ pbench_tspp_dir=$pbench_install_dir/tool-scripts/postprocess
 pbench_bspp_dir=$pbench_install_dir/bench-scripts/postprocess
 export pbench_install_dir pbench_tspp_dir pbench_bspp_dir pbench_run
 
+TS_FORMAT="%FT%H:%M:%S"
+
 if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
     function timestamp {
-        echo "$(date --utc +'%Y%m%dT%H:%M:%S.%N')"
+        # use ns in the timestamp
+        echo "$(date --utc +"${TS_FORMAT}.%N")"
     }
 else
     function timestamp {
@@ -86,7 +89,8 @@ if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
     # date may be set "accidentally" so add a var with an unlikely name
     # to check whether we need to set it.
     if [ -z "$date" -o -z "$_PBENCH_DATE_SET" ] ;then
-        export date=`date --utc "+%FT%H:%M:%S"`
+        # don't use ns in the date
+        export date=`date --utc +"${TS_FORMAT}"`
         export _PBENCH_DATE_SET=1
     fi
     hostname=`hostname -s`
