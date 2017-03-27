@@ -1099,9 +1099,36 @@ def _to_utc(l, u):
     """
     lts = datetime.strptime(l, "%Y-%m-%dT%H:%M:%S")
     uts = datetime.strptime(u[:u.rfind('.')] , "%Y-%m-%dT%H:%M:%S")
+        
     offset = lts - uts
     res = round(float(offset.seconds) / 60 / 60 + offset.days * 24, 1)
     return (lts - timedelta(0, int(res*60*60), 0)).isoformat()
+
+def fix_date_format(ts):
+    """ts is a string representing a timestamp with possible formatting
+    problems:
+
+        - it might have an underscore instead of a T separating the
+          date from the time - ES does not like that.
+
+        - the date part might also be of the form YYYYMMDD instead of
+          the approved format YYYY-MM-DD.
+
+    This function fixes up those problems and returns the possibly
+    modified string.
+    """
+    rts = ts.replace('_', 'T')
+    ns = rts[rts.rfind('.'):]
+    rts = rts[:rts.rfind('.')]
+    try:
+        val = datetime.strptime(rts, "%Y-%m-%dT%H:%M:%S")
+        return rts + ns
+    except ValueError as e:
+        val = datetime.strptime(rts, "%Y%m%dT%H:%M:%S")
+        return datetime.strftime(val, "%Y-%m-%dT%H:%M:%S") + ns
+    except Exception as e:
+        # on any other exception, we give up
+        return "1900-01-01T00:00:00"
 
 def mk_run_metadata(mdconf, md5sum, dirname, dirprefix):
     try:
@@ -1109,11 +1136,11 @@ def mk_run_metadata(mdconf, md5sum, dirname, dirprefix):
         d.update(mdconf.items('run'))
         d.update(mdconf.items('pbench'))
         # Fix up old format dates so ES won't barf on them.
-        d['start_run'] = d['start_run'].replace('_', 'T')
-        d['end_run'] = d['end_run'].replace('_', 'T')
+        d['start_run'] = fix_date_format(d['start_run'])
+        d['end_run'] = fix_date_format(d['end_run'])
         # Convert the date to UTC: date and start-run are supposed to be close
         # (except that date may be in local time and start-run is UTC).
-        d['date'] = _to_utc(d['date'].replace('_', 'T'), d['start_run'])
+        d['date'] = _to_utc(fix_date_format(d['date']), d['start_run'])
         # the run id here is the md5sum that's the _id of the main document.
         # it's what ties all of the relevant documents together.
         d['id'] = md5sum
@@ -1246,7 +1273,7 @@ class PbenchTarBall(object):
         # We get the start date out of the metadata log.
         try:
             # N.B. the start_run timestamp is in UTC.
-            self.start_run = self.mdconf.get('run', 'start_run').replace('_', 'T')
+            self.start_run = fix_date_format(self.mdconf.get('run', 'start_run'))
             split_date_str = self.start_run.split('T')
             # List of constituent date components, year [0], month [1], day [2]
             self.date = [ int(x) for x in split_date_str[0].split("-") ]
