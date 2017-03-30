@@ -1,292 +1,201 @@
 #!/usr/bin/perl
-
 use strict;
 use warnings;
-
-# Check for an alternate tools library path for testing
-my $_test_alt_tools_lib;
-my $_test_alt_bench_lib;
-BEGIN {
-	my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
-	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
-	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
-		$_test_alt_tools_lib = "$_pbench_tspp_dir";
-	}
-	my $_pbench_bspp_dir = $ENV{'pbench_bspp_dir'};
-	$_test_alt_bench_lib=$ENV{_TEST_ALTERNATE_BENCH_LIBRARY};
-	if (not defined $_test_alt_bench_lib or not -d $_test_alt_bench_lib) {
-		$_test_alt_bench_lib = "$_pbench_bspp_dir";
-	}
-}
-use lib "$_test_alt_tools_lib";
-use lib "$_test_alt_bench_lib";
-no lib ".";
-use GenData qw(gen_data);
-use BenchPostprocess qw(value_exists trim_series get_label create_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash);
-use File::Basename;
-use Data::Dumper;
-use List::Util('sum');
 use JSON;
-use Switch;
+use Cwd 'abs_path';
 
-sub mean {
-	if ( scalar @_ > 0 ) {
-		return sum(@_)/@_;
-	} else {
-		return 0;
-	}
-}
-
-my $script = basename($0);
 my $dir = $ARGV[0];
-my $tool_label_pattern = $ARGV[1];
+my $iteration = $ARGV[1];
 my $tool_group = $ARGV[2];
-my $benchmark_version = $ARGV[6];
-my $benchmark_name = 'fio';
-my %fio_sample;
-my $timestamp_ms = 0;
-my $prev_timestamp_ms = 0;
-my $timestamp_ms_diff;
-my $line;
-my %avg;
-my %total;
-my $series_trim = 0;
-my $primary_metric="iops_sec";
+my $js_str;
 
+# Determine histogram interval based on value used in job file. Should really make
+# this an option, but perfectly reasonable default.
+my $interval = `cat $dir/fio.job | grep "^log_hist_msec"`;
+if ( ! $interval =~ /^\s*$/ ) {
+	system("mkdir -p $dir/hist");
+	# fiologparser_hist needs the polling interval to do its job,
+	# it gets that from the job file containing log_hist_msec parameter
+	system("fiologparser_hist.py --job-file=$dir/fio.job $dir/fio_clat_hist.*.log* > $dir/hist/hist.csv");
+	system(abs_path($0) . "-viz.py --job-file=$dir/fio.job $dir/hist");
+}
 
-
-# %workload
-#		   {Throughput|Latency|Resource|Efficiency}
-#		   {Throughput}[iops_sec, 
-
-my %workload;  # root hash for all data, contains hash refs to
-		# %throughput, %latency, %resource, %efficiency
-my %parameters;	# a hash of parameter-type:array-of-parameter-values
-
-my @benchmark;	# each array element contains a hash with paramters
-		# for this benchmark:
-		# block-size: 256
-		# test-type: randr
-
-my %resource;	# a hash of resource-type:array-of-resource-values,
-
-my @cpu_busy;	# each array element contains a hash with
-		# hostname: hostname or IP
-		# role: client, server, host, kvm-host, container-host, etc.
-		# timeseries: a hash of timestamp:value key-pairs
-my %efficiency;
-my %latency;    # a hash of latency-type:array-of-latency-values,
-		# for example $latency{usec[0..1]
-my @clat;
-my @slat;
-my @lat;	# each array element contains a hash with:
-	    	# hostname: <hostname or IP>
-	    	# role: <client or server>
-	    	# timeseries: a hash of timstamp:value elements
-
-my %throughput; # a hash of throughput-type:array-of-throughput-values,
-		# for example $throughput{MB_sec[0..1]
-my @MB_sec;	# each array element contains a hash with:
-	    	# hostname: <hostname or IP>
-	    	# role: <client or server>
-	    	# timeseries: a hash of timstamp:value key-pairs
-my @iops_sec;	# each array element contains a hash with:
-	    	# hostname: <hostname or IP>
-	    	# role: <client or server>
-	    	# timeseries: a hash of timstamp:value key-pair
-
-my %benchmark_parameters_dataset = ( 	get_label('benchmark_name_label') => $benchmark_name,
-					get_label('benchmark_version_label') => $benchmark_version,
-					#get_label('test_type_label') => $test_type,
-					#get_label('block_size_kbytes_label') => int $block_size_kbytes,
-					#get_label('clients_label') => $clients,
-					get_label('primary_metric_label') => $primary_metric,
-					get_label('uid_label') => create_uid('benchmark_name_label', 'controller_host_label')  );
-
-push(@benchmark, \%benchmark_parameters_dataset);
-
-# Get the tool data
-# Define a set of tool directories which we want to use to report CPU and efficiency metrics
-# Search for tool directories which match the $tool_label_pattern
-my $this_tool_dir;
-my %tool_ids;
-my $tool_group_dir = "$dir/tools-$tool_group";
-my $dh;
-if (opendir($dh, $tool_group_dir)) {
-	foreach $this_tool_dir (sort readdir($dh)) {
-		if ($this_tool_dir =~ /^$tool_label_pattern/) {
-			my $tool_dir_id = $this_tool_dir;
-			$tool_dir_id =~ s/^$tool_label_pattern//;
-			$this_tool_dir = $tool_group_dir . "/" . $this_tool_dir;
-			$tool_ids{$this_tool_dir} = $tool_dir_id;
+open( JS, "<$dir/fio-result.txt" ) or die "Can't open $dir/fio-result.txt: $!";
+# there may be more than one json array, and we want only the last one
+while ( <JS> ) {
+	# skip past the non json stuff
+	if ( /{/ ) {
+		$js_str = "{\n";
+		while ( <JS> ) {
+			$js_str = $js_str . $_;
+			if ( /^}/ ) {
+				last;
+			}
 		}
 	}
+}
+
+if ( ! defined $js_str ) {
+	print "Could not find any json data, exiting\n";
+	exit 1
+}
+
+# convert [json] string in to big hash
+my $fio_results;
+$fio_results = decode_json $js_str;
+close(JS);
+my %results;
+my %all_job_results;
+my %all_client_results;
+my $client_jobs = "";
+my $job_name = "";
+my $fio_json_field = "";
+my $client_name = "";
+if ( defined $$fio_results{"client_stats"} ) {
+	# this is a multi-client test
+	$fio_json_field = "client_stats";
 } else {
-	print "$script: could not find any directories in $tool_group_dir which matched $tool_label_pattern\n";
-}
-closedir  $dh;
-foreach $this_tool_dir (sort keys %tool_ids) {
-	my $res;
-	my $this_tool_id = $tool_ids{$this_tool_dir};
-	my $role = "host";
-	my $url;
-	my $hostname;
-	($role, $hostname) = split(/:/,$this_tool_id);
-	my @cpubusy_samples;
-	$res = get_cpubusy_series($this_tool_dir, \@cpubusy_samples );
-	if ( $res == 0 ) {
-		my %this_cpubusy_dataset;
-		my $description = "Total busy CPU usage, averaged over N seconds, where 1.0 = 1 logical CPU";
-		my $mean = get_mean(\@cpubusy_samples);
-		%this_cpubusy_dataset = ( get_label('uid_label') => create_uid('hostname_label'), get_label('description_label') => $description, get_label('role_label') => $role, get_label('hostname_label') => $hostname, get_label('value_label') => $mean, get_label('timeseries_label') => \@cpubusy_samples );
-		push(@cpu_busy, \%this_cpubusy_dataset);
-	}
-}
-if ( @cpu_busy ) {
-	$resource{'cpu_busy'} = \@cpu_busy;
+	# this is a local test
+	$fio_json_field = "jobs";
+	$client_name = "localhost";
 }
 
-# Load the data from fio output and create throughput & latency metrics.
-# There can be several result files, for each client involved in this test
-# and for each metric type.
+# reorg this data in a format better suited for printing a summary
+foreach $client_jobs ( @$fio_results{$fio_json_field} ) {
+	my $job;
+	foreach $job ( @$client_jobs ) {
+		$job_name = $$job{jobname};
+		if ( $job_name ne "All clients" ) {
+			if ($client_name ne "localhost" ) {
+				$client_name = $$job{hostname};
+			}
 
-my $nr_log_files=0;
-my $clients_dh;
-opendir($clients_dh, "$dir/clients") || die "$script: could not open directory $dir/clients: $!\n";
-my $client_hostname_dir; 
-my @client_hostname_dirs = grep(!/^\./, (sort readdir($clients_dh)));
-closedir $clients_dh;
-foreach $client_hostname_dir (@client_hostname_dirs) {
-	# Process the log files (bw, lat, clat, etc)
-	my $log_file;
-	my $client_dh;
-	opendir($client_dh, "$dir/clients/$client_hostname_dir") || die "$script: could not open directory $dir/clients/$client_hostname_dir $!\n";
-	my @client_log_files = grep(/^.+\.log$/, (sort readdir($client_dh)));
-	closedir $client_dh;
-	foreach $log_file (@client_log_files) {
-		# for each result file, build this:
-		# # {
-		# # "hostname": "perf104", <-where this workload was running
-		# # "role": "client", <-where this information came from: workload client or server
-		# # "samples" : {1407890808: 7.75, 1407890809: 7.77}  <-time series data from workload output
-		# # "value" : "7.76" <-the average of the time series data
-		# # },
-		if ( $log_file =~ /^fio_(iops|lat|slat|clat)\.1\.log$/) {
-			my $log_type = $1;
-			my $date_base = 1471365291000;
-			my $role = "client";
-			my $average;
-			my @samples;
-			my $description_label;
-			my $this_metric;
-			switch ($log_type) {
-				case "iops"	{
-							$description_label = "Number of I/O operations sent by client for a period of 1 second";
-							$this_metric = \@iops_sec;
-					}
-				case "lat"	{
-							$description_label = "Average total latency per I/O operation";
-							$this_metric = \@lat;
-					}
-				case "clat"	{
-							$description_label = "Average completion latency per I/O operation";
-							$this_metric = \@clat;
-					}
-				case "slat"	{	$description_label = "Average submission latency per I/O operation";
-							$this_metric = \@slat;
-					}
+			my $read_iops = $$job{read}{iops};
+			my $read_runtime = $$job{read}{runtime};
+			my $read_KB =  $$job{read}{"io_bytes"};
+			my $read_bw;
+			if ($read_runtime <= 0) {
+				$read_bw = 0;
+			} else {
+				$read_bw = 1000 * $read_KB / $read_runtime;
 			}
-			open(IN_FILE, "$dir/clients/$client_hostname_dir/$log_file") || die "$script: could not open file $dir/clients/$client_hostname_dir/$log_file $!\n";
-			while (<IN_FILE>) {
-				$line = "$_";
-				chomp($line);
-				if ( $line =~  /(\d+),\s+(\d+),\s+(\d+),\s+(\d+)/ ) {
-					#my $timestamp_ms = $1 + $date_base;
-					my $timestamp_ms = $1;
-					my $value = $2;
-					my %sample = (get_label('date_label') => int $timestamp_ms, get_label('value_label') => int $value);
-					if (value_exists(get_label('date_label'), $timestamp_ms, \@samples)) {
-						printf "warning: timestamp %d already exists, skipping this sample (timestamp = %d, value = %d)\n", $timestamp_ms, $timestamp_ms, $value;
-					} else {
-						push(@samples, \%sample);
-					}
-				}
+			my $read_95lat = $$job{read}{clat}{percentile}{"95.000000"};
+
+			my $write_iops = $$job{write}{iops};
+			my $write_runtime = $$job{write}{runtime};
+			my $write_KB = $$job{write}{"io_bytes"};
+			my $write_bw;
+			if ($write_runtime <= 0) {
+				$write_bw = 0;
+			} else {
+				$write_bw = 1000 * $write_KB / $write_runtime;
 			}
-			$nr_log_files++;
-			close(IN_FILE);
-			if ( (@samples) ) {
-				trim_series(\@samples, $series_trim, $series_trim);
-				my %this_dataset;
-				my $mean = get_mean(\@samples);
-				%this_dataset = ( 	get_label('role_label') => $role, get_label('client_hostname_label') => $client_hostname_dir,
-							get_label('value_label') => $mean, get_label('timeseries_label') => \@samples,
-							get_label('uid_label') => create_uid('client_hostname_label')  );
-				$this_dataset{get_label('description_label')} = $description_label;
-				push($this_metric, \%this_dataset);
-			}
+			my $write_95lat = $$job{write}{clat}{percentile}{"95.000000"};
+
+			my $readwrite_iops = $read_iops + $write_iops;
+			my $readwrite_bw = $read_bw + $write_bw;
+
+
+			# we sum up values for all_*_results here
+			# some values like 95lat need to be divided by their num samples to get an average
+			$results{$client_name}{$job_name}{read_iops} = $read_iops;
+			$all_job_results{$client_name}{read_iops} += $read_iops;
+			$all_client_results{read_iops} += $read_iops;
+			$results{$client_name}{$job_name}{read_bw} = $read_bw;
+			$all_job_results{$client_name}{read_bw} += $read_bw;
+			$all_client_results{read_bw} += $read_bw;
+			$results{$client_name}{$job_name}{read_95lat} = $read_95lat;
+			$all_job_results{$client_name}{read_95lat} += $read_95lat;
+			$all_job_results{$client_name}{read_95lat_samples}++;
+			$all_client_results{read_95lat} += $read_95lat;
+			$all_client_results{read_95lat_samples}++;
+
+			$results{$client_name}{$job_name}{write_iops} = $write_iops;
+			$all_job_results{$client_name}{write_iops} += $write_iops;
+			$all_client_results{write_iops} += $write_iops;
+			$results{$client_name}{$job_name}{write_bw} = $write_bw;
+			$all_job_results{$client_name}{write_bw} += $write_bw;
+			$all_client_results{write_bw} += $write_bw;
+			$results{$client_name}{$job_name}{write_95lat} = $write_95lat;
+			$all_job_results{$client_name}{write_95lat} += $write_95lat;
+			$all_job_results{$client_name}{write_95lat_samples}++;
+			$all_client_results{write_95lat} += $write_95lat;
+			$all_client_results{write_95lat_samples}++;
+
+			$results{$client_name}{$job_name}{readwrite_iops} = $readwrite_iops;
+			$all_job_results{$client_name}{readwrite_iops} += $readwrite_iops;
+			$all_client_results{readwrite_iops} += $readwrite_iops;
+			$results{$client_name}{$job_name}{readwrite_bw} = $readwrite_bw;
+			$all_job_results{$client_name}{readwrite_bw} += $readwrite_bw;
+			$all_client_results{readwrite_bw} += $readwrite_bw;
 		}
 	}
-	if ($nr_log_files == 0) {
-		print "$script: could not find any result files to process, exiting\n";
-		exit;
+}
+
+# now write all of this data to various files
+
+# this file we start from scratch
+open(RESULT_TXT, ">$dir/result.txt");
+open(ITERATION_TXT, ">$dir/summary-result.txt");
+open(ITERATION_HTML, ">$dir/summary-result.html");
+
+printf RESULT_TXT "readwrite_IOPS=%.2f\n", $all_client_results{readwrite_iops};
+printf RESULT_TXT "rw_kB_sec=%.2f\n", $all_client_results{readwrite_bw};
+printf RESULT_TXT "read_IOPS=%.2f\n", $all_client_results{read_iops};
+printf RESULT_TXT "read_kB_sec=%.2f\n", $all_client_results{read_bw};
+printf RESULT_TXT "read_95th_lat_us=%.2f\n", $all_client_results{read_95lat}/$all_client_results{read_95lat_samples};
+printf RESULT_TXT "write_IOPS=%.2f\n", $all_client_results{write_iops};
+printf RESULT_TXT "write_kB_sec=%.2f\n", $all_client_results{write_bw};
+printf RESULT_TXT "write_95th_lat_us=%.2f\n", $all_client_results{write_95lat}/$all_client_results{write_95lat_samples};
+
+printf ITERATION_TXT "%20s%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", "$iteration", "clients",
+  "readwrite-IOPS", "readwrite-kB/sec",
+  "read-IOPS", "read-kB/sec", "read-95th-lat-ms",
+  "write-IOPS", "write-kB/sec", "write-95th-lat-ms";
+printf ITERATION_HTML "<pre>%20s%20s%s%20s%20s%20s%20s%20s%20s%20s%20s\n", "$iteration", "clients", "     details",
+  "readwrite-IOPS", "readwrite-kB/sec",
+  "read-IOPS", "read-kB/sec", "read-95th-lat-ms",
+  "write-IOPS", "write-kB/sec", "write-95th-lat-ms";
+# the iteration result includes the summed result for the all of the clients, then per-client result
+printf ITERATION_TXT "%20s%20s%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f\n", "", "all_clients",
+  $all_client_results{readwrite_iops}, $all_client_results{readwrite_bw},
+  $all_client_results{read_iops}, $all_client_results{read_bw}, $all_client_results{read_95lat}/$all_client_results{read_95lat_samples}/1000,
+  $all_client_results{write_iops}, $all_client_results{write_bw}, $all_client_results{write_95lat}/$all_client_results{write_95lat_samples}/1000;
+printf ITERATION_HTML "%20s%20s%s%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f\n", "", "all_clients", "            ",
+  $all_client_results{readwrite_iops}, $all_client_results{readwrite_bw},
+  $all_client_results{read_iops}, $all_client_results{read_bw}, $all_client_results{read_95lat}/$all_client_results{read_95lat_samples}/1000,
+  $all_client_results{write_iops}, $all_client_results{write_bw}, $all_client_results{write_95lat}/$all_client_results{write_95lat_samples}/1000;
+foreach $client_name (keys %all_job_results) {
+	# here we output the per-client result in the iteration summary
+	printf ITERATION_TXT "%20s%20s%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f\n", "", "$client_name",
+	  $all_job_results{$client_name}{readwrite_iops}, $all_job_results{$client_name}{readwrite_bw},
+	  $all_job_results{$client_name}{read_iops}, $all_job_results{$client_name}{read_bw}, $all_job_results{$client_name}{read_95lat}/$all_job_results{$client_name}{read_95lat_samples}/1000,
+	  $all_job_results{$client_name}{write_iops}, $all_job_results{$client_name}{write_bw}, $all_job_results{$client_name}{write_95lat}/$all_job_results{$client_name}{write_95lat_samples}/1000;
+	printf ITERATION_HTML "%20s%20s     <a href=./clients/$client_name/>%s</a>%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f\n", "", "$client_name", "details",
+	  $all_job_results{$client_name}{readwrite_iops}, $all_job_results{$client_name}{readwrite_bw},
+	  $all_job_results{$client_name}{read_iops}, $all_job_results{$client_name}{read_bw}, $all_job_results{$client_name}{read_95lat}/$all_job_results{$client_name}{read_95lat_samples}/1000,
+	  $all_job_results{$client_name}{write_iops}, $all_job_results{$client_name}{write_bw}, $all_job_results{$client_name}{write_95lat}/$all_job_results{$client_name}{write_95lat_samples}/1000;
+
+	# the client result summary file includes the summed result for the client, and then a result for each job run
+	open(CLIENT_RESULT, ">$dir/clients/$client_name/summary-result.txt") || die "could not open $dir/clients/$client_name/summary-result.txt";
+	printf CLIENT_RESULT "%20s%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", "$client_name", "job_name",
+	  "readwrite-IOPS", "readwrite-kB/sec",
+	  "read-IOPS", "read-kB/sec", "read-95th-lat-ms",
+	  "write-IOPS", "write-kB/sec", "write-95th-lat-ms";
+	printf CLIENT_RESULT "%20s%20s%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f\n", "", "all_jobs", 
+	  $all_job_results{$client_name}{readwrite_iops}, $all_job_results{$client_name}{readwrite_bw},
+	  $all_job_results{$client_name}{read_iops}, $all_job_results{$client_name}{read_bw}, $all_job_results{$client_name}{read_95lat}/$all_job_results{$client_name}{read_95lat_samples}/1000,
+	  $all_job_results{$client_name}{write_iops}, $all_job_results{$client_name}{write_bw}, $all_job_results{$client_name}{write_95lat}/$all_job_results{$client_name}{write_95lat_samples}/1000;
+
+	my $job_name;
+	foreach $job_name (keys %{ $results{$client_name} }) {
+		printf CLIENT_RESULT "%20s%20s%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f%20.2f\n", "", "$job_name",
+		  $results{$client_name}{$job_name}{readwrite_iops}, $results{$client_name}{$job_name}{readwrite_bw},
+		  $results{$client_name}{$job_name}{read_iops}, $results{$client_name}{$job_name}{read_bw}, $results{$client_name}{$job_name}{read_95lat}/1000,
+		  $results{$client_name}{$job_name}{write_iops}, $results{$client_name}{$job_name}{write_bw}, $results{$client_name}{$job_name}{write_95lat}/1000;
 	}
+	close(CLIENT_RESULT);
 }
-# construct what we have so far in a master workload hash
-if ( @iops_sec ) {
-	$throughput{'iops_sec'} = \@iops_sec;
-}
-if ( @slat ) {
-	$latency{'slat'} = \@slat;
-}
-if ( @clat ) {
-	$latency{'clat'} = \@clat;
-}
-if ( @lat ) {
-	$latency{'lat'} = \@lat;
-}
-if ( @benchmark ) {
-	$parameters{'benchmark'} = \@benchmark;
-}
-if ( %throughput ) {
-	$workload{'throughput'} = \%throughput;
-}
-if ( %latency ) {
-	$workload{'latency'} = \%latency;
-}
-if ( %resource ) {
-	$workload{'resource'} = \%resource;
-}
-if ( %parameters ) {
-	$workload{'parameters'} = \%parameters;
-}
-
-calc_aggregate_metrics(\%workload);
-calc_efficiency_metrics(\%workload);
-		
-# pbench graphing uses a specific hash heirarchy, where the dimensions of the hash are:
-# {html-file}{html-graph}{graph-series}{timeseries-data}
-# for example, an html page which has all of the iops_sec metrics graphed may look like:
-# %throuhgput{'uperf-throughput'}{'iops-per-second'}{client:host1-to-server-host2}{$timestamp_ms}
-#                                                 {client:host1-to-server-host3}{$timestamp_ms}
-# if we wanted another graph for transactions per second graped in a different graph, but on the same html page, we would add:
-# %throuhgput{'uperf-throughput'}{'transper-second'}{client:host1-to-server-host2}{$timestamp_ms}
-#                                                   {client:host1-to-server-host3}{$timestamp_ms}
-#
-# So, for fio, we need to take parts of the data in %workload and transform it in to a new hash
-# The %workload hash has much more information about the workload than needed for graphing, 
-# and the timestamp data is stored in a different way.  So, we just need to do a minor 
-# conversion, provided by BenchPostprocess.pm
-
-my %graph;
-create_graph_hash(\%graph, \%workload);
-my %graph_threshold;
-my %graph_type;
-gen_data(\%graph, \%graph_type, \%graph_threshold, $dir, 1);
-
-# write to JSON format file
-my $json_file = $dir . "/result.json";
-my $json_text   = to_json( \%workload, { ascii => 1, pretty => 1, canonical => 1 } );
-open(JSON, ">$json_file") || die "$script: could not open file $json_file: $!\n";
-print JSON $json_text;
-close(JSON);
-
+close(RESULT_TXT);
+close(ITERATION_TXT);
+close(ITERATION_HTML);
