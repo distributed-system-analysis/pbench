@@ -1,0 +1,310 @@
+{
+  "sar": {
+    "properties": {
+      "_metadata": {
+        "properties": {
+          "file-date": {
+            "type": "date",
+            "format": "yyyy-MM-dd"
+          },
+          "pbench_run_unique_id": {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "pbench_run_md5": {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "machine": {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "nodename": {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "number-of-cpus": {
+            "type": "integer"
+          },
+          "release": {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "sysdata-version": {
+            "type": "float"
+          },
+          "sysname": {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          }
+        }
+      },
+      "date_time" : {
+            "type" : "date",
+            "format" : "yyyy-MM-dd HH:mm:ss"
+          },
+      "timestamp": {
+        "properties": {
+          "date": {
+            "type": "date",
+            "format": "yyyy-MM-dd"
+          },
+          "time": {
+            "type": "date",
+            "format": "HH:mm:ss"
+          }
+        }
+      },
+      "cpu-load": {
+        "type": "nested",
+        "properties": {
+          "cpu": {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          }
+        }
+      },
+      "cpu-load-all": {
+        "type": "nested",
+        "properties": {
+          "cpu": {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          }
+        }
+      },
+      "disk": {
+        "type": "nested",
+        "properties": {
+          "disk-device": {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          }
+        }
+      },
+      "interrupts": {
+        "type": "nested",
+        "properties": {
+          "intr": {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          }
+        }
+      },
+      "interrupts-processor": {
+        "type": "nested",
+        "properties": {
+          "intr": {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "cpu": {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          }
+        }
+      },
+      "filesystems": {
+        "type": "nested",
+        "properties": {
+          "filesystem": {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          }
+        }
+      },
+      "network": {
+        "properties": {
+          "net-dev": {
+            "type": "nested",
+            "properties": {
+              "iface": {
+                "type": "string",
+                "index": "not_analyzed",
+                "fielddata": {
+                  "format": "doc_values"
+                }
+              }
+            }
+          },
+          "net-edev": {
+            "type": "nested",
+            "properties": {
+              "iface": {
+                "type": "string",
+                "index": "not_analyzed",
+                "fielddata": {
+                  "format": "doc_values"
+                }
+              }
+            }
+          }
+        }
+      },
+      "power-management": {
+        "properties": {
+          "cpu-frequency": {
+            "type": "nested",
+            "properties": {
+              "number": {
+                "type": "string",
+                "index": "not_analyzed",
+                "fielddata": {
+                  "format": "doc_values"
+                }
+              }
+            }
+          },
+          "fan-speed": {
+            "type": "nested",
+            "properties": {
+              "device": {
+                "type": "string"
+              },
+              "number": {
+                "type": "string",
+                "index": "not_analyzed",
+                "fielddata": {
+                  "format": "doc_values"
+                }
+              }
+            }
+          },
+          "temperature": {
+            "type": "nested",
+            "properties": {
+              "device": {
+                "type": "string"
+              },
+              "number": {
+                "type": "string",
+                "index": "not_analyzed",
+                "fielddata": {
+                  "format": "doc_values"
+                }
+              }
+            }
+          },
+          "voltage-input": {
+            "type": "nested",
+            "properties": {
+              "device": {
+                "type": "string"
+              },
+              "number": {
+                "type": "string",
+                "index": "not_analyzed",
+                "fielddata": {
+                  "format": "doc_values"
+                }
+              }
+            }
+          },
+          "usb-devices": {
+            "type": "nested",
+            "properties": {
+              "bus_number": {
+                "type": "string",
+                "index": "not_analyzed",
+                "fielddata": {
+                  "format": "doc_values"
+                }
+              },
+              "idvendor": {
+                "type": "string"
+              },
+              "idprod": {
+                "type": "string"
+              },
+              "manufact": {
+                "type": "string"
+              },
+              "product": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "serial": {
+        "type": "nested",
+        "properties": {
+          "line": {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
