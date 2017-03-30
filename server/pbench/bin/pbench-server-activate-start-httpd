@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# This script will need mods for non-systemd, non-apache environments.
+
+pbench_dir=$(getconf.py pbench-top-dir pbench-files)
+docroot=$(getconf.py documentroot apache)
+
+systemctl enable httpd.service
+systemctl start httpd.service
+ln -s $pbench_dir/public_html/incoming $pbench_dir/public_html/results $docroot
+
+exit 0

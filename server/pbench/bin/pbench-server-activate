@@ -18,5 +18,6 @@ crontabdir=${crontabdir:-/opt/pbench-server/lib/crontab}
 pbench-server-activate-create-crontab $crontabdir $testdir || exit 2
 pbench-server-activate-setup-results-host-info $testdir || exit 3
 pbench-server-activate-create-results-dir-structure $testdir || exit 4
+pbench-server-activate-start-httpd || exit 5
 
 exit 0

@@ -34,7 +34,7 @@
 name: tmp
 script: 
 config: 
-date: 1900-01-01_00:00:00
+date: 1900-01-01T00:00:00
 rpm-version: 
 
 [tools]

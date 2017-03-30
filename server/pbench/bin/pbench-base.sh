@@ -78,7 +78,7 @@ function mk_dirs {
         fi
     done
     # to accommodate different exit codes from index-pbench
-    mkdir -p $ARCHIVE/$hostname/WONT-INDEX.{1..9}
+    mkdir -p $ARCHIVE/$hostname/WONT-INDEX.{1..12}
     if [[ $? -ne 0 ]]; then
         return 2
     fi

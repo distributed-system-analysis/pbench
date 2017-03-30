@@ -1,7 +1,7 @@
 +++ Running test-04 pbench-fio
 pbench-fio
 python-pandas
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job
 [global]
 bs=4k
 runtime=30
@@ -25,12 +25,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 1-rw-4KiB (1 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job
 [global]
 bs=4k
 runtime=30
@@ -54,12 +54,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 1-rw-4KiB (1 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job
 [global]
 bs=4k
 runtime=30
@@ -83,12 +83,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 1-rw-4KiB (1 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job
 [global]
 bs=4k
 runtime=30
@@ -112,12 +112,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 1-rw-4KiB (1 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job
 [global]
 bs=4k
 runtime=30
@@ -141,12 +141,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 1-rw-4KiB (1 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job
 [global]
 bs=4k
 runtime=30
@@ -170,12 +170,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Iteration 1-rw-4KiB complete (1 of 6), with 1 pass and 6 failures
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job
 [global]
 bs=64k
 runtime=30
@@ -199,12 +199,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 2-rw-64KiB (2 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job
 [global]
 bs=64k
 runtime=30
@@ -228,12 +228,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 2-rw-64KiB (2 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job
 [global]
 bs=64k
 runtime=30
@@ -257,12 +257,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 2-rw-64KiB (2 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job
 [global]
 bs=64k
 runtime=30
@@ -286,12 +286,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 2-rw-64KiB (2 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job
 [global]
 bs=64k
 runtime=30
@@ -315,12 +315,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 2-rw-64KiB (2 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job
 [global]
 bs=64k
 runtime=30
@@ -344,12 +344,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Iteration 2-rw-64KiB complete (2 of 6), with 1 pass and 6 failures
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job
 [global]
 bs=1024k
 runtime=30
@@ -373,12 +373,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 3-rw-1024KiB (3 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job
 [global]
 bs=1024k
 runtime=30
@@ -402,12 +402,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 3-rw-1024KiB (3 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job
 [global]
 bs=1024k
 runtime=30
@@ -431,12 +431,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 3-rw-1024KiB (3 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job
 [global]
 bs=1024k
 runtime=30
@@ -460,12 +460,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 3-rw-1024KiB (3 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job
 [global]
 bs=1024k
 runtime=30
@@ -489,12 +489,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 3-rw-1024KiB (3 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job
 [global]
 bs=1024k
 runtime=30
@@ -518,12 +518,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Iteration 3-rw-1024KiB complete (3 of 6), with 1 pass and 6 failures
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job
 [global]
 bs=4k
 runtime=30
@@ -547,12 +547,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 4-randrw-4KiB (4 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job
 [global]
 bs=4k
 runtime=30
@@ -576,12 +576,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 4-randrw-4KiB (4 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job
 [global]
 bs=4k
 runtime=30
@@ -605,12 +605,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 4-randrw-4KiB (4 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job
 [global]
 bs=4k
 runtime=30
@@ -634,12 +634,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 4-randrw-4KiB (4 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job
 [global]
 bs=4k
 runtime=30
@@ -663,12 +663,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 4-randrw-4KiB (4 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job
 [global]
 bs=4k
 runtime=30
@@ -692,12 +692,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Iteration 4-randrw-4KiB complete (4 of 6), with 1 pass and 6 failures
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job
 [global]
 bs=64k
 runtime=30
@@ -721,12 +721,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 5-randrw-64KiB (5 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job
 [global]
 bs=64k
 runtime=30
@@ -750,12 +750,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 5-randrw-64KiB (5 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job
 [global]
 bs=64k
 runtime=30
@@ -779,12 +779,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 5-randrw-64KiB (5 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job
 [global]
 bs=64k
 runtime=30
@@ -808,12 +808,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 5-randrw-64KiB (5 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job
 [global]
 bs=64k
 runtime=30
@@ -837,12 +837,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 5-randrw-64KiB (5 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job
 [global]
 bs=64k
 runtime=30
@@ -866,12 +866,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Iteration 5-randrw-64KiB complete (5 of 6), with 1 pass and 6 failures
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job
 [global]
 bs=1024k
 runtime=30
@@ -895,12 +895,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 6-randrw-1024KiB (6 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job
 [global]
 bs=1024k
 runtime=30
@@ -924,12 +924,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 6-randrw-1024KiB (6 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job
 [global]
 bs=1024k
 runtime=30
@@ -953,12 +953,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 6-randrw-1024KiB (6 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job
 [global]
 bs=1024k
 runtime=30
@@ -982,12 +982,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 6-randrw-1024KiB (6 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job
 [global]
 bs=1024k
 runtime=30
@@ -1011,12 +1011,12 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Restarting iteration 6-randrw-1024KiB (6 of 6)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job
 [global]
 bs=1024k
 runtime=30
@@ -1040,13 +1040,13 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job
 fio job complete
 Chart Type: xy
 Could not find any json data, exiting
 Iteration 6-randrw-1024KiB complete (6 of 6), with 1 pass and 6 failures
 # these results generated with:
-# pbench-fio --test-types=rw,randrw
+# pbench-fio --config=test-04 --test-types=rw,randrw
 
 
 
@@ -1063,49 +1063,50 @@ Iteration 6-randrw-1024KiB complete (6 of 6), with 1 pass and 6 failures
 --- Finished test-04 pbench-fio (status=0}
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB-fail1.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB-fail2.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB-fail3.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB-fail4.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB-fail5.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB-fail6.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB-fail1.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB-fail2.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB-fail3.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB-fail4.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB-fail5.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB-fail6.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB-fail1.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB-fail2.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB-fail3.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB-fail4.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB-fail5.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB-fail6.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB-fail1.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB-fail2.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB-fail3.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB-fail4.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB-fail5.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB-fail6.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB-fail1.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB-fail2.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB-fail3.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB-fail4.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB-fail5.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB-fail6.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB-fail1.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB-fail2.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB-fail3.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB-fail4.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB-fail5.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB-fail6.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/summary-result.csv
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/summary-result.html
-/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/summary-result.txt
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB-fail1.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB-fail2.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB-fail3.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB-fail4.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB-fail5.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB-fail6.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB-fail1.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB-fail2.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB-fail3.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB-fail4.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB-fail5.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB-fail6.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB-fail1.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB-fail2.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB-fail3.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB-fail4.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB-fail5.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB-fail6.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB-fail1.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB-fail2.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB-fail3.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB-fail4.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB-fail5.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB-fail6.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB-fail1.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB-fail2.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB-fail3.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB-fail4.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB-fail5.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB-fail6.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB-fail1.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB-fail2.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB-fail3.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB-fail4.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB-fail5.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB-fail6.tar.xz
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/metadata.log
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/summary-result.csv
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/summary-result.html
+/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/summary-result.txt
 /var/tmp/pbench-test-bench/pbench/pbench.log
 /var/tmp/pbench-test-bench/pbench/tmp
-/var/tmp/pbench-test-bench/pbench/tmp/fio__1900-01-01_00:00:00.iterations
+/var/tmp/pbench-test-bench/pbench/tmp/fio_test-04_1900-01-01T00:00:00.iterations
 /var/tmp/pbench-test-bench/pbench/tools-default
 /var/tmp/pbench-test-bench/pbench/tools-default/mpstat
 /var/tmp/pbench-test-bench/pbench/tools-default/sar
@@ -1114,296 +1115,334 @@ Iteration 6-randrw-1024KiB complete (6 of 6), with 1 pass and 6 failures
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio 2.14 is installed
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-fio]python-pandas is installed
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio_device_check() /tmp/fio 
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1 1-rw-4KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1 1-rw-4KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 1-rw-4KiB (1 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1 1-rw-4KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1 1-rw-4KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 1-rw-4KiB (1 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1 1-rw-4KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1 1-rw-4KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 1-rw-4KiB (1 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1 1-rw-4KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1 1-rw-4KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 1-rw-4KiB (1 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1 1-rw-4KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1 1-rw-4KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 1-rw-4KiB (1 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1 1-rw-4KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1 1-rw-4KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 1-rw-4KiB complete (1 of 6), with 1 pass and 6 failures
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1 2-rw-64KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1 2-rw-64KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 2-rw-64KiB (2 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1 2-rw-64KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1 2-rw-64KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 2-rw-64KiB (2 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1 2-rw-64KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1 2-rw-64KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 2-rw-64KiB (2 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1 2-rw-64KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1 2-rw-64KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 2-rw-64KiB (2 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1 2-rw-64KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1 2-rw-64KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 2-rw-64KiB (2 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1 2-rw-64KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1 2-rw-64KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 2-rw-64KiB complete (2 of 6), with 1 pass and 6 failures
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1 3-rw-1024KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1 3-rw-1024KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 3-rw-1024KiB (3 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1 3-rw-1024KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1 3-rw-1024KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 3-rw-1024KiB (3 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1 3-rw-1024KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1 3-rw-1024KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 3-rw-1024KiB (3 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1 3-rw-1024KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1 3-rw-1024KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 3-rw-1024KiB (3 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1 3-rw-1024KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1 3-rw-1024KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 3-rw-1024KiB (3 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1 3-rw-1024KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1 3-rw-1024KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 3-rw-1024KiB complete (3 of 6), with 1 pass and 6 failures
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1 4-randrw-4KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1 4-randrw-4KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 4-randrw-4KiB (4 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1 4-randrw-4KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1 4-randrw-4KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 4-randrw-4KiB (4 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1 4-randrw-4KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1 4-randrw-4KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 4-randrw-4KiB (4 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1 4-randrw-4KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1 4-randrw-4KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 4-randrw-4KiB (4 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1 4-randrw-4KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1 4-randrw-4KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 4-randrw-4KiB (4 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1 4-randrw-4KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1 4-randrw-4KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 4-randrw-4KiB complete (4 of 6), with 1 pass and 6 failures
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1 5-randrw-64KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1 5-randrw-64KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 5-randrw-64KiB (5 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1 5-randrw-64KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1 5-randrw-64KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 5-randrw-64KiB (5 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1 5-randrw-64KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1 5-randrw-64KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 5-randrw-64KiB (5 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1 5-randrw-64KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1 5-randrw-64KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 5-randrw-64KiB (5 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1 5-randrw-64KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1 5-randrw-64KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 5-randrw-64KiB (5 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1 5-randrw-64KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1 5-randrw-64KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 5-randrw-64KiB complete (5 of 6), with 1 pass and 6 failures
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1 6-randrw-1024KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1 6-randrw-1024KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 6-randrw-1024KiB (6 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1 6-randrw-1024KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1 6-randrw-1024KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 6-randrw-1024KiB (6 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1 6-randrw-1024KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1 6-randrw-1024KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 6-randrw-1024KiB (6 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1 6-randrw-1024KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1 6-randrw-1024KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 6-randrw-1024KiB (6 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1 6-randrw-1024KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1 6-randrw-1024KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 6-randrw-1024KiB (6 of 6)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job ]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1 6-randrw-1024KiB default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1 6-randrw-1024KiB default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 6-randrw-1024KiB complete (6 of 6), with 1 pass and 6 failures
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00 beg
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00 end
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio__1900-01-01_00:00:00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00 beg
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00 end
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00/6-randrw-1024KiB/sample1
 --- test-execution.log file contents
+[pbench]
+
+[iterations/1-rw-4KiB]
+iteration_number = 1
+test_type = rw
+block_size_kib = 4
+iteration_name = 1-rw-4KiB
+
+[iterations/2-rw-64KiB]
+iteration_number = 2
+test_type = rw
+block_size_kib = 64
+iteration_name = 2-rw-64KiB
+
+[iterations/3-rw-1024KiB]
+iteration_number = 3
+test_type = rw
+block_size_kib = 1024
+iteration_name = 3-rw-1024KiB
+
+[iterations/4-randrw-4KiB]
+iteration_number = 4
+test_type = randrw
+block_size_kib = 4
+iteration_name = 4-randrw-4KiB
+
+[iterations/5-randrw-64KiB]
+iteration_number = 5
+test_type = randrw
+block_size_kib = 64
+iteration_name = 5-randrw-64KiB
+
+[iterations/6-randrw-1024KiB]
+iteration_number = 6
+test_type = randrw
+block_size_kib = 1024
+iteration_name = 6-randrw-1024KiB
+

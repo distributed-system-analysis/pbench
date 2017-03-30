@@ -44,9 +44,12 @@ pbench_tspp_dir=$pbench_install_dir/tool-scripts/postprocess
 pbench_bspp_dir=$pbench_install_dir/bench-scripts/postprocess
 export pbench_install_dir pbench_tspp_dir pbench_bspp_dir pbench_run
 
+TS_FORMAT="%FT%H:%M:%S"
+
 if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
     function timestamp {
-        echo "$(date --utc +'%Y%m%d_%H:%M:%S.%N')"
+        # use ns in the timestamp
+        echo "$(date --utc +"${TS_FORMAT}.%N")"
     }
 else
     function timestamp {
@@ -83,13 +86,17 @@ function debug_log {
 # Some standard global vars - try the config file first and fall back on hardwired defaults
 # which are valid today.
 if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
-    if [ -z "$date" ] ;then
-        export date=`date --utc "+%F_%H:%M:%S"`
+    # date may be set "accidentally" so add a var with an unlikely name
+    # to check whether we need to set it.
+    if [ -z "$date" -o -z "$_PBENCH_DATE_SET" ] ;then
+        # don't use ns in the date
+        export date=`date --utc +"${TS_FORMAT}"`
+        export _PBENCH_DATE_SET=1
     fi
     hostname=`hostname -s`
     full_hostname=`hostname`
 else
-    date="1900-01-01_00:00:00"
+    date="1900-01-01T00:00:00"
     hostname="testhost"
     full_hostname="testhost.example.com"
 fi
@@ -202,7 +209,7 @@ function verify_tool_group {
 }
 
 if [[ "${_PBENCH_BENCH_TESTS}" == 1 ]] ;then
-    # for unit tests, we use a mock kill
-    # disable the built-in
+    # For unit tests, we use a mock kill:
+    # disable the built-in.
     enable -n kill
 fi

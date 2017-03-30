@@ -1,6 +1,6 @@
 +++ Running indexing on /var/tmp/pbench-test-server/test-7.1
-Bad Date:  /var/tmp/pbench-test-server/test-7.1.tar.xz
---- Finished indexing on /var/tmp/pbench-test-server/test-7.1 (status=5)
+The metadata.log file is curdled in tarball:  /var/tmp/pbench-test-server/test-7.1.tar.xz
+--- Finished indexing on /var/tmp/pbench-test-server/test-7.1 (status=7)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
 --- pbench tree state
