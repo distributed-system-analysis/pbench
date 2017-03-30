@@ -27,42 +27,107 @@ no lib ".";
 use GenData qw(gen_data);
 
 my $dir=$ARGV[0];
+my $stats_file_name = "ovs-stats.txt";
 my $timestamp;
 my $timestamp_ms;
 my $line;
 my $bridge;
+my $stats_type;
+my $stats_mode;
+my $pmd_thread_id;
 my $port;
-my %data;
+my %pmd_data;
+my %bridge_data;
+my %flow_data;
+my %rate;
 
-open(TXT, "$dir/openvswitch-stdout.txt") || die "could not find $dir/openvswitch-stdout.txt\n";
+
+my %pmd_mappings;
+#Load the mappings from pmd thread to bridge ports
+my $pmd_port_mapping_file = "pmd-rxq-show.txt";
+open(TXT, "$dir/$pmd_port_mapping_file") || die "could not find $dir/$pmd_port_mapping_file\n";
+# file looks like:
+#
+#pmd thread numa_id 0 core_id 2:
+#	isolated : false
+#	port: vhost-user-1	queue-id: 0
+#	port: vhost-user-0	queue-id: 0
+while (my $line = <TXT>) {
+	chomp $line;
+	if ($line =~ /^pmd thread numa_id (\d) core_id (\d):/ ) {
+		my $node = $1;
+		my $cpu = $2;
+		$pmd_thread_id = "node" . $node . "cpu" . $cpu;
+		next;
+	}
+	if ($line =~ /^\s*port:\s(\S+)\s+queue-id:\s+(\d)/ ) {
+		my $port = $1;
+		my $queue = $2;
+		$pmd_mappings{$pmd_thread_id} .= -$port . ":q" . $queue;
+		next;
+	}
+}
+close TXT;
+
+open(TXT, "$dir/$stats_file_name") || die "could not find $dir/$stats_file_name\n";
 while (my $line = <TXT>) {
 	chomp $line;
 ## sample file data:
 ##
-#timestamp: 1446064156.417796186
-#bridge: ovsbr0
-#OFPST_PORT reply (xid=0x2): 3 ports
-#  port LOCAL: rx pkts=0, bytes=0, drop=0, errs=0, frame=0, over=0, crc=0
+#timestamp: 1490728615.182326715
+#bridge: phy-br-0 stats: dump-ports
+#OFPST_PORT reply (xid=0x2): 2 ports
+#  port LOCAL: rx pkts=8, bytes=648, drop=0, errs=0, frame=0, over=0, crc=0
+#           tx pkts=9, bytes=540, drop=0, errs=0, coll=0
+#  port  1: rx pkts=1194615, bytes=207861984, drop=0, errs=0, frame=?, over=?, crc=?
+#           tx pkts=967181, bytes=168284988, drop=0, errs=0, coll=?
+#bridge: br-int stats: dump-flows
+#NXST_FLOW reply (xid=0x4):
+# cookie=0xb9a6deb9663c7428, duration=76802.555s, table=0, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=10,icmp6,in_port=12,icmp_type=136 actions=resubmit(,24)
+# cookie=0xb9a6deb9663c7428, duration=76802.553s, table=0, n_packets=1901, n_bytes=79842, idle_age=75, hard_age=65534, priority=10,arp,in_port=12 actions=resubmit(,24)
+# cookie=0xb9a6deb9663c7428, duration=426577.522s, table=0, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=2,in_port=1 actions=drop
+# cookie=0xb9a6deb9663c7428, duration=426577.294s, table=0, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=2,in_port=2 actions=drop
+# cookie=0xb9a6deb9663c7428, duration=426576.957s, table=0, n_packets=48369282, n_bytes=38576491640, idle_age=79, hard_age=65534, priority=2,in_port=3 actions=drop
+# cookie=0xb9a6deb9663c7428, duration=426576.728s, table=0, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=2,in_port=4 actions=drop
+# cookie=0xb9a6deb9663c7428, duration=76802.559s, table=0, n_packets=67873, n_bytes=21683412, idle_age=0, hard_age=65534, priority=9,in_port=12 actions=resubmit(,25)
+# cookie=0xb9a6deb9663c7428, duration=372455.857s, table=0, n_packets=40755, n_bytes=11000926, idle_age=0, hard_age=65534, priority=3,in_port=1,vlan_tci=0x0000/0x1fff actions=mod_vlan_vid:5,NORMAL
+# cookie=0xb9a6deb9663c7428, duration=426577.756s, table=0, n_packets=31062164161, n_bytes=23860319661928, idle_age=16, hard_age=65534, priority=0 actions=NORMAL
+# cookie=0xb9a6deb9663c7428, duration=426577.757s, table=23, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=0 actions=drop
+# cookie=0xb9a6deb9663c7428, duration=76802.557s, table=24, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=2,icmp6,in_port=12,icmp_type=136,nd_target=fe80::f816:3eff:fe71:1298 actions=NORMAL
+# cookie=0xb9a6deb9663c7428, duration=76802.554s, table=24, n_packets=359, n_bytes=15078, idle_age=75, hard_age=65534, priority=2,arp,in_port=12,arp_spa=10.1.1.7 actions=resubmit(,25)
+# cookie=0xb9a6deb9663c7428, duration=426577.755s, table=24, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=0 actions=drop
+# cookie=0xb9a6deb9663c7428, duration=76802.561s, table=25, n_packets=69774, n_bytes=21763254, idle_age=0, hard_age=65534, priority=2,in_port=12,dl_src=fa:16:3e:71:12:98 actions=NORMAL
+#bridge: phy-br-1 stats: dump-ports
+#OFPST_PORT reply (xid=0x2): 2 ports
+#  port LOCAL: rx pkts=8, bytes=648, drop=0, errs=0, frame=0, over=0, crc=0
 #           tx pkts=0, bytes=0, drop=0, errs=0, coll=0
-#  port  1: rx pkts=1337489234, bytes=85601914448, drop=0, errs=3335854388, frame=0, over=0, crc=0
-#           tx pkts=440837229, bytes=28214474128, drop=0, errs=0, coll=0
-#  port  2: rx pkts=440837320, bytes=?, drop=?, errs=?, frame=?, over=?, crc=?
-#           tx pkts=1337488889, bytes=?, drop=345, errs=?, coll=?
-#
-#bridge: ovsbr1
-#OFPST_PORT reply (xid=0x2): 3 ports
-#  port LOCAL: rx pkts=0, bytes=0, drop=0, errs=0, frame=0, over=0, crc=0
-#           tx pkts=0, bytes=0, drop=0, errs=0, coll=0
-#  port  1: rx pkts=440980223, bytes=28223625968, drop=0, errs=1322602600, frame=0, over=0, crc=0
-#           tx pkts=1336507994, bytes=85539113792, drop=0, errs=0, coll=0
-#  port  2: rx pkts=1336508011, bytes=?, drop=?, errs=?, frame=?, over=?, crc=?
-#           tx pkts=440980223, bytes=?, drop=0, errs=?, coll=?
-#
-#	if ( $line =~ /^timestamp:\s(\d+\.\d+)/ ) {
-#		$timestamp = $1;
-#		$timestamp_ms = 1000 * $timestamp;
-#		next;
-#	}
+#  port  1: rx pkts=0, bytes=0, drop=0, errs=0, frame=?, over=?, crc=?
+#           tx pkts=49, bytes=3108, drop=0, errs=0, coll=?
+#dpdk-stats: pmd-stats-show
+#main thread:
+#	emc hits:0
+#	megaflow hits:0
+#	avg. subtable lookups per hit:0.00
+#	miss:0
+#	lost:0
+#	polling cycles:60721008 (100.00%)
+#	processing cycles:0 (0.00%)
+#pmd thread numa_id 0 core_id 2:
+#	emc hits:0
+#	megaflow hits:0
+#	avg. subtable lookups per hit:0.00
+#	miss:0
+#	lost:0
+#	polling cycles:1149996528518 (100.00%)
+#	processing cycles:0 (0.00%)
+#pmd thread numa_id 1 core_id 3:
+#	emc hits:0
+#	megaflow hits:0
+#	avg. subtable lookups per hit:0.00
+#	miss:0
+#	lost:0
+#	polling cycles:624184044056 (100.00%)
+#	processing cycles:0 (0.00%)
 
 	if ($line =~ /^timestamp: (\d+)\.\d+/ ) {
 		$timestamp = $1;
@@ -71,18 +136,44 @@ while (my $line = <TXT>) {
 		next;
 	}
 
-	if ($line =~ /^bridge: (\S+)/ ) {
+	if ($line =~ /^bridge: (\S+) stats: (\S+)/ ) {
 		$bridge = $1;
+		$stats_type = $2;
+		$stats_mode = "bridge";
 		$port = "";
 		next;
 	}
 
+	#pmd thread numa_id 0 core_id 2:
+	if ($line =~ /^pmd thread numa_id (\d) core_id (\d):/ ) {
+		my $node = $1;
+		my $cpu = $2;
+		$stats_mode = "dpdk";
+		$pmd_thread_id = "node" . $node . "cpu" . $cpu;
+		next;
+	}
+	#  port  1: rx pkts=0, bytes=0, drop=0, errs=0, frame=?, over=?, crc=?
 	if ($line =~ /^\s+port\s+(\S+):(.*)/ ) {
 		$port = $1;
 		$line = $2;
 	}
 
-	if ($line =~ /\s*([r|t]x)(.*)/ ) {
+	#       processing cycles:0 (0.00%)
+	if ( $line =~ /\s*processing\scycles:\s*\d+\s+\((\d+\.\d+)\%\)/ and $stats_mode eq "dpdk" ) {
+		#$pmd_data{$pmd_thread_id}{"processing-cycles-percent"}{$timestamp_ms} = $1;
+		$rate{"openvswitch"}{"processing-percent"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+
+	}
+
+	#	avg processing cycles per packet: 618.17 (2612413532/4226062)
+	if ( $line =~ /\s*avg\sprocessing\scycles\sper\spacket:\s*(\d+\.\d+)/ and $stats_mode eq "dpdk" ) {
+		#$pmd_data{$pmd_thread_id}{"processing-cycles-per-packet"}{$timestamp_ms} = $1;
+		$rate{"openvswitch"}{"processing-cycles-per-packet"}{$pmd_thread_id. $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+
+	}
+	
+	#           tx pkts=49, bytes=3108, drop=0, errs=0, coll=?
+	if ( $line =~ /\s*([r|t]x)(.*)/ and $stats_mode eq "bridge" ) {
 		my $direction = $1;
 		$line = $2;
 		my @stats = split(/,/, $line);
@@ -94,35 +185,109 @@ while (my $line = <TXT>) {
 				my $s = $1;
 				my $v = $2;
 				if ($v !~ /\?/) {
-					$data{$bridge}{$port}{$direction . "-" . $s}{$timestamp_ms} = $v;
+					$bridge_data{$bridge}{$port}{$direction . "-" . $s}{$timestamp_ms} = $v;
 				}
 			}
 		}
 	}
+	# cookie=0xb9a6deb9663c7428, duration=76802.555s, table=0, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=10,icmp6,in_port=12,icmp_type=136 actions=resubmit(,24)
+	if ( $line =~ /\s*cookie=0x([0-9a-f]+),\sduration=(\d+\.\d+)s,\stable=(\d+),\sn_packets=(\d+),\sn_bytes=(\d+),\sidle_age=(\d+),\shard_age=(\d+),\s(\S+)\s(\S+)/ and $stats_mode eq "bridge" ) {
+		my $cookie = $1;
+		my $duration = $2;
+		my $table = $3;
+		my $n_packets = $4;
+		my $n_bytes = $5;
+		my $idle_age = $6;
+		my $hard_age = $7;
+		my $match = $8;
+		my $action = $9;
+		$match =~ s/,/:/g;
+		$action =~ s/,/_/g;
+		my $rule = "t" . $table . ":" . $match . "::" . $action;
+		$flow_data{$bridge}{$rule}{$timestamp_ms} = $n_packets;
+	}
 }
 close(TXT);
 
+
+my %port_mappings;
+#Load the mappings from port name to port number
+for $bridge (sort keys %bridge_data) {
+	my $bridge_port_mapping_file = $bridge . "-port-mappings.txt";
+	open(TXT, "$dir/$bridge_port_mapping_file") || die "could not find $dir/$bridge_port_mapping_file\n";
+	#file looks like:
+	#
+	#OFPT_FEATURES_REPLY (xid=0x2): dpid:00006805ca2ab7f3
+	#n_tables:254, n_buffers:256
+	#capabilities: FLOW_STATS TABLE_STATS PORT_STATS QUEUE_STATS ARP_MATCH_IP
+	#actions: output enqueue set_vlan_vid set_vlan_pcp strip_vlan mod_dl_src mod_dl_dst mod_nw_src mod_nw_dst mod_nw_tos mod_tp_src mod_tp_dst
+	# 1(dpdk0): addr:68:05:ca:2a:b7:f3
+	#     config:     0
+	#     state:      0
+	#     current:    10GB-FD
+	#     speed: 10000 Mbps now, 0 Mbps max
+	# LOCAL(phy-br-0): addr:68:05:ca:2a:b7:f3
+	#     config:     0
+	#     state:      0
+	#     current:    10MB-FD COPPER
+	#     speed: 10 Mbps now, 0 Mbps max
+	#OFPT_GET_CONFIG_REPLY (xid=0x4): frags=normal miss_send_len=0
+	while (my $line = <TXT>) {
+		chomp $line;
+		if ($line =~ /^\s(\S+)\((\S+)\):\saddr:/ ) {
+			$port_mappings{$bridge}{$1} = $2;
+			next;
+		}
+	}
+	close TXT;
+}
+
 # generate the rates and an average for each stat
-my %rate;
-for $bridge (sort keys %data) {
-	for $port (sort keys %{ $data{$bridge} }) {
+for $bridge (sort keys %bridge_data) {
+	for $port (sort keys %{ $bridge_data{$bridge} }) {
+		my $port_name;
+		if ($port_mappings{$bridge}{$port}) {
+			$port_name = $port_mappings{$bridge}{$port};
+		} else {
+			$port_name = $port;
+		}
 		my $stat;
-		for $stat (sort keys %{ $data{$bridge}{$port} }) {
-			my $i = 0;
+		for $stat (sort keys %{ $bridge_data{$bridge}{$port} }) {
 			my $last_timestamp_ms = 0;
 			my $last_value;
-			for $timestamp_ms (sort {$a<=>$b} keys %{ $data{$bridge}{$port}{$stat} } ) {
-				my $value = $data{$bridge}{$port}{$stat}{$timestamp_ms};
+			for $timestamp_ms (sort {$a<=>$b} keys %{ $bridge_data{$bridge}{$port}{$stat} } ) {
+				my $value = $bridge_data{$bridge}{$port}{$stat}{$timestamp_ms};
 				if ($last_timestamp_ms != 0) {
 					my $duration = ($timestamp_ms - $last_timestamp_ms)/1000;
 					my $value_diff = $value - $last_value;
 					my $this_rate = $value_diff / $duration;
-					$rate{"openvswitch"}{$bridge}{$port . "-" . $stat}{$timestamp_ms} = $this_rate;
-					$i++;
+					if ( $stat =~ /bytes/ ) {
+						$rate{"openvswitch"}{$bridge . "-bytes"}{$port_name . "-" . $stat}{$timestamp_ms} = $this_rate;
+					} else {
+						$rate{"openvswitch"}{$bridge . "-packets"}{$port_name . "-" . $stat}{$timestamp_ms} = $this_rate;
+					}
 				}
 				$last_value = $value;
 				$last_timestamp_ms = $timestamp_ms;
 			}
+		}
+	}
+}
+# generate the rates and an average for each stat
+for $bridge (sort keys %flow_data) {
+	for my $flow (sort keys %{ $flow_data{$bridge} }) {
+		my $last_timestamp_ms = 0;
+		my $last_value;
+		for $timestamp_ms (sort {$a<=>$b} keys %{ $flow_data{$bridge}{$flow} } ) {
+			my $value = $flow_data{$bridge}{$flow}{$timestamp_ms};
+			if ($last_timestamp_ms != 0) {
+				my $duration = ($timestamp_ms - $last_timestamp_ms)/1000;
+				my $value_diff = $value - $last_value;
+				my $this_rate = $value_diff / $duration;
+				$rate{"openvswitch"}{$bridge . "-flows"}{$flow}{$timestamp_ms} = $this_rate;
+			}
+			$last_value = $value;
+			$last_timestamp_ms = $timestamp_ms;
 		}
 	}
 }

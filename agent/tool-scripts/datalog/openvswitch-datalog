@@ -1,23 +1,40 @@
 #!/bin/bash
 
 interval=$1
-file=$2
+dir=$2
+bridges_file=$dir/bridges.txt
+stats_file=$dir/ovs-stats.txt
+rxq_mapping_file=$dir/pmd-rxq-show.txt
 
-cat /dev/null >$file
-bridges=`ovs-vsctl show | grep Bridge | awk '{print $2}' | sed -e 's/"//g'`
+bridges=`ovs-vsctl list-br`
+echo "$bridges" >$bridges_file
+# mapping below used in postprocess
+for b in $bridges; do
+	ports_file=$dir/$b-port-mappings.txt
+	ovs-ofctl show $b >$ports_file
+done
+ovs-appctl dpif-netdev/pmd-rxq-show >$rxq_mapping_file
+
+cat /dev/null >$stats_file
 if [ ! -z "$bridges" ]; then
 	while true; do
-		echo "timestamp: `date +%s.%N`" >>$file
-		for b in $bridges; do
-			echo bridge: $b >>$file
-			ovs-ofctl dump-ports $b >>$file
-			# check exit code and try specific protocol if necessary
-			sts=$?
-			if [[ $sts != 0 ]] ;then
-				ovs-ofctl dump-ports --protocols OpenFlow13 $b >>$file
-			fi
-			echo >>$file
+		printf "\ntimestamp: `date +%s.%N`\n" >>$stats_file
+		for bridge in $bridges; do
+			# ovs-ofctl
+			for cmd in dump-ports dump-flows; do
+				echo "bridge: $bridge stats: $cmd" >>$stats_file
+				ovs-ofctl $cmd $bridge >>$stats_file
+				# check exit code and try specific protocol if necessary
+				sts=$?
+				if [[ $sts != 0 ]] ;then
+					ovs-ofctl $cmd --protocols OpenFlow13 $bridge >>$stats_file
+				fi
+			done
 		done
+		# DPDK stats
+		echo "dpdk-stats: pmd-stats-show" >>$stats_file
+		ovs-appctl dpif-netdev/pmd-stats-show >>$stats_file
+		ovs-appctl dpif-netdev/pmd-stats-clear
 		sleep $interval
 	done
 fi
