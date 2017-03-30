@@ -1,0 +1,77 @@
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "memory.frmpg",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  },
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "memory.bufpg",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "B",
+    "timeField": "date_time"
+  },
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "memory.campg",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "C",
+    "timeField": "date_time"
+  }
+]

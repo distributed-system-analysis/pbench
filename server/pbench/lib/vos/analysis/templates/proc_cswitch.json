@@ -1,0 +1,34 @@
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "process-and-context-switch.cswch",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "process-and-context-switch.proc",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  }
+]

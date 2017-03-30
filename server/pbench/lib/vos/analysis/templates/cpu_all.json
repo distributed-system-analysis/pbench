@@ -1,0 +1,62 @@
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "cpu-load.steal",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "cpu-load.idle",
+        "id": "4",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "cpu-load.nice",
+        "id": "5",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "cpu-load.iowait",
+        "id": "6",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "cpu-load.user",
+        "id": "7",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "cpu-load.system",
+        "id": "8",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  }
+]

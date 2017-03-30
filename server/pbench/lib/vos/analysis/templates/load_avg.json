@@ -1,0 +1,62 @@
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "queue.ldavg-1",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "queue.ldavg-5",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "queue.ldavg-15",
+        "id": "4",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "queue.plist-sz",
+        "id": "5",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "queue.runq-sz",
+        "id": "6",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "queue.blocked",
+        "id": "7",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  }
+]

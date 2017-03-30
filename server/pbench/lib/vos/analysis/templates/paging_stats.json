@@ -1,0 +1,105 @@
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "paging.pgscand",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "paging.pgpgout",
+        "id": "4",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "paging.pgpgin",
+        "id": "5",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "paging.majflt",
+        "id": "6",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "paging.pgscank",
+        "id": "7",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "paging.pgfree",
+        "id": "8",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "paging.fault",
+        "id": "9",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "paging.pgsteal",
+        "id": "10",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "query": "",
+    "refId": "A",
+    "timeField": "date_time"
+  }
+],
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "dsType": "elasticsearch",
+    "metrics": [
+      {
+        "field": "paging.vmeff-percent",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  }
+]

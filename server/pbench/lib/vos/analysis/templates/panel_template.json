@@ -1,0 +1,10 @@
+{
+  "collapse": true,
+  "editable": true,
+  "height": "250px",
+  //PanelInsertHere
+  "panles": [],
+  "showTitle": true,
+  //changePanelName
+  "title": ""
+}

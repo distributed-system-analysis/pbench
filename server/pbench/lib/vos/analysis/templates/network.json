@@ -1,0 +1,1030 @@
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "network.net-ip6.omcpck6",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-ip6.asmrq6",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-ip6.fragcr6",
+        "id": "4",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-ip6.orq6",
+        "id": "5",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-ip6.asmok6",
+        "id": "6",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-ip6.imcpck6",
+        "id": "7",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-ip6.fwddgm6",
+        "id": "8",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-ip6.irec6",
+        "id": "9",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-ip6.idel6",
+        "id": "10",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  }
+],
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "network.net-eicmp.itmex",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp.iparmpb",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp.isrcq",
+        "id": "4",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp.oredir",
+        "id": "5",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp.ierr",
+        "id": "6",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp.odstunr",
+        "id": "7",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp.oerr",
+        "id": "8",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp.idstunr",
+        "id": "9",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp.oparmpb",
+        "id": "10",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp.osrcq",
+        "id": "11",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp.otmex",
+        "id": "12",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp.iredir",
+        "id": "13",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  }
+],
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "network.net-nfsd.tcp",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-nfsd.scall",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-nfsd.miss",
+        "id": "4",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-nfsd.sread",
+        "id": "5",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-nfsd.hit",
+        "id": "6",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-nfsd.saccess",
+        "id": "7",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-nfsd.badcall",
+        "id": "8",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-nfsd.swrite",
+        "id": "9",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-nfsd.packet",
+        "id": "10",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-nfsd.udp",
+        "id": "11",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-nfsd.sgetatt",
+        "id": "12",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  }
+],
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "network.net-sock6.ip6-frag",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-sock6.tcp6sck",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-sock6.raw6sck",
+        "id": "4",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "select field",
+        "id": "5",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  }
+],
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "network.net-ip.idel",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-ip.orq",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-ip.irec",
+        "id": "4",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-ip.asmrq",
+        "id": "5",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-ip.asmok",
+        "id": "6",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-ip.fragok",
+        "id": "7",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "select field",
+        "id": "8",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "query": "",
+    "refId": "A",
+    "timeField": "date_time"
+  }
+],
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "network.net-nfs.write",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-nfs.getatt",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-nfs.call",
+        "id": "4",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-nfs.retrans",
+        "id": "5",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-nfs.access",
+        "id": "6",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-nfs.read",
+        "id": "7",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  }
+],
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "network.net-udp6.idgmer6",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-udp6.idgm6",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-udp6.odgm6",
+        "id": "4",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "select field",
+        "id": "5",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  }
+],
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "network.net-tcp.passive",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-tcp.active",
+        "id": "4",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-tcp.iseg",
+        "id": "5",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-tcp.oseg",
+        "id": "6",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  }
+],
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "network.net-etcp.isegerr",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-etcp.retrans",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-etcp.estres",
+        "id": "4",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-etcp.orsts",
+        "id": "5",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "select field",
+        "id": "6",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  }
+],
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "network.net-udp.idgmerr",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-udp.idgm",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-udp.noport",
+        "id": "4",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "select field",
+        "id": "5",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  }
+],
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "network.net-eip.fragf",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eip.odisc",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eip.iadrerr",
+        "id": "4",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eip.asmf",
+        "id": "5",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eip.onort",
+        "id": "6",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eip.idisc",
+        "id": "7",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eip.iukwnpr",
+        "id": "8",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  }
+],
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "network.net-eicmp6.idtunr6",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp6.opck2b6",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp6.iprmpb6",
+        "id": "4",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp6.odtunr6",
+        "id": "5",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp6.ierr6",
+        "id": "6",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp6.otmex6",
+        "id": "7",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp6.ipck2b6",
+        "id": "8",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp6.oredir6",
+        "id": "9",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp6.iredir6",
+        "id": "10",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-eicmp6.oprmpb6",
+        "id": "11",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "select field",
+        "id": "12",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  }
+],
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "network.net-icmp6.ortsol6",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-icmp6.igmbq6",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-icmp6.ogmbr6",
+        "id": "4",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-icmp6.imsg6",
+        "id": "5",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-icmp6.onbad6",
+        "id": "6",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-icmp6.igmbrd6",
+        "id": "7",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-icmp6.inbsol6",
+        "id": "8",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-icmp6.igmbr6",
+        "id": "9",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-icmp6.irtsol6",
+        "id": "10",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-icmp6.ogmbrd6",
+        "id": "11",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-icmp6.oechr6",
+        "id": "12",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-icmp6.omsg6",
+        "id": "13",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-icmp6.inbad6",
+        "id": "14",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-icmp6.onbsol6",
+        "id": "15",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-icmp6.iech6",
+        "id": "16",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-icmp6.irtad6",
+        "id": "17",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-icmp6.iechr6",
+        "id": "18",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  }
+],
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "network.net-sock.udpsck",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-sock.rawsck",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-sock.tcpsck",
+        "id": "4",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-sock.totsck",
+        "id": "5",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-sock.tcp-tw",
+        "id": "6",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "network.net-sock.ip-frag",
+        "id": "7",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  }
+]

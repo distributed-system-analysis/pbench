@@ -1,0 +1,106 @@
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "kernel.dentunusd",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "query": "",
+    "refId": "A",
+    "timeField": "date_time"
+  },
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "kernel.file-nr",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "query": "",
+    "refId": "B",
+    "timeField": "date_time"
+  },
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "kernel.pty-nr",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "query": "",
+    "refId": "C",
+    "timeField": "date_time"
+  },
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "kernel.inode-nr",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+     "query": "",
+    "refId": "D",
+    "timeField": "date_time"
+  }
+]

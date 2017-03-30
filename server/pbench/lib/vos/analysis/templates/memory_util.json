@@ -1,0 +1,129 @@
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "memory.inactive",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "memory.memfree",
+        "id": "3",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "memory.memused",
+        "id": "4",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "memory.dirty",
+        "id": "5",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "memory.commit",
+        "id": "6",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "memory.active",
+        "id": "7",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "memory.cached",
+        "id": "8",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      },
+      {
+        "field": "memory.buffers",
+        "id": "9",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "query": "",
+    "refId": "A",
+    "timeField": "date_time"
+  }
+],
+[
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "memory.memused-percent",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "A",
+    "timeField": "date_time"
+  },
+  {
+    "bucketAggs": [
+      {
+        "field": "date_time",
+        "id": "2",
+        "settings": {
+          "interval": "auto",
+          "min_doc_count": 0,
+          "trimEdges": 0
+        },
+        "type": "date_histogram"
+      }
+    ],
+    "metrics": [
+      {
+        "field": "memory.commit-percent",
+        "id": "1",
+        "meta": {},
+        "settings": {},
+        "type": "avg"
+      }
+    ],
+    "refId": "B",
+    "timeField": "date_time"
+  }
+]
