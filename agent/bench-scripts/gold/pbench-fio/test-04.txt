@@ -1060,7 +1060,7 @@ Iteration 6-randrw-1024KiB complete (6 of 6), with 1 pass and 6 failures
                4-randrw-4KiB
               5-randrw-64KiB
             6-randrw-1024KiB
---- Finished test-04 pbench-fio (status=0}
+--- Finished test-04 pbench-fio (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
 /var/tmp/pbench-test-bench/pbench/fio_test-04_1900-01-01T00:00:00

@@ -28,20 +28,27 @@ function display_sysinfo_opts {
 
 # Process options and arguments
 
-opts=$(getopt -q -o d:g: --longoptions "dir:,group:,options,sysinfo:,check" -n "getopt.sh" -- "$@");
-if [ $? -ne 0 ]; then
+function usage {
+	printf "Usage: $script_name [options]\n"
 	printf "\n"
-	printf "$script_name: you specified an invalid option\n\n"
-	printf "The following are required:\n\n"
+	printf "Options specified can be one of:\n"
 	printf -- "\t-d str --dir=str,     str = a directory where the $script_name\n"
 	printf -- "\t                            will store and process data\n"
 	printf "\n"
 	printf -- "\t-g str --group=str,   str = a tool group used in a benchmark\n"
 	printf -- "\t                            (the default group is 'default')\n"
-	printf -- "\t       --sysinfo=str, str = comma seperated values of sysinfo to be collected\n"
-	printf -- "\t                            available: $(display_sysinfo_opts)\n"
-	printf -- "\t       --check,       checks if sysinfo is set to one of the accepted values\n"
 	printf "\n"
+	printf -- "\t       --sysinfo=str, str = comma separated values of system information to be collected\n"
+	printf -- "\t                            available: $(display_sysinfo_opts)\n"
+	printf "\n"
+	printf -- "\t       --check,       checks if sysinfo is set to one of the accepted values\n"
+}
+
+opts=$(getopt -q -o d:g:h --longoptions "dir:,group:,help,options,sysinfo:,check" -n "getopt.sh" -- "$@");
+if [ $? -ne 0 ]; then
+	printf "\n"
+	printf "$script_name: you specified an invalid option\n\n"
+	usage
 	exit 1
 fi
 eval set -- "$opts";
@@ -76,6 +83,10 @@ while true; do
 		check=true
 		shift;
 		;;
+		-h|--help)
+		usage
+		exit 0
+		;;
 		--)
 		shift;
 		break;
@@ -91,8 +102,12 @@ if $check; then
 			if echo "${sysinfo_opts[@]}" | grep -q -w "$item"; then
 				continue
 			else
-				echo "$item is not a valid sysinfo option"
-				exit 1
+				if [ "$item" == "all" ] || [ "$item" == "default" ] || [ "$item" == "none" ]; then
+					:  # Ignore these options in a list
+				else
+					echo "$item is not a valid sysinfo option"
+					exit 1
+				fi
 			fi
 		done
 	fi

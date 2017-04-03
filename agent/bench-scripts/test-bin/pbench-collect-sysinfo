@@ -1,3 +1,14 @@
 #!/bin/bash
 
-echo "$0 $*" >> $_testlog
+cmd="$0 $*"
+echo "$cmd" >> $_testlog
+
+case $1 in
+    --options)
+	printf "default,none,all,a,b,c,d,e"
+	;;
+    "--sysinfo=bad")
+	exit 1
+	;;
+esac
+exit 0

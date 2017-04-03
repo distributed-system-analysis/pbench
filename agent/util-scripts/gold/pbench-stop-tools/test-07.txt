@@ -1,6 +1,6 @@
 +++ Running test-07 pbench-stop-tools
 [warn][1900-01-01T00:00:00.000000] Too many pids for vmstat: 123456 123457 123458 123459 -- maybe old tools running? Use pbench-kill-tools.
---- Finished test-07 pbench-stop-tools (status=0}
+--- Finished test-07 pbench-stop-tools (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/pbench.log
