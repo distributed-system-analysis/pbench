@@ -20,7 +20,7 @@ test sample 1 of 3
 test sample 2 of 3
 test sample 3 of 3
 Iteration 4-throughput-unidirec-1024B-1024flows-1pct_drop complete (4 of 4), with 1 pass and 0 failures
---- Finished test-03 pbench-moongen (status=0}
+--- Finished test-03 pbench-moongen (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
 /var/tmp/pbench-test-bench/pbench/moongen__1900-01-01T00:00:00

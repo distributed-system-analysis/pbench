@@ -1,5 +1,5 @@
 +++ Running test-08 pbench-stop-tools
---- Finished test-08 pbench-stop-tools (status=0}
+--- Finished test-08 pbench-stop-tools (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/pbench.log

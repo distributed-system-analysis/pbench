@@ -34,17 +34,21 @@ config=""
 tool_group=default
 sysinfo=default
 
-# Process options and arguments
-opts=$(getopt -q -o C: --longoptions "config:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@");
-if [ $? -ne 0 ]; then
-	printf -- "$*\n"
-	printf "\n"
-	printf "\t${benchmark}: you specified an invalid option\n\n"
+function usage {
+	printf "Usage: $script_name [options] -- <script to run>\n\n"
 	printf "\tThe following options are available:\n\n"
 	printf -- "\t\t-C str --config=str            name of the test config\n"
 	printf -- "\t\t       --tool-group=str\n"
-	printf -- "\t\t       --sysinfo=str,          str = comma seperated values of sysinfo to be collected\n"
+	printf -- "\t\t       --sysinfo=str,          str = comma separated values of system information to be collected\n"
 	printf -- "\t\t                                     available: $(pbench-collect-sysinfo --options)\n"
+}
+
+# Process options and arguments
+opts=$(getopt -q -o C:h --longoptions "config:,help,tool-group:,sysinfo:" -n "getopt.sh" -- "$@");
+if [ $? -ne 0 ]; then
+	printf -- "$*\n\n"
+	printf "\t${benchmark}: you specified an invalid option\n\n"
+	usage
 	exit 1
 fi
 eval set -- "$opts";
@@ -52,42 +56,47 @@ debug_log "[$script_name] processing options"
 while true; do
 	case "$1" in
 		-C|--config)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			config="$1"
-			shift;
+			shift
 		fi
 		;;
 		--tool-group)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			tool_group="$1"
-			shift;
+			shift
 		fi
 		;;
                 --sysinfo)
-                shift;
+                shift
                 if [ -n "$1" ]; then
 			sysinfo="$1"
-			pbench-collect-sysinfo --sysinfo=$sysinfo --check
-			if [ $? == 0 ]; then
-				:
-			else
-				exit 1
-			fi
-			shift;
+			shift
                 fi
                 ;;
+		-h|--help)
+		usage
+		exit 0
+		;;
 		--)
-		shift;
-		break;
+		shift
+		break
 		;;
 		*)
 		echo "what happened? [$1]"
-		break;
+		break
 		;;
 	esac
 done
+pbench-collect-sysinfo --sysinfo=$sysinfo --check
+if [ $? != 0 ]; then
+	printf -- "$*\n\n"
+	printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
+	usage
+	exit 1
+fi
 verify_tool_group $tool_group
 iteration="1" # there can be only 1 iteration for user-benchmark
 benchmark_bin="$@"

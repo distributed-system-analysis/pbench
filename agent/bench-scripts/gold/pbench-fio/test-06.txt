@@ -534,7 +534,7 @@ Iteration 3-throughput-1024KiB complete (3 of 3), with 1 pass and 6 failures
            1-throughput-4KiB
           2-throughput-64KiB
         3-throughput-1024KiB
---- Finished test-06 pbench-fio (status=0}
+--- Finished test-06 pbench-fio (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
 /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00

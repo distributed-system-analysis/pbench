@@ -10,7 +10,7 @@ bar
 STOP DEFAULT
 [pbench-tool-trigger]pbench-stop-tools --group=default --iteration= --dir=
 baz
---- Finished test-19 pbench-tool-trigger-test (status=0}
+--- Finished test-19 pbench-tool-trigger-test (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/opt

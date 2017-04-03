@@ -20,7 +20,7 @@ client[c1]node[1]protocol[tcp]test[stream]instances[1]size[64] <-> server[s1]nod
 client[c2]protocol[tcp]test[stream]instances[1]size[64] <-> server[s2]
 client[c3]node[3]protocol[tcp]test[stream]instances[1]size[64] <-> server[s3]node[2]
 Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
---- Finished test-01 pbench-uperf (status=0}
+--- Finished test-01 pbench-uperf (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
 /var/tmp/pbench-test-bench/pbench/pbench.log

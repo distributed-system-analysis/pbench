@@ -1,5 +1,4 @@
 #!/bin/bash
-
 _tdir=$(dirname $(readlink -f $0))
 
 _testroot=/var/tmp/pbench-test-bench
@@ -58,7 +57,7 @@ fi
 # Fixed timestamp output
 export _PBENCH_BENCH_TESTS=1
 # Allows us to intercept scp, ssh, rsync, etc.
-export PATH=$_testopt/unittest-scripts:$_tconfigtoolsbin:$PATH
+export PATH=$_testopt/unittest-scripts:$PATH
 
 res=0
 
@@ -71,7 +70,7 @@ function _run {
     echo "+++ Running $tname $tscrpt" >> $_testout
     benchmark_bin=$_testopt/unittest-scripts/bm pbench_run=$_testdir pbench_log=$_testdir/pbench.log $_testopt/bench-scripts/$tscrpt $@ >> $_testout 2>&1
     sts=$?
-    echo "--- Finished $tname $tscrpt (status=$sts}" >> $_testout
+    echo "--- Finished $tname $tscrpt (status=$sts)" >> $_testout
     return $sts
 }
 function _save_tree {
@@ -94,9 +93,11 @@ function _dump_logs {
     fi
 }
 function _verify_output {
+    local sts tname tscrpt expected_status
     sts=$1
     tname=$2
     tscrpt=$3
+    expected_status=${4:-0}
     diff -cw $_tdir/gold/${tscrpt}/${tname}.txt $_testout
     if [[ $? -gt 0 ]]; then
         echo "FAIL - $tname"
@@ -107,7 +108,13 @@ function _verify_output {
             echo "PASS - $tname"
             rm $_testout
         else
-            echo "FAIL - $tname: PASS output but execution returned non-zero exit status"
+	    if [[ $sts -eq $expected_status ]]; then
+		echo "PASS - $tname failed with expected exit status: $sts"
+		rm $_testout
+		sts=0
+	    else
+		echo "FAIL - $tname: PASS output but execution returned non-zero exit status"
+	    fi
         fi
     fi
     return $sts
@@ -142,6 +149,12 @@ declare -A cmds=(
     [test-04]="pbench-fio --config=test-04 --test-types=rw,randrw"
     [test-05]="pbench-fio --config=test-05 --test-type=throughput --samples=1 --clients=foo,bar"
     [test-06]="pbench-fio --config=test-06  --test-type=throughput --samples=1 --client-file=/tmp/foo"
+    [test-07]="pbench-user-benchmark --help"
+    [test-08]="pbench-user-benchmark --sysinfo=bad"
+)
+
+declare -A expected_status=(
+    [test-08]=1
 )
 
 date="1900-01-01T00:00:00"
@@ -171,9 +184,10 @@ fi
 
 for tst in $tests; do
     cmd=${cmds[$tst]}
-    benchmark=${cmd## }
+    benchmark=${cmd%% *}
     tpre=${pre[$tst]}
     tpost=${post[$tst]}
+    status=${expected_status[$tst]}
     _setup_state ${rundirs[$tst]}
     if [ ! -z "$tpre" ] ;then
         eval "$tpre"
@@ -185,7 +199,7 @@ for tst in $tests; do
     fi
     _save_tree
     _dump_logs ${rundirs[$tst]}
-    _verify_output $res $tst $benchmark
+    _verify_output $res $tst $benchmark $status
     res=$?
     let errs=$errs+$res
     _reset_state
