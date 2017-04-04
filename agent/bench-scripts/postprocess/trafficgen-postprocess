@@ -1,0 +1,314 @@
+#!/usr/bin/perl
+#
+## Author: Andrew Theurer
+# Post-process a result sample for pbench-trafficgen benchmark
+# Currently this script will only find the total average rate of received packets per second
+# Later we will add latency data as well as tool and efficiency metrics
+
+use strict;
+use warnings;
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+my $_test_alt_bench_lib;
+BEGIN {
+	my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+		$_test_alt_tools_lib = "$_pbench_tspp_dir";
+	}
+	my $_pbench_bspp_dir = $ENV{'pbench_bspp_dir'};
+	$_test_alt_bench_lib=$ENV{_TEST_ALTERNATE_BENCH_LIBRARY};
+	if (not defined $_test_alt_bench_lib or not -d $_test_alt_bench_lib) {
+		$_test_alt_bench_lib = "$_pbench_bspp_dir";
+	}
+}
+use lib "$_test_alt_tools_lib";
+use lib "$_test_alt_bench_lib";
+no lib ".";
+use BenchPostprocess qw(trim_series get_label create_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash);
+use File::Basename;
+use Data::Dumper;
+use List::Util('sum');
+use JSON;
+
+# This script produces a JSON format of a benchmark iteration sample,
+# and uses the standard metric types for pbench, which are:
+# %workload{parameters,throughput|latency|resource|efficiency}
+# The result is a "result.json" file with a JSON array, "sample = {...}"
+#
+# This is the data layout used in perl to construct the JSON array:
+#
+my %workload;   # root hash for all data, contains hash refs to
+		# %paramters, %throughput, %latency, %resource, %efficiency
+		
+my %parameters;	# a hash of parameter-type:parameter-value that was
+		# $parameters{benchmark[0].rate}
+my @benchmark;	# each array element contains a hash with:
+		# benchmark_name:
+	    	# :
+	    	# role:
+	    	# description:
+
+my %resource;	# a hash of resource-type:array-of-resource-values,
+		# for example $resource{cpu_busy[0..1]}
+my @cpu_busy;	# each array element contains a hash with
+		# hostname: hostname or IP
+		# role: client, server, host, kvm-host, container-host, etc.
+		# timeseries: a hash of timestamp:value key-pairs
+
+my %efficiency; # a hash of throughput-per-resource-type:array-of-throughput-per-resource-values
+		# for example $efficincy{Mframes_cpu[0..1]}
+my @Mframes_cpu;# each array element contains a hash with:
+		# hostname:
+	    	# port_id:
+	    	# role:
+	    	# description:
+	    	# timeseries: a hash of timestamp,value elements
+
+my %latency;    # a hash of latency-type:array-of-latency-values,
+		# for example $latency{usec[0..1]}
+		#
+		# each array element contains a hash with:
+	    	# hostname:
+	    	# port_id:
+	    	# role:
+	    	# description:
+my @usec_avg;   # 
+my @usec_min;
+my @usec_max;
+
+
+my %throughput; # a hash of throughput-type:array-of-throughput-values,
+		# for example $throughput{Mpps[0..1]
+
+my @rx_Mpps;    #
+my @tx_Mpps;    # each array element contains a hash with:
+	    	# hostname:
+	    	# port_id:
+	    	# role: packet-generator
+	    	# value: the number value for millions of pckets (frames) per second
+
+my @rx_L1_Gbps; #
+my @tx_L1_Gbps; # each array element contains a hash with:
+	    	# hostname:
+	    	# port_id:
+	    	# role: packet-generator
+	    	# the number value for 10^9 bits per second for physical Ethernet (layer 1, including CRC and padding)
+	    	
+my @rx_L2_Gbps; #
+my @tx_L2_Gbps; # each array element contains a hash with:
+	    	# hostname:
+	    	# port_id:
+	    	# role: packet-generator
+	    	# the number value for 10^9 bits per second for physical Ethernet (layer 1, including CRC and padding)
+
+
+sub mean {
+    return sum(@_)/@_;
+}
+
+my $script = basename($0);
+my $dir = $ARGV[0];
+my $result_file = $dir . "/binary-search.json";
+my $json_file = $dir . "/result.json";
+my $primary_metric="rx_mpps";
+my %config;
+
+my @expceted_metrics = (
+			{ 'js_label' => 'rx_latency_maximum', 'metric_label' => 'latency_max', 'tx_or_rx' => 'rx', 'metric_class' => 'latency',
+			  'desc' => 'Time in microseconds between packet transmission and reception', 'divisor' => int 1 },
+
+			{ 'js_label' => 'rx_latency_average', 'metric_label' => 'latency_avg', 'tx_or_rx' => 'rx', 'metric_class' => 'latency',
+			  'desc' => 'Time in microseconds between packet transmission and reception', 'divisor' => int 1 },
+
+			{ 'js_label' => 'tx_l2_bps', 'metric_label' => 'tx_L2_Gbps', 'tx_or_rx' => 'tx', 'metric_class' => 'throughput',
+			  'desc' => 'The number of layer-2 10^9 bits transmitted per second', 'divisor' => int 1000000000 },
+
+			{ 'js_label' => 'rx_l1_bps', 'metric_label' => 'tx_L1_Gbps', 'tx_or_rx' => 'tx', 'metric_class' => 'throughput',
+			  'desc' => 'The number of layer-1 10^9 bits trasmitted per second', 'divisor' => int 1000000000 },
+
+			{ 'js_label' => 'rx_l2_bps', 'metric_label' => 'rx_L2_Gbps', 'tx_or_rx' => 'rx', 'metric_class' => 'throughput',
+			  'desc' => 'The number of layer-2 10^9 bits received per second', 'divisor' => int 1000000000 },
+
+			{ 'js_label' => 'rx_l1_bps', 'metric_label' => 'rx_L1_Gbps', 'tx_or_rx' => 'rx', 'metric_class' => 'throughput',
+			  'desc' => 'The number of layer-1 10^9 bits received per second', 'divisor' => int 1000000000 },
+
+			{ 'js_label' => 'rx_pps', 'metric_label' => 'rx_Mpps', 'tx_or_rx' => 'rx', 'metric_class' => 'throughput',
+			  'desc' => 'The number of 10^6 packets (Ethernet frames) received per second', 'divisor' => int 1000000 },
+
+			{ 'js_label' => 'tx_pps', 'metric_label' => 'tx_Mpps', 'tx_or_rx' => 'tx', 'metric_class' => 'throughput',
+			  'desc' => 'The number of 10^6 packets (Ethernet frames) transmitted per second', 'divisor' => int 1000000 },
+
+			{ 'js_label' => 'rx_lost_pps', 'metric_label' => 'rx_lost_pps', 'tx_or_rx' => 'rx', 'metric_class' => 'throughput',
+			  'desc' => 'The number of packets (Ethernet frames) lost (dropped) per second', 'divisor' => int 1 }
+			);
+
+# Load the data from result.txt and create throughput metrics
+open( TXT, "<$result_file" ) or die "Can't open $result_file $!";
+my $json_text = "";
+while ( <TXT> ) {
+	$json_text = $json_text . $_;
+}
+close TXT;
+my $json_result = from_json($json_text);
+my %last_trial = %{ $$json_result{'trials'}[-1] };
+
+#foreach my $key ( keys %last_trial ) {
+	#print "key: $key\n";
+#}
+#foreach my $section ( keys %last_trial ) {
+	#print "section: $section\n";
+#}
+#my $device_pairs=$last_trial{'trial_params'}{'active_device_pairs'};
+#print "device_pairs: $device_pairs\n";
+
+foreach my $trial_param ( keys %{ $last_trial{'trial_params'} } ) {
+	if ( $last_trial{'trial_params'}{$trial_param} ) {
+		$config{$trial_param} = $last_trial{'trial_params'}{$trial_param}
+	}
+}
+$config{get_label('uid_label')} = 'something';
+push(@benchmark, \%config);
+
+foreach my $dev_pair ( @{ $last_trial{'trial_params'}{'test_dev_pairs'} } ) {
+        #"dev_pair": "0:1",
+        #"direction": "0->1",
+        #"rx": 1,
+        #"tx": 0
+
+	# stats from binary-search:
+	# rx_packets, rx_latency_pps, rx_latency_lost_packets_pct, rx_latency_maximum, rx_pps, rx_latency_average,
+	# rx_latency_bandwidth, tx_pps_target, rx_lost_packets, tx_tolerance_min, rx_lost_pps, tx_tolerance_max,
+	# tx_pps, tx_latency_pps, tx_l1_Gbps, tx_l2_Gbps, tx_packets, rx_latency_lost_pps, rx_latency_lost_packets,
+	# rx_lost_packets_pct, tx_latency_bandwidth, tx_latency_packets, rx_latency_packets, rx_l1_Gbps, rx_l2_Gbps
+	for my $expected_metric ( @expceted_metrics ) {
+		my %metric;
+		$metric{'uid'} = "tx_port:%tx_port%-rx_port:%rx_port%";
+		$metric{'tx_port'} = int $$dev_pair{'tx'};
+		$metric{'rx_port'} = int $$dev_pair{'rx'};
+		if (defined scalar $last_trial{'stats'}{$$dev_pair{$$expected_metric{'tx_or_rx'}}}{$$expected_metric{'js_label'}}) {
+			$metric{'value'} = $last_trial{'stats'}{$$dev_pair{$$expected_metric{'tx_or_rx'}}}{$$expected_metric{'js_label'}} / $$expected_metric{'divisor'};
+			$metric{'description'} = $$expected_metric{'desc'};
+			if ($$expected_metric{'metric_class'} eq 'throughput') {
+				push(@{ $throughput{$$expected_metric{'metric_label'}} }, \%metric);
+			} elsif ($$expected_metric{'metric_class'} eq 'latency') {
+				push(@{ $latency{$$expected_metric{'metric_label'}} }, \%metric);
+			} else {
+				print "Error: the metric class, $$expected_metric{'metric_class'}, is not valid\n";
+			}
+		}
+	}
+}
+
+# trial_params: (should really be benchmark params)
+# active_device_pairs
+# rate_tolerance
+# vlan_ids
+# src_macs
+# encap_dst_ips
+# encap_src_macs
+# rate_unit
+# max_loss_pct
+# enable_flow_cache
+# measure_latency
+# use_src_mac_flows
+# vxlan_ids
+# traffic_generator
+# active_device_pairs
+# use_dst_mac_flows
+# trial_mode
+# use_dst_ip_flows
+# use_src_port_flows
+# src_ips
+# frame_size
+# run_revunidirec
+# max_port
+# device_pairs
+# use_encap_src_mac_flows
+# encap_src_ips
+# encap_dst_macs
+
+if ( %throughput ) {
+	$workload{'throughput'} = \%throughput;
+}
+if ( %latency ) {
+	$workload{'latency'} = \%latency;
+}
+calc_aggregate_metrics(\%workload);
+# parameters
+if ( @benchmark ) {
+	$parameters{'benchmark'} = \@benchmark;
+}
+if ( %parameters ) {
+	$workload{'parameters'} = \%parameters;
+}
+
+# efficiency
+if ( @Mframes_cpu ) {
+	$efficiency{'Mpps_cpu'} = \@Mframes_cpu;
+}
+if ( %efficiency ) {
+	$workload{'efficiency'} = \%efficiency;
+}
+
+# latency
+if ( @usec_avg ) {
+	$latency{'usec_avg'} = \@usec_avg;
+}
+if ( @usec_min ) {
+	$latency{'usec_min'} = \@usec_min;
+}
+if ( @usec_max ) {
+	$latency{'usec_max'} = \@usec_max;
+}
+
+# resource
+if ( @cpu_busy ) {
+	$resource{'cpu_busy'} = \@cpu_busy;
+}
+if ( %resource ) {
+	$workload{'resource'} = \%resource;
+}
+
+$json_text   = to_json( \%workload, { ascii => 1, pretty => 1 } );
+open(JSON, ">$json_file") || die "$script: could not open file $json_file: $!\n";
+print JSON $json_text;
+close(JSON);
+
+exit;
+
+	#if ($last_trial{'stats'}{$$dev_pair{'rx'}}{'rx_pps'}) {
+		#$metric{'value'} = $last_trial{'stats'}{$$dev_pair{'rx'}}{'rx_pps'} / 1000000;
+		#$metric{'description'} = "The number of 10^6 packets (Ethernet frames) received per second";
+		#push(@rx_Mpps, \%metric);
+	#}
+#
+	#if ($last_trial{'stats'}{$$dev_pair{'tx'}}{'tx_pps'}) {
+		#$metric{'value'} = $last_trial{'stats'}{$$dev_pair{'tx'}}{'tx_pps'} / 1000000;
+		#$metric{'description'} = "The number of 10^6 packets (Ethernet frames) trasmitted per second";
+		#push(@tx_Mpps, \%metric);
+	#}
+#
+	#if ($last_trial{'stats'}{$$dev_pair{'rx'}}{'rx_l1_bps'}) {
+		#$metric{'value'} = $last_trial{'stats'}{$$dev_pair{'rx'}}{'rx_l1_bps'} / 1000000;
+		#$metric{'description'} = "The number of layer-1 received 10^9 bits per second";
+		#push(@rx_L1_Gbps, \%metric);
+	#}
+#
+	#if ($last_trial{'stats'}{$$dev_pair{'tx'}}{'tx_l1_bps'}) {
+		#$metric{'value'} = $last_trial{'stats'}{$$dev_pair{'tx'}}{'tx_l1_bps'} / 1000000;
+		#$metric{'description'} = "The number of layer-1 trasmitted 10^9 bits per second";
+		#push(@tx_L1_Gbps, \%metric);
+	#}
+#
+	#if ($last_trial{'stats'}{$$dev_pair{'rx'}}{'rx_l2_bps'}) {
+		#$metric{'value'} = $last_trial{'stats'}{$$dev_pair{'rx'}}{'rx_l1_bps'} / 1000000;
+		#$metric{'description'} = "The number of layer-2 received 10^9 bits per second";
+		#push(@rx_L2_Gbps, \%metric);
+	#}
+#
+	#if ($last_trial{'stats'}{$$dev_pair{'tx'}}{'tx_l1_bps'}) {
+		#$metric{'value'} = $last_trial{'stats'}{$$dev_pair{'tx'}}{'tx_l1_bps'} / 1000000;
+		#$metric{'description'} = "The number of layer-2 trasmitted 10^9 bits per second";
+		#push(@tx_L2_Gbps, \%metric);
+	#}
