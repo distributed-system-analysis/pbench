@@ -157,8 +157,8 @@ function gather_remote_sysinfo_data {
 	local remote_label=$2
 	debug_log "[$script_name]running sysinfo-dump on $remote_host"
 	cmd="ssh $ssh_opts -n $remote_host pbench-remote-sysinfo-dump $sysinfo_path "$sysinfo" $remote_label"
-	debug_log "[$script_name] $cmd > $sysinfo_path/$remote_label$remote_host.tar.xz 2> $sysinfo_path/$remote_label$remote_host.err"
-	$cmd > $sysinfo_path/$remote_label$remote_host.tar.xz 2> $sysinfo_path/$remote_label$remote_host.err
+	debug_log "[$script_name] $cmd > $sysinfo_path/$remote_label$remote_host.tar 2> $sysinfo_path/$remote_label$remote_host.err"
+	$cmd > $sysinfo_path/$remote_label$remote_host.tar 2> $sysinfo_path/$remote_label$remote_host.err
 	if [ $? -ne 0 ]; then
 		error_log "Remote sysinfo-dump failed"
 		error_log "$(cat $sysinfo_path/$remote_label$remote_host.err)"
@@ -166,14 +166,14 @@ function gather_remote_sysinfo_data {
 		debug_log "[$script_name]completed: deleting sysinfo-dump data on $remote_host"
 		debug_log "$(cat $sysinfo_path/$remote_label$remote_host.err)"
 		pushd "$sysinfo_path" >/dev/null
-		tar xf $remote_label$remote_host.tar.xz
+		tar xf $remote_label$remote_host.tar
 		tar_status=$?
 		popd >/dev/null
 		if [ $tar_status -ne 0 ]; then
-			error_log "Remote tar ball was bad: $sysinfo_path/$remote_label$remote_host.tar.xz"
+			error_log "Remote tar ball was bad: $sysinfo_path/$remote_label$remote_host.tar"
 		fi
 	fi
-	rm -f $sysinfo_path/$remote_label$remote_host.tar.xz
+	rm -f $sysinfo_path/$remote_label$remote_host.tar
 	rm -f $sysinfo_path/$remote_label$remote_host.err
 }
 
