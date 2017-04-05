@@ -99,10 +99,15 @@ if [ $? != 0 ]; then
 fi
 verify_tool_group $tool_group
 iteration="1" # there can be only 1 iteration for user-benchmark
+iteration_name="1"
 benchmark_bin="$@"
 benchmark_fullname="${benchmark}_${config}_${date_suffix}"
 benchmark_run_dir="$pbench_run/${benchmark_fullname}"
+
+# we'll record the iterations in this file
 benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
+mdlog=${benchmark_run_dir}/metadata.log
+
 # make the run dir available to the user script
 export benchmark_run_dir
 benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
@@ -120,6 +125,17 @@ export benchmark_results_dir=$benchmark_results_dir
 export benchmark config
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 
+# Add data to metadata.log
+function record_iteration {
+	local iteration=$1
+	local iteration_name=$2
+	local benchmark_bin=$3
+
+	echo ${iteration} >> ${benchmark_iterations}
+	echo $iteration_name | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
+	echo $benchmark_bin | pbench-add-metalog-option ${mdlog} iterations/${iteration} user_script
+}
+record_iteration ${iteration} ${iteration_name} ${benchmark_bin}
 # on abnormal exit, make sure that the metadata log exists and is complete.
 trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
 
@@ -127,7 +143,10 @@ pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_r
 echo "Running $benchmark_bin"
 log "[$script_name] Running $benchmark_bin"
 echo $iteration >> $benchmark_iterations
+SECONDS=0
 $benchmark_bin 2>&1 | tee $benchmark_results_dir/result.txt
+benchmark_duration=$SECONDS
+$script_path/postprocess/user-benchmark-wrapper "$benchmark_run_dir" "$benchmark_duration"
 pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
