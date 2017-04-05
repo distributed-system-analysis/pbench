@@ -50,105 +50,211 @@ benchmark_bin=/usr/local/bin/$benchmark_name
 # Defaults
 traffic_engine="trex-txrx" # can be either trex-txrx or moongen-txrx
 benchmark_run_dir=""
-test_type="throughput-latency"
-traffic="bidirec"
+test_types="throughput-latency"
+traffic_directions="bidirec"
 max_drop_pcts="0"
 rates=""
 devices="" # the network devices as PCI location IDs, like "0000:04:00.0,0000:04:00.1"
-dst_maclist=""
+dst_ips=""
+src_ips=""
+dst_macs=""
+src_macs=""
+encap_dst_ips=""
+encap_src_ips=""
+encap_dst_macs=""
+encap_src_macs=""
 frame_sizes="64" # size in bytes of the Ethernet frame inccluding CRC
 config=""
 nr_flows="1024"
 nr_samples=5
 maxstddevpct=5 # maximum allowable standard deviation in percent
 max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
-latency_runtime=60
 search_runtime=60
 validation_runtime=120
 postprocess_only=n
-log_response_times=n
 start_iteration_num=1
 keep_failed_tool_data="y"
 tar_nonref_data="n"
 orig_cmd="$*"
 tool_group=default
-tool_label_pattern="$benchmark_name-"
 install_only="n"
 one_shot="n"
-accept_negative_loss="n"
 
 # Process options and arguments
-opts=$(getopt -q -o c: --longoptions "trafficgen:,devices:,rate:,rates:,max-drop-pct:,max-drop-pcts:,tool-label-pattern:,install,start-iteration-num:,config:,nr-flows:,test-type:,traffic:,search-runtime:,validation-runtime:,frame-sizes:,samples:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,one-shot,accept-negative-loss,dst-macs:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o c: --longoptions "traffic-engine:,devices:,rate:,rates:,max-drop-pct:,max-drop-pcts:,install,start-iteration-num:,config:,nr-flows:,test-type:,traffic-direction:traffic-directions:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-macs:,src-ips:,dst-macs:,dest-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
 	printf "\t${benchmark_name}: you specified an invalid option\n\n"
 	printf "\tThe following options are available:\n\n"
-	#              1   2         3         4         5         6         7         8         9         0         1         2         3
-	#              678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
+	#                   1         2         3         4         5         6         7         8
+	#          12345678901234567890123456789012345678901234567890123456789012345678901234567890
 	printf -- "\n"
-	printf -- "\t\t trafficgen general test options:\n"
+	printf -- "trafficgen general test options\n"
+	printf -- "-------------------------------\n"
 	printf -- "\n"
-	printf -- "\t\t             --traffic-engine=str       the traffic generation engine to use (trex-txrx or moongen-txrx, default is $traffic_engine)\n"
-	printf -- "\t\t             --rate[s]=float[,float]    list of rates in millions of packets/sec (multiple rates can be used for latency tests)\n"
-	printf -- "\t\t             --devices=str,str          list of 2 DPDK devices to use, described by their PCI location ID (0000:04:00.0,0000:04:00.1)\n"
-	printf -- "\t\t             --test-type=str            throughput, latency, or throughput-latency (default $test_type)\n"
-	printf -- "\t\t					       throuhgput: find max throuhgput with a binary search\n"
-	printf -- "\t\t					       latency: find latency (histogram) at a specified packet rate\n"
-	printf -- "\t\t					       throughput-latency: first find max throuhgput with a binary search, then\n"
-	printf -- "\t\t								   find latency (histogram) at the max throughput\n"
-	printf -- "\t\t             --one-shot		       only run one test for throughput and then quit (no binary search)\n"
-	printf -- "\t\t             --accept-negative-loss     allow attempts with negative packet loss to pass\n"
-	printf -- "\t\t             --traffic=str[,str]        list of one or more: unidirec or bidirec (default $traffic)\n"
-	printf -- "\t\t             --search-runtime=int       test measurement period in seconds when searching for max throughput (default is $search_runtime)\n"
-	printf -- "\t\t             --validation-runtime=int   test measurement period in seconds when running final validation or a latency test (default is $validation_runtime)\n"
-	printf -- "\t\t             --max-drop-pct[s]=fl,[fl]  list of maximum allowed percentage of dropped frames (default is $max_drop_pcts)\n"
-	printf -- "\t\t             --frame-sizes=str[,str]    list of frame sizes in bytes (default is $frame_sizes)\n"
-	printf -- "\t\t             --samples=int              the number of times each different test is run (to compute average &\n"
+	printf -- "--test-type=str\n"
+	printf -- "  What type of test to run: throughput, latency, or throughput-latency\n"
+	printf -- "  Default $test_type\n"
+	printf -- "  throuhgput: find max throuhgput with a binary search\n"
+	printf -- "  latency: find latency at a specified packet rate\n"
+	printf -- "  throughput-latency: first find max throuhgput with a binary search, then find\n"
+	printf -- "  latency at the max throughput\n"
 	printf -- "\n"
-	printf -- "\t\t trafficgen options that control packet contents:\n"
+	printf -- "--traffic-engine=str\n"
+	printf -- "  The traffic generation engine to use (trex-txrx or moongen-txrx)\n"
+	printf -- "  Default is $traffic_engine\n"
 	printf -- "\n"
-	printf -- "\t\t                             The following options require two values like "value1,value2" and\n"
-	printf -- "\t\t                             correspond to the devices in your device list (--devices).  For example\n"
+	printf -- "--devices=str,str\n"
+	printf -- "  List of 2 DPDK devices to use, by PCI location ID (0000:04:00.0,0000:04:00.1)\n"
+	printf -- "  This script will attempt to bind the device to vfio-pci kernel module.\n"
+	printf -- "  You must ensure your system has IOMMU enabled.\n"
 	printf -- "\n"
-	printf -- "\t\t                                  --devices=0000:04:00.0,0000:04:00.1 --src-ips=10.0.0.1,8.0.0.1\n"
+	printf -- "--one-shot\n"
+	printf -- "  Run one test for throughput at specified rate\n"
 	printf -- "\n"
-	printf -- "\t\t                             In the example above, device 0000:04:00.0 would use source IP address 10.0.0.1\n"
-	printf -- "\t\t                             and device 0000:04:00.1 would use source IP adress 8.0.0.1\n"
+	printf -- "--search-runtime=int\n"
+	printf -- "  Measurement period in seconds when searching for max throughput\n"
+	printf -- "  Default is $search_runtime\n"
 	printf -- "\n"
-	printf -- "\t\t             --src-macs=MAC,MAC         list of two source MAC addresses\n"
-	printf -- "\t\t             --src-ips=IP,IP            list of two source IP addresses\n"
-	printf -- "\t\t             --encap-src-macs=MAC,MAC   list of two source MAC addresses for the encapsulated network (only used on conjuction with an overlay network like VxLAN)\n"
-	printf -- "\t\t             --encap-src-ips=IP,IP      list of two source IP addresses for the encapsulated network (only used on conjuction with an overlay network like VxLAN)\n"
+	printf -- "--validation-runtime=int\n"
+	printf -- "  Measurement period in seconds when running final validation or a latency test\n"
+	printf -- "  Default is $validation_runtime\n"
+	printf -- "\n\n"
+	printf -- "      The follwoing options can take 1 or more values and will control how many\n"
+	printf -- "      tests will be conducted.  For example, the following options:\n"
 	printf -- "\n"
-	printf -- "\t\t             --nr-flows=int             number of packet flows to run (default is $nr_flows)\n"
-	printf -- "\t\t             --flow-mods=str[,str]      a list of IP packet header fields which are used to implement unique flows\n"
-	printf -- "\t\t                                        all fields listed here are changed in unison, for example if \"src-ip,src-mac\" are used,\n"
-	printf -- "\t\t                                        the first packet will have a source IP of 192.168.0.X and source MAC of 01:02:03:04:X:06\n"
-	printf -- "\t\t                                        the second packet will have a source IP of 192.168.0.(X+1) and source MAC of 01:02:03:04:(X+1):06\n"
+	printf -- "        --rates=1,2 --traffic-directions=unidirec,bidirec --max-drop-pcts=0,1\n"
+	printf -- "        --frame-sizes=64,256 --nr-flows=1024,65536\n"
 	printf -- "\n"
-	printf -- "\t\t                                        The list of available flow mods are: src-ip,src-mac,src-port,dst-port,encap-src-mac,encap-src-ip\n"
-	printf -- "\t\t                                        Note that the encap-* flow mods are only viable for overlay network tests like VxLAN\n"
+	printf -- "      would produce 32 different test permutations\n"
 	printf -- "\n"
-	printf -- "\t\t options common in most pbench benchmark scripts:\n"
+	printf -- "--rate[s]=float[,float]\n"
+	printf -- "  A list of rates in millions of packets/sec for latency or --one-shot tests,\n"
+	printf -- "  or the start rate for a binary search.\n"
 	printf -- "\n"
-	printf -- "\t\t-c str       --config=str               name of the test config (i.e. jumbo_frames_and_network_throughput)\n"
-	printf -- "\t\t             --max-failures=int         the maximm number of failures to get below stddev\n"
-	printf -- "\t\t             --max-stddev=int           the maximm percent stddev allowed to pass\n"
-	printf -- "\t\t             --postprocess-only=y|n     don't run the benchmark, but postprocess data from previous test\n"
-	printf -- "\t\t             --run-dir=str              optionally specify what directory should be used (usually only used if postprocess-only=y)\n"
-	printf -- "\t\t             --start-iteration-num=int  optionally skip the first (n-1) tests\n"
-	printf -- "\t\t             --tool-label-pattern=str   $benchmark_name will provide CPU and efficiency information for any tool directory\n"
-	printf    "\t\t                                        with a \"^<pattern>\" in the name, provided \"sar\" is one of the\n"
-	printf    "\t\t                                        registered tools.\n"
-	printf    "\t\t                                        a default pattern, \"$bechmark_name-\" is used if none is provided.\n"
-	printf    "\t\t                                        simply register your tools with \"--label=$benchmark_name-\$X\", and this script\n"
-	printf    "\t\t                                        will genrate CPU_$benchmark_name-\$X and Gbps/CPU_$benchmark_name-\$X or\n"
-	printf    "\t\t                                        trans_sec/CPU-$benchmark_name-\$X for all tools which have that pattern as a\n"
-	printf    "\t\t                                        prefix.  if you don't want to register your tools with \"$benchmark_name-\" as\n"
-	printf    "\t\t                                        part of the label, just use --tool-label-pattern= to tell this script\n"
-	printf    "\t\t                                        the prefix pattern to use for CPU information.\n"
-	printf -- "\t\t             --tool-group=str\n"
+	printf -- "--traffic-direction[s]=str[,str]\n"
+	printf -- "  A list of one or more: unidirec or bidirec (default $traffic_directions)\n"
+	printf -- "  unidirec: packets will Tx out the 1st device and Rx in the 2nd device\n"
+	printf -- "  biidirec: packets will Tx out the both devices and Rx in both devices\n"
+	printf -- "\n"
+	printf -- "--max-drop-pct[s]=fl,[fl]\n"
+	printf -- "  A list of maximum allowed percentage of dropped frames\n"
+	printf -- "  Default is $max_drop_pcts\n"
+	printf -- "\n"
+	printf -- "--frame-sizes=str[,str]\n"
+	printf -- "  A list of Ethernet frame sizes (including CRC) in bytes\n"
+	printf -- "  Default is $frame_sizes\n"
+	printf -- "\n"
+	printf -- "--nr-flows=int\n"
+	printf -- "  Number of packet flows to run. Default is $nr_flows\n"
+	printf -- "\n\n"
+	#                   1         2         3         4         5         6         7         8
+	#          12345678901234567890123456789012345678901234567890123456789012345678901234567890
+	printf -- "trafficgen options that control packet contents\n"
+	printf -- "-----------------------------------------------\n"
+	printf -- "\n"
+	printf -- "    The values provided for the following options correspond to the devices\n"
+	printf -- "    device list (--devices).  For example\n"
+	printf -- "\n"
+	printf -- "      --devices=0000:04:00.0,0000:04:00.1 --src-ips=10.0.0.1,8.0.0.1\n"
+	printf -- "\n"
+	printf -- "    In the example above, device 0000:04:00.0 would use source IP address 10.0.0.1\n"
+	printf -- "    and device 0000:04:00.1 would use source IP adress 8.0.0.1\n"
+	printf -- "\n"
+	printf -- "--src-macs=MAC,MAC\n"
+	printf -- "  A list of two source MAC addresses\n"
+	printf -- "\n"
+	printf -- "--src-ips=IP,IP\n"
+	printf -- "  A list of two source IP addresses\n"
+	printf -- "\n"
+	printf -- "--dst-macs=MAC,MAC\n"
+	printf -- "  A list of two destination MAC addresses\n"
+	printf -- "\n"
+	printf -- "--dst-ips=IP,IP\n"
+	printf -- "  A list of two destination IP addresses\n"
+	printf -- "\n"
+	printf -- "--encap-src-macs=MAC,MAC\n"
+	printf -- "  A list of two source MAC addresses for the encapsulated network. Only used in\n"
+	printf -- "  conjuction with an overlay network like VxLAN\.n"
+	printf -- "\n"
+	printf -- "--encap-src-ips=IP,IP\n"
+	printf -- "  A list of two source IP addresses for the encapsulated network.  Only used in\n"
+	printf -- "  conjuction with an overlay network like VxLAN.\n"
+	printf -- "\n"
+	printf -- "--encap-dst-macs=MAC,MAC\n"
+	printf -- "  A list of two destination MAC addresses for the encapsulated network.  Only\n"
+	printf -- "  used on conjuction with an overlay network like VxLAN.\n"
+	printf -- "\n"
+	printf -- "--encap-dst-ips=IP,IP\n"
+	printf -- "  A list of two destination IP addresses for the encapsulated network.  Only\n"
+	printf -- "  used on conjuction with an overlay network like VxLAN.\n"
+	printf -- "\n"
+	printf -- "--vlan-ids=[int][,int]\n"
+	printf -- "  If a value is provided, the corresponding device will use a VLAN tag when\n"
+	printf -- "  transmitting and expect received packets to also have the VLAN tag\n"
+	printf -- "\n"
+	printf -- "--overlay-ids=[int][,int]\n"
+	printf -- "  If a value is provided, the corresponding device will encapsulate the packet\n"
+	printf -- "  and use VNI = value provided when transmitting packets.  Received packets\n"
+	printf -- "  for the this device are expected to be encapsulated and use same VNI.  This\n"
+	printf -- "  option must be used with --overlay-type option\n"
+	printf -- "\n"
+	#                   1         2         3         4         5         6         7         8
+	#          12345678901234567890123456789012345678901234567890123456789012345678901234567890
+	printf -- "--overlay-types\n"
+	printf -- "  Per device specification of overlay network type, can be \"none\", or skipped,\n"
+	printf -- "  or \"VxLAN\".  If \"VxLAN\" is used, --overlay-ids must also be used as well\n"
+	printf -- "  as --encap-[src|dst]-[macs|ips] options.  When using an overlay, the\n"
+	printf -- "  device-under-test must have the matching configuration.  For example, if\n"
+	printf -- "  --overlay-types=none,vxlan is used, the device-under-test would receive\n"
+	printf -- "  non-overlay packets on its first device, encapsulate the packets, and send\n"
+	printf -- "  the packet out the second device.  Packets received by the second device are\n"
+	printf -- "  expected to already be encapsulated, and the device-under-test would\n"
+	printf -- "  decapsulate them and send them out the first device.\n"
+	printf -- "\n"
+	printf -- "--flow-mods=str[,str]\n"
+	printf -- "  A list of IP packet header fields which are used to implement unique flows.\n"
+	printf -- "  All fields listed here are changed in unison, for example if \"src-ip,src-mac\"\n"
+	printf -- "  are used, the first packet will have a source IP of 192.168.0.X and source MAC\n"
+	printf -- "  of 01:02:03:04:X:06.  The second packet will have a source IP of\n"
+	printf -- "  192.168.0.(X+1) and source MAC of 01:02:03:04:(X+1):06. The list of available\n"
+	printf -- "  flow mods are: src-ip,src-mac,src-port,dst-port,encap-src-mac,encap-src-ip\n"
+	printf -- "  Note that the encap-* flow mods are only viable for overlay network tests like\n"
+	printf -- "  VxLAN, and alter the inner packet header.\n"
+	printf -- "  The maximum number of unique flows may be limited by the traffic-engine used.\n"
+	printf -- "  For trex-txrx, it is 16.7 million.  Trex-txrx modifies the 2nd, 3rd, and 4th\n"
+	printf -- "  octet in the IP addresses and the 3rd, 4th, and 5th octet in the MAC addresses\n"
+	printf -- "  When using source or destination ports numbers, the range is limited to 1-32768\n"
+	printf -- "  and higher flow counts will \"roll\" over back to 1\n"
+	printf -- "\n\n"
+	printf -- "options common in most pbench benchmark scripts\n"
+	printf -- "-----------------------------------------------\n"
+	printf -- "\n"
+	printf -- "--config=str\n"
+	printf -- "  Name of the test config (i.e. jumbo_frames_and_network_throughput)\n"
+	printf -- "\n"
+	printf -- "--samples=int\n"
+	printf -- "  The number of times each different test is run (to compute average)\n"
+	printf -- "\n\n"
+	printf -- "--max-failures=int\n"
+	printf -- "  The maximm number of failures to get below stddev\n"
+	printf -- "\n"
+	printf -- "--max-stddev=int\n"
+	printf -- "  The maximm percent stddev allowed to pass\n"
+	printf -- "\n"
+	printf -- "--postprocess-only=y|n\n"
+	printf -- "  Don't run the benchmark, but postprocess data from previous test\n"
+	printf -- "\n"
+	printf -- "--run-dir=str\n"
+	printf -- "  Optionally specify what directory should be used (usually only used if\n"
+	printf -- "  postprocess-only=y)\n"
+	printf -- "\n"
+	printf -- "--start-iteration-num=int\n"
+	printf -- "  Optionally skip the first (n-1) tests\n"
+	printf -- "\n"
+	printf -- "--tool-group=str\n"
+	printf -- "  Start/stop/post-process tools using this group\n"
 	exit 1
 fi
 eval set -- "$opts"
@@ -202,14 +308,14 @@ while true; do
 			shift
 		fi
 		;;
-		-i|--nr-flows)
+		--nr-flows)
 		shift
 		if [ -n "$1" ]; then
 			nr_flows="$1"
 			shift
 		fi
 		;;
-		-r|--rate|--rates)
+		--rate|--rates)
 		shift
 		if [ -n "$1" ]; then
 			rates="$1"
@@ -223,14 +329,14 @@ while true; do
 			shift
 		fi
 		;;
-		--traffic)
+		--traffic-direction|--traffic-directions)
 		shift
 		if [ -n "$1" ]; then
-			traffic="$1"
+			traffic_directions="$1"
 			shift
 		fi
 		;;
-		-t|--test-type)
+		--test-type)
 		shift
 		if [ -n "$1" ]; then
 			test_type="$1"
@@ -244,17 +350,10 @@ while true; do
 			shift
 		fi
 		;;
-		-m|--frame-sizes)
+		--frame-sizes|--frame-sizes)
 		shift
 		if [ -n "$1" ]; then
 			frame_sizes="$1"
-			shift
-		fi
-		;;
-		--latency-runtime)
-		shift
-		if [ -n "$1" ]; then
-			latency_runtime="$1"
 			shift
 		fi
 		;;
@@ -272,14 +371,14 @@ while true; do
 			shift
 		fi
 		;;
-		--portlist)
+		--devices)
 		shift
 		if [ -n "$1" ]; then
-			portlist="$1"
+			devices="$1"
 			shift
 		fi
 		;;
-		-c|--config)
+		--config)
 		shift
 		if [ -n "$1" ]; then
 			config="$1"
@@ -293,38 +392,97 @@ while true; do
 			shift
 		fi
 		;;
-		-o|--one-shot)
+		--one-shot)
 		shift
 		one_shot="y"
 		;;
-		--accept-negative-loss)
-		shift
-		accept_negative_loss="y"
-		;;
-		--)
-		shift
-		break
-		;;
-		--mpps-per-queue)
+		--flow-mods)
 		shift
 		if [ -n "$1" ]; then
-		    mpps_per_queue="$1"
+		    flow_mods="$1"
 		    shift
 		fi
 		;;
-		--queues-per-task)
+		--vlan-ids)
 		shift
 		if [ -n "$1" ]; then
-		    queues_per_task="$1"
+		    vlan_ids="$1"
+		    shift
+		fi
+		;;
+		--overlay-ids)
+		shift
+		if [ -n "$1" ]; then
+		    overlay_ids="$1"
+		    shift
+		fi
+		;;
+		--overlay-types)
+		shift
+		if [ -n "$1" ]; then
+		    overlay_types="$1"
+		    shift
+		fi
+		;;
+		--src-ips)
+		shift
+		if [ -n "$1" ]; then
+		    src_ips="$1"
+		    shift
+		fi
+		;;
+		--src-macs)
+		shift
+		if [ -n "$1" ]; then
+		    src_macs="$1"
+		    shift
+		fi
+		;;
+		--dst-ips)
+		shift
+		if [ -n "$1" ]; then
+		    dst_ips="$1"
 		    shift
 		fi
 		;;
 		--dst-macs)
 		shift
 		if [ -n "$1" ]; then
-		    dst_maclist="$1"
+		    dst_macs="$1"
 		    shift
 		fi
+		;;
+		--encap-src-ips)
+		shift
+		if [ -n "$1" ]; then
+		    encap_src_ips="$1"
+		    shift
+		fi
+		;;
+		--encap-src-macs)
+		shift
+		if [ -n "$1" ]; then
+		    encap_src_macs="$1"
+		    shift
+		fi
+		;;
+		--encap-dst-ips)
+		shift
+		if [ -n "$1" ]; then
+		    encap_dst_ips="$1"
+		    shift
+		fi
+		;;
+		--encap-dst-macs)
+		shift
+		if [ -n "$1" ]; then
+		    encap_dst_macs="$1"
+		    shift
+		fi
+		;;
+		--)
+		shift
+		break
 		;;
 		*)
 		error_log "[$script_name] bad option, \"$1 $2\""
@@ -367,14 +525,9 @@ export benchmark_name config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 # start the server processes
 if [ -z "$rates" ]; then
-	if [ "$test_type" == "latency" ]; then
-		# use a very low default rate for latency test if none is specified
-		rates=0.1
-	else
-		# a rate of "none" is valid if this is a throuhgput test.  The opnfv-vsperf.lua
-		# script will start with line-rate for the binary search
-		rates="none"
-	fi
+	# a rate of "none" is valid if this is a throuhgput test.  The opnfv-vsperf.lua
+	# script will start with line-rate for the binary search
+	rates="none"
 fi
 for rate in `echo $rates | sed -e s/,/" "/g`; do
 	for traffic_direction in `echo $traffic | sed -e s/,/" "/g`; do
