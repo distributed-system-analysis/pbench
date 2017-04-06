@@ -213,6 +213,7 @@ mv index.html SPECjbb.html
 iteration=1
 export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 for i in `seq $start_warehouses $inc_warehouses $stop_warehouses`; do
 	# for each of the test iterations (each test with a specific number of warehouses), copy the raw result data for that iteration in iteraration directory
 	grep "test$i" SPECjbb.raw >$i/reference-result/SPECjbb.raw
@@ -222,6 +223,7 @@ for i in `seq $start_warehouses $inc_warehouses $stop_warehouses`; do
 	pbench-postprocess-tools --group=$tool_group --iteration=$new_iteration_name --dir=$benchmark_results_dir/$new_iteration_name/reference-result
 	let iteration=$iteration+1
 done
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 popd
 

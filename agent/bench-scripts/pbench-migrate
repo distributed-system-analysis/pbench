@@ -330,6 +330,7 @@ fi
 count=1
 export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 for i in `seq 1 $loops`; do
 	iteration="$count-from-$src_host-to-$dest_host"
 	echo $iteration >> $benchmark_iterations
@@ -371,6 +372,7 @@ for postprocess_dir in $postprocess_dirs; do
 	pbench-postprocess-tools --group=$tool_group --dir=$postprocess_dir &
 done
 wait
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 
 rmdir $benchmark_run_dir/.running
