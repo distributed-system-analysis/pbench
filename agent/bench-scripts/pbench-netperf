@@ -406,6 +406,7 @@ count=1
 systemctl stop firewalld
 export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 # start the server processes
 for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 	for test_type in `echo $test_types | sed -e s/,/" "/g`; do
@@ -588,6 +589,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 	done
 done
 printf -- "</pre>\n" >>$benchmark_summary_html_file
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 
 

@@ -58,7 +58,7 @@ while true; do
 done
 
 function usage {
-    echo "Usage: $prog beg|end <bench_run_dir>" >&2
+    echo "Usage: $prog beg|end|int <bench_run_dir>" >&2
 }
 
 function metadata_log_tools {

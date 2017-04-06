@@ -337,6 +337,7 @@ count=1
 mkdir -p $benchmark_run_dir/.running
 export benchmark_name config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 # start the server processes
 if [ -z "$rates" ]; then
 	if [ "$test_type" == "latency" ]; then
@@ -480,5 +481,6 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 done
 echo "$script_path/postprocess/generate-benchmark-summary $benchmark_name $orig_cmd $benchmark_run_dir" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
 $script_path/postprocess/generate-benchmark-summary "$benchmark_name" "$orig_cmd" "$benchmark_run_dir"
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 rmdir $benchmark_run_dir/.running
