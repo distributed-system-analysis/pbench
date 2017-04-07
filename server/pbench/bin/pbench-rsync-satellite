@@ -169,6 +169,7 @@ done | sort -k1,1 | join - $list | sort -k2,2 -n > $logdir/$PROG.wq
 
 grep -v DUPLICATE $logdir/$PROG.wq | awk -F'/' 'NF==2' > $logdir/$PROG.wq.trimmed
 
+
 $dir/pbench-rsync-satellite-process-work-queue --archive=$ARCHIVE $logdir/$PROG.wq.trimmed
 rc=$?
 
@@ -258,7 +259,11 @@ elif [[ $rc != 0 ]] ;then
 fi >> $tmp/status.$$
 
 # ... and mail it
-mailx -s "$PROG: $prefix: $nprocessed files processed, $nfailed_rm remove failures, $nfailed_md5 md5 failures" $mail_recipients < $tmp/status.$$
+if [ "$nprocessed" -gt 0 -o "$nfailed_rm" -gt 0 -o "$nfailed_md5" -gt 0 ]  ;then
+    mailx -s \
+    "$PROG: $prefix: $nprocessed files processed, $nfailed_rm remove failures, $nfailed_md5 md5 failures"\
+    $mail_recipients < $tmp/status.$$
+fi
     
 let end_time=$(timestamp-seconds-since-epoch)
 let duration=end_time-start_time
