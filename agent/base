@@ -208,6 +208,16 @@ function verify_tool_group {
 	return 0
 }
 
+# generate inventory file with controller and remotes
+export INVENTORY=/tmp/inventory.$$
+trap "rm -f $INVENTORY" QUIT INT EXIT
+function generate_inventory {
+	echo "[controller]"
+	echo $HOSTNAME
+	echo "[remote]"
+	ls $tools_group_dir | awk -F@ '/^remote/ {print $2};'
+}
+
 if [[ "${_PBENCH_BENCH_TESTS}" == 1 ]] ;then
     # For unit tests, we use a mock kill:
     # disable the built-in.

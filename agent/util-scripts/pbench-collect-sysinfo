@@ -16,7 +16,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # Defaults
 group=default
 dir="/tmp"
-sysinfo_opts_default=( block libvirt kernel_config sos topology )
+sysinfo_opts_default=( block libvirt kernel_config sos topology ara )
 sysinfo_opts=${sysinfo_opts_default[*]}
 check=false
 
@@ -93,7 +93,7 @@ while true; do
 		;;
 	esac
 done
-	
+
 if $check; then
 	if [ "$sysinfo" == "all" ] || [ "$sysinfo" == "default" ] || [ "$sysinfo" == "none" ]; then
 		:
