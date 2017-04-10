@@ -96,20 +96,33 @@ function collect_sos {
 	fi
 }
 
+function collect_ara_data {
+	# collect data only when ara is installed
+	if python -c "import ara" &>/dev/null; 
+		mkdir $dir/ara
+		generate_inventory > $INVENTORY
+		ansible-playbook -i ${INVENTORY} --extra-vars '{"SYSINFO_DIR":"'$dir'"}' "$pbench_install_dir/ansible/ara/ara.yml"
+	else
+		debug_log "[$script_name]skipping, $item not installed"
+	fi
+}
+
 for item in ${sysinfo//,/ };do
-        if [[ "$item" == "kernel_config" ]]; then
+	if [[ "$item" == "kernel_config" ]]; then
 		collect_kernel_config &
-        elif [[ "$item" == "libvirt" ]]; then
-        	collect_libvirt &
-        elif [[ "$item" == "topology" ]]; then
-        	collect_topology &
-        elif [[ "$item" == "sos" ]]; then
-        	collect_sos &
-        elif [[ "$item" == "block" ]]; then
-        	collect_block &
+	elif [[ "$item" == "libvirt" ]]; then
+		collect_libvirt &
+	elif [[ "$item" == "topology" ]]; then
+		collect_topology &
+	elif [[ "$item" == "sos" ]]; then
+		collect_sos &
+	elif [[ "$item" == "block" ]]; then
+		collect_block &
+	elif [[ "$item" == "ara" ]]; then
+		collect_ara_data &> $pbench_log
 	else
 		debug_log "[$script_name]bad sysinfo value"
-     	fi
+	fi
 done
 wait
 chmod -R 775 $dir

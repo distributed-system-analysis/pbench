@@ -1,0 +1,40 @@
+---
+- hosts: all
+  user: root
+  vars:
+    - sysinfo_dir: "{{ SYSINFO_DIR }}"
+    - ara_results_dir: ~/.ara
+    - ara_static_web_path: /tmp/ara
+  tasks:
+    - stat: path=~/ansible.cfg
+      register: config_status
+    - stat: path=/var/log/ansible.log
+      register: log_status
+    - name: get ansible config file from home dir
+      fetch: src=~/ansible.cfg dest={{ sysinfo_dir }}/ara/ansible.cfg flat=yes
+      when: config_status.stat.exists == True
+    - name: get ansible_config file from /etc/ansible/ansible.cfg
+      fetch: src=/etc/ansible/ansible.cfg dest={{ sysinfo_dir }}/ara/ansible.cfg flat=yes
+      when: config_status.stat.exists == False
+    - name: copy ansible.log when logging is enabled
+      fetch: src=/var/log/ansible.log  dest={{ sysinfo_dir }}/ara/ansible.log flat=yes
+      when: log_status.stat.exists == True
+    - name: fetch ara data from remote
+      synchronize:
+          src: "{{ ara_results_dir }}/"
+          dest: "{{ sysinfo_dir }}/ara"
+          mode: pull
+          archive: yes
+    - name: create dir to store ara_static_files
+      file: path={{ sysinfo_dir }}/ara/web state=directory
+    - name: Generate static content of the web application
+      shell: ara generate {{ ara_static_web_path }}
+    - name: fetch web application
+      synchronize:
+          src: "{{ ara_static_web_path }}/"
+          dest: "{{ sysinfo_dir }}/ara/web"
+          mode: pull
+          archive: yes
+    - name: clear ara web directory contents
+      file: path={{ ara_static_web_path }} state=absent
+
