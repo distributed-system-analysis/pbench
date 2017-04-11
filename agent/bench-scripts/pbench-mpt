@@ -96,7 +96,7 @@ function mpt_process_options() {
     esac
   done
 
-  benchmark_run_dir="$pbench_run/${benchmark}_${config}_$date"
+  benchmark_run_dir="${pbench_run}/${benchmark}_${config}_${date_suffix}"
 }
 
 function mpt_check_options() {

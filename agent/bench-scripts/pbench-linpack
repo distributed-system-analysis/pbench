@@ -107,7 +107,7 @@ else
     exit 1
 fi
 
-benchmark_fullname="${benchmark}_${config}_${date}"
+benchmark_fullname="${benchmark}_${config}_${date_suffix}"
 benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
 benchmark_summary_txt_file="$benchmark_run_dir/$benchmark-summary.txt"

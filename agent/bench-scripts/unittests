@@ -157,7 +157,7 @@ declare -A expected_status=(
     [test-08]=1
 )
 
-date="1900-01-01T00:00:00"
+date="1900.01.01T00.00.00"
 declare -A rundirs=(
     [test-00]="uperf_test-00_$date"
     [test-01]="uperf_test-01_$date"

@@ -52,9 +52,9 @@ spacing=25
 
 # Defaults
 
-benchmark_fullname="${benchmark}_${config}_${date}"
-benchmark_run_dir="$pbench_run/${benchmark_fullname}"
-benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
+benchmark_fullname=""
+benchmark_run_dir=""
+benchmark_iterations=""
 protocols="tcp,udp"
 test_types="stream,maerts,bidirec,rr"
 message_sizes="1,64,1024,16384" # in bytes
@@ -314,7 +314,6 @@ while true; do
 		shift;
 		if [ -n "$1" ]; then
 			config="$1"
-			benchmark_run_dir="$pbench_run/${benchmark}_${config}_$date"
 			shift;
 		fi
 		;;
@@ -336,6 +335,20 @@ while true; do
 	esac
 done
 verify_tool_group $tool_group
+
+if [[ -z "$benchmark_run_dir" ]]; then
+        # We don't have an explicit run directory, construct one
+        benchmark_fullname="${benchmark}_${config}_${date_suffix}"
+        benchmark_run_dir="$pbench_run/${benchmark_fullname}"
+else
+        # We have an explicit run directory provided by --run-dir, so warn
+        # the user if they also used --config
+        if [[ ! -z "$config" ]]; then
+                warn_log "[$script_name] ignoring --config=\"$config\" in favor of --run-dir=\"$benchmark_run_dir\""
+        fi
+        benchmark_fullname=$(basename $benchmark_run_dir)
+fi
+benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
 
 # Verify the number of clients and servers match.
 if [ "$postprocess_only" != "y" ]; then
