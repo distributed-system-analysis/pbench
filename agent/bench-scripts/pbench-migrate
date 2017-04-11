@@ -314,7 +314,7 @@ if [ "$postprocess" = "only" ]; then
 	benchmark_run_dir="$benchmark_data_dir"
 else
 	config="from_${src_host}_to_${dest_host}--$config"
-	benchmark_fullname="${benchmark}_${config}_${date}"
+	benchmark_fullname="${benchmark}_${config}_${date_suffix}"
 	benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 fi
 benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"

@@ -367,7 +367,7 @@ done
 
 if [[ -z "$benchmark_run_dir" ]]; then
 	# We don't have an explicit run directory, construct one
-	benchmark_fullname="${benchmark}_${config}_${date}"
+	benchmark_fullname="${benchmark}_${config}_${date_suffix}"
 	benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 else
 	# We have an explicit run directory provided by --run-dir, so warn

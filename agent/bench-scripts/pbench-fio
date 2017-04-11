@@ -372,7 +372,7 @@ function fio_process_options() {
 		esac
 	done
 	if [ "$postprocess_only" = "n" ]; then
-		benchmark_fullname="${benchmark}_${config}_${date}"
+		benchmark_fullname="${benchmark}_${config}_${date_suffix}"
 		benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 	else
 		if [ -z "$run_dir" ]; then

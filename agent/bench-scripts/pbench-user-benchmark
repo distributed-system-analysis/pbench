@@ -100,7 +100,7 @@ fi
 verify_tool_group $tool_group
 iteration="1" # there can be only 1 iteration for user-benchmark
 benchmark_bin="$@"
-benchmark_fullname="${benchmark}_${config}_${date}"
+benchmark_fullname="${benchmark}_${config}_${date_suffix}"
 benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
 # make the run dir available to the user script
