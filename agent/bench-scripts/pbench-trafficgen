@@ -25,7 +25,7 @@ script_path=`dirname $0`
 script_name=`basename $0`
 pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 benchmark_name="trafficgen"
-
+trafficgen_dir="/opt/lua-trafficgen"
 # source the base script
 . "$pbench_bin"/base
 
@@ -39,15 +39,16 @@ benchmark_name="trafficgen"
 # 7) postprocess analysis tool data
 
 # Defaults
-traffic_engine="trex-txrx" # can be either trex-txrx or moongen-txrx
-trex_ver="v2.23"
+traffic_generator="trex-txrx" # can be either trex-txrx or moongen-txrx
+trex_ver="v2.22"
+trex_dir="/opt/trex/$trex_ver"
 trex_url=http://trex-tgn.cisco.com/trex/release/${trex_ver}.tar.gz
 benchmark_run_dir=""
 test_types="throughput-latency"
 traffic_directions="bidirec"
-max_drop_pcts="0.002"
-nr_flows="1024"
-nr_samples=1
+max_loss_pcts="0.002"
+num_flows="1024"
+num_samples=1
 rates=""
 devices="" # the network devices as PCI location IDs, like "0000:04:00.0,0000:04:00.1"
 dst_ips=""
@@ -72,9 +73,11 @@ orig_cmd="$*"
 tool_group=default
 install_only="n"
 one_shot="n"
+skip_trex_server="n"
+cmd="./binary-search.py"
 
 # Process options and arguments
-opts=$(getopt -q -o c: --longoptions "traffic-engine:,devices:,rate:,rates:,max-drop-pct:,max-drop-pcts:,install,start-iteration-num:,config:,nr-flows:,test-type:,traffic-direction:traffic-directions:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-macs:,src-ips:,dst-macs:,dest-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o c: --longoptions "skip-trex-server,traffic-generator:,devices:,rate:,rates:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:traffic-directions:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-macs:,src-ips:,dst-macs:,dest-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
@@ -86,17 +89,9 @@ if [ $? -ne 0 ]; then
 	printf -- "trafficgen general test options\n"
 	printf -- "-------------------------------\n"
 	printf -- "\n"
-	printf -- "--test-type=str\n"
-	printf -- "  What type of test to run: throughput, latency, or throughput-latency\n"
-	printf -- "  Default $test_type\n"
-	printf -- "  throuhgput: find max throuhgput with a binary search\n"
-	printf -- "  latency: find latency at a specified packet rate\n"
-	printf -- "  throughput-latency: first find max throuhgput with a binary search, then find\n"
-	printf -- "  latency at the max throughput\n"
-	printf -- "\n"
-	printf -- "--traffic-engine=str\n"
+	printf -- "--traffic-generator=str\n"
 	printf -- "  The traffic generation engine to use (trex-txrx or moongen-txrx)\n"
-	printf -- "  Default is $traffic_engine\n"
+	printf -- "  Default is $traffic_generator\n"
 	printf -- "\n"
 	printf -- "--devices=str,str\n"
 	printf -- "  List of 2 DPDK devices to use, by PCI location ID (0000:04:00.0,0000:04:00.1)\n"
@@ -117,30 +112,36 @@ if [ $? -ne 0 ]; then
 	printf -- "      The follwoing options can take 1 or more values and will control how many\n"
 	printf -- "      tests will be conducted.  For example, the following options:\n"
 	printf -- "\n"
-	printf -- "        --rates=1,2 --traffic-directions=unidirec,bidirec --max-drop-pcts=0,1\n"
+	printf -- "        --rates=1,2 --traffic-directions=unidirec,bidirec --max-loss-pcts=0,1\n"
 	printf -- "        --frame-sizes=64,256 --nr-flows=1024,65536\n"
 	printf -- "\n"
 	printf -- "      would produce 32 different test permutations\n"
 	printf -- "\n"
-	printf -- "--rate[s]=float[,float]\n"
-	printf -- "  A list of rates in millions of packets/sec for latency or --one-shot tests,\n"
-	printf -- "  or the start rate for a binary search.\n"
+	printf -- "--rate[s]=value[,value]]\n"
+	printf -- "  value can be:\n"
+	printf -- "       <decimal-number>:      interpreted as a packet rate in millions per second\n"
+	printf -- "       <decimal number>-Mpps: interpreted as a packet rate in millions per second\n"
+	printf -- "       <decimal number>%:     interpreted as a percentage of \"line rate\"\n"
+	printf -- "  Only use this option when:\n"
+	printf -- "    using the --one-shot option (skip binary search) and only 1 frame size\n"
+	printf -- "  For example, you may want to use this when measuring latency for 10%, 50%, 90% of line rate with 64-byte frames:\n"
+	printf -- "  --rates=10%,50%,90% --frame-size=64 --one-shot\n"
 	printf -- "\n"
 	printf -- "--traffic-direction[s]=str[,str]\n"
 	printf -- "  A list of one or more: unidirec or bidirec (default $traffic_directions)\n"
 	printf -- "  unidirec: packets will Tx out the 1st device and Rx in the 2nd device\n"
 	printf -- "  biidirec: packets will Tx out the both devices and Rx in both devices\n"
 	printf -- "\n"
-	printf -- "--max-drop-pct[s]=fl,[fl]\n"
-	printf -- "  A list of maximum allowed percentage of dropped frames\n"
-	printf -- "  Default is $max_drop_pcts\n"
+	printf -- "--max-loss-pct[s]=fl,[fl]\n"
+	printf -- "  A list of maximum allowed percentage of dropped frames, used for binary search\n"
+	printf -- "  Default is $max_loss_pcts\n"
 	printf -- "\n"
 	printf -- "--frame-sizes=str[,str]\n"
 	printf -- "  A list of Ethernet frame sizes (including CRC) in bytes\n"
 	printf -- "  Default is $frame_sizes\n"
 	printf -- "\n"
-	printf -- "--nr-flows=int\n"
-	printf -- "  Number of packet flows to run. Default is $nr_flows\n"
+	printf -- "--num-flows=int\n"
+	printf -- "  Number of packet flows to run. Default is $num_flows\n"
 	printf -- "\n\n"
 	#                   1         2         3         4         5         6         7         8
 	#          12345678901234567890123456789012345678901234567890123456789012345678901234567890
@@ -156,6 +157,7 @@ if [ $? -ne 0 ]; then
 	printf -- "    and device 0000:04:00.1 would use source IP adress 8.0.0.1\n"
 	printf -- "\n"
 	printf -- "--src-macs=MAC,MAC\n"
+	printf -- "  MAC \n"
 	printf -- "  A list of two source MAC addresses\n"
 	printf -- "\n"
 	printf -- "--src-ips=IP,IP\n"
@@ -215,11 +217,18 @@ if [ $? -ne 0 ]; then
 	printf -- "  flow mods are: src-ip,src-mac,src-port,dst-port,encap-src-mac,encap-src-ip\n"
 	printf -- "  Note that the encap-* flow mods are only viable for overlay network tests like\n"
 	printf -- "  VxLAN, and alter the inner packet header.\n"
-	printf -- "  The maximum number of unique flows may be limited by the traffic-engine used.\n"
+	printf -- "  The maximum number of unique flows may be limited by the traffic-generator used.\n"
 	printf -- "  For trex-txrx, it is 16.7 million.  Trex-txrx modifies the 2nd, 3rd, and 4th\n"
 	printf -- "  octet in the IP addresses and the 3rd, 4th, and 5th octet in the MAC addresses\n"
 	printf -- "  When using source or destination ports numbers, the range is limited to 1-32768\n"
 	printf -- "  and higher flow counts will \"roll\" over back to 1\n"
+	printf -- "\n\n"
+	printf -- "trafficgen debug options\n"
+	printf -- "-----------------------------------------------\n"
+	printf -- "\n"
+	printf -- "--skip-trex-server\n"
+	printf -- "  Do no kill existing or start a new TRex server process (assumes you have one\n"
+	printf -- "  running already)\n"
 	printf -- "\n\n"
 	printf -- "options common in most pbench benchmark scripts\n"
 	printf -- "-----------------------------------------------\n"
@@ -297,14 +306,21 @@ while true; do
 		--samples)
 		shift
 		if [ -n "$1" ]; then
-			nr_samples="$1"
+			num_samples="$1"
 			shift
 		fi
 		;;
-		--nr-flows)
+		--traffic-generator)
 		shift
 		if [ -n "$1" ]; then
-			nr_flows="$1"
+			traffic_generator="$1"
+			shift
+		fi
+		;;
+		--num-flows)
+		shift
+		if [ -n "$1" ]; then
+			num_flows="$1"
 			shift
 		fi
 		;;
@@ -315,10 +331,10 @@ while true; do
 			shift
 		fi
 		;;
-		--max-drop-pct|--max-drop-pcts)
+		--max-loss-pct|--max-loss-pcts)
 		shift
 		if [ -n "$1" ]; then
-			max_drop_pcts="$1"
+			max_loss_pcts="$1"
 			shift
 		fi
 		;;
@@ -326,13 +342,6 @@ while true; do
 		shift
 		if [ -n "$1" ]; then
 			traffic_directions="$1"
-			shift
-		fi
-		;;
-		--test-type)
-		shift
-		if [ -n "$1" ]; then
-			test_type="$1"
 			shift
 		fi
 		;;
@@ -347,20 +356,6 @@ while true; do
 		shift
 		if [ -n "$1" ]; then
 			frame_sizes="$1"
-			shift
-		fi
-		;;
-		--search-runtime)
-		shift
-		if [ -n "$1" ]; then
-			search_runtime="$1"
-			shift
-		fi
-		;;
-		--validation-runtime)
-		shift
-		if [ -n "$1" ]; then
-			validation_runtime="$1"
 			shift
 		fi
 		;;
@@ -396,82 +391,20 @@ while true; do
 		    shift
 		fi
 		;;
-		--vlan-ids)
+		--validation-runtime|--search-runtime|--overlay-ids|vlan-ids|overlay-types| --src-ips|--src-macs|--dst-ips|--src-macs|--encap-src-ips|--encap-src-macs|--encap-dst-ips|--encap-dst-macs)
 		shift
 		if [ -n "$1" ]; then
-		    vlan_ids="$1"
-		    shift
+			local arg="$1"
+			shift
+			if [ -n "$1" ]; then
+				cmd="$cmd $arg=$1"
+			shift
+			fi
 		fi
 		;;
-		--overlay-ids)
+		--skip-trex-server)
 		shift
-		if [ -n "$1" ]; then
-		    overlay_ids="$1"
-		    shift
-		fi
-		;;
-		--overlay-types)
-		shift
-		if [ -n "$1" ]; then
-		    overlay_types="$1"
-		    shift
-		fi
-		;;
-		--src-ips)
-		shift
-		if [ -n "$1" ]; then
-		    src_ips="$1"
-		    shift
-		fi
-		;;
-		--src-macs)
-		shift
-		if [ -n "$1" ]; then
-		    src_macs="$1"
-		    shift
-		fi
-		;;
-		--dst-ips)
-		shift
-		if [ -n "$1" ]; then
-		    dst_ips="$1"
-		    shift
-		fi
-		;;
-		--dst-macs)
-		shift
-		if [ -n "$1" ]; then
-		    dst_macs="$1"
-		    shift
-		fi
-		;;
-		--encap-src-ips)
-		shift
-		if [ -n "$1" ]; then
-		    encap_src_ips="$1"
-		    shift
-		fi
-		;;
-		--encap-src-macs)
-		shift
-		if [ -n "$1" ]; then
-		    encap_src_macs="$1"
-		    shift
-		fi
-		;;
-		--encap-dst-ips)
-		shift
-		if [ -n "$1" ]; then
-		    encap_dst_ips="$1"
-		    shift
-		fi
-		;;
-		--encap-dst-macs)
-		shift
-		if [ -n "$1" ]; then
-		    encap_dst_macs="$1"
-		    shift
-		fi
+		skip_trex_server="y"
 		;;
 		--)
 		shift
@@ -483,6 +416,56 @@ while true; do
 		;;
 	esac
 done
+
+if [ "$traffic_generator" == "trex-txrx" -o "$traffic_generator" == "moongen-txrx" ]; then
+	cmd="$cmd --traffic-generator=$traffic_generator"
+else
+	warn_log "The traffic engine is not valid: $traffic_generator"
+	exit 1
+fi
+
+for num_flow in `echo $num_flows | sed -e 's/,/ /g'`; do
+	if ! [ $num_flows -gt 0 -a $num_flows -le 16777216 ]; then
+		log_warn "This number of flows is invalid: $num_flow"
+		exit 1
+	fi
+done
+
+for flow_mod in `echo $flow_mods | sed -e 's/,/ /g'`; do
+	case $flow_mod in
+	"src-ip")
+		cmd="$cmd --use-src-ip-flows=1"
+		;;
+	"dst-ip")
+		cmd="$cmd --use-dst-ip-flows=1"
+		;;
+	"src-mac")
+		cmd="$cmd --use-src-mac-flows=1"
+		;;
+	"dst-mac")
+		cmd="$cmd --use-dst-mac-flows=1"
+		;;
+	"encap-src-ip")
+		cmd="$cmd --use-encap-src-ip-flows=1"
+		;;
+	"encap-dst-ip")
+		cmd="$cmd --use-encap-dst-ip-flows=1"
+		;;
+	"encap-src-mac")
+		cmd="$cmd --use-encap-src-mac-flows=1"
+		;;
+	"encap-dst-mac")
+		cmd="$cmd --use-encap-dst-mac-flows=1"
+		;;
+	*)
+		log_warn "The flow_mod is invalid: $flow_mod"
+		exit 1
+	esac
+done
+
+if [ $one_shot == "y" ]; then
+	cmd="$cmd --one-shot=1"
+fi
 
 # Before running any tests, the following must be satisfied:
 # -IOMMU must be enabled
@@ -518,8 +501,8 @@ for dev in `echo $devices | sed -e s/,/" "/g`; do
 	fi
 done
 # -trafficgen-engine installed/ready
-if [ -d /opt/lua-trafficgen ]; then
-	if pushd /opt/lua-trafficgen && git pull && git checkout master; then
+if [ -d $trafficgen_dir ]; then
+	if pushd $trafficgen_dir && git pull && git checkout master; then
 		echo "lua-trafficgen is up to date"
 		popd
 	else
@@ -536,7 +519,7 @@ else
 	fi
 fi
 	
-if [ $traffic_engine == "trex-txrx" ]; then
+if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 	# kill any existing trex server process
 	trex_pids=`netstat -tlnp | grep -E :4500\|:4501 | awk '{print $7}' | awk -F/ '{print $1}' | sort | uniq`
 	if [ ! -z "$trex_pids" ]; then
@@ -544,7 +527,7 @@ if [ $traffic_engine == "trex-txrx" ]; then
 		kill $trex_pids
 		sleep 5
 	fi
-	if [ -d /opt/trex/$trex_ver ]; then
+	if [ -d $trex_dir ]; then
 		echo "TRex $trex_ver already installed"
 	else
 		mkdir -p /opt/trex
@@ -562,7 +545,8 @@ if [ $traffic_engine == "trex-txrx" ]; then
 		fi
 	fi
 	# start the trex server
-	pushd /opt/trex/$trex_ver
+	echo "sarting TRex server"
+	pushd $trex_dir
 	screen -dmS trex-server ./t-rex-64 -i -c 12 --checksum-offload
 	popd
 	# wait for trex server to be ready
@@ -600,9 +584,9 @@ chmod +x $benchmark_run_dir/$script_name.cmd
 
 total_iterations=0
 for traffic_direction in `echo $traffic_directions | sed -e s/,/" "/g`; do
-	for max_drop_pct in `echo $max_drop_pcts | sed -e s/,/" "/g`; do
+	for max_loss_pct in `echo $max_loss_pcts | sed -e s/,/" "/g`; do
 		for frame_size in `echo $frame_sizes | sed -e s/,/" "/g`; do
-			for nr_flow in `echo $nr_flows | sed -e s/,/" "/g`; do
+			for num_flow in `echo $num_flows | sed -e s/,/" "/g`; do
 				((total_iterations++))
 			done
 		done
@@ -612,7 +596,7 @@ echo "Total number of benchmark iterations: $total_iterations"
 count=1
 mkdir -p $benchmark_run_dir/.running
 export benchmark_name config
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+#pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 
 if [ -z "$rates" ]; then
 	# a rate of "none" is valid if this is a throuhgput test.  The opnfv-vsperf.lua
@@ -621,62 +605,70 @@ if [ -z "$rates" ]; then
 fi
 for rate in `echo $rates | sed -e s/,/" "/g`; do
 	for traffic_direction in `echo $traffic_directions | sed -e s/,/" "/g`; do
-		for max_drop_pct in `echo $max_drop_pcts | sed -e s/,/" "/g`; do
+		for max_loss_pct in `echo $max_loss_pcts | sed -e s/,/" "/g`; do
 			for frame_size in `echo $frame_sizes | sed -e s/,/" "/g`; do
-				for nr_flow in `echo $nr_flows | sed -e s/,/" "/g`; do
+				for num_flow in `echo $num_flows | sed -e s/,/" "/g`; do
 					if [ $count -ge $start_iteration_num ]; then
 						if [ "$test_type" == "latency" ]; then
-							iteration="${count}-${test_type}-${traffic_direction}-${frame_size}B-${nr_flow}flows-${rate}Mpps"
+							iteration="${count}-${test_type}-${traffic_direction}-${frame_size}B-${num_flow}flows-${rate}Mpps"
 						else 
-							iteration="${count}-${test_type}-${traffic_direction}-${frame_size}B-${nr_flow}flows-${max_drop_pct}pct_drop"
+							iteration="${count}-${test_type}-${traffic_direction}-${frame_size}B-${num_flow}flows-${max_loss_pct}pct_drop"
 						fi
                                                 echo $iteration >> $benchmark_iterations
 						iteration_dir="$benchmark_run_dir/$iteration"
+						mkdir -p $iteration_dir
+						benchmark_cmd_file="$iteration_dir/$benchmark_name.cmd"
 						result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
 						failures=0
 						echo "Starting iteration[$iteration] ($count of $total_iterations)"
 						log "Starting iteration[$iteration] ($count of $total_iterations)"
+						# Add any benchmark-iteration-specific options
+						if [  $traffic_direction == "unidirec" ]; then
+							iteration_opts=" --run-bidirec=0"
+						else
+							iteration_opts=" --run-bidirec=1"
+						fi
+						iteration_options="$iteration_options --max-loss-pct=$max_loss_pct"
+						iteration_options="$iteration_options --frame-size=$frame_size"
+						iteration_options="$iteration_options --num-flows=$num_flows"
+						# save benchmark command in file for debugging or running manually
+						echo "pushd >/dev/null $trafficgen_dir" >$benchmark_cmd_file
+						echo "$cmd $iteration_options" >>$benchmark_cmd_file
+						echo "popd >/dev/null" >>$benchmark_cmd_file
+						chmod +x $benchmark_cmd_file
 						while [[ $(echo "if (${result_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; do
 							if [[ $failures -gt 0 ]]; then
 								echo "Restarting iteration[$iteration] ($count of $total_iterations)"
 								log "Restarting iteration[$iteration] ($count of $total_iterations)"
 							fi
-							mkdir -p $iteration_dir
-							#if [ "$postprocess_only" != "y" ]; then
-							# construct the command for binary-search.py program
-							#
-							# each attempt at a test config requires multiple samples to get stddev
-							for sample in `seq 1 $nr_samples`; do
-								benchmark_results_dir="$iteration_dir/sample$sample"
-								if [ "$postprocess_only" != "y" ]; then
-									mkdir -p $benchmark_results_dir
-									echo "test sample $sample of $nr_samples"
-									log "test sample $sample of $nr_samples "
-									benchmark_client_cmd_file="$iteration_dir/$benchmark_name-client.cmd"
-									result_file=$benchmark_results_dir/trafficgen-result.txt
-									# save benchmark command in file for debugging or running manually
-
-									#echo "pushd >/dev/null $trafficgen_dir" >$benchmark_client_cmd_file
-									#echo "./build/MoonGen /root/lua-trafficgen/trafficgen.lua" >>$benchmark_client_cmd_file
-									#echo "popd >/dev/null" >>$benchmark_client_cmd_file
-									chmod +x $benchmark_client_cmd_file
-
-									#pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-									#$benchmark_client_cmd_file 2>&1 | tee $result_file
-									#pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-									#pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-								else
-									if [[ ! -d $benchmark_results_dir ]]; then
-										error_log "Results directory $benchmark_results_dir does not exist, skipping post-processing"
-										continue
+							if [ "$postprocess_only" != "y" ]; then
+								# each attempt at a test config requires multiple samples to get stddev
+								for sample in `seq 1 $num_samples`; do
+									benchmark_results_dir="$iteration_dir/sample$sample"
+									if [ "$postprocess_only" != "y" ]; then
+										mkdir -p $benchmark_results_dir
+										echo "test sample $sample of $num_samples"
+										log "test sample $sample of $num_samples "
+										result_file=$benchmark_results_dir/result.txt
+	
+	
+										pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+										$benchmark_cmd_file | tee $result_file
+										pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+										pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+									else
+										if [[ ! -d $benchmark_results_dir ]]; then
+											error_log "Results directory $benchmark_results_dir does not exist, skipping post-processing"
+											continue
+										fi
+										echo "Not going to run $benchmark_name.  Only postprocesing existing data"
+										log "Not going to run $benchmnark_name.  Only postprocesing existing data"
 									fi
-									echo "Not going to run $benchmark_name.  Only postprocesing existing data"
-									log "Not going to run $benchmnark_name.  Only postprocesing existing data"
-								fi
-								#echo "$script_path/postprocess/$benchmark_name-postprocess $benchmark_results_dir $iteration $test_type $tool_label_pattern $tool_group" >"$benchmark_results_dir/$benchmark_name-postprocess.cmd"
-								#chmod +x "$benchmark_results_dir/$benchmark_name-postprocess.cmd"
-								#$benchmark_results_dir/$benchmark_name-postprocess.cmd
-							done
+									#echo "$script_path/postprocess/$benchmark_name-postprocess $benchmark_results_dir $iteration $test_type $tool_label_pattern $tool_group" >"$benchmark_results_dir/$benchmark_name-postprocess.cmd"
+									#chmod +x "$benchmark_results_dir/$benchmark_name-postprocess.cmd"
+									#$benchmark_results_dir/$benchmark_name-postprocess.cmd
+								done
+							fi 
 							echo "$script_path/postprocess/process-iteration-samples $iteration_dir Mframes_sec $maxstddevpct $failures $max_failures $tar_nonref_data $keep_failed_tool_data" >"$iteration_dir/process-iteration-samples.cmd"
 							#chmod +x "$iteration_dir/process-iteration-samples.cmd"
 							#$iteration_dir/process-iteration-samples.cmd
@@ -706,5 +698,5 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 done
 echo "$script_path/postprocess/generate-benchmark-summary $benchmark_name $orig_cmd $benchmark_run_dir" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
 $script_path/postprocess/generate-benchmark-summary "$benchmark_name" "$orig_cmd" "$benchmark_run_dir"
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+#pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 rmdir $benchmark_run_dir/.running
