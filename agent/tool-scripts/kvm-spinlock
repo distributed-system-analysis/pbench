@@ -206,7 +206,7 @@ case "$tool" in
 	sysfs)
 	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file \"$path\" \"$maxdepth\" \"$pattern\""
 	;;
-	docker-info|docker|dm-cache|turbostat|openvswitch|proc-sched_debug|proc-vmstat|proc-interrupts|cpuacct|numastat|kvmstat|kvm-spinlock|vmstat)
+	docker-info|docker|dm-cache|turbostat|proc-sched_debug|proc-vmstat|proc-interrupts|cpuacct|numastat|kvmstat|kvm-spinlock|vmstat)
 	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file"
 	;;
 	openvswitch)
