@@ -1,0 +1,244 @@
+#!/usr/bin/perl
+#
+## Author: Andrew Theurer
+# Post-process a result sample for pbench-trafficgen benchmark
+# Currently this script will only find the total average rate of received packets per second
+# Later we will add latency data as well as tool and efficiency metrics
+
+use strict;
+use warnings;
+# This script produces a JSON format of a benchmark iteration sample,
+# and uses the standard metric types for pbench, which are:
+# %workload{parameters,throughput|latency|resource|efficiency}
+# The result is a "result.json" file with a JSON array, "sample = {...}"
+#
+# This is the data layout used in perl to construct the JSON array:
+#
+my %workload;   # root hash for all data, contains hash refs to
+		# %paramters, %throughput, %latency, %resource, %efficiency
+		
+my %parameters;	# a hash of parameter-type:parameter-value that was
+		# $parameters{benchmark[0].rate}
+my @benchmark;	# each array element contains a hash with:
+		# benchmark_name:
+	    	# :
+	    	# role:
+	    	# description:
+
+my %resource;	# a hash of resource-type:array-of-resource-values,
+		# for example $resource{cpu_busy[0..1]}
+my @cpu_busy;	# each array element contains a hash with
+		# hostname: hostname or IP
+		# role: client, server, host, kvm-host, container-host, etc.
+		# timeseries: a hash of timestamp:value key-pairs
+
+my %efficiency; # a hash of throughput-per-resource-type:array-of-throughput-per-resource-values
+		# for example $efficincy{Mframes_cpu[0..1]}
+my @Mframes_cpu;# each array element contains a hash with:
+		# hostname:
+	    	# port_id:
+	    	# role:
+	    	# description:
+	    	# timeseries: a hash of timestamp,value elements
+
+my %latency;    # a hash of latency-type:array-of-latency-values,
+		# for example $latency{usec[0..1]}
+		#
+		# each array element contains a hash with:
+	    	# hostname:
+	    	# port_id:
+	    	# role:
+	    	# description:
+my @usec_avg;
+my @usec_min;
+my @usec_max;
+my @usec_95th;	
+my @usec_99th;
+my @usec_99_99th;
+
+
+my %throughput; # a hash of throughput-type:array-of-throughput-values,
+		# for example $throughput{Mframes_sec[0..1]
+my @Mframes_sec;# each array element contains a hash with:
+	    	# hostname:
+	    	# port_id:
+	    	# role: packet-generator
+	    	# value: the number value for millions of frames per second
+my @Gb_sec;     # each array element contains a hash with:
+	    	# hostname:
+	    	# port_id:
+	    	# role: packet-generator
+	    	# the number value for 10^9 bits per second, which is equal to frame_rate *8 +64 +96
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+my $_test_alt_bench_lib;
+BEGIN {
+	my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+		$_test_alt_tools_lib = "$_pbench_tspp_dir";
+	}
+	my $_pbench_bspp_dir = $ENV{'pbench_bspp_dir'};
+	$_test_alt_bench_lib=$ENV{_TEST_ALTERNATE_BENCH_LIBRARY};
+	if (not defined $_test_alt_bench_lib or not -d $_test_alt_bench_lib) {
+		$_test_alt_bench_lib = "$_pbench_bspp_dir";
+	}
+}
+use lib "$_test_alt_tools_lib";
+use lib "$_test_alt_bench_lib";
+no lib ".";
+use BenchPostprocess qw(get_cpubusy_series calc_ratio_series calc_sum_series);
+use File::Basename;
+use Data::Dumper;
+use List::Util('sum');
+use JSON;
+
+sub mean {
+    return sum(@_)/@_;
+}
+
+my $script = basename($0);
+my $dir = $ARGV[0];
+my $test = $ARGV[1];
+my $max_loss_pct = $ARGV[2];
+my $tool_label_pattern = $ARGV[3];
+my $tool_group = $ARGV[4];
+my $line;
+my %avg;
+my %total;
+my $uperf_primary_metric="Mframes_sec";
+my $json_text;
+my %config;
+
+# Load the data from result.txt and create throughput metrics
+open( TXT, "<$dir/result.txt" ) or die "Can't open $dir/result.txt: $!";
+while ( $line = <TXT> ) {
+	for my $i ('traffic_generator', 'rate', 'rate_unit', 'frame_size', 'measure_latency',
+		   'search-runtime', 'run-bidirec', 'use-num-flows', 'use-src-mac-flows',
+		   'use-dst-mac-flows', 'use-src-ip-flows', 'use-dst-ip-flows', 'use-encap-src-mac-flows',
+		   'use-encap-dst-mac-flows', 'use-encap-src-ip-flows', 'src-macs-list', 'dest-macs-list',
+		   'encap-src-macs-list', 'encap-dest-macs-list', 'src-ips-list', 'dest-ips-list',
+		   'encap-src-ips-list', 'encap-dest-ips-list') {
+		if ( $line =~ /^\(\'$i\',\s(.+)\)/ ) {
+			my $value = $1;
+			$value =~ s/\'//g;
+			$config{$i} = $value;
+		}
+	}
+	if ( $line =~ /^RESULT:/ ) {
+		last;
+	}
+}
+$config{'role'} =  'packet-generator';
+$config{'uid'} =  'benchmark:%name%';
+$config{'max_loss_pct'} = $max_loss_pct;
+push(@benchmark, \%config);
+	
+# what we are looking for:
+#RESULT:
+#[
+#{
+#    #"rx_packets": 191622832,
+#    "rx_pps": 6387427.0,
+#    "tx_packets": 193301324,
+#    "tx_pps": 6443377.0
+#}
+#,
+#{
+#    "rx_packets": 191629300,
+#    "rx_pps": 6387643.0,
+#    "tx_packets": 193294881,
+#    "tx_pps": 6443162.0
+#}
+#]
+while ( $line = <TXT> ) {
+	$json_text .= $line;
+}
+close TXT;
+my $perl_scalar = from_json( $json_text );
+my $rx_port;
+for my $tx_port (0, 1) {
+	if ( $tx_port eq 0 ) {
+		$rx_port = 1;
+	} else {
+		$rx_port = 0;
+	}
+	my $rx_rate = ${ $perl_scalar }[$rx_port]{'rx_pps'};
+	my $uid = "tx_port:%tx_port%-rx_port:%rx_port%";
+	push(@Mframes_sec, { 'description' => "The number of Ethernet frames (in millions) received per second",
+		      	'uid' => $uid,
+		      	'tx_port' => $rx_port,
+		      	'rx_port' => $tx_port,
+		      	'value' => $rx_rate / 1000000} );
+	push(@Gb_sec, { 'description' => "The number of bits (in billions) received from Ethernet phsycial layer per second",
+     			'uid' => $uid,
+			'tx_port' => $rx_port,
+			'rx_port' => $tx_port,
+			'value' => ($config{'frame_size'} *8 +64 +96) *$rx_rate /1000 } );
+}
+
+# construct what we have so far in a master workload hash for:
+# throughput metrics
+if ( @Mframes_sec ) {
+	$throughput{'Mframes_sec'} = \@Mframes_sec;
+}
+if ( @Gb_sec ) {
+	$throughput{'Gb_sec'} = \@Gb_sec;
+}
+if ( %throughput ) {
+	$workload{'throughput'} = \%throughput;
+}
+# parameters
+if ( @benchmark ) {
+	$parameters{'benchmark'} = \@benchmark;
+}
+if ( %parameters ) {
+	$workload{'parameters'} = \%parameters;
+}
+
+# efficiency
+if ( @Mframes_cpu ) {
+	$efficiency{'Mframes_sec'} = \@Mframes_cpu;
+}
+if ( %efficiency ) {
+	$workload{'efficiency'} = \%efficiency;
+}
+
+# latency
+if ( @usec_avg ) {
+	$latency{'usec_avg'} = \@usec_avg;
+}
+if ( @usec_min ) {
+	$latency{'usec_min'} = \@usec_min;
+}
+if ( @usec_max ) {
+	$latency{'usec_max'} = \@usec_max;
+}
+if ( @usec_95th ) {
+	$latency{'usec_95th'} = \@usec_95th;
+}
+if ( @usec_99th ) {
+	$latency{'usec_99th'} = \@usec_99th;
+}
+if ( @usec_99_99th ) {
+	$latency{'usec_99_99th'} = \@usec_99_99th;
+}
+if ( %latency ) {
+	$workload{'latency'} = \%latency;
+}
+
+# resource
+if ( @cpu_busy ) {
+	$resource{'cpu_busy'} = \@cpu_busy;
+}
+if ( %resource ) {
+	$workload{'resource'} = \%resource;
+}
+
+my $json_file = $dir . "/result.json";
+$json_text   = to_json( \%workload, { ascii => 1, pretty => 1 } );
+open(JSON, ">$json_file") || die "$script: could not open file $json_file: $!\n";
+print JSON $json_text;
+close(JSON);
+
