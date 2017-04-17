@@ -54,13 +54,13 @@ open(TXT, "$dir/$pmd_port_mapping_file") || die "could not find $dir/$pmd_port_m
 #	port: vhost-user-0	queue-id: 0
 while (my $line = <TXT>) {
 	chomp $line;
-	if ($line =~ /^pmd thread numa_id (\d) core_id (\d):/ ) {
+	if ($line =~ /^pmd thread numa_id (\d+) core_id (\d+):/ ) {
 		my $node = $1;
 		my $cpu = $2;
 		$pmd_thread_id = "node" . $node . "cpu" . $cpu;
 		next;
 	}
-	if ($line =~ /^\s*port:\s(\S+)\s+queue-id:\s+(\d)/ ) {
+	if ($line =~ /^\s*port:\s(\S+)\s+queue-id:\s+(\d+)/ ) {
 		my $port = $1;
 		my $queue = $2;
 		$pmd_mappings{$pmd_thread_id} .= -$port . ":q" . $queue;
