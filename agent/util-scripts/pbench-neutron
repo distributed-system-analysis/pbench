@@ -1,0 +1,96 @@
+#!/bin/bash
+# vim: set syntax=bash tabstop=4 shiftwidth=4 expandtab
+#-------------------------------------------------------------------------------
+#
+#
+#
+#-------------------------------------------------------------------------------
+
+DEBUG=true
+
+#-------------------------------------------------------------------------------
+# neutron_port_create ( compute_host, neutron_network, auth )
+#  Returns "MAC IP PORTID"
+#-------------------------------------------------------------------------------
+neutron_port_create () {
+    host=$1
+    NET=$2
+    auth=$3
+    if [[ -z $host ]] ; then
+        echo "Host not passed"
+        exit 1
+    fi
+    if [[ -z $NET ]] ; then
+        echo "NET not passed"
+        exit 1
+    fi
+    if [[ -z $auth ]] ; then
+        echo "auth not passed"
+        exit 1
+    fi
+    source $auth
+    hostid=$(echo ${host} | cut -f1 -d".")
+    netid=$(neutron net-show ${NET} | grep " id" | awk '{print $4}')
+    ports=$(neutron port-create ${NET} --name ${hostid} --binding:host_id=${host})
+    mac=$(echo "${ports}" | grep mac_address | awk '{print $4}')
+    portid=$(echo "${ports}" | grep " id" | awk '{print $4}')
+    ip=$(echo "${ports}" | grep "fixed_ip" | awk '{print $7}' | tr -d \"})
+    echo "${mac} ${ip} ${portid}"
+}
+
+#-------------------------------------------------------------------------------
+# wireup_neutron_port compute_host mac portid, auth
+#
+#-------------------------------------------------------------------------------
+wireup_neutron_port () {
+    host=$1
+    portid=$2
+    auth=$3
+    if [[ -z $host ]] ; then
+        echo "Host not passed"
+        exit 1
+    fi
+    if [[ -z $portid ]] ; then
+        echo "portid not passed"
+        exit 1
+    fi
+    if [[ -z $auth ]] ; then
+        echo "auth not passed"
+        exit 1
+    fi
+    source $auth
+    hostid=$(echo ${host} | cut -f1 -d".")
+    ssh $host ovs-vsctl -- --may-exist add-port br-int ${hostid} -- set Interface ${hostid} type=internal -- set Interface ${hostid} external-ids:iface-status=active -- set Interface ${hostid} external-ids:attached-mac=${mac} -- set Interface ${hostid} external-ids:iface-id=${portid}
+
+    ssh $host ip link set address ${mac} dev $hostid
+
+    echo "
+BOOTPROTO=dhcp
+DEVICE=$hostid
+TYPE=Ethernet
+DEFROUTE=no
+PEERDNS=no" | ssh $host "cat > /etc/sysconfig/network-scripts/ifcfg-$hostid"
+
+    ssh $host ifup $hostid
+}
+
+#-------------------------------------------------------------------------------
+# clean_ovs ( host, auth )
+#  Remove neutron port, and clear ovs port from host
+#-------------------------------------------------------------------------------
+clean_ovs () {
+    if [[ -z $1 ]]; then
+        echo " Clean Failed, no host passed"
+        exit 1
+    fi
+    if [[ -z $2 ]] ; then
+        echo "auth not passed"
+        exit 1
+    fi
+    source $2
+    host=$1
+    hostid=$(echo ${host} | cut -f1 -d".")
+    ssh $host ifdown $hostid
+    ssh $host ovs-vsctl del-port $hostid
+    neutron port-delete $hostid
+}
