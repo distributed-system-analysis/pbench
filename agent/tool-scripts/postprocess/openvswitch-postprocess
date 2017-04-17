@@ -161,14 +161,14 @@ while (my $line = <TXT>) {
 	#       processing cycles:0 (0.00%)
 	if ( $line =~ /\s*processing\scycles:\s*\d+\s+\((\d+\.\d+)\%\)/ and $stats_mode eq "dpdk" ) {
 		#$pmd_data{$pmd_thread_id}{"processing-cycles-percent"}{$timestamp_ms} = $1;
-		$rate{"openvswitch"}{"processing-percent"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		$rate{"openvswitch"}{"PMDthread-processing-utilization-percent"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
 
 	}
 
 	#	avg processing cycles per packet: 618.17 (2612413532/4226062)
 	if ( $line =~ /\s*avg\sprocessing\scycles\sper\spacket:\s*(\d+\.\d+)/ and $stats_mode eq "dpdk" ) {
 		#$pmd_data{$pmd_thread_id}{"processing-cycles-per-packet"}{$timestamp_ms} = $1;
-		$rate{"openvswitch"}{"processing-cycles-per-packet"}{$pmd_thread_id. $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		$rate{"openvswitch"}{"PMDthread-processing-cycles-per-packet"}{$pmd_thread_id. $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
 
 	}
 	
@@ -203,8 +203,8 @@ while (my $line = <TXT>) {
 		my $action = $9;
 		$match =~ s/,/:/g;
 		$action =~ s/,/_/g;
-		my $rule = "t" . $table . ":" . $match . "::" . $action;
-		$flow_data{$bridge}{$rule}{$timestamp_ms} = $n_packets;
+		my $flow_id = "t" . $table . ":" . $match . "::" . $action . "-packets";
+		$flow_data{$bridge}{$flow_id}{$timestamp_ms} = $n_packets;
 	}
 }
 close(TXT);
@@ -284,7 +284,7 @@ for $bridge (sort keys %flow_data) {
 				my $duration = ($timestamp_ms - $last_timestamp_ms)/1000;
 				my $value_diff = $value - $last_value;
 				my $this_rate = $value_diff / $duration;
-				$rate{"openvswitch"}{$bridge . "-flows"}{$flow}{$timestamp_ms} = $this_rate;
+				$rate{"openvswitch"}{$bridge . "-flow-activity"}{$flow}{$timestamp_ms} = $this_rate;
 			}
 			$last_value = $value;
 			$last_timestamp_ms = $timestamp_ms;
