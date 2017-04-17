@@ -1,0 +1,12 @@
++++ Running test-24 pbench-collect-sysinfo
+default, none, all, block, libvirt, kernel_config, sos, topology--- Finished test-24 pbench-collect-sysinfo (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/tmp
+--- pbench tree state
++++ pbench.log file contents
+grep: /var/tmp/pbench-test-utils/pbench/pbench.log: No such file or directory
+--- pbench.log file contents
++++ test-execution.log file contents
+grep: /var/tmp/pbench-test-utils/test-execution.log: No such file or directory
+--- test-execution.log file contents

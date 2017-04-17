@@ -16,23 +16,39 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # Defaults
 group=default
 dir="/tmp"
+sysinfo_opts_default=( block libvirt kernel_config sos topology )
+sysinfo_opts=${sysinfo_opts_default[*]}
+check=false
 
-# always notify the user, as collection can sometimes take a while
-echo "Collecting system information"
+# Display sysinfo options 
+function display_sysinfo_opts {
+	printf "default, none, all"
+	for item in ${sysinfo_opts[*]}; do printf ", %s" $item ; done
+}
 
 # Process options and arguments
 
-opts=$(getopt -q -o d:g: --longoptions "dir:,group:" -n "getopt.sh" -- "$@");
+function usage {
+	printf "Usage: $script_name [options]\n"
+	printf "\n"
+	printf "Options specified can be one of:\n"
+	printf -- "\t-d str --dir=str,     str = a directory where the $script_name\n"
+	printf -- "\t                            will store and process data\n"
+	printf "\n"
+	printf -- "\t-g str --group=str,   str = a tool group used in a benchmark\n"
+	printf -- "\t                            (the default group is 'default')\n"
+	printf "\n"
+	printf -- "\t       --sysinfo=str, str = comma separated values of system information to be collected\n"
+	printf -- "\t                            available: $(display_sysinfo_opts)\n"
+	printf "\n"
+	printf -- "\t       --check,       checks if sysinfo is set to one of the accepted values\n"
+}
+
+opts=$(getopt -q -o d:g:h --longoptions "dir:,group:,help,options,sysinfo:,check" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"
-	printf "The following are required:\n\n"
-	printf -- "\t-d str --dir=str, str = a directory where the $script_name\n"
-	printf -- "\t                        will store and process data\n"
-	printf "\n"
-	printf -- "\t-g str --group=str, str = a tool group used in a benchmark\n"
-	printf -- "\t                          (the default group is 'default')\n"
-	printf "\n"
+	usage
 	exit 1
 fi
 eval set -- "$opts";
@@ -52,12 +68,60 @@ while true; do
 			shift;
 		fi
 		;;
+		--options)
+		display_sysinfo_opts
+		exit 0
+		;;
+		--sysinfo)
+		shift;
+		if [ -n "$1" ]; then
+			sysinfo="$1"
+			shift;
+		fi
+		;;
+		--check)
+		check=true
+		shift;
+		;;
+		-h|--help)
+		usage
+		exit 0
+		;;
 		--)
 		shift;
 		break;
 		;;
 	esac
 done
+	
+if $check; then
+	if [ "$sysinfo" == "all" ] || [ "$sysinfo" == "default" ] || [ "$sysinfo" == "none" ]; then
+		:
+	else
+		for item in ${sysinfo//,/ }; do
+			if echo "${sysinfo_opts[@]}" | grep -q -w "$item"; then
+				continue
+			else
+				if [ "$item" == "all" ] || [ "$item" == "default" ] || [ "$item" == "none" ]; then
+					:  # Ignore these options in a list
+				else
+					echo "$item is not a valid sysinfo option"
+					exit 1
+				fi
+			fi
+		done
+	fi
+	exit 0
+fi
+if [ "$sysinfo" == "none" ]; then
+	exit 0
+fi
+if [ "$sysinfo" == "default" ]; then
+	sysinfo=${sysinfo_opts_default[*]}
+fi
+if [ "$sysinfo" == "all" ]; then
+	sysinfo=${sysinfo_opts[*]}
+fi
 
 name="$1"
 if [ -z "$name" ]; then
@@ -75,6 +139,9 @@ if [ ! -d $dir ]; then
 	error_log "Unable to create working directory, $dir"
 	exit 1
 fi
+
+# always notify the user, as collection can sometimes take a while
+echo "Collecting system information"
 
 # Ensure we have a tools group directory to work with
 if [ -d "$pbench_run/tools-$group" ]; then
@@ -104,9 +171,9 @@ function gather_remote_sysinfo_data {
 	local remote_host=$1
 	local remote_label=$2
 	debug_log "[$script_name]running sysinfo-dump on $remote_host"
-	cmd="ssh $ssh_opts -n $remote_host pbench-remote-sysinfo-dump $sysinfo_path $remote_label"
-	debug_log "[$script_name] $cmd > $sysinfo_path/$remote_label$remote_host.tar.xz 2> $sysinfo_path/$remote_label$remote_host.err"
-	$cmd > $sysinfo_path/$remote_label$remote_host.tar.xz 2> $sysinfo_path/$remote_label$remote_host.err
+	cmd="ssh $ssh_opts -n $remote_host pbench-remote-sysinfo-dump $sysinfo_path "$sysinfo" $remote_label"
+	debug_log "[$script_name] $cmd > $sysinfo_path/$remote_label$remote_host.tar 2> $sysinfo_path/$remote_label$remote_host.err"
+	$cmd > $sysinfo_path/$remote_label$remote_host.tar 2> $sysinfo_path/$remote_label$remote_host.err
 	if [ $? -ne 0 ]; then
 		error_log "Remote sysinfo-dump failed"
 		error_log "$(cat $sysinfo_path/$remote_label$remote_host.err)"
@@ -114,14 +181,14 @@ function gather_remote_sysinfo_data {
 		debug_log "[$script_name]completed: deleting sysinfo-dump data on $remote_host"
 		debug_log "$(cat $sysinfo_path/$remote_label$remote_host.err)"
 		pushd "$sysinfo_path" >/dev/null
-		tar xf $remote_label$remote_host.tar.xz
+		tar xf $remote_label$remote_host.tar
 		tar_status=$?
 		popd >/dev/null
 		if [ $tar_status -ne 0 ]; then
-			error_log "Remote tar ball was bad: $sysinfo_path/$remote_label$remote_host.tar.xz"
+			error_log "Remote tar ball was bad: $sysinfo_path/$remote_label$remote_host.tar"
 		fi
 	fi
-	rm -f $sysinfo_path/$remote_label$remote_host.tar.xz
+	rm -f $sysinfo_path/$remote_label$remote_host.tar
 	rm -f $sysinfo_path/$remote_label$remote_host.err
 }
 
@@ -157,7 +224,7 @@ done
 if [ $lcl_cnt -gt 0 ]; then
 	# We found local tools, or a label, specified in the tools group
 	# file, so we should collect sysinfo data locally
-        pbench-sysinfo-dump "$sysinfo_path" $lcl_label &
+	pbench-sysinfo-dump "$sysinfo_path" "$sysinfo" "$lcl_label" &
 fi
 wait
 
@@ -166,4 +233,3 @@ pbench-metadata-log --group=$group --dir=$dir $name
 status=$?
 
 exit $status
-
