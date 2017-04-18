@@ -169,8 +169,9 @@
 	      Here is the minimum set of commands to get from 0 to a crawl:
 	    </p>
 	    <pre><code>
-        wget -O /etc/yum.repos.d/pbench.repo http://repohost.example.com/repo/yum.repos.d/pbench.repo
-        yum install pbench-agent -y
+	sudo wget -O /etc/yum.repos.d/pbench.repo https://copr.fedorainfracloud.org/coprs/ndokos/pbench/repo/epel-7/ndokos-pbench-epel-7.repo
+	sudo vi /etc/yum.repos.d/pbench.repo # Set enabled to 1, and make any other changes if you need to.
+	yum install pbench-agent -y
         . /etc/profile.d/pbench-agent.sh                          # or log out and log back in
         register-tool-set
         user-benchmark -C test1 -- ./your_cmd.sh
@@ -305,7 +306,9 @@
 	    </p>
 
 	    <pre><code>
-          pbench_fio
+	  yum install -y fio
+          fio -v # make sure this matches the value of 'ver=...' in pbench-fio, if not, update ver in the script (which pbench-fio).
+	  pbench-fio
 	    </code></pre>
 
 	    <p>
