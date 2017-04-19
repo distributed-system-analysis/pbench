@@ -14,9 +14,27 @@ try:
 except:
     from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
 
+    
+nodename_pattern = re.compile(r'nodename=".*"')
 BASE_DIR = os.path.abspath(os.path.dirname('__file__'))
 DEFAULT_SADF_PATH = find_executable('sadf')
-nodename_pattern = re.compile(r'nodename=".*"')
+
+# TODO:
+# check if DEFAULT_SADF_PATH is empty (covered under process_binary())
+
+# check 'sadf -H <file path>' to get magic / sysstat version
+# sadf from lower versions of sysstat (< 11.1.1) can't convert binaries [2]
+# Have to explicity check versions [2] and then deal with
+# absence/presence/compatiblity of default sadf package [1].
+# Can't just trigger a convert_binary() if it isn't a feature on
+# that machine's sysstat package.
+
+# check support in sysstat.py for 0x2173 [1]
+
+# refs:
+# 1. https://travis-ci.org/distributed-system-analysis/pbench/jobs/223449263#L876
+# 2. http://mcs.une.edu.au/doc/sysstat/FAQ
+
 
 class ConfigFileNotSpecified(Exception):
     pass
@@ -56,7 +74,13 @@ def extract_xml(sa_file_path='/tmp/sa01',
     else:
         print(err, file=sys.stderr)
         del XML_DATA
-        if "cannot read the format" in err:
+        possible_error_patterns = [
+            "sysstat version",
+            "cannot read the format",
+            "can no longer read the format",
+            "sar/sadc",
+        ]
+        if any(pattern in err for pattern in possible_error_patterns):
             return (True, rc, None, None)
         else:
             print("ERROR: Supplied path doesn't yield an SA binary file. Check your input!", file=sys.stderr)
@@ -146,6 +170,11 @@ def process_binary(path=None, cfg=None, write_data_to_file=False):
     - (status, nodename, path_to_dumped_xml_file) if write_data_to_file == True
     - (status, nodename, xml_data) if write_data_to_file == False
     """
+
+    if not DEFAULT_SADF_PATH:
+        print("No executable version of sysstat found. Aborting!", file=sys.stderr)
+        return (False, None, None)
+    
     try:
         config = SafeConfigParser()
         config.read(cfg)
