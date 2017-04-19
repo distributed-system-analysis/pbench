@@ -49,7 +49,9 @@ traffic_directions="bidirec"
 max_loss_pcts="0.002"
 num_flows="1024"
 num_samples=1
-rates=""
+rates="none"
+rate_tolerance_pct=3 # by percent, how much the TX rate can vary from desired rate
+rate_unit="mpps"
 devices="" # the network devices as PCI location IDs, like "0000:04:00.0,0000:04:00.1"
 dst_ips=""
 src_ips=""
@@ -74,6 +76,7 @@ tool_group=default
 install_only="n"
 one_shot="n"
 skip_trex_server="n"
+flow_mods="src-ip,dst-ip,src-mac,dst-mac"
 cmd="./binary-search.py"
 
 function kill_trex() {
@@ -87,7 +90,7 @@ function kill_trex() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o c: --longoptions "skip-trex-server,traffic-generator:,devices:,rate:,rates:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:traffic-directions:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-macs:,src-ips:,dst-macs:,dest-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o c: --longoptions "skip-trex-server,traffic-generator:,devices:,rate-units:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:traffic-directions:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-macs:,src-ips:,dst-macs:,dest-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
@@ -128,14 +131,19 @@ if [ $? -ne 0 ]; then
 	printf -- "      would produce 32 different test permutations\n"
 	printf -- "\n"
 	printf -- "--rate[s]=value[,value]]\n"
-	printf -- "  value can be:\n"
-	printf -- "       <decimal-number>:      interpreted as a packet rate in millions per second\n"
-	printf -- "       <decimal number>-Mpps: interpreted as a packet rate in millions per second\n"
-	printf -- "       <decimal number>%:     interpreted as a percentage of \"line rate\"\n"
+	printf -- "  A list of packet rates, in millions of packets per second (mpps), unless\n"
+	printf -- "  --rate-unit=%% is used, where the rate value is interpreted as a percentage\n"
+	printf -- "  of line rate for the trasmitting device.\n"
+	printf -- "\n"
 	printf -- "  Only use this option when:\n"
-	printf -- "    using the --one-shot option (skip binary search) and only 1 frame size\n"
-	printf -- "  For example, you may want to use this when measuring latency for 10%, 50%, 90% of line rate with 64-byte frames:\n"
-	printf -- "  --rates=10%,50%,90% --frame-size=64 --one-shot\n"
+	printf -- "    1) Using the --one-shot option (skip binary search) and only 1 frame size\n"
+	printf -- "      For example, you may want to use this when measuring latency for\n"
+	printf -- "      10%%, 50%%, 90%% of line rate with 64-byte frames:\n"
+	printf -- "      --rates=10%%,50%%,90%% --rate-unit=%% --frame-size=64 --one-shot\n"
+	printf -- "    2) Performing a binary search, but you want the search to start with a rate\n"
+	printf -- "       lower than 100%%.  Wen doing this, it is recommended that only 1 frame\n"
+	printf -- "       size is used:\n"
+	printf -- "       --rate=50%% --rate-unit=%% --frame-size=64\n"
 	printf -- "\n"
 	printf -- "--traffic-direction[s]=str[,str]\n"
 	printf -- "  A list of one or more: unidirec or bidirec (default $traffic_directions)\n"
@@ -181,7 +189,7 @@ if [ $? -ne 0 ]; then
 	printf -- "\n"
 	printf -- "--encap-src-macs=MAC,MAC\n"
 	printf -- "  A list of two source MAC addresses for the encapsulated network. Only used in\n"
-	printf -- "  conjuction with an overlay network like VxLAN\.n"
+	printf -- "  conjuction with an overlay network like VxLAN\n"
 	printf -- "\n"
 	printf -- "--encap-src-ips=IP,IP\n"
 	printf -- "  A list of two source IP addresses for the encapsulated network.  Only used in\n"
@@ -218,7 +226,7 @@ if [ $? -ne 0 ]; then
 	printf -- "  expected to already be encapsulated, and the device-under-test would\n"
 	printf -- "  decapsulate them and send them out the first device.\n"
 	printf -- "\n"
-	printf -- "--flow-mods=str[,str]\n"
+	printf -- "--flow-mods=str[,str] (default is $flow_mods)\n"
 	printf -- "  A list of IP packet header fields which are used to implement unique flows.\n"
 	printf -- "  All fields listed here are changed in unison, for example if \"src-ip,src-mac\"\n"
 	printf -- "  are used, the first packet will have a source IP of 192.168.0.X and source MAC\n"
@@ -248,7 +256,7 @@ if [ $? -ne 0 ]; then
 	printf -- "\n"
 	printf -- "--samples=int\n"
 	printf -- "  The number of times each different test is run (to compute average)\n"
-	printf -- "\n\n"
+	printf -- "\n"
 	printf -- "--max-failures=int\n"
 	printf -- "  The maximm number of failures to get below stddev\n"
 	printf -- "\n"
@@ -334,10 +342,24 @@ while true; do
 			shift
 		fi
 		;;
+		--rate-unit)
+		shift
+		if [ -n "$1" ]; then
+			rate_unit="$1"
+			shift
+		fi
+		;;
 		--rate|--rates)
 		shift
 		if [ -n "$1" ]; then
 			rates="$1"
+			shift
+		fi
+		;;
+		--rate-tolerance-pct)
+		shift
+		if [ -n "$1" ]; then
+			rate_tolerance_pct="$1"
 			shift
 		fi
 		;;
@@ -402,14 +424,11 @@ while true; do
 		fi
 		;;
 		--validation-runtime|--search-runtime|--overlay-ids|vlan-ids|overlay-types| --src-ips|--src-macs|--dst-ips|--src-macs|--encap-src-ips|--encap-src-macs|--encap-dst-ips|--encap-dst-macs)
+		arg="$1"
 		shift
 		if [ -n "$1" ]; then
-			local arg="$1"
-			shift
-			if [ -n "$1" ]; then
-				cmd="$cmd $arg=$1"
-			shift
-			fi
+			cmd="$cmd $arg=$1"
+		shift
 		fi
 		;;
 		--skip-trex-server)
@@ -428,7 +447,7 @@ while true; do
 done
 
 if [ "$traffic_generator" == "trex-txrx" -o "$traffic_generator" == "moongen-txrx" ]; then
-	cmd="$cmd --traffic-generator=$traffic_generator"
+	cmd="$cmd --traffic-generator=$traffic_generator --rate-tolerance=$rate_tolerance_pct"
 else
 	warn_log "The traffic engine is not valid: $traffic_generator"
 	exit 1
@@ -468,7 +487,7 @@ for flow_mod in `echo $flow_mods | sed -e 's/,/ /g'`; do
 		cmd="$cmd --use-encap-dst-mac-flows=1"
 		;;
 	*)
-		log_warn "The flow_mod is invalid: $flow_mod"
+		warn_log "The flow_mod is invalid: $flow_mod"
 		exit 1
 	esac
 done
@@ -602,17 +621,23 @@ mkdir -p $benchmark_run_dir/.running
 export benchmark_name config
 #pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 
-if [ -z "$rates" ]; then
-	# a rate of "none" is valid if this is a throuhgput test.  The opnfv-vsperf.lua
-	# script will start with line-rate for the binary search
-	rates="none"
-fi
 for rate in `echo $rates | sed -e s/,/" "/g`; do
 	for traffic_direction in `echo $traffic_directions | sed -e s/,/" "/g`; do
 		for max_loss_pct in `echo $max_loss_pcts | sed -e s/,/" "/g`; do
 			for frame_size in `echo $frame_sizes | sed -e s/,/" "/g`; do
 				for num_flow in `echo $num_flows | sed -e s/,/" "/g`; do
 					if [ $count -ge $start_iteration_num ]; then
+						iteration_options=""
+						if [ $rate == "none" ]; then
+							if [ $traffic_generator == "trex-txrx" ]; then
+								iteration_options="$iteration_options --rate-unit=% --rate=100"
+							else
+								# don't specify a rate and let binary-search.py + whatever traffic-generator figure it out
+								iteration_options="$iteration_options"
+							fi
+						else
+							iteration_options="$iteration_options --rate-unit=$rate_unit --rate=$rate"
+						fi
 						if [ "$test_type" == "latency" ]; then
 							iteration="${count}-${test_type}-${traffic_direction}-${frame_size}B-${num_flow}flows-${rate}Mpps"
 						else 
