@@ -537,6 +537,20 @@ else
 	fi
 fi
 
+# Moongen is built under the lua-trafficgen repo
+if [ $traffic_generator == "moongen-txrx" ]; then
+	if ! [ -x $trafficgen_dir/MoonGen/build/MoonGen ]; then
+		pushd $trafficgen_dir
+		echo "building MoonGen"
+		if ./setup.sh; then
+			echo "MoonGen build complete"
+		else
+			warn_log "could not build MoonGen"
+			exit 1
+		fi
+	fi
+fi
+	
 kill_trex
 if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 	if [ -d $trex_dir ]; then
