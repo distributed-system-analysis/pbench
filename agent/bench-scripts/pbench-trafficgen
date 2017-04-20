@@ -77,6 +77,7 @@ install_only="n"
 one_shot="n"
 skip_trex_server="n"
 flow_mods="src-ip,dst-ip,src-mac,dst-mac"
+all_possible_flow_mods="src-ip,dst-ip,src-mac,dst-mac,encap-src-ip,encap-dst-ip,encap-src-mac,encap-dst-mac"
 cmd="./binary-search.py"
 
 function kill_trex() {
@@ -460,36 +461,24 @@ for num_flow in `echo $num_flows | sed -e 's/,/ /g'`; do
 	fi
 done
 
+not_flow_mods="$all_possible_flow_mods"
 for flow_mod in `echo $flow_mods | sed -e 's/,/ /g'`; do
-	case $flow_mod in
-	"src-ip")
-		cmd="$cmd --use-src-ip-flows=1"
-		;;
-	"dst-ip")
-		cmd="$cmd --use-dst-ip-flows=1"
-		;;
-	"src-mac")
-		cmd="$cmd --use-src-mac-flows=1"
-		;;
-	"dst-mac")
-		cmd="$cmd --use-dst-mac-flows=1"
-		;;
-	"encap-src-ip")
-		cmd="$cmd --use-encap-src-ip-flows=1"
-		;;
-	"encap-dst-ip")
-		cmd="$cmd --use-encap-dst-ip-flows=1"
-		;;
-	"encap-src-mac")
-		cmd="$cmd --use-encap-src-mac-flows=1"
-		;;
-	"encap-dst-mac")
-		cmd="$cmd --use-encap-dst-mac-flows=1"
-		;;
-	*)
-		warn_log "The flow_mod is invalid: $flow_mod"
+	found_flow_mod=0
+	for this_flow_mod in `echo $all_possible_flow_mods | sed -e 's/,/ /g'`; do
+		if [ $flow_mod = $this_flow_mod ]; then
+			cmd="$cmd --use-${flow_mod}=1"
+			found_flow_mod=1
+			not_flow_mods=`echo $not_flow_mods | sed -e s/^$flow_mod,// -e s/,$flow-mod,/,/`
+		fi
+	done
+	if [ $found_flow_mod -eq 0 ]; then
+		warn_log "This flow_mod is invalid: $flow_mod"
 		exit 1
-	esac
+	fi
+done
+# ensure the other flows are forced off (avoiding any defaults from binary-search.py)
+for flow_mod in `echo $not_flow_mods | sed -e 's/,/ /g'`; do
+	cmd="$cmd --use-${flow_mod}=0"
 done
 
 if [ $one_shot == "y" ]; then
@@ -547,7 +536,7 @@ else
 		exit 1
 	fi
 fi
-	
+
 kill_trex
 if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 	if [ -d $trex_dir ]; then
