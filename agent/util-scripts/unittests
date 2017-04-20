@@ -128,7 +128,7 @@ function _verify_output {
             echo "PASS - $tname"
             rm $_testout
         elif [[ $sts -eq $expected_status ]] ; then
-            echo "PASS - $tname failed with expected exit status: $sts"
+            echo "PASS - $tname exited with expected status: $sts"
             rm $_testout
             sts=0
         else
