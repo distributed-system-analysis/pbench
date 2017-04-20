@@ -145,6 +145,17 @@ function testhaproxy_ocp {
     return $?
 }
 
+function testprometheus-metrics {
+   echo "Testing prometheus-metrics-postprocess under sample $1 ..."
+
+   mkdir -p /tmp/GenData/$1/json
+   cp -r samples/$1/* /tmp/GenData/$1
+   _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./prometheus-metrics-postprocess /tmp/GenData/$1/metrics-stdout /tmp/GenData/$1/json/metrics.json 2> /tmp/GenData/$1/stderr
+
+   diff -cr gold/$1/stderr /tmp/GenData/$1/stderr &&  diff -cr gold/$1/json/ /tmp/GenData/$1/json/ 
+   return $?
+}
+
 function testcmpr {
     echo "Testing bench-scripts/postprocess/compare-bench-results under sample $1 ..."
 
@@ -181,6 +192,10 @@ for i in $(ls -1 samples/) ; do
             ;;
         haproxy-ocp)
             testhaproxy_ocp $i
+            sts=$?
+            ;;
+        prometheus-metrics)
+            testprometheus-metrics $i
             sts=$?
             ;;
         pcp-*)
