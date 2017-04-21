@@ -581,7 +581,9 @@ if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 	# start the trex server
 	echo "sarting TRex server"
 	pushd $trex_dir >/dev/null
-	screen -dmS trex-server ./t-rex-64 -i -c 8 --checksum-offload
+	/bin/rm -f $pbench_tmp/trex_cfg.yaml
+	./dpdk_setup_ports.py -c `echo $devices | sed -e s/,/" "/g` -o $pbench_tmp/trex_cfg.yaml
+	screen -dmS trex-server ./t-rex-64 -i -c 8 --checksum-offload --cfg $pbench_tmp/trex_cfg.yaml
 	popd >/dev/null
 	# wait for trex server to be ready
 	count=30
