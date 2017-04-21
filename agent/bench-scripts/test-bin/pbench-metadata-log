@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cmd="$0 $*"
+echo "$cmd" >> $_testlog
