@@ -100,6 +100,8 @@ sub mean {
 
 my $script = basename($0);
 my $dir = $ARGV[0];
+my $result_file = $dir . "/result.txt";
+my $json_file = $dir . "/result.json";
 my $test = $ARGV[1];
 my $max_loss_pct = $ARGV[2];
 my $tool_label_pattern = $ARGV[3];
@@ -108,11 +110,12 @@ my $line;
 my %avg;
 my %total;
 my $uperf_primary_metric="Mframes_sec";
+my $json_result = 0;
 my $json_text;
 my %config;
 
 # Load the data from result.txt and create throughput metrics
-open( TXT, "<$dir/result.txt" ) or die "Can't open $dir/result.txt: $!";
+open( TXT, "<$result_file" ) or die "Can't open $result_file $!";
 while ( $line = <TXT> ) {
 	for my $i ('traffic_generator', 'rate', 'rate_unit', 'frame_size', 'measure_latency',
 		   'search-runtime', 'run-bidirec', 'use-num-flows', 'use-src-mac-flows',
@@ -127,6 +130,7 @@ while ( $line = <TXT> ) {
 		}
 	}
 	if ( $line =~ /^RESULT:/ ) {
+		$json_result = 1;
 		last;
 	}
 }
@@ -152,30 +156,35 @@ push(@benchmark, \%config);
 #    "tx_pps": 6443162.0
 #}
 #]
-while ( $line = <TXT> ) {
-	$json_text .= $line;
-}
-close TXT;
-my $perl_scalar = from_json( $json_text );
-my $rx_port;
-for my $tx_port (0, 1) {
-	if ( $tx_port eq 0 ) {
-		$rx_port = 1;
-	} else {
-		$rx_port = 0;
+
+if ($json_result) {
+	while ( $line = <TXT> ) {
+		$json_text .= $line;
 	}
-	my $rx_rate = ${ $perl_scalar }[$rx_port]{'rx_pps'};
-	my $uid = "tx_port:%tx_port%-rx_port:%rx_port%";
-	push(@Mframes_sec, { 'description' => "The number of Ethernet frames (in millions) received per second",
-		      	'uid' => $uid,
-		      	'tx_port' => $rx_port,
-		      	'rx_port' => $tx_port,
-		      	'value' => $rx_rate / 1000000} );
-	push(@Gb_sec, { 'description' => "The number of bits (in billions) received from Ethernet phsycial layer per second",
-     			'uid' => $uid,
-			'tx_port' => $rx_port,
-			'rx_port' => $tx_port,
-			'value' => ($config{'frame_size'} *8 +64 +96) *$rx_rate /1000 } );
+	close TXT;
+	my $perl_scalar = from_json( $json_text );
+	my $rx_port;
+	for my $tx_port (0, 1) {
+		if ( $tx_port eq 0 ) {
+			$rx_port = 1;
+		} else {
+			$rx_port = 0;
+		}
+		my $rx_rate = ${ $perl_scalar }[$rx_port]{'rx_pps'};
+		my $uid = "tx_port:%tx_port%-rx_port:%rx_port%";
+		push(@Mframes_sec, { 'description' => "The number of Ethernet frames (in millions) received per second",
+		      		'uid' => $uid,
+		      		'tx_port' => $rx_port,
+		      		'rx_port' => $tx_port,
+		      		'value' => $rx_rate / 1000000} );
+		push(@Gb_sec, { 'description' => "The number of bits (in billions) received from Ethernet phsycial layer per second",
+     				'uid' => $uid,
+				'tx_port' => $rx_port,
+				'rx_port' => $tx_port,
+				'value' => ($config{'frame_size'} *8 +64 +96) *$rx_rate /1000 } );
+	}
+} else {
+	print "The result from pbench-traffigen was not found in result.txt.  See $result_file\n";
 }
 
 # construct what we have so far in a master workload hash for:
@@ -236,7 +245,6 @@ if ( %resource ) {
 	$workload{'resource'} = \%resource;
 }
 
-my $json_file = $dir . "/result.json";
 $json_text   = to_json( \%workload, { ascii => 1, pretty => 1 } );
 open(JSON, ">$json_file") || die "$script: could not open file $json_file: $!\n";
 print JSON $json_text;
