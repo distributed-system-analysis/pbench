@@ -453,7 +453,10 @@ class ToolData(object):
     def __init__(self, tstamp, md5sum, experiment, iteration, sample, host, tool, toolgroup,
                  mdlog, tb):
         self.toolname = tool
-        (iterseqno, itername) = iteration.split('-', 1)
+        try:
+            (iterseqno, itername) = iteration.split('-', 1)
+        except:
+            iterseqno = itername = iteration
         self.run_metadata = {
             "runtstamp": tstamp,
             "runid": md5sum,
@@ -675,19 +678,23 @@ def get_samples(iteration, mdlog, tb):
         sample = l[2]
         if sample.startswith('sample'):
             samples.append(sample)
+    if len(samples) == 0:
+        samples.append('reference-result')
     return samples
 
 def get_pbench_hosts(iteration, sample, mdlog, tb):
     try:
         # N.B. Space-separated list
         return mdlog.get("tools", "hosts").split(' ')
-    except Exception:
+    except Exception as e:
+        print("No hosts in [tools] section in metadata log: tool data will *NOT* be indexed.")
         return []
 
 def get_tools(iteration, sample, host, mdlog, tb):
     try:
         return mdlog.options("tools/{}".format(host))
-    except Exception:
+    except Exception as e:
+        print("No tools registered for host {}".format(host))
         return []
 
 def mk_tool_data(mdlog, md5sum, tb, tstamp):
