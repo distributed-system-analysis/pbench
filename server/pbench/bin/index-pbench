@@ -297,6 +297,7 @@ def es_index(es, actions, dbg=0):
                           tstos(end), end - start, lcl_successes,
                           lcl_duplicates, lcl_errors))
                 sys.stdout.flush()
+            break
         except Exception as err:
             end = time.time()
             print("\tERROR(%s) (end ts: %s, duration: %.2fs): %s" % (
