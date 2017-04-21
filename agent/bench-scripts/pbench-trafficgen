@@ -64,7 +64,7 @@ encap_src_macs=""
 frame_sizes="64" # size in bytes of the Ethernet frame inccluding CRC
 config=""
 maxstddevpct=5 # maximum allowable standard deviation in percent
-max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
+max_failures=1 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
 search_runtime=60
 validation_runtime=120
 postprocess_only=n
@@ -581,7 +581,7 @@ if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 	# start the trex server
 	echo "sarting TRex server"
 	pushd $trex_dir >/dev/null
-	screen -dmS trex-server ./t-rex-64 -i -c 12 --checksum-offload
+	screen -dmS trex-server ./t-rex-64 -i -c 8 --checksum-offload
 	popd >/dev/null
 	# wait for trex server to be ready
 	count=30
@@ -595,6 +595,7 @@ if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 		echo "trex-server is ready"
 	else
 		warn_log "trex-server could not start properly.  check \'screen -x trex-server\'"
+        exit 1
 	fi
 fi
 
