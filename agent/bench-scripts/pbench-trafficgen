@@ -91,7 +91,7 @@ function kill_trex() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o c: --longoptions "skip-trex-server,traffic-generator:,devices:,rate-units:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:traffic-directions:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-macs:,src-ips:,dst-macs:,dest-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o c: --longoptions "skip-trex-server,traffic-generator:,devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:traffic-directions:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-macs:,src-ips:,dst-macs:,dest-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
@@ -520,17 +520,17 @@ for dev in `echo $devices | sed -e s/,/" "/g`; do
 done
 # -trafficgen-engine installed/ready
 if [ -d $trafficgen_dir ]; then
-	if pushd $trafficgen_dir && git pull && git checkout master; then
+	if pushd $trafficgen_dir >/dev/null && git pull && git checkout master; then
 		echo "lua-trafficgen is up to date"
-		popd
-	else
-		warn_log "could not get latest lua-trafficgen"
-		exit 1
+		popd >/dev/null
+	#else
+		#warn_log "could not get latest lua-trafficgen"
+		#exit 1
 	fi
 else
-	if pushd /opt && git clone https://github.com/atheurer/lua-trafficgen.git; then
+	if pushd /opt >/dev/null && git clone https://github.com/atheurer/lua-trafficgen.git; then
 		echo "lua-trafficgen is up to date"
-		popd
+		popd >/dev/null
 	else
 		warn_log "could not get latest lua-trafficgen"
 		exit 1
@@ -540,7 +540,7 @@ fi
 # Moongen is built under the lua-trafficgen repo
 if [ $traffic_generator == "moongen-txrx" ]; then
 	if ! [ -x $trafficgen_dir/MoonGen/build/MoonGen ]; then
-		pushd $trafficgen_dir
+		pushd >/dev/null $trafficgen_dir
 		echo "building MoonGen"
 		if ./setup.sh; then
 			echo "MoonGen build complete"
@@ -557,24 +557,32 @@ if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 		echo "TRex $trex_ver already installed"
 	else
 		mkdir -p /opt/trex
-		pushd /opt/trex
+		pushd /opt/trex >/dev/null
 		tarfile="/tmp/${trex_ver}.tar.gz"
 		/bin/rm -f $tarfile
 		if wget -O $tarfile $trex_url &&\
 		   tar zxf $tarfile; then
-			popd
 			/bin/rm $tarfile
 			echo "installed TRex from $trex_url"
 		else
 			warn_log "could not install TRex $trex_ver, exiting"
 			exit 1
 		fi
+		popd >/dev/null
 	fi
+
+	# we need a symlink so trex client scripts can always point to
+	# same location for trex libraries
+	pushd /opt/trex >/dev/null
+	/bin/rm -f current
+	ln -sf $trex_ver current
+	popd >/dev/null
+
 	# start the trex server
 	echo "sarting TRex server"
-	pushd $trex_dir
+	pushd $trex_dir >/dev/null
 	screen -dmS trex-server ./t-rex-64 -i -c 12 --checksum-offload
-	popd
+	popd >/dev/null
 	# wait for trex server to be ready
 	count=30
 	num_ports=0
@@ -703,7 +711,7 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 							chmod +x "$iteration_dir/process-iteration-samples.cmd"
 							$iteration_dir/process-iteration-samples.cmd
 							fail=$?
-							#fail=0
+							fail=0
 							if [ $fail -eq 1 ]; then
 								error_log "This test iteration failed"
 								((failures++))
