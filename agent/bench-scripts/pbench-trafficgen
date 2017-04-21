@@ -428,7 +428,10 @@ while true; do
 		arg="$1"
 		shift
 		if [ -n "$1" ]; then
-			cmd="$cmd $arg=$1"
+			val=$1
+			cmd="$cmd $arg=$val"
+			var=`echo $arg | sed -e s/^--// -e s/-/_/g`
+			eval $var=$val
 		shift
 		fi
 		;;
@@ -446,6 +449,11 @@ while true; do
 		;;
 	esac
 done
+
+if [ $(($validation_runtime + 0)) -le 0 -o $(($search_runtime + 0)) -le 0 ]; then
+	warn_log "Runtime must be greater than 0, exiting"
+	exit 1
+fi
 
 if [ "$traffic_generator" == "trex-txrx" -o "$traffic_generator" == "moongen-txrx" ]; then
 	cmd="$cmd --traffic-generator=$traffic_generator --rate-tolerance=$rate_tolerance_pct"
