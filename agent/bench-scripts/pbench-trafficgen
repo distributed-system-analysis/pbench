@@ -711,7 +711,6 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 							chmod +x "$iteration_dir/process-iteration-samples.cmd"
 							$iteration_dir/process-iteration-samples.cmd
 							fail=$?
-							fail=0
 							if [ $fail -eq 1 ]; then
 								error_log "This test iteration failed"
 								((failures++))
