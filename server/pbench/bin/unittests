@@ -171,6 +171,8 @@ declare -A cmds=(
     [test-7.7]="_run_index $_testroot/test-7.7"
     # uperf tarball
     [test-7.8]="_run_index $_testroot/test-7.8"
+    # pbench-user-benchmark tarball
+    [test-7.9]="_run_index $_testroot/test-7.9"
 
     # activation test
     [test-8]="_run_activate $_testroot/test-8"
@@ -193,6 +195,7 @@ declare -A cmds=(
 
 declare -A links=(
     [test-7.8]="uperf__2016-10-06_16:34:03"
+    [test-7.9]="pbench-user-benchmark__2017-04-21_20:38:16"
 )
 
 # indexing unit tests - why is this necessary?

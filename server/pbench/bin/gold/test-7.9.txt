@@ -1,0 +1,769 @@
++++ Running indexing on /var/tmp/pbench-test-server/test-7.9
+len(actions) = 19
+[
+    {
+        "_id": "dac368cffba8e02c1ecac69dfe46ffcc",
+        "_index": "pbench.run.2017-04",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "file-date": "2017-04-21",
+                "file-name": "/var/tmp/pbench-test-server/pbench-user-benchmark__2017-04-21_20:38:16.tar.xz",
+                "generated-by": "index-pbench",
+                "generated-by-version": "0.1.0.0",
+                "md5": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "pbench-agent-version": "0.42-1gcf7a941"
+            },
+            "@timestamp": "2017-04-21T20:38:16.618515395",
+            "host_tools_info": [
+                {
+                    "hostname": "dhcp31-144",
+                    "hostname-f": "dhcp31-144.perf.lab.eng.bos.redhat.com",
+                    "tools": {
+                        "iostat": "--interval=3",
+                        "mpstat": "--interval=3",
+                        "perf": "--record-opts=record -a --freq=100",
+                        "pidstat": "--interval=3",
+                        "proc-interrupts": "--interval=3",
+                        "proc-vmstat": "--interval=3",
+                        "sar": "--interval=3",
+                        "turbostat": "--interval=3"
+                    }
+                }
+            ],
+            "run": {
+                "config": "",
+                "controller": "dhcp31-144.perf.lab.eng.bos.redhat.com",
+                "date": "2017-04-21T20:38:16",
+                "end_run": "2017-04-21T20:39:29.360092961",
+                "id": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "iterations": "1",
+                "name": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "script": "pbench-user-benchmark",
+                "start_run": "2017-04-21T20:38:16.618515395",
+                "tarball-dirname": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "tarball-toc-prefix": "pbench-user-benchmark__2017-04-21_20:38:16"
+            },
+            "sosreports": [
+                {
+                    "hostname-f": "dhcp31-144.perf.lab.eng.bos.redhat.com",
+                    "hostname-s": "dhcp31-144",
+                    "inet": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "127.0.0.1"
+                        },
+                        {
+                            "ifname": "ens3",
+                            "ipaddr": "10.16.31.144"
+                        }
+                    ],
+                    "inet6": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "::1"
+                        },
+                        {
+                            "ifname": "ens3",
+                            "ipaddr": "fe80::5054:ff:fe25:b8ee"
+                        }
+                    ],
+                    "md5": "a2a7c6c5097ce22dcc6f6f1339e7776d",
+                    "name": "pbench-user-benchmark__2017-04-21_20:38:16/sysinfo/end/dhcp31-144/sosreport-dhcp31-144.perf.lab.eng.bos.redhat.com-pbench-20170421203924.tar.xz"
+                }
+            ]
+        },
+        "_type": "pbench-run"
+    },
+    {
+        "_id": "fa8cffef47561755aa976de86eebb960",
+        "_index": "pbench.run.2017-04",
+        "_op_type": "create",
+        "_parent": "dac368cffba8e02c1ecac69dfe46ffcc",
+        "_source": {
+            "@timestamp": "2017-04-21T20:38:16.618515395",
+            "directory": "/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "metadata.log",
+                    "size": 584
+                },
+                {
+                    "mode": "0o644",
+                    "name": "pbench.log",
+                    "size": 192119
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "964dd6e173ad015beabcaaa04d2ea1ea",
+        "_index": "pbench.run.2017-04",
+        "_op_type": "create",
+        "_parent": "dac368cffba8e02c1ecac69dfe46ffcc",
+        "_source": {
+            "@timestamp": "2017-04-21T20:38:16.618515395",
+            "directory": "/1/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "1335cf153ccff57c51768b5de3d4ff29",
+        "_index": "pbench.run.2017-04",
+        "_op_type": "create",
+        "_parent": "dac368cffba8e02c1ecac69dfe46ffcc",
+        "_source": {
+            "@timestamp": "2017-04-21T20:38:16.618515395",
+            "directory": "/1/reference-result/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "result.txt",
+                    "size": 0
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:21.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-root",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:21.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-swap",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:21.000000",
+            "iostat": {
+                "disk": {
+                    "id": "vda",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:24.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-root",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:24.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-swap",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:24.000000",
+            "iostat": {
+                "disk": {
+                    "id": "vda",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:27.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-root",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:27.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-swap",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:27.000000",
+            "iostat": {
+                "disk": {
+                    "id": "vda",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:30.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-root",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:30.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-swap",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:30.000000",
+            "iostat": {
+                "disk": {
+                    "id": "vda",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:33.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-root",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "78.60"
+                    },
+                    "qsize": "0.74",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "9.43",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.36"
+                    },
+                    "util": "0.74",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "9.46"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:33.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-swap",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:33.000000",
+            "iostat": {
+                "disk": {
+                    "id": "vda",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "77.59"
+                    },
+                    "qsize": "0.73",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "1.00"
+                    },
+                    "reqsize": "9.55",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.36"
+                    },
+                    "util": "0.70",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "9.43"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    }
+]
+--- Finished indexing on /var/tmp/pbench-test-server/test-7.9 (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-server/pbench
+--- pbench tree state
++++ pbench log file contents
+--- pbench log file contents
++++ test-execution.log file contents
+grep: /var/tmp/pbench-test-server/test-execution.log: No such file or directory
+--- test-execution.log file contents
