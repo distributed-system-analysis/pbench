@@ -48,7 +48,8 @@ Test in this tree via:
 
 import sys, time, os.path, os, lzma
 from datetime import datetime
-from ctypes import Structure, c_int, c_uint, c_ushort, c_uint8, c_ulong, c_char, c_ulonglong
+from ctypes import Structure, c_int, c_uint, c_ushort, c_uint8, c_ulong, c_char, c_ulonglong, c_ubyte
+# why are we using c_uint8 instead of c_ubyte ?
 from abc import ABCMeta, abstractmethod
 from contextlib import closing
 
@@ -83,6 +84,9 @@ MAX_COMMENT_LEN = 64
 
 #define UTSNAME_LEN     65
 UTSNAME_LEN = 65
+
+#define FILE_MAGIC_PADDING  63
+FILE_MAGIC_PADDING = 63
 
 #/* Get IFNAMSIZ */
 #include <net/if.h>
@@ -1284,7 +1288,7 @@ struct file_activity {
 #define FILE_ACTIVITY_SIZE	(sizeof(struct file_activity))
     """
     _fields_ = [ ('id', c_uint),
-                 ('magic', c_int),
+                 ('magic', c_uint),
                  ('nr', c_int),
                  ('nr2', c_int),
                  ('size', c_int),
@@ -1320,6 +1324,222 @@ def get_file_activity_2171(fp, fh):
 
 
 def process_file_2171(fp, fm, fh, fa, magic, callback=None):
+    """
+    While the format magic has changed, the actual on-disk format is not so
+    different since the activities have already been processed. Since all the
+    record reads are performed using the values stored in the activity set,
+    the processing remains the same.
+    """
+    process_file_2170(fp, fm, fh, fa, magic, callback=callback)
+
+
+class FileMagic2173(Structure):
+    """
+As of the final git v10.2.1:
+
+This structure should only be extended in the future, so can serve as the
+generic base structure from which we can interrupt the initial bytes of a file
+to determine what the actual format version is for the rest of the file. If it
+changes in size, which is likely for 10.3.x and later, we can define another
+version for that specific number and insert it in the table below.
+
+/*
+ * Datafile format magic number.
+ * Modified to indicate that the format of the file is
+ * no longer compatible with that of previous sysstat versions.
+ */
+#define FORMAT_MAGIC	0x2173
+
+/* Previous datafile format magic number used by older sysstat versions */
+#define PREVIOUS_FORMAT_MAGIC	0x2171
+
+/* Padding in file_magic structure. See below. */
+#define FILE_MAGIC_PADDING	63
+
+/* Structure for file magic header data */
+struct file_magic {
+	/*
+	 * This field identifies the file as a file created by sysstat.
+	 */
+	unsigned short sysstat_magic;
+	/*
+	 * The value of this field varies whenever datafile format changes.
+	 */
+	unsigned short format_magic;
+	/*
+	 * Sysstat version used to create the file.
+	 */
+	unsigned char sysstat_version;
+	unsigned char sysstat_patchlevel;
+	unsigned char sysstat_sublevel;
+	unsigned char sysstat_extraversion;
+	/*
+	 * Size of file's header (size of file_header structure used by file).
+	 */
+	unsigned int header_size;
+	/*
+	 * Set to non zero if data file has been converted with "sadf -c" from
+	 * an old format (version x.y.z) to a newest format (version X.Y.Z).
+	 * In this case, the value is: Y*16 + Z + 1.
+	 * The FORMAT_MAGIC value of the file can be used to determine X.
+	 */
+	unsigned char upgraded;
+	/*
+	 * Padding. Reserved for future use while avoiding a format change.
+	 */
+	unsigned char pad[FILE_MAGIC_PADDING];
+};
+
+#define FILE_MAGIC_SIZE	(sizeof(struct file_magic))
+    """
+    _fields_ = [ ('sysstat_magic', c_ushort),
+                 ('format_magic', c_ushort),
+                 ('sysstat_version', c_ubyte),
+                 ('sysstat_patchlevel', c_ubyte),
+                 ('sysstat_sublevel', c_ubyte),
+                 ('sysstat_extraversion', c_ubyte),
+                 ('header_size', c_uint),
+                 ('upgraded', c_ubyte),
+                 ('pad', c_ubyte * FILE_MAGIC_PADDING),
+                 ]
+    #FORMAT_MAGIC = 0x2171
+    SIZE = ((2 * 2)
+            + (4 * 1)
+            + (1 * 4)
+            + (1 * 1)
+            + (1 * FILE_MAGIC_PADDING ))
+
+    def dump(self, *args, **kwargs):
+        print("file_magic:")
+        print("\tsysstat_magic = 0x%04x" % self.sysstat_magic)
+        print("\tformat_magic = 0x%04x" % self.format_magic)
+        print("\tsysstat_version", repr(self.sysstat_version))
+        print("\tsysstat_patchlevel", repr(self.sysstat_patchlevel))
+        print("\tsysstat_sublevel", repr(self.sysstat_sublevel))
+        print("\tsysstat_extraversion", repr(self.sysstat_extraversion))
+        print("\theader_size", repr(self.header_size))
+        print("\tupgraded", repr(self.upgraded))
+        print("\tpad", repr(self.pad))
+
+
+class FileHeader2173(Structure):
+    """
+/* Header structure for system activity data file */
+struct file_header {
+	/*
+	 * Timestamp in seconds since the epoch.
+	 */
+	unsigned long sa_ust_time	__attribute__ ((aligned (8)));
+	/*
+	 * Number of CPU items (1 .. CPU_NR + 1) for the last sample in file.
+	 */
+	unsigned int sa_last_cpu_nr	__attribute__ ((aligned (8)));
+	/*
+	 * Number of activities saved in file.
+	 */
+	unsigned int sa_act_nr;
+	/*
+	 * Number of volatile activities in file. This is the number of
+	 * file_activity structures saved after each restart mark in file.
+	 */
+	unsigned int sa_vol_act_nr;
+	/*
+	 * Current day, month and year.
+	 * No need to save DST (Daylight Saving Time) flag, since it is not taken
+	 * into account by the strftime() function used to print the timestamp.
+	 */
+	unsigned char sa_day;
+	unsigned char sa_month;
+	unsigned char sa_year;
+	/*
+	 * Size of a long integer. Useful to know the architecture on which
+	 * the datafile was created.
+	 */
+	char sa_sizeof_long;
+	/*
+	 * Operating system name.
+	 */
+	char sa_sysname[UTSNAME_LEN];
+	/*
+	 * Machine hostname.
+	 */
+	char sa_nodename[UTSNAME_LEN];
+	/*
+	 * Operating system release number.
+	 */
+	char sa_release[UTSNAME_LEN];
+	/*
+	 * Machine architecture.
+	 */
+	char sa_machine[UTSNAME_LEN];
+};
+
+#define FILE_HEADER_SIZE	(sizeof(struct file_header))
+    """
+    _fields_ = [ ('sa_ust_time', c_ulong),
+                 ('sa_last_cpu_nr', c_uint),
+                 ('sa_act_nr', c_uint),
+                 ('sa_vol_act_nr', c_uint),
+                 ('sa_day', c_ubyte), # because, unsigned char
+                 ('sa_month', c_ubyte),
+                 ('sa_year', c_ubyte),
+                 ('sa_sizeof_long', c_char),
+                 ('sa_sysname', c_char * UTSNAME_LEN),
+                 ('sa_nodename', c_char * UTSNAME_LEN),
+                 ('sa_release', c_char * UTSNAME_LEN),
+                 ('sa_machine', c_char * UTSNAME_LEN),
+                 ('_alignment_padding', c_uint),         # Padding due to alignment of first element?
+                 ]
+    SIZE = ((1 * 8)
+            + (3 * 4)
+            + (4 * 1)
+            + (4 * UTSNAME_LEN)
+            + 4)
+
+    def dump(self, format_magic, *args, **kwargs):
+        print("file_header (0x%04x):" % format_magic)
+        print("\tsa_ust_time", repr(self.sa_ust_time), datetime.utcfromtimestamp(self.sa_ust_time))
+        print("\tsa_last_cpu_nr", repr(self.sa_last_cpu_nr))
+        print("\tsa_act_nr", repr(self.sa_act_nr))
+        print("\tsa_vol_act_nr", repr(self.sa_vol_act_nr))
+        print("\tsa_day", repr(self.sa_day))
+        print("\tsa_month", repr(self.sa_month))
+        print("\tsa_year", repr(self.sa_year))
+        print("\tsa_sizeof_long", repr(self.sa_sizeof_long))
+        print("\tsa_sysname", repr(self.sa_sysname))
+        print("\tsa_nodename", repr(self.sa_nodename))
+        print("\tsa_release", repr(self.sa_release))
+        print("\tsa_machine", repr(self.sa_machine))
+
+def get_file_activity_2173(fp, fh):
+    # Read file activities
+    a_cpu = False
+    file_activities = []
+    total_len = 0
+    for i in range(fh.sa_act_nr):
+        # FileActivity2171 and FileActivity2173 are similar
+        act = FileActivity2171()
+        ret = fp.readinto(act)
+        check_readinto(act, ret)
+        if act.nr <= 0 or act.nr2 <= 0:
+            if DEBUG:
+                import pdb; pdb.set_trace()
+                print(repr(act))
+            raise Invalid("activity counts: (nr %d or nr2 %d) <= 0" % (act.nr, act.nr2))
+        file_activities.append(act)
+        if act.id == A_CPU:
+            a_cpu = True
+        total_len += (act.nr * act.nr2 * act.size)
+
+    if not a_cpu:
+        if DEBUG:
+            import pdb; pdb.set_trace()
+        raise Invalid("expected CPU activity")
+
+    return FileActivitySummary(file_activities, total_len)
+
+
+def process_file_2173(fp, fm, fh, fa, magic, callback=None):
     """
     While the format magic has changed, the actual on-disk format is not so
     different since the activities have already been processed. Since all the
@@ -1369,6 +1589,14 @@ class_map = {
         "os-code": "f19",
         "rpm-versions": ("sysstat-10.1.5-1.el7",),
         },
+    0x2173: {
+        "file_magic": FileMagic2173,
+        "file_header": FileHeader2173,
+        "process_file": process_file_2173,
+        "file_activity": get_file_activity_2173,
+        "os-code": "f24",
+        "rpm-versions": ("sysstat-11.2.0-1.el7",),
+        },
     }
 
 
@@ -1376,7 +1604,6 @@ def fetch_fileheader_with_fp(fp):
     fm = FileMagic()
     ret = fp.readinto(fm)
     check_readinto(fm, ret)
-
     fp.seek(0)  # Reset to the beginning to read into the proper structure below.
     if fm.sysstat_magic == SYSSTAT_MAGIC:
         # We have a 9.0.0 and later version

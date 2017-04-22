@@ -14,7 +14,7 @@ try:
 except:
     from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
 
-    
+
 nodename_pattern = re.compile(r'nodename=".*"')
 BASE_DIR = os.path.abspath(os.path.dirname('__file__'))
 DEFAULT_SADF_PATH = find_executable('sadf')
@@ -22,14 +22,12 @@ DEFAULT_SADF_PATH = find_executable('sadf')
 # TODO:
 # check if DEFAULT_SADF_PATH is empty (covered under process_binary())
 
-# check 'sadf -H <file path>' to get magic / sysstat version
-# sadf from lower versions of sysstat (< 11.1.1) can't convert binaries [2]
-# Have to explicity check versions [2] and then deal with
-# absence/presence/compatiblity of default sadf package [1].
-# Can't just trigger a convert_binary() if it isn't a feature on
-# that machine's sysstat package.
+# add unit tests for all cases of compatiblity.
+# Ones which also capture testing on TravisCI's platform distribution
 
-# check support in sysstat.py for 0x2173 [1]
+# Do we need a test to see if DEFAULT_SADF_PATH not present,
+# whereas binaries path contains the scripts needed to process?
+# Idk, since pbench-sysstat is installed de-facto.
 
 # refs:
 # 1. https://travis-ci.org/distributed-system-analysis/pbench/jobs/223449263#L876
@@ -48,9 +46,9 @@ def extract_xml(sa_file_path='/tmp/sa01',
     CMD_CONVERT = ['-x', "--", "-A"]
     CMD_CONVERT.insert(0, sadf_script_path)
     CMD_CONVERT.insert(-2, sa_file_path)
-    
+
     target = os.path.dirname(sa_file_path)
-    filename = os.path.basename(sa_file_path)    
+    filename = os.path.basename(sa_file_path)
     p1 = subprocess.Popen(
         CMD_CONVERT,
         env={'LC_ALL': 'C', 'TZ': 'UTC'},
@@ -61,7 +59,7 @@ def extract_xml(sa_file_path='/tmp/sa01',
 
     XML_DATA = ''
     with p1.stdout:
-        for line in iter(p1.stdout.readline, b''): 
+        for line in iter(p1.stdout.readline, b''):
             XML_DATA+=line.decode('utf-8')
     rc = p1.wait()
     err = p1.stderr
@@ -86,15 +84,15 @@ def extract_xml(sa_file_path='/tmp/sa01',
             print("ERROR: Supplied path doesn't yield an SA binary file. Check your input!", file=sys.stderr)
             # sys.exit(rc)
             return (False, rc, None, None)
-        
+
 
 def convert_binary(sa_file_path='/tmp/sa01',
                    sadf_script_path=DEFAULT_SADF_PATH):
     """
     From sadf man page:
-    
-    >> Convert an old system activity  binary  datafile  
-    >> (version  9.1.6  and later) to current up-to-date format. 
+
+    >> Convert an old system activity  binary  datafile
+    >> (version  9.1.6  and later) to current up-to-date format.
     >> Use the following syntax:
     >>     $ sadf -c old_datafile > new_datafile
     """
@@ -122,10 +120,10 @@ def check_sadf_compliance(sa_file_path='/tmp/sa01', cfg_name=None, path=None):
     Attempt to determine os-code for a SA binary which failed to
     convert to XML in first go. If attempt fails, try to convert that
     binary to be compatible with a newer sysstat version using `sadf -c`.
-    
-    Returns: 
+
+    Returns:
     - (True, path-to-new-sa-binary) if conversion happens
-    - (False, os-code) if conversion failed and we now need OS specific 
+    - (False, os-code) if conversion failed and we now need OS specific
       sadf binaries to process this SA file.
     """
     res = oscode.determine_version(file_path=sa_file_path)
@@ -137,7 +135,7 @@ def check_sadf_compliance(sa_file_path='/tmp/sa01', cfg_name=None, path=None):
                                    sadf_script_path=script_path)
         else:
             msg = "Appropriate sadf-<type>-<arch> script necessary to process this file not found!\n"
-            msg += "Please provide a path to folder containing sadf script corresponding to Red Hat OS: %s\n" % res[1] 
+            msg += "Please provide a path to folder containing sadf script corresponding to Red Hat OS: %s\n" % res[1]
             msg += "Path should be configured under [SAR] section in %s" % cfg_name
             print(msg, file=sys.stderr)
             # sys.exit(1)
@@ -174,12 +172,12 @@ def process_binary(path=None, cfg=None, write_data_to_file=False):
     if not DEFAULT_SADF_PATH:
         print("No executable version of sysstat found. Aborting!", file=sys.stderr)
         return (False, None, None)
-    
+
     try:
         config = SafeConfigParser()
         config.read(cfg)
         sadf_binaries_path = config.get('SAR', 'sadf_binaries_path')
-        
+
         extraction_status, rc, nodename, data = extract_xml(sa_file_path=path)
         if extraction_status == True and rc != 0:
             # Couldn't extract in one go. So then, try to convert to latest sysstat version.
@@ -187,7 +185,7 @@ def process_binary(path=None, cfg=None, write_data_to_file=False):
 
             if conversion_status[0]:
                 extraction_status, rc, nodename, data = extract_xml(sa_file_path=conversion_status[1])
-                os.remove(conversion_status[1])        
+                os.remove(conversion_status[1])
                 if extraction_status == True and rc != 0:
                     # Per se, extraction failed after conversion to latest sysstat version's format.
                     # So now, try to detect oscode and follow that path.
@@ -197,7 +195,7 @@ def process_binary(path=None, cfg=None, write_data_to_file=False):
                                                                               path=sadf_binaries_path)
             else:
                 # so to speak, failed to convert to latest sysstat's versioning.
-                # Fall back to oscode detection route. 
+                # Fall back to oscode detection route.
                 extraction_status, rc, nodename, data = check_sadf_compliance(sa_file_path=path,
                                                                           cfg_name=cfg,
                                                                           path=sadf_binaries_path)
@@ -207,7 +205,7 @@ def process_binary(path=None, cfg=None, write_data_to_file=False):
             return (extraction_status, nodename, xml_file_path)
         else:
             return (extraction_status, nodename, data)
-                    
+
     except ConfigFileNotSpecified as e:
         print(e, file=sys.stderr)
 
@@ -218,7 +216,7 @@ def process_binary(path=None, cfg=None, write_data_to_file=False):
         print("Other error", e, file=sys.stderr)
         import traceback
         print(traceback.format_exc())
-        
+
 
 if __name__ == '__main__':
 
@@ -229,7 +227,7 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
     if not options.cfg_name:
         parser.error('Path to pbench-index.cfg required.')
-    
+
     try:
         SA_FILEPATH = args[0]
         status, nodename, fp = process_binary(path=SA_FILEPATH,
@@ -240,7 +238,7 @@ if __name__ == '__main__':
             print("XML data saved to: %s" % fp)
         else:
             sys.exit(1)
-            
+
     except IndexError as e:
         parser.error("No SA binary file supplied to script")
     except Exception as e:
