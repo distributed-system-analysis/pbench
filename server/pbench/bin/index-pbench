@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+# -*- mode: python -*-
 
 # prereqs:
 # config file: specified in ES_CONFIG_PATH
@@ -11,9 +12,9 @@ import sys, os, time, re, stat, copy
 import hashlib, json, glob, csv, tarfile
 
 try:
-    from configparser import SafeConfigParser, NoSectionError, NoOptionError
+    from configparser import SafeConfigParser, Error as ConfigParserError, NoSectionError, NoOptionError
 except ImportError:
-    from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
+    from ConfigParser import SafeConfigParser, Error as ConfigParserError, NoSectionError, NoOptionError
 from optparse import OptionParser, make_option
 from elasticsearch import VERSION, Elasticsearch, helpers, exceptions as es_excs
 from urllib3 import exceptions as ul_excs, Timeout
@@ -686,15 +687,29 @@ def get_pbench_hosts(iteration, sample, mdlog, tb):
     try:
         # N.B. Space-separated list
         return mdlog.get("tools", "hosts").split(' ')
-    except Exception as e:
+    except ConfigParserError:
+        print("ConfigParser error in get_pbench_hosts: tool data will *not* be indexed.")
+        print("This is most probably a bug: please open an issue.")
+        return []
+    except NoSectionError:
+        print("No [tools] section in metadata.log: tool data will *not* be indexed.")
+        return []
+    except NoOptionError:
         print("No hosts in [tools] section in metadata log: tool data will *NOT* be indexed.")
         return []
 
 def get_tools(iteration, sample, host, mdlog, tb):
     try:
         return mdlog.options("tools/{}".format(host))
-    except Exception as e:
-        print("No tools registered for host {}".format(host))
+    except ConfigParserError:
+        print("ConfigParser error in get_tools: tool data will *not* be indexed.")
+        print("This is most probably a bug: please open an issue.")
+        return []
+    except NoSectionError:
+        print("No [tools/{}] section in metadata.log: tool data will *not* be indexed.".format(host))
+        return []
+    except NoOptionError:
+        print("No tools in [tools/{}] section in metadata log: tool data will *NOT* be indexed.".format(host))
         return []
 
 def mk_tool_data(mdlog, md5sum, tb, tstamp):
