@@ -23,9 +23,12 @@
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/TEST2::controller/INDEXED
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/TEST2::controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/TEST2::controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/TEST2::controller/SYNCED
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/TEST2::controller/TO-COPY-SOS
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/TEST2::controller/TODO
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/TEST2::controller/TO-INDEX
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/TEST2::controller/TO-LINK
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/TEST2::controller/TO-SYNC
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/TEST2::controller/WONT-INDEX
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/TEST2::controller/WONT-INDEX.1
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/TEST2::controller/WONT-INDEX.10
@@ -47,6 +50,7 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/md5-checks.log
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/ok-checks.log
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rm.log
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/pbench-rsync-satellite.wq
@@ -64,6 +68,7 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/pbench-rsync-satellite.log:run-1900-01-01T00:00:00-UTC: duration (secs): 0
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/md5-checks.log:controller: fio__2016-08-16_22:03:11.tar.xz: OK
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/md5-checks.log:controller: pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: FAILED
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/ok-checks.log:controller: fio__2016-08-16_22:03:11.tar.xz: OK
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rm.log:controller
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24821] receiving file list
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24823] .d..t...... ./
@@ -81,7 +86,7 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/pbench-rsync-satellite.wq.trimmed:TEST2::controller/fio__2016-08-16_22:03:11.tar.xz 1558168
 --- pbench log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/ssh foo2.bar.com if cd /var/tmp/pbench-test-server/pbench/archive;then ls ;else exit 1 ;fi
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/ssh foo2.bar.com if cd /var/tmp/pbench-test-server/pbench/archive;then find . -path '*/TO-SYNC/*.tar.xz' -printf '%P\n' ;else exit 1 ;fi
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/rsync -av --exclude-from=/var/tmp/pbench-test-server/pbench/tmp/pbench-rsync-satellite.XXXXX/exclude --log-file=/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log foo2.bar.com:/var/tmp/pbench-test-server/pbench/archive/controller/ .
 /var/tmp/pbench-test-server/test-execution.log:
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Number of files: 1 (dir: 1)
@@ -101,7 +106,7 @@
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:sent ### bytes  received ### bytes  ###.## bytes/sec
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:total size is 0  speedup is 0.00
 /var/tmp/pbench-test-server/test-execution.log:
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/ssh foo2.bar.com cd /var/tmp/pbench-test-server/pbench/archive/controller; xargs rm
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/ssh foo2.bar.com cd /var/tmp/pbench-test-server/pbench/archive/controller; /opt/pbench-server/bin/pbench-satellite-cleanup
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/mailx -s pbench-rsync-satellite: TEST2: 2 files processed, 0 remove failures, 1 md5 failures admins@example.com
 /var/tmp/pbench-test-server/test-execution.log:Processed files:
 /var/tmp/pbench-test-server/test-execution.log:TEST2::controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz 7028
