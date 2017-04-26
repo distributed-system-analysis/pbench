@@ -1,0 +1,68 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+BEGIN {
+        my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+        $_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+        if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+                $_test_alt_tools_lib = "$_pbench_tspp_dir";
+        }
+}
+use lib "$_test_alt_tools_lib";
+no lib ".";
+use GenData qw(gen_data);
+
+my $dir=$ARGV[0];
+my $mounted;
+my %disk_data;
+my $timestamp;
+my $timestamp_ms;
+
+# read the iostat.txt
+open(DISK_TXT, "$dir/disk-stdout.txt") || die "could not find $dir/disk-stdout.txt\n";
+while (my $line = <DISK_TXT>) {
+	chomp $line;
+	# Each sample should start with a timestamp.
+	# Javascript requires the timestamp to be in milliseconds.
+
+	#1493489459345 Filesystem              Mounted on     Type      Inodes IUsed   IFree 1K-blocks    Used    Avail File
+	#1493489459345 devtmpfs                /dev           devtmpfs 1019666   392 1019274   4078664       0  4078664 -
+	#1493489459345 tmpfs                   /dev/shm       tmpfs    1022017     1 1022016   4088068       0  4088068 -
+
+	if ( $line =~ /(\d+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\d+)+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)/ ) {
+		my $timestamp_ms = $1;
+		$mounted = $3;
+		my $inodes = $5;
+		my $iused = $6;
+		my $ifree = $7;
+		my $blocks = $8;
+		my $used = $9;
+		my $avail = $10;
+		$disk_data{disk_info}{"inodes"}{$mounted}{$timestamp_ms} = $inodes;
+		$disk_data{disk_info}{"iused"}{$mounted}{$timestamp_ms} = $iused;
+		$disk_data{disk_info}{"ifree"}{$mounted}{$timestamp_ms} = $ifree;
+		$disk_data{disk_info}{"iblocks"}{$mounted}{$timestamp_ms} = $blocks;
+		$disk_data{disk_info}{"space_used_in_KB"}{$mounted}{$timestamp_ms} = $used;
+		$disk_data{disk_info}{"free_space_in_KB"}{$mounted}{$timestamp_ms} = $avail;
+	}
+}
+close(DISK_TXT);
+
+# define the graph types
+# if you want something other than lineChart, put it here
+my %graph_type;
+
+# threshold for displying a series in a graph
+my %graph_threshold;
+$graph_threshold{disk_info}{"inodes"} = 1;
+$graph_threshold{disk_info}{"iused"} = 1;
+$graph_threshold{disk_info}{"ifree"} = 1;
+$graph_threshold{disk_info}{"iblocks"} = 1;
+$graph_threshold{disk_info}{"disk_space_used_in_KB"} = 1;
+$graph_threshold{disk_info}{"free_disk_space_in_KB"} = 1;
+
+gen_data(\%disk_data, \%graph_type, \%graph_threshold, $dir);
