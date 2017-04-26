@@ -1,0 +1,10 @@
+#!/bin/bash
+
+interval=$1
+file=$2
+
+while true; do
+	# we display the output in kilobytes.
+	/usr/bin/df --output=source,target,fstype,itotal,iused,iavail,size,used,avail,file | pbench-log-timestamp | awk -F ' ' '{gsub(/\:/,"",$1); print}' >> $file
+	sleep $interval
+done
