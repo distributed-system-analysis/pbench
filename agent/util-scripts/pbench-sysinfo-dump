@@ -98,7 +98,7 @@ function collect_sos {
 
 function collect_ara_data {
 	# collect data only when ara is installed
-	if python -c "import ara" &>/dev/null; 
+	if python -c "import ara" &>/dev/null; then
 		mkdir $dir/ara
 		generate_inventory > $INVENTORY
 		ansible-playbook -i ${INVENTORY} --extra-vars '{"SYSINFO_DIR":"'$dir'"}' "$pbench_install_dir/ansible/ara/ara.yml"
