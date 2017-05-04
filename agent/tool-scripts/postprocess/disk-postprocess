@@ -22,7 +22,7 @@ my %disk_data;
 my $timestamp;
 my $timestamp_ms;
 
-# read the iostat.txt
+# read the disk-stdout.txt
 open(DISK_TXT, "$dir/disk-stdout.txt") || die "could not find $dir/disk-stdout.txt\n";
 while (my $line = <DISK_TXT>) {
 	chomp $line;
@@ -45,7 +45,7 @@ while (my $line = <DISK_TXT>) {
 		$disk_data{disk_info}{"inodes"}{$mounted}{$timestamp_ms} = $inodes;
 		$disk_data{disk_info}{"iused"}{$mounted}{$timestamp_ms} = $iused;
 		$disk_data{disk_info}{"ifree"}{$mounted}{$timestamp_ms} = $ifree;
-		$disk_data{disk_info}{"iblocks"}{$mounted}{$timestamp_ms} = $blocks;
+		$disk_data{disk_info}{"blocks"}{$mounted}{$timestamp_ms} = $blocks;
 		$disk_data{disk_info}{"space_used_in_KB"}{$mounted}{$timestamp_ms} = $used;
 		$disk_data{disk_info}{"free_space_in_KB"}{$mounted}{$timestamp_ms} = $avail;
 	}
@@ -61,7 +61,7 @@ my %graph_threshold;
 $graph_threshold{disk_info}{"inodes"} = 1;
 $graph_threshold{disk_info}{"iused"} = 1;
 $graph_threshold{disk_info}{"ifree"} = 1;
-$graph_threshold{disk_info}{"iblocks"} = 1;
+$graph_threshold{disk_info}{"blocks"} = 1;
 $graph_threshold{disk_info}{"disk_space_used_in_KB"} = 1;
 $graph_threshold{disk_info}{"free_disk_space_in_KB"} = 1;
 

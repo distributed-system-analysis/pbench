@@ -12,12 +12,12 @@
     <center><h2>disk - disk_info</h2></center>
     <div id="chart_1">
       <script>
-        create_jschart("lineChart", "timeseries", "chart_1", "free_space_in_KB", null, null, { csvfiles: [ "csv/disk_info_free_space_in_KB.csv" ] });
+        create_jschart("lineChart", "timeseries", "chart_1", "blocks", null, null, { csvfiles: [ "csv/disk_info_blocks.csv" ], threshold: 1 });
       </script>
     </div>
     <div id="chart_2">
       <script>
-        create_jschart("lineChart", "timeseries", "chart_2", "iblocks", null, null, { csvfiles: [ "csv/disk_info_iblocks.csv" ], threshold: 1 });
+        create_jschart("lineChart", "timeseries", "chart_2", "free_space_in_KB", null, null, { csvfiles: [ "csv/disk_info_free_space_in_KB.csv" ] });
       </script>
     </div>
     <div id="chart_3">
