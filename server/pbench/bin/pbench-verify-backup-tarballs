@@ -57,12 +57,16 @@ tmp=$TMP/$PROG/tmp.$$
 ponly=$TMP/$PROG/primary.only
 bonly=$TMP/$PROG/backup.only
 report=$TMP/$PROG/report.$$
+quarantine=$TMP/$PROG/quarantine.$$
+restore=$TMP/$PROG/restore.$$
+backuplist=$TMP/$PROG/backuplist.$$
+archivelist=$TMP/$PROG/archivelist.$$
 
 # make sure the directory exists
 mkdir -p $TMP/$PROG
 
 controllers=$TMP/$PROG/controllers.$$
-trap "rm -f $controllers $listp $listp.failed $listb $listb.failed $tmp $ponly $bonly $report; rmdir $TMP/$PROG" EXIT INT QUIT
+trap "rm -f $controllers $listp $listp.failed $listb $listb.failed $tmp $ponly $bonly $report $quarantine.list $restore.list $listp.ok $listb.ok $backuplist.ok $archivelist.ok; rmdir $TMP/$PROG" EXIT INT QUIT
 
 > $listp
 if cd $primary ;then
@@ -91,8 +95,95 @@ if cd $backup ;then
     done < $controllers | sort > $listb
 fi
 
+# make sure the directorie exist
+mkdir -p $primary/QUARANTINE
+
+# function to calculate prefix name
+calculate_prefixname () {
+    tarname=${1##*/}
+    prefixname=${tarname%%.*}
+    despath=`echo ${1%/*} | sed 's;^\.;'$2';'`
+    prefixpath=`echo $prefixname | sed 's;^;'.prefix/prefix.';'`
+    prefix="$despath/$prefixpath"
+}
+
+# Restore from archive the tarballs in backup, that fail the MD5 check
+# XXX - for now backup supposed to be in the same server as archive
+grep FAIL $listb > $listb.failed
+cat $listb.failed | sed -e "s/: FAILED$//" > $quarantine.list
+grep OK $listp > $listp.ok
+cat $listp.ok | sed -e "s/: OK$//" > $archivelist.ok
+
+IFS=$'\n'
+for i in `cat $quarantine.list`;do
+    if [ -f $i ];then
+        grep -q $i $archivelist.ok
+        if [ $? -eq 0 ];then
+            archivetar=`echo $i | sed 's;^\.;'$primary';'`
+            backupdir=`echo ${i%/*} | sed 's;^\.;'$backup';'`
+            archivedir=`echo ${i%/*} | sed 's;^\.;'$primary';'`
+            cp $archivetar* $backupdir
+            calculate_prefixname $i $primary
+            if [ -f $archivedir/.prefix/prefix.$prefixname ];then
+                cp $archivedir/.prefix/prefix.$prefixname $backupdir/.prefix
+            fi
+            (echo "RESTORE FROM ARCHIVE"; echo $i | sed 's;^\.;'$primary';') >> $report
+        else
+            if [ -f $i ];then
+                rm $i*
+                calculate_prefixname $i $backup
+                if [ -f $i ];then
+                    rm $prefix
+                fi
+            fi
+        fi
+
+    fi
+done
+
 # construct the report
 > $report
+if [ -s $quarantine.list ] ;then
+    (echo "* In $backup: The calculated MD5 of the following entries failed to match the stored MD5, 
+    so restore them from archive"; cat $quarantine.list | sed 's;^\.;'$backup';'; echo) >> $report
+fi
+
+# Restore from backup the tarballs in archive, that fail the MD5 check
+grep FAIL $listp > $listp.failed
+cat $listp.failed | sed -e "s/: FAILED$//" > $restore.list
+grep OK $listb > $listb.ok
+cat $listb.ok | sed -e "s/: OK$//" > $backuplist.ok
+
+if [ -s $restore.list ];then
+    (echo "* In $primary: The calculated MD5 of the following entries failed to match the stored MD5,
+    so trying to restore from backup, otherwise moving to quarantine"; cat $restore.list | sed 's;^\.;'$primary';';) >> $report
+fi
+
+IFS=$'\n'
+for i in `cat $restore.list`;do
+    if [ -f $i ];then
+        grep -q $i $backuplist.ok
+        if [ $? -eq 0 ];then
+            archivedir=`echo ${i%/*} | sed 's;^\.;'$primary';'`
+            cp $i* $archivedir
+            calculate_prefixname $i $backup
+            if [ -f .prefix/prefix.$prefixname ];then
+                cp .prefix/prefix.$prefixname $archivedir/.prefix
+            fi
+            (echo "RESTORE"; echo $i | sed 's;^\.;'$primary';') >> $report
+        fi
+        else
+            mv "`echo $i | sed 's;^\.;'$primary';'`" $primary/QUARANTINE
+            mv "`echo $i.md5 | sed 's;^\.;'$primary';'`" $primary/QUARANTINE
+            calculate_prefixname $i $primary
+            if [ -f $prefix ];then
+                mv $prefix $primary/QUARANTINE
+            fi
+            (echo "QUARANTINE"; echo $i | sed 's;^\.;'$primary';') >> $report
+    fi
+done
+
+# construct the report
 let ret=0
 grep FAIL $listp > $listp.failed
 if [ -s $listp.failed ] ;then
