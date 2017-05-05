@@ -18,6 +18,7 @@ md5sum: WARNING: 1 computed checksum did NOT match
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz.md5
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/QUARANTINE
 /var/tmp/pbench-test-server/pbench/public_html
 /var/tmp/pbench-test-server/pbench/public_html/incoming
 /var/tmp/pbench-test-server/pbench/public_html/results
@@ -27,6 +28,11 @@ md5sum: WARNING: 1 computed checksum did NOT match
 --- pbench log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/mailx -s pbench-verify-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test) admins@example.com
+/var/tmp/pbench-test-server/test-execution.log:* In /var/tmp/pbench-test-server/pbench/archive/fs-version-001: The calculated MD5 of the following entries failed to match the stored MD5,
+/var/tmp/pbench-test-server/test-execution.log:    so trying to restore from backup, otherwise moving to quarantine
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
+/var/tmp/pbench-test-server/test-execution.log:RESTORE
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
 /var/tmp/pbench-test-server/test-execution.log:* In /var/tmp/pbench-test-server/pbench/archive/fs-version-001: The calculated MD5 of the following entries failed to match the stored MD5
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: FAILED
 /var/tmp/pbench-test-server/test-execution.log:
