@@ -675,9 +675,9 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 						log "Starting iteration[$iteration] ($count of $total_iterations)"
 						# Add any benchmark-iteration-specific options
 						if [  $traffic_direction == "unidirec" ]; then
-							iteration_options=" --run-bidirec=0"
+							iteration_options="$iteration_options --run-bidirec=0"
 						else
-							iteration_options=" --run-bidirec=1"
+							iteration_options="$iteration_options --run-bidirec=1"
 						fi
 						iteration_options="$iteration_options --max-loss-pct=$max_loss_pct"
 						iteration_options="$iteration_options --frame-size=$frame_size"
