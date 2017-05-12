@@ -48,19 +48,20 @@ my $pmd_port_mapping_file = "pmd-rxq-show.txt";
 open(TXT, "$dir/$pmd_port_mapping_file") || die "could not find $dir/$pmd_port_mapping_file\n";
 # file looks like:
 #
+#pmd thread numa_id 0 core_id 16:
 #pmd thread numa_id 0 core_id 2:
 #	isolated : false
 #	port: vhost-user-1	queue-id: 0
 #	port: vhost-user-0	queue-id: 0
 while (my $line = <TXT>) {
 	chomp $line;
-	if ($line =~ /^pmd thread numa_id (\d) core_id (\d):/ ) {
+	if ($line =~ /^pmd thread numa_id (\d+) core_id (\d+):/ ) {
 		my $node = $1;
 		my $cpu = $2;
 		$pmd_thread_id = "node" . $node . "cpu" . $cpu;
 		next;
 	}
-	if ($line =~ /^\s*port:\s(\S+)\s+queue-id:\s+(\d)/ ) {
+	if ($line =~ /^\s*port:\s(\S+)\s+queue-id:\s+(\d+)/ ) {
 		my $port = $1;
 		my $queue = $2;
 		$pmd_mappings{$pmd_thread_id} .= -$port . ":q" . $queue;
@@ -145,7 +146,7 @@ while (my $line = <TXT>) {
 	}
 
 	#pmd thread numa_id 0 core_id 2:
-	if ($line =~ /^pmd thread numa_id (\d) core_id (\d):/ ) {
+	if ($line =~ /^pmd thread numa_id (\d+) core_id (\d+):/ ) {
 		my $node = $1;
 		my $cpu = $2;
 		$stats_mode = "dpdk";
