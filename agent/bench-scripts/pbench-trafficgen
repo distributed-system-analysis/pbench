@@ -65,8 +65,12 @@ frame_sizes="64" # size in bytes of the Ethernet frame inccluding CRC
 config=""
 maxstddevpct=5 # maximum allowable standard deviation in percent
 max_failures=1 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
-search_runtime=60
-validation_runtime=120
+df_sniff_runtime=30
+df_search_runtime=120
+df_validation_runtime=300
+df_zl_sniff_runtime=30
+df_zl_search_runtime=1200
+df_zl_validation_runtime=7200
 postprocess_only=n
 start_iteration_num=1
 keep_failed_tool_data="y"
@@ -91,7 +95,7 @@ function kill_trex() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o c: --longoptions "skip-trex-server,traffic-generator:,devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-macs:,src-ips:,dst-macs:,dest-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o c: --longoptions "skip-trex-server,traffic-generator:,devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-macs:,src-ips:,dst-macs:,dest-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
@@ -114,6 +118,11 @@ if [ $? -ne 0 ]; then
 	printf -- "\n"
 	printf -- "--one-shot\n"
 	printf -- "  Run one test for throughput at specified rate\n"
+	printf -- "\n"
+	printf -- "--sniff-runtime=int\n"
+	printf -- "  Measurement period in seconds for a \"sniff\" trial, right before the search trial\n"
+	printf -- "  if the sniff test fails, the search trial is skipped and moves on to the next trial\n"
+	printf -- "  Default is $sniff_runtime\n"
 	printf -- "\n"
 	printf -- "--search-runtime=int\n"
 	printf -- "  Measurement period in seconds when searching for max throughput\n"
@@ -424,7 +433,18 @@ while true; do
 		    shift
 		fi
 		;;
-		--validation-runtime|--search-runtime|--overlay-ids|vlan-ids|overlay-types| --src-ips|--src-macs|--dst-ips|--src-macs|--encap-src-ips|--encap-src-macs|--encap-dst-ips|--encap-dst-macs)
+		--validation-runtime|--sniff-runtime|--search-runtime)
+		arg="$1"
+		shift
+		if [ -n "$1" ]; then
+			val=$1
+			var=`echo $arg | sed -e s/^--// -e s/-/_/g`
+			eval $var=$val
+		shift
+		fi
+		;;
+		# for options which if not used, do not affect the binary-search.py options (and binary-search should not use them by default)
+		--overlay-ids|vlan-ids|overlay-types|--src-ips|--src-macs|--dst-ips|--src-macs|--encap-src-ips|--encap-src-macs|--encap-dst-ips|--encap-dst-macs)
 		arg="$1"
 		shift
 		if [ -n "$1" ]; then
@@ -450,10 +470,6 @@ while true; do
 	esac
 done
 
-if [ $(($validation_runtime + 0)) -le 0 -o $(($search_runtime + 0)) -le 0 ]; then
-	warn_log "Runtime must be greater than 0, exiting"
-	exit 1
-fi
 
 if [ "$traffic_generator" == "trex-txrx" -o "$traffic_generator" == "moongen-txrx" ]; then
 	cmd="$cmd --traffic-generator=$traffic_generator --rate-tolerance=$rate_tolerance_pct"
@@ -527,6 +543,7 @@ for dev in `echo $devices | sed -e s/,/" "/g`; do
 	fi
 done
 # -trafficgen-engine installed/ready
+if [ 0 -eq 1 ]; then
 if [ -d $trafficgen_dir ]; then
 	if pushd $trafficgen_dir >/dev/null && git pull && git checkout master; then
 		echo "lua-trafficgen is up to date"
@@ -557,6 +574,7 @@ if [ $traffic_generator == "moongen-txrx" ]; then
 			exit 1
 		fi
 	fi
+fi
 fi
 	
 kill_trex
@@ -646,6 +664,45 @@ export benchmark_name config
 for rate in `echo $rates | sed -e s/,/" "/g`; do
 	for traffic_direction in `echo $traffic_directions | sed -e s/,/" "/g`; do
 		for max_loss_pct in `echo $max_loss_pcts | sed -e s/,/" "/g`; do
+			# if any of the runtimes are provided by the user, then use those
+			unset iteration_sniff_runtime
+			unset iteration_search_runtime
+			unset iteration_validaton_runtime
+			if [ ! -z "$sniff_runtime" ]; then
+				iteration_sniff_runtime=$sniff_runtime
+			fi
+			if [ ! -z "$search_runtime" ]; then
+				iteration_search_runtime=$search_runtime
+			fi
+			if [ ! -z "$validation_runtime" ]; then
+				iteration_validation_runtime=$validation_runtime
+			fi
+			# for any runtimes not provided by user, assign a default value
+			# there are different defaults for 0-loss and non-zero-loss
+			if [ -z "$iteration_sniff_runtime" ]; then
+				if [ $max_loss_pct -eq 0 ]; then
+					iteration_sniff_runtime=$df_zl_sniff_runtime
+				else
+					iteration_sniff_runtime=$df_sniff_runtime
+				fi
+			fi
+			if [ -z "$iteration_search_runtime" ]; then
+				if [ $max_loss_pct -eq 0 ]; then
+					iteration_search_runtime=$df_zl_search_runtime
+				else
+					iteration_search_runtime=$df_search_runtime
+				fi
+			fi
+			if [ -z "$iteration_validation_runtime" ]; then
+				if [ $max_loss_pct -eq 0 ]; then
+					iteration_validation_runtime=$df_zl_validation_runtime
+				else
+					iteration_validation_runtime=$df_validation_runtime
+				fi
+			fi
+			cmd="$cmd --sniff-runtime=$iteration_sniff_runtime"
+			cmd="$cmd --search-runtime=$iteration_search_runtime"
+			cmd="$cmd --validation-runtime=$iteration_validation_runtime"
 			for frame_size in `echo $frame_sizes | sed -e s/,/" "/g`; do
 				for num_flow in `echo $num_flows | sed -e s/,/" "/g`; do
 					if [ $count -ge $start_iteration_num ]; then
@@ -747,7 +804,7 @@ done
 echo "$script_path/postprocess/generate-benchmark-summary $benchmark_name $orig_cmd $benchmark_run_dir" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
 $script_path/postprocess/generate-benchmark-summary "$benchmark_name" "$orig_cmd" "$benchmark_run_dir"
 #pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
-if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
-	kill_trex
-fi
+#if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
+	#kill_trex
+#fi
 rmdir $benchmark_run_dir/.running
