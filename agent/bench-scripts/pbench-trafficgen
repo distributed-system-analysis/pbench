@@ -667,7 +667,7 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 			# if any of the runtimes are provided by the user, then use those
 			unset iteration_sniff_runtime
 			unset iteration_search_runtime
-			unset iteration_validaton_runtime
+			unset iteration_validation_runtime
 			if [ ! -z "$sniff_runtime" ]; then
 				iteration_sniff_runtime=$sniff_runtime
 			fi
