@@ -8,7 +8,7 @@ default_tools_interval=$1
 ose_master_interval=$2
 ose_node_interval=$3
 file=$4
-label_name=svt_
+label_prefix=svt_
 hosts=/run/pbench/register.tmp.hosts
 declare -a remote
 declare -a group
@@ -36,7 +36,7 @@ while read -u 9 line;do
   index_value=$(echo $line | awk -F' ' '{print $3}')
   index_value=$(( index_value + 1 )) 
   # Modify the label to include group and index number to make it unique
-  label_name="$label_name""$group_name"_"$index_value"
+  label_name="$label_prefix""$group_name"_"$index_value"
   remote[${#remote[@]}]=$remote_name 
   group[${#group[@]}]=$group_name
   index[${#index[@]}]=$index_value
