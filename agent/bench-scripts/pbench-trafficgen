@@ -577,8 +577,8 @@ if [ $traffic_generator == "moongen-txrx" ]; then
 fi
 fi
 	
-kill_trex
 if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
+	kill_trex
 	if [ -d $trex_dir ]; then
 		echo "TRex $trex_ver already installed"
 	else
@@ -804,7 +804,7 @@ done
 echo "$script_path/postprocess/generate-benchmark-summary $benchmark_name $orig_cmd $benchmark_run_dir" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
 $script_path/postprocess/generate-benchmark-summary "$benchmark_name" "$orig_cmd" "$benchmark_run_dir"
 #pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
-#if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
-	#kill_trex
-#fi
+if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
+	kill_trex
+fi
 rmdir $benchmark_run_dir/.running
