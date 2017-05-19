@@ -117,7 +117,7 @@ for host in $hosts ;do
     if [ ! -d $localdir ] ;then
         mkdir -p $localdir || exit 1
     fi
-    pushd $localdir 2>/dev/null || exit 2
+    pushd $localdir >/dev/null || exit 2
     if [ ! -d $logdir/$host ] ;then
         mkdir -p $logdir/$host
     fi

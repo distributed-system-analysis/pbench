@@ -188,7 +188,10 @@ declare -A cmds=(
     [test-9.5]="_run pbench-verify-backup-tarballs"
 
     # pbench-rsync-satellite
+    # trivial results: no mail
     [test-10]="_run pbench-rsync-satellite TEST foo.bar.com $_testroot/pbench/archive"
+    # non-trivial results: mail
+    [test-11]="_run pbench-rsync-satellite TEST2 foo2.bar.com $_testroot/pbench/archive"
 )
 
 declare -A links=(
