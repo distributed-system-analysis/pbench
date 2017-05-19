@@ -42,7 +42,6 @@ case $opts in
         PROG=$(basename $0)
         ;;
 esac
-
 case $# in
     3)
         :
@@ -61,7 +60,6 @@ shift 3
 
 # TOP, TMP, LOGSDIR, ARCHIVE, TS are all defined in pbench-base.sh
 . $dir/pbench-base.sh
-
 if [[ -z "$mail_recipients" ]] ;then
     echo "$PROG: mail_recipients is not defined"
     exit -1
@@ -75,7 +73,18 @@ if [[ $rc != 0 ]] ;then
     exit -2
 fi
 
-tmp=$TMP/$PROG.$$
+# check if we are running under the unit test regime
+if [ ${_PBENCH_SERVER_TEST} = "1" ] ;then
+    # make the names reproducible for unit tests
+    tmp=$TMP/$PROG.XXXXX
+    status=status.XXXXX
+    # don't submit any tarballs for further processing
+    dryrun=--dry-run
+else
+    tmp=$TMP/$PROG.$$
+    status=status.$$
+    dryrun=
+fi
 
 trap "rm -rf $tmp" EXIT
 
@@ -126,10 +135,10 @@ for host in $hosts ;do
     # generate list of downloaded md5 files
     rsync_log=$logdir/$host/rsync.log
     md5list=$tmp/$host.md5.list
-    grep '>f' $rsync_log | awk '/.md5$/	{ print $5; }' > $md5list
+    grep '>f' $rsync_log | awk '/.md5$/	{ print $5; }' | sed '/^$/d' > $md5list
     # check tarballs
     if [ -s $md5list ] ;then
-        md5sum -c $(cat $md5list) > $logdir/$host/md5-checks.log
+        md5sum -c $(cat $md5list) | sed "s/^/$host: /" > $logdir/$host/md5-checks.log
         # delete all that check out
         for x in $(sed -n '/OK$/s/: OK//p' $logdir/$host/md5-checks.log) ;do
             echo $x $x.md5
@@ -169,26 +178,21 @@ done | sort -k1,1 | join - $list | sort -k2,2 -n > $logdir/$PROG.wq
 
 grep -v DUPLICATE $logdir/$PROG.wq | awk -F'/' 'NF==2' > $logdir/$PROG.wq.trimmed
 
-
-$dir/pbench-rsync-satellite-process-work-queue --archive=$ARCHIVE $logdir/$PROG.wq.trimmed
+$dir/pbench-rsync-satellite-process-work-queue $dryrun --archive=$ARCHIVE $logdir/$PROG.wq.trimmed
 rc=$?
 
 # prepare status file
 failed_rm=$tmp/failed_rm.log
 for host in $hosts ;do
     if [ -s $logdir/$prefix/$host/rm.log ] ;then
-        echo $host:
-        cat $logdir/$prefix/$host/rm.log
-        echo
+        grep "^$host: " $logdir/$prefix/$host/rm.log
     fi
 done > $failed_rm
 
 failed_md5=$tmp/failed_md5.log
 for host in $hosts ;do
     if [ -n "$(grep -v 'OK$' $logdir/$host/md5-checks.log 2>/dev/null)" ] ;then
-        echo $host:
-        grep -v 'OK$' $logdir/$prefix/$host/md5-checks.log
-        echo
+        grep "^$host: " $logdir/$host/md5-checks.log | grep -v 'OK$'
     fi
 done > $failed_md5
 
@@ -196,6 +200,7 @@ nprocessed=$(wc -l < $logdir/$PROG.wq.trimmed)
 nfailed_rm=$(wc -l < $failed_rm)
 nfailed_md5=$(wc -l < $failed_md5)
 nskipped=0
+
 if [ -f $logdir/$PROG.wq.skipped ] ;then
     nskipped=$(wc -l < $logdir/$PROG.wq.skipped)
 fi
@@ -234,7 +239,7 @@ fi
      cat $logdir/$PROG.wq.skipped;
      echo;
      echo =================;
- fi; ) > $tmp/status.$$
+ fi; ) > $tmp/$status
 
 if [[ $rc == 1 ]] ;then
      echo "pbench-rsync-satellite-process-work-queue exited with status 1"
@@ -256,15 +261,15 @@ if [[ $rc == 1 ]] ;then
      echo "Call 1-800-GHOSTBUSTERS and tell ndk about it"
 elif [[ $rc != 0 ]] ;then
      echo "pbench-rsync-satellite-process-work-queue exited with non-zero status $rc - why?"
-fi >> $tmp/status.$$
+fi >> $tmp/$status
 
 # ... and mail it
 if [ "$nprocessed" -gt 0 -o "$nfailed_rm" -gt 0 -o "$nfailed_md5" -gt 0 ]  ;then
     mailx -s \
     "$PROG: $prefix: $nprocessed files processed, $nfailed_rm remove failures, $nfailed_md5 md5 failures"\
-    $mail_recipients < $tmp/status.$$
+    $mail_recipients < $tmp/$status
 fi
-    
+
 let end_time=$(timestamp-seconds-since-epoch)
 let duration=end_time-start_time
 echo "$TS: end - $(timestamp)"
