@@ -151,6 +151,11 @@ declare -A cmds=(
     [test-06]="pbench-fio --config=test-06  --test-type=throughput --samples=1 --client-file=/tmp/foo"
     [test-07]="pbench-user-benchmark --help"
     [test-08]="pbench-user-benchmark --sysinfo=bad"
+    [test-09]="pbench-user-benchmark -- user-benchmark-script no-file"
+    [test-10]="pbench-user-benchmark -- user-benchmark-script no-duration"
+    [test-11]="pbench-user-benchmark -- user-benchmark-script with-duration"
+    [test-12]="pbench-user-benchmark -- user-benchmark-script bad-format"
+    
 )
 
 declare -A expected_status=(
@@ -172,6 +177,10 @@ declare -A pre=(
 
 declare -A post=(
     [test-06]="rm -f /tmp/foo"
+    [test-09]="cat $_testdir/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json >> $_testout"
+    [test-10]="cat $_testdir/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json >> $_testout"
+    [test-11]="cat $_testdir/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json >> $_testout"
+    [test-12]="cat $_testdir/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json >> $_testout"
 )
 
 
