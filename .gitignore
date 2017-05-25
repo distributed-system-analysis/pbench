@@ -1,3 +1,5 @@
 doc/*.html
 __pycache__
 *.swp
+*~
+*.pyc

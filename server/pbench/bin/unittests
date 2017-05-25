@@ -169,6 +169,7 @@ declare -A cmds=(
     [test-7.5]="_run_index $_testroot/test-7.5"
     [test-7.6]="_run_index $_testroot/test-7.6"
     [test-7.7]="_run_index $_testroot/test-7.7"
+
     # uperf tarball
     [test-7.8]="_run_index $_testroot/test-7.8"
 
@@ -189,6 +190,9 @@ declare -A cmds=(
 
     # pbench-rsync-satellite
     [test-10]="_run pbench-rsync-satellite TEST foo.bar.com $_testroot/pbench/archive"
+
+    # verify special _special_paths in 'toc' (like sar.data) are processed
+    [test-11]="_run_index $_testroot/test-11"
 )
 
 declare -A links=(
@@ -218,4 +222,3 @@ for test in  $tests ;do
     _reset_state
 done
 exit $failures
-
