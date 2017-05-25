@@ -28,8 +28,13 @@ Your inventory should have groups of hosts describing the roles they play in the
 
 [lb]
 
+[pbench-controller:vars]
+register_all_nodes=False
+
+By default, tools registration is done on only two of the nodes, setting the register_all_nodes to True will register tools on all of the nodes.
+
 ### Run
-Currently for pbench is run under the root user, so the playbook also needs to run as root.
+Currently pbench is run under the root user, so the playbook also needs to run as root.
 ```
 $ ansible-playbook -i /path/to/inventory --extra-vars '{ "ansible_ssh_private_key_file":"" }' pbench_register.yml
 ```
