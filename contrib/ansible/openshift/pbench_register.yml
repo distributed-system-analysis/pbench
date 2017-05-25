@@ -28,7 +28,12 @@
       with_indexed_items: 
        - "{{ groups['nodes'][-1] }}" 
        - "{{ groups['nodes'][-2] }}"
-      when: groups['nodes']|default([])
+      when: groups['nodes']|default([]) and not ( register_all_nodes | bool )
+    - name: add nodes to the file
+      shell: echo -e {{ item.1 }} node {{ item.0 }} >> {{ file }}
+      with_indexed_items:
+       - "{{ groups['nodes'] }}"
+      when: groups['nodes']|default([]) and ( register_all_nodes | bool )
     - name: add etcd nodes to the file
       shell: echo -e {{ item.1 }} etcd {{ item.0 }} >> {{ file }}
       with_indexed_items: "{{ groups['etcd'] }}"
