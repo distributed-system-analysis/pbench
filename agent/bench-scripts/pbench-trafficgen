@@ -461,6 +461,15 @@ while true; do
 		;;
 		--)
 		shift
+		while true; do
+			arg="$1"
+			shift
+			if [ -n "$arg" ]; then
+				cmd="$cmd $arg"
+			else
+				break
+			fi
+		done
 		break
 		;;
 		*)
