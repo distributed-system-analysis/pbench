@@ -44,7 +44,6 @@ trex_ver="v2.22"
 trex_dir="/opt/trex/$trex_ver"
 trex_url=http://trex-tgn.cisco.com/trex/release/${trex_ver}.tar.gz
 benchmark_run_dir=""
-test_types="throughput-latency"
 traffic_directions="bidirec"
 max_loss_pcts="0.002"
 num_flows="1024"
@@ -394,7 +393,7 @@ while true; do
 			shift
 		fi
 		;;
-		--frame-sizes|--frame-sizes)
+		--frame-size|--frame-sizes)
 		shift
 		if [ -n "$1" ]; then
 			frame_sizes="$1"
@@ -461,6 +460,15 @@ while true; do
 		;;
 		--)
 		shift
+		while true; do
+			arg="$1"
+			shift
+			if [ -n "$arg" ]; then
+				cmd="$cmd $arg"
+			else
+				break
+			fi
+		done
 		break
 		;;
 		*)
@@ -479,7 +487,7 @@ else
 fi
 
 for num_flow in `echo $num_flows | sed -e 's/,/ /g'`; do
-	if ! [ $num_flows -gt 0 -a $num_flows -le 16777216 ]; then
+	if ! [ $num_flow -gt 0 -a $num_flow -le 16777216 ]; then
 		log_warn "This number of flows is invalid: $num_flow"
 		exit 1
 	fi
@@ -680,21 +688,21 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 			# for any runtimes not provided by user, assign a default value
 			# there are different defaults for 0-loss and non-zero-loss
 			if [ -z "$iteration_sniff_runtime" ]; then
-				if [ $max_loss_pct -eq 0 ]; then
+				if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
 					iteration_sniff_runtime=$df_zl_sniff_runtime
 				else
 					iteration_sniff_runtime=$df_sniff_runtime
 				fi
 			fi
 			if [ -z "$iteration_search_runtime" ]; then
-				if [ $max_loss_pct -eq 0 ]; then
+				if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
 					iteration_search_runtime=$df_zl_search_runtime
 				else
 					iteration_search_runtime=$df_search_runtime
 				fi
 			fi
 			if [ -z "$iteration_validation_runtime" ]; then
-				if [ $max_loss_pct -eq 0 ]; then
+				if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
 					iteration_validation_runtime=$df_zl_validation_runtime
 				else
 					iteration_validation_runtime=$df_validation_runtime
@@ -717,11 +725,11 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 						else
 							iteration_options="$iteration_options --rate-unit=$rate_unit --rate=$rate"
 						fi
-						if [ "$test_type" == "latency" ]; then
-							iteration="${count}-${test_type}-${traffic_direction}-${frame_size}B-${num_flow}flows-${rate}Mpps"
-						else 
-							iteration="${count}-${test_type}-${traffic_direction}-${frame_size}B-${num_flow}flows-${max_loss_pct}pct_drop"
+						fs_unit=""
+						if [ "${frame_size}" -eq "${frame_size}" ] 2>/dev/null; then
+							fs_unit="B"
 						fi
+						iteration="${count}-${traffic_direction}-${frame_size}${fs_unit}-${num_flow}flows-${max_loss_pct}pct_drop"
                                                 echo $iteration >> $benchmark_iterations
 						iteration_dir="$benchmark_run_dir/$iteration"
 						mkdir -p $iteration_dir
@@ -738,7 +746,7 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 						fi
 						iteration_options="$iteration_options --max-loss-pct=$max_loss_pct"
 						iteration_options="$iteration_options --frame-size=$frame_size"
-						iteration_options="$iteration_options --num-flows=$num_flows"
+						iteration_options="$iteration_options --num-flows=$num_flow"
 						# save benchmark command in file for debugging or running manually
 						echo "pushd >/dev/null $trafficgen_dir" >$benchmark_cmd_file
 						echo "$cmd $iteration_options" >>$benchmark_cmd_file
@@ -794,7 +802,6 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 						echo "Skipping iteration $iteration ($count of $total_iterations)"
 						log "Skipping iteration $iteration ($count of $total_iterations)"
 					fi
-					last_test_type="$test_type"
 					let count=$count+1 # now we can move to the next iteration
 				done
 			done

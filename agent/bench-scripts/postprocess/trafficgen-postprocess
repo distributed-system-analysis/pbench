@@ -177,11 +177,17 @@ if ($json_result) {
 		      		'tx_port' => $rx_port,
 		      		'rx_port' => $tx_port,
 		      		'value' => $rx_rate / 1000000} );
+		my $value;
+		if (exists ${ $perl_scalar }[$rx_port]{'rx_bandwidth'}) {
+		    $value = ${ $perl_scalar }[$rx_port]{'rx_bandwidth'};
+		} else {
+		    $value = ($config{'frame_size'} *8 + 64 + 96) * $rx_rate;
+		}
 		push(@Gb_sec, { 'description' => "The number of bits (in billions) received from Ethernet phsycial layer per second",
      				'uid' => $uid,
 				'tx_port' => $rx_port,
 				'rx_port' => $tx_port,
-				'value' => ($config{'frame_size'} *8 +64 +96) *$rx_rate /1000 } );
+				'value' => ($value / (1000 * 1000 * 1000)) });
 	}
 } else {
 	print "The result from pbench-traffigen was not found in result.txt.  See $result_file\n";
