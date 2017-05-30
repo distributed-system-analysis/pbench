@@ -488,7 +488,7 @@ else
 fi
 
 for num_flow in `echo $num_flows | sed -e 's/,/ /g'`; do
-	if ! [ $num_flows -gt 0 -a $num_flows -le 16777216 ]; then
+	if ! [ $num_flow -gt 0 -a $num_flow -le 16777216 ]; then
 		log_warn "This number of flows is invalid: $num_flow"
 		exit 1
 	fi
@@ -747,7 +747,7 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 						fi
 						iteration_options="$iteration_options --max-loss-pct=$max_loss_pct"
 						iteration_options="$iteration_options --frame-size=$frame_size"
-						iteration_options="$iteration_options --num-flows=$num_flows"
+						iteration_options="$iteration_options --num-flows=$num_flow"
 						# save benchmark command in file for debugging or running manually
 						echo "pushd >/dev/null $trafficgen_dir" >$benchmark_cmd_file
 						echo "$cmd $iteration_options" >>$benchmark_cmd_file
