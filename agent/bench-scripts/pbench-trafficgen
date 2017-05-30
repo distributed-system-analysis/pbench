@@ -394,7 +394,7 @@ while true; do
 			shift
 		fi
 		;;
-		--frame-sizes|--frame-sizes)
+		--frame-size|--frame-sizes)
 		shift
 		if [ -n "$1" ]; then
 			frame_sizes="$1"
