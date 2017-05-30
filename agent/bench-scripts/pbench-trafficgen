@@ -688,21 +688,21 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 			# for any runtimes not provided by user, assign a default value
 			# there are different defaults for 0-loss and non-zero-loss
 			if [ -z "$iteration_sniff_runtime" ]; then
-				if [ $max_loss_pct -eq 0 ]; then
+				if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
 					iteration_sniff_runtime=$df_zl_sniff_runtime
 				else
 					iteration_sniff_runtime=$df_sniff_runtime
 				fi
 			fi
 			if [ -z "$iteration_search_runtime" ]; then
-				if [ $max_loss_pct -eq 0 ]; then
+				if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
 					iteration_search_runtime=$df_zl_search_runtime
 				else
 					iteration_search_runtime=$df_search_runtime
 				fi
 			fi
 			if [ -z "$iteration_validation_runtime" ]; then
-				if [ $max_loss_pct -eq 0 ]; then
+				if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
 					iteration_validation_runtime=$df_zl_validation_runtime
 				else
 					iteration_validation_runtime=$df_validation_runtime
