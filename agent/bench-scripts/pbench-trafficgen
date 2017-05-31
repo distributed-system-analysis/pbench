@@ -478,6 +478,13 @@ while true; do
 	esac
 done
 
+# add test options to $config, so this test result directory is easily identifiable
+config="${config}_tg[`echo $traffic_generator | sed -e 's/-txrx//'`]r[$rates]fs[$frame_sizes]nf[$num_flows]fm[`echo $flow_mods | sed -e 's/src-/s/g' -e 's/dst-/d/g' -e 's/ip/i/g' -e 's/mac/m/g' -e 's/port/p/g'`]td[`echo $traffic_directions | sed -e 's/direc//g'`]ml[$max_loss_pcts]"
+if [ "$one_shot" == "y" ]; then
+	config="${config}tt[os]"
+else
+	config="${config}tt[bs]"
+fi
 
 if [ "$traffic_generator" == "trex-txrx" -o "$traffic_generator" == "moongen-txrx" ]; then
 	cmd="$cmd --traffic-generator=$traffic_generator --rate-tolerance=$rate_tolerance_pct"
