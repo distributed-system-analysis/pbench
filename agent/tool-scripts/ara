@@ -1,0 +1,76 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+# Defaults
+tool=$script_name
+group=default
+dir="/tmp"
+
+# Process options and arguments
+opts=$(getopt -q -o idp --longoptions "dir:,group:,iteration,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+eval set -- "$opts";
+while true; do
+	case "$1" in
+		--install)
+		mode="install"
+		shift;
+		;;
+		--start)
+		mode="start"
+		shift;
+		;;
+		--stop)
+		mode="stop"
+		shift;
+		;;
+		--postprocess)
+		mode="postprocess"
+		shift;
+		;;
+		-d|--dir)
+		shift;
+		if [ -n "$1" ]; then
+			dir="$1"
+			shift
+		fi
+		;;
+		-g|--group)
+		shift;
+		if [ -n "$1" ]; then
+			group="$1"
+			shift
+		fi
+		;;
+		--)
+		shift;
+		break;
+		;;
+	esac
+done
+
+tool_dir="$dir/tools-$group"
+tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
+tool_cmd_file="$tool_output_dir/$tool.cmd"
+tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
+tool_stdout_file=$tool_output_dir/$tool-stdout.txt
+tool_stderr_file=$tool_output_dir/$tool-stderr.txt
+case "$mode" in
+        install)
+        check_install_rpm ansible
+        check_install_rpm pbench_role_ara
+        ;;
+        start)
+        ;;
+        stop)
+        ;;
+        postprocess)
+        debug_log "postprocessing $script_name"
+        $script_path/postprocess/$script_name-postprocess $tool_output_dir $tool_group_dir
+esac
