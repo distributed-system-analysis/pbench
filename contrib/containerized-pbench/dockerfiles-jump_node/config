@@ -1,0 +1,14 @@
+Host <pbench_server> 
+    User root
+    Port 22
+    StrictHostKeyChecking no
+    PasswordAuthentication no
+    UserKnownHostsFile ~/.ssh/known_hosts
+    IdentityFile /opt/pbench-agent/id_rsa
+Host *
+    User root
+    Port 2202
+    StrictHostKeyChecking no
+    PasswordAuthentication no
+    UserKnownHostsFile ~/.ssh/known_hosts
+    IdentityFile ~/.ssh/id_rsa

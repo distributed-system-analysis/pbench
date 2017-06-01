@@ -1,0 +1,2 @@
+pbench_server=foo.example.com
+benchmark=pbench-user-benchmark -- sleep 1
