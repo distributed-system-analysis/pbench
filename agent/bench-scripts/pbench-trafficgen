@@ -95,7 +95,7 @@ function kill_trex() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o c: --longoptions "skip-trex-server,traffic-generator:,devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o c: --longoptions "skip-trex-server,skip-git-pull,traffic-generator:,devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
