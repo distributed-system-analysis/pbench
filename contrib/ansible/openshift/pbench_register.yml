@@ -44,3 +44,9 @@
       when: groups['lb']|default([]) 
     - name: register tools
       shell: sh /run/pbench/register.sh {{ default_tools_interval }} {{ ose_master_interval }} {{ ose_node_interval }} {{ file }}
+    - name: create .kube directory to store config file
+      file: path={{ ansible_env.HOME }}/.kube state=directory
+    - name: get kube config from openshift master
+      shell: scp {{ item }}:{{ ansible_env.HOME }}/.kube/config {{ ansible_env.HOME }}/.kube/
+      with_items:
+        - "{{ groups['masters'][0] }}"
