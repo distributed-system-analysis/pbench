@@ -81,7 +81,7 @@ one_shot="n"
 skip_trex_server="n"
 skip_git_pull="n"
 flow_mods="src-ip,dst-ip,src-mac,dst-mac"
-all_possible_flow_mods="src-ip,dst-ip,src-mac,dst-mac,encap-src-ip,encap-dst-ip,encap-src-mac,encap-dst-mac"
+all_possible_flow_mods="src-ip,dst-ip,src-mac,dst-mac,src-port,dst-port,encap-src-ip,encap-dst-ip,encap-src-mac,encap-dst-mac"
 cmd="./binary-search.py"
 
 function kill_trex() {
