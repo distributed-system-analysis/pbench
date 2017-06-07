@@ -8,7 +8,7 @@ before_install:
  - sudo apt-get update
 install:
  - sudo apt-get install python python-pip bc libjson-perl realpath
- - sudo pip install configtools elasticsearch
+ - sudo pip install configtools elasticsearch watches
  - sudo apt-get install python-software-properties
  - sudo add-apt-repository ppa:fkrull/deadsnakes -y
  - sudo apt-get update
