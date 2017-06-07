@@ -12,7 +12,8 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # other output and emitting that on stderr.
 
 sysinfo_path=$1
-label=$2
+sysinfo=$2
+label=$3
 
 mkdir -p $sysinfo_path
 if [ ! -d $sysinfo_path ]; then
@@ -20,7 +21,7 @@ if [ ! -d $sysinfo_path ]; then
 	exit 1
 fi
 
-pbench-sysinfo-dump $sysinfo_path $label
+pbench-sysinfo-dump $sysinfo_path "$sysinfo" $label
 if [ $? -ne 0 ]; then
 	echo "\"pbench-sysinfo-dump $sysinfo_path $label\" failed!" >&2
 	exit 1

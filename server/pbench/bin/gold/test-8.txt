@@ -1,6 +1,7 @@
 chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/config
 chown pbench.pbench /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/crontab/crontab
 chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/locks
+chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/pbench
 chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/logs
 chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/tmp
 +++ pbench tree state
@@ -26,12 +27,14 @@ chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/tmp
 /var/tmp/pbench-test-server/pbench/var/www
 /var/tmp/pbench-test-server/pbench/var/www/html
 /var/tmp/pbench-test-server/pbench/var/www/html/pbench-results-host-info.versioned
-/var/tmp/pbench-test-server/pbench/var/www/html/pbench-results-host-info.versioned/pbench-results-host-info.URL001
 /var/tmp/pbench-test-server/pbench/var/www/html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
 /var/tmp/pbench-test-server/pbench/var/www/html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 --- pbench tree state
 +++ pbench log file contents
 --- pbench log file contents
 +++ test-execution.log file contents
-grep: /var/tmp/pbench-test-server/test-execution.log: No such file or directory
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/ln -sf pbench-results-host-info.URL001.active pbench-results-host-info.URL001
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/systemctl enable httpd.service
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/systemctl start httpd.service
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/ln -s /pbench/public_html/incoming /pbench/public_html/results /var/www/html
 --- test-execution.log file contents

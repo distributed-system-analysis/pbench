@@ -1,5 +1,5 @@
 +++ Running test-11 pbench-register-tool-set
---- Finished test-11 pbench-register-tool-set (status=4}
+--- Finished test-11 pbench-register-tool-set (status=4)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/pbench.log

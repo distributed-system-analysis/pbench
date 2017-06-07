@@ -233,7 +233,8 @@ while read size result ;do
     fi
 
     # now move the directory - remove the link on failure
-    mv $TMP/$PROG/$hostname/$resultname $incoming
+    # -Z needed for proper selinux labeling, but it works when selinux is disabled as well.
+    mv -Z $TMP/$PROG/$hostname/$resultname $incoming
     status=$?
     if [[ $status -ne 0 ]] ;then
         echo "$TS: Cannot move $TMP/$PROG/$hostname/$resultname to $incoming: code $status" >&4

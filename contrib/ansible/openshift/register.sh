@@ -8,6 +8,7 @@ default_tools_interval=$1
 ose_master_interval=$2
 ose_node_interval=$3
 file=$4
+label_name=svt_
 hosts=/run/pbench/register.tmp.hosts
 declare -a remote
 declare -a group
@@ -33,7 +34,9 @@ while read -u 9 line;do
   remote_name=$(echo $line | awk -F' ' '{print $1}')
   group_name=$(echo $line | awk -F' ' '{print $2}')
   index_value=$(echo $line | awk -F' ' '{print $3}')
-  label_name=$(echo $line | awk -F' ' '{print $4}')
+  index_value=$(( index_value + 1 )) 
+  # Modify the label to include group and index number to make it unique
+  label_name="$label_name""$group_name"_"$index_value"
   remote[${#remote[@]}]=$remote_name 
   group[${#group[@]}]=$group_name
   index[${#index[@]}]=$index_value
@@ -57,8 +60,6 @@ done
 while read -u 11 line;do
   remote=$(echo $line | awk -F' ' '{print $1}')
   group=$(echo $line | awk -F' ' '{print $2}')
-  index=$(echo $line | awk -F' ' '{print $3}')
-  index=$(( index + 1 ))
   label=$(echo $line | awk -F' ' '{print $4}')
   ## register tools
   if [ "$group"  == "master" ]; then

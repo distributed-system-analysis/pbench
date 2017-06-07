@@ -1,0 +1,1051 @@
++++ Running indexing on /var/tmp/pbench-test-server/test-7.8
+len(actions) = 19
+[
+    {
+        "_id": "c5deab694ef0599c3a2315888f8cb847",
+        "_index": "pbench.run.2016-10",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "file-date": "2017-02-22",
+                "file-name": "/var/tmp/pbench-test-server/uperf__2016-10-06_16:34:03.tar.xz",
+                "generated-by": "index-pbench",
+                "generated-by-version": "0.1.0.0",
+                "md5": "c5deab694ef0599c3a2315888f8cb847",
+                "pbench-agent-version": "0.40-2g191b627"
+            },
+            "@timestamp": "2016-10-06T16:34:08.098427807",
+            "host_tools_info": [
+                {
+                    "hostname": "master_40gb",
+                    "hostname-f": "master_40gb",
+                    "tools": {
+                        "iostat": "--interval=3",
+                        "mpstat": "--interval=3",
+                        "perf": "--record-opts=record -a --freq=100",
+                        "pidstat": "--interval=3",
+                        "proc-interrupts": "--interval=3",
+                        "proc-vmstat": "--interval=3",
+                        "sar": "--interval=3",
+                        "turbostat": "--interval=3"
+                    }
+                },
+                {
+                    "hostname": "flat7_40gb",
+                    "hostname-f": "flat7_40gb",
+                    "tools": {
+                        "iostat": "--interval=3",
+                        "mpstat": "--interval=3",
+                        "perf": "--record-opts=record -a --freq=100",
+                        "pidstat": "--interval=3",
+                        "proc-interrupts": "--interval=3",
+                        "proc-vmstat": "--interval=3",
+                        "sar": "--interval=3",
+                        "turbostat": "--interval=3"
+                    }
+                },
+                {
+                    "hostname": "flat8_40gb",
+                    "hostname-f": "flat8_40gb",
+                    "tools": {
+                        "iostat": "--interval=3",
+                        "mpstat": "--interval=3",
+                        "perf": "--record-opts=record -a --freq=100",
+                        "pidstat": "--interval=3",
+                        "proc-interrupts": "--interval=3",
+                        "proc-vmstat": "--interval=3",
+                        "sar": "--interval=3",
+                        "turbostat": "--interval=3"
+                    }
+                }
+            ],
+            "run": {
+                "config": "",
+                "controller": "master_40gb",
+                "date": "2016-10-06T16:34:03",
+                "end_run": "2016-10-06T17:05:26.924033362",
+                "id": "c5deab694ef0599c3a2315888f8cb847",
+                "name": "uperf__2016-10-06_16:34:03",
+                "script": "uperf",
+                "start_run": "2016-10-06T16:34:08.098427807",
+                "tarball-dirname": "uperf__2016-10-06_16:34:03",
+                "tarball-toc-prefix": "uperf__2016-10-06_16:34:03"
+            },
+            "sosreports": [
+                {
+                    "hostname-f": "flat7_40gb",
+                    "hostname-s": "flat7_40gb",
+                    "inet": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "127.0.0.1"
+                        },
+                        {
+                            "ifname": "eth0",
+                            "ipaddr": "10.0.0.66"
+                        },
+                        {
+                            "ifname": "eth1",
+                            "ipaddr": "10.10.40.14"
+                        }
+                    ],
+                    "inet6": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "::1"
+                        },
+                        {
+                            "ifname": "eth0",
+                            "ipaddr": "fe80::f816:3eff:fec9:37df"
+                        },
+                        {
+                            "ifname": "eth1",
+                            "ipaddr": "fe80::f816:3eff:fe0e:bf93"
+                        }
+                    ],
+                    "md5": "edc3136071fc89219ee0872b5187c676",
+                    "name": "uperf__2016-10-06_16:34:03/sysinfo/beg/flat7_40gb/sosreport-flat740gb-pbench-20161006123405.tar.xz"
+                },
+                {
+                    "hostname-f": "flat8_40gb",
+                    "hostname-s": "flat8_40gb",
+                    "inet": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "127.0.0.1"
+                        },
+                        {
+                            "ifname": "eth0",
+                            "ipaddr": "10.0.0.67"
+                        },
+                        {
+                            "ifname": "eth1",
+                            "ipaddr": "10.10.40.15"
+                        }
+                    ],
+                    "inet6": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "::1"
+                        },
+                        {
+                            "ifname": "eth0",
+                            "ipaddr": "fe80::f816:3eff:fe93:3e3a"
+                        },
+                        {
+                            "ifname": "eth1",
+                            "ipaddr": "fe80::f816:3eff:fe02:2343"
+                        }
+                    ],
+                    "md5": "0f460d2f69a2122d906fffd24b8c4101",
+                    "name": "uperf__2016-10-06_16:34:03/sysinfo/beg/flat8_40gb/sosreport-flat840gb-pbench-20161006123405.tar.xz"
+                },
+                {
+                    "hostname-f": "master_40gb",
+                    "hostname-s": "master_40gb",
+                    "inet": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "127.0.0.1"
+                        },
+                        {
+                            "ifname": "eth0",
+                            "ipaddr": "10.0.0.58"
+                        },
+                        {
+                            "ifname": "eth1",
+                            "ipaddr": "10.10.40.6"
+                        }
+                    ],
+                    "inet6": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "::1"
+                        },
+                        {
+                            "ifname": "eth0",
+                            "ipaddr": "fe80::f816:3eff:fec1:8d1b"
+                        },
+                        {
+                            "ifname": "eth1",
+                            "ipaddr": "fe80::f816:3eff:fece:5904"
+                        }
+                    ],
+                    "md5": "02bc9685a725000ad55837ee7eebe9fc",
+                    "name": "uperf__2016-10-06_16:34:03/sysinfo/beg/master_40gb/sosreport-master40gb-pbench-20161006123405.tar.xz"
+                },
+                {
+                    "hostname-f": "flat7_40gb",
+                    "hostname-s": "flat7_40gb",
+                    "inet": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "127.0.0.1"
+                        },
+                        {
+                            "ifname": "eth0",
+                            "ipaddr": "10.0.0.66"
+                        },
+                        {
+                            "ifname": "eth1",
+                            "ipaddr": "10.10.40.14"
+                        }
+                    ],
+                    "inet6": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "::1"
+                        },
+                        {
+                            "ifname": "eth0",
+                            "ipaddr": "fe80::f816:3eff:fec9:37df"
+                        },
+                        {
+                            "ifname": "eth1",
+                            "ipaddr": "fe80::f816:3eff:fe0e:bf93"
+                        }
+                    ],
+                    "md5": "fdbbbffe0a41aab1b8b6545ddde538e2",
+                    "name": "uperf__2016-10-06_16:34:03/sysinfo/end/flat7_40gb/sosreport-flat740gb-pbench-20161006130524.tar.xz"
+                },
+                {
+                    "hostname-f": "flat8_40gb",
+                    "hostname-s": "flat8_40gb",
+                    "inet": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "127.0.0.1"
+                        },
+                        {
+                            "ifname": "eth0",
+                            "ipaddr": "10.0.0.67"
+                        },
+                        {
+                            "ifname": "eth1",
+                            "ipaddr": "10.10.40.15"
+                        }
+                    ],
+                    "inet6": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "::1"
+                        },
+                        {
+                            "ifname": "eth0",
+                            "ipaddr": "fe80::f816:3eff:fe93:3e3a"
+                        },
+                        {
+                            "ifname": "eth1",
+                            "ipaddr": "fe80::f816:3eff:fe02:2343"
+                        }
+                    ],
+                    "md5": "518996f48a26b99272cefccde908394b",
+                    "name": "uperf__2016-10-06_16:34:03/sysinfo/end/flat8_40gb/sosreport-flat840gb-pbench-20161006130524.tar.xz"
+                },
+                {
+                    "hostname-f": "master_40gb",
+                    "hostname-s": "master_40gb",
+                    "inet": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "127.0.0.1"
+                        },
+                        {
+                            "ifname": "eth0",
+                            "ipaddr": "10.0.0.58"
+                        },
+                        {
+                            "ifname": "eth1",
+                            "ipaddr": "10.10.40.6"
+                        }
+                    ],
+                    "inet6": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "::1"
+                        },
+                        {
+                            "ifname": "eth0",
+                            "ipaddr": "fe80::f816:3eff:fec1:8d1b"
+                        },
+                        {
+                            "ifname": "eth1",
+                            "ipaddr": "fe80::f816:3eff:fece:5904"
+                        }
+                    ],
+                    "md5": "22862092d7764ae0b140fad6707dbb9b",
+                    "name": "uperf__2016-10-06_16:34:03/sysinfo/end/master_40gb/sosreport-master40gb-pbench-20161006130524.tar.xz"
+                }
+            ]
+        },
+        "_type": "pbench-run"
+    },
+    {
+        "_id": "e1c0ed1631aa464df2a017e69bdb2552",
+        "_index": "pbench.run.2016-10",
+        "_op_type": "create",
+        "_parent": "c5deab694ef0599c3a2315888f8cb847",
+        "_source": {
+            "@timestamp": "2016-10-06T16:34:08.098427807",
+            "directory": "/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "pbench.log",
+                    "size": 7249609
+                },
+                {
+                    "mode": "0o644",
+                    "name": "result.html",
+                    "size": 1283
+                },
+                {
+                    "mode": "0o644",
+                    "name": "result.csv",
+                    "size": 236
+                },
+                {
+                    "mode": "0o644",
+                    "name": "result.txt",
+                    "size": 1045
+                },
+                {
+                    "mode": "0o644",
+                    "name": "result.json",
+                    "size": 612153
+                },
+                {
+                    "mode": "0o755",
+                    "name": "generate-benchmark-summary.cmd",
+                    "size": 276
+                },
+                {
+                    "mode": "0o644",
+                    "name": "metadata.log",
+                    "size": 989
+                },
+                {
+                    "mode": "0o755",
+                    "name": "pbench-uperf.cmd",
+                    "size": 157
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "5910d4015fc1916f15f43def76163ab7",
+        "_index": "pbench.run.2016-10",
+        "_op_type": "create",
+        "_parent": "c5deab694ef0599c3a2315888f8cb847",
+        "_source": {
+            "@timestamp": "2016-10-06T16:34:08.098427807",
+            "directory": "/1-tcp_stream-16384B-32i/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "result.json",
+                    "size": 525394
+                },
+                {
+                    "mode": "0o755",
+                    "name": "process-iteration-samples.cmd",
+                    "size": 174
+                },
+                {
+                    "mode": "0o755",
+                    "name": "client::10.10.40.15-server::10.10.40.14:20010--client_start.sh",
+                    "size": 333
+                },
+                {
+                    "mode": "0o755",
+                    "name": "client::10.10.40.15-server::10.10.40.14:20010--server_start.sh",
+                    "size": 33
+                },
+                {
+                    "mode": "0o644",
+                    "name": "client::10.10.40.15-server::10.10.40.14:20010--test_config.xml",
+                    "size": 436
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "bc6d9742ae90bfa76ff4daf371653d40",
+        "_index": "pbench.run.2016-10",
+        "_op_type": "create",
+        "_parent": "c5deab694ef0599c3a2315888f8cb847",
+        "_source": {
+            "@timestamp": "2016-10-06T16:34:08.098427807",
+            "directory": "/1-tcp_stream-16384B-32i/sample1/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "result.json",
+                    "size": 438641
+                },
+                {
+                    "mode": "0o644",
+                    "name": "uperf.html",
+                    "size": 654
+                },
+                {
+                    "mode": "0o644",
+                    "name": "uperf-average.txt",
+                    "size": 180
+                },
+                {
+                    "mode": "0o755",
+                    "name": "uperf-postprocess.cmd",
+                    "size": 228
+                },
+                {
+                    "mode": "0o644",
+                    "name": "client::10.10.40.15-server::10.10.40.14:20010--client_output.txt",
+                    "size": 151168
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "uperf__2016-10-06_16:34:03",
+                "host": "master_40gb",
+                "iteration": "tcp_stream-16384B-32i",
+                "iterseqno": "1",
+                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runtstamp": "2016-10-06T16:34:08.098427807",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2016-10-06T16:34:13.000000",
+            "iostat": {
+                "disk": {
+                    "id": "rhel72_java-root",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "uperf__2016-10-06_16:34:03",
+                "host": "master_40gb",
+                "iteration": "tcp_stream-16384B-32i",
+                "iterseqno": "1",
+                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runtstamp": "2016-10-06T16:34:08.098427807",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2016-10-06T16:34:13.000000",
+            "iostat": {
+                "disk": {
+                    "id": "rhel72_java-swap",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "uperf__2016-10-06_16:34:03",
+                "host": "master_40gb",
+                "iteration": "tcp_stream-16384B-32i",
+                "iterseqno": "1",
+                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runtstamp": "2016-10-06T16:34:08.098427807",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2016-10-06T16:34:13.000000",
+            "iostat": {
+                "disk": {
+                    "id": "vda",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "uperf__2016-10-06_16:34:03",
+                "host": "master_40gb",
+                "iteration": "tcp_stream-16384B-32i",
+                "iterseqno": "1",
+                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runtstamp": "2016-10-06T16:34:08.098427807",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2016-10-06T16:34:16.000000",
+            "iostat": {
+                "disk": {
+                    "id": "rhel72_java-root",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "uperf__2016-10-06_16:34:03",
+                "host": "master_40gb",
+                "iteration": "tcp_stream-16384B-32i",
+                "iterseqno": "1",
+                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runtstamp": "2016-10-06T16:34:08.098427807",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2016-10-06T16:34:16.000000",
+            "iostat": {
+                "disk": {
+                    "id": "rhel72_java-swap",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "uperf__2016-10-06_16:34:03",
+                "host": "master_40gb",
+                "iteration": "tcp_stream-16384B-32i",
+                "iterseqno": "1",
+                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runtstamp": "2016-10-06T16:34:08.098427807",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2016-10-06T16:34:16.000000",
+            "iostat": {
+                "disk": {
+                    "id": "vda",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "uperf__2016-10-06_16:34:03",
+                "host": "master_40gb",
+                "iteration": "tcp_stream-16384B-32i",
+                "iterseqno": "1",
+                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runtstamp": "2016-10-06T16:34:08.098427807",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2016-10-06T16:34:19.000000",
+            "iostat": {
+                "disk": {
+                    "id": "rhel72_java-root",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "uperf__2016-10-06_16:34:03",
+                "host": "master_40gb",
+                "iteration": "tcp_stream-16384B-32i",
+                "iterseqno": "1",
+                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runtstamp": "2016-10-06T16:34:08.098427807",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2016-10-06T16:34:19.000000",
+            "iostat": {
+                "disk": {
+                    "id": "rhel72_java-swap",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "uperf__2016-10-06_16:34:03",
+                "host": "master_40gb",
+                "iteration": "tcp_stream-16384B-32i",
+                "iterseqno": "1",
+                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runtstamp": "2016-10-06T16:34:08.098427807",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2016-10-06T16:34:19.000000",
+            "iostat": {
+                "disk": {
+                    "id": "vda",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "uperf__2016-10-06_16:34:03",
+                "host": "flat7_40gb",
+                "iteration": "tcp_stream-16384B-32i",
+                "iterseqno": "1",
+                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runtstamp": "2016-10-06T16:34:08.098427807",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2016-10-06T16:34:14.000000",
+            "iostat": {
+                "disk": {
+                    "id": "rhel72_java-root",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "uperf__2016-10-06_16:34:03",
+                "host": "flat7_40gb",
+                "iteration": "tcp_stream-16384B-32i",
+                "iterseqno": "1",
+                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runtstamp": "2016-10-06T16:34:08.098427807",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2016-10-06T16:34:14.000000",
+            "iostat": {
+                "disk": {
+                    "id": "rhel72_java-swap",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "uperf__2016-10-06_16:34:03",
+                "host": "flat7_40gb",
+                "iteration": "tcp_stream-16384B-32i",
+                "iterseqno": "1",
+                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runtstamp": "2016-10-06T16:34:08.098427807",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2016-10-06T16:34:14.000000",
+            "iostat": {
+                "disk": {
+                    "id": "vda",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "uperf__2016-10-06_16:34:03",
+                "host": "flat7_40gb",
+                "iteration": "tcp_stream-16384B-32i",
+                "iterseqno": "1",
+                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runtstamp": "2016-10-06T16:34:08.098427807",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2016-10-06T16:34:17.000000",
+            "iostat": {
+                "disk": {
+                    "id": "rhel72_java-root",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "uperf__2016-10-06_16:34:03",
+                "host": "flat7_40gb",
+                "iteration": "tcp_stream-16384B-32i",
+                "iterseqno": "1",
+                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runtstamp": "2016-10-06T16:34:08.098427807",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2016-10-06T16:34:17.000000",
+            "iostat": {
+                "disk": {
+                    "id": "rhel72_java-swap",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "uperf__2016-10-06_16:34:03",
+                "host": "flat7_40gb",
+                "iteration": "tcp_stream-16384B-32i",
+                "iterseqno": "1",
+                "runid": "c5deab694ef0599c3a2315888f8cb847",
+                "runtstamp": "2016-10-06T16:34:08.098427807",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2016-10-06T16:34:17.000000",
+            "iostat": {
+                "disk": {
+                    "id": "vda",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    }
+]
+--- Finished indexing on /var/tmp/pbench-test-server/test-7.8 (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-server/pbench
+--- pbench tree state
++++ pbench log file contents
+--- pbench log file contents
++++ test-execution.log file contents
+grep: /var/tmp/pbench-test-server/test-execution.log: No such file or directory
+--- test-execution.log file contents

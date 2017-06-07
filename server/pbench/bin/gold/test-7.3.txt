@@ -1,26 +1,6 @@
 +++ Running indexing on /var/tmp/pbench-test-server/test-7.3
-Other error 'end_run'
-Traceback (most recent call last):
-  File "/home/user/repo/pbench/server/pbench/bin/index-pbench", line 281, in mk_run_metadata
-    d['end_run'] = d['end_run'].replace('_', 'T')
-KeyError: 'end_run'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/user/repo/pbench/server/pbench/bin/index-pbench", line 884, in main
-    actions = mk_actions(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, options)
-  File "/home/user/repo/pbench/server/pbench/bin/index-pbench", line 735, in mk_actions
-    actions.append(mk_results_action(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, ts, options))
-  File "/home/user/repo/pbench/server/pbench/bin/index-pbench", line 682, in mk_results_action
-    source = mk_source(hostname, tbname, dirname, dirprefix, tb, mdconf, md5sum, options)
-  File "/home/user/repo/pbench/server/pbench/bin/index-pbench", line 621, in mk_source
-    rec['run'] = mk_run_metadata(mdconf,dirname, dirprefix)
-  File "/home/user/repo/pbench/server/pbench/bin/index-pbench", line 292, in mk_run_metadata
-    raise Exception(e)
-Exception: 'end_run'
-
---- Finished indexing on /var/tmp/pbench-test-server/test-7.3 (status=11)
+The metadata.log file is curdled in tarball:  /var/tmp/pbench-test-server/test-7.3.tar.xz
+--- Finished indexing on /var/tmp/pbench-test-server/test-7.3 (status=7)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
 --- pbench tree state

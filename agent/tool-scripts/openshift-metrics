@@ -124,7 +124,7 @@ case "$mode" in
         while read -u 9 master;do
           tool_cmd="$script_path/datalog/$tool-datalog $master $interval"
           metrics_data=$tool_output_dir/$master
-          debug_log "$script_name: running $tool_cmd
+          debug_log "$script_name: running $tool_cmd"
           $tool_cmd >"$metrics_data" 2>"$tool_stderr_file" & echo $! >>$tool_pid_file
         done 9</run/pbench/inv_hosts
 	wait

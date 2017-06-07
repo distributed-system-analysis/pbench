@@ -1,0 +1,136 @@
+{
+    "pbench-run": {
+        "date_detection": false,
+        "properties": {
+            "@timestamp": {
+                "type": "date"
+            },
+            "@metadata": {
+                "properties": {
+                    "md5": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "file-name": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "file-date": {
+                        "type": "date"
+                    },
+                    "pbench-agent-version": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "generated-by": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "generated-by-version": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    }
+                }
+            },
+            "host_tools_info": {
+                "type": "nested",
+                "properties": {
+                    "hostname": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "hostname-f": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "label": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "tools": {
+                        "type": "nested"
+                    }
+                }
+            },
+            "run": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "config": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "controller": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "id": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "script": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "date": {
+                        "type": "date"
+                    },
+                    "start_run": {
+                        "type": "date"
+                    },
+                    "end_run": {
+                        "type": "date"
+                    }
+                }
+            },
+            "sosreports": {
+                "type": "nested",
+                "properties": {
+                    "hostname-f": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "hostname-s": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "md5": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "name": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "inet": {
+                        "type": "nested",
+                        "properties": {
+                            "ifname": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            },
+                            "ipaddr": {
+                                "type": "ip"
+                            }
+                        }
+                    },
+                    "inet6": {
+                        "type": "nested",
+                        "properties": {
+                            "ifname": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            },
+                            "ipaddr": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

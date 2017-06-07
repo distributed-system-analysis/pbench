@@ -19,19 +19,23 @@
         group: root
         mode: 0755
     - name: add masters to the file
-      shell: echo -e {{ item.1 }} master {{ item.0 }} svt_master_{{ item.0}} >> {{ file }}
+      shell: echo -e {{ item.1 }} master {{ item.0 }} >> {{ file }}
       with_indexed_items:
        - "{{ groups['masters'] }}"
+      when: groups['masters']|default([])
     - name: add nodes to the file
-      shell: echo -e {{ item.1 }} node {{ item.0 }} svt_node_{{ item.0}} >> {{ file }}
+      shell: echo -e {{ item.1 }} node {{ item.0 }} >> {{ file }}
       with_indexed_items: 
        - "{{ groups['nodes'][-1] }}" 
        - "{{ groups['nodes'][-2] }}"
+      when: groups['nodes']|default([])
     - name: add etcd nodes to the file
-      shell: echo -e {{ item.1 }} etcd {{ item.0 }} svt_etcd_{{ item.0 }} >> {{ file }}
+      shell: echo -e {{ item.1 }} etcd {{ item.0 }} >> {{ file }}
       with_indexed_items: "{{ groups['etcd'] }}"
+      when: groups['etcd']|default([])
     - name: add lb to the file
-      shell: echo -e {{ item.1}} lb {{ item.0 }} svt_lb_{{ item.0}} >> {{ file }}
+      shell: echo -e {{ item.1}} lb {{ item.0 }} >> {{ file }}
       with_indexed_items: "{{ groups['lb'] }}"
+      when: groups['lb']|default([]) 
     - name: register tools
       shell: sh /run/pbench/register.sh {{ default_tools_interval }} {{ ose_master_interval }} {{ ose_node_interval }} {{ file }}

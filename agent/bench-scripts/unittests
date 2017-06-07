@@ -1,5 +1,4 @@
 #!/bin/bash
-
 _tdir=$(dirname $(readlink -f $0))
 
 _testroot=/var/tmp/pbench-test-bench
@@ -58,7 +57,7 @@ fi
 # Fixed timestamp output
 export _PBENCH_BENCH_TESTS=1
 # Allows us to intercept scp, ssh, rsync, etc.
-export PATH=$_testopt/unittest-scripts:$_tconfigtoolsbin:$PATH
+export PATH=$_testopt/unittest-scripts:$PATH
 
 res=0
 
@@ -71,7 +70,7 @@ function _run {
     echo "+++ Running $tname $tscrpt" >> $_testout
     benchmark_bin=$_testopt/unittest-scripts/bm pbench_run=$_testdir pbench_log=$_testdir/pbench.log $_testopt/bench-scripts/$tscrpt $@ >> $_testout 2>&1
     sts=$?
-    echo "--- Finished $tname $tscrpt (status=$sts}" >> $_testout
+    echo "--- Finished $tname $tscrpt (status=$sts)" >> $_testout
     return $sts
 }
 function _save_tree {
@@ -89,11 +88,16 @@ function _dump_logs {
     grep -HvF "\-\-should-n0t-ex1st--" $_testroot/test-execution.log | sort >> $_testout 2>&1
     echo "--- test-execution.log file contents" >> $_testout
     rm -f $_testroot/test-execution.log
+    if [ ! -z "$1" ] ;then
+        cat $_testdir/$1/metadata.log >> $_testout 2>&1
+    fi
 }
 function _verify_output {
+    local sts tname tscrpt expected_status
     sts=$1
     tname=$2
     tscrpt=$3
+    expected_status=${4:-0}
     diff -cw $_tdir/gold/${tscrpt}/${tname}.txt $_testout
     if [[ $? -gt 0 ]]; then
         echo "FAIL - $tname"
@@ -104,7 +108,13 @@ function _verify_output {
             echo "PASS - $tname"
             rm $_testout
         else
-            echo "FAIL - $tname: PASS output but execution returned non-zero exit status"
+	    if [[ $sts -eq $expected_status ]]; then
+		echo "PASS - $tname failed with expected exit status: $sts"
+		rm $_testout
+		sts=0
+	    else
+		echo "FAIL - $tname: PASS output but execution returned non-zero exit status"
+	    fi
         fi
     fi
     return $sts
@@ -116,6 +126,10 @@ function _setup_state {
         exit 1
     fi
     cp -a $_tdir/sample-tools/tools-default $_testdir/
+    if [ ! -z "$1" ] ;then
+        mkdir -p $_testdir/$1
+        echo [pbench] > $_testdir/$1/metadata.log
+    fi
 }
 function _reset_state {
     rm -rf $_testdir
@@ -132,11 +146,26 @@ declare -A cmds=(
     [test-01]="pbench-uperf  --config=test-01  --test-types=rr,stream  --message-sizes=64  --instances=1  --protocols=tcp  --runtime=20  --samples=2  --servers=s1,s2,s3  --clients=c1,c2,c3  --server-node=0,-1,2  --client-node=1,-1,3"
     [test-02]="pbench-dbench --threads=24,48  --client-nodes=0,1  --clients=127.0.0.1,127.0.0.1  --max-stddev=10"
     [test-03]="pbench-moongen --test-type=throughput --samples=3 --search-runtime=10 --validation-runtime=10 --max-drop-pct=0,1 --frame-sizes=64,1024"
-    [test-04]="pbench-fio --test-types=rw,randrw"
-    [test-05]="pbench-fio --test-type=throughput --samples=1 --clients=foo,bar"
-    [test-06]="pbench-fio --test-type=throughput --samples=1 --client-file=/tmp/foo"
+    [test-04]="pbench-fio --config=test-04 --test-types=rw,randrw"
+    [test-05]="pbench-fio --config=test-05 --test-type=throughput --samples=1 --clients=foo,bar"
+    [test-06]="pbench-fio --config=test-06  --test-type=throughput --samples=1 --client-file=/tmp/foo"
+    [test-07]="pbench-user-benchmark --help"
+    [test-08]="pbench-user-benchmark --sysinfo=bad"
 )
 
+declare -A expected_status=(
+    [test-08]=1
+)
+
+date="1900-01-01T00:00:00"
+declare -A rundirs=(
+    [test-00]="uperf_test-00_$date"
+    [test-01]="uperf_test-01_$date"
+    [test-04]="fio_test-04_$date"
+    [test-05]="fio_test-05_$date"
+    [test-06]="fio_test-06_$date"
+    
+)
 declare -A pre=(
     [test-06]="echo foo bar baz | tr ' ' '\n' > /tmp/foo"
 )
@@ -155,10 +184,11 @@ fi
 
 for tst in $tests; do
     cmd=${cmds[$tst]}
-    benchmark=${cmd## }
+    benchmark=${cmd%% *}
     tpre=${pre[$tst]}
     tpost=${post[$tst]}
-    _setup_state
+    status=${expected_status[$tst]}
+    _setup_state ${rundirs[$tst]}
     if [ ! -z "$tpre" ] ;then
         eval "$tpre"
     fi
@@ -168,8 +198,8 @@ for tst in $tests; do
         eval "$tpost"
     fi
     _save_tree
-    _dump_logs
-    _verify_output $res $tst $benchmark
+    _dump_logs ${rundirs[$tst]}
+    _verify_output $res $tst $benchmark $status
     res=$?
     let errs=$errs+$res
     _reset_state
