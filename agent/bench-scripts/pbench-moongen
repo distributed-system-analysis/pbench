@@ -304,6 +304,14 @@ while true; do
 		;;
 	esac
 done
+
+config="${config}_r[$rates]fr[$frame_sizes]fl[$nr_flows]tr[`echo $traffic | sed -e 's/direc//g'`]pl[$max_drop_pcts]rt[$search_runtime,$validation_runtime]"
+if [ "$one_shot" == "y" ]; then
+	config="${config}tt[os]"
+else
+	config="${config}tt[bs]"
+fi
+
 if [[ -z "$benchmark_run_dir" ]]; then
 	# We don't have an explicit run directory, construct one
 	benchmark_fullname="${benchmark_name}_${config}_${date}"
@@ -382,6 +390,7 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 								if [ "$rate" != "none" ]; then
         								echo "startRate = $rate," >>$cfg_file
 								fi
+        							echo "loggingLevel = 0," >>$cfg_file
         							echo "nrFlows = $nr_flow," >>$cfg_file
         							echo "testType = \"$test_type\"," >>$cfg_file
         							echo "runBidirec = $bidirec_opt," >>$cfg_file
