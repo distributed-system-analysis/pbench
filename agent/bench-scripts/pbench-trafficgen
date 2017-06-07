@@ -514,9 +514,9 @@ for flow_mod in `echo $flow_mods | sed -e 's/,/ /g'`; do
 	found_flow_mod=0
 	for this_flow_mod in `echo $all_possible_flow_mods | sed -e 's/,/ /g'`; do
 		if [ $flow_mod = $this_flow_mod ]; then
-			cmd="$cmd --use-${flow_mod}=1"
+			cmd="$cmd --use-${flow_mod}-flows=1"
 			found_flow_mod=1
-			not_flow_mods=`echo $not_flow_mods | sed -e s/^$flow_mod,// -e s/,$flow-mod,/,/`
+			not_flow_mods=`echo $not_flow_mods | sed -e s/^$flow_mod,// -e s/,$flow_mod,/,/ -e s/,$flow_mod//`
 		fi
 	done
 	if [ $found_flow_mod -eq 0 ]; then
@@ -526,7 +526,7 @@ for flow_mod in `echo $flow_mods | sed -e 's/,/ /g'`; do
 done
 # ensure the other flows are forced off (avoiding any defaults from binary-search.py)
 for flow_mod in `echo $not_flow_mods | sed -e 's/,/ /g'`; do
-	cmd="$cmd --use-${flow_mod}=0"
+	cmd="$cmd --use-${flow_mod}-flows=0"
 done
 
 if [ $one_shot == "y" ]; then
