@@ -377,11 +377,13 @@ function fio_process_options() {
 		benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 	else
 		if [ -z "$run_dir" ]; then
-			echo "I need a directory if postprocessing an existing result (--run-dir=)"
-		else
-			benchmark_run_dir="$run_dir"
+			err_log "I need a directory if postprocessing an existing result (--run-dir=)"
+			exit 1
 		fi
+		benchmark_fullname="$(basename $run_dir)"
+		benchmark_run_dir="$run_dir"
 	fi
+	benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
 
 	verify_tool_group $tool_group
 }
@@ -576,11 +578,11 @@ function fio_run_job() {
 			for i in `/bin/ls | grep log`; do
 				mv $i `echo $i | sed -e s/\.$client//`
 			done
-        		# Process the histograms
-      			# Determine histogram interval based on value used in job file. Should really make
-       			# this an option, but perfectly reasonable default.
-       			#my $log_interval = `cat $dir/fio.job | grep "^log_hist_msec"`;
-        		#if [ ! $log_interval =~ /^\s*$/ ]; then 
+			# Process the histograms
+			# Determine histogram interval based on value used in job file. Should really make
+			# this an option, but perfectly reasonable default.
+			#my $log_interval = `cat $dir/fio.job | grep "^log_hist_msec"`;
+			#if [ ! $log_interval =~ /^\s*$/ ]; then
 			if grep -q "^log_hist_msec" $fio_job_file; then
                 		mkdir -p $benchmark_results_dir/clients/$client/hist
 				# fiologparser_hist needs the polling interval to do its job,
@@ -592,11 +594,10 @@ function fio_run_job() {
 			fi
 			popd >/dev/null
 		done
-	fi
-	pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-	if [ -z "$clients" ]; then
+	else
 		/bin/mv $benchmark_results_dir/*.log $benchmark_results_dir/clients/localhost/
 	fi
+	pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	echo "fio job complete"
 }
 
