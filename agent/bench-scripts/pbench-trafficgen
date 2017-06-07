@@ -79,6 +79,7 @@ tool_group=default
 install_only="n"
 one_shot="n"
 skip_trex_server="n"
+skip_git_pull="n"
 flow_mods="src-ip,dst-ip,src-mac,dst-mac"
 all_possible_flow_mods="src-ip,dst-ip,src-mac,dst-mac,encap-src-ip,encap-dst-ip,encap-src-mac,encap-dst-mac"
 cmd="./binary-search.py"
@@ -94,7 +95,7 @@ function kill_trex() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o c: --longoptions "skip-trex-server,traffic-generator:,devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o c: --longoptions "skip-trex-server,skip-git-pull,traffic-generator:,devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
@@ -256,7 +257,10 @@ if [ $? -ne 0 ]; then
 	printf -- "--skip-trex-server\n"
 	printf -- "  Do no kill existing or start a new TRex server process (assumes you have one\n"
 	printf -- "  running already)\n"
-	printf -- "\n\n"
+	printf -- "\n"
+	printf -- "--skip-git-pull\n"
+	printf -- "  Do not call git pull on the lua-trafficgen repo if it already exists\n"
+	printf -- "\n"
 	printf -- "options common in most pbench benchmark scripts\n"
 	printf -- "-----------------------------------------------\n"
 	printf -- "\n"
@@ -458,6 +462,10 @@ while true; do
 		shift
 		skip_trex_server="y"
 		;;
+		--skip-git-pull)
+		shift
+		skip_git_pull="y"
+		;;
 		--)
 		shift
 		while true; do
@@ -558,15 +566,16 @@ for dev in `echo $devices | sed -e s/,/" "/g`; do
 		fi
 	fi
 done
-# -trafficgen-engine installed/ready
-if [ 0 -eq 1 ]; then
+
 if [ -d $trafficgen_dir ]; then
-	if pushd $trafficgen_dir >/dev/null && git pull && git checkout master; then
-		echo "lua-trafficgen is up to date"
-		popd >/dev/null
-	#else
-		#warn_log "could not get latest lua-trafficgen"
-		#exit 1
+	if [ $skip_git_pull == "n" ]; then
+		if pushd $trafficgen_dir >/dev/null && git pull && git checkout master; then
+			echo "lua-trafficgen is up to date"
+			popd >/dev/null
+		else
+			warn_log "could not get latest lua-trafficgen"
+			exit 1
+		fi
 	fi
 else
 	if pushd /opt >/dev/null && git clone https://github.com/atheurer/lua-trafficgen.git; then
@@ -590,7 +599,6 @@ if [ $traffic_generator == "moongen-txrx" ]; then
 			exit 1
 		fi
 	fi
-fi
 fi
 	
 if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
