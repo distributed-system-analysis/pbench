@@ -447,7 +447,8 @@ while true; do
 		fi
 		;;
 		# for options which if not used, do not affect the binary-search.py options (and binary-search should not use them by default)
-		--overlay-ids|vlan-ids|overlay-types|--src-ips|--src-macs|--dst-ips|--dst-macs|--encap-src-ips|--encap-src-macs|--encap-dst-ips|--encap-dst-macs)
+		# these options must match the options to binary-search.py *exactly*
+		--overlay-ids|--vlan-ids|--overlay-types|--src-ips|--src-macs|--dst-ips|--dst-macs|--encap-src-ips|--encap-src-macs|--encap-dst-ips|--encap-dst-macs)
 		arg="$1"
 		shift
 		if [ -n "$1" ]; then
