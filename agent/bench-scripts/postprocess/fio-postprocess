@@ -121,10 +121,11 @@ if (opendir($dh, $tool_group_dir)) {
 			$tool_ids{$this_tool_dir} = $tool_dir_id;
 		}
 	}
+        closedir  $dh;
 } else {
 	print "$script: could not find any directories in $tool_group_dir which matched $tool_label_pattern\n";
 }
-closedir  $dh;
+
 foreach $this_tool_dir (sort keys %tool_ids) {
 	my $res;
 	my $this_tool_id = $tool_ids{$this_tool_dir};
@@ -204,9 +205,13 @@ foreach $client_hostname_dir (@client_hostname_dirs) {
 					#my $timestamp_ms = $1 + $date_base;
 					my $timestamp_ms = $1;
 					my $value = $2;
-					my %sample = (get_label('date_label') => int $timestamp_ms, get_label('value_label') => int $value);
-					if (value_exists(get_label('date_label'), $timestamp_ms, \@samples)) {
-						printf "warning: timestamp %d already exists, skipping this sample (timestamp = %d, value = %d)\n", $timestamp_ms, $timestamp_ms, $value;
+                                        my $rwtype = $3;
+					my %sample = (get_label('date_label') => int $timestamp_ms, get_label('value_label') => int $value, get_label('rw_label') => int $rwtype);
+                                        my $index = value_exists(get_label('date_label'), $timestamp_ms, \@samples);
+                                        # duplicate timestamp *AND* duplicate rwtype
+					if ($index >= 0 && $samples[$index]{get_label('rw_label')} == $rwtype) {
+						printf "warning: timestamp already exists with this RW type, skipping this sample (file = %s timestamp = %d, value = %d, rwtype = %d)\n",
+                                                    "$dir/clients/$client_hostname_dir/$log_file", $timestamp_ms, $value, $rwtype;
 					} else {
 						push(@samples, \%sample);
 					}
@@ -222,7 +227,7 @@ foreach $client_hostname_dir (@client_hostname_dirs) {
 							get_label('value_label') => $mean, get_label('timeseries_label') => \@samples,
 							get_label('uid_label') => create_uid('client_hostname_label')  );
 				$this_dataset{get_label('description_label')} = $description_label;
-				push($this_metric, \%this_dataset);
+				push(@$this_metric, \%this_dataset);
 			}
 		}
 	}
