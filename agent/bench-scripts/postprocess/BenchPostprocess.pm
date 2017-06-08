@@ -50,7 +50,8 @@ sub get_label {
 			'samples_label' => 'samples',
 			'primary_metric_label' => 'primary_metric',
 			'max_stddevpct_label' => 'max_stddevpct',
-			'max_failures_label' => 'max_failures' );
+			'max_failures_label' => 'max_failures',
+	                'rw_label' => 'read(0) or write(1)' );
 	if ( $labels{$key} ) {
 		return $labels{$key}
 	} else {
@@ -415,10 +416,10 @@ sub value_exists {
 	my $i;
 	for ($i=0; $i < scalar @{$array_ref}; $i++) {
 		if ($$array_ref[$i]{$key} == $value) {
-			return 1;
+			return $i;
 		}
 	}
-	return 0;
+	return -1;
 }
 
 sub div_series {
