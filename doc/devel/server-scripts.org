@@ -1,0 +1,176 @@
+# Created 2017-06-15 Thu 01:24
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:t
+#+OPTIONS: html-preamble:t html-scripts:t html-style:t
+#+OPTIONS: html5-fancy:nil tex:t
+#+OPTIONS: ^:{}
+#+TITLE: PBench server script states and rsyncing from remotes
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+KEYWORDS: pbench
+#+HTML_LINK_HOME: 
+#+HTML_LINK_UP: 
+#+HTML_MATHJAX: 
+#+HTML_HEAD_EXTRA: 
+#+SUBTITLE: 
+#+INFOJS_OPT: 
+#+LATEX_HEADER: 
+
+* Introduction
+
+The server scripts are invoked by cron at varying intervals. They
+figure out what tarballs to process, then process them (what "process
+them" means is specific to each server script), and then set things up
+so that the next stage in the pipeline can do its job.
+
+To figure out what tarballs to process in each invocation, the scripts
+look into a *state* directory, specific to the script. Any symbolic
+links to tarballs found there are added to the (script-internal) queue
+for the current invocation of the script. The script will process all the
+tarballs in its queue and then move the symbolic links to the state
+directory for the next script.
+
+Schematically each script does the following:
+
+#+BEGIN_SRC shell
+  linksrc = state subdirectory for this script
+  linkdest = state sudbdirectory for next script
+  
+  queue=$(find list of tarballs in $linksrc)
+  
+  for each element in queue ;do
+      process it
+      if success
+         move the symlink from $linksrc to $linkdest
+      else
+         move it to some error subdirectory
+  done
+  send mail with the list of successes and failures
+#+END_SRC
+
+The =linksrc= and =linkdest= of each script are currently hard-coded, but
+this is a bug: they are dependent on the configuration (production
+does things differently than ec2 e.g.) so they should be specified in
+the environment's server config file for each script and read from
+there.
+
+
+* Directory structure
+
+The state directories are kept on the server under each controller hostname
+in the archive subdirectory of the pbench volume, e.g.
+
+The structure looks like this:
+
+.../archive/fs-version-001/<host>/...tarballs and MD5 sums...
+                                 /TODO
+                                 /TO-COPY-SOS
+                                 /TO-INDEX
+                                 /INDEXED
+                                 /TO-LINK
+We will add some more subdirs (see below):
+                                 /TO-SYNC (on remotes)
+                                 /TO-PROCESS-REMOTE-TARBALLS
+                                 /TO-DELETE-REMOTE-TARBALLS
+
+In addition, there are some "retirement" subdirs, where tarballs
+that have errors go to spend the rest of their days.
+
+* pbench-rsync-remote script: current state
+The =pbench-rsync-remote= script is a bit different. It takes the environment
+name, the name of the remote server and the remote archive directory as arguments
+and currently does something like this:
+
+#+BEGIN_EXAMPLE shell
+
+ARCHIVE=local-archive-directory
+hosts=$(ssh $remoteserver 'cd $remotearchive; ls')
+
+for host in $hosts ;do
+    # make local host directory to receive the contents of the remote host directory
+    mkdir -p $ARCHIVE/$prefix::$host
+    cd $ARCHIVE/$prefix::$host
+    # copy the remote contents over
+    rsync $remoteserver:$remotearchive/$host/ .
+    check MD5
+    if success
+       delete the tarball and its MD5 sum from the remote
+    else
+       report the failure
+done
+
+Add the tarballs that were good to the processing queue, sorted by size.
+Submit them a few at a time for unpacking on the local system.
+Send mail with the stats.
+#+END_EXAMPLE
+The trouble is that the rsync is run for every host, whether that host
+has any tarballs for copying or not. Unfortunately, that takes about 5
+seconds, even if the host directory is empty. For a couple of hundred
+hosts, we end up spending 20 minutes in this loop, even if there is
+nothing to be done.
+
+* pbench-rsync-remote script: future state
+There are three things that we want to do:
+
+- fix the slowness identified above.
+- break up the script into an rsync part and a processing part.
+- add a script to delete tarballs (both archived and unpacked) on
+  the remote.
+
+** Slowness fix
+We will fix this by having the remotes explicitly add symlinks to the
+relevant tarballs into the host's TO-SYNC subdirectory.  This will be
+done by changing the =linkdest= value of the =pbench-unpack-tarballs=
+script to be TO-SYNC (=pbench-unpack-tarballs= and =pbench-edit-prefixes=
+are the only scripts that are run in the EC2 environment - the latter uses
+the TO-LINK subdir as its =linksrc=, but it has no =linkdest=: it just deletes
+the links from the TO-LINK subdir after it's done).
+
+The initial gathering of remote data will involve a single ssh invocation
+which will use =find= to find all the tarballs to be processed by looking
+in each TO-SYNC subdir. We can use =find= in symlink-resolving mode to get
+the full pathnames of the tarballs themselves. The list will have to be
+modified to add the MD5 sum files for each tarball, but that can be done
+within the =pbench-rsync-remote= script purely algorithmically.
+
+In principle, the list could be passed directly to =rsync= but it might
+be long and we might run into command lenght problems, so it's better
+to use xargs (although IIRC, interpolating arguments into a command is
+a bit tricky).
+
+After checking the MD5 sums, any tarballs that passed can be safely
+deleted from the remote, MD5 sum file and TO-SYNC symlink included.
+
+After the breakup, the above can be the first script, except that it
+will have to pass the list of tarballs to the second part to be processed.
+We will create a subdir, TO-PROCESS-REMOTE-TARBALLS, and the rsync part
+will symlink the list of tarballs into each host's TO-PROCESS-REMOTE-TARBALLS
+subdir.
+
+** Processing part
+The processing part will generate a list of tarballs to process, again by
+doing a =find= on the TO-PROCESS-REMOTE-TARBALLS subdirs. It will sort
+the tarballs by size and it will trickle them into the TODO subdirs
+of each host, where =pbench-unpack-tarballs= can find them and process
+them through the full production pipeline.
+
+Once a tarball is processed, the corresponding unpacked directory
+on the remote can be deleted. This will be done in the third script
+below - all that the processing script will do is (you guessed it)
+plant a symlink into yet another subdir, TO-DELETE-REMOTE-TARBALLS.
+
+** Delete script
+The delete script will do the usual =find= through the
+TO-DELETE-REMOTE-TARBALLS subdirs for each host and arrange for
+each of them to be deleted from the remote.
+
+The point is that the links will stick around until explicitly moved
+so if there are problems reaching the remote, the deletion will be delayed
+but it will eventually happen. Of course, if we cannot reach the remote,
+mail to that effect will be sent out.
+
+
+* Notes
+Note that we'll need a separate rsync script for each remote environment,
+and they might very well be running at different frequencies. The processing
+script can be a single script. The delete script might be a single script
+or multiple scripts, one per remote environment. That's TBD.
