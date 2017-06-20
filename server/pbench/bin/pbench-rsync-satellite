@@ -66,7 +66,7 @@ if [[ -z "$mail_recipients" ]] ;then
 fi
 # for testing, limit it to a few hosts and stay away from the largest tarballs
 # hosts=$(ssh $remotehost "cd $remotearchive; ls | grep -v 300 | sed 4q")
-hosts=$(ssh $remotehost "if cd $remotearchive;then ls ;else exit 1 ;fi")
+files=$(ssh $remotehost "if cd $remotearchive;then find . -path '*/TO-SYNC/*.tar.xz' -printf '%P\n' ;else exit 1 ;fi")
 rc=$?
 if [[ $rc != 0 ]] ;then
     echo "$PROG: ssh $remotehost \"cd $remotearchive; ls\" failed."
@@ -74,7 +74,7 @@ if [[ $rc != 0 ]] ;then
 fi
 
 # check if we are running under the unit test regime
-if [ ${_PBENCH_SERVER_TEST} = "1" ] ;then
+if [ "${_PBENCH_SERVER_TEST}" = "1" ] ;then
     # make the names reproducible for unit tests
     tmp=$TMP/$PROG.XXXXX
     status=status.XXXXX
@@ -86,19 +86,14 @@ else
     dryrun=
 fi
 
+hosts="$(for host in $files;do echo ${host%%/*};done | sort -u )"
+
 trap "rm -rf $tmp" EXIT
 
 mkdir -p $tmp
 
 exclude=$tmp/exclude
-cat <<EOF > $exclude
-TODO
-TO-INDEX
-TO-COPY-SOS
-INDEXED
-DONE
-WONT-INDEX*
-EOF
+echo $EXCLUDE_DIRS | tr ' ' '\n' > $exclude
 
 log_init $(basename $0)
 logdir=$LOGSDIR/$(basename $0)/$prefix/$TS
@@ -128,6 +123,7 @@ for host in $hosts ;do
         echo "FAILED:    rsync -av $remotehost:$remotearchive/$host/ ."
         let failures=failures+1
     fi
+
     # make the state dirs: TODO, TO-INDEX, TO-COPY-SOS etc.
     mk_dirs $prefix::$host
 
@@ -140,9 +136,8 @@ for host in $hosts ;do
     if [ -s $md5list ] ;then
         md5sum -c $(cat $md5list) | sed "s/^/$host: /" > $logdir/$host/md5-checks.log
         # delete all that check out
-        for x in $(sed -n '/OK$/s/: OK//p' $logdir/$host/md5-checks.log) ;do
-            echo $x $x.md5
-        done | ssh $remotehost "cd $remotearchive/$host; xargs rm" > $logdir/$host/rm.log 2>&1
+        grep 'OK' $logdir/$host/md5-checks.log |
+            ssh $remotehost "cd $remotearchive/$host; /opt/pbench-server/bin/pbench-satellite-cleanup" > $logdir/$host/rm.log 2>&1
     fi
     popd > /dev/null
 done

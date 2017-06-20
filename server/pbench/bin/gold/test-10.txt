@@ -34,5 +34,5 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/pbench-rsync-satellite.log:run-1900-01-01T00:00:00-UTC: duration (secs): 0
 --- pbench log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/ssh foo.bar.com if cd /var/tmp/pbench-test-server/pbench/archive;then ls ;else exit 1 ;fi
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/ssh foo.bar.com if cd /var/tmp/pbench-test-server/pbench/archive;then find . -path '*/TO-SYNC/*.tar.xz' -printf '%P\n' ;else exit 1 ;fi
 --- test-execution.log file contents
