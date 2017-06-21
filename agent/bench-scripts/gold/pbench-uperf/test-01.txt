@@ -24,6 +24,7 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
 /var/tmp/pbench-test-bench/pbench/pbench.log
+/var/tmp/pbench-test-bench/pbench/samples
 /var/tmp/pbench-test-bench/pbench/tmp
 /var/tmp/pbench-test-bench/pbench/tmp/uperf_test-01_1900.01.01T00.00.00.iterations
 /var/tmp/pbench-test-bench/pbench/tools-default

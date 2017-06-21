@@ -126,7 +126,7 @@ function testfio {
     cp -r samples/$1/* /tmp/GenData/$1
 
     _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
-        ../../bench-scripts/postprocess/fio-postprocess /tmp/GenData/$1/result/reference-result 2-read-64KiB fio- default > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+        ../../bench-scripts/postprocess/fio-postprocess /tmp/GenData/$1/result/reference-result fio- default > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
 
     remove_sample_data $1
 

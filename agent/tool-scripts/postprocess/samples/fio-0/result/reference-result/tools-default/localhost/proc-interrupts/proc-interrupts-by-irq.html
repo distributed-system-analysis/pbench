@@ -1,0 +1,34 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">
+  </head>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.3/jschart.js"></script>
+    <center><h2>proc-interrupts - proc-interrupts-by-irq</h2></center>
+    <div id="chart_1">
+      <script>
+        create_jschart("stackedAreaChart", "timeseries", "chart_1", "IRQ_LOC_Local_timer_interrupts", null, null, { csvfiles: [ "csv/proc-interrupts-by-irq_IRQ_LOC_Local_timer_interrupts.csv" ], threshold: 100 });
+      </script>
+    </div>
+    <div id="chart_2">
+      <script>
+        create_jschart("stackedAreaChart", "timeseries", "chart_2", "IRQ_NMI_Non-maskable_interrupts", null, null, { csvfiles: [ "csv/proc-interrupts-by-irq_IRQ_NMI_Non-maskable_interrupts.csv" ], threshold: 100 });
+      </script>
+    </div>
+    <div id="chart_3">
+      <script>
+        create_jschart("stackedAreaChart", "timeseries", "chart_3", "IRQ_PMI_Performance_monitoring_interrupts", null, null, { csvfiles: [ "csv/proc-interrupts-by-irq_IRQ_PMI_Performance_monitoring_interrupts.csv" ], threshold: 100 });
+      </script>
+    </div>
+    <div id="chart_4">
+      <script>
+        create_jschart("stackedAreaChart", "timeseries", "chart_4", "IRQ_RES_Rescheduling_interrupts", null, null, { csvfiles: [ "csv/proc-interrupts-by-irq_IRQ_RES_Rescheduling_interrupts.csv" ], threshold: 100 });
+      </script>
+    </div>
+  </body>
+</html>

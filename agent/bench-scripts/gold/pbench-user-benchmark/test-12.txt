@@ -2,15 +2,15 @@
 Running user-benchmark-script bad-format
 ERROR:root:current position: 51
 Traceback (most recent call last):
-  File "/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/user-benchmark-wrapper", line 10, in <module>
+  File "/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/user-benchmark-wrapper", line XXX, in <module>
     data = json.load(data_file)
-  File "/usr/lib/python2.7/json/__init__.py", line 278, in load
+  File "/usr/lib/python2.7/json/__init__.py", line XXX, in load
     **kw)
-  File "/usr/lib/python2.7/json/__init__.py", line 326, in loads
+  File "/usr/lib/python2.7/json/__init__.py", line XXX, in loads
     return _default_decoder.decode(s)
-  File "/usr/lib/python2.7/json/decoder.py", line 366, in decode
+  File "/usr/lib/python2.7/json/decoder.py", line XXX, in decode
     obj, end = self.raw_decode(s, idx=_w(s, 0).end())
-  File "/usr/lib/python2.7/json/decoder.py", line 382, in raw_decode
+  File "/usr/lib/python2.7/json/decoder.py", line XXX, in raw_decode
     obj, end = self.scan_once(s, idx)
 ValueError: Expecting object: line 3 column 25 (char 50)
 --- Finished test-12 pbench-user-benchmark (status=0)
@@ -27,6 +27,7 @@ ValueError: Expecting object: line 3 column 25 (char 50)
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/metadata.log
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary-debug.json
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json
+/var/tmp/pbench-test-bench/pbench/samples
 /var/tmp/pbench-test-bench/pbench/tmp
 /var/tmp/pbench-test-bench/pbench/tmp/pbench-user-benchmark__1900.01.01T00.00.00.iterations
 /var/tmp/pbench-test-bench/pbench/tools-default
