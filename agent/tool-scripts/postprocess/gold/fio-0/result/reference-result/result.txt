@@ -1,8 +1,0 @@
-readwrite_IOPS=10984.92
-rw_kB_sec=703100.79
-read_IOPS=10984.92
-read_kB_sec=703100.79
-read_95th_lat_us=4384.00
-write_IOPS=0.00
-write_kB_sec=0.00
-write_95th_lat_us=0.00

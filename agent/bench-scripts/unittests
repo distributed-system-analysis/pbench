@@ -48,6 +48,7 @@ mv $_testopt/unittest-scripts/mock-postprocess/* $_testopt/bench-scripts/postpro
 mv $_testopt/unittest-scripts/mock-MoonGen $moongen_dir/build/MoonGen
 let res=res+$?
 
+
 if [[ $res -ne 0 ]]; then
     echo "ERROR: failed to construct unittest execution directory hierarchy" \
          "under, \"$_testroot\"" >&2
@@ -68,7 +69,12 @@ function _run {
     shift
     echo "$tname $tscrpt $@"
     echo "+++ Running $tname $tscrpt" >> $_testout
-    benchmark_bin=$_testopt/unittest-scripts/bm pbench_run=$_testdir pbench_log=$_testdir/pbench.log $_testopt/bench-scripts/$tscrpt $@ >> $_testout 2>&1
+    #echo PWD: $(pwd) _TDIR: $_tdir >> $_testout
+    _TEST_ALTERNATE_BENCH_LIBRARY=$_tdir/postprocess \
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$_tdir/../tool-scripts/postprocess \
+                                 PBENCH_UNITTEST_BENCHMARK=$tscrpt PBENCH_UNITTEST_TEST=$tname \
+                                 benchmark_bin=$_testopt/unittest-scripts/bm pbench_run=$_testdir pbench_log=$_testdir/pbench.log \
+                                 $_testopt/bench-scripts/$tscrpt $@  >> $_testout 2>&1
     sts=$?
     echo "--- Finished $tname $tscrpt (status=$sts)" >> $_testout
     return $sts
@@ -98,29 +104,38 @@ function _verify_output {
     tname=$2
     tscrpt=$3
     expected_status=${4:-0}
-    diff -cw $_tdir/gold/${tscrpt}/${tname}.txt $_testout
+    # fix up stupidities in python exception output: lib64->lib, line numbers->XXX
+    # fix up Ubuntu stupidities: backtick to single quote
+    sed 's/lib64/lib/g
+         s/, line [1-9][0-9]*, in/, line XXX, in/g' $_testout |
+         tr '\140' '\047' > $_testout.1
+    diff -cw $_tdir/gold/${tscrpt}/${tname}.txt $_testout.1
     if [[ $? -gt 0 ]]; then
         echo "FAIL - $tname"
-        mv $_testout $_testroot/${tname}_output.txt
+        rm $_testout
+        mv $_testout.1 $_testroot/${tname}_output.txt
         sts=1
     else
         if [[ $sts -eq 0 ]]; then
             echo "PASS - $tname"
-            rm $_testout
+            rm $_testout $_testout.1
+            # mv $_testout $_testout.1 /tmp/pbench
         else
 	    if [[ $sts -eq $expected_status ]]; then
 		echo "PASS - $tname exited with expected status: $sts"
-		rm $_testout
+		rm $_testout $_testout.1
 		sts=0
 	    else
 		echo "FAIL - $tname: PASS output but execution returned non-zero exit status"
+                rm $_testout
+                mv $_testout.1 $_testroot/${tname}_output.txt
 	    fi
         fi
     fi
     return $sts
 }
 function _setup_state {
-    mkdir $_testdir
+    mkdir -p $_testdir/samples
     if [[ $? -ne 0 ]]; then
         echo "ERROR: failed to create test pbench directory, \"$_testdir\"" >&2
         exit 1
@@ -172,7 +187,9 @@ declare -A rundirs=(
     
 )
 declare -A pre=(
-    [test-06]="echo foo bar baz | tr ' ' '\n' > /tmp/foo"
+    [test-04]="cp $_tdir/samples/test-04.tar.xz $_testdir/samples"
+    [test-05]="cp $_tdir/samples/test-05.tar.xz $_testdir/samples"
+    [test-06]="cp $_tdir/samples/test-06.tar.xz $_testdir/samples; echo foo bar baz | tr ' ' '\n' > /tmp/foo"
 )
 
 declare -A post=(
