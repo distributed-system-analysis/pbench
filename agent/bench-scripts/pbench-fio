@@ -64,6 +64,7 @@ tool_label_pattern="fio-"
 tool_group="default"
 max_key_length=20
 primary_metric="readwrite_IOPS"
+sysinfo="default"
 
 function fio_usage() {
 		printf "The following options are available:\n"
@@ -101,7 +102,7 @@ function fio_usage() {
 		printf -- "\t--ioengine=str           str= any ioengine fio supports (default is $ioengine)\n"
 		printf "\n"
 		printf -- "\t--iodepth=<int>"
-                printf "\t\tSet the iodepth config variable in the fio job file\n"
+		printf "\t\tSet the iodepth config variable in the fio job file\n"
 		printf "\n"
 		printf -- "\t-c str[,str] --clients=str[,str]      str= one or more remote systems to run fio\n"
 		printf -- "\t                         If no clients are specified, fio is run locally\n"
@@ -129,19 +130,21 @@ function fio_usage() {
 		printf -- "\t\texample: --pre-iteration-script=\$HOME/drop-cache.sh\n"
 		printf -- "\t--samples=<int>\n"
 		printf "\t\tnumber of samples to use per test iteration (default is $nr_samples)\n"
-	        printf -- "\t--max-stddev=<int>\n"
-                printf "\t\tthe maximum percent stddev allowed to pass\n"
-                printf -- "\t--max-failures=<int>\n"
-                printf "\t\tthe maximum number of failures to get below stddev\n"
-                printf -- "\t--install\n"
-                printf "\t\tinstall only\n"
-                printf "\t\tDefault is n\n"
+		printf -- "\t--max-stddev=<int>\n"
+		printf "\t\tthe maximum percent stddev allowed to pass\n"
+		printf -- "\t--max-failures=<int>\n"
+		printf "\t\tthe maximum number of failures to get below stddev\n"
+		printf -- "\t--install\n"
+		printf "\t\tinstall only\n"
+		printf "\t\tDefault is n\n"
 		printf -- "\t--remote-only\n"
 		printf "\trun this on the remotes only\n"
+		printf -- "\t--sysinfo=str            str= comma seperated values of sysinfo to be collected\n"
+		printf -- "\t                              available: $(pbench-collect-sysinfo --options)\n"
 }
 
 function fio_process_options() {
-	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,remote-only,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,job-file:" -n "getopt.sh" -- "$@");
+	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,remote-only,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,job-file:,sysinfo:" -n "getopt.sh" -- "$@");
 
 	if [ $? -ne 0 ]; then
 		printf "\t${benchmark}: you specified an invalid option\n\n"
@@ -360,7 +363,14 @@ function fio_process_options() {
 				fi
 				shift;
 			fi
-			;; 
+			;;
+			--sysinfo)
+			shift;
+			if [ -n "$1" ]; then
+				sysinfo="$1"
+				shift;
+                	fi
+			;;
 			--)
 			shift;
 			break;
@@ -372,6 +382,13 @@ function fio_process_options() {
 			;;
 		esac
 	done
+	pbench-collect-sysinfo --sysinfo=$sysinfo --check
+	if [ $? != 0 ]; then
+		printf -- "$*\n\n"
+		printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
+		fio_usage
+	exit 1
+	fi
 	if [ "$postprocess_only" = "n" ]; then
 		benchmark_fullname="${benchmark}_${config}_${date_suffix}"
 		benchmark_run_dir="$pbench_run/${benchmark_fullname}"
@@ -735,13 +752,13 @@ fi
 
 mkdir -p $benchmark_run_dir
 export benchmark config
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 fio_run_benchmark
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 echo "$script_path/postprocess/generate-benchmark-summary \"$benchmark\" \"$orig_cmd\" \"$benchmark_run_dir\"" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
 chmod +x "$benchmark_run_dir/generate-benchmark-summary.cmd"
 $script_path/postprocess/generate-benchmark-summary "$benchmark" "$orig_cmd" "$benchmark_run_dir"
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir  --sysinfo=$sysinfo end
 
 rmdir $benchmark_run_dir/.running
