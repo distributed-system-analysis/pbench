@@ -172,6 +172,16 @@ while (my $line = <TXT>) {
 		$rate{"openvswitch"}{"PMDthread-processing-cycles-per-packet"}{$pmd_thread_id. $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
 
 	}
+
+	#       emc hits:0
+	if ( $line =~ /\s*emc\shits:\s*(\d+)/ and $stats_mode eq "dpdk" ) {
+		$rate{"openvswitch"}{"PMDemc-hits"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+	}
+
+	#       megaflow hits:0
+	if ( $line =~ /\s*megaflow\shits:\s*(\d+)/ and $stats_mode eq "dpdk" ) {
+		$rate{"openvswitch"}{"PMDmegaflow-hits"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+	}
 	
 	#           tx pkts=49, bytes=3108, drop=0, errs=0, coll=?
 	if ( $line =~ /\s*([r|t]x)(.*)/ and $stats_mode eq "bridge" ) {
