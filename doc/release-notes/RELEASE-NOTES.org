@@ -1,4 +1,4 @@
-# Created 2017-06-26 Mon 23:47
+# Created 2017-06-27 Tue 10:29
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
@@ -28,12 +28,17 @@ of the pbench-agent RPM installed.
 ** agent
 
 *** Known problems and backward incompatibilities
+
 - pbench-user-benchmark will now produce a warning about a non-existent
   JSON result file (see below).
-- pbench-fio issues two warnings after postprocessing the latency log files.
-  This is caused by the last two lines in two of these files having the same
-  timestamp. This is probably a fio bug.
-
+- pbench-fio issues two warnings after postprocessing the latency log
+  files.  This is caused by the last two lines in two of these files
+  having the same timestamp. This is probably a fio bug.
+- The Python Pandas package goes by different names on RHEL and
+  Fedora.  The current code uses "python-pandas" which works for RHEL,
+  but not for Fedora.  The workaround for Fedora is to actually change
+  the pbench-fio script to install "python2-pandas". We have a work
+  item to fix this for the next release.
 
 *** Bug fixes and enhancements
 
