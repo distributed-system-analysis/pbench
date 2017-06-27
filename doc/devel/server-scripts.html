@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-06-15 Thu 01:29 -->
+<!-- 2017-06-26 Mon 23:49 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench server script states and rsyncing from remotes</title>
@@ -69,6 +69,7 @@
   pre.src-fortran:before { content: 'Fortran'; }
   pre.src-gnuplot:before { content: 'gnuplot'; }
   pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
   pre.src-java:before { content: 'Java'; }
   pre.src-js:before { content: 'Javascript'; }
   pre.src-latex:before { content: 'LaTeX'; }
@@ -188,7 +189,7 @@
 @licstart  The following is the entire license notice for the
 JavaScript code in this tag.
 
-Copyright (C) 2012-2013 Free Software Foundation, Inc.
+Copyright (C) 2012-2017 Free Software Foundation, Inc.
 
 The JavaScript code in this tag is free software: you can
 redistribute it and/or modify it under the terms of the GNU
@@ -276,7 +277,7 @@ Schematically each script does the following:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-shell">linksrc = state subdirectory for this script
+<pre><code class="src src-shell">linksrc = state subdirectory for this script
 linkdest = state sudbdirectory for next script
 
 <span style="font-weight: bold; font-style: italic;">queue</span>=$(<span style="font-weight: bold;">find</span> list of tarballs<span style="font-weight: bold;"> in</span> $<span style="font-weight: bold; font-style: italic;">linksrc</span>)
@@ -289,7 +290,7 @@ linkdest = state sudbdirectory for next script
        move it to some error subdirectory
 <span style="font-weight: bold;">done</span>
 send mail with the list of successes and failures
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -345,6 +346,7 @@ and currently does something like this:
 </p>
 
 <pre class="example">
+
 ARCHIVE=local-archive-directory
 hosts=$(ssh $remoteserver 'cd $remotearchive; ls')
 
@@ -487,7 +489,7 @@ or multiple scripts, one per remote environment. That's TBD.
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2017-06-15 Thu 01:29</p>
+<p class="date">Page updated: 2017-06-26 Mon 23:49</p>
 </div>
 </body>
 </html>

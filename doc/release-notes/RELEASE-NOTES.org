@@ -1,4 +1,4 @@
-# Created 2017-06-15 Thu 01:24
+# Created 2017-06-26 Mon 23:47
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
@@ -14,6 +14,259 @@
 #+SUBTITLE: 
 #+INFOJS_OPT: 
 #+LATEX_HEADER: 
+
+* Version 0.43
+
+** Installation                                                    :external:
+
+There are no installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.43-1gXXX
+of the pbench-agent RPM installed.
+
+** agent
+
+*** Known problems and backward incompatibilities
+- pbench-user-benchmark will now produce a warning about a non-existent
+  JSON result file (see below).
+- pbench-fio issues two warnings after postprocessing the latency log files.
+  This is caused by the last two lines in two of these files having the same
+  timestamp. This is probably a fio bug.
+
+
+*** Bug fixes and enhancements
+
+- pbench-fio produces JSON results now, using the same libraries
+  that were used in pbench-uperf and pbench-moongen.
+
+- pbench-user-benchmark also produces a rudimentary JSON result
+  file (it only includes a duration for the run), but there are
+  provisions to allow the user benchmark to produce a JSON file
+  which pbench-user-benchmark will upload for indexing.
+
+- Benchmark directory names contain a time stamp, which previously
+  contained colons. This caused difficulties with docker, so the
+  timestamp format has been changed to contain only periods. Internal
+  timestamps (e.g. in the metadata.log) are still in the original format
+  using colons; there is no plan to change those.
+
+- Some benchmark scripts now take an additional option: --sysinfo=<val>
+  where <val> can be "default", "all", "none", or a comma-separated
+  list of words from the following list: kernel_config, block,
+  libvirt, sos, block, topology, ara.  The <val> is passed through to
+  pbench-collect-sysinfo, to allow the the user to tailor what kind of
+  system information will be collected (if any). E.g.
+
+  pbench-fio --sysinfo=none <other args>
+
+  will not collect *any* system information.
+
+  Although this was meant to be applied generally, currently only
+  pbench-user-benchmark has been converted. There are outstanding
+  PRs for pbench-fio, pbench-uperf and uperf-moongen to be modified
+  the same way - they will be available in v0.44. The rest of the
+  benchmark scripts will then follow (probably in v0.45, although
+  depending on demand, we may convert some of them earlier).
+
+- A "disk" tool has been added: it runs "df" periodically, collects
+  the results and post-processes them to render various graphs.
+
+- There will be a number of documentation changes that will be
+  rolled out in the next couple of weeks, out-of-band with the
+  releases. Notification will be sent out about those changes
+  as they happen.
+
+
+** server
+
+The script that syncs "satellite" pbench servers to a master server
+has been sped up to allow more frequent invocation from cron. However,
+the rsyncing itself and (particularly) the unpacking of the synced
+tarballs on the master server is still a bottleneck. We have a work
+item to improve that in v0.44.
+
+The indexing script continues to be enahnced: it now indexes iostat
+tool data, and more information has been added to the metadata:
+iterations and samples are now indexed. We are planning to deploy test
+versions of the indexer in the next month that will index results and
+more tool data (to the staging ES instance), then roll it into the
+production server in the v0.44 release.  It is likely however that
+we'll iterate a number of times on the indexer in the next few
+months.
+
+*** Instructions                                                   :external:
+TBD.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.43
+:END:
+There are no updates to the web-server in this release, but there
+is a new RPM that should be identical (other than the version number)
+to the previous version. For now, we recommend that you do *not* update:
+the testing has been fairly superficial and somewhat inconclusive. We
+plan to work on this in the next week or two. We'll send out details
+when it's ready.
+
+If you do decide to update, the instructions are standard:
+#+BEGIN_EXAMPLE
+dnf clean expire-cache
+dnf update pbench-web-server
+#+END_EXAMPLE
+(or the yum equivalents.)  The current version available from COPR
+is 0.43-1gXXX
+
+** Changelog
+This is the list of visible (non-merge, non-unit-test-related) commits
+since v0.42:
+
+- 87c4f83 Version bump: v0.43
+- a0811d9 Fix unit tests.
+- caf4a37 Fix fio-postprocess
+- 86213bf Fixes to pbench-fio.
+- 1c0a117 fio: convert to json for metric data
+- 29a365d generate-benchmark-summary: process iterations in numerical order
+- 7134e34 Fix unit tests for pbench-rsync-satellite.
+- cbb782f Add cleanup script
+- 6595a23 Speed up the rsync script.
+- bca3c94 Add containerized pbench for openshift
+- 1fc8e0c Add unit tests
+- eca3b7b Add support to user-benchmark to emit a json file
+- c9c21ad Add support to fetch kube config from master
+- 597a006 Unit test for index-pbench added
+- 7052f9e Handle exceptions more selectively
+- 4861e03 Modify index-pbench for pbench-user-benchmark
+- b073599 pbench-rsync-satellite: add unit test
+- 533f55e pbench-rsync-satellite: bug fixes and unittest prep
+- 019031b Send mail only if a counter is nontrivial
+- b03b8fb pbench-metadata-log: reduction of ssh invocations
+- b0d6b8d Add flexible way to register tools on nodes
+- 7fd3b2a Fix df command to ignore openshift volumes, header
+- c2f7da9 Change time format in suffix of run directory
+- a66c892 Rename variable to avoid collision
+- 8207437 Fix syntax of the check
+- e389968 Add disk tool to pbench
+- 042e3b5 Add mock for pbench-metadata-log unitests
+- 3771cbc Update all the benchmarks to call pbench-metadata-log directly
+- 6b37e67 Break out of loop in exception handler
+- d20464f documentation for pbench-fio and pbench-uperf
+- 6fb57e5 Add support to collect-sysinfo to collect ara data
+- cc9460b Rename openshift-metrics to prometheus-metrics
+- 334f93e Use 'exited' instead of 'failed' on success
+- d96c01c Fix playbook to handle non-existant groups in inventory,labeling
+- 9645ccb Rework help and usage for user-benchmark
+- bdf6f0c Rename the tar files to remove confusion, instead of, compress the tar ball
+- 8abd2e8 Use RPM to avoid issues with dashes in awk
+- 681a0ef Close using the proper file variable
+- d915a3a Fix up dates to put them in standard format
+- 4620b28 Add support to pbench-collect-sysinfo to collect only the info requested
+- 39935b0 One version file to rule them all
+- 9a29587 Contrib VERSION
+- f8c76ba Fix the timestamp format
+- b4e1b55 Fix WONT-INDEX.xx range to reflect the errors that index-pbench returns
+- 80947ed Fix path of index-pbench, PYTHONPATH and config file path.
+- 9a5052e Final changes for automating server installation
+- b7fd923 Do not try to yum install packages to provide semanage/restorecon
+- ac6e5b7 correct timezone to UTC while os.stat'g tb fname
+- 3a270ca Index .csv tool data files
+- 1df7eff Decompose iteration names into components
+- 77783ae Change the date format in agent/base to satisfy ES needs
+
+* Version 0.42
+
+** Installation                                                    :external:
+N.B. COPR has deleted the Fedora 23 chroot, so we can no longer
+produce Fedora 23 packages; Fedora 23 is no longer supported.
+
+There are no installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.42-1gcf7a941
+of the pbench-agent RPM installed.
+
+** agent
+
+*** Backward incompatibilities
+None known.
+
+*** Bug fixes and enhancements
+
+User-visible changes include:
+
+- HAProxy OCP plugin has been merged
+- openshift-metrics tool has been merged
+- pbench-clear-tools regained its --remote option (it was lost some time ago).
+- pbench-uperf post-processing catches more errors and recovers much better
+  than before.
+
+One thing that did not make it is the JSON output for =pbench-fio=:
+there were some problems which we didn't have time to address in this
+cycle. It will be in v0.43.
+
+** server
+
+Indexing work has been proceeding on a branch. It has not been merged onto the master
+branch yet and is not part of this release. The plan is to merge it after the release and
+deploy it with the next release.
+
+The server has seen fixes for installing into different environments.
+
+*** Instructions                                                   :external:
+TBD.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.42
+:END:
+The pbench-web-server RPM has been updated with scatterplot support
+and a number of fixes.
+
+If you have it installed, you will want to update:
+#+BEGIN_EXAMPLE
+dnf clean expire-cache
+dnf update pbench-web-server
+#+END_EXAMPLE
+(or the yum equivalents.)  The current version available from COPR
+is 0.42-1gcf7a941.
+
+** Changelog
+This is the list of visible (non-merge, non-unit-test-related) commits
+since v0.41:
+
+
+- 00d4fe0 Fix command to parse openshift inv
+- e9c6634 White space fixes - also fixed some typos
+- fc479c4 pbench-metadata-log changes to record iterations
+- 1d3508a All pbench benchmark scripts record their iterations
+- 78a3b6b Pbench agent base script: do not recalculate $date
+- c07a010 Check whether selinuxenabled exists before calling it
+- eadc311 Add remote option to pbench-clear-tools
+- fab942f Added test fix too
+- 0e13532 Fix typo
+- 15a8bd1 playbook to register pbench-tools on openshift cluster
+- ced507a Fixes distributed-system-analysis/pbench#479
+- d24406d Specify the sorting columns explicitly
+- 8151b84 Fix invocation of index-pbench
+- b38b247 openshift-metrics tool for pbench
+- cf950a8 Check ssh status in pbench-rsync-satellite
+- 0f545e3 generate-benchmark-summary: skip over missing result.json iterations
+- c851d60 pbench-uperf: allow any process-iteration-samples failure to re-try
+- ab0cb7b Fix unit tests
+- 45a571e Decorate the mail sent by server scripts with environment information
+- d120260 Update to pbench-uperf --help
+- 29b2929 Fill gaps in server installation
+- fee78ab Add scatterplot support to jschart
+- 6600716 Correct invalid jschart API calls
+- 683c0d1 Fix date format for seconds since epoch
+- b58ff7b BenchPostprocess.pm: fix div by zero and other small clean-ups
+- eebd592 Added haproxy-ocp unittests.
+- ff46508 Set thresholds on graphs with 0 values.
+- 702aa8f Collect HAProxy's version and default settings.  Set thresholds on graphs with 0 values.
+- c16d833 - Split logs directory to config/logs. ...
+- d103e31 Replacing BASH_SOURCE variable.  Assuming plugins will not be 'sourced' by other scripts.
+- cda6444 Adding HAProxy OCP plugin.
+
 
 * Version 0.42
 

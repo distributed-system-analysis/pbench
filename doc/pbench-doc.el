@@ -58,5 +58,6 @@
         ("orgfiles"
          :components ,publishing-subdirs)
         ("pbench-doc"
-         :components ("index" "orgfiles" "images"))))
+;         :components ("index" "orgfiles" "images"))))
+         :components ("index" "orgfiles"))))
 
