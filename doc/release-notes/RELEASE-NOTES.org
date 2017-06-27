@@ -1,4 +1,4 @@
-# Created 2017-06-27 Tue 10:29
+# Created 2017-06-27 Tue 14:29
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
@@ -22,23 +22,34 @@
 There are no installation changes in this release: see the
 [[file:../agent/installation.org][Installation Instructions]] for how to install or update.
 
-After installation or update, you should have version 0.43-1gXXX
+After installation or update, you should have version 0.43-1g87c4f83
 of the pbench-agent RPM installed.
 
 ** agent
 
 *** Known problems and backward incompatibilities
 
-- pbench-user-benchmark will now produce a warning about a non-existent
+- =pbench-user-benchmark= will now produce a warning about a non-existent
   JSON result file (see below).
-- pbench-fio issues two warnings after postprocessing the latency log
+- =pbench-fio= issues two warnings after postprocessing the latency log
   files.  This is caused by the last two lines in two of these files
   having the same timestamp. This is probably a fio bug.
 - The Python Pandas package goes by different names on RHEL and
   Fedora.  The current code uses "python-pandas" which works for RHEL,
   but not for Fedora.  The workaround for Fedora is to actually change
-  the pbench-fio script to install "python2-pandas". We have a work
+  the =pbench-fio= script to install "python2-pandas". We have a work
   item to fix this for the next release.
+- Two new dependencies have been added to =pbench-agent=: =perl-JSON=
+  and =perl-Switch=. These are used to produce JSON files for the
+  results of benchmarks (currently, =pbench-uperf=, =pbench-moongen=
+  and =pbench-fio= produce such JSON files). =perl-JSON= is available
+  from the standard RHEL and Fedora repos, but =perl-Switch= is only
+  available from the standard Fedora repos; on RHEL, you will need to
+  add the RHEL "optional packages" repo. This can be done by copying
+
+  https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
+
+  to =/etc/yum.repos.d=.
 
 *** Bug fixes and enhancements
 
@@ -82,7 +93,6 @@ of the pbench-agent RPM installed.
   releases. Notification will be sent out about those changes
   as they happen.
 
-
 ** server
 
 The script that syncs "satellite" pbench servers to a master server
@@ -120,7 +130,7 @@ dnf clean expire-cache
 dnf update pbench-web-server
 #+END_EXAMPLE
 (or the yum equivalents.)  The current version available from COPR
-is 0.43-1gXXX
+is 0.43-1g87c4f83
 
 ** Changelog
 This is the list of visible (non-merge, non-unit-test-related) commits
