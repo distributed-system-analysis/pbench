@@ -43,7 +43,7 @@
       with_indexed_items: "{{ groups['lb'] }}"
       when: groups['lb']|default([]) 
     - name: register tools
-      shell: sh /run/pbench/register.sh {{ default_tools_interval }} {{ ose_master_interval }} {{ ose_node_interval }} {{ file }}
+      shell: sh /run/pbench/register.sh {{ default_tools_interval }} {{ ose_master_interval }} {{ ose_node_interval }} {{ file }} {{ inventory_file }}
     - name: create .kube directory to store config file
       file: path={{ ansible_env.HOME }}/.kube state=directory
     - name: get kube config from openshift master
