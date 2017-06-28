@@ -170,11 +170,14 @@ declare -A cmds=(
     [test-10]="pbench-user-benchmark -- user-benchmark-script no-duration"
     [test-11]="pbench-user-benchmark -- user-benchmark-script with-duration"
     [test-12]="pbench-user-benchmark -- user-benchmark-script bad-format"
+    [test-13]="pbench-moongen --sysinfo=bad"
+    [test-14]="pbench-moongen --help"
     
 )
 
 declare -A expected_status=(
     [test-08]=1
+    [test-13]=1
 )
 
 date="1900.01.01T00.00.00"
