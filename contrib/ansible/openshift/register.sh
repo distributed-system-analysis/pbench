@@ -68,11 +68,13 @@ while read -u 11 line;do
     pbench-register-tool --label=$label --name=pidstat --remote $remote
     pbench-register-tool --label=$label --name=oc --remote $remote
     pbench-register-tool --label=$label --name=pprof --remote $remote -- --osecomponent=master --interval=$ose_master_interval
-    pbench-register-tool --label=$label --name=haproxy-ocp --remote $remote -- --interval=10 --counters-clear-all
+    pbench-register-tool --label=$label --name=haproxy-ocp --remote $remote -- --interval=$ose_master_interval --counters-clear-all
+    pbench-register-tool --label=$label --name=disk --remote $remote
   else
     pbench-register-tool --label=$label --name=sar --remote $remote
     pbench-register-tool --label=$label --name=iostat --remote $remote
     pbench-register-tool --label=$label --name=pidstat --remote $remote
+    pbench-register-tool --label=$label --name=disk --remote $remote
   fi
   if [ "$group" == "node" ]; then
     pbench-register-tool --label=$label --name=pprof --remote $remote -- --osecomponent=node --interval=$ose_node_interval
