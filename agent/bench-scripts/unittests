@@ -205,7 +205,7 @@ tests="$*"
 if [ -z "$tests" ] ;then
     typeset -i len=${#cmds[@]}
     len=$len-1
-    tests="$(seq -f "test-%02g" 0 $len)"
+    tests=$(echo ${!cmds[*]} | tr ' ' '\n' | sort)
 fi
 
 for tst in $tests; do
