@@ -131,24 +131,19 @@ cat "$inventory" | awk -F " " '{ print $1 }' | sed -n '/^\[masters\]/,/^$/p' | a
 case "$mode" in
 	install)
 	which go &>/dev/null
-	if [[ $(echo $?) != 0 ]]; then
+	if [[ $? != 0 ]]; then
 		yum -y install go &>/dev/null
-		mkdir $pbench_install_dir/.go	
-		echo "GOPATH=$pbench_install_dir/.go" >> ~/.bashrc
-		echo "export GOPATH" >> ~/.bashrc
-		echo "PATH=\$PATH:\$GOPATH/bin # Add GOPATH/bin to PATH for scripting" >> ~/.bashrc
-		source ~/.bashrc
 	fi
-	go get github.com/prometheus/prom2json
-	go install github.com/prometheus/prom2json
+	GOPATH=$pbench_install_dir/.go go get github.com/prometheus/prom2json
+	GOPATH=$pbench_install_dir/.go go install github.com/prometheus/prom2json
 	;;
 	start)
 	mkdir -p $tool_output_dir/json
 	while read -u 9 master; do
-		tool_cmd="$script_path/datalog/$tool-datalog $master $interval $tool_log"
+		tool_cmd="GOPATH=$pbench_install_dir/.go PATH=$PATH:$GOPATH/bin $script_path/datalog/$tool-datalog $master $interval $tool_log"
 		metrics_data=$tool_output_dir/$master-stdout.txt
 		debug_log "$script_name: running $tool_cmd"
-		$tool_cmd >"$metrics_data" 2>"$tool_stderr_file" & echo $! >>$tool_pid_file
+		eval $tool_cmd >"$metrics_data" 2>"$tool_stderr_file" & echo $! >>$tool_pid_file
 	done 9</run/pbench/inv_hosts
 	wait
 	;;
