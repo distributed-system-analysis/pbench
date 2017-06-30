@@ -7,7 +7,7 @@ Host <pbench_server>
     IdentityFile /opt/pbench-agent/id_rsa
 Host *
     User root
-    Port 2202
+    Port 2022
     StrictHostKeyChecking no
     PasswordAuthentication no
     UserKnownHostsFile ~/.ssh/known_hosts

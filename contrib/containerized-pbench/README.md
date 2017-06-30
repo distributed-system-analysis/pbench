@@ -61,11 +61,14 @@ Mount your ssh-keys, inventory to be used by pbench-ansible in to the container,
 $ docker run --privileged --net=host -v /path/to/keys:/root/.ssh -v /root/inventory:/root/inventory -v /var:/var/lib/pbench-agent pbench-controller
 ```
 
-Make sure you set the pbench_server and benchmark variables in vars file, a sample vars is  located at containerized-pbench/dockerfiles-jump_node/vars ans it looks like
+Make sure you set the pbench_server, benchmark and move_results variables in the vars file, the results are moved to the pbench server only when the move_results variable in the vars file is set to true. You can also set clear_results variable to true in case you want to clear off the existing results before starting a benchmark. A sample vars file is located at containerized-pbench/dockerfiles-jump_node/vars and it looks like
 ```
 pbench_server=foo.example.com
+clear_results=
 benchmark=pbench-user-benchmark -- sleep 1
+move_results=
 ```
+
 Mount the vars file at /root/vars like
 ```
 $ docker run --privileged --net=host -v /path/to/keys:/root/.ssh -v /root/inventory:/root/inventory -v /var/home:/var/lib/pbench-agent -v containerized-pbench/dockerfiles-jump_node/vars/:/root/vars pbench-controller
