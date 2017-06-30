@@ -22,13 +22,9 @@ mode=""
 interval="10"
 iteration="1"
 options=""
-inventory=$(ls /root/inv.*)
 
-# Process options and arguments
-opts=$(getopt -q -o idp --longoptions "inventory:,dir:,group:,iteration:,interval:,options:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
-if [ $? -ne 0 ]; then
-	printf "\n"
-	printf "$script_name: you specified an invalid option\n\n"
+# Usage function
+function usage {
 	printf "The following options are available: \n\n"
 	printf -- "\t--install,                 install this perf tool\n"
 	printf "\n"
@@ -39,6 +35,13 @@ if [ $? -ne 0 ]; then
 	printf -- "\t--interval=int             number of seconds between each data collection\n"
 	printf -- "\t--options=str              options passed directly to the tool\n"
 	printf -- "\t--inventory=str            path to the inventory file"
+}
+# Process options and arguments
+opts=$(getopt -q -o idp --longoptions "inventory:,dir:,group:,iteration:,interval:,options:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+if [ $? -ne 0 ]; then
+	printf "\n"
+	printf "$script_name: you specified an invalid option\n\n"
+	usage
 	exit 1
 fi
 eval set -- "$opts";
@@ -115,6 +118,14 @@ tool_stderr_file=$tool_output_dir/$tool-stderr.txt
 tool_log=$tool_output_dir/tool.log
 ## create directory to save the keys from openshift master, hosts
 mkdir -p /run/pbench/keys
+## check if the inventory variable is set correctly
+if [[ -z "$inventory" ]]; then
+	usage
+	exit 1
+elif [[ ! -s "$inventory" ]] || [[ ! -f "$inventory" ]]; then
+	echo "Please check if the inventory file exists, is not empty and the inventory variable is not set to a directory"
+	exit 1
+fi
 ## parse openshift inventory file
 cat "$inventory" | awk -F " " '{ print $1 }' | sed -n '/^\[masters\]/,/^$/p' | awk '{if (NR!=1) {print}}' | sed '/^$/d' > /run/pbench/inv_hosts
 case "$mode" in
