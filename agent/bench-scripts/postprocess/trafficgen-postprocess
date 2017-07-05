@@ -174,8 +174,8 @@ if ($json_result) {
 		my $uid = "tx_port:%tx_port%-rx_port:%rx_port%";
 		push(@Mframes_sec, { 'description' => "The number of Ethernet frames (in millions) received per second",
 		      		'uid' => $uid,
-		      		'tx_port' => $rx_port,
-		      		'rx_port' => $tx_port,
+				'tx_port' => $tx_port,
+				'rx_port' => $rx_port,
 		      		'value' => $rx_rate / 1000000} );
 		my $value;
 		if (exists ${ $perl_scalar }[$rx_port]{'rx_bandwidth'}) {
@@ -185,8 +185,8 @@ if ($json_result) {
 		}
 		push(@Gb_sec, { 'description' => "The number of bits (in billions) received from Ethernet phsycial layer per second",
      				'uid' => $uid,
-				'tx_port' => $rx_port,
-				'rx_port' => $tx_port,
+				'tx_port' => $tx_port,
+				'rx_port' => $rx_port,
 				'value' => ($value / (1000 * 1000 * 1000)) });
 	}
 } else {
