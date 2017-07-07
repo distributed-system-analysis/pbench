@@ -141,8 +141,9 @@ for host in $hosts ;do
             ssh $remotehost "cd $remotearchive/$host; /opt/pbench-server/bin/pbench-satellite-cleanup" \
                     < $logdir/$host/ok-checks.log > $logdir/$host/rm.log 2>&1
             if [[ $? != 0 ]]; then
-                mailx -s "$PROG: $prefix: remove failure"\
-                $mail_recipients < $logdir/$host/ok-checks.log
+                (echo "The following tarballs were transferred, but they are not removed from the satellite because ssh failed";
+                cat $logdir/$host/ok-checks.log) |
+                mailx -s "$PROG: $prefix: Transferred but not removed from satellite" $mail_recipients
             fi
         fi
     fi
