@@ -73,7 +73,7 @@ while read -u 11 line;do
     pbench-register-tool --label=$label --name=haproxy-ocp --remote $remote -- --interval=$ose_master_interval --counters-clear-all
     pbench-register-tool --label=$label --name=prometheus-metrics --remote $remote -- --inventory=$inventory_file_path
   fi
-  if [ "$group" == "node" ]; then
+  if [ "$group" == "node" ] || [ "$group" == "cns" ]; then
     pbench-register-tool --label=$label --name=pprof --remote $remote -- --osecomponent=node --interval=$ose_node_interval
   fi
 done 11< $hosts

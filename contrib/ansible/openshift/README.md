@@ -1,22 +1,24 @@
 ## Pbench Ansible
-Playbook to register pbench tools on openshift cluster.
+Playbook to register pbench tools on OpenShift cluster.
 
 ### Requirements
 You need to have these installed
-   - Openshift
+   - OpenShift
    - pbench
 
 ### Tools registered
-master - sar, pidstat, iostat, oc, pprof
+master - sar, pidstat, iostat, oc, pprof, prometheus-metrics, disk
 
-nodes - sar, pidstat, iostat, pprof
+nodes - sar, pidstat, iostat, pprof, disk
 
-etcd - sar, pidstat, iostat
+etcd - sar, pidstat, iostat, disk
 
-lb - sar, pidstat, iostat
+lb - sar, pidstat, iostat, disk
+
+glusterfs - sar, pidstat, iostat, pprof, disk
 
 ### Sample inventory
-Your inventory should have groups of hosts describing the roles they play in the openshift cluster. This playbook looks for the following groups in the inventory file:
+Your inventory should have groups of hosts describing the roles they play in the OpenShift cluster. This playbook looks for the following groups in the inventory file:
 
 [pbench-controller]
 
@@ -28,10 +30,13 @@ Your inventory should have groups of hosts describing the roles they play in the
 
 [lb]
 
+[glusterfs]
+
 [pbench-controller:vars]
 register_all_nodes=False
 
-By default, tools registration is done on only two of the nodes, setting the register_all_nodes to True will register tools on all of the nodes.
+Note: glusterfs group represents cns nodes.
+By default, tools registration is done on only two of the nodes, infra nodes. Setting the register_all_nodes to True will register tools on all of the nodes. 
 
 ### Run
 Currently pbench is run under the root user, so the playbook also needs to run as root.
