@@ -7,12 +7,13 @@ import os,subprocess,warnings,logging
 interval = int(sys.argv[2])
 master = sys.argv[1]
 tool_log = sys.argv[3]
-os.system('scp "%s:/etc/origin/master/admin.crt" "/run/pbench/keys/admin.crt"' % (master) )
-os.system('scp "%s:/etc/origin/master/admin.key" "/run/pbench/keys/admin.key"' % (master) )
+port = int(sys.argv[4])
+cert = sys.argv[5]
+key = sys.argv[6]
 while True:
     time_stamp = int(time.time())
     next_start = time_stamp + interval
-    command = "prom2json --cert=/run/pbench/keys/admin.crt --key=/run/pbench/keys/admin.key https://%s:8443/metrics" % (master)
+    command = "prom2json --cert=%s --key=%s https://%s:%d/metrics" % (cert, key, master, port)
     command_out = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     prom2json_out = command_out.communicate()[0]
     metrics_list = json.loads(prom2json_out)

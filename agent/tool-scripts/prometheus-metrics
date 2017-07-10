@@ -34,10 +34,14 @@ function usage {
 	printf -- "\t--dir=str                  directory to store data collection (required)\n"
 	printf -- "\t--interval=int             number of seconds between each data collection\n"
 	printf -- "\t--options=str              options passed directly to the tool\n"
-	printf -- "\t--inventory=str            path to the inventory file"
+	printf -- "\t--inventory=str            path to the inventory file\n"
+	printf -- "\t--port=int                 port prometheus is listening on\n"
+	printf -- "\t--cert=str                 path to the cert\n"
+	printf -- "\t--key=str                  path to the key"
+
 }
 # Process options and arguments
-opts=$(getopt -q -o idp --longoptions "inventory:,dir:,group:,iteration:,interval:,options:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o idp --longoptions "inventory:,port:,cert:,key:,dir:,group:,iteration:,interval:,options:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"
@@ -67,6 +71,27 @@ while true; do
 		shift;
 		if [ -n "$1" ]; then
 			inventory="$1"
+			shift
+		fi
+		;;
+		--port)
+		shift;
+		if [ -n "$1" ]; then
+			port="$1"
+			shift
+		fi
+		;;
+		--cert)
+		shift;
+		if [ -n "$1" ]; then
+			cert="$1"
+			shift
+		fi
+		;;
+		--key)
+		shift;
+		if [ -n "$1" ]; then
+			key="$1"
 			shift
 		fi
 		;;
@@ -126,12 +151,16 @@ elif [[ ! -s "$inventory" ]] || [[ ! -f "$inventory" ]]; then
 	echo "Please check if the inventory file exists, is not empty and the inventory variable is not set to a directory"
 	exit 1
 fi
+## set default values for port if not defined
+if [ -z "$port" ]; then
+        port=8443
+fi
 ## parse openshift inventory file
 cat "$inventory" | awk -F " " '{ print $1 }' | sed -n '/^\[masters\]/,/^$/p' | awk '{if (NR!=1) {print}}' | sed '/^$/d' > /run/pbench/inv_hosts
 case "$mode" in
 	install)
 	which go &>/dev/null
-	if [[ $(echo $?) != 0 ]]; then
+	if [[ $? != 0 ]]; then
 		yum -y install go &>/dev/null
 		mkdir $pbench_install_dir/.go	
 		echo "GOPATH=$pbench_install_dir/.go" >> ~/.bashrc
@@ -145,7 +174,28 @@ case "$mode" in
 	start)
 	mkdir -p $tool_output_dir/json
 	while read -u 9 master; do
-		tool_cmd="$script_path/datalog/$tool-datalog $master $interval $tool_log"
+		# fetch keys from openshift master and set default values for cert and key vars if not defined
+		if [ -z "$cert" ]; then
+			if [ ! -s /run/pbench/keys/admin.crt ]; then
+				scp $master:/etc/origin/master/admin.crt /run/pbench/keys/admin.crt
+				if [[ $? != 0 ]]; then
+					error_log "[$script_name]scp command failed to copy the files from $master, please check if the cert exists in /etc/origin/master directory"
+					exit 1
+				fi
+			fi
+			cert=/run/pbench/keys/admin.crt
+		fi
+		if [ -z "$key" ]; then
+			if [ ! -s /run/pbench/keys/admin.key ]; then
+				scp $master:/etc/origin/master/admin.key /run/pbench/keys/admin.key
+				if [[ $? != 0 ]]; then
+					error_log "[$script_name]scp command failed to copy the files from $master, please check if the key exists in /etc/origin/master directory"
+					exit 1
+				fi	
+			fi
+			key=/run/pbench/keys/admin.key
+		fi
+		tool_cmd="$script_path/datalog/$tool-datalog $master $interval $tool_log $port $cert $key"
 		metrics_data=$tool_output_dir/$master-stdout.txt
 		debug_log "$script_name: running $tool_cmd"
 		$tool_cmd >"$metrics_data" 2>"$tool_stderr_file" & echo $! >>$tool_pid_file
