@@ -95,7 +95,7 @@ function kill_trex() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o c: --longoptions "skip-trex-server,skip-git-pull,traffic-generator:,devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o c: --longoptions "skip-trex-server,skip-git-pull,traffic-generator:,devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
@@ -185,8 +185,13 @@ if [ $? -ne 0 ]; then
 	printf -- "    In the example above, device 0000:04:00.0 would use source IP address 10.0.0.1\n"
 	printf -- "    and device 0000:04:00.1 would use source IP adress 8.0.0.1\n"
 	printf -- "\n"
+	printf -- "--src-ports=PORT,PORT\n"
+	printf -- "  A list of source ports\n"
+	printf -- "\n"
+	printf -- "--dst-ports=PORT,PORT\n"
+	printf -- "  A list of destination ports\n"
+	printf -- "\n"
 	printf -- "--src-macs=MAC,MAC\n"
-	printf -- "  MAC \n"
 	printf -- "  A list of two source MAC addresses\n"
 	printf -- "\n"
 	printf -- "--src-ips=IP,IP\n"
@@ -449,7 +454,7 @@ while true; do
 		;;
 		# for options which if not used, do not affect the binary-search.py options (and binary-search should not use them by default)
 		# these options must match the options to binary-search.py *exactly*
-		--overlay-ids|--vlan-ids|--overlay-types|--src-ips|--src-macs|--dst-ips|--dst-macs|--encap-src-ips|--encap-src-macs|--encap-dst-ips|--encap-dst-macs)
+		--overlay-ids|--vlan-ids|--overlay-types|--src-ips|--src-macs|--dst-ips|--dst-macs|--encap-src-ips|--encap-src-macs|--encap-dst-ips|--encap-dst-macs|--src-ports|--dst-ports)
 		arg="$1"
 		shift
 		if [ -n "$1" ]; then
