@@ -1,4 +1,4 @@
-# Created 2017-07-14 Fri 13:45
+# Created 2017-07-14 Fri 16:32
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
@@ -85,9 +85,10 @@ These are identical to v0.43 and are repeated here for convenience:
   number can be specified instead of the default, as well as
   non-default certs. It also sets GOPATH properly. Note that the
   prom2json tool that is used underneath the covers has undergone
-  some changes, is still buggy and may not work. We think that the
-  pbench side is fine: the installation works. But they have broken
-  some functionality that the tool uses. See upstream issues:
+  some changes that broke functionality. Fixes were submitted upstream
+  and have been merged, so things work properly now.   
+
+  See upstream issues:
 
   https://github.com/prometheus/prom2json/issues/18,
   https://github.com/prometheus/prom2json/issues/20
@@ -95,6 +96,9 @@ These are identical to v0.43 and are repeated here for convenience:
   and associated PR:
 
   https://github.com/prometheus/prom2json/pull/22
+
+  If you find any problems, please open an issue, but as far as
+  we know, there should not be any.
 
 - Various tools added to the default configuration for openshift.
 
