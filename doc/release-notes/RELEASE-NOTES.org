@@ -1,4 +1,4 @@
-# Created 2017-06-27 Tue 14:29
+# Created 2017-07-14 Fri 13:45
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
@@ -14,6 +14,139 @@
 #+SUBTITLE: 
 #+INFOJS_OPT: 
 #+LATEX_HEADER: 
+
+* Version 0.44
+
+** Installation                                                    :external:
+
+There are no installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.44-1gf694c2f
+of the pbench-agent RPM installed.
+
+** agent
+
+*** Known problems and backward incompatibilities
+
+These are identical to v0.43 and are repeated here for convenience:
+
+- =pbench-user-benchmark= will now produce a warning about a non-existent
+  JSON result file (see below).
+
+- =pbench-fio= issues two warnings after postprocessing the latency log
+  files.  This is caused by the last two lines in two of these files
+  having the same timestamp. This is probably a fio bug.
+
+- (not fixed in v0.44) The Python Pandas package goes by different
+  names on RHEL and Fedora.  The current code uses "python-pandas"
+  which works for RHEL, but not for Fedora.  The workaround for Fedora
+  is to actually change the =pbench-fio= script to install
+  "python2-pandas". We have a work item to fix this for v0.45.
+
+- Two new dependencies have been added to =pbench-agent=: =perl-JSON=
+  and =perl-Switch=. These are used to produce JSON files for the
+  results of benchmarks (currently, =pbench-uperf=, =pbench-moongen=
+  and =pbench-fio= produce such JSON files). =perl-JSON= is available
+  from the standard RHEL and Fedora repos, but =perl-Switch= is only
+  available from the standard Fedora repos; on RHEL, you will need to
+  add the RHEL "optional packages" repo. This can be done by copying
+
+  https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
+
+  to =/etc/yum.repos.d=.
+
+*** Bug fixes and enhancements
+
+- (v0.43) pbench-user-benchmark also produces a rudimentary JSON result
+  file (it only includes a duration for the run), but there are
+  provisions to allow the user benchmark to produce a JSON file
+  which pbench-user-benchmark will upload for indexing.
+
+- (v0.43 with updates) Some benchmark scripts now take an additional
+  option: --sysinfo=<val> where <val> can be "default", "all", "none",
+  or a comma-separated list of words from the following list:
+  kernel_config, block, libvirt, sos, block, topology, ara.  The <val>
+  is passed through to pbench-collect-sysinfo, to allow the the user
+  to tailor what kind of system information will be collected (if
+  any). E.g.
+
+  pbench-fio --sysinfo=none <other args>
+
+  will not collect *any* system information.
+
+  pbench-user-benchmark, pbench-fio, pbench-uperf and pbench-moongen
+  have been modified to accept the new option. We may (or may not)
+  get to the rest of the benchmarks in v0.45, but if you need a
+  benchmark modified along these lines asap, please open an issue
+  and mark it "v0.45".
+
+- The prometheus tool now accepts some additional options: a port
+  number can be specified instead of the default, as well as
+  non-default certs. It also sets GOPATH properly. Note that the
+  prom2json tool that is used underneath the covers has undergone
+  some changes, is still buggy and may not work. We think that the
+  pbench side is fine: the installation works. But they have broken
+  some functionality that the tool uses. See upstream issues:
+
+  https://github.com/prometheus/prom2json/issues/18,
+  https://github.com/prometheus/prom2json/issues/20
+
+  and associated PR:
+
+  https://github.com/prometheus/prom2json/pull/22
+
+- Various tools added to the default configuration for openshift.
+
+- A bug in BenchPostprocess::get_uid has been fixed: it was fixed
+  previously, but the fix got lost somehow. It is now fixed again,
+  hopefully for good.
+
+** server
+There is a minor change in the server to make a mail message report
+more accurately. This will be deployed opportunistically.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.43
+:END:
+There is a new RPM that should be identical to the two previous
+versions. The dependencies are now handled correctly, so it should
+be safe to update to v0.44 if you want.
+
+If you do decide to update, the instructions are standard:
+#+BEGIN_EXAMPLE
+dnf clean expire-cache
+dnf update pbench-web-server
+#+END_EXAMPLE
+(or the yum equivalents.)  The current version available from COPR
+is 0.44-1gf694c2f.
+
+** Changelog
+This is the list of visible (non-merge, non-unit-test-related) commits
+since v0.43:
+
+- f694c2f Version bump
+- 54fba8a pidstat-postprocess: nuke commas from commands.
+- 4010360 Modify installation steps of prom2json
+- 24f2b9c Fix a subsitution bug in BenchPostprocess::get_uid
+- aacd800 Update the subject and body message of ssh failure mail
+- 6303e80 Fixes the way GOPATH is set
+- 3b084b1 Parameterize certs and port for prometheus-metrics
+- ceafcf0 Register tools on OpenShift infra, cns nodes
+- 4a8928a Fix script to write all the metrics
+- a9b066a move, clear results only when set in vars
+- 9c4e24d Register prometheus-metrics tool on openshift
+- 481b636 Register disk tool on the OpenShift cluster
+- 2834781 Register haproxy-ocp tool on masters
+- 89476b8 Add unit tests for pbench-fio bench-script
+- c46a8e7 Add support to fio to collect the info requested
+- 9f96951 Add unit tests for uperf bench-script
+- 85173ec Add support to uperf to collect the info requested
+- 07a5045 Add unit tests
+- 6a9c902 Add support to moongen to collect the info requested
+- 3d0ff25 Do not assume that unit tests are sequentially numbered
+- 9842b5f Show labels of oc-nodes
 
 * Version 0.43
 
