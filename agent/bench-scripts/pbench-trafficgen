@@ -81,8 +81,9 @@ one_shot="n"
 skip_trex_server="n"
 skip_git_pull="n"
 flow_mods="src-ip,dst-ip,src-mac,dst-mac"
-all_possible_flow_mods="src-ip,dst-ip,src-mac,dst-mac,encap-src-ip,encap-dst-ip,encap-src-mac,encap-dst-mac"
+all_possible_flow_mods="src-ip,dst-ip,src-mac,dst-mac,src-port,dst-port,encap-src-ip,encap-dst-ip,encap-src-mac,encap-dst-mac,protocol,none"
 cmd="./binary-search.py"
+packet_protocol="UDP"
 
 function kill_trex() {
 	# kill any existing trex server process
@@ -95,7 +96,7 @@ function kill_trex() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o c: --longoptions "skip-trex-server,skip-git-pull,traffic-generator:,devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o c: --longoptions "skip-trex-server,skip-git-pull,traffic-generator:,devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
@@ -185,8 +186,13 @@ if [ $? -ne 0 ]; then
 	printf -- "    In the example above, device 0000:04:00.0 would use source IP address 10.0.0.1\n"
 	printf -- "    and device 0000:04:00.1 would use source IP adress 8.0.0.1\n"
 	printf -- "\n"
+	printf -- "--src-ports=PORT,PORT\n"
+	printf -- "  A list of source ports\n"
+	printf -- "\n"
+	printf -- "--dst-ports=PORT,PORT\n"
+	printf -- "  A list of destination ports\n"
+	printf -- "\n"
 	printf -- "--src-macs=MAC,MAC\n"
-	printf -- "  MAC \n"
 	printf -- "  A list of two source MAC addresses\n"
 	printf -- "\n"
 	printf -- "--src-ips=IP,IP\n"
@@ -243,7 +249,11 @@ if [ $? -ne 0 ]; then
 	printf -- "  are used, the first packet will have a source IP of 192.168.0.X and source MAC\n"
 	printf -- "  of 01:02:03:04:X:06.  The second packet will have a source IP of\n"
 	printf -- "  192.168.0.(X+1) and source MAC of 01:02:03:04:(X+1):06. The list of available\n"
-	printf -- "  flow mods are: src-ip,src-mac,src-port,dst-port,encap-src-mac,encap-src-ip\n"
+	printf -- "  flow mods are:\n\n"
+	printf -- "    src-ip,dst-ip,src-mac,dst-mac,src-port,dst-port,encap-src-mac,encap-dst-mac,\n"
+        printf -- "    encap-src-ip,encap-dst-ip,protocol,none\n\n"
+	printf -- "  Note that none is a special flow mod option.  It's presence will override and\n"
+	printf -- "  disable all other specified flow mods\n"
 	printf -- "  Note that the encap-* flow mods are only viable for overlay network tests like\n"
 	printf -- "  VxLAN, and alter the inner packet header.\n"
 	printf -- "  The maximum number of unique flows may be limited by the traffic-generator used.\n"
@@ -251,6 +261,10 @@ if [ $? -ne 0 ]; then
 	printf -- "  octet in the IP addresses and the 3rd, 4th, and 5th octet in the MAC addresses\n"
 	printf -- "  When using source or destination ports numbers, the range is limited to 1-32768\n"
 	printf -- "  and higher flow counts will \"roll\" over back to 1\n"
+	printf -- "\n"
+	printf -- "--packet-protocol=str (default is $packet_protocol)\n"
+	printf -- "  The protocol to use when generating IP packets.  Available options are TCP or\n"
+	printf -- "  UDP.\n"
 	printf -- "\n\n"
 	printf -- "trafficgen debug options\n"
 	printf -- "-----------------------------------------------\n"
@@ -261,7 +275,7 @@ if [ $? -ne 0 ]; then
 	printf -- "\n"
 	printf -- "--skip-git-pull\n"
 	printf -- "  Do not call git pull on the lua-trafficgen repo if it already exists\n"
-	printf -- "\n"
+	printf -- "\n\n"
 	printf -- "options common in most pbench benchmark scripts\n"
 	printf -- "-----------------------------------------------\n"
 	printf -- "\n"
@@ -449,7 +463,7 @@ while true; do
 		;;
 		# for options which if not used, do not affect the binary-search.py options (and binary-search should not use them by default)
 		# these options must match the options to binary-search.py *exactly*
-		--overlay-ids|--vlan-ids|--overlay-types|--src-ips|--src-macs|--dst-ips|--dst-macs|--encap-src-ips|--encap-src-macs|--encap-dst-ips|--encap-dst-macs)
+		--overlay-ids|--vlan-ids|--overlay-types|--src-ips|--src-macs|--dst-ips|--dst-macs|--encap-src-ips|--encap-src-macs|--encap-dst-ips|--encap-dst-macs|--src-ports|--dst-ports|--packet-protocol)
 		arg="$1"
 		shift
 		if [ -n "$1" ]; then
@@ -512,23 +526,29 @@ for num_flow in `echo $num_flows | sed -e 's/,/ /g'`; do
 done
 
 not_flow_mods="$all_possible_flow_mods"
-for flow_mod in `echo $flow_mods | sed -e 's/,/ /g'`; do
-	found_flow_mod=0
-	for this_flow_mod in `echo $all_possible_flow_mods | sed -e 's/,/ /g'`; do
-		if [ $flow_mod = $this_flow_mod ]; then
-			cmd="$cmd --use-${flow_mod}-flows=1"
-			found_flow_mod=1
-			not_flow_mods=`echo $not_flow_mods | sed -e s/^$flow_mod,// -e s/,$flow_mod,/,/ -e s/,$flow_mod//`
+if ! echo "$flow_mods" | grep -e "^none$" -e ",none$" -e "^none," -e ",none,"; then
+	for flow_mod in `echo $flow_mods | sed -e 's/,/ /g'`; do
+		found_flow_mod=0
+		for this_flow_mod in `echo $all_possible_flow_mods | sed -e 's/,/ /g'`; do
+			if [ $flow_mod = $this_flow_mod ]; then
+				cmd="$cmd --use-${flow_mod}-flows=1"
+				found_flow_mod=1
+				not_flow_mods=`echo $not_flow_mods | sed -e s/^$flow_mod,// -e s/,$flow_mod,/,/ -e s/,$flow_mod//`
+			fi
+		done
+		if [ $found_flow_mod -eq 0 ]; then
+			warn_log "This flow_mod is invalid: $flow_mod"
+			exit 1
 		fi
 	done
-	if [ $found_flow_mod -eq 0 ]; then
-		warn_log "This flow_mod is invalid: $flow_mod"
-		exit 1
-	fi
-done
+fi
 # ensure the other flows are forced off (avoiding any defaults from binary-search.py)
 for flow_mod in `echo $not_flow_mods | sed -e 's/,/ /g'`; do
-	cmd="$cmd --use-${flow_mod}-flows=0"
+	if [ "${flow_mod}" == "none" ]; then
+		continue
+	else
+		cmd="$cmd --use-${flow_mod}-flows=0"
+	fi
 done
 
 if [ $one_shot == "y" ]; then
