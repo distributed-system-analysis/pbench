@@ -81,7 +81,7 @@ one_shot="n"
 skip_trex_server="n"
 skip_git_pull="n"
 flow_mods="src-ip,dst-ip,src-mac,dst-mac"
-all_possible_flow_mods="src-ip,dst-ip,src-mac,dst-mac,src-port,dst-port,encap-src-ip,encap-dst-ip,encap-src-mac,encap-dst-mac,protocol"
+all_possible_flow_mods="src-ip,dst-ip,src-mac,dst-mac,src-port,dst-port,encap-src-ip,encap-dst-ip,encap-src-mac,encap-dst-mac,protocol,none"
 cmd="./binary-search.py"
 packet_protocol="UDP"
 
@@ -251,7 +251,9 @@ if [ $? -ne 0 ]; then
 	printf -- "  192.168.0.(X+1) and source MAC of 01:02:03:04:(X+1):06. The list of available\n"
 	printf -- "  flow mods are:\n\n"
 	printf -- "    src-ip,dst-ip,src-mac,dst-mac,src-port,dst-port,encap-src-mac,encap-dst-mac,\n"
-        printf -- "    encap-src-ip,encap-dst-ip,protocol\n\n"
+        printf -- "    encap-src-ip,encap-dst-ip,protocol,none\n\n"
+	printf -- "  Note that none is a special flow mod option.  It's presence will override and\n"
+	printf -- "  disable all other specified flow mods\n"
 	printf -- "  Note that the encap-* flow mods are only viable for overlay network tests like\n"
 	printf -- "  VxLAN, and alter the inner packet header.\n"
 	printf -- "  The maximum number of unique flows may be limited by the traffic-generator used.\n"
@@ -524,23 +526,29 @@ for num_flow in `echo $num_flows | sed -e 's/,/ /g'`; do
 done
 
 not_flow_mods="$all_possible_flow_mods"
-for flow_mod in `echo $flow_mods | sed -e 's/,/ /g'`; do
-	found_flow_mod=0
-	for this_flow_mod in `echo $all_possible_flow_mods | sed -e 's/,/ /g'`; do
-		if [ $flow_mod = $this_flow_mod ]; then
-			cmd="$cmd --use-${flow_mod}-flows=1"
-			found_flow_mod=1
-			not_flow_mods=`echo $not_flow_mods | sed -e s/^$flow_mod,// -e s/,$flow_mod,/,/ -e s/,$flow_mod//`
+if ! echo "$flow_mods" | grep -e "^none$" -e ",none$" -e "^none," -e ",none,"; then
+	for flow_mod in `echo $flow_mods | sed -e 's/,/ /g'`; do
+		found_flow_mod=0
+		for this_flow_mod in `echo $all_possible_flow_mods | sed -e 's/,/ /g'`; do
+			if [ $flow_mod = $this_flow_mod ]; then
+				cmd="$cmd --use-${flow_mod}-flows=1"
+				found_flow_mod=1
+				not_flow_mods=`echo $not_flow_mods | sed -e s/^$flow_mod,// -e s/,$flow_mod,/,/ -e s/,$flow_mod//`
+			fi
+		done
+		if [ $found_flow_mod -eq 0 ]; then
+			warn_log "This flow_mod is invalid: $flow_mod"
+			exit 1
 		fi
 	done
-	if [ $found_flow_mod -eq 0 ]; then
-		warn_log "This flow_mod is invalid: $flow_mod"
-		exit 1
-	fi
-done
+fi
 # ensure the other flows are forced off (avoiding any defaults from binary-search.py)
 for flow_mod in `echo $not_flow_mods | sed -e 's/,/ /g'`; do
-	cmd="$cmd --use-${flow_mod}-flows=0"
+	if [ "${flow_mod}" == "none" ]; then
+		continue
+	else
+		cmd="$cmd --use-${flow_mod}-flows=0"
+	fi
 done
 
 if [ $one_shot == "y" ]; then
