@@ -151,12 +151,13 @@ elif [[ ! -s "$inventory" ]] || [[ ! -f "$inventory" ]]; then
 	echo "Please check if the inventory file exists, is not empty and the inventory variable is not set to a directory"
 	exit 1
 fi
-## set default values for port if not defined
-if [ -z "$port" ]; then
-        port=8443
-fi
 ## parse openshift inventory file
-cat "$inventory" | awk -F " " '{ print $1 }' | sed -n '/^\[masters\]/,/^$/p' | awk '{if (NR!=1) {print}}' | sed '/^$/d' > /run/pbench/inv_hosts
+if [[ -d /run/pbench ]]; then
+	cat "$inventory" | sed -n '/^\[masters\]/,/^$/p' | awk '{if (NR!=1) {print}}' | sed '/^$/d' > /run/pbench/inv_hosts
+else
+	error_log "creation of /run/pbench directory failed"
+	exit 1
+fi
 case "$mode" in
 	install)
 	which go &>/dev/null
@@ -168,13 +169,29 @@ case "$mode" in
 	;;
 	start)
 	mkdir -p $tool_output_dir/json
-	while read -u 9 master; do
-		# fetch keys from openshift master and set default values for cert and key vars if not defined
+	while read -u 9 file; do
+		# If the port, cert or key is not set while registering the tool, read the input file for host, port, cert and key if any. 
+		# In case the file doesn't have certs, port and they are not defined while registering the tool, the default values are set.
+		# host port=<port> cert=<cert> key=<key>
+		host=$(echo $file | awk -F " " '{ print $1 }')
+		if [[ -z "$port" ]]; then
+			port=$(echo $file | grep -w "port" | awk -F " " '{ print $2 }' | awk -F "=" '{print $2}')
+		fi
+		if [[ -z "$cert" ]]; then
+			cert=$(echo $file | grep -w "cert" | awk -F " " '{ print $3 }' | awk -F "=" '{print $2}')
+		fi
+		if [[ -z "$key" ]]; then
+			key=$(echo $file | grep -w "key" | awk -F " " '{ print $4 }' | awk -F "=" '{print $2}')
+		fi
+		# fetch keys from openshift master and set default values for port, cert and key vars if not defined
+		if [ -z "$port" ]; then
+			port=8443
+		fi
 		if [ -z "$cert" ]; then
 			if [ ! -s /run/pbench/keys/admin.crt ]; then
-				scp $master:/etc/origin/master/admin.crt /run/pbench/keys/admin.crt
+				scp $host:/etc/origin/master/admin.crt /run/pbench/keys/admin.crt
 				if [[ $? != 0 ]]; then
-					error_log "[$script_name]scp command failed to copy the files from $master, please check if the cert exists in /etc/origin/master directory"
+					error_log "[$script_name]scp command failed to copy the files from $host, please check if the cert exists in /etc/origin/master directory"
 					exit 1
 				fi
 			fi
@@ -182,16 +199,16 @@ case "$mode" in
 		fi
 		if [ -z "$key" ]; then
 			if [ ! -s /run/pbench/keys/admin.key ]; then
-				scp $master:/etc/origin/master/admin.key /run/pbench/keys/admin.key
+				scp $host:/etc/origin/master/admin.key /run/pbench/keys/admin.key
 				if [[ $? != 0 ]]; then
-					error_log "[$script_name]scp command failed to copy the files from $master, please check if the key exists in /etc/origin/master directory"
+					error_log "[$script_name]scp command failed to copy the files from $host, please check if the key exists in /etc/origin/master directory"
 					exit 1
 				fi	
 			fi
 			key=/run/pbench/keys/admin.key
 		fi
-		tool_cmd='GOPATH=$pbench_install_dir/.go PATH=$PATH:$GOPATH/bin $script_path/datalog/$tool-datalog $master $interval $tool_log $port $cert $key'
-		metrics_data=$tool_output_dir/$master-stdout.txt
+		tool_cmd='GOPATH=$pbench_install_dir/.go PATH=$PATH:$GOPATH/bin $script_path/datalog/$tool-datalog $host $interval $tool_log $port $cert $key'
+		metrics_data=$tool_output_dir/$host-stdout.txt
 		debug_log "$script_name: running $tool_cmd"
 		eval $tool_cmd >"$metrics_data" 2>"$tool_stderr_file" & echo $! >>$tool_pid_file
 	done 9</run/pbench/inv_hosts
@@ -207,8 +224,9 @@ case "$mode" in
 	postprocess)
 	if [ -z "$options" ]; then
 		debug_log "postprocessing $script_name"
-		while read -u 11 master;do
-			$script_path/postprocess/$script_name-postprocess $tool_output_dir/$master-stdout.txt $tool_output_dir/json/$master.json
+		while read -u 11 file;do
+			host=$(echo $file | awk -F " " '{ print $1 }')
+			$script_path/postprocess/$script_name-postprocess $tool_output_dir/$host-stdout.txt $tool_output_dir/json/"$host".json
 		done 11</run/pbench/inv_hosts
 	else
 		debug_log "Non-default options $options: skipping postprocessing for $script_name"
