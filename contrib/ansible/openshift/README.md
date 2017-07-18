@@ -7,15 +7,15 @@ You need to have these installed
    - pbench
 
 ### Tools registered
-master - sar, pidstat, iostat, oc, pprof, prometheus-metrics, disk
+master - sar, pidstat, iostat, oc, pprof, prometheus-metrics, disk, haproxy, perf
 
-nodes - sar, pidstat, iostat, pprof, disk
+nodes - sar, pidstat, iostat, pprof, disk, perf
 
-etcd - sar, pidstat, iostat, disk
+etcd - sar, pidstat, iostat, disk, perf
 
-lb - sar, pidstat, iostat, disk
+lb - sar, pidstat, iostat, disk, perf
 
-glusterfs - sar, pidstat, iostat, pprof, disk
+glusterfs - sar, pidstat, iostat, pprof, disk, perf
 
 ### Sample inventory
 Your inventory should have groups of hosts describing the roles they play in the OpenShift cluster. This playbook looks for the following groups in the inventory file:
@@ -33,6 +33,7 @@ Your inventory should have groups of hosts describing the roles they play in the
 [glusterfs]
 
 [pbench-controller:vars]
+
 register_all_nodes=False
 
 Note: glusterfs group represents cns nodes.
