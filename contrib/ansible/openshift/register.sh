@@ -67,7 +67,7 @@ while read -u 11 line;do
   pbench-register-tool --label=$label --name=iostat --remote $remote
   pbench-register-tool --label=$label --name=pidstat --remote $remote
   pbench-register-tool --label=$label --name=disk --remote $remote
-  pbench-register-tool --label=$label --name=perf
+  pbench-register-tool --label=$label --name=perf --remote $remote
   if [ "$group"  == "master" ]; then
     pbench-register-tool --label=$label --name=oc --remote $remote
     pbench-register-tool --label=$label --name=pprof --remote $remote -- --osecomponent=master --interval=$ose_master_interval
