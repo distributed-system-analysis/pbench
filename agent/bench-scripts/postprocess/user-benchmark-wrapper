@@ -22,7 +22,7 @@ with open('%s/user-benchmark-summary.json' % benchmark_run_dir, 'a+') as data_fi
         data['duration_units'] = "sec"
     if data_file.tell() == 0:
         # Either there was nothing in the file, or they didn't create the file.
-        logging.warn("benchmark run didn't create a %s/user-benchmark-summary.json or the file is empty", benchmark_run_dir)
+        logging.info("pbench-user-benchmark run didn't create a %s/user-benchmark-summary.json or the file is empty, creating %s/user-benchmark-summary.json containing info about the run", benchmark_run_dir)
     # copy the input user-benchmark-summary.json file to 
     # user-benchmark-summary-debug.json for debugging purposes
     shutil.copyfile('%s/user-benchmark-summary.json' % benchmark_run_dir, '%s/user-benchmark-summary-debug.json' % benchmark_run_dir)

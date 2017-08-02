@@ -1,6 +1,5 @@
 +++ Running test-09 pbench-user-benchmark
 Running user-benchmark-script no-file
-WARNING:root:benchmark run didn't create a /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json or the file is empty
 --- Finished test-09 pbench-user-benchmark (status=0)
 {
     "duration":0,
