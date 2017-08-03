@@ -165,7 +165,7 @@ if ($json_result) {
 	my $perl_scalar = from_json( $json_text );
 	my $rx_port;
 	for my $tx_port (0, 1) {
-		if ( $tx_port eq 0 ) {
+		if ( $tx_port == 0 ) {
 			$rx_port = 1;
 		} else {
 			$rx_port = 0;
