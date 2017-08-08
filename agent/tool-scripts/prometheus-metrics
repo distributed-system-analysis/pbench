@@ -196,11 +196,15 @@ case "$mode" in
 	wait
 	;;
 	stop)
-	while read -u 10 pid; do
-		debug_log "stopping $script_name"
-		kill $pid
-	done 10<"$tool_pid_file"
-	/bin/rm "$tool_pid_file"
+	if [[ -s "$tool_pid_file" ]]; then
+		while read -u 10 pid; do
+			debug_log "stopping $script_name"
+			kill $pid
+		done 10<"$tool_pid_file"
+		/bin/rm "$tool_pid_file"
+	else
+		warn_log "[$script_name]: tool is not running, nothing to kill"
+	fi
 	;;
 	postprocess)
 	if [ -z "$options" ]; then

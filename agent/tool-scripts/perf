@@ -132,22 +132,26 @@ case "$mode" in
 	popd >/dev/null
 	;;
 	stop)
-	pushd $tool_output_dir >/dev/null
-	pid=`cat "$tool_pid_file"`
-	if [ ! -z "$pid" ]; then
-		kill -SIGINT $pid
-		# wait for perf to finish recording.
-		# if you do not wait, 'perf report' will not be correct.
-		# perf is not a child process, so we cannot use "wait".
-		# this is an alternative.
-		pidcmd=`ps -p $pid | tail -1 | awk '{print $4}'`
-		while [ -d /proc/$pid ]; do
-			debug_log "waiting for PID $pid ($pidcmd) to finish"
-			sleep 0.5
-		done
+	if [[ -s "$tool_pid_file" ]]; then
+		pushd $tool_output_dir >/dev/null
+		pid=`cat "$tool_pid_file"`
+		if [ ! -z "$pid" ]; then
+			kill -SIGINT $pid
+			# wait for perf to finish recording.
+			# if you do not wait, 'perf report' will not be correct.
+			# perf is not a child process, so we cannot use "wait".
+			# this is an alternative.
+			pidcmd=`ps -p $pid | tail -1 | awk '{print $4}'`
+			while [ -d /proc/$pid ]; do
+				debug_log "waiting for PID $pid ($pidcmd) to finish"
+				sleep 0.5
+			done
+		fi
+		/bin/rm "$tool_pid_file"
+		popd >/dev/null
+	else
+		warn_log "[$script_name]: tool is not running, nothing to kill"
 	fi
-	/bin/rm "$tool_pid_file"
-	popd >/dev/null
 	;;
 	postprocess)
 	pushd $tool_output_dir >/dev/null
