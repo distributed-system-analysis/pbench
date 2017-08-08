@@ -129,9 +129,13 @@ case "$mode" in
 	wait
 	;;
 	stop)
-	pid=`cat "$tool_pid_file"`
-	debug_log "stopping $script_name"
-	kill $pid && /bin/rm "$tool_pid_file"
+	if [[ -s "$tool_pid_file" ]]; then
+		pid=`cat "$tool_pid_file"`
+		debug_log "stopping $script_name"
+		kill $pid && /bin/rm "$tool_pid_file"
+	else
+		warn_log "[$script_name]: tool is not running, nothing to kill"
+	fi
 	;;
 	postprocess)
 	debug_log "postprocessing $script_name"
