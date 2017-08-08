@@ -81,6 +81,7 @@ if [ -d "$pbench_run" ]; then
 		fi
 		for group in $groups; do
 			tools=""
+			all_remote_tools=""
 			tool_group_dir="tools-$group"
 			for this_tool_file in `/bin/ls $tool_group_dir`; do
 				if [ "$this_tool_file" == "label" ]; then
@@ -90,7 +91,12 @@ if [ -d "$pbench_run" ]; then
                                 	remote_host=`echo $this_tool_file | awk -F@ '{print $2}'`
                                 	tool=`echo $this_tool_file | awk -F@ '{print $1}'`
                                 	remote_tools=`ssh $ssh_opts -n $remote_host ". ${pbench_install_dir}/profile; pbench-list-tools $with_options_opt --group=$group" | sed -e s/"^$group: "//`
-					tools="$tools,$remote_host[$remote_tools]"
+					if [ "$all_remote_tools" == "" ]; then
+						all_remote_tools="$remote_host[$remote_tools]"
+					else
+						all_remote_tools="$all_remote_tools,$remote_host[$remote_tools]"
+				 	fi
+
 	                        elif [ -d $tool_group_dir/$this_tool_file ] ;then
 					# skip spurious subdirectory of $tool_group_dir
 					warn_log "[$script_name]$this_tool_file is a directory in $tool_group_dir; that should not happen. Please consider deleting it."
@@ -106,6 +112,7 @@ if [ -d "$pbench_run" ]; then
 					tools="$tools,$this_tool_file"
                         	fi
 			done
+			tools="$tools,$all_remote_tools"
 			tools=`echo $tools | sed -e s/"^,"//`
 			# do not print anything for this group if there are no tools
 			if [ ! -z "$tools" ]; then
