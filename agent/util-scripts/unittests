@@ -44,9 +44,9 @@ for script in $scripts ; do
 done
 mkdir -p $_testopt/unittest-scripts/
 let res=res+$?
-cp -r $_tdir/test-bin/* $_testopt/unittest-scripts/
+cp -rL $_tdir/test-bin/* $_testopt/unittest-scripts/
 let res=res+$?
-cp $_tdir/test-bin/iostat-postprocess $_testopt/tool-scripts/postprocess
+cp -L $_tdir/test-bin/iostat-postprocess $_testopt/tool-scripts/postprocess
 let res=res+$?
 if [[ $res -ne 0 ]]; then
     echo "ERROR: failed to construct unittest execution directory hierarchy" \
@@ -71,9 +71,9 @@ function _run {
     shift
     echo "$tname $tscrpt $@"
     echo "+++ Running $tname $tscrpt" >> $_testout
-    benchmark_bin=$_testopt/unittest-scripts/bm pbench_run=$_testdir pbench_log=$_testdir/pbench.log pbench_config=$_testopt $_testopt/util-scripts/$tscrpt $@ >> $_testout 2>&1
+    benchmark_bin=$_testopt/unittest-scripts/bm pbench_run=$_testdir pbench_log=$_testdir/pbench.log pbench_config=$_testopt  benchmark_run_dir=$_testdir $_testopt/util-scripts/$tscrpt $@ >> $_testout 2>&1
     sts=$?
-    echo "--- Finished $tname $tscrpt (status=$sts}" >> $_testout
+    echo "--- Finished $tname $tscrpt (status=$sts)" >> $_testout
     return $sts
 }
 function _save_tree {
@@ -113,7 +113,7 @@ function _dump_logs {
     rm -f $_testroot/test-execution.log
 }
 function _verify_output {
-    local sts tname tscrpt
+    local sts tname tscrpt expected_status
     sts=$1
     tname=$2
     tscrpt=$3
@@ -128,7 +128,7 @@ function _verify_output {
             echo "PASS - $tname"
             rm $_testout
         elif [[ $sts -eq $expected_status ]] ; then
-            echo "PASS - $tname failed with expected exit status: $sts"
+            echo "PASS - $tname exited with expected status: $sts"
             rm $_testout
             sts=0
         else
@@ -189,6 +189,14 @@ declare -A tools=(
     [test-20]="pbench-postprocess-tools"
     [test-21]="pbench-clear-tools"
     [test-22]="pbench-metadata-log"
+    [test-23]="pbench-collect-sysinfo"
+    [test-24]="pbench-collect-sysinfo"
+    [test-25]="pbench-collect-sysinfo"
+    [test-26]="pbench-collect-sysinfo"
+    [test-27]="pbench-collect-sysinfo"
+    [test-28]="pbench-collect-sysinfo"
+    [test-29]="pbench-collect-sysinfo"
+    [test-30]="pbench-collect-sysinfo"
 )
 declare -A options=(
     [test-00]="--name=mpstat --group=default -- --interval=10"
@@ -212,6 +220,14 @@ declare -A options=(
     [test-20]="--dir=$_testdir/tmp --group=default --iteration=1"
     [test-21]="--remote=fubar2"
     [test-22]="--dir=$_testdir end"
+    [test-23]="--help"
+    [test-24]="--options"
+    [test-25]="--check --sysinfo=all"
+    [test-26]="--check --sysinfo=none"
+    [test-27]="--check --sysinfo=default"
+    [test-28]="--check --sysinfo=block,libvirt,kernel_config,sos,topology"
+    [test-29]="--check --sysinfo=block,sos,bad,topology"
+    [test-30]="--check --sysinfo=libvirt,default,kernel_config,all,topology,none"
 )
 
 declare -A expected_status=(
@@ -220,13 +236,14 @@ declare -A expected_status=(
     [test-11]=4
     [test-12]=1
     [test-13]=2
+    [test-29]=1
 )
 
 tests="$*"
 if [ -z "$tests" ] ;then
     typeset -i len=${#tools[@]}
     len=$len-1
-    tests="$(seq -f "test-%02g" 0 $len)"
+    tests=$(echo ${!tools[*]} | tr ' ' '\n' | sort)
 fi
 
 for tst in $tests; do

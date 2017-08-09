@@ -1,7 +1,7 @@
 +++ Running test-16 pbench-list-triggers
 default:START DEFAULT:STOP DEFAULT
 foo:START FOO:STOP FOO
---- Finished test-16 pbench-list-triggers (status=0}
+--- Finished test-16 pbench-list-triggers (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/tmp

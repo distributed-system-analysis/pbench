@@ -1,7 +1,7 @@
 +++ Running test-13 pbench-postprocess-tools
 tar: This does not look like a tar archive
 tar: Exiting with failure status due to previous errors
---- Finished test-13 pbench-postprocess-tools (status=2}
+--- Finished test-13 pbench-postprocess-tools (status=2)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/pbench.log

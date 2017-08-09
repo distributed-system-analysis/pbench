@@ -1,0 +1,30 @@
++++ Running test-08 pbench-user-benchmark
+
+
+	pbench-user-benchmark: you specified an invalid --sysinfo option ("bad")
+
+Usage: pbench-user-benchmark [options] -- <script to run>
+
+	The following options are available:
+
+		-C str --config=str            name of the test config
+		       --tool-group=str
+		       --sysinfo=str,          str = comma separated values of system information to be collected
+		                                     available: default,none,all,a,b,c,d,e
+--- Finished test-08 pbench-user-benchmark (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench
+/var/tmp/pbench-test-bench/pbench/pbench.log
+/var/tmp/pbench-test-bench/pbench/samples
+/var/tmp/pbench-test-bench/pbench/tmp
+/var/tmp/pbench-test-bench/pbench/tools-default
+/var/tmp/pbench-test-bench/pbench/tools-default/mpstat
+/var/tmp/pbench-test-bench/pbench/tools-default/sar
+--- pbench tree state
++++ pbench.log file contents
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-user-benchmark] processing options
+--- pbench.log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
+--- test-execution.log file contents

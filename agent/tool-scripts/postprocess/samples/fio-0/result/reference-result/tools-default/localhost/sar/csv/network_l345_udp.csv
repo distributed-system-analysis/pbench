@@ -1,0 +1,6 @@
+timestamp_ms,rx_datagrams_discard_no_dest_port_sec,rx_datagrams_discard_other_error,rx_datagrams_sec,tx_datagrams_sec
+1497462677000,0.00,0.00,2.67,2.00
+1497462680000,0.00,0.00,0.67,0.00
+1497462683000,0.00,0.00,0.00,0.00
+1497462686000,0.00,0.00,0.33,0.00
+1497462689000,0.00,0.00,0.33,0.00

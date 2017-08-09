@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+# -*- mode: python -*-
 
 # prereqs:
 # config file: specified in ES_CONFIG_PATH
@@ -11,9 +12,9 @@ import sys, os, time, re, stat, copy
 import hashlib, json, glob, csv, tarfile
 
 try:
-    from configparser import SafeConfigParser, NoSectionError, NoOptionError
+    from configparser import SafeConfigParser, Error as ConfigParserError, NoSectionError, NoOptionError
 except ImportError:
-    from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
+    from ConfigParser import SafeConfigParser, Error as ConfigParserError, NoSectionError, NoOptionError
 from optparse import OptionParser, make_option
 from elasticsearch import VERSION, Elasticsearch, helpers, exceptions as es_excs
 from urllib3 import exceptions as ul_excs, Timeout
@@ -297,6 +298,7 @@ def es_index(es, actions, dbg=0):
                           tstos(end), end - start, lcl_successes,
                           lcl_duplicates, lcl_errors))
                 sys.stdout.flush()
+            break
         except Exception as err:
             end = time.time()
             print("\tERROR(%s) (end ts: %s, duration: %.2fs): %s" % (
@@ -452,7 +454,10 @@ class ToolData(object):
     def __init__(self, tstamp, md5sum, experiment, iteration, sample, host, tool, toolgroup,
                  mdlog, tb):
         self.toolname = tool
-        (iterseqno, itername) = iteration.split('-', 1)
+        try:
+            (iterseqno, itername) = iteration.split('-', 1)
+        except:
+            iterseqno = itername = iteration
         self.run_metadata = {
             "runtstamp": tstamp,
             "runid": md5sum,
@@ -674,19 +679,37 @@ def get_samples(iteration, mdlog, tb):
         sample = l[2]
         if sample.startswith('sample'):
             samples.append(sample)
+    if len(samples) == 0:
+        samples.append('reference-result')
     return samples
 
 def get_pbench_hosts(iteration, sample, mdlog, tb):
     try:
         # N.B. Space-separated list
         return mdlog.get("tools", "hosts").split(' ')
-    except Exception:
+    except ConfigParserError:
+        print("ConfigParser error in get_pbench_hosts: tool data will *not* be indexed.")
+        print("This is most probably a bug: please open an issue.")
+        return []
+    except NoSectionError:
+        print("No [tools] section in metadata.log: tool data will *not* be indexed.")
+        return []
+    except NoOptionError:
+        print("No hosts in [tools] section in metadata log: tool data will *NOT* be indexed.")
         return []
 
 def get_tools(iteration, sample, host, mdlog, tb):
     try:
         return mdlog.options("tools/{}".format(host))
-    except Exception:
+    except ConfigParserError:
+        print("ConfigParser error in get_tools: tool data will *not* be indexed.")
+        print("This is most probably a bug: please open an issue.")
+        return []
+    except NoSectionError:
+        print("No [tools/{}] section in metadata.log: tool data will *not* be indexed.".format(host))
+        return []
+    except NoOptionError:
+        print("No tools in [tools/{}] section in metadata log: tool data will *NOT* be indexed.".format(host))
         return []
 
 def mk_tool_data(mdlog, md5sum, tb, tstamp):
@@ -1099,9 +1122,36 @@ def _to_utc(l, u):
     """
     lts = datetime.strptime(l, "%Y-%m-%dT%H:%M:%S")
     uts = datetime.strptime(u[:u.rfind('.')] , "%Y-%m-%dT%H:%M:%S")
+        
     offset = lts - uts
     res = round(float(offset.seconds) / 60 / 60 + offset.days * 24, 1)
     return (lts - timedelta(0, int(res*60*60), 0)).isoformat()
+
+def fix_date_format(ts):
+    """ts is a string representing a timestamp with possible formatting
+    problems:
+
+        - it might have an underscore instead of a T separating the
+          date from the time - ES does not like that.
+
+        - the date part might also be of the form YYYYMMDD instead of
+          the approved format YYYY-MM-DD.
+
+    This function fixes up those problems and returns the possibly
+    modified string.
+    """
+    rts = ts.replace('_', 'T')
+    ns = rts[rts.rfind('.'):]
+    rts = rts[:rts.rfind('.')]
+    try:
+        val = datetime.strptime(rts, "%Y-%m-%dT%H:%M:%S")
+        return rts + ns
+    except ValueError as e:
+        val = datetime.strptime(rts, "%Y%m%dT%H:%M:%S")
+        return datetime.strftime(val, "%Y-%m-%dT%H:%M:%S") + ns
+    except Exception as e:
+        # on any other exception, we give up
+        return "1900-01-01T00:00:00"
 
 def mk_run_metadata(mdconf, md5sum, dirname, dirprefix):
     try:
@@ -1109,11 +1159,11 @@ def mk_run_metadata(mdconf, md5sum, dirname, dirprefix):
         d.update(mdconf.items('run'))
         d.update(mdconf.items('pbench'))
         # Fix up old format dates so ES won't barf on them.
-        d['start_run'] = d['start_run'].replace('_', 'T')
-        d['end_run'] = d['end_run'].replace('_', 'T')
+        d['start_run'] = fix_date_format(d['start_run'])
+        d['end_run'] = fix_date_format(d['end_run'])
         # Convert the date to UTC: date and start-run are supposed to be close
         # (except that date may be in local time and start-run is UTC).
-        d['date'] = _to_utc(d['date'].replace('_', 'T'), d['start_run'])
+        d['date'] = _to_utc(fix_date_format(d['date']), d['start_run'])
         # the run id here is the md5sum that's the _id of the main document.
         # it's what ties all of the relevant documents together.
         d['id'] = md5sum
@@ -1246,7 +1296,7 @@ class PbenchTarBall(object):
         # We get the start date out of the metadata log.
         try:
             # N.B. the start_run timestamp is in UTC.
-            self.start_run = self.mdconf.get('run', 'start_run').replace('_', 'T')
+            self.start_run = fix_date_format(self.mdconf.get('run', 'start_run'))
             split_date_str = self.start_run.split('T')
             # List of constituent date components, year [0], month [1], day [2]
             self.date = [ int(x) for x in split_date_str[0].split("-") ]

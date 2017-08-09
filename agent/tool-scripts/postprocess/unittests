@@ -126,7 +126,7 @@ function testfio {
     cp -r samples/$1/* /tmp/GenData/$1
 
     _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
-        ../../bench-scripts/postprocess/fio-postprocess /tmp/GenData/$1/result/reference-result 2-read-64KiB fio- default > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+        ../../bench-scripts/postprocess/fio-postprocess /tmp/GenData/$1/result/reference-result fio- default > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
 
     remove_sample_data $1
 
@@ -142,6 +142,17 @@ function testhaproxy_ocp {
     _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./haproxy-ocp-postprocess /tmp/GenData/$1 > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
 
     diff -cr gold/$1/ /tmp/GenData/$1
+    return $?
+}
+
+function testprometheus-metrics {
+    echo "Testing prometheus-metrics-postprocess under sample $1 ..."
+
+    mkdir -p /tmp/GenData/$1/json
+    cp -r samples/$1/* /tmp/GenData/$1
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./prometheus-metrics-postprocess /tmp/GenData/$1/metrics-stdout /tmp/GenData/$1/json/metrics.json 2> /tmp/GenData/$1/stderr
+
+    diff -cr gold/$1/stderr /tmp/GenData/$1/stderr &&  diff -cr gold/$1/json/ /tmp/GenData/$1/json/ 
     return $?
 }
 
@@ -168,7 +179,7 @@ for i in $(ls -1 samples/) ; do
     if [[ ! -z "$testname" ]]; then
         if [[ "$testname" != "$i" ]]; then
             continue
-	fi
+        fi
     fi
     case $i in
         uperf-*)
@@ -183,6 +194,10 @@ for i in $(ls -1 samples/) ; do
             testhaproxy_ocp $i
             sts=$?
             ;;
+        prometheus-metrics)
+            testprometheus-metrics $i
+            sts=$?
+            ;;
         pcp-*)
             testpcp $i
             sts=$?
@@ -191,14 +206,14 @@ for i in $(ls -1 samples/) ; do
             testcmpr $i
             sts=$?
             ;;
-	process-iteration-samples-*)
-	    testprocessiterationsamples $i
-	    sts=$?
-	    ;;
-	generate-benchmark-summary-*)
-	    testgeneratebenchmarksummary $i
-	    sts=$?
-	    ;;
+        process-iteration-samples-*)
+            testprocessiterationsamples $i
+            sts=$?
+            ;;
+        generate-benchmark-summary-*)
+            testgeneratebenchmarksummary $i
+            sts=$?
+            ;;
         *)
             testit $i ${i%-[0-9]}
             sts=$?

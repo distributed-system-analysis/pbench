@@ -1,5 +1,5 @@
 +++ Running test-04 pbench-metadata-log
---- Finished test-04 pbench-metadata-log (status=0}
+--- Finished test-04 pbench-metadata-log (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/tmp

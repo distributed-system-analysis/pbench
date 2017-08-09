@@ -110,7 +110,7 @@ oc_data_collect() {
 }
 
 oc_data_once() { 
-    oc get nodes -o wide >> "${tool_output_dir}"/nodes.txt 
+    oc get nodes -o wide --show-labels >> "${tool_output_dir}"/nodes.txt 
     oc get ev --all-namespaces -o wide >> "${tool_output_dir}"/ev.txt 
 } 
 

@@ -8,7 +8,7 @@
 # To run a custom benchmark, run "user-benchmark --config="your-config-description" -- "your benchmark's executable with any options"
 #			for example: user-benchmark --config="specjbb2005-4-JVMs" -- /root/SPECjbb/run_specjbb4.sh
 #
-# for running in docker example would be 
+# for running in docker example would be
 #
 # user-benchmark --config="specjbb2005-4-JVMs" -- docker run -it _docker_image_ /root/SPECjbb/run_specjbb4.sh
 # for example: user-benchmark --config="docker-specjbb2005-4-JVMs" -- docker run -it r7perf /root/SPECjbb/run_specjbb4.sh
@@ -32,16 +32,23 @@ benchmark="pbench-user-benchmark"
 # Defaults
 config=""
 tool_group=default
+sysinfo=default
 
-# Process options and arguments
-opts=$(getopt -q -o C: --longoptions "config:,tool-group:" -n "getopt.sh" -- "$@");
-if [ $? -ne 0 ]; then
-	printf -- "$*\n"
-	printf "\n"
-	printf "\t${benchmark}: you specified an invalid option\n\n"
+function usage {
+	printf "Usage: $script_name [options] -- <script to run>\n\n"
 	printf "\tThe following options are available:\n\n"
 	printf -- "\t\t-C str --config=str            name of the test config\n"
 	printf -- "\t\t       --tool-group=str\n"
+	printf -- "\t\t       --sysinfo=str,          str = comma separated values of system information to be collected\n"
+	printf -- "\t\t                                     available: $(pbench-collect-sysinfo --options)\n"
+}
+
+# Process options and arguments
+opts=$(getopt -q -o C:h --longoptions "config:,help,tool-group:,sysinfo:" -n "getopt.sh" -- "$@");
+if [ $? -ne 0 ]; then
+	printf -- "$*\n\n"
+	printf "\t${benchmark}: you specified an invalid option\n\n"
+	usage
 	exit 1
 fi
 eval set -- "$opts";
@@ -49,35 +56,58 @@ debug_log "[$script_name] processing options"
 while true; do
 	case "$1" in
 		-C|--config)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			config="$1"
-			shift;
+			shift
 		fi
 		;;
 		--tool-group)
-		shift;
+		shift
 		if [ -n "$1" ]; then
 			tool_group="$1"
-			shift;
+			shift
 		fi
 		;;
+                --sysinfo)
+                shift
+                if [ -n "$1" ]; then
+			sysinfo="$1"
+			shift
+                fi
+                ;;
+		-h|--help)
+		usage
+		exit 0
+		;;
 		--)
-		shift;
-		break;
+		shift
+		break
 		;;
 		*)
 		echo "what happened? [$1]"
-		break;
+		break
 		;;
 	esac
 done
+pbench-collect-sysinfo --sysinfo=$sysinfo --check
+if [ $? != 0 ]; then
+	printf -- "$*\n\n"
+	printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
+	usage
+	exit 1
+fi
 verify_tool_group $tool_group
 iteration="1" # there can be only 1 iteration for user-benchmark
+iteration_name="1"
 benchmark_bin="$@"
-benchmark_fullname="${benchmark}_${config}_${date}"
+benchmark_fullname="${benchmark}_${config}_${date_suffix}"
 benchmark_run_dir="$pbench_run/${benchmark_fullname}"
+
+# we'll record the iterations in this file
 benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
+mdlog=${benchmark_run_dir}/metadata.log
+
 # make the run dir available to the user script
 export benchmark_run_dir
 benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
@@ -95,6 +125,17 @@ export benchmark_results_dir=$benchmark_results_dir
 export benchmark config
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 
+# Add data to metadata.log
+function record_iteration {
+	local iteration=$1
+	local iteration_name=$2
+	local benchmark_bin=$3
+
+	echo ${iteration} >> ${benchmark_iterations}
+	echo $iteration_name | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
+	echo $benchmark_bin | pbench-add-metalog-option ${mdlog} iterations/${iteration} user_script
+}
+record_iteration ${iteration} ${iteration_name} ${benchmark_bin}
 # on abnormal exit, make sure that the metadata log exists and is complete.
 trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
 
@@ -102,9 +143,16 @@ pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_r
 echo "Running $benchmark_bin"
 log "[$script_name] Running $benchmark_bin"
 echo $iteration >> $benchmark_iterations
+SECONDS=0
 $benchmark_bin 2>&1 | tee $benchmark_results_dir/result.txt
+benchmark_duration=$SECONDS
+# make it predictable in the unittest environment
+if [[ $_PBENCH_BENCH_TESTS == 1 ]]; then
+	benchmark_duration=0
+fi
+$script_path/postprocess/user-benchmark-wrapper "$benchmark_run_dir" "$benchmark_duration"
 pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
-
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 rmdir $benchmark_results_dir/.running

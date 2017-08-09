@@ -49,7 +49,7 @@ move-results
 
 Visit the [[http://pbench.example.com/results/][Results directory]] to see the results: assuming you ran the
 above on a host named "myhost", the results will be in its
-"myhost/user_benchmark_test1_<yyyy-mm-dd_HH:MM:SS>" subidrectory.
+"myhost/user_benchmark_test1_<yyyy.mm.ddTHH.MM.SS>" subidrectory.
 
 For explanations, and if crawling is not enough, see subsequent sections.
 
@@ -190,7 +190,7 @@ which sets a bunch of defaults:
 #+BEGIN_EXAMPLE
 pbench_run=/var/lib/pbench
 pbench_log=/var/lib/pbench/pbench.log
-date=`date "+%F_%H:%M:%S"`
+date=`date --utc "+%Y.%m.%dT%H.%M.%S"`
 hostname=`hostname -s`
 results_repo=pbench@pbench.example.com
 results_repo_dir=/pbench/public_html/incoming
@@ -591,9 +591,9 @@ that your benchmark produces inside that directory: that way, =move-results=
 can move everything to the results warehouse.
 
 Make the =<run-id>= as detailed as possible to disambiguate results. The built-in
-benchmark scripts use the following form: =<benchmark>_<config>-<ts>=, e.g
+benchmark scripts use the following form: =<benchmark>_<config>_<ts>=, e.g
 #+BEGIN_EXAMPLE
-fio_bagl-16-4-ceph_2014-12-15_15:58:51
+fio_bagl-16-4-ceph_2014.12.15T15.58.51
 #+END_EXAMPLE
 where the =<config>= part (=bagl-16-4-ceph=) comes from the =--config= option and
 can be as detailed as you want to make it.
@@ -666,16 +666,16 @@ hierarchy.
 Using the =--prefix== option to =move-results= affects where that
 symlink is planted (and that's the only thing it affects). For
 example, if your controller host is =alphaville= and the results name
-is =fio__2015-03-30_13:33:15=, normally =move-results= would unpack
-the tarball under =incoming/alphaville/fio__2015-03-30_13:33:15= and
-plant a symlink pointing to that at =results/alphaville/fio__2015-03-30_13:33:15=.
+is =fio__2015.03.30T13.33.15=, normally =move-results= would unpack
+the tarball under =incoming/alphaville/fio__2015.03.30T13.33.15= and
+plant a symlink pointing to that at =results/alphaville/fio__2015.03.30T13.33.15=.
 But if you wanted to group all your fio results under  =results/alphaville/fio=, you
 could instead say
 #+BEGIN_EXAMPLE
 move-results --prefix=fio
 #+END_EXAMPLE
-which would plant the link at =results/alphaville/fio/fio__2015-03-30_13:33:15=
-instead of planting it at =results/alphaville/fio__2015-03-30_13:33:15=.
+which would plant the link at =results/alphaville/fio/fio__2015.03.30T13.33.15=
+instead of planting it at =results/alphaville/fio__2015.03.30T13.33.15=.
 
 *** =edit-prefix=
 
@@ -687,7 +687,7 @@ You can do that with =edit-prefix=. For example, continuing the example
 above, suppose you want to push a bunch of results from =fio/= down another
 level, perhaps to group all the fio results on a particular platform together:
 #+BEGIN_EXAMPLE
-edit-prefix --prefix=fio/dl980 fio/fio__2015-03-30_13:33:15 ...
+edit-prefix --prefix=fio/dl980 fio/fio__2015.03.30T13.33.15 ...
 #+END_EXAMPLE
 would do that. The arguments *must* exist in the appropriate place in
 the =results= hierarchy and the symlink at the leaf *must* point to an
@@ -712,7 +712,7 @@ Andrew writes:
 - A self-explanatory example of the above mentioned hierarchical pattern is as follows:
 
 #+BEGIN_EXAMPLE
-fio__2015-01-15_19:45:10/ --> $benchmark-$config-$date
+fio__2015.01.15T19.45.10/ --> $benchmark-$config-$date
 ├── 1-read-4KiB  --> $iteration
 │   └── reference-result --> reference-result/
 │       │  
@@ -957,13 +957,13 @@ going to run. The default value is empty.  The run directory for the benchmark
 is constructed this way:
 
 #+BEGIN_EXAMPLE
-$pbench_run/${benchmark}_${config}_$date
+${pbench_run}/${benchmark}_${config}_${date}
 #+END_EXAMPLE
 
 where =$pbench_run= and =$date= are set by the =/opt/pbench-agent/base= script
 and =$benchmark= is set to the obvious value by the benchmark script; e.g. a
 fio run with config=foo would run in the directory
-=/var/lib/pbench/fio_foo_2014-11-10_15:47:04=.
+=/var/lib/pbench/fio_foo_2014.11.10T15.47.04=.
 
 ** What does =--dir= do?
 

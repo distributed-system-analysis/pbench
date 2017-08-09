@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">
+  </head>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.3/jschart.js"></script>
+    <center><h2>sar - cpu</h2></center>
+    <div id="chart_1">
+      <script>
+        create_jschart("stackedAreaChart", "timeseries", "chart_1", "all_cpu_busy", null, null, { csvfiles: [ "csv/cpu_all_cpu_busy.csv" ] });
+      </script>
+    </div>
+    <div id="chart_2">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_2", "frequency_MHz", null, null, { csvfiles: [ "csv/cpu_frequency_MHz.csv" ] });
+      </script>
+    </div>
+  </body>
+</html>

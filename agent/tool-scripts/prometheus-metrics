@@ -1,0 +1,236 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+# Perftool scripts must provide the following functions
+# 1) Install the tool
+# 2) Start data collection
+# 3) Stop data collection
+# 4) post-process the data
+
+# Defaults
+tool=$script_name
+group=default
+dir="/tmp"
+mode=""
+interval="10"
+iteration="1"
+options=""
+
+# Usage function
+function usage {
+	printf "The following options are available: \n\n"
+	printf -- "\t--install,                 install this perf tool\n"
+	printf "\n"
+	printf -- "\t--start|stop|postprocess   start/stop/post-process the data collection\n"
+	printf -- "\t--iteration=int            the iteration (required)\n"
+	printf -- "\t--group=str                the perftool group (required)\n"
+	printf -- "\t--dir=str                  directory to store data collection (required)\n"
+	printf -- "\t--interval=int             number of seconds between each data collection\n"
+	printf -- "\t--options=str              options passed directly to the tool\n"
+	printf -- "\t--inventory=str            path to the inventory file\n"
+	printf -- "\t--port=int                 port prometheus is listening on\n"
+	printf -- "\t--cert=str                 path to the cert\n"
+	printf -- "\t--key=str                  path to the key"
+
+}
+# Process options and arguments
+opts=$(getopt -q -o idp --longoptions "inventory:,port:,cert:,key:,dir:,group:,iteration:,interval:,options:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+if [ $? -ne 0 ]; then
+	printf "\n"
+	printf "$script_name: you specified an invalid option\n\n"
+	usage
+	exit 1
+fi
+eval set -- "$opts";
+while true; do
+	case "$1" in
+		--install)
+		mode="install"
+		shift;
+		;;
+		--start)
+		mode="start"
+		shift;
+		;;
+		--stop)
+		mode="stop"
+		shift;
+		;;
+		--postprocess)
+		mode="postprocess"
+		shift;
+		;;
+		--inventory)
+		shift;
+		if [ -n "$1" ]; then
+			inventory="$1"
+			shift
+		fi
+		;;
+		--port)
+		shift;
+		if [ -n "$1" ]; then
+			port="$1"
+			shift
+		fi
+		;;
+		--cert)
+		shift;
+		if [ -n "$1" ]; then
+			cert="$1"
+			shift
+		fi
+		;;
+		--key)
+		shift;
+		if [ -n "$1" ]; then
+			key="$1"
+			shift
+		fi
+		;;
+		-d|--dir)
+		shift;
+		if [ -n "$1" ]; then
+			dir="$1"
+			shift
+		fi
+		;;
+		-g|--group)
+		shift;
+		if [ -n "$1" ]; then
+			group="$1"
+			shift
+		fi
+		;;
+		-i|--iteration)
+		shift;
+		if [ -n "$1" ]; then
+			iteration="$1"
+			shift
+		fi
+		;;
+		--interval)
+		shift;
+		if [ -n "$1" ]; then
+			interval="$1"
+			shift
+		fi
+		;;
+		-o|--options)
+		shift;
+		if [ -n "$1" ]; then
+			options="$1"
+			shift
+		fi
+		;;
+		--)
+		shift;
+		break;
+		;;
+	esac
+done
+tool_dir="$dir/tools-$group"
+tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
+tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
+tool_stderr_file=$tool_output_dir/$tool-stderr.txt
+tool_log=$tool_output_dir/tool.log
+## create directory to save the keys from openshift master, hosts
+mkdir -p /run/pbench/keys
+## check if the inventory variable is set correctly
+if [[ -z "$inventory" ]]; then
+	usage
+	exit 1
+elif [[ ! -s "$inventory" ]] || [[ ! -f "$inventory" ]]; then
+	echo "Please check if the inventory file exists, is not empty and the inventory variable is not set to a directory"
+	exit 1
+fi
+## parse openshift inventory file
+if [[ -d /run/pbench ]]; then
+	cat "$inventory" | sed -n '/^\[masters\]/,/^$/p' | awk '{if (NR!=1) {print}}' | sed '/^$/d' > /run/pbench/inv_hosts
+else
+	error_log "creation of /run/pbench directory failed"
+	exit 1
+fi
+case "$mode" in
+	install)
+	which go &>/dev/null
+	if [[ $? != 0 ]]; then
+		yum -y install go &>/dev/null
+	fi
+	mkdir -p $pbench_install_dir/.go
+	GOPATH=$pbench_install_dir/.go go get github.com/prometheus/prom2json/cmd/prom2json
+	;;
+	start)
+	mkdir -p $tool_output_dir/json
+	while read -u 9 file; do
+		# If the port, cert or key is not set while registering the tool, read the input file for host, port, cert and key if any. 
+		# In case the file doesn't have certs, port and they are not defined while registering the tool, the default values are set.
+		# host port=<port> cert=<cert> key=<key>
+		host=$(echo $file | awk -F " " '{ print $1 }')
+		if [[ -z "$port" ]]; then
+			port=$(echo $file | grep -w "port" | awk -F " " '{ print $2 }' | awk -F "=" '{print $2}')
+		fi
+		if [[ -z "$cert" ]]; then
+			cert=$(echo $file | grep -w "cert" | awk -F " " '{ print $3 }' | awk -F "=" '{print $2}')
+		fi
+		if [[ -z "$key" ]]; then
+			key=$(echo $file | grep -w "key" | awk -F " " '{ print $4 }' | awk -F "=" '{print $2}')
+		fi
+		# fetch keys from openshift master and set default values for port, cert and key vars if not defined
+		if [ -z "$port" ]; then
+			port=8443
+		fi
+		if [ -z "$cert" ]; then
+			if [ ! -s /run/pbench/keys/admin.crt ]; then
+				scp $host:/etc/origin/master/admin.crt /run/pbench/keys/admin.crt
+				if [[ $? != 0 ]]; then
+					error_log "[$script_name]scp command failed to copy the files from $host, please check if the cert exists in /etc/origin/master directory"
+					exit 1
+				fi
+			fi
+			cert=/run/pbench/keys/admin.crt
+		fi
+		if [ -z "$key" ]; then
+			if [ ! -s /run/pbench/keys/admin.key ]; then
+				scp $host:/etc/origin/master/admin.key /run/pbench/keys/admin.key
+				if [[ $? != 0 ]]; then
+					error_log "[$script_name]scp command failed to copy the files from $host, please check if the key exists in /etc/origin/master directory"
+					exit 1
+				fi	
+			fi
+			key=/run/pbench/keys/admin.key
+		fi
+		tool_cmd='GOPATH=$pbench_install_dir/.go PATH=$PATH:$GOPATH/bin $script_path/datalog/$tool-datalog $host $interval $tool_log $port $cert $key'
+		metrics_data=$tool_output_dir/$host-stdout.txt
+		debug_log "$script_name: running $tool_cmd"
+		eval $tool_cmd >"$metrics_data" 2>"$tool_stderr_file" & echo $! >>$tool_pid_file
+	done 9</run/pbench/inv_hosts
+	wait
+	;;
+	stop)
+	while read -u 10 pid; do
+		debug_log "stopping $script_name"
+		kill $pid
+	done 10<"$tool_pid_file"
+	/bin/rm "$tool_pid_file"
+	;;
+	postprocess)
+	if [ -z "$options" ]; then
+		debug_log "postprocessing $script_name"
+		while read -u 11 file;do
+			host=$(echo $file | awk -F " " '{ print $1 }')
+			$script_path/postprocess/$script_name-postprocess $tool_output_dir/$host-stdout.txt $tool_output_dir/json/"$host".json
+		done 11</run/pbench/inv_hosts
+	else
+		debug_log "Non-default options $options: skipping postprocessing for $script_name"
+	fi
+	/bin/rm /run/pbench/inv_hosts
+	;;
+esac

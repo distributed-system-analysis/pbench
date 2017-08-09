@@ -42,7 +42,7 @@ ver=1.0.4
 
 # Defaults
 
-benchmark_run_dir=""
+export benchmark_run_dir=""
 protocols="tcp,udp"
 test_types="stream,maerts,bidirec,rr"
 message_sizes="1,64,1024,16384" # in bytes
@@ -67,6 +67,54 @@ tool_group=default
 tool_label_pattern="uperf-"
 server_nodes=""
 client_nodes=""
+sysinfo="default"
+
+function uperf_usage {
+	printf "\tThe following options are available:\n\n"
+        printf -- "\t--kvm-host=str\n"
+        printf -- "\t--tool-group=str\n"
+        printf -- "\t-c str       --config=str               name of the test config (e.g. jumbo_frames_and_network_throughput)\n"
+        printf -- "\t-t str[,str] --test-types=str[,str]     can be stream, maerts, bidirec, and/or rr (default $test_types)\n"
+        printf -- "\t-r int       --runtime=int              test measurement period in seconds (default is $runtime)\n"
+        printf -- "\t-m int[,int] --message-sizes=str[,str]  list of message sizes in bytes (default is $message_sizes)\n"
+        printf -- "\t-p str[,str] --protocols=str[,str]      tcp and/or udp (default is $protocols)\n"
+        printf -- "\t-i int[,int] --instances=int[,int]      list of number of uperf instances to run (default is $instances)\n"
+        printf -- "\t-C str[,str] --client[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the\n"
+        printf    "\t\t\t\t   uperf client (drive the test).\n"
+        printf    "\t\t\t\t   If this is omitted, the local system is the client.\n"
+        printf    "\t\t\t\t   Note: the number of clients and servers must be the same!\n"
+        printf    "\t\t\t\t   Clients and servers are paired according to the order in the list (first\n"
+        printf    "\t\t\t\t   client pairs with first server, etc)\n"
+        printf -- "\t-S str[,str] --server[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the uperf\n"
+        printf    "\t\t\t\t   server (listening for connections).\n"
+        printf    "\t\t\t\t   If this is omitted, the server will listen on the local system\n"
+        printf    "\t\t\t\t   loopback interface.\n"
+        printf -- "\t--server-node[s]=str[,str]              An ordered list of server NUMA nodes which should be used for CPU binding\n"
+        printf -- "\t--client-node[s]=str[,str]              An ordered list of rrclient NUMA nodes which should be used for CPU binding\n"
+        printf -- "\t\t\t\t   For both options above, the order must correspond with the --clients/--servers list\n"
+        printf -- "\t\t\t\t   To omit a specific client/server from binding, use a value of -1.\n"
+        printf -- "\t--samples=int              the number of times each different test is run (to compute average &\n"
+        printf    "\t\t\t\t   standard deviations).\n"
+        printf -- "\t--max-failures=int         the maximum number of failures to get below stddev.\n"
+        printf -- "\t--max-stddev=int           the maximum percent stddev allowed to pass.\n"
+        printf -- "\t--postprocess-only=y|n     don't run the benchmark, but postprocess data from previous test.\n"
+        printf -- "\t--run-dir=str              optionally specify what directory should be used (usually only used\n"
+        printf    "\t\t\t\t   if postprocess-only=y).\n"
+        printf -- "\t--start-iteration-num=int  optionally skip the first (n-1) tests.\n"
+        printf -- "\t--log-response-times=y|n   record the response time of every single operation.\n"
+        printf -- "\t--tool-label-pattern=str   uperf will provide CPU and efficiency information for any tool directory\n"
+        printf    "\t\t\t\t   with a \"^<pattern>\" in the name, provided \"sar\" is one of the\n"
+        printf    "\t\t\t\t   registered tools.\n"
+        printf    "\t\t\t\t   a default pattern, \"uperf-\" is used if none is provided.\n"
+        printf    "\t\t\t\t   simply register your tools with \"--label=uperf-\$X\", and this script\n"
+        printf    "\t\t\t\t   will generate CPU_uperf-\$X and Gbps/CPU_uperf-\$X or\n"
+        printf    "\t\t\t\t   trans_sec/CPU-uperf-\$X for all tools which have that pattern as a\n"
+        printf    "\t\t\t\t   prefix.  If you don't want to register your tools with \"uperf-\" as\n"
+        printf    "\t\t\t\t   part of the label, just use --tool-label-pattern= to tell this script\n"
+        printf    "\t\t\t\t   the prefix pattern to use for CPU information.\n"
+        printf -- "\t--sysinfo=str,             str= comma seperated values of sysinfo to be collected\n"
+        printf -- "\t                                available: $(pbench-collect-sysinfo --options)\n"
+}
 
 function gen_xml {
 	local h=$1
@@ -141,53 +189,12 @@ function install_uperf {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o i:c:t:r:m:p:M:S:C: --longoptions "server-node:,server-nodes:,client-node:,client-nodes:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,kvm-host:,log-response-times:,postprocess-only:,run-dir:,tool-group:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o i:c:t:r:m:p:M:S:C: --longoptions "help,server-node:,server-nodes:,client-node:,client-nodes:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,kvm-host:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
 	printf "\t${benchmark}: you specified an invalid option\n\n"
-	printf "\tThe following options are available:\n\n"
-	printf -- "\t--kvm-host=str\n"
-	printf -- "\t--tool-group=str\n"
-	printf -- "\t-c str       --config=str               name of the test config (e.g. jumbo_frames_and_network_throughput)\n"
-	printf -- "\t-t str[,str] --test-types=str[,str]     can be stream, maerts, bidirec, and/or rr (default $test_types)\n"
-	printf -- "\t-r int       --runtime=int              test measurement period in seconds (default is $runtime)\n"
-	printf -- "\t-m int[,int] --message-sizes=str[,str]  list of message sizes in bytes (default is $message_sizes)\n"
-	printf -- "\t-p str[,str] --protocols=str[,str]      tcp and/or udp (default is $protocols)\n"
-	printf -- "\t-i int[,int] --instances=int[,int]      list of number of uperf instances to run (default is $instances)\n"
-	printf -- "\t-C str[,str] --client[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the\n"
-	printf    "\t\t\t\t   uperf client (drive the test).\n"
-	printf    "\t\t\t\t   If this is omitted, the local system is the client.\n"
-	printf    "\t\t\t\t   Note: the number of clients and servers must be the same!\n"
-	printf    "\t\t\t\t   Clients and servers are paired according to the order in the list (first\n"
-	printf    "\t\t\t\t   client pairs with first server, etc)\n"
-	printf -- "\t-S str[,str] --server[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the uperf\n"
-	printf    "\t\t\t\t   server (listening for connections).\n"
-	printf    "\t\t\t\t   If this is omitted, the server will listen on the local system\n"
-	printf    "\t\t\t\t   loopback interface.\n"
-	printf -- "\t--server-node[s]=str[,str]              An ordered list of server NUMA nodes which should be used for CPU binding\n"
-	printf -- "\t--client-node[s]=str[,str]              An ordered list of rrclient NUMA nodes which should be used for CPU binding\n"
-	printf -- "\t\t\t\t   For both options above, the order must correspond with the --clients/--servers list\n"
-	printf -- "\t\t\t\t   To omit a specific client/server from binding, use a value of -1.\n"
-	printf -- "\t--samples=int              the number of times each different test is run (to compute average &\n"
-	printf    "\t\t\t\t   standard deviations).\n"
-	printf -- "\t--max-failures=int         the maximum number of failures to get below stddev.\n"
-	printf -- "\t--max-stddev=int           the maximum percent stddev allowed to pass.\n"
-	printf -- "\t--postprocess-only=y|n     don't run the benchmark, but postprocess data from previous test.\n"
-	printf -- "\t--run-dir=str              optionally specify what directory should be used (usually only used\n"
-	printf    "\t\t\t\t   if postprocess-only=y).\n"
-	printf -- "\t--start-iteration-num=int  optionally skip the first (n-1) tests.\n"
-	printf -- "\t--log-response-times=y|n   record the response time of every single operation.\n"
-	printf -- "\t--tool-label-pattern=str   uperf will provide CPU and efficiency information for any tool directory\n"
-	printf    "\t\t\t\t   with a \"^<pattern>\" in the name, provided \"sar\" is one of the\n"
-	printf    "\t\t\t\t   registered tools.\n"
-	printf    "\t\t\t\t   a default pattern, \"uperf-\" is used if none is provided.\n"
-	printf    "\t\t\t\t   simply register your tools with \"--label=uperf-\$X\", and this script\n"
-	printf    "\t\t\t\t   will generate CPU_uperf-\$X and Gbps/CPU_uperf-\$X or\n"
-	printf    "\t\t\t\t   trans_sec/CPU-uperf-\$X for all tools which have that pattern as a\n"
-	printf    "\t\t\t\t   prefix.  If you don't want to register your tools with \"uperf-\" as\n"
-	printf    "\t\t\t\t   part of the label, just use --tool-label-pattern= to tell this script\n"
-	printf    "\t\t\t\t   the prefix pattern to use for CPU information.\n"
+	uperf_usage
 	exit 1
 fi
 eval set -- "$opts"
@@ -197,6 +204,10 @@ while true; do
 		--install)
 		shift
 		install_uperf
+		exit
+		;;
+		--help)
+		uperf_usage
 		exit
 		;;
 		--client-label)
@@ -354,6 +365,13 @@ while true; do
 			shift
 		fi
 		;;
+		--sysinfo)
+		shift;
+		if [ -n "$1" ]; then
+			sysinfo="$1"
+			shift;
+		fi
+		;;
 		--)
 		shift
 		break
@@ -365,9 +383,17 @@ while true; do
 	esac
 done
 
+pbench-collect-sysinfo --sysinfo=$sysinfo --check
+if [ $? != 0 ]; then
+	printf -- "$*\n\n"
+	printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
+	uperf_usage
+	exit 1
+fi
+
 if [[ -z "$benchmark_run_dir" ]]; then
 	# We don't have an explicit run directory, construct one
-	benchmark_fullname="${benchmark}_${config}_${date}"
+	benchmark_fullname="${benchmark}_${config}_${date_suffix}"
 	benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 else
 	# We have an explicit run directory provided by --run-dir, so warn
@@ -472,7 +498,8 @@ done
 let total_iterations=count
 count=1
 export benchmark config
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 # start the server processes
 for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 	for test_type in `echo $test_types | sed -e s/,/" "/g`; do
@@ -688,6 +715,7 @@ done
 echo "$script_path/postprocess/generate-benchmark-summary \"$benchmark\" \"$orig_cmd\" \"$benchmark_run_dir\"" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
 chmod +x "$benchmark_run_dir/generate-benchmark-summary.cmd"
 $script_path/postprocess/generate-benchmark-summary "$benchmark" "$orig_cmd" "$benchmark_run_dir"
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 
 rmdir $benchmark_run_dir/.running

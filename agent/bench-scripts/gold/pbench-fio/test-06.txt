@@ -2,7 +2,7 @@
 pbench-fio
 verifying clients have fio installed
 python-pandas
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio.job
 [global]
 bs=4k
 runtime=30
@@ -26,157 +26,17 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job
-fio job complete
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio.job
+/bin/mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/*.log.foo': No such file or directory
 Chart Type: xy
-Could not find any json data, exiting
-Restarting iteration 1-throughput-4KiB (1 of 3)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job
-[global]
-bs=4k
-runtime=30
-ioengine=libaio
-iodepth=32
-direct=1
-sync=0
-time_based=1
-clocksource=gettimeofday
-ramp_time=5
-
-[job-/tmp/fio]
-filename=/tmp/fio
-rw=throughput
-size=4096M
-write_bw_log=fio
-write_iops_log=fio
-write_lat_log=fio
-log_avg_msec=1000
-write_hist_log=fio
-log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
-
-running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job
-fio job complete
+/bin/mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/*.log.bar': No such file or directory
 Chart Type: xy
-Could not find any json data, exiting
-Restarting iteration 1-throughput-4KiB (1 of 3)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job
-[global]
-bs=4k
-runtime=30
-ioengine=libaio
-iodepth=32
-direct=1
-sync=0
-time_based=1
-clocksource=gettimeofday
-ramp_time=5
-
-[job-/tmp/fio]
-filename=/tmp/fio
-rw=throughput
-size=4096M
-write_bw_log=fio
-write_iops_log=fio
-write_lat_log=fio
-log_avg_msec=1000
-write_hist_log=fio
-log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
-
-running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job
-fio job complete
+/bin/mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/*.log.baz': No such file or directory
 Chart Type: xy
-Could not find any json data, exiting
-Restarting iteration 1-throughput-4KiB (1 of 3)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job
-[global]
-bs=4k
-runtime=30
-ioengine=libaio
-iodepth=32
-direct=1
-sync=0
-time_based=1
-clocksource=gettimeofday
-ramp_time=5
-
-[job-/tmp/fio]
-filename=/tmp/fio
-rw=throughput
-size=4096M
-write_bw_log=fio
-write_iops_log=fio
-write_lat_log=fio
-log_avg_msec=1000
-write_hist_log=fio
-log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
-
-running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job
 fio job complete
-Chart Type: xy
-Could not find any json data, exiting
-Restarting iteration 1-throughput-4KiB (1 of 3)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job
-[global]
-bs=4k
-runtime=30
-ioengine=libaio
-iodepth=32
-direct=1
-sync=0
-time_based=1
-clocksource=gettimeofday
-ramp_time=5
-
-[job-/tmp/fio]
-filename=/tmp/fio
-rw=throughput
-size=4096M
-write_bw_log=fio
-write_iops_log=fio
-write_lat_log=fio
-log_avg_msec=1000
-write_hist_log=fio
-log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
-
-running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job
-fio job complete
-Chart Type: xy
-Could not find any json data, exiting
-Restarting iteration 1-throughput-4KiB (1 of 3)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job
-[global]
-bs=4k
-runtime=30
-ioengine=libaio
-iodepth=32
-direct=1
-sync=0
-time_based=1
-clocksource=gettimeofday
-ramp_time=5
-
-[job-/tmp/fio]
-filename=/tmp/fio
-rw=throughput
-size=4096M
-write_bw_log=fio
-write_iops_log=fio
-write_lat_log=fio
-log_avg_msec=1000
-write_hist_log=fio
-log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
-
-running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job
-fio job complete
-Chart Type: xy
-Could not find any json data, exiting
-Iteration 1-throughput-4KiB complete (1 of 3), with 1 pass and 6 failures
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job
+fio-postprocess: could not find any directories in /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/tools-default which matched fio-
+fio-postprocess: could not find any result files to process, exiting
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio.job
 [global]
 bs=64k
 runtime=30
@@ -200,157 +60,17 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job
-fio job complete
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio.job
+/bin/mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/*.log.foo': No such file or directory
 Chart Type: xy
-Could not find any json data, exiting
-Restarting iteration 2-throughput-64KiB (2 of 3)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job
-[global]
-bs=64k
-runtime=30
-ioengine=libaio
-iodepth=32
-direct=1
-sync=0
-time_based=1
-clocksource=gettimeofday
-ramp_time=5
-
-[job-/tmp/fio]
-filename=/tmp/fio
-rw=throughput
-size=4096M
-write_bw_log=fio
-write_iops_log=fio
-write_lat_log=fio
-log_avg_msec=1000
-write_hist_log=fio
-log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
-
-running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job
-fio job complete
+/bin/mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/*.log.bar': No such file or directory
 Chart Type: xy
-Could not find any json data, exiting
-Restarting iteration 2-throughput-64KiB (2 of 3)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job
-[global]
-bs=64k
-runtime=30
-ioengine=libaio
-iodepth=32
-direct=1
-sync=0
-time_based=1
-clocksource=gettimeofday
-ramp_time=5
-
-[job-/tmp/fio]
-filename=/tmp/fio
-rw=throughput
-size=4096M
-write_bw_log=fio
-write_iops_log=fio
-write_lat_log=fio
-log_avg_msec=1000
-write_hist_log=fio
-log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
-
-running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job
-fio job complete
+/bin/mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/*.log.baz': No such file or directory
 Chart Type: xy
-Could not find any json data, exiting
-Restarting iteration 2-throughput-64KiB (2 of 3)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job
-[global]
-bs=64k
-runtime=30
-ioengine=libaio
-iodepth=32
-direct=1
-sync=0
-time_based=1
-clocksource=gettimeofday
-ramp_time=5
-
-[job-/tmp/fio]
-filename=/tmp/fio
-rw=throughput
-size=4096M
-write_bw_log=fio
-write_iops_log=fio
-write_lat_log=fio
-log_avg_msec=1000
-write_hist_log=fio
-log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
-
-running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job
 fio job complete
-Chart Type: xy
-Could not find any json data, exiting
-Restarting iteration 2-throughput-64KiB (2 of 3)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job
-[global]
-bs=64k
-runtime=30
-ioengine=libaio
-iodepth=32
-direct=1
-sync=0
-time_based=1
-clocksource=gettimeofday
-ramp_time=5
-
-[job-/tmp/fio]
-filename=/tmp/fio
-rw=throughput
-size=4096M
-write_bw_log=fio
-write_iops_log=fio
-write_lat_log=fio
-log_avg_msec=1000
-write_hist_log=fio
-log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
-
-running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job
-fio job complete
-Chart Type: xy
-Could not find any json data, exiting
-Restarting iteration 2-throughput-64KiB (2 of 3)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job
-[global]
-bs=64k
-runtime=30
-ioengine=libaio
-iodepth=32
-direct=1
-sync=0
-time_based=1
-clocksource=gettimeofday
-ramp_time=5
-
-[job-/tmp/fio]
-filename=/tmp/fio
-rw=throughput
-size=4096M
-write_bw_log=fio
-write_iops_log=fio
-write_lat_log=fio
-log_avg_msec=1000
-write_hist_log=fio
-log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
-
-running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job
-fio job complete
-Chart Type: xy
-Could not find any json data, exiting
-Iteration 2-throughput-64KiB complete (2 of 3), with 1 pass and 6 failures
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job
+fio-postprocess: could not find any directories in /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/tools-default which matched fio-
+fio-postprocess: could not find any result files to process, exiting
+The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio.job
 [global]
 bs=1024k
 runtime=30
@@ -374,196 +94,160 @@ write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
 
-running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job
-fio job complete
+running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio.job
+/bin/mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/*.log.foo': No such file or directory
 Chart Type: xy
-Could not find any json data, exiting
-Restarting iteration 3-throughput-1024KiB (3 of 3)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job
-[global]
-bs=1024k
-runtime=30
-ioengine=libaio
-iodepth=32
-direct=1
-sync=0
-time_based=1
-clocksource=gettimeofday
-ramp_time=5
-
-[job-/tmp/fio]
-filename=/tmp/fio
-rw=throughput
-size=4096M
-write_bw_log=fio
-write_iops_log=fio
-write_lat_log=fio
-log_avg_msec=1000
-write_hist_log=fio
-log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
-
-running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job
-fio job complete
+/bin/mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/*.log.bar': No such file or directory
 Chart Type: xy
-Could not find any json data, exiting
-Restarting iteration 3-throughput-1024KiB (3 of 3)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job
-[global]
-bs=1024k
-runtime=30
-ioengine=libaio
-iodepth=32
-direct=1
-sync=0
-time_based=1
-clocksource=gettimeofday
-ramp_time=5
-
-[job-/tmp/fio]
-filename=/tmp/fio
-rw=throughput
-size=4096M
-write_bw_log=fio
-write_iops_log=fio
-write_lat_log=fio
-log_avg_msec=1000
-write_hist_log=fio
-log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
-
-running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job
-fio job complete
+/bin/mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/*.log.baz': No such file or directory
 Chart Type: xy
-Could not find any json data, exiting
-Restarting iteration 3-throughput-1024KiB (3 of 3)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job
-[global]
-bs=1024k
-runtime=30
-ioengine=libaio
-iodepth=32
-direct=1
-sync=0
-time_based=1
-clocksource=gettimeofday
-ramp_time=5
-
-[job-/tmp/fio]
-filename=/tmp/fio
-rw=throughput
-size=4096M
-write_bw_log=fio
-write_iops_log=fio
-write_lat_log=fio
-log_avg_msec=1000
-write_hist_log=fio
-log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
-
-running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job
 fio job complete
-Chart Type: xy
-Could not find any json data, exiting
-Restarting iteration 3-throughput-1024KiB (3 of 3)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job
-[global]
-bs=1024k
-runtime=30
-ioengine=libaio
-iodepth=32
-direct=1
-sync=0
-time_based=1
-clocksource=gettimeofday
-ramp_time=5
-
-[job-/tmp/fio]
-filename=/tmp/fio
-rw=throughput
-size=4096M
-write_bw_log=fio
-write_iops_log=fio
-write_lat_log=fio
-log_avg_msec=1000
-write_hist_log=fio
-log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
-
-running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job
-fio job complete
-Chart Type: xy
-Could not find any json data, exiting
-Restarting iteration 3-throughput-1024KiB (3 of 3)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job
-[global]
-bs=1024k
-runtime=30
-ioengine=libaio
-iodepth=32
-direct=1
-sync=0
-time_based=1
-clocksource=gettimeofday
-ramp_time=5
-
-[job-/tmp/fio]
-filename=/tmp/fio
-rw=throughput
-size=4096M
-write_bw_log=fio
-write_iops_log=fio
-write_lat_log=fio
-log_avg_msec=1000
-write_hist_log=fio
-log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
-
-running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job
-fio job complete
-Chart Type: xy
-Could not find any json data, exiting
-Iteration 3-throughput-1024KiB complete (3 of 3), with 1 pass and 6 failures
-# these results generated with:
-# pbench-fio --config=test-06 --test-type=throughput --samples=1 --client-file=/tmp/foo
-
-
-
-
-                   iteration
-           1-throughput-4KiB
-          2-throughput-64KiB
-        3-throughput-1024KiB
---- Finished test-06 pbench-fio (status=0}
+fio-postprocess: could not find any directories in /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/tools-default which matched fio-
+fio-postprocess: could not find any result files to process, exiting
+--- Finished test-06 pbench-fio (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB-fail1.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB-fail2.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB-fail3.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB-fail4.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB-fail5.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB-fail6.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB-fail1.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB-fail2.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB-fail3.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB-fail4.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB-fail5.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB-fail6.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB-fail1.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB-fail2.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB-fail3.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB-fail4.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB-fail5.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB-fail6.tar.xz
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/fio-client.file
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/metadata.log
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/summary-result.csv
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/summary-result.html
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/summary-result.txt
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/process-iteration-samples.cmd
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/bar
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/bar/hist
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/bar/hist/avg.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/bar/hist/hist.csv
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/bar/hist/max.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/bar/hist/median.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/bar/hist/min.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/bar/hist/p90.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/bar/hist/p95.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/bar/hist/p99.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/bar/hist/results.html
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/bar/hist/samples.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/baz
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/baz/hist
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/baz/hist/avg.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/baz/hist/hist.csv
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/baz/hist/max.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/baz/hist/median.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/baz/hist/min.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/baz/hist/p90.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/baz/hist/p95.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/baz/hist/p99.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/baz/hist/results.html
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/baz/hist/samples.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo/hist
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo/hist/avg.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo/hist/hist.csv
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo/hist/max.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo/hist/median.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo/hist/min.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo/hist/p90.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo/hist/p95.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo/hist/p99.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo/hist/results.html
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo/hist/samples.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio.cmd
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio-result.txt
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/process-iteration-samples.cmd
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/bar
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/bar/hist
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/bar/hist/avg.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/bar/hist/hist.csv
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/bar/hist/max.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/bar/hist/median.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/bar/hist/min.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/bar/hist/p90.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/bar/hist/p95.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/bar/hist/p99.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/bar/hist/results.html
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/bar/hist/samples.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/baz
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/baz/hist
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/baz/hist/avg.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/baz/hist/hist.csv
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/baz/hist/max.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/baz/hist/median.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/baz/hist/min.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/baz/hist/p90.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/baz/hist/p95.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/baz/hist/p99.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/baz/hist/results.html
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/baz/hist/samples.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo/hist
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo/hist/avg.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo/hist/hist.csv
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo/hist/max.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo/hist/median.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo/hist/min.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo/hist/p90.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo/hist/p95.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo/hist/p99.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo/hist/results.html
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo/hist/samples.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio.cmd
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio-result.txt
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/process-iteration-samples.cmd
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/bar
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/bar/hist
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/bar/hist/avg.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/bar/hist/hist.csv
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/bar/hist/max.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/bar/hist/median.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/bar/hist/min.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/bar/hist/p90.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/bar/hist/p95.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/bar/hist/p99.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/bar/hist/results.html
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/bar/hist/samples.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/baz
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/baz/hist
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/baz/hist/avg.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/baz/hist/hist.csv
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/baz/hist/max.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/baz/hist/median.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/baz/hist/min.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/baz/hist/p90.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/baz/hist/p95.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/baz/hist/p99.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/baz/hist/results.html
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/baz/hist/samples.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo/hist
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo/hist/avg.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo/hist/hist.csv
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo/hist/max.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo/hist/median.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo/hist/min.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo/hist/p90.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo/hist/p95.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo/hist/p99.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo/hist/results.html
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo/hist/samples.log
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio.cmd
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio-result.txt
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/fio-client.file
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/generate-benchmark-summary.cmd
+/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/metadata.log
 /var/tmp/pbench-test-bench/pbench/pbench.log
+/var/tmp/pbench-test-bench/pbench/samples
+/var/tmp/pbench-test-bench/pbench/samples/test-06.tar.xz
 /var/tmp/pbench-test-bench/pbench/tmp
-/var/tmp/pbench-test-bench/pbench/tmp/fio_test-06_1900-01-01T00:00:00.iterations
+/var/tmp/pbench-test-bench/pbench/tmp/fio_test-06_1900.01.01T00.00.00.iterations
 /var/tmp/pbench-test-bench/pbench/tools-default
 /var/tmp/pbench-test-bench/pbench/tools-default/mpstat
 /var/tmp/pbench-test-bench/pbench/tools-default/sar
@@ -577,567 +261,82 @@ Iteration 3-throughput-1024KiB complete (3 of 3), with 1 pass and 6 failures
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] getting log files from clients
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 1-throughput-4KiB default
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 1-throughput-4KiB (1 of 3)
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] getting log files from clients
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 1-throughput-4KiB default
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 1-throughput-4KiB (1 of 3)
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] getting log files from clients
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 1-throughput-4KiB default
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 1-throughput-4KiB (1 of 3)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] getting log files from clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 1-throughput-4KiB default
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 1-throughput-4KiB (1 of 3)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] getting log files from clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 1-throughput-4KiB default
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 1-throughput-4KiB (1 of 3)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] getting log files from clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 1-throughput-4KiB default
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 1-throughput-4KiB complete (1 of 3), with 1 pass and 6 failures
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] getting log files from clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 2-throughput-64KiB default
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 2-throughput-64KiB (2 of 3)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] getting log files from clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 2-throughput-64KiB default
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 2-throughput-64KiB (2 of 3)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] getting log files from clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 2-throughput-64KiB default
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 2-throughput-64KiB (2 of 3)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] getting log files from clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 2-throughput-64KiB default
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 2-throughput-64KiB (2 of 3)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] getting log files from clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 2-throughput-64KiB default
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 2-throughput-64KiB (2 of 3)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] getting log files from clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 2-throughput-64KiB default
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 2-throughput-64KiB complete (2 of 3), with 1 pass and 6 failures
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] getting log files from clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 3-throughput-1024KiB default
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 3-throughput-1024KiB (3 of 3)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] getting log files from clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 3-throughput-1024KiB default
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 3-throughput-1024KiB (3 of 3)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] getting log files from clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 3-throughput-1024KiB default
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 3-throughput-1024KiB (3 of 3)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] getting log files from clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 3-throughput-1024KiB default
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 3-throughput-1024KiB (3 of 3)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] getting log files from clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 3-throughput-1024KiB default
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Restarting iteration 3-throughput-1024KiB (3 of 3)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job --client=/tmp/foo --max-jobs=3]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] getting log files from clients
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] failed: /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 3-throughput-1024KiB default
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 3-throughput-1024KiB complete (3 of 3), with 1 pass and 6 failures
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00 beg
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00 end
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/clients/bar/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/clients/bar/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/clients/bar/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/clients/bar/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/clients/bar/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/clients/bar/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/clients/bar/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/clients/bar/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/clients/bar/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/clients/bar/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/clients/bar/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/clients/bar/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/clients/bar/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/clients/bar/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/clients/bar/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/clients/bar/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/clients/bar/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no bar:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/clients/bar/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no baz:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/clients/baz/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no baz:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/clients/baz/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no baz:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/clients/baz/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no baz:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/clients/baz/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no baz:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/clients/baz/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no baz:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/clients/baz/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no baz:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/clients/baz/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no baz:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/clients/baz/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no baz:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/clients/baz/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no baz:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/clients/baz/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no baz:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/clients/baz/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no baz:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/clients/baz/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no baz:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/clients/baz/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no baz:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/clients/baz/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no baz:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/clients/baz/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no baz:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/clients/baz/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no baz:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/clients/baz/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no baz:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/clients/baz/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no foo:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/clients/foo/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no foo:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/clients/foo/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no foo:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/clients/foo/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no foo:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/clients/foo/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no foo:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/clients/foo/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no foo:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/clients/foo/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no foo:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/clients/foo/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no foo:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/clients/foo/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no foo:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/clients/foo/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no foo:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/clients/foo/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no foo:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/clients/foo/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no foo:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/clients/foo/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no foo:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/clients/foo/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no foo:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/clients/foo/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no foo:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/clients/foo/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no foo:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/clients/foo/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no foo:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/clients/foo/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o StrictHostKeyChecking=no foo:/var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/clients/foo/
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary fio --config=test-06 --test-type=throughput --samples=1 --client-file=/tmp/foo /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB readwrite_IOPS 5 0 6 y y
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB readwrite_IOPS 5 0 6 y y
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB readwrite_IOPS 5 0 6 y y
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/tmp/foo --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio.job
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00 --sysinfo=default beg
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00 --sysinfo=default end
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00 beg
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00 end
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar killall fio >/dev/null 2>&1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar killall fio >/dev/null 2>&1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /opt/pbench-agent/bench-scripts/pbench-fio --remote-only --install
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz killall fio >/dev/null 2>&1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz killall fio >/dev/null 2>&1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz /opt/pbench-agent/bench-scripts/pbench-fio --remote-only --install
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /bin/rm -f /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1/*.log
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no baz pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo killall fio >/dev/null 2>&1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo killall fio >/dev/null 2>&1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /opt/pbench-agent/bench-scripts/pbench-fio --remote-only --install
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900-01-01T00:00:00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 --- test-execution.log file contents
 [pbench]
 
