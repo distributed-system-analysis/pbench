@@ -192,6 +192,7 @@ for this_tool_file in `/bin/ls $tool_group_dir`; do
 	fi
 done
 for p in $pids ;do
+        echo "stopping pid: $p"
 	wait $p
 	rc=$?
 	if [[ $rc -ne 0 ]] ;then
