@@ -112,7 +112,12 @@ if [ -d "$pbench_run" ]; then
 					tools="$tools,$this_tool_file"
                         	fi
 			done
-			tools="$tools,$all_remote_tools"
+
+                        if [ "$all_remote_tools" == "" ]; then
+                                tools="tools"
+                        else
+                                tools="$tools,$all_remote_tools"
+      
 			tools=`echo $tools | sed -e s/"^,"//`
 			# do not print anything for this group if there are no tools
 			if [ ! -z "$tools" ]; then
