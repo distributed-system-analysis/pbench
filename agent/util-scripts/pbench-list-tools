@@ -114,7 +114,7 @@ if [ -d "$pbench_run" ]; then
 			done
 
                         if [ "$all_remote_tools" == "" ]; then
-                                tools="tools"
+                                tools="$tools"
                         else
                                 tools="$tools,$all_remote_tools"
       
