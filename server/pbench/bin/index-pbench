@@ -343,10 +343,10 @@ def es_index(es, actions, dbg=0):
 ###########################################################################
 # Tool data routines
 
-# Handlers data table / dictionary describing how to process a given tools
+# Handlers data table / dictionary describing how to process a given tool's
 # .csv files.  The outer dictionary holds one dictionary for each tool. Each
 # tool entry has one '@prospectus' entry, which records behavior and handling
-# controls, and then on entry for each .csv file name emitted by the tool.
+# controls, and then one entry for each .csv file name emitted by the tool.
 #
 # For each .csv file, we record the metric "class", and its name, "metric".
 # E.g. The metadata path hierarchy for iostat disk_IOPS.csv data would be,
@@ -357,7 +357,7 @@ def es_index(es, actions, dbg=0):
 # currently used by pbench today in generated html charts), and the "units"
 # for the metric, but neither field is currently indexed (FIXME!).
 #
-# The "colpat" field, or column pattern, describes as a regular express the
+# The "colpat" field, or column pattern, describes as a regular expression the
 # constituent components of the .csv file column header. Currently, the "id"
 # and "subfield" match groups are the only two expected groups, with
 # "subfield" considered optional.
@@ -437,7 +437,15 @@ _known_csv_handlers = {
         },
     },
     'sar': {},
-    'turbostat': {}
+    'turbostat': {},
+}
+
+_known_json_handlers = {
+    'prometheus-metrics': {
+        '@prospectus': {
+            'handling': 'json',
+         },
+     },
 }
 # If we need to deal with old .csv file names, place an alias here to map to
 # an existing handler above.
@@ -469,17 +477,24 @@ class ToolData(object):
             "host": host,
             "toolgroup": toolgroup,
         }
+        self.csv_files = None
+        self.json_files = None
         try:
-            self.handler = _known_csv_handlers[tool]
+            self.handler = _known_json_handlers[tool]
+            self.json_files = ToolData.get_json_files(self.handler,
+                                                          iteration, sample,
+                                                          host, tool, toolgroup,
+                                                          mdlog, tb)
         except KeyError:
-            self.handler = None
-            self.csv_files = None
-        else:
-            # Fetch all the .csv files as a dictionary containing metadata
-            # about them, a csv reader object, and the header line from each
-            # file.
-            self.csv_files = ToolData.get_csv_files(
+            try:
+                self.handler = _known_csv_handlers[tool]
+                # Fetch all the .csv files as a dictionary containing metadata
+                # about them, a csv reader object, and the header line from each
+                # file.
+                self.csv_files = ToolData.get_csv_files(
                     self.handler, iteration, sample, host, tool, toolgroup, mdlog, tb)
+            except KeyError:
+                self.handler = None
 
     def _make_source_unified(self):
         """Process each .csv file at the same time, reading one row from each,
@@ -525,7 +540,6 @@ class ToolData(object):
                             "Handler subfields, %r, do not match header subfield"
                             " name %s" % (handler['subfields'], subfield))
                 field_mapping[csv['basename']][idx] = (identifier, subfield)
-
         while True:
             # Read a row from each .csv file
             rows = _dict_const()
@@ -598,16 +612,39 @@ class ToolData(object):
         column coordinate."""
         pass
 
+    def _make_source_json(self):
+        for df in self.json_files:
+            payload = json.loads(open(os.path.join(_tmpdir, df['path'])).read())
+            for item in payload:
+                item['@metadata'] = self.run_metadata
+                # any transformations needed should be done here
+
+
+                # timestamp handling.
+                try:
+                    # unix seconds since epoch timestamp
+                    ts = datetime.utcfromtimestamp(item['@timestamp'])
+                    ts_str = ts.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+                    item['@timestamp'] = ts_str
+                except:
+                    # assume that item[@timestamp] is already in %Y-%m-%dT%H:%M:%S.%f%z format
+                    pass
+                
+                yield item
+        return
+
     def make_source(self):
         """Simple jump method to pick the write source generator based on the
         handler's prospectus."""
-        if not self.csv_files:
-            # If we do not have any csv files for this tool, ignore it.
+        if not self.csv_files and not self.json_files:
+            # If we do not have any csv or json files for this tool, ignore it.
             return
         if self.handler['@prospectus']['handling'] == 'unify':
             gen = self._make_source_unified()
         elif self.handler['@prospectus']['handling'] == 'individual':
             gen = self._make_source_individual()
+        elif self.handler['@prospectus']['handling'] == 'json':
+            gen = self._make_source_json()
         else:
             raise Exception("Logic bomb!")
         return gen
@@ -644,6 +681,22 @@ class ToolData(object):
             datafiles.append(datafile)
         return datafiles
 
+    @staticmethod
+    def get_json_files(handler, iteration, sample, host, tool, toolgroup, mdlog, tb):
+        """
+        Fetch the list of json files for this tool, and
+        return a list of dicts containing their metadata.
+        """
+        # import pdb; pdb.set_trace()
+        path = os.path.join(iteration, sample, "tools-%s" % (toolgroup,), host, tool, "json")
+        paths = [x for x in tb.getnames() if x.find(path) >= 0 and tb.getmember(x).isfile()]
+        datafiles = []
+        for p in paths:
+            fname = os.path.basename(p)
+            datafile = { "path": p, "basename": fname, 'handler': handler }
+            datafiles.append(datafile)
+
+        return datafiles
 
 # tool data are stored in csv files in the tarball.
 # the structure is
@@ -686,7 +739,7 @@ def get_samples(iteration, mdlog, tb):
 def get_pbench_hosts(iteration, sample, mdlog, tb):
     try:
         # N.B. Space-separated list
-        return mdlog.get("tools", "hosts").split(' ')
+        return mdlog.get("tools", "hosts").split()
     except ConfigParserError:
         print("ConfigParser error in get_pbench_hosts: tool data will *not* be indexed.")
         print("This is most probably a bug: please open an issue.")
@@ -877,7 +930,7 @@ def mk_tool_info(sos_d, mdconf):
         # from pprint import pprint; pprint(mdconf.get("tools", "hosts"))
 
         labels = {}
-        for host in mdconf.get("tools", "hosts").split(' '):
+        for host in mdconf.get("tools", "hosts").split():
             # from pprint import pprint; pprint(host)
             tools_info = {}
             # XXX - we should have an FQDN for the host but
