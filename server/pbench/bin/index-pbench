@@ -339,6 +339,73 @@ def es_index(es, actions, dbg=0):
             break
     return 0
 
+###########################################################################
+# Benchmark result data: json files only
+#
+
+# convert a 0 value in a timeseries array to a float, else ES barfs.
+def convert_to_float(d):
+    if type(d) == type({}):
+        for k1 in d:
+            convert_to_float(d[k1])
+    elif type(d) == type([]):
+        if type(d[0]) == type({}) and set(d[0].keys()) == set(['date', 'value']):
+            d[-1]['value'] = float(d[-1]['value'])
+        else:
+            for i in range(0, len(d)):
+                convert_to_float(d[i])
+    else:
+        pass
+
+class ResultData(object):
+    def __init__(self, tstamp, md5sum, experiment, mdlog, tb):
+        self.run_metadata = {
+            "runtstamp": tstamp,
+            "runid": md5sum,
+            "experiment": experiment,
+        }
+        self.json_files = None
+        try:
+            self.json_files = ResultData.get_json_files(mdlog, tb)
+        except KeyError:
+            self.json_files = None
+
+    def _make_source_json(self):
+        for df in self.json_files:
+            item = {}
+            results = json.loads(open(os.path.join(_tmpdir, df['path'])).read())
+            convert_to_float(results)
+            item['results'] = results
+            item['@metadata'] = self.run_metadata
+            ts_str = self.run_metadata['runtstamp']
+            item['@timestamp'] = ts_str
+            yield item
+        return
+
+    def make_source(self):
+        """Simple jump method to pick the write source generator based on the
+        handler's prospectus."""
+        if not self.json_files:
+            # If we do not have any json files for this experiment, ignore it.
+            return None
+        gen = self._make_source_json()
+        return gen
+
+    @staticmethod
+    def get_json_files(mdlog, tb):
+        """
+        Fetch the list of result.json files for this experiment;
+        return a list of dicts containing their metadata.
+        """
+        paths = [x for x in tb.getnames() if x.find("result.json") >= 0 and tb.getmember(x).isfile()]
+        datafiles = []
+        for p in paths:
+            fname = os.path.basename(p)
+            datafile = { "path": p, "basename": fname }
+            datafiles.append(datafile)
+
+        return datafiles
+
 
 ###########################################################################
 # Tool data routines
@@ -619,7 +686,6 @@ class ToolData(object):
                 item['@metadata'] = self.run_metadata
                 # any transformations needed should be done here
 
-
                 # timestamp handling.
                 try:
                     # unix seconds since epoch timestamp
@@ -808,6 +874,29 @@ def mk_tool_data_actions(ptb, options, INDEX_PREFIX):
                 "_source":  source
             }
             yield action
+    return
+
+def mk_result_data_actions(ptb, options, INDEX_PREFIX):
+    index_name_template = "%s.result-data." % INDEX_PREFIX
+    mdlog = ptb.mdconf
+    experiment = mdlog.get("pbench", "name")
+    rd = ResultData(ptb.start_run, ptb.md5sum, experiment, mdlog, ptb.tb)
+    if not rd:
+        return
+    sources = rd.make_source()
+    if not sources:
+        return
+    for source in sources:
+            action = {
+                "_op_type": _op_type,
+                "_index":   index_name_template + source['@timestamp'].split('T', 1)[0],
+                "_type":    "pbench-result-data",
+                # FIXME: we should generate our own JSON doc ID
+                #"_id":      source_id,
+                "_source":  source
+            }
+            yield action
+        
     return
 
 ###########################################################################
@@ -1301,6 +1390,9 @@ def make_all_actions(ptb, options, INDEX_PREFIX, INDEX_VERSION):
     yield mk_run_action(ptb, options, INDEX_PREFIX)
     if debug_time_operations: ts("mk_toc_actions")
     for action in mk_toc_actions(ptb, options, INDEX_PREFIX):
+        yield action
+    if debug_time_operations: ts("mk_result_data_actions")
+    for action in mk_result_data_actions(ptb, options, INDEX_PREFIX):
         yield action
     if debug_time_operations: ts("mk_tool_data_actions")
     for action in mk_tool_data_actions(ptb, options, INDEX_PREFIX):
