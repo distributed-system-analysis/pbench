@@ -11,6 +11,7 @@ file=$4
 label_prefix=svt_
 hosts=/run/pbench/register.tmp.hosts
 inventory_file_path=$5
+prometheus_metrics_status=unregistered
 declare -a remote
 declare -a group
 declare -a index
@@ -72,7 +73,11 @@ while read -u 11 line;do
     pbench-register-tool --label=$label --name=oc --remote $remote
     pbench-register-tool --label=$label --name=pprof --remote $remote -- --osecomponent=master --interval=$ose_master_interval
     pbench-register-tool --label=$label --name=haproxy-ocp --remote $remote -- --interval=$ose_master_interval --counters-clear-all
-    pbench-register-tool --label=$label --name=prometheus-metrics --remote $remote -- --inventory=$inventory_file_path
+    # register the tool only when the status is unregistered, this ensures the tool is running on just one master to avoid duplication of data
+    if [[ "$prometheus_metrics_status" == "unregistered" ]]; then
+      pbench-register-tool --label=$label --name=prometheus-metrics --remote $remote -- --inventory=$inventory_file_path
+      prometheus_metrics_status=registered
+    fi
   fi
   if [ "$group" == "node" ] || [ "$group" == "cns" ]; then
     pbench-register-tool --label=$label --name=pprof --remote $remote -- --osecomponent=node --interval=$ose_node_interval
