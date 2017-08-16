@@ -531,7 +531,7 @@ class ToolData(object):
         self.toolname = tool
         try:
             (iterseqno, itername) = iteration.split('-', 1)
-        except:
+        except Exception:
             iterseqno = itername = iteration
         self.run_metadata = {
             "runtstamp": tstamp,
@@ -548,20 +548,22 @@ class ToolData(object):
         self.json_files = None
         try:
             self.handler = _known_json_handlers[tool]
-            self.json_files = ToolData.get_json_files(self.handler,
-                                                          iteration, sample,
-                                                          host, tool, toolgroup,
-                                                          mdlog, tb)
         except KeyError:
             try:
                 self.handler = _known_csv_handlers[tool]
+            except KeyError:
+                self.handler = None
+            else:
                 # Fetch all the .csv files as a dictionary containing metadata
                 # about them, a csv reader object, and the header line from each
                 # file.
                 self.csv_files = ToolData.get_csv_files(
                     self.handler, iteration, sample, host, tool, toolgroup, mdlog, tb)
-            except KeyError:
-                self.handler = None
+        else:
+            self.json_files = ToolData.get_json_files(self.handler,
+                                                          iteration, sample,
+                                                          host, tool, toolgroup,
+                                                          mdlog, tb)
 
     def _make_source_unified(self):
         """Process each .csv file at the same time, reading one row from each,
@@ -692,7 +694,7 @@ class ToolData(object):
                     ts = datetime.utcfromtimestamp(item['@timestamp'])
                     ts_str = ts.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
                     item['@timestamp'] = ts_str
-                except:
+                except Exception:
                     # assume that item[@timestamp] is already in %Y-%m-%dT%H:%M:%S.%f%z format
                     pass
                 
