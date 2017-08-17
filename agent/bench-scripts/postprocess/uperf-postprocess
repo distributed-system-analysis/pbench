@@ -175,7 +175,7 @@ foreach $result_file (sort readdir($dh) ) {
 	if ( $result_file =~ /^client::(.+)-server::(.+):(\d+)--client_output\.txt$/) {
 		my $client_hostname = $1;
 		my $server_hostname = $2;
-		my $server_port = int $3;
+		my $server_port = "$3";
 		my $role = "client";
 		my $average;
 		my @throughput_samples;
@@ -231,7 +231,7 @@ foreach $result_file (sort readdir($dh) ) {
 			my $mean = get_mean(\@latency_samples);
 			%this_lat_dataset = ( 	get_label('uid_label') => create_uid('client_hostname_label', 'server_hostname_label', 'server_port_label'), get_label('description_label') => $description,
 						get_label('role_label') => $role, get_label('client_hostname_label') => $client_hostname,
-						get_label('server_hostname_label') => $server_hostname, get_label('server_port_label') => int $server_port,
+						get_label('server_hostname_label') => $server_hostname, get_label('server_port_label') => "$server_port",
 						get_label('value_label') => $mean, get_label('timeseries_label') => \@latency_samples   );
 			push(@usec, \%this_lat_dataset);
 		}
@@ -240,7 +240,7 @@ foreach $result_file (sort readdir($dh) ) {
 			my %this_tput_dataset;
 			my $mean = get_mean(\@throughput_samples);
 			%this_tput_dataset = ( 	get_label('role_label') => $role, get_label('client_hostname_label') => $client_hostname,
-						get_label('server_hostname_label') => $server_hostname, get_label('server_port_label') => int $server_port,
+						get_label('server_hostname_label') => $server_hostname, get_label('server_port_label') => "$server_port",
 						get_label('value_label') => $mean, get_label('timeseries_label') => \@throughput_samples,
 						get_label('uid_label') => create_uid('client_hostname_label', 'server_hostname_label', 'server_port_label')  );
 			if ($test_type =~ /rr/) {
