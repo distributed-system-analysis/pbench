@@ -197,6 +197,7 @@ declare -A tools=(
     [test-28]="pbench-collect-sysinfo"
     [test-29]="pbench-collect-sysinfo"
     [test-30]="pbench-collect-sysinfo"
+    [test-31]="pbench-list-tools"
 )
 declare -A options=(
     [test-00]="--name=mpstat --group=default -- --interval=10"
