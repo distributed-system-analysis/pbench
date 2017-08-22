@@ -65,8 +65,8 @@
 
     - name: copy inventory file to pbench-controller
       copy:
-        src: {{ inventory_file }}
-        dest: {{ inventory_file_path }}
+        src: "{{ inventory_file }}"
+        dest: "{{ inventory_file_path }}"
 
     - name: copy inventory file to master
       shell: scp {{ inventory_file }} {{ item }}:{{ inventory_file_path }}
