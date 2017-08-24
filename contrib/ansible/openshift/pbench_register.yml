@@ -69,7 +69,7 @@
         dest: "{{ inventory_file_path }}"
 
     - name: copy inventory file to master
-      shell: scp {{ inventory_file }} {{ item }}:{{ inventory_file_path }}
+      shell: scp {{ inventory_file_path }} {{ item }}:{{ inventory_file_path }}
       with_items:
         - "{{ groups['masters'] }}"
 
