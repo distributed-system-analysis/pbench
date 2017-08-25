@@ -580,12 +580,23 @@ for dev in `echo $devices | sed -e s/,/" "/g`; do
 	if /bin/ls /sys/module/vfio_pci/drivers/pci\:vfio-pci/ | grep -q "$dev"; then
 		echo "device $dev already bound to vfio-pci"
 	else
-		if dpdk-devbind -u $dev; then
-			dpdk-devbind -b vfio-pci $dev
+		if [ -e /sys/bus/pci/devices/$dev/driver ]; then
+			if dpdk-devbind -u $dev; then
+				dpdk-devbind -b vfio-pci $dev
+			else
+				log_warn "could not unbind device, exiting"
+				exit 1
+			fi
 		else
-			log_warn "could not unbind device"
-			exit 1
+			dpdk-devbind -b vfio-pci $dev
 		fi
+	fi
+done
+for dev in `echo $devices | sed -e s/,/" "/g`; do
+	if /bin/ls /sys/module/vfio_pci/drivers/pci\:vfio-pci/ | grep -q "$dev"; then
+		echo "device $dev bound to vfio-pci"
+	else
+		echo "device $dev not bound to vfio-pci, exiting"
 	fi
 done
 
