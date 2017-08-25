@@ -575,6 +575,16 @@ if [ -z "$devices" ]; then
 	warn_log "no devices were provided (--devices), exiting"
 	exit 1
 fi
+for module in vfio vfio_pci; do
+	if [ ! -e /sys/module/$module ]; then
+		echo "attempting to load $module"
+		modprobe $module
+		if [ ! -e /sys/module/$module ]; then
+			error_log "could not load $module module, exiting"
+			exit 1
+		fi
+	fi
+done
 for dev in `echo $devices | sed -e s/,/" "/g`; do
 	echo "configuring device $dev"
 	if /bin/ls /sys/module/vfio_pci/drivers/pci\:vfio-pci/ | grep -q "$dev"; then
