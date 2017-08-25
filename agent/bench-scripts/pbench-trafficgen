@@ -709,9 +709,19 @@ mkdir -p $benchmark_run_dir/.running
 export benchmark_name config
 #pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 
+rc=0
 for rate in `echo $rates | sed -e s/,/" "/g`; do
+	if [ $rc -ne 0 ]; then
+		break
+	fi
 	for traffic_direction in `echo $traffic_directions | sed -e s/,/" "/g`; do
+		if [ $rc -ne 0 ]; then
+			break
+		fi
 		for max_loss_pct in `echo $max_loss_pcts | sed -e s/,/" "/g`; do
+			if [ $rc -ne 0 ]; then
+				break
+			fi
 			# if any of the runtimes are provided by the user, then use those
 			unset iteration_sniff_runtime
 			unset iteration_search_runtime
@@ -752,7 +762,13 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 			cmd="$cmd --search-runtime=$iteration_search_runtime"
 			cmd="$cmd --validation-runtime=$iteration_validation_runtime"
 			for frame_size in `echo $frame_sizes | sed -e s/,/" "/g`; do
+				if [ $rc -ne 0 ]; then
+					break
+				fi
 				for num_flow in `echo $num_flows | sed -e s/,/" "/g`; do
+					if [ $rc -ne 0 ]; then
+						break
+					fi
 					if [ $count -ge $start_iteration_num ]; then
 						iteration_options=""
 						if [ $rate == "none" ]; then
@@ -792,7 +808,9 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 						# save benchmark command in file for debugging or running manually
 						echo "pushd >/dev/null $trafficgen_dir" >$benchmark_cmd_file
 						echo "$cmd $iteration_options \$@" >>$benchmark_cmd_file
+						echo "cmd_rc=\$?" >>$benchmark_cmd_file
 						echo "popd >/dev/null" >>$benchmark_cmd_file
+						echo "exit \$cmd_rc" >>$benchmark_cmd_file
 						chmod +x $benchmark_cmd_file
 						while [[ $(echo "if (${result_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; do
 							if [[ $failures -gt 0 ]]; then
@@ -801,18 +819,25 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 							fi
 							# each attempt at a test config requires multiple samples to get stddev
 							for sample in `seq 1 $num_samples`; do
+								if [ $rc -ne 0 ]; then
+									break
+								fi
 								benchmark_results_dir="$iteration_dir/sample$sample"
 								if [ "$postprocess_only" != "y" ]; then
 									mkdir -p $benchmark_results_dir
 									echo "test sample $sample of $num_samples"
 									log "test sample $sample of $num_samples "
 									result_file=$benchmark_results_dir/result.txt
-
-
 									pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 									$benchmark_cmd_file --output-dir=$benchmark_results_dir 2>&1 | tee -i $result_file
+									rc=$?
+									echo "exit code: $rc"
 									pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-									pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+									if [ $rc -ne 0 ]; then
+										error_log "iteration $iteration sample $sample returned non-zero exit code"
+									else
+										pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+									fi
 								else
 									if [[ ! -d $benchmark_results_dir ]]; then
 										error_log "Results directory $benchmark_results_dir does not exist, skipping post-processing"
@@ -821,25 +846,34 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 									echo "Not going to run $benchmark_name.  Only postprocesing existing data"
 									log "Not going to run $benchmnark_name.  Only postprocesing existing data"
 								fi
-								echo "$script_path/postprocess/$benchmark_name-postprocess $benchmark_results_dir $iteration $max_loss_pct $tool_label_pattern $tool_group" >"$benchmark_results_dir/$benchmark_name-postprocess.cmd"
-								chmod +x "$benchmark_results_dir/$benchmark_name-postprocess.cmd"
-								$benchmark_results_dir/$benchmark_name-postprocess.cmd
+								if [ $rc -eq 0 ]; then
+									echo "$script_path/postprocess/$benchmark_name-postprocess $benchmark_results_dir $iteration $max_loss_pct $tool_label_pattern $tool_group" >"$benchmark_results_dir/$benchmark_name-postprocess.cmd"
+									chmod +x "$benchmark_results_dir/$benchmark_name-postprocess.cmd"
+									$benchmark_results_dir/$benchmark_name-postprocess.cmd || rc=1
+								fi
 							done
-							echo "$script_path/postprocess/process-iteration-samples $iteration_dir Mframes_sec $maxstddevpct $failures $max_failures $tar_nonref_data $keep_failed_tool_data" >"$iteration_dir/process-iteration-samples.cmd"
-							chmod +x "$iteration_dir/process-iteration-samples.cmd"
-							$iteration_dir/process-iteration-samples.cmd
-							fail=$?
-							if [ $fail -eq 1 ]; then
-								error_log "This test iteration failed"
-								((failures++))
-							fi
-							if [ $fail -eq 0 -o $failures -ge $max_failures ]; then
-								debug_log "Moving to the next iteration"
+							if [ $rc -eq 0 ]; then
+								echo "$script_path/postprocess/process-iteration-samples $iteration_dir Mframes_sec $maxstddevpct $failures $max_failures $tar_nonref_data $keep_failed_tool_data" >"$iteration_dir/process-iteration-samples.cmd"
+								chmod +x "$iteration_dir/process-iteration-samples.cmd"
+								$iteration_dir/process-iteration-samples.cmd
+								fail=$?
+								if [ $fail -eq 1 ]; then
+									error_log "This test iteration failed"
+									((failures++))
+								fi
+								if [ $fail -eq 0 -o $failures -ge $max_failures ]; then
+									debug_log "Moving to the next iteration"
+									break
+								fi
+							else
+								error_log "Aborting benchmark"
 								break
 							fi
 						done # break out of this loop only if the $result_stddevpct is lower than $maxstddevpct
-						echo "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
-						log "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
+						if [ $rc -eq 0 ]; then
+							echo "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
+							log "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
+						fi
 					else
 						echo "Skipping iteration $iteration ($count of $total_iterations)"
 						log "Skipping iteration $iteration ($count of $total_iterations)"
@@ -850,9 +884,11 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 		done
 	done
 done
-echo "$script_path/postprocess/generate-benchmark-summary $benchmark_name $orig_cmd $benchmark_run_dir" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
-$script_path/postprocess/generate-benchmark-summary "$benchmark_name" "$orig_cmd" "$benchmark_run_dir"
-#pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+if [ $rc -eq 0 ]; then
+	echo "$script_path/postprocess/generate-benchmark-summary $benchmark_name $orig_cmd $benchmark_run_dir" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
+	$script_path/postprocess/generate-benchmark-summary "$benchmark_name" "$orig_cmd" "$benchmark_run_dir"
+	#pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+fi
 if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 	kill_trex
 fi
