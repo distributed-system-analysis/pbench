@@ -36,7 +36,7 @@ ver=4.00
 
 # Defaults
 
-benchmark_run_dir=""
+export benchmark_run_dir=""
 config=""
 dir="/tmp"
 loadfile="/usr/local/share/doc/dbench/loadfiles/client.txt"
@@ -240,7 +240,7 @@ while true; do
 done
 if [[ -z "$benchmark_run_dir" ]]; then
 	# We don't have an explicit run directory, construct one
-	benchmark_fullname="${benchmark}_${config}_${date}"
+	benchmark_fullname="${benchmark}_${config}_${date_suffix}"
 	benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 else
 	# We have an explicit run directory provided by --run-dir, so warn
@@ -301,6 +301,7 @@ count=1
 max_key_length=0
 export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 
 for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 	if [ $count -ge $start_iteration_num ]; then
@@ -511,6 +512,7 @@ for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 done
 
 printf -- "</pre>\n" >>$benchmark_summary_html_file
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 
 rmdir $benchmark_run_dir/.running

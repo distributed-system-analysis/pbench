@@ -1,0 +1,12 @@
+[pbench-controller]
+
+[masters]
+
+[nodes]
+
+[etcd]
+
+[lb]
+
+[pbench-controller:vars]
+register_all_nodes=False

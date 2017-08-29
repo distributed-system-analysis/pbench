@@ -1,0 +1,38 @@
++++ Running test-10 pbench-user-benchmark
+Running user-benchmark-script no-duration
+--- Finished test-10 pbench-user-benchmark (status=0)
+{
+    "duration":0,
+    "duration_units":"sec",
+    "that":"tother",
+    "this":"that"
+}+++ pbench tree state
+/var/tmp/pbench-test-bench/pbench
+/var/tmp/pbench-test-bench/pbench/pbench.log
+/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1
+/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/reference-result
+/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/reference-result/result.txt
+/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/metadata.log
+/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary-debug.json
+/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json
+/var/tmp/pbench-test-bench/pbench/samples
+/var/tmp/pbench-test-bench/pbench/tmp
+/var/tmp/pbench-test-bench/pbench/tmp/pbench-user-benchmark__1900.01.01T00.00.00.iterations
+/var/tmp/pbench-test-bench/pbench/tools-default
+/var/tmp/pbench-test-bench/pbench/tools-default/mpstat
+/var/tmp/pbench-test-bench/pbench/tools-default/sar
+--- pbench tree state
++++ pbench.log file contents
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-user-benchmark] processing options
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] [pbench-user-benchmark] Running user-benchmark-script no-duration
+--- pbench.log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00 --sysinfo=default end
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00 beg
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00 end
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/reference-result
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/reference-result
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/reference-result
+--- test-execution.log file contents

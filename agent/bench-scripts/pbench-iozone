@@ -156,14 +156,15 @@ done
 
 verify_tool_group $tool_group
 
-benchmark_fullname="${benchmark}_${config}_${date}"
-benchmark_run_dir="$pbench_run/${benchmark_fullname}"
+benchmark_fullname="${benchmark}_${config}_${date_suffix}"
+export benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
 benchmark_summary_file="$benchmark_run_dir/$benchmark-summary.txt"
 
 mkdir -p $benchmark_run_dir/.running
 export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 
 benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
 echo $iteration >> $benchmark_iterations
@@ -185,6 +186,7 @@ done
 
 pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 
 rmdir $benchmark_run_dir/.running

@@ -8,7 +8,10 @@ default_tools_interval=$1
 ose_master_interval=$2
 ose_node_interval=$3
 file=$4
+label_prefix=svt_
 hosts=/run/pbench/register.tmp.hosts
+inventory_file_path=$5
+prometheus_metrics_status=unregistered
 declare -a remote
 declare -a group
 declare -a index
@@ -33,7 +36,9 @@ while read -u 9 line;do
   remote_name=$(echo $line | awk -F' ' '{print $1}')
   group_name=$(echo $line | awk -F' ' '{print $2}')
   index_value=$(echo $line | awk -F' ' '{print $3}')
-  label_name=$(echo $line | awk -F' ' '{print $4}')
+  index_value=$(( index_value + 1 )) 
+  # Modify the label to include group and index number to make it unique
+  label_name="$label_prefix""$group_name"_"$index_value"
   remote[${#remote[@]}]=$remote_name 
   group[${#group[@]}]=$group_name
   index[${#index[@]}]=$index_value
@@ -57,22 +62,24 @@ done
 while read -u 11 line;do
   remote=$(echo $line | awk -F' ' '{print $1}')
   group=$(echo $line | awk -F' ' '{print $2}')
-  index=$(echo $line | awk -F' ' '{print $3}')
-  index=$(( index + 1 ))
   label=$(echo $line | awk -F' ' '{print $4}')
   ## register tools
+  pbench-register-tool --label=$label --name=sar --remote $remote
+  pbench-register-tool --label=$label --name=iostat --remote $remote
+  pbench-register-tool --label=$label --name=pidstat --remote $remote
+  pbench-register-tool --label=$label --name=disk --remote $remote
+  pbench-register-tool --label=$label --name=perf --remote $remote
   if [ "$group"  == "master" ]; then
-    pbench-register-tool --label=$label --name=sar --remote $remote
-    pbench-register-tool --label=$label --name=iostat --remote $remote
-    pbench-register-tool --label=$label --name=pidstat --remote $remote
     pbench-register-tool --label=$label --name=oc --remote $remote
     pbench-register-tool --label=$label --name=pprof --remote $remote -- --osecomponent=master --interval=$ose_master_interval
-  else
-    pbench-register-tool --label=$label --name=sar --remote $remote
-    pbench-register-tool --label=$label --name=iostat --remote $remote
-    pbench-register-tool --label=$label --name=pidstat --remote $remote
+    pbench-register-tool --label=$label --name=haproxy-ocp --remote $remote -- --interval=$ose_master_interval --counters-clear-all
+    # register the tool only when the status is unregistered, this ensures the tool is running on just one master to avoid duplication of data
+    if [[ "$prometheus_metrics_status" == "unregistered" ]]; then
+      pbench-register-tool --label=$label --name=prometheus-metrics --remote $remote -- --inventory=$inventory_file_path
+      prometheus_metrics_status=registered
+    fi
   fi
-  if [ "$group" == "node" ]; then
+  if [ "$group" == "node" ] || [ "$group" == "cns" ]; then
     pbench-register-tool --label=$label --name=pprof --remote $remote -- --osecomponent=node --interval=$ose_node_interval
   fi
 done 11< $hosts

@@ -104,7 +104,7 @@ if [[ $? -ne 0 ]]; then
 	exit 1
 fi
 
-benchmark_fullname="${benchmark}_${config}_${date}"
+benchmark_fullname="${benchmark}_${config}_${date_suffix}"
 benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
 benchmark_summary_txt_file="$benchmark_run_dir/$benchmark-summary.txt"
@@ -124,6 +124,7 @@ export benchmark config
 
 count=1
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 if [ $stress ]; then
 	if [ ! -z "$cpu" ]; then
 		taskset -c $cpu stress -c 1 &
@@ -160,6 +161,7 @@ done
 if [ $stress ]; then
 	kill $stress_pid
 fi
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 cat $benchmark_summary_txt_file
 

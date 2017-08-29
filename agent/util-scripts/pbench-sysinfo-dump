@@ -4,6 +4,7 @@
 script_path=`dirname $0`
 script_name=`basename $0`
 pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+sysinfo=$2
 
 # source the base script
 . "$pbench_bin"/base
@@ -18,7 +19,7 @@ if [[ ! -d "$dir" ]]; then
 	exit 1
 fi
 
-label=$2
+label=$3
 if [[ -z "$label" ]]; then
     dir="$dir/$hostname"
 else
@@ -95,10 +96,33 @@ function collect_sos {
 	fi
 }
 
-collect_kernel_config &
-collect_libvirt &
-collect_topology &
-collect_sos &
-collect_block &
+function collect_ara_data {
+	# collect data only when ara is installed
+	if python -c "import ara" &>/dev/null; then
+		mkdir $dir/ara
+		generate_inventory > $INVENTORY
+		ansible-playbook -i ${INVENTORY} --extra-vars '{"SYSINFO_DIR":"'$dir'"}' "$pbench_install_dir/ansible/ara/ara.yml"
+	else
+		debug_log "[$script_name]skipping, $item not installed"
+	fi
+}
+
+for item in ${sysinfo//,/ };do
+	if [[ "$item" == "kernel_config" ]]; then
+		collect_kernel_config &
+	elif [[ "$item" == "libvirt" ]]; then
+		collect_libvirt &
+	elif [[ "$item" == "topology" ]]; then
+		collect_topology &
+	elif [[ "$item" == "sos" ]]; then
+		collect_sos &
+	elif [[ "$item" == "block" ]]; then
+		collect_block &
+	elif [[ "$item" == "ara" ]]; then
+		collect_ara_data &> $pbench_log
+	else
+		debug_log "[$script_name]bad sysinfo value"
+	fi
+done
 wait
 chmod -R 775 $dir

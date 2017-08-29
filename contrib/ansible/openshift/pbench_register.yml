@@ -6,11 +6,14 @@
     - ose_master_interval: "{{ OSE_MASTER_INTERVAL|default('10') }}"
     - ose_node_interval: "{{ OSE_NODE_INTERVAL|default('10') }}"
     - file: /run/pbench/register.hosts
+    - inventory_file_path: /root/inv
   tasks:
     - name: create pbench directory
       file: path=/run/pbench state=directory
+
     - name: clear file contents
       file: path={{ file }} state=absent
+
     - name: copy, set permissions on the register script
       copy:
         src: register.sh
@@ -18,20 +21,65 @@
         owner: root
         group: root
         mode: 0755
+
     - name: add masters to the file
-      shell: echo -e {{ item.1 }} master {{ item.0 }} svt_master_{{ item.0}} >> {{ file }}
+      shell: echo -e {{ item.1 }} master {{ item.0 }} >> {{ file }}
       with_indexed_items:
        - "{{ groups['masters'] }}"
+      when: groups['masters']|default([])
+
     - name: add nodes to the file
-      shell: echo -e {{ item.1 }} node {{ item.0 }} svt_node_{{ item.0}} >> {{ file }}
+      shell: echo -e {{ item.1 }} node {{ item.0 }} >> {{ file }}
       with_indexed_items: 
        - "{{ groups['nodes'][-1] }}" 
        - "{{ groups['nodes'][-2] }}"
+      when: groups['nodes']|default([]) and not ( register_all_nodes | default(False) | bool )
+    
+    #  registers tools on the nodes with the following label openshift_node_labels="{'region': 'infra'} in the inventory
+    #  along with the last two nodes when register_all_nodes is set to False in the inventory
+    - name: add infra nodes to the file
+      shell: index=1; for infra in $(cat {{ inventory_file }} | grep -w "'region'":" 'infra'" | cut -d ' ' -f1); do echo -e $infra infra $index >> {{ file }} && ((index+=1)); done
+      when: groups['nodes']|default([]) and not ( register_all_nodes | default(False) | bool )
+
+    - name: add cns nodes to file
+      shell: echo -e {{ item.1 }} cns {{ item.0 }} >> {{ file }}
+      with_indexed_items:
+       - "{{ groups['glusterfs'] }}"
+      when: groups['glusterfs']|default([])
+
+    - name: add nodes to the file
+      shell: echo -e {{ item.1 }} node {{ item.0 }} >> {{ file }}
+      with_indexed_items:
+       - "{{ groups['nodes'] }}"
+      when: groups['nodes']|default([]) and ( register_all_nodes | default(False) | bool )
+
     - name: add etcd nodes to the file
-      shell: echo -e {{ item.1 }} etcd {{ item.0 }} svt_etcd_{{ item.0 }} >> {{ file }}
+      shell: echo -e {{ item.1 }} etcd {{ item.0 }} >> {{ file }}
       with_indexed_items: "{{ groups['etcd'] }}"
+      when: groups['etcd']|default([])
+
     - name: add lb to the file
-      shell: echo -e {{ item.1}} lb {{ item.0 }} svt_lb_{{ item.0}} >> {{ file }}
+      shell: echo -e {{ item.1}} lb {{ item.0 }} >> {{ file }}
       with_indexed_items: "{{ groups['lb'] }}"
+      when: groups['lb']|default([])
+
+    - name: copy inventory file to pbench-controller
+      copy:
+        src: "{{ inventory_file }}"
+        dest: "{{ inventory_file_path }}"
+
+    - name: copy inventory file to master
+      shell: scp {{ inventory_file_path }} {{ item }}:{{ inventory_file_path }}
+      with_items:
+        - "{{ groups['masters'] }}"
+
     - name: register tools
-      shell: sh /run/pbench/register.sh {{ default_tools_interval }} {{ ose_master_interval }} {{ ose_node_interval }} {{ file }}
+      shell: sh /run/pbench/register.sh {{ default_tools_interval }} {{ ose_master_interval }} {{ ose_node_interval }} {{ file }} {{ inventory_file_path }}
+
+    - name: create .kube directory to store config file
+      file: path={{ ansible_env.HOME }}/.kube state=directory
+    
+    - name: get kube config from openshift master
+      shell: scp {{ item }}:{{ ansible_env.HOME }}/.kube/config {{ ansible_env.HOME }}/.kube/
+      with_items:
+        - "{{ groups['masters'][0] }}"

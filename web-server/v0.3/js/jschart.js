@@ -16,6 +16,11 @@
 //     https://github.com/mbostock/d3 -- API version 3
 //     https://github.com/d3/d3-queue -- API version 3
 //     https://github.com/exupero/saveSvgAsPng
+//
+// This library supports the override of some paramters via the URL.
+// For example:
+//
+//     page.html?threshold=5&threshold_invalidate_on_load=true
 
 /*
 
@@ -441,6 +446,34 @@ Here is a summary of each parameter:
 
 */
 
+function load_jschart_override_options() {
+    var imported_options = {};
+    var loaded_options = {};
+
+    window.location.search.slice(1).split("&").forEach(function(item) {
+	var pieces = item.split("=");
+	imported_options[pieces[0]] = pieces[1];
+    })
+
+    if (imported_options.threshold !== undefined) {
+	loaded_options.threshold = +imported_options.threshold;
+	console.log("Found override: threshold=%f", loaded_options.threshold);
+    }
+
+    if (imported_options.threshold_invalidate_on_load !== undefined) {
+	if (imported_options.threshold_invalidate_on_load === "true" || imported_options.threshold_invalidate_on_load === "TRUE") {
+	    loaded_options.threshold_invalidate_on_load = true;
+	} else {
+	    loaded_options.threshold_invalidate_on_load = false;
+	}
+	console.log("Found override: threshold_invalidate_on_load=%s", loaded_options.threshold_invalidate_on_load);
+    }
+
+    return loaded_options;
+}
+
+var jschart_override_options = load_jschart_override_options();
+
 // array to store objects for each chart, with references to often used variables
 var charts = [];
 
@@ -826,6 +859,10 @@ function chart(charts, title, stacked, data_model, x_axis_title, y_axis_title, l
     if (!this.stacked && (options.scatterplot !== undefined) && options.scatterplot) {
 	this.options.scatterplot = true;
     }
+
+    if (jschart_override_options.threshold !== undefined) {
+	this.options.hide_dataset_threshold = jschart_override_options.threshold;
+    }
 }
 
 function compute_stacked_median(chart) {
@@ -970,8 +1007,15 @@ function parse_plot_file(chart, datasets_index, text) {
 
     if (chart.options.hide_dataset_threshold &&
 	(chart.datasets.all[i].max_y_value < chart.options.hide_dataset_threshold)) {
+	if (jschart_override_options.threshold_invalidate_on_load !== undefined &&
+	    jschart_override_options.threshold_invalidate_on_load) {
+	    chart.datasets.all[i].invalid = true;
+	    chart.datasets.all[i].values = [];
+	} else {
+	    chart.state.visible_datasets--;
+	}
+
 	chart.datasets.all[i].hidden = true;
-	chart.state.visible_datasets--;
     }
 }
 
@@ -1250,8 +1294,15 @@ function load_json(chart, callback) {
 
 		if (chart.options.hide_dataset_threshold &&
 		    (chart.datasets.all[i].max_y_value < chart.options.hide_dataset_threshold)) {
+		    if (jschart_override_options.threshold_invalidate_on_load !== undefined &&
+			jschart_override_options.threshold_invalidate_on_load) {
+			chart.datasets.all[i].invalid = true;
+			chart.datasets.all[i].values = [];
+		    } else {
+			chart.state.visible_datasets--;
+		    }
+
 		    chart.datasets.all[i].hidden = true;
-		    chart.state.visible_datasets--;
 		}
 	    }
 
@@ -1387,8 +1438,15 @@ function load_csv_files(url, chart, callback) {
 
 		    if (chart.options.hide_dataset_threshold &&
 			(chart.datasets.all[i].max_y_value < chart.options.hide_dataset_threshold)) {
+			if (jschart_override_options.threshold_invalidate_on_load !== undefined &&
+			    jschart_override_options.threshold_invalidate_on_load) {
+			    chart.datasets.all[i].invalid = true;
+			    chart.datasets.all[i].values = [];
+			} else {
+			    chart.state.visible_datasets--;
+			}
+
 			chart.datasets.all[i].hidden = true;
-			chart.state.visible_datasets--;
 		    }
 		}
 
@@ -4054,9 +4112,19 @@ function sort_table_by_value(chart) {
 
 function datarow_sort(a, b) {
     if (!a.invalid && b.invalid) {
-	return 1;
+	if (jschart_override_options.threshold_invalidate_on_load !== undefined &&
+	    jschart_override_options.threshold_invalidate_on_load) {
+	    return -1;
+	} else {
+	    return 1;
+	}
     } else if (a.invalid && !b.invalid) {
-	return -1;
+	if (jschart_override_options.threshold_invalidate_on_load !== undefined &&
+	    jschart_override_options.threshold_invalidate_on_load) {
+	    return 1;
+	} else {
+	    return -1;
+	}
     } else if (a.invalid && b.invalid) {
 	return 0;
     } else if (!a.hidden && b.hidden) {
@@ -4074,9 +4142,19 @@ function datarow_sort(a, b) {
 
 function datarow_sort_by_value(a, b) {
     if (!a.invalid && b.invalid) {
-	return 1;
+	if (jschart_override_options.threshold_invalidate_on_load !== undefined &&
+	    jschart_override_options.threshold_invalidate_on_load) {
+	    return -1;
+	} else {
+	    return 1;
+	}
     } else if (a.invalid && !b.invalid) {
-	return -1;
+	if (jschart_override_options.threshold_invalidate_on_load !== undefined &&
+	    jschart_override_options.threshold_invalidate_on_load) {
+	    return 1;
+	} else {
+	    return -1;
+	}
     } else if (a.invalid && b.invalid) {
 	return 0;
     } else if (!a.hidden && b.hidden) {
@@ -4096,9 +4174,19 @@ function datarow_sort_by_value(a, b) {
 
 function dataset_sort(a, b) {
     if (!a.invalid && b.invalid) {
-	return 1;
+	if (jschart_override_options.threshold_invalidate_on_load !== undefined &&
+	    jschart_override_options.threshold_invalidate_on_load) {
+	    return -1;
+	} else {
+	    return 1;
+	}
     } else if (a.invalid && !b.invalid) {
-	return -1;
+	if (jschart_override_options.threshold_invalidate_on_load !== undefined &&
+	    jschart_override_options.threshold_invalidate_on_load) {
+	    return 1;
+	} else {
+	    return -1;
+	}
     } else if (a.invalid && b.invalid) {
 	return 0;
     } else {
@@ -4108,9 +4196,19 @@ function dataset_sort(a, b) {
 
 function dataset_histogram_sort(a, b) {
     if (!a.invalid && b.invalid) {
-	return 1;
+	if (jschart_override_options.threshold_invalidate_on_load !== undefined &&
+	    jschart_override_options.threshold_invalidate_on_load) {
+	    return -1;
+	} else {
+	    return 1;
+	}
     } else if (a.invalid && !b.invalid) {
-	return -1;
+	if (jschart_override_options.threshold_invalidate_on_load !== undefined &&
+	    jschart_override_options.threshold_invalidate_on_load) {
+	    return 1;
+	} else {
+	    return -1;
+	}
     } else if (a.invalid && b.invalid) {
 	return 0;
     } else {
@@ -4304,7 +4402,8 @@ function display_help() {
     help += "Datasets highlighted in yellow in the table have been marked as invalid due to a problem while loading.  These datasets are permanently hidden and will ignore many user initiated events.\n\n";
     help += "There is a hidden control panel the table marked as \"Misc. Controls\".  The panel can be unhidden/hidden by clicking the row with the panel title.  Currently this panel contains a control for enabling/disabling the live sorting of the datasets in the table while the cursor is scrolling through the view port.\n\n";
     help += "There is a hidden control panel in the table marked as \"View Port Controls\".  The panel can be unhidden/hidden by clicking the row with the panel title.  This panel can be used to manipulate the view port beyond what is possible with the normal zooming and panning controls.  Setting the X or Y axis minimum and maximum values will reset the scales to these values instead of basing them on the viewable data.  These controls are probably only useful in select scenarios such as when there are significant outliers or when extreme zooming is desired.  Clamping can also be enabled and disabled (default) on each axis in order to avoid potential rendering issues such as datasets not appearing when they should (very rare but happens sometimes when a dataset has a large outlier).\n\n";
-    help += "When the page has completed generating all charts, the background will change colors to signal that loading is complete.\n";
+    help += "When the page has completed generating all charts, the background will change colors to signal that loading is complete.\n\n";
+    help += "The chart behavior that is specified by the page developer can be altered by the user via special URL override parameters.  This is most often used to handle extremely large datasets that may cause page performance to be very slow or even  for the page to crash the browser and/or browser tab.  Currently the threshold value for the page's graphs can be altered and dataset's which fall below the threshold can also be marked as invalid to lower page resource requirements.  This can be accomplished by adding paramters to the page URL such as in this example: page.html?threshold=5&threshold_invalidate_on_load=true\n";
 
     console.log(help);
     alert(help);

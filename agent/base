@@ -90,13 +90,16 @@ if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
     # to check whether we need to set it.
     if [ -z "$date" -o -z "$_PBENCH_DATE_SET" ] ;then
         # don't use ns in the date
-        export date=`date --utc +"${TS_FORMAT}"`
+        export date=$(date --utc +"${TS_FORMAT}")
         export _PBENCH_DATE_SET=1
     fi
+    # don't use colons and dashes in the date suffix
+    export date_suffix=$(date --date ${date} --utc +"%Y.%m.%dT%H.%M.%S")
     hostname=`hostname -s`
     full_hostname=`hostname`
 else
-    date="1900-01-01T00:00:00"
+    export date="1900-01-01T00:00:00"
+    export date_suffix="1900.01.01T00.00.00"
     hostname="testhost"
     full_hostname="testhost.example.com"
 fi
@@ -168,7 +171,7 @@ if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
 	    yum --debuglevel=0 install -y ${this_rpm}$this_version >> $pbench_log 2>&1
 	    rc=$?
         else
-	    local installed_rpm_version=`echo $rpm_status | awk -F- '{print $2"-"$3}'`
+           local installed_rpm_version=`rpm -q --qf "-%{VERSION}" ${this_rpm}`
 	    if [ ! -z "$this_version" -a "$this_version" != "$installed_rpm_version" ]; then
 	        yum --debuglevel=0 install -y ${this_rpm}$this_version >> $pbench_log 2>&1
 	        rc=$?
@@ -194,18 +197,28 @@ else
 fi
 
 function verify_tool_group {
-	local group=$1
-	if [ -z "$group" ]; then
-		error_log "Bad argument to verify_tool_group"
-		exit 1
-	fi
-	# Ensure we have a tools group directory to work with
-	tool_group_dir="$pbench_run/tools-$group"
-	if [ ! -d "$tool_group_dir" ]; then
-		error_log "Unable to find default tools group directory, $tool_group_dir"
-		exit 1
-	fi
-	return 0
+    local group=$1
+    if [ -z "$group" ]; then
+	error_log "Bad argument to verify_tool_group"
+	exit 1
+    fi
+    # Ensure we have a tools group directory to work with
+    tool_group_dir="$pbench_run/tools-$group"
+    if [ ! -d "$tool_group_dir" ]; then
+	error_log "Unable to find default tools group directory, $tool_group_dir"
+	exit 1
+    fi
+    return 0
+}
+
+# generate inventory file with controller and remotes
+export INVENTORY=/tmp/inventory.$$
+trap "rm -f $INVENTORY" QUIT INT EXIT
+function generate_inventory {
+	echo "[controller]"
+	echo $HOSTNAME
+	echo "[remote]"
+	ls $tools_group_dir | awk -F@ '/^remote/ {print $2};'
 }
 
 if [[ "${_PBENCH_BENCH_TESTS}" == 1 ]] ;then

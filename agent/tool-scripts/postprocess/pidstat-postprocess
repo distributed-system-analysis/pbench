@@ -134,6 +134,8 @@ while ($line = <PIDSTAT_TXT>) {
 		$cmd =~ s/\s/_/g;
 		$cmd =~ s/\'//g;
 		$cmd =~ s/\"//g;
+                # commas cause problems in the CSV files.
+                $cmd =~ s/,//g;
 		# avoid 'Invalid conversion in printf: "%=" ' errors if cmd contains a %.
 		$cmd =~ s/%/%%/g;
 		$pid = $pid . "-". $cmd;

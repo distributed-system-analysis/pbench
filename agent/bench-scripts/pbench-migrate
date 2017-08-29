@@ -308,13 +308,14 @@ function do_migrate() {
 	pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
 }
 
+export benchmark_run_dir=""
 if [ "$postprocess" = "only" ]; then
 	# user provides directory for previous test
 	benchmark_fullname=$(basename $benchmark_data_dir)
 	benchmark_run_dir="$benchmark_data_dir"
 else
 	config="from_${src_host}_to_${dest_host}--$config"
-	benchmark_fullname="${benchmark}_${config}_${date}"
+	benchmark_fullname="${benchmark}_${config}_${date_suffix}"
 	benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 fi
 benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
@@ -330,6 +331,7 @@ fi
 count=1
 export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 for i in `seq 1 $loops`; do
 	iteration="$count-from-$src_host-to-$dest_host"
 	echo $iteration >> $benchmark_iterations
@@ -371,6 +373,7 @@ for postprocess_dir in $postprocess_dirs; do
 	pbench-postprocess-tools --group=$tool_group --dir=$postprocess_dir &
 done
 wait
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 
 rmdir $benchmark_run_dir/.running

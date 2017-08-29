@@ -1,0 +1,28 @@
+#! /bin/bash
+
+# unit test script to be called by user-benchmark-wrapper
+# Depending on arguments, it can produce a normal json
+# file with no duration, a normal json file with duration,
+# a badly formatted json file, or no json file at all.
+
+arg=$1
+json='
+        "this": "that",
+        "that": "tother"'
+
+file=$benchmark_run_dir/user-benchmark-summary.json
+
+case $arg in
+    no-file)
+        exit 0
+        ;;
+    no-duration)
+        printf "{%s\n        }\n" "$json" > $file
+        ;;
+    with-duration)
+        printf "{%s,\n        \"duration\": 10,\n        \"duration-units\": \"sec\"\n        }\n" "$json" > $file
+        ;;
+     bad-format)
+        printf "{%s\n" "$json" > $file
+        ;;
+esac
