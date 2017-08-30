@@ -94,6 +94,8 @@ while (my $line = <TXT>) {
 if ($pmd_thread_id ne "") {
 	$pmd_mappings{$pmd_thread_id} = $portqueue;
 }
+# create one more for "main" thread
+$pmd_mappings{"main"} = '';
 close TXT;
 
 open(TXT, "$dir/$stats_file_name") || die "could not find $dir/$stats_file_name\n";
@@ -171,6 +173,15 @@ while (my $line = <TXT>) {
 		next;
 	}
 
+	#main thread:
+	if ($line =~ /^main thread:/ ) {
+		my $node = $1;
+		my $cpu = $2;
+		$stats_mode = "dpdk";
+		$pmd_thread_id = "main";
+		next;
+	}
+
 	#pmd thread numa_id 0 core_id 2:
 	if ($line =~ /^pmd thread numa_id (\d+) core_id (\d+):/ ) {
 		my $node = $1;
@@ -183,36 +194,57 @@ while (my $line = <TXT>) {
 	if ($line =~ /^\s+port\s+(\S+):(.*)/ ) {
 		$port = $1;
 		$line = $2;
+		next;
+	}
+
+	#       polling cycles:0 (0.00%)
+	if ( $line =~ /\s*polling\scycles:\s*\d+\s+\((\d+\.\d+)\%\)/ and $stats_mode eq "dpdk" ) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-polling-utilization-percent"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a PMD polling utilization percent stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+		}
+		next;
 	}
 
 	#       processing cycles:0 (0.00%)
 	if ( $line =~ /\s*processing\scycles:\s*\d+\s+\((\d+\.\d+)\%\)/ and $stats_mode eq "dpdk" ) {
-		if ($pmd_mappings{$pmd_thread_id}) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
 			$rate{"openvswitch"}{"PMDthread-processing-utilization-percent"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a PMD processing utilization percent stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
 		}
-
+		next;
 	}
 
 	#	avg processing cycles per packet: 618.17 (2612413532/4226062)
 	if ( $line =~ /\s*avg\sprocessing\scycles\sper\spacket:\s*(\d+\.\d+)/ and $stats_mode eq "dpdk" ) {
-		if ($pmd_mappings{$pmd_thread_id}) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
 			$rate{"openvswitch"}{"PMDthread-processing-cycles-per-packet"}{$pmd_thread_id. $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a processing cycles per packet stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
 		}
-
+		next;
 	}
 
 	#       emc hits:0
 	if ( $line =~ /\s*emc\shits:\s*(\d+)/ and $stats_mode eq "dpdk" ) {
-		if ($pmd_mappings{$pmd_thread_id}) {
-			$rate{"openvswitch"}{"PMDemc-hits"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-emc-hits"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a emc hits stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
 		}
+		next;
 	}
 
 	#       megaflow hits:0
 	if ( $line =~ /\s*megaflow\shits:\s*(\d+)/ and $stats_mode eq "dpdk" ) {
-		if ($pmd_mappings{$pmd_thread_id}) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
 			$rate{"openvswitch"}{"PMDmegaflow-hits"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a megaflow hit stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
 		}
+		next;
 	}
 	
 	#           tx pkts=49, bytes=3108, drop=0, errs=0, coll=?
@@ -232,23 +264,33 @@ while (my $line = <TXT>) {
 				}
 			}
 		}
+		next;
 	}
 	# cookie=0xb9a6deb9663c7428, duration=76802.555s, table=0, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=10,icmp6,in_port=12,icmp_type=136 actions=resubmit(,24)
-	if ( $line =~ /\s*cookie=0x([0-9a-f]+),\sduration=(\d+\.\d+)s,\stable=(\d+),\sn_packets=(\d+),\sn_bytes=(\d+),\sidle_age=(\d+),\shard_age=(\d+),\s(\S+)\s(\S+)/ and $stats_mode eq "bridge" ) {
+	# cookie=0x0, duration=8309.936s, table=0, n_packets=1748622468, n_bytes=104917444080, idle_age=24, in_port=1 actions=output:2
+	# cookie=0x0, duration=24917s, table=0, n_packets=2112658689, n_bytes=126759809020, idle_age=0, in_port=1 actions=output:2
+	if ( $line =~ /\s*cookie=0x([0-9a-f]+),\sduration=([0-9.]+)s,\stable=(\d+),\sn_packets=(\d+),(\s\S+=\d+,)*\s(\S+)\s(\S+)/ and $stats_mode eq "bridge" ) {
 		my $cookie = $1;
 		my $duration = $2;
 		my $table = $3;
 		my $n_packets = $4;
-		my $n_bytes = $5;
-		my $idle_age = $6;
-		my $hard_age = $7;
-		my $match = $8;
-		my $action = $9;
+		my $extra = $5;
+		my $match = $6;
+		my $action = $7;
 		$match =~ s/,/:/g;
 		$action =~ s/,/_/g;
 		my $flow_id = "t" . $table . ":" . $match . "::" . $action . "-packets";
 		$flow_data{$bridge}{$flow_id}{$timestamp_ms} = $n_packets;
+		next;
 	}
+
+	if ( $line =~ /avg\scycles\sper\spacket/ or $line =~ /OFPST_PORT/ or $line =~ /NXST_FLOW/ or $line =~ /OFPST_PORT/ or $line =~ /NXST_FLOW/ or
+	     $line =~ /dpdk-stats:\spmd-stats-show/ or $line =~ /avg\.\ssubtable\slookups\sper\shit/ or $line =~ /miss:/ or $line =~ /lost:/ or
+	     $line =~ /main\sthread:/ or $line eq "") {
+		next;
+	}
+
+	printf "found no match for this line [%s]\n", $line;
 }
 close(TXT);
 
