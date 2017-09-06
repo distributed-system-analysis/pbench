@@ -6,6 +6,9 @@ bridges_file=$dir/bridges.txt
 stats_file=$dir/ovs-stats.txt
 rxq_mapping_file=$dir/pmd-rxq-show.txt
 
+info_file=$dir/ovs-info.txt
+ovs-vsctl show >$info_file
+
 bridges=`ovs-vsctl list-br`
 echo "$bridges" >$bridges_file
 # mapping below used in postprocess
