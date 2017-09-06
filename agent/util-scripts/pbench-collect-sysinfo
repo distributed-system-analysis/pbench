@@ -96,6 +96,11 @@ while true; do
 	esac
 done
 
+# if unspecified, collect the default sysinfo
+if [ -z "$sysinfo" ] ;then
+	sysinfo=default
+fi
+
 # check if the input sysinfo parameter passed by the user is a valid option or not
 if $check; then
 	if [ "$sysinfo" == "all" ] || [ "$sysinfo" == "default" ] || [ "$sysinfo" == "none" ]; then
