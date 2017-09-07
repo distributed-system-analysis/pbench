@@ -285,7 +285,7 @@ while (my $line = <TXT>) {
 
 	if ( $line =~ /avg\scycles\sper\spacket/ or $line =~ /OFPST_PORT/ or $line =~ /NXST_FLOW/ or $line =~ /OFPST_PORT/ or $line =~ /NXST_FLOW/ or
 	     $line =~ /dpdk-stats:\spmd-stats-show/ or $line =~ /avg\.\ssubtable\slookups\sper\shit/ or $line =~ /miss:/ or $line =~ /lost:/ or
-	     $line =~ /main\sthread:/ or $line eq "") {
+	     $line =~ /main\sthread:/ or $line =~ /OFPST_FLOW/ or $line =~ /^\s*duration=/ or $line eq "") {
 		next;
 	}
 
