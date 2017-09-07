@@ -194,7 +194,6 @@ while (my $line = <TXT>) {
 	if ($line =~ /^\s+port\s+(\S+):(.*)/ ) {
 		$port = $1;
 		$line = $2;
-		next;
 	}
 
 	#       polling cycles:0 (0.00%)
