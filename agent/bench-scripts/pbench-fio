@@ -444,7 +444,11 @@ function fio_install() {
 # install python-pandas on the controller: fiologparser_hist.py needs it
 function pandas_install() {
 	if [ "$postprocess_only" = "n" ]; then
-		if check_install_rpm python-pandas; then
+		pandas_pkg=$(getconf.py pandas-package packages)
+		if [[ -z ${pandas_pkg} ]] ;then
+			return 1
+		fi
+		if check_install_rpm ${pandas_pkg}; then
 			debug_log "[$script_name]python-pandas is installed"
 		else
 			debug_log "[$script_name]python-pandas installation failed, exiting."
@@ -745,6 +749,11 @@ fio_install
 # pandas installed only on controller
 if [ "$remote_only" = "n" ] ;then
 	pandas_install
+	sts=$?
+	if [[ $sts != 0 ]] ;then
+		echo "Could not install pandas package"
+		exit $sts
+	fi
 fi
 if [ "$install_only" = "y" ]; then
 	exit 0
