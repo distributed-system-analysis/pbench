@@ -191,9 +191,29 @@ while (my $line = <TXT>) {
 		next;
 	}
 	#  port  1: rx pkts=0, bytes=0, drop=0, errs=0, frame=?, over=?, crc=?
-	if ($line =~ /^\s+port\s+(\S+):(.*)/ ) {
+	if ($line =~ /^\s+port\s+(\S+):(.*)/ and $stats_mode eq "bridge" and $stats_type eq "dump-ports") {
 		$port = $1;
 		$line = $2;
+	}
+
+	#           tx pkts=49, bytes=3108, drop=0, errs=0, coll=?
+	if ( $line =~ /\s*([r|t]x)(.*)/ and $stats_mode eq "bridge" and $stats_type eq "dump-ports") {
+		my $direction = $1;
+		$line = $2;
+		my @stats = split(/,/, $line);
+		my $stat;
+		foreach $stat (@stats) {
+			$stat =~ s/^\s+//;
+			$stat =~ s/\s/_/g;
+			if ($stat =~ /(\S+)=(\S+)/) {
+				my $s = $1;
+				my $v = $2;
+				if ($v !~ /\?/) {
+					$bridge_data{$bridge}{$port}{$direction . "-" . $s}{$timestamp_ms} = $v;
+				}
+			}
+		}
+		next;
 	}
 
 	#       polling cycles:0 (0.00%)
@@ -245,30 +265,10 @@ while (my $line = <TXT>) {
 		}
 		next;
 	}
-	
-	#           tx pkts=49, bytes=3108, drop=0, errs=0, coll=?
-	if ( $line =~ /\s*([r|t]x)(.*)/ and $stats_mode eq "bridge" ) {
-		my $direction = $1;
-		$line = $2;
-		my @stats = split(/,/, $line);
-		my $stat;
-		foreach $stat (@stats) {
-			$stat =~ s/^\s+//;
-			$stat =~ s/\s/_/g;
-			if ($stat =~ /(\S+)=(\S+)/) {
-				my $s = $1;
-				my $v = $2;
-				if ($v !~ /\?/) {
-					$bridge_data{$bridge}{$port}{$direction . "-" . $s}{$timestamp_ms} = $v;
-				}
-			}
-		}
-		next;
-	}
 	# cookie=0xb9a6deb9663c7428, duration=76802.555s, table=0, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=10,icmp6,in_port=12,icmp_type=136 actions=resubmit(,24)
 	# cookie=0x0, duration=8309.936s, table=0, n_packets=1748622468, n_bytes=104917444080, idle_age=24, in_port=1 actions=output:2
 	# cookie=0x0, duration=24917s, table=0, n_packets=2112658689, n_bytes=126759809020, idle_age=0, in_port=1 actions=output:2
-	if ( $line =~ /\s*cookie=0x([0-9a-f]+),\sduration=([0-9.]+)s,\stable=(\d+),\sn_packets=(\d+),(\s\S+=\d+,)*\s(\S+)\s(\S+)/ and $stats_mode eq "bridge" ) {
+	if ( $line =~ /\s*cookie=0x([0-9a-f]+),\sduration=([0-9.]+)s,\stable=(\d+),\sn_packets=(\d+),(\s\S+=\d+,)*\s(\S+)\s(\S+)/ and $stats_mode eq "bridge" and $stats_type eq "dump-flows") {
 		my $cookie = $1;
 		my $duration = $2;
 		my $table = $3;
@@ -288,8 +288,7 @@ while (my $line = <TXT>) {
 	     $line =~ /main\sthread:/ or $line =~ /OFPST_FLOW/ or $line =~ /^\s*duration=/ or $line eq "") {
 		next;
 	}
-
-	printf "found no match for this line [%s]\n", $line;
+	print "found unregonozed line: $line\n";
 }
 close(TXT);
 
