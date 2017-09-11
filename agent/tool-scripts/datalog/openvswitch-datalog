@@ -6,12 +6,25 @@ bridges_file=$dir/bridges.txt
 stats_file=$dir/ovs-stats.txt
 rxq_mapping_file=$dir/pmd-rxq-show.txt
 
+info_file=$dir/ovs-info.txt
+ovs-vsctl show >$info_file
+
+bridge=`ovs-vsctl list-br | head -n 1`
+protocol_string=""
+ovs-ofctl show ${bridge} > /dev/null 2>&1
+ret_val=$?
+if [ ${ret_val} != 0 ]; then
+    protocols_string="--protocols OpenFlow13"
+    protocols_file=$dir/ovs-protocols.txt
+    echo "OpenFlow13" >$protocols_file
+fi
+
 bridges=`ovs-vsctl list-br`
 echo "$bridges" >$bridges_file
 # mapping below used in postprocess
 for b in $bridges; do
 	ports_file=$dir/$b-port-mappings.txt
-	ovs-ofctl show $b >$ports_file
+	ovs-ofctl show $b ${protocols_string} >$ports_file
 done
 ovs-appctl dpif-netdev/pmd-rxq-show >$rxq_mapping_file
 
@@ -23,12 +36,7 @@ if [ ! -z "$bridges" ]; then
 			# ovs-ofctl
 			for cmd in dump-ports dump-flows; do
 				echo "bridge: $bridge stats: $cmd" >>$stats_file
-				ovs-ofctl $cmd $bridge >>$stats_file
-				# check exit code and try specific protocol if necessary
-				sts=$?
-				if [[ $sts != 0 ]] ;then
-					ovs-ofctl $cmd --protocols OpenFlow13 $bridge >>$stats_file
-				fi
+				ovs-ofctl $cmd $bridge ${protocols_string} >>$stats_file
 			done
 		done
 		# DPDK stats
