@@ -1,10 +1,68 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys, csv, json, warnings, logging
+import sys, json, warnings, logging, math
 
 input_file = sys.argv[1]
 output_file = sys.argv[2]
 metrics = []
+
+# convert strings to float for elasticsearch visualization
+def convert(metrics_data):
+    if type(metrics_data)==type({}):
+        for key in metrics_data:
+            try:
+                metrics_data[key] = int(metrics_data[key])
+            except:
+                try:
+                   metrics_data[key] = float(metrics_data[key])
+                except:
+                   convert(metrics_data[key])
+
+def convert_value(val):
+    try:
+        val = int(val)
+    except:
+        try:
+            val = float(val)
+        except:
+            val = val
+    return val
+
+# denormalize data for elasticsearch to scale
+def denormalize_data(values):
+    for data in values:
+        add_metric = {}
+        for key,value in data.items():
+            if type(value) == type({}):
+                convert(data[key])
+            else:
+                data[key] = convert_value(value)
+            if 'buckets' in data or 'quantiles' in data:
+                if key != "buckets" and key != "quantiles":
+                    add_metric[key] = convert_value(value)
+            else:
+                denorm_data = {}
+                denorm_data['metric'] = item['name']
+                denorm_data[key] = data[key]
+                denorm_data['value'] = convert_value(data['value'])
+                denorm_data['@timestamp'] = item['@timestamp']
+                denorm_data['type'] = item['type']
+                metrics.append(denorm_data)
+        for key, value in data.items():
+            if key == "buckets" or key == "quantiles":
+                for keys, val in value.items():
+                    if type(val) == type(sys.maxint+1):
+                        val = float(val)
+                    if math.isnan(val):
+                        val = 0
+                    denorm_data = {}
+                    denorm_data['metric'] = item['name']
+                    denorm_data[key] = keys
+                    denorm_data['value'] = val
+                    denorm_data['@timestamp'] = item['@timestamp']
+                    denorm_data['type'] = item['type']
+                    denorm_data.update(add_metric)
+                    metrics.append(denorm_data)
 
 in_file = open(input_file, "r")
 metrics_datalog = in_file.readlines()
@@ -18,23 +76,16 @@ with open(output_file, 'w') as f:
             continue
         values = item['metrics']
         if len(values) == 1:
-            item[item['name']] = values[0].values()[0]
-            del item['name']
-            del item['metrics']
-            metrics.append(item)
+            if len(values[0]) > 1:
+                denormalize_data(values)
+            else:
+                item['metric'] = item['name']
+                item['value'] = convert_value(values[0].values()[0])
+                del item['name']
+                del item['metrics']
+                metrics.append(item)
         elif len(values) > 1:
-            for i in values:
-                add_metric = {}
-                add_metric[item['name']] = i
-                add_metric['@timestamp'] = item['@timestamp']
-                add_metric['type'] = item['type']
-                if "type" in add_metric[item['name']]['labels']:
-                    val = add_metric[item['name']]['labels']['type']
-                    if "*" in add_metric[item['name']]['labels']['type']:
-                        add_metric[item['name']]['labels']['type'] = val.split("*")[1]
-                    if "[]" in add_metric[item['name']]['labels']['type']:
-                        add_metric[item['name']]['labels']['type'] = val.split("[]")[1]
-                metrics.append(add_metric)
+            denormalize_data(values)
         else:
             logging.warn("metric doesn't have a value")
     json.dump(metrics, f, sort_keys=True, indent=4, separators=(',', ':'))
