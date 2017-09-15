@@ -162,7 +162,7 @@ for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v 
 
     tarball="$pbench_run_name.tar.xz"
     echo tar Jcf $tarball $pbench_run_name
-    tar --create --xz --force-local --file="$tarball" "$pbench_run_name"
+    tar --create --force-local "$pbench_run_name" | xz -T0 > "$tarball"
     if [ $? -ne 0 ]; then
         error_log "ERROR: tar failed for $pbench_run/$pbench_run_name, skipping"
         rm -f "$tarball"
