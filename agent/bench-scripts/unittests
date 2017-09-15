@@ -201,9 +201,9 @@ declare -A rundirs=(
     
 )
 declare -A pre=(
-    [test-04]="cp $_tdir/samples/test-04.tar.xz $_testdir/samples"
-    [test-05]="cp $_tdir/samples/test-05.tar.xz $_testdir/samples"
-    [test-06]="cp $_tdir/samples/test-06.tar.xz $_testdir/samples; echo foo bar baz | tr ' ' '\n' > /tmp/foo"
+    [test-04]="cp $_tdir/samples/test-04.tar.xz $_testdir/samples; mkdir -p $_testopt/config;cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
+    [test-05]="cp $_tdir/samples/test-05.tar.xz $_testdir/samples; mkdir -p $_testopt/config;cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
+    [test-06]="cp $_tdir/samples/test-06.tar.xz $_testdir/samples; mkdir -p $_testopt/config;cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg; echo foo bar baz | tr ' ' '\n' > /tmp/foo"
 )
 
 declare -A post=(
