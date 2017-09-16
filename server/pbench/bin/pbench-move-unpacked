@@ -31,13 +31,6 @@ if [[ -z "$mail_recipients" ]] ;then
 fi
 
 log_init $(basename $0)
-logdir=$LOGSDIR/$(basename $0)/$prefix/$TS
-mkdir -p $logdir
-rc=$?
-if [[ $rc != 0 ]] ;then
-    echo Failed: mkdir -p $logdir
-    exit 2
-fi
 
 # make sure only one copy is running.
 # Use 'flock -n $LOCKFILE /home/pbench/bin/pbench-move-unpacked' in the
@@ -158,7 +151,12 @@ function process_tarball {
     echo "$TS: $hostname/$resultname: success - elapsed time (secs): $duration - size (bytes): $size"
 }
 
-job_pool_init 12 0
+# get the concurrency factor from the config file if present - otherwise set it to 1
+njobs=$(getconf.py njobs pbench-move-unpacked)
+if [[ -z $njobs ]] ;then
+    njobs=1
+fi
+job_pool_init $njobs 0
 
 while read size result ;do
     # add a job to the pool for the item
