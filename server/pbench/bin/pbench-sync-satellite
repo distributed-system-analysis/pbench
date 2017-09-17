@@ -81,7 +81,7 @@ fi
 typeset -i nprocessed=0
 typeset -i nfailed_md5=0
 
-unpack="/pbench-local/tmp/unpack"
+unpack=$tmp/unpack
 trap "rm -rf $tmp $unpack" EXIT
 
 mkdir -p $tmp
