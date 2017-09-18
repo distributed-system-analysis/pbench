@@ -35,10 +35,22 @@ case "$script_name" in
 	username="guest"
 	password="guest"
 	;;
+	watches-cluster-health|watches-cluster-stats|watches-nodes-stats)
+	url="http://localhost:9200"
+	sniff=false # do not use ES sniffing by default
+	buffer=true # use python buffering by default
+	# If Basic auth is used then provide username and password
+	username=""
+	password=""
+	# http header parameters are provided they are used for TCL security
+	http_header_username=""
+	http_header_password=""
+	http_header_token=""
+	;;
 esac
 
 # Process options and arguments
-opts=$(getopt -q -o idp --longoptions "username:,password:,interface:,packets:,start-delay:,timeout:,devices:,path:,maxdepth:,pattern:,vm:,dir:,group:,iteration:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o idp --longoptions "url:,username:,password:,interface:,packets:,start-delay:,timeout:,devices:,path:,maxdepth:,pattern:,vm:,dir:,group:,iteration:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"
@@ -73,6 +85,16 @@ if [ $? -ne 0 ]; then
 	if [ "$script_name" == "rabbit" ]; then
 		printf -- "\t--username=str            rabbit user name (default is "$username")\n"
 		printf -- "\t--password=int            rabbit password (default is "$password")\n"
+	fi
+	if [[ $script_name =~ ^watches-(cluster-health|cluster-stats|nodes-stats)$ ]]; then
+		printf -- "\t--url=str                      watches --url (default is "$url")\n"
+		printf -- "\t--sniff=bool                   watches -s (default is "$sniff")\n"
+		printf -- "\t--buffer=bool                  watches -b (default is "$buffer")\n"
+		printf -- "\t--username=str                 watches --username (default is "$username")\n"
+		printf -- "\t--password=str                 watches --password (default is "$password")\n"
+		printf -- "\t--http_header_username=str     watches --header \n"
+		printf -- "\t--http_header_password=str     watches --header \n"
+		printf -- "\t--http_header_token=str        watches --header \n"
 	fi
 	exit 1
 fi
@@ -241,6 +263,9 @@ case "$tool" in
 	disk)
 	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file"
 	;;
+	watches-cluster-health|watches-cluster-stats|watches-nodes-stats)
+	tool_cmd="$script_path/datalog/watches-cli-datalog $tool $interval $tool_stdout_file $url $sniff $buffer $username $password $http_header_username $http_header_password $http_header_token"
+	;;
 esac
 
 function safe_kill() {
@@ -347,6 +372,13 @@ case "$mode" in
 		disk)
 		tool_bin="/usr/bin/df"
 		if [ ! -e $tool_bin ]; then
+			error_log "$tool_bin not installed, exiting"
+			exit 1
+		fi
+		;;
+		watches-cluster-health|watches-cluster-stats|watches-nodes-stats)
+		tool_bin="watches"
+		if ! type $tool_bin > /dev/null ; then
 			error_log "$tool_bin not installed, exiting"
 			exit 1
 		fi
