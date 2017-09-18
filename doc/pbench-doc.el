@@ -25,7 +25,8 @@
 ;;; (setq html-head "")
 (setq org-html-postamble-format '(("en" "<p class=\"date\">Page updated: %T</p>\n")))
 
-(setq publishing-subdirs '("agent" "devel" "release-notes" "server"))
+;(setq publishing-subdirs '("agent" "devel" "release-notes" "server"))
+(setq publishing-subdirs '("agent" "release-notes" "server"))
 
 (defun publishing-entry (project)
   `(,project
