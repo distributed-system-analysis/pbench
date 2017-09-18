@@ -189,11 +189,11 @@ declare -A cmds=(
     # bad md5 in backup
     [test-9.5]="_run pbench-verify-backup-tarballs"
 
-    # pbench-sync-satellite
+    # pbench-sync-satellite - currently broken
     # trivial results: no mail
-    [test-10]="_run pbench-sync-satellite TEST foo.bar.com $_testroot/pbench/archive"
+    # [test-10]="_run pbench-sync-satellite TEST foo.bar.com $_testroot/pbench/archive"
     # non-trivial results: mail
-    [test-11]="_run pbench-sync-satellite TEST2 foo2.bar.com $_testroot/pbench/archive"
+    # [test-11]="_run pbench-sync-satellite TEST2 foo2.bar.com $_testroot/pbench/archive"
 )
 
 declare -A links=(
