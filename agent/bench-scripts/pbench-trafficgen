@@ -687,7 +687,7 @@ if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 	popd >/dev/null
 
 	# start the trex server
-	echo "sarting TRex server"
+	echo "starting TRex server"
 	pushd $trex_dir >/dev/null
 	/bin/rm -f $pbench_tmp/trex_cfg.yaml
 	isolated_cpus=$(cat /sys/devices/system/cpu/nohz_full)
@@ -702,6 +702,21 @@ if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 	fi
 	if [ "${trex_use_l2}" == "y" ]; then
 		trex_config_args+="--force-macs "
+
+		if [ -e /etc/trex_cfg.yaml -a ! -e /etc/trex_cfg.yaml.pbench-backup ]; then
+			mv -v /etc/trex_cfg.yaml /etc/trex_cfg.yaml.pbench-backup
+		fi
+
+		# generate a temporary yaml which is required for MAC discovery
+		echo "- version       : 2" >/etc/trex_cfg.yaml
+		yaml_devices=$(echo $devices | sed -e "s/^/\"/" -e "s/,/\",\"/g" -e "s/$/\"/")
+		echo "  interfaces    : [${yaml_devices}]" >>/etc/trex_cfg.yaml
+		echo "  port_limit    : 2" >>/etc/trex_cfg.yaml
+	else
+		# in case we didn't clean up after ourselves previously...
+		if [ -e /etc/trex_cfg.yaml.pbench-backup ]; then
+			mv -v /etc/trex_cfg.yaml.pbench-backup /etc/trex_cfg.yaml
+		fi
 	fi
 	trex_config_cmd="./dpdk_setup_ports.py -c `echo $devices | sed -e s/,/" "/g` --cores-include ${cpu_list} -o $pbench_tmp/trex_cfg.yaml ${trex_config_args}"
 	echo "configuring trex with: ${trex_config_cmd}"
@@ -950,5 +965,9 @@ if [ $rc -eq 0 ]; then
 fi
 if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 	kill_trex
+
+	if [ "${trex_use_l2}" == "y" ]; then
+		mv -v /etc/trex_cfg.yaml.pbench-backup /etc/trex_cfg.yaml
+	fi
 fi
 rmdir $benchmark_run_dir/.running
