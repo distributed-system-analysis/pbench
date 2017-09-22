@@ -77,10 +77,13 @@ echo $TS
 
 # get the list of files we'll be operating on - sort them by size
 list=$UNPACK_PATH/pbench-unpack-tarballs.$$
-mail_content=$UNPACK_PATH/mail_content.log
+tmp=$TMP/$PROG.$$
+mail_content=$tmp/mail_content.log
 find $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | grep -v DUPLICATE | sed 's/\/'$linksrc'//' | sort -n > $list
 
-trap 'rm -f $list $mail_content' EXIT INT QUIT
+trap 'rm -rf $list $tmp' EXIT INT QUIT
+
+mkdir -p $tmp
 
 typeset -i ntb=0
 typeset -i ntotal=0
