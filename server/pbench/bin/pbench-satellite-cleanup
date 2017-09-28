@@ -42,27 +42,48 @@ trap "rm -rf $tmp" EXIT
 mkdir -p "$tmp"
 
 log_init $(basename $0)
-logdir=$LOGSDIR/$(basename $0)/$prefix/$TS
-mkdir -p "$logdir"
-rc=$?
-if [[ $rc != 0 ]] ;then
-    echo Failed: mkdir -p "$logdir"
-    exit 2
-fi
+
+echo $TS: $PROG starting
 
 hosts="$(for host in $files;do echo ${host%%/*};done | sort -u )"
 tarballs=$(for tarball in $files; do echo ${tarball##*/}; done)
 
+typeset -i ntb=0
+typeset -i nerrs=0
+typeset -i ntberrs=0
+typeset -i nmd5errs=0
+typeset -i nstateerrs=0
+typeset -i nincomingerrs=0
+typeset -i nresultserrs=0
+typeset -i nprefixerrs=0
+
+mail_content=$tmp/mail.log
+
+# Initialize mail content
+> $mail_content
+
 for host in $hosts; do
     pushd $remotearchive/$host >/dev/null || exit 2
     for x in $tarballs; do
+        ntb=$ntb+1
         # remove tar file
         if [ -s $x ]; then
             rm $x
         fi
         rc=$?
         if [ $rc != 0 ]; then
-            echo Failed to remove: $x
+            echo Failed to remove: $remotearchive/$host/$x | tee -a $mail_content >&4 
+            ntberrs=$ntberrs+1
+            # if we fail to remove the tarball, we'll just continue the loop
+            # but we'll send mail with the failure. Hopefully, the next time around
+            # we'll succeed (presumabley because the admins will have taken some action).
+            # OTOH, if we fail to remove any of the other related files/directories, we'll
+            # go on and try to delete the rest of them. If we manage to change the state,
+            # there might be remnants to clean up manually. The error mail will identify those.
+            #
+            # Note that if we do remove the tarball but fail to change the state, this error
+            # will persist until the state is changed manually.
+            continue
         fi
         # remove its md5
         if [ -s $x.md5 ]; then
@@ -70,12 +91,16 @@ for host in $hosts; do
         fi
         rc=$?
         if [ $rc != 0 ]; then
-            echo Failed to remove: $x.md5
+            echo Failed to remove: $remotearchive/$host/$x.md5 | tee -a $mail_content >&4 
+            nmd5errs=$nmd5errs+1
         fi
         # change the state to SATELLITE-DONE
-        mv TO-DELETE/$x SATELLITE-DONE
+        if [ -L TO-DELETE/$x ]; then
+            mv TO-DELETE/$x SATELLITE-DONE
+        fi
         if [ $rc != 0 ]; then
-            echo Failed to move $x from TO-DELETE to SATELLITE-DONE
+            echo Failed to move: $remotearchive/$host/TO-DELETE/$x to SATELLITE-DONE | tee -a $mail_content >&4 
+            nstateerrs=$nstateerrs+1
         fi
         # remove from incoming
         if [ -s $INCOMING/$host/${x%%.tar.xz} ]; then
@@ -83,7 +108,8 @@ for host in $hosts; do
         fi
         rc=$?
         if [ $rc != 0 ]; then
-            echo Failed to remove: $INCOMING/$host/${x%%.tar.xz}
+            echo Failed to remove the tarball from Incoming directory: $INCOMING/$host/${x%%.tar.xz} | tee -a $mail_content >&4 
+            nincomingerrs=$nincomingerrs+1
         fi
         # remove from results
         prefix_value=$(cat ".prefix/prefix.${x%%.tar.xz}")
@@ -91,13 +117,15 @@ for host in $hosts; do
             rm $RESULTS/$host/${x%%.tar.xz}
             rc=$?
             if [ $rc != 0 ]; then
-                echo Failed to remove: $RESULTS/$host/${x%%.tar.xz}
+                echo Failed to remove: $RESULTS/$host/${x%%.tar.xz} | tee -a $mail_content >&4 
+                nresultserrs=$nresultserrs+1
             fi
         elif [ -L $RESULTS/$host/$prefix_value/${x%%.tar.xz} ]; then
             rm -rf $RESULTS/$host/$prefix_value
             rc=$?
             if [ $rc != 0 ]; then
-                echo Failed to remove: $RESULTS/$host/$prefix_value/${x%%.tar.xz}
+                echo Failed to remove: $RESULTS/$host/$prefix_value/${x%%.tar.xz} | tee -a $mail_content >&4 
+                nresultserrs=$nresultserrs+1
             fi
         fi
         # remove prefix if present
@@ -107,9 +135,30 @@ for host in $hosts; do
         fi
         rc=$?
         if [ $rc != 0 ]; then
-            echo Failed to remove: $prefix
+            echo Failed to remove: $prefix | tee -a $mail_content >&4 
+            nprefixerrs=$nprefixerrs+1
         fi
     done
     popd > /dev/null
 done
 
+echo "$TS: $PROG ends: Total $ntb tarballs cleaned up, with $ntberrs tarball removal errors, $nmd5errs md5 file \
+remove errors, $nstateerrs state change errors, $nincomingerrs incoming removal errors, $nresultserrs \
+result removal errors and $nprefixerrs prefix removal errors."
+
+nerrs=$ntberrs+$nmd5errs+$nstateerrs+$nincomingerrs+$nresultserrs+$nprefixerrs
+
+if [[ $nerrs -gt 0 ]]; then
+    subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs total errors"
+    # don't send mail when running unittests
+    if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
+        (echo "Total $ntb tarballs cleaned up, with $ntberrs tarball removal errors, $nmd5errs md5 file \
+        remove errors, $nstateerrs state change errors, $nincomingerrs incoming removal errors, $nresultserrs \
+        result removal errors and $nprefixerrs prefix removal errors.";
+        echo ;
+        cat $mail_content) |
+        mailx -s "$subj" $mail_recipients
+    fi
+fi
+
+exit 0
