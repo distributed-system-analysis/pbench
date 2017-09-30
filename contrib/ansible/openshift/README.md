@@ -32,6 +32,10 @@ Your inventory should have groups of hosts describing the roles they play in the
 
 [glusterfs]
 
+[prometheus-metrics]
+<host> port=8443 cert=<cert> key=<key>
+<host> port=10250 cert=/etc/origin/master/admin.crt key=/etc/origin/master/admin.key
+
 [pbench-controller:vars]
 register_all_nodes=False
 ```
@@ -41,14 +45,12 @@ By default, tools registration is done on only two of the nodes, infra nodes. Se
 Inventory file is copied on to the masters and pbench-controller. It will be available at /root/inv.
 
 ### Monitoring multiple endpoints using prometheus-metrics
-By default the registered prometheus-metrics tool collects metrics from master's metrics endpoint, in case you want to monitor other endpoints, you need to add the endpoints under the [masters] group in the inventory as follows:
+prometheus-metrics tool is registered on the first master, the endpoints to be monitored should be added under the [prometheus-metrics] group in the inventory file as follows:
 ```
-[masters]
+[prometheus-metrics]
 <master> port=<port> cert=<cert> key=<key>
 <endpoint> port=<port> cert=<cert> key=<key>
 ```
-
-Note: if the port, cert and key are not defined, prometheus-metrics uses default values i.e  port=8443, cert=/etc/origin/master/admin.crt, key=/etc/origin/master/admin.key
 
 ### Accessing OpenShift Cluster
 Kube config file is copied from the master node on to the pbench-controller. So you should be able to run oc commands and clusterloader from pbench-controller node.

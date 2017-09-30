@@ -138,8 +138,6 @@ tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
 tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
 tool_stderr_file=$tool_output_dir/$tool-stderr.txt
 tool_log=$tool_output_dir/tool.log
-## create directory to save the keys from openshift master, hosts
-mkdir -p /run/pbench/keys
 ## check if the inventory variable is set correctly
 if [[ -z "$inventory" ]]; then
 	usage
@@ -148,9 +146,11 @@ elif [[ ! -s "$inventory" ]] || [[ ! -f "$inventory" ]]; then
 	echo "Please check if the inventory file exists, is not empty and the inventory variable is not set to a directory"
 	exit 1
 fi
-## parse openshift inventory file
+## create pbench directory to store info about endpoints
+mkdir -p /run/pbench
+## parse inventory file
 if [[ -d /run/pbench ]]; then
-	cat "$inventory" | sed -n '/^\[masters\]/,/^$/p' | awk '{if (NR!=1) {print}}' | sed '/^$/d' > /run/pbench/inv_hosts
+	cat "$inventory" | sed -n '/^\[prometheus-metrics\]/,/^$/p' | awk '{if (NR!=1) {print}}' | sed '/^$/d' > /run/pbench/inv_hosts
 else
 	error_log "creation of /run/pbench directory failed"
 	exit 1
@@ -174,43 +174,19 @@ case "$mode" in
 		port=$(echo $file | grep -w "port" | awk -F " " '{ print $2 }' | awk -F "=" '{print $2}')
 		cert=$(echo $file | grep -w "cert" | awk -F " " '{ print $3 }' | awk -F "=" '{print $2}')
 		key=$(echo $file | grep -w "key" | awk -F " " '{ print $4 }' | awk -F "=" '{print $2}')
-		# fetch keys from openshift master and set default values for port, cert and key vars if not defined
+		# Exit if port, cert or key is not defined
 		if [ -z "$port" ]; then
-			port=8443
+			echo "metrics endpoint port is not defined for $host, the syntax is <host> port=<port> cert=<path-to-cert> key=<path-to-cert>"
+			error_log "[$script_name] port is not defined for $host"
+			exit 1
 		fi
 		if [ -z "$cert" ]; then
-			if [ ! -s /run/pbench/keys/admin.crt ]; then
-				scp $host:/etc/origin/master/admin.crt /run/pbench/keys/admin.crt
-				if [[ $? != 0 ]]; then
-					error_log "[$script_name]scp command failed to copy the files from $host, please check if the cert exists in /etc/origin/master directory"
-					exit 1
-				fi
-			fi
-			cert=/run/pbench/keys/admin.crt
-		else
-			scp $host:$cert /run/pbench/keys/
-			if [[ $? != 0 ]]; then
-				error_log "[$script_name]scp command failed to copy the files from $host, please check if the cert exists in the path provided"
-				exit 1
-			fi
-			cert=/run/pbench/keys/$(basename $cert)
+			debug_log "[$script_name] cert is not defined for $host, assuming that the endpoint doesn't need authentication"
+			cert="None"
 		fi
 		if [ -z "$key" ]; then
-			if [ ! -s /run/pbench/keys/admin.key ]; then
-				scp $host:/etc/origin/master/admin.key /run/pbench/keys/admin.key
-				if [[ $? != 0 ]]; then
-					error_log "[$script_name]scp command failed to copy the files from $host, please check if the key exists in /etc/origin/master directory"
-					exit 1
-				fi	
-			fi
-			key=/run/pbench/keys/admin.key
-		else
-			scp $host:$key /run/pbench/keys/
-			if [[ $? != 0 ]]; then
-				error_log "[$script_name]scp command failed to copy the files from $host, please check if the key exists in the path provided"
-				exit 1
-			fi
-			key=/run/pbench/keys/$(basename $key)
+			debug_log "[$script_name] key is not defined for $host, assuming that the endpoint doesn't need authentication"
+			key="None"
 		fi
 		tool_cmd='GOPATH=$pbench_install_dir/.go PATH=$PATH:$GOPATH/bin $script_path/datalog/$tool-datalog $host $interval $tool_log $port $cert $key'
 		metrics_data=$tool_output_dir/"$host"-"$port"-stdout.txt
@@ -232,9 +208,6 @@ case "$mode" in
 		while read -u 11 file;do
 			host=$(echo $file | awk -F " " '{ print $1 }')
 			port=$(echo $file | grep -w "port" | awk -F " " '{ print $2 }' | awk -F "=" '{print $2}')
-			if [[ -z $port ]]; then
-				port=8443
-			fi
 			$script_path/postprocess/$script_name-postprocess $tool_output_dir/"$host"-"$port"-stdout.txt $tool_output_dir/json/"$host"-"$port".json
 		done 11</run/pbench/inv_hosts
 	else
