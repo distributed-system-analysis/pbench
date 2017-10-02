@@ -97,6 +97,24 @@ function kill_trex() {
 	fi
 }
 
+function convert_number_range() {
+        # converts a range of cpus, like "1-3,5" to a list, like "1,2,3,5"
+        local cpu_range=$1
+        local cpus_list=""
+        local cpus=""
+        for cpus in `echo "$cpu_range" | sed -e 's/,/ /g'`; do
+                if echo "$cpus" | grep -q -- "-"; then
+                        cpus=`echo $cpus | sed -e 's/-/ /'`
+                        cpus=`seq $cpus | sed -e 's/ /,/g'`
+                fi
+                for cpu in $cpus; do
+                        cpus_list="$cpus_list,$cpu"
+                done
+        done
+        cpus_list=`echo $cpus_list | sed -e 's/^,//'`
+        echo "$cpus_list"
+}
+
 # Process options and arguments
 opts=$(getopt -q -o c: --longoptions "skip-trex-server,skip-git-pull,traffic-generator:,devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
@@ -687,21 +705,32 @@ if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 	popd >/dev/null
 
 	# start the trex server
-	echo "sarting TRex server"
+	echo "starting TRex server"
 	pushd $trex_dir >/dev/null
 	/bin/rm -f $pbench_tmp/trex_cfg.yaml
 	isolated_cpus=$(cat /sys/devices/system/cpu/nohz_full)
-	cpu_list=""
-	for cpu_range in `echo ${isolated_cpus} | sed -e 's/,/ /'`; do
-		cpu_range=$(echo ${cpu_range} | sed -e 's/-/ /')
-		cpu_list="${cpu_list} `seq -s ' ' ${cpu_range}`"
-	done
+	cpu_list=$(convert_number_range "${isolated_cpus}" | sed -e "s/,/ /g")
 	trex_config_args=""
 	if [ "${trex_use_ht}" == "n" ]; then
 		trex_config_args+="--no-ht "
 	fi
 	if [ "${trex_use_l2}" == "y" ]; then
 		trex_config_args+="--force-macs "
+
+		if [ -e /etc/trex_cfg.yaml -a ! -e /etc/trex_cfg.yaml.pbench-backup ]; then
+			mv -v /etc/trex_cfg.yaml /etc/trex_cfg.yaml.pbench-backup
+		fi
+
+		# generate a temporary yaml which is required for MAC discovery
+		echo "- version       : 2" >/etc/trex_cfg.yaml
+		yaml_devices=$(echo $devices | sed -e "s/^/\"/" -e "s/,/\",\"/g" -e "s/$/\"/")
+		echo "  interfaces    : [${yaml_devices}]" >>/etc/trex_cfg.yaml
+		echo "  port_limit    : 2" >>/etc/trex_cfg.yaml
+	else
+		# in case we didn't clean up after ourselves previously...
+		if [ -e /etc/trex_cfg.yaml.pbench-backup ]; then
+			mv -v /etc/trex_cfg.yaml.pbench-backup /etc/trex_cfg.yaml
+		fi
 	fi
 	trex_config_cmd="./dpdk_setup_ports.py -c `echo $devices | sed -e s/,/" "/g` --cores-include ${cpu_list} -o $pbench_tmp/trex_cfg.yaml ${trex_config_args}"
 	echo "configuring trex with: ${trex_config_cmd}"
@@ -950,5 +979,9 @@ if [ $rc -eq 0 ]; then
 fi
 if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 	kill_trex
+
+	if [ "${trex_use_l2}" == "y" ]; then
+		mv -v /etc/trex_cfg.yaml.pbench-backup /etc/trex_cfg.yaml
+	fi
 fi
 rmdir $benchmark_run_dir/.running
