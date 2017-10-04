@@ -90,12 +90,15 @@ typeset -i ntotal=0
 typeset -i nerrs=0
 typeset -i ndups=0
 
+# Initialize mail content
+> $mail_content
+
 while read size result ;do
     ntotal=$ntotal+1
 
     link=$(readlink -e $result)
     if [ ! -f "$link" ] ;then
-        echo "$TS: $link does not exist" >&4 | tee -a $mail_content
+        echo "$TS: $link does not exist" | tee -a $mail_content >&4 
         nerrs=$nerrs+1
         continue
     fi
@@ -112,13 +115,13 @@ while read size result ;do
     mk_dirs $hostname
     # ... and a couple of other necessities.
     if [[ $? -ne 0 ]] ;then
-        echo "$TS: Creation of $hostname processing directories failed: code $status" >&4 | tee -a $mail_content
+        echo "$TS: Creation of $hostname processing directories failed: code $status" | tee -a $mail_content >&4 
         nerrs=$nerrs+1
         continue
     fi
     mkdir -p $INCOMING/$hostname
     if [[ $? -ne 0 ]] ;then
-        echo "$TS: Creation of $INCOMING/$hostname failed: code $status" >&4 | tee -a $mail_content
+        echo "$TS: Creation of $INCOMING/$hostname failed: code $status" | tee -a $mail_content >&4 
         nerrs=$nerrs+1
         continue
     fi
@@ -126,7 +129,7 @@ while read size result ;do
     mkdir -p $UNPACK_PATH/$hostname
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: mkdir -p $UNPACK_PATH/$hostname failed: code $status" >&4 | tee -a $mail_content
+        echo "$TS: mkdir -p $UNPACK_PATH/$hostname failed: code $status" | tee -a $mail_content >&4 
         nerrs=$nerrs+1
         continue
     fi
@@ -145,7 +148,7 @@ while read size result ;do
         tar --extract --no-same-owner --no-overwrite-dir --touch --file="$result"
         status=$?
         if [[ $status -ne 0 ]] ;then
-            echo "$TS: 'tar -xf $result' failed: code $status" >&4 | tee -a $mail_content
+            echo "$TS: 'tar -xf $result' failed: code $status" | tee -a $mail_content >&4 
             nerrs=$nerrs+1
             popd > /dev/null 2>&1
             continue
@@ -167,13 +170,13 @@ while read size result ;do
 	mkdir -p $RESULTS/$hostname/$prefix
         status=$?
         if [[ $status -ne 0 ]] ;then
-            echo "$TS: code $status: mkdir -p $RESULTS/$hostname/$prefix" >&4 | tee -a $mail_content
+            echo "$TS: code $status: mkdir -p $RESULTS/$hostname/$prefix" | tee -a $mail_content >&4 
         else
             echo "ln -s $incoming $RESULTS/$hostname/$prefix$resultname"
             ln -s $incoming $RESULTS/$hostname/$prefix$resultname
             status=$?
             if [[ $status -ne 0 ]] ;then
-                echo "$TS: code $status: ln -s $incoming $RESULTS/$hostname/$prefix$resultname" >&4 | tee -a $mail_content
+                echo "$TS: code $status: ln -s $incoming $RESULTS/$hostname/$prefix$resultname" | tee -a $mail_content >&4 
             fi
         fi
 
@@ -181,7 +184,7 @@ while read size result ;do
         mv $ARCHIVE/$hostname/$linksrc/$resultname.tar.xz $ARCHIVE/$hostname/$linkdest/$resultname.tar.xz
         status=$?
         if [[ $status -ne 0 ]] ;then
-            echo "$TS: Cannot move $ARCHIVE/$hostname/$resultname from $linksrc to $linkdest: code $status" >&4 | tee -a $mail_content
+            echo "$TS: Cannot move $ARCHIVE/$hostname/$resultname from $linksrc to $linkdest: code $status" | tee -a $mail_content >&4 
             rm $RESULTS/$hostname/$prefix$resultname
             nerrs=$nerrs+1
             continue
@@ -192,7 +195,7 @@ while read size result ;do
         tar --extract --no-same-owner --no-overwrite-dir --touch --file="$result"
         status=$?
         if [[ $status -ne 0 ]] ;then
-            echo "$TS: 'tar -xf $result' failed: code $status" >&4 | tee -a $mail_content
+            echo "$TS: 'tar -xf $result' failed: code $status" | tee -a $mail_content >&4 
             nerrs=$nerrs+1
             popd > /dev/null 2>&1
             continue
@@ -202,7 +205,7 @@ while read size result ;do
         find . -type d -print0 | xargs -0 chmod ugo+rx
         status=$?
         if [[ $status -ne 0 ]] ;then
-            echo "$TS: 'chmod ugo+rx' of subdirs failed: code $status" >&4 | tee -a $mail_content
+            echo "$TS: 'chmod ugo+rx' of subdirs failed: code $status" | tee -a $mail_content >&4 
             nerrs=$nerrs+1
             popd > /dev/null 2>&1
             continue
@@ -212,7 +215,7 @@ while read size result ;do
     	chmod -R ugo+r .
     	status=$?
     	if [[ $status -ne 0 ]] ;then
-        	echo "$TS: 'chmod -R ugo+r .' failed: code $status" >&4 | tee -a $mail_content
+        	echo "$TS: 'chmod -R ugo+r .' failed: code $status" | tee -a $mail_content >&4 
         	nerrs=$nerrs+1
         	popd > /dev/null 2>&1
         	continue
@@ -241,19 +244,19 @@ while read size result ;do
     	mkdir -p $RESULTS/$hostname/$prefix
     	status=$?
     	if [[ $status -ne 0 ]] ;then
-            echo "$TS: code $status: mkdir -p $RESULTS/$hostname/$prefix" >&4 | tee -a $mail_content
+            echo "$TS: code $status: mkdir -p $RESULTS/$hostname/$prefix" | tee -a $mail_content >&4 
     	else
 	    echo "ln -s $UNPACK_PATH/$hostname/$resultname $incoming"
             ln -s $UNPACK_PATH/$hostname/$resultname $incoming
             status=$?
             if [[ $status -ne 0 ]] ;then
-                echo "$TS: code $status: ln -s $UNPACK_PATH/$hostname/$resultname $incoming" >&4 | tee -a $mail_content
+                echo "$TS: code $status: ln -s $UNPACK_PATH/$hostname/$resultname $incoming" | tee -a $mail_content >&4 
             fi
             echo "ln -s $incoming $RESULTS/$hostname/$prefix$resultname"
             ln -s $incoming $RESULTS/$hostname/$prefix$resultname
             status=$?
             if [[ $status -ne 0 ]] ;then
-                echo "$TS: code $status: ln -s $incoming $RESULTS/$hostname/$prefix$resultname" >&4 | tee -a $mail_content
+                echo "$TS: code $status: ln -s $incoming $RESULTS/$hostname/$prefix$resultname" | tee -a $mail_content >&4 
             fi
         fi
 
@@ -261,7 +264,7 @@ while read size result ;do
     	mv $ARCHIVE/$hostname/$linksrc/$resultname.tar.xz $ARCHIVE/$hostname/$linkdest/$resultname.tar.xz
     	status=$?
     	if [[ $status -ne 0 ]] ;then
-            echo "$TS: Cannot move $ARCHIVE/$hostname/$resultname from $linksrc to $linkdest: code $status" >&4 | tee -a $mail_content
+            echo "$TS: Cannot move $ARCHIVE/$hostname/$resultname from $linksrc to $linkdest: code $status" | tee -a $mail_content >&4 
             rm $RESULTS/$hostname/$prefix$resultname
             nerrs=$nerrs+1
             continue
@@ -282,7 +285,10 @@ if [[ $nerrs -gt 0 ]]; then
     subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
     # don't send mail when running unittests
     if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
-        echo "Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates" | mailx -s "$subj" $mail_recipients < $mail_content
+        (echo "Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates";
+        echo ;
+        cat mail_content) | 
+        mailx -s "$subj" $mail_recipients
     fi
 fi
 
