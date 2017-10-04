@@ -58,6 +58,9 @@ typeset -i ntotal=0
 typeset -i nerrs=0
 typeset -i ndups=0
 
+# Initialize mail content
+> $mail_content
+
 function process_tarball {
     result=$1
     size=$2
@@ -65,7 +68,7 @@ function process_tarball {
 
     link=$(readlink -e $result)
     if [ ! -f "$link" ] ;then
-        echo "$TS: $link does not exist" >&4 | tee -a $mail_content
+        echo "$TS: $link does not exist" | tee -a $mail_content >&4 
         nerrs=$nerrs+1
         return 1
     fi
@@ -77,13 +80,13 @@ function process_tarball {
     mk_dirs $hostname
     # ... and a couple of other necessities.
     if [[ $? -ne 0 ]] ;then
-        echo "$TS: Creation of $hostname processing directories failed: code $status" >&4 | tee -a $mail_content
+        echo "$TS: Creation of $hostname processing directories failed: code $status" | tee -a $mail_content >&4 
         nerrs=$nerrs+1
         return 1
     fi
     mkdir -p $INCOMING/$hostname
     if [[ $? -ne 0 ]] ;then
-        echo "$TS: Creation of $INCOMING/$hostname failed: code $status" >&4 | tee -a $mail_content
+        echo "$TS: Creation of $INCOMING/$hostname failed: code $status" | tee -a $mail_content >&4 
         nerrs=$nerrs+1
         return 1
     fi
@@ -106,7 +109,7 @@ function process_tarball {
     cp -R $UNPACK_PATH/$hostname/$resultname $incoming.copy
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: Cannot copy $UNPACK_PATH/$hostname/$resultname to $incoming.copy: code $status" >&4 | tee -a $mail_content
+        echo "$TS: Cannot copy $UNPACK_PATH/$hostname/$resultname to $incoming.copy: code $status" | tee -a $mail_content >&4 
         nerrs=$nerrs+1
         return 1
     fi
@@ -117,7 +120,7 @@ function process_tarball {
     if [[ $status -ne 0 ]] ;then
 	rm $RESULTS/$hostname/$prefix$resultname
 	ln -s $incoming.copy $RESULTS/$hostname/$prefix$resultname
-        echo "$TS: Created symlink of $incoming.copy in $RESULTS: code $status" >&4 | tee -a $mail_content
+        echo "$TS: Created symlink of $incoming.copy in $RESULTS: code $status" | tee -a $mail_content >&4 
 	nerrs=$nerrs+1
 	return 1
     fi
@@ -128,7 +131,7 @@ function process_tarball {
     if [[ $status -ne 0 ]] ;then
 	rm $RESULTS/$hostname/$prefix$resultname
         ln -s $incoming.copy $RESULTS/$hostname/$prefix$resultname
-        echo "$TS: Cannot rename $incoming.copy to $incoming: code $status" >&4 | tee -a $mail_content
+        echo "$TS: Cannot rename $incoming.copy to $incoming: code $status" | tee -a $mail_content >&4 
         nerrs=$nerrs+1
         return 1
     fi
@@ -137,7 +140,7 @@ function process_tarball {
     rm -R $UNPACK_PATH/$hostname/$resultname
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: Cannot remove $UNPACK_PATH/$hostname/$resultname: code $status" >&4 | tee -a $mail_content
+        echo "$TS: Cannot remove $UNPACK_PATH/$hostname/$resultname: code $status" | tee -a $mail_content >&4 
         nerrs=$nerrs+1
 	return 1
     fi
@@ -146,7 +149,7 @@ function process_tarball {
     mv $ARCHIVE/$hostname/$linksrc/$resultname.tar.xz $ARCHIVE/$hostname/$linkdest/$resultname.tar.xz
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: Cannot move $ARCHIVE/$hostname/$resultname from $linksrc to $linkdest: code $status" >&4 | tee -a $mail_content
+        echo "$TS: Cannot move $ARCHIVE/$hostname/$resultname from $linksrc to $linkdest: code $status" | tee -a $mail_content >&4 
         rm $RESULTS/$hostname/$prefix$resultname
         nerrs=$nerrs+1
         return 1
@@ -184,7 +187,10 @@ if [[ $nerrs -gt 0 ]]; then
     subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
     # don't send mail when running unittests
     if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
-        echo "Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates" | mailx -s "$subj" $mail_recipients < $mail_content
+        (echo "Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates";
+        echo ;
+        cat mail_content) | 
+        mailx -s "$subj" $mail_recipients
     fi
 fi
 
