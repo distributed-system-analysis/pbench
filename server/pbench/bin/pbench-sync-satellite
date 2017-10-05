@@ -136,7 +136,7 @@ hosts="$(for host in $files;do echo ${host%%/*};done | sort -u )"
 > $mail_content
 
 let start_time=$(timestamp-seconds-since-epoch)
-echo "$TS: start - $(timestamp)" >&4
+echo "$TS: start - $(timestamp)"
 
 for host in $hosts ;do
     typeset -i processed=0
@@ -244,8 +244,8 @@ fi
 
 let end_time=$(timestamp-seconds-since-epoch)
 let duration=end_time-start_time
-echo "$TS: end - $(timestamp)" >&4
-echo "$TS: duration (secs): $duration" >&4
-echo "$TS: Total $nprocessed files processed, with $nfailed_md5 md5 failures and $nerrs errors" >&4
+echo "$TS: end - $(timestamp)"
+echo "$TS: duration (secs): $duration"
+echo "$TS: Total $nprocessed files processed, with $nfailed_md5 md5 failures and $nerrs errors"
 
 exit 0
