@@ -44,8 +44,8 @@ mkdir -p $archive_dir  || exit 6
 mkdir -p $pbench_dir/public_html/incoming || exit 7
 mkdir -p $pbench_dir/public_html/results || exit 8
 
-chown $user.$group $pbench_dir $pbench_dir/$archive_dir $pbench_dir/public_html $pbench_dir/public_html/incoming $pbench_dir/public_html/results \
-                               $pbench_dir/$archive_dir/* $pbench_dir/public_html/incoming/* $pbench_dir/public_html/results/* || exit 9
+chown $user.$group $pbench_dir $archive_dir $pbench_dir/public_html $pbench_dir/public_html/incoming $pbench_dir/public_html/results \
+                               $archive_dir/* $pbench_dir/public_html/incoming/* $pbench_dir/public_html/results/* || exit 9
 
 if which selinuxenabled > /dev/null 2>&1 && selinuxenabled ;then
      if [ "${_PBENCH_SERVER_TEST}" != 1 ] ;then
