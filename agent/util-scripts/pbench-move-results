@@ -10,11 +10,11 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 
 function usage() {
     printf "usage:\n"
-    printf "$script_name [--prefix=<path>]\n"
+    printf "$script_name [--prefix=<path>] [--xz-single-threaded]\n"
 }
 
 # Process options and arguments
-opts=$(getopt -q -o p: --longoptions "prefix:" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o p:x --longoptions "prefix:,xz-single-threaded" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
     printf "\n"
     printf "%s\n" $*
@@ -24,6 +24,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+xz_single_threaded=
 eval set -- "$opts";
 while true; do
     case "$1" in
@@ -34,6 +35,10 @@ while true; do
                 shift;
             fi
             ;;
+	-x|--xz-single-threaded)
+	    shift;
+	    xz_single_threaded=1
+	    ;;
         --)
             shift;
             break;
@@ -161,8 +166,14 @@ for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v 
     debug_log "preparing to copy $results_size MB of data from $pbench_run/$pbench_run_name"
 
     tarball="$pbench_run_name.tar.xz"
-    echo tar Jcf $tarball $pbench_run_name
-    tar --create --force-local "$pbench_run_name" | xz -T0 > "$tarball"
+    if [[ ${xz_single_threaded} != "1" ]] ;then
+	echo "tar --create --force-local \"$pbench_run_name\" | xz -T0 > \"$tarball\" "
+	tar --create --force-local "$pbench_run_name" | xz -T0 > "$tarball"
+    else
+	echo "tar --create --xz --force-local --file=\"$tarball\" \"$pbench_run_name\" "
+	tar --create --xz --force-local --file="$tarball" "$pbench_run_name" 
+    fi
+    
     if [ $? -ne 0 ]; then
         error_log "ERROR: tar failed for $pbench_run/$pbench_run_name, skipping"
         rm -f "$tarball"
