@@ -75,15 +75,18 @@ linksrc=TO-UNPACK
 linkdest=UNPACKED
 echo $TS
 
-# get the list of files we'll be operating on - sort them by size
-list=$UNPACK_PATH/pbench-unpack-tarballs.$$
 tmp=$TMP/$PROG.$$
-mail_content=$tmp/mail_content.log
-find $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | grep -v DUPLICATE | sed 's/\/'$linksrc'//' | sort -n > $list
 
 trap 'rm -rf $list $tmp' EXIT INT QUIT
 
 mkdir -p $tmp
+
+# accumulate errors in a file for mailing at end
+mail_content=$tmp/mail_content.log
+
+# get the list of files we'll be operating on - sort them by size
+list=$tmp/pbench-unpack-tarballs.list
+find $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | grep -v DUPLICATE | sed 's/\/'$linksrc'//' | sort -n > $list
 
 typeset -i ntb=0
 typeset -i ntotal=0
