@@ -109,14 +109,6 @@ trap "rm -rf $tmp" EXIT
 mkdir -p $tmp
 mkdir -p $unpack
 
-# get the tarball from remote
-ssh $remotehost "/opt/pbench-server/bin/pbench-sync-package-tarballs" > $tmp/satellite.$prefix.tar
-rc=$? 
-if [[ $rc != 0 ]] ;then
-    echo "$PROG: ssh $remotehost /opt/pbench-server/bin/pbench-package-tarballs: failed." >&4
-    exit 2
-fi
-
 log_init $(basename $0)
 logdir=$LOGSDIR/$(basename $0)/$prefix/$TS
 mkdir -p $logdir
@@ -125,6 +117,15 @@ if [[ $rc != 0 ]] ;then
     echo Failed: mkdir -p $logdir >&4
     exit 2
 fi
+
+# get the tarball from remote
+ssh $remotehost "/opt/pbench-server/bin/pbench-sync-package-tarballs" > $tmp/satellite.$prefix.tar
+rc=$? 
+if [[ $rc != 0 ]] ;then
+    echo "$PROG: ssh $remotehost /opt/pbench-server/bin/pbench-sync-package-tarballs: failed." >&4
+    exit 2
+fi
+
 
 # unpack the tarball into tmp directory
 tar -xvf $tmp/satellite.$prefix.tar -C $unpack

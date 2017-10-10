@@ -115,9 +115,13 @@ function process_tarball {
     fi
 
     # remove the symlink from incoming
-    rm $incoming
+    rm $incoming 2>/dev/null
     status=$?
-    if [[ $status -ne 0 ]] ;then
+    if  [[ $status -eq 1 ]] ;then
+        # $incoming does not exist for some reason - not clear why that would be the case
+        # but we can go on: no need to abort here.
+        :
+    elif [[ $status -ne 0 ]] ;then
 	rm $RESULTS/$hostname/$prefix$resultname
 	ln -s $incoming.copy $RESULTS/$hostname/$prefix$resultname
         echo "$TS: Created symlink of $incoming.copy in $RESULTS: code $status" | tee -a $mail_content >&4 
@@ -125,7 +129,8 @@ function process_tarball {
 	return 1
     fi
 
-    # rename the copied file to its original name
+    # Rename the copied file to its original name.
+    # One way or another, $incoming is gone at this point.
     mv $incoming.copy $incoming
     status=$?
     if [[ $status -ne 0 ]] ;then
