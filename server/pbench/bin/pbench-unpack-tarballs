@@ -158,13 +158,12 @@ while read size result ;do
         fi
         popd > /dev/null 2>&1
 
-	basedir=$(dirname $link)
-        prefixfile=$basedir/prefix.$resultname
+        basedir=$(dirname $link)
+        # pbench-dispatch has already moved it to the .prefix subdir
+        prefixfile=$basedir/.prefix/prefix.$resultname
         if [ -f $prefixfile ] ;then
             # add the slash to make both cases uniform in what follows
             prefix=$(cat $prefixfile)/
-            mkdir -p $basedir/.prefix
-            mv $prefixfile $basedir/.prefix
         else
             prefix=""
         fi
@@ -218,10 +217,10 @@ while read size result ;do
     	chmod -R ugo+r .
     	status=$?
     	if [[ $status -ne 0 ]] ;then
-        	echo "$TS: 'chmod -R ugo+r .' failed: code $status" | tee -a $mail_content >&4 
-        	nerrs=$nerrs+1
-        	popd > /dev/null 2>&1
-        	continue
+            echo "$TS: 'chmod -R ugo+r .' failed: code $status" | tee -a $mail_content >&4 
+            nerrs=$nerrs+1
+            popd > /dev/null 2>&1
+            continue
     	fi
     	popd > /dev/null 2>&1
 
@@ -230,21 +229,19 @@ while read size result ;do
     	# if there is a prefix file, create a link as specified by the prefix
     	# even if no prefix is specified, we still want to link from the results/ hierarchy to incoming/.
     	# user access will eventually be through results/ only.
-    
-    	basedir=$(dirname $link)
-    	prefixfile=$basedir/prefix.$resultname
+        
+        basedir=$(dirname $link)
+        # pbench-dispatch has already moved it to the .prefix subdir
+        prefixfile=$basedir/.prefix/prefix.$resultname
     	if [ -f $prefixfile ] ;then
             # add the slash to make both cases uniform in what follows
             prefix=$(cat $prefixfile)/
-            mkdir -p $basedir/.prefix
-            mv $prefixfile $basedir/.prefix
         else
             prefix=""
         fi
 
 	incoming=$INCOMING/$hostname/$resultname
-
-    	mkdir -p $RESULTS/$hostname/$prefix
+        mkdir -p $RESULTS/$hostname/$prefix
     	status=$?
     	if [[ $status -ne 0 ]] ;then
             echo "$TS: code $status: mkdir -p $RESULTS/$hostname/$prefix" | tee -a $mail_content >&4 
@@ -273,11 +270,11 @@ while read size result ;do
             continue
     	fi
     fi
-    	let end_time=$(date +%s)
-    	let duration=end_time-start_time
-    	# log the success
-    	echo "$TS: $hostname/$resultname: success - elapsed time (secs): $duration - size (bytes): $size"
-    	ntb=$ntb+1
+    let end_time=$(date +%s)
+    let duration=end_time-start_time
+    # log the success
+    echo "$TS: $hostname/$resultname: success - elapsed time (secs): $duration - size (bytes): $size"
+    ntb=$ntb+1
 done < $list
 
 echo "$TS: Processed $ntb tarballs"
