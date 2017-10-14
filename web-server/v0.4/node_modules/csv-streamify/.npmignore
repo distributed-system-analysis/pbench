@@ -1,0 +1,6 @@
+test
+.jshintrc
+bench.js
+*.log
+*.yml
+.gitattributes

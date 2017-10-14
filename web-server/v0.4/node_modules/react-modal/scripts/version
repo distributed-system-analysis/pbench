@@ -1,0 +1,25 @@
+#!/bin/sh
+
+JQ=$(which jq)
+
+if [[ -z "$JQ" ]]; then
+    echo "jq is missing."
+fi
+
+echo "Current version is: $1"
+
+read -p "Bump to: " NEW_VERSION
+
+if [[ ! -z "$(git tag -l | grep v${NEW_VERSION})" ]]; then
+    echo "Tag $NEW_VERSION already exists."
+    exit 1
+fi
+
+FILES="package.json bower.json"
+
+for F in $FILES; do
+    $JQ ".version = \"${NEW_VERSION}\"" "$F" > up.json
+    cat up.json > "$F"
+done
+
+rm up.json

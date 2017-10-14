@@ -1,0 +1,42 @@
+[
+  {
+    "path": "/",
+    "page": "./pages/home",
+    "chunk": "main"
+  },
+  {
+    "path": "/home",
+    "page": "./pages/home",
+    "chunk": "main"
+  },
+  {
+    "path": "/stages",
+    "page": "./pages/stages",
+    "chunk": "main"
+  },
+  {
+    "path": "/error",
+    "page": "./pages/error",
+    "chunk": "main"
+  },
+  {
+    "path": "/apps",
+    "page": "./pages/apps"
+  },
+  {
+    "path": "/users",
+    "page": "./pages/users"
+  },
+  {
+    "path": "/results",
+    "page": "./pages/results"
+  },
+  {
+    "path": "/results/summary",
+    "page": "./pages/summary"
+  },
+  {
+    "path": "/environments",
+    "page": "./pages/environments"
+  }
+]

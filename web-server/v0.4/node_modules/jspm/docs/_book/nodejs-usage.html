@@ -1,0 +1,352 @@
+<!DOCTYPE HTML>
+<html lang="en" >
+    
+    <head>
+        
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>NodeJS Usage | JSPM</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 2.6.3">
+        
+        
+        <meta name="HandheldFriendly" content="true"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <link rel="apple-touch-icon-precomposed" sizes="152x152" href="gitbook/images/apple-touch-icon-precomposed-152.png">
+        <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
+        
+    <link rel="stylesheet" href="gitbook/style.css">
+    
+        
+        <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-highlight/website.css">
+        
+    
+        
+        <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-search/search.css">
+        
+    
+        
+        <link rel="stylesheet" href="gitbook/plugins/gitbook-plugin-fontsettings/website.css">
+        
+    
+    
+
+        
+    
+    
+    <link rel="next" href="./registries.html" />
+    
+    
+    <link rel="prev" href="./publishing-packages.html" />
+    
+
+        
+    </head>
+    <body>
+        
+        
+    <div class="book"
+        data-level="8"
+        data-chapter-title="NodeJS Usage"
+        data-filepath="nodejs-usage.md"
+        data-basepath="."
+        data-revision="Mon Jan 25 2016 15:22:58 GMT+0200 (SAST)"
+        data-innerlanguage="">
+    
+
+<div class="book-summary">
+    <nav role="navigation">
+        <ul class="summary">
+            
+            
+            
+            
+
+            
+
+            
+    
+        <li class="chapter " data-level="0" data-path="index.html">
+            
+                
+                    <a href="./index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                        Introduction
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1" data-path="getting-started.html">
+            
+                
+                    <a href="./getting-started.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.</b>
+                        
+                        Getting Started
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2" data-path="installing-packages.html">
+            
+                
+                    <a href="./installing-packages.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.</b>
+                        
+                        Installing Packages
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3" data-path="linking.html">
+            
+                
+                    <a href="./linking.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.</b>
+                        
+                        Linking
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="4" data-path="api.html">
+            
+                
+                    <a href="./api.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>4.</b>
+                        
+                        API
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5" data-path="plugins.html">
+            
+                
+                    <a href="./plugins.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.</b>
+                        
+                        Plugins
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="6" data-path="production-workflows.html">
+            
+                
+                    <a href="./production-workflows.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>6.</b>
+                        
+                        Production Workflows
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7" data-path="publishing-packages.html">
+            
+                
+                    <a href="./publishing-packages.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.</b>
+                        
+                        Publishing Packages
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter active" data-level="8" data-path="nodejs-usage.html">
+            
+                
+                    <a href="./nodejs-usage.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.</b>
+                        
+                        NodeJS Usage
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="9" data-path="registries.html">
+            
+                
+                    <a href="./registries.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>9.</b>
+                        
+                        Registries
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="10" data-path="registry-api.html">
+            
+                
+                    <a href="./registry-api.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>10.</b>
+                        
+                        Registry API
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="11" data-path="registry-property.html">
+            
+                
+                    <a href="./registry-property.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>11.</b>
+                        
+                        Registry Property
+                    </a>
+            
+            
+        </li>
+    
+
+
+            
+            <li class="divider"></li>
+            <li>
+                <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+                    Published with GitBook
+                </a>
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+
+    <div class="book-body">
+        <div class="body-inner">
+            <div class="book-header" role="navigation">
+    <!-- Actions Left -->
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="./" >JSPM</a>
+    </h1>
+</div>
+
+            <div class="page-wrapper" tabindex="-1" role="main">
+                <div class="page-inner">
+                
+                
+                    <section class="normal" id="section-">
+                    
+                        <p>jspm is primarily a browser package manager, but there are massive benefits to enabling workflows that allow the same JavaScript code to run in both the browser and Node. As such, jspm also enables some basic usage on the server as well.</p>
+<p><strong>It is advisable not to use jspm for arbitrary server applications currently</strong> as there are two major issues with Node module npm support that are limiting use of jspm in Node:</p>
+<ol>
+<li>Browserify transforms support (<a href="https://github.com/jspm/npm/issues/10" target="_blank">https://github.com/jspm/npm/issues/10</a>)</li>
+<li>Packages with a <code>browser</code> field will always use that browser mapping even in Node (<a href="https://github.com/jspm/npm/issues/32" target="_blank">https://github.com/jspm/npm/issues/32</a>), pending <a href="https://github.com/systemjs/systemjs/issues/285" target="_blank">conditional loading support in SystemJS</a>.</li>
+</ol>
+<h3 id="jspm-run">jspm run</h3>
+<p><code>jspm run</code> allows the immediate execution of any module from the command-line:</p>
+<pre><code>  jspm install fs
+  echo &quot;import fs from &apos;fs&apos;;\
+    console.log(fs.readFileSync(&apos;package.json&apos;)+&apos;&apos;);&quot; &gt; test.js
+  jspm run test
+</code></pre><h3 id="jspmimport">jspm.import</h3>
+<p>Just like <code>jspm run</code>, the <a href="api.html#import">jspm API provides an import function</a> with the same functionality.</p>
+<h3 id="node-core-and-browserify-support">Node Core and Browserify support</h3>
+<p>All Node core modules are available in the jspm registry and can be installed by their names.</p>
+<p>This includes: assert, buffer, child_process, cluster, console, constants, crypto, dgram, dns, domain, events, fs, http, https, net, os, path, process, punycode, querystring, readline, repl, stream, string_decoder, timers, tls, tty, url, util, vm, zlib.</p>
+<p>When running in Node, they use their native implementations, and when running the browser, the <a href="https://github.com/substack/node-browserify#compatibility" target="_blank">Browserify core shims</a> are used instead.</p>
+
+                    
+                    </section>
+                
+                
+                </div>
+            </div>
+        </div>
+
+        
+        <a href="./publishing-packages.html" class="navigation navigation-prev " aria-label="Previous page: Publishing Packages"><i class="fa fa-angle-left"></i></a>
+        
+        
+        <a href="./registries.html" class="navigation navigation-next " aria-label="Next page: Registries"><i class="fa fa-angle-right"></i></a>
+        
+    </div>
+</div>
+
+        
+<script src="gitbook/app.js"></script>
+
+    
+    <script src="gitbook/plugins/gitbook-plugin-ga/plugin.js"></script>
+    
+
+    
+    <script src="gitbook/plugins/gitbook-plugin-search/lunr.min.js"></script>
+    
+
+    
+    <script src="gitbook/plugins/gitbook-plugin-search/search.js"></script>
+    
+
+    
+    <script src="gitbook/plugins/gitbook-plugin-sharing/buttons.js"></script>
+    
+
+    
+    <script src="gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
+    
+
+<script>
+require(["gitbook"], function(gitbook) {
+    var config = {"ga":{"token":"UA-40327700-1","configuration":"auto"},"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}};
+    gitbook.start(config);
+});
+</script>
+
+        
+    </body>
+    
+</html>
