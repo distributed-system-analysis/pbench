@@ -32,7 +32,6 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.error
 /var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log
 /var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/TEST2
-/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/TEST2/run-1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/public_html
 /var/tmp/pbench-test-server/pbench/public_html/incoming
 /var/tmp/pbench-test-server/pbench/public_html/results

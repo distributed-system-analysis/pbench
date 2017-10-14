@@ -104,13 +104,16 @@ typeset -i nerrs=0
 
 unpack=$tmp/unpack.$prefix
 mail_content=$tmp/mail.log
-trap "rm -rf $tmp" EXIT
+trap "rm -rf $tmp" EXIT QUIT INT
 
 mkdir -p $tmp
 mkdir -p $unpack
 
 log_init $(basename $0)
 logdir=$LOGSDIR/$(basename $0)/$prefix/$TS
+# remove the tmp dir on exit; try to remove an empty $logdir
+# but suppress any complaints.
+trap "rm -rf $tmp; rmdir $logdir 2>/dev/null" EXIT QUIT INT
 mkdir -p $logdir
 rc=$?
 if [[ $rc != 0 ]] ;then
@@ -128,7 +131,7 @@ fi
 
 
 # unpack the tarball into tmp directory
-tar -xvf $tmp/satellite.$prefix.tar -C $unpack
+tar -xf $tmp/satellite.$prefix.tar -C $unpack
 files=$(find $unpack -path '*.tar.xz' -printf '%P\n')
 hosts="$(for host in $files;do echo ${host%%/*};done | sort -u )"
 
@@ -151,14 +154,25 @@ for host in $hosts ;do
         mkdir -p $logdir/$host
     fi
 
-    # move the unpacked files from tmp directory to archive
-    mv $unpack/$host/* $unpack/$host/.prefix* .
+    # get the tarball list for this host
+    flist=$(find $unpack/$host -type f -name '*.tar.xz.md5' | sed 's;'$unpack/$host/';;')
 
+    echo $flist
+    
+    # move the unpacked files from tmp directory to archive
+    mv $unpack/$host/* .
+
+    # move prefix files if present
+    if [[ -d $unpack/$host/.prefix ]] ;then
+        mkdir -p ./.prefix
+        mv $unpack/$host/.prefix/* ./.prefix
+    fi
+    
     # make the state dirs: TODO, TO-INDEX, TO-COPY-SOS etc.
     mk_dirs $prefix::$host
 
     # check md5s and move md5s to its appropriate state directories according to pass or fail
-    md5_list=$(find . -path '*.tar.xz.md5' -printf '%P\n')
+    md5_list="$flist"
     md5sum -c $md5_list > $logdir/$host/md5-checks.log
     processed=$(wc -l < $logdir/$host/md5-checks.log)
     nprocessed=$((nprocessed + processed))
@@ -236,7 +250,7 @@ if [ -s $LOGSDIR/change_state.$prefix.log ] ;then
     fi
 fi
 
- # ... and mail it
+#  if there are errors, mail the report
 if [ "$nerrs" -gt 0 ]  ;then
     mailx -s \
     "$PROG: $prefix: $nprocessed files processed, with $nfailed_md5 md5 failures and $nerrs errors"\
