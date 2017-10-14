@@ -1,0 +1,48 @@
+<html>
+  <head>
+    <title>Modelo Tests</title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <link rel="stylesheet" href="./lib/mocha.css" />
+
+    <script>
+      if(typeof String.prototype.trim !== 'function') {
+        String.prototype.trim = function() {
+          return this.replace(/^\s+|\s+$/g, '');
+        }
+      }
+    </script>
+
+    <script src="./lib/mocha.js"></script>
+
+    <script>
+      mocha.setup({
+        ui: 'bdd',
+        globals: [],
+        timeout: 1500
+      })
+    </script>
+
+    <script>
+      function assert(expr, msg) {
+        if (!expr) throw new Error(msg || 'failed');
+      }
+    </script>
+
+    <script src="../build/modelo.browser.js"></script>
+    <script src="../build/modelo.tests.browser.js"></script>
+
+    <script>
+     onload = function(){
+        var runner = mocha.run();
+      };
+    </script>
+
+  </head>
+
+  <body>
+    <div id="mocha"></div>
+  </body>
+
+</html>
