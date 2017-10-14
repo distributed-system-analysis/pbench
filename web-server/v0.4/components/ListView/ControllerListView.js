@@ -64,7 +64,7 @@ class ControllerListView extends React.Component {
   retrieveResults(params) {
     history.push({
       pathname: '/results',
-      state: { controller: params.controller }
+      state: { controller: params.key }
     })
   }
 
