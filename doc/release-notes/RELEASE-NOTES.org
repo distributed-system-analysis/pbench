@@ -1,4 +1,4 @@
-# Created 2017-09-18 Mon 18:23
+# Created 2017-10-16 Mon 12:10
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
@@ -14,6 +14,96 @@
 #+SUBTITLE: 
 #+INFOJS_OPT: 
 #+LATEX_HEADER: 
+
+* Version 0.46
+
+** Installation                                                    :external:
+
+There are no installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 
+of the pbench-agent RPM installed.
+
+** agent
+
+*** Known problems and backward incompatibilities
+
+The pprof tools is undergoing some renovation right now: see issue (
+
+*** Bug fixes and enhancements
+
+- Running xz in multithread mode in =pbench-move/copy-results= is a
+  definite win in most cases, but there was one case reported where it
+  segfaulted; running it single-threaded took longer but succeeded. In
+  order to allow this fallback, a new option was added to
+  =pbench-move/copy-results=: =--xz-single-threaded=.
+
+** server
+
+*** Known problems and backward incompatibilities
+
+The script that copies the contents of each tarball to the distributed
+file system uses a job queue implementation to do multiple copies in
+parallel. Occasionally, the job queue system gets stuck and it needs a
+kick. Fortunately, this is not user-visible, as long as the local
+storage can accommodate the backlog. We are hoping to resolve this
+problem in v0.47.
+
+*** Bug fixes and enhancements
+
+Most of the changes in this release are to fix some problems in the
+handling of satellite servers. There were fairly massive changes
+implemented in v0.45, but inevitably there were problems (and there
+probably are more).
+
+Almost all of the scripts are running from cron at a 1-minute
+interval. In most cases, the script is able to finish all the work
+during that one minute. There are two exceptions: moving the tarball
+contents from local storage to a DFS backend can take a long time
+potentially, but that latency is hidden from the user; data collected
+at a satellite server and synced to a master server are deleted once
+an hour.
+
+These updates have been pushed to the production server and the
+satellite servers. If you see problems, please open an issue.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.46
+:END:
+
+There are no changes to the package (except for the version bump).
+
+If you do decide to update, the instructions are standard:
+#+BEGIN_EXAMPLE
+dnf clean expire-cache
+dnf update pbench-web-server
+#+END_EXAMPLE
+(or the yum equivalents.)  The current version available from COPR
+is 0.46-1g6327ec7.
+
+** Changelog
+This is the list of visible (non-merge, non-unit-test-related) commits
+since v0.45:
+
+- 90ed6e2 Version bump
+- ce9dab4 pbench server: fix race with prefix file.
+- 47e2051 pbench-sync-satellite: fix the file list for md5 checking
+- 665fbd0 pbench-server: fix two bugs and a typo.
+- 3d53059 pbench-unpack-tarballs: fix conflicting file names.
+- 7d03d86 Fix thinko and unit test.
+- 192d269 pbench-sync-satellite: do not send non-errors to error log
+- 96b1d66 Refactor  prometheus-metrics tool to be more generic
+- 0a1c63c Update the script for different error checks as well as rectify the undefined variables
+- 4b1073e pbench-move-results: Add --xz-single-threaded option
+- 0876b5b pbench-server-activate-create-results-dir-structure: Avoid chown -R
+- 5f6c4e3 Fix ansible 2.4 compatability issues
+- 8dec7fc Rectify different syntax errors
+- 643311a Update the pbench-satellite-cleanup script to not create empty logdir on every run
+- 05ef05b Update the mail_content destination path
+- 761163b Check for oc client instead of openshift rpm's
+- 5ea4772 Removing check_install_rpm atomic-openshift-clients, just checking for oc.
 
 * Version 0.45
 

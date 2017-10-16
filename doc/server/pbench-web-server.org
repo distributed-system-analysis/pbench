@@ -1,4 +1,4 @@
-# Created 2017-09-18 Mon 18:24
+# Created 2017-10-16 Mon 12:10
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
@@ -23,7 +23,7 @@ allow viewing of pbench graphs locally. This is what is described in this docume
 * Installation
 The RPM is available from the standard pbench repo on COPR. If you
 have a pbench-agent installed already, the repo should be already
-available. If not, consult the [[file:../agent/installation.org::*External%20repo][PBench agent installation instructions]]
+available. If not, consult the [[file:../agent/installation.org::*External repo][PBench agent installation instructions]]
 for details.
 
 Once the repo is installed, the RPM itself can be installed with:
