@@ -1,4 +1,4 @@
-# Created 2017-10-16 Mon 12:10
+# Created 2017-10-16 Mon 14:23
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
@@ -48,11 +48,7 @@ You will need to install both the external repo and (if applicable)
 the internal repo on every machine where you are planning to run
 =pbench= (including VMs).  N.B. These steps must be run as =root=.
 
-** External repo
-
-*This section is obsolete*: please use the [[*Installing using ansible][ansible]] method above to
-install the repos on your machine(s).
-
+** External repo                                                   :external:
 If your system supports =dnf=, then you can copy the repo locally with:
 #+BEGIN_EXAMPLE
 dnf copr enable ndokos/pbench
@@ -65,12 +61,8 @@ yum copr enable ndokos/pbench
 #+END_EXAMPLE
 If all else fails, you can manually download the repo, by visiting
 [[https://copr.fedorainfracloud.org/coprs/ndokos/pbench/]] and clicking
-on the appropriate repo (Epel 6, Epel 7, Fedora 22 or Fedora 23).
-Save it into =/etc/yum.repos.d/ndokos-pbench.repo=. Or use e.g. =wget=:
-#+BEGIN_EXAMPLE
-wget -O /etc/yum.repos.d/_copr_ndokos-pbench.repo https://copr.fedorainfracloud.org/coprs/ndokos/pbench/repo/epel-6/ndokos-pbench-epel-6.repo
-#+END_EXAMPLE
-for a RHEL6 or Centos 6 system.
+on the appropriate repo (Epel 6, Epel 7, Fedora XX).
+Save it into =/etc/yum.repos.d/ndokos-pbench.repo=.
 
 ** Internal repo                                                   :external:
 
@@ -128,3 +120,5 @@ and an empty passphrase. The private key has to be made available to users
 so they can complete their installation of =pbench-agent= as described above.
 The public key should be added to the =authorized-keys= file of the =pbench=
 user on the server where the results are copied.
+
+* *Installing%20using%20ansible

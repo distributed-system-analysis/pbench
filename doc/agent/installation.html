@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-09-18 Mon 18:34 -->
+<!-- 2017-10-16 Mon 14:23 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench agent installation</title>
@@ -234,10 +234,28 @@ for the JavaScript code in this tag.
 <body>
 <div id="content">
 <h1 class="title">PBench agent installation</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org07792e3">Introduction</a></li>
+<li><a href="#org83ded6f">Repos</a>
+<ul>
+<li><a href="#org37a8289">External repo</a></li>
+<li><a href="#org3f5b96c">Internal repo</a></li>
+</ul>
+</li>
+<li><a href="#org2ee5fc4">Package dependencies</a></li>
+<li><a href="#orgef7de67">Installing <code>pbench-agent</code></a></li>
+<li><a href="#org8ecd67f">Administrator responsibility: Config file and ssh private key file</a></li>
+<li><a href="#org59f60b7">*Installing%20using%20ansible</a></li>
+</ul>
+</div>
+</div>
 
-<div id="outline-container-orgc5045e5" class="outline-2">
-<h2 id="orgc5045e5">Introduction</h2>
-<div class="outline-text-2" id="text-orgc5045e5">
+<div id="outline-container-org07792e3" class="outline-2">
+<h2 id="org07792e3">Introduction</h2>
+<div class="outline-text-2" id="text-org07792e3">
 <p>
 The pbench agent requires the installation of some generic bits, but it
 also requires some localization: it needs to know where to send the results
@@ -276,9 +294,9 @@ for mixed installations</b>.
 </div>
 </div>
 
-<div id="outline-container-orgef04383" class="outline-2">
-<h2 id="orgef04383">Repos</h2>
-<div class="outline-text-2" id="text-orgef04383">
+<div id="outline-container-org83ded6f" class="outline-2">
+<h2 id="org83ded6f">Repos</h2>
+<div class="outline-text-2" id="text-org83ded6f">
 <p>
 You will need to install both the external repo and (if applicable)
 the internal repo on every machine where you are planning to run
@@ -286,9 +304,9 @@ the internal repo on every machine where you are planning to run
 </p>
 </div>
 
-<div id="outline-container-org4e10b6b" class="outline-3">
-<h3 id="org4e10b6b">External repo</h3>
-<div class="outline-text-3" id="text-org4e10b6b">
+<div id="outline-container-org37a8289" class="outline-3">
+<h3 id="org37a8289">External repo</h3>
+<div class="outline-text-3" id="text-org37a8289">
 <p>
 If your system supports <code>dnf</code>, then you can copy the repo locally with:
 </p>
@@ -306,21 +324,15 @@ yum copr enable ndokos/pbench
 <p>
 If all else fails, you can manually download the repo, by visiting
 <a href="https://copr.fedorainfracloud.org/coprs/ndokos/pbench/">https://copr.fedorainfracloud.org/coprs/ndokos/pbench/</a> and clicking
-on the appropriate repo (Epel 6, Epel 7, Fedora 22 or Fedora 23).
-Save it into <code>/etc/yum.repos.d/ndokos-pbench.repo</code>. Or use e.g. <code>wget</code>:
-</p>
-<pre class="example">
-wget -O /etc/yum.repos.d/_copr_ndokos-pbench.repo https://copr.fedorainfracloud.org/coprs/ndokos/pbench/repo/epel-6/ndokos-pbench-epel-6.repo
-</pre>
-<p>
-for a RHEL6 or Centos 6 system.
+on the appropriate repo (Epel 6, Epel 7, Fedora XX).
+Save it into <code>/etc/yum.repos.d/ndokos-pbench.repo</code>.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org1cecd0e" class="outline-3">
-<h3 id="org1cecd0e">Internal repo</h3>
-<div class="outline-text-3" id="text-org1cecd0e">
+<div id="outline-container-org3f5b96c" class="outline-3">
+<h3 id="org3f5b96c">Internal repo</h3>
+<div class="outline-text-3" id="text-org3f5b96c">
 <p>
 Refer to your local installation guide or ask your local pbench guru for help.
 </p>
@@ -328,15 +340,15 @@ Refer to your local installation guide or ask your local pbench guru for help.
 <p>
 If there is no such repo, you will need to install the <code>pbench-agent</code> RPM and
 then manually install the config file and the pbench private key which will allow
-you to send results to the server. Refer to <a href="#orgae4be18">Installing <code>pbench-agent</code></a> below.
+you to send results to the server. Refer to <a href="#orgef7de67">Installing <code>pbench-agent</code></a> below.
 </p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgc601fe2" class="outline-2">
-<h2 id="orgc601fe2">Package dependencies</h2>
-<div class="outline-text-2" id="text-orgc601fe2">
+<div id="outline-container-org2ee5fc4" class="outline-2">
+<h2 id="org2ee5fc4">Package dependencies</h2>
+<div class="outline-text-2" id="text-org2ee5fc4">
 <p>
 In order to simplify installation, the <code>pbench-agent</code> RPM requires the
 installation of a few tools that should be available from the distribution's
@@ -346,9 +358,9 @@ the external repo above.
 </div>
 </div>
 
-<div id="outline-container-orgae4be18" class="outline-2">
-<h2 id="orgae4be18">Installing <code>pbench-agent</code></h2>
-<div class="outline-text-2" id="text-orgae4be18">
+<div id="outline-container-orgef7de67" class="outline-2">
+<h2 id="orgef7de67">Installing <code>pbench-agent</code></h2>
+<div class="outline-text-2" id="text-orgef7de67">
 <p>
 Once you have the COPR repo installed, you can install the <code>pbench-agent</code> RPM
 and source the startup file to initialize your PATH and CONFIG environment
@@ -381,9 +393,9 @@ You should be ready to roll.
 </div>
 </div>
 
-<div id="outline-container-orgdda6a15" class="outline-2">
-<h2 id="orgdda6a15">Administrator responsibility: Config file and ssh private key file</h2>
-<div class="outline-text-2" id="text-orgdda6a15">
+<div id="outline-container-org8ecd67f" class="outline-2">
+<h2 id="org8ecd67f">Administrator responsibility: Config file and ssh private key file</h2>
+<div class="outline-text-2" id="text-org8ecd67f">
 <p>
 If you are the administrator for this installation, you will have to
 create a config file and make it available to your users. How you make
@@ -412,9 +424,13 @@ user on the server where the results are copied.
 </p>
 </div>
 </div>
+
+<div id="outline-container-org59f60b7" class="outline-2">
+<h2 id="org59f60b7">*Installing%20using%20ansible</h2>
+</div>
 </div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2017-09-18 Mon 18:34</p>
+<p class="date">Page updated: 2017-10-16 Mon 14:23</p>
 </div>
 </body>
 </html>

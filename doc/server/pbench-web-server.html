@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-09-18 Mon 18:34 -->
+<!-- 2017-10-16 Mon 14:23 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench web server</title>
@@ -234,10 +234,21 @@ for the JavaScript code in this tag.
 <body>
 <div id="content">
 <h1 class="title">PBench web server</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgae3b922">Introduction</a></li>
+<li><a href="#org7b12f0c">Installation</a></li>
+<li><a href="#orgf8e5fd3">Local configuration</a></li>
+<li><a href="#orgd8f8bc5">Viewing pbench data locally</a></li>
+</ul>
+</div>
+</div>
 
-<div id="outline-container-org50ad252" class="outline-2">
-<h2 id="org50ad252">Introduction</h2>
-<div class="outline-text-2" id="text-org50ad252">
+<div id="outline-container-orgae3b922" class="outline-2">
+<h2 id="orgae3b922">Introduction</h2>
+<div class="outline-text-2" id="text-orgae3b922">
 <p>
 These are the bits of Javascript, CSS and such that are necessary to render
 the graphs that pbench produces. They are packaged up in an RPM for easy installation.
@@ -247,13 +258,13 @@ allow viewing of pbench graphs locally. This is what is described in this docume
 </div>
 </div>
 
-<div id="outline-container-org249a810" class="outline-2">
-<h2 id="org249a810">Installation</h2>
-<div class="outline-text-2" id="text-org249a810">
+<div id="outline-container-org7b12f0c" class="outline-2">
+<h2 id="org7b12f0c">Installation</h2>
+<div class="outline-text-2" id="text-org7b12f0c">
 <p>
 The RPM is available from the standard pbench repo on COPR. If you
 have a pbench-agent installed already, the repo should be already
-available. If not, consult the <a href="../agent/installation.html#org7625fdc">PBench agent installation instructions</a>
+available. If not, consult the <a href="../agent/installation.html#org783a3d4">PBench agent installation instructions</a>
 for details.
 </p>
 
@@ -275,9 +286,9 @@ then calls <code>npm install</code> on the various packages.
 </div>
 </div>
 
-<div id="outline-container-orgc7a7d0a" class="outline-2">
-<h2 id="orgc7a7d0a">Local configuration</h2>
-<div class="outline-text-2" id="text-orgc7a7d0a">
+<div id="outline-container-orgf8e5fd3" class="outline-2">
+<h2 id="orgf8e5fd3">Local configuration</h2>
+<div class="outline-text-2" id="text-orgf8e5fd3">
 <p>
 It is assumed that you have an HTTP server installed and running. Here
 I will assume <code>apache</code>, but similar considerations apply to other servers.
@@ -305,9 +316,9 @@ ln -sf /var/lib/pbench-agent /var/www/html
 </div>
 </div>
 
-<div id="outline-container-orgb29e1aa" class="outline-2">
-<h2 id="orgb29e1aa">Viewing pbench data locally</h2>
-<div class="outline-text-2" id="text-orgb29e1aa">
+<div id="outline-container-orgd8f8bc5" class="outline-2">
+<h2 id="orgd8f8bc5">Viewing pbench data locally</h2>
+<div class="outline-text-2" id="text-orgd8f8bc5">
 <p>
 Now browse to
 </p>
@@ -333,7 +344,7 @@ able to get the npm package.
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2017-09-18 Mon 18:34</p>
+<p class="date">Page updated: 2017-10-16 Mon 14:23</p>
 </div>
 </body>
 </html>
