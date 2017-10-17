@@ -170,6 +170,22 @@ njobs=$(getconf.py njobs pbench-move-unpacked)
 if [[ -z $njobs ]] ;then
     njobs=1
 fi
+
+# If there is nothing to be done, exit now: do not create the job
+# pool.
+
+# This is a workaround for a job pool problem: it seems that a
+# job termination message gets lost, so occasionally the script hangs with
+# a job pool process trying to read the next job from the job pool
+# queue, but there *is* no next job. This seems to happen *only* when
+# there is no work to be done.
+
+if [[ ! -s $list ]] ;then
+    echo "$TS: Processed 0 tarballs"
+    log_finish
+    exit 0
+fi
+
 job_pool_init $njobs 0
 
 while read size result ;do
@@ -178,8 +194,9 @@ while read size result ;do
     ntb=$ntb+1
 done < $list
 
-# Wait until all jobs complete
-job_pool_wait
+# There is no need to call job_pool_wait: it only needs to be called
+# when we want to wait for the current batch to finish and then start
+# another batch.
 
 # Shut down the job pool
 job_pool_shutdown
