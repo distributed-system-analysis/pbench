@@ -24,6 +24,9 @@ dir = /pbench/public_html/incoming
 default-tool-set = sar, iostat, mpstat, pidstat, proc-vmstat, proc-interrupts, turbostat
 interval = 3
 
+[tools/pidstat]
+interval = 30
+
 [packages]
 # RHEL has python-pandas
 pandas-package = python-pandas
@@ -33,3 +36,4 @@ pandas-package = python2-pandas
 [config]
 path = %(pbench_install_dir)s/config
 files = pbench-agent.cfg
+
