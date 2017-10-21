@@ -1,5 +1,4 @@
 #!/bin/bash
-
 _tdir=$(dirname $(readlink -f $0))
 
 _testroot=/var/tmp/pbench-test-utils
@@ -25,8 +24,6 @@ let res=res+$?
 mkdir -p $_testopt/util-scripts
 let res=res+$?
 cp $_tdir/../base $_testopt/
-mkdir -p $_testopt/config
-cp $_tdir/samples/pbench-agent.cfg $_testopt/config
 let res=res+$?
 mkdir -p $_testopt/tool-scripts
 let res=res+$?
@@ -150,7 +147,7 @@ function _setup_state {
     fi
     if [ ! -z "$tool" -a ! -z "$tst" ] ;then
         if [ -d $_tdir/samples/$tool/$tst ] ;then
-            cp -r $_tdir/samples/$tool/$tst/* $_testdir
+            cp -r $_tdir/samples/$tool/$tst/* $_testroot
         fi
     fi
 }
@@ -178,6 +175,9 @@ declare -A tools=(
     [test-09]="pbench-stop-tools"
     [test-10]="pbench-stop-tools"
     [test-11]="pbench-register-tool-set"
+    [test-11.1]="pbench-register-tool-set"
+    [test-11.2]="pbench-register-tool-set"
+    [test-11.3]="pbench-register-tool-set"
     [test-12]="pbench-clear-tools"
     [test-13]="pbench-postprocess-tools"
     [test-14]="pbench-agent-config-activate"
@@ -212,6 +212,7 @@ declare -A options=(
     [test-10]="--dir=$_testdir/tmp"
     # fubar is assumed to *NOT* exist
     [test-11]="--remote=fubar"
+    [test-11.2]="--interval=10"
     [test-13]="--dir=$_testdir/tmp --group=default --iteration=1"
     [test-14]="$_testdir/tmp/pbench-agent.cfg"
     [test-15]="--group=default --start-trigger=\"START DEFAULT\" --stop-trigger=\"STOP DEFAULT\""
@@ -250,6 +251,7 @@ for tst in $tests; do
     tool=${tools[$tst]}
     opts=${options[$tst]}
     status=${expected_status[$tst]}
+
 
     _setup_state $tst $tool
     _run $tst $tool $opts
