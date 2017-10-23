@@ -44,14 +44,15 @@ linkdest=MOVED-UNPACKED
 echo $TS
 
 # get the list of files we'll be operating on - sort them by size
-list=$UNPACK_PATH/pbench-unpack-tarballs.$$
 tmp=$TMP/$PROG.$$
+list=$tmp/$PROG.list
 mail_content=$tmp/mail_content.log
-find $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | grep -v DUPLICATE | sed 's/\/'$linksrc'//' | sort -n > $list
-
-trap 'rm -rf $list $tmp' EXIT INT QUIT
 
 mkdir -p $tmp
+
+find $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | grep -v DUPLICATE | sed 's/\/'$linksrc'//' | sort -n > $list
+
+trap 'rm -rf $tmp' EXIT INT QUIT
 
 typeset -i ntb=0
 typeset -i ntotal=0

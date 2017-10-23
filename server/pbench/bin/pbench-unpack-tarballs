@@ -85,7 +85,7 @@ mkdir -p $tmp
 mail_content=$tmp/mail_content.log
 
 # get the list of files we'll be operating on - sort them by size
-list=$tmp/pbench-unpack-tarballs.list
+list=$tmp/$PROG.list
 find $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | grep -v DUPLICATE | sed 's/\/'$linksrc'//' | sort -n > $list
 
 typeset -i ntb=0
