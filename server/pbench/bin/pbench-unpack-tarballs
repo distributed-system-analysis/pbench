@@ -86,7 +86,11 @@ mail_content=$tmp/mail_content.log
 
 # get the list of files we'll be operating on - sort them by size
 list=$tmp/$PROG.list
-find $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | grep -v DUPLICATE | sed 's/\/'$linksrc'//' | sort -n > $list
+
+# find command will not generate any result if the linksrc is empty, and because of that du will not get any result 
+# to calculate the size. In that scenario du generates the size of the current directory as output, to handle
+# that exclude the current directory.
+find $ARCHIVE/*/$linksrc -type l -name '*.tar.xz' -printf "%l\n" 2>/dev/null | grep -v DUPLICATE | xargs du -b --exclude "." 2>/dev/null | sort -n > $list
 
 typeset -i ntb=0
 typeset -i ntotal=0
