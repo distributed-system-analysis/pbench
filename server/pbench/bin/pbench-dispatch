@@ -75,7 +75,7 @@ else
     echo $TS
 
     # get the list of files we'll be operating on - sort them by size
-    list=$TMP/pbench-unpack-tarballs.$$
+    list=$TMP/PROG.$$
     find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' 2>/dev/null | grep -v DUPLICATE > $list
 
     trap 'rm -f $list' EXIT INT QUIT
