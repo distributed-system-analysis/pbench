@@ -77,7 +77,7 @@ echo $TS
 
 tmp=$TMP/$PROG.$$
 
-trap 'rm -rf $list $tmp' EXIT INT QUIT
+trap 'rm -rf $tmp' EXIT INT QUIT
 
 mkdir -p $tmp
 
@@ -149,131 +149,95 @@ while read size result ;do
     fi
     
     let start_time=$(date +%s)
-    if [[ $UNPACK_PATH -ef $INCOMING ]] ;then
-        # unpack the tarballs in incoming
-        pushd $INCOMING/$hostname > /dev/null 2>&1
-        tar --extract --no-same-owner --no-overwrite-dir --touch --file="$result"
-        status=$?
-        if [[ $status -ne 0 ]] ;then
-            echo "$TS: 'tar -xf $result' failed: code $status" | tee -a $mail_content >&4 
-            nerrs=$nerrs+1
-            popd > /dev/null 2>&1
-            continue
-        fi
+    pushd $UNPACK_PATH/$hostname > /dev/null 2>&1
+    tar --extract --no-same-owner --no-overwrite-dir --touch --file="$result"
+    status=$?
+    if [[ $status -ne 0 ]] ;then
+        echo "$TS: 'tar -xf $result' failed: code $status" | tee -a $mail_content >&4 
+        nerrs=$nerrs+1
         popd > /dev/null 2>&1
+        continue
+    fi
 
-        basedir=$(dirname $link)
-        # pbench-dispatch has already moved it to the .prefix subdir
-        prefixfile=$basedir/.prefix/prefix.$resultname
-        if [ -f $prefixfile ] ;then
-            # add the slash to make both cases uniform in what follows
-            prefix=$(cat $prefixfile)/
-        else
-            prefix=""
-        fi
+    # chmod directories to at least 555
+    find . -type d -print0 | xargs -0 chmod ugo+rx
+    status=$?
+    if [[ $status -ne 0 ]] ;then
+        echo "$TS: 'chmod ugo+rx' of subdirs failed: code $status" | tee -a $mail_content >&4 
+        nerrs=$nerrs+1
+        rm -rf $resultname
+        popd > /dev/null 2>&1
+        continue
+    fi
 
-	incoming=$INCOMING/$hostname/$resultname
-	mkdir -p $RESULTS/$hostname/$prefix
-        status=$?
-        if [[ $status -ne 0 ]] ;then
-            echo "$TS: code $status: mkdir -p $RESULTS/$hostname/$prefix" | tee -a $mail_content >&4 
-        else
-            echo "ln -s $incoming $RESULTS/$hostname/$prefix$resultname"
-            ln -s $incoming $RESULTS/$hostname/$prefix$resultname
-            status=$?
-            if [[ $status -ne 0 ]] ;then
-                echo "$TS: code $status: ln -s $incoming $RESULTS/$hostname/$prefix$resultname" | tee -a $mail_content >&4 
-            fi
-        fi
+    # chmod files to at least 444
+    chmod -R ugo+r .
+    status=$?
+    if [[ $status -ne 0 ]] ;then
+        echo "$TS: 'chmod -R ugo+r .' failed: code $status" | tee -a $mail_content >&4 
+        nerrs=$nerrs+1
+        rm -rf $resultname
+        popd > /dev/null 2>&1
+        continue
+    fi
+    popd > /dev/null 2>&1
 
-        # move the link to $linkdest directory
-        mv $ARCHIVE/$hostname/$linksrc/$resultname.tar.xz $ARCHIVE/$hostname/$linkdest/$resultname.tar.xz
-        status=$?
-        if [[ $status -ne 0 ]] ;then
-            echo "$TS: Cannot move $ARCHIVE/$hostname/$resultname from $linksrc to $linkdest: code $status" | tee -a $mail_content >&4 
-            rm $RESULTS/$hostname/$prefix$resultname
-            nerrs=$nerrs+1
-            continue
-        fi
+    # if there is a prefix file, create a link as specified by the prefix
+    # even if no prefix is specified, we still want to link from the results/ hierarchy to incoming/.
+    # user access will eventually be through results/ only.
+
+    basedir=$(dirname $link)
+    # pbench-dispatch has already moved it to the .prefix subdir
+    prefixfile=$basedir/.prefix/prefix.$resultname
+    if [ -f $prefixfile ] ;then
+        # add the slash to make both cases uniform in what follows
+        prefix=$(cat $prefixfile)/
     else
-        # unpack the tarballs into a temp area
-        pushd $UNPACK_PATH/$hostname > /dev/null 2>&1
-        tar --extract --no-same-owner --no-overwrite-dir --touch --file="$result"
-        status=$?
-        if [[ $status -ne 0 ]] ;then
-            echo "$TS: 'tar -xf $result' failed: code $status" | tee -a $mail_content >&4 
-            nerrs=$nerrs+1
-            popd > /dev/null 2>&1
-            continue
-        fi
-	
-        # chmod directories to at least 555
-        find . -type d -print0 | xargs -0 chmod ugo+rx
-        status=$?
-        if [[ $status -ne 0 ]] ;then
-            echo "$TS: 'chmod ugo+rx' of subdirs failed: code $status" | tee -a $mail_content >&4 
-            nerrs=$nerrs+1
-            popd > /dev/null 2>&1
-            continue
-        fi
+        prefix=""
+    fi
 
-    	# chmod files to at least 444
-    	chmod -R ugo+r .
-    	status=$?
-    	if [[ $status -ne 0 ]] ;then
-            echo "$TS: 'chmod -R ugo+r .' failed: code $status" | tee -a $mail_content >&4 
-            nerrs=$nerrs+1
-            popd > /dev/null 2>&1
-            continue
-    	fi
-    	popd > /dev/null 2>&1
-
-    	# create the link from results to incoming *before* moving the directory from UNPACK_PATH.
-    	
-    	# if there is a prefix file, create a link as specified by the prefix
-    	# even if no prefix is specified, we still want to link from the results/ hierarchy to incoming/.
-    	# user access will eventually be through results/ only.
-        
-        basedir=$(dirname $link)
-        # pbench-dispatch has already moved it to the .prefix subdir
-        prefixfile=$basedir/.prefix/prefix.$resultname
-    	if [ -f $prefixfile ] ;then
-            # add the slash to make both cases uniform in what follows
-            prefix=$(cat $prefixfile)/
+    incoming=$INCOMING/$hostname/$resultname
+    mkdir -p $RESULTS/$hostname/$prefix
+    status=$?
+    if [[ $status -ne 0 ]] ;then
+        echo "$TS: code $status: mkdir -p $RESULTS/$hostname/$prefix" | tee -a $mail_content >&4
+        continue
+    else
+        # when unpack path is incoming
+        if [[ $UNPACK_PATH -ef $INCOMING ]]; then
+            :
+        # when unpack path is tmp directory
         else
-            prefix=""
-        fi
-
-	incoming=$INCOMING/$hostname/$resultname
-        mkdir -p $RESULTS/$hostname/$prefix
-    	status=$?
-    	if [[ $status -ne 0 ]] ;then
-            echo "$TS: code $status: mkdir -p $RESULTS/$hostname/$prefix" | tee -a $mail_content >&4 
-    	else
-	    echo "ln -s $UNPACK_PATH/$hostname/$resultname $incoming"
+            echo "ln -s $UNPACK_PATH/$hostname/$resultname $incoming"
             ln -s $UNPACK_PATH/$hostname/$resultname $incoming
             status=$?
             if [[ $status -ne 0 ]] ;then
-                echo "$TS: code $status: ln -s $UNPACK_PATH/$hostname/$resultname $incoming" | tee -a $mail_content >&4 
-            fi
-            echo "ln -s $incoming $RESULTS/$hostname/$prefix$resultname"
-            ln -s $incoming $RESULTS/$hostname/$prefix$resultname
-            status=$?
-            if [[ $status -ne 0 ]] ;then
-                echo "$TS: code $status: ln -s $incoming $RESULTS/$hostname/$prefix$resultname" | tee -a $mail_content >&4 
+                echo "$TS: code $status: ln -s $UNPACK_PATH/$hostname/$resultname $incoming" | tee -a $mail_content >&4
+                # Cleanup needed here but trap takes care of it.
+                continue 
             fi
         fi
-
-    	# move the link to $linkdest directory
-    	mv $ARCHIVE/$hostname/$linksrc/$resultname.tar.xz $ARCHIVE/$hostname/$linkdest/$resultname.tar.xz
-    	status=$?
-    	if [[ $status -ne 0 ]] ;then
-            echo "$TS: Cannot move $ARCHIVE/$hostname/$resultname from $linksrc to $linkdest: code $status" | tee -a $mail_content >&4 
-            rm $RESULTS/$hostname/$prefix$resultname
-            nerrs=$nerrs+1
+        echo "ln -s $incoming $RESULTS/$hostname/$prefix$resultname"
+        ln -s $incoming $RESULTS/$hostname/$prefix$resultname
+        status=$?
+        if [[ $status -ne 0 ]] ;then
+            echo "$TS: code $status: ln -s $incoming $RESULTS/$hostname/$prefix$resultname" | tee -a $mail_content >&4
+            rm -rf $incoming
             continue
-    	fi
+        fi
     fi
+
+    mv $ARCHIVE/$hostname/$linksrc/$resultname.tar.xz $ARCHIVE/$hostname/$linkdest/$resultname.tar.xz
+    status=$?
+    if [[ $status -ne 0 ]] ;then
+        echo "$TS: Cannot move $ARCHIVE/$hostname/$resultname from $linksrc to $linkdest: code $status" | tee -a $mail_content >&4
+        # Cleanup needed here but trap takes care of it.
+        rm -rf $incoming
+        rm $RESULTS/$hostname/$prefix$resultname
+        nerrs=$nerrs+1
+        continue
+    fi
+
     let end_time=$(date +%s)
     let duration=end_time-start_time
     # log the success
