@@ -14,7 +14,7 @@ function usage() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o p:x --longoptions "prefix:,xz-single-threaded" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o p:xS --longoptions "prefix:,xz-single-threaded,show-server" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
     printf "\n"
     printf "%s\n" $*
@@ -25,6 +25,7 @@ if [ $? -ne 0 ]; then
 fi
 
 xz_single_threaded=
+show_server=
 eval set -- "$opts";
 while true; do
     case "$1" in
@@ -39,6 +40,10 @@ while true; do
 	    shift;
 	    xz_single_threaded=1
 	    ;;
+	-S|--show-server)
+	    shift;
+	    show_server=1
+	    ;;	
         --)
             shift;
             break;
@@ -119,6 +124,11 @@ if [ -z "$results_path_prefix" ]; then
     exit 1
 fi
 results_full_path="$results_path_prefix/$hostname"
+
+if [[ ! -z "$show_server" ]] ;then
+    echo ${results_repo}
+    exit 0
+fi
 
 # ssh probe test
 ssh -q -i $pbench_bin/id_rsa $ssh_opts $results_repo exit
