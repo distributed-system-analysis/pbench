@@ -108,6 +108,8 @@ function collect_ara_data {
 }
 
 for item in ${sysinfo//,/ };do
+	echo "Collecting $item"
+	debug_log "[$script_name]: collecting $item"
 	if [[ "$item" == "kernel_config" ]]; then
 		collect_kernel_config &
 	elif [[ "$item" == "libvirt" ]]; then
