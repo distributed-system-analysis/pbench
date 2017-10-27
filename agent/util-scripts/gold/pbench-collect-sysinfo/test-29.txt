@@ -3,10 +3,11 @@ bad is not a valid sysinfo option
 --- Finished test-29 pbench-collect-sysinfo (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 --- pbench tree state
 +++ pbench.log file contents
-grep: /var/tmp/pbench-test-utils/pbench/pbench.log: No such file or directory
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to block,sos,bad,topology
 --- pbench.log file contents
 +++ test-execution.log file contents
 grep: /var/tmp/pbench-test-utils/test-execution.log: No such file or directory

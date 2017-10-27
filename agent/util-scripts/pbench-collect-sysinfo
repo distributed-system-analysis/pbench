@@ -103,6 +103,7 @@ fi
 
 # check if the input sysinfo parameter passed by the user is a valid option or not
 if $check; then
+	debug_log "[$script_name]: sysinfo option is set to $sysinfo" 
 	if [ "$sysinfo" == "all" ] || [ "$sysinfo" == "default" ] || [ "$sysinfo" == "none" ]; then
 		:
 	else
