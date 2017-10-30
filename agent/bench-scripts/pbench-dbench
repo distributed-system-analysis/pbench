@@ -347,7 +347,7 @@ for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 						if [ "$client" != "127.0.0.1" ]; then
 							ssh $ssh_opts $client mkdir -p $benchmark_results_dir
 							ssh $ssh_opts $client mkdir -p $dir/$client_nr
-							scp $ssh_opts $benchmark_client_cmd_file $client:$benchmark_client_cmd_file >/dev/null
+							scp $scp_opts $benchmark_client_cmd_file $client:$benchmark_client_cmd_file >/dev/null
 						else
 							mkdir -p $dir/$client_nr
 						fi

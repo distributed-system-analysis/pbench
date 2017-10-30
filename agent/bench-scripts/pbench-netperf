@@ -461,7 +461,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 										client=`echo $clients | cut -d, -f$i`
 										xml_file="$benchmark_run_dir/$iteration/netperf-config-$server.xml"
 										ssh $ssh_opts $client mkdir -p $benchmark_results_dir
-										scp $ssh_opts $xml_file $client:$xml_file
+										scp $scp_opts $xml_file $client:$xml_file
 										ssh $ssh_opts $client "systemctl stop firewalld"
 										let i=$i+1
 									done

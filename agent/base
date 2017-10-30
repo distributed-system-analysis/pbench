@@ -109,6 +109,10 @@ if [ -z "$ssh_opts" ]; then
     ssh_opts='-o StrictHostKeyChecking=no'
 fi
 
+scp_opts=$(getconf.py scp_opts results)
+if [ -z "$scp_opts" ]; then
+    scp_opts='-o StrictHostKeyChecking=no'
+fi
 
 function is_redhat() {
     grep -q 'Red Hat' /etc/redhat-release

@@ -586,14 +586,14 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									# prepare test files and dirs if using remote clients
 									if [ ! -z "$clients" ]; then
 										ssh $ssh_opts $client mkdir -p $benchmark_results_dir
-										scp $ssh_opts $xml_file $client:$xml_file >/dev/null
-										scp $ssh_opts $benchmark_client_cmd_file $client:$benchmark_client_cmd_file >/dev/null
+										scp $scp_opts $xml_file $client:$xml_file >/dev/null
+										scp $scp_opts $benchmark_client_cmd_file $client:$benchmark_client_cmd_file >/dev/null
 										ssh $ssh_opts $client "systemctl stop firewalld"
 									fi
 
 									# prepare test files and dirs on servers
 									ssh $ssh_opts $server mkdir -p $benchmark_results_dir
-									scp $ssh_opts $benchmark_server_cmd_file $server:$benchmark_server_cmd_file >/dev/null
+									scp $scp_opts $benchmark_server_cmd_file $server:$benchmark_server_cmd_file >/dev/null
 
 									# start the uperf server(s)
 									stop_server $server $server_port 1
@@ -662,7 +662,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									stop_server $server $server_port 0
 									if [ ! -z "$clients" ]; then
 										result_file="$benchmark_results_dir/$uperf_identifier--client_output.txt"
-										scp $ssh_opts $client:$result_file $result_file >/dev/null
+										scp $scp_opts $client:$result_file $result_file >/dev/null
 									fi
 									((server_nr++))
 								done

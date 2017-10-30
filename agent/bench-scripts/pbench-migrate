@@ -253,10 +253,10 @@ function do_migrate() {
 	# make sure dest_host has exact VM config as src_host
 	if [ "$use_libvirt" == "y" ]; then
 		echo creating VM on destination host using libvirt
-		ssh $dest_host virsh undefine $vm
-		ssh $src_host virsh dumpxml $vm >/tmp/$vm.xml
-		scp /tmp/$vm.xml $dest_host:/tmp/$vm.xml
-		ssh $dest_host virsh define /tmp/$vm.xml
+		ssh $ssh_opts $dest_host virsh undefine $vm
+		ssh $ssh_opts $src_host virsh dumpxml $vm >/tmp/$vm.xml
+		scp $scp_opts /tmp/$vm.xml $dest_host:/tmp/$vm.xml
+		ssh $ssh_opts $dest_host virsh define /tmp/$vm.xml
 	else
 		# start qemu in listen mode on dest host
 		echo creating VM on destination hosyt using qemu
