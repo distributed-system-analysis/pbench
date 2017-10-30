@@ -251,7 +251,7 @@ for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v 
     fi
 
     # finally do the copy
-    scp -i $pbench_bin/id_rsa $ssh_opts ./$tarball ./$tarball.md5 $prefixfile $results_repo:$results_full_path
+    scp $scp_opts -i $pbench_bin/id_rsa $ssh_opts ./$tarball ./$tarball.md5 $prefixfile $results_repo:$results_full_path
     if [ $? -ne 0 ]; then
         error_log "ERROR: unable to copy results tarball, $tarball, to $results_repo:$results_full_path"
         rm -f $tarball $tarball.md5
