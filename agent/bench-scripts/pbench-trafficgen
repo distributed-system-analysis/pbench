@@ -133,9 +133,9 @@ if [ $? -ne 0 ]; then
 	printf -- "  Default is $traffic_generator\n"
 	printf -- "\n"
 	printf -- "--devices=str,str\n"
-	printf -- "  List of 2 DPDK devices to use, by PCI location ID (0000:04:00.0,0000:04:00.1)\n"
+	printf -- "  List of 2 (or more) DPDK devices to use, by PCI location ID (0000:04:00.0,0000:04:00.1)\n"
 	printf -- "  This script will attempt to bind the device to vfio-pci kernel module.\n"
-	printf -- "  You must ensure your system has IOMMU enabled.\n"
+	printf -- "  You must ensure your system has IOMMU enabled.  Devices must be listed in increments of 2.\n"
 	printf -- "\n"
 	printf -- "--one-shot\n"
 	printf -- "  Run one test for throughput at specified rate\n"
@@ -618,6 +618,33 @@ for module in vfio vfio_pci; do
 		fi
 	fi
 done
+total_devices=$(echo ${devices} | sed -e "s/,/ /g" | wc -w)
+device_pairs=""
+if [ $(echo "${total_devices} % 2" | bc) != 0 ]; then
+	error_log "devices must be supplied in quantities of 2, exiting"
+	exit 1
+else
+	total_device_pairs=$(echo "${total_devices} / 2" | bc)
+	if [ $traffic_generator == "trex-txrx" ]; then
+		device_index=0
+		device_pair_index=0
+		cmd+=" --device-pairs="
+		for device in $(seq 1 2 ${total_devices}); do
+			device_a=$(( device - 1))
+			device_b=${device}
+			cmd+="${device_a}:${device_b}"
+			(( device_pair_index++ ))
+			if [ ${device_pair_index} -lt ${total_device_pairs} ]; then
+				cmd+=","
+			fi
+		done
+	else
+		if [ "${total_device_pairs}" -gt 1 ]; then
+			error_log "only the trex-txrx traffic generator supports more than 1 pair of devices, exiting"
+			exit 1
+		fi
+	fi
+fi
 for dev in `echo $devices | sed -e s/,/" "/g`; do
 	echo "configuring device $dev"
 	if /bin/ls /sys/module/vfio_pci/drivers/pci\:vfio-pci/ | grep -q "$dev"; then
@@ -735,11 +762,13 @@ if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 	trex_config_cmd="./dpdk_setup_ports.py -c `echo $devices | sed -e s/,/" "/g` --cores-include ${cpu_list} -o $pbench_tmp/trex_cfg.yaml ${trex_config_args}"
 	echo "configuring trex with: ${trex_config_cmd}"
 	${trex_config_cmd}
-	yaml_cpus=$(cat ${pbench_tmp}/trex_cfg.yaml | grep threads | sed -e 's/.*\[\(.*\)\]/\1/' -e 's/,/ /g' | wc -w)
 	trex_cpus=14
-	if [ ${yaml_cpus} -lt ${trex_cpus} ]; then
-		trex_cpus=${yaml_cpus}
-	fi
+	for cpu_block in $(cat /var/lib/pbench-agent/tmp/trex_cfg.yaml | grep threads | sed -e "s/\s//g" -e "s/threads://"); do
+		yaml_cpus=$(echo "${cpu_block}" | sed -e 's/.*\[\(.*\)\]/\1/' -e 's/,/ /g' | wc -w)
+		if [ ${yaml_cpus} -lt ${trex_cpus} ]; then
+			trex_cpus=${yaml_cpus}
+		fi
+	done
 	trex_server_cmd="./t-rex-64 -i -c ${trex_cpus} --checksum-offload --cfg $pbench_tmp/trex_cfg.yaml"
 	echo "about to run: ${trex_server_cmd}"
 	echo "trex yaml:"
@@ -760,7 +789,7 @@ if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 		echo "trex-server is ready"
 	else
 		warn_log "trex-server could not start properly.  check \'screen -x trex-server\'"
-        exit 1
+		exit 1
 	fi
 fi
 
