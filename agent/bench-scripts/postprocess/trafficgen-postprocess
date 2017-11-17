@@ -161,8 +161,8 @@ if ($json_result) {
 	my $perl_scalar = from_json( $json_text );
 	my $rx_port;
 	my @device_pairs;
-	if (exists $config{'device-pairs'}) {
-	    my @pairs = split(/,/, $config{'device-pairs'});
+	if (exists $config{'active-device-pairs'}) {
+	    my @pairs = split(/,/, $config{'active-device-pairs'});
 
 	    foreach my $pair (@pairs) {
 		my @ports = split(/:/, $pair);
@@ -175,7 +175,12 @@ if ($json_result) {
 	    push(@device_pairs, { 'tx_port' => 1, 'rx_port' => 0 });
 	}
 	foreach my $device_pair (@device_pairs) {
-		my $rx_rate = ${ $perl_scalar }[$device_pair->{'rx_port'}]{'rx_pps'};
+		my $rx_rate;
+		if (exists ${ $perl_scalar }[$device_pair->{'rx_port'}]{'rx_pps'}) {
+		    $rx_rate = ${ $perl_scalar }[$device_pair->{'rx_port'}]{'rx_pps'};
+		} else {
+		    $rx_rate = 0.0;
+		}
 		my $uid = "tx_port:%tx_port%-rx_port:%rx_port%";
 		push(@Mframes_sec, { 'description' => "The number of Ethernet frames (in millions) received per second",
 				     'uid' => $uid,
