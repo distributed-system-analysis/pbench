@@ -1,0 +1,11 @@
+Host *
+	User root
+        Port 2022
+        StrictHostKeyChecking no
+        PasswordAuthentication no
+        IdentityFile ~/.ssh/id_rsa_perf  
+      
+Host *perf.lab.eng.bos.redhat.com
+        User root
+        Port 22
+        StrictHostKeyChecking no
