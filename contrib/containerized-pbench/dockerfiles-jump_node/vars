@@ -1,4 +1,0 @@
-pbench_server=foo.example.com
-clear_results=
-benchmark=pbench-user-benchmark -- sleep 1
-move_results=
