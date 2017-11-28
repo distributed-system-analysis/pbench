@@ -144,7 +144,7 @@ function fio_usage() {
 }
 
 function fio_process_options() {
-	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,remote-only,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,job-file:,sysinfo:" -n "getopt.sh" -- "$@");
+	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,remote-only,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,job-file:,sysinfo:,pre-iteration-script:" -n "getopt.sh" -- "$@");
 
 	if [ $? -ne 0 ]; then
 		printf "\t${benchmark}: you specified an invalid option\n\n"
@@ -448,7 +448,8 @@ function pandas_install() {
 		if [[ -z ${pandas_pkg} ]] ;then
 			return 1
 		fi
-		if check_install_rpm ${pandas_pkg}; then
+		# args 2 and 3 used in unit tests only.
+		if check_install_rpm ${pandas_pkg} "" python-pandas; then
 			debug_log "[$script_name]python-pandas is installed"
 		else
 			debug_log "[$script_name]python-pandas installation failed, exiting."
@@ -502,7 +503,7 @@ function fio_create_jobfile() {
 		-ramptime="$8" \
 		-size="$9" \
 		-rate_iops="${10}" \
-		-targets `echo "${11}" | sed -e 's/,/" "/g'` \
+		-targets $(echo "${11}" | sed -e 's/,/ /g') \
 		| sed -e 's/ = /=/g' > $fio_job_file
 
 	if [ $? -ne 0 ]; then
