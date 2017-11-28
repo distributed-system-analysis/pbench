@@ -194,7 +194,12 @@ if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
 
 else
     function check_install_rpm {
-        echo $1
+        # this deals with python-pandas/python2-pandas dichotomy - see bench-scripts/pbench-fio
+        if [ -z "$3" ] ;then
+            echo $1
+        else
+            echo $3
+        fi
         #$2 is the version which will vary
         return 0
     }
