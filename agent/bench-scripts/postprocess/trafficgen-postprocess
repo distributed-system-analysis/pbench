@@ -117,16 +117,12 @@ my %config;
 # Load the data from result.txt and create throughput metrics
 open( TXT, "<$result_file" ) or die "Can't open $result_file $!";
 while ( $line = <TXT> ) {
-	for my $i ('traffic_generator', 'rate', 'rate_unit', 'frame_size', 'measure_latency',
-		   'search-runtime', 'run-bidirec', 'use-num-flows', 'use-src-mac-flows',
-		   'use-dst-mac-flows', 'use-src-ip-flows', 'use-dst-ip-flows', 'use-encap-src-mac-flows',
-		   'use-encap-dst-mac-flows', 'use-encap-src-ip-flows', 'src-macs-list', 'dest-macs-list',
-		   'encap-src-macs-list', 'encap-dest-macs-list', 'src-ips-list', 'dest-ips-list',
-		   'encap-src-ips-list', 'encap-dest-ips-list') {
-		if ( $line =~ /^\(\'$i\',\s(.+)\)/ ) {
-			my $value = $1;
+	if ( $line =~ /^CONFIG \|/) {
+		if ( $line =~ /^CONFIG\s\|\s(.+)=(.*)$/ ) {
+			my $variable = $1;
+			my $value = $2;
 			$value =~ s/\'//g;
-			$config{$i} = $value;
+			$config{$variable} = $value;
 		}
 	}
 	if ( $line =~ /^RESULT:/ ) {
@@ -164,29 +160,43 @@ if ($json_result) {
 	close TXT;
 	my $perl_scalar = from_json( $json_text );
 	my $rx_port;
-	for my $tx_port (0, 1) {
-		if ( $tx_port == 0 ) {
-			$rx_port = 1;
+	my @device_pairs;
+	if (exists $config{'active-device-pairs'}) {
+	    my @pairs = split(/,/, $config{'active-device-pairs'});
+
+	    foreach my $pair (@pairs) {
+		my @ports = split(/:/, $pair);
+
+		push(@device_pairs, { 'tx_port' => $ports[0], 'rx_port' => $ports[1] });
+		push(@device_pairs, { 'tx_port' => $ports[1], 'rx_port' => $ports[0] });
+	    }
+	} else {
+	    push(@device_pairs, { 'tx_port' => 0, 'rx_port' => 1 });
+	    push(@device_pairs, { 'tx_port' => 1, 'rx_port' => 0 });
+	}
+	foreach my $device_pair (@device_pairs) {
+		my $rx_rate;
+		if (exists ${ $perl_scalar }[$device_pair->{'rx_port'}]{'rx_pps'}) {
+		    $rx_rate = ${ $perl_scalar }[$device_pair->{'rx_port'}]{'rx_pps'};
 		} else {
-			$rx_port = 0;
+		    $rx_rate = 0.0;
 		}
-		my $rx_rate = ${ $perl_scalar }[$rx_port]{'rx_pps'};
 		my $uid = "tx_port:%tx_port%-rx_port:%rx_port%";
 		push(@Mframes_sec, { 'description' => "The number of Ethernet frames (in millions) received per second",
-		      		'uid' => $uid,
-				'tx_port' => $tx_port,
-				'rx_port' => $rx_port,
-		      		'value' => $rx_rate / 1000000} );
+				     'uid' => $uid,
+				     'tx_port' => $device_pair->{'tx_port'},
+				     'rx_port' => $device_pair->{'rx_port'},
+				     'value' => $rx_rate / 1000000} );
 		my $value;
-		if (exists ${ $perl_scalar }[$rx_port]{'rx_bandwidth'}) {
-		    $value = ${ $perl_scalar }[$rx_port]{'rx_bandwidth'};
+		if (exists ${ $perl_scalar }[$device_pair->{'rx_port'}]{'rx_bandwidth'}) {
+		    $value = ${ $perl_scalar }[$device_pair->{'rx_port'}]{'rx_bandwidth'};
 		} else {
 		    $value = ($config{'frame_size'} *8 + 64 + 96) * $rx_rate;
 		}
 		push(@Gb_sec, { 'description' => "The number of bits (in billions) received from Ethernet phsycial layer per second",
      				'uid' => $uid,
-				'tx_port' => $tx_port,
-				'rx_port' => $rx_port,
+				'tx_port' => $device_pair->{'tx_port'},
+				'rx_port' => $device_pair->{'rx_port'},
 				'value' => ($value / (1000 * 1000 * 1000)) });
 	}
 } else {

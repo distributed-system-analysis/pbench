@@ -54,6 +54,7 @@ rates="none"
 rate_tolerance_pct=3 # by percent, how much the TX rate can vary from desired rate
 rate_unit="mpps"
 devices="" # the network devices as PCI location IDs, like "0000:04:00.0,0000:04:00.1"
+active_devices="" # the active network devices as PCI location IDs, like "0000:04:00.0,0000:04:00.1"
 dst_ips=""
 src_ips=""
 dst_macs=""
@@ -116,7 +117,7 @@ function convert_number_range() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o c: --longoptions "skip-trex-server,skip-git-pull,traffic-generator:,devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o c: --longoptions "skip-trex-server,skip-git-pull,traffic-generator:,devices:,active-devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
@@ -133,9 +134,13 @@ if [ $? -ne 0 ]; then
 	printf -- "  Default is $traffic_generator\n"
 	printf -- "\n"
 	printf -- "--devices=str,str\n"
-	printf -- "  List of 2 DPDK devices to use, by PCI location ID (0000:04:00.0,0000:04:00.1)\n"
+	printf -- "  List of 2 (or more) DPDK devices to use, by PCI location ID (0000:04:00.0,0000:04:00.1)\n"
 	printf -- "  This script will attempt to bind the device to vfio-pci kernel module.\n"
-	printf -- "  You must ensure your system has IOMMU enabled.\n"
+	printf -- "  You must ensure your system has IOMMU enabled.  Devices must be listed in increments of 2.\n"
+	printf -- "\n"
+	printf -- "--active-devices=str,str\n"
+	printf -- "  List of 2 (ore more) DPDK devices to use as active participants in the test.  These devices\n"
+	printf -- "  must be a subset of what is supplied for --devices.  Devices must be listed in increments of 2.\n"
 	printf -- "\n"
 	printf -- "--one-shot\n"
 	printf -- "  Run one test for throughput at specified rate\n"
@@ -451,6 +456,13 @@ while true; do
 			shift
 		fi
 		;;
+		--active-devices)
+		shift
+		if [ -n "${1}" ]; then
+			active_devices="${1}"
+			shift
+		fi
+		;;
 		--config)
 		shift
 		if [ -n "$1" ]; then
@@ -536,6 +548,10 @@ while true; do
 	esac
 done
 
+if [ -z "${active_devices}" ]; then
+	active_devices=${devices}
+fi
+
 # add test options to $config, so this test result directory is easily identifiable
 config="${config}_tg[`echo $traffic_generator | sed -e 's/-txrx//'`]r[$rates]fs[$frame_sizes]nf[$num_flows]fm[`echo $flow_mods | sed -e 's/src-/s/g' -e 's/dst-/d/g' -e 's/ip/i/g' -e 's/mac/m/g' -e 's/port/p/g'`]td[`echo $traffic_directions | sed -e 's/direc//g'`]ml[$max_loss_pcts]"
 if [ "$one_shot" == "y" ]; then
@@ -618,6 +634,74 @@ for module in vfio vfio_pci; do
 		fi
 	fi
 done
+total_devices=$(echo ${devices} | sed -e "s/,/ /g" | wc -w)
+if [ $(echo "${total_devices} % 2" | bc) != 0 ]; then
+	error_log "devices must be supplied in quantities of 2, exiting"
+	exit 1
+else
+	total_device_pairs=$(echo "${total_devices} / 2" | bc)
+	if [ $traffic_generator == "trex-txrx" ]; then
+		device_pair_index=0
+		cmd+=" --device-pairs="
+		for device in $(seq 1 2 ${total_devices}); do
+			device_a=$(( device - 1))
+			device_b=${device}
+			cmd+="${device_a}:${device_b}"
+			(( device_pair_index++ ))
+			if [ ${device_pair_index} -lt ${total_device_pairs} ]; then
+				cmd+=","
+			fi
+		done
+	else
+		if [ "${total_device_pairs}" -gt 1 ]; then
+			error_log "only the trex-txrx traffic generator supports more than 1 pair of devices, exiting"
+			exit 1
+		fi
+	fi
+fi
+total_active_devices=$(echo ${active_devices} | sed -e "s/,/ /g" | wc -w)
+if [ $(echo "${total_active_devices} % 2" | bc) -ne 0 ]; then
+	error_log "active devices must be supplied in quantities of 2, exiting"
+	exit 1
+else
+	if [ $traffic_generator != "trex-txrx" -a "${devices}" != "${active_devices}" ]; then
+		error_log "only the trex-txrx traffic generator supports --devices != --active-devices, exiting"
+		exit 1
+	else
+		if [ $traffic_generator == "trex-txrx" ]; then
+			active_device_pair_index=0
+			cmd+=" --active-device-pairs="
+			active_device_state=0
+			active_devices_processed=0
+			for active_device in `echo $active_devices | sed -e s/,/" "/g`; do
+				device_index=0
+				active_device_index=-1
+				for device in `echo $devices | sed -e s/,/" "/g`; do
+					if [ "${device}" == "${active_device}" ]; then
+						active_device_index=${device_index}
+					fi
+					(( device_index++ ))
+				done
+				(( active_devices_processed++ ))
+				if [ ${active_device_index} -ne -1 ]; then
+					if [ ${active_device_state} -eq 0 ]; then
+						cmd+="${active_device_index}:"
+						(( active_device_state++ ))
+					elif [ ${active_device_state} -eq 1 ]; then
+						cmd+="${active_device_index}"
+						active_device_state=0
+						if [ ${active_devices_processed} -lt ${total_active_devices} ]; then
+							cmd+=","
+						fi
+					fi
+				else
+					error_log "couldn't find an active device [${active_device}] in the list of devices [${devices}], exiting"
+					exit 1
+				fi
+			done
+		fi
+	fi
+fi
 for dev in `echo $devices | sed -e s/,/" "/g`; do
 	echo "configuring device $dev"
 	if /bin/ls /sys/module/vfio_pci/drivers/pci\:vfio-pci/ | grep -q "$dev"; then
@@ -735,11 +819,13 @@ if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 	trex_config_cmd="./dpdk_setup_ports.py -c `echo $devices | sed -e s/,/" "/g` --cores-include ${cpu_list} -o $pbench_tmp/trex_cfg.yaml ${trex_config_args}"
 	echo "configuring trex with: ${trex_config_cmd}"
 	${trex_config_cmd}
-	yaml_cpus=$(cat ${pbench_tmp}/trex_cfg.yaml | grep threads | sed -e 's/.*\[\(.*\)\]/\1/' -e 's/,/ /g' | wc -w)
 	trex_cpus=14
-	if [ ${yaml_cpus} -lt ${trex_cpus} ]; then
-		trex_cpus=${yaml_cpus}
-	fi
+	for cpu_block in $(cat /var/lib/pbench-agent/tmp/trex_cfg.yaml | grep threads | sed -e "s/\s//g" -e "s/threads://"); do
+		yaml_cpus=$(echo "${cpu_block}" | sed -e 's/.*\[\(.*\)\]/\1/' -e 's/,/ /g' | wc -w)
+		if [ ${yaml_cpus} -lt ${trex_cpus} ]; then
+			trex_cpus=${yaml_cpus}
+		fi
+	done
 	trex_server_cmd="./t-rex-64 -i -c ${trex_cpus} --checksum-offload --cfg $pbench_tmp/trex_cfg.yaml"
 	echo "about to run: ${trex_server_cmd}"
 	echo "trex yaml:"
@@ -760,7 +846,7 @@ if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 		echo "trex-server is ready"
 	else
 		warn_log "trex-server could not start properly.  check \'screen -x trex-server\'"
-        exit 1
+		exit 1
 	fi
 fi
 
