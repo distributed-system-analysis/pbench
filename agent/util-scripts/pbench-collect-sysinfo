@@ -17,15 +17,18 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 group=default
 dir="/tmp"
 # array containing all the possible sysinfo options
-sysinfo_opts_default=( block libvirt kernel_config sos topology ara )
+sysinfo_opts_default=( block libvirt kernel_config sos topology )
+sysinfo_opts_available=( block libvirt kernel_config sos topology ara )
 # get comma seperated values
 sysinfo_opts_default_comma_separated=$(IFS=,; echo "${sysinfo_opts_default[*]}")
+sysinfo_opts_available_comma_separated=$(IFS=,; echo "${sysinfo_opts_available[*]}")
 check=false
 
 # Display sysinfo options 
 function display_sysinfo_opts {
 	printf "default, none, all"
-	for item in ${sysinfo_opts_default[*]}; do printf ", %s" $item ; done
+	for item in ${sysinfo_opts_available[*]}; do printf ", %s" $item ; done
+	printf "\n"
 }
 
 # Process options and arguments
@@ -108,7 +111,7 @@ if $check; then
 		:
 	else
 		for item in ${sysinfo//,/ }; do
-			if echo "${sysinfo_opts_default[@]}" | grep -q -w "$item"; then
+			if echo "${sysinfo_opts_available[@]}" | grep -q -w "$item"; then
 				continue
 			else
 				if [ "$item" == "all" ] || [ "$item" == "default" ] || [ "$item" == "none" ]; then
@@ -126,9 +129,12 @@ fi
 if [ "$sysinfo" == "none" ]; then
 	exit 0
 fi
-# collect everything if sysinfo is all or default
-if [ "$sysinfo" == "default" ] || [ "$sysinfo" == "all" ]; then
-	sysinfo=${sysinfo_opts_default_comma_separated}
+# collect everything if sysinfo is all
+if [ "$sysinfo" == "all" ]; then
+	sysinfo=${sysinfo_opts_available_comma_separated}
+fi
+if [ "$sysinfo" == "default" ]; then
+        sysinfo=${sysinfo_opts_default_comma_separated}
 fi
 
 name="$1"
