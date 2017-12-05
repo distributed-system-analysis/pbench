@@ -10,7 +10,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 
 function usage() {
     printf "usage:\n"
-    printf "$script_name [--prefix=<path>] [--xz-single-threaded]\n"
+    printf "$script_name [--prefix=<path>] [--xz-single-threaded] [--show-server]\n"
 }
 
 # Process options and arguments
