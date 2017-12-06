@@ -53,6 +53,7 @@ iter3
 /var/tmp/pbench-test-utils/pbench/metadata.log:group = default
 /var/tmp/pbench-test-utils/pbench/metadata.log:
 /var/tmp/pbench-test-utils/pbench/metadata.log:[tools/testhost]
+/var/tmp/pbench-test-utils/pbench/metadata.log:hostname-s = testhost
 /var/tmp/pbench-test-utils/pbench/metadata.log:iostat = --interval=3
 /var/tmp/pbench-test-utils/pbench/metadata.log:mpstat = --interval=3
 /var/tmp/pbench-test-utils/pbench/metadata.log:perf = --record-opts=-a -freq=100 --record-opts=--call-graph --record-opts=--event=branch-misses --record-opts=--event=cache-misses --record-opts=--event=instructions
