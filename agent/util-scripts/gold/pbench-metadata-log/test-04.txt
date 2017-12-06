@@ -46,6 +46,7 @@ hosts: testhost
 group: default
 
 [tools/testhost]
+hostname-s = testhost
 iostat: --interval=3
 mpstat: --interval=3
 perf: --record-opts=-a -freq=100 --record-opts=--call-graph --record-opts=--event=branch-misses --record-opts=--event=cache-misses --record-opts=--event=instructions
