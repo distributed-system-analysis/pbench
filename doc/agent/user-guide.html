@@ -3,31 +3,23 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-10-16 Mon 14:23 -->
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench User Guide</title>
-<meta name="generator" content="Org mode" />
-<meta name="author" content="Nick Dokos" />
-<meta name="keywords" content="pbench" />
+<!-- 2017-12-07 Thu 16:58 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="keywords" content="pbench" />
 <style type="text/css">
  <!--/*--><![CDATA[/*><!--*/
-  .title  { text-align: center;
-             margin-bottom: .2em; }
-  .subtitle { text-align: center;
-              font-size: medium;
-              font-weight: bold;
-              margin-top:0; }
+  .title  { text-align: center; }
   .todo   { font-family: monospace; color: red; }
-  .done   { font-family: monospace; color: green; }
-  .priority { font-family: monospace; color: orange; }
+  .done   { color: green; }
   .tag    { background-color: #eee; font-family: monospace;
             padding: 2px; font-size: 80%; font-weight: normal; }
   .timestamp { color: #bebebe; }
   .timestamp-kwd { color: #5f9ea0; }
-  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
-  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
-  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .center { margin-left: auto; margin-right: auto; text-align: center; }
   .underline { text-decoration: underline; }
   #postamble p, #preamble p { font-size: 90%; margin: .2em; }
   p.verse { margin-left: 3%; }
@@ -54,111 +46,27 @@
     border: 1px solid black;
   }
   pre.src:hover:before { display: inline;}
-  /* Languages per Org manual */
-  pre.src-asymptote:before { content: 'Asymptote'; }
-  pre.src-awk:before { content: 'Awk'; }
-  pre.src-C:before { content: 'C'; }
-  /* pre.src-C++ doesn't work in CSS */
-  pre.src-clojure:before { content: 'Clojure'; }
-  pre.src-css:before { content: 'CSS'; }
-  pre.src-D:before { content: 'D'; }
-  pre.src-ditaa:before { content: 'ditaa'; }
-  pre.src-dot:before { content: 'Graphviz'; }
-  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
   pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
-  pre.src-fortran:before { content: 'Fortran'; }
-  pre.src-gnuplot:before { content: 'gnuplot'; }
-  pre.src-haskell:before { content: 'Haskell'; }
-  pre.src-hledger:before { content: 'hledger'; }
-  pre.src-java:before { content: 'Java'; }
-  pre.src-js:before { content: 'Javascript'; }
-  pre.src-latex:before { content: 'LaTeX'; }
-  pre.src-ledger:before { content: 'Ledger'; }
-  pre.src-lisp:before { content: 'Lisp'; }
-  pre.src-lilypond:before { content: 'Lilypond'; }
-  pre.src-lua:before { content: 'Lua'; }
-  pre.src-matlab:before { content: 'MATLAB'; }
-  pre.src-mscgen:before { content: 'Mscgen'; }
-  pre.src-ocaml:before { content: 'Objective Caml'; }
-  pre.src-octave:before { content: 'Octave'; }
-  pre.src-org:before { content: 'Org mode'; }
-  pre.src-oz:before { content: 'OZ'; }
-  pre.src-plantuml:before { content: 'Plantuml'; }
-  pre.src-processing:before { content: 'Processing.js'; }
-  pre.src-python:before { content: 'Python'; }
-  pre.src-R:before { content: 'R'; }
-  pre.src-ruby:before { content: 'Ruby'; }
-  pre.src-sass:before { content: 'Sass'; }
-  pre.src-scheme:before { content: 'Scheme'; }
-  pre.src-screen:before { content: 'Gnu Screen'; }
-  pre.src-sed:before { content: 'Sed'; }
-  pre.src-sh:before { content: 'shell'; }
-  pre.src-sql:before { content: 'SQL'; }
-  pre.src-sqlite:before { content: 'SQLite'; }
-  /* additional languages in org.el's org-babel-load-languages alist */
-  pre.src-forth:before { content: 'Forth'; }
-  pre.src-io:before { content: 'IO'; }
-  pre.src-J:before { content: 'J'; }
-  pre.src-makefile:before { content: 'Makefile'; }
-  pre.src-maxima:before { content: 'Maxima'; }
-  pre.src-perl:before { content: 'Perl'; }
-  pre.src-picolisp:before { content: 'Pico Lisp'; }
-  pre.src-scala:before { content: 'Scala'; }
-  pre.src-shell:before { content: 'Shell Script'; }
-  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
-  /* additional language identifiers per "defun org-babel-execute"
-       in ob-*.el */
-  pre.src-cpp:before  { content: 'C++'; }
-  pre.src-abc:before  { content: 'ABC'; }
-  pre.src-coq:before  { content: 'Coq'; }
-  pre.src-groovy:before  { content: 'Groovy'; }
-  /* additional language identifiers from org-babel-shell-names in
-     ob-shell.el: ob-shell is the only babel language using a lambda to put
-     the execution function name together. */
-  pre.src-bash:before  { content: 'bash'; }
-  pre.src-csh:before  { content: 'csh'; }
-  pre.src-ash:before  { content: 'ash'; }
-  pre.src-dash:before  { content: 'dash'; }
-  pre.src-ksh:before  { content: 'ksh'; }
-  pre.src-mksh:before  { content: 'mksh'; }
-  pre.src-posh:before  { content: 'posh'; }
-  /* Additional Emacs modes also supported by the LaTeX listings package */
-  pre.src-ada:before { content: 'Ada'; }
-  pre.src-asm:before { content: 'Assembler'; }
-  pre.src-caml:before { content: 'Caml'; }
-  pre.src-delphi:before { content: 'Delphi'; }
-  pre.src-html:before { content: 'HTML'; }
-  pre.src-idl:before { content: 'IDL'; }
-  pre.src-mercury:before { content: 'Mercury'; }
-  pre.src-metapost:before { content: 'MetaPost'; }
-  pre.src-modula-2:before { content: 'Modula-2'; }
-  pre.src-pascal:before { content: 'Pascal'; }
-  pre.src-ps:before { content: 'PostScript'; }
-  pre.src-prolog:before { content: 'Prolog'; }
-  pre.src-simula:before { content: 'Simula'; }
-  pre.src-tcl:before { content: 'tcl'; }
-  pre.src-tex:before { content: 'TeX'; }
-  pre.src-plain-tex:before { content: 'Plain TeX'; }
-  pre.src-verilog:before { content: 'Verilog'; }
-  pre.src-vhdl:before { content: 'VHDL'; }
-  pre.src-xml:before { content: 'XML'; }
-  pre.src-nxml:before { content: 'XML'; }
-  /* add a generic configuration mode; LaTeX export needs an additional
-     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
-  pre.src-conf:before { content: 'Configuration File'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
 
   table { border-collapse:collapse; }
   caption.t-above { caption-side: top; }
   caption.t-bottom { caption-side: bottom; }
   td, th { vertical-align:top;  }
-  th.org-right  { text-align: center;  }
-  th.org-left   { text-align: center;   }
-  th.org-center { text-align: center; }
-  td.org-right  { text-align: right;  }
-  td.org-left   { text-align: left;   }
-  td.org-center { text-align: center; }
+  th.right  { text-align: center;  }
+  th.left   { text-align: center;   }
+  th.center { text-align: center; }
+  td.right  { text-align: right;  }
+  td.left   { text-align: left;   }
+  td.center { text-align: center; }
   dt { font-weight: bold; }
-  .footpara { display: inline; }
+  .footpara:nth-child(2) { display: inline; }
+  .footpara { display: block; }
   .footdef  { margin-bottom: 1em; }
   .figure { padding: 1em; }
   .figure p { text-align: center; }
@@ -178,7 +86,6 @@
     { font-size: 10px; font-weight: bold; white-space: nowrap; }
   .org-info-js_search-highlight
     { background-color: #ffff00; color: #000000; font-weight: bold; }
-  .org-svg { width: 90%; }
   /*]]>*/-->
 </style>
 <link rel="stylesheet" href="../../stylesheets/normalize.css" type="text/css"/>
@@ -189,7 +96,7 @@
 @licstart  The following is the entire license notice for the
 JavaScript code in this tag.
 
-Copyright (C) 2012-2017 Free Software Foundation, Inc.
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
 
 The JavaScript code in this tag is free software: you can
 redistribute it and/or modify it under the terms of the GNU
@@ -238,89 +145,89 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orga097f3e">What is <code>pbench</code>?</a></li>
-<li><a href="#org8b578b9">TL;DR - How to set up pbench and run a benchmark</a></li>
-<li><a href="#orgb44c943">How to install</a></li>
-<li><a href="#org838778b">First steps</a>
+<li><a href="#sec-1">What is <code>pbench</code>?</a></li>
+<li><a href="#sec-2">TL;DR - How to set up pbench and run a benchmark</a></li>
+<li><a href="#sec-3">How to install</a></li>
+<li><a href="#sec-4">First steps</a>
 <ul>
-<li><a href="#org0a60041">First steps with pbench-user-benchmark</a></li>
-<li><a href="#org6c9d2a2">First steps with remote hosts and pbench-user-benchmark</a></li>
+<li><a href="#sec-4-1">First steps with pbench-user-benchmark</a></li>
+<li><a href="#sec-4-2">First steps with remote hosts and pbench-user-benchmark</a></li>
 </ul>
 </li>
-<li><a href="#orgad85382">Defaults</a></li>
-<li><a href="#orge2f9edf">Available tools</a></li>
-<li><a href="#org396740f">Available benchmark scripts</a>
+<li><a href="#sec-5">Defaults</a></li>
+<li><a href="#sec-6">Available tools</a></li>
+<li><a href="#sec-7">Available benchmark scripts</a>
 <ul>
-<li><a href="#orgf0c7f23">pbench-dbench</a></li>
-<li><a href="#org6b3a714">pbench-fio</a></li>
-<li><a href="#orgbe1973b">pbench-linpack</a></li>
-<li><a href="#org1a6e10c">pbench-migrate</a></li>
-<li><a href="#org4b80cc5">pbench-tpcc</a></li>
-<li><a href="#org1e7c641">pbench-uperf</a></li>
-<li><a href="#orgbc94b87">pbench-user-benchmark</a></li>
+<li><a href="#sec-7-1">pbench-dbench</a></li>
+<li><a href="#sec-7-2">pbench-fio</a></li>
+<li><a href="#sec-7-3">pbench-linpack</a></li>
+<li><a href="#sec-7-4">pbench-migrate</a></li>
+<li><a href="#sec-7-5">pbench-tpcc</a></li>
+<li><a href="#sec-7-6">pbench-uperf</a></li>
+<li><a href="#sec-7-7">pbench-user-benchmark</a></li>
 </ul>
 </li>
-<li><a href="#org93402db">Utility scripts</a></li>
-<li><a href="#orga380494">Second steps</a>
+<li><a href="#sec-8">Utility scripts</a></li>
+<li><a href="#sec-9">Second steps</a>
 <ul>
-<li><a href="#org39d707d">Benchmark scripts options</a></li>
-<li><a href="#org2e47876">Collection tools options</a></li>
-<li><a href="#org800e150">Utility script options</a></li>
+<li><a href="#sec-9-1">Benchmark scripts options</a></li>
+<li><a href="#sec-9-2">Collection tools options</a></li>
+<li><a href="#sec-9-3">Utility script options</a></li>
 </ul>
 </li>
-<li><a href="#orgd200798">Running pbench collection tools with an arbitrary benchmark</a></li>
-<li><a href="#org74553c5">Remote hosts</a>
+<li><a href="#sec-10">Running pbench collection tools with an arbitrary benchmark</a></li>
+<li><a href="#sec-11">Remote hosts</a>
 <ul>
-<li><a href="#org0e6c119">Multihost benchmarks</a></li>
+<li><a href="#sec-11-1">Multihost benchmarks</a></li>
 </ul>
 </li>
-<li><a href="#org8da4662">Customizing</a></li>
-<li><a href="#org2c99745">Best practices</a>
+<li><a href="#sec-12">Customizing</a></li>
+<li><a href="#sec-13">Best practices</a>
 <ul>
-<li><a href="#orgfa332fd">Clear results</a></li>
-<li><a href="#org983050b">Kill tools</a></li>
-<li><a href="#orge22d463">Clear tools</a></li>
-<li><a href="#orgdbae21c">Register tools</a></li>
-<li><a href="#org1422003">Using <code>--dir</code></a></li>
-<li><a href="#org084ef37">Using <code>--remote</code></a></li>
-<li><a href="#org91f4b56">Using <code>--label</code></a></li>
+<li><a href="#sec-13-1">Clear results</a></li>
+<li><a href="#sec-13-2">Kill tools</a></li>
+<li><a href="#sec-13-3">Clear tools</a></li>
+<li><a href="#sec-13-4">Register tools</a></li>
+<li><a href="#sec-13-5">Using <code>--dir</code></a></li>
+<li><a href="#sec-13-6">Using <code>--remote</code></a></li>
+<li><a href="#sec-13-7">Using <code>--label</code></a></li>
 </ul>
 </li>
-<li><a href="#org06dc18d">Results handling</a>
+<li><a href="#sec-14">Results handling</a>
 <ul>
-<li><a href="#orgdf5aaf0">Accessing results on the web</a>
+<li><a href="#sec-14-1">Accessing results on the web</a>
 <ul>
-<li><a href="#org9c45934">Where to go to see results</a></li>
+<li><a href="#sec-14-1-1">Where to go to see results</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org715834b">Advanced topics</a>
+<li><a href="#sec-15">Advanced topics</a>
 <ul>
-<li><a href="#orgaa8e2b4">Triggers</a></li>
+<li><a href="#sec-15-1">Triggers</a></li>
 </ul>
 </li>
-<li><a href="#org2623193">FAQ</a>
+<li><a href="#sec-16">FAQ</a>
 <ul>
-<li><a href="#org87c0be0">What does <code>--name</code> do?</a></li>
-<li><a href="#org8650faa">What does <code>--config</code> do?</a></li>
-<li><a href="#org3545b13">What does <code>--dir</code> do?</a></li>
-<li><a href="#orge72f32e">What does <code>--remote</code> do?</a></li>
-<li><a href="#org2cfb886">What does <code>--label</code> do?</a></li>
-<li><a href="#org1b124c1">How to add a collection tool</a></li>
-<li><a href="#org526d295">How to add a benchmark</a></li>
-<li><a href="#org634334c">How do I collect data for a short time while my benchmark is running?</a></li>
-<li><a href="#org525bdf4">I have a script to run my benchmark - how do I use it with pbench?</a></li>
-<li><a href="#org0d30667">How do I install pbench-agent?</a></li>
+<li><a href="#sec-16-1">What does <code>--name</code> do?</a></li>
+<li><a href="#sec-16-2">What does <code>--config</code> do?</a></li>
+<li><a href="#sec-16-3">What does <code>--dir</code> do?</a></li>
+<li><a href="#sec-16-4">What does <code>--remote</code> do?</a></li>
+<li><a href="#sec-16-5">What does <code>--label</code> do?</a></li>
+<li><a href="#sec-16-6">How to add a collection tool</a></li>
+<li><a href="#sec-16-7">How to add a benchmark</a></li>
+<li><a href="#sec-16-8">How do I collect data for a short time while my benchmark is running?</a></li>
+<li><a href="#sec-16-9">I have a script to run my benchmark - how do I use it with pbench?</a></li>
+<li><a href="#sec-16-10">How do I install pbench-agent?</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orga097f3e" class="outline-2">
-<h2 id="orga097f3e">What is <code>pbench</code>?</h2>
-<div class="outline-text-2" id="text-orga097f3e">
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">What is <code>pbench</code>?</h2>
+<div class="outline-text-2" id="text-1">
 <p>
 PBench is a harness that allows data collection from a variety of tools
 while running a benchmark. PBench has some built-in script that run some
@@ -331,9 +238,9 @@ be written for the benchmark. Such contributions are more than welcome!
 </div>
 </div>
 
-<div id="outline-container-org8b578b9" class="outline-2">
-<h2 id="org8b578b9">TL;DR - How to set up pbench and run a benchmark</h2>
-<div class="outline-text-2" id="text-org8b578b9">
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">TL;DR - How to set up pbench and run a benchmark</h2>
+<div class="outline-text-2" id="text-2">
 <p>
 Prerequisite: Somebody has already done the server setup.
 </p>
@@ -344,7 +251,8 @@ want a multi-node setup, you have to read up on the <code>--remote</code> option
 (in particular, <code>pbench-register-tool-set</code>):
 </p>
 <ul class="org-ul">
-<li><a href="installation.html">Install the agent</a>.</li>
+<li><a href="installation.html">Install the agent</a>.
+</li>
 <li>Customize the agent for your server environment. This will vary from
 installation to installation, but it fundamentally involves copying
 two files that should be made available to you somehow by an admin
@@ -353,23 +261,24 @@ to the server and a configuration file that should be installed in
 <code>/opt/pbench-agent/config/pbench-agent.cfg</code>. There is an example
 configuration file in that location, but you need the "real" one for
 your environment. Among other things, the config file specifies who
-the server is.</li>
-<li><p>
-Run your benchmark with a default set of tools:
-</p>
+the server is.
+</li>
+<li>Run your benchmark with a default set of tools:
 <pre class="example">
 . /etc/profile.d/pbench-agent.sh                          # or log out and log back in
 pbench-register-tool-set
 pbench-user-benchmark -C test1 -- ./your_cmd.sh
 pbench-move-results
-</pre></li>
+</pre>
+</li>
 <li>Visit the Results URL in your browser to see the results: the URL
 depends on who the server is; assuming that the server is
 "pbench.example.com" and assuming you ran the above on a host named
 "myhost", the results will be found at (<b>N.B.</b>: this is a fake link
 serving as an example only - talk to your local administrator to find out
 what server to use to get to pbench results):
-<a href="http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS">http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS</a>.</li>
+<a href="http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS">http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS</a>.
+</li>
 </ul>
 
 <p>
@@ -378,18 +287,18 @@ For explanations and details, see subsequent sections.
 </div>
 </div>
 
-<div id="outline-container-orgb44c943" class="outline-2">
-<h2 id="orgb44c943">How to install</h2>
-<div class="outline-text-2" id="text-orgb44c943">
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">How to install</h2>
+<div class="outline-text-2" id="text-3">
 <p>
 See  the <a href="./installation.html">installation instructions</a>.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org838778b" class="outline-2">
-<h2 id="org838778b">First steps</h2>
-<div class="outline-text-2" id="text-org838778b">
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4">First steps</h2>
+<div class="outline-text-2" id="text-4">
 <p>
 All of the commands take a <code>--help</code> option and produce a terse
 usage message.
@@ -405,14 +314,14 @@ pbench-register-tool-set
 
 <p>
 You can then run a built-in benchmark by invoking its pbench script -
-pbench will install the benchmark if necessary<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>:
+pbench will install the benchmark if necessary<sup><a id="fnr.1" name="fnr.1" class="footref" href="#fn.1">1</a></sup>:
 </p>
 <pre class="example">
 pbench-fio
 </pre>
 <p>
 When the benchmark finishes, the tools will be stopped as well. The
-results can be collected and shipped to the standard storage location<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>
+results can be collected and shipped to the standard storage location<sup><a id="fnr.2" name="fnr.2" class="footref" href="#fn.2">2</a></sup>
 with:
 </p>
 <pre class="example">
@@ -426,9 +335,9 @@ pbench-copy-results
 </pre>
 </div>
 
-<div id="outline-container-org0a60041" class="outline-3">
-<h3 id="org0a60041">First steps with pbench-user-benchmark</h3>
-<div class="outline-text-3" id="text-org0a60041">
+<div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1">First steps with pbench-user-benchmark</h3>
+<div class="outline-text-3" id="text-4-1">
 <p>
 If you want to run something that is not already packaged up as a benchmark script,
 you may be able to use the <code>pbench-user-benchmark</code> script: it takes a command as argument,
@@ -441,14 +350,14 @@ pbench-user-benchmark --config=foo -- myscript.sh
 pbench-move-results
 </pre>
 <p>
-See <a href="#org8650faa">What does <code>--config</code> do?</a> for more information on that.
+See <a href="#sec-16-2">What does <code>--config</code> do?</a> for more information on that.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org6c9d2a2" class="outline-3">
-<h3 id="org6c9d2a2">First steps with remote hosts and pbench-user-benchmark</h3>
-<div class="outline-text-3" id="text-org6c9d2a2">
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2">First steps with remote hosts and pbench-user-benchmark</h3>
+<div class="outline-text-3" id="text-4-2">
 <p>
 Running a multihost benchmark involves registering the tools on all the hosts,
 but assuming you have a script that will execute your benchmark that can be
@@ -483,9 +392,9 @@ and redirects its <code>stdout</code> to a file in that directory:
 </div>
 </div>
 
-<div id="outline-container-orgad85382" class="outline-2">
-<h2 id="orgad85382">Defaults</h2>
-<div class="outline-text-2" id="text-orgad85382">
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5">Defaults</h2>
+<div class="outline-text-2" id="text-5">
 <p>
 The benchmark scripts source the base script (<code>/opt/pbench-agent/base</code>)
 which sets a bunch of defaults:
@@ -508,15 +417,16 @@ These are now specified in the config file
 </div>
 </div>
 
-<div id="outline-container-orge2f9edf" class="outline-2">
-<h2 id="orge2f9edf">Available tools</h2>
-<div class="outline-text-2" id="text-orge2f9edf">
+<div id="outline-container-sec-6" class="outline-2">
+<h2 id="sec-6">Available tools</h2>
+<div class="outline-text-2" id="text-6">
 <p>
 The configured default set of tools (what you would get by running
 <code>pbench-register-tool-set</code>) is:
 </p>
 <ul class="org-ul">
-<li>sar, iostat, mpstat, pidstat, proc-vmstat, proc-interrupts, perf</li>
+<li>sar, iostat, mpstat, pidstat, proc-vmstat, proc-interrupts, perf
+</li>
 </ul>
 
 <p>
@@ -526,7 +436,8 @@ with <code>pbench-register-tool</code>:
 <ul class="org-ul">
 <li>blktrace, cpuacct, dm-cache, docker, kvmstat, kvmtrace, lockstat,
 numastat, perf, porc-sched_debug, proc-vmstat, qemu-migrate, rabbit,
-strace, sysfs, systemtap, tcpdump, turbostat, virsh-migrate, vmstat</li>
+strace, sysfs, systemtap, tcpdump, turbostat, virsh-migrate, vmstat
+</li>
 </ul>
 <p>
 There is a <code>default</code> group of tools (that's what <code>pbench-register-tool-set</code> uses), but
@@ -558,14 +469,14 @@ pbench-register-tool --name=perf -- --record-opts="record -a --freq=200"
 </pre>
 <p>
 Tools can be also be registered, started and stopped on remote hosts
-(see the <code>--remote</code> option described in <a href="#orge72f32e">What does <code>--remote</code> do?</a>).
+(see the <code>--remote</code> option described in <a href="#sec-16-4">What does <code>--remote</code> do?</a>).
 </p>
 </div>
 </div>
 
-<div id="outline-container-org396740f" class="outline-2">
-<h2 id="org396740f">Available benchmark scripts</h2>
-<div class="outline-text-2" id="text-org396740f">
+<div id="outline-container-sec-7" class="outline-2">
+<h2 id="sec-7">Available benchmark scripts</h2>
+<div class="outline-text-2" id="text-7">
 <p>
 PBench provides a set of pre-packaged script to run some common benchmarks
 using the collection tools and other facilities that pbench provides.  These
@@ -574,13 +485,20 @@ are found in the <code>bench-scripts</code> directory of the pbench installation
 </p>
 
 <ul class="org-ul">
-<li><code>pbench-dbench</code></li>
-<li><code>pbench-fio</code></li>
-<li><code>pbench-linpack</code></li>
-<li><code>pbench-migrate</code></li>
-<li><code>pbench-tpcc</code></li>
-<li><code>pbench-uperf</code></li>
-<li><code>pbench-user-benchmark</code> (see <a href="#orgd200798">Running pbench collection tools with an arbitrary benchmark</a> below for more on this)</li>
+<li><code>pbench-dbench</code>
+</li>
+<li><code>pbench-fio</code>
+</li>
+<li><code>pbench-linpack</code>
+</li>
+<li><code>pbench-migrate</code>
+</li>
+<li><code>pbench-tpcc</code>
+</li>
+<li><code>pbench-uperf</code>
+</li>
+<li><code>pbench-user-benchmark</code> (see <a href="#sec-10">Running pbench collection tools with an arbitrary benchmark</a> below for more on this)
+</li>
 </ul>
 
 <p>
@@ -596,32 +514,42 @@ The generic options are:
 </p>
 
 <dl class="org-dl">
-<dt><code>--help</code></dt><dd>show the set of options that the benchmark accepts.</dd>
-<dt><code>--config</code></dt><dd>the name of the testing configuration (user specified).</dd>
-<dt><code>--tool-group</code></dt><dd>the name of the tool group specifying the tools to run during execution of the benchmark.</dd>
-<dt><code>--install</code></dt><dd>just install the benchmark (and any other needed packages) - do not run the benchmark.</dd>
+<dt> <code>--help</code> </dt><dd>show the set of options that the benchmark accepts.
+</dd>
+<dt> <code>--config</code> </dt><dd>the name of the testing configuration (user specified).
+</dd>
+<dt> <code>--tool-group</code> </dt><dd>the name of the tool group specifying the tools to run during execution of the benchmark.
+</dd>
+<dt> <code>--install</code> </dt><dd>just install the benchmark (and any other needed packages) - do not run the benchmark.
+</dd>
 </dl>
 
 <p>
 The semi-generic ones are:
 </p>
 <dl class="org-dl">
-<dt><code>--test-types</code></dt><dd>the test types for the given benchmark - the values are benchmark-specific and can be obtained using <code>--help</code>.</dd>
-<dt><code>--runtime</code></dt><dd>maximum runtime in seconds.</dd>
-<dt><code>--clients</code></dt><dd>list of hostnames (or IPs) of systems that run the client (drive the test).</dd>
-<dt><code>--samples</code></dt><dd>the number of samples per iteration.</dd>
-<dt><code>--max-stddev</code></dt><dd>the percent maximum standard deviation allowed in order to consider the iteration to pass.</dd>
-<dt><code>--max-failures</code></dt><dd>the maximum number of failures to achieve the allowed standard deviation.</dd>
-<dt><code>--postprocess-only</code></dt><dd></dd>
+<dt> <code>--test-types</code> </dt><dd>the test types for the given benchmark - the values are benchmark-specific and can be obtained using <code>--help</code>.
+</dd>
+<dt> <code>--runtime</code> </dt><dd>maximum runtime in seconds.
+</dd>
+<dt> <code>--clients</code> </dt><dd>list of hostnames (or IPs) of systems that run the client (drive the test).
+</dd>
+<dt> <code>--samples</code> </dt><dd>the number of samples per iteration.
+</dd>
+<dt> <code>--max-stddev</code> </dt><dd>the percent maximum standard deviation allowed in order to consider the iteration to pass.
+</dd>
+<dt> <code>--max-failures</code> </dt><dd>the maximum number of failures to achieve the allowed standard deviation.
+</dd>
+<dt> <code>--postprocess-only</code> </dt><dd>
+</dd>
 
+<dt> <code>--run-dir</code> </dt><dd>
+</dd>
 
-<dt><code>--run-dir</code></dt><dd></dd>
+<dt> <code>--start-iteration-num</code> </dt><dd>
+</dd>
 
-
-<dt><code>--start-iteration-num</code></dt><dd></dd>
-
-
-<dt><code>--tool-label-pattern</code></dt><dd></dd>
+<dt> <code>--tool-label-pattern</code> </dt><dd></dd>
 </dl>
 <p>
 Benchmark-specific options are called out in the following sections for each benchmark.
@@ -629,105 +557,118 @@ Benchmark-specific options are called out in the following sections for each ben
 
 <p>
 Note that in some of these scripts the default tool group is hard-wired: if you want them to run
-a different tool group, you need to edit the script<sup><a id="fnr.3" class="footref" href="#fn.3">3</a></sup>. 
+a different tool group, you need to edit the script<sup><a id="fnr.3" name="fnr.3" class="footref" href="#fn.3">3</a></sup>. 
 </p>
 </div>
 
-<div id="outline-container-orgf0c7f23" class="outline-3">
-<h3 id="orgf0c7f23">pbench-dbench</h3>
-<div class="outline-text-3" id="text-orgf0c7f23">
+<div id="outline-container-sec-7-1" class="outline-3">
+<h3 id="sec-7-1">pbench-dbench</h3>
+<div class="outline-text-3" id="text-7-1">
 <dl class="org-dl">
-<dt><code>--threads</code></dt><dd></dd>
+<dt> <code>--threads</code> </dt><dd></dd>
 </dl>
 </div>
 </div>
 
-<div id="outline-container-org6b3a714" class="outline-3">
-<h3 id="org6b3a714">pbench-fio</h3>
-<div class="outline-text-3" id="text-org6b3a714">
+<div id="outline-container-sec-7-2" class="outline-3">
+<h3 id="sec-7-2">pbench-fio</h3>
+<div class="outline-text-3" id="text-7-2">
 <p>
 Iterations are the cartesian product <code>targets X test-types X block-sizes</code>.
 More information on many of the following can be obtained from the <code>fio</code> man page.
 </p>
 
 <dl class="org-dl">
-<dt><code>--direct</code></dt><dd>O_DIRECT enabled or not (1/0) - default is 1.</dd>
-<dt><code>--sync</code></dt><dd>O_SYNC enabled or not (1/0) - default is 0.</dd>
-<dt><code>--rate-iops</code></dt><dd>IOP rate not to be exceeded (per job, per client)</dd>
-<dt><code>--ramptime</code></dt><dd>seconds - time to warm up test before measurement.</dd>
-<dt><code>--block-sizes</code></dt><dd>list of block sizes - default is 4, 64, 1024.</dd>
-<dt><code>--file-size</code></dt><dd>fio will create files of this size during the job run.</dd>
-<dt><code>--targets</code></dt><dd>file locations (list of directory/block device).</dd>
-<dt><code>--job-mode</code></dt><dd>serial/concurrent - default is <code>concurrent</code>.</dd>
-<dt><code>--ioengine</code></dt><dd>any IO engine that fio supports (see the fio man page) - default is <code>psync</code>.</dd>
-<dt><code>--iodepth</code></dt><dd>number of I/O units to keep in flight against the file.</dd>
-<dt><code>--client-file</code></dt><dd>file containing list of clients, one per line.</dd>
-<dt><code>--numjobs</code></dt><dd>number of clones (processes/threads performing the same workload) of this job - default is 1.</dd>
-<dt><code>--job-file</code></dt><dd>if you need to go beyond the recognized options, you can use a fio job file.</dd>
+<dt> <code>--direct</code> </dt><dd>O_DIRECT enabled or not (1/0) - default is 1.
+</dd>
+<dt> <code>--sync</code> </dt><dd>O_SYNC enabled or not (1/0) - default is 0.
+</dd>
+<dt> <code>--rate-iops</code> </dt><dd>IOP rate not to be exceeded (per job, per client)
+</dd>
+<dt> <code>--ramptime</code> </dt><dd>seconds - time to warm up test before measurement.
+</dd>
+<dt> <code>--block-sizes</code> </dt><dd>list of block sizes - default is 4, 64, 1024.
+</dd>
+<dt> <code>--file-size</code> </dt><dd>fio will create files of this size during the job run.
+</dd>
+<dt> <code>--targets</code> </dt><dd>file locations (list of directory/block device).
+</dd>
+<dt> <code>--job-mode</code> </dt><dd>serial/concurrent - default is <code>concurrent</code>.
+</dd>
+<dt> <code>--ioengine</code> </dt><dd>any IO engine that fio supports (see the fio man page) - default is <code>psync</code>.
+</dd>
+<dt> <code>--iodepth</code> </dt><dd>number of I/O units to keep in flight against the file.
+</dd>
+<dt> <code>--client-file</code> </dt><dd>file containing list of clients, one per line.
+</dd>
+<dt> <code>--numjobs</code> </dt><dd>number of clones (processes/threads performing the same workload) of this job - default is 1.
+</dd>
+<dt> <code>--job-file</code> </dt><dd>if you need to go beyond the recognized options, you can use a fio job file.
+</dd>
 </dl>
 </div>
 </div>
 
-<div id="outline-container-orgbe1973b" class="outline-3">
-<h3 id="orgbe1973b">pbench-linpack</h3>
-<div class="outline-text-3" id="text-orgbe1973b">
+<div id="outline-container-sec-7-3" class="outline-3">
+<h3 id="sec-7-3">pbench-linpack</h3>
+<div class="outline-text-3" id="text-7-3">
 <p>
 TBD
 </p>
 </div>
 </div>
 
-<div id="outline-container-org1a6e10c" class="outline-3">
-<h3 id="org1a6e10c">pbench-migrate</h3>
-<div class="outline-text-3" id="text-org1a6e10c">
+<div id="outline-container-sec-7-4" class="outline-3">
+<h3 id="sec-7-4">pbench-migrate</h3>
+<div class="outline-text-3" id="text-7-4">
 <p>
 TBD
 </p>
 </div>
 </div>
 
-<div id="outline-container-org4b80cc5" class="outline-3">
-<h3 id="org4b80cc5">pbench-tpcc</h3>
-<div class="outline-text-3" id="text-org4b80cc5">
+<div id="outline-container-sec-7-5" class="outline-3">
+<h3 id="sec-7-5">pbench-tpcc</h3>
+<div class="outline-text-3" id="text-7-5">
 <p>
 TBD
 </p>
 </div>
 </div>
 
-<div id="outline-container-org1e7c641" class="outline-3">
-<h3 id="org1e7c641">pbench-uperf</h3>
-<div class="outline-text-3" id="text-org1e7c641">
+<div id="outline-container-sec-7-6" class="outline-3">
+<h3 id="sec-7-6">pbench-uperf</h3>
+<div class="outline-text-3" id="text-7-6">
 <dl class="org-dl">
-<dt><code>--kvm-host</code></dt><dd></dd>
+<dt> <code>--kvm-host</code> </dt><dd>
+</dd>
 
+<dt> <code>--message-sizes</code> </dt><dd>
+</dd>
 
-<dt><code>--message-sizes</code></dt><dd></dd>
+<dt> <code>--protocols</code> </dt><dd>
+</dd>
 
+<dt> <code>--instances</code> </dt><dd>
+</dd>
 
-<dt><code>--protocols</code></dt><dd></dd>
+<dt> <code>--servers</code> </dt><dd>
+</dd>
 
+<dt> <code>--server-nodes</code> </dt><dd>
+</dd>
 
-<dt><code>--instances</code></dt><dd></dd>
+<dt> <code>--client-nodes</code> </dt><dd>
+</dd>
 
-
-<dt><code>--servers</code></dt><dd></dd>
-
-
-<dt><code>--server-nodes</code></dt><dd></dd>
-
-
-<dt><code>--client-nodes</code></dt><dd></dd>
-
-
-<dt><code>--log-response-times</code></dt><dd></dd>
+<dt> <code>--log-response-times</code> </dt><dd></dd>
 </dl>
 </div>
 </div>
 
-<div id="outline-container-orgbc94b87" class="outline-3">
-<h3 id="orgbc94b87">pbench-user-benchmark</h3>
-<div class="outline-text-3" id="text-orgbc94b87">
+<div id="outline-container-sec-7-7" class="outline-3">
+<h3 id="sec-7-7">pbench-user-benchmark</h3>
+<div class="outline-text-3" id="text-7-7">
 <p>
 TBD
 </p>
@@ -736,11 +677,11 @@ TBD
 </div>
 
 
-<div id="outline-container-org93402db" class="outline-2">
-<h2 id="org93402db">Utility scripts</h2>
-<div class="outline-text-2" id="text-org93402db">
+<div id="outline-container-sec-8" class="outline-2">
+<h2 id="sec-8">Utility scripts</h2>
+<div class="outline-text-2" id="text-8">
 <p>
-This section is needed as preparation for the <a href="#orga380494">Second steps</a> section below.
+This section is needed as preparation for the <a href="#sec-9">Second steps</a> section below.
 </p>
 
 <p>
@@ -748,7 +689,7 @@ PBench uses a bunch of utility scripts to do common operations. There
 is a common set of options for some of these: <code>--name</code> to specify a
 tool, <code>--group</code> to specify a tool group, <code>--with-options</code> to list or
 pass options to a tool, <code>--remote</code> to operate on a remote host
-(see entries in the <a href="#org2623193">FAQ</a> section below for more
+(see entries in the <a href="#sec-16">FAQ</a> section below for more
 details on these options).
 </p>
 
@@ -758,15 +699,20 @@ some information about them:
 </p>
 
 <dl class="org-dl">
-<dt><code>pbench-list-tools</code></dt><dd>list the tools in the default group or in the
+<dt> <code>pbench-list-tools</code> </dt><dd>list the tools in the default group or in the
 specified group; with the &#x2013;name option, list the groups that the
 named tool is in. TBD: how do you list <b>all</b> available tools
-whether in a group or not?</dd>
-<dt><code>pbench-register-tool-set</code></dt><dd>call <code>pbench-register-tool</code> on each tool in the default list.</dd>
-<dt><code>pbench-register-tool</code></dt><dd>add a tool to a tool group (possibly remotely).</dd>
-<dt>OBSOLETE (see below)  <code>pbench-unregister-tool</code></dt><dd>remove a tool from a tool group (possibly remotely).</dd>
-<dt><code>pbench-clear-tools</code></dt><dd>remove a tool or all tools from a specified tool
-group (including remotely). Used with a <code>--name</code> option, it replaces <code>pbench-unregister-tool</code>.</dd>
+whether in a group or not?
+</dd>
+<dt> <code>pbench-register-tool-set</code> </dt><dd>call <code>pbench-register-tool</code> on each tool in the default list.
+</dd>
+<dt> <code>pbench-register-tool</code> </dt><dd>add a tool to a tool group (possibly remotely).
+</dd>
+<dt> OBSOLETE (see below)  <code>pbench-unregister-tool</code> </dt><dd>remove a tool from a tool group (possibly remotely).
+</dd>
+<dt> <code>pbench-clear-tools</code> </dt><dd>remove a tool or all tools from a specified tool
+group (including remotely). Used with a <code>--name</code> option, it replaces <code>pbench-unregister-tool</code>.
+</dd>
 </dl>
 
 <p>
@@ -781,34 +727,43 @@ is the cause of many problems (slowdowns in particular):
 </p>
 
 <dl class="org-dl">
-<dt><code>pbench-start-tools</code></dt><dd>start a group of tools, stashing the results in the
-directory specified by <code>--dir</code>.</dd>
-<dt><code>pbench-stop-tools</code></dt><dd>stop a group of tools.</dd>
-<dt><code>pbench-kill-tools</code></dt><dd>make sure that no tools are running to pollute the
-environment.</dd>
+<dt> <code>pbench-start-tools</code> </dt><dd>start a group of tools, stashing the results in the
+directory specified by <code>--dir</code>.
+</dd>
+<dt> <code>pbench-stop-tools</code> </dt><dd>stop a group of tools.
+</dd>
+<dt> <code>pbench-kill-tools</code> </dt><dd>make sure that no tools are running to pollute the
+environment.
+</dd>
 </dl>
 
 <p>
 The third set is for handling the results and doing cleanup:
 </p>
 <dl class="org-dl">
-<dt><code>pbench-postprocess-tools</code></dt><dd>run all the relevant postprocessing scripts
+<dt> <code>pbench-postprocess-tools</code> </dt><dd>run all the relevant postprocessing scripts
 on the tool output - this step also gathers up tool output from
 remote hosts to the local host in preparation for copying it to
-the results repository.</dd>
-<dt><code>pbench-clear-results</code></dt><dd>start with a clean slate.</dd>
-<dt><code>pbench-copy-results</code></dt><dd>copy results to the results repo.</dd>
-<dt><code>pbench-move-results</code></dt><dd>move the results to the results repo and delete
-them from the local host.</dd>
-<dt><code>pbench-edit-prefix</code></dt><dd>change the directory structure of the results
-(see the <a href="#orgdf5aaf0">Accessing results on the web</a> section below for details).</dd>
-<dt>XXX <code>pbench-cleanup</code></dt><dd>clean up the pbench run directory - after this step,
-you will need to register any tools again.</dd>
+the results repository.
+</dd>
+<dt> <code>pbench-clear-results</code> </dt><dd>start with a clean slate.
+</dd>
+<dt> <code>pbench-copy-results</code> </dt><dd>copy results to the results repo.
+</dd>
+<dt> <code>pbench-move-results</code> </dt><dd>move the results to the results repo and delete
+them from the local host.
+</dd>
+<dt> <code>pbench-edit-prefix</code> </dt><dd>change the directory structure of the results
+(see the <a href="#sec-14-1">Accessing results on the web</a> section below for details).
+</dd>
+<dt> XXX <code>pbench-cleanup</code> </dt><dd>clean up the pbench run directory - after this step,
+you will need to register any tools again.
+</dd>
 </dl>
 
 <p>
 <code>pbench-register-tool-set</code>, <code>pbench-register-tool</code> and <code>pbench-unregister-tool</code> can also
-take a <code>--remote</code> option (see <a href="#orge72f32e">What does <code>--remote</code> do?</a>) in order to
+take a <code>--remote</code> option (see <a href="#sec-16-4">What does <code>--remote</code> do?</a>) in order to
 allow the starting/stopping of tools and the postprocessing of results
 on multiple remote hosts.
 </p>
@@ -819,8 +774,10 @@ sundry things - although the name of the script indicates its purpose,
 if you want more information on these, you will have to read the code:
 </p>
 <ul class="org-ul">
-<li><code>pbench-avg-stddev</code></li>
-<li><code>pbench-log-timestamp</code></li>
+<li><code>pbench-avg-stddev</code>
+</li>
+<li><code>pbench-log-timestamp</code>
+</li>
 </ul>
 <p>
 These are used by various pieces of pbench. There is also a <code>contrib</code>
@@ -830,9 +787,9 @@ have found useful.
 </div>
 </div>
 
-<div id="outline-container-orga380494" class="outline-2">
-<h2 id="orga380494">Second steps</h2>
-<div class="outline-text-2" id="text-orga380494">
+<div id="outline-container-sec-9" class="outline-2">
+<h2 id="sec-9">Second steps</h2>
+<div class="outline-text-2" id="text-9">
 <p>
 WARNING: It is <b>highly</b> recommended that you use one of the <code>pbench-&lt;benchmark&gt;</code>
 scripts for running your benchmark. If one does not exist already, you might be
@@ -853,18 +810,26 @@ Once collection tools have been registered, the work flow of a
 benchmark script is as follows:
 </p>
 <ul class="org-ul">
-<li>Process options (see <a href="#org39d707d">Benchmark scripts options</a>).</li>
-<li>Check that the necessary prerequisites are installed and if not, install them.</li>
+<li>Process options (see <a href="#sec-9-1">Benchmark scripts options</a>).
+</li>
+<li>Check that the necessary prerequisites are installed and if not, install them.
+</li>
 <li>Iterate over some set of benchmark characteristics
 (e.g. <code>pbench-fio</code> iterates over a couple test types: read, randread
 and a bunch of block sizes), with each iteration doing the following:
 <ul class="org-ul">
-<li>create a benchmark_results directory</li>
-<li>start the collection tools</li>
-<li>run the benchmark</li>
-<li>stop the collection tools</li>
-<li>postprocess the collection tools data</li>
-</ul></li>
+<li>create a benchmark_results directory
+</li>
+<li>start the collection tools
+</li>
+<li>run the benchmark
+</li>
+<li>stop the collection tools
+</li>
+<li>postprocess the collection tools data
+</li>
+</ul>
+</li>
 </ul>
 
 <p>
@@ -879,7 +844,7 @@ described above, iteration is a benchmark-specific tag that
 disambiguates the separate iterations in a run (e.g. for <code>pbench-fio</code>
 it is a combination of a count, the test type, the block size and a
 device name), and the benchmark_tools_dir specifies where the collection
-results are going to end up (see the section for much
+results are going to end up (see the <i>Results structure</i> section for much
 more detail on this).
 </p>
 
@@ -893,43 +858,42 @@ pbench-postprocess-tools --group=$group --iteration=$iteration --dir=$benchmark_
 </div>
 
 
-<div id="outline-container-org39d707d" class="outline-3">
-<h3 id="org39d707d">Benchmark scripts options</h3>
-<div class="outline-text-3" id="text-org39d707d">
+<div id="outline-container-sec-9-1" class="outline-3">
+<h3 id="sec-9-1">Benchmark scripts options</h3>
+<div class="outline-text-3" id="text-9-1">
 <p>
 Generally speaking, benchmark scripts do not take any pbench-specific
-options except <code>--config</code> (see <a href="#org8650faa">What does <code>--config</code> do?</a>  below).
-Other options tend to be benchmark-specific<sup><a id="fnr.4" class="footref" href="#fn.4">4</a></sup>.
+options except <code>--config</code> (see <a href="#sec-16-2">What does <code>--config</code> do?</a>  below).
+Other options tend to be benchmark-specific<sup><a id="fnr.4" name="fnr.4" class="footref" href="#fn.4">4</a></sup>.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org2e47876" class="outline-3">
-<h3 id="org2e47876">Collection tools options</h3>
-<div class="outline-text-3" id="text-org2e47876">
+<div id="outline-container-sec-9-2" class="outline-3">
+<h3 id="sec-9-2">Collection tools options</h3>
+<div class="outline-text-3" id="text-9-2">
 <p>
 <code>--help</code> can be used to trigger the usage message on all of the tools (even though it's
 an invalid option for many of them). Here is a list of gotcha's:
 </p>
 
 <ul class="org-ul">
-<li><p>
-blktrace: you need to pass <code>--devices=/dev/sda,/dev/sdb</code> when you register the tool:
-</p>
+<li>blktrace: you need to pass <code>--devices=/dev/sda,/dev/sdb</code> when you register the tool:
 <pre class="example">
 pbench-register-tool --name=blktrace [--remote=foo] -- --devices=/dev/sda,/dev/sdb
 </pre>
 <p>
 There is no default and leaving it empty causes errors in
 postprocessing (this should be flagged).
-</p></li>
+</p>
+</li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org800e150" class="outline-3">
-<h3 id="org800e150">Utility script options</h3>
-<div class="outline-text-3" id="text-org800e150">
+<div id="outline-container-sec-9-3" class="outline-3">
+<h3 id="sec-9-3">Utility script options</h3>
+<div class="outline-text-3" id="text-9-3">
 <p>
 Note that <code>pbench-move-results</code>, <code>pbench-copy-results</code> and <code>pbench-clear-results</code> always
 assume that the run directory is the default <code>/var/lib/pbench-agent</code>.
@@ -937,7 +901,7 @@ assume that the run directory is the default <code>/var/lib/pbench-agent</code>.
 
 <p>
 <code>pbench-move-results</code> and <code>pbench-copy-results</code> now (starting with pbench version 0.31-108gf016ed6)
-take a <code>--prefix</code> option. This is explained in the <a href="#orgdf5aaf0">Accessing results on the web</a> section
+take a <code>--prefix</code> option. This is explained in the <a href="#sec-14-1">Accessing results on the web</a> section
 below.
 </p>
 
@@ -948,37 +912,35 @@ make sure to follow this dictum.
 </p>
 
 <dl class="org-dl">
-<dt><code>--dir</code></dt><dd><p>
-specify the run directory for all the collections tools. This argument
+<dt> <code>--dir</code> </dt><dd>specify the run directory for all the collections tools. This argument
 <b>must</b> be used by <code>pbench-start/stop/postprocess-tools</code>, so that all the results files
 are in known places:
-</p>
 <pre class="example">
 pbench-start-tools --dir=/var/lib/pbench-agent/foo
 pbench-stop-tools  --dir=/var/lib/pbench-agent/foo
 pbench-postprocess-tools --dir=/var/lib/pbench-agent/foo
-</pre></dd>
-<dt><code>--remote</code></dt><dd><p>
-specify a remote host on which a collection tools (or set of collection tools)
+</pre>
+</dd>
+<dt> <code>--remote</code> </dt><dd>specify a remote host on which a collection tools (or set of collection tools)
 is to be registered:
-</p>
 <pre class="example">
 pbench-register-tool --name=&lt;tool&gt; --remote=&lt;host&gt;
-</pre></dd>
+</pre>
+</dd>
 </dl>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgd200798" class="outline-2">
-<h2 id="orgd200798">Running pbench collection tools with an arbitrary benchmark</h2>
-<div class="outline-text-2" id="text-orgd200798">
+<div id="outline-container-sec-10" class="outline-2">
+<h2 id="sec-10">Running pbench collection tools with an arbitrary benchmark</h2>
+<div class="outline-text-2" id="text-10">
 <p>
 If you want to take advantage of pbench's data collection and other
-goodies, but your benchmark is not part of the set above (see <a href="#org396740f">Available benchmark scripts</a>),
+goodies, but your benchmark is not part of the set above (see <a href="#sec-7">Available benchmark scripts</a>),
 or you want to run it differently so
 that the pre-packaged script does not work for you, that's no problem
-(but, if possible, heed the <a href="#orga380494">WARNING</a> above). The various pbench phases
+(but, if possible, heed the <a href="#sec-9">WARNING</a> above). The various pbench phases
 can be run separately and you can fit your benchmark into the
 appropriate slot:
 </p>
@@ -1041,18 +1003,17 @@ collection from any other: you will probably want to make sure it's unique.
 
 <p>
 This works well for one-off scenarios, but for repeated usage on well defined phase
-changes you might want to investigate <a href="#orgaa8e2b4">Triggers</a>.
+changes you might want to investigate <a href="#sec-15-1">Triggers</a>.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org74553c5" class="outline-2">
-<h2 id="org74553c5">Remote hosts</h2>
-<div class="outline-text-2" id="text-org74553c5">
-</div>
-<div id="outline-container-org0e6c119" class="outline-3">
-<h3 id="org0e6c119">Multihost benchmarks</h3>
-<div class="outline-text-3" id="text-org0e6c119">
+<div id="outline-container-sec-11" class="outline-2">
+<h2 id="sec-11">Remote hosts</h2>
+<div class="outline-text-2" id="text-11">
+</div><div id="outline-container-sec-11-1" class="outline-3">
+<h3 id="sec-11-1">Multihost benchmarks</h3>
+<div class="outline-text-3" id="text-11-1">
 <p>
 Usually, a multihost benchmark is run using a host that acts as the "controller"
 of the run. There is a set of hosts on which data collection is to be performed while
@@ -1067,7 +1028,8 @@ The workflow in that case is:
 </p>
 
 <ul class="org-ul">
-<li>Register the collection tools on <b>each</b> host in the set:</li>
+<li>Register the collection tools on <b>each</b> host in the set:
+</li>
 </ul>
 <pre class="example">
 for host in $hosts ;do
@@ -1079,8 +1041,10 @@ done
 collection tools on all the hosts and then run your workload generator; when that
 finished, it will stop the collection tools on all the hosts and then run the postprocessing
 phase which will gather the data from all the remote hosts and run the postprocessing tools
-on everything.</li>
-<li>Run <code>pbench-copy-results</code> or <code>pbench-move-results</code> to upload the data to the results server.</li>
+on everything.
+</li>
+<li>Run <code>pbench-copy-results</code> or <code>pbench-move-results</code> to upload the data to the results server.
+</li>
 </ul>
 
 <p>
@@ -1089,26 +1053,32 @@ The workflow is:
 </p>
 
 <ul class="org-ul">
-<li>Register the collection tools on <b>each</b> host as above.</li>
+<li>Register the collection tools on <b>each</b> host as above.
+</li>
 <li>Invoke <code>pbench-start-tools</code> on the controller: that will start data collection on
-all of the remote hosts.</li>
-<li>Run the workload generator.</li>
+all of the remote hosts.
+</li>
+<li>Run the workload generator.
+</li>
 <li>Invoke <code>pbench-stop-tools</code> on the controller: that will stop data collection on
-all of the remote hosts.</li>
+all of the remote hosts.
+</li>
 <li>Invoke <code>pbench-postprocess-tools</code> on the controller: that will gather all the data
-from the remotes and run the postprocessing tools on all the data.</li>
-<li>Run <code>pbench-copy-results</code> or <code>pbench-move-results</code> to upload the data to the results server.</li>
+from the remotes and run the postprocessing tools on all the data.
+</li>
+<li>Run <code>pbench-copy-results</code> or <code>pbench-move-results</code> to upload the data to the results server.
+</li>
 </ul>
 </div>
 </div>
 </div>
 
 
-<div id="outline-container-org8da4662" class="outline-2">
-<h2 id="org8da4662">Customizing</h2>
-<div class="outline-text-2" id="text-org8da4662">
+<div id="outline-container-sec-12" class="outline-2">
+<h2 id="sec-12">Customizing</h2>
+<div class="outline-text-2" id="text-12">
 <p>
-Some characteristics<sup><a id="fnr.5" class="footref" href="#fn.5">5</a></sup> of pbench are specified in config files and can be customized
+Some characteristics<sup><a id="fnr.5" name="fnr.5" class="footref" href="#fn.5">5</a></sup> of pbench are specified in config files and can be customized
 by adding your own config file to override the default settings.
 </p>
 
@@ -1119,13 +1089,12 @@ TBD
 </div>
 
 
-<div id="outline-container-org2c99745" class="outline-2">
-<h2 id="org2c99745">Best practices</h2>
-<div class="outline-text-2" id="text-org2c99745">
-</div>
-<div id="outline-container-orgfa332fd" class="outline-3">
-<h3 id="orgfa332fd">Clear results</h3>
-<div class="outline-text-3" id="text-orgfa332fd">
+<div id="outline-container-sec-13" class="outline-2">
+<h2 id="sec-13">Best practices</h2>
+<div class="outline-text-2" id="text-13">
+</div><div id="outline-container-sec-13-1" class="outline-3">
+<h3 id="sec-13-1">Clear results</h3>
+<div class="outline-text-3" id="text-13-1">
 <p>
 The <code>pbench-move-results</code> script removes the results directory (assumed to be
 within the <code>/var/lib/pbench-agent</code> hierarchy) after copying it the results
@@ -1142,9 +1111,9 @@ It's a good idea in general to invoke <code>pbench-clear-results</code>, which c
 </div>
 </div>
 
-<div id="outline-container-org983050b" class="outline-3">
-<h3 id="org983050b">Kill tools</h3>
-<div class="outline-text-3" id="text-org983050b">
+<div id="outline-container-sec-13-2" class="outline-3">
+<h3 id="sec-13-2">Kill tools</h3>
+<div class="outline-text-3" id="text-13-2">
 <p>
 If you interrupt a built-in benchmark script (or your own script perhaps),
 the collection tools are <b>not</b> going to be stopped. If you don't stop them
@@ -1164,9 +1133,9 @@ trap "pbench-kill-tools --group=$group" EXIT INT QUIT
 </pre>
 </div>
 </div>
-<div id="outline-container-orge22d463" class="outline-3">
-<h3 id="orge22d463">Clear tools</h3>
-<div class="outline-text-3" id="text-orge22d463">
+<div id="outline-container-sec-13-3" class="outline-3">
+<h3 id="sec-13-3">Clear tools</h3>
+<div class="outline-text-3" id="text-13-3">
 <p>
 This tool will delete the tools.$group file on the local host as well
 as on all the remote hosts specified therein.  After doing that, you
@@ -1180,11 +1149,11 @@ a good idea to call <code>pbench-clear-tools</code> from a trap in that case).
 </div>
 </div>
 
-<div id="outline-container-orgdbae21c" class="outline-3">
-<h3 id="orgdbae21c">Register tools</h3>
-<div class="outline-text-3" id="text-orgdbae21c">
+<div id="outline-container-sec-13-4" class="outline-3">
+<h3 id="sec-13-4">Register tools</h3>
+<div class="outline-text-3" id="text-13-4">
 <p>
-Some tools have <b>required</b> options<sup><a id="fnr.6" class="footref" href="#fn.6">6</a></sup> and you <b>have</b> to specify
+Some tools have <b>required</b> options<sup><a id="fnr.6" name="fnr.6" class="footref" href="#fn.6">6</a></sup> and you <b>have</b> to specify
 them when you register the tool. One example is the <code>blktrace</code> tool
 which requires a <code>--devices=/dev/sda,dev/sdb=</code> argument. <code>pbench-register-tool-set</code>
 knows about such options for the default set of tools, but with other
@@ -1205,9 +1174,9 @@ pbench-register-tool --name=blktrace -- --devices=/dev/sda,/dev/sdb
 </div>
 </div>
 
-<div id="outline-container-org1422003" class="outline-3">
-<h3 id="org1422003">Using <code>--dir</code></h3>
-<div class="outline-text-3" id="text-org1422003">
+<div id="outline-container-sec-13-5" class="outline-3">
+<h3 id="sec-13-5">Using <code>--dir</code></h3>
+<div class="outline-text-3" id="text-13-5">
 <p>
 If you use the tool scripts explicitly, specify <code>--dir=/var/lib/pbench-agent/&lt;run-id&gt;</code>
 so that all the data are collected in the specified directory. Also, save any data
@@ -1229,9 +1198,9 @@ can be as detailed as you want to make it.
 </div>
 </div>
 
-<div id="outline-container-org084ef37" class="outline-3">
-<h3 id="org084ef37">Using <code>--remote</code></h3>
-<div class="outline-text-3" id="text-org084ef37">
+<div id="outline-container-sec-13-6" class="outline-3">
+<h3 id="sec-13-6">Using <code>--remote</code></h3>
+<div class="outline-text-3" id="text-13-6">
 <p>
 If you are running multihost benchmarks, we strongly encourage you to set up the
 tool collections using <code>--remote</code>. Choose a driver host (which might or might not
@@ -1239,14 +1208,14 @@ participate in the tool data collection: in the first case, you register tools l
 as well as remotely; in the second, you just register them remotely) and run everything
 from it. During the data collection phase, everything will be pulled off the remotes and
 copied to the driver host, so it can be moved to the results repo as a single unit.
-Consider also using <code>--label</code> to label sets of hosts - see <a href="#org91f4b56">Using <code>--label</code></a> for more information.
+Consider also using <code>--label</code> to label sets of hosts - see <a href="#sec-13-7">Using <code>--label</code></a> for more information.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org91f4b56" class="outline-3">
-<h3 id="org91f4b56">Using <code>--label</code></h3>
-<div class="outline-text-3" id="text-org91f4b56">
+<div id="outline-container-sec-13-7" class="outline-3">
+<h3 id="sec-13-7">Using <code>--label</code></h3>
+<div class="outline-text-3" id="text-13-7">
 <p>
 When you register remotes, <code>--label</code> can be used to give a meaningful
 label to the results subdirectories that come from remote hosts. For
@@ -1257,13 +1226,12 @@ whatever else is appropriate for your use case).
 </div>
 </div>
 
-<div id="outline-container-org06dc18d" class="outline-2">
-<h2 id="org06dc18d">Results handling</h2>
-<div class="outline-text-2" id="text-org06dc18d">
-</div>
-<div id="outline-container-orgdf5aaf0" class="outline-3">
-<h3 id="orgdf5aaf0">Accessing results on the web</h3>
-<div class="outline-text-3" id="text-orgdf5aaf0">
+<div id="outline-container-sec-14" class="outline-2">
+<h2 id="sec-14">Results handling</h2>
+<div class="outline-text-2" id="text-14">
+</div><div id="outline-container-sec-14-1" class="outline-3">
+<h3 id="sec-14-1">Accessing results on the web</h3>
+<div class="outline-text-3" id="text-14-1">
 <p>
 This section describes how to get to your results using a web browser. It describes
 how <code>pbench-move-results</code> moves the results from your local controller to a centralized
@@ -1278,9 +1246,9 @@ using an earlier version, please upgrade at your earliest convenience.
 </p>
 </div>
 
-<div id="outline-container-org9c45934" class="outline-4">
-<h4 id="org9c45934">Where to go to see results</h4>
-<div class="outline-text-4" id="text-org9c45934">
+<div id="outline-container-sec-14-1-1" class="outline-4">
+<h4 id="sec-14-1-1">Where to go to see results</h4>
+<div class="outline-text-4" id="text-14-1-1">
 <p>
 Where <code>pbench-move/copy-results</code> copies the results is site-dependent. Check with
 the admin who set up the pbench server and provided you with the configuration file
@@ -1291,13 +1259,12 @@ for the <code>pbench-agent</code> installation.
 </div>
 </div>
 
-<div id="outline-container-org715834b" class="outline-2">
-<h2 id="org715834b">Advanced topics</h2>
-<div class="outline-text-2" id="text-org715834b">
-</div>
-<div id="outline-container-orgaa8e2b4" class="outline-3">
-<h3 id="orgaa8e2b4">Triggers</h3>
-<div class="outline-text-3" id="text-orgaa8e2b4">
+<div id="outline-container-sec-15" class="outline-2">
+<h2 id="sec-15">Advanced topics</h2>
+<div class="outline-text-2" id="text-15">
+</div><div id="outline-container-sec-15-1" class="outline-3">
+<h3 id="sec-15-1">Triggers</h3>
+<div class="outline-text-3" id="text-15-1">
 <p>
 Triggers are groups of tools that are started and stopped on specific events.
 They are registered with <code>pbench-register-tool-trigger</code> using the <code>--start-trigger</code>
@@ -1311,12 +1278,15 @@ There are some commands specifically for triggers:
 </p>
 
 <dl class="org-dl">
-<dt><code>pbench-register-tool-trigger</code></dt><dd>register start and stop triggers for a tool group.</dd>
-<dt><code>pbench-list-triggers</code></dt><dd>list triggers and their start/stop criteria.</dd>
-<dt><code>pbench-tool-trigger</code></dt><dd>this is a Perl script that looks for the
+<dt> <code>pbench-register-tool-trigger</code> </dt><dd>register start and stop triggers for a tool group.
+</dd>
+<dt> <code>pbench-list-triggers</code> </dt><dd>list triggers and their start/stop criteria.
+</dd>
+<dt> <code>pbench-tool-trigger</code> </dt><dd>this is a Perl script that looks for the
 start-trigger and end-trigger markers in the benchmark's output,
 starting and stopping the appropriate group of tools when it
-finds the corresponding marker.</dd>
+finds the corresponding marker.
+</dd>
 </dl>
 
 <p>
@@ -1357,26 +1327,25 @@ care to ensure correct actions.
 </div>
 </div>
 
-<div id="outline-container-org2623193" class="outline-2">
-<h2 id="org2623193">FAQ</h2>
-<div class="outline-text-2" id="text-org2623193">
-</div>
-<div id="outline-container-org87c0be0" class="outline-3">
-<h3 id="org87c0be0">What does <code>--name</code> do?</h3>
-<div class="outline-text-3" id="text-org87c0be0">
+<div id="outline-container-sec-16" class="outline-2">
+<h2 id="sec-16">FAQ</h2>
+<div class="outline-text-2" id="text-16">
+</div><div id="outline-container-sec-16-1" class="outline-3">
+<h3 id="sec-16-1">What does <code>--name</code> do?</h3>
+<div class="outline-text-3" id="text-16-1">
 <p>
 This option is recognized by <code>pbench-register-tool</code> and <code>pbench-unregister-tool</code>: it
 specifies the name of the tool that is to be (un)registered. <code>pbench-list-tools</code>
-with the <code>--name</code> option list all the groups that contain the named tool<sup><a id="fnr.7" class="footref" href="#fn.7">7</a></sup>.
+with the <code>--name</code> option list all the groups that contain the named tool<sup><a id="fnr.7" name="fnr.7" class="footref" href="#fn.7">7</a></sup>.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org8650faa" class="outline-3">
-<h3 id="org8650faa">What does <code>--config</code> do?</h3>
-<div class="outline-text-3" id="text-org8650faa">
+<div id="outline-container-sec-16-2" class="outline-3">
+<h3 id="sec-16-2">What does <code>--config</code> do?</h3>
+<div class="outline-text-3" id="text-16-2">
 <p>
-This option is recognized by the benchmark scripts (see <a href="#org396740f">Available benchmark
+This option is recognized by the benchmark scripts (see <a href="#sec-7">Available benchmark
 scripts</a> above) which use it as a tag for the directory where the benchmark is
 going to run. The default value is empty.  The run directory for the benchmark
 is constructed this way:
@@ -1395,9 +1364,9 @@ fio run with config=foo would run in the directory
 </div>
 </div>
 
-<div id="outline-container-org3545b13" class="outline-3">
-<h3 id="org3545b13">What does <code>--dir</code> do?</h3>
-<div class="outline-text-3" id="text-org3545b13">
+<div id="outline-container-sec-16-3" class="outline-3">
+<h3 id="sec-16-3">What does <code>--dir</code> do?</h3>
+<div class="outline-text-3" id="text-16-3">
 <p>
 This option is recognized by <code>pbench-start-tools</code>, <code>pbench-stop-tools</code>,
 <code>pbench-tool-trigger</code> and <code>pbench-postprocess-tools</code>.  It specifies the directory
@@ -1434,9 +1403,9 @@ specified directory is a subdirectory of <code>/var/lib/pbench-agent</code>.
 </div>
 </div>
 
-<div id="outline-container-orge72f32e" class="outline-3">
-<h3 id="orge72f32e">What does <code>--remote</code> do?</h3>
-<div class="outline-text-3" id="text-orge72f32e">
+<div id="outline-container-sec-16-4" class="outline-3">
+<h3 id="sec-16-4">What does <code>--remote</code> do?</h3>
+<div class="outline-text-3" id="text-16-4">
 <p>
 pbench can register tools on remote hosts, start them and stop them remotely and gather up
 the results from the remote hosts for post-processing. The model is that one has a controller
@@ -1475,17 +1444,17 @@ starts the appropriate tools on the remote hosts. Similarly for
 </div>
 </div>
 
-<div id="outline-container-org2cfb886" class="outline-3">
-<h3 id="org2cfb886">What does <code>--label</code> do?</h3>
-<div class="outline-text-3" id="text-org2cfb886">
+<div id="outline-container-sec-16-5" class="outline-3">
+<h3 id="sec-16-5">What does <code>--label</code> do?</h3>
+<div class="outline-text-3" id="text-16-5">
 <p>
 TBD
 </p>
 </div>
 </div>
-<div id="outline-container-org1b124c1" class="outline-3">
-<h3 id="org1b124c1">How to add a collection tool</h3>
-<div class="outline-text-3" id="text-org1b124c1">
+<div id="outline-container-sec-16-6" class="outline-3">
+<h3 id="sec-16-6">How to add a collection tool</h3>
+<div class="outline-text-3" id="text-16-6">
 <p>
 Tool scripts are mostly boilerplate: they need to take a standard set
 of commands (&#x2013;install, &#x2013;start, &#x2013;stop, &#x2013;postprocess) and a standard
@@ -1610,17 +1579,17 @@ examples, e.g. <a href="https://github.com/distributed-system-analysis/pbench/bl
 </div>
 </div>
 
-<div id="outline-container-org526d295" class="outline-3">
-<h3 id="org526d295">How to add a benchmark</h3>
-<div class="outline-text-3" id="text-org526d295">
+<div id="outline-container-sec-16-7" class="outline-3">
+<h3 id="sec-16-7">How to add a benchmark</h3>
+<div class="outline-text-3" id="text-16-7">
 <p>
 TBD
 </p>
 </div>
 </div>
-<div id="outline-container-org634334c" class="outline-3">
-<h3 id="org634334c">How do I collect data for a short time while my benchmark is running?</h3>
-<div class="outline-text-3" id="text-org634334c">
+<div id="outline-container-sec-16-8" class="outline-3">
+<h3 id="sec-16-8">How do I collect data for a short time while my benchmark is running?</h3>
+<div class="outline-text-3" id="text-16-8">
 <p>
 Running
 </p>
@@ -1637,9 +1606,9 @@ server as usual.
 </div>
 </div>
 
-<div id="outline-container-org525bdf4" class="outline-3">
-<h3 id="org525bdf4">I have a script to run my benchmark - how do I use it with pbench?</h3>
-<div class="outline-text-3" id="text-org525bdf4">
+<div id="outline-container-sec-16-9" class="outline-3">
+<h3 id="sec-16-9">I have a script to run my benchmark - how do I use it with pbench?</h3>
+<div class="outline-text-3" id="text-16-9">
 <p>
 pbench is a set of building blocks, so it allows you to use it in many different
 ways, but it also makes certain assumptions which if not satisfied, lead to problems.
@@ -1689,9 +1658,9 @@ with the <b>same</b> arguments.
 </div>
 </div>
 
-<div id="outline-container-org0d30667" class="outline-3">
-<h3 id="org0d30667">How do I install pbench-agent?</h3>
-<div class="outline-text-3" id="text-org0d30667">
+<div id="outline-container-sec-16-10" class="outline-3">
+<h3 id="sec-16-10">How do I install pbench-agent?</h3>
+<div class="outline-text-3" id="text-16-10">
 <p>
 See the <a href="./installation.html">installation instructions</a>.
 </p>
@@ -1702,51 +1671,51 @@ See the <a href="./installation.html">installation instructions</a>.
 <h2 class="footnotes">Footnotes: </h2>
 <div id="text-footnotes">
 
-<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">
+<div class="footdef"><sup><a id="fn.1" name="fn.1" class="footnum" href="#fnr.1">1</a></sup> <p class="footpara">
 The current version of pbench-agent yum installs prebuilt RPMs of
 various common benchmarks: dbench, fio, iozone, linpack, smallfile and uperf,
 as well as the most recent version of the sysstat tools. We are planning to
 add more benchmarks to the list: iperf, netperf, streams, maybe the phoronix
 benchmarks. If you want some other benchmark (AIM7?), let us know.
-</p></div></div>
+</p></div>
 
-<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara"><p class="footpara">
+<div class="footdef"><sup><a id="fn.2" name="fn.2" class="footnum" href="#fnr.2">2</a></sup> <p class="footpara">
 The "standard storage location" is site-dependent. Check with the admin
 who set up the pbench server at your site.
-</p></div></div>
+</p></div>
 
-<div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3">3</a></sup> <div class="footpara"><p class="footpara">
+<div class="footdef"><sup><a id="fn.3" name="fn.3" class="footnum" href="#fnr.3">3</a></sup> <p class="footpara">
 That will be handled by a configuration file in the future.
-</p></div></div>
+</p></div>
 
-<div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4">4</a></sup> <div class="footpara"><p class="footpara">
+<div class="footdef"><sup><a id="fn.4" name="fn.4" class="footnum" href="#fnr.4">4</a></sup> <p class="footpara">
 It is probably better to bundle these options in a configuration file,
 but that's still WIP.
-</p></div></div>
+</p></div>
 
-<div class="footdef"><sup><a id="fn.5" class="footnum" href="#fnr.5">5</a></sup> <div class="footpara"><p class="footpara">
+<div class="footdef"><sup><a id="fn.5" name="fn.5" class="footnum" href="#fnr.5">5</a></sup> <p class="footpara">
 Only a few such characteristics exist today, but the plan is to move
 more hardwired things into the config files from the scripts. If you need to
 override some setting and have to modify scripts in order to do so, let us
 know: that's a good candidate for the config file.
-</p></div></div>
+</p></div>
 
-<div class="footdef"><sup><a id="fn.6" class="footnum" href="#fnr.6">6</a></sup> <div class="footpara"><p class="footpara">
+<div class="footdef"><sup><a id="fn.6" name="fn.6" class="footnum" href="#fnr.6">6</a></sup> <p class="footpara">
 Yes, I know: it's an oxymoron.
-</p></div></div>
+</p></div>
 
-<div class="footdef"><sup><a id="fn.7" class="footnum" href="#fnr.7">7</a></sup> <div class="footpara"><p class="footpara">
+<div class="footdef"><sup><a id="fn.7" name="fn.7" class="footnum" href="#fnr.7">7</a></sup> <p class="footpara">
 A list of available tools in a specific group can be obtained with the
 <code>--group</code> option of <code>pbench-list-tools</code>; unfortunately, there is no option to list
 all available tools - the current workaround is to check the contents of
 <code>/opt/pbench-agent/tool-scripts</code>.
-</p></div></div>
+</p></div>
 
 
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2017-10-16 Mon 14:23</p>
+<p class="date">Page updated: 2017-12-07 Thu 16:58</p>
 </div>
 </body>
 </html>
