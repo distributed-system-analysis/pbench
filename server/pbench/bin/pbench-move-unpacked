@@ -120,14 +120,15 @@ function process_tarball {
     # remove the symlink from incoming
     rm $incoming 2>/dev/null
     status=$?
-    if  [[ $status -eq 1 ]] ;then
-        # $incoming does not exist for some reason - not clear why that would be the case
-        # but we can go on: no need to abort here.
-        :
-    elif [[ $status -ne 0 ]] ;then
+    if [[ $status -ne 0 ]] ;then
 	rm $RESULTS/$hostname/$prefix$resultname
-	ln -s $incoming.copy $RESULTS/$hostname/$prefix$resultname
-        echo "$TS: Created symlink of $incoming.copy in $RESULTS: code $status" | tee -a $mail_content >&4 
+        if [ -d $incoming.copy ] ;then
+	    ln -s $incoming.copy $RESULTS/$hostname/$prefix$resultname
+            echo "$TS: Created symlink of $incoming.copy in $RESULTS: code $status" | tee -a $mail_content >&4
+        else
+            (echo "$TS: $incoming could not be removed for some reason: code $status";
+             ls $incoming; echo "----") | tee -a $mail_content >&4
+        fi
 	nerrs=$nerrs+1
 	return 1
     fi
