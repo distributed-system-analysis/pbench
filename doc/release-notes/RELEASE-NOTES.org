@@ -1,9 +1,7 @@
-# Created 2017-10-16 Mon 12:10
+#+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
-#+OPTIONS: ^:{} H:2
-#+TITLE: PBench release notes
 #+HTML_DOCTYPE: xhtml-strict
 #+HTML_CONTAINER: div
 #+KEYWORDS: pbench
@@ -14,6 +12,97 @@
 #+SUBTITLE: 
 #+INFOJS_OPT: 
 #+LATEX_HEADER: 
+#+AUTHOR: 
+#+TITLE: PBench release notes
+#+OPTIONS: ^:{} H:2
+
+
+* Version 0.47
+
+** Installation                                                    :external:
+
+There are no installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.47-1g2cfe130
+of the pbench-agent RPM installed.
+
+** agent
+
+*** Known problems and backward incompatibilities
+
+The pprof tools is undergoing some renovation right now: see issue #675
+
+*** Bug fixes and enhancements
+
+- Running xz in multithread mode in =pbench-move/copy-results= is a
+  definite win in most cases, but there was one case reported where it
+  segfaulted; running it single-threaded took longer but succeeded. In
+  order to allow this fallback, a new option was added to
+  =pbench-move/copy-results=: =--xz-single-threaded=.
+
+** server
+
+*** Known problems and backward incompatibilities
+
+- pbench-move-unpacked occasionally leaves a dangling symlink in the
+  results/ URL for reasons that we do not quite understand yet. If you
+  notice missing results, this is probably the reason. These failures
+  were captured in the error log, but not sent as errors in the mail
+  sent to the mailing list, so the failures were somewhat hidden. We
+  have been monitoring the error log regularly however and fixing such
+  failures in fairly short order.
+
+*** Bug fixes and enhancements
+
+- Made the above failure in pbench-move-unpacked visible in the email
+  sent to the mailing list, with additional debugging information to
+  help us diagnose the error once and for alland fix it (we hope in v0.48).
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.47
+:END:
+
+There are no changes to the package (except for the version bump).
+
+If you do decide to update, the instructions are standard:
+#+BEGIN_EXAMPLE
+dnf clean expire-cache
+dnf update pbench-web-server
+#+END_EXAMPLE
+(or the yum equivalents.)  The current version available from COPR
+is 0.47-1g2cfe130.
+
+** Changelog
+This is the list of visible (non-merge, non-unit-test-related) commits
+since v0.46:
+
+- 2cfe130 Bump the version to v0.47
+- 4d821fd pbench-metadata-log: fix the unittests.
+- 787e6af pbench-metadata-log: do not muck around with hostnames
+- 6ea0782 pbench-move-unpacked: fix error handling
+- e323768 Add show-server option in pbench-move-results usage
+- 6a7766a Avoid printing logs to stdout to avoid tar ball corruption
+- 404fb64 Fix collect-sysinfo to treat "all" and "default" options differently
+- 6873097 Clean up readme
+- 1d1c320 Refactor containerized pbench
+- 4616a19 pbench-fio: fix pre-iteration-script and targets option handling.
+- feeaa0f Fix lockstat tool
+- 30019c5 Extend optional sysinfo collection to all the benchmarks
+- 8baed64 pbench agent scripts: fix using of -p with scp command
+- bcce0d4 Log the things pbench-collect-sysinfo is collecting
+- 312ceee Warn instead of failing with a non-zero exit code
+- 1ad33c9 pbench-move-results: add --show-server option
+- b8da534 refactor code to reduce duplication
+- 1729971 rectify the broken: sort by size
+- e284100 rectify the misnamed 'list' variables
+- 69176b9 Add older ansible version < 2.4 support to pbench-ansible
+- a44b038 Example config file: add tool-specific interval
+- 46c6a6f util-scripts unittests: clean up
+- a8f24ad pbench-register-tool-set: flexible specification of tool collection intervals
+- 32a3005 pbench-move-unpacked: work around job pool hang
+- 05d834a pbench-server-activate: relax hostname check
 
 * Version 0.46
 
@@ -22,14 +111,14 @@
 There are no installation changes in this release: see the
 [[file:../agent/installation.org][Installation Instructions]] for how to install or update.
 
-After installation or update, you should have version 
+After installation or update, you should have version 0.46-1g6327ec7
 of the pbench-agent RPM installed.
 
 ** agent
 
 *** Known problems and backward incompatibilities
 
-The pprof tools is undergoing some renovation right now: see issue (
+The pprof tools is undergoing some renovation right now: see issue #675
 
 *** Bug fixes and enhancements
 
@@ -144,7 +233,7 @@ Some of these were in v0.44 - they are repeated here for convenience.
   available from the standard Fedora repos; on RHEL, you will need to
   add the RHEL "optional packages" repo. This can be done by copying
 
-  https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
+  [[https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo]]
 
   to =/etc/yum.repos.d=.
 
@@ -311,7 +400,7 @@ These are identical to v0.43 and are repeated here for convenience:
   available from the standard Fedora repos; on RHEL, you will need to
   add the RHEL "optional packages" repo. This can be done by copying
 
-  https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
+  [[https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo]]
 
   to =/etc/yum.repos.d=.
 
@@ -349,12 +438,12 @@ These are identical to v0.43 and are repeated here for convenience:
 
   See upstream issues:
 
-  https://github.com/prometheus/prom2json/issues/18,
-  https://github.com/prometheus/prom2json/issues/20
+  [[https://github.com/prometheus/prom2json/issues/18]],
+  [[https://github.com/prometheus/prom2json/issues/20]]
 
   and associated PR:
 
-  https://github.com/prometheus/prom2json/pull/22
+  [[https://github.com/prometheus/prom2json/pull/22]]
 
   If you find any problems, please open an issue, but as far as
   we know, there should not be any.
@@ -443,7 +532,7 @@ of the pbench-agent RPM installed.
   available from the standard Fedora repos; on RHEL, you will need to
   add the RHEL "optional packages" repo. This can be done by copying
 
-  https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
+  [[https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo]]
 
   to =/etc/yum.repos.d=.
 - Note that the output of the benchmarks that have been converted to
@@ -974,7 +1063,7 @@ of the renaming described above.
 **** pbench-netperf script has bit-rotted
 The pbench-netperf script seems to have bit-rotted. We are trying to
 decide whether to fix it or abandon it. If you have an opinion, please
-comment at https://github.com/distributed-system-analysis/pbench/issues/291.
+comment at [[https://github.com/distributed-system-analysis/pbench/issues/291]].
 
 *** New features
 Please submit suggestions/issues to the [[https://github.com/distributed-system-analysis/pbench/issues][issue tracker]].
