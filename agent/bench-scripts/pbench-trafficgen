@@ -90,10 +90,10 @@ packet_protocol="UDP"
 
 function kill_trex() {
 	# kill any existing trex server process
-	trex_pids=`netstat -tlnp | grep -E :4500\|:4501 | awk '{print $7}' | awk -F/ '{print $1}' | sort | uniq`
+	trex_pids=$(netstat -tanp | grep -E :4500\|:4501 | awk '{print $7}' | awk -F/ '{print $1}' | grep -v -- "-" | sort | uniq)
 	if [ ! -z "$trex_pids" ]; then
 		echo "killing existing trex server"
-		kill $trex_pids
+		kill ${trex_pids}
 		sleep 5
 	fi
 }
@@ -826,14 +826,20 @@ if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 			trex_cpus=${yaml_cpus}
 		fi
 	done
-	trex_server_cmd="./t-rex-64 -i -c ${trex_cpus} --checksum-offload --cfg $pbench_tmp/trex_cfg.yaml"
+	trex_server_cmd="./t-rex-64 -i -c ${trex_cpus} --checksum-offload --cfg $pbench_tmp/trex_cfg.yaml --iom 0 -v 4"
+	trex_console_cmd="./trex-console --readonly --tui"
 	echo "about to run: ${trex_server_cmd}"
+	echo "about to run: ${trex_console_cmd}"
 	echo "trex yaml:"
 	echo "-------------------------------------------------------------------"
 	cat $pbench_tmp/trex_cfg.yaml
 	echo "-------------------------------------------------------------------"
-	screen -dmS trex-server $trex_server_cmd
-	popd >/dev/null
+	rm -fv /tmp/trex.server.out
+	screen -dmS trex -t server ${trex_server_cmd}
+	screen -x trex -X chdir /tmp
+	screen -x trex -p server -X logfile trex.server.out
+	screen -x trex -p server -X logtstamp on
+	screen -x trex -p server -X log on
 	# wait for trex server to be ready
 	count=30
 	num_ports=0
@@ -844,10 +850,13 @@ if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 	done
 	if [ $num_ports -eq 2 ]; then
 		echo "trex-server is ready"
+		screen -x trex -X chdir /opt/trex/current
+		screen -x trex -X screen -t console ${trex_console_cmd}
 	else
 		warn_log "trex-server could not start properly.  check \'screen -x trex-server\'"
 		exit 1
 	fi
+	popd >/dev/null
 fi
 
 if [[ -z "$benchmark_run_dir" ]]; then
