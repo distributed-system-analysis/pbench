@@ -39,7 +39,7 @@ class Summary extends React.Component {
 
   retrieveResults(params) {
     history.push({
-      pathname: '/results/summary',
+      pathname: '/results/' + params[1].iteration_number + '-' + params[1].iteration_name + '/sample' + params[0],
       state: {
         result: params.result,
         controller: this.props.controller
@@ -118,10 +118,20 @@ class Summary extends React.Component {
                   }
                   if (!this.containsKey(columns, columnSample)) {
                     if (columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"] == undefined) {
-                        columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"] = [{title: "closest sample", dataIndex: columnSample, key: columnSample}];
+                        columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"] = [{title: "closest sample", dataIndex: columnSample, key: columnSample, render: (text, record) => {
+                            return (
+                              <a onClick={() => this.retrieveResults(record)}>{text}</a>
+                            );
+                          },
+                        }];
                         iterationObject[columnSample] = response[iteration].iteration_data[iterationType][iterationNetwork][iterationData]['closest sample'];
                     } else {
-                        columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"].push({title: "closest sample", dataIndex: columnSample, key: columnSample});
+                        columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"].push({title: "closest sample", dataIndex: columnSample, key: columnSample, render: (text, record) => {
+                            return (
+                              <a onClick={() => this.retrieveResults([text, record])}>{text}</a>
+                            );
+                          },
+                        });
                         iterationObject[columnSample] = response[iteration].iteration_data[iterationType][iterationNetwork][iterationData]['closest sample'];
                     }
                   }
