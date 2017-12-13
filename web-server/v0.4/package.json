@@ -23,6 +23,8 @@
     "react": "^15.2.1",
     "react-bootstrap-table": "^3.4.6",
     "react-dom": "^15.2.1",
+    "react-html-parser": "^2.0.1",
+    "react-native-html-parser": "0.0.5",
     "react-redux": "^4.4.5",
     "redux": "^3.5.2",
     "whatwg-fetch": "^1.0.0"
