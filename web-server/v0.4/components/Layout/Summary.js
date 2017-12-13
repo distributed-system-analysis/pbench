@@ -39,10 +39,12 @@ class Summary extends React.Component {
 
   retrieveResults(params) {
     history.push({
-      pathname: '/results/' + params[1].iteration_number + '-' + params[1].iteration_name + '/sample' + params[0],
+      pathname: '/results/' + this.props.controller.slice(0, this.props.controller.indexOf(".")) + '/' + this.props.result + '/'+ params[1].iteration_number + '-' + params[1].iteration_name + '/sample' + params[0],
       state: {
-        result: params.result,
-        controller: this.props.controller
+        result: this.props.result,
+        controller: this.props.controller,
+        iteration_name: params[1].iteration_number + '-' + params[1].iteration_name,
+        sample: 'sample' + params[0]
       }
     })
   }
@@ -120,7 +122,7 @@ class Summary extends React.Component {
                     if (columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"] == undefined) {
                         columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"] = [{title: "closest sample", dataIndex: columnSample, key: columnSample, render: (text, record) => {
                             return (
-                              <a onClick={() => this.retrieveResults(record)}>{text}</a>
+                              <a onClick={() => this.retrieveResults([text, record])}>{text}</a>
                             );
                           },
                         }];
@@ -231,7 +233,7 @@ class Summary extends React.Component {
       return (
         <div style={{ marginLeft: 80 }} className="container-fluid">
           <Spin spinning={loading}>
-            <div className="row">
+            <div className="row" style={{display: 'flex'}}>
               <div className="col-sm-10 col-md-9" style={{position: 'relative', overflow: 'auto'}}>
                 <div className="page-header page-header-bleed-right">
                   <h1 id="dbstart">{this.props.result}</h1>
