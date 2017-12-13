@@ -38,5 +38,9 @@
   {
     "path": "/environments",
     "page": "./pages/environments"
+  },
+  {
+    "path": "/results/:controller/:result/:iteration_name/:iteration_sample_number",
+    "page": "./pages/iteration_summary"
   }
 ]
