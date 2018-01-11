@@ -9,11 +9,9 @@ prog=$(basename $0)
 # It is meant to be run as part of the %postinstall phase of
 # an internal pbench-server RPM, but it can be run manually:
 #
-# pbench-set-results-host-info /home/pbench/lib/config
+# pbench-set-results-host-info
 #
-# In either case, it probably should be run *after* the
-# pbench-activate-local-server-installation script has run,
-# so that the config file is already installed.
+# It assumes that the config file is already installed.
 
 usage="Usage: $prog [<test-dir-prefix>]"
 
@@ -78,6 +76,7 @@ msg="MESSAGE===System Under Maintenance - please retry at a later time ($mailadd
 
 echo $msg > $prefix.maint
 
-ln -sf $prefix.active $prefix
+# it's OK if this fails
+ln -sf $prefix.active $prefix 2>/dev/null
 
 exit 0

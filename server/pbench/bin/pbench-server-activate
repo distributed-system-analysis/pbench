@@ -15,9 +15,29 @@ export CONFIG=$config
 crontabdir=$(getconf.py crontabdir pbench-server)
 crontabdir=${crontabdir:-/opt/pbench-server/lib/crontab}
 
-pbench-server-activate-create-crontab $crontabdir $testdir || exit 2
-pbench-server-activate-setup-results-host-info $testdir || exit 3
-pbench-server-activate-create-results-dir-structure $testdir || exit 4
-pbench-server-activate-start-httpd || exit 5
+typeset -i nerrs=0
+pbench-server-activate-create-crontab $crontabdir $testdir
+sts=$?
+if [ "$sts" != "0" ] ;then
+    nerrs=$nerrs+1
+fi
 
-exit 0
+pbench-server-activate-setup-results-host-info $testdir
+sts=$?
+if [ "$sts" != "0" ] ;then
+    nerrs=$nerrs+1
+fi
+
+pbench-server-activate-create-results-dir-structure $testdir
+sts=$?
+if [ "$sts" != "0" ] ;then
+    nerrs=$nerrs+1
+fi
+
+pbench-server-activate-start-httpd
+sts=$?
+if [ "$sts" != "0" ] ;then
+    nerrs=$nerrs+1
+fi
+
+exit $nerrs
