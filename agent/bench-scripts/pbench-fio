@@ -64,6 +64,7 @@ tool_label_pattern="fio-"
 tool_group="default"
 max_key_length=20
 primary_metric="readwrite_IOPS"
+histogram_interval_msec=10000
 sysinfo="default"
 
 function fio_usage() {
@@ -139,12 +140,14 @@ function fio_usage() {
 		printf "\t\tDefault is n\n"
 		printf -- "\t--remote-only\n"
 		printf "\trun this on the remotes only\n"
+		printf "\t--histogram-interval-msec=<int>\n"
+		printf "\tset the histogram logging interval in milliseconds (default 10000)\n"
 		printf -- "\t--sysinfo=str            str= comma seperated values of sysinfo to be collected\n"
 		printf -- "\t                              available: $(pbench-collect-sysinfo --options)\n"
 }
 
 function fio_process_options() {
-	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,remote-only,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,job-file:,sysinfo:,pre-iteration-script:" -n "getopt.sh" -- "$@");
+	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,remote-only,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,directory:,numjobs:,job-file:,sysinfo:,pre-iteration-script:,histogram-interval-msec:" -n "getopt.sh" -- "$@");
 
 	if [ $? -ne 0 ]; then
 		printf "\t${benchmark}: you specified an invalid option\n\n"
@@ -364,6 +367,11 @@ function fio_process_options() {
 				shift;
 			fi
 			;;
+			--histogram-interval-msec)
+			shift;
+			histogram_interval_msec="$1"
+			shift
+			;;
 			--sysinfo)
 			shift;
 			if [ -n "$1" ]; then
@@ -490,7 +498,7 @@ function fio_device_check() {
 }
 
 function fio_create_jobfile() {
-	local fio_job_file="${12}"
+	local fio_job_file="${13}"
 
 	mkdir -p "`dirname \"$fio_job_file\"`"
 	"${script_path}/templates/make-fio-jobfile.py" -j $job_file \
@@ -503,7 +511,8 @@ function fio_create_jobfile() {
 		-ramptime="$8" \
 		-size="$9" \
 		-rate_iops="${10}" \
-		-targets $(echo "${11}" | sed -e 's/,/ /g') \
+		-log_hist_msec="${11}" \
+		-targets $(echo "${12}" | sed -e 's/,/ /g') \
 		| sed -e 's/ = /=/g' > $fio_job_file
 
 	if [ $? -ne 0 ]; then
@@ -693,7 +702,7 @@ function fio_run_benchmark() {
 								fi
 								mkdir -p $benchmark_results_dir
 								fio_job_file="$benchmark_results_dir/fio.job"
-								fio_create_jobfile "$test_type" "$ioengine" "$block_size" "$iodepth" "$direct" "$sync" "$runtime" "$ramptime" "$file_size" "$rate_iops" "$dev" "$fio_job_file"
+								fio_create_jobfile "$test_type" "$ioengine" "$block_size" "$iodepth" "$direct" "$sync" "$runtime" "$ramptime" "$file_size" "$rate_iops" "$histogram_interval_msec" "$dev" "$fio_job_file" 
 								fio_run_job "$iteration" "$benchmark_results_dir" "$fio_job_file" "$clients"
 							else
 								# if we are only postprocessing, then we might have to untar an existing result
