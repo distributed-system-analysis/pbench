@@ -69,6 +69,8 @@ The following options are available:
 		Default is n
 	--remote-only
 	run this on the remotes only
+	--histogram-interval-msec=<int>
+	set the histogram logging interval in milliseconds (default 10000)
 	--sysinfo=str            str= comma seperated values of sysinfo to be collected
 	                              available: default,none,all,a,b,c,d,e
 --- Finished test-18 pbench-fio (status=0)
