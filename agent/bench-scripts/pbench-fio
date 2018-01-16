@@ -141,7 +141,7 @@ function fio_usage() {
 		printf -- "\t--remote-only\n"
 		printf "\trun this on the remotes only\n"
 		printf "\t--histogram-interval-msec=<int>\n"
-		printf "\tset the histogram logging interval in milliseconds (default 10000)\n"
+		printf "\tset the histogram logging interval in milliseconds (default $histogram_interval_msec)\n"
 		printf -- "\t--sysinfo=str            str= comma seperated values of sysinfo to be collected\n"
 		printf -- "\t                              available: $(pbench-collect-sysinfo --options)\n"
 }
