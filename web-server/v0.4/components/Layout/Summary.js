@@ -22,6 +22,7 @@ class Summary extends React.Component {
   }
 
    componentDidMount() {
+    this.setState({loading: true});
     axios.get('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?source={ "query": { "match": { "run.name": "' + this.props.result + '" } }, "sort": "_index" }').then(res => {
       var result = [];
       result.push(res.data.hits.hits[0]);
@@ -32,8 +33,9 @@ class Summary extends React.Component {
       const response = res.data;
       this.parseJSONData(response);
     })
-    .catch(function (error) {
+    .catch(error => {
       console.log(error);
+      this.setState({loading: false});
     });
   }
 

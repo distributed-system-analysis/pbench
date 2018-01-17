@@ -29,7 +29,10 @@ class ControllerListView extends React.Component {
       });
       this.setState({controllers: controllers})
       this.setState({loading: false});
-    });
+    }).catch(error => {
+      console.log(error);
+      this.setState({loading: false});
+    });;
   }
 
   onInputChange = (e) => {
@@ -63,7 +66,7 @@ class ControllerListView extends React.Component {
 
   retrieveResults(params) {
     history.push({
-      pathname: '/results',
+      pathname: '/dashboard/results',
       state: { controller: params.key }
     })
   }

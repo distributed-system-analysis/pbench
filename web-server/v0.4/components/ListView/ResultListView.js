@@ -6,6 +6,9 @@ import axios from 'axios';
 
 const Search = Input.Search;
 
+var CancelToken = axios.CancelToken;
+var cancel;
+
 class ResultListView extends React.Component {
   static propTypes = {
     controller: React.PropTypes.string
@@ -39,18 +42,33 @@ class ResultListView extends React.Component {
     this.setState({ selectedRowKeys });
   }
 
-  componentDidMount() {
+  componentWillMount() {
     this.setState({loading: true});
     axios.get('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?search_type=count&source={ "query": { "match": { "run.controller": "' + this.props.controller + '" } }, "aggs": { "run": { "terms": { "field": "run.name", "size": 0 } } } }').then(res => {
       const response = res.data.aggregations.run.buckets;
       var results = [];
       for (var item in response) {
-        axios.get('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?source={ "query": { "match": { "run.name": "' + response[item].key + '" } }, "fields": [ "run.name", "run.config", "run.start_run", "run.end_run", "run.script" ], "sort": "_index" }').then(res => {
+        axios.get('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?source={ "query": { "match": { "run.name": "' + response[item].key + '" } }, "fields": [ "run.name", "run.config", "run.start_run", "run.end_run", "run.script" ], "sort": "_index" }', { cancelToken: new CancelToken(function executor(c) {
+          cancel = c;
+        })}).then(res => {
           this.setState({results: this.state.results.concat({result: res.data.hits.hits[0].fields['run.name'][0], config: res.data.hits.hits[0].fields['run.config'][0], startRun: res.data.hits.hits[0].fields['run.start_run'][0], endRun: res.data.hits.hits[0].fields['run.end_run'][0]})});
         });
       }
       this.setState({loading: false});
+    }).catch(error => {
+      console.log(error);
+      this.setState({loading: false});
+    }).catch(function(thrown) {
+      if (axios.isCancel(thrown)) {
+        console.log('Request canceled', thrown.message);
+      } else {
+        // handle error
+      }
     });
+  }
+
+  componentWillUnmount() {
+    cancel('Operation canceled by the user.');
   }
 
   onInputChange = (e) => {
@@ -84,7 +102,7 @@ class ResultListView extends React.Component {
 
   retrieveResults(params) {
     history.push({
-      pathname: '/results/summary',
+      pathname: '/dashboard/results/summary',
       state: {
         result: params.result,
         controller: this.props.controller
