@@ -9,8 +9,6 @@ import constants from '../../core/constants';
 class IterationSummaryPage extends React.Component {
 
   render() {
-    let location = history.getCurrentLocation();
-
     return (
       <Layout>
         <LocaleProvider locale={enUS}>
