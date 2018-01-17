@@ -1,46 +1,24 @@
 [
   {
-    "path": "/",
+    "path": "/dashboard",
     "page": "./pages/home",
     "chunk": "main"
   },
   {
-    "path": "/home",
-    "page": "./pages/home",
-    "chunk": "main"
-  },
-  {
-    "path": "/stages",
-    "page": "./pages/stages",
-    "chunk": "main"
-  },
-  {
-    "path": "/error",
+    "path": "/dashboard/error",
     "page": "./pages/error",
     "chunk": "main"
   },
   {
-    "path": "/apps",
-    "page": "./pages/apps"
-  },
-  {
-    "path": "/users",
-    "page": "./pages/users"
-  },
-  {
-    "path": "/results",
+    "path": "/dashboard/results",
     "page": "./pages/results"
   },
   {
-    "path": "/results/summary",
+    "path": "/dashboard/results/summary",
     "page": "./pages/summary"
   },
   {
-    "path": "/environments",
-    "page": "./pages/environments"
-  },
-  {
-    "path": "/results/:controller/:result/:iteration_name/:iteration_sample_number",
+    "path": "/dashboard/results/:controller/:result/:iteration_name/:iteration_sample_number",
     "page": "./pages/iteration_summary"
   }
 ]
