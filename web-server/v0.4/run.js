@@ -7,10 +7,8 @@ const webpack = require('webpack');
 
 // TODO: Update configuration settings
 const config = {
-  title: 'Patternfly React Starter',        // Your website title
-  url: 'https://patternfly-react-starter.firebaseapp.com',          // Your website URL
-  project: 'patternfly-react-starter',      // Firebase project. See README.md -> How to Deploy
-  trackingID: 'UA-XXXXX-Y',                 // Google Analytics Site's ID
+  title: 'Pbench Dashboard',
+  url: 'http://pbench.perf.lab.eng.bos.redhat.com/'
 };
 
 const tasks = new Map(); // The collection of automation tasks ('clean', 'build', 'publish', etc.)
