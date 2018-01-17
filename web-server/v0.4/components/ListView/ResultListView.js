@@ -2,12 +2,9 @@ import React, {PropTypes} from 'react';
 import history from '../../core/history';
 import {Table, Input, Button, LocaleProvider} from 'antd';
 import enUS from 'antd/lib/locale-provider/en_US';
-import axios from 'axios';
+import axios, { CancelToken } from 'axios';
 
 const Search = Input.Search;
-
-var CancelToken = axios.CancelToken;
-var cancel;
 
 class ResultListView extends React.Component {
   static propTypes = {
@@ -42,33 +39,35 @@ class ResultListView extends React.Component {
     this.setState({ selectedRowKeys });
   }
 
+  getResultMetadata(key) {
+    return axios.get('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?source={ "query": { "match": { "run.name": "' + key + '" } }, "fields": [ "run.name", "run.config", "run.start_run", "run.end_run", "run.script" ], "sort": "_index" }', { cancelToken: this.cancelToken.token }).then(res => {
+      this.setState({results: this.state.results.concat({result: res.data.hits.hits[0].fields['run.name'][0], config: res.data.hits.hits[0].fields['run.config'][0], startRun: res.data.hits.hits[0].fields['run.start_run'][0], endRun: res.data.hits.hits[0].fields['run.end_run'][0]})});
+    });
+  }
+
   componentWillMount() {
+    this.cancelToken = CancelToken.source();
+  }
+
+  componentDidMount() {
     this.setState({loading: true});
     axios.get('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?search_type=count&source={ "query": { "match": { "run.controller": "' + this.props.controller + '" } }, "aggs": { "run": { "terms": { "field": "run.name", "size": 0 } } } }').then(res => {
       const response = res.data.aggregations.run.buckets;
       var results = [];
       for (var item in response) {
-        axios.get('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?source={ "query": { "match": { "run.name": "' + response[item].key + '" } }, "fields": [ "run.name", "run.config", "run.start_run", "run.end_run", "run.script" ], "sort": "_index" }', { cancelToken: new CancelToken(function executor(c) {
-          cancel = c;
-        })}).then(res => {
-          this.setState({results: this.state.results.concat({result: res.data.hits.hits[0].fields['run.name'][0], config: res.data.hits.hits[0].fields['run.config'][0], startRun: res.data.hits.hits[0].fields['run.start_run'][0], endRun: res.data.hits.hits[0].fields['run.end_run'][0]})});
-        });
+        results.push(this.getResultMetadata(response[item].key))
       }
+      axios.all(results).then(axios.spread(function (results) {
+      }));
       this.setState({loading: false});
     }).catch(error => {
       console.log(error);
       this.setState({loading: false});
-    }).catch(function(thrown) {
-      if (axios.isCancel(thrown)) {
-        console.log('Request canceled', thrown.message);
-      } else {
-        // handle error
-      }
     });
   }
 
   componentWillUnmount() {
-    cancel('Operation canceled by the user.');
+    this.cancelToken.cancel('Operation canceled by the user.');
   }
 
   onInputChange = (e) => {
