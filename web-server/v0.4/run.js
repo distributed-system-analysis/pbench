@@ -7,7 +7,7 @@ const webpack = require('webpack');
 
 // TODO: Update configuration settings
 const config = {
-  title: 'Pbench Dashboard',
+  title: 'PBench Dashboard',
   url: 'http://pbench.perf.lab.eng.bos.redhat.com/'
 };
 
