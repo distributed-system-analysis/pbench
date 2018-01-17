@@ -8,25 +8,6 @@ import constants from '../../core/constants';
 
 class UsersPage extends React.Component {
 
-  state = { users: [] };
-
-  componentDidMount() {
-    document.title = 'Patternfly React Boiler | Users';
-  }
-
-  componentWillMount() {
-    this.getUsers();
-  }
-
-  getUsers() {
-    let that = this;
-    fetch(constants.get_users_url).then(r => r.json())
-      .then(data => {
-        that.setState({users : data})
-      })
-      .catch(e => console.log(e));
-  }
-
   render() {
     let location = history.getCurrentLocation();
 
