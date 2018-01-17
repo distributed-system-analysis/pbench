@@ -51,7 +51,7 @@ case $opts in
         ;;
 esac
 
-UNPACK_PATH=$1
+UNPACK_PATH="/pbench/public_html/incoming"
 #mkdir -p $UNPACK_PATH
 
 # TOP, ARCHIVE, INCOMING, RESULTS are all defined by the base file
