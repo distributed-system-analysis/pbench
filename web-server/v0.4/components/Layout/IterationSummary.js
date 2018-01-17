@@ -45,7 +45,7 @@ class IterationSummary extends React.Component {
 
   iframe() {
     return {
-      __html: '<iframe src="http://pbench.perf.lab.eng.bos.redhat.com/results/' + window.location.href.split('results/').pop() + '/uperf.html" width="100%" height="2000"></iframe>'
+      __html: '<iframe src="http://pbench.perf.lab.eng.bos.redhat.com/results/' + window.location.href.split('/dashboard/results/').pop() + '/uperf.html" width="100%" height="2000"></iframe>'
     }
   }
 
