@@ -151,6 +151,8 @@ else
                echo "$TS: Cannot create $result link from $linksrc to $state: code $status" >&4
                nerrs=$nerrs+1
                continue
+            else
+                echo $result >> $ARCHIVE/$state-LIST
             fi
         done
         # this needs checking
