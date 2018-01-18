@@ -1,0 +1,242 @@
+#!/usr/bin/env python3
+
+"""
+This script is a generic inotify script running as a systemd
+service. Using this script, the various server scripts can be invoked
+directly and immediately, instead of having to wait to be invoked by
+cron.
+
+Not every server script will be converted: some will continue to
+be run as cron jobs.
+
+The script uses the pyinotify library to create a watch for a file and
+triggers the associationed command if any changes happen to the
+file. IOW, we assume that a new entry is added to the file when a user
+submits a new result (i.e.  pbench-move-results on the agent side
+needs to be modified).
+"""
+
+import pyinotify
+import subprocess
+import os
+import sys
+import signal
+import fcntl
+import threading
+
+DEBUG = False
+
+
+class Association(object):
+
+    """The Association class associates a server script to the administrative
+    files that are used to figure out whether the script needs to be
+    called.
+
+    The list_file is modified externally(e.g. remotely by
+    pbench-move-results). At initialization, the inotify handler
+    establishes watches on *all* the list_files, so when a change is seen,
+    it use the file name of the changed file as a key in a dict of
+    associations to select the correct one and calls the
+    compare_and_dispatch() routine for this association.
+
+    compare_and_dispatch() calculates the difference between the list_file
+    and the(in-memory) done_links list, to figure out the list of new
+    results. It then calls the script for this association, passing it
+    that list of new results.
+
+    Periodically during cleanup, the list_file is appended to
+    old_list_file and the done_links list is appended to the
+    old_done_file.
+
+    done_links is an in-memory list of symlinks (to tarballs). When a
+    tarball is processed, the link is added to done_links. If the
+    script terminates for whatever reason, the list is saved in a file
+    (done_file). When the script is (re)started, done_links is
+    initialized from the done_file.
+
+    """
+
+    # class variable
+    INOTIFY_STATE_DIR = "/pbench/archive/fs-version-001/inotify_state"
+
+    def __init__(self, script, args, listf, donef, olistf, odonef):
+        self.script = script
+        self.args = args
+        self.list_file = "%s/%s" % (self.INOTIFY_STATE_DIR, listf)
+        self.done_file = "%s/%s" % (self.INOTIFY_STATE_DIR, donef)
+        self.old_list_file = "%s/%s" % (self.INOTIFY_STATE_DIR, olistf)
+        self.old_done_file = "%s/%s" % (self.INOTIFY_STATE_DIR, odonef)
+        self.done_links = []
+        self.mutex = threading.Lock()
+
+        # Make sure the directory and files are present
+        if not os.path.exists(self.INOTIFY_STATE_DIR):
+            os.makedirs(self.INOTIFY_STATE_DIR)
+        if not os.path.exists(self.list_file):
+            with open(self.list_file, 'w'):
+                pass
+        if not os.path.exists(self.done_file):
+            with open(self.done_file, 'w'):
+                pass
+        if not os.path.exists(self.old_list_file):
+            with open(self.old_list_file, 'w'):
+                pass
+        if not os.path.exists(self.old_done_file):
+            with open(self.old_done_file, 'w'):
+                pass
+
+    def compare_and_dispatch(self, new_links):
+        """
+        This function calculates the difference between the files
+        already processed and the ones that are yet to be done, and
+        then passes it to the script. It then update the done_links
+        list to include the new files.
+        """
+        diff = [i for i in new_links if (i not in self.done_links)]
+        if DEBUG:
+            print("LEN_DIFF: %s" % len(diff))
+            print("NEW: %s" % new_links)
+            print("DONE: %s" % self.done_links)
+            print("DIFF: %s" % diff)
+        if len(diff) > 0:
+            if DEBUG:
+                print(self.script, self.args)
+            p = subprocess.Popen(
+                [self.script, str(self.args)] + diff, env=os.environ.copy())
+        self.mutex.acquire()
+        self.done_links.extend(diff)
+        self.mutex.release()
+
+    def spill_done_links(self):
+        """
+        This function allows cleanit to acquire the same mutex for
+        locking on the done_links and do the cleanup.
+        """
+        self.mutex.acquire()
+        links = '\n'.join(self.done_links)
+        self.done_links = []
+        self.mutex.release()
+        return links
+
+
+""" 
+The associations dictionary contains an entry for each script that
+is to be run by the inotify script. It is indexed by the (simple)
+filename of the list file that inotify watches.
+
+A dictionary is being used here so that when we convert a cronjob to a
+service,all we need to do is add an entry to the dict.
+"""
+associations = {
+    'TO-DISPATCH-LIST': Association(
+        '/opt/pbench-server/bin/pbench-dispatch',
+        '',
+        'TO-DISPATCH-LIST',
+        'TO-DISPATCH-DONE-LIST',
+        'OLD-TO-DISPATCH-LIST',
+        'OLD-TO-DISPATCH-DONE-LIST'),
+    'TO-UNPACK-LIST': Association(
+        '/opt/pbench-server/bin/pbench-unpack-tarballs',
+        '/pbench/public_html/incoming',
+        'TO-UNPACK-LIST',
+        'TO-UNPACK-DONE-LIST',
+        'OLD-TO-UNPACK-LIST',
+        'OLD-TO-UNPACK-DONE-LIST')
+}
+
+
+def cleanit():
+    """
+    Thread that runs periodically to keep in-memory structures
+    within limits.
+    """
+    threading.Timer(3600.0, cleanit).start()  # time in seconds
+    for j in associations:
+        if (os.path.getsize(associations[j].list_file) > 0):
+            with open(associations[j].list_file) as f:
+                fcntl.flock(f, fcntl.LOCK_EX)
+            old_done_links = associations[j].spill_done_links()
+            with open(associations[j].list_file, 'r+') as f:
+                old_file_list = f.read()
+                f.seek(0)
+                f.truncate()
+            with open(associations[j].old_list_file, 'a') as f:
+                f.write(old_file_list)
+            with open(associations[j].old_done_file, 'a') as f:
+                f.write(old_done_links)
+            with open(associations[j].list_file) as f:
+                fcntl.flock(f, fcntl.LOCK_UN)
+
+
+class EventHandler(pyinotify.ProcessEvent):
+    """
+    This class handles the events for the scripts. If some changes are
+    detected on the watch file then this class get triggered.
+    """
+
+    def process_IN_CLOSE_WRITE(self, event):
+        filename = event.pathname.split("/")[-1]
+        if DEBUG == "True":
+            print("\nTRIGERRED BY: %s" % filename)
+        script_to_run = associations[filename].script
+        args = associations[filename].args
+        list = open(associations[filename].list_file, 'r')
+        fcntl.flock(list, fcntl.LOCK_EX)
+        new_links = list.readlines()
+        fcntl.flock(list, fcntl.LOCK_UN)
+        list.close()
+        associations[filename].compare_and_dispatch(new_links)
+
+
+def main():
+    # set up signal handlers to save the in-memory done_links to the done_file.
+    def signal_handler(signal, frame):
+        for j in associations:
+            with open(associations[j].done_file, 'w') as f:
+                for i in associations[j].done_links:
+                    f.write(i)
+        os._exit(1)
+
+    sig_type = ['SIGINT', 'SIGQUIT', 'SIGTERM']
+    for i in sig_type:
+        signum = getattr(signal, i)
+        signal.signal(signum, signal_handler)
+
+    # set up the inotify handler
+    wm = pyinotify.WatchManager()  # Watch Manager
+    mask = pyinotify.IN_CLOSE_WRITE  # watched events
+    notifier = pyinotify.ThreadedNotifier(wm, EventHandler())
+    notifier.start()
+
+    # now that the inotify handler is set up, add a watch to the list
+    # file for each association, but first make sure that any work
+    # that was interrupted earlier (or was submitted while this script
+    # was not running) is done now: for each association,
+    # read the list file, initialize the in-memory done_links from the
+    # done file and call compare_and_dispatch(). We take an exclusive
+    # lock on the list file, so it will not be modified during the
+    # initialization period: any pbench-move-results will have to wait
+    # for this to finish.
+
+    for j in associations:
+        list = open(associations[j].list_file, 'r')
+        fcntl.flock(list, fcntl.LOCK_EX)
+        new_links = list.readlines()
+        with open(associations[j].done_file, 'r') as f:
+            done_links = f.readlines()
+            associations[j].done_links = done_links
+        associations[j].compare_and_dispatch(new_links)
+        wm.add_watch(associations[j].list_file, mask)
+        fcntl.flock(list, fcntl.LOCK_UN)
+        list.close()
+
+    # start the cleanit thread
+    cleanit()
+
+    return 0
+
+
+if __name__ == '__main__':
+    status = main()
+    sys.exit(status)
