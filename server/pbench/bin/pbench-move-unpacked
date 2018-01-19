@@ -57,9 +57,6 @@ mkdir -p $tmp
 find $ARCHIVE/*/$linksrc -type l -name '*.tar.xz' -printf "%l\n" 2>/dev/null | grep -v DUPLICATE | xargs du -b --exclude "." 2>/dev/null | sort -n > $list
 
 typeset -i ntb=0
-typeset -i ntotal=0
-typeset -i nerrs=0
-typeset -i ndups=0
 
 # Initialize mail content
 > $mail_content
@@ -67,12 +64,10 @@ typeset -i ndups=0
 function process_tarball {
     result=$1
     size=$2
-    ntotal=$ntotal+1
 
     link=$(readlink -e $result)
     if [ ! -f "$link" ] ;then
         echo "$TS: $link does not exist" | tee -a $mail_content >&4 
-        nerrs=$nerrs+1
         return 1
     fi
     resultname=$(basename $result)
@@ -84,21 +79,18 @@ function process_tarball {
     # ... and a couple of other necessities.
     if [[ $? -ne 0 ]] ;then
         echo "$TS: Creation of $hostname processing directories failed: code $status" | tee -a $mail_content >&4 
-        nerrs=$nerrs+1
         return 1
     fi
     mkdir -p $INCOMING/$hostname
     if [[ $? -ne 0 ]] ;then
         echo "$TS: Creation of $INCOMING/$hostname failed: code $status" | tee -a $mail_content >&4 
-        nerrs=$nerrs+1
         return 1
     fi
     
     # XXXX - for now, if it's a duplicate name, just punt and avoid producing the error - the full
     # solution will involve renaming the unpacked directory appropriately.
     if [ ${resultname%%.*} == "DUPLICATE__NAME" ] ;then
-        ndups=$ndups+1
-        return 1
+        return 2
     fi
 
     incoming=$INCOMING/$hostname/$resultname
@@ -113,13 +105,25 @@ function process_tarball {
     status=$?
     if [[ $status -ne 0 ]] ;then
         echo "$TS: Cannot copy $UNPACK_PATH/$hostname/$resultname to $incoming.copy: code $status" | tee -a $mail_content >&4 
-        nerrs=$nerrs+1
         return 1
     fi
 
-    # remove the symlink from incoming
-    rm $incoming 2>/dev/null
-    status=$?
+    if [ -d "$incoming" ] ;then
+	# Probably left over from a previous unsuccessful pbench-move-unpacked.
+	# In general, this should be a symlink, *NOT* a directory. We remove it
+	# forcibly, but that's OK, since $incoming.copy was successfully created
+	# above (otherwise we'd never get here).
+	rm -rf "$incoming"
+	status=$?
+    elif [ -L "$incoming" ] ;then
+	# remove the symlink from incoming
+	rm $incoming
+	status=$?
+    else
+	# impossible!
+	echo "$TS: Cannot happen - $incoming is neither a dir nor a symlink!" | tee -a $mail_content >&4 
+	return 1
+    fi
     if [[ $status -ne 0 ]] ;then
 	rm $RESULTS/$hostname/$prefix$resultname
         if [ -d $incoming.copy ] ;then
@@ -129,7 +133,6 @@ function process_tarball {
             (echo "$TS: $incoming could not be removed for some reason: code $status";
              ls $incoming; echo "----") | tee -a $mail_content >&4
         fi
-	nerrs=$nerrs+1
 	return 1
     fi
 
@@ -138,19 +141,22 @@ function process_tarball {
     mv $incoming.copy $incoming
     status=$?
     if [[ $status -ne 0 ]] ;then
-	rm $RESULTS/$hostname/$prefix$resultname
-        ln -s $incoming.copy $RESULTS/$hostname/$prefix$resultname
+        ln -sf $incoming.copy $RESULTS/$hostname/$prefix$resultname
         echo "$TS: Cannot rename $incoming.copy to $incoming: code $status" | tee -a $mail_content >&4 
-        nerrs=$nerrs+1
         return 1
+    else
+	# fix up the results link: this is usually not necessary
+	# but if $incoming was a dir (see above), then the link
+	# would point to $incoming.copy
+        ln -sf $incoming $RESULTS/$hostname/$prefix$resultname
     fi
+        
 
     # remove the unpacked tarballs from UNPACK_PATH directory
     rm -R $UNPACK_PATH/$hostname/$resultname
     status=$?
     if [[ $status -ne 0 ]] ;then
         echo "$TS: Cannot remove $UNPACK_PATH/$hostname/$resultname: code $status" | tee -a $mail_content >&4 
-        nerrs=$nerrs+1
 	return 1
     fi
 
@@ -160,7 +166,6 @@ function process_tarball {
     if [[ $status -ne 0 ]] ;then
         echo "$TS: Cannot move $ARCHIVE/$hostname/$resultname from $linksrc to $linkdest: code $status" | tee -a $mail_content >&4 
         rm $RESULTS/$hostname/$prefix$resultname
-        nerrs=$nerrs+1
         return 1
     fi
     let end_time=$(date +%s)
@@ -190,6 +195,9 @@ if [[ ! -s $list ]] ;then
     exit 0
 fi
 
+# echo job pool commands
+job_pool_echo_command=1
+
 job_pool_init $njobs 0
 
 while read size result ;do
@@ -209,13 +217,13 @@ echo "$TS: Processed $ntb tarballs"
 
 log_finish
 
-if [[ $nerrs -gt 0 ]]; then
+if [[ -s $mail_content ]]; then
     subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
     # don't send mail when running unittests
     if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
         (echo "Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates";
         echo ;
-        cat mail_content) | 
+        cat $mail_content) | 
         mailx -s "$subj" $mail_recipients
     fi
 fi
