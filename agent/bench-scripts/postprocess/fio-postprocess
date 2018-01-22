@@ -172,8 +172,9 @@ foreach $client_hostname_dir (@client_hostname_dirs) {
 		# # "samples" : {1407890808: 7.75, 1407890809: 7.77}  <-time series data from workload output
 		# # "value" : "7.76" <-the average of the time series data
 		# # },
-		if ( $log_file =~ /^fio_(iops|lat|slat|clat)\.1\.log$/) {
+		if ( $log_file =~ /^fio_(iops|lat|slat|clat)\.(\d+)\.log$/) {
 			my $log_type = $1;
+			my $job_id = $2;
 			my $date_base = 1471365291000;
 			my $role = "client";
 			my $average;
@@ -223,7 +224,7 @@ foreach $client_hostname_dir (@client_hostname_dirs) {
 				trim_series(\@samples, $series_trim, $series_trim);
 				my %this_dataset;
 				my $mean = get_mean(\@samples);
-				%this_dataset = ( 	get_label('role_label') => $role, get_label('client_hostname_label') => $client_hostname_dir,
+				%this_dataset = ( 	get_label('role_label') => $role, get_label('client_hostname_label') => $client_hostname_dir . "-" . $job_id,
 							get_label('value_label') => $mean, get_label('timeseries_label') => \@samples,
 							get_label('uid_label') => create_uid('client_hostname_label')  );
 				$this_dataset{get_label('description_label')} = $description_label;
