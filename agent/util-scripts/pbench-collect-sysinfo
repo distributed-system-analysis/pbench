@@ -34,7 +34,7 @@ function display_sysinfo_opts {
 # Process options and arguments
 
 function usage {
-	printf "Usage: $script_name [options]\n"
+	printf "Usage: $script_name [options] beg|end \n"
 	printf "\n"
 	printf "Options specified can be one of:\n"
 	printf -- "\t-d str --dir=str,     str = a directory where the $script_name\n"
