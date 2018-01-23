@@ -74,6 +74,16 @@ function process_tarball {
     resultname=${resultname%.tar.xz}
     hostname=$(basename $(dirname $link))
 
+    basedir=$(dirname $link)
+    # pbench-dispatch has already moved it to the .prefix subdir
+    prefixfile=$basedir/.prefix/prefix.$resultname
+    if [ -f $prefixfile ] ;then
+        # add the slash to make both cases uniform in what follows
+        prefix=$(cat $prefixfile)/
+    else
+        prefix=""
+    fi
+
     # make sure that all the relevant state directories exist
     mk_dirs $hostname
     # ... and a couple of other necessities.
