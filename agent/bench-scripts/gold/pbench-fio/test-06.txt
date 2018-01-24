@@ -13,11 +13,6 @@ sync=0
 time_based=1
 clocksource=gettimeofday
 ramp_time=5
-
-[job-/tmp/fio]
-filename=/tmp/fio
-rw=throughput
-size=4096M
 write_bw_log=fio
 write_iops_log=fio
 write_lat_log=fio
@@ -25,6 +20,11 @@ log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
+
+[job-/tmp/fio]
+filename=/tmp/fio
+rw=throughput
+size=4096M
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio.job
 /bin/mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/1-throughput-4KiB/sample1/*.log.foo': No such file or directory
@@ -47,11 +47,6 @@ sync=0
 time_based=1
 clocksource=gettimeofday
 ramp_time=5
-
-[job-/tmp/fio]
-filename=/tmp/fio
-rw=throughput
-size=4096M
 write_bw_log=fio
 write_iops_log=fio
 write_lat_log=fio
@@ -59,6 +54,11 @@ log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
+
+[job-/tmp/fio]
+filename=/tmp/fio
+rw=throughput
+size=4096M
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio.job
 /bin/mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/2-throughput-64KiB/sample1/*.log.foo': No such file or directory
@@ -81,11 +81,6 @@ sync=0
 time_based=1
 clocksource=gettimeofday
 ramp_time=5
-
-[job-/tmp/fio]
-filename=/tmp/fio
-rw=throughput
-size=4096M
 write_bw_log=fio
 write_iops_log=fio
 write_lat_log=fio
@@ -93,6 +88,11 @@ log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
 log_hist_coarseness=4 # 76 bins
+
+[job-/tmp/fio]
+filename=/tmp/fio
+rw=throughput
+size=4096M
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio.job
 /bin/mv: cannot stat '/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/*.log.foo': No such file or directory

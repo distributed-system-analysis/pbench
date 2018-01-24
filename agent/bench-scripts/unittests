@@ -91,7 +91,7 @@ function _dump_logs {
     grep -HvF "\-\-should-n0t-ex1st--" $_testdir/pbench.log >> $_testout 2>&1
     echo "--- pbench.log file contents" >> $_testout
     echo "+++ test-execution.log file contents" >> $_testout
-    grep -HvF "\-\-should-n0t-ex1st--" $_testroot/test-execution.log | sort >> $_testout 2>&1
+    grep -sHvF "\-\-should-n0t-ex1st--" $_testroot/test-execution.log | sort >> $_testout 2>&1
     echo "--- test-execution.log file contents" >> $_testout
     rm -f $_testroot/test-execution.log
     if [ ! -z "$1" ] ;then
@@ -181,7 +181,8 @@ declare -A cmds=(
     [test-16]="pbench-uperf --help"
     [test-17]="pbench-fio --sysinfo=bad"
     [test-18]="pbench-fio --help"
-
+    [test-19]="pbench-fio --pre-iteration-script=foo"
+#    [test-20]="pbench-fio --targets=/dev/foo,/dev/bar --config=test-06  --test-type=throughput --samples=1 --client-file=/tmp/foo"
 )
 
 declare -A expected_status=(
@@ -189,6 +190,7 @@ declare -A expected_status=(
     [test-13]=1
     [test-15]=1
     [test-17]=1
+    [test-19]=1
 )
 
 date="1900.01.01T00.00.00"
@@ -201,9 +203,9 @@ declare -A rundirs=(
     
 )
 declare -A pre=(
-    [test-04]="cp $_tdir/samples/test-04.tar.xz $_testdir/samples"
-    [test-05]="cp $_tdir/samples/test-05.tar.xz $_testdir/samples"
-    [test-06]="cp $_tdir/samples/test-06.tar.xz $_testdir/samples; echo foo bar baz | tr ' ' '\n' > /tmp/foo"
+    [test-04]="cp $_tdir/samples/test-04.tar.xz $_testdir/samples; mkdir -p $_testopt/config;cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
+    [test-05]="cp $_tdir/samples/test-05.tar.xz $_testdir/samples; mkdir -p $_testopt/config;cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
+    [test-06]="cp $_tdir/samples/test-06.tar.xz $_testdir/samples; mkdir -p $_testopt/config;cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg; echo foo bar baz | tr ' ' '\n' > /tmp/foo"
 )
 
 declare -A post=(

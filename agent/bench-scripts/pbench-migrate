@@ -53,14 +53,12 @@ seconds_before_postprocess=1
 use_libvirt="y"
 tool_group=default
 config=""
+sysinfo="default"
 
 # Process options and arguments
-opts=$(getopt -q -o C:c:r:d: --longoptions "max-downtime:,compcache_size:,speed:,seconds-before-postprocess:,seconds-before-migrate:,postprocess:,round-trips:,vm:,dir:,config:,src-host:,src-ipaddr:,dest-host:,dest-ipaddr:,timeout:,use-libvirt:,tool-group:" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o C:c:r:d: --longoptions "max-downtime:,compcache_size:,speed:,seconds-before-postprocess:,seconds-before-migrate:,postprocess:,round-trips:,vm:,dir:,config:,src-host:,src-ipaddr:,dest-host:,dest-ipaddr:,timeout:,use-libvirt:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@");
 
-if [ $? -ne 0 ]; then
-	printf -- "$*\n"
-	printf "\n"
-	printf "\t${benchmark}: you specified an invalid option\n\n"
+function usage {
 	printf "\tThe following options are available:\n\n"
 	printf -- "\t\t--tool-group=str\n"
 	printf -- "\t\t--vm=str                                name of vm to migrate\n"
@@ -72,13 +70,22 @@ if [ $? -ne 0 ]; then
 	printf -- "\t\t--postprocess=str                       skip = don't postprocess, only = only postprocess existing test, yes (default) = postprocess after test\n"
 	printf -- "\t\t--seconds-before-migrate=int            wait this many seconds before starting the migration\n"
 	printf -- "\t\t--seconds-before-postprocess=int        wait this many seconds before postprocessing the data\n"
-	printf -- "\t\t--max-downtime			       maximum downtime in milliseconds\n"
-	printf -- "\t\t--compache-size			       maximum size in bytes of cache used for compression\n"
-	printf -- "\t\t--speed				       maximum network speed in MiB/sec\n"
+	printf -- "\t\t--max-downtime                          maximum downtime in milliseconds\n"
+	printf -- "\t\t--compache-size                         maximum size in bytes of cache used for compression\n"
+	printf -- "\t\t--speed                                 maximum network speed in MiB/sec\n"
 	printf -- "\t\t--round-trips=int                       the number of times to live-migrate back & forth (default is 0)\n"
 	printf -- "\t\t--use-libvirt=y/n                       iif this is "n", then migration is done with qemu directly\n"
 	printf -- "\t\t                                        0 = 1 migration, just to dest-host (no round-trip migration, VM ends up on dest-host).\n"
 	printf -- "\t\t                                        1 = 2 migrations, 2 = 4 migrations, etc.  VM ends up on src-host\n"
+	printf -- "\t\t--sysinfo=str,                          str= comma seperated values of sysinfo to be collected\n"
+	printf -- "\t\t                                             available: $(pbench-collect-sysinfo --options)\n"
+}
+
+if [ $? -ne 0 ]; then
+	printf -- "$*\n"
+	printf "\n"
+	printf "\t${benchmark}: you specified an invalid option\n\n"
+	usage
 	exit 1
 fi
 eval set -- "$opts";
@@ -125,6 +132,13 @@ while true; do
 		shift;
 		if [ -n "$1" ]; then
 			seconds_before_migrate="$1"
+			shift;
+		fi
+		;;
+		--sysinfo)
+		shift;
+		if [ -n "$1" ]; then
+			sysinfo="$1"
 			shift;
 		fi
 		;;
@@ -198,6 +212,10 @@ while true; do
 			shift;
 		fi
 		;;
+		h|--help)
+		usage
+		exit 0
+		;;
 		--)
 		shift;
 		break;
@@ -209,6 +227,14 @@ while true; do
 	esac
 done
 verify_tool_group $tool_group
+
+pbench-collect-sysinfo --sysinfo=$sysinfo --check
+if [ $? != 0 ]; then
+        printf -- "$*\n\n"
+        printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
+        usage
+        exit 1
+fi
 
 function do_migrate() {
 
@@ -253,10 +279,10 @@ function do_migrate() {
 	# make sure dest_host has exact VM config as src_host
 	if [ "$use_libvirt" == "y" ]; then
 		echo creating VM on destination host using libvirt
-		ssh $dest_host virsh undefine $vm
-		ssh $src_host virsh dumpxml $vm >/tmp/$vm.xml
-		scp /tmp/$vm.xml $dest_host:/tmp/$vm.xml
-		ssh $dest_host virsh define /tmp/$vm.xml
+		ssh $ssh_opts $dest_host virsh undefine $vm
+		ssh $ssh_opts $src_host virsh dumpxml $vm >/tmp/$vm.xml
+		scp $scp_opts /tmp/$vm.xml $dest_host:/tmp/$vm.xml
+		ssh $ssh_opts $dest_host virsh define /tmp/$vm.xml
 	else
 		# start qemu in listen mode on dest host
 		echo creating VM on destination hosyt using qemu
@@ -330,7 +356,7 @@ if [ $loops -eq 0 ]; then
 fi
 count=1
 export benchmark config
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 for i in `seq 1 $loops`; do
 	iteration="$count-from-$src_host-to-$dest_host"
@@ -374,6 +400,6 @@ for postprocess_dir in $postprocess_dirs; do
 done
 wait
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 
 rmdir $benchmark_run_dir/.running

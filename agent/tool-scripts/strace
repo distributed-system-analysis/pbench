@@ -127,10 +127,14 @@ case "$mode" in
         wait
         ;;
         stop)
-	for tool_pid_file in `/bin/ls $pbench_tmp | grep "$group.$iteration.$tool"`; do
-        	tool_pid=`cat "$pbench_tmp/$tool_pid_file"`
-        	kill $tool_pid && /bin/rm "$pbench_tmp/$tool_pid_file"
-	done
+	if [[ -s "$tool_pid_file" ]]; then
+		for tool_pid_file in `/bin/ls $pbench_tmp | grep "$group.$iteration.$tool"`; do
+        		tool_pid=`cat "$pbench_tmp/$tool_pid_file"`
+        		kill $tool_pid && /bin/rm "$pbench_tmp/$tool_pid_file"
+		done
+	else
+		warn_log "[$script_name]: tool is not running, nothing to kill"
+	fi
 	;;
 	postprocess)
 	;;

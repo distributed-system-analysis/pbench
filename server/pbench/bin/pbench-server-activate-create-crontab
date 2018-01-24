@@ -31,6 +31,11 @@ echo "CONFIG=$CONFIG" > $crontab
 
 roles=$(getconf.py -l roles pbench-server)
 hostname=$(hostname -f)
+# in some cases, the host specified in the config file
+# is different from what hostname -f returns. In such
+# cases, we also have a "real" name in the config file
+# that *should* match what hostname -f returns
+realhost=$(getconf.py realhost pbench-server)
 
 function crontab_normal() {
     local role=$1
@@ -68,7 +73,7 @@ function crontab_with_substitutions() {
 
 for role in $roles ;do
     host=$(getconf.py host $role)
-    if [ "$host" != "$hostname" ] ;then
+    if [ "$host" != "$hostname" -a "$realhost" != "$hostname" ] ;then
         if [ "${_PBENCH_SERVER_TEST}" != "1" ] ;then 
             continue
         fi

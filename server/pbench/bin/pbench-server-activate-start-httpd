@@ -7,6 +7,9 @@ docroot=$(getconf.py documentroot apache)
 
 systemctl enable httpd.service
 systemctl start httpd.service
-ln -s $pbench_dir/public_html/incoming $pbench_dir/public_html/results $docroot
+
+# it's OK if this fails
+ln -s $pbench_dir/public_html/incoming $pbench_dir/public_html/results $docroot 2>/dev/null
 
 exit 0
+

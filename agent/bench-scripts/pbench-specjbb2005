@@ -45,27 +45,34 @@ nr_cpus=`cat /proc/cpuinfo | grep processor | wc -l`
 classpath=/usr/local/share/specjbb2005
 tool_group=default
 config=""
+sysinfo="default"
 
 # Process options and arguments
-opts=$(getopt -q -o C:c:r:d: --longoptions "dir:,nr-jvms:,heap-size:,java-opts:,start-warehouses:,inc-warehouses:,stop-warehouses:,runtime:,tool-group:" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o C:c:r:d: --longoptions "dir:,nr-jvms:,heap-size:,java-opts:,start-warehouses:,inc-warehouses:,stop-warehouses:,runtime:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@");
+
+function usage {
+	printf "\tThe following options are available:\n\n"
+        printf -- "\t\t--kvm-host=str\n"
+        printf -- "\t\t-C str --config=str                         name of the test config\n"
+        printf -- "\t\t-j str --java_opts=str                      options passed directly to the JVM\n"
+        printf -- "\t\t       --nr-jvms=int|node                      number of JVMs. if = node, number of JVMs = number of NUMA nodes\n"
+        printf -- "\t\t       --node-pinning=y/n                   if y, this script will use numactl to pin JVM to a node (1 per node round-robin)\n"
+        printf -- "\t\t       --start-warehouses                   number of warehouses to start with (default is $start_warehouses)\n"
+        printf -- "\t\t       --inc-warehouses                     number of warehouses to increment by (default is $inc_warehouses)\n"
+        printf -- "\t\t       --stop-warehouses                    number of warehouses to stop with (default is nr_cpus * 2 / nr_jvms)\n"
+        printf -- "\t\t       --heap-size                          size of the heap in MB (default is $heap_size)\n"
+        printf -- "\t\t       --runtime=int                        measurement period in seconds (default is $runtime)\n"
+        printf -- "\t\t-d str --dir=str                            directory to run the test\n"
+        printf -- "\t\t       --tool-group=str\n"
+        printf -- "\t\t       --sysinfo=str,                       str= comma seperated values of sysinfo to be collected\n"
+        printf -- "\t\t                                                 available: $(pbench-collect-sysinfo --options)\n"
+}
 
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
 	printf "\t${benchmark}: you specified an invalid option\n\n"
-	printf "\tThe following options are available:\n\n"
-        printf -- "\t\t--kvm-host=str\n"
-	printf -- "\t\t-C str --config=str                         name of the test config\n"   
-	printf -- "\t\t-j str --java_opts=str                      options passed directly to the JVM\n"
-	printf -- "\t\t       --nr-jvms=int|node                      number of JVMs. if = node, number of JVMs = number of NUMA nodes\n"
-	printf -- "\t\t       --node-pinning=y/n                   if y, this script will use numactl to pin JVM to a node (1 per node round-robin)\n"
-	printf -- "\t\t       --start-warehouses                   number of warehouses to start with (default is $start_warehouses)\n"
-	printf -- "\t\t       --inc-warehouses                     number of warehouses to increment by (default is $inc_warehouses)\n"
-	printf -- "\t\t       --stop-warehouses                    number of warehouses to stop with (default is nr_cpus * 2 / nr_jvms)\n"
-	printf -- "\t\t       --heap-size                          size of the heap in MB (default is $heap_size)\n"
-	printf -- "\t\t       --runtime=int                        measurement period in seconds (default is $runtime)\n"
-	printf -- "\t\t-d str --dir=str                            directory to run the test\n"
-	printf -- "\t\t       --tool-group=str\n"
+	usage
 	exit 1
 fi
 eval set -- "$opts";
@@ -142,6 +149,17 @@ while true; do
 			shift;
 		fi
 		;;
+		--sysinfo)
+		shift;
+		if [ -n "$1" ]; then
+			sysinfo="$1"
+			shift;
+		fi
+		;;
+		h|--help)
+		usage
+		exit 0
+		;;
 		--)
 		shift;
 		break;
@@ -153,6 +171,14 @@ while true; do
 	esac
 done
 verify_tool_group $tool_group
+
+pbench-collect-sysinfo --sysinfo=$sysinfo --check
+if [ $? != 0 ]; then
+        printf -- "$*\n\n"
+        printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
+        usage
+        exit 1
+fi
 
 if [ "$stop_warehouses" == "default" ]; then
 	stop_warehouses=`echo "$nr_cpus *2 /$nr_jvms" | bc`
@@ -212,7 +238,7 @@ mv index.html SPECjbb.html
 # rename the iterations with warehouse count and then postprocess the tools
 iteration=1
 export benchmark config
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 for i in `seq $start_warehouses $inc_warehouses $stop_warehouses`; do
 	# for each of the test iterations (each test with a specific number of warehouses), copy the raw result data for that iteration in iteraration directory
@@ -224,7 +250,7 @@ for i in `seq $start_warehouses $inc_warehouses $stop_warehouses`; do
 	let iteration=$iteration+1
 done
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 popd
 
 rmdir $benchmark_run_dir/.running

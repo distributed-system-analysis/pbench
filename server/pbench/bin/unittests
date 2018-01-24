@@ -72,7 +72,7 @@ function _run_activate {
 function _run_allscripts {
     # _run pbench-backup-tarballs
     # These next three are related and would flow in this order
-    _run pbench-unpack-tarballs
+    _run pbench-unpack-tarballs $_testdir
     _run pbench-copy-sosreports
     _run pbench-index
     # These two are independent
@@ -189,11 +189,11 @@ declare -A cmds=(
     # bad md5 in backup
     [test-9.5]="_run pbench-verify-backup-tarballs"
 
-    # pbench-rsync-satellite
+    # pbench-sync-satellite - currently broken
     # trivial results: no mail
-    [test-10]="_run pbench-rsync-satellite TEST foo.bar.com $_testroot/pbench/archive"
+    [test-10]="_run pbench-sync-satellite TEST foo.bar.com $_testroot/pbench/archive"
     # non-trivial results: mail
-    [test-11]="_run pbench-rsync-satellite TEST2 foo2.bar.com $_testroot/pbench/archive"
+    [test-11]="_run pbench-sync-satellite TEST2 foo2.bar.com $_testroot/pbench/archive"
 )
 
 declare -A links=(

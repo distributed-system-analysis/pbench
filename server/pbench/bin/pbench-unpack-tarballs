@@ -51,6 +51,9 @@ case $opts in
         ;;
 esac
 
+UNPACK_PATH=$1
+#mkdir -p $UNPACK_PATH
+
 # TOP, ARCHIVE, INCOMING, RESULTS are all defined by the base file
 . $dir/pbench-base.sh
 ###########################################################################
@@ -68,60 +71,72 @@ test -d $RESULTS || doexit "Bad RESULTS=$RESULTS"
 # does not use any locking.
 
 # the link source and destination for this script
-linksrc=TODO
-linkdest=TO-COPY-SOS
-
+linksrc=TO-UNPACK
+linkdest=UNPACKED
 echo $TS
 
-# get the list of files we'll be operating on - sort them by size
-list=$TMP/pbench-unpack-tarballs.$$
-find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | grep -v DUPLICATE | sort -n > $list
+tmp=$TMP/$PROG.$$
 
-trap 'rm -f $list' EXIT INT QUIT
+trap 'rm -rf $tmp' EXIT INT QUIT
+
+mkdir -p $tmp
+
+# accumulate errors in a file for mailing at end
+mail_content=$tmp/mail_content.log
+
+# get the list of files we'll be operating on - sort them by size
+list=$tmp/$PROG.list
+
+# find command will not generate any result if the linksrc is empty, and because of that du will not get any result 
+# to calculate the size. In that scenario du generates the size of the current directory as output, to handle
+# that exclude the current directory.
+find $ARCHIVE/*/$linksrc -type l -name '*.tar.xz' -printf "%l\n" 2>/dev/null | grep -v DUPLICATE | xargs du -b --exclude "." 2>/dev/null | sort -n > $list
 
 typeset -i ntb=0
 typeset -i ntotal=0
 typeset -i nerrs=0
 typeset -i ndups=0
 
+# Initialize mail content
+> $mail_content
+
 while read size result ;do
     ntotal=$ntotal+1
 
     link=$(readlink -e $result)
     if [ ! -f "$link" ] ;then
-        echo "$TS: $link does not exist" >&4
+        echo "$TS: $link does not exist" | tee -a $mail_content >&4 
         nerrs=$nerrs+1
         continue
     fi
-
     resultname=$(basename $result)
     resultname=${resultname%.tar.xz}
     hostname=$(basename $(dirname $link))
 
-    # echo $link
-    # echo $resultname
-    # echo $hostname
+    # echo "Link=$link"
+    # echo "Resultname=$resultname"
+    # echo "Hostname=$hostname"
     # continue
 
     # make sure that all the relevant state directories exist
     mk_dirs $hostname
     # ... and a couple of other necessities.
     if [[ $? -ne 0 ]] ;then
-        echo "$TS: Creation of $hostname processing directories failed: code $status" >&4
+        echo "$TS: Creation of $hostname processing directories failed: code $status" | tee -a $mail_content >&4 
         nerrs=$nerrs+1
         continue
     fi
     mkdir -p $INCOMING/$hostname
     if [[ $? -ne 0 ]] ;then
-        echo "$TS: Creation of $INCOMING/$hostname failed: code $status" >&4
+        echo "$TS: Creation of $INCOMING/$hostname failed: code $status" | tee -a $mail_content >&4 
         nerrs=$nerrs+1
         continue
     fi
     
-    mkdir -p $TMP/$PROG/$hostname
+    mkdir -p $UNPACK_PATH/$hostname
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: mkdir -p $TMP/$PROG/$hostname failed: code $status" >&4
+        echo "$TS: mkdir -p $UNPACK_PATH/$hostname failed: code $status" | tee -a $mail_content >&4 
         nerrs=$nerrs+1
         continue
     fi
@@ -132,126 +147,97 @@ while read size result ;do
         ndups=$ndups+1
         continue
     fi
-
-    # create a "Please wait" message in .../incoming.
-    incoming=$INCOMING/$hostname/$resultname
-    mkdir -p $incoming
-    status=$?
-    if [[ $status -ne 0 ]] ;then
-        echo "$TS: mkdir -p $incoming failed: code $status" >&4
-        nerrs=$nerrs+1
-        continue
-    fi
-    echo "Processing - please wait..." > $incoming/index.html
-    status=$?
-    if [[ $status -ne 0 ]] ;then
-        echo "$TS: Creation of $incoming/index.html failed: code $status" >&4
-        nerrs=$nerrs+1
-        continue
-    fi
-
-    # check the md5 sum
-    md5=$(cat $link.md5 2> /dev/null | cut -d' ' -f1)
-    md5tar=$(md5sum $link 2> /dev/null | cut -d' ' -f1)
-    if [ "$md5" != "$md5tar" ] ;then
-        echo "$TS: MD5 check failed on $link" >&4
-        # move the link so that the script does not report the error continuously
-        mv $result $(echo $result | sed 's/TODO/BAD-MD5/')
-        nerrs=$nerrs+1
-        continue
-    fi
-
+    
     let start_time=$(date +%s)
-    # unpack the tarball into a temp area
-    pushd $TMP/$PROG/$hostname > /dev/null 2>&1
+    pushd $UNPACK_PATH/$hostname > /dev/null 2>&1
     tar --extract --no-same-owner --no-overwrite-dir --touch --file="$result"
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: 'tar -xf $result' failed: code $status" >&4
+        echo "$TS: 'tar -xf $result' failed: code $status" | tee -a $mail_content >&4 
         nerrs=$nerrs+1
         popd > /dev/null 2>&1
         continue
     fi
+
     # chmod directories to at least 555
     find . -type d -print0 | xargs -0 chmod ugo+rx
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: 'chmod ugo+rx' of subdirs failed: code $status" >&4
+        echo "$TS: 'chmod ugo+rx' of subdirs failed: code $status" | tee -a $mail_content >&4 
         nerrs=$nerrs+1
+        rm -rf $resultname
         popd > /dev/null 2>&1
         continue
     fi
+
     # chmod files to at least 444
     chmod -R ugo+r .
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: 'chmod -R ugo+r .' failed: code $status" >&4
+        echo "$TS: 'chmod -R ugo+r .' failed: code $status" | tee -a $mail_content >&4 
         nerrs=$nerrs+1
+        rm -rf $resultname
         popd > /dev/null 2>&1
         continue
     fi
     popd > /dev/null 2>&1
 
-    # move the tarball contents to INCOMING
-    rm $incoming/index.html
-    rmdir $incoming
-    status=$?
-    if [[ $status -ne 0 ]] ;then
-        echo "$TS: Cannot remove $incoming: dir not empty? name collision? code $status" >&4
-        nerrs=$nerrs+1
-        continue
-    fi
-
-    # create the link from results to incoming *before* moving the directory from TMP.
-    # That avoids a race with pbench-create-results-links which might create a recursive link
-
     # if there is a prefix file, create a link as specified by the prefix
     # even if no prefix is specified, we still want to link from the results/ hierarchy to incoming/.
     # user access will eventually be through results/ only.
+
     basedir=$(dirname $link)
-    prefixfile=$basedir/prefix.$resultname
+    # pbench-dispatch has already moved it to the .prefix subdir
+    prefixfile=$basedir/.prefix/prefix.$resultname
     if [ -f $prefixfile ] ;then
         # add the slash to make both cases uniform in what follows
         prefix=$(cat $prefixfile)/
-        mkdir -p $basedir/.prefix
-        mv $prefixfile $basedir/.prefix
     else
         prefix=""
     fi
 
+    incoming=$INCOMING/$hostname/$resultname
     mkdir -p $RESULTS/$hostname/$prefix
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: prefix failure - code $status:         mkdir -p $RESULTS/$hostname/$prefix" >&4
+        echo "$TS: code $status: mkdir -p $RESULTS/$hostname/$prefix" | tee -a $mail_content >&4
+        continue
     else
+        # when unpack path is incoming
+        if [[ $UNPACK_PATH -ef $INCOMING ]]; then
+            :
+        # when unpack path is tmp directory
+        else
+            echo "ln -s $UNPACK_PATH/$hostname/$resultname $incoming"
+            ln -s $UNPACK_PATH/$hostname/$resultname $incoming
+            status=$?
+            if [[ $status -ne 0 ]] ;then
+                echo "$TS: code $status: ln -s $UNPACK_PATH/$hostname/$resultname $incoming" | tee -a $mail_content >&4
+                # Cleanup needed here but trap takes care of it.
+                continue 
+            fi
+        fi
         echo "ln -s $incoming $RESULTS/$hostname/$prefix$resultname"
         ln -s $incoming $RESULTS/$hostname/$prefix$resultname
         status=$?
         if [[ $status -ne 0 ]] ;then
-            echo "$TS: prefix failure - code $status: ln -s $incoming $RESULTS/$hostname/$prefix$resultname" >&4
+            echo "$TS: code $status: ln -s $incoming $RESULTS/$hostname/$prefix$resultname" | tee -a $mail_content >&4
+            rm -rf $incoming
+            continue
         fi
     fi
 
-    # now move the directory - remove the link on failure
-    # -Z needed for proper selinux labeling, but it works when selinux is disabled as well.
-    mv -Z $TMP/$PROG/$hostname/$resultname $incoming
+    mv $ARCHIVE/$hostname/$linksrc/$resultname.tar.xz $ARCHIVE/$hostname/$linkdest/$resultname.tar.xz
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: Cannot move $TMP/$PROG/$hostname/$resultname to $incoming: code $status" >&4
+        echo "$TS: Cannot move $ARCHIVE/$hostname/$resultname from $linksrc to $linkdest: code $status" | tee -a $mail_content >&4
+        # Cleanup needed here but trap takes care of it.
+        rm -rf $incoming
         rm $RESULTS/$hostname/$prefix$resultname
         nerrs=$nerrs+1
         continue
     fi
 
-    # move the link to $linkdest directory
-    mv $result $(echo $result | sed "s/$linksrc/$linkdest/")
-    status=$?
-    if [[ $status -ne 0 ]] ;then
-        echo "$TS: Cannot move $result link from $linksrc to $linkdest: code $status" >&4
-        rm $RESULTS/$hostname/$prefix$resultname
-        nerrs=$nerrs+1
-        continue
-    fi
     let end_time=$(date +%s)
     let duration=end_time-start_time
     # log the success
@@ -267,7 +253,10 @@ if [[ $nerrs -gt 0 ]]; then
     subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
     # don't send mail when running unittests
     if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
-        echo "Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates" | mailx -s "$subj" $mail_recipients
+        (echo "Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates";
+        echo ;
+        cat mail_content) | 
+        mailx -s "$subj" $mail_recipients
     fi
 fi
 

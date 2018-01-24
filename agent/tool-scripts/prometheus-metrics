@@ -35,9 +35,6 @@ function usage {
 	printf -- "\t--interval=int             number of seconds between each data collection\n"
 	printf -- "\t--options=str              options passed directly to the tool\n"
 	printf -- "\t--inventory=str            path to the inventory file\n"
-	printf -- "\t--port=int                 port prometheus is listening on\n"
-	printf -- "\t--cert=str                 path to the cert\n"
-	printf -- "\t--key=str                  path to the key"
 
 }
 # Process options and arguments
@@ -141,8 +138,6 @@ tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
 tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
 tool_stderr_file=$tool_output_dir/$tool-stderr.txt
 tool_log=$tool_output_dir/tool.log
-## create directory to save the keys from openshift master, hosts
-mkdir -p /run/pbench/keys
 ## check if the inventory variable is set correctly
 if [[ -z "$inventory" ]]; then
 	usage
@@ -151,9 +146,11 @@ elif [[ ! -s "$inventory" ]] || [[ ! -f "$inventory" ]]; then
 	echo "Please check if the inventory file exists, is not empty and the inventory variable is not set to a directory"
 	exit 1
 fi
-## parse openshift inventory file
+## create pbench directory to store info about endpoints
+mkdir -p /run/pbench
+## parse inventory file
 if [[ -d /run/pbench ]]; then
-	cat "$inventory" | sed -n '/^\[masters\]/,/^$/p' | awk '{if (NR!=1) {print}}' | sed '/^$/d' > /run/pbench/inv_hosts
+	cat "$inventory" | sed -n '/^\[prometheus-metrics\]/,/^$/p' | awk '{if (NR!=1) {print}}' | sed '/^$/d' > /run/pbench/inv_hosts
 else
 	error_log "creation of /run/pbench directory failed"
 	exit 1
@@ -174,59 +171,48 @@ case "$mode" in
 		# In case the file doesn't have certs, port and they are not defined while registering the tool, the default values are set.
 		# host port=<port> cert=<cert> key=<key>
 		host=$(echo $file | awk -F " " '{ print $1 }')
-		if [[ -z "$port" ]]; then
-			port=$(echo $file | grep -w "port" | awk -F " " '{ print $2 }' | awk -F "=" '{print $2}')
-		fi
-		if [[ -z "$cert" ]]; then
-			cert=$(echo $file | grep -w "cert" | awk -F " " '{ print $3 }' | awk -F "=" '{print $2}')
-		fi
-		if [[ -z "$key" ]]; then
-			key=$(echo $file | grep -w "key" | awk -F " " '{ print $4 }' | awk -F "=" '{print $2}')
-		fi
-		# fetch keys from openshift master and set default values for port, cert and key vars if not defined
+		port=$(echo $file | grep -w "port" | awk -F " " '{ print $2 }' | awk -F "=" '{print $2}')
+		cert=$(echo $file | grep -w "cert" | awk -F " " '{ print $3 }' | awk -F "=" '{print $2}')
+		key=$(echo $file | grep -w "key" | awk -F " " '{ print $4 }' | awk -F "=" '{print $2}')
+		# Exit if port, cert or key is not defined
 		if [ -z "$port" ]; then
-			port=8443
+			echo "metrics endpoint port is not defined for $host, the syntax is <host> port=<port> cert=<path-to-cert> key=<path-to-cert>"
+			error_log "[$script_name] port is not defined for $host"
+			exit 1
 		fi
 		if [ -z "$cert" ]; then
-			if [ ! -s /run/pbench/keys/admin.crt ]; then
-				scp $host:/etc/origin/master/admin.crt /run/pbench/keys/admin.crt
-				if [[ $? != 0 ]]; then
-					error_log "[$script_name]scp command failed to copy the files from $host, please check if the cert exists in /etc/origin/master directory"
-					exit 1
-				fi
-			fi
-			cert=/run/pbench/keys/admin.crt
+			debug_log "[$script_name] cert is not defined for $host, assuming that the endpoint doesn't need authentication"
+			cert="None"
 		fi
 		if [ -z "$key" ]; then
-			if [ ! -s /run/pbench/keys/admin.key ]; then
-				scp $host:/etc/origin/master/admin.key /run/pbench/keys/admin.key
-				if [[ $? != 0 ]]; then
-					error_log "[$script_name]scp command failed to copy the files from $host, please check if the key exists in /etc/origin/master directory"
-					exit 1
-				fi	
-			fi
-			key=/run/pbench/keys/admin.key
+			debug_log "[$script_name] key is not defined for $host, assuming that the endpoint doesn't need authentication"
+			key="None"
 		fi
 		tool_cmd='GOPATH=$pbench_install_dir/.go PATH=$PATH:$GOPATH/bin $script_path/datalog/$tool-datalog $host $interval $tool_log $port $cert $key'
-		metrics_data=$tool_output_dir/$host-stdout.txt
+		metrics_data=$tool_output_dir/"$host"-"$port"-stdout.txt
 		debug_log "$script_name: running $tool_cmd"
 		eval $tool_cmd >"$metrics_data" 2>"$tool_stderr_file" & echo $! >>$tool_pid_file
 	done 9</run/pbench/inv_hosts
 	wait
 	;;
 	stop)
-	while read -u 10 pid; do
-		debug_log "stopping $script_name"
-		kill $pid
-	done 10<"$tool_pid_file"
-	/bin/rm "$tool_pid_file"
+	if [[ -s "$tool_pid_file" ]]; then
+		while read -u 10 pid; do
+			debug_log "stopping $script_name"
+			kill $pid
+		done 10<"$tool_pid_file"
+		/bin/rm "$tool_pid_file"
+	else
+		warn_log "[$script_name]: tool is not running, nothing to kill"
+	fi
 	;;
 	postprocess)
 	if [ -z "$options" ]; then
 		debug_log "postprocessing $script_name"
 		while read -u 11 file;do
 			host=$(echo $file | awk -F " " '{ print $1 }')
-			$script_path/postprocess/$script_name-postprocess $tool_output_dir/$host-stdout.txt $tool_output_dir/json/"$host".json
+			port=$(echo $file | grep -w "port" | awk -F " " '{ print $2 }' | awk -F "=" '{print $2}')
+			$script_path/postprocess/$script_name-postprocess $tool_output_dir/"$host"-"$port"-stdout.txt $tool_output_dir/json/"$host"-"$port".json
 		done 11</run/pbench/inv_hosts
 	else
 		debug_log "Non-default options $options: skipping postprocessing for $script_name"

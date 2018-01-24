@@ -5,7 +5,7 @@ import sys, json
 import os,subprocess,warnings,logging
 
 interval = int(sys.argv[2])
-master = sys.argv[1]
+host = sys.argv[1]
 tool_log = sys.argv[3]
 port = int(sys.argv[4])
 cert = sys.argv[5]
@@ -13,7 +13,10 @@ key = sys.argv[6]
 while True:
     time_stamp = int(time.time())
     next_start = time_stamp + interval
-    command = "prom2json --cert=%s --key=%s https://%s:%d/metrics" % (cert, key, master, port)
+    if (cert == "None") or (key == "None"):
+        command = "prom2json http://%s:%d/metrics" % (host, port)
+    else:
+        command = "prom2json --cert=%s --key=%s https://%s:%d/metrics" % (cert, key, host, port)
     command_out = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     prom2json_out = command_out.communicate()[0]
     metrics_list = json.loads(prom2json_out)
