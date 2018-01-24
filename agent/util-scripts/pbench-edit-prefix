@@ -171,7 +171,7 @@ for arg in $* ;do
 
 
     # copy prefix file to remote
-    scp -i $pbench_bin/id_rsa $ssh_opts $prefixfile $results_repo:$results_full_path/.prefix
+    scp $scp_opts -i $pbench_bin/id_rsa $ssh_opts $prefixfile $results_repo:$results_full_path/.prefix
     if [ $? -ne 0 ]; then
 	error_log "ERROR: unable to copy  $prefixfile to $results_repo:$results_full_path"
 	let failures=failures+1

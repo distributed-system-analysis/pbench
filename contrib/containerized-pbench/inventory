@@ -1,0 +1,16 @@
+[pbench-controller]
+
+[masters]
+
+[nodes]
+
+[etcd]
+
+[lb]
+
+[prometheus-metrics]
+<host> port=8443 cert=/etc/origin/master/admin.crt key=/etc/origin/master/admin.key
+<host> port=10250 cert=/etc/origin/master/admin.crt key=/etc/origin/master/admin.key
+
+[pbench-controller:vars]
+register_all_nodes=False

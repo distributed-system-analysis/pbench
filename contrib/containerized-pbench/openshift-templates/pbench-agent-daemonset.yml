@@ -10,11 +10,12 @@ spec:
       labels:
         name: pbench-agent
     spec:
+      hostPID: true
       hostNetwork: true
       containers:
-      - image: chaitanyaenr/pbench-agent
+      - image: pbench-agent
         name: pbench-agent
-        imagePullPolicy: "IfNotPresent"
+        imagePullPolicy: "Never"
         securityContext:
           privileged: true
         volumeMounts:
@@ -24,6 +25,10 @@ spec:
             mountPath: /proc_host
           - name: ssh-keys
             mountPath: /root/.ssh
+          - name: admin-keys
+            mountPath: /etc/origin/master
+          - name: certs
+            mountPath: /etc/pki
         ports:
           - containerPort: 2022
       volumes:
@@ -36,5 +41,11 @@ spec:
         - name: ssh-keys
           hostPath:
             path: /root/.ssh
+        - name: admin-keys
+          hostPath: 
+            path: /etc/origin/master
+        - name: certs
+          hostPath:
+            path: /etc/pki
       nodeSelector: 
         type: pbench

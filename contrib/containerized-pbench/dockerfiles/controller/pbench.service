@@ -5,7 +5,7 @@ After=sshd.service
 [Service]
 EnvironmentFile=/root/vars
 ExecStart=/root/script.sh
-StandardOutput=null
+StandardOutput=journal+console
 
 [Install]
 WantedBy=multi-user.target

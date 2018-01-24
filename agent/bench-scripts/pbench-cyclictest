@@ -33,20 +33,27 @@ tool_group="default"
 config=""
 stress=0
 cpu=""
+sysinfo="default"
 
-# Process options and arguments
-opts=$(getopt -q -o C:c:r:s --longoptions "cpu:,stress,config:,runtime:,runtimes:,tool-group:" -n "getopt.sh" -- "$@");
-
-if [ $? -ne 0 ]; then
-	printf -- "$0 $*\n"
-	printf "\n"
-	printf "\t${benchmark}: you specified an invalid option\n\n"
+function usage {
 	printf "\tThe following options are available:\n\n"
 	printf -- "\t\t-c str --config=str name of the test config\n"
 	printf -- "\t\t-r --runtime[s] int[s|m|h][,int[s|m|h] one or more test measurement periods. s=seconds, m=minutes, h=hours (default is $runtimes)\n"
 	printf -- "\t\t-C --cpu int                                  cpu to bind to\n"
 	printf -- "\t\t-s --stress                                   run stress process on the same cpu as --cpu\n"
 	printf -- "\t\t--tool-group=str\n"
+	printf -- "\t\t--sysinfo=str,                                str= comma seperated values of sysinfo to be collected\n"
+	printf -- "\t\t                                                   available: $(pbench-collect-sysinfo --options)\n"
+}
+
+# Process options and arguments
+opts=$(getopt -q -o C:c:r:s --longoptions "help,cpu:,stress,config:,runtime:,runtimes:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@");
+
+if [ $? -ne 0 ]; then
+	printf -- "$0 $*\n"
+	printf "\n"
+	printf "\t${benchmark}: you specified an invalid option\n\n"
+	usage
 	exit 1
 fi
 eval set -- "$opts";
@@ -85,6 +92,17 @@ while true; do
 			shift;
 		fi
 		;;
+	-h|--help)
+		usage
+		exit 0
+		;;
+	--sysinfo)
+		shift;
+		if [ -n "$1" ]; then
+			sysinfo="$1"
+			shift;
+		fi
+		;;
 	--)
 		shift;
 		break;
@@ -96,6 +114,14 @@ while true; do
 	esac
 done
 verify_tool_group $tool_group
+
+pbench-collect-sysinfo --sysinfo=$sysinfo --check
+if [ $? != 0 ]; then
+	printf -- "$*\n\n"
+	printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
+	usage
+	exit 1
+fi
 
 ## Ensure the right version of the benchmark is installed
 check_install_rpm $benchmark_rpm $ver
@@ -123,7 +149,7 @@ printf "\n" >>$benchmark_summary_html_file
 export benchmark config
 
 count=1
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 if [ $stress ]; then
 	if [ ! -z "$cpu" ]; then
@@ -162,7 +188,7 @@ if [ $stress ]; then
 	kill $stress_pid
 fi
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 cat $benchmark_summary_txt_file
 
 # signal to move/copy-results that this run is done.

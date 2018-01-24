@@ -107,19 +107,34 @@ done
 
 tool_dir="$dir/tools-$group"
 tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
-tool_ouput_file=$tool_output_dir/$tool.txt
+tool_output_file=$tool_output_dir/$tool.txt
+lockstat_saved_state_file= $pbench_tmp/pbench-saved-lockstat-state
 
 case "$mode" in
 	install)
-        ;;
+	if [[ ! -f "/proc/lock_stat" ]]; then
+		echo "please check if the kernel is built with CONFIG_LOCK_STAT=y in order to collect statistics on locks"
+        	error_log "[$script_name]: The kernel is not built with CONFIG_LOCK_STAT=y"
+		exit 1
+        fi
+	# Save the current state of lockstat
+	lockstat_state=$(cat /proc/sys/kernel/lock_stat)
+	echo $lockstat_state > $lockstat_saved_state_file
+
+	# Enable collection of statistics
+	echo 1 >/proc/sys/kernel/lock_stat
+	;;
 	start)
 	mkdir -p $tool_output_dir
-        echo "time: `date +%s.%N`" >>$tool_output_file
-	cat /proc/lock_stat >> $tool_output_file
-        ;;
-        stop)
-        echo "time: `date +%s.%N`" >>$tool_output_file
-	cat /proc/lock_stat >> $tool_output_file
+	echo "time: `date +%s.%N`" >> "$tool_output_file"
+	cat /proc/lock_stat >> "$tool_output_file"
+	;;
+	stop)
+	echo "time: `date +%s.%N`" >> "$tool_output_file"
+	cat /proc/lock_stat >> "$tool_output_file"
+	# Restore back to the saved state before the tool has been started
+	cat $lockstat_saved_state_file > /proc/sys/kernel/lock_stat
+	/bin/rm $lockstat_saved_state_file
 	;;
 	postprocess)
 	;;

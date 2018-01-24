@@ -148,7 +148,12 @@ case "$mode" in
 	start)
 	mkdir -p $tool_output_dir
 	pushd $tool_output_dir >/dev/null
-	echo "$tool_cmd" >$tool_cmd_file
+	echo '#!/bin/bash' >$tool_cmd_file
+	echo "trap '{ kill \${TOOL_PID}; }' SIGTERM" >>$tool_cmd_file
+	echo "${tool_cmd} &" >>$tool_cmd_file
+	echo 'TOOL_PID=$!' >>$tool_cmd_file
+	echo 'wait' >>$tool_cmd_file
+	echo 'wait' >>$tool_cmd_file
 	chmod +x $tool_cmd_file
 	debug_log "$script_name: running $tool_cmd"
 	$tool_cmd_file >"$tool_stdout_file" 2>"$tool_stderr_file" & echo $! >$tool_pid_file
@@ -156,9 +161,13 @@ case "$mode" in
 	wait
 	;;
 	stop)
-	pid=`cat $tool_pid_file`
-	debug_log "stopping $script_name"
-	kill $pid && /bin/rm -f $tool_pid_file
+	if [[ -s "$tool_pid_file" ]]; then
+		pid=`cat $tool_pid_file`
+		debug_log "stopping $script_name"
+		kill $pid && /bin/rm -f $tool_pid_file
+	else
+		warn_log "[$script_name]: tool is not running, nothing to kill"
+	fi
 	;;
 	postprocess)
 	debug_log "postprocessing $script_name"

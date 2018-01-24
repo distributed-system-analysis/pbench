@@ -16,19 +16,18 @@ sync = 0
 time_based = 1
 clocksource = gettimeofday
 ramp_time = 5
+write_bw_log = fio
+write_iops_log = fio
+write_lat_log = fio
+log_avg_msec = 1000
+write_hist_log = fio
+log_hist_msec = 10000
+log_hist_coarseness = 4 # 76 bins
 
 [job-$target]
 filename = $target
 rw = $@
 size = 4096M
-write_bw_log = fio
-write_iops_log = fio
-write_lat_log = fio
-log_avg_msec = 1000
-
-write_hist_log = fio
-log_hist_msec = 10000
-log_hist_coarseness = 4 # 76 bins
 
 #rate_iops=10
 #directory=/tmp/fio

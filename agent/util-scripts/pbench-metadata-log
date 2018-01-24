@@ -73,32 +73,21 @@ function metadata_log_tools {
     local remotes="$(/bin/ls $pbench_run/tools-$group/ 2> /dev/null | grep @ | sed 's/.*@//
 s/:[^:]*$//' | tr '\n' ' ')"
 
-    # the remotes may have different names than what the controller uses,
-    # so go ask them - the names of the remotes in the metadata log have to
-    # agree with the names of the remotes used when postprocessing the tool
-    # results, otherwise the indexing will fail.
-    local rems=""
-    for remote in $remotes ;do
-        # if the ssh fails, just leave the name alone
-        rem=$(ssh $ssh_opts -n $remote hostname -s 2>/dev/null || echo $remote)
-        rems="$rems $rem"
-    done
-    remotes=$rems
-
     # check if the local tools-$group directory includes any local tools
-    local=0
+    local_tools=0
     if /bin/ls $pbench_run/tools-$group 2> /dev/null | grep -q -v "^remote@" ;then
-        local=1
+        local_tools=1
     fi
 
     # if yes ...
-    if [ $local == 1 ] ;then
+    if [ $local_tools == 1 ] ;then
         cat >> $log <<EOF
 [tools]
 hosts: $hostname $remotes
 group: $group
 
 [tools/$hostname]
+hostname-s = $hostname
 EOF
         for tool in $(/bin/ls $pbench_run/tools-$group 2> /dev/null) ;do
             # add the options with a space in front, effectively making them continuation
@@ -117,12 +106,21 @@ group: $group
 EOF
         fi
     fi
-    
+
     for remote in $remotes ;do
         cat >> $log <<EOF
 [tools/$remote]
 EOF
         mkdir -p $tmpdir/$remote
+        # the remotes may have different names than what the controller uses,
+        # so go ask them - the names of the remotes in the metadata log have to
+        # agree with the names of the remotes used when postprocessing the tool
+        # results, otherwise the indexing will fail, so we add a hostname-s option
+        # record the host's preferred name (what hostname -s returns on that
+        # host) and use that for indexing purposes.
+        rem=$(ssh $ssh_opts -n $remote hostname -s 2>/dev/null || echo $remote)
+        # add explicit hostname-s - see issue #725.
+        echo "hostname-s = $rem" >> $log
         scp $ssh_options -r $remote:$pbench_run/tools-$group $tmpdir/$remote > /dev/null
         for tool in $(/bin/ls $tmpdir/$remote/tools-$group) ;do
             echo $tool: $(cat $tmpdir/$remote/tools-$group/$tool | sed 's/^/ /')
