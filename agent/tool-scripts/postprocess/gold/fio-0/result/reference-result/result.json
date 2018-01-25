@@ -133,7 +133,7 @@
             "value" : 2888.97476666667
          },
          {
-            "client_hostname" : "localhost",
+            "client_hostname" : "localhost-1",
             "description" : "Average completion latency per I/O operation",
             "role" : "client",
             "timeseries" : [
@@ -430,7 +430,7 @@
             "value" : 2909.837
          },
          {
-            "client_hostname" : "localhost",
+            "client_hostname" : "localhost-1",
             "description" : "Average total latency per I/O operation",
             "role" : "client",
             "timeseries" : [
@@ -731,7 +731,7 @@
             "value" : 19.741935483871
          },
          {
-            "client_hostname" : "localhost",
+            "client_hostname" : "localhost-1",
             "description" : "Average submission latency per I/O operation",
             "role" : "client",
             "timeseries" : [
