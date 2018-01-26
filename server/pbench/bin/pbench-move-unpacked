@@ -118,6 +118,9 @@ function process_tarball {
         return 1
     fi
 
+    # If $incoming exists, it can only be a directory or a symlink.
+    # If it does not exist, then we go on; but that's probably a bug
+    # in pbench-unpack-tarballs.
     if [ -d "$incoming" ] ;then
 	# Probably left over from a previous unsuccessful pbench-move-unpacked.
 	# In general, this should be a symlink, *NOT* a directory. We remove it
@@ -126,10 +129,11 @@ function process_tarball {
 	rm -rf "$incoming"
 	status=$?
     elif [ -L "$incoming" ] ;then
+        # this is the standard case
 	# remove the symlink from incoming
 	rm $incoming
 	status=$?
-    else
+    elif [ -e "$incoming" ] ;then
 	# impossible!
 	echo "$TS: Cannot happen - $incoming is neither a dir nor a symlink!" | tee -a $mail_content >&4 
 	return 1
