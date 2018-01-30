@@ -172,7 +172,7 @@ foreach $file ( sort readdir($dh) ) {
 		my $sample_id = $1;
 		my $sample_file = "$dir/sample$sample_id/result.json";
 		open( TXT, "<$sample_file" ) or die "Can't open $sample_file: $!";
-		my $json_text;
+		my $json_text = "";
 		while ( <TXT> ) {
 			$json_text = $json_text . $_;
 			}
