@@ -72,7 +72,7 @@ foreach $dir (sort @dirs) {
 		$iterations_by_num{$iter_num} = $iter_name;
 		my $result_json_file = $iteration_dir . "/result.json";
 		if (open(ITERATION_JSON, "$result_json_file")) {
-			my $json_text;
+			my $json_text = "";
 			while ( <ITERATION_JSON> ) {
 				$json_text = $json_text . $_;
 				}
@@ -278,7 +278,7 @@ printf HTML "<tr><td>%s</td><td>%s</td>", "", "";
 # then print the headers for individual metrics
 foreach $metric_type (reverse sort keys %spacing) {
 	if ( grep(/^$metric_type$/, @all_metric_types) ) {
-		my $metric_section;
+		my $metric_section = "";
 		foreach $metric_name (sort keys %{ $spacing{$metric_type} } ) {
 			if ( $metric_name eq 'header' ) {
 				next;
@@ -304,7 +304,7 @@ printf CSV "%s,%s", "iteration_number", "iteration_name";
 my $colspan = scalar @all_metric_labels;
 foreach $metric_type (reverse sort keys %spacing) {
 	if ( grep(/^$metric_type$/, @all_metric_types) ) {
-		my $metric_section;
+		my $metric_section = "";
 		foreach $metric_name (sort keys %{ $spacing{$metric_type} } ) {
 			if ( $metric_name eq 'header' ) {
 				next;
@@ -420,7 +420,7 @@ foreach my $iteration (sort { $a->{$iteration_number_field} <=> $b->{$iteration_
 	printf HTML "<tr><td>%s</td><td nowrap><tt>%s</tt></td>", $iteration_num, "<a href=./$iteration_num-$iteration_name>$iteration_name</a>";
 	foreach $metric_type (reverse sort keys %spacing) {
 		if ( grep(/^$metric_type$/, @all_metric_types) ) {
-			my $metric_section;
+			my $metric_section = "";
 			my $csv_metric_section = "";
 			foreach $metric_name (sort keys %{ $spacing{$metric_type} } ) {
 				if ( $metric_name eq 'header' ) {
