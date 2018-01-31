@@ -345,10 +345,10 @@ def es_index(es, actions, dbg=0):
 
 # convert a 0 value in a timeseries array to a float, else ES barfs.
 def convert_to_float(d):
-    if type(d) == type({}):
+    if type(d) == type({}) and len(d) != 0:
         for k1 in d:
             convert_to_float(d[k1])
-    elif type(d) == type([]):
+    elif type(d) == type([]) and len(d) != 0:
         if type(d[0]) == type({}) and set(d[0].keys()) == set(['date', 'value']):
             d[-1]['value'] = float(d[-1]['value'])
         else:
