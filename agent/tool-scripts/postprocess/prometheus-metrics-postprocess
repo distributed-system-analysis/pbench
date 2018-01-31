@@ -79,11 +79,12 @@ with open(output_file, 'w') as f:
             if len(values[0]) > 1:
                 denormalize_data(values)
             else:
-                item['metric'] = item['name']
-                item['value'] = convert_value(values[0].values()[0])
-                del item['name']
-                del item['metrics']
-                metrics.append(item)
+                if item['name'] != "go_memstats_last_gc_time_seconds":
+                    item['metric'] = item['name']
+                    item['value'] = convert_value(values[0].values()[0])
+                    del item['name']
+                    del item['metrics']
+                    metrics.append(item)
         elif len(values) > 1:
             denormalize_data(values)
         else:

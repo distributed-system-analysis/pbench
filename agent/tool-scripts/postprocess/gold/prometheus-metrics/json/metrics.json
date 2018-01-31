@@ -26525,12 +26525,6 @@
     },
     {
         "@timestamp":1491850959,
-        "metric":"go_memstats_last_gc_time_seconds",
-        "type":"GAUGE",
-        "value":1.4918508911861354e+19
-    },
-    {
-        "@timestamp":1491850959,
         "metric":"go_memstats_lookups_total",
         "type":"COUNTER",
         "value":7399
@@ -54548,12 +54542,6 @@
         "metric":"go_memstats_heap_sys_bytes",
         "type":"GAUGE",
         "value":267354112.0
-    },
-    {
-        "@timestamp":1491850969,
-        "metric":"go_memstats_last_gc_time_seconds",
-        "type":"GAUGE",
-        "value":1.4918508911861354e+19
     },
     {
         "@timestamp":1491850969,
