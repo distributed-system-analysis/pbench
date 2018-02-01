@@ -786,76 +786,13 @@ if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 	pushd /opt/trex >/dev/null
 	/bin/rm -f current
 	ln -sf $trex_ver current
+	trex_dir=/opt/trex/current
 	popd >/dev/null
 
-	# start the trex server
-	echo "starting TRex server"
-	pushd $trex_dir >/dev/null
-	/bin/rm -f $pbench_tmp/trex_cfg.yaml
-	isolated_cpus=$(cat /sys/devices/system/cpu/nohz_full)
-	cpu_list=$(convert_number_range "${isolated_cpus}" | sed -e "s/,/ /g")
-	trex_config_args=""
-	if [ "${trex_use_ht}" == "n" ]; then
-		trex_config_args+="--no-ht "
-	fi
-	if [ "${trex_use_l2}" == "y" ]; then
-		trex_config_args+="--force-macs "
-
-		if [ -e /etc/trex_cfg.yaml -a ! -e /etc/trex_cfg.yaml.pbench-backup ]; then
-			mv -v /etc/trex_cfg.yaml /etc/trex_cfg.yaml.pbench-backup
-		fi
-
-		# generate a temporary yaml which is required for MAC discovery
-		echo "- version       : 2" >/etc/trex_cfg.yaml
-		yaml_devices=$(echo $devices | sed -e "s/^/\"/" -e "s/,/\",\"/g" -e "s/$/\"/")
-		echo "  interfaces    : [${yaml_devices}]" >>/etc/trex_cfg.yaml
-		echo "  port_limit    : 2" >>/etc/trex_cfg.yaml
-	else
-		# in case we didn't clean up after ourselves previously...
-		if [ -e /etc/trex_cfg.yaml.pbench-backup ]; then
-			mv -v /etc/trex_cfg.yaml.pbench-backup /etc/trex_cfg.yaml
-		fi
-	fi
-	trex_config_cmd="./dpdk_setup_ports.py -c `echo $devices | sed -e s/,/" "/g` --cores-include ${cpu_list} -o $pbench_tmp/trex_cfg.yaml ${trex_config_args}"
-	echo "configuring trex with: ${trex_config_cmd}"
-	${trex_config_cmd}
-	trex_cpus=14
-	for cpu_block in $(cat /var/lib/pbench-agent/tmp/trex_cfg.yaml | grep threads | sed -e "s/\s//g" -e "s/threads://"); do
-		yaml_cpus=$(echo "${cpu_block}" | sed -e 's/.*\[\(.*\)\]/\1/' -e 's/,/ /g' | wc -w)
-		if [ ${yaml_cpus} -lt ${trex_cpus} ]; then
-			trex_cpus=${yaml_cpus}
-		fi
-	done
-	trex_server_cmd="./t-rex-64 -i -c ${trex_cpus} --checksum-offload --cfg $pbench_tmp/trex_cfg.yaml --iom 0 -v 4"
-	trex_console_cmd="./trex-console --readonly --tui"
-	echo "about to run: ${trex_server_cmd}"
-	echo "about to run: ${trex_console_cmd}"
-	echo "trex yaml:"
-	echo "-------------------------------------------------------------------"
-	cat $pbench_tmp/trex_cfg.yaml
-	echo "-------------------------------------------------------------------"
-	rm -fv /tmp/trex.server.out
-	screen -dmS trex -t server ${trex_server_cmd}
-	screen -x trex -X chdir /tmp
-	screen -x trex -p server -X logfile trex.server.out
-	screen -x trex -p server -X logtstamp on
-	screen -x trex -p server -X log on
-	# wait for trex server to be ready
-	count=30
-	num_ports=0
-	while [ $count -gt 0 -a $num_ports -lt 2 ]; do
-		sleep 1
-		num_ports=`netstat -tln | grep -E :4500\|:4501 | wc -l`
-		((count--))
-	done
-	if [ $num_ports -eq 2 ]; then
-		echo "trex-server is ready"
-		screen -x trex -X chdir /opt/trex/current
-		screen -x trex -X screen -t console ${trex_console_cmd}
-	else
-		warn_log "trex-server could not start properly.  check \'screen -x trex-server\'"
+	if ! ${trafficgen_dir}/launch-trex.sh --tmp-dir=${pbench_tmp} --trex-dir=${trex_dir} --use-ht=${trex_use_ht} --use-l2=${trex_use_l2} --devices=${devices}; then
 		exit 1
 	fi
+
 	popd >/dev/null
 fi
 
