@@ -17,7 +17,11 @@ export benchmark_run_dir=""
 if [[ -z "$benchmark_bin" ]]; then
 	benchmark_bin=/usr/local/bin/$benchmark
 fi	
-ver=3.3
+ver=$(getconf.py version pbench-fio)
+if [ -z "$ver" ] ;then
+	echo "pbench-fio: package version is missing in config file" > /dev/tty
+	exit 1
+fi
 
 job_file="${script_path}/templates/fio.job"
 
@@ -64,7 +68,10 @@ tool_label_pattern="fio-"
 tool_group="default"
 max_key_length=20
 primary_metric="readwrite_IOPS"
-histogram_interval_msec=10000
+histogram_interval_msec=$(getconf.py histogram-interval-msec pbench-fio)
+if [ -z "$histogram_interval_msec" ] ;then
+	histogram_interval_msec=10000
+fi
 sysinfo="default"
 
 function fio_usage() {
@@ -610,8 +617,7 @@ function fio_run_job() {
 				mv $i `echo $i | sed -e s/\.$client//`
 			done
 			# Process the histograms
-			# Determine histogram interval based on value used in job file. Should really make
-			# this an option, but perfectly reasonable default.
+			# Determine histogram interval based on value used in job file.
 			#my $log_interval = `cat $dir/fio.job | grep "^log_hist_msec"`;
 			#if [ ! $log_interval =~ /^\s*$/ ]; then
 			if grep -q "^log_hist_msec" $fio_job_file; then
