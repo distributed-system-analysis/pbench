@@ -42,9 +42,6 @@ trafficgen_dir="/opt/lua-trafficgen"
 traffic_generator="trex-txrx" # can be either trex-txrx or moongen-txrx
 trex_use_ht="n"
 trex_use_l2="n"
-trex_ver="v2.34"
-trex_dir="/opt/trex/$trex_ver"
-trex_url=http://trex-tgn.cisco.com/trex/release/${trex_ver}.tar.gz
 benchmark_run_dir=""
 traffic_directions="bidirec"
 max_loss_pcts="0.002"
@@ -81,6 +78,7 @@ orig_cmd="$*"
 tool_group=default
 install_only="n"
 one_shot="n"
+skip_trex_install="n"
 skip_trex_server="n"
 skip_git_pull="n"
 flow_mods="src-ip,dst-ip,src-mac,dst-mac"
@@ -117,7 +115,7 @@ function convert_number_range() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o c: --longoptions "skip-trex-server,skip-git-pull,traffic-generator:,devices:,active-devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o c: --longoptions "skip-trex-install,skip-trex-server,skip-git-pull,traffic-generator:,devices:,active-devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
@@ -299,8 +297,11 @@ if [ $? -ne 0 ]; then
 	printf -- "trafficgen debug options\n"
 	printf -- "-----------------------------------------------\n"
 	printf -- "\n"
+	printf -- "--skip-trex-install\n"
+	printf -- "  Do no install TRex server process (assumes you have one) installed already\n"
+	printf -- "\n"
 	printf -- "--skip-trex-server\n"
-	printf -- "  Do no kill existing or start a new TRex server process (assumes you have one\n"
+	printf -- "  Do no kill existing or start a new TRex server process (assumes you have one)\n"
 	printf -- "  running already)\n"
 	printf -- "\n"
 	printf -- "--skip-git-pull\n"
@@ -518,6 +519,10 @@ while true; do
 			eval $var=$val
 		shift
 		fi
+		;;
+		--skip-trex-install)
+		shift
+		skip_trex_install="y"
 		;;
 		--skip-trex-server)
 		shift
@@ -763,31 +768,14 @@ fi
 	
 if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
 	kill_trex
-	if [ -d $trex_dir ]; then
-		echo "TRex $trex_ver already installed"
-	else
-		mkdir -p /opt/trex
-		pushd /opt/trex >/dev/null
-		tarfile="/tmp/${trex_ver}.tar.gz"
-		/bin/rm -f $tarfile
-		if wget -O $tarfile $trex_url &&\
-		   tar zxf $tarfile; then
-			/bin/rm $tarfile
-			echo "installed TRex from $trex_url"
-		else
-			warn_log "could not install TRex $trex_ver, exiting"
+
+	trex_base_dir="/opt/trex"
+	trex_dir="${trex_base_dir}/current"
+	if [ "${skip_trex_install}" == "n" ]; then
+		if ! ${trafficgen_dir}/install-trex.sh --tmp-dir=${pbench_tmp} --base-dir=${trex_base_dir}; then
 			exit 1
 		fi
-		popd >/dev/null
 	fi
-
-	# we need a symlink so trex client scripts can always point to
-	# same location for trex libraries
-	pushd /opt/trex >/dev/null
-	/bin/rm -f current
-	ln -sf $trex_ver current
-	trex_dir=/opt/trex/current
-	popd >/dev/null
 
 	if ! ${trafficgen_dir}/launch-trex.sh --tmp-dir=${pbench_tmp} --trex-dir=${trex_dir} --use-ht=${trex_use_ht} --use-l2=${trex_use_l2} --devices=${devices}; then
 		exit 1
