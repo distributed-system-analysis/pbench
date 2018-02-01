@@ -17,7 +17,7 @@ export benchmark_run_dir=""
 if [[ -z "$benchmark_bin" ]]; then
 	benchmark_bin=/usr/local/bin/$benchmark
 fi	
-ver=2.14
+ver=3.3-1
 
 job_file="${script_path}/templates/fio.job"
 
