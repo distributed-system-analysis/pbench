@@ -179,6 +179,22 @@ def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config):
             mappings=tool_mapping)
         tool_templates.append((toolname, tool_template_body))
 
+    # Next we load all the results
+    results_mappings = {}
+    for mapping_fn in glob.iglob(os.path.join(MAPPING_DIR, "result-*.json")):
+        key, mapping = fetch_mapping(mapping_fn)
+        if options.debug_unittest:
+            print("fetch_mapping: {}".format(key))
+            from pprint import pprint;
+            pprint(mapping)
+        results_mappings[key] = mapping
+
+    results_template_name = '%s.result-data' % (INDEX_PREFIX,)
+    results_template_body = dict(
+        template='%s.result-data.*' % (INDEX_PREFIX,),
+        settings=index_settings,
+        mappings=results_mappings)
+    
     if not es:
         # Don't do anything if we don't have an Elasticsearch client object.
         print(run_template_name, json.dumps(run_template_body, indent=4, sort_keys=True))
@@ -349,8 +365,10 @@ def convert_to_float(d):
         for k1 in d:
             convert_to_float(d[k1])
     elif type(d) == type([]) and len(d) != 0:
-        if type(d[0]) == type({}) and set(d[0].keys()) == set(['date', 'value']):
-            d[-1]['value'] = float(d[-1]['value'])
+        # for {date, value} timeseries, convert the value but leave the date alone
+        if type(d[0]) == type({}) and set(d[0].keys()).issuperset(set(['date', 'value'])):
+            for i in range(0, len(d)):
+                d[i]['value'] = float(d[i]['value'])
         else:
             for i in range(0, len(d)):
                 convert_to_float(d[i])
