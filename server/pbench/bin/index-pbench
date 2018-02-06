@@ -562,6 +562,21 @@ class ToolData(object):
             "host": host,
             "toolgroup": toolgroup,
         }
+
+        # Impedance match between host names used when
+        # registering tools and <label>:<hostname_s>
+        # convention used when collecting the results.
+        
+        # import pdb; pdb.set_trace()
+        label = get_tool_label(host, mdlog)
+        hostname_s = get_tool_hostname_s(host, mdlog)
+        if label and hostname_s:
+            hostpath = "{}:{}".format(label, hostname_s)
+        elif hostname_s:
+            hostpath = "{}".format(hostname_s)
+        else:
+            hostpath = host
+
         self.csv_files = None
         self.json_files = None
         try:
@@ -576,11 +591,11 @@ class ToolData(object):
                 # about them, a csv reader object, and the header line from each
                 # file.
                 self.csv_files = ToolData.get_csv_files(
-                    self.handler, iteration, sample, host, tool, toolgroup, mdlog, tb)
+                    self.handler, iteration, sample, hostpath, tool, toolgroup, mdlog, tb)
         else:
             self.json_files = ToolData.get_json_files(self.handler,
                                                           iteration, sample,
-                                                          host, tool, toolgroup,
+                                                          hostpath, tool, toolgroup,
                                                           mdlog, tb)
 
     def _make_source_unified(self):
@@ -851,6 +866,18 @@ def get_tools(iteration, sample, host, mdlog, tb):
         print("No tools in [tools/{}] section in metadata log: tool data will *NOT* be indexed.".format(host))
         return []
 
+def get_tool_label(host, mdlog):
+    try:
+        return mdlog.get("tools/" + host, "label")
+    except:
+        return ""
+
+def get_tool_hostname_s(host, mdlog):
+    try:
+        return mdlog.get("tools/" + host, "hostname-s")
+    except:
+        return ""
+    
 def mk_tool_data(mdlog, md5sum, tb, tstamp):
     experiment = mdlog.get("pbench", "name")
     try:
