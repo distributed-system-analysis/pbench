@@ -1,0 +1,3515 @@
++++ Running indexing on /var/tmp/pbench-test-server/test-7.11
+len(actions) = 22
+[
+    {
+        "_id": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_index": "pbench.run.2018-02",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "file-date": "2018-02-06",
+                "file-name": "/var/tmp/pbench-test-server/fio_rw_2018.02.01T22.40.57.tar.xz",
+                "generated-by": "index-pbench",
+                "generated-by-version": "0.1.0.0",
+                "md5": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "pbench-agent-version": "0.47-91gb666083"
+            },
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "host_tools_info": [
+                {
+                    "hostname": "dhcp31-44",
+                    "hostname-f": "dhcp31-44.perf.lab.eng.bos.redhat.com",
+                    "tools": {
+                        "hostname-s": "dhcp31-44",
+                        "iostat": "--interval=3",
+                        "mpstat": "--interval=3",
+                        "perf": "--record-opts=record -a --freq=100",
+                        "pidstat": "--interval=30",
+                        "proc-interrupts": "--interval=3",
+                        "proc-vmstat": "--interval=3",
+                        "sar": "--interval=3",
+                        "turbostat": "--interval=3"
+                    }
+                }
+            ],
+            "run": {
+                "config": "rw",
+                "controller": "dhcp31-44.perf.lab.eng.bos.redhat.com",
+                "date": "2018-02-01T22:40:57",
+                "end_run": "2018-02-01T22:41:18.959014840",
+                "id": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "iterations": "1-rw-4KiB",
+                "name": "fio_rw_2018.02.01T22.40.57",
+                "script": "fio",
+                "start_run": "2018-02-01T22:41:00.276959021",
+                "tarball-dirname": "fio_rw_2018.02.01T22.40.57",
+                "tarball-toc-prefix": "fio_rw_2018.02.01T22.40.57"
+            },
+            "sosreports": [
+                {
+                    "hostname-f": "dhcp31-44.perf.lab.eng.bos.redhat.com",
+                    "hostname-s": "dhcp31-44",
+                    "inet": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "127.0.0.1"
+                        },
+                        {
+                            "ifname": "ens3",
+                            "ipaddr": "10.16.31.44"
+                        }
+                    ],
+                    "inet6": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "::1"
+                        },
+                        {
+                            "ifname": "ens3",
+                            "ipaddr": "fe80::5054:ff:fe2f:8add"
+                        }
+                    ],
+                    "md5": "3f33cf2ea88f0efea70cca4ad0ab3432",
+                    "name": "fio_rw_2018.02.01T22.40.57/sysinfo/beg/dhcp31-44/sosreport-dhcp31-44.perf.lab.eng.bos.redhat.com-pbench-20180201224057.tar.xz"
+                },
+                {
+                    "hostname-f": "dhcp31-44.perf.lab.eng.bos.redhat.com",
+                    "hostname-s": "dhcp31-44",
+                    "inet": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "127.0.0.1"
+                        },
+                        {
+                            "ifname": "ens3",
+                            "ipaddr": "10.16.31.44"
+                        }
+                    ],
+                    "inet6": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "::1"
+                        },
+                        {
+                            "ifname": "ens3",
+                            "ipaddr": "fe80::5054:ff:fe2f:8add"
+                        }
+                    ],
+                    "md5": "9237e1bfaed3a13cb692f54ec8866f66",
+                    "name": "fio_rw_2018.02.01T22.40.57/sysinfo/end/dhcp31-44/sosreport-dhcp31-44.perf.lab.eng.bos.redhat.com-pbench-20180201224119.tar.xz"
+                }
+            ]
+        },
+        "_type": "pbench-run"
+    },
+    {
+        "_id": "2f653f8fba9770895d1bf58e50e792a0",
+        "_index": "pbench.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "metadata.log",
+                    "size": 692
+                },
+                {
+                    "mode": "0o755",
+                    "name": "generate-benchmark-summary.cmd",
+                    "size": 240
+                },
+                {
+                    "mode": "0o644",
+                    "name": "result.json",
+                    "size": 35808
+                },
+                {
+                    "mode": "0o644",
+                    "name": "result.txt",
+                    "size": 2743
+                },
+                {
+                    "mode": "0o644",
+                    "name": "result.csv",
+                    "size": 590
+                },
+                {
+                    "mode": "0o644",
+                    "name": "result.html",
+                    "size": 3504
+                },
+                {
+                    "mode": "0o644",
+                    "name": "pbench.log",
+                    "size": 30053
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "cdc766a729150688a971f347886adfd4",
+        "_index": "pbench.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/sysinfo/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "18a63a7443bcac503814b66250548165",
+        "_index": "pbench.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/sysinfo/beg/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_index": "pbench.result-data.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021"
+            },
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "results": {
+                "latency": {
+                    "clat": [
+                        {
+                            "client_hostname": "all",
+                            "description": "Average completion latency per I/O operation",
+                            "role": "aggregate",
+                            "server_hostname": "all",
+                            "server_port": "all",
+                            "timeseries": [
+                                {
+                                    "date": 1001,
+                                    "value": 370598.0
+                                },
+                                {
+                                    "date": 1001,
+                                    "value": 364650.0
+                                },
+                                {
+                                    "date": 2000,
+                                    "value": 307815.0
+                                },
+                                {
+                                    "date": 2000,
+                                    "value": 311058.0
+                                },
+                                {
+                                    "date": 3000,
+                                    "value": 455339.0
+                                },
+                                {
+                                    "date": 3000,
+                                    "value": 458815.0
+                                },
+                                {
+                                    "date": 4000,
+                                    "value": 646305.0
+                                },
+                                {
+                                    "date": 4000,
+                                    "value": 624421.0
+                                },
+                                {
+                                    "date": 5000,
+                                    "value": 568438.0
+                                },
+                                {
+                                    "date": 5000,
+                                    "value": 582625.0
+                                },
+                                {
+                                    "date": 6000,
+                                    "value": 324455.0
+                                },
+                                {
+                                    "date": 6000,
+                                    "value": 327295.0
+                                },
+                                {
+                                    "date": 7000,
+                                    "value": 178255.0
+                                },
+                                {
+                                    "date": 7000,
+                                    "value": 180335.0
+                                },
+                                {
+                                    "date": 8000,
+                                    "value": 264738.0
+                                },
+                                {
+                                    "date": 8000,
+                                    "value": 259817.0
+                                },
+                                {
+                                    "date": 9002,
+                                    "value": 593820.0
+                                },
+                                {
+                                    "date": 9002,
+                                    "value": 578322.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "value": 604678.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "value": 609731.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "value": 1600636.0
+                                }
+                            ],
+                            "uid": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
+                            "value": 486292.666666667
+                        },
+                        {
+                            "client_hostname": "localhost-1",
+                            "description": "Average completion latency per I/O operation",
+                            "role": "client",
+                            "timeseries": [
+                                {
+                                    "date": 1001,
+                                    "read(0) or write(1)": 0,
+                                    "value": 370598.0
+                                },
+                                {
+                                    "date": 1001,
+                                    "read(0) or write(1)": 1,
+                                    "value": 364650.0
+                                },
+                                {
+                                    "date": 2000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 307815.0
+                                },
+                                {
+                                    "date": 2000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 311058.0
+                                },
+                                {
+                                    "date": 3000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 455339.0
+                                },
+                                {
+                                    "date": 3000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 458815.0
+                                },
+                                {
+                                    "date": 4000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 646305.0
+                                },
+                                {
+                                    "date": 4000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 624421.0
+                                },
+                                {
+                                    "date": 5000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 568438.0
+                                },
+                                {
+                                    "date": 5000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 582625.0
+                                },
+                                {
+                                    "date": 6000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 324455.0
+                                },
+                                {
+                                    "date": 6000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 327295.0
+                                },
+                                {
+                                    "date": 7000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 178255.0
+                                },
+                                {
+                                    "date": 7000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 180335.0
+                                },
+                                {
+                                    "date": 8000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 264738.0
+                                },
+                                {
+                                    "date": 8000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 259817.0
+                                },
+                                {
+                                    "date": 9002,
+                                    "read(0) or write(1)": 1,
+                                    "value": 593820.0
+                                },
+                                {
+                                    "date": 9002,
+                                    "read(0) or write(1)": 0,
+                                    "value": 578322.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 604678.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 609731.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 1600636.0
+                                }
+                            ],
+                            "uid": "client_hostname:%client_hostname%",
+                            "value": 486292.666666667
+                        }
+                    ],
+                    "lat": [
+                        {
+                            "client_hostname": "all",
+                            "description": "Average total latency per I/O operation",
+                            "role": "aggregate",
+                            "server_hostname": "all",
+                            "server_port": "all",
+                            "timeseries": [
+                                {
+                                    "date": 1001,
+                                    "value": 392073.0
+                                },
+                                {
+                                    "date": 1001,
+                                    "value": 365789.0
+                                },
+                                {
+                                    "date": 2000,
+                                    "value": 308951.0
+                                },
+                                {
+                                    "date": 2000,
+                                    "value": 328830.0
+                                },
+                                {
+                                    "date": 3000,
+                                    "value": 482587.0
+                                },
+                                {
+                                    "date": 3000,
+                                    "value": 459945.0
+                                },
+                                {
+                                    "date": 4000,
+                                    "value": 685089.0
+                                },
+                                {
+                                    "date": 4000,
+                                    "value": 625575.0
+                                },
+                                {
+                                    "date": 5000,
+                                    "value": 603263.0
+                                },
+                                {
+                                    "date": 5000,
+                                    "value": 583781.0
+                                },
+                                {
+                                    "date": 6000,
+                                    "value": 343277.0
+                                },
+                                {
+                                    "date": 6000,
+                                    "value": 328435.0
+                                },
+                                {
+                                    "date": 7000,
+                                    "value": 179376.0
+                                },
+                                {
+                                    "date": 7000,
+                                    "value": 189740.0
+                                },
+                                {
+                                    "date": 8000,
+                                    "value": 279357.0
+                                },
+                                {
+                                    "date": 8000,
+                                    "value": 260962.0
+                                },
+                                {
+                                    "date": 9002,
+                                    "value": 594983.0
+                                },
+                                {
+                                    "date": 9002,
+                                    "value": 614051.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "value": 641240.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "value": 610897.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "value": 1601636.0
+                                }
+                            ],
+                            "uid": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
+                            "value": 499039.857142857
+                        },
+                        {
+                            "client_hostname": "localhost-1",
+                            "description": "Average total latency per I/O operation",
+                            "role": "client",
+                            "timeseries": [
+                                {
+                                    "date": 1001,
+                                    "read(0) or write(1)": 0,
+                                    "value": 392073.0
+                                },
+                                {
+                                    "date": 1001,
+                                    "read(0) or write(1)": 1,
+                                    "value": 365789.0
+                                },
+                                {
+                                    "date": 2000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 308951.0
+                                },
+                                {
+                                    "date": 2000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 328830.0
+                                },
+                                {
+                                    "date": 3000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 482587.0
+                                },
+                                {
+                                    "date": 3000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 459945.0
+                                },
+                                {
+                                    "date": 4000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 685089.0
+                                },
+                                {
+                                    "date": 4000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 625575.0
+                                },
+                                {
+                                    "date": 5000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 603263.0
+                                },
+                                {
+                                    "date": 5000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 583781.0
+                                },
+                                {
+                                    "date": 6000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 343277.0
+                                },
+                                {
+                                    "date": 6000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 328435.0
+                                },
+                                {
+                                    "date": 7000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 179376.0
+                                },
+                                {
+                                    "date": 7000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 189740.0
+                                },
+                                {
+                                    "date": 8000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 279357.0
+                                },
+                                {
+                                    "date": 8000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 260962.0
+                                },
+                                {
+                                    "date": 9002,
+                                    "read(0) or write(1)": 1,
+                                    "value": 594983.0
+                                },
+                                {
+                                    "date": 9002,
+                                    "read(0) or write(1)": 0,
+                                    "value": 614051.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 641240.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 610897.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 1601636.0
+                                }
+                            ],
+                            "uid": "client_hostname:%client_hostname%",
+                            "value": 499039.857142857
+                        }
+                    ],
+                    "slat": [
+                        {
+                            "client_hostname": "all",
+                            "description": "Average submission latency per I/O operation",
+                            "role": "aggregate",
+                            "server_hostname": "all",
+                            "server_port": "all",
+                            "timeseries": [
+                                {
+                                    "date": 1001,
+                                    "value": 21461.0
+                                },
+                                {
+                                    "date": 1001,
+                                    "value": 1049.0
+                                },
+                                {
+                                    "date": 2000,
+                                    "value": 17622.0
+                                },
+                                {
+                                    "date": 2000,
+                                    "value": 1043.0
+                                },
+                                {
+                                    "date": 3000,
+                                    "value": 27265.0
+                                },
+                                {
+                                    "date": 3000,
+                                    "value": 1039.0
+                                },
+                                {
+                                    "date": 4000,
+                                    "value": 38515.0
+                                },
+                                {
+                                    "date": 4000,
+                                    "value": 1063.0
+                                },
+                                {
+                                    "date": 5000,
+                                    "value": 1060.0
+                                },
+                                {
+                                    "date": 5000,
+                                    "value": 34773.0
+                                },
+                                {
+                                    "date": 6000,
+                                    "value": 18708.0
+                                },
+                                {
+                                    "date": 6000,
+                                    "value": 1050.0
+                                },
+                                {
+                                    "date": 7000,
+                                    "value": 1031.0
+                                },
+                                {
+                                    "date": 7000,
+                                    "value": 9303.0
+                                },
+                                {
+                                    "date": 8000,
+                                    "value": 14543.0
+                                },
+                                {
+                                    "date": 8000,
+                                    "value": 1053.0
+                                },
+                                {
+                                    "date": 9002,
+                                    "value": 35768.0
+                                },
+                                {
+                                    "date": 9002,
+                                    "value": 1074.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "value": 36328.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "value": 1072.0
+                                }
+                            ],
+                            "uid": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
+                            "value": 13241
+                        },
+                        {
+                            "client_hostname": "localhost-1",
+                            "description": "Average submission latency per I/O operation",
+                            "role": "client",
+                            "timeseries": [
+                                {
+                                    "date": 1001,
+                                    "read(0) or write(1)": 0,
+                                    "value": 21461.0
+                                },
+                                {
+                                    "date": 1001,
+                                    "read(0) or write(1)": 1,
+                                    "value": 1049.0
+                                },
+                                {
+                                    "date": 2000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 17622.0
+                                },
+                                {
+                                    "date": 2000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 1043.0
+                                },
+                                {
+                                    "date": 3000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 27265.0
+                                },
+                                {
+                                    "date": 3000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 1039.0
+                                },
+                                {
+                                    "date": 4000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 38515.0
+                                },
+                                {
+                                    "date": 4000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 1063.0
+                                },
+                                {
+                                    "date": 5000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 1060.0
+                                },
+                                {
+                                    "date": 5000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 34773.0
+                                },
+                                {
+                                    "date": 6000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 18708.0
+                                },
+                                {
+                                    "date": 6000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 1050.0
+                                },
+                                {
+                                    "date": 7000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 1031.0
+                                },
+                                {
+                                    "date": 7000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 9303.0
+                                },
+                                {
+                                    "date": 8000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 14543.0
+                                },
+                                {
+                                    "date": 8000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 1053.0
+                                },
+                                {
+                                    "date": 9002,
+                                    "read(0) or write(1)": 0,
+                                    "value": 35768.0
+                                },
+                                {
+                                    "date": 9002,
+                                    "read(0) or write(1)": 1,
+                                    "value": 1074.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 36328.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 1072.0
+                                }
+                            ],
+                            "uid": "client_hostname:%client_hostname%",
+                            "value": 13241
+                        }
+                    ]
+                },
+                "parameters": {
+                    "benchmark": [
+                        {
+                            "benchmark_name": "fio",
+                            "benchmark_version": null,
+                            "primary_metric": "iops_sec",
+                            "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                        }
+                    ]
+                },
+                "throughput": {
+                    "iops_sec": [
+                        {
+                            "client_hostname": "all",
+                            "description": "Number of I/O operations sent by client for a period of 1 second",
+                            "role": "aggregate",
+                            "server_hostname": "all",
+                            "server_port": "all",
+                            "timeseries": [
+                                {
+                                    "date": 1000,
+                                    "value": 42245.0
+                                },
+                                {
+                                    "date": 1000,
+                                    "value": 42107.0
+                                },
+                                {
+                                    "date": 2000,
+                                    "value": 50237.0
+                                },
+                                {
+                                    "date": 2000,
+                                    "value": 50279.0
+                                },
+                                {
+                                    "date": 3001,
+                                    "value": 33817.0
+                                },
+                                {
+                                    "date": 3001,
+                                    "value": 33708.0
+                                },
+                                {
+                                    "date": 4000,
+                                    "value": 24449.0
+                                },
+                                {
+                                    "date": 4000,
+                                    "value": 24482.0
+                                },
+                                {
+                                    "date": 5000,
+                                    "value": 27006.0
+                                },
+                                {
+                                    "date": 5000,
+                                    "value": 26871.0
+                                },
+                                {
+                                    "date": 6001,
+                                    "value": 47568.0
+                                },
+                                {
+                                    "date": 6001,
+                                    "value": 47629.0
+                                },
+                                {
+                                    "date": 7000,
+                                    "value": 86341.0
+                                },
+                                {
+                                    "date": 7000,
+                                    "value": 86669.0
+                                },
+                                {
+                                    "date": 8000,
+                                    "value": 59497.0
+                                },
+                                {
+                                    "date": 8000,
+                                    "value": 58694.0
+                                },
+                                {
+                                    "date": 9000,
+                                    "value": 26269.0
+                                },
+                                {
+                                    "date": 9000,
+                                    "value": 26506.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "value": 25844.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "value": 25285.0
+                                }
+                            ],
+                            "uid": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
+                            "value": 42275.15
+                        },
+                        {
+                            "client_hostname": "localhost-1",
+                            "description": "Number of I/O operations sent by client for a period of 1 second",
+                            "role": "client",
+                            "timeseries": [
+                                {
+                                    "date": 1000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 42245.0
+                                },
+                                {
+                                    "date": 1000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 42107.0
+                                },
+                                {
+                                    "date": 2000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 50237.0
+                                },
+                                {
+                                    "date": 2000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 50279.0
+                                },
+                                {
+                                    "date": 3001,
+                                    "read(0) or write(1)": 0,
+                                    "value": 33817.0
+                                },
+                                {
+                                    "date": 3001,
+                                    "read(0) or write(1)": 1,
+                                    "value": 33708.0
+                                },
+                                {
+                                    "date": 4000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 24449.0
+                                },
+                                {
+                                    "date": 4000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 24482.0
+                                },
+                                {
+                                    "date": 5000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 27006.0
+                                },
+                                {
+                                    "date": 5000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 26871.0
+                                },
+                                {
+                                    "date": 6001,
+                                    "read(0) or write(1)": 0,
+                                    "value": 47568.0
+                                },
+                                {
+                                    "date": 6001,
+                                    "read(0) or write(1)": 1,
+                                    "value": 47629.0
+                                },
+                                {
+                                    "date": 7000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 86341.0
+                                },
+                                {
+                                    "date": 7000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 86669.0
+                                },
+                                {
+                                    "date": 8000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 59497.0
+                                },
+                                {
+                                    "date": 8000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 58694.0
+                                },
+                                {
+                                    "date": 9000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 26269.0
+                                },
+                                {
+                                    "date": 9000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 26506.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "read(0) or write(1)": 0,
+                                    "value": 25844.0
+                                },
+                                {
+                                    "date": 10000,
+                                    "read(0) or write(1)": 1,
+                                    "value": 25285.0
+                                }
+                            ],
+                            "uid": "client_hostname:%client_hostname%",
+                            "value": 42275.15
+                        }
+                    ]
+                }
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_index": "pbench.result-data.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021"
+            },
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "results": {
+                "latency": {
+                    "clat": [
+                        {
+                            "client_hostname": "localhost-1",
+                            "closest sample": 1,
+                            "description": "Average completion latency per I/O operation",
+                            "mean": 486292.666666667,
+                            "role": "client",
+                            "samples": [
+                                {
+                                    "timeseries": [
+                                        {
+                                            "date": 1001,
+                                            "read(0) or write(1)": 0,
+                                            "value": 370598.0
+                                        },
+                                        {
+                                            "date": 1001,
+                                            "read(0) or write(1)": 1,
+                                            "value": 364650.0
+                                        },
+                                        {
+                                            "date": 2000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 307815.0
+                                        },
+                                        {
+                                            "date": 2000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 311058.0
+                                        },
+                                        {
+                                            "date": 3000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 455339.0
+                                        },
+                                        {
+                                            "date": 3000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 458815.0
+                                        },
+                                        {
+                                            "date": 4000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 646305.0
+                                        },
+                                        {
+                                            "date": 4000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 624421.0
+                                        },
+                                        {
+                                            "date": 5000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 568438.0
+                                        },
+                                        {
+                                            "date": 5000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 582625.0
+                                        },
+                                        {
+                                            "date": 6000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 324455.0
+                                        },
+                                        {
+                                            "date": 6000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 327295.0
+                                        },
+                                        {
+                                            "date": 7000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 178255.0
+                                        },
+                                        {
+                                            "date": 7000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 180335.0
+                                        },
+                                        {
+                                            "date": 8000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 264738.0
+                                        },
+                                        {
+                                            "date": 8000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 259817.0
+                                        },
+                                        {
+                                            "date": 9002,
+                                            "read(0) or write(1)": 1,
+                                            "value": 593820.0
+                                        },
+                                        {
+                                            "date": 9002,
+                                            "read(0) or write(1)": 0,
+                                            "value": 578322.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 604678.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 609731.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 1600636.0
+                                        }
+                                    ],
+                                    "value": 486292.666666667
+                                }
+                            ],
+                            "stddev": 0,
+                            "stddevpct": 0,
+                            "uid": "client_hostname:%client_hostname%"
+                        },
+                        {
+                            "client_hostname": "all",
+                            "closest sample": 1,
+                            "description": "Average completion latency per I/O operation",
+                            "mean": 486292.666666667,
+                            "role": "aggregate",
+                            "samples": [
+                                {
+                                    "timeseries": [
+                                        {
+                                            "date": 1001,
+                                            "value": 370598.0
+                                        },
+                                        {
+                                            "date": 1001,
+                                            "value": 364650.0
+                                        },
+                                        {
+                                            "date": 2000,
+                                            "value": 307815.0
+                                        },
+                                        {
+                                            "date": 2000,
+                                            "value": 311058.0
+                                        },
+                                        {
+                                            "date": 3000,
+                                            "value": 455339.0
+                                        },
+                                        {
+                                            "date": 3000,
+                                            "value": 458815.0
+                                        },
+                                        {
+                                            "date": 4000,
+                                            "value": 646305.0
+                                        },
+                                        {
+                                            "date": 4000,
+                                            "value": 624421.0
+                                        },
+                                        {
+                                            "date": 5000,
+                                            "value": 568438.0
+                                        },
+                                        {
+                                            "date": 5000,
+                                            "value": 582625.0
+                                        },
+                                        {
+                                            "date": 6000,
+                                            "value": 324455.0
+                                        },
+                                        {
+                                            "date": 6000,
+                                            "value": 327295.0
+                                        },
+                                        {
+                                            "date": 7000,
+                                            "value": 178255.0
+                                        },
+                                        {
+                                            "date": 7000,
+                                            "value": 180335.0
+                                        },
+                                        {
+                                            "date": 8000,
+                                            "value": 264738.0
+                                        },
+                                        {
+                                            "date": 8000,
+                                            "value": 259817.0
+                                        },
+                                        {
+                                            "date": 9002,
+                                            "value": 593820.0
+                                        },
+                                        {
+                                            "date": 9002,
+                                            "value": 578322.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "value": 604678.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "value": 609731.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "value": 1600636.0
+                                        }
+                                    ],
+                                    "value": 486292.666666667
+                                }
+                            ],
+                            "server_hostname": "all",
+                            "server_port": "all",
+                            "stddev": 0,
+                            "stddevpct": 0,
+                            "uid": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%"
+                        }
+                    ],
+                    "lat": [
+                        {
+                            "client_hostname": "localhost-1",
+                            "closest sample": 1,
+                            "description": "Average total latency per I/O operation",
+                            "mean": 499039.857142857,
+                            "role": "client",
+                            "samples": [
+                                {
+                                    "timeseries": [
+                                        {
+                                            "date": 1001,
+                                            "read(0) or write(1)": 0,
+                                            "value": 392073.0
+                                        },
+                                        {
+                                            "date": 1001,
+                                            "read(0) or write(1)": 1,
+                                            "value": 365789.0
+                                        },
+                                        {
+                                            "date": 2000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 308951.0
+                                        },
+                                        {
+                                            "date": 2000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 328830.0
+                                        },
+                                        {
+                                            "date": 3000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 482587.0
+                                        },
+                                        {
+                                            "date": 3000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 459945.0
+                                        },
+                                        {
+                                            "date": 4000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 685089.0
+                                        },
+                                        {
+                                            "date": 4000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 625575.0
+                                        },
+                                        {
+                                            "date": 5000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 603263.0
+                                        },
+                                        {
+                                            "date": 5000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 583781.0
+                                        },
+                                        {
+                                            "date": 6000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 343277.0
+                                        },
+                                        {
+                                            "date": 6000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 328435.0
+                                        },
+                                        {
+                                            "date": 7000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 179376.0
+                                        },
+                                        {
+                                            "date": 7000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 189740.0
+                                        },
+                                        {
+                                            "date": 8000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 279357.0
+                                        },
+                                        {
+                                            "date": 8000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 260962.0
+                                        },
+                                        {
+                                            "date": 9002,
+                                            "read(0) or write(1)": 1,
+                                            "value": 594983.0
+                                        },
+                                        {
+                                            "date": 9002,
+                                            "read(0) or write(1)": 0,
+                                            "value": 614051.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 641240.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 610897.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 1601636.0
+                                        }
+                                    ],
+                                    "value": 499039.857142857
+                                }
+                            ],
+                            "stddev": 0,
+                            "stddevpct": 0,
+                            "uid": "client_hostname:%client_hostname%"
+                        },
+                        {
+                            "client_hostname": "all",
+                            "closest sample": 1,
+                            "description": "Average total latency per I/O operation",
+                            "mean": 499039.857142857,
+                            "role": "aggregate",
+                            "samples": [
+                                {
+                                    "timeseries": [
+                                        {
+                                            "date": 1001,
+                                            "value": 392073.0
+                                        },
+                                        {
+                                            "date": 1001,
+                                            "value": 365789.0
+                                        },
+                                        {
+                                            "date": 2000,
+                                            "value": 308951.0
+                                        },
+                                        {
+                                            "date": 2000,
+                                            "value": 328830.0
+                                        },
+                                        {
+                                            "date": 3000,
+                                            "value": 482587.0
+                                        },
+                                        {
+                                            "date": 3000,
+                                            "value": 459945.0
+                                        },
+                                        {
+                                            "date": 4000,
+                                            "value": 685089.0
+                                        },
+                                        {
+                                            "date": 4000,
+                                            "value": 625575.0
+                                        },
+                                        {
+                                            "date": 5000,
+                                            "value": 603263.0
+                                        },
+                                        {
+                                            "date": 5000,
+                                            "value": 583781.0
+                                        },
+                                        {
+                                            "date": 6000,
+                                            "value": 343277.0
+                                        },
+                                        {
+                                            "date": 6000,
+                                            "value": 328435.0
+                                        },
+                                        {
+                                            "date": 7000,
+                                            "value": 179376.0
+                                        },
+                                        {
+                                            "date": 7000,
+                                            "value": 189740.0
+                                        },
+                                        {
+                                            "date": 8000,
+                                            "value": 279357.0
+                                        },
+                                        {
+                                            "date": 8000,
+                                            "value": 260962.0
+                                        },
+                                        {
+                                            "date": 9002,
+                                            "value": 594983.0
+                                        },
+                                        {
+                                            "date": 9002,
+                                            "value": 614051.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "value": 641240.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "value": 610897.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "value": 1601636.0
+                                        }
+                                    ],
+                                    "value": 499039.857142857
+                                }
+                            ],
+                            "server_hostname": "all",
+                            "server_port": "all",
+                            "stddev": 0,
+                            "stddevpct": 0,
+                            "uid": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%"
+                        }
+                    ],
+                    "slat": [
+                        {
+                            "client_hostname": "localhost-1",
+                            "closest sample": 1,
+                            "description": "Average submission latency per I/O operation",
+                            "mean": 13241,
+                            "role": "client",
+                            "samples": [
+                                {
+                                    "timeseries": [
+                                        {
+                                            "date": 1001,
+                                            "read(0) or write(1)": 0,
+                                            "value": 21461.0
+                                        },
+                                        {
+                                            "date": 1001,
+                                            "read(0) or write(1)": 1,
+                                            "value": 1049.0
+                                        },
+                                        {
+                                            "date": 2000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 17622.0
+                                        },
+                                        {
+                                            "date": 2000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 1043.0
+                                        },
+                                        {
+                                            "date": 3000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 27265.0
+                                        },
+                                        {
+                                            "date": 3000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 1039.0
+                                        },
+                                        {
+                                            "date": 4000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 38515.0
+                                        },
+                                        {
+                                            "date": 4000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 1063.0
+                                        },
+                                        {
+                                            "date": 5000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 1060.0
+                                        },
+                                        {
+                                            "date": 5000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 34773.0
+                                        },
+                                        {
+                                            "date": 6000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 18708.0
+                                        },
+                                        {
+                                            "date": 6000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 1050.0
+                                        },
+                                        {
+                                            "date": 7000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 1031.0
+                                        },
+                                        {
+                                            "date": 7000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 9303.0
+                                        },
+                                        {
+                                            "date": 8000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 14543.0
+                                        },
+                                        {
+                                            "date": 8000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 1053.0
+                                        },
+                                        {
+                                            "date": 9002,
+                                            "read(0) or write(1)": 0,
+                                            "value": 35768.0
+                                        },
+                                        {
+                                            "date": 9002,
+                                            "read(0) or write(1)": 1,
+                                            "value": 1074.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 36328.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 1072.0
+                                        }
+                                    ],
+                                    "value": 13241
+                                }
+                            ],
+                            "stddev": 0,
+                            "stddevpct": 0,
+                            "uid": "client_hostname:%client_hostname%"
+                        },
+                        {
+                            "client_hostname": "all",
+                            "closest sample": 1,
+                            "description": "Average submission latency per I/O operation",
+                            "mean": 13241,
+                            "role": "aggregate",
+                            "samples": [
+                                {
+                                    "timeseries": [
+                                        {
+                                            "date": 1001,
+                                            "value": 21461.0
+                                        },
+                                        {
+                                            "date": 1001,
+                                            "value": 1049.0
+                                        },
+                                        {
+                                            "date": 2000,
+                                            "value": 17622.0
+                                        },
+                                        {
+                                            "date": 2000,
+                                            "value": 1043.0
+                                        },
+                                        {
+                                            "date": 3000,
+                                            "value": 27265.0
+                                        },
+                                        {
+                                            "date": 3000,
+                                            "value": 1039.0
+                                        },
+                                        {
+                                            "date": 4000,
+                                            "value": 38515.0
+                                        },
+                                        {
+                                            "date": 4000,
+                                            "value": 1063.0
+                                        },
+                                        {
+                                            "date": 5000,
+                                            "value": 1060.0
+                                        },
+                                        {
+                                            "date": 5000,
+                                            "value": 34773.0
+                                        },
+                                        {
+                                            "date": 6000,
+                                            "value": 18708.0
+                                        },
+                                        {
+                                            "date": 6000,
+                                            "value": 1050.0
+                                        },
+                                        {
+                                            "date": 7000,
+                                            "value": 1031.0
+                                        },
+                                        {
+                                            "date": 7000,
+                                            "value": 9303.0
+                                        },
+                                        {
+                                            "date": 8000,
+                                            "value": 14543.0
+                                        },
+                                        {
+                                            "date": 8000,
+                                            "value": 1053.0
+                                        },
+                                        {
+                                            "date": 9002,
+                                            "value": 35768.0
+                                        },
+                                        {
+                                            "date": 9002,
+                                            "value": 1074.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "value": 36328.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "value": 1072.0
+                                        }
+                                    ],
+                                    "value": 13241
+                                }
+                            ],
+                            "server_hostname": "all",
+                            "server_port": "all",
+                            "stddev": 0,
+                            "stddevpct": 0,
+                            "uid": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%"
+                        }
+                    ]
+                },
+                "parameters": {
+                    "benchmark": [
+                        {
+                            "benchmark_name": "fio",
+                            "benchmark_version": null,
+                            "max_stddevpct": 5,
+                            "primary_metric": "iops_sec",
+                            "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                        }
+                    ]
+                },
+                "throughput": {
+                    "iops_sec": [
+                        {
+                            "client_hostname": "localhost-1",
+                            "closest sample": 1,
+                            "description": "Number of I/O operations sent by client for a period of 1 second",
+                            "mean": 42275.15,
+                            "role": "client",
+                            "samples": [
+                                {
+                                    "timeseries": [
+                                        {
+                                            "date": 1000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 42245.0
+                                        },
+                                        {
+                                            "date": 1000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 42107.0
+                                        },
+                                        {
+                                            "date": 2000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 50237.0
+                                        },
+                                        {
+                                            "date": 2000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 50279.0
+                                        },
+                                        {
+                                            "date": 3001,
+                                            "read(0) or write(1)": 0,
+                                            "value": 33817.0
+                                        },
+                                        {
+                                            "date": 3001,
+                                            "read(0) or write(1)": 1,
+                                            "value": 33708.0
+                                        },
+                                        {
+                                            "date": 4000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 24449.0
+                                        },
+                                        {
+                                            "date": 4000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 24482.0
+                                        },
+                                        {
+                                            "date": 5000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 27006.0
+                                        },
+                                        {
+                                            "date": 5000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 26871.0
+                                        },
+                                        {
+                                            "date": 6001,
+                                            "read(0) or write(1)": 0,
+                                            "value": 47568.0
+                                        },
+                                        {
+                                            "date": 6001,
+                                            "read(0) or write(1)": 1,
+                                            "value": 47629.0
+                                        },
+                                        {
+                                            "date": 7000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 86341.0
+                                        },
+                                        {
+                                            "date": 7000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 86669.0
+                                        },
+                                        {
+                                            "date": 8000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 59497.0
+                                        },
+                                        {
+                                            "date": 8000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 58694.0
+                                        },
+                                        {
+                                            "date": 9000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 26269.0
+                                        },
+                                        {
+                                            "date": 9000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 26506.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "read(0) or write(1)": 0,
+                                            "value": 25844.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "read(0) or write(1)": 1,
+                                            "value": 25285.0
+                                        }
+                                    ],
+                                    "value": 42275.15
+                                }
+                            ],
+                            "stddev": 0,
+                            "stddevpct": 0,
+                            "uid": "client_hostname:%client_hostname%"
+                        },
+                        {
+                            "client_hostname": "all",
+                            "closest sample": 1,
+                            "description": "Number of I/O operations sent by client for a period of 1 second",
+                            "mean": 42275.15,
+                            "role": "aggregate",
+                            "samples": [
+                                {
+                                    "timeseries": [
+                                        {
+                                            "date": 1000,
+                                            "value": 42245.0
+                                        },
+                                        {
+                                            "date": 1000,
+                                            "value": 42107.0
+                                        },
+                                        {
+                                            "date": 2000,
+                                            "value": 50237.0
+                                        },
+                                        {
+                                            "date": 2000,
+                                            "value": 50279.0
+                                        },
+                                        {
+                                            "date": 3001,
+                                            "value": 33817.0
+                                        },
+                                        {
+                                            "date": 3001,
+                                            "value": 33708.0
+                                        },
+                                        {
+                                            "date": 4000,
+                                            "value": 24449.0
+                                        },
+                                        {
+                                            "date": 4000,
+                                            "value": 24482.0
+                                        },
+                                        {
+                                            "date": 5000,
+                                            "value": 27006.0
+                                        },
+                                        {
+                                            "date": 5000,
+                                            "value": 26871.0
+                                        },
+                                        {
+                                            "date": 6001,
+                                            "value": 47568.0
+                                        },
+                                        {
+                                            "date": 6001,
+                                            "value": 47629.0
+                                        },
+                                        {
+                                            "date": 7000,
+                                            "value": 86341.0
+                                        },
+                                        {
+                                            "date": 7000,
+                                            "value": 86669.0
+                                        },
+                                        {
+                                            "date": 8000,
+                                            "value": 59497.0
+                                        },
+                                        {
+                                            "date": 8000,
+                                            "value": 58694.0
+                                        },
+                                        {
+                                            "date": 9000,
+                                            "value": 26269.0
+                                        },
+                                        {
+                                            "date": 9000,
+                                            "value": 26506.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "value": 25844.0
+                                        },
+                                        {
+                                            "date": 10000,
+                                            "value": 25285.0
+                                        }
+                                    ],
+                                    "value": 42275.15
+                                }
+                            ],
+                            "server_hostname": "all",
+                            "server_port": "all",
+                            "stddev": 0,
+                            "stddevpct": 0,
+                            "uid": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%"
+                        }
+                    ]
+                }
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_index": "pbench.result-data.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021"
+            },
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "results": [
+                {
+                    "iteration_data": {
+                        "latency": {
+                            "clat": [
+                                {
+                                    "client_hostname": "localhost-1",
+                                    "closest sample": 1,
+                                    "description": "Average completion latency per I/O operation",
+                                    "mean": 486292.666666667,
+                                    "role": "client",
+                                    "samples": [
+                                        {
+                                            "timeseries": [
+                                                {
+                                                    "date": 1001,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 370598.0
+                                                },
+                                                {
+                                                    "date": 1001,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 364650.0
+                                                },
+                                                {
+                                                    "date": 2000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 307815.0
+                                                },
+                                                {
+                                                    "date": 2000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 311058.0
+                                                },
+                                                {
+                                                    "date": 3000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 455339.0
+                                                },
+                                                {
+                                                    "date": 3000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 458815.0
+                                                },
+                                                {
+                                                    "date": 4000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 646305.0
+                                                },
+                                                {
+                                                    "date": 4000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 624421.0
+                                                },
+                                                {
+                                                    "date": 5000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 568438.0
+                                                },
+                                                {
+                                                    "date": 5000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 582625.0
+                                                },
+                                                {
+                                                    "date": 6000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 324455.0
+                                                },
+                                                {
+                                                    "date": 6000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 327295.0
+                                                },
+                                                {
+                                                    "date": 7000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 178255.0
+                                                },
+                                                {
+                                                    "date": 7000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 180335.0
+                                                },
+                                                {
+                                                    "date": 8000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 264738.0
+                                                },
+                                                {
+                                                    "date": 8000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 259817.0
+                                                },
+                                                {
+                                                    "date": 9002,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 593820.0
+                                                },
+                                                {
+                                                    "date": 9002,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 578322.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 604678.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 609731.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 1600636.0
+                                                }
+                                            ],
+                                            "value": 486292.666666667
+                                        }
+                                    ],
+                                    "stddev": 0,
+                                    "stddevpct": 0,
+                                    "uid": "client_hostname:%client_hostname%"
+                                },
+                                {
+                                    "client_hostname": "all",
+                                    "closest sample": 1,
+                                    "description": "Average completion latency per I/O operation",
+                                    "mean": 486292.666666667,
+                                    "role": "aggregate",
+                                    "samples": [
+                                        {
+                                            "timeseries": [
+                                                {
+                                                    "date": 1001,
+                                                    "value": 370598.0
+                                                },
+                                                {
+                                                    "date": 1001,
+                                                    "value": 364650.0
+                                                },
+                                                {
+                                                    "date": 2000,
+                                                    "value": 307815.0
+                                                },
+                                                {
+                                                    "date": 2000,
+                                                    "value": 311058.0
+                                                },
+                                                {
+                                                    "date": 3000,
+                                                    "value": 455339.0
+                                                },
+                                                {
+                                                    "date": 3000,
+                                                    "value": 458815.0
+                                                },
+                                                {
+                                                    "date": 4000,
+                                                    "value": 646305.0
+                                                },
+                                                {
+                                                    "date": 4000,
+                                                    "value": 624421.0
+                                                },
+                                                {
+                                                    "date": 5000,
+                                                    "value": 568438.0
+                                                },
+                                                {
+                                                    "date": 5000,
+                                                    "value": 582625.0
+                                                },
+                                                {
+                                                    "date": 6000,
+                                                    "value": 324455.0
+                                                },
+                                                {
+                                                    "date": 6000,
+                                                    "value": 327295.0
+                                                },
+                                                {
+                                                    "date": 7000,
+                                                    "value": 178255.0
+                                                },
+                                                {
+                                                    "date": 7000,
+                                                    "value": 180335.0
+                                                },
+                                                {
+                                                    "date": 8000,
+                                                    "value": 264738.0
+                                                },
+                                                {
+                                                    "date": 8000,
+                                                    "value": 259817.0
+                                                },
+                                                {
+                                                    "date": 9002,
+                                                    "value": 593820.0
+                                                },
+                                                {
+                                                    "date": 9002,
+                                                    "value": 578322.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "value": 604678.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "value": 609731.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "value": 1600636.0
+                                                }
+                                            ],
+                                            "value": 486292.666666667
+                                        }
+                                    ],
+                                    "server_hostname": "all",
+                                    "server_port": "all",
+                                    "stddev": 0,
+                                    "stddevpct": 0,
+                                    "uid": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%"
+                                }
+                            ],
+                            "lat": [
+                                {
+                                    "client_hostname": "localhost-1",
+                                    "closest sample": 1,
+                                    "description": "Average total latency per I/O operation",
+                                    "mean": 499039.857142857,
+                                    "role": "client",
+                                    "samples": [
+                                        {
+                                            "timeseries": [
+                                                {
+                                                    "date": 1001,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 392073.0
+                                                },
+                                                {
+                                                    "date": 1001,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 365789.0
+                                                },
+                                                {
+                                                    "date": 2000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 308951.0
+                                                },
+                                                {
+                                                    "date": 2000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 328830.0
+                                                },
+                                                {
+                                                    "date": 3000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 482587.0
+                                                },
+                                                {
+                                                    "date": 3000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 459945.0
+                                                },
+                                                {
+                                                    "date": 4000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 685089.0
+                                                },
+                                                {
+                                                    "date": 4000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 625575.0
+                                                },
+                                                {
+                                                    "date": 5000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 603263.0
+                                                },
+                                                {
+                                                    "date": 5000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 583781.0
+                                                },
+                                                {
+                                                    "date": 6000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 343277.0
+                                                },
+                                                {
+                                                    "date": 6000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 328435.0
+                                                },
+                                                {
+                                                    "date": 7000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 179376.0
+                                                },
+                                                {
+                                                    "date": 7000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 189740.0
+                                                },
+                                                {
+                                                    "date": 8000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 279357.0
+                                                },
+                                                {
+                                                    "date": 8000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 260962.0
+                                                },
+                                                {
+                                                    "date": 9002,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 594983.0
+                                                },
+                                                {
+                                                    "date": 9002,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 614051.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 641240.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 610897.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 1601636.0
+                                                }
+                                            ],
+                                            "value": 499039.857142857
+                                        }
+                                    ],
+                                    "stddev": 0,
+                                    "stddevpct": 0,
+                                    "uid": "client_hostname:%client_hostname%"
+                                },
+                                {
+                                    "client_hostname": "all",
+                                    "closest sample": 1,
+                                    "description": "Average total latency per I/O operation",
+                                    "mean": 499039.857142857,
+                                    "role": "aggregate",
+                                    "samples": [
+                                        {
+                                            "timeseries": [
+                                                {
+                                                    "date": 1001,
+                                                    "value": 392073.0
+                                                },
+                                                {
+                                                    "date": 1001,
+                                                    "value": 365789.0
+                                                },
+                                                {
+                                                    "date": 2000,
+                                                    "value": 308951.0
+                                                },
+                                                {
+                                                    "date": 2000,
+                                                    "value": 328830.0
+                                                },
+                                                {
+                                                    "date": 3000,
+                                                    "value": 482587.0
+                                                },
+                                                {
+                                                    "date": 3000,
+                                                    "value": 459945.0
+                                                },
+                                                {
+                                                    "date": 4000,
+                                                    "value": 685089.0
+                                                },
+                                                {
+                                                    "date": 4000,
+                                                    "value": 625575.0
+                                                },
+                                                {
+                                                    "date": 5000,
+                                                    "value": 603263.0
+                                                },
+                                                {
+                                                    "date": 5000,
+                                                    "value": 583781.0
+                                                },
+                                                {
+                                                    "date": 6000,
+                                                    "value": 343277.0
+                                                },
+                                                {
+                                                    "date": 6000,
+                                                    "value": 328435.0
+                                                },
+                                                {
+                                                    "date": 7000,
+                                                    "value": 179376.0
+                                                },
+                                                {
+                                                    "date": 7000,
+                                                    "value": 189740.0
+                                                },
+                                                {
+                                                    "date": 8000,
+                                                    "value": 279357.0
+                                                },
+                                                {
+                                                    "date": 8000,
+                                                    "value": 260962.0
+                                                },
+                                                {
+                                                    "date": 9002,
+                                                    "value": 594983.0
+                                                },
+                                                {
+                                                    "date": 9002,
+                                                    "value": 614051.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "value": 641240.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "value": 610897.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "value": 1601636.0
+                                                }
+                                            ],
+                                            "value": 499039.857142857
+                                        }
+                                    ],
+                                    "server_hostname": "all",
+                                    "server_port": "all",
+                                    "stddev": 0,
+                                    "stddevpct": 0,
+                                    "uid": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%"
+                                }
+                            ],
+                            "slat": [
+                                {
+                                    "client_hostname": "localhost-1",
+                                    "closest sample": 1,
+                                    "description": "Average submission latency per I/O operation",
+                                    "mean": 13241,
+                                    "role": "client",
+                                    "samples": [
+                                        {
+                                            "timeseries": [
+                                                {
+                                                    "date": 1001,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 21461.0
+                                                },
+                                                {
+                                                    "date": 1001,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 1049.0
+                                                },
+                                                {
+                                                    "date": 2000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 17622.0
+                                                },
+                                                {
+                                                    "date": 2000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 1043.0
+                                                },
+                                                {
+                                                    "date": 3000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 27265.0
+                                                },
+                                                {
+                                                    "date": 3000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 1039.0
+                                                },
+                                                {
+                                                    "date": 4000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 38515.0
+                                                },
+                                                {
+                                                    "date": 4000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 1063.0
+                                                },
+                                                {
+                                                    "date": 5000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 1060.0
+                                                },
+                                                {
+                                                    "date": 5000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 34773.0
+                                                },
+                                                {
+                                                    "date": 6000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 18708.0
+                                                },
+                                                {
+                                                    "date": 6000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 1050.0
+                                                },
+                                                {
+                                                    "date": 7000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 1031.0
+                                                },
+                                                {
+                                                    "date": 7000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 9303.0
+                                                },
+                                                {
+                                                    "date": 8000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 14543.0
+                                                },
+                                                {
+                                                    "date": 8000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 1053.0
+                                                },
+                                                {
+                                                    "date": 9002,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 35768.0
+                                                },
+                                                {
+                                                    "date": 9002,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 1074.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 36328.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 1072.0
+                                                }
+                                            ],
+                                            "value": 13241
+                                        }
+                                    ],
+                                    "stddev": 0,
+                                    "stddevpct": 0,
+                                    "uid": "client_hostname:%client_hostname%"
+                                },
+                                {
+                                    "client_hostname": "all",
+                                    "closest sample": 1,
+                                    "description": "Average submission latency per I/O operation",
+                                    "mean": 13241,
+                                    "role": "aggregate",
+                                    "samples": [
+                                        {
+                                            "timeseries": [
+                                                {
+                                                    "date": 1001,
+                                                    "value": 21461.0
+                                                },
+                                                {
+                                                    "date": 1001,
+                                                    "value": 1049.0
+                                                },
+                                                {
+                                                    "date": 2000,
+                                                    "value": 17622.0
+                                                },
+                                                {
+                                                    "date": 2000,
+                                                    "value": 1043.0
+                                                },
+                                                {
+                                                    "date": 3000,
+                                                    "value": 27265.0
+                                                },
+                                                {
+                                                    "date": 3000,
+                                                    "value": 1039.0
+                                                },
+                                                {
+                                                    "date": 4000,
+                                                    "value": 38515.0
+                                                },
+                                                {
+                                                    "date": 4000,
+                                                    "value": 1063.0
+                                                },
+                                                {
+                                                    "date": 5000,
+                                                    "value": 1060.0
+                                                },
+                                                {
+                                                    "date": 5000,
+                                                    "value": 34773.0
+                                                },
+                                                {
+                                                    "date": 6000,
+                                                    "value": 18708.0
+                                                },
+                                                {
+                                                    "date": 6000,
+                                                    "value": 1050.0
+                                                },
+                                                {
+                                                    "date": 7000,
+                                                    "value": 1031.0
+                                                },
+                                                {
+                                                    "date": 7000,
+                                                    "value": 9303.0
+                                                },
+                                                {
+                                                    "date": 8000,
+                                                    "value": 14543.0
+                                                },
+                                                {
+                                                    "date": 8000,
+                                                    "value": 1053.0
+                                                },
+                                                {
+                                                    "date": 9002,
+                                                    "value": 35768.0
+                                                },
+                                                {
+                                                    "date": 9002,
+                                                    "value": 1074.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "value": 36328.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "value": 1072.0
+                                                }
+                                            ],
+                                            "value": 13241
+                                        }
+                                    ],
+                                    "server_hostname": "all",
+                                    "server_port": "all",
+                                    "stddev": 0,
+                                    "stddevpct": 0,
+                                    "uid": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%"
+                                }
+                            ]
+                        },
+                        "parameters": {
+                            "benchmark": [
+                                {
+                                    "benchmark_name": "fio",
+                                    "benchmark_version": null,
+                                    "max_stddevpct": 5,
+                                    "primary_metric": "iops_sec",
+                                    "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                                }
+                            ]
+                        },
+                        "throughput": {
+                            "iops_sec": [
+                                {
+                                    "client_hostname": "localhost-1",
+                                    "closest sample": 1,
+                                    "description": "Number of I/O operations sent by client for a period of 1 second",
+                                    "mean": 42275.15,
+                                    "role": "client",
+                                    "samples": [
+                                        {
+                                            "timeseries": [
+                                                {
+                                                    "date": 1000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 42245.0
+                                                },
+                                                {
+                                                    "date": 1000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 42107.0
+                                                },
+                                                {
+                                                    "date": 2000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 50237.0
+                                                },
+                                                {
+                                                    "date": 2000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 50279.0
+                                                },
+                                                {
+                                                    "date": 3001,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 33817.0
+                                                },
+                                                {
+                                                    "date": 3001,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 33708.0
+                                                },
+                                                {
+                                                    "date": 4000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 24449.0
+                                                },
+                                                {
+                                                    "date": 4000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 24482.0
+                                                },
+                                                {
+                                                    "date": 5000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 27006.0
+                                                },
+                                                {
+                                                    "date": 5000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 26871.0
+                                                },
+                                                {
+                                                    "date": 6001,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 47568.0
+                                                },
+                                                {
+                                                    "date": 6001,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 47629.0
+                                                },
+                                                {
+                                                    "date": 7000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 86341.0
+                                                },
+                                                {
+                                                    "date": 7000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 86669.0
+                                                },
+                                                {
+                                                    "date": 8000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 59497.0
+                                                },
+                                                {
+                                                    "date": 8000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 58694.0
+                                                },
+                                                {
+                                                    "date": 9000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 26269.0
+                                                },
+                                                {
+                                                    "date": 9000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 26506.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "read(0) or write(1)": 0,
+                                                    "value": 25844.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "read(0) or write(1)": 1,
+                                                    "value": 25285.0
+                                                }
+                                            ],
+                                            "value": 42275.15
+                                        }
+                                    ],
+                                    "stddev": 0,
+                                    "stddevpct": 0,
+                                    "uid": "client_hostname:%client_hostname%"
+                                },
+                                {
+                                    "client_hostname": "all",
+                                    "closest sample": 1,
+                                    "description": "Number of I/O operations sent by client for a period of 1 second",
+                                    "mean": 42275.15,
+                                    "role": "aggregate",
+                                    "samples": [
+                                        {
+                                            "timeseries": [
+                                                {
+                                                    "date": 1000,
+                                                    "value": 42245.0
+                                                },
+                                                {
+                                                    "date": 1000,
+                                                    "value": 42107.0
+                                                },
+                                                {
+                                                    "date": 2000,
+                                                    "value": 50237.0
+                                                },
+                                                {
+                                                    "date": 2000,
+                                                    "value": 50279.0
+                                                },
+                                                {
+                                                    "date": 3001,
+                                                    "value": 33817.0
+                                                },
+                                                {
+                                                    "date": 3001,
+                                                    "value": 33708.0
+                                                },
+                                                {
+                                                    "date": 4000,
+                                                    "value": 24449.0
+                                                },
+                                                {
+                                                    "date": 4000,
+                                                    "value": 24482.0
+                                                },
+                                                {
+                                                    "date": 5000,
+                                                    "value": 27006.0
+                                                },
+                                                {
+                                                    "date": 5000,
+                                                    "value": 26871.0
+                                                },
+                                                {
+                                                    "date": 6001,
+                                                    "value": 47568.0
+                                                },
+                                                {
+                                                    "date": 6001,
+                                                    "value": 47629.0
+                                                },
+                                                {
+                                                    "date": 7000,
+                                                    "value": 86341.0
+                                                },
+                                                {
+                                                    "date": 7000,
+                                                    "value": 86669.0
+                                                },
+                                                {
+                                                    "date": 8000,
+                                                    "value": 59497.0
+                                                },
+                                                {
+                                                    "date": 8000,
+                                                    "value": 58694.0
+                                                },
+                                                {
+                                                    "date": 9000,
+                                                    "value": 26269.0
+                                                },
+                                                {
+                                                    "date": 9000,
+                                                    "value": 26506.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "value": 25844.0
+                                                },
+                                                {
+                                                    "date": 10000,
+                                                    "value": 25285.0
+                                                }
+                                            ],
+                                            "value": 42275.15
+                                        }
+                                    ],
+                                    "server_hostname": "all",
+                                    "server_port": "all",
+                                    "stddev": 0,
+                                    "stddevpct": 0,
+                                    "uid": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%"
+                                }
+                            ]
+                        }
+                    },
+                    "iteration_name": "rw-4KiB",
+                    "iteration_number": 1
+                }
+            ]
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:03.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-root",
+                    "iops": {
+                        "read": "806.67",
+                        "write": "172.67"
+                    },
+                    "qsize": "1.36",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "423.69",
+                    "tput": {
+                        "read": "200.09",
+                        "write": "2.52"
+                    },
+                    "util": "62.93",
+                    "wtime": {
+                        "read": "1.27",
+                        "write": "1.92"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:03.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-swap",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:03.000000",
+            "iostat": {
+                "disk": {
+                    "id": "vda",
+                    "iops": {
+                        "read": "806.00",
+                        "write": "168.33"
+                    },
+                    "qsize": "1.26",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "3.33"
+                    },
+                    "reqsize": "425.50",
+                    "tput": {
+                        "read": "199.92",
+                        "write": "2.51"
+                    },
+                    "util": "62.93",
+                    "wtime": {
+                        "read": "1.27",
+                        "write": "1.36"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:06.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-root",
+                    "iops": {
+                        "read": "507.00",
+                        "write": "583.00"
+                    },
+                    "qsize": "3.73",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "683.27",
+                    "tput": {
+                        "read": "126.23",
+                        "write": "237.43"
+                    },
+                    "util": "99.67",
+                    "wtime": {
+                        "read": "3.23",
+                        "write": "3.59"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:06.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-swap",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:06.000000",
+            "iostat": {
+                "disk": {
+                    "id": "vda",
+                    "iops": {
+                        "read": "507.00",
+                        "write": "595.00"
+                    },
+                    "qsize": "2.70",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "10.00"
+                    },
+                    "reqsize": "675.84",
+                    "tput": {
+                        "read": "126.23",
+                        "write": "237.43"
+                    },
+                    "util": "99.07",
+                    "wtime": {
+                        "read": "3.23",
+                        "write": "1.79"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:09.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-root",
+                    "iops": {
+                        "read": "610.20",
+                        "write": "220.72"
+                    },
+                    "qsize": "3.29",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "912.76",
+                    "tput": {
+                        "read": "152.55",
+                        "write": "217.78"
+                    },
+                    "util": "98.36",
+                    "wtime": {
+                        "read": "2.90",
+                        "write": "6.84"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:09.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-swap",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:09.000000",
+            "iostat": {
+                "disk": {
+                    "id": "vda",
+                    "iops": {
+                        "read": "610.20",
+                        "write": "219.41"
+                    },
+                    "qsize": "2.54",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.66"
+                    },
+                    "reqsize": "912.59",
+                    "tput": {
+                        "read": "152.55",
+                        "write": "217.12"
+                    },
+                    "util": "98.03",
+                    "wtime": {
+                        "read": "2.90",
+                        "write": "3.49"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:12.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-root",
+                    "iops": {
+                        "read": "666.67",
+                        "write": "206.00"
+                    },
+                    "qsize": "3.22",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "874.59",
+                    "tput": {
+                        "read": "166.67",
+                        "write": "206.00"
+                    },
+                    "util": "99.87",
+                    "wtime": {
+                        "read": "2.69",
+                        "write": "6.95"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:12.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-swap",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:12.000000",
+            "iostat": {
+                "disk": {
+                    "id": "vda",
+                    "iops": {
+                        "read": "667.00",
+                        "write": "206.67"
+                    },
+                    "qsize": "2.50",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "875.34",
+                    "tput": {
+                        "read": "166.75",
+                        "write": "206.67"
+                    },
+                    "util": "99.03",
+                    "wtime": {
+                        "read": "2.68",
+                        "write": "3.45"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:15.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-root",
+                    "iops": {
+                        "read": "745.85",
+                        "write": "180.73"
+                    },
+                    "qsize": "3.02",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "811.60",
+                    "tput": {
+                        "read": "186.46",
+                        "write": "180.73"
+                    },
+                    "util": "99.63",
+                    "wtime": {
+                        "read": "2.37",
+                        "write": "6.91"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:15.000000",
+            "iostat": {
+                "disk": {
+                    "id": "fedora-swap",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:15.000000",
+            "iostat": {
+                "disk": {
+                    "id": "vda",
+                    "iops": {
+                        "read": "745.85",
+                        "write": "180.07"
+                    },
+                    "qsize": "2.40",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "810.71",
+                    "tput": {
+                        "read": "186.46",
+                        "write": "180.07"
+                    },
+                    "util": "99.10",
+                    "wtime": {
+                        "read": "2.37",
+                        "write": "3.48"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    }
+]
+--- Finished indexing on /var/tmp/pbench-test-server/test-7.11 (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-server/pbench
+--- pbench tree state
++++ pbench log file contents
+--- pbench log file contents
++++ test-execution.log file contents
+grep: /var/tmp/pbench-test-server/test-execution.log: No such file or directory
+--- test-execution.log file contents
