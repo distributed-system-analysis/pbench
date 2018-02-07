@@ -1,9 +1,7 @@
-# Created 2017-10-16 Mon 12:10
+#+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
-#+OPTIONS: ^:{}
-#+TITLE: PBench server script states and rsyncing from remotes
 #+HTML_DOCTYPE: xhtml-strict
 #+HTML_CONTAINER: div
 #+KEYWORDS: pbench
@@ -14,6 +12,9 @@
 #+SUBTITLE: 
 #+INFOJS_OPT: 
 #+LATEX_HEADER: 
+#+AUTHOR: 
+#+OPTIONS: ^:{}
+#+TITLE: PBench server script states and rsyncing from remotes
 
 * Introduction
 
@@ -34,9 +35,9 @@ Schematically each script does the following:
 #+BEGIN_SRC shell
   linksrc = state subdirectory for this script
   linkdest = state sudbdirectory for next script
-  
+
   queue=$(find list of tarballs in $linksrc)
-  
+
   for each element in queue ;do
       process it
       if success

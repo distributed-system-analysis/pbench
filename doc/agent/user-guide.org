@@ -1,9 +1,7 @@
-# Created 2017-10-16 Mon 12:10
+#+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
-#+OPTIONS: ^:{} broken-links:t
-#+TITLE: PBench User Guide
 #+HTML_DOCTYPE: xhtml-strict
 #+HTML_CONTAINER: div
 #+KEYWORDS: pbench
@@ -14,6 +12,10 @@
 #+SUBTITLE: 
 #+INFOJS_OPT: 
 #+LATEX_HEADER: 
+#+AUTHOR: 
+#+AUTHOR: 
+#+TITLE: PBench User Guide
+#+OPTIONS: ^:{} broken-links:t
 
 * What is =pbench=?
 PBench is a harness that allows data collection from a variety of tools
@@ -51,12 +53,12 @@ want a multi-node setup, you have to read up on the =--remote= options of variou
   "myhost", the results will be found at (*N.B.*: this is a fake link
   serving as an example only - talk to your local administrator to find out
   what server to use to get to pbench results):
-  http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS.
+  [[http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS]].
 
 For explanations and details, see subsequent sections.
 
 * How to install
-See  the [[file:./installation.org][installation instructions]].
+See  the [[./installation.org][installation instructions]].
 
 * First steps
 All of the commands take a =--help= option and produce a terse
@@ -217,11 +219,8 @@ The semi-generic ones are:
 - =--max-stddev= :: the percent maximum standard deviation allowed in order to consider the iteration to pass.
 - =--max-failures= :: the maximum number of failures to achieve the allowed standard deviation.
 - =--postprocess-only= :: 
-
 - =--run-dir= :: 
-
 - =--start-iteration-num= :: 
-
 - =--tool-label-pattern= :: 
 Benchmark-specific options are called out in the following sections for each benchmark.
 
@@ -262,19 +261,12 @@ TBD
 
 ** pbench-uperf
 - =--kvm-host= :: 
-
 - =--message-sizes= :: 
-
 - =--protocols= :: 
-
 - =--instances= :: 
-
 - =--servers= :: 
-
 - =--server-nodes= :: 
-
 - =--client-nodes= :: 
-
 - =--log-response-times= :: 
 
 ** pbench-user-benchmark
@@ -446,7 +438,8 @@ make sure to follow this dictum.
 
 
 If you want to take advantage of pbench's data collection and other
-goodies, but your benchmark is not part of the set above (see [[*Available benchmark scripts][Available benchmark scripts]]),
+goodies, but your benchmark is not part of the set above (see [[*Available benchmark
+ scripts][Available benchmark scripts]]),
 or you want to run it differently so
 that the pre-packaged script does not work for you, that's no problem
 (but, if possible, heed the [[*Second steps][WARNING]] above). The various pbench phases
@@ -945,4 +938,4 @@ pbench-move-results
 with the *same* arguments.
 
 ** How do I install pbench-agent?
-See the [[file:./installation.org][installation instructions]].
+See the [[./installation.org][installation instructions]].

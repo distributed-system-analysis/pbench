@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>PBench release notes</title>
-<!-- 2017-12-07 Thu 17:08 -->
+<!-- 2018-02-07 Wed 10:12 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="keywords" content="pbench" />
@@ -145,95 +145,104 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#sec-1">Version 0.47</a>
+<li><a href="#sec-1">Version 0.48</a>
 <ul>
 <li><a href="#sec-1-1">Installation</a></li>
 <li><a href="#sec-1-2">agent</a></li>
 <li><a href="#sec-1-3">server</a></li>
-<li><a href="#web-server-0.47">web-server</a></li>
+<li><a href="#web-server-0.48">web-server</a></li>
 <li><a href="#sec-1-5">Changelog</a></li>
 </ul>
 </li>
-<li><a href="#sec-2">Version 0.46</a>
+<li><a href="#sec-2">Version 0.47</a>
 <ul>
 <li><a href="#sec-2-1">Installation</a></li>
 <li><a href="#sec-2-2">agent</a></li>
 <li><a href="#sec-2-3">server</a></li>
-<li><a href="#web-server-0.46">web-server</a></li>
+<li><a href="#web-server-0.47">web-server</a></li>
 <li><a href="#sec-2-5">Changelog</a></li>
 </ul>
 </li>
-<li><a href="#sec-3">Version 0.45</a>
+<li><a href="#sec-3">Version 0.46</a>
 <ul>
 <li><a href="#sec-3-1">Installation</a></li>
 <li><a href="#sec-3-2">agent</a></li>
 <li><a href="#sec-3-3">server</a></li>
-<li><a href="#web-server-0.45">web-server</a></li>
+<li><a href="#web-server-0.46">web-server</a></li>
 <li><a href="#sec-3-5">Changelog</a></li>
 </ul>
 </li>
-<li><a href="#sec-4">Version 0.44</a>
+<li><a href="#sec-4">Version 0.45</a>
 <ul>
 <li><a href="#sec-4-1">Installation</a></li>
 <li><a href="#sec-4-2">agent</a></li>
 <li><a href="#sec-4-3">server</a></li>
-<li><a href="#web-server-0.44">web-server</a></li>
+<li><a href="#web-server-0.45">web-server</a></li>
 <li><a href="#sec-4-5">Changelog</a></li>
 </ul>
 </li>
-<li><a href="#sec-5">Version 0.43</a>
+<li><a href="#sec-5">Version 0.44</a>
 <ul>
 <li><a href="#sec-5-1">Installation</a></li>
 <li><a href="#sec-5-2">agent</a></li>
 <li><a href="#sec-5-3">server</a></li>
-<li><a href="#web-server-0.43">web-server</a></li>
+<li><a href="#web-server-0.44">web-server</a></li>
 <li><a href="#sec-5-5">Changelog</a></li>
 </ul>
 </li>
-<li><a href="#sec-6">Version 0.42</a>
+<li><a href="#sec-6">Version 0.43</a>
 <ul>
 <li><a href="#sec-6-1">Installation</a></li>
 <li><a href="#sec-6-2">agent</a></li>
 <li><a href="#sec-6-3">server</a></li>
-<li><a href="#web-server-0.42">web-server</a></li>
+<li><a href="#web-server-0.43">web-server</a></li>
 <li><a href="#sec-6-5">Changelog</a></li>
 </ul>
 </li>
-<li><a href="#sec-7">Version 0.41</a>
+<li><a href="#sec-7">Version 0.42</a>
 <ul>
 <li><a href="#sec-7-1">Installation</a></li>
 <li><a href="#sec-7-2">agent</a></li>
 <li><a href="#sec-7-3">server</a></li>
-<li><a href="#web-server-0.41">web-server</a></li>
+<li><a href="#web-server-0.42">web-server</a></li>
 <li><a href="#sec-7-5">Changelog</a></li>
 </ul>
 </li>
-<li><a href="#sec-8">Version 0.40</a>
+<li><a href="#sec-8">Version 0.41</a>
 <ul>
 <li><a href="#sec-8-1">Installation</a></li>
 <li><a href="#sec-8-2">agent</a></li>
 <li><a href="#sec-8-3">server</a></li>
-<li><a href="#web-server-0.40">web-server</a></li>
+<li><a href="#web-server-0.41">web-server</a></li>
 <li><a href="#sec-8-5">Changelog</a></li>
 </ul>
 </li>
-<li><a href="#sec-9">Version 0.39</a>
+<li><a href="#sec-9">Version 0.40</a>
 <ul>
 <li><a href="#sec-9-1">Installation</a></li>
 <li><a href="#sec-9-2">agent</a></li>
 <li><a href="#sec-9-3">server</a></li>
-<li><a href="#web-server-0.39">web-server</a></li>
+<li><a href="#web-server-0.40">web-server</a></li>
 <li><a href="#sec-9-5">Changelog</a></li>
 </ul>
 </li>
-<li><a href="#sec-10">Version 0.38</a>
+<li><a href="#sec-10">Version 0.39</a>
 <ul>
 <li><a href="#sec-10-1">Installation</a></li>
 <li><a href="#sec-10-2">agent</a></li>
 <li><a href="#sec-10-3">server</a></li>
-<li><a href="#sec-10-4">web-server</a></li>
-<li><a href="#sec-10-5">Fedora 24 RPMs on COPR</a></li>
-<li><a href="#sec-10-6">Changelog</a></li>
+<li><a href="#web-server-0.39">web-server</a></li>
+<li><a href="#sec-10-5">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#sec-11">Version 0.38</a>
+<ul>
+<li><a href="#sec-11-1">Installation</a></li>
+<li><a href="#sec-11-2">agent</a></li>
+<li><a href="#sec-11-3">server</a></li>
+<li><a href="#sec-11-4">web-server</a></li>
+<li><a href="#sec-11-5">Fedora 24 RPMs on COPR</a></li>
+<li><a href="#sec-11-6">Changelog</a></li>
 </ul>
 </li>
 </ul>
@@ -241,8 +250,11 @@ for the JavaScript code in this tag.
 </div>
 
 
+
+
+
 <div id="outline-container-sec-1" class="outline-2">
-<h2 id="sec-1">Version 0.47</h2>
+<h2 id="sec-1">Version 0.48</h2>
 <div class="outline-text-2" id="text-1">
 </div><div id="outline-container-sec-1-1" class="outline-3">
 <h3 id="sec-1-1">Installation</h3>
@@ -253,7 +265,7 @@ There are no installation changes in this release: see the
 </p>
 
 <p>
-After installation or update, you should have version 0.47-1g2cfe130
+After installation or update, you should have version 0.48-1g87190ca
 of the pbench-agent RPM installed.
 </p>
 </div>
@@ -262,20 +274,33 @@ of the pbench-agent RPM installed.
 <div id="outline-container-sec-1-2" class="outline-3">
 <h3 id="sec-1-2">agent</h3>
 <div class="outline-text-3" id="text-1-2">
-</div><ul class="org-ul"><li><a id="sec-1-2-1" name="sec-1-2-1"></a>Known problems and backward incompatibilities<br  /><div class="outline-text-4" id="text-1-2-1">
 <p>
-The pprof tools is undergoing some renovation right now: see issue #675
+We rebuilt pbench-sysstat and benchmark RPMs to include Fedora 27.  We
+can no longer build for Fedora 25 or earlier on COPR, so those
+platforms are not supported any longer.
+</p>
+</div>
+
+<ul class="org-ul"><li><a id="sec-1-2-1" name="sec-1-2-1"></a>Known problems and backward incompatibilities<br  /><div class="outline-text-4" id="text-1-2-1">
+<p>
+pbench-fio has had a bunch of fixes in this release but problems
+remain: see the <a href="https://github.com/distributed-system-analysis/pbench/issues">issues on Github</a> for an (extensive) list.
 </p>
 </div>
 </li>
 
 <li><a id="sec-1-2-2" name="sec-1-2-2"></a>Bug fixes and enhancements<br  /><div class="outline-text-4" id="text-1-2-2">
 <ul class="org-ul">
-<li>Running xz in multithread mode in <code>pbench-move/copy-results</code> is a
-definite win in most cases, but there was one case reported where it
-segfaulted; running it single-threaded took longer but succeeded. In
-order to allow this fallback, a new option was added to
-<code>pbench-move/copy-results</code>: <code>--xz-single-threaded</code>.
+<li>The pbench-fio RPM is now based on upstream fio 3.3.
+</li>
+<li>We are moving some default setting from the pbench-fio script
+to the config file, in order to make testing easier.
+</li>
+<li>The config file has been split into an environment-specific
+and a generic piece, very much like the split that was done
+on the server. This change should be invisible to the end-user,
+but if you encounter problems during installation/initial setup,
+please let us know asap.
 </li>
 </ul>
 </div>
@@ -285,34 +310,54 @@ order to allow this fallback, a new option was added to
 <div id="outline-container-sec-1-3" class="outline-3">
 <h3 id="sec-1-3">server</h3>
 <div class="outline-text-3" id="text-1-3">
-</div><ul class="org-ul"><li><a id="sec-1-3-1" name="sec-1-3-1"></a>Known problems and backward incompatibilities<br  /><div class="outline-text-4" id="text-1-3-1">
-<ul class="org-ul">
-<li>pbench-move-unpacked occasionally leaves a dangling symlink in the
-results/ URL for reasons that we do not quite understand yet. If you
-notice missing results, this is probably the reason. These failures
-were captured in the error log, but not sent as errors in the mail
-sent to the mailing list, so the failures were somewhat hidden. We
-have been monitoring the error log regularly however and fixing such
-failures in fairly short order.
-</li>
-</ul>
+<p>
+The indexing script now indexes fio, uperf and moongen results,
+including the time series data. It also has undergone some fixes
+to deal with different hostname conventions (public vs private
+names). It currently indexes iostat and prometheus-metrics data.
+</p>
+
+<p>
+For the next release (scheduled for the end of February), we hope to
+finish the sar indexing work.  The rest of the tool results will
+follow.
+</p>
+
+<p>
+The inotify implementation is proceeding but did not make it
+for this release. We had a couple of false starts, but we now
+think that we have a reasonable implementation and a good chance
+that it will land in time for the next release.
+</p>
+</div>
+
+<ul class="org-ul"><li><a id="sec-1-3-1" name="sec-1-3-1"></a>Known problems and backward incompatibilities<br  /><div class="outline-text-4" id="text-1-3-1">
+<p>
+None known
+</p>
 </div>
 </li>
 
 <li><a id="sec-1-3-2" name="sec-1-3-2"></a>Bug fixes and enhancements<br  /><div class="outline-text-4" id="text-1-3-2">
 <ul class="org-ul">
-<li>Made the above failure in pbench-move-unpacked visible in the email
-sent to the mailing list, with additional debugging information to
-help us diagnose the error once and for alland fix it (we hope in v0.48).
+<li>The long-standing pbench-move-unpacked problem (in some cases,
+the incoming directory existed and the script failed to get all
+the required links right) has been fixed.
+</li>
+
+<li>In the process of fixing the above, a bug was introduced that caused
+a spurious link to be added to the directory of a run: the link pointed
+to the directory itself with confusing results. This has been fixed
+as well.
 </li>
 </ul>
 </div>
 </li></ul>
 </div>
 
-<div id="outline-container-web-server-0.47" class="outline-3">
-<h3 id="web-server-0.47"><a id="sec-1-4" name="sec-1-4"></a>web-server</h3>
-<div class="outline-text-3" id="text-web-server-0.47">
+<div id="outline-container-web-server-0.48" class="outline-3">
+<h3 id="web-server-0.48"><a id="sec-1-4" name="sec-1-4"></a>web-server</h3>
+<div class="outline-text-3" id="text-web-server-0.48">
 
 <p>
 There are no changes to the package (except for the version bump).
@@ -327,7 +372,7 @@ dnf update pbench-web-server
 </pre>
 <p>
 (or the yum equivalents.)  The current version available from COPR
-is 0.47-1g2cfe130.
+is 0.48-1g87190ca.
 </p>
 </div>
 </div>
@@ -337,82 +382,148 @@ is 0.47-1g2cfe130.
 <div class="outline-text-3" id="text-1-5">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
-since v0.46:
+since v0.47:
 </p>
 
 <ul class="org-ul">
-<li>2cfe130 Bump the version to v0.47
+<li>172bbcbb index-pbench: Add unit tests
 </li>
-<li>4d821fd pbench-metadata-log: fix the unittests.
+<li>f7fe1884 index-pbench: hostname impedance matching with tools
 </li>
-<li>787e6af pbench-metadata-log: do not muck around with hostnames
+<li>e2e4c9f1 index-pbench: add results mapping and convert ts values to float
 </li>
-<li>6ea0782 pbench-move-unpacked: fix error handling
+<li>e9e9d6c7 pbench-move-unpacked: do not create spurious links
 </li>
-<li>e323768 Add show-server option in pbench-move-results usage
+<li>b6660834 pbench-fio: put defaults in config file
 </li>
-<li>6a7766a Avoid printing logs to stdout to avoid tar ball corruption
+<li>edf3d4dd Bump fio version to 3.3
 </li>
-<li>404fb64 Fix collect-sysinfo to treat "all" and "default" options differently
+<li>2c46514a pbench-agent-config-activate: allow more than one config file
 </li>
-<li>6873097 Clean up readme
+<li>73f278df (pbench-dashboard)  Fix app title
 </li>
-<li>1d1c320 Refactor containerized pbench
+<li>6e62ee39 (pbench-dashboard)  Group result network calls into promises and execute once, cancel request when switching page
 </li>
-<li>4616a19 pbench-fio: fix pre-iteration-script and targets option handling.
+<li>c71d44a5 (pbench-dashboard)  Routing fixes
 </li>
-<li>feeaa0f Fix lockstat tool
+<li>3bf52e17 (pbench-dashboard)  Update pushed routes with /dashboard prefix and use CancelTokens for aborting axios requests on page changes
 </li>
-<li>30019c5 Extend optional sysinfo collection to all the benchmarks
+<li>94e08aa1 (pbench-dashboard)  Remove unused routes and update with /dashboard prefix
 </li>
-<li>8baed64 pbench agent scripts: fix using of -p with scp command
+<li>3b4644ac (pbench-dashboard)  Only define title and url of app
 </li>
-<li>bcce0d4 Log the things pbench-collect-sysinfo is collecting
+<li>fbe663c7 (pbench-dashboard)  Remove irrelevant component mount calls and definitions
 </li>
-<li>312ceee Warn instead of failing with a non-zero exit code
+<li>638e3df9 (pbench-dashboard)  Remove unused script tags
 </li>
-<li>1ad33c9 pbench-move-results: add &#x2013;show-server option
+<li>c39038cc (pbench-dashboard)  Remove irrelevant script tags
 </li>
-<li>b8da534 refactor code to reduce duplication
+<li>3c10ad8a (pbench-dashboard)  Remove unused component definitions and page definitions
 </li>
-<li>1729971 rectify the broken: sort by size
+<li>d12493c7 (pbench-dashboard)  Fix pointers to dependencies existing on server
 </li>
-<li>e284100 rectify the misnamed 'list' variables
+<li>a75a1e90 (pbench-dashboard)  Entry point for iteration summary
 </li>
-<li>69176b9 Add older ansible version &lt; 2.4 support to pbench-ansible
+<li>dc080dbc (pbench-dashboard)  HTML parser dependencies
 </li>
-<li>a44b038 Example config file: add tool-specific interval
+<li>6ed21ec0 (pbench-dashboard)  Adjust routing for iteration summary view
 </li>
-<li>46c6a6f util-scripts unittests: clean up
+<li>b7aa48df (pbench-dashboard)  Fix routing to jscharts
 </li>
-<li>a8f24ad pbench-register-tool-set: flexible specification of tool collection intervals
+<li>b8edc657 (pbench-dashboard)  Iteration Summary component definition
 </li>
-<li>32a3005 pbench-move-unpacked: work around job pool hang
+<li>b78f15be (pbench-dashboard)  Routing for iteration summaries
 </li>
-<li>05d834a pbench-server-activate: relax hostname check
+<li>c473b659 (pbench-dashboard)  Fix column bug and improve parsing efficiency
+</li>
+<li>b589b9ad (pbench-dashboard)  Remove unneeded dependencies
+</li>
+<li>9468b6f3 (pbench-dashboard)  Parser for natively rendering iteration table data
+</li>
+<li>d470edc9 (pbench-dashboard)  Delete d3 dependencies
+</li>
+<li>e1d046b8 (pbench-dashboard)  Bug fix for navigating to result after searching
+</li>
+<li>f54fe204 (pbench-dashboard)  Initial commit
+</li>
+<li>215eef90 (pbench-dashboard)  Initial commit
+</li>
+<li>38ad7c48 (pbench-dashboard)  Initial commit
+</li>
+<li>57ee91fa Convert to float only if the list or dict is not empty
+</li>
+<li>76d39b5c pbench-collect-sysinfo: collect security mitigation data
+</li>
+<li>812d4e0b Ignore go_memstats_last_gc_time_seconds metric during postprocess
+</li>
+<li>d9ea08a0 Use the built-in variable fixed in recent ansible version
+</li>
+<li>5c9825cd Fix unit tests.
+</li>
+<li>51c2ea22 Avoid "Use of uninitialized value" errors.
+</li>
+<li>6379aa61 BenchPostProcess: calculate aggregate metrics better.
+</li>
+<li>fa86780e Add Ceph RBD block storage doc section
+</li>
+<li>71d3d55a pbench-move-unpacked: fix bug.
+</li>
+<li>273cfd4a update fio unit tests due to hostname modification
+</li>
+<li>85c12e84 fio-postprocess: treat fio jobs as separate clients
+</li>
+<li>b6085f2f pbench-move-unpacked: initialize $prefix.
+</li>
+<li>98faeb98 pbench-collect-sysinfo: Fix usage string
+</li>
+<li>09bf3fc3 pbench-server-activate*: do not exit on failures.
+</li>
+<li>89c70d9f pbench-move-unpacked: fix long-standing bug
+</li>
+<li>c29283f5 show user default from variable not hardcoded
+</li>
+<li>7cce9cde fix gold output files to match online help for added parameter
+</li>
+<li>e0cf0153 add param histogram-interval-msec, default 10 sec not 60
+</li>
+<li>2c403cbd fix gold output files to match new jobflie format
+</li>
+<li>f29ad234 move non-workload params to global section
 </li>
 </ul>
 </div>
 </div>
 </div>
 
+
+
 <div id="outline-container-sec-2" class="outline-2">
-<h2 id="sec-2">Version 0.46</h2>
+<h2 id="sec-2">Version 0.47</h2>
 <div class="outline-text-2" id="text-2">
 </div><div id="outline-container-sec-2-1" class="outline-3">
 <h3 id="sec-2-1">Installation</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
 There are no installation changes in this release: see the
-<a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
 </p>
 
 <p>
-After installation or update, you should have version 0.46-1g6327ec7
+<a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
+</p>
+
+
+
+<p>
+After installation or update, you should have version 0.47-1g2cfe130
+</p>
+
+<p>
 of the pbench-agent RPM installed.
 </p>
 </div>
 </div>
+
+
 
 <div id="outline-container-sec-2-2" class="outline-3">
 <h3 id="sec-2-2">agent</h3>
@@ -424,123 +535,477 @@ The pprof tools is undergoing some renovation right now: see issue #675
 </div>
 </li>
 
+
+
 <li><a id="sec-2-2-2" name="sec-2-2-2"></a>Bug fixes and enhancements<br  /><div class="outline-text-4" id="text-2-2-2">
 <ul class="org-ul">
 <li>Running xz in multithread mode in <code>pbench-move/copy-results</code> is a
+
+<p>
 definite win in most cases, but there was one case reported where it
+</p>
+
+<p>
 segfaulted; running it single-threaded took longer but succeeded. In
+</p>
+
+<p>
 order to allow this fallback, a new option was added to
+</p>
+
+<p>
 <code>pbench-move/copy-results</code>: <code>--xz-single-threaded</code>.
+</p>
 </li>
 </ul>
 </div>
 </li></ul>
 </div>
 
+
+
 <div id="outline-container-sec-2-3" class="outline-3">
 <h3 id="sec-2-3">server</h3>
 <div class="outline-text-3" id="text-2-3">
 </div><ul class="org-ul"><li><a id="sec-2-3-1" name="sec-2-3-1"></a>Known problems and backward incompatibilities<br  /><div class="outline-text-4" id="text-2-3-1">
+<ul class="org-ul">
+<li>pbench-move-unpacked occasionally leaves a dangling symlink in the
+
 <p>
-The script that copies the contents of each tarball to the distributed
-file system uses a job queue implementation to do multiple copies in
-parallel. Occasionally, the job queue system gets stuck and it needs a
-kick. Fortunately, this is not user-visible, as long as the local
-storage can accommodate the backlog. We are hoping to resolve this
-problem in v0.47.
+results/ URL for reasons that we do not quite understand yet. If you
 </p>
+
+<p>
+notice missing results, this is probably the reason. These failures
+</p>
+
+<p>
+were captured in the error log, but not sent as errors in the mail
+</p>
+
+<p>
+sent to the mailing list, so the failures were somewhat hidden. We
+</p>
+
+<p>
+have been monitoring the error log regularly however and fixing such
+</p>
+
+<p>
+failures in fairly short order.
+</p>
+</li>
+</ul>
 </div>
 </li>
 
+
+
 <li><a id="sec-2-3-2" name="sec-2-3-2"></a>Bug fixes and enhancements<br  /><div class="outline-text-4" id="text-2-3-2">
+<ul class="org-ul">
+<li>Made the above failure in pbench-move-unpacked visible in the email
+
 <p>
-Most of the changes in this release are to fix some problems in the
-handling of satellite servers. There were fairly massive changes
-implemented in v0.45, but inevitably there were problems (and there
-probably are more).
+sent to the mailing list, with additional debugging information to
 </p>
 
 <p>
-Almost all of the scripts are running from cron at a 1-minute
-interval. In most cases, the script is able to finish all the work
-during that one minute. There are two exceptions: moving the tarball
-contents from local storage to a DFS backend can take a long time
-potentially, but that latency is hidden from the user; data collected
-at a satellite server and synced to a master server are deleted once
-an hour.
+help us diagnose the error once and for alland fix it (we hope in v0.48).
 </p>
-
-<p>
-These updates have been pushed to the production server and the
-satellite servers. If you see problems, please open an issue.
-</p>
+</li>
+</ul>
 </div>
 </li></ul>
 </div>
 
-<div id="outline-container-web-server-0.46" class="outline-3">
-<h3 id="web-server-0.46"><a id="sec-2-4" name="sec-2-4"></a>web-server</h3>
-<div class="outline-text-3" id="text-web-server-0.46">
+
+
+<div id="outline-container-web-server-0.47" class="outline-3">
+<h3 id="web-server-0.47"><a id="sec-2-4" name="sec-2-4"></a>web-server</h3>
+<div class="outline-text-3" id="text-web-server-0.47">
+
+
 
 <p>
 There are no changes to the package (except for the version bump).
 </p>
 
+
+
 <p>
 If you do decide to update, the instructions are standard:
 </p>
+
 <pre class="example">
 dnf clean expire-cache
+
 dnf update pbench-web-server
 </pre>
+
 <p>
 (or the yum equivalents.)  The current version available from COPR
-is 0.46-1g6327ec7.
+</p>
+
+<p>
+is 0.47-1g2cfe130.
 </p>
 </div>
 </div>
+
+
 
 <div id="outline-container-sec-2-5" class="outline-3">
 <h3 id="sec-2-5">Changelog</h3>
 <div class="outline-text-3" id="text-2-5">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
+</p>
+
+<p>
+since v0.46:
+</p>
+
+
+
+<ul class="org-ul">
+<li>2cfe130 Bump the version to v0.47
+</li>
+
+<li>4d821fd pbench-metadata-log: fix the unittests.
+</li>
+
+<li>787e6af pbench-metadata-log: do not muck around with hostnames
+</li>
+
+<li>6ea0782 pbench-move-unpacked: fix error handling
+</li>
+
+<li>e323768 Add show-server option in pbench-move-results usage
+</li>
+
+<li>6a7766a Avoid printing logs to stdout to avoid tar ball corruption
+</li>
+
+<li>404fb64 Fix collect-sysinfo to treat "all" and "default" options differently
+</li>
+
+<li>6873097 Clean up readme
+</li>
+
+<li>1d1c320 Refactor containerized pbench
+</li>
+
+<li>4616a19 pbench-fio: fix pre-iteration-script and targets option handling.
+</li>
+
+<li>feeaa0f Fix lockstat tool
+</li>
+
+<li>30019c5 Extend optional sysinfo collection to all the benchmarks
+</li>
+
+<li>8baed64 pbench agent scripts: fix using of -p with scp command
+</li>
+
+<li>bcce0d4 Log the things pbench-collect-sysinfo is collecting
+</li>
+
+<li>312ceee Warn instead of failing with a non-zero exit code
+</li>
+
+<li>1ad33c9 pbench-move-results: add &#x2013;show-server option
+</li>
+
+<li>b8da534 refactor code to reduce duplication
+</li>
+
+<li>1729971 rectify the broken: sort by size
+</li>
+
+<li>e284100 rectify the misnamed 'list' variables
+</li>
+
+<li>69176b9 Add older ansible version &lt; 2.4 support to pbench-ansible
+</li>
+
+<li>a44b038 Example config file: add tool-specific interval
+</li>
+
+<li>46c6a6f util-scripts unittests: clean up
+</li>
+
+<li>a8f24ad pbench-register-tool-set: flexible specification of tool collection intervals
+</li>
+
+<li>32a3005 pbench-move-unpacked: work around job pool hang
+</li>
+
+<li>05d834a pbench-server-activate: relax hostname check
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">Version 0.46</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1">Installation</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+There are no installation changes in this release: see the
+</p>
+
+<p>
+<a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
+</p>
+
+
+
+<p>
+After installation or update, you should have version 0.46-1g6327ec7
+</p>
+
+<p>
+of the pbench-agent RPM installed.
+</p>
+</div>
+</div>
+
+
+
+<div id="outline-container-sec-3-2" class="outline-3">
+<h3 id="sec-3-2">agent</h3>
+<div class="outline-text-3" id="text-3-2">
+</div><ul class="org-ul"><li><a id="sec-3-2-1" name="sec-3-2-1"></a>Known problems and backward incompatibilities<br  /><div class="outline-text-4" id="text-3-2-1">
+<p>
+The pprof tools is undergoing some renovation right now: see issue #675
+</p>
+</div>
+</li>
+
+
+
+<li><a id="sec-3-2-2" name="sec-3-2-2"></a>Bug fixes and enhancements<br  /><div class="outline-text-4" id="text-3-2-2">
+<ul class="org-ul">
+<li>Running xz in multithread mode in <code>pbench-move/copy-results</code> is a
+
+<p>
+definite win in most cases, but there was one case reported where it
+</p>
+
+<p>
+segfaulted; running it single-threaded took longer but succeeded. In
+</p>
+
+<p>
+order to allow this fallback, a new option was added to
+</p>
+
+<p>
+<code>pbench-move/copy-results</code>: <code>--xz-single-threaded</code>.
+</p>
+</li>
+</ul>
+</div>
+</li></ul>
+</div>
+
+
+
+<div id="outline-container-sec-3-3" class="outline-3">
+<h3 id="sec-3-3">server</h3>
+<div class="outline-text-3" id="text-3-3">
+</div><ul class="org-ul"><li><a id="sec-3-3-1" name="sec-3-3-1"></a>Known problems and backward incompatibilities<br  /><div class="outline-text-4" id="text-3-3-1">
+<p>
+The script that copies the contents of each tarball to the distributed
+</p>
+
+<p>
+file system uses a job queue implementation to do multiple copies in
+</p>
+
+<p>
+parallel. Occasionally, the job queue system gets stuck and it needs a
+</p>
+
+<p>
+kick. Fortunately, this is not user-visible, as long as the local
+</p>
+
+<p>
+storage can accommodate the backlog. We are hoping to resolve this
+</p>
+
+<p>
+problem in v0.47.
+</p>
+</div>
+</li>
+
+
+
+<li><a id="sec-3-3-2" name="sec-3-3-2"></a>Bug fixes and enhancements<br  /><div class="outline-text-4" id="text-3-3-2">
+<p>
+Most of the changes in this release are to fix some problems in the
+</p>
+
+<p>
+handling of satellite servers. There were fairly massive changes
+</p>
+
+<p>
+implemented in v0.45, but inevitably there were problems (and there
+</p>
+
+<p>
+probably are more).
+</p>
+
+
+
+<p>
+Almost all of the scripts are running from cron at a 1-minute
+</p>
+
+<p>
+interval. In most cases, the script is able to finish all the work
+</p>
+
+<p>
+during that one minute. There are two exceptions: moving the tarball
+</p>
+
+<p>
+contents from local storage to a DFS backend can take a long time
+</p>
+
+<p>
+potentially, but that latency is hidden from the user; data collected
+</p>
+
+<p>
+at a satellite server and synced to a master server are deleted once
+</p>
+
+<p>
+an hour.
+</p>
+
+
+
+<p>
+These updates have been pushed to the production server and the
+</p>
+
+<p>
+satellite servers. If you see problems, please open an issue.
+</p>
+</div>
+</li></ul>
+</div>
+
+
+
+<div id="outline-container-web-server-0.46" class="outline-3">
+<h3 id="web-server-0.46"><a id="sec-3-4" name="sec-3-4"></a>web-server</h3>
+<div class="outline-text-3" id="text-web-server-0.46">
+
+
+
+<p>
+There are no changes to the package (except for the version bump).
+</p>
+
+
+
+<p>
+If you do decide to update, the instructions are standard:
+</p>
+
+<pre class="example">
+dnf clean expire-cache
+
+dnf update pbench-web-server
+</pre>
+
+<p>
+(or the yum equivalents.)  The current version available from COPR
+</p>
+
+<p>
+is 0.46-1g6327ec7.
+</p>
+</div>
+</div>
+
+
+
+<div id="outline-container-sec-3-5" class="outline-3">
+<h3 id="sec-3-5">Changelog</h3>
+<div class="outline-text-3" id="text-3-5">
+<p>
+This is the list of visible (non-merge, non-unit-test-related) commits
+</p>
+
+<p>
 since v0.45:
 </p>
+
+
 
 <ul class="org-ul">
 <li>90ed6e2 Version bump
 </li>
+
 <li>ce9dab4 pbench server: fix race with prefix file.
 </li>
+
 <li>47e2051 pbench-sync-satellite: fix the file list for md5 checking
 </li>
+
 <li>665fbd0 pbench-server: fix two bugs and a typo.
 </li>
+
 <li>3d53059 pbench-unpack-tarballs: fix conflicting file names.
 </li>
+
 <li>7d03d86 Fix thinko and unit test.
 </li>
+
 <li>192d269 pbench-sync-satellite: do not send non-errors to error log
 </li>
+
 <li>96b1d66 Refactor  prometheus-metrics tool to be more generic
 </li>
+
 <li>0a1c63c Update the script for different error checks as well as rectify the undefined variables
 </li>
+
 <li>4b1073e pbench-move-results: Add &#x2013;xz-single-threaded option
 </li>
+
 <li>0876b5b pbench-server-activate-create-results-dir-structure: Avoid chown -R
 </li>
+
 <li>5f6c4e3 Fix ansible 2.4 compatability issues
 </li>
+
 <li>8dec7fc Rectify different syntax errors
 </li>
+
 <li>643311a Update the pbench-satellite-cleanup script to not create empty logdir on every run
 </li>
+
 <li>05ef05b Update the mail_content destination path
 </li>
+
 <li>761163b Check for oc client instead of openshift rpm's
 </li>
+
 <li>5ea4772 Removing check_install_rpm atomic-openshift-clients, just checking for oc.
 </li>
 </ul>
@@ -548,121 +1013,277 @@ since v0.45:
 </div>
 </div>
 
-<div id="outline-container-sec-3" class="outline-2">
-<h2 id="sec-3">Version 0.45</h2>
-<div class="outline-text-2" id="text-3">
-</div><div id="outline-container-sec-3-1" class="outline-3">
-<h3 id="sec-3-1">Installation</h3>
-<div class="outline-text-3" id="text-3-1">
+
+
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4">Version 0.45</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1">Installation</h3>
+<div class="outline-text-3" id="text-4-1">
 <p>
 There are no installation changes in this release: see the
-<a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
 </p>
 
 <p>
+<a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
+</p>
+
+
+
+<p>
 After installation or update, you should have version 0.45-1g8874a17
+</p>
+
+<p>
 of the pbench-agent RPM installed.
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-3-2" class="outline-3">
-<h3 id="sec-3-2">agent</h3>
-<div class="outline-text-3" id="text-3-2">
-</div><ul class="org-ul"><li><a id="sec-3-2-1" name="sec-3-2-1"></a>Known problems and backward incompatibilities<br  /><div class="outline-text-4" id="text-3-2-1">
+
+
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2">agent</h3>
+<div class="outline-text-3" id="text-4-2">
+</div><ul class="org-ul"><li><a id="sec-4-2-1" name="sec-4-2-1"></a>Known problems and backward incompatibilities<br  /><div class="outline-text-4" id="text-4-2-1">
 <p>
 Some of these were in v0.44 - they are repeated here for convenience.
 </p>
 
+
+
 <ul class="org-ul">
 <li><code>pbench-user-benchmark</code> will now produce a warning about a
+
+<p>
 non-existent JSON result file (see v0.44 release notes). We have a
+</p>
+
+<p>
 work item to fix this in v0.46.
+</p>
 </li>
+</ul>
 
+
+
+<ul class="org-ul">
 <li><code>pbench-fio</code> issues multiple warnings after postprocessing the
+
+<p>
 latency log files. We thought that this was caused by the last two
+</p>
+
+<p>
 lines in two of these files having the same timestamp, but there may
+</p>
+
+<p>
 be duplicate timestamps in other places as well. This is
+</p>
+
+<p>
 probably a fio bug.
+</p>
 </li>
+</ul>
 
+
+
+<ul class="org-ul">
 <li>(not fixed in v0.44) The Python Pandas package goes by different
-names on RHEL and Fedora.  The current code uses "python-pandas"
-which works for RHEL, but not for Fedora.  The workaround for Fedora
-is to actually change the <code>pbench-fio</code> script to install
-"python2-pandas". This has been fixed in v0.45.
-</li>
 
+<p>
+names on RHEL and Fedora.  The current code uses "python-pandas"
+</p>
+
+<p>
+which works for RHEL, but not for Fedora.  The workaround for Fedora
+</p>
+
+<p>
+is to actually change the <code>pbench-fio</code> script to install
+</p>
+
+<p>
+"python2-pandas". This has been fixed in v0.45.
+</p>
+</li>
+</ul>
+
+
+
+<ul class="org-ul">
 <li>Two new dependencies have been added to <code>pbench-agent</code>: <code>perl-JSON</code>
+
+<p>
 and <code>perl-Switch</code>. These are used to produce JSON files for the
+</p>
+
+<p>
 results of benchmarks (currently, <code>pbench-uperf</code>, <code>pbench-moongen</code>
+</p>
+
+<p>
 and <code>pbench-fio</code> produce such JSON files). <code>perl-JSON</code> is available
+</p>
+
+<p>
 from the standard RHEL and Fedora repos, but <code>perl-Switch</code> is only
+</p>
+
+<p>
 available from the standard Fedora repos; on RHEL, you will need to
+</p>
+
+<p>
 add the RHEL "optional packages" repo. This can be done by copying
+</p>
+</li>
+</ul>
+
+
 
 <p>
 <a href="https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo">https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo</a>
 </p>
 
+
+
 <p>
 to <code>/etc/yum.repos.d</code>.
 </p>
-</li>
-</ul>
 </div>
 </li>
 
-<li><a id="sec-3-2-2" name="sec-3-2-2"></a>Bug fixes and enhancements<br  /><div class="outline-text-4" id="text-3-2-2">
+
+
+<li><a id="sec-4-2-2" name="sec-4-2-2"></a>Bug fixes and enhancements<br  /><div class="outline-text-4" id="text-4-2-2">
 <ul class="org-ul">
 <li>Some benchmark scripts now take an additional option:
+
+<p>
 &#x2013;sysinfo=&lt;val&gt; where &lt;val&gt; can be "default", "all", "none", or a
+</p>
+
+<p>
 comma-separated list of words from the following list:
+</p>
+
+<p>
 kernel_config, block, libvirt, sos, block, topology, ara.  The &lt;val&gt;
+</p>
+
+<p>
 is passed through to pbench-collect-sysinfo, to allow the the user
+</p>
+
+<p>
 to tailor what kind of system information will be collected (if
+</p>
+
+<p>
 any). E.g.
+</p>
+</li>
+</ul>
+
+
 
 <p>
 pbench-fio &#x2013;sysinfo=none &lt;other args&gt;
 </p>
 
+
+
 <p>
 will not collect <b>any</b> system information.
 </p>
 
+
+
 <p>
 pbench-user-benchmark, pbench-fio, pbench-uperf and pbench-moongen
+</p>
+
+<p>
 have been modified to accept the new option. We did not get to the
+</p>
+
+<p>
 rest of the benchmarks in v0.45, but if you need a benchmark
+</p>
+
+<p>
 modified along these lines asap, please open an issue and mark it
+</p>
+
+<p>
 "v0.46".
 </p>
 
+
+
 <p>
 Unfortunately, there was a bug that caused the script to <b>not</b>
+</p>
+
+<p>
 collect any sosreport (and most other) data in the default
+</p>
+
+<p>
 configuration. This has been fixed in v0.45.
 </p>
-</li>
 
+
+
+<ul class="org-ul">
 <li>The prometheus tool now accepts some additional options: a port
+
+<p>
 number can be specified instead of the default, as well as
+</p>
+
+<p>
 non-default certs. It also sets GOPATH properly. Note that the
+</p>
+
+<p>
 prom2json tool that is used underneath the covers has undergone
+</p>
+
+<p>
 some changes that broke functionality. Fixes were submitted upstream
+</p>
+
+<p>
 and have been merged, so things work properly now.
+</p>
+</li>
+</ul>
+
+
 
 <p>
 Various bugs have been addressed in v0.45 and the tool has
+</p>
+
+<p>
 seen some enhancements.
 </p>
-</li>
 
+
+
+<ul class="org-ul">
 <li>The openvswitch tool has undergone many fixes and enhancements.
 </li>
+</ul>
 
+
+
+<ul class="org-ul">
 <li>A bug in the pbench-user-tool script has been fixed.
 </li>
 </ul>
@@ -670,162 +1291,268 @@ seen some enhancements.
 </li></ul>
 </div>
 
-<div id="outline-container-sec-3-3" class="outline-3">
-<h3 id="sec-3-3">server</h3>
-<div class="outline-text-3" id="text-3-3">
+
+
+<div id="outline-container-sec-4-3" class="outline-3">
+<h3 id="sec-4-3">server</h3>
+<div class="outline-text-3" id="text-4-3">
 <p>
 The server code underwent fairly radical changes:
 </p>
 
+
+
 <ul class="org-ul">
 <li>There is a new dispatch script that handles incoming tarballs, checks
+
+<p>
 MD5s and dispatches to the appropriate set of scripts (depending
+</p>
+
+<p>
 on the server).
+</p>
 </li>
+
 <li>Tarballs are unpacked locally and are <b>not</b> copied to the distributed
+
+<p>
 file system backend synchronously. Instead, the data can be viewed from
+</p>
+
+<p>
 this temporary location. This should alleviate the latency problem that
+</p>
+
+<p>
 we have been suffering from.
+</p>
 </li>
+
 <li>A new script copies the unpacked data to the backend asynchronously
+
+<p>
 and then patches up the links to allow data viewing from the "permanent"
+</p>
+
+<p>
 location.
+</p>
 </li>
+
 <li>The satellite-server-to-production-server sync mechanism has been
+
+<p>
 revamped to allow much more frequent syncing. Unfortunately, there
+</p>
+
+<p>
 are some problems that we hope to resolve imminently.
+</p>
 </li>
 </ul>
 
+
+
 <p>
 The new server bits have been deployed on the production server. They are
+</p>
+
+<p>
 going to be deployed on the satellite servers in the next day or two.
 </p>
 </div>
 </div>
 
+
+
 <div id="outline-container-web-server-0.45" class="outline-3">
-<h3 id="web-server-0.45"><a id="sec-3-4" name="sec-3-4"></a>web-server</h3>
+<h3 id="web-server-0.45"><a id="sec-4-4" name="sec-4-4"></a>web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.45">
+
+
 
 <p>
 A fix to speed up loading of pidstat data was added to jschart.js
+</p>
+
+<p>
 (issue #608 describes the problem in detail).
 </p>
+
+
 
 <p>
 If you do decide to update, the instructions are standard:
 </p>
+
 <pre class="example">
 dnf clean expire-cache
+
 dnf update pbench-web-server
 </pre>
+
 <p>
 (or the yum equivalents.)  The current version available from COPR
+</p>
+
+<p>
 is 0.45-1g8874a17.
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-3-5" class="outline-3">
-<h3 id="sec-3-5">Changelog</h3>
-<div class="outline-text-3" id="text-3-5">
+
+
+<div id="outline-container-sec-4-5" class="outline-3">
+<h3 id="sec-4-5">Changelog</h3>
+<div class="outline-text-3" id="text-4-5">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
+</p>
+
+<p>
 since v0.44:
 </p>
+
+
 
 <ul class="org-ul">
 <li>febcbec v0.45: version bump
 </li>
+
 <li>51bd53c Clean up server
 </li>
+
 <li>99df806 Use xz with multi-threaded support when copying/moving results.
 </li>
+
 <li>887f2ab Update the config file to have pandas package name for RHEL and fedora
 </li>
+
 <li>d2a60dd pbench-user-tool: pass SIGTERM to the tool for graceful handling
 </li>
+
 <li>095e404 Add dispatch script
 </li>
+
 <li>23bc56a Hide latency of copying unpacked tarballs
 </li>
+
 <li>3ffd96a Update the script to unpack tarballs and create symlinks for them
 </li>
+
 <li>fa21b13 Add support for creating job pools
 </li>
+
 <li>511ccc5 openvswitch-portprocess: tweak line processing
 </li>
+
 <li>5118b7f Update the script to have the ability to install python-pandas on different distros.
 </li>
+
 <li>bf2f4c7 Add a python script to change the state directory
 </li>
+
 <li>50e87bf Add new cleanup bash script to remove tar, md5 and prefix
 </li>
+
 <li>08562bf Add new state directories
 </li>
+
 <li>3ad44e2 Add new sync script instead of rsync
 </li>
+
 <li>54bba60 Add sync-package-tarballs script
 </li>
+
 <li>91102fe openvswitch-[datalog|postprocess]: handle OpenFlow13 protocol better
 </li>
+
 <li>526d02c openvswitch-postprocess: bug fix
 </li>
+
 <li>3b81384 pbench-collect-sysinfo: if no sysinfo is specified, assume default.
 </li>
+
 <li>3e303af Pass sysinfo opts as comma separated values
 </li>
+
 <li>dc0ee55 openvswitch-datalog: capture holistic view of ovsdb contents
 </li>
+
 <li>eb2f206 openvswitch: updates to include PMD and flow stats
 </li>
+
 <li>dedd6f8 openvswitch-postprocess: fix detection of pmd threads Also check for existence of pmd thread ID before referencing
 </li>
+
 <li>2f892cf prometheus-tool: Refactor postprocess to support visualizations
 </li>
+
 <li>7ab549a prometheus-tool: Fix script to copy inv even from ansible controller
 </li>
+
 <li>0164879 prometheus-tool: Rename result files to include port to avoid conflicts
 </li>
+
 <li>69c4413 prometheus-tool: Add docs about monitoring multiple endpoints
 </li>
+
 <li>150c732 prometheus-tool: copy inventory to master,pbench-controller nodes
 </li>
+
 <li>05c8bef uperf-postprocess: force port_labels to be strings
 </li>
+
 <li>3c4eaf0 Add ansible playbook for using pbench
 </li>
+
 <li>e1ba029 Register prometheus-metrics on just one master
 </li>
+
 <li>9df7de0 jschart.js: add URL parameter overrides
 </li>
+
 <li>c85da71 pbench-index: Fix exception handling
 </li>
+
 <li>4736bbb pbench-index: Add results indexing
 </li>
+
 <li>37ddbb6 pbench-index: Prelim version of prometheus and results indexer
 </li>
+
 <li>59b9a60 pbench-user-benchmark: Log the message with level info instead of warning
 </li>
+
 <li>5e322d6 prometheus-tool: Use different certs, port for each endpoint
 </li>
+
 <li>52f90bb Fix script to register perf on remotes
 </li>
+
 <li>4d1c95e Register perf tool on all the nodes
 </li>
+
 <li>6a1c153 openvswitch-postprocess: add EMC/Megaflow hit statistics
 </li>
+
 <li>efceef0 Another fix for openvswitch postprocess
 </li>
+
 <li>b8c3aa8 openvswitch: fix regex for port maaapings
 </li>
+
 <li>b8f301c openvswitch: more minor fixes, renaming series
 </li>
+
 <li>9db6942 openvswitch: update tool for many enhancements
 </li>
+
 <li>c22b773 Revert "fio: convert to json for metric data"
 </li>
+
 <li>31b6432 fio: convert to json for metric data
 </li>
 </ul>
@@ -833,226 +1560,444 @@ since v0.44:
 </div>
 </div>
 
-<div id="outline-container-sec-4" class="outline-2">
-<h2 id="sec-4">Version 0.44</h2>
-<div class="outline-text-2" id="text-4">
-</div><div id="outline-container-sec-4-1" class="outline-3">
-<h3 id="sec-4-1">Installation</h3>
-<div class="outline-text-3" id="text-4-1">
+
+
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5">Version 0.44</h2>
+<div class="outline-text-2" id="text-5">
+</div><div id="outline-container-sec-5-1" class="outline-3">
+<h3 id="sec-5-1">Installation</h3>
+<div class="outline-text-3" id="text-5-1">
 <p>
 There are no installation changes in this release: see the
-<a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
 </p>
 
 <p>
+<a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
+</p>
+
+
+
+<p>
 After installation or update, you should have version 0.44-1gf694c2f
+</p>
+
+<p>
 of the pbench-agent RPM installed.
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-4-2" class="outline-3">
-<h3 id="sec-4-2">agent</h3>
-<div class="outline-text-3" id="text-4-2">
-</div><ul class="org-ul"><li><a id="sec-4-2-1" name="sec-4-2-1"></a>Known problems and backward incompatibilities<br  /><div class="outline-text-4" id="text-4-2-1">
+
+
+<div id="outline-container-sec-5-2" class="outline-3">
+<h3 id="sec-5-2">agent</h3>
+<div class="outline-text-3" id="text-5-2">
+</div><ul class="org-ul"><li><a id="sec-5-2-1" name="sec-5-2-1"></a>Known problems and backward incompatibilities<br  /><div class="outline-text-4" id="text-5-2-1">
 <p>
 These are identical to v0.43 and are repeated here for convenience:
 </p>
 
+
+
 <ul class="org-ul">
 <li><code>pbench-user-benchmark</code> will now produce a warning about a non-existent
+
+<p>
 JSON result file (see below).
+</p>
 </li>
+</ul>
 
+
+
+<ul class="org-ul">
 <li><code>pbench-fio</code> issues two warnings after postprocessing the latency log
+
+<p>
 files.  This is caused by the last two lines in two of these files
+</p>
+
+<p>
 having the same timestamp. This is probably a fio bug.
+</p>
 </li>
+</ul>
 
+
+
+<ul class="org-ul">
 <li>(not fixed in v0.44) The Python Pandas package goes by different
-names on RHEL and Fedora.  The current code uses "python-pandas"
-which works for RHEL, but not for Fedora.  The workaround for Fedora
-is to actually change the <code>pbench-fio</code> script to install
-"python2-pandas". We have a work item to fix this for v0.45.
-</li>
 
+<p>
+names on RHEL and Fedora.  The current code uses "python-pandas"
+</p>
+
+<p>
+which works for RHEL, but not for Fedora.  The workaround for Fedora
+</p>
+
+<p>
+is to actually change the <code>pbench-fio</code> script to install
+</p>
+
+<p>
+"python2-pandas". We have a work item to fix this for v0.45.
+</p>
+</li>
+</ul>
+
+
+
+<ul class="org-ul">
 <li>Two new dependencies have been added to <code>pbench-agent</code>: <code>perl-JSON</code>
+
+<p>
 and <code>perl-Switch</code>. These are used to produce JSON files for the
+</p>
+
+<p>
 results of benchmarks (currently, <code>pbench-uperf</code>, <code>pbench-moongen</code>
+</p>
+
+<p>
 and <code>pbench-fio</code> produce such JSON files). <code>perl-JSON</code> is available
+</p>
+
+<p>
 from the standard RHEL and Fedora repos, but <code>perl-Switch</code> is only
+</p>
+
+<p>
 available from the standard Fedora repos; on RHEL, you will need to
+</p>
+
+<p>
 add the RHEL "optional packages" repo. This can be done by copying
+</p>
+</li>
+</ul>
+
+
 
 <p>
 <a href="https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo">https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo</a>
 </p>
 
+
+
 <p>
 to <code>/etc/yum.repos.d</code>.
 </p>
-</li>
-</ul>
 </div>
 </li>
 
-<li><a id="sec-4-2-2" name="sec-4-2-2"></a>Bug fixes and enhancements<br  /><div class="outline-text-4" id="text-4-2-2">
+
+
+<li><a id="sec-5-2-2" name="sec-5-2-2"></a>Bug fixes and enhancements<br  /><div class="outline-text-4" id="text-5-2-2">
 <ul class="org-ul">
 <li>(v0.43) pbench-user-benchmark also produces a rudimentary JSON result
-file (it only includes a duration for the run), but there are
-provisions to allow the user benchmark to produce a JSON file
-which pbench-user-benchmark will upload for indexing.
-</li>
 
+<p>
+file (it only includes a duration for the run), but there are
+</p>
+
+<p>
+provisions to allow the user benchmark to produce a JSON file
+</p>
+
+<p>
+which pbench-user-benchmark will upload for indexing.
+</p>
+</li>
+</ul>
+
+
+
+<ul class="org-ul">
 <li>(v0.43 with updates) Some benchmark scripts now take an additional
+
+<p>
 option: &#x2013;sysinfo=&lt;val&gt; where &lt;val&gt; can be "default", "all", "none",
+</p>
+
+<p>
 or a comma-separated list of words from the following list:
+</p>
+
+<p>
 kernel_config, block, libvirt, sos, block, topology, ara.  The &lt;val&gt;
+</p>
+
+<p>
 is passed through to pbench-collect-sysinfo, to allow the the user
+</p>
+
+<p>
 to tailor what kind of system information will be collected (if
+</p>
+
+<p>
 any). E.g.
+</p>
+</li>
+</ul>
+
+
 
 <p>
 pbench-fio &#x2013;sysinfo=none &lt;other args&gt;
 </p>
 
+
+
 <p>
 will not collect <b>any</b> system information.
 </p>
 
+
+
 <p>
 pbench-user-benchmark, pbench-fio, pbench-uperf and pbench-moongen
+</p>
+
+<p>
 have been modified to accept the new option. We may (or may not)
+</p>
+
+<p>
 get to the rest of the benchmarks in v0.45, but if you need a
+</p>
+
+<p>
 benchmark modified along these lines asap, please open an issue
+</p>
+
+<p>
 and mark it "v0.45".
 </p>
-</li>
 
+
+
+<ul class="org-ul">
 <li>The prometheus tool now accepts some additional options: a port
+
+<p>
 number can be specified instead of the default, as well as
+</p>
+
+<p>
 non-default certs. It also sets GOPATH properly. Note that the
+</p>
+
+<p>
 prom2json tool that is used underneath the covers has undergone
+</p>
+
+<p>
 some changes that broke functionality. Fixes were submitted upstream
-and have been merged, so things work properly now.   
+</p>
+
+<p>
+and have been merged, so things work properly now.
+</p>
+</li>
+</ul>
+
+
 
 <p>
 See upstream issues:
 </p>
 
+
+
 <p>
 <a href="https://github.com/prometheus/prom2json/issues/18">https://github.com/prometheus/prom2json/issues/18</a>,
+</p>
+
+<p>
 <a href="https://github.com/prometheus/prom2json/issues/20">https://github.com/prometheus/prom2json/issues/20</a>
 </p>
+
+
 
 <p>
 and associated PR:
 </p>
 
+
+
 <p>
 <a href="https://github.com/prometheus/prom2json/pull/22">https://github.com/prometheus/prom2json/pull/22</a>
 </p>
 
+
+
 <p>
 If you find any problems, please open an issue, but as far as
+</p>
+
+<p>
 we know, there should not be any.
 </p>
-</li>
 
+
+
+<ul class="org-ul">
 <li>Various tools added to the default configuration for openshift.
 </li>
+</ul>
 
+
+
+<ul class="org-ul">
 <li>A bug in BenchPostprocess::get_uid has been fixed: it was fixed
+
+<p>
 previously, but the fix got lost somehow. It is now fixed again,
+</p>
+
+<p>
 hopefully for good.
+</p>
 </li>
 </ul>
 </div>
 </li></ul>
 </div>
 
-<div id="outline-container-sec-4-3" class="outline-3">
-<h3 id="sec-4-3">server</h3>
-<div class="outline-text-3" id="text-4-3">
+
+
+<div id="outline-container-sec-5-3" class="outline-3">
+<h3 id="sec-5-3">server</h3>
+<div class="outline-text-3" id="text-5-3">
 <p>
 There is a minor change in the server to make a mail message report
+</p>
+
+<p>
 more accurately. This will be deployed opportunistically.
 </p>
 </div>
 </div>
 
+
+
 <div id="outline-container-web-server-0.44" class="outline-3">
-<h3 id="web-server-0.44"><a id="sec-4-4" name="sec-4-4"></a>web-server</h3>
+<h3 id="web-server-0.44"><a id="sec-5-4" name="sec-5-4"></a>web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.44">
+
 <p>
 There is a new RPM that should be identical to the two previous
+</p>
+
+<p>
 versions. The dependencies are now handled correctly, so it should
+</p>
+
+<p>
 be safe to update to v0.44 if you want.
 </p>
+
+
 
 <p>
 If you do decide to update, the instructions are standard:
 </p>
+
 <pre class="example">
 dnf clean expire-cache
+
 dnf update pbench-web-server
 </pre>
+
 <p>
 (or the yum equivalents.)  The current version available from COPR
+</p>
+
+<p>
 is 0.44-1gf694c2f.
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-4-5" class="outline-3">
-<h3 id="sec-4-5">Changelog</h3>
-<div class="outline-text-3" id="text-4-5">
+
+
+<div id="outline-container-sec-5-5" class="outline-3">
+<h3 id="sec-5-5">Changelog</h3>
+<div class="outline-text-3" id="text-5-5">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
+</p>
+
+<p>
 since v0.43:
 </p>
+
+
 
 <ul class="org-ul">
 <li>f694c2f Version bump
 </li>
+
 <li>54fba8a pidstat-postprocess: nuke commas from commands.
 </li>
+
 <li>4010360 Modify installation steps of prom2json
 </li>
+
 <li>24f2b9c Fix a subsitution bug in BenchPostprocess::get_uid
 </li>
+
 <li>aacd800 Update the subject and body message of ssh failure mail
 </li>
+
 <li>6303e80 Fixes the way GOPATH is set
 </li>
+
 <li>3b084b1 Parameterize certs and port for prometheus-metrics
 </li>
+
 <li>ceafcf0 Register tools on OpenShift infra, cns nodes
 </li>
+
 <li>4a8928a Fix script to write all the metrics
 </li>
+
 <li>a9b066a move, clear results only when set in vars
 </li>
+
 <li>9c4e24d Register prometheus-metrics tool on openshift
 </li>
+
 <li>481b636 Register disk tool on the OpenShift cluster
 </li>
+
 <li>2834781 Register haproxy-ocp tool on masters
 </li>
+
 <li>89476b8 Add unit tests for pbench-fio bench-script
 </li>
+
 <li>c46a8e7 Add support to fio to collect the info requested
 </li>
+
 <li>9f96951 Add unit tests for uperf bench-script
 </li>
+
 <li>85173ec Add support to uperf to collect the info requested
 </li>
+
 <li>07a5045 Add unit tests
 </li>
+
 <li>6a9c902 Add support to moongen to collect the info requested
 </li>
+
 <li>3d0ff25 Do not assume that unit tests are sequentially numbered
 </li>
+
 <li>9842b5f Show labels of oc-nodes
 </li>
 </ul>
@@ -1060,371 +2005,354 @@ since v0.43:
 </div>
 </div>
 
-<div id="outline-container-sec-5" class="outline-2">
-<h2 id="sec-5">Version 0.43</h2>
-<div class="outline-text-2" id="text-5">
-</div><div id="outline-container-sec-5-1" class="outline-3">
-<h3 id="sec-5-1">Installation</h3>
-<div class="outline-text-3" id="text-5-1">
-<p>
-There are no installation changes in this release: see the
-<a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
-</p>
 
-<p>
-After installation or update, you should have version 0.43-1g87c4f83
-of the pbench-agent RPM installed.
-</p>
-</div>
-</div>
-
-<div id="outline-container-sec-5-2" class="outline-3">
-<h3 id="sec-5-2">agent</h3>
-<div class="outline-text-3" id="text-5-2">
-</div><ul class="org-ul"><li><a id="sec-5-2-1" name="sec-5-2-1"></a>Known problems and backward incompatibilities<br  /><div class="outline-text-4" id="text-5-2-1">
-<ul class="org-ul">
-<li><code>pbench-user-benchmark</code> will now produce a warning about a non-existent
-JSON result file (see below).
-</li>
-<li><code>pbench-fio</code> issues two warnings after postprocessing the latency log
-files.  This is caused by the last two lines in two of these files
-having the same timestamp. This is probably a fio bug.
-</li>
-<li>The Python Pandas package goes by different names on RHEL and
-Fedora.  The current code uses "python-pandas" which works for RHEL,
-but not for Fedora.  The workaround for Fedora is to actually change
-the <code>pbench-fio</code> script to install "python2-pandas". We have a work
-item to fix this for the next release.
-</li>
-<li>Two new dependencies have been added to <code>pbench-agent</code>: <code>perl-JSON</code>
-and <code>perl-Switch</code>. These are used to produce JSON files for the
-results of benchmarks (currently, <code>pbench-uperf</code>, <code>pbench-moongen</code>
-and <code>pbench-fio</code> produce such JSON files). <code>perl-JSON</code> is available
-from the standard RHEL and Fedora repos, but <code>perl-Switch</code> is only
-available from the standard Fedora repos; on RHEL, you will need to
-add the RHEL "optional packages" repo. This can be done by copying
-
-<p>
-<a href="https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo">https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo</a>
-</p>
-
-<p>
-to <code>/etc/yum.repos.d</code>.
-</p>
-</li>
-<li>Note that the output of the benchmarks that have been converted to
-produce JSON files is now stored in files named
-<code>result.{txt,csv,json,html}</code>. The information in these files should
-be the same as in the older <code>summary-result.{txt,csv,html}</code>, although
-the format may be different.
-</li>
-</ul>
-</div>
-</li>
-
-<li><a id="sec-5-2-2" name="sec-5-2-2"></a>Bug fixes and enhancements<br  /><div class="outline-text-4" id="text-5-2-2">
-<ul class="org-ul">
-<li>pbench-fio produces JSON results now, using the same libraries
-that were used in pbench-uperf and pbench-moongen.
-</li>
-
-<li>pbench-user-benchmark also produces a rudimentary JSON result
-file (it only includes a duration for the run), but there are
-provisions to allow the user benchmark to produce a JSON file
-which pbench-user-benchmark will upload for indexing.
-</li>
-
-<li>Benchmark directory names contain a time stamp, which previously
-contained colons. This caused difficulties with docker, so the
-timestamp format has been changed to contain only periods. Internal
-timestamps (e.g. in the metadata.log) are still in the original format
-using colons; there is no plan to change those.
-</li>
-
-<li>Some benchmark scripts now take an additional option: &#x2013;sysinfo=&lt;val&gt;
-where &lt;val&gt; can be "default", "all", "none", or a comma-separated
-list of words from the following list: kernel_config, block,
-libvirt, sos, block, topology, ara.  The &lt;val&gt; is passed through to
-pbench-collect-sysinfo, to allow the the user to tailor what kind of
-system information will be collected (if any). E.g.
-
-<p>
-pbench-fio &#x2013;sysinfo=none &lt;other args&gt;
-</p>
-
-<p>
-will not collect <b>any</b> system information.
-</p>
-
-<p>
-Although this was meant to be applied generally, currently only
-pbench-user-benchmark has been converted. There are outstanding
-PRs for pbench-fio, pbench-uperf and uperf-moongen to be modified
-the same way - they will be available in v0.44. The rest of the
-benchmark scripts will then follow (probably in v0.45, although
-depending on demand, we may convert some of them earlier).
-</p>
-</li>
-
-<li>A "disk" tool has been added: it runs "df" periodically, collects
-the results and post-processes them to render various graphs.
-</li>
-
-<li>There will be a number of documentation changes that will be
-rolled out in the next couple of weeks, out-of-band with the
-releases. Notification will be sent out about those changes
-as they happen.
-</li>
-</ul>
-</div>
-</li></ul>
-</div>
-
-<div id="outline-container-sec-5-3" class="outline-3">
-<h3 id="sec-5-3">server</h3>
-<div class="outline-text-3" id="text-5-3">
-<p>
-The script that syncs "satellite" pbench servers to a master server
-has been sped up to allow more frequent invocation from cron. However,
-the rsyncing itself and (particularly) the unpacking of the synced
-tarballs on the master server is still a bottleneck. We have a work
-item to improve that in v0.44.
-</p>
-
-<p>
-The indexing script continues to be enahnced: it now indexes iostat
-tool data, and more information has been added to the metadata:
-iterations and samples are now indexed. We are planning to deploy test
-versions of the indexer in the next month that will index results and
-more tool data (to the staging ES instance), then roll it into the
-production server in the v0.44 release.  It is likely however that
-we'll iterate a number of times on the indexer in the next few
-months.
-</p>
-</div>
-
-<ul class="org-ul"><li><a id="sec-5-3-1" name="sec-5-3-1"></a>Instructions<br  /><div class="outline-text-4" id="text-5-3-1">
-<p>
-TBD.
-</p>
-</div>
-</li></ul>
-</div>
-
-<div id="outline-container-web-server-0.43" class="outline-3">
-<h3 id="web-server-0.43"><a id="sec-5-4" name="sec-5-4"></a>web-server</h3>
-<div class="outline-text-3" id="text-web-server-0.43">
-<p>
-There are no updates to the web-server in this release, but there
-is a new RPM that should be identical (other than the version number)
-to the previous version. For now, we recommend that you do <b>not</b> update:
-the testing has been fairly superficial and somewhat inconclusive. We
-plan to work on this in the next week or two. We'll send out details
-when it's ready.
-</p>
-
-<p>
-If you do decide to update, the instructions are standard:
-</p>
-<pre class="example">
-dnf clean expire-cache
-dnf update pbench-web-server
-</pre>
-<p>
-(or the yum equivalents.)  The current version available from COPR
-is 0.43-1g87c4f83
-</p>
-</div>
-</div>
-
-<div id="outline-container-sec-5-5" class="outline-3">
-<h3 id="sec-5-5">Changelog</h3>
-<div class="outline-text-3" id="text-5-5">
-<p>
-This is the list of visible (non-merge, non-unit-test-related) commits
-since v0.42:
-</p>
-
-<ul class="org-ul">
-<li>87c4f83 Version bump: v0.43
-</li>
-<li>a0811d9 Fix unit tests.
-</li>
-<li>caf4a37 Fix fio-postprocess
-</li>
-<li>86213bf Fixes to pbench-fio.
-</li>
-<li>1c0a117 fio: convert to json for metric data
-</li>
-<li>29a365d generate-benchmark-summary: process iterations in numerical order
-</li>
-<li>7134e34 Fix unit tests for pbench-rsync-satellite.
-</li>
-<li>cbb782f Add cleanup script
-</li>
-<li>6595a23 Speed up the rsync script.
-</li>
-<li>bca3c94 Add containerized pbench for openshift
-</li>
-<li>1fc8e0c Add unit tests
-</li>
-<li>eca3b7b Add support to user-benchmark to emit a json file
-</li>
-<li>c9c21ad Add support to fetch kube config from master
-</li>
-<li>597a006 Unit test for index-pbench added
-</li>
-<li>7052f9e Handle exceptions more selectively
-</li>
-<li>4861e03 Modify index-pbench for pbench-user-benchmark
-</li>
-<li>b073599 pbench-rsync-satellite: add unit test
-</li>
-<li>533f55e pbench-rsync-satellite: bug fixes and unittest prep
-</li>
-<li>019031b Send mail only if a counter is nontrivial
-</li>
-<li>b03b8fb pbench-metadata-log: reduction of ssh invocations
-</li>
-<li>b0d6b8d Add flexible way to register tools on nodes
-</li>
-<li>7fd3b2a Fix df command to ignore openshift volumes, header
-</li>
-<li>c2f7da9 Change time format in suffix of run directory
-</li>
-<li>a66c892 Rename variable to avoid collision
-</li>
-<li>8207437 Fix syntax of the check
-</li>
-<li>e389968 Add disk tool to pbench
-</li>
-<li>042e3b5 Add mock for pbench-metadata-log unitests
-</li>
-<li>3771cbc Update all the benchmarks to call pbench-metadata-log directly
-</li>
-<li>6b37e67 Break out of loop in exception handler
-</li>
-<li>d20464f documentation for pbench-fio and pbench-uperf
-</li>
-<li>6fb57e5 Add support to collect-sysinfo to collect ara data
-</li>
-<li>cc9460b Rename openshift-metrics to prometheus-metrics
-</li>
-<li>334f93e Use 'exited' instead of 'failed' on success
-</li>
-<li>d96c01c Fix playbook to handle non-existant groups in inventory,labeling
-</li>
-<li>9645ccb Rework help and usage for user-benchmark
-</li>
-<li>bdf6f0c Rename the tar files to remove confusion, instead of, compress the tar ball
-</li>
-<li>8abd2e8 Use RPM to avoid issues with dashes in awk
-</li>
-<li>681a0ef Close using the proper file variable
-</li>
-<li>d915a3a Fix up dates to put them in standard format
-</li>
-<li>4620b28 Add support to pbench-collect-sysinfo to collect only the info requested
-</li>
-<li>39935b0 One version file to rule them all
-</li>
-<li>9a29587 Contrib VERSION
-</li>
-<li>f8c76ba Fix the timestamp format
-</li>
-<li>b4e1b55 Fix WONT-INDEX.xx range to reflect the errors that index-pbench returns
-</li>
-<li>80947ed Fix path of index-pbench, PYTHONPATH and config file path.
-</li>
-<li>9a5052e Final changes for automating server installation
-</li>
-<li>b7fd923 Do not try to yum install packages to provide semanage/restorecon
-</li>
-<li>ac6e5b7 correct timezone to UTC while os.stat'g tb fname
-</li>
-<li>3a270ca Index .csv tool data files
-</li>
-<li>1df7eff Decompose iteration names into components
-</li>
-<li>77783ae Change the date format in agent/base to satisfy ES needs
-</li>
-</ul>
-</div>
-</div>
-</div>
 
 <div id="outline-container-sec-6" class="outline-2">
-<h2 id="sec-6">Version 0.42</h2>
+<h2 id="sec-6">Version 0.43</h2>
 <div class="outline-text-2" id="text-6">
 </div><div id="outline-container-sec-6-1" class="outline-3">
 <h3 id="sec-6-1">Installation</h3>
 <div class="outline-text-3" id="text-6-1">
 <p>
-N.B. COPR has deleted the Fedora 23 chroot, so we can no longer
-produce Fedora 23 packages; Fedora 23 is no longer supported.
+There are no installation changes in this release: see the
 </p>
 
 <p>
-There are no installation changes in this release: see the
 <a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
 </p>
 
+
+
 <p>
-After installation or update, you should have version 0.42-1gcf7a941
+After installation or update, you should have version 0.43-1g87c4f83
+</p>
+
+<p>
 of the pbench-agent RPM installed.
 </p>
 </div>
 </div>
 
+
+
 <div id="outline-container-sec-6-2" class="outline-3">
 <h3 id="sec-6-2">agent</h3>
 <div class="outline-text-3" id="text-6-2">
-</div><ul class="org-ul"><li><a id="sec-6-2-1" name="sec-6-2-1"></a>Backward incompatibilities<br  /><div class="outline-text-4" id="text-6-2-1">
-<p>
-None known.
-</p>
-</div>
-</li>
-
-<li><a id="sec-6-2-2" name="sec-6-2-2"></a>Bug fixes and enhancements<br  /><div class="outline-text-4" id="text-6-2-2">
-<p>
-User-visible changes include:
-</p>
-
+</div><ul class="org-ul"><li><a id="sec-6-2-1" name="sec-6-2-1"></a>Known problems and backward incompatibilities<br  /><div class="outline-text-4" id="text-6-2-1">
 <ul class="org-ul">
-<li>HAProxy OCP plugin has been merged
+<li><code>pbench-user-benchmark</code> will now produce a warning about a non-existent
+
+<p>
+JSON result file (see below).
+</p>
 </li>
-<li>openshift-metrics tool has been merged
+
+<li><code>pbench-fio</code> issues two warnings after postprocessing the latency log
+
+<p>
+files.  This is caused by the last two lines in two of these files
+</p>
+
+<p>
+having the same timestamp. This is probably a fio bug.
+</p>
 </li>
-<li>pbench-clear-tools regained its &#x2013;remote option (it was lost some time ago).
+
+<li>The Python Pandas package goes by different names on RHEL and
+
+<p>
+Fedora.  The current code uses "python-pandas" which works for RHEL,
+</p>
+
+<p>
+but not for Fedora.  The workaround for Fedora is to actually change
+</p>
+
+<p>
+the <code>pbench-fio</code> script to install "python2-pandas". We have a work
+</p>
+
+<p>
+item to fix this for the next release.
+</p>
 </li>
-<li>pbench-uperf post-processing catches more errors and recovers much better
-than before.
+
+<li>Two new dependencies have been added to <code>pbench-agent</code>: <code>perl-JSON</code>
+
+<p>
+and <code>perl-Switch</code>. These are used to produce JSON files for the
+</p>
+
+<p>
+results of benchmarks (currently, <code>pbench-uperf</code>, <code>pbench-moongen</code>
+</p>
+
+<p>
+and <code>pbench-fio</code> produce such JSON files). <code>perl-JSON</code> is available
+</p>
+
+<p>
+from the standard RHEL and Fedora repos, but <code>perl-Switch</code> is only
+</p>
+
+<p>
+available from the standard Fedora repos; on RHEL, you will need to
+</p>
+
+<p>
+add the RHEL "optional packages" repo. This can be done by copying
+</p>
 </li>
 </ul>
 
+
+
 <p>
-One thing that did not make it is the JSON output for <code>pbench-fio</code>:
-there were some problems which we didn't have time to address in this
-cycle. It will be in v0.43.
+<a href="https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo">https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo</a>
 </p>
+
+
+
+<p>
+to <code>/etc/yum.repos.d</code>.
+</p>
+
+<ul class="org-ul">
+<li>Note that the output of the benchmarks that have been converted to
+
+<p>
+produce JSON files is now stored in files named
+</p>
+
+<p>
+<code>result.{txt,csv,json,html}</code>. The information in these files should
+</p>
+
+<p>
+be the same as in the older <code>summary-result.{txt,csv,html}</code>, although
+</p>
+
+<p>
+the format may be different.
+</p>
+</li>
+</ul>
+</div>
+</li>
+
+
+
+<li><a id="sec-6-2-2" name="sec-6-2-2"></a>Bug fixes and enhancements<br  /><div class="outline-text-4" id="text-6-2-2">
+<ul class="org-ul">
+<li>pbench-fio produces JSON results now, using the same libraries
+
+<p>
+that were used in pbench-uperf and pbench-moongen.
+</p>
+</li>
+</ul>
+
+
+
+<ul class="org-ul">
+<li>pbench-user-benchmark also produces a rudimentary JSON result
+
+<p>
+file (it only includes a duration for the run), but there are
+</p>
+
+<p>
+provisions to allow the user benchmark to produce a JSON file
+</p>
+
+<p>
+which pbench-user-benchmark will upload for indexing.
+</p>
+</li>
+</ul>
+
+
+
+<ul class="org-ul">
+<li>Benchmark directory names contain a time stamp, which previously
+
+<p>
+contained colons. This caused difficulties with docker, so the
+</p>
+
+<p>
+timestamp format has been changed to contain only periods. Internal
+</p>
+
+<p>
+timestamps (e.g. in the metadata.log) are still in the original format
+</p>
+
+<p>
+using colons; there is no plan to change those.
+</p>
+</li>
+</ul>
+
+
+
+<ul class="org-ul">
+<li>Some benchmark scripts now take an additional option: &#x2013;sysinfo=&lt;val&gt;
+
+<p>
+where &lt;val&gt; can be "default", "all", "none", or a comma-separated
+</p>
+
+<p>
+list of words from the following list: kernel_config, block,
+</p>
+
+<p>
+libvirt, sos, block, topology, ara.  The &lt;val&gt; is passed through to
+</p>
+
+<p>
+pbench-collect-sysinfo, to allow the the user to tailor what kind of
+</p>
+
+<p>
+system information will be collected (if any). E.g.
+</p>
+</li>
+</ul>
+
+
+
+<p>
+pbench-fio &#x2013;sysinfo=none &lt;other args&gt;
+</p>
+
+
+
+<p>
+will not collect <b>any</b> system information.
+</p>
+
+
+
+<p>
+Although this was meant to be applied generally, currently only
+</p>
+
+<p>
+pbench-user-benchmark has been converted. There are outstanding
+</p>
+
+<p>
+PRs for pbench-fio, pbench-uperf and uperf-moongen to be modified
+</p>
+
+<p>
+the same way - they will be available in v0.44. The rest of the
+</p>
+
+<p>
+benchmark scripts will then follow (probably in v0.45, although
+</p>
+
+<p>
+depending on demand, we may convert some of them earlier).
+</p>
+
+
+
+<ul class="org-ul">
+<li>A "disk" tool has been added: it runs "df" periodically, collects
+
+<p>
+the results and post-processes them to render various graphs.
+</p>
+</li>
+</ul>
+
+
+
+<ul class="org-ul">
+<li>There will be a number of documentation changes that will be
+
+<p>
+rolled out in the next couple of weeks, out-of-band with the
+</p>
+
+<p>
+releases. Notification will be sent out about those changes
+</p>
+
+<p>
+as they happen.
+</p>
+</li>
+</ul>
 </div>
 </li></ul>
 </div>
+
+
 
 <div id="outline-container-sec-6-3" class="outline-3">
 <h3 id="sec-6-3">server</h3>
 <div class="outline-text-3" id="text-6-3">
 <p>
-Indexing work has been proceeding on a branch. It has not been merged onto the master
-branch yet and is not part of this release. The plan is to merge it after the release and
-deploy it with the next release.
+The script that syncs "satellite" pbench servers to a master server
 </p>
 
 <p>
-The server has seen fixes for installing into different environments.
+has been sped up to allow more frequent invocation from cron. However,
+</p>
+
+<p>
+the rsyncing itself and (particularly) the unpacking of the synced
+</p>
+
+<p>
+tarballs on the master server is still a bottleneck. We have a work
+</p>
+
+<p>
+item to improve that in v0.44.
+</p>
+
+
+
+<p>
+The indexing script continues to be enahnced: it now indexes iostat
+</p>
+
+<p>
+tool data, and more information has been added to the metadata:
+</p>
+
+<p>
+iterations and samples are now indexed. We are planning to deploy test
+</p>
+
+<p>
+versions of the indexer in the next month that will index results and
+</p>
+
+<p>
+more tool data (to the staging ES instance), then roll it into the
+</p>
+
+<p>
+production server in the v0.44 release.  It is likely however that
+</p>
+
+<p>
+we'll iterate a number of times on the indexer in the next few
+</p>
+
+<p>
+months.
 </p>
 </div>
+
+
 
 <ul class="org-ul"><li><a id="sec-6-3-1" name="sec-6-3-1"></a>Instructions<br  /><div class="outline-text-4" id="text-6-3-1">
 <p>
@@ -1434,121 +2362,270 @@ TBD.
 </li></ul>
 </div>
 
-<div id="outline-container-web-server-0.42" class="outline-3">
-<h3 id="web-server-0.42"><a id="sec-6-4" name="sec-6-4"></a>web-server</h3>
-<div class="outline-text-3" id="text-web-server-0.42">
+
+
+<div id="outline-container-web-server-0.43" class="outline-3">
+<h3 id="web-server-0.43"><a id="sec-6-4" name="sec-6-4"></a>web-server</h3>
+<div class="outline-text-3" id="text-web-server-0.43">
+
 <p>
-The pbench-web-server RPM has been updated with scatterplot support
-and a number of fixes.
+There are no updates to the web-server in this release, but there
 </p>
 
 <p>
-If you have it installed, you will want to update:
+is a new RPM that should be identical (other than the version number)
 </p>
+
+<p>
+to the previous version. For now, we recommend that you do <b>not</b> update:
+</p>
+
+<p>
+the testing has been fairly superficial and somewhat inconclusive. We
+</p>
+
+<p>
+plan to work on this in the next week or two. We'll send out details
+</p>
+
+<p>
+when it's ready.
+</p>
+
+
+
+<p>
+If you do decide to update, the instructions are standard:
+</p>
+
 <pre class="example">
 dnf clean expire-cache
+
 dnf update pbench-web-server
 </pre>
+
 <p>
 (or the yum equivalents.)  The current version available from COPR
-is 0.42-1gcf7a941.
+</p>
+
+<p>
+is 0.43-1g87c4f83
 </p>
 </div>
 </div>
+
+
 
 <div id="outline-container-sec-6-5" class="outline-3">
 <h3 id="sec-6-5">Changelog</h3>
 <div class="outline-text-3" id="text-6-5">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
-since v0.41:
 </p>
 
+<p>
+since v0.42:
+</p>
+
+
+
 <ul class="org-ul">
-<li>00d4fe0 Fix command to parse openshift inv
+<li>87c4f83 Version bump: v0.43
 </li>
-<li>e9c6634 White space fixes - also fixed some typos
+
+<li>a0811d9 Fix unit tests.
 </li>
-<li>fc479c4 pbench-metadata-log changes to record iterations
+
+<li>caf4a37 Fix fio-postprocess
 </li>
-<li>1d3508a All pbench benchmark scripts record their iterations
+
+<li>86213bf Fixes to pbench-fio.
 </li>
-<li>78a3b6b Pbench agent base script: do not recalculate $date
+
+<li>1c0a117 fio: convert to json for metric data
 </li>
-<li>c07a010 Check whether selinuxenabled exists before calling it
+
+<li>29a365d generate-benchmark-summary: process iterations in numerical order
 </li>
-<li>eadc311 Add remote option to pbench-clear-tools
+
+<li>7134e34 Fix unit tests for pbench-rsync-satellite.
 </li>
-<li>fab942f Added test fix too
+
+<li>cbb782f Add cleanup script
 </li>
-<li>0e13532 Fix typo
+
+<li>6595a23 Speed up the rsync script.
 </li>
-<li>15a8bd1 playbook to register pbench-tools on openshift cluster
+
+<li>bca3c94 Add containerized pbench for openshift
 </li>
-<li>ced507a Fixes distributed-system-analysis/pbench#479
+
+<li>1fc8e0c Add unit tests
 </li>
-<li>d24406d Specify the sorting columns explicitly
+
+<li>eca3b7b Add support to user-benchmark to emit a json file
 </li>
-<li>8151b84 Fix invocation of index-pbench
+
+<li>c9c21ad Add support to fetch kube config from master
 </li>
-<li>b38b247 openshift-metrics tool for pbench
+
+<li>597a006 Unit test for index-pbench added
 </li>
-<li>cf950a8 Check ssh status in pbench-rsync-satellite
+
+<li>7052f9e Handle exceptions more selectively
 </li>
-<li>0f545e3 generate-benchmark-summary: skip over missing result.json iterations
+
+<li>4861e03 Modify index-pbench for pbench-user-benchmark
 </li>
-<li>c851d60 pbench-uperf: allow any process-iteration-samples failure to re-try
+
+<li>b073599 pbench-rsync-satellite: add unit test
 </li>
-<li>ab0cb7b Fix unit tests
+
+<li>533f55e pbench-rsync-satellite: bug fixes and unittest prep
 </li>
-<li>45a571e Decorate the mail sent by server scripts with environment information
+
+<li>019031b Send mail only if a counter is nontrivial
 </li>
-<li>d120260 Update to pbench-uperf &#x2013;help
+
+<li>b03b8fb pbench-metadata-log: reduction of ssh invocations
 </li>
-<li>29b2929 Fill gaps in server installation
+
+<li>b0d6b8d Add flexible way to register tools on nodes
 </li>
-<li>fee78ab Add scatterplot support to jschart
+
+<li>7fd3b2a Fix df command to ignore openshift volumes, header
 </li>
-<li>6600716 Correct invalid jschart API calls
+
+<li>c2f7da9 Change time format in suffix of run directory
 </li>
-<li>683c0d1 Fix date format for seconds since epoch
+
+<li>a66c892 Rename variable to avoid collision
 </li>
-<li>b58ff7b BenchPostprocess.pm: fix div by zero and other small clean-ups
+
+<li>8207437 Fix syntax of the check
 </li>
-<li>eebd592 Added haproxy-ocp unittests.
+
+<li>e389968 Add disk tool to pbench
 </li>
-<li>ff46508 Set thresholds on graphs with 0 values.
+
+<li>042e3b5 Add mock for pbench-metadata-log unitests
 </li>
-<li>702aa8f Collect HAProxy's version and default settings.  Set thresholds on graphs with 0 values.
+
+<li>3771cbc Update all the benchmarks to call pbench-metadata-log directly
 </li>
-<li>c16d833 - Split logs directory to config/logs. &#x2026;
+
+<li>6b37e67 Break out of loop in exception handler
 </li>
-<li>d103e31 Replacing BASH_SOURCE variable.  Assuming plugins will not be 'sourced' by other scripts.
+
+<li>d20464f documentation for pbench-fio and pbench-uperf
 </li>
-<li>cda6444 Adding HAProxy OCP plugin.
+
+<li>6fb57e5 Add support to collect-sysinfo to collect ara data
+</li>
+
+<li>cc9460b Rename openshift-metrics to prometheus-metrics
+</li>
+
+<li>334f93e Use 'exited' instead of 'failed' on success
+</li>
+
+<li>d96c01c Fix playbook to handle non-existant groups in inventory,labeling
+</li>
+
+<li>9645ccb Rework help and usage for user-benchmark
+</li>
+
+<li>bdf6f0c Rename the tar files to remove confusion, instead of, compress the tar ball
+</li>
+
+<li>8abd2e8 Use RPM to avoid issues with dashes in awk
+</li>
+
+<li>681a0ef Close using the proper file variable
+</li>
+
+<li>d915a3a Fix up dates to put them in standard format
+</li>
+
+<li>4620b28 Add support to pbench-collect-sysinfo to collect only the info requested
+</li>
+
+<li>39935b0 One version file to rule them all
+</li>
+
+<li>9a29587 Contrib VERSION
+</li>
+
+<li>f8c76ba Fix the timestamp format
+</li>
+
+<li>b4e1b55 Fix WONT-INDEX.xx range to reflect the errors that index-pbench returns
+</li>
+
+<li>80947ed Fix path of index-pbench, PYTHONPATH and config file path.
+</li>
+
+<li>9a5052e Final changes for automating server installation
+</li>
+
+<li>b7fd923 Do not try to yum install packages to provide semanage/restorecon
+</li>
+
+<li>ac6e5b7 correct timezone to UTC while os.stat'g tb fname
+</li>
+
+<li>3a270ca Index .csv tool data files
+</li>
+
+<li>1df7eff Decompose iteration names into components
+</li>
+
+<li>77783ae Change the date format in agent/base to satisfy ES needs
 </li>
 </ul>
 </div>
 </div>
 </div>
 
+
+
 <div id="outline-container-sec-7" class="outline-2">
-<h2 id="sec-7">Version 0.41</h2>
+<h2 id="sec-7">Version 0.42</h2>
 <div class="outline-text-2" id="text-7">
 </div><div id="outline-container-sec-7-1" class="outline-3">
 <h3 id="sec-7-1">Installation</h3>
 <div class="outline-text-3" id="text-7-1">
 <p>
-There are no installation changes in this release: see the
-<a href="../agent/installation.html">Installation Instructions</a> for how to install.
+N.B. COPR has deleted the Fedora 23 chroot, so we can no longer
 </p>
 
 <p>
-After installation or update, you should have version 0.40-1gf281562
+produce Fedora 23 packages; Fedora 23 is no longer supported.
+</p>
+
+
+
+<p>
+There are no installation changes in this release: see the
+</p>
+
+<p>
+<a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
+</p>
+
+
+
+<p>
+After installation or update, you should have version 0.42-1gcf7a941
+</p>
+
+<p>
 of the pbench-agent RPM installed.
 </p>
 </div>
 </div>
+
+
 
 <div id="outline-container-sec-7-2" class="outline-3">
 <h3 id="sec-7-2">agent</h3>
@@ -1560,194 +2637,262 @@ None known.
 </div>
 </li>
 
+
+
 <li><a id="sec-7-2-2" name="sec-7-2-2"></a>Bug fixes and enhancements<br  /><div class="outline-text-4" id="text-7-2-2">
 <p>
 User-visible changes include:
 </p>
-</div>
 
-<ul class="org-ul"><li><a id="sec-7-2-2-1" name="sec-7-2-2-1"></a>New pbench-mpt benchmark<br  /><div class="outline-text-5" id="text-7-2-2-1">
-<p>
-Thanks to Ottavio Piske for this addition which runs msg-perf-tool.
-</p>
-</div>
+
+
+<ul class="org-ul">
+<li>HAProxy OCP plugin has been merged
 </li>
 
-<li><a id="sec-7-2-2-2" name="sec-7-2-2-2"></a><code>pbench-fio</code><br  /><div class="outline-text-5" id="text-7-2-2-2">
-<p>
-Various fixes to the recently added latency histogram functionality.
-</p>
-</div>
+<li>openshift-metrics tool has been merged
 </li>
 
-<li><a id="sec-7-2-2-3" name="sec-7-2-2-3"></a>iostat graphs<br  /><div class="outline-text-5" id="text-7-2-2-3">
-<p>
-Improve the graph descriptions by adding units to them. This is
-probably just a stopgap first step: there are plans to make various
-graph characteristics specified easily and in some cases customizable
-by the user.
-</p>
-</div>
+<li>pbench-clear-tools regained its &#x2013;remote option (it was lost some time ago).
 </li>
 
-<li><a id="sec-7-2-2-4" name="sec-7-2-2-4"></a><code>pbench-moongen</code><br  /><div class="outline-text-5" id="text-7-2-2-4">
-<p>
-Add latency data plus various fixes.
-</p>
-</div>
-</li>
+<li>pbench-uperf post-processing catches more errors and recovers much better
 
-<li><a id="sec-7-2-2-5" name="sec-7-2-2-5"></a>Fixes to graph rendering<br  /><div class="outline-text-5" id="text-7-2-2-5">
 <p>
-See <a href="#web-server-0.41">web-server</a> below.
+than before.
+</p>
+</li>
+</ul>
+
+
+
+<p>
+One thing that did not make it is the JSON output for <code>pbench-fio</code>:
+</p>
+
+<p>
+there were some problems which we didn't have time to address in this
+</p>
+
+<p>
+cycle. It will be in v0.43.
 </p>
 </div>
 </li></ul>
-</li></ul>
 </div>
+
+
 
 <div id="outline-container-sec-7-3" class="outline-3">
 <h3 id="sec-7-3">server</h3>
 <div class="outline-text-3" id="text-7-3">
-<ul class="org-ul">
-<li>Various fixes to rsyncing from satellite servers.
-</li>
-</ul>
-</div>
-</div>
-
-<div id="outline-container-web-server-0.41" class="outline-3">
-<h3 id="web-server-0.41"><a id="sec-7-4" name="sec-7-4"></a>web-server</h3>
-<div class="outline-text-3" id="text-web-server-0.41">
 <p>
-The pbench-web-server RPM has been updated with many fixes, cleanups
-and optimizations: sort table datasets by value, dataset cursor value
-locking, add a "Misc. Controls" panel to the table.
+Indexing work has been proceeding on a branch. It has not been merged onto the master
 </p>
 
 <p>
-If you have it installed, you probably want to update:
+branch yet and is not part of this release. The plan is to merge it after the release and
 </p>
+
+<p>
+deploy it with the next release.
+</p>
+
+
+
+<p>
+The server has seen fixes for installing into different environments.
+</p>
+</div>
+
+
+
+<ul class="org-ul"><li><a id="sec-7-3-1" name="sec-7-3-1"></a>Instructions<br  /><div class="outline-text-4" id="text-7-3-1">
+<p>
+TBD.
+</p>
+</div>
+</li></ul>
+</div>
+
+
+
+<div id="outline-container-web-server-0.42" class="outline-3">
+<h3 id="web-server-0.42"><a id="sec-7-4" name="sec-7-4"></a>web-server</h3>
+<div class="outline-text-3" id="text-web-server-0.42">
+
+<p>
+The pbench-web-server RPM has been updated with scatterplot support
+</p>
+
+<p>
+and a number of fixes.
+</p>
+
+
+
+<p>
+If you have it installed, you will want to update:
+</p>
+
 <pre class="example">
 dnf clean expire-cache
+
 dnf update pbench-web-server
 </pre>
+
 <p>
 (or the yum equivalents.)  The current version available from COPR
-is 0.41-1g97296c4.
+</p>
+
+<p>
+is 0.42-1gcf7a941.
 </p>
 </div>
 </div>
+
+
 
 <div id="outline-container-sec-7-5" class="outline-3">
 <h3 id="sec-7-5">Changelog</h3>
 <div class="outline-text-3" id="text-7-5">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
-since v0.40:
 </p>
 
+<p>
+since v0.41:
+</p>
+
+
+
 <ul class="org-ul">
-<li>f780656 Fix a latency processing bug in moongen-postprocess
+<li>00d4fe0 Fix command to parse openshift inv
 </li>
-<li>8a9f445 Unit test gold files changes for PR#434
+
+<li>e9c6634 White space fixes - also fixed some typos
 </li>
-<li>bc787eb Fix benchmark postprocessing infloop
+
+<li>fc479c4 pbench-metadata-log changes to record iterations
 </li>
-<li>d8ef7ff Add a "Misc. Controls" panel to the jschart table
+
+<li>1d3508a All pbench benchmark scripts record their iterations
 </li>
-<li>eced272 Don't call fiologparser_hist.py twice
+
+<li>78a3b6b Pbench agent base script: do not recalculate $date
 </li>
-<li>49fafc2 Fix iostat unit tests.
+
+<li>c07a010 Check whether selinuxenabled exists before calling it
 </li>
-<li>aca5ffc Change the iostat keys to more accurately reflect the nature of the metrics
+
+<li>eadc311 Add remote option to pbench-clear-tools
 </li>
-<li>4580156 Fix iostat unit tests
+
+<li>fab942f Added test fix too
 </li>
-<li>eadcde1 Change the keys of the iostat hash to make them more descriptive
+
+<li>0e13532 Fix typo
 </li>
-<li>9672161 Collect the kernel config file
+
+<li>15a8bd1 playbook to register pbench-tools on openshift cluster
 </li>
-<li>f9bc55a use correct units for fio histogram-derived latency graph
+
+<li>ced507a Fixes distributed-system-analysis/pbench#479
 </li>
-<li>e1a6825 add 95th percentile to fio histogram-derived latency graph
+
+<li>d24406d Specify the sorting columns explicitly
 </li>
-<li>acfff77 Update jschart by adding dataset cursor value locking
+
+<li>8151b84 Fix invocation of index-pbench
 </li>
-<li>5426fab Update jschart to sort the table datasets by value
+
+<li>b38b247 openshift-metrics tool for pbench
 </li>
-<li>f902160 pass job file to fiologparser_hist.py
+
+<li>cf950a8 Check ssh status in pbench-rsync-satellite
 </li>
-<li>5068ed0 Fix short-form -n option
+
+<li>0f545e3 generate-benchmark-summary: skip over missing result.json iterations
 </li>
-<li>be6172f Only display the information about the location of the test results when actually running a test
+
+<li>c851d60 pbench-uperf: allow any process-iteration-samples failure to re-try
 </li>
-<li>2a80577 The script does not require any options for the install-only mode, therefore prevent checking the test options
+
+<li>ab0cb7b Fix unit tests
 </li>
-<li>b487f24 Changes the order on which the help options are presented to the user to match the order they are declared
+
+<li>45a571e Decorate the mail sent by server scripts with environment information
 </li>
-<li>a505370 Fixes handling of long options, which were missing in the previous versions of the script
+
+<li>d120260 Update to pbench-uperf &#x2013;help
 </li>
-<li>f207c4b Removes the logic to set the default throttle because it is already set earlier
+
+<li>29b2929 Fill gaps in server installation
 </li>
-<li>02d8ae7 Added support for 'install only' option, which can be used to install mpt dependencies on the test host
+
+<li>fee78ab Add scatterplot support to jschart
 </li>
-<li>27547a3 Added support for installing packages from Fedora COPR repositories (WIP)
+
+<li>6600716 Correct invalid jschart API calls
 </li>
-<li>076f496 Minor cleanups by removing unused code on pbench-mpt script
+
+<li>683c0d1 Fix date format for seconds since epoch
 </li>
-<li>1badc9e Added a simple runner script for msg-perf-tool.
+
+<li>b58ff7b BenchPostprocess.pm: fix div by zero and other small clean-ups
 </li>
-<li>35ee777 Fix incorrect addressing of 'webserver' variable that would prevent rendering host_info_url setting.
+
+<li>eebd592 Added haproxy-ocp unittests.
 </li>
-<li>dc14a7b Downgrade sysstat further to 11.2.0
+
+<li>ff46508 Set thresholds on graphs with 0 values.
 </li>
-<li>84878ca Downgrade pbench-sysstat req to 11.4.1
+
+<li>702aa8f Collect HAProxy's version and default settings.  Set thresholds on graphs with 0 values.
 </li>
-<li>d413085 Allow the user to tell pbench-moongen to accept negative packet loss
+
+<li>c16d833 - Split logs directory to config/logs. &#x2026;
 </li>
-<li>7bb0c24 Update pbench-moongen to use lua-trafficgen
+
+<li>d103e31 Replacing BASH_SOURCE variable.  Assuming plugins will not be 'sourced' by other scripts.
 </li>
-<li>47cca9c Parse new moongen output to find latency data
-</li>
-<li>5f898e3 Bump the required sysstat version to 11.5.1
-</li>
-<li>6ac5318 Event collection has to be for all namespaces
-</li>
-<li>3e03486 Typo
-</li>
-<li>dbefb1b Crontab entries for satellite handling
-</li>
-<li>e4d9fe9 Define all relevant variables in pbench-base.sh
-</li>
-<li>4b473f7 Improvements to status email
-</li>
-<li>d23a302 Clean up the status mail
-</li>
-<li>bbffa61 pbench-rsync-satellite: Fix tarball deletions and send status email
+
+<li>cda6444 Adding HAProxy OCP plugin.
 </li>
 </ul>
 </div>
 </div>
 </div>
 
+
+
 <div id="outline-container-sec-8" class="outline-2">
-<h2 id="sec-8">Version 0.40</h2>
+<h2 id="sec-8">Version 0.41</h2>
 <div class="outline-text-2" id="text-8">
 </div><div id="outline-container-sec-8-1" class="outline-3">
 <h3 id="sec-8-1">Installation</h3>
 <div class="outline-text-3" id="text-8-1">
 <p>
 There are no installation changes in this release: see the
-<a href="../agent/installation.html">Installation Instructions</a> for how to install.
 </p>
 
 <p>
+<a href="../agent/installation.html">Installation Instructions</a> for how to install.
+</p>
+
+
+
+<p>
 After installation or update, you should have version 0.40-1gf281562
+</p>
+
+<p>
 of the pbench-agent RPM installed.
 </p>
 </div>
 </div>
+
+
 
 <div id="outline-container-sec-8-2" class="outline-3">
 <h3 id="sec-8-2">agent</h3>
@@ -1759,82 +2904,474 @@ None known.
 </div>
 </li>
 
+
+
 <li><a id="sec-8-2-2" name="sec-8-2-2"></a>Bug fixes and enhancements<br  /><div class="outline-text-4" id="text-8-2-2">
 <p>
 User-visible changes include:
 </p>
 </div>
 
-<ul class="org-ul"><li><a id="sec-8-2-2-1" name="sec-8-2-2-1"></a><code>pbench-fio</code><br  /><div class="outline-text-5" id="text-8-2-2-1">
+
+
+<ul class="org-ul"><li><a id="sec-8-2-2-1" name="sec-8-2-2-1"></a>New pbench-mpt benchmark<br  /><div class="outline-text-5" id="text-8-2-2-1">
 <p>
-The pbench-fio script has undergone significant enhancements in order
-to take advantage of several facilities implemented in the upstream fio
-project. In particular, it gathers and reports latency histograms as
-implemented by Karl Cronburg.
+Thanks to Ottavio Piske for this addition which runs msg-perf-tool.
+</p>
+</div>
+</li>
+
+
+
+<li><a id="sec-8-2-2-2" name="sec-8-2-2-2"></a><code>pbench-fio</code><br  /><div class="outline-text-5" id="text-8-2-2-2">
+<p>
+Various fixes to the recently added latency histogram functionality.
+</p>
+</div>
+</li>
+
+
+
+<li><a id="sec-8-2-2-3" name="sec-8-2-2-3"></a>iostat graphs<br  /><div class="outline-text-5" id="text-8-2-2-3">
+<p>
+Improve the graph descriptions by adding units to them. This is
 </p>
 
 <p>
+probably just a stopgap first step: there are plans to make various
+</p>
+
+<p>
+graph characteristics specified easily and in some cases customizable
+</p>
+
+<p>
+by the user.
+</p>
+</div>
+</li>
+
+
+
+<li><a id="sec-8-2-2-4" name="sec-8-2-2-4"></a><code>pbench-moongen</code><br  /><div class="outline-text-5" id="text-8-2-2-4">
+<p>
+Add latency data plus various fixes.
+</p>
+</div>
+</li>
+
+
+
+<li><a id="sec-8-2-2-5" name="sec-8-2-2-5"></a>Fixes to graph rendering<br  /><div class="outline-text-5" id="text-8-2-2-5">
+<p>
+See <a href="#web-server-0.41">web-server</a> below.
+</p>
+</div>
+</li></ul>
+</li></ul>
+</div>
+
+
+
+<div id="outline-container-sec-8-3" class="outline-3">
+<h3 id="sec-8-3">server</h3>
+<div class="outline-text-3" id="text-8-3">
+<ul class="org-ul">
+<li>Various fixes to rsyncing from satellite servers.
+</li>
+</ul>
+</div>
+</div>
+
+
+
+<div id="outline-container-web-server-0.41" class="outline-3">
+<h3 id="web-server-0.41"><a id="sec-8-4" name="sec-8-4"></a>web-server</h3>
+<div class="outline-text-3" id="text-web-server-0.41">
+
+<p>
+The pbench-web-server RPM has been updated with many fixes, cleanups
+</p>
+
+<p>
+and optimizations: sort table datasets by value, dataset cursor value
+</p>
+
+<p>
+locking, add a "Misc. Controls" panel to the table.
+</p>
+
+
+
+<p>
+If you have it installed, you probably want to update:
+</p>
+
+<pre class="example">
+dnf clean expire-cache
+
+dnf update pbench-web-server
+</pre>
+
+<p>
+(or the yum equivalents.)  The current version available from COPR
+</p>
+
+<p>
+is 0.41-1g97296c4.
+</p>
+</div>
+</div>
+
+
+
+<div id="outline-container-sec-8-5" class="outline-3">
+<h3 id="sec-8-5">Changelog</h3>
+<div class="outline-text-3" id="text-8-5">
+<p>
+This is the list of visible (non-merge, non-unit-test-related) commits
+</p>
+
+<p>
+since v0.40:
+</p>
+
+
+
+<ul class="org-ul">
+<li>f780656 Fix a latency processing bug in moongen-postprocess
+</li>
+
+<li>8a9f445 Unit test gold files changes for PR#434
+</li>
+
+<li>bc787eb Fix benchmark postprocessing infloop
+</li>
+
+<li>d8ef7ff Add a "Misc. Controls" panel to the jschart table
+</li>
+
+<li>eced272 Don't call fiologparser_hist.py twice
+</li>
+
+<li>49fafc2 Fix iostat unit tests.
+</li>
+
+<li>aca5ffc Change the iostat keys to more accurately reflect the nature of the metrics
+</li>
+
+<li>4580156 Fix iostat unit tests
+</li>
+
+<li>eadcde1 Change the keys of the iostat hash to make them more descriptive
+</li>
+
+<li>9672161 Collect the kernel config file
+</li>
+
+<li>f9bc55a use correct units for fio histogram-derived latency graph
+</li>
+
+<li>e1a6825 add 95th percentile to fio histogram-derived latency graph
+</li>
+
+<li>acfff77 Update jschart by adding dataset cursor value locking
+</li>
+
+<li>5426fab Update jschart to sort the table datasets by value
+</li>
+
+<li>f902160 pass job file to fiologparser_hist.py
+</li>
+
+<li>5068ed0 Fix short-form -n option
+</li>
+
+<li>be6172f Only display the information about the location of the test results when actually running a test
+</li>
+
+<li>2a80577 The script does not require any options for the install-only mode, therefore prevent checking the test options
+</li>
+
+<li>b487f24 Changes the order on which the help options are presented to the user to match the order they are declared
+</li>
+
+<li>a505370 Fixes handling of long options, which were missing in the previous versions of the script
+</li>
+
+<li>f207c4b Removes the logic to set the default throttle because it is already set earlier
+</li>
+
+<li>02d8ae7 Added support for 'install only' option, which can be used to install mpt dependencies on the test host
+</li>
+
+<li>27547a3 Added support for installing packages from Fedora COPR repositories (WIP)
+</li>
+
+<li>076f496 Minor cleanups by removing unused code on pbench-mpt script
+</li>
+
+<li>1badc9e Added a simple runner script for msg-perf-tool.
+</li>
+
+<li>35ee777 Fix incorrect addressing of 'webserver' variable that would prevent rendering host_info_url setting.
+</li>
+
+<li>dc14a7b Downgrade sysstat further to 11.2.0
+</li>
+
+<li>84878ca Downgrade pbench-sysstat req to 11.4.1
+</li>
+
+<li>d413085 Allow the user to tell pbench-moongen to accept negative packet loss
+</li>
+
+<li>7bb0c24 Update pbench-moongen to use lua-trafficgen
+</li>
+
+<li>47cca9c Parse new moongen output to find latency data
+</li>
+
+<li>5f898e3 Bump the required sysstat version to 11.5.1
+</li>
+
+<li>6ac5318 Event collection has to be for all namespaces
+</li>
+
+<li>3e03486 Typo
+</li>
+
+<li>dbefb1b Crontab entries for satellite handling
+</li>
+
+<li>e4d9fe9 Define all relevant variables in pbench-base.sh
+</li>
+
+<li>4b473f7 Improvements to status email
+</li>
+
+<li>d23a302 Clean up the status mail
+</li>
+
+<li>bbffa61 pbench-rsync-satellite: Fix tarball deletions and send status email
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+
+<div id="outline-container-sec-9" class="outline-2">
+<h2 id="sec-9">Version 0.40</h2>
+<div class="outline-text-2" id="text-9">
+</div><div id="outline-container-sec-9-1" class="outline-3">
+<h3 id="sec-9-1">Installation</h3>
+<div class="outline-text-3" id="text-9-1">
+<p>
+There are no installation changes in this release: see the
+</p>
+
+<p>
+<a href="../agent/installation.html">Installation Instructions</a> for how to install.
+</p>
+
+
+
+<p>
+After installation or update, you should have version 0.40-1gf281562
+</p>
+
+<p>
+of the pbench-agent RPM installed.
+</p>
+</div>
+</div>
+
+
+
+<div id="outline-container-sec-9-2" class="outline-3">
+<h3 id="sec-9-2">agent</h3>
+<div class="outline-text-3" id="text-9-2">
+</div><ul class="org-ul"><li><a id="sec-9-2-1" name="sec-9-2-1"></a>Backward incompatibilities<br  /><div class="outline-text-4" id="text-9-2-1">
+<p>
+None known.
+</p>
+</div>
+</li>
+
+
+
+<li><a id="sec-9-2-2" name="sec-9-2-2"></a>Bug fixes and enhancements<br  /><div class="outline-text-4" id="text-9-2-2">
+<p>
+User-visible changes include:
+</p>
+</div>
+
+
+
+<ul class="org-ul"><li><a id="sec-9-2-2-1" name="sec-9-2-2-1"></a><code>pbench-fio</code><br  /><div class="outline-text-5" id="text-9-2-2-1">
+<p>
+The pbench-fio script has undergone significant enhancements in order
+</p>
+
+<p>
+to take advantage of several facilities implemented in the upstream fio
+</p>
+
+<p>
+project. In particular, it gathers and reports latency histograms as
+</p>
+
+<p>
+implemented by Karl Cronburg.
+</p>
+
+
+
+<p>
 <b>N.B.</b> The script that processes the logs to get the histograms uses the
+</p>
+
+<p>
 Python Pandas library. This script only runs on the controller, so the
+</p>
+
+<p>
 library has to be installed there. <code>pbench-fio</code> tries to install the library
+</p>
+
+<p>
 and it should succeed e.g. on Fedora systems. On RHEL systems however, the
+</p>
+
+<p>
 <code>python-pandas</code> library is available from EPEL, but not from the standard
+</p>
+
+<p>
 installation repos. You will therefore need to install the EPEL repo before
+</p>
+
+<p>
 running <code>pbench-fio</code> on your controller. Details on EPEL can be found <a href="https://fedoraproject.org/wiki/EPEL">here</a>.
 </p>
+
+
 
 <p>
 The process is as follows: on your RHEL7 controller (and similarly for RHEL6)
 </p>
+
 <pre class="example">
 cd /tmp
+
 curl --output ./epel-release-latest-7.noarch.rpm  https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
 yum install ./epel-release-latest-7.noarch.rpm
 </pre>
+
 <p>
 After that, the <code>pbench-fio</code> script should be able to find and install
+</p>
+
+<p>
 the <code>python-pandas</code> package.
 </p>
 
+
+
 <p>
 <b>N.B.</b> You need the 2.14-9 (or later) version of the pbench-fio RPM,
+</p>
+
+<p>
 which is available from the COPR pbench repo. This RPM is based on current
+</p>
+
+<p>
 upstream fio master. The <code>pbench-fio</code> script will check for and install
+</p>
+
+<p>
 this version, but please bear the dependency in mind if something goes
+</p>
+
+<p>
 wrong.
 </p>
 
+
+
 <p>
 You can now explicitly pass a fio job file to the script, instead of
-or in addition to specifying fio options on the command line. We generally
-recommend using the command line options for simple usage where that suffices,
-but if you need options that <code>pbench-fio</code> does not implement, then using
-a job file will be necessary.
 </p>
 
 <p>
+or in addition to specifying fio options on the command line. We generally
+</p>
+
+<p>
+recommend using the command line options for simple usage where that suffices,
+</p>
+
+<p>
+but if you need options that <code>pbench-fio</code> does not implement, then using
+</p>
+
+<p>
+a job file will be necessary.
+</p>
+
+
+
+<p>
 You can run fio on a set of clients either by using the &#x2013;clients=&#x2026; option
+</p>
+
+<p>
 to <code>pbench-fio</code>, explicitly listing the set of clients; or you can use the
+</p>
+
+<p>
 &#x2013;client-file=&#x2026; option to pass a file containing the list of clients, one
+</p>
+
+<p>
 client per line.
 </p>
 </div>
 </li>
 
-<li><a id="sec-8-2-2-2" name="sec-8-2-2-2"></a><code>pbench-moongen</code><br  /><div class="outline-text-5" id="text-8-2-2-2">
+
+
+<li><a id="sec-9-2-2-2" name="sec-9-2-2-2"></a><code>pbench-moongen</code><br  /><div class="outline-text-5" id="text-9-2-2-2">
 <p>
 New options.
 </p>
 </div>
 </li>
 
-<li><a id="sec-8-2-2-3" name="sec-8-2-2-3"></a>pbench-user-benchmark<br  /><div class="outline-text-5" id="text-8-2-2-3">
+
+
+<li><a id="sec-9-2-2-3" name="sec-9-2-2-3"></a>pbench-user-benchmark<br  /><div class="outline-text-5" id="text-9-2-2-3">
 <p>
 The variable specifying the run directory, <code>benchmark_run_dir</code>, is now
+</p>
+
+<p>
 exported by the main script, making it available to the user-provided
+</p>
+
+<p>
 benchmark script (e.g. for squirreling away stuff to package up with the
+</p>
+
+<p>
 rest of the data for storage/processing on the server).
 </p>
+
+
 
 <p>
 This is only one part of a larger <a href="https://github.com/distributed-system-analysis/pbench/issues/349">issue #349</a>.
@@ -1842,25 +3379,43 @@ This is only one part of a larger <a href="https://github.com/distributed-system
 </div>
 </li>
 
-<li><a id="sec-8-2-2-4" name="sec-8-2-2-4"></a>Triggers<br  /><div class="outline-text-5" id="text-8-2-2-4">
+
+
+<li><a id="sec-9-2-2-4" name="sec-9-2-2-4"></a>Triggers<br  /><div class="outline-text-5" id="text-9-2-2-4">
 <p>
 Trigger functionality has been restored.
 </p>
 </div>
 </li>
 
-<li><a id="sec-8-2-2-5" name="sec-8-2-2-5"></a>Hardening of tools-&lt;group&gt; directory handling<br  /><div class="outline-text-5" id="text-8-2-2-5">
+
+
+<li><a id="sec-9-2-2-5" name="sec-9-2-2-5"></a>Hardening of tools-&lt;group&gt; directory handling<br  /><div class="outline-text-5" id="text-9-2-2-5">
 <p>
 In some cases, additional files or subdirectories in the tools-default (or
+</p>
+
+<p>
 more generally, tools-&lt;group&gt;) directory have caused problems. We now skip
+</p>
+
+<p>
 subdirectories and check files against the available tools list, skipping
+</p>
+
+<p>
 any that don't match. A warning is issued in either case suggesting that
+</p>
+
+<p>
 the suspect file/subdirectory be removed.
 </p>
 </div>
 </li>
 
-<li><a id="sec-8-2-2-6" name="sec-8-2-2-6"></a>Fixes to graph rendering<br  /><div class="outline-text-5" id="text-8-2-2-6">
+
+
+<li><a id="sec-9-2-2-6" name="sec-9-2-2-6"></a>Fixes to graph rendering<br  /><div class="outline-text-5" id="text-9-2-2-6">
 <p>
 See <a href="#web-server-0.40">web-server</a> below.
 </p>
@@ -1869,145 +3424,242 @@ See <a href="#web-server-0.40">web-server</a> below.
 </li></ul>
 </div>
 
-<div id="outline-container-sec-8-3" class="outline-3">
-<h3 id="sec-8-3">server</h3>
-<div class="outline-text-3" id="text-8-3">
+
+
+<div id="outline-container-sec-9-3" class="outline-3">
+<h3 id="sec-9-3">server</h3>
+<div class="outline-text-3" id="text-9-3">
 <ul class="org-ul">
 <li>Add mail notifications to the scripts that backs up results tarballs
-for safekeeping.
-</li>
 
+<p>
+for safekeeping.
+</p>
+</li>
+</ul>
+
+
+
+<ul class="org-ul">
 <li>Add verification script to detect bit-rot in tarballs.
 </li>
+</ul>
 
+
+
+<ul class="org-ul">
 <li>We now run a cron job to fetch tarballs from "satellite" servers and
-store them on our "production" server. The intent is to relieve some
-of the disk space pressure on the satellite, and to take advantage
-of the backup and bit-rot detection facilities that we employ on the
-production server.
-</li>
 
+<p>
+store them on our "production" server. The intent is to relieve some
+</p>
+
+<p>
+of the disk space pressure on the satellite, and to take advantage
+</p>
+
+<p>
+of the backup and bit-rot detection facilities that we employ on the
+</p>
+
+<p>
+production server.
+</p>
+</li>
+</ul>
+
+
+
+<ul class="org-ul">
 <li>An additional script to age out results on a satellite server is in
+
+<p>
 the works but is not running yet.
+</p>
 </li>
 </ul>
 </div>
 </div>
 
+
+
 <div id="outline-container-web-server-0.40" class="outline-3">
-<h3 id="web-server-0.40"><a id="sec-8-4" name="sec-8-4"></a>web-server</h3>
+<h3 id="web-server-0.40"><a id="sec-9-4" name="sec-9-4"></a>web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.40">
+
 <p>
 The pbench-web-server RPM has been updated with many fixes, cleanups
+</p>
+
+<p>
 and optimizations. The major user-visible change is better handling
+</p>
+
+<p>
 of outliers - see <a href="https://github.com/distributed-system-analysis/pbench/issues/317">issue #317</a>.
 </p>
+
+
 
 <p>
 If you have it installed, you probably want to update:
 </p>
+
 <pre class="example">
 dnf clean expire-cache
+
 dnf update pbench-web-server
 </pre>
+
 <p>
 (or the yum equivalents.)  The current version available from COPR
+</p>
+
+<p>
 is 0.40-1gf281562.
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-8-5" class="outline-3">
-<h3 id="sec-8-5">Changelog</h3>
-<div class="outline-text-3" id="text-8-5">
+
+
+<div id="outline-container-sec-9-5" class="outline-3">
+<h3 id="sec-9-5">Changelog</h3>
+<div class="outline-text-3" id="text-9-5">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
+</p>
+
+<p>
 since v0.39:
 </p>
+
+
 
 <ul class="org-ul">
 <li>5409667 Make client file pathname absolute
 </li>
+
 <li>0192eda Check for and install python-pandas
 </li>
+
 <li>fa328b4 use a smaller port number increment to allow greater scalability
 </li>
+
 <li>7e98d63 change &#x2013;cache-drop-script to &#x2013;pre-iteration-script
 </li>
+
 <li>988c586 Add &#x2013;dst-macs option to pbench-moongen
 </li>
+
 <li>c7420f9 Save client file in the run directory
 </li>
+
 <li>19cf29d Redirect various "No such file or directory" messages to /dev/null
 </li>
+
 <li>1301c1a Fix label complaint in tools-&lt;group&gt; sanity checking code
 </li>
+
 <li>de11f82 Pass file from &#x2013;client-file option directly to fio
 </li>
+
 <li>f53293a pbench-list-triggers rewrite.
 </li>
+
 <li>cd3dfb5 Grammar and spelling updates to the jschart docs
 </li>
+
 <li>fa45c15 Check for spurious files/subdirectories of tools-&lt;group&gt; dir
 </li>
+
 <li>e19d81a Fix triggers
 </li>
+
 <li>4a83b02 Update jschart API call in fio-postprocess-viz.py
 </li>
+
 <li>ad84dca Update unit tests for new jschart API
 </li>
+
 <li>0cfe6b7 Add View Port Controls to jschart
 </li>
+
 <li>1fd5b11 Use the create_jschart interface
 </li>
+
 <li>5dad7d0 Add documentation to jschart and do minor cleanups
 </li>
+
 <li>60f2a52 Update jschart to include the number of histogram buckets in the table
 </li>
+
 <li>abdcec5 Update jschart to show the datapoints on highlighted datasets for histogram and xy charts
 </li>
+
 <li>1cb8864 Delete remote tarballs after checking.
 </li>
+
 <li>480b20a Sync satellite to master.
 </li>
+
 <li>4c1f1e4 Move bad-md5 links to their own state directory.
 </li>
+
 <li>9202d3d Fix some typos in pbench-uperf help strings.
 </li>
+
 <li>7d0f360 Add/fix help string to pbench_fio.
 </li>
+
 <li>65de78b Add verify script for backup tarballs.
 </li>
+
 <li>cc8594a Fix a subsitution bug in BenchPostprocess::get_uid
 </li>
+
 <li>b8995ed Add new MoonGen queue control options
 </li>
+
 <li>3a13b5a Process only the last moongen validation phase
 </li>
+
 <li>d21fd21 Add mail notification for pbench-backup-tarballs
 </li>
+
 <li>0465506 Fixes to fully handle epoch time: - Parse job file from fio-postprocess-viz.py to detect when log_unix_epoch is present (using 'timeseries' instead of 'xy' in jschart) - jschart expects ms not s (no more divide by 1000 on time values) - Pass job file parameter whenever we call fiologparser_hist.py and fio-postproces-viz.py - Update to make-fio-jobfile.py to handle config options without values (e.g. 'stonewall' in fio)
 </li>
+
 <li>b0fff69 Add pprof heap support
 </li>
+
 <li>930ee68 Run fiologparser_hist.py during postprocessing, and generate jschart HTML docs showing the histogram data for each individual sample as well as (merged) across all samples for a particular iteration.
 </li>
+
 <li>1c52ee2 Make the run directory available to the called user script.
 </li>
+
 <li>debc148 Templating prototype for `pbench-fio`, using config files to specify fio parameters. The order of precedence used is as follows: (from high to low)
 </li>
+
 <li>5958d94 Add &#x2013;client-file option to specify a list of clients
 </li>
+
 <li>3fd2741 Remove redundant $bench_opts
 </li>
+
 <li>bbe6b9b Ensure &#x2013;samples is documented in &#x2013;help
 </li>
+
 <li>f9d939e Ensure $client is assigned before it is referenced
 </li>
+
 <li>a5ed3eb use correct benchmark name
 </li>
+
 <li>da5928e Respect GOROOT env var if set
 </li>
+
 <li>5969500 Fix exit status of pbench-{move/copy}-results.
 </li>
 </ul>
@@ -2015,137 +3667,271 @@ since v0.39:
 </div>
 </div>
 
-<div id="outline-container-sec-9" class="outline-2">
-<h2 id="sec-9">Version 0.39</h2>
-<div class="outline-text-2" id="text-9">
-</div><div id="outline-container-sec-9-1" class="outline-3">
-<h3 id="sec-9-1">Installation</h3>
-<div class="outline-text-3" id="text-9-1">
+
+
+<div id="outline-container-sec-10" class="outline-2">
+<h2 id="sec-10">Version 0.39</h2>
+<div class="outline-text-2" id="text-10">
+</div><div id="outline-container-sec-10-1" class="outline-3">
+<h3 id="sec-10-1">Installation</h3>
+<div class="outline-text-3" id="text-10-1">
 <p>
 There are no installation changes in this release: see the
-<a href="../agent/installation.html">Installation Instructions</a> for how to install.
 </p>
 
 <p>
+<a href="../agent/installation.html">Installation Instructions</a> for how to install.
+</p>
+
+
+
+<p>
 After installation or update, you should have version 0.39-3g4f9ab11
+</p>
+
+<p>
 of the pbench-agent RPM installed.
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-9-2" class="outline-3">
-<h3 id="sec-9-2">agent</h3>
-<div class="outline-text-3" id="text-9-2">
-</div><ul class="org-ul"><li><a id="sec-9-2-1" name="sec-9-2-1"></a>Backward incompatibilities<br  /><ul class="org-ul"><li><a id="sec-9-2-1-1" name="sec-9-2-1-1"></a>pbench-agent config file renamed<br  /><div class="outline-text-5" id="text-9-2-1-1">
+
+
+<div id="outline-container-sec-10-2" class="outline-3">
+<h3 id="sec-10-2">agent</h3>
+<div class="outline-text-3" id="text-10-2">
+</div><ul class="org-ul"><li><a id="sec-10-2-1" name="sec-10-2-1"></a>Backward incompatibilities<br  /><ul class="org-ul"><li><a id="sec-10-2-1-1" name="sec-10-2-1-1"></a>pbench-agent config file renamed<br  /><div class="outline-text-5" id="text-10-2-1-1">
 <p>
 All configuration files now have a suffix of ".cfg", rather than
+</p>
+
+<p>
 ".conf".  In particular, the default pbench-agent config file is now
+</p>
+
+<p>
 <code>/opt/pbench-agent/config/pbench-agent.cfg</code>.  You might have to rename
+</p>
+
+<p>
 your existing config file:
 </p>
+
 <pre class="example">
 cd /opt/pbench-agent/config
+
 mv pbench-agent.conf pbench-agent.cfg
 </pre>
+
 <p>
 If you have problems (e.g. <code>pbench-register-tool-set</code> only registers the <code>perf</code>
+</p>
+
+<p>
 tool, rather than a complete set; <code>pbench-move-results</code> fails because it cannot
+</p>
+
+<p>
 find a server), check with:
 </p>
+
 <pre class="example">
 cat $CONFIG
 </pre>
+
 <p>
 If that fails, then pbench cannot find the config file, most probably because
+</p>
+
+<p>
 of the renaming described above.
 </p>
 </div>
 </li>
-<li><a id="sec-9-2-1-2" name="sec-9-2-1-2"></a>pbench-netperf script has bit-rotted<br  /><div class="outline-text-5" id="text-9-2-1-2">
+
+<li><a id="sec-10-2-1-2" name="sec-10-2-1-2"></a>pbench-netperf script has bit-rotted<br  /><div class="outline-text-5" id="text-10-2-1-2">
 <p>
 The pbench-netperf script seems to have bit-rotted. We are trying to
+</p>
+
+<p>
 decide whether to fix it or abandon it. If you have an opinion, please
+</p>
+
+<p>
 comment at <a href="https://github.com/distributed-system-analysis/pbench/issues/291">https://github.com/distributed-system-analysis/pbench/issues/291</a>.
 </p>
 </div>
 </li></ul>
 </li>
 
-<li><a id="sec-9-2-2" name="sec-9-2-2"></a>New features<br  /><div class="outline-text-4" id="text-9-2-2">
+
+
+<li><a id="sec-10-2-2" name="sec-10-2-2"></a>New features<br  /><div class="outline-text-4" id="text-10-2-2">
 <p>
 Please submit suggestions/issues to the <a href="https://github.com/distributed-system-analysis/pbench/issues">issue tracker</a>.
 </p>
 </div>
 
-<ul class="org-ul"><li><a id="sec-9-2-2-1" name="sec-9-2-2-1"></a>JSON files for pbench-uperf<br  /><div class="outline-text-5" id="text-9-2-2-1">
+
+
+<ul class="org-ul"><li><a id="sec-10-2-2-1" name="sec-10-2-2-1"></a>JSON files for pbench-uperf<br  /><div class="outline-text-5" id="text-10-2-2-1">
 <p>
 The postprocessing now produces JSON files that we are planning to use
-in order to index benchmark results and tool output into ES. The
-backend work necessary to index these results will be done between
-v0.39 and v0.40 and might necessitate changes to the JSON output. So
-pbench-uperf is treated as a guinea pig and once the output format
-solidifies, the rest of the benchmarks are going to be converted as
-well, probably starting with pbench-fio.
 </p>
 
 <p>
+in order to index benchmark results and tool output into ES. The
+</p>
+
+<p>
+backend work necessary to index these results will be done between
+</p>
+
+<p>
+v0.39 and v0.40 and might necessitate changes to the JSON output. So
+</p>
+
+<p>
+pbench-uperf is treated as a guinea pig and once the output format
+</p>
+
+<p>
+solidifies, the rest of the benchmarks are going to be converted as
+</p>
+
+<p>
+well, probably starting with pbench-fio.
+</p>
+
+
+
+<p>
 A large part of the work for pbench-uperf has been to refactor the
+</p>
+
+<p>
 pbench-uperf script, so that the resulting pieces can be
+</p>
+
+<p>
 reused. Andrew hopes to have 90% of each benchmark script code in
+</p>
+
+<p>
 reusable packages, which will also simplify adding new scripts in the
+</p>
+
+<p>
 future.
 </p>
 </div>
 </li>
 
-<li><a id="sec-9-2-2-2" name="sec-9-2-2-2"></a>The pbench docs on github have been revamped<br  /><div class="outline-text-5" id="text-9-2-2-2">
+
+
+<li><a id="sec-10-2-2-2" name="sec-10-2-2-2"></a>The pbench docs on github have been revamped<br  /><div class="outline-text-5" id="text-10-2-2-2">
 <p>
 The docs can now be processed in two ways: to produce "internal"
-documents, including the more automated installation that is possible
-internally, as well as "external" documents that are more generic and
-depend only on externally available resources.
 </p>
 
 <p>
+documents, including the more automated installation that is possible
+</p>
+
+<p>
+internally, as well as "external" documents that are more generic and
+</p>
+
+<p>
+depend only on externally available resources.
+</p>
+
+
+
+<p>
 The docs on github have been replaced by the "external" documents:
+</p>
+
+<p>
 there are still some <code>example.com</code> fake URLs (clearly marked, we hope)
+</p>
+
+<p>
 but almost all URLs now point to their correct referent and the instructions
+</p>
+
+<p>
 should be enough to get pbench-agent/pbench-server/pbench-web-server installed
+</p>
+
+<p>
 in an arbitrary environment, but with some manual work required (again, clearly
+</p>
+
+<p>
 described, we hope, even if it is somewhat laborious).
 </p>
 </div>
 </li></ul>
 </li>
 
-<li><a id="sec-9-2-3" name="sec-9-2-3"></a>Bug fixes<br  /><ul class="org-ul"><li><a id="sec-9-2-3-1" name="sec-9-2-3-1"></a>Better error handling by utility scripts<br  /><div class="outline-text-5" id="text-9-2-3-1">
+
+
+<li><a id="sec-10-2-3" name="sec-10-2-3"></a>Bug fixes<br  /><ul class="org-ul"><li><a id="sec-10-2-3-1" name="sec-10-2-3-1"></a>Better error handling by utility scripts<br  /><div class="outline-text-5" id="text-10-2-3-1">
 <p>
 In particular, errors in ssh invocations in pipelines are caught and returned
+</p>
+
+<p>
 properly. More work is planned in this area for upcoming releases, in particular
+</p>
+
+<p>
 hardening the benchmark scripts so that they deal better with errors and signals.
 </p>
 </div>
 </li>
 
-<li><a id="sec-9-2-3-2" name="sec-9-2-3-2"></a>Safer killing of tools<br  /><div class="outline-text-5" id="text-9-2-3-2">
+
+
+<li><a id="sec-10-2-3-2" name="sec-10-2-3-2"></a>Safer killing of tools<br  /><div class="outline-text-5" id="text-10-2-3-2">
 <p>
 A safer kill has been implemented for all the tools that are linked to
+</p>
+
+<p>
 <code>kvm-spinlock</code>.  Assuming no problems surface, the sar-based tools
+</p>
+
+<p>
 will get the same treatment in upcoming releases.
 </p>
 </div>
 </li>
 
-<li><a id="sec-9-2-3-3" name="sec-9-2-3-3"></a>Screen session names were too long<br  /><div class="outline-text-5" id="text-9-2-3-3">
+
+
+<li><a id="sec-10-2-3-3" name="sec-10-2-3-3"></a>Screen session names were too long<br  /><div class="outline-text-5" id="text-10-2-3-3">
 <p>
 The screen command fails when the name of the screen session (-S) is
+</p>
+
+<p>
 very long. This happens when the iteration full name is quite long. A
+</p>
+
+<p>
 fix for this uses only the iteration number, reducing the screen
+</p>
+
+<p>
 name to a safe length.
 </p>
 </div>
 </li>
-<li><a id="sec-9-2-3-4" name="sec-9-2-3-4"></a>Fixes to graph rendering<br  /><div class="outline-text-5" id="text-9-2-3-4">
+
+<li><a id="sec-10-2-3-4" name="sec-10-2-3-4"></a>Fixes to graph rendering<br  /><div class="outline-text-5" id="text-10-2-3-4">
 <p>
 See <a href="#web-server-0.39">web-server</a> below.
 </p>
@@ -2154,140 +3940,227 @@ See <a href="#web-server-0.39">web-server</a> below.
 </li></ul>
 </div>
 
-<div id="outline-container-sec-9-3" class="outline-3">
-<h3 id="sec-9-3">server</h3>
-<div class="outline-text-3" id="text-9-3">
+
+
+<div id="outline-container-sec-10-3" class="outline-3">
+<h3 id="sec-10-3">server</h3>
+<div class="outline-text-3" id="text-10-3">
 <p>
 Server installation was simplified in v0.38: there is an RPM on COPR that can be used
-for installation, but as for the pbench-agent, it is not completely self-contained: one
-needs to install various configuration files and generate a directory structure for apache,
-a directory structure for results and a crontab that invokes the various scripts to process
-incoming results and make them available for viewing on the web.
 </p>
 
 <p>
+for installation, but as for the pbench-agent, it is not completely self-contained: one
+</p>
+
+<p>
+needs to install various configuration files and generate a directory structure for apache,
+</p>
+
+<p>
+a directory structure for results and a crontab that invokes the various scripts to process
+</p>
+
+<p>
+incoming results and make them available for viewing on the web.
+</p>
+
+
+
+<p>
 This release adds scripts to do these tasks somewhat more conveniently. It is possible to
+</p>
+
+<p>
 use these scripts from an RPM that installs the config files and then invokes the scripts to
+</p>
+
+<p>
 finish the installation. But it is also possible to do these steps manually. See the
+</p>
+
+<p>
 <a href="file:///home/nelluri/src/internal/pbench/doc/server/installation.html">server installation guide</a> for details.
 </p>
 </div>
 </div>
 
+
+
 <div id="outline-container-web-server-0.39" class="outline-3">
-<h3 id="web-server-0.39"><a id="sec-9-4" name="sec-9-4"></a>web-server</h3>
+<h3 id="web-server-0.39"><a id="sec-10-4" name="sec-10-4"></a>web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.39">
+
 <p>
 The pbench-web-server RPM has been updated with many fixes, cleanups
+</p>
+
+<p>
 and optimizations.  Changes that are user-visible are:
 </p>
+
+
 
 <ul class="org-ul">
 <li>Update jschart to better handle errors while loading datasets
 </li>
+
 <li>Update jschart to support alternative csv file formatting
 </li>
+
 <li>Fix a jschart bug where the wrong clip-path is referenced
 </li>
+
 <li>Update jschart to add percentiles to the values displayed in the
+
+<p>
 table when the mouse is moving across a histogram chart
+</p>
 </li>
 </ul>
+
+
 
 <p>
 If you have it installed, you probably want to update:
 </p>
+
 <pre class="example">
 dnf clean expire-cache
+
 dnf update pbench-web-server
 </pre>
+
 <p>
 (or the yum equivalents.)  The current version available from COPR
+</p>
+
+<p>
 is 0.3-19gaf1ffe4.
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-9-5" class="outline-3">
-<h3 id="sec-9-5">Changelog</h3>
-<div class="outline-text-3" id="text-9-5">
+
+
+<div id="outline-container-sec-10-5" class="outline-3">
+<h3 id="sec-10-5">Changelog</h3>
+<div class="outline-text-3" id="text-10-5">
 <ul class="org-ul">
 <li>9c2554f Bump versions for various benchmarks.
 </li>
+
 <li>a02ad33 Bump VERSION.
 </li>
+
 <li>48b8c27 Fix condition for warning of already running tools.
 </li>
+
 <li>f4f5618 Add unit tests.
 </li>
+
 <li>cf59a06 Check status of backgrounded commands in pbench-postprocess-tools.
 </li>
+
 <li>fe15a81 Catch pipeline failures and return proper error status.
 </li>
+
 <li>75ca51c Use pidof -x to get list of pids.
 </li>
+
 <li>7bbb4dd Revert the change to perf.
 </li>
+
 <li>11a0ad9 Add unit tests for safe_kill.
 </li>
+
 <li>fa80b08 Safer kill: check for strange situations and deal with them.
 </li>
+
 <li>862e68b Change the name of the config file in profile.
 </li>
+
 <li>9e0ecef Fix pbench-agent-config-activate and add unit test.
 </li>
+
 <li>19039eb Allow partial execution of unittests.
 </li>
+
 <li>57b56e7 Fix links to point to DSA github.io area.
 </li>
+
 <li>d720f61 updated pprof to point to correct package name for "go" it is golang, not go - added tool_bin to point to /usr/bin/go
 </li>
+
 <li>ee321d6 Add missing '$'
 </li>
+
 <li>d38ba9b Reduce screen session name to avoid screen error
 </li>
+
 <li>66c6996 Update jschart's d3-queue support from version 2 to version 3
 </li>
+
 <li>bc34df8 Update jschart to support alternative csv file formatting
 </li>
+
 <li>343f715 Fix a jschart bug where the wrong clip-path is referenced
 </li>
+
 <li>333978c Update jschart to add percentiles to the values displayed in the table when the mouse is moving across a histogram chart
 </li>
+
 <li>8608c57 Update jschart to better handle errors while loading datasets
 </li>
+
 <li>cae9788 Update jschart by eliminating the use of map
 </li>
+
 <li>2423475 Bug fix for jschart to pass a proper reference to the SVG to saveSvgAsPng
 </li>
+
 <li>826e5d7 Update jschart by eliminating as many global variables as possible to avoid out of scope references
 </li>
+
 <li>521cb95 Update jschart to minimize global variable references to the charts object
 </li>
+
 <li>74b30a8 Update jschart with cleanups and optimizations
 </li>
+
 <li>932679a Benchmark and iteration summary/processing scripts, JSON files and MoonGen benchmark support
 </li>
+
 <li>775f208 Remove duplicate data collected by sosreports
 </li>
+
 <li>a395811 Links to revised documentation.
 </li>
+
 <li>e6605d6 Add memory usage pidstat graphs
 </li>
+
 <li>124c787 Server installation link added.
 </li>
+
 <li>feb8aed bgtasks &#x2013;&gt; pbench-server
 </li>
+
 <li>f51df98 Links to revised docs.
 </li>
+
 <li>d21eefa Server version bump.
 </li>
+
 <li>66382bb Add server activation unit test.
 </li>
+
 <li>455c7f8 Fix command path.
 </li>
+
 <li>df7aaab Allow different set-ups during server activation.
 </li>
+
 <li>b63bdf5 Fix quoting of patterns for pidstat.
 </li>
 </ul>
@@ -2295,105 +4168,201 @@ is 0.3-19gaf1ffe4.
 </div>
 </div>
 
-<div id="outline-container-sec-10" class="outline-2">
-<h2 id="sec-10">Version 0.38</h2>
-<div class="outline-text-2" id="text-10">
-</div><div id="outline-container-sec-10-1" class="outline-3">
-<h3 id="sec-10-1">Installation</h3>
-<div class="outline-text-3" id="text-10-1">
+
+
+<div id="outline-container-sec-11" class="outline-2">
+<h2 id="sec-11">Version 0.38</h2>
+<div class="outline-text-2" id="text-11">
+</div><div id="outline-container-sec-11-1" class="outline-3">
+<h3 id="sec-11-1">Installation</h3>
+<div class="outline-text-3" id="text-11-1">
 <p>
 There are no installation changes in this release: see the
-<a href="../agent/installation.html">Installation Instructions</a> for how to install.
 </p>
 
 <p>
+<a href="../agent/installation.html">Installation Instructions</a> for how to install.
+</p>
+
+
+
+<p>
 After installation or update, you should have version 0.38-1g0db11ba
+</p>
+
+<p>
 of the pbench-agent RPM installed.
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-10-2" class="outline-3">
-<h3 id="sec-10-2">agent</h3>
-<div class="outline-text-3" id="text-10-2">
-</div><ul class="org-ul"><li><a id="sec-10-2-1" name="sec-10-2-1"></a>Backward incompatibilities<br  /><div class="outline-text-4" id="text-10-2-1">
+
+
+<div id="outline-container-sec-11-2" class="outline-3">
+<h3 id="sec-11-2">agent</h3>
+<div class="outline-text-3" id="text-11-2">
+</div><ul class="org-ul"><li><a id="sec-11-2-1" name="sec-11-2-1"></a>Backward incompatibilities<br  /><div class="outline-text-4" id="text-11-2-1">
 <p>
 In the v0.36 timeframe, all pbench scripts and benchmarks that are
+</p>
+
+<p>
 normally accessible were renamed: those that did not have a prefix at
+</p>
+
+<p>
 all were renamed with a "pbench-" prefix; the benchmarks had a
+</p>
+
+<p>
 "pbench_" prefix and were renamed for consistency with a "pbench-"
+</p>
+
+<p>
 prefix as well.
 </p>
+
+
 
 <p>
 In v0.37, there were compatibility links to the old names in util-scripts.
 </p>
 
+
+
 <p>
 In v0.38, these links have been deleted: you will have to make sure
+</p>
+
+<p>
 that you use (and all your scripts use) the names with the "pbench-"
+</p>
+
+<p>
 prefix.
 </p>
 </div>
 </li>
 
-<li><a id="sec-10-2-2" name="sec-10-2-2"></a>New features<br  /><div class="outline-text-4" id="text-10-2-2">
+
+
+<li><a id="sec-11-2-2" name="sec-11-2-2"></a>New features<br  /><div class="outline-text-4" id="text-11-2-2">
 <p>
 Please submit suggestions/issues to the <a href="https://github.com/distributed-system-analysis/pbench/issues">issue tracker</a>.
 </p>
 </div>
 
-<ul class="org-ul"><li><a id="sec-10-2-2-1" name="sec-10-2-2-1"></a>New graphs<br  /><div class="outline-text-5" id="text-10-2-2-1">
+
+
+<ul class="org-ul"><li><a id="sec-11-2-2-1" name="sec-11-2-2-1"></a>New graphs<br  /><div class="outline-text-5" id="text-11-2-2-1">
 <p>
 The major change in this release is the replacement of the original
-nvd3 graphs with graphs produced by a library written by Karl Rister.
-The advantage of this library is that it is much less demanding on
-the browser than the original graph library.
 </p>
 
 <p>
+nvd3 graphs with graphs produced by a library written by Karl Rister.
+</p>
+
+<p>
+The advantage of this library is that it is much less demanding on
+</p>
+
+<p>
+the browser than the original graph library.
+</p>
+
+
+
+<p>
 Note that it uses the same CSV files that the original graphs used,
+</p>
+
+<p>
 which it downloads from the server<sup><a id="fnr.1" name="fnr.1" class="footref" href="#fn.1">1</a></sup>: big data sets are still
+</p>
+
+<p>
 going to incur long time penalties for the transfer. The difference is
+</p>
+
+<p>
 that once the download is complete, your browser will stand a much
+</p>
+
+<p>
 better chance of staying alive and able to display the graphs.
 </p>
 </div>
 </li></ul>
 </li>
 
-<li><a id="sec-10-2-3" name="sec-10-2-3"></a>Bug fixes<br  /><ul class="org-ul"><li><a id="sec-10-2-3-1" name="sec-10-2-3-1"></a>Fixed the RPM names for tools and benchmarks to include the pbench- prefix<br  /><div class="outline-text-5" id="text-10-2-3-1">
+
+
+<li><a id="sec-11-2-3" name="sec-11-2-3"></a>Bug fixes<br  /><ul class="org-ul"><li><a id="sec-11-2-3-1" name="sec-11-2-3-1"></a>Fixed the RPM names for tools and benchmarks to include the pbench- prefix<br  /><div class="outline-text-5" id="text-11-2-3-1">
 <p>
 PBench will now be able to find and install the correct RPMs (with the
+</p>
+
+<p>
 current exception of pbench-iperf as noted above).
 </p>
 </div>
 </li>
 
-<li><a id="sec-10-2-3-2" name="sec-10-2-3-2"></a>Fixed the URL for the COPR repo<br  /><div class="outline-text-5" id="text-10-2-3-2">
+
+
+<li><a id="sec-11-2-3-2" name="sec-11-2-3-2"></a>Fixed the URL for the COPR repo<br  /><div class="outline-text-5" id="text-11-2-3-2">
 <p>
 The documentation on GitHub was pointing to a non-existent place for
+</p>
+
+<p>
 the COPR pbench-agent RPM: it used a sanitized <code>example.com</code>
+</p>
+
+<p>
 address. This was fixed, but note that the documentation still
+</p>
+
+<p>
 contains dead links and will undergo a significant overhaul for
+</p>
+
+<p>
 the next release.
 </p>
 </div>
 </li>
 
-<li><a id="sec-10-2-3-3" name="sec-10-2-3-3"></a>The pbench-kiil-tools symlink in the repo was wrong.<br  /><div class="outline-text-5" id="text-10-2-3-3">
+
+
+<li><a id="sec-11-2-3-3" name="sec-11-2-3-3"></a>The pbench-kiil-tools symlink in the repo was wrong.<br  /><div class="outline-text-5" id="text-11-2-3-3">
 <p>
 That was fixed, but the bug did not and does not have any effect on a
+</p>
+
+<p>
 local installation: those symlinks are created on the fly by an RPM
+</p>
+
+<p>
 %post action.
 </p>
 </div>
 </li>
 
-<li><a id="sec-10-2-3-4" name="sec-10-2-3-4"></a>The sar script was modified to handle user-defined options.<br  /><div class="outline-text-5" id="text-10-2-3-4">
+
+
+<li><a id="sec-11-2-3-4" name="sec-11-2-3-4"></a>The sar script was modified to handle user-defined options.<br  /><div class="outline-text-5" id="text-11-2-3-4">
 <p>
 Note however that if you use non-standard options, the postprocessing
+</p>
+
+<p>
 step for the sar tool (and its relatives) will be skipped, since
+</p>
+
+<p>
 pbench does not know how to handle the modified output.
 </p>
 </div>
@@ -2402,180 +4371,288 @@ pbench does not know how to handle the modified output.
 </div>
 
 
-<div id="outline-container-sec-10-3" class="outline-3">
-<h3 id="sec-10-3">server</h3>
-<div class="outline-text-3" id="text-10-3">
+
+
+
+<div id="outline-container-sec-11-3" class="outline-3">
+<h3 id="sec-11-3">server</h3>
+<div class="outline-text-3" id="text-11-3">
 <p>
 The server has now been organized in the same way as the agent: there
+</p>
+
+<p>
 is an external RPM available from COPR that includes all the scripts,
+</p>
+
+<p>
 and some configuration scripts that can be used to install the config
-file and perform the rest of the server configuration. See the <a href="../server/installation.html">server
-installation guide</a>.
+</p>
+
+<p>
+file and perform the rest of the server configuration. See the [[<a href="../server/installation.html">server</a>
+</p>
+
+<p>
+installation guide]].
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-10-4" class="outline-3">
-<h3 id="sec-10-4">web-server</h3>
-<div class="outline-text-3" id="text-10-4">
+
+
+<div id="outline-container-sec-11-4" class="outline-3">
+<h3 id="sec-11-4">web-server</h3>
+<div class="outline-text-3" id="text-11-4">
 <p>
 There is an RPM available on COPR that allows local viewing of graphs,
+</p>
+
+<p>
 both in the v0.2 format (Andrew's graphs using nvd3) or in the v0.3
+</p>
+
+<p>
 format (Karl's graphs using d3). This now includes Karl's latest fixes.
+</p>
+
+<p>
 If you have installed an older version, please upgrade. The current version
+</p>
+
+<p>
 on COPR is 0.3-10.
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-10-5" class="outline-3">
-<h3 id="sec-10-5">Fedora 24 RPMs on COPR</h3>
-<div class="outline-text-3" id="text-10-5">
+
+
+<div id="outline-container-sec-11-5" class="outline-3">
+<h3 id="sec-11-5">Fedora 24 RPMs on COPR</h3>
+<div class="outline-text-3" id="text-11-5">
 <p>
 Fedora 24 has been added to the build list and Fedora 21 has been
-deleted from it, for all the RPMS (benchmarks, tools,
-pbench-agent, pbench-server, pbench-web-server, configtools).
 </p>
 
 <p>
+deleted from it, for all the RPMS (benchmarks, tools,
+</p>
+
+<p>
+pbench-agent, pbench-server, pbench-web-server, configtools).
+</p>
+
+
+
+<p>
 One benchmark RPM (<code>pbench-iperf</code>) is currently failing to build. This
+</p>
+
+<p>
 will be fixed shortly.
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-10-6" class="outline-3">
-<h3 id="sec-10-6">Changelog</h3>
-<div class="outline-text-3" id="text-10-6">
+
+
+<div id="outline-container-sec-11-6" class="outline-3">
+<h3 id="sec-11-6">Changelog</h3>
+<div class="outline-text-3" id="text-11-6">
 <ul class="org-ul">
 <li>4a65484 Version bump.
 </li>
+
 <li>0d5a976 Delete compatibility wrapper.
 </li>
+
 <li>2dff665 Wrong link for pbench-kill-tools.
 </li>
+
 <li>58dbb63 Update jschart and fix a small bug by cleaning up the y axis label updating code
 </li>
+
 <li>a9ac750 Fix a bug in the jschart tooltip implementation when the tooltip belongs to an Y axis label
 </li>
+
 <li>8ca3d37 Long overdue cleanup of the jschart style and class code
 </li>
+
 <li>99fc942 Update the jschart legend rectangle outlining code to work with Firefox and vector zooming
 </li>
+
 <li>ef211e8 Update jschart live_update to a timeseries data model which uses milliseconds since the epoch timestamps
 </li>
+
 <li>b4372f6 Update jschart with a new filtering capability based on the dataset name and resort the table (if sorting is enabled) when datasets are hidden or unhidden
 </li>
+
 <li>281d89c Update the jschart show/hide all events to use static functions with locally scoped variables
 </li>
+
 <li>9453829 Update jschart threshold application events to use static functions with locally scoped variables
 </li>
+
 <li>76590ed Update the the jschart dataset mouseover, mouseout, and click events to use static functions with locally scoped variables
 </li>
+
 <li>844b87b Update the jschart viewport event handlers to use static functions with locally scoped variables instead of closures
 </li>
+
 <li>3bef541 Update jschart to eliminate some calls to map that are made often during some runtime behaviors
 </li>
+
 <li>6dbc809 Update jschart by replacing many data accesor closures with static functions
 </li>
+
 <li>82a0151 Update jschart to display the datasets value in the table that most closely aligns with the cursor's position in the viewport
 </li>
+
 <li>3a8cd33 Remove some dead code from jschart
 </li>
+
 <li>94c0808 Update the jschart table creations to use D3 principles to improve maintainability and reduce code bloat
 </li>
+
 <li>c332ef9 Update jschart to improve maintainability and performance
 </li>
+
 <li>5d83c24 Update jschart to be able to apply a dynamic threshold based on a a dataset's maximum y value or y mean
 </li>
+
 <li>325f17e Update the jschart live update controls to fix some bugs introduced with the recent code churn
 </li>
+
 <li>25bf0b1 Update jschart to automatically sort the datasets in descending order based on their mean by default
 </li>
+
 <li>5ea4df3 Update jschart to honor the threshold and use it to determine if datasets should be automatically hidden
 </li>
+
 <li>b276f78 Move some jschart hard coded values into global variables for easier maintanance and use moving forward
 </li>
+
 <li>3a45dfa Update jschart to be more dynamic when hiding and unhiding datasets
 </li>
+
 <li>44d5238 Allow hidden datasets in jschart to be unhidden by clicking their table row
 </li>
+
 <li>9b000bf Add jschart support for log scale on the x and y axis
 </li>
+
 <li>3534f88 Update the jschart axes references to conform to other chart object references
 </li>
+
 <li>3bce44d Update the jschart axes without doing DOM searches
 </li>
+
 <li>a1af8da Refactor the code to use a global array of chart objects with references to all chart elements and data that may be accessed at runtime
 </li>
+
 <li>b1e93ea Squash some tooltip bugs
 </li>
+
 <li>69813a4 Add the ability to hide all or individual datasets and the requisite ability to unhide them
 </li>
+
 <li>09f33a5 Refactor the dataset highlighting code to track state and improve performance
 </li>
+
 <li>5f0e909 Add a link from a chart_ref to it's datasets and links from the datasets to their DOM objects
 </li>
+
 <li>bf5732f Update the legend boxes to always have a constant colored outline
 </li>
+
 <li>e15db96 Update the description and dependency information for jschart
 </li>
+
 <li>bbc21f0 Update the wording that refers to the EPL LICENSE.TXT file locations
 </li>
+
 <li>dcbf39b Update the verbage in the demo web server to better reflect it's usage
 </li>
+
 <li>388d319 Add a simple web server from LPCPU for use in demoing/testing jschart
 </li>
+
 <li>43ed280 Add a jschart demo for testing purposes
 </li>
+
 <li>db0ece1 Add support for a new data model type called histogram
 </li>
+
 <li>c99c7d3 More jschart whitespace formatting cleanups
 </li>
+
 <li>c8cfe1e Fix a bug in the jschart "Apply X-Axis Zoom to All" feature caused by the new support for timeseries charts
 </li>
+
 <li>a2f1056 Fix some bugs in the zoom_it function in jschart when the data model is timeseries:
 </li>
+
 <li>e471473 Remove dead code from the handle_brush_actions function in jschart
 </li>
+
 <li>87c7647 Update the mouse coordinate display to support when the chart is timeseries
 </li>
+
 <li>583ef9e Fixup timezone and time formatting support, defaulting to UTC
 </li>
+
 <li>9f0a3a7 Update jschart to use a dynamic x-axis label showing the (zoomed) time range when the chart is timeseries
 </li>
+
 <li>3534125 Update GenData to use jschart
 </li>
+
 <li>bb36819 Update jschart to be compatible with GenData chart type specifications
 </li>
+
 <li>3b3889f Update the jschart highlight functions to have more descriptive names
 </li>
+
 <li>1f354a7 Update D3 Queue initialization to match d3-queue code available via npm
 </li>
+
 <li>28d51b9 Add support for saveSvgAsPng to jschart
 </li>
+
 <li>3029052 Add support for specifying whether a jschart is a XY plot or timeseries
 </li>
+
 <li>247216b Remove the jschart assertion that the x-axis domain should have a minimum=0 unless otherwise specified
 </li>
+
 <li>72a42e9 Add support for loading CSV data files into jschart
 </li>
+
 <li>785b27c Update jschart.js to dynamically build the summary table at runtime
 </li>
+
 <li>c8b781a Initial commit of jschart files pulled from LPCPU
 </li>
+
 <li>7224a5a Clean up the list file.
 </li>
+
 <li>ef3f12b Fix the COPR repo URL.
 </li>
+
 <li>6a1e74f Store cron job script logs in the local file system.
 </li>
+
 <li>fc9d61d modified oc scrit -&gt; fixed typo -&gt; if decided to start too, instructed to install 'expect' package - necessary for unbuffer
 </li>
+
 <li>02eb062 Fix the calls to check_installed_rpm in all the benchmarks.
 </li>
+
 <li>6c48dbe Script rename: metadata-log &#x2013;&gt; pbench-metadata-log
 </li>
+
 <li>2b8b991 Modify the sar script (and its relatives) to handle user-defined options.
 </li>
 </ul>
@@ -2594,7 +4671,7 @@ Unless you install locally - see <a href="http://pbench.example.com/server/pbenc
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2017-12-07 Thu 17:08</p>
+<p class="date">Page updated: 2018-02-07 Wed 10:12</p>
 </div>
 </body>
 </html>

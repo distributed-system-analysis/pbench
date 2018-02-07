@@ -1,9 +1,7 @@
-# Created 2017-10-16 Mon 14:23
+#+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
-#+OPTIONS: ^:{}
-#+TITLE: PBench agent installation
 #+HTML_DOCTYPE: xhtml-strict
 #+HTML_CONTAINER: div
 #+KEYWORDS: pbench
@@ -14,6 +12,9 @@
 #+SUBTITLE: 
 #+INFOJS_OPT: 
 #+LATEX_HEADER: 
+#+AUTHOR: 
+#+OPTIONS: ^:{}
+#+TITLE: PBench agent installation
 
 * Introduction
 
