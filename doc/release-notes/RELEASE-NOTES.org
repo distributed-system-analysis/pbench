@@ -1,7 +1,10 @@
+# Created 2018-02-07 Wed 10:04
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
+#+OPTIONS: ^:{} H:2
+#+TITLE: PBench release notes
 #+HTML_DOCTYPE: xhtml-strict
 #+HTML_CONTAINER: div
 #+KEYWORDS: pbench
@@ -12,9 +15,6 @@
 #+SUBTITLE: 
 #+INFOJS_OPT: 
 #+LATEX_HEADER: 
-#+AUTHOR: 
-#+TITLE: PBench release notes
-#+OPTIONS: ^:{} H:2
 
 
 * Version 0.47
@@ -233,7 +233,7 @@ Some of these were in v0.44 - they are repeated here for convenience.
   available from the standard Fedora repos; on RHEL, you will need to
   add the RHEL "optional packages" repo. This can be done by copying
 
-  [[https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo]]
+  https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
 
   to =/etc/yum.repos.d=.
 
@@ -400,7 +400,7 @@ These are identical to v0.43 and are repeated here for convenience:
   available from the standard Fedora repos; on RHEL, you will need to
   add the RHEL "optional packages" repo. This can be done by copying
 
-  [[https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo]]
+  https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
 
   to =/etc/yum.repos.d=.
 
@@ -438,12 +438,12 @@ These are identical to v0.43 and are repeated here for convenience:
 
   See upstream issues:
 
-  [[https://github.com/prometheus/prom2json/issues/18]],
-  [[https://github.com/prometheus/prom2json/issues/20]]
+  https://github.com/prometheus/prom2json/issues/18,
+  https://github.com/prometheus/prom2json/issues/20
 
   and associated PR:
 
-  [[https://github.com/prometheus/prom2json/pull/22]]
+  https://github.com/prometheus/prom2json/pull/22
 
   If you find any problems, please open an issue, but as far as
   we know, there should not be any.
@@ -532,7 +532,7 @@ of the pbench-agent RPM installed.
   available from the standard Fedora repos; on RHEL, you will need to
   add the RHEL "optional packages" repo. This can be done by copying
 
-  [[https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo]]
+  https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
 
   to =/etc/yum.repos.d=.
 - Note that the output of the benchmarks that have been converted to
@@ -1063,7 +1063,7 @@ of the renaming described above.
 **** pbench-netperf script has bit-rotted
 The pbench-netperf script seems to have bit-rotted. We are trying to
 decide whether to fix it or abandon it. If you have an opinion, please
-comment at [[https://github.com/distributed-system-analysis/pbench/issues/291]].
+comment at https://github.com/distributed-system-analysis/pbench/issues/291.
 
 *** New features
 Please submit suggestions/issues to the [[https://github.com/distributed-system-analysis/pbench/issues][issue tracker]].

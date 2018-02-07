@@ -3,23 +3,31 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
+<!-- 2018-02-07 Wed 10:06 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench server installation</title>
-<!-- 2017-12-07 Thu 17:08 -->
-<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<meta  name="generator" content="Org-mode" />
-<meta  name="keywords" content="pbench" />
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Nick Dokos" />
+<meta name="keywords" content="pbench" />
 <style type="text/css">
  <!--/*--><![CDATA[/*><!--*/
-  .title  { text-align: center; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
   .todo   { font-family: monospace; color: red; }
-  .done   { color: green; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
   .tag    { background-color: #eee; font-family: monospace;
             padding: 2px; font-size: 80%; font-weight: normal; }
   .timestamp { color: #bebebe; }
   .timestamp-kwd { color: #5f9ea0; }
-  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
-  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
-  .center { margin-left: auto; margin-right: auto; text-align: center; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
   .underline { text-decoration: underline; }
   #postamble p, #preamble p { font-size: 90%; margin: .2em; }
   p.verse { margin-left: 3%; }
@@ -46,30 +54,127 @@
     border: 1px solid black;
   }
   pre.src:hover:before { display: inline;}
-  pre.src-sh:before    { content: 'sh'; }
-  pre.src-bash:before  { content: 'sh'; }
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
   pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
-  pre.src-R:before     { content: 'R'; }
-  pre.src-perl:before  { content: 'Perl'; }
-  pre.src-java:before  { content: 'Java'; }
-  pre.src-sql:before   { content: 'SQL'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
 
   table { border-collapse:collapse; }
   caption.t-above { caption-side: top; }
   caption.t-bottom { caption-side: bottom; }
   td, th { vertical-align:top;  }
-  th.right  { text-align: center;  }
-  th.left   { text-align: center;   }
-  th.center { text-align: center; }
-  td.right  { text-align: right;  }
-  td.left   { text-align: left;   }
-  td.center { text-align: center; }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
   dt { font-weight: bold; }
-  .footpara:nth-child(2) { display: inline; }
-  .footpara { display: block; }
+  .footpara { display: inline; }
   .footdef  { margin-bottom: 1em; }
   .figure { padding: 1em; }
   .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
   .inlinetask {
     padding: 10px;
     border: 2px solid gray;
@@ -86,6 +191,7 @@
     { font-size: 10px; font-weight: bold; white-space: nowrap; }
   .org-info-js_search-highlight
     { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
   /*]]>*/-->
 </style>
 <link rel="stylesheet" href="../../stylesheets/normalize.css" type="text/css"/>
@@ -96,7 +202,7 @@
 @licstart  The following is the entire license notice for the
 JavaScript code in this tag.
 
-Copyright (C) 2012-2013 Free Software Foundation, Inc.
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
 
 The JavaScript code in this tag is free software: you can
 redistribute it and/or modify it under the terms of the GNU
@@ -145,29 +251,29 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#sec-1">Introduction</a></li>
-<li><a href="#sec-2">Overview</a></li>
-<li><a href="#sec-3">Prerequisites</a></li>
-<li><a href="#sec-4">Server installation (generic)</a>
+<li><a href="#orgec995fa">Introduction</a></li>
+<li><a href="#orgc315959">Overview</a></li>
+<li><a href="#org38beb64">Prerequisites</a></li>
+<li><a href="#orgb6bdb74">Server installation (generic)</a>
 <ul>
-<li><a href="#sec-4-1">Installing the RPM</a></li>
-<li><a href="#sec-4-2">Customizing the installation with the local settings.</a></li>
-<li><a href="#sec-4-3">Config files</a></li>
-<li><a href="#sec-4-4">The rest of the setup</a></li>
+<li><a href="#org6075d59">Installing the RPM</a></li>
+<li><a href="#orgab5bad0">Customizing the installation with the local settings.</a></li>
+<li><a href="#org1911386">Config files</a></li>
+<li><a href="#orgbfcd65e">The rest of the setup</a></li>
 </ul>
 </li>
-<li><a href="#sec-5">Testing</a></li>
+<li><a href="#orgcf6b88b">Testing</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-sec-1" class="outline-2">
-<h2 id="sec-1">Introduction</h2>
-<div class="outline-text-2" id="text-1">
+<div id="outline-container-orgec995fa" class="outline-2">
+<h2 id="orgec995fa">Introduction</h2>
+<div class="outline-text-2" id="text-orgec995fa">
 <p>
 Server installation is done through two packages: an externally
 available, upstream package containing all the relevant scripts and an
-internal package that contains the local configuration files<sup><a id="fnr.1" name="fnr.1" class="footref" href="#fn.1">1</a></sup>. The
+internal package that contains the local configuration files<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>. The
 upstream bits include a script that the internal package calls to
 install the local config files in the appropriate places. It also
 creates a crontab from the information in the configuration files
@@ -189,9 +295,9 @@ discussed in some detail below.
 </div>
 </div>
 
-<div id="outline-container-sec-2" class="outline-2">
-<h2 id="sec-2">Overview</h2>
-<div class="outline-text-2" id="text-2">
+<div id="outline-container-orgc315959" class="outline-2">
+<h2 id="orgc315959">Overview</h2>
+<div class="outline-text-2" id="text-orgc315959">
 <p>
 A user running the pbench agent produces results that are stored
 locally, until the user calls <code>pbench-move-results</code>. The results are then
@@ -205,9 +311,9 @@ sosreports on to other services for further processing.
 </div>
 </div>
 
-<div id="outline-container-sec-3" class="outline-2">
-<h2 id="sec-3">Prerequisites</h2>
-<div class="outline-text-2" id="text-3">
+<div id="outline-container-org38beb64" class="outline-2">
+<h2 id="org38beb64">Prerequisites</h2>
+<div class="outline-text-2" id="text-org38beb64">
 <p>
 The host that runs the server has to run apache. It should also
 have a fairly hefty filesystem for storing results. Of course, the
@@ -232,18 +338,19 @@ and then customizing the installation with the local settings.
 </p>
 
 <p>
-If there is no "internal" RPM available, install the "external" RPM (see <a href="#sec-4">here</a> for details).
-You will then have to customize the installation by hand (see <a href="#sec-4-2">here</a> for details).
+If there is no "internal" RPM available, install the "external" RPM (see <a href="#orgb6bdb74">here</a> for details).
+You will then have to customize the installation by hand (see <a href="#orgab5bad0">here</a> for details).
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-4" class="outline-2">
-<h2 id="sec-4">Server installation (generic)</h2>
-<div class="outline-text-2" id="text-4">
-</div><div id="outline-container-sec-4-1" class="outline-3">
-<h3 id="sec-4-1">Installing the RPM</h3>
-<div class="outline-text-3" id="text-4-1">
+<div id="outline-container-orgb6bdb74" class="outline-2">
+<h2 id="orgb6bdb74">Server installation (generic)</h2>
+<div class="outline-text-2" id="text-orgb6bdb74">
+</div>
+<div id="outline-container-org6075d59" class="outline-3">
+<h3 id="org6075d59">Installing the RPM</h3>
+<div class="outline-text-3" id="text-org6075d59">
 <p>
 The repo is the standard <a href="https://copr.fedorainfracloud.org/coprs/ndokos/pbench/">COPR pbench repo</a>, installed with
 </p>
@@ -272,9 +379,9 @@ default location is <code>/opt/pbench-server</code>: scripts under
 </div>
 </div>
 
-<div id="outline-container-sec-4-2" class="outline-3">
-<h3 id="sec-4-2">Customizing the installation with the local settings.</h3>
-<div class="outline-text-3" id="text-4-2">
+<div id="outline-container-orgab5bad0" class="outline-3">
+<h3 id="orgab5bad0">Customizing the installation with the local settings.</h3>
+<div class="outline-text-3" id="text-orgab5bad0">
 <p>
 The home directory of the <code>pbench</code> user is only used for ssh purposes:
 the public key of the <code>pbench agent</code> is copied in to allow <code>pbench-move-results</code>
@@ -291,9 +398,9 @@ config file is <code>/opt/pbench-server/lib/config/pbench-server.cfg</code>.
 </div>
 </div>
 
-<div id="outline-container-sec-4-3" class="outline-3">
-<h3 id="sec-4-3">Config files</h3>
-<div class="outline-text-3" id="text-4-3">
+<div id="outline-container-org1911386" class="outline-3">
+<h3 id="org1911386">Config files</h3>
+<div class="outline-text-3" id="text-org1911386">
 <p>
 Example config files are installed under <code>/opt/pbench-server/lib/config</code>. You should
 make copies of these files:
@@ -342,9 +449,9 @@ as described in the next section.
 </div>
 </div>
 
-<div id="outline-container-sec-4-4" class="outline-3">
-<h3 id="sec-4-4">The rest of the setup</h3>
-<div class="outline-text-3" id="text-4-4">
+<div id="outline-container-orgbfcd65e" class="outline-3">
+<h3 id="orgbfcd65e">The rest of the setup</h3>
+<div class="outline-text-3" id="text-orgbfcd65e">
 <p>
 Let us assume you now have a saved <code>pbench-server.cfg</code> file in some
 safe place. The rest of the setup goes as follows:
@@ -369,15 +476,12 @@ The second step consists of a number of substeps:
 <ul class="org-ul">
 <li>Create the crontab, based on the roles and tasks defined in the
 config file. The crontab is <b>not</b> activated: you should examine it
-carefully and, assuming that it passes muster, activate it (see below).
-</li>
+carefully and, assuming that it passes muster, activate it (see below).</li>
 <li>Create the results host info structure that the agent depends on to
-send results to the server.
-</li>
+send results to the server.</li>
 <li>Create a directory structure to store results, by default under
 <code>/pbench</code>. It is up to you to make sure that there is enough space
-there for the results that will be generated by your users.
-</li>
+there for the results that will be generated by your users.</li>
 </ul>
 
 <p>
@@ -392,9 +496,9 @@ crontab /opt/pbench-server/lib/crontab/crontab
 </div>
 </div>
 
-<div id="outline-container-sec-5" class="outline-2">
-<h2 id="sec-5">Testing</h2>
-<div class="outline-text-2" id="text-5">
+<div id="outline-container-orgcf6b88b" class="outline-2">
+<h2 id="orgcf6b88b">Testing</h2>
+<div class="outline-text-2" id="text-orgcf6b88b">
 <p>
 You should then test the whole shebang by setting up a <code>pbench-agent</code>
 (see <a href="../agent/installation.html">PBench agent installation</a>), running a simple benchmark and moving
@@ -409,18 +513,18 @@ are correctly done.
 <h2 class="footnotes">Footnotes: </h2>
 <div id="text-footnotes">
 
-<div class="footdef"><sup><a id="fn.1" name="fn.1" class="footnum" href="#fnr.1">1</a></sup> <p class="footpara">
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">
 Although this document describes installation in terms of an "internal"
 package, note that that may be a convenient fiction. If there <b>is</b> one available,
 then installing it should take care of the config files and the rest of the setup
-described in <a href="#sec-4">Server installation (generic)</a>.
-</p></div>
+described in <a href="#orgb6bdb74">Server installation (generic)</a>.
+</p></div></div>
 
 
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2017-12-07 Thu 17:08</p>
+<p class="date">Page updated: 2018-02-07 Wed 10:06</p>
 </div>
 </body>
 </html>
