@@ -30,7 +30,7 @@ if [[ -z "$mail_recipients" ]] ;then
     exit 1
 fi
 
-log_init $(basename $0)
+log_init $(basename $0) $LOGSDIR/$(basename $0)
 
 # make sure only one copy is running.
 # Use 'flock -n $LOCKFILE /home/pbench/bin/pbench-move-unpacked' in the

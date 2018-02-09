@@ -34,7 +34,7 @@ esac
 # TOP, ARCHIVE, INCOMING, RESULTS are defined by the base file
 . $dir/pbench-base.sh
 ###########################################################################
-log_init $(basename $0)
+log_init $(basename $0) $LOGSDIR/$(basename $0)
 
 # check that all the directories exist
 test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"

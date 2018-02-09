@@ -41,7 +41,7 @@ trap "rm -rf $tmp" EXIT
 
 mkdir -p "$tmp"
 
-log_init $(basename $0)
+log_init $(basename $0) $LOGSDIR/$(basename $0)
 
 echo $TS: $PROG starting
 

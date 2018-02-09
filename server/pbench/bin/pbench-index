@@ -75,7 +75,7 @@ TMPDIR=$TMP/pbench-index.$$
 # index-pbench need to get at it
 export TMPDIR
 
-log_init $(basename $0)
+log_init $(basename $0) $LOGSDIR/$(basename $0)
 
 echo "$TS: starting at $(timestamp)"
 

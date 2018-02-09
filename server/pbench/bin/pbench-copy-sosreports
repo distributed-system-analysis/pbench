@@ -53,7 +53,7 @@ esac
 . $dir/pbench-base.sh
 ###########################################################################
 
-log_init $PROG
+log_init $PROG $LOGSDIR/$(basename $0)
 
 # check that all the directories exist
 test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
