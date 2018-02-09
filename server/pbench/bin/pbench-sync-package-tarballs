@@ -41,12 +41,7 @@ typeset -i nprocessed=0
 
 mkdir -p "$tmp"
 
-log_init $(basename $0)
-if [[ -z "$mail_recipients" ]] ;then
-    echo "$TS: $PROG: mail_recipients is not defined" >&4
-    exit 1
-fi
-
+log_init $(basename $0) $LOGSDIR/$(basename $0)
 logdir=$LOGSDIR/$(basename $0)/$prefix/$TS
 mkdir -p "$logdir"
 rc=$?

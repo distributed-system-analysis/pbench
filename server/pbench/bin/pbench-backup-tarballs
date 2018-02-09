@@ -23,7 +23,7 @@ stats=$TMP/${PROG}.$$
 
 trap "rm -f $stats" EXIT INT QUIT
                  
-log_init $(basename $0)
+log_init $(basename $0) $LOGSDIR/$(basename $0)
 
 echo "start-$(timestamp)"
 

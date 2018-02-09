@@ -105,12 +105,7 @@ trap "rm -rf $tmp" EXIT QUIT INT
 mkdir -p $tmp
 mkdir -p $unpack
 
-log_init $(basename $0)
-if [[ -z "$mail_recipients" ]] ;then
-    echo "$PROG: mail_recipients is not defined" >&4
-    exit 1
-fi
-
+log_init $(basename $0) $LOGSDIR/$(basename $0)
 logdir=$LOGSDIR/$(basename $0)/$prefix/$TS
 # remove the tmp dir on exit; try to remove an empty $logdir
 # but suppress any complaints.
