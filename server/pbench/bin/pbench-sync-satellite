@@ -214,6 +214,9 @@ for host in $hosts ;do
                 $PWD/$x TODO/$x" | tee -a $mail_content >&4 
                 continue
             fi
+            # For the synced tarballs, add an entry to the dispatch
+            # list watching by inotify script.  
+            flock -x $INOTIFY_STATE_DIR/TO-DISPATCH-LIST echo $PWD/TODO/$x >> $INOTIFY_STATE_DIR/TO-DISPATCH-LIST
         done
     fi
     # save the contents of ok checks to further use it for state change
