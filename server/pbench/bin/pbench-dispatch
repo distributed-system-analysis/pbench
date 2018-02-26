@@ -67,7 +67,7 @@ typeset -i ndups=0
 linksrc=TODO
 linkdestlist=$(getconf.py -l dispatch-states pbench-server)
 if [[ -z "$linkdestlist" ]]; then
-    echo "config file error: either no dispach-states defined or a typo" >&4
+    echo "$TS: config file error: either no dispach-states defined or a typo" >&4
     subj="$PROG.$TS($PBENCH_ENV) - Config file error"
     echo "config file error: either no dispach-states defined or a typo" | mailx -s "$subj" $mail_recipients
     exit 1
