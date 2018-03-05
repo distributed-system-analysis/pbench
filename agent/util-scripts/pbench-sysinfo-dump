@@ -37,6 +37,13 @@ function collect_kernel_config {
 	fi
 }
 
+function collect_mitigation_data {
+	# spectre and meltdown
+	if [ -d /sys/kernel/debug ] ;then
+		find /sys/kernel/debug/x86 -name '*enabled' -print -exec cat {} \; > $dir/security-mitigation-data.txt
+	fi
+}
+	   
 function collect_libvirt {
 	if [[ -e /var/log/libvirt && -e /etc/libvirt ]]; then
 		debug_log "[$script_name]collecting libvirt data"
@@ -111,6 +118,8 @@ for item in ${sysinfo//,/ };do
 	debug_log "[$script_name]: collecting $item"
 	if [[ "$item" == "kernel_config" ]]; then
 		collect_kernel_config &
+	elif [[ "$item" == "security_mitigations" ]]; then
+		collect_mitigation_data &
 	elif [[ "$item" == "libvirt" ]]; then
 		collect_libvirt &
 	elif [[ "$item" == "topology" ]]; then

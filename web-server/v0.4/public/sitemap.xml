@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://patternfly-react-starter.firebaseapp.com/</loc>
+  </url>
+  <url>
+    <loc>https://patternfly-react-starter.firebaseapp.com/home</loc>
+  </url>
+  <url>
+    <loc>https://patternfly-react-starter.firebaseapp.com/stages</loc>
+  </url>
+  <url>
+    <loc>https://patternfly-react-starter.firebaseapp.com/error</loc>
+  </url>
+  <url>
+    <loc>https://patternfly-react-starter.firebaseapp.com/apps</loc>
+  </url>
+  <url>
+    <loc>https://patternfly-react-starter.firebaseapp.com/users</loc>
+  </url>
+  <url>
+    <loc>https://patternfly-react-starter.firebaseapp.com/environments</loc>
+  </url>
+</urlset>

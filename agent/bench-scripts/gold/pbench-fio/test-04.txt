@@ -18,7 +18,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -46,7 +45,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -74,7 +72,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -102,7 +99,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -130,7 +126,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -158,7 +153,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -186,7 +180,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -214,7 +207,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -242,7 +234,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -270,7 +261,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -298,7 +288,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -326,7 +315,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -354,7 +342,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -382,7 +369,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -410,7 +396,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -438,7 +423,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -466,7 +450,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -494,7 +477,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -522,7 +504,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -550,7 +531,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -578,7 +558,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -606,7 +585,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -634,7 +612,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -662,7 +639,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -690,7 +666,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -718,7 +693,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -746,7 +720,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -774,7 +747,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -802,7 +774,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -830,7 +801,6 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
-log_hist_coarseness=4 # 76 bins
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -8009,7 +7979,7 @@ warning: timestamp already exists with this RW type, skipping this sample (file 
 /var/tmp/pbench-test-bench/pbench/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio 2.14 is installed
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio 3.3 is installed
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-fio]python-pandas is installed
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio_device_check() /tmp/fio 
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1/fio.job ]

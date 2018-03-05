@@ -67,13 +67,6 @@
       copy:
         src: "{{inventory_file}}"
         dest: "{{ inventory_file_path }}"
-      when: "ansible_version.full | version_compare('2.4', '<')"
-
-    - name: copy inventory file to pbench-controller
-      copy:
-        src: "{{ inventory_dir }}/{{inventory_file}}"
-        dest: "{{ inventory_file_path }}"
-      when: "ansible_version.full | version_compare('2.4', '>=')"
 
     - name: copy inventory file to master
       shell: scp {{ inventory_file_path }} {{ item }}:{{ inventory_file_path }}
@@ -82,6 +75,10 @@
 
     - name: register tools
       shell: sh /run/pbench/register.sh {{ default_tools_interval }} {{ ose_master_interval }} {{ ose_node_interval }} {{ file }} {{ inventory_file_path }}
+
+    - name: register tools on the controller or jump host
+      shell: pbench-register-tool-set
+      when: inventory_hostname not in groups['masters']|default([])
 
     - name: create .kube directory to store config file
       file: path={{ ansible_env.HOME }}/.kube state=directory

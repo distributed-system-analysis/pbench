@@ -1,6 +1,6 @@
-clat-client_hostname:all-server_hostname:all-server_port:all-server_port:all=2888.974767
-clat-client_hostname:localhost=2930.193548
-lat-client_hostname:all-server_hostname:all-server_port:all-server_port:all=2909.837000
-lat-client_hostname:localhost=2951.129032
-slat-client_hostname:all-server_hostname:all-server_port:all-server_port:all=19.733333
-slat-client_hostname:localhost=20.433333
+clat-client_hostname:all-server_hostname:all-server_port:all-server_port:all=2930.193548
+clat-client_hostname:localhost-1=2930.193548
+lat-client_hostname:all-server_hostname:all-server_port:all-server_port:all=2951.129032
+lat-client_hostname:localhost-1=2951.129032
+slat-client_hostname:all-server_hostname:all-server_port:all-server_port:all=20.433333
+slat-client_hostname:localhost-1=20.433333

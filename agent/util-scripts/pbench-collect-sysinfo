@@ -17,8 +17,8 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 group=default
 dir="/tmp"
 # array containing all the possible sysinfo options
-sysinfo_opts_default=( block libvirt kernel_config sos topology )
-sysinfo_opts_available=( block libvirt kernel_config sos topology ara )
+sysinfo_opts_default=( block libvirt kernel_config security_mitigations sos topology )
+sysinfo_opts_available=( block libvirt kernel_config security_mitigations sos topology ara )
 # get comma seperated values
 sysinfo_opts_default_comma_separated=$(IFS=,; echo "${sysinfo_opts_default[*]}")
 sysinfo_opts_available_comma_separated=$(IFS=,; echo "${sysinfo_opts_available[*]}")
