@@ -437,7 +437,6 @@ sub div_series {
 
 sub calc_aggregate_metrics {
 	my $workload_ref = shift;
-
 	# process any data in %workload{'throughput'|'latency'}, aggregating various per-client results
 	my $metric_class;
 	foreach $metric_class ('throughput', 'latency') {
@@ -445,51 +444,63 @@ sub calc_aggregate_metrics {
 			my $metric_type;
 			foreach $metric_type (keys %{ $$workload_ref{$metric_class} }) {
 				my %agg_dataset; # a new dataset for aggregated results
-				$agg_dataset{get_label('description_label')} = $$workload_ref{$metric_class}{$metric_type}[0]{get_label('description_label')};
 				$agg_dataset{get_label('role_label')} = "aggregate";
-				$agg_dataset{get_label('client_hostname_label')} = "all";
-				$agg_dataset{get_label('server_hostname_label')} = "all";
-				$agg_dataset{get_label('server_port_label')} = "all";
-				$agg_dataset{get_label('uid_label')} = create_uid('client_hostname_label', 'server_hostname_label', 'server_port_label', 'server_port_label');
-				# find the latest first timestamp and the earliest last timestamp among all of the data series
-				my $first_timestamp_ms = 0;
-				my $last_timestamp_ms = -1;
-				my $timestamp_interval = 0; # what will be the average time between samples for aggregate series
-				my $count = 0;
-				for (my $i = 0; $i < scalar @{ $$workload_ref{$metric_class}{$metric_type} }; $i++) {
-					my @timestamps = get_timestamps(\@{ $$workload_ref{$metric_class}{$metric_type}[$i]{get_label('timeseries_label')}});
-					if (scalar @timestamps > 1) {
-						$timestamp_interval += ($timestamps[-1] - $timestamps[0]) / (scalar @timestamps - 1);
-						$count++;
-						if ($timestamps[0] > $first_timestamp_ms) {
-							$first_timestamp_ms = $timestamps[0]
-						}
-						if ($last_timestamp_ms == -1 or $timestamps[-1] < $last_timestamp_ms) {
-							$last_timestamp_ms = $timestamps[-1]
-						}
-					} else {
-					}
+				$agg_dataset{get_label('description_label')} = $$workload_ref{$metric_class}{$metric_type}[0]{get_label('description_label')};
+				$agg_dataset{get_label('uid_label')} = $$workload_ref{$metric_class}{$metric_type}[0]{get_label('uid_label')};
+				foreach my $label ( grep { $_ ne get_label('description_label') and
+							   $_ ne get_label('value_label') and 
+							   $_ ne get_label('uid_label') and 
+							   $_ ne get_label('role_label') } (keys $$workload_ref{$metric_class}{$metric_type}[0] ) ) {
+					$agg_dataset{$label} = "all";
 				}
-				if ( $count == 0 ) {
+				# Ensure we have at least 1 good series
+				my $num_ts = 0;
+				my $num_metrics = 0;
+				for (my $i = 0; $i < scalar @{ $$workload_ref{$metric_class}{$metric_type} }; $i++) {
+					# A timeseries is considered valid if it has at least 2 timestamps
+					if ((defined $$workload_ref{$metric_class}{$metric_type}[$i]{get_label('timeseries_label')}) and
+					    (scalar get_timestamps(\@{ $$workload_ref{$metric_class}{$metric_type}[$i]{get_label('timeseries_label')}}) > 1)) {
+						$num_ts++;
+					}
+					$num_metrics++;
+				}
+				if ($num_metrics == 0) {
 					next;
 				}
-				$timestamp_interval /= $count;
-				my @agg_samples;
-				# our new timeseries array for aggregate starts off with values from first data series
-				for (my $agg_timestamp_ms = $first_timestamp_ms; $agg_timestamp_ms <= $last_timestamp_ms; $agg_timestamp_ms += $timestamp_interval) {
-					my %agg_sample = ( get_label('date_label') => int $agg_timestamp_ms, get_label('value_label') => 0);
-					push(@agg_samples, \%agg_sample);
+				# In order to create an aggregate timeseries, we need at least 1 time series and all metrics must have timeseries data
+				if ( $num_ts > 0 and $num_metrics == $num_ts ) {
+					# The aggregate is initialized with the first series
+					my @agg_series;
+					my $first_series;
+					foreach $first_series ( @{ $$workload_ref{$metric_class}{$metric_type}[0]{get_label('timeseries_label')} }  ) {
+						my %sample = ( get_label('date_label') => int $$first_series{ get_label('date_label') }, get_label('value_label') => $$first_series{ get_label('value_label') } );
+						push(@agg_series, \%sample);
+					}
+
+					# And if more series exist, they are added to the aggregate series
+					if ( $num_ts > 0) {
+						my $i;
+						for ($i=1; $i < scalar @{ $$workload_ref{$metric_class}{$metric_type} }; $i++) {
+							calc_sum_series(\@{ $$workload_ref{$metric_class}{$metric_type}[$i]{get_label('timeseries_label')} }, \@agg_series);
+						}
+						if ( $metric_class eq 'latency' ) {
+							div_series(\@agg_series, $i);
+						}
+					}
+					$agg_dataset{get_label('value_label')} = get_mean(\@agg_series);
+					$agg_dataset{get_label('timeseries_label')} = \@agg_series;
+				# If creating a new timeseries is not possible, the aggregate metric is constructed from the "value_label' from each metric instead.
+				} else {
+					my $i;
+					my $value = 0;
+					for ($i = 0; $i < scalar @{ $$workload_ref{$metric_class}{$metric_type} }; $i++) {
+						$value += $$workload_ref{$metric_class}{$metric_type}[$i]{get_label('value_label')}
+					}
+					if ( $metric_class eq 'latency' ) {
+						$value /= $i;
+					}
+					$agg_dataset{get_label('value_label')} = $value;
 				}
-				# And now we add the values from each per server result to that hash one at a time
-				my $i;
-				for ($i=0; $i < scalar @{ $$workload_ref{$metric_class}{$metric_type} }; $i++) {
-					calc_sum_series(\@{ $$workload_ref{$metric_class}{$metric_type}[$i]{get_label('timeseries_label')} }, \@agg_samples);
-				}
-				if ( $metric_class eq 'latency' ) {
-					div_series(\@agg_samples, $i);
-				}
-				$agg_dataset{get_label('value_label')} = get_mean(\@agg_samples);
-				$agg_dataset{get_label('timeseries_label')} = \@agg_samples;
 				# The aggregate data should be the first in the array
 				unshift(@{ $$workload_ref{$metric_class}{$metric_type} }, \%agg_dataset);
 			}
