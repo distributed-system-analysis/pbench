@@ -1,0 +1,104 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">
+  </head>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.3/jschart.js"></script>
+    <center><h2>proc-vmstat - proc-vmstat</h2></center>
+    <div id="chart_1">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_1", "allocstall_delta_sec", null, null, { csvfiles: [ "csv/proc-vmstat_allocstall_delta_sec.csv" ] });
+      </script>
+    </div>
+    <div id="chart_2">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_2", "balloon_delta_sec", null, null, { csvfiles: [ "csv/proc-vmstat_balloon_delta_sec.csv" ] });
+      </script>
+    </div>
+    <div id="chart_3">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_3", "compact_delta_sec", null, null, { csvfiles: [ "csv/proc-vmstat_compact_delta_sec.csv" ] });
+      </script>
+    </div>
+    <div id="chart_4">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_4", "drop_delta_sec", null, null, { csvfiles: [ "csv/proc-vmstat_drop_delta_sec.csv" ] });
+      </script>
+    </div>
+    <div id="chart_5">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_5", "htlb_delta_sec", null, null, { csvfiles: [ "csv/proc-vmstat_htlb_delta_sec.csv" ] });
+      </script>
+    </div>
+    <div id="chart_6">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_6", "kswapd_delta_sec", null, null, { csvfiles: [ "csv/proc-vmstat_kswapd_delta_sec.csv" ] });
+      </script>
+    </div>
+    <div id="chart_7">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_7", "nr_delta_sec", null, null, { csvfiles: [ "csv/proc-vmstat_nr_delta_sec.csv" ] });
+      </script>
+    </div>
+    <div id="chart_8">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_8", "numa_delta_sec", null, null, { csvfiles: [ "csv/proc-vmstat_numa_delta_sec.csv" ] });
+      </script>
+    </div>
+    <div id="chart_9">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_9", "pgalloc_delta_sec", null, null, { csvfiles: [ "csv/proc-vmstat_pgalloc_delta_sec.csv" ] });
+      </script>
+    </div>
+    <div id="chart_10">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_10", "pgmigrate_delta_sec", null, null, { csvfiles: [ "csv/proc-vmstat_pgmigrate_delta_sec.csv" ] });
+      </script>
+    </div>
+    <div id="chart_11">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_11", "pgscan_delta_sec", null, null, { csvfiles: [ "csv/proc-vmstat_pgscan_delta_sec.csv" ] });
+      </script>
+    </div>
+    <div id="chart_12">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_12", "pgskip_delta_sec", null, null, { csvfiles: [ "csv/proc-vmstat_pgskip_delta_sec.csv" ] });
+      </script>
+    </div>
+    <div id="chart_13">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_13", "pgsteal_delta_sec", null, null, { csvfiles: [ "csv/proc-vmstat_pgsteal_delta_sec.csv" ] });
+      </script>
+    </div>
+    <div id="chart_14">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_14", "slabs_delta_sec", null, null, { csvfiles: [ "csv/proc-vmstat_slabs_delta_sec.csv" ] });
+      </script>
+    </div>
+    <div id="chart_15">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_15", "thp_delta_sec", null, null, { csvfiles: [ "csv/proc-vmstat_thp_delta_sec.csv" ] });
+      </script>
+    </div>
+    <div id="chart_16">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_16", "unevictable_delta_sec", null, null, { csvfiles: [ "csv/proc-vmstat_unevictable_delta_sec.csv" ] });
+      </script>
+    </div>
+    <div id="chart_17">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_17", "workingset_delta_sec", null, null, { csvfiles: [ "csv/proc-vmstat_workingset_delta_sec.csv" ] });
+      </script>
+    </div>
+    <div id="chart_18">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_18", "zone_delta_sec", null, null, { csvfiles: [ "csv/proc-vmstat_zone_delta_sec.csv" ] });
+      </script>
+    </div>
+  </body>
+</html>

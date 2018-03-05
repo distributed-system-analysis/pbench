@@ -14,6 +14,7 @@ benchmark="mpt"
 ver=0.1.1
 
 #Defaults
+export benchmark_run_dir=""
 broker_url=amqp://localhost:5672/test.performance.queue
 
 # TODO: find the appropriate balance here. Ideally, messaging-performance
@@ -96,7 +97,7 @@ function mpt_process_options() {
     esac
   done
 
-  benchmark_run_dir="$pbench_run/${benchmark}_${config}_$date"
+  benchmark_run_dir="${pbench_run}/${benchmark}_${config}_${date_suffix}"
 }
 
 function mpt_check_options() {

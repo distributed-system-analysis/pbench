@@ -409,11 +409,11 @@ printf TXT "\n";
 printf HTML "</tr>\n";
 
 # for all iterations, print the *values* for the metric labels (mean, stddevpct, closest_sample)
-for ($i = 0; $i < scalar @iterations; $i++) {
-	#print Dumper \%{ $iterations[$i]};
-	$iteration_name = $iterations[$i]{$iteration_name_field};
+foreach my $iteration (sort { $a->{$iteration_number_field} <=> $b->{$iteration_number_field} } @iterations) {
+	#print Dumper \%{ $iteration };
+	$iteration_name = $iteration->{$iteration_name_field};
 	my $cell_bgcolor;
-	$iteration_num = $iterations[$i]{$iteration_number_field};
+	$iteration_num = $iteration->{$iteration_number_field};
 	printf TXT "%$spacing{iter_num}s%$spacing{iter_name}s", $iteration_num, $iteration_name;
 	printf CSV "%s,%s,", $iteration_num, $iteration_name;
 	my $href_spacing = $spacing{iter_name} - (scalar split("", $iteration_name));
@@ -432,19 +432,19 @@ for ($i = 0; $i < scalar @iterations; $i++) {
 					my $csv_label_section = "";
 					foreach $metric_label ( @all_metric_labels ) {
 						if ( grep(/^$metric_label$/, @all_metric_labels) ) {
-							if ( defined ($iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j-1]{$metric_label}) ) {
+							if ( defined ($iteration->{$iteration_data_field}{$metric_type}{$metric_name}[$j-1]{$metric_label}) ) {
 								my $metric_label_string;
-								$metric_label_string = sprintf "%$spacing{$metric_type}{$metric_name}[$j]{$metric_label}s", $iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j-1]{$metric_label};
+								$metric_label_string = sprintf "%$spacing{$metric_type}{$metric_name}[$j]{$metric_label}s", $iteration->{$iteration_data_field}{$metric_type}{$metric_name}[$j-1]{$metric_label};
 								if ( $metric_label eq get_label('closest_sample_label') ) { # embed a link to the closest sample
-									printf HTML "<td><div align=\"right\"><a href=\"./$iteration_num-$iteration_name/sample$iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j-1]{$metric_label}\">$metric_label_string</a></dev></td>";
+									printf HTML "<td><div align=\"right\"><a href=\"./$iteration_num-$iteration_name/sample$iteration->{$iteration_data_field}{$metric_type}{$metric_name}[$j-1]{$metric_label}\">$metric_label_string</a></dev></td>";
 								} elsif ($metric_type and
 									 $metric_type eq 'throughput' and
 									 $metric_label eq get_label('stddevpct_label') and
-									 $iterations[$i]{'iteration_data'}{metric_type}{metric_name}[$j-1]{get_label('role_label')} and
-									 $iterations[$i]{'iteration_data'}{metric_type}{metric_name}[$j-1]{get_label('role_label')} eq 'aggregate' and
-									 $iterations[$i]{'iteration_data'}{'parameters'}{'benchmark'}[0]{get_label('primary_metric_label')} and
-									 $iterations[$i]{'iteration_data'}{'parameters'}{'benchmark'}[0]{get_label('primary_metric_label')} eq $metric_name and
-									 $iterations[$i]{'iteration_data'}{'parameters'}{'benchmark'}[0]{get_label('max_stddevpct_label')} <= $iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j-1]{$metric_label}) {
+									 $iteration->{'iteration_data'}{metric_type}{metric_name}[$j-1]{get_label('role_label')} and
+									 $iteration->{'iteration_data'}{metric_type}{metric_name}[$j-1]{get_label('role_label')} eq 'aggregate' and
+									 $iteration->{'iteration_data'}{'parameters'}{'benchmark'}[0]{get_label('primary_metric_label')} and
+									 $iteration->{'iteration_data'}{'parameters'}{'benchmark'}[0]{get_label('primary_metric_label')} eq $metric_name and
+									 $iteration->{'iteration_data'}{'parameters'}{'benchmark'}[0]{get_label('max_stddevpct_label')} <= $iteration->{$iteration_data_field}{$metric_type}{$metric_name}[$j-1]{$metric_label}) {
 									printf HTML "<td bgcolor=#FFAAAA><div align=\"right\"><tt><b>$metric_label_string</b></tt></dev></td>";
 								} else {
 									printf HTML "<td><div align=\"right\"><tt><b>$metric_label_string</b></tt></dev></td>";

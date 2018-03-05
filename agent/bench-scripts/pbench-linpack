@@ -40,19 +40,26 @@ start_iteration_num=1
 orig_cmd="$*"
 tool_group=default
 config=""
+sysinfo="default"
 
 # Process options and arguments
-opts=$(getopt -q -o C: --longoptions "config:,threads:,kvm-host:,tool-group:" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o C: --longoptions "config:,threads:,kvm-host:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@");
+
+function usage {
+	printf "\tThe following options are available:\n\n"
+	printf -- "\t\t--kvm-host=str\n"
+	printf -- "\t\t-C str --config=str                         name of the test config\n"
+	printf -- "\t\t--threads=int[,int]                         number of threads to use (default is num_cpus)\n"
+	printf -- "\t\t--tool-group=str\n"
+	printf -- "\t\t--sysinfo=str,                              str= comma seperated values of sysinfo to be collected\n"
+	printf -- "\t\t 
+}
 
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
 	printf "\t${benchmark}: you specified an invalid option\n\n"
-	printf "\tThe following options are available:\n\n"
-        printf -- "\t\t--kvm-host=str\n"
-	printf -- "\t\t-C str --config=str                         name of the test config\n"   
-	printf -- "\t\t--threads=int[,int]                         number of threads to use (default is num_cpus)\n"
-	printf -- "\t\t--tool-group=str\n"
+	usage
 	exit 1
 fi
 eval set -- "$opts";
@@ -87,6 +94,17 @@ while true; do
 			shift;
 		fi
 		;;
+		--sysinfo)
+                shift;
+		if [ -n "$1" ]; then
+			sysinfo="$1"
+			shift;
+		fi
+		;;
+		h|--help)
+		usage
+		exit 0
+		;;
 		--)
 		shift;
 		break;
@@ -98,7 +116,13 @@ while true; do
 	esac
 done
 verify_tool_group $tool_group
-
+pbench-collect-sysinfo --sysinfo=$sysinfo --check
+if [ $? != 0 ]; then
+        printf -- "$*\n\n"
+        printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
+        usage
+        exit 1
+fi
 ## Ensure the right version of the benchmark is installed
 if check_install_rpm $benchmark_rpm $ver; then
     debug_log "[$script_name]$benchmark_rpm is installed"
@@ -107,8 +131,8 @@ else
     exit 1
 fi
 
-benchmark_fullname="${benchmark}_${config}_${date}"
-benchmark_run_dir="$pbench_run/${benchmark_fullname}"
+benchmark_fullname="${benchmark}_${config}_${date_suffix}"
+export benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
 benchmark_summary_txt_file="$benchmark_run_dir/$benchmark-summary.txt"
 benchmark_summary_html_file="$benchmark_run_dir/$benchmark-summary.html"
@@ -120,7 +144,8 @@ benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
 result_file=$benchmark_results_dir/result.txt
 mkdir -p $benchmark_results_dir
 export benchmark config
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 echo $iteration >> $benchmark_iterations
 ## Run the benchmark and start/stop perf analysis tools
 pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
@@ -128,6 +153,7 @@ pushd /usr/local/linpack_11.1.3/benchmarks/linpack
 OMP_NUM_THREADS=$threads ./xlinpack_xeon64 < ./linpack.dat | tee $result_file
 pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 
 rmdir $benchmark_run_dir/.running

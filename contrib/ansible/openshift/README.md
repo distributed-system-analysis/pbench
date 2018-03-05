@@ -1,23 +1,25 @@
 ## Pbench Ansible
-Playbook to register pbench tools on openshift cluster.
+Playbook to register pbench tools on OpenShift cluster.
 
 ### Requirements
 You need to have these installed
-   - Openshift
+   - OpenShift
    - pbench
 
 ### Tools registered
-master - sar, pidstat, iostat, oc, pprof
+master - sar, pidstat, iostat, oc, pprof, prometheus-metrics, disk, haproxy, perf
 
-nodes - sar, pidstat, iostat, pprof
+nodes - sar, pidstat, iostat, pprof, disk, perf
 
-etcd - sar, pidstat, iostat
+etcd - sar, pidstat, iostat, disk, perf
 
-lb - sar, pidstat, iostat
+lb - sar, pidstat, iostat, disk, perf
+
+glusterfs - sar, pidstat, iostat, pprof, disk, perf
 
 ### Sample inventory
-Your inventory should have groups of hosts describing the roles they play in the openshift cluster. This playbook looks for the following groups in the inventory file:
-
+Your inventory should have groups of hosts describing the roles they play in the OpenShift cluster. This playbook looks for the following groups in the inventory file:
+```
 [pbench-controller]
 
 [masters]
@@ -28,8 +30,33 @@ Your inventory should have groups of hosts describing the roles they play in the
 
 [lb]
 
+[glusterfs]
+
+[prometheus-metrics]
+<host> port=8443 cert=<cert> key=<key>
+<host> port=10250 cert=/etc/origin/master/admin.crt key=/etc/origin/master/admin.key
+
+[pbench-controller:vars]
+register_all_nodes=False
+```
+
+Note: glusterfs group represents cns nodes.
+By default, tools registration is done on only two of the nodes, infra nodes. Setting the register_all_nodes to True will register tools on all of the nodes. 
+Inventory file is copied on to the masters and pbench-controller. It will be available at /root/inv.
+
+### Monitoring multiple endpoints using prometheus-metrics
+prometheus-metrics tool is registered on the first master, the endpoints to be monitored should be added under the [prometheus-metrics] group in the inventory file as follows:
+```
+[prometheus-metrics]
+<master> port=<port> cert=<cert> key=<key>
+<endpoint> port=<port> cert=<cert> key=<key>
+```
+
+### Accessing OpenShift Cluster
+Kube config file is copied from the master node on to the pbench-controller. So you should be able to run oc commands and clusterloader from pbench-controller node.
+
 ### Run
-Currently for pbench is run under the root user, so the playbook also needs to run as root.
+Currently pbench is run under the root user, so the playbook also needs to run as root.
 ```
 $ ansible-playbook -i /path/to/inventory --extra-vars '{ "ansible_ssh_private_key_file":"" }' pbench_register.yml
 ```

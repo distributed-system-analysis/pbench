@@ -1,0 +1,10 @@
+[Unit]
+Description=pbench daemon
+After=sshd.service
+
+[Service]
+ExecStart=/root/mount.sh
+StandardOutput=null
+
+[Install]
+WantedBy=multi-user.target

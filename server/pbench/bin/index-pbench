@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+# -*- mode: python -*-
 
 # prereqs:
 # config file: specified in ES_CONFIG_PATH
@@ -11,9 +12,9 @@ import sys, os, time, re, stat, copy
 import hashlib, json, glob, csv, tarfile
 
 try:
-    from configparser import SafeConfigParser, NoSectionError, NoOptionError
+    from configparser import SafeConfigParser, Error as ConfigParserError, NoSectionError, NoOptionError
 except ImportError:
-    from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
+    from ConfigParser import SafeConfigParser, Error as ConfigParserError, NoSectionError, NoOptionError
 from optparse import OptionParser, make_option
 from elasticsearch import VERSION, Elasticsearch, helpers, exceptions as es_excs
 from urllib3 import exceptions as ul_excs, Timeout
@@ -297,6 +298,7 @@ def es_index(es, actions, dbg=0):
                           tstos(end), end - start, lcl_successes,
                           lcl_duplicates, lcl_errors))
                 sys.stdout.flush()
+            break
         except Exception as err:
             end = time.time()
             print("\tERROR(%s) (end ts: %s, duration: %.2fs): %s" % (
@@ -337,14 +339,81 @@ def es_index(es, actions, dbg=0):
             break
     return 0
 
+###########################################################################
+# Benchmark result data: json files only
+#
+
+# convert a 0 value in a timeseries array to a float, else ES barfs.
+def convert_to_float(d):
+    if type(d) == type({}):
+        for k1 in d:
+            convert_to_float(d[k1])
+    elif type(d) == type([]):
+        if type(d[0]) == type({}) and set(d[0].keys()) == set(['date', 'value']):
+            d[-1]['value'] = float(d[-1]['value'])
+        else:
+            for i in range(0, len(d)):
+                convert_to_float(d[i])
+    else:
+        pass
+
+class ResultData(object):
+    def __init__(self, tstamp, md5sum, experiment, mdlog, tb):
+        self.run_metadata = {
+            "runtstamp": tstamp,
+            "runid": md5sum,
+            "experiment": experiment,
+        }
+        self.json_files = None
+        try:
+            self.json_files = ResultData.get_json_files(mdlog, tb)
+        except KeyError:
+            self.json_files = None
+
+    def _make_source_json(self):
+        for df in self.json_files:
+            item = {}
+            results = json.loads(open(os.path.join(_tmpdir, df['path'])).read())
+            convert_to_float(results)
+            item['results'] = results
+            item['@metadata'] = self.run_metadata
+            ts_str = self.run_metadata['runtstamp']
+            item['@timestamp'] = ts_str
+            yield item
+        return
+
+    def make_source(self):
+        """Simple jump method to pick the write source generator based on the
+        handler's prospectus."""
+        if not self.json_files:
+            # If we do not have any json files for this experiment, ignore it.
+            return None
+        gen = self._make_source_json()
+        return gen
+
+    @staticmethod
+    def get_json_files(mdlog, tb):
+        """
+        Fetch the list of result.json files for this experiment;
+        return a list of dicts containing their metadata.
+        """
+        paths = [x for x in tb.getnames() if x.find("result.json") >= 0 and tb.getmember(x).isfile()]
+        datafiles = []
+        for p in paths:
+            fname = os.path.basename(p)
+            datafile = { "path": p, "basename": fname }
+            datafiles.append(datafile)
+
+        return datafiles
+
 
 ###########################################################################
 # Tool data routines
 
-# Handlers data table / dictionary describing how to process a given tools
+# Handlers data table / dictionary describing how to process a given tool's
 # .csv files.  The outer dictionary holds one dictionary for each tool. Each
 # tool entry has one '@prospectus' entry, which records behavior and handling
-# controls, and then on entry for each .csv file name emitted by the tool.
+# controls, and then one entry for each .csv file name emitted by the tool.
 #
 # For each .csv file, we record the metric "class", and its name, "metric".
 # E.g. The metadata path hierarchy for iostat disk_IOPS.csv data would be,
@@ -355,7 +424,7 @@ def es_index(es, actions, dbg=0):
 # currently used by pbench today in generated html charts), and the "units"
 # for the metric, but neither field is currently indexed (FIXME!).
 #
-# The "colpat" field, or column pattern, describes as a regular express the
+# The "colpat" field, or column pattern, describes as a regular expression the
 # constituent components of the .csv file column header. Currently, the "id"
 # and "subfield" match groups are the only two expected groups, with
 # "subfield" considered optional.
@@ -435,7 +504,15 @@ _known_csv_handlers = {
         },
     },
     'sar': {},
-    'turbostat': {}
+    'turbostat': {},
+}
+
+_known_json_handlers = {
+    'prometheus-metrics': {
+        '@prospectus': {
+            'handling': 'json',
+         },
+     },
 }
 # If we need to deal with old .csv file names, place an alias here to map to
 # an existing handler above.
@@ -452,7 +529,10 @@ class ToolData(object):
     def __init__(self, tstamp, md5sum, experiment, iteration, sample, host, tool, toolgroup,
                  mdlog, tb):
         self.toolname = tool
-        (iterseqno, itername) = iteration.split('-', 1)
+        try:
+            (iterseqno, itername) = iteration.split('-', 1)
+        except Exception:
+            iterseqno = itername = iteration
         self.run_metadata = {
             "runtstamp": tstamp,
             "runid": md5sum,
@@ -464,17 +544,26 @@ class ToolData(object):
             "host": host,
             "toolgroup": toolgroup,
         }
+        self.csv_files = None
+        self.json_files = None
         try:
-            self.handler = _known_csv_handlers[tool]
+            self.handler = _known_json_handlers[tool]
         except KeyError:
-            self.handler = None
-            self.csv_files = None
-        else:
-            # Fetch all the .csv files as a dictionary containing metadata
-            # about them, a csv reader object, and the header line from each
-            # file.
-            self.csv_files = ToolData.get_csv_files(
+            try:
+                self.handler = _known_csv_handlers[tool]
+            except KeyError:
+                self.handler = None
+            else:
+                # Fetch all the .csv files as a dictionary containing metadata
+                # about them, a csv reader object, and the header line from each
+                # file.
+                self.csv_files = ToolData.get_csv_files(
                     self.handler, iteration, sample, host, tool, toolgroup, mdlog, tb)
+        else:
+            self.json_files = ToolData.get_json_files(self.handler,
+                                                          iteration, sample,
+                                                          host, tool, toolgroup,
+                                                          mdlog, tb)
 
     def _make_source_unified(self):
         """Process each .csv file at the same time, reading one row from each,
@@ -520,7 +609,6 @@ class ToolData(object):
                             "Handler subfields, %r, do not match header subfield"
                             " name %s" % (handler['subfields'], subfield))
                 field_mapping[csv['basename']][idx] = (identifier, subfield)
-
         while True:
             # Read a row from each .csv file
             rows = _dict_const()
@@ -593,16 +681,38 @@ class ToolData(object):
         column coordinate."""
         pass
 
+    def _make_source_json(self):
+        for df in self.json_files:
+            payload = json.loads(open(os.path.join(_tmpdir, df['path'])).read())
+            for item in payload:
+                item['@metadata'] = self.run_metadata
+                # any transformations needed should be done here
+
+                # timestamp handling.
+                try:
+                    # unix seconds since epoch timestamp
+                    ts = datetime.utcfromtimestamp(item['@timestamp'])
+                    ts_str = ts.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+                    item['@timestamp'] = ts_str
+                except Exception:
+                    # assume that item[@timestamp] is already in %Y-%m-%dT%H:%M:%S.%f%z format
+                    pass
+                
+                yield item
+        return
+
     def make_source(self):
         """Simple jump method to pick the write source generator based on the
         handler's prospectus."""
-        if not self.csv_files:
-            # If we do not have any csv files for this tool, ignore it.
+        if not self.csv_files and not self.json_files:
+            # If we do not have any csv or json files for this tool, ignore it.
             return
         if self.handler['@prospectus']['handling'] == 'unify':
             gen = self._make_source_unified()
         elif self.handler['@prospectus']['handling'] == 'individual':
             gen = self._make_source_individual()
+        elif self.handler['@prospectus']['handling'] == 'json':
+            gen = self._make_source_json()
         else:
             raise Exception("Logic bomb!")
         return gen
@@ -639,6 +749,22 @@ class ToolData(object):
             datafiles.append(datafile)
         return datafiles
 
+    @staticmethod
+    def get_json_files(handler, iteration, sample, host, tool, toolgroup, mdlog, tb):
+        """
+        Fetch the list of json files for this tool, and
+        return a list of dicts containing their metadata.
+        """
+        # import pdb; pdb.set_trace()
+        path = os.path.join(iteration, sample, "tools-%s" % (toolgroup,), host, tool, "json")
+        paths = [x for x in tb.getnames() if x.find(path) >= 0 and tb.getmember(x).isfile()]
+        datafiles = []
+        for p in paths:
+            fname = os.path.basename(p)
+            datafile = { "path": p, "basename": fname, 'handler': handler }
+            datafiles.append(datafile)
+
+        return datafiles
 
 # tool data are stored in csv files in the tarball.
 # the structure is
@@ -674,19 +800,37 @@ def get_samples(iteration, mdlog, tb):
         sample = l[2]
         if sample.startswith('sample'):
             samples.append(sample)
+    if len(samples) == 0:
+        samples.append('reference-result')
     return samples
 
 def get_pbench_hosts(iteration, sample, mdlog, tb):
     try:
         # N.B. Space-separated list
-        return mdlog.get("tools", "hosts").split(' ')
-    except Exception:
+        return mdlog.get("tools", "hosts").split()
+    except ConfigParserError:
+        print("ConfigParser error in get_pbench_hosts: tool data will *not* be indexed.")
+        print("This is most probably a bug: please open an issue.")
+        return []
+    except NoSectionError:
+        print("No [tools] section in metadata.log: tool data will *not* be indexed.")
+        return []
+    except NoOptionError:
+        print("No hosts in [tools] section in metadata log: tool data will *NOT* be indexed.")
         return []
 
 def get_tools(iteration, sample, host, mdlog, tb):
     try:
         return mdlog.options("tools/{}".format(host))
-    except Exception:
+    except ConfigParserError:
+        print("ConfigParser error in get_tools: tool data will *not* be indexed.")
+        print("This is most probably a bug: please open an issue.")
+        return []
+    except NoSectionError:
+        print("No [tools/{}] section in metadata.log: tool data will *not* be indexed.".format(host))
+        return []
+    except NoOptionError:
+        print("No tools in [tools/{}] section in metadata log: tool data will *NOT* be indexed.".format(host))
         return []
 
 def mk_tool_data(mdlog, md5sum, tb, tstamp):
@@ -732,6 +876,29 @@ def mk_tool_data_actions(ptb, options, INDEX_PREFIX):
                 "_source":  source
             }
             yield action
+    return
+
+def mk_result_data_actions(ptb, options, INDEX_PREFIX):
+    index_name_template = "%s.result-data." % INDEX_PREFIX
+    mdlog = ptb.mdconf
+    experiment = mdlog.get("pbench", "name")
+    rd = ResultData(ptb.start_run, ptb.md5sum, experiment, mdlog, ptb.tb)
+    if not rd:
+        return
+    sources = rd.make_source()
+    if not sources:
+        return
+    for source in sources:
+            action = {
+                "_op_type": _op_type,
+                "_index":   index_name_template + source['@timestamp'].split('T', 1)[0],
+                "_type":    "pbench-result-data",
+                # FIXME: we should generate our own JSON doc ID
+                #"_id":      source_id,
+                "_source":  source
+            }
+            yield action
+        
     return
 
 ###########################################################################
@@ -854,7 +1021,7 @@ def mk_tool_info(sos_d, mdconf):
         # from pprint import pprint; pprint(mdconf.get("tools", "hosts"))
 
         labels = {}
-        for host in mdconf.get("tools", "hosts").split(' '):
+        for host in mdconf.get("tools", "hosts").split():
             # from pprint import pprint; pprint(host)
             tools_info = {}
             # XXX - we should have an FQDN for the host but
@@ -1225,6 +1392,9 @@ def make_all_actions(ptb, options, INDEX_PREFIX, INDEX_VERSION):
     yield mk_run_action(ptb, options, INDEX_PREFIX)
     if debug_time_operations: ts("mk_toc_actions")
     for action in mk_toc_actions(ptb, options, INDEX_PREFIX):
+        yield action
+    if debug_time_operations: ts("mk_result_data_actions")
+    for action in mk_result_data_actions(ptb, options, INDEX_PREFIX):
         yield action
     if debug_time_operations: ts("mk_tool_data_actions")
     for action in mk_tool_data_actions(ptb, options, INDEX_PREFIX):

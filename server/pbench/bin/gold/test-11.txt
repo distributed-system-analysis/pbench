@@ -1,0 +1,63 @@
++++ Running pbench-sync-satellite
+--- Finished pbench-sync-satellite (status=0}
++++ pbench tree state
+/var/tmp/pbench-test-server/pbench
+/var/tmp/pbench-test-server/pbench/archive
+/var/tmp/pbench-test-server/pbench/archive.backup
+/var/tmp/pbench-test-server/pbench/archive.backup/controller
+/var/tmp/pbench-test-server/pbench/archive.backup/controller/fio__2016-08-16_22:03:11.tar.xz
+/var/tmp/pbench-test-server/pbench/archive.backup/controller/fio__2016-08-16_22:03:11.tar.xz.md5
+/var/tmp/pbench-test-server/pbench/archive.backup/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
+/var/tmp/pbench-test-server/pbench/archive.backup/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz.md5
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/TEST2::controller
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/TEST2::controller/fio__2016-08-16_22:03:11.tar.xz
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/TEST2::controller/fio__2016-08-16_22:03:11.tar.xz.md5
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/TEST2::controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/TEST2::controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
+/var/tmp/pbench-test-server/pbench/logs
+/var/tmp/pbench-test-server/pbench/logs/change-state.TEST2.log
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/pbench-rsync-satellite.wq.trimmed
+/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite
+/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.error
+/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log
+/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/TEST2
+/var/tmp/pbench-test-server/pbench/public_html
+/var/tmp/pbench-test-server/pbench/public_html/incoming
+/var/tmp/pbench-test-server/pbench/public_html/results
+/var/tmp/pbench-test-server/pbench/tmp
+--- pbench tree state
++++ pbench log file contents
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24821] receiving file list
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24823] .d..t...... ./
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24823] >f fio__2016-08-16_22:03:11.tar.xz
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24823] >f fio__2016-08-16_22:03:11.tar.xz.md5
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24823] >f pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24823] >f pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24823] sent 201 bytes  received 1,154,874 bytes  770,050.00 bytes/sec
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24823] total size is 1,154,332  speedup is 1.00
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/pbench-rsync-satellite.wq.trimmed:foo
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/pbench-rsync-satellite.wq.trimmed:bar
+/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/pbench-rsync-satellite.wq.trimmed:baz
+/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:tar: This does not look like a tar archive
+/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:tar: Exiting with failure status due to previous errors
+/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: start - 1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: end - 1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: duration (secs): 0
+/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: Total 0 files processed, with 0 md5 failures and 0 errors
+--- pbench log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/ssh foo2.bar.com /opt/pbench-server/bin/pbench-sync-package-tarballs
+--- test-execution.log file contents

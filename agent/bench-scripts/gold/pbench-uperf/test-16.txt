@@ -1,0 +1,62 @@
++++ Running test-16 pbench-uperf
+	The following options are available:
+
+	--kvm-host=str
+	--tool-group=str
+	-c str       --config=str               name of the test config (e.g. jumbo_frames_and_network_throughput)
+	-t str[,str] --test-types=str[,str]     can be stream, maerts, bidirec, and/or rr (default stream,maerts,bidirec,rr)
+	-r int       --runtime=int              test measurement period in seconds (default is 60)
+	-m int[,int] --message-sizes=str[,str]  list of message sizes in bytes (default is 1,64,1024,16384)
+	-p str[,str] --protocols=str[,str]      tcp and/or udp (default is tcp,udp)
+	-i int[,int] --instances=int[,int]      list of number of uperf instances to run (default is 1,8,64)
+	-C str[,str] --client[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the
+				   uperf client (drive the test).
+				   If this is omitted, the local system is the client.
+				   Note: the number of clients and servers must be the same!
+				   Clients and servers are paired according to the order in the list (first
+				   client pairs with first server, etc)
+	-S str[,str] --server[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the uperf
+				   server (listening for connections).
+				   If this is omitted, the server will listen on the local system
+				   loopback interface.
+	--server-node[s]=str[,str]              An ordered list of server NUMA nodes which should be used for CPU binding
+	--client-node[s]=str[,str]              An ordered list of rrclient NUMA nodes which should be used for CPU binding
+				   For both options above, the order must correspond with the --clients/--servers list
+				   To omit a specific client/server from binding, use a value of -1.
+	--samples=int              the number of times each different test is run (to compute average &
+				   standard deviations).
+	--max-failures=int         the maximum number of failures to get below stddev.
+	--max-stddev=int           the maximum percent stddev allowed to pass.
+	--postprocess-only=y|n     don't run the benchmark, but postprocess data from previous test.
+	--run-dir=str              optionally specify what directory should be used (usually only used
+				   if postprocess-only=y).
+	--start-iteration-num=int  optionally skip the first (n-1) tests.
+	--log-response-times=y|n   record the response time of every single operation.
+	--tool-label-pattern=str   uperf will provide CPU and efficiency information for any tool directory
+				   with a "^<pattern>" in the name, provided "sar" is one of the
+				   registered tools.
+				   a default pattern, "uperf-" is used if none is provided.
+				   simply register your tools with "--label=uperf-$X", and this script
+				   will generate CPU_uperf-$X and Gbps/CPU_uperf-$X or
+				   trans_sec/CPU-uperf-$X for all tools which have that pattern as a
+				   prefix.  If you don't want to register your tools with "uperf-" as
+				   part of the label, just use --tool-label-pattern= to tell this script
+				   the prefix pattern to use for CPU information.
+	--sysinfo=str,             str= comma seperated values of sysinfo to be collected
+	                                available: default,none,all,a,b,c,d,e
+--- Finished test-16 pbench-uperf (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench
+/var/tmp/pbench-test-bench/pbench/pbench.log
+/var/tmp/pbench-test-bench/pbench/samples
+/var/tmp/pbench-test-bench/pbench/tmp
+/var/tmp/pbench-test-bench/pbench/tools-default
+/var/tmp/pbench-test-bench/pbench/tools-default/mpstat
+/var/tmp/pbench-test-bench/pbench/tools-default/sar
+--- pbench tree state
++++ pbench.log file contents
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-uperf]processing options
+--- pbench.log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+--- test-execution.log file contents

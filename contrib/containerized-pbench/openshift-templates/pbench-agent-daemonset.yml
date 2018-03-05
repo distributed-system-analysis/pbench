@@ -1,0 +1,51 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: pbench-agent
+  labels:
+    name: pbench-agent
+spec:
+  template:
+    metadata:
+      labels:
+        name: pbench-agent
+    spec:
+      hostPID: true
+      hostNetwork: true
+      containers:
+      - image: pbench-agent
+        name: pbench-agent
+        imagePullPolicy: "Never"
+        securityContext:
+          privileged: true
+        volumeMounts:
+          - name: kube-config
+            mountPath: /root/.kube
+          - name: proc-mount
+            mountPath: /proc_host
+          - name: ssh-keys
+            mountPath: /root/.ssh
+          - name: admin-keys
+            mountPath: /etc/origin/master
+          - name: certs
+            mountPath: /etc/pki
+        ports:
+          - containerPort: 2022
+      volumes:
+        - name: kube-config
+          hostPath:
+            path: /root/.kube
+        - name: proc-mount
+          hostPath:
+            path: /proc
+        - name: ssh-keys
+          hostPath:
+            path: /root/.ssh
+        - name: admin-keys
+          hostPath: 
+            path: /etc/origin/master
+        - name: certs
+          hostPath:
+            path: /etc/pki
+      nodeSelector: 
+        type: pbench

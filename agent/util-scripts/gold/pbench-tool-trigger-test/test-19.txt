@@ -13,9 +13,6 @@ baz
 --- Finished test-19 pbench-tool-trigger-test (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
-/var/tmp/pbench-test-utils/pbench/opt
-/var/tmp/pbench-test-utils/pbench/opt/config
-/var/tmp/pbench-test-utils/pbench/opt/config/pbench-agent.cfg
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tmp/.empty
 /var/tmp/pbench-test-utils/pbench/tool-triggers

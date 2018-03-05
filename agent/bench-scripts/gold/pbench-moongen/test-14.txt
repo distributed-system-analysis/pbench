@@ -1,0 +1,60 @@
++++ Running test-14 pbench-moongen
+	The following options are available:
+
+		-c str       --config=str               name of the test config (i.e. jumbo_frames_and_network_throughput)
+		-r float     --rate[s]                  list of rates in millions of packets/sec (multiple rates can be used for latency tests)
+		             --portlist=int,int[,int,int]  list of DPDK ports to use (multiples of 2)
+		-t str[,str] --test-type=str            throughput, latency, or throughput-latency (default throughput)
+		                                        throuhgput: find max throuhgput with a binary search
+		                                        latency: find latency (histogram) at a specified packet rate
+		                                        throughput-latency: first find max throuhgput with a binary search, then
+		                                                            find latency (histogram) at the max throughput
+		-o           --one-shot                 only run one test for throughput and then quit (no binary search)
+		             --accept-negative-loss     allow attempts with negative packet loss to pass
+		-t str[,str] --traffic=str[,str]        list of one or more: unidirec or bidirec (default unidirec)
+		-r int       --latency-runtime=int      test measurement period in seconds when running a latency test (default is 60)
+		-r int       --search-runtime=int       test measurement period in seconds when searching for max throughput (default is 60)
+		-r int       --validation-runtime=int   test measurement period in seconds when running final validation (default is 120)
+		             --max-drop-pct[s]=fl,[fl]  list of maximum allowed percentage of dropped frames (default is 0)
+		-m int[,int] --frame-sizes=str[,str]    list of frame sizes in bytes (default is 64)
+		-i int[,int] --nr-flows=int[,int]       list of number of packet flows to run (default is 1024)
+		             --samples=int              the number of times each different test is run (to compute average &
+		                                        standard deviations)
+		             --max-failures=int         the maximm number of failures to get below stddev
+		             --max-stddev=int           the maximm percent stddev allowed to pass
+		             --postprocess-only=y|n     don't run the benchmark, but postprocess data from previous test
+		             --run-dir=str              optionally specify what directory should be used (usually only used
+		                                        if postprocess-only=y)
+		             --start-iteration-num=int  optionally skip the first (n-1) tests
+		             --tool-label-pattern=str   moongen will provide CPU and efficiency information for any tool directory
+		                                        with a "^<pattern>" in the name, provided "sar" is one of the
+		                                        registered tools.
+		                                        a default pattern, "-" is used if none is provided.
+		                                        simply register your tools with "--label=moongen-$X", and this script
+		                                        will genrate CPU_moongen-$X and Gbps/CPU_moongen-$X or
+		                                        trans_sec/CPU-moongen-$X for all tools which have that pattern as a
+		                                        prefix.  if you don't want to register your tools with "moongen-" as
+		                                        part of the label, just use --tool-label-pattern= to tell this script
+		                                        the prefix pattern to use for CPU information.
+		             --tool-group=str
+		             --mpps-per-queue=int       how many millions of packets to process per queue (default 5)
+		             --queues-per-task=int      how many tasks queues to bind to each task (default 3)
+		             --dst-macs=mac[,mac]       list of destination mac addresses, each mac in the list corresponds to a port from the port list
+		             --sysinfo=str,             str= comma separated values of system information to be collected
+		                                              available: default,none,all,a,b,c,d,e
+--- Finished test-14 pbench-moongen (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench
+/var/tmp/pbench-test-bench/pbench/pbench.log
+/var/tmp/pbench-test-bench/pbench/samples
+/var/tmp/pbench-test-bench/pbench/tmp
+/var/tmp/pbench-test-bench/pbench/tools-default
+/var/tmp/pbench-test-bench/pbench/tools-default/mpstat
+/var/tmp/pbench-test-bench/pbench/tools-default/sar
+--- pbench tree state
++++ pbench.log file contents
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-moongen]processing options
+--- pbench.log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+--- test-execution.log file contents
