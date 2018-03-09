@@ -111,20 +111,20 @@ for host in $hosts; do
             echo $TS: Failed to remove the tarball from Incoming directory: $INCOMING/$host/${x%%.tar.xz} | tee -a $mail_content >&4 
             nincomingerrs=$nincomingerrs+1
         fi
-        # remove from results
-        prefix_value=$(cat ".prefix/prefix.${x%%.tar.xz}")
-        if [ -L $RESULTS/$host/${x%%.tar.xz} ]; then
-            rm $RESULTS/$host/${x%%.tar.xz}
+        #remove the results
+        if [ -s .prefix/prefix.${x%%.tar.xz} ]; then
+            prefix_value=$(cat ".prefix/prefix.${x%%.tar.xz}")
+        fi
+        if [ -z $prefix_value ]; then
+            sym_link=$RESULTS/$host/${x%%.tar.xz}
+        else
+            sym_link=$RESULTS/$host/$prefix_value/${x%%.tar.xz}
+        fi
+        if [ -L $sym_link ]; then
+            rm $sym_link
             rc=$?
             if [ $rc != 0 ]; then
-                echo $TS: Failed to remove: $RESULTS/$host/${x%%.tar.xz} | tee -a $mail_content >&4 
-                nresultserrs=$nresultserrs+1
-            fi
-        elif [ -L $RESULTS/$host/$prefix_value/${x%%.tar.xz} ]; then
-            rm -rf $RESULTS/$host/$prefix_value
-            rc=$?
-            if [ $rc != 0 ]; then
-                echo $TS: Failed to remove: $RESULTS/$host/$prefix_value/${x%%.tar.xz} | tee -a $mail_content >&4 
+                echo $TS: Failed to remove: $sym_link | tee -a $mail_content >&4 
                 nresultserrs=$nresultserrs+1
             fi
         fi
