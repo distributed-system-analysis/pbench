@@ -1,0 +1,14 @@
+[Unit]
+Description=Pbench Dispatch
+
+[Service]
+User=pbench
+Group=pbench
+Environment=CONFIG=/opt/pbench-server/lib/config/pbench-server.cfg
+Environment=MAILTO=ndokos@redhat.com
+Environment=MAILFROM=pbench@dhcp31-176.perf.lab.eng.bos.redhat.com
+ExecStart=/usr/bin/flock -n /opt/pbench-server/lib/locks/pbench-dispatch-inotify.lock /opt/pbench-server/bin/pbench-dispatch-inotify
+StandardOutput=null
+
+[Install]
+WantedBy=multi-user.target

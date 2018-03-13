@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+
+import pyinotify
+import subprocess
+import os
+import sys
+import signal
+import fcntl
+import threading
+
+DISPATCH_LIST = "/pbench/archive/fs-version-001/dispatch-list"
+DISPATCH_LIST_DONE = "/pbench/archive/fs-version-001/dispatch-list-done"
+OLD_DISPATCH_LIST = "/pbench/archive/fs-version-001/processed_tarballs/old-dispatch-list"
+OLD_DISPATCH_LIST_DONE = "/pbench/archive/fs-version-001/processed_tarballs/old-dispatch-list-done"
+
+old_links = []
+
+def cleanit():
+    threading.Timer(3600.0, cleanit).start()
+    if (os.path.getsize(DISPATCH_LIST) > 0):
+        with open(DISPATCH_LIST) as f:
+            fcntl.flock(f, fcntl.LOCK_EX)
+        with open(DISPATCH_LIST, 'r+') as f:
+            old_dispatch_list = f.read()
+            f.seek(0)
+            f.truncate()
+        with open(DISPATCH_LIST_DONE, 'r+') as f:
+            old_dispatch_done = f.read()
+            f.seek(0)
+            f.truncate()
+        with open(OLD_DISPATCH_LIST, 'a') as f:
+            f.write(old_dispatch_list)
+        with open(OLD_DISPATCH_LIST_DONE, 'a') as f:
+            f.write(old_dispatch_done)
+        with open(DISPATCH_LIST) as f:
+            fcntl.flock(f, fcntl.LOCK_UN)
+    
+
+def compare_and_dispatch(new_links, old_file_links):
+    diff = [i for i in new_links if (i not in old_file_links)]
+    for i in diff:
+        print ("subprocess call")
+        subprocess.call(['/opt/pbench-server/bin/pbench-dispatch', str(i)])
+    old_links.extend(diff)
+
+
+class EventHandler(pyinotify.ProcessEvent):
+    def process_IN_CLOSE_WRITE(self, event):
+        list = open(DISPATCH_LIST, 'r')
+        fcntl.flock(list, fcntl.LOCK_EX)
+        new_links = list.readlines()
+        fcntl.flock(list, fcntl.LOCK_UN)
+        list.close()
+        compare_and_dispatch(new_links, old_links)
+
+
+def main():
+    def signal_handler(signal, frame):
+        print('Signal %d caught', signal)
+        with open(DISPATCH_LIST_DONE, 'w') as f:
+            for i in old_links:
+                f.write(i)
+        os._exit(1)
+
+    sig_type = ['SIGINT', 'SIGQUIT', 'SIGTERM']
+    for i in sig_type:
+        signum = getattr(signal, i)
+        signal.signal(signum, signal_handler)
+
+    wm = pyinotify.WatchManager()  # Watch Manager
+    mask = pyinotify.IN_CLOSE_WRITE  # watched events
+
+    list = open(DISPATCH_LIST, 'r')
+    fcntl.flock(list, fcntl.LOCK_EX)
+    new_links = list.readlines()
+    with open(DISPATCH_LIST_DONE, 'r') as f:
+        old_file_links = f.readlines()
+    
+    compare_and_dispatch(new_links, old_file_links)
+
+    notifier = pyinotify.ThreadedNotifier(wm, EventHandler())
+    notifier.start()
+    wdd = wm.add_watch(DISPATCH_LIST, mask)
+    fcntl.flock(list, fcntl.LOCK_UN)
+    list.close()
+    cleanit()
+    return 0
+
+
+if __name__ == '__main__':
+    status = main()
+    sys.exit(status)
