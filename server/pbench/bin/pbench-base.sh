@@ -34,6 +34,7 @@ BDIR=$(getconf.py pbench-backup-dir pbench-files)
 LOGSDIR=$(getconf.py pbench-logs-dir pbench-files)
 
 ARCHIVE=${TOP}/archive/fs-version-001
+INOTIFY_STATE_DIR=${ARCHIVE}/inotify_state
 INCOMING=${TOP}/public_html/incoming
 # this is where the symlink forest is going to go
 RESULTS=${TOP}/public_html/results

@@ -281,9 +281,10 @@ for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v 
         fi
     fi
 
-    # make a symlink in the remote TODO directory so that the tarball will be unpacked by the cron job
+    # set the state of the result appropriately so that it will be processed
+    # by the server scripts.
     ssh -i $pbench_bin/id_rsa $ssh_opts $results_repo \
-        "mkdir -p $results_full_path/TODO; cd $results_full_path/TODO; ln -s $results_full_path/$tarball ."
+	/opt/pbench-server/bin/pbench-server-set-result-state $results_full_path $tarball
 
     let runs_copied=runs_copied+1
 done
