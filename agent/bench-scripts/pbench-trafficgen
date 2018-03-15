@@ -85,6 +85,7 @@ flow_mods="src-ip,dst-ip,src-mac,dst-mac"
 all_possible_flow_mods="src-ip,dst-ip,src-mac,dst-mac,src-port,dst-port,encap-src-ip,encap-dst-ip,encap-src-mac,encap-dst-mac,protocol,none"
 cmd="./binary-search.py"
 packet_protocol="UDP"
+pre_sample_cmd=""
 
 function kill_trex() {
 	# kill any existing trex server process
@@ -115,7 +116,7 @@ function convert_number_range() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o c: --longoptions "skip-trex-install,skip-trex-server,skip-git-pull,traffic-generator:,devices:,active-devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o c: --longoptions "pre-benchmark-cmd:,skip-trex-install,skip-trex-server,skip-git-pull,traffic-generator:,devices:,active-devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
@@ -334,6 +335,9 @@ if [ $? -ne 0 ]; then
 	printf -- "\n"
 	printf -- "--tool-group=str\n"
 	printf -- "  Start/stop/post-process tools using this group\n"
+	printf -- "\n"
+	printf -- "--pre-sample-cmd=str\n"
+	printf -- "  run this command before executing each test sample\n"
 	exit 1
 fi
 eval set -- "$opts"
@@ -475,6 +479,13 @@ while true; do
 		shift
 		if [ -n "$1" ]; then
 			start_iteration_num=$1
+			shift
+		fi
+		;;
+		--pre-benchmark-cmd)
+		shift
+		if [ -n "$1" ]; then
+			pre_benchmark_cmd=$1
 			shift
 		fi
 		;;
@@ -936,7 +947,11 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 									mkdir -p $benchmark_results_dir
 									echo "test sample $sample of $num_samples"
 									log "test sample $sample of $num_samples "
+									pre_benchmark_cmd_log=$benchmark_results_dir/pre-benchmark-cmd-log.txt
 									result_file=$benchmark_results_dir/result.txt
+									if [ "$pre_benchmark_cmd" != "" ]; then
+										PBENCH_ITERATION=$iteration PBENCH_SAMPLE=$sample $pre_benchmark_cmd 2>&1 | tee -i $pre_benchmark_cmd_log
+									fi
 									pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 									$benchmark_cmd_file --output-dir=$benchmark_results_dir 2>&1 | tee -i $result_file
 									rc=$?
