@@ -1,0 +1,172 @@
+#! /bin/bash
+# -*- mode: shell-script -*-
+
+# This script is the first part of the pipeline that processes pbench
+# results tarballs.
+
+# First stage:  pbench-dispatch looks in all the TODO
+#               directories, checks MD5 sums and
+#               creates symlinks in all the state directories for
+#               the particular environment where this server runs
+#               (e.g. for the production environment, links are created
+#               in the TO-UNPACK, TO-INDEX, TO-COPY-SOS and TO-BACKUP
+#               directories; for a satellite, it will only create links
+#               in the TO-UNPACK and TO-SYNC directories). Then the
+#               symlink in TODO is deleted: we don't want to deal with
+#               this tarball again; but if there are errors, we may
+#               keep it in TODO and try again, if the error is recoverable.
+#               Any errors are reported for possible action by an admin.
+#               
+
+# assumptions:
+# - this script runs as a cron job
+# - tarballs and md5 sums are uploaded by pbench-move/copy-results to
+#   $ARCHIVE/$(hostname -s) area.
+# - pbench-move/copy-results also makes a symlink to each tarball it uploads
+#   in $ARCHIVE/TODO, thereby telling this script to process the tarball.
+
+# This script loops over the contents of $archive/<hostname>/TODO, verifies the md5
+# sum of each tarball, and if correct, it dispatches the tarball for further
+# processing.
+
+
+###########################################################################
+# load common things
+opts=$SHELLOPTS
+case $opts in
+    *xtrace*)
+        dir=$(dirname $(which $0))
+        PROG=$(basename $(which $0))
+        ;;
+    *)
+        dir=$(dirname $0)
+        PROG=$(basename $0)
+        ;;
+esac
+
+. $dir/pbench-base.sh
+###########################################################################
+
+log_init $(basename $0) $TMP/$(basename $0).$$
+
+# check that all the directories exist
+test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
+test -d $UNPACK_DIR || doexit "Bad UNPACK=$UNPACK_DIR"
+
+# make sure only one copy is running.
+# Use 'flock -n $LOCKFILE /path/to/pbench-dispatch' in the
+# crontab to ensure that only one copy is running. The script itself
+# does not use any locking.
+
+typeset -i ntb=0
+typeset -i ntotal=0
+typeset -i nerrs=0
+typeset -i ndups=0
+
+trap "rm -rf $TMP/$(basename $0).$$" EXIT INT QUIT
+
+# the link source and destination for this script
+linksrc=TODO
+linkdestlist=$(getconf.py -l dispatch-states pbench-server)
+if [[ -z "$linkdestlist" ]]; then
+    echo "$TS: config file error: either no dispach-states defined or a typo" >&4
+    subj="$PROG.$TS($PBENCH_ENV) - Config file error"
+    echo "config file error: either no dispach-states defined or a typo" | mailx -s "$subj" $mail_recipients
+    exit 1
+else
+    echo $TS
+    shift
+    for i in $@; do
+        ntotal=$ntotal+1
+
+        link=`echo $i | sed 's;/TODO;;'`
+        if [ ! -f "$link" ] ;then
+            echo "$TS: $link does not exist" | tee -a $mail_content >&4 
+            nerrs=$nerrs+1
+            continue
+        fi
+
+        result=$i
+        resultname=$(basename $result)
+        resultname=${resultname%.tar.xz}
+        hostname=$(basename $(dirname $link))
+
+        # make sure that all the relevant state directories exist
+        mk_dirs $hostname
+        # ... and a couple of other necessities.
+        if [[ $? -ne 0 ]] ;then
+            echo "$TS: Creation of $hostname processing directories failed: code $status" >&4
+            nerrs=$nerrs+1
+            continue
+        fi
+        
+        mkdir -p $TMP/$PROG/$hostname
+        status=$?
+        if [[ $status -ne 0 ]] ;then
+            echo "$TS: mkdir -p $TMP/$PROG/$hostname failed: code $status" >&4
+            nerrs=$nerrs+1
+            continue
+        fi
+        
+        # XXXX - for now, if it's a duplicate name, just punt and avoid producing the error - the full
+        # solution will involve renaming the unpacked directory appropriately.
+        if [ ${resultname%%.*} == "DUPLICATE__NAME" ] ;then
+            ndups=$ndups+1
+            continue
+        fi
+
+        # check the md5 sum
+        md5=$(cat $link.md5 2> /dev/null | cut -d' ' -f1)
+        md5tar=$(md5sum $link 2> /dev/null | cut -d' ' -f1)
+        if [ "$md5" != "$md5tar" ] ;then
+            echo "$TS: MD5 check failed on $link" >&4
+            # move the link so that the script does not report the error continuously
+            mv $result $(echo $result | sed 's/TODO/BAD-MD5/')
+            nerrs=$nerrs+1
+            continue
+        fi
+
+        # move any prefix file to the .prefix subdir
+        basedir=$(dirname $link)
+        prefixfile=$basedir/prefix.$resultname
+        if [ -f $prefixfile ] ;then
+            mkdir -p $basedir/.prefix
+            mv $prefixfile $basedir/.prefix
+        fi
+
+        # create a link in each state dir - if any fail, we should delete them all? No, that
+        # would be racy.
+        for state in $linkdestlist ;do
+            ln -sf $link $(echo $result | sed "s/$linksrc/$state/")
+            status=$?
+            if [[ $status -ne 0 ]] ;then
+               echo "$TS: Cannot create $result link from $linksrc to $state: code $status" >&4
+               nerrs=$nerrs+1
+               continue
+           else
+               echo $result >> $INOTIFY_STATE_DIR/$state-LIST
+            fi
+        done
+        # this needs checking
+        rm $result
+
+        # log the success
+        echo "$TS: $hostname/$resultname: success"
+        ntb=$ntb+1
+    done
+fi
+
+echo "$TS: Processed $ntb tarballs"
+
+log_finish
+log_append $TMP/$(basename $0).$$ $LOGSDIR/$(basename $0)
+
+if [[ $nerrs -gt 0 ]]; then
+    subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
+    # don't send mail when running unittests
+    if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
+        echo "Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates" | mailx -s "$subj" $mail_recipients
+    fi
+fi
+
+exit 0
