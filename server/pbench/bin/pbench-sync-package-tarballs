@@ -1,6 +1,6 @@
 #! /bin/bash
 
-CONFIG=/opt/pbench-server/lib/config/pbench-server.cfg
+export CONFIG=/opt/pbench-server/lib/config/pbench-server.cfg
 
 # load common things
 opts=$SHELLOPTS
@@ -17,10 +17,6 @@ esac
 
 # TOP, TMP, LOGSDIR, ARCHIVE, TS are all defined in pbench-base.sh
 . $dir/pbench-base.sh
-if [[ -z "$mail_recipients" ]] ;then
-    echo "$PROG: mail_recipients is not defined" >&4
-    exit 1
-fi
 
 remotearchive=$ARCHIVE
 
@@ -46,11 +42,16 @@ typeset -i nprocessed=0
 mkdir -p "$tmp"
 
 log_init $(basename $0)
+if [[ -z "$mail_recipients" ]] ;then
+    echo "$TS: $PROG: mail_recipients is not defined" >&4
+    exit 1
+fi
+
 logdir=$LOGSDIR/$(basename $0)/$prefix/$TS
 mkdir -p "$logdir"
 rc=$?
 if [[ $rc != 0 ]] ;then
-    echo Failed: mkdir -p "$logdir" >&4
+    echo "$TS: Failed: mkdir -p $logdir" >&4
     exit 2
 fi
 
@@ -99,7 +100,7 @@ fi
 tar cf - -T $tmp/files-to-sync >&100
 status=$?
 if [[ $status != 0 ]] ;then
-    echo Failed: tar --create -T $tmp/files-to-sync >&4
+    echo "$TS: Failed: tar --create -T $tmp/files-to-sync" >&4
     exit 2
 fi
 popd > /dev/null

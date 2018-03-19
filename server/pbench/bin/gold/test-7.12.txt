@@ -1,0 +1,858 @@
++++ Running indexing on /var/tmp/pbench-test-server/test-7.12
+len(actions) = 19
+[
+    {
+        "_id": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+        "_index": "pbench.run.2018-02",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "file-date": "2018-02-06",
+                "file-name": "/var/tmp/pbench-test-server/pbench-user-benchmark__2018.02.05T20.35.36.tar.xz",
+                "generated-by": "index-pbench",
+                "generated-by-version": "0.1.0.0",
+                "md5": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "pbench-agent-version": "0.47-162gb666083"
+            },
+            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "host_tools_info": [
+                {
+                    "hostname": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                    "hostname-f": null,
+                    "label": "svt_master_1_etcd_1",
+                    "tools": {
+                        "disk": "",
+                        "haproxy-ocp": "--interval=10 --counters-clear-all",
+                        "hostname-s": "ip-172-31-47-216",
+                        "iostat": "",
+                        "oc": "",
+                        "perf": "",
+                        "pidstat": "",
+                        "pprof": "--osecomponent=master --interval=10",
+                        "prometheus-metrics": "--inventory=/root/inv",
+                        "sar": ""
+                    }
+                },
+                {
+                    "hostname": "ec2-34-217-11-170.us-west-2.compute.amazonaws.com",
+                    "hostname-f": null,
+                    "label": "svt_node_2",
+                    "tools": {
+                        "disk": "",
+                        "hostname-s": "ip-172-31-26-72",
+                        "iostat": "",
+                        "perf": "",
+                        "pidstat": "",
+                        "pprof": "--osecomponent=node --interval=10",
+                        "sar": ""
+                    }
+                },
+                {
+                    "hostname": "ec2-54-212-205-252.us-west-2.compute.amazonaws.com",
+                    "hostname-f": null,
+                    "label": "svt_node_1",
+                    "tools": {
+                        "disk": "",
+                        "hostname-s": "ip-172-31-60-184",
+                        "iostat": "",
+                        "perf": "",
+                        "pidstat": "",
+                        "pprof": "--osecomponent=node --interval=10",
+                        "sar": ""
+                    }
+                }
+            ],
+            "run": {
+                "config": "",
+                "controller": "ip-172-31-52-154.us-west-2.compute.internal",
+                "date": "2018-02-05T20:35:36",
+                "end_run": "2018-02-05T20:36:47.602505488",
+                "id": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "iterations": "1, 1",
+                "name": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "script": "pbench-user-benchmark",
+                "start_run": "2018-02-05T20:35:36.317245145",
+                "tarball-dirname": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "tarball-toc-prefix": "pbench-user-benchmark__2018.02.05T20.35.36"
+            },
+            "sosreports": [
+                {
+                    "hostname-f": "ip-172-31-47-216.us-west-2.compute.internal",
+                    "hostname-s": "ip-172-31-47-216",
+                    "inet": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "127.0.0.1"
+                        },
+                        {
+                            "ifname": "eth0",
+                            "ipaddr": "172.31.47.216"
+                        },
+                        {
+                            "ifname": "docker0",
+                            "ipaddr": "172.17.0.1"
+                        },
+                        {
+                            "ifname": "tun0",
+                            "ipaddr": "172.23.0.1"
+                        }
+                    ],
+                    "inet6": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "::1"
+                        },
+                        {
+                            "ifname": "eth0",
+                            "ipaddr": "fe80::e8:6cff:fea2:f80c"
+                        },
+                        {
+                            "ifname": "vxlan_sys_4789",
+                            "ipaddr": "fe80::f072:c8ff:fe54:9775"
+                        },
+                        {
+                            "ifname": "tun0",
+                            "ipaddr": "fe80::4008:b7ff:feae:3def"
+                        },
+                        {
+                            "ifname": "veth3924b736",
+                            "ipaddr": "fe80::9cb6:c2ff:fe2c:9d5f"
+                        }
+                    ],
+                    "md5": "7b42f3dec395710eb4aa366aa308a77d",
+                    "name": "pbench-user-benchmark__2018.02.05T20.35.36/sysinfo/end/svt_master_1_etcd_1:ip-172-31-47-216/sosreport-ip-172-31-47-216.us-west-2.compute.internal-pbench-20180205203649.tar.xz"
+                },
+                {
+                    "hostname-f": "ip-172-31-60-184.us-west-2.compute.internal",
+                    "hostname-s": "ip-172-31-60-184",
+                    "inet": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "127.0.0.1"
+                        },
+                        {
+                            "ifname": "eth0",
+                            "ipaddr": "172.31.60.184"
+                        },
+                        {
+                            "ifname": "docker0",
+                            "ipaddr": "172.17.0.1"
+                        },
+                        {
+                            "ifname": "tun0",
+                            "ipaddr": "172.22.0.1"
+                        }
+                    ],
+                    "inet6": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "::1"
+                        },
+                        {
+                            "ifname": "eth0",
+                            "ipaddr": "fe80::52:daff:fead:851e"
+                        },
+                        {
+                            "ifname": "vxlan_sys_4789",
+                            "ipaddr": "fe80::b86e:39ff:fe88:56bb"
+                        },
+                        {
+                            "ifname": "tun0",
+                            "ipaddr": "fe80::8c20:98ff:fee3:e573"
+                        }
+                    ],
+                    "md5": "e19862ea62db43081bff8ddf502786da",
+                    "name": "pbench-user-benchmark__2018.02.05T20.35.36/sysinfo/end/svt_node_1:ip-172-31-60-184/sosreport-ip-172-31-60-184.us-west-2.compute.internal-pbench-20180205203649.tar.xz"
+                },
+                {
+                    "hostname-f": "ip-172-31-26-72.us-west-2.compute.internal",
+                    "hostname-s": "ip-172-31-26-72",
+                    "inet": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "127.0.0.1"
+                        },
+                        {
+                            "ifname": "eth0",
+                            "ipaddr": "172.31.26.72"
+                        },
+                        {
+                            "ifname": "docker0",
+                            "ipaddr": "172.17.0.1"
+                        },
+                        {
+                            "ifname": "tun0",
+                            "ipaddr": "172.21.0.1"
+                        }
+                    ],
+                    "inet6": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "::1"
+                        },
+                        {
+                            "ifname": "eth0",
+                            "ipaddr": "fe80::dd:cff:fe89:c630"
+                        },
+                        {
+                            "ifname": "vxlan_sys_4789",
+                            "ipaddr": "fe80::84ea:f7ff:fe1b:ac0a"
+                        },
+                        {
+                            "ifname": "tun0",
+                            "ipaddr": "fe80::c02a:dcff:fe0a:6092"
+                        },
+                        {
+                            "ifname": "veth1088f5eb",
+                            "ipaddr": "fe80::c04:95ff:fe92:6359"
+                        }
+                    ],
+                    "md5": "5e11ae3e8075fe8db2f234af49d846e5",
+                    "name": "pbench-user-benchmark__2018.02.05T20.35.36/sysinfo/end/svt_node_2:ip-172-31-26-72/sosreport-ip-172-31-26-72.us-west-2.compute.internal-pbench-20180205203649.tar.xz"
+                }
+            ]
+        },
+        "_type": "pbench-run"
+    },
+    {
+        "_id": "f577c3b30f93771ac1e61a7746f782f4",
+        "_index": "pbench.run.2018-02",
+        "_op_type": "create",
+        "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+        "_source": {
+            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "directory": "/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "metadata.log",
+                    "size": 1253
+                },
+                {
+                    "mode": "0o644",
+                    "name": "user-benchmark-summary.json",
+                    "size": 49
+                },
+                {
+                    "mode": "0o644",
+                    "name": "user-benchmark-summary-debug.json",
+                    "size": 0
+                },
+                {
+                    "mode": "0o644",
+                    "name": "pbench.log",
+                    "size": 62850
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "cdbe6719442ec0387c03d3ba96952b13",
+        "_index": "pbench.run.2018-02",
+        "_op_type": "create",
+        "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+        "_source": {
+            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "directory": "/1/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "8440fc63c64d24b6c977aa2b18ec12ec",
+        "_index": "pbench.run.2018-02",
+        "_op_type": "create",
+        "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+        "_source": {
+            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "directory": "/1/reference-result/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "result.txt",
+                    "size": 0
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "iostat": {
+                "disk": {
+                    "id": "xvda",
+                    "iops": {
+                        "read": "106.20",
+                        "write": "96.50"
+                    },
+                    "qsize": "0.41",
+                    "reqmerges": {
+                        "read": "0.20",
+                        "write": "9.70"
+                    },
+                    "reqsize": "43.03",
+                    "tput": {
+                        "read": "0.76",
+                        "write": "3.50"
+                    },
+                    "util": "8.30",
+                    "wtime": {
+                        "read": "0.61",
+                        "write": "3.59"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "iostat": {
+                "disk": {
+                    "id": "xvdb",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:59.000000",
+            "iostat": {
+                "disk": {
+                    "id": "xvda",
+                    "iops": {
+                        "read": "0.90",
+                        "write": "23.00"
+                    },
+                    "qsize": "0.04",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.20"
+                    },
+                    "reqsize": "18.50",
+                    "tput": {
+                        "read": "0.09",
+                        "write": "0.12"
+                    },
+                    "util": "0.74",
+                    "wtime": {
+                        "read": "3.78",
+                        "write": "1.45"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:59.000000",
+            "iostat": {
+                "disk": {
+                    "id": "xvdb",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:36:09.000000",
+            "iostat": {
+                "disk": {
+                    "id": "xvda",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "23.00"
+                    },
+                    "qsize": "0.02",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "10.20",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.11"
+                    },
+                    "util": "0.55",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "1.02"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:36:09.000000",
+            "iostat": {
+                "disk": {
+                    "id": "xvdb",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:36:19.000000",
+            "iostat": {
+                "disk": {
+                    "id": "xvda",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "62.20"
+                    },
+                    "qsize": "0.28",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "10.30"
+                    },
+                    "reqsize": "29.38",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.89"
+                    },
+                    "util": "2.13",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "4.49"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:36:19.000000",
+            "iostat": {
+                "disk": {
+                    "id": "xvdb",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:36:29.000000",
+            "iostat": {
+                "disk": {
+                    "id": "xvda",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "25.70"
+                    },
+                    "qsize": "0.14",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "39.00"
+                    },
+                    "reqsize": "58.57",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.73"
+                    },
+                    "util": "0.73",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "5.25"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:36:29.000000",
+            "iostat": {
+                "disk": {
+                    "id": "xvdb",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:36:39.000000",
+            "iostat": {
+                "disk": {
+                    "id": "xvda",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "25.70"
+                    },
+                    "qsize": "0.03",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "12.98",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.16"
+                    },
+                    "util": "0.63",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "1.09"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-iostat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:36:39.000000",
+            "iostat": {
+                "disk": {
+                    "id": "xvdb",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_index": "pbench.tool-data-prometheus-metrics.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:40.000000",
+            "metric": "APIServiceOpenAPIAggregationControllerQueue1_adds",
+            "type": "COUNTER",
+            "value": 0
+        },
+        "_type": "pbench-tool-data-prometheus-metrics"
+    },
+    {
+        "_index": "pbench.tool-data-prometheus-metrics.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:40.000000",
+            "metric": "APIServiceOpenAPIAggregationControllerQueue1_depth",
+            "type": "GAUGE",
+            "value": 0
+        },
+        "_type": "pbench-tool-data-prometheus-metrics"
+    },
+    {
+        "_index": "pbench.tool-data-prometheus-metrics.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:40.000000",
+            "count": 0,
+            "metric": "APIServiceOpenAPIAggregationControllerQueue1_queue_latency",
+            "quantiles": "0.9",
+            "sum": 0,
+            "type": "SUMMARY",
+            "value": 0
+        },
+        "_type": "pbench-tool-data-prometheus-metrics"
+    }
+]
+--- Finished indexing on /var/tmp/pbench-test-server/test-7.12 (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-server/pbench
+--- pbench tree state
++++ pbench log file contents
+--- pbench log file contents
++++ test-execution.log file contents
+grep: /var/tmp/pbench-test-server/test-execution.log: No such file or directory
+--- test-execution.log file contents

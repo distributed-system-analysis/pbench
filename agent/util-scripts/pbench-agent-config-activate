@@ -2,15 +2,16 @@
 # -*- mode: shell-script -*-
 
 prog=$(basename $0)
-usage="$prog <path-to-config-file>"
+usage="$prog <path-to-config-file> ..."
 
 case $# in
-    1)
-        configfile=$1
-        ;;
-    *)
+    0)
         echo $usage
         exit 2
+        ;;
+    *)
+        configfile=$1
+        shift
         ;;
 esac
 
@@ -20,15 +21,15 @@ if [ ! -f $configfile ] ;then
     exit 4
 fi
 
-# copy the configuration file to the destination
+# copy the configuration file(s) to the destination
 # use the "real" config file to get the destination
 dest=$(getconf.py --config $configfile pbench_install_dir pbench-agent)
 if [[ $_PBENCH_BENCH_TESTS -eq 1 ]] ;then
-    dest=$pbench_config/config/pbench-agent.cfg
+    dest=$pbench_config/config
 else
-    dest=$dest/config/pbench-agent.cfg
+    dest=$dest/config
 fi
-cp $configfile $dest
+cp $configfile "$@" $dest
 exit $?
 
 

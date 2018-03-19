@@ -13,127 +13,131 @@
                   "value" : 2888
                },
                {
-                  "date" : 1966,
-                  "value" : 2885.102
+                  "date" : 2000,
+                  "value" : 2885
                },
                {
-                  "date" : 2933,
-                  "value" : 2886.866
+                  "date" : 3000,
+                  "value" : 2887
                },
                {
-                  "date" : 3900,
-                  "value" : 2890.6
+                  "date" : 4000,
+                  "value" : 2891
                },
                {
-                  "date" : 4866,
-                  "value" : 2889.268
+                  "date" : 5000,
+                  "value" : 2889
                },
                {
-                  "date" : 5833,
-                  "value" : 2887.334
+                  "date" : 6000,
+                  "value" : 2887
                },
                {
-                  "date" : 6800,
-                  "value" : 2888.6
+                  "date" : 7000,
+                  "value" : 2889
                },
                {
-                  "date" : 7767,
-                  "value" : 2888.233
+                  "date" : 8000,
+                  "value" : 2888
                },
                {
-                  "date" : 8733,
-                  "value" : 2893.864
-               },
-               {
-                  "date" : 9700,
+                  "date" : 9000,
                   "value" : 2896
                },
                {
-                  "date" : 10667,
-                  "value" : 2893.999
+                  "date" : 10000,
+                  "value" : 2896
                },
                {
-                  "date" : 11634,
-                  "value" : 2894.902
+                  "date" : 11000,
+                  "value" : 2893
                },
                {
-                  "date" : 12600,
-                  "value" : 2897.2
+                  "date" : 12000,
+                  "value" : 2896
                },
                {
-                  "date" : 13567,
-                  "value" : 2891.763
+                  "date" : 13000,
+                  "value" : 2898
                },
                {
-                  "date" : 14534,
+                  "date" : 14000,
                   "value" : 2887
                },
                {
-                  "date" : 15501,
-                  "value" : 2888.503
-               },
-               {
-                  "date" : 16467,
-                  "value" : 2888.132
-               },
-               {
-                  "date" : 17434,
-                  "value" : 2886.434
-               },
-               {
-                  "date" : 18401,
-                  "value" : 2886.599
-               },
-               {
-                  "date" : 19367,
-                  "value" : 2887.468
-               },
-               {
-                  "date" : 20334,
-                  "value" : 2888.33
-               },
-               {
-                  "date" : 21301,
-                  "value" : 2885.301
-               },
-               {
-                  "date" : 22268,
-                  "value" : 2886.268
-               },
-               {
-                  "date" : 23234,
+                  "date" : 15000,
                   "value" : 2887
                },
                {
-                  "date" : 24201,
-                  "value" : 2887.201
+                  "date" : 16000,
+                  "value" : 2890
                },
                {
-                  "date" : 25168,
-                  "value" : 2888.168
+                  "date" : 17000,
+                  "value" : 2886
                },
                {
-                  "date" : 26135,
-                  "value" : 2888.055
+                  "date" : 18000,
+                  "value" : 2887
                },
                {
-                  "date" : 27101,
-                  "value" : 2882.606
+                  "date" : 19000,
+                  "value" : 2886
                },
                {
-                  "date" : 28068,
-                  "value" : 2888.272
+                  "date" : 20000,
+                  "value" : 2890
                },
                {
-                  "date" : 29035,
-                  "value" : 2892.175
+                  "date" : 21000,
+                  "value" : 2885
+               },
+               {
+                  "date" : 22000,
+                  "value" : 2886
+               },
+               {
+                  "date" : 23000,
+                  "value" : 2887
+               },
+               {
+                  "date" : 24000,
+                  "value" : 2887
+               },
+               {
+                  "date" : 25000,
+                  "value" : 2888
+               },
+               {
+                  "date" : 26000,
+                  "value" : 2889
+               },
+               {
+                  "date" : 27000,
+                  "value" : 2882
+               },
+               {
+                  "date" : 28000,
+                  "value" : 2888
+               },
+               {
+                  "date" : 29000,
+                  "value" : 2892
+               },
+               {
+                  "date" : 30000,
+                  "value" : 2897
+               },
+               {
+                  "date" : 30002,
+                  "value" : 4159
                }
             ],
             "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-            "value" : 2888.97476666667
+            "value" : 2930.1935483871
          },
          {
-            "client_hostname" : "localhost",
+            "client_hostname" : "localhost-1",
             "description" : "Average completion latency per I/O operation",
             "role" : "client",
             "timeseries" : [
@@ -310,127 +314,131 @@
                   "value" : 2909
                },
                {
-                  "date" : 1966,
-                  "value" : 2906.102
-               },
-               {
-                  "date" : 2933,
-                  "value" : 2907.866
-               },
-               {
-                  "date" : 3900,
-                  "value" : 2910.7
-               },
-               {
-                  "date" : 4866,
-                  "value" : 2909.268
-               },
-               {
-                  "date" : 5833,
-                  "value" : 2908.167
-               },
-               {
-                  "date" : 6800,
-                  "value" : 2909.6
-               },
-               {
-                  "date" : 7767,
-                  "value" : 2909.233
-               },
-               {
-                  "date" : 8733,
-                  "value" : 2914.864
-               },
-               {
-                  "date" : 9700,
-                  "value" : 2917.7
-               },
-               {
-                  "date" : 10667,
-                  "value" : 2915.332
-               },
-               {
-                  "date" : 11634,
-                  "value" : 2915.902
-               },
-               {
-                  "date" : 12600,
-                  "value" : 2918.2
-               },
-               {
-                  "date" : 13567,
-                  "value" : 2912.763
-               },
-               {
-                  "date" : 14534,
-                  "value" : 2908
-               },
-               {
-                  "date" : 15501,
-                  "value" : 2909.002
-               },
-               {
-                  "date" : 16467,
-                  "value" : 2908.132
-               },
-               {
-                  "date" : 17434,
-                  "value" : 2907.302
-               },
-               {
-                  "date" : 18401,
-                  "value" : 2908.599
-               },
-               {
-                  "date" : 19367,
-                  "value" : 2908.734
-               },
-               {
-                  "date" : 20334,
-                  "value" : 2908.664
-               },
-               {
-                  "date" : 21301,
+                  "date" : 2000,
                   "value" : 2906
                },
                {
-                  "date" : 22268,
-                  "value" : 2906.536
-               },
-               {
-                  "date" : 23234,
+                  "date" : 3000,
                   "value" : 2908
                },
                {
-                  "date" : 24201,
-                  "value" : 2908.402
+                  "date" : 4000,
+                  "value" : 2911
                },
                {
-                  "date" : 25168,
+                  "date" : 5000,
+                  "value" : 2909
+               },
+               {
+                  "date" : 6000,
+                  "value" : 2908
+               },
+               {
+                  "date" : 7000,
                   "value" : 2910
                },
                {
-                  "date" : 26135,
-                  "value" : 2909.055
+                  "date" : 8000,
+                  "value" : 2909
                },
                {
-                  "date" : 27101,
-                  "value" : 2903.505
+                  "date" : 9000,
+                  "value" : 2917
                },
                {
-                  "date" : 28068,
-                  "value" : 2908.272
+                  "date" : 10000,
+                  "value" : 2918
                },
                {
-                  "date" : 29035,
-                  "value" : 2912.21
+                  "date" : 11000,
+                  "value" : 2914
+               },
+               {
+                  "date" : 12000,
+                  "value" : 2917
+               },
+               {
+                  "date" : 13000,
+                  "value" : 2919
+               },
+               {
+                  "date" : 14000,
+                  "value" : 2908
+               },
+               {
+                  "date" : 15000,
+                  "value" : 2908
+               },
+               {
+                  "date" : 16000,
+                  "value" : 2910
+               },
+               {
+                  "date" : 17000,
+                  "value" : 2906
+               },
+               {
+                  "date" : 18000,
+                  "value" : 2909
+               },
+               {
+                  "date" : 19000,
+                  "value" : 2908
+               },
+               {
+                  "date" : 20000,
+                  "value" : 2910
+               },
+               {
+                  "date" : 21000,
+                  "value" : 2906
+               },
+               {
+                  "date" : 22000,
+                  "value" : 2906
+               },
+               {
+                  "date" : 23000,
+                  "value" : 2908
+               },
+               {
+                  "date" : 24000,
+                  "value" : 2908
+               },
+               {
+                  "date" : 25000,
+                  "value" : 2910
+               },
+               {
+                  "date" : 26000,
+                  "value" : 2910
+               },
+               {
+                  "date" : 27000,
+                  "value" : 2903
+               },
+               {
+                  "date" : 28000,
+                  "value" : 2908
+               },
+               {
+                  "date" : 29000,
+                  "value" : 2912
+               },
+               {
+                  "date" : 30000,
+                  "value" : 2918
+               },
+               {
+                  "date" : 30002,
+                  "value" : 4182
                }
             ],
             "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-            "value" : 2909.837
+            "value" : 2951.12903225806
          },
          {
-            "client_hostname" : "localhost",
+            "client_hostname" : "localhost-1",
             "description" : "Average total latency per I/O operation",
             "role" : "client",
             "timeseries" : [
@@ -724,14 +732,14 @@
                },
                {
                   "date" : 30000,
-                  "value" : 0
+                  "value" : 21
                }
             ],
             "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-            "value" : 19.741935483871
+            "value" : 20.4193548387097
          },
          {
-            "client_hostname" : "localhost",
+            "client_hostname" : "localhost-1",
             "description" : "Average submission latency per I/O operation",
             "role" : "client",
             "timeseries" : [

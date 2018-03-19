@@ -74,6 +74,16 @@ function process_tarball {
     resultname=${resultname%.tar.xz}
     hostname=$(basename $(dirname $link))
 
+    basedir=$(dirname $link)
+    # pbench-dispatch has already moved it to the .prefix subdir
+    prefixfile=$basedir/.prefix/prefix.$resultname
+    if [ -f $prefixfile ] ;then
+        # add the slash to make both cases uniform in what follows
+        prefix=$(cat $prefixfile)/
+    else
+        prefix=""
+    fi
+
     # make sure that all the relevant state directories exist
     mk_dirs $hostname
     # ... and a couple of other necessities.
@@ -108,6 +118,9 @@ function process_tarball {
         return 1
     fi
 
+    # If $incoming exists, it can only be a directory or a symlink.
+    # If it does not exist, then we go on; but that's probably a bug
+    # in pbench-unpack-tarballs.
     if [ -d "$incoming" ] ;then
 	# Probably left over from a previous unsuccessful pbench-move-unpacked.
 	# In general, this should be a symlink, *NOT* a directory. We remove it
@@ -116,10 +129,11 @@ function process_tarball {
 	rm -rf "$incoming"
 	status=$?
     elif [ -L "$incoming" ] ;then
+        # this is the standard case
 	# remove the symlink from incoming
 	rm $incoming
 	status=$?
-    else
+    elif [ -e "$incoming" ] ;then
 	# impossible!
 	echo "$TS: Cannot happen - $incoming is neither a dir nor a symlink!" | tee -a $mail_content >&4 
 	return 1
@@ -141,13 +155,17 @@ function process_tarball {
     mv $incoming.copy $incoming
     status=$?
     if [[ $status -ne 0 ]] ;then
+        # move failed, $incoming.copy still exists
+        rm -f $RESULTS/$hostname/$prefix$resultname
         ln -sf $incoming.copy $RESULTS/$hostname/$prefix$resultname
         echo "$TS: Cannot rename $incoming.copy to $incoming: code $status" | tee -a $mail_content >&4 
         return 1
     else
 	# fix up the results link: this is usually not necessary
 	# but if $incoming was a dir (see above), then the link
-	# would point to $incoming.copy
+	# would point to $incoming.copy.
+        # Remove the link first (issue #771).
+        rm -f $RESULTS/$hostname/$prefix$resultname
         ln -sf $incoming $RESULTS/$hostname/$prefix$resultname
     fi
         

@@ -467,6 +467,7 @@ sub calc_aggregate_metrics {
 				if ($num_metrics == 0) {
 					next;
 				}
+
 				# In order to create an aggregate timeseries, we need at least 1 time series and all metrics must have timeseries data
 				if ( $num_ts > 0 and $num_metrics == $num_ts ) {
 					# The aggregate is initialized with the first series
@@ -541,7 +542,10 @@ sub calc_efficiency_metrics {
 			}
 		}
 	}
-}
+}<#part type="text/plain" filename="/tmp/pbench-inotify" disposition=inline description="pbench-inotify w/cosmetic changes">
+<#/part>
+
+
 
 sub create_graph_hash {
 	my $graph_ref = shift; # new data goes into this hash

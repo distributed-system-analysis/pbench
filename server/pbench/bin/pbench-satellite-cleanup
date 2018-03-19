@@ -16,7 +16,7 @@ esac
 # TOP, TMP, LOGSDIR, ARCHIVE, TS are all defined in pbench-base.sh
 . $dir/pbench-base.sh
 if [[ -z "$mail_recipients" ]] ;then
-    echo "$PROG: mail_recipients is not defined"
+    echo "$TS: $PROG: mail_recipients is not defined"
     exit 1
 fi
 
@@ -72,7 +72,7 @@ for host in $hosts; do
         fi
         rc=$?
         if [ $rc != 0 ]; then
-            echo Failed to remove: $remotearchive/$host/$x | tee -a $mail_content >&4 
+            echo $TS: Failed to remove: $remotearchive/$host/$x | tee -a $mail_content >&4 
             ntberrs=$ntberrs+1
             # if we fail to remove the tarball, we'll just continue the loop
             # but we'll send mail with the failure. Hopefully, the next time around
@@ -91,7 +91,7 @@ for host in $hosts; do
         fi
         rc=$?
         if [ $rc != 0 ]; then
-            echo Failed to remove: $remotearchive/$host/$x.md5 | tee -a $mail_content >&4 
+            echo $TS: Failed to remove: $remotearchive/$host/$x.md5 | tee -a $mail_content >&4 
             nmd5errs=$nmd5errs+1
         fi
         # change the state to SATELLITE-DONE
@@ -99,7 +99,7 @@ for host in $hosts; do
             mv TO-DELETE/$x SATELLITE-DONE
         fi
         if [ $rc != 0 ]; then
-            echo Failed to move: $remotearchive/$host/TO-DELETE/$x to SATELLITE-DONE | tee -a $mail_content >&4 
+            echo $TS: Failed to move: $remotearchive/$host/TO-DELETE/$x to SATELLITE-DONE | tee -a $mail_content >&4 
             nstateerrs=$nstateerrs+1
         fi
         # remove from incoming
@@ -108,23 +108,23 @@ for host in $hosts; do
         fi
         rc=$?
         if [ $rc != 0 ]; then
-            echo Failed to remove the tarball from Incoming directory: $INCOMING/$host/${x%%.tar.xz} | tee -a $mail_content >&4 
+            echo $TS: Failed to remove the tarball from Incoming directory: $INCOMING/$host/${x%%.tar.xz} | tee -a $mail_content >&4 
             nincomingerrs=$nincomingerrs+1
         fi
-        # remove from results
-        prefix_value=$(cat ".prefix/prefix.${x%%.tar.xz}")
-        if [ -L $RESULTS/$host/${x%%.tar.xz} ]; then
-            rm $RESULTS/$host/${x%%.tar.xz}
+        #remove the results
+        if [ -s .prefix/prefix.${x%%.tar.xz} ]; then
+            prefix_value=$(cat ".prefix/prefix.${x%%.tar.xz}")
+        fi
+        if [ -z $prefix_value ]; then
+            sym_link=$RESULTS/$host/${x%%.tar.xz}
+        else
+            sym_link=$RESULTS/$host/$prefix_value/${x%%.tar.xz}
+        fi
+        if [ -L $sym_link ]; then
+            rm $sym_link
             rc=$?
             if [ $rc != 0 ]; then
-                echo Failed to remove: $RESULTS/$host/${x%%.tar.xz} | tee -a $mail_content >&4 
-                nresultserrs=$nresultserrs+1
-            fi
-        elif [ -L $RESULTS/$host/$prefix_value/${x%%.tar.xz} ]; then
-            rm -rf $RESULTS/$host/$prefix_value
-            rc=$?
-            if [ $rc != 0 ]; then
-                echo Failed to remove: $RESULTS/$host/$prefix_value/${x%%.tar.xz} | tee -a $mail_content >&4 
+                echo $TS: Failed to remove: $sym_link | tee -a $mail_content >&4 
                 nresultserrs=$nresultserrs+1
             fi
         fi
@@ -135,7 +135,7 @@ for host in $hosts; do
         fi
         rc=$?
         if [ $rc != 0 ]; then
-            echo Failed to remove: $prefix | tee -a $mail_content >&4 
+            echo $TS: Failed to remove: $prefix | tee -a $mail_content >&4 
             nprefixerrs=$nprefixerrs+1
         fi
     done
