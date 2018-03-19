@@ -408,6 +408,7 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 								if [ "$rate" != "none" ]; then
         								echo "startRate = $rate," >>$cfg_file
 								fi
+        							echo "loggingLevel = 0," >>$cfg_file
         							echo "nrFlows = $nr_flow," >>$cfg_file
         							echo "testType = \"$test_type\"," >>$cfg_file
         							echo "runBidirec = $bidirec_opt," >>$cfg_file
