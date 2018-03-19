@@ -177,7 +177,7 @@ class EventHandler(pyinotify.ProcessEvent):
 
     def process_IN_CLOSE_WRITE(self, event):
         filename = event.pathname.split("/")[-1]
-        if DEBUG == "True":
+        if DEBUG:
             print("\nTRIGERRED BY: %s" % filename)
         script_to_run = associations[filename].script
         args = associations[filename].args
