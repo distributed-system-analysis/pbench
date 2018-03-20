@@ -450,7 +450,7 @@ sub calc_aggregate_metrics {
 				foreach my $label ( grep { $_ ne get_label('description_label') and
 							   $_ ne get_label('value_label') and 
 							   $_ ne get_label('uid_label') and 
-							   $_ ne get_label('role_label') } (keys $$workload_ref{$metric_class}{$metric_type}[0] ) ) {
+							   $_ ne get_label('role_label') } (keys %{ $$workload_ref{$metric_class}{$metric_type}[0] } ) ) {
 					$agg_dataset{$label} = "all";
 				}
 				# Ensure we have at least 1 good series

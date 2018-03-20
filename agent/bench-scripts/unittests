@@ -192,6 +192,7 @@ declare -A expected_status=(
     [test-15]=1
     [test-17]=1
     [test-19]=1
+    [test-20]=1
     [test-21]=1
 )
 

@@ -1,4 +1,4 @@
-Gb_sec-client_hostname:all-server_hostname:all-server_port:all-server_port:all=0.941621
+Gb_sec-client_hostname:all-server_hostname:all-server_port:all=0.941621
 Gb_sec-client_hostname:perf102-server_hostname:perf104-server_port:21000=0.503150
 Gb_sec-client_hostname:perf102-server_hostname:perf104-server_port:22000=0.438471
 Gb_sec_per_cpu_busy-client_hostname:perf102-server_hostname:perf104-server_port:21000/hostname:perf102=0.690949

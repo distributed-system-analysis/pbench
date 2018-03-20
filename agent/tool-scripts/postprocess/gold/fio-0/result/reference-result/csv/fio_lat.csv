@@ -1,4 +1,4 @@
-timestamp_ms,client_hostname:all-server_hostname:all-server_port:all-server_port:all,client_hostname:localhost-1
+timestamp_ms,client_hostname:all,client_hostname:localhost-1
 1000,2909,2909
 2000,2906,2906
 3000,2908,2908

@@ -1193,7 +1193,7 @@
                   "value" : 0.943838776496231
                }
             ],
-            "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
+            "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
             "value" : 0.941620851930575
          },
          {

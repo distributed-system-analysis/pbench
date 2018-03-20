@@ -5,8 +5,6 @@
             "client_hostname" : "all",
             "description" : "Average completion latency per I/O operation",
             "role" : "aggregate",
-            "server_hostname" : "all",
-            "server_port" : "all",
             "timeseries" : [
                {
                   "date" : 1000,
@@ -133,7 +131,7 @@
                   "value" : 4159
                }
             ],
-            "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
+            "uid" : "client_hostname:%client_hostname%",
             "value" : 2930.1935483871
          },
          {
@@ -306,8 +304,6 @@
             "client_hostname" : "all",
             "description" : "Average total latency per I/O operation",
             "role" : "aggregate",
-            "server_hostname" : "all",
-            "server_port" : "all",
             "timeseries" : [
                {
                   "date" : 1000,
@@ -434,7 +430,7 @@
                   "value" : 4182
                }
             ],
-            "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
+            "uid" : "client_hostname:%client_hostname%",
             "value" : 2951.12903225806
          },
          {
@@ -607,8 +603,6 @@
             "client_hostname" : "all",
             "description" : "Average submission latency per I/O operation",
             "role" : "aggregate",
-            "server_hostname" : "all",
-            "server_port" : "all",
             "timeseries" : [
                {
                   "date" : 0,
@@ -735,7 +729,7 @@
                   "value" : 21
                }
             ],
-            "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
+            "uid" : "client_hostname:%client_hostname%",
             "value" : 20.4193548387097
          },
          {

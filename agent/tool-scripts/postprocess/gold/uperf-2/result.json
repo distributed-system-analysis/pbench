@@ -671,7 +671,7 @@
                   "value" : 425.24544937224
                }
             ],
-            "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
+            "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
             "value" : 425.462879733
          },
          {
@@ -1890,7 +1890,7 @@
                   "value" : 4703.17095491921
                }
             ],
-            "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
+            "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
             "value" : 4700.76465363965
          },
          {
