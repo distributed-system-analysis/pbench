@@ -7,6 +7,7 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 		       --tool-group=str
 		       --sysinfo=str,          str = comma separated values of system information to be collected
 		                                     available: default,none,all,a,b,c,d,e
+                       --pbench_post=str       path to the script which will be executed after postprocess
 --- Finished test-07 pbench-user-benchmark (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
