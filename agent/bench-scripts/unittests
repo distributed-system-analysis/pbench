@@ -182,7 +182,8 @@ declare -A cmds=(
     [test-17]="pbench-fio --sysinfo=bad"
     [test-18]="pbench-fio --help"
     [test-19]="pbench-fio --pre-iteration-script=foo"
-#    [test-20]="pbench-fio --targets=/dev/foo,/dev/bar --config=test-06  --test-type=throughput --samples=1 --client-file=/tmp/foo"
+    [test-20]="pbench-fio --targets=/dev/foo,/dev/bar --config=test-06  --test-type=throughput --samples=1 --client-file=/tmp/foo"
+    [test-21]="pbench-trafficgen --help"
 )
 
 declare -A expected_status=(
@@ -191,6 +192,7 @@ declare -A expected_status=(
     [test-15]=1
     [test-17]=1
     [test-19]=1
+    [test-21]=1
 )
 
 date="1900.01.01T00.00.00"
