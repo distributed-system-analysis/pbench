@@ -41,10 +41,11 @@ function usage {
 	printf -- "\t\t       --tool-group=str\n"
 	printf -- "\t\t       --sysinfo=str,          str = comma separated values of system information to be collected\n"
 	printf -- "\t\t                                     available: $(pbench-collect-sysinfo --options)\n"
+	printf -- "\t\t       --pbench_post=str       path to the script which will be executed after postprocess\n"
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:h --longoptions "config:,help,tool-group:,sysinfo:" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o C:h --longoptions "config:,help,tool-group:,sysinfo:,pbench_post:" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf -- "$*\n\n"
 	printf "\t${benchmark}: you specified an invalid option\n\n"
@@ -76,6 +77,13 @@ while true; do
 			shift
                 fi
                 ;;
+		--pbench_post)
+		shift
+		if [ -n "$1" ]; then
+			pbench_post="$1"
+			shift
+		fi
+		;;
 		-h|--help)
 		usage
 		exit 0
@@ -151,8 +159,13 @@ if [[ $_PBENCH_BENCH_TESTS == 1 ]]; then
 	benchmark_duration=0
 fi
 $script_path/postprocess/user-benchmark-wrapper "$benchmark_run_dir" "$benchmark_duration"
+
 pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
+if [[ ! -z $pbench_post ]]; then
+        log "[$script_name]: Running $pbench_post"
+        $pbench_post
+fi
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 rmdir $benchmark_results_dir/.running
