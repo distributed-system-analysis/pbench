@@ -8,6 +8,9 @@
     - file: /run/pbench/register.hosts
     - inventory_file_path: /root/inv
   tasks:
+    - name: create /var/lib/pbench-agent/tools-default directory
+      file: path=/var/lib/pbench-agent/tools-default state=directory 
+
     - name: create pbench directory
       file: path=/run/pbench state=directory
 
