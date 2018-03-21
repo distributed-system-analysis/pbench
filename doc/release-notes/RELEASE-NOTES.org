@@ -18,8 +18,92 @@
 
 #+OPTIONS: ^:{} H:2
 
+* Version 0.49
 
+** Installation                                                    :external:
 
+There are no installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.49-1g6b67ec6
+of the pbench-agent RPM installed.
+
+** agent
+
+We rebuilt pbench-sysstat and benchmark RPMs to include Fedora 27.  We
+can no longer build for Fedora 25 or earlier on COPR, so those
+platforms are not supported any longer.
+
+*** Known problems and backward incompatibilities
+
+See the [[https://github.com/distributed-system-analysis/pbench/issues][issues on Github]] for an (extensive) list.
+
+*** Bug fixes and enhancements
+
+- New benchmark: pbench-trafficgen.
+- The pbench-fio RPM is now based on upstream fio 3.3.
+- We moved some default settings from the pbench-fio script
+  to the config file, in order to make testing easier.
+- The config file has been split into an environment-specific
+  and a generic piece, very much like the split that was done
+  on the server. This change should be invisible to the end-user,
+  but if you encounter problems during installation/initial setup,
+  please let us know asap.
+
+** server
+
+This is still TBD: For the next release (scheduled for mid April), we
+hope to finish the sar indexing work.  The rest of the tool results
+will follow.
+
+The inotify implementation has been committed but it is not activated
+yet, because of backward-compatibility concerns. We need to
+reimplement pbench-move-results on the agent side before we activate
+inotify. That will be done in v0.50.
+
+*** Known problems and backward incompatibilities
+
+None known.
+
+*** Bug fixes and enhancements
+- Various small fixes plus better logging in some cases.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.47
+:END:
+
+The pbench-web-server package has not been updated. There are no changes to
+the package, so you can still use the existing 0.47 package if you want to 
+install it locally.
+
+** Changelog
+This is the list of visible (non-merge, non-unit-test-related) commits
+since v0.48:
+
+- 6b67ec6 Bump the version to 0.49
+- b971156 Fix unit tests
+- a72c2f7 Add support to run additional scripts after postprocessing
+- 54fcd46 pbench-trafficgen: Fix unit tests.
+- e0a1ebd pbench-trafficgen: add unit test.
+- eb7cf44 pbench-trafficgen: new benchmark script
+- 559c6ab update pbench_registry.yaml to create /var/lib/pbench-agent/tools-default on pbench-controller
+- ae097a1 Fix DEBUG test.
+- ad51bc3 Server-side result state setting script.
+- 9d6a345 inotify version of unittests
+- 1bfacb2 inotify version of pbench-unpack-tarballs
+- ffdb29c inotify version of pbench-dispatch
+- 8971d32 pbench-sync-satellite: add entry to dispatch-list file
+- 9dd56ae script-all: pass logdir as an argument for logging
+- b8add69 unpack-tarballs: pass logdir as an argument for logging
+- 26356e8 pbench-dispatch: pass logdir as an argument for logging
+- 5839da5 example of the service file
+- 8eaa5a2 base.sh: add a new funtion for appending logs of service scripts
+- 2ef08e3 generic inotify service script
+- 5431c59 Fix the checking of prefix avaialble
+- ad4adb7 pbench-ansible: monitor controller or jump host
+- bb72044 Fix bug and better logging
+- 25cf855 fix of pbench-dispatch: missing $
 
 
 * Version 0.48
