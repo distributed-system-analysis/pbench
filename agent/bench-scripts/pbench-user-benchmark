@@ -41,11 +41,11 @@ function usage {
 	printf -- "\t\t       --tool-group=str\n"
 	printf -- "\t\t       --sysinfo=str,          str = comma separated values of system information to be collected\n"
 	printf -- "\t\t                                     available: $(pbench-collect-sysinfo --options)\n"
-	printf -- "\t\t       --pbench_post=str       path to the script which will be executed after postprocess\n"
+	printf -- "\t\t       --pbench-post=str       path to the script which will be executed after postprocess\n"
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:h --longoptions "config:,help,tool-group:,sysinfo:,pbench_post:" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o C:h --longoptions "config:,help,tool-group:,sysinfo:,pbench-post:" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf -- "$*\n\n"
 	printf "\t${benchmark}: you specified an invalid option\n\n"
@@ -77,7 +77,7 @@ while true; do
 			shift
                 fi
                 ;;
-		--pbench_post)
+		--pbench-post)
 		shift
 		if [ -n "$1" ]; then
 			pbench_post="$1"
