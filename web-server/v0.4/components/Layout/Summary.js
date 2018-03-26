@@ -1,7 +1,6 @@
 import React, {PropTypes} from 'react';
 import history from '../../core/history';
 import { Spin, Tag, Table, Input, Button, LocaleProvider} from 'antd';
-import enUS from 'antd/lib/locale-provider/en_US';
 import axios from 'axios';
 
 class Summary extends React.Component {
@@ -16,8 +15,10 @@ class Summary extends React.Component {
     this.state = {
       summaryResult: [],
       iterations: [],
+      iterationSearch: [],
       columns: [],
-      loading: true
+      loading: true,
+      searchText: ''
     }
   }
 
@@ -57,13 +58,15 @@ class Summary extends React.Component {
       dataIndex: 'iteration_number',
       fixed: 'left',
       width: 115,
-      key: 'iteration_number'
+      key: 'iteration_number',
+      sorter: (a, b) => compareByAlph(a.iteration_number, b.iteration_number)
     }, {
       title: 'Iteration Name',
       dataIndex: 'iteration_name',
       fixed: 'left',
       width: 150,
-      key: 'iteration_name'
+      key: 'iteration_name',
+      sorter: (a, b) => compareByAlph(a.iteration_name, b.iteration_name)
     }];
     var iterations = [];
 
@@ -104,25 +107,25 @@ class Summary extends React.Component {
                   }
                   if (!this.containsKey(columns, columnMean)) {
                     if (columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"] == undefined) {
-                        columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"] = [{title: "mean", dataIndex: columnMean, key: columnMean}];
+                        columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"] = [{title: "mean", dataIndex: columnMean, key: columnMean, sorter: (a, b) => a[columnMean] - b[columnMean]}];
                         iterationObject[columnMean] = response[iteration].iteration_data[iterationType][iterationNetwork][iterationData].mean;
                     } else {
-                        columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"].push({title: "mean", dataIndex: columnMean, key: columnMean});
+                        columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"].push({title: "mean", dataIndex: columnMean, key: columnMean, sorter: (a, b) => a[columnMean] - b[columnMean]});
                         iterationObject[columnMean] = response[iteration].iteration_data[iterationType][iterationNetwork][iterationData].mean;
                     }
                   }
                   if (!this.containsKey(columns, columnStdDev)) {
                     if (columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"] == undefined) {
-                        columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"] = [{title: "stddevpct", dataIndex: columnStdDev, key: columnStdDev}];
+                        columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"] = [{title: "stddevpct", dataIndex: columnStdDev, key: columnStdDev, sorter: (a, b) => a[columnStdDev] - b[columnStdDev]}];
                         iterationObject[columnStdDev] = response[iteration].iteration_data[iterationType][iterationNetwork][iterationData].stddevpct;
                     } else {
-                        columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"].push({title: "stddevpct", dataIndex: columnStdDev, key: columnStdDev});
+                        columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"].push({title: "stddevpct", dataIndex: columnStdDev, key: columnStdDev, sorter: (a, b) => a[columnStdDev] - b[columnStdDev]});
                         iterationObject[columnStdDev] = response[iteration].iteration_data[iterationType][iterationNetwork][iterationData].stddevpct;
                     }
                   }
                   if (!this.containsKey(columns, columnSample)) {
                     if (columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"] == undefined) {
-                        columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"] = [{title: "closest sample", dataIndex: columnSample, key: columnSample, render: (text, record) => {
+                        columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"] = [{title: "closest sample", dataIndex: columnSample, key: columnSample, sorter: (a, b) => a[columnSample] - b[columnSample], render: (text, record) => {
                             return (
                               <a onClick={() => this.retrieveResults([text, record])}>{text}</a>
                             );
@@ -130,7 +133,7 @@ class Summary extends React.Component {
                         }];
                         iterationObject[columnSample] = response[iteration].iteration_data[iterationType][iterationNetwork][iterationData]['closest sample'];
                     } else {
-                        columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"].push({title: "closest sample", dataIndex: columnSample, key: columnSample, render: (text, record) => {
+                        columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"].push({title: "closest sample", dataIndex: columnSample, key: columnSample, sorter: (a, b) => a[columnSample] - b[columnSample], render: (text, record) => {
                             return (
                               <a onClick={() => this.retrieveResults([text, record])}>{text}</a>
                             );
@@ -217,8 +220,37 @@ class Summary extends React.Component {
     }
   }
 
+  onInputChange = (e) => {
+    this.setState({ searchText: e.target.value });
+  }
+
+  onSearch = () => {
+    const { searchText, iterations } = this.state;
+    const reg = new RegExp(searchText, 'gi');
+    var iterationSearch = iterations.slice();
+    this.setState({
+      filtered: !!searchText,
+      iterationSearch: iterationSearch.map((record) => {
+        const match = record.iteration_name.match(reg);
+        if (!match) {
+          return null;
+        }
+        return {
+          ...record,
+          iteration_name: (
+            <span>
+              {record.iteration_name.split(reg).map((text, i) => (
+                i > 0 ? [<span style={{color: 'orange'}}>{match[0]}</span>, text] : text
+              ))}
+            </span>
+          )
+        }
+      }).filter(record => !!record),
+    });
+  }
+
   render() {
-    var { summaryResult, columns, iterations, loading } = this.state;
+    var { summaryResult, columns, iterations, loading, iterationSearch } = this.state;
 
     var controllerName = "controller: " + this.props.controller;
 
@@ -244,7 +276,16 @@ class Summary extends React.Component {
                   </Tag>
                   <h1 id="dbfinal" style={{ display: 'none' }}>Dashboard for <span id="script"></span> result <span id="result_name"></span></h1>
                 </div>
-                <Table style={{marginTop: 20}} columns={columns} dataSource={iterations} onRowClick={this.retrieveResults.bind(this)} scroll={{ x: 1500 }} bordered/>
+                <Input
+                  style={{width: 300, marginRight: 8}}
+                  ref={ele => this.searchInput = ele}
+                  placeholder = "Search iteration names"
+                  value = {this.state.searchText}
+                  onChange = {this.onInputChange}
+                  onPressEnter = {this.onSearch}
+                />
+                <Button type="primary" onClick={this.onSearch}>Search</Button>
+                <Table style={{marginTop: 20}} columns={columns} dataSource={iterationSearch.length > 0 ? iterationSearch : iterations} onRowClick={this.retrieveResults.bind(this)} scroll={{ x: 1500 }} bordered/>
               </div>
               <div className="col-sm-4 col-md-3 sidebar-pf sidebar-pf-right">
                 <div className="sidebar-header sidebar-header-bleed-left sidebar-header-bleed-right">
@@ -337,6 +378,16 @@ class Summary extends React.Component {
       );
     }
   }
+}
+
+function compareByAlph(a, b) {
+  if (a > b) {
+    return -1;
+  }
+  if (a < b) {
+    return 1;
+  }
+  return 0;
 }
 
 export default Summary;

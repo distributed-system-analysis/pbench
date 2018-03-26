@@ -1,7 +1,6 @@
 import React, {PropTypes} from 'react';
 import history from '../../core/history';
 import { Spin, Tag, Table, Input, Button, LocaleProvider} from 'antd';
-import enUS from 'antd/lib/locale-provider/en_US';
 import axios from 'axios';
 import DOMParser from 'react-native-html-parser';
 
