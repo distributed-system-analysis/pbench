@@ -126,6 +126,8 @@ while (my $line = <TXT>) {
 # cookie=0xb9a6deb9663c7428, duration=76802.554s, table=24, n_packets=359, n_bytes=15078, idle_age=75, hard_age=65534, priority=2,arp,in_port=12,arp_spa=10.1.1.7 actions=resubmit(,25)
 # cookie=0xb9a6deb9663c7428, duration=426577.755s, table=24, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=0 actions=drop
 # cookie=0xb9a6deb9663c7428, duration=76802.561s, table=25, n_packets=69774, n_bytes=21763254, idle_age=0, hard_age=65534, priority=2,in_port=12,dl_src=fa:16:3e:71:12:98 actions=NORMAL
+#bridge: phy-br-0 stats: fdb/show
+# port=1 count=1000
 #bridge: phy-br-1 stats: dump-ports
 #OFPST_PORT reply (xid=0x2): 2 ports
 #  port LOCAL: rx pkts=8, bytes=648, drop=0, errs=0, frame=0, over=0, crc=0
@@ -216,6 +218,16 @@ while (my $line = <TXT>) {
 		next;
 	}
 
+	#  port=N count=X
+	if ($line =~ /^\s+port=(\S+)\s+count=(\S+)/ and $stats_mode eq "bridge" and $stats_type eq "fdb/show") {
+		$port = $1;
+		my $entry_count = $2;
+
+		$bridge_data{$bridge}{$port}{'fdb-entries'}{$timestamp_ms} = $entry_count;
+
+		next;
+	}
+
 	#       polling cycles:0 (0.00%)
 	if ( $line =~ /\s*polling\scycles:\s*\d+\s+\((\d+\.\d+)\%\)/ and $stats_mode eq "dpdk" ) {
 		if (exists $pmd_mappings{$pmd_thread_id}) {
@@ -288,7 +300,7 @@ while (my $line = <TXT>) {
 	     $line =~ /main\sthread:/ or $line =~ /OFPST_FLOW/ or $line =~ /^\s*duration=/ or $line eq "") {
 		next;
 	}
-	print "found unregonozed line: $line\n";
+	print "found unrecognized line: $line\n";
 }
 close(TXT);
 
@@ -344,7 +356,9 @@ for $bridge (sort keys %bridge_data) {
 					my $duration = ($timestamp_ms - $last_timestamp_ms)/1000;
 					my $value_diff = $value - $last_value;
 					my $this_rate = $value_diff / $duration;
-					if ( $stat =~ /bytes/ ) {
+					if ( $stat =~ /fdb-entries/ ) {
+						$rate{"openvswitch"}{$bridge . "-fdb-entries"}{$port_name . "-" . $stat}{$timestamp_ms} = $value;
+					} elsif ( $stat =~ /bytes/ ) {
 						$rate{"openvswitch"}{$bridge . "-bytes"}{$port_name . "-" . $stat}{$timestamp_ms} = $this_rate;
 					} else {
 						$rate{"openvswitch"}{$bridge . "-packets"}{$port_name . "-" . $stat}{$timestamp_ms} = $this_rate;
