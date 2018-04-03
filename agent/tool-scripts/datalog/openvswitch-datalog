@@ -38,6 +38,11 @@ if [ ! -z "$bridges" ]; then
 				echo "bridge: $bridge stats: $cmd" >>$stats_file
 				ovs-ofctl $cmd $bridge ${protocols_string} >>$stats_file
 			done
+			# ovs-appctl
+			for cmd in fdb/show; do
+				echo "bridge: $bridge stats: $cmd" >>$stats_file
+				ovs-appctl $cmd $bridge | awk 'BEGIN { } { if ($0 !~ /port/) { ports[$1]++; } } END { for (p in ports) { printf(" port=%s count=%d\n", p, ports[p]); } }' >>$stats_file
+			done
 		done
 		# DPDK stats
 		echo "dpdk-stats: pmd-stats-show" >>$stats_file
