@@ -228,6 +228,76 @@ while (my $line = <TXT>) {
 		next;
 	}
 
+	#       packet recirculations: 0
+	if ( $line =~ /\s*packet\srecirculations:\s*(\d+)/ and $stats_mode eq "dpdk" ) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-packet-recirculations"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a PMD packet recirculations stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+		}
+		next;
+	}
+
+	#       packets received: 0
+	if ( $line =~ /\s*packets\sreceived:\s*(\d+)/ and $stats_mode eq "dpdk" ) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-packets-received"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a PMD received packets stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+		}
+		next;
+	}
+
+	#       avg. packets per output batch: 14.67
+	if ( $line =~ /\s*avg\.\spackets\sper\soutput\sbatch:\s*(\d+\.\d+)/ and $stats_mode eq "dpdk" ) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-packets-per-output-batch"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a PMD packets per output batch stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+		}
+		next;
+	}
+
+	#       avg. datapath passes per packet: 0.00
+	if ( $line =~ /\s*avg\.\sdatapath\spasses\sper\spacket:\s*(\d+\.\d+)/ and $stats_mode eq "dpdk" ) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-datapath-passes-per-packet"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a PMD datapath passes per packet stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+		}
+		next;
+	}
+
+	#       avg. subtable lookups per megaflow hit: 1.62
+	if ( $line =~ /\s*avg\.\ssubtable\slookups\sper\smegaflow\shit:\s*(\d+\.\d+)/ and $stats_mode eq "dpdk" ) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-subtable-lookups-per-megaflow-hit"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a PMD subtable lookup per megaflow stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+		}
+		next;
+	}
+
+	#       miss with success upcall: 0
+	if ( $line =~ /\s*miss\swith\ssuccess\supcall:\s*(\d+)/ and $stats_mode eq "dpdk" ) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-upcalls"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id} . "-success"}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a PMD miss with success upcall stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+		}
+		next;
+	}
+
+	#       miss with failed upcall: 0
+	if ( $line =~ /\s*miss\swith\sfailed\supcall:\s*(\d+)/ and $stats_mode eq "dpdk" ) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-upcalls"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id} . "-failed"}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a PMD miss with failed upcall stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+		}
+		next;
+	}
+
 	#       polling cycles:0 (0.00%)
 	if ( $line =~ /\s*polling\scycles:\s*\d+\s+\((\d+\.\d+)\%\)/ and $stats_mode eq "dpdk" ) {
 		if (exists $pmd_mappings{$pmd_thread_id}) {
@@ -244,6 +314,16 @@ while (my $line = <TXT>) {
 			$rate{"openvswitch"}{"PMDthread-processing-utilization-percent"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
 		} else {
 			printf "warning: a PMD processing utilization percent stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+		}
+		next;
+	}
+
+	#       idle cycles:0 (0.00%)
+	if ( $line =~ /\s*idle\scycles:\s*\d+\s+\((\d+\.\d+)\%\)/ and $stats_mode eq "dpdk" ) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-idle-utilization-percent"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a PMD idle utilization percent stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
 		}
 		next;
 	}
