@@ -35,11 +35,16 @@ else
     dryrun=
 fi
 
+index_content=$tmp/index_mail_contents
+
 trap "rm -rf $tmp" EXIT
 typeset -i nerrs=0
 typeset -i nprocessed=0
 
 mkdir -p "$tmp"
+
+# Initialize index mail content
+> $index_content
 
 log_init $(basename $0) $LOGSDIR/$(basename $0)
 logdir=$LOGSDIR/$(basename $0)/$prefix/$TS
@@ -108,9 +113,12 @@ fi
 
 # if there are errors, send mail
 if [ "$nerrs" -gt 0 ]  ;then
-    mailx -s \
-    "$PROG: Processed $nprocessed result tar balls, with $nerrs errors"\
-    $mail_recipients < $tmp/mail.log
+    cat << EOF > $index_content
+$PROG: Processed $nprocessed result tar balls, with $nerrs errors
+
+EOF
+    cat $tmp/mail.log >> $index_content
+    pbench-report-status --name $PROG --timestamp $TS --type status $index_content
 fi
 
 exit 0

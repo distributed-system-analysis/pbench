@@ -79,16 +79,23 @@ if [ -s $LOGSDIR/change_state.$prefix.log ] ;then
     ssh $remotehost "cd $remotearchive; /opt/pbench-server/bin/pbench-satellite-state-change" < $LOGSDIR/change_state.$prefix.log
     status=$?
     if [[ $status != 0 ]] ;then
-        echo "Unable to change the state directories of tarballs, in $remotehost, due to ssh failure" | mailx -s \
-        "FAILED: $PROG: $prefix: ssh to $remotehost failed twice"\
-        $mail_recipients
+        cat << EOF > $index_content
+FAILED: $PROG: $prefix: ssh to $remotehost failed twice.
+
+Unable to change the state directories of tarballs, in $remotehost, due to ssh failure.
+EOF
+        pbench-report-status --name $PROG --timestamp $TS --type error $index_content
         exit 1
     else
         rm $LOGSDIR/change_state.$prefix.log
         status=$?
         if [[ $status != 0 ]]; then
-            echo "ssh to the $remotehost sucessfull for changing the state of tarballs, but failed to remove $LOGSDIR/change_state.$prefix.log" \
-            | mailx -s "$PROG: $prefix: Failed to remove $LOGSDIR/change_state.$prefix.log" $mail_recipients
+            cat << EOF > $index_content
+$PROG: $prefix: Failed to remove $LOGSDIR/change_state.$prefix.log
+
+ssh to the $remotehost sucessfull for changing the state of tarballs, but failed to remove $LOGSDIR/change_state.$prefix.log
+EOF
+            pbench-report-status --name $PROG --timestamp $TS --type error $index_content
             exit 1
         fi
     fi
@@ -99,11 +106,14 @@ typeset -i nfailed_md5=0
 typeset -i nerrs=0
 
 unpack=$tmp/unpack.$prefix
-mail_content=$tmp/mail.log
 trap "rm -rf $tmp" EXIT QUIT INT
 
 mkdir -p $tmp
 mkdir -p $unpack
+
+# accumulate errors in a file for mailing at end
+mail_content=$tmp/mail.log
+index_content=$tmp/index_mail_contents
 
 log_init $(basename $0) $LOGSDIR/$(basename $0)
 logdir=$LOGSDIR/$(basename $0)/$prefix/$TS
@@ -125,7 +135,6 @@ if [[ $rc != 0 ]] ;then
     exit 2
 fi
 
-
 # unpack the tarball into tmp directory
 tar -xf $tmp/satellite.$prefix.tar -C $unpack
 files=$(find $unpack -path '*.tar.xz' -printf '%P\n')
@@ -134,6 +143,7 @@ hosts="$(for host in $files;do echo ${host%%/*};done | sort -u )"
 # initialize change state log and mail content
 > $LOGSDIR/change-state.$prefix.log
 > $mail_content
+> $index_content
 
 let start_time=$(timestamp-seconds-since-epoch)
 echo "$TS: start - $(timestamp)"
@@ -235,25 +245,35 @@ if [ -s $LOGSDIR/change_state.$prefix.log ] ;then
     status=$?
     if [[ $status != 0 ]] ;then
         echo "FAILED: ssh $remotehost; cd $remotearchive; /opt/pbench-server/bin/pbench-satellite-state-change < $LOGSDIR/change_state.$prefix.log" >&4
-        echo "Unable to change the state directories of tarballs, in $remotehost, due to ssh failure" | mailx -s \
-        "FAILED: $PROG: $prefix: ssh $remotehost; cd $remotearchive; /opt/pbench-server/bin/pbench-satellite-state-change"\
-        $mail_recipients
+        cat << EOF > $index_content
+FAILED: $PROG: $prefix: ssh $remotehost; cd $remotearchive; /opt/pbench-server/bin/pbench-satellite-state-change
+
+Unable to change the state directories of tarballs, in $remotehost, due to ssh failure
+EOF
+        pbench-report-status --name $PROG --timestamp $TS --type error $index_content
     else
         rm $LOGSDIR/change_state.$prefix.log
         status=$?
         if [[ $status != 0 ]]; then
             echo "Failed to remove $LOGSDIR/change_state.$prefix.log" >&4
-            echo "ssh to the $remotehost sucessfull for changing the state of tarballs, but failed to remove $LOGSDIR/change_state.$prefix.log" \
-            | mailx -s "$PROG: $prefix: Failed to remove $LOGSDIR/change_state.$prefix.log" $mail_recipients
+            cat << EOF > $index_content
+$PROG: $prefix: Failed to remove $LOGSDIR/change_state.$prefix.log
+
+ssh to the $remotehost sucessfull for changing the state of tarballs, but failed to remove $LOGSDIR/change_state.$prefix.log
+EOF
+            pbench-report-status --name $PROG --timestamp $TS --type error $index_content
         fi
     fi
 fi
 
 #  if there are errors, mail the report
 if [ "$nerrs" -gt 0 ]  ;then
-    mailx -s \
-    "$PROG: $prefix: $nprocessed files processed, with $nfailed_md5 md5 failures and $nerrs errors"\
-    $mail_recipients < $mail_content
+    cat << EOF > $index_content
+$PROG: $prefix: $nprocessed files processed, with $nfailed_md5 md5 failures and $nerrs errors
+
+EOF
+    cat $mail_content >> $index_content
+    pbench-report-status --name $PROG --timestamp $TS --type status $index_content
 fi
 
 let end_time=$(timestamp-seconds-since-epoch)

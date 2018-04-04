@@ -25,11 +25,6 @@ UNPACK_PATH=$1
 . $dir/job_pool.sh
 ###########################################################################
 
-if [[ -z "$mail_recipients" ]] ;then
-    echo "$PROG: mail_recipients is not defined"
-    exit 1
-fi
-
 log_init $(basename $0) $LOGSDIR/$(basename $0)
 
 # make sure only one copy is running.
@@ -46,10 +41,12 @@ echo $TS
 # get the list of files we'll be operating on - sort them by size
 tmp=$TMP/$PROG.$$
 list=$tmp/$PROG.list
+
+mkdir -p $tmp
 mail_content=$tmp/mail_content.log
+index_content=$tmp/index_mail_contents
 
 trap 'rm -rf $tmp' EXIT INT QUIT
-mkdir -p $tmp
 
 # find command will not generate any result if the linksrc is empty, and because of that du will not get any result 
 # to calculate the size. In that scenario du generates the size of the current directory as output, to handle
@@ -60,6 +57,7 @@ typeset -i ntb=0
 
 # Initialize mail content
 > $mail_content
+> $index_content
 
 function process_tarball {
     result=$1
@@ -239,10 +237,13 @@ if [[ -s $mail_content ]]; then
     subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
     # don't send mail when running unittests
     if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
-        (echo "Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates";
-        echo ;
-        cat $mail_content) | 
-        mailx -s "$subj" $mail_recipients
+        cat << EOF > $index_content
+$subj
+Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates
+
+EOF
+        cat $mail_content >> $index_content
+        pbench-report-status --name $PROG --timestamp $TS --type status $index_content
     fi
 fi
 

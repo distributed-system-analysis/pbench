@@ -42,14 +42,6 @@ esac
 primary=$ARCHIVE
 backup=$BDIR
 
-echo $CONFIG
-echo $mail_recipients
-# make sure pbench_base has already defined mail_recipients
-# and exit if not, otherwise we'll do a lot of work for nothing.
-if [ -z "$mail_recipients" ] ;then
-    exit 2
-fi
-
 # work files
 listp=$TMP/$PROG/primary.$$
 listb=$TMP/$PROG/backup.$$
@@ -57,12 +49,16 @@ tmp=$TMP/$PROG/tmp.$$
 ponly=$TMP/$PROG/primary.only
 bonly=$TMP/$PROG/backup.only
 report=$TMP/$PROG/report.$$
+index_content=$TMP/$PROG/index_mail_contents
 
 # make sure the directory exists
 mkdir -p $TMP/$PROG
 
 controllers=$TMP/$PROG/controllers.$$
-trap "rm -f $controllers $listp $listp.failed $listb $listb.failed $tmp $ponly $bonly $report; rmdir $TMP/$PROG" EXIT INT QUIT
+trap "rm -f $controllers $listp $listp.failed $listb $listb.failed $tmp $ponly $bonly $report $index_content; rmdir $TMP/$PROG" EXIT INT QUIT
+
+# Initialize index mail content
+> $index_content
 
 > $listp
 if cd $primary ;then
@@ -139,6 +135,12 @@ fi
 
 # send it
 subj="$PROG.$TS($PBENCH_ENV)"
-mailx -s "$subj" $mail_recipients < $report
+cat << EOF > $index_content
+$subj
+EOF
+
+cat $report >> $index_content
+pbench-report-status --name $PROG --timestamp $TS --type status $index_content
 
 exit $ret
+

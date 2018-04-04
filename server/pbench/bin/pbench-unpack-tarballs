@@ -83,6 +83,7 @@ mkdir -p $tmp
 
 # accumulate errors in a file for mailing at end
 mail_content=$tmp/mail_content.log
+index_content=$tmp/index_mail_contents
 
 # get the list of files we'll be operating on - sort them by size
 list=$tmp/$PROG.list
@@ -99,6 +100,7 @@ typeset -i ndups=0
 
 # Initialize mail content
 > $mail_content
+> $index_content
 
 while read size result ;do
     ntotal=$ntotal+1
@@ -253,10 +255,13 @@ if [[ $nerrs -gt 0 ]]; then
     subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
     # don't send mail when running unittests
     if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
-        (echo "Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates";
-        echo ;
-        cat mail_content) | 
-        mailx -s "$subj" $mail_recipients
+        cat << EOF > $index_content
+$subj
+Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates
+
+EOF
+        cat $mail_content >> $index_content
+        pbench-report-status --name $PROG --timestamp $TS --type status $index_content
     fi
 fi
 
