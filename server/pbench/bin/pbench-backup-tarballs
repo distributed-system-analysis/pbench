@@ -19,11 +19,18 @@ esac
 # TOP, ARCHIVE, BDIR are defined by the base file
 . $dir/pbench-base.sh
 
-stats=$TMP/${PROG}.$$
+tmp=$TMP/${PROG}.$$
+mkdir -p $tmp
 
-trap "rm -f $stats" EXIT INT QUIT
+stats=$tmp/stats
+index_content=$tmp/index_mail_contents
+
+trap "rm -rf $tmp" EXIT INT QUIT
                  
 log_init $(basename $0) $LOGSDIR/$(basename $0)
+
+# Initialize index mail content
+> $index_content
 
 echo "start-$(timestamp)"
 
@@ -64,6 +71,12 @@ log_finish
 
 # Back up some way and find the empty line separating the list of files
 # from the stats.
-tail -n 20 $stats | sed -n '/^$/,$p' | mailx -s "$PROG.$TS($PBENCH_ENV)" $mail_recipients 
+cat << EOF > $index_content
+$PROG.$TS($PBENCH_ENV)
+EOF
+
+tail -n 20 $stats | sed -n '/^$/,$p' >> $index_content
+
+pbench-report-status --name $PROG --timestamp $TS --type status $index_content
 
 exit 0

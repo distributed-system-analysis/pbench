@@ -63,15 +63,27 @@ typeset -i ntotal=0
 typeset -i nerrs=0
 typeset -i ndups=0
 
-trap "rm -rf $TMP/$(basename $0).$$" EXIT INT QUIT
-
 # the link source and destination for this script
 linksrc=TODO
 linkdestlist=$(getconf.py -l dispatch-states pbench-server)
+
+tmp=$TMP/$PROG.$$
+
+trap 'rm -rf $tmp' EXIT INT QUIT
+mkdir -p $tmp
+index_content=$tmp/index_mail_contents
+
+# Initialize index mail content
+> $index_content
+
 if [[ -z "$linkdestlist" ]]; then
     echo "$TS: config file error: either no dispach-states defined or a typo" >&4
     subj="$PROG.$TS($PBENCH_ENV) - Config file error"
-    echo "config file error: either no dispach-states defined or a typo" | mailx -s "$subj" $mail_recipients
+    cat << EOF > $index_content
+$subj
+config file error: either no dispach-states defined or a typo
+EOF
+    pbench-report-status --name $PROG --timestamp $TS --type error $index_content
     exit 1
 else
     echo $TS
@@ -165,7 +177,11 @@ if [[ $nerrs -gt 0 ]]; then
     subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
     # don't send mail when running unittests
     if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
-        echo "Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates" | mailx -s "$subj" $mail_recipients
+        cat << EOF > $index_content
+$subj
+Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates
+EOF
+        pbench-report-status --name $PROG --timestamp $TS --type status $index_content
     fi
 fi
 

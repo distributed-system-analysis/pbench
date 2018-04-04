@@ -214,7 +214,11 @@ if [[ $nidx -gt 0 || $nskip -gt 0 || $nerrs -gt 0 ]]; then
     fi
     if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
         # send mail if not unit testing
-        mailcmd="mailx -s \"$subj\" $mail_recipients < $mail_body"
+        cat << EOF > $index_content
+$subj
+EOF
+        cat $mail_body >> $index_content
+        mailcmd="pbench-report-status --name $PROG --timestamp $TS --type status $index_content"
     else
         # otherwise store the output in the log
         mailcmd="echo \"$subj\"; cat $mail_body"

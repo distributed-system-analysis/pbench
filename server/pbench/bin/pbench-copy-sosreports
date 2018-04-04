@@ -88,6 +88,11 @@ TMPDIR=$TMP/pbench-copy-sosreports.$$
 trap "rm -rf $TMPDIR" EXIT INT QUIT
 mkdir -p $TMPDIR || exit 1
 
+index_content=$TMPDIR/index_mail_contents
+
+# Initialize index mail content
+> $index_content
+
 for result in $list ;do
     link=$(readlink -e $result)
     if [ ! -f $link ] ;then
@@ -189,7 +194,11 @@ if [[ $ntotal -gt 0 || $nerrs -gt 0 ]]; then
     fi
     # don't send mail when running unittests
     if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
-        echo "Processed $ntotal sosreports for $nresults results directories with $nerrs errors" | mailx -s "$subj" $mail_recipients
+        cat << EOF > $index_content
+$subj
+Processed $ntotal sosreports for $nresults results directories with $nerrs errors
+EOF
+        pbench-report-status --name $PROG --timestamp $TS --type status $index_content
     fi
 fi
 
