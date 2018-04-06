@@ -123,7 +123,6 @@ if [ -z "$results_path_prefix" ]; then
     debug_log "expected the results_host_info to have the form: <results_user>@<results_host(FQDN)>:<results_path_prefix>"
     exit 1
 fi
-results_full_path="$results_path_prefix/$hostname"
 
 if [[ ! -z "$show_server" ]] ;then
     echo ${results_repo}
@@ -135,11 +134,6 @@ ssh -q -i $pbench_bin/id_rsa $ssh_opts $results_repo exit
 if [ $? -ne 0 ]; then
     error_log "ERROR: results host unreachable: $results_repo"
     debug_log "the following ssh command failed: \"ssh -q -i $pbench_bin/id_rsa $ssh_opts $results_repo exit\""
-    exit 1
-fi
-ssh -i $pbench_bin/id_rsa $ssh_opts $results_repo "mkdir -p $results_full_path"
-if [ $? -ne 0 ]; then
-    error_log "ERROR: unable to create remote results path, $results_repo:$results_full_path"
     exit 1
 fi
 
@@ -206,8 +200,28 @@ for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v 
         echo "$prefix" > $prefixfile
     fi
 
-    ssh -i $pbench_bin/id_rsa $ssh_opts $results_repo "mkdir -p $results_full_path"
+    echo $hostname > $tarball.hostname
 
+    # pack everything in one tarball
+    tar czf complete-$tarball $tarball $tarball.md5 $prefixfile $tarball.hostname
+    
+    hash=$(md5sum "$tarball" | awk '{ print $1 }')
+    hash_path=$(echo $hash | cut -b 1-2)/$(echo $hash | cut -b 3-4)/$(echo $hash | cut -b 5-)
+
+    results_full_path="$results_path_prefix/$hash_path"
+    ssh -i $pbench_bin/id_rsa $ssh_opts $results_repo "mkdir -p $results_full_path"
+    if [ $? -ne 0 ]; then
+        error_log "ERROR: unable to create remote results path, $results_repo:$results_full_path"
+        exit 1
+    fi
+
+    hostnames_full_path="$results_path_prefix/hostnames/$hostname"
+    ssh -i $pbench_bin/id_rsa $ssh_opts $results_repo "mkdir -p $hostnames_full_path"
+    if [ $? -ne 0 ]; then
+        error_log "ERROR: unable to create remote hostnames path, $results_repo:$hostnames_full_path"
+        exit 1
+    fi 
+    
     # check if there is a name collision and resolve it
     typeset -i i=1
     rtarball=$tarball
@@ -251,7 +265,7 @@ for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v 
     fi
 
     # finally do the copy
-    scp $scp_opts -i $pbench_bin/id_rsa $ssh_opts ./$tarball ./$tarball.md5 $prefixfile $results_repo:$results_full_path
+    scp $scp_opts -i $pbench_bin/id_rsa $ssh_opts ./complete-$tarball $results_repo:$results_full_path
     if [ $? -ne 0 ]; then
         error_log "ERROR: unable to copy results tarball, $tarball, to $results_repo:$results_full_path"
         rm -f $tarball $tarball.md5
@@ -265,9 +279,9 @@ for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v 
     fi
 
     # Verify the bits copied are good
-    ssh -i $pbench_bin/id_rsa $ssh_opts $results_repo "cd $results_full_path; md5sum --check $pbench_run_name.tar.xz.md5"
+    ssh -i $pbench_bin/id_rsa $ssh_opts $results_repo "cd $results_full_path; tar xf complete-$tarball; rm -f complete-$tarball; md5sum --check $pbench_run_name.tar.xz.md5"
     chk_res=$?
-    rm -f $tarball $tarball.md5
+    rm -f $tarball $tarball.md5 complete-$tarball $tarball.hostname
     if [ $chk_res -ne 0 ]; then
         error_log "ERROR: remote copy failed, remote tarball MD5 does not match original"
         rm -f $tarball $tarball.md5
@@ -284,7 +298,7 @@ for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v 
     # set the state of the result appropriately so that it will be processed
     # by the server scripts.
     ssh -i $pbench_bin/id_rsa $ssh_opts $results_repo \
-	/opt/pbench-server/bin/pbench-server-set-result-state $results_full_path $tarball
+	/opt/pbench-server/bin/pbench-server-set-result-state $hostnames_full_path $results_full_path/$tarball
 
     let runs_copied=runs_copied+1
 done
@@ -301,3 +315,4 @@ if [ $anything -gt 0 ]; then
     debug_log "successfully $op $runs_copied runs, encountered $failures failures"
 fi
 exit $failures
+
