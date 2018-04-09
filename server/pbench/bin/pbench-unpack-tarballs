@@ -90,7 +90,7 @@ list=$tmp/$PROG.list
 # find command will not generate any result if the linksrc is empty, and because of that du will not get any result 
 # to calculate the size. In that scenario du generates the size of the current directory as output, to handle
 # that exclude the current directory.
-find $ARCHIVE/*/$linksrc -type l -name '*.tar.xz' -printf "%l\n" 2>/dev/null | grep -v DUPLICATE | xargs du -b --exclude "." 2>/dev/null | sort -n > $list
+find $ARCHIVE/hostanmes/*/$linksrc -type l -name '*.tar.xz' -printf "%l\n" 2>/dev/null | grep -v DUPLICATE | xargs du -b --exclude "." 2>/dev/null | sort -n > $list
 
 typeset -i ntb=0
 typeset -i ntotal=0
@@ -109,9 +109,10 @@ while read size result ;do
         nerrs=$nerrs+1
         continue
     fi
+
     resultname=$(basename $result)
     resultname=${resultname%.tar.xz}
-    hostname=$(basename $(dirname $link))
+    hostname=$(cat $link.hostname)
 
     # echo "Link=$link"
     # echo "Resultname=$resultname"
@@ -227,7 +228,7 @@ while read size result ;do
         fi
     fi
 
-    mv $ARCHIVE/$hostname/$linksrc/$resultname.tar.xz $ARCHIVE/$hostname/$linkdest/$resultname.tar.xz
+    mv $ARCHIVE/hostnames/$hostname/$linksrc/$resultname.tar.xz $ARCHIVE/hostnames/$hostname/$linkdest/$resultname.tar.xz
     status=$?
     if [[ $status -ne 0 ]] ;then
         echo "$TS: Cannot move $ARCHIVE/$hostname/$resultname from $linksrc to $linkdest: code $status" | tee -a $mail_content >&4
