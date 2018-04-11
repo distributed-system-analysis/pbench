@@ -18,7 +18,7 @@ esac
 # TOP, TMP, LOGSDIR, ARCHIVE, TS are all defined in pbench-base.sh
 . $dir/pbench-base.sh
 
-remotearchive=$ARCHIVE
+remotearchive=$ARCHIVE/hostnames
 
 files=$(if cd $remotearchive;then find . -path '*/TO-SYNC/*.tar.xz' -printf '%P\n' ;else exit 1 ;fi)
 
@@ -66,29 +66,33 @@ calculate_md5_prefix () {
 
     tar_list="$@"
     for tar in ${tar_list[@]}; do
-        if [ -s $remotearchive/$tar ]; then
-            if [[ -s $remotearchive/$tar.md5 ]]; then
-                echo "$tar"
-                echo "$tar.md5"
+        tarball=$(readlink -e $remotearchive/$tar)
+        if [ -s "$tarball" ]; then
+            if [[ -s "$tarball.md5" ]]; then
+                tarball_name=$(echo $tarball | cut -d'/' -f5-)
+                echo "$tarball_name"
+                echo "$tarball_name.md5"
+                echo "$tarball_name.hostname"
             else
-                echo Failed: "$remotearchive/$tar" exist but "$remotearchive/$tar.md5" not exist >> $tmp/mail.log
+                echo Failed: "$tarball" exist but "$$tarball.md5" not exist >> $tmp/mail.log
             fi
-            prefix=$(calculate_prefixname $tar)
-            if [ -s $remotearchive/$prefix ]; then
-                echo "$prefix"
+            prefix=$(calculate_prefixname $tarball)
+            if [ -s $prefix ]; then
+                prefix_name=$(echo $prefix | cut -d'/' -f5-)
+                echo "$prefix_name"
             fi
         else
-            echo Failed: "$remotearchive/$tar" not exist >> $tmp/mail.log
+            echo Failed: "$tarball" not exist >> $tmp/mail.log
         fi
     done
 }
 
-tar_list=$(echo $files | sed 's/\/TO-SYNC//g')
+tar_list=$(echo $files)
 calculate_md5_prefix $tar_list > $tmp/files-to-sync
 
-pushd $remotearchive >/dev/null || exit 2
-if [ ! -d $remotearchive ] ;then
-    mkdir -p $remotearchive
+pushd $ARCHIVE >/dev/null || exit 2
+if [ ! -d $ARCHIVE ] ;then
+    mkdir -p $ARCHIVE
 fi
 
 # package everything and use the saved stdout (see log_init)
