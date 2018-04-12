@@ -65,8 +65,10 @@ function _run_activate {
     if [ $rc != 0 ] ;then
         return 1
     fi
+    oldpath=$PATH
     PATH=$_tdir:$PATH
     $_tdir/pbench-server-activate ${_testdir}/opt/pbench-server/lib/config/pbench-server.cfg ${_testdir} >> $_testout
+    PATH=$oldpath
 }
 
 function _run_allscripts {
@@ -83,7 +85,7 @@ function _save_tree {
     # Save state of the tree
     echo "+++ pbench tree state" >> $_testout
     find $_testdir | sort |
-        sed 's;tmp/pbench-unpack-tarballs.[0-9]*$;tmp/pbench-unpack-tarballs.NNNN;' >> $_testout
+        sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*$;tmp/pbench-\1.NNNN;' >> $_testout
     echo "--- pbench tree state" >> $_testout
 }
 function _dump_logs {
@@ -97,7 +99,8 @@ function _dump_logs {
     fi
     echo "--- pbench log file contents" >> $_testout
     echo "+++ test-execution.log file contents" >> $_testout
-    grep -HvF "\-\-should-n0t-ex1st--" $_testroot/test-execution.log >> $_testout 2>&1
+    grep -HvF "\-\-should-n0t-ex1st--" $_testroot/test-execution.log 2>/dev/null |
+         sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' >> $_testout>> $_testout 2>&1
     echo "--- test-execution.log file contents" >> $_testout
     rm -f $_testroot/test-execution.log
 
@@ -211,7 +214,7 @@ declare -A links=(
 )
 
 # indexing unit tests - why is this necessary?
-PATH=/usr/local/bin:$PATH
+# PATH=/usr/local/bin:$PATH
 
 tests=$*
 if [ -z "$tests" ] ;then
@@ -233,4 +236,3 @@ for test in  $tests ;do
     _reset_state
 done
 exit $failures
-
