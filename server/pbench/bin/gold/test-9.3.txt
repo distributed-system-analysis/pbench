@@ -1,6 +1,4 @@
 +++ Running pbench-verify-backup-tarballs
-/var/tmp/pbench-test-server/opt/pbench-server/config/pbench-server.cfg
-admins@example.com
 --- Finished pbench-verify-backup-tarballs (status=0}
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
@@ -23,7 +21,5 @@ admins@example.com
 +++ pbench log file contents
 --- pbench log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/mailx -s pbench-verify-backup-tarballs.run-1900-01-01T00:00:00-UTC() admins@example.com
-/var/tmp/pbench-test-server/test-execution.log:* Files that exist only in backup directory - this should not happen.
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/pbench/archive.backup/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: OK
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/pbench-report-status --name pbench-verify-backup-tarballs --timestamp run-1900-01-01T00:00:00-UTC --type status /var/tmp/pbench-test-server/pbench/tmp/pbench-verify-backup-tarballs/index_mail_contents
 --- test-execution.log file contents
