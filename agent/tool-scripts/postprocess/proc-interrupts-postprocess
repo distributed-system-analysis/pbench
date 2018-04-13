@@ -73,7 +73,10 @@ while (my $line = <INTERRUPTS_TXT>) {
 	# this line contains counts for a specific IRQ, broken down by CPU
 	if ($line =~ s/\s*(\w+):// ) {
 		$int = "$1";
-		if ($int =~ /\d+/) {
+                # the anchored (at both ends) match makes sure that
+                # only numbers match here; things like "IPI0" (which
+                # happens on aarch64 e.g.) don't match.
+		if ($int =~ /^\d+$/) {
 			$int = sprintf "%03d", $int;
 		}
 		my %cpuvals;
