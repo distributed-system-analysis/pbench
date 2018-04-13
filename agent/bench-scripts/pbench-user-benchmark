@@ -165,7 +165,11 @@ pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$bench
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 if [[ ! -z $pbench_post ]]; then
         log "[$script_name]: Running $pbench_post"
-        $pbench_post
+        eval $pbench_post
+	if [[ $? != 0 ]]; then
+		error_log "[$script_name]: the script executed using pbench_post flag failed"
+		exit 1
+	fi
 fi
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 rmdir $benchmark_results_dir/.running
