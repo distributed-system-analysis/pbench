@@ -76,7 +76,7 @@ else
 
     # get the list of files we'll be operating on - sort them by size
     list=$TMP/$PROG.$$
-    find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' 2>/dev/null | grep -v DUPLICATE > $list
+    find -L $ARCHIVE/hostnames/*/$linksrc -name '*.tar.xz' 2>/dev/null | grep -v DUPLICATE > $list
 
     trap 'rm -f $list' EXIT INT QUIT
 
@@ -92,7 +92,7 @@ else
 
         resultname=$(basename $result)
         resultname=${resultname%.tar.xz}
-        hostname=$(basename $(dirname $link))
+        hostname=$(basename $(echo $result | cut -d'/' -f-6))
 
         # echo $link
         # echo $resultname

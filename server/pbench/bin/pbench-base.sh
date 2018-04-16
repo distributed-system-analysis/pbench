@@ -77,14 +77,14 @@ function mk_dirs {
     hostname=$1
 
     for d in $LINKDIRS ;do
-        thedir=$ARCHIVE/$hostname/$d
+        thedir=$ARCHIVE/hostnames/$hostname/$d
         mkdir -p $thedir
         if [[ $? -ne 0 || ! -d "$thedir" ]]; then
             return 1
         fi
     done
     # to accommodate different exit codes from index-pbench
-    mkdir -p $ARCHIVE/$hostname/WONT-INDEX.{1..12}
+    mkdir -p $ARCHIVE/hostnames/$hostname/WONT-INDEX.{1..12}
     if [[ $? -ne 0 ]]; then
         return 2
     fi

@@ -128,8 +128,6 @@ fi
 
 # unpack the tarball into tmp directory
 tar -xf $tmp/satellite.$prefix.tar -C $unpack
-files=$(find $unpack -path '*.tar.xz' -printf '%P\n')
-hosts="$(for host in $files;do echo ${host%%/*};done | sort -u )"
 
 # initialize change state log and mail content
 > $LOGSDIR/change-state.$prefix.log
@@ -138,32 +136,30 @@ hosts="$(for host in $files;do echo ${host%%/*};done | sort -u )"
 let start_time=$(timestamp-seconds-since-epoch)
 echo "$TS: start - $(timestamp)"
 
-for host in $hosts ;do
+mv $unpack/* $ARCHIVE
+
+files=$(find $ARCHIVE -path '*.tar.xz.hostname' -printf '%P\n')
+#hosts="$(for host in $files;do cat $host;done | sort -u )"
+
+for i in files ;do
     typeset -i processed=0
     typeset -i failed_md5=0
-    localdir=$ARCHIVE/$prefix::$host
+    pushd ${i%/*} >/dev/null || exit 2
+    host=$(cat $i)
+    localdir=$ARCHIVE/hostnames/$prefix::$host
     if [ ! -d $localdir ] ;then
-        mkdir -p $localdir || exit 1
+        mkdir -p $localdir
     fi
-    pushd $localdir >/dev/null || exit 2
+
     if [ ! -d $logdir/$host ] ;then
         mkdir -p $logdir/$host
     fi
 
     # get the tarball list for this host
-    flist=$(find $unpack/$host -type f -name '*.tar.xz.md5' | sed 's;'$unpack/$host/';;')
+    flist=$(find . -type f -name '*.tar.xz.md5' -printf '%P\n')
 
     echo $flist
-    
-    # move the unpacked files from tmp directory to archive
-    mv $unpack/$host/* .
 
-    # move prefix files if present
-    if [[ -d $unpack/$host/.prefix ]] ;then
-        mkdir -p ./.prefix
-        mv $unpack/$host/.prefix/* ./.prefix
-    fi
-    
     # make the state dirs: TODO, TO-INDEX, TO-COPY-SOS etc.
     mk_dirs $prefix::$host
 
@@ -176,16 +172,17 @@ for host in $hosts ;do
     if [ -s $logdir/$host/ok-checks.log ] ;then
         md5_pass=$(cat $logdir/$host/ok-checks.log | sed -n 's/: OK//p')
         for x in $md5_pass; do
-            ln -sf $PWD/$x SATELLITE-MD5-PASSED/$x
+            ln -sf $PWD/$x $localdir/SATELLITE-MD5-PASSED/$x
             status=$?
             if [[ $status != 0 ]] ;then
                 nerrs=$nerrs+1
                 echo "Failed to create the symlink for md5 check passed tarballs: ln -sf \
-                $PWD/$x SATELLITE-MD5-PASSED/$x" | tee -a $mail_content >&4 
+                $PWD/$x $localdir/SATELLITE-MD5-PASSED/$x" | tee -a $mail_content >&4 
                 continue
             fi
         done
     fi
+    
     grep 'FAIL' $logdir/$host/md5-checks.log > $logdir/$host/fail-checks.log
     cat $logdir/$host/fail-checks.log >> $mail_content
     failed_md5=$(wc -l < $logdir/$host/fail-checks.log)
@@ -193,39 +190,41 @@ for host in $hosts ;do
     if [ -s $logdir/$host/fail-checks.log ] ;then
         md5_fail=$(cat $logdir/$host/fail-checks.log | sed -n 's/: FAIL//p')
         for x in $md5_fail; do
-            ln -sf $PWD/$x SATELLITE-MD5-FAILED/$x
+            ln -sf $PWD/$x $localdir/SATELLITE-MD5-FAILED/$x
             status=$?
             if [[ $status != 0 ]] ;then
                 nerrs=$nerrs+1
                 echo "Failed to create the symlink for md5 check failed tarballs: ln -sf \
-                $PWD/$x SATELLITE-MD5-FAILED/$x" | tee -a $mail_content >&4 
+                $PWD/$x $localdir/SATELLITE-MD5-FAILED/$x" | tee -a $mail_content >&4 
                 continue
             fi
         done
     fi
+
     # create symlinks for the synced tarballs in TODO
     if [ -s $logdir/$host/ok-checks.log ] ;then
         for x in $md5_pass; do
-            ln -sf $PWD/$x TODO/$x
+            ln -sf $PWD/$x $localdir/TODO/$x
             status=$?
             if [[ $status != 0 ]] ;then
                 nerrs=$nerrs+1
                 echo "Failed to create the symlink for TODO state directory: ln -sf \
-                $PWD/$x TODO/$x" | tee -a $mail_content >&4 
+                $PWD/$x $localdir/TODO/$x" | tee -a $mail_content >&4 
                 continue
             fi
             # For the synced tarballs, add an entry to the dispatch
             # list watching by inotify script.  
-            flock -x $INOTIFY_STATE_DIR/TO-DISPATCH-LIST echo $PWD/TODO/$x >> $INOTIFY_STATE_DIR/TO-DISPATCH-LIST
+            flock -x $INOTIFY_STATE_DIR/TO-DISPATCH-LIST echo $localdir/TODO/$x >> $INOTIFY_STATE_DIR/TO-DISPATCH-LIST
         done
     fi
+
     # save the contents of ok checks to further use it for state change
     if [ -s $logdir/$host/ok-checks.log ] ;then
         state_list=$(cat $logdir/$host/ok-checks.log | sed -n 's/: OK//p')
         for x in $state_list; do
-            echo "$host/TO-SYNC/$x" >> $LOGSDIR/change_state.$prefix.log
+            echo "hostnames/$host/TO-SYNC/$x" >> $LOGSDIR/change_state.$prefix.log
         done
-    fi 
+    fi
     popd > /dev/null
 done
 
