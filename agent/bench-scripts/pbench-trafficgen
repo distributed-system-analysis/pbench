@@ -84,6 +84,7 @@ skip_git_pull="n"
 flow_mods="src-ip,dst-ip,src-mac,dst-mac"
 all_possible_flow_mods="src-ip,dst-ip,src-mac,dst-mac,src-port,dst-port,encap-src-ip,encap-dst-ip,encap-src-mac,encap-dst-mac,protocol,none"
 cmd="./binary-search.py"
+passthrough_arguments=""
 packet_protocol="UDP"
 pre_sample_cmd=""
 
@@ -549,7 +550,7 @@ while true; do
 			arg="$1"
 			shift
 			if [ -n "$arg" ]; then
-				cmd="$cmd $arg"
+				passthrough_arguments="${passthrough_arguments} ${arg}"
 			else
 				break
 			fi
@@ -945,7 +946,7 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 						iteration_options="$iteration_options --num-flows=$num_flow"
 						# save benchmark command in file for debugging or running manually
 						echo "pushd >/dev/null $trafficgen_dir" >$benchmark_cmd_file
-						echo "$cmd $iteration_options \$@" >>$benchmark_cmd_file
+						echo "$cmd $iteration_options $passthrough_arguments \$@" >>$benchmark_cmd_file
 						echo "cmd_rc=\$?" >>$benchmark_cmd_file
 						echo "popd >/dev/null" >>$benchmark_cmd_file
 						echo "exit \$cmd_rc" >>$benchmark_cmd_file
