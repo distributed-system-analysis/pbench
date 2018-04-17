@@ -74,7 +74,8 @@ else
     }
 fi
 
-ARCHIVE=${TOP}/archive/fs-version-001
+ARCHIVE=${TOP}/archive/fs-version-002
+INOTIFY_STATE_DIR=${ARCHIVE}/inotify_state
 INCOMING=${TOP}/public_html/incoming
 # this is where the symlink forest is going to go
 RESULTS=${TOP}/public_html/results
@@ -172,5 +173,24 @@ function quarantine () {
         echo "$TS: quarantine $dest $files: \"mv $files $dest\" failed with status $sts" >&4
         log_finish
         exit 102
+    fi
+}
+
+# The inotify script runs the server scripts like dispatch
+# and unpack asynchronously (more will be added in future),
+# results in multiple instances of those scripts running in
+# parallel. If every instance tries to write in the same file
+# then it will be chaos and make things difficult to debug.
+# In that case, this function will acquire a lock on the main
+# log file and allow every instance to append the log saved in
+# the /tmp directory (with different PID) to the main log file.
+
+function log_append {
+    #log_append $TMP/$(basename $0).$$ $LOGSDIR/$(basename $0)
+    TMP_DIR=$1
+    LOG_DIR=$2
+    mkdir -p $LOG_DIR
+    if [[ $? -ne 0 || ! -d "$LOG_DIR" ]]; then
+        doexit "Unable to find/create logging directory, $LOG_DIR"
     fi
 }

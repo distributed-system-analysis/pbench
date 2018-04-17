@@ -4,7 +4,7 @@
 # This shim is used to prepare the tarballs that a version 002 client
 # submits for further processing. It copies the tarballs and their MD5
 # sums to the archive (after checking) and sets the state links, so
-# that the dispatch script will pick them up and get the ball
+# that the associates scripts will pick them up and get the ball
 # rolling. IOW, it does impedance matching between version 002 clients
 # and the server scripts.
 
@@ -94,9 +94,12 @@ if [ $sts != 0 ]; then
     exit 4
 fi
 
+linkdestlist=$(getconf.py -l dispatch-states pbench-server)
 list=$tmp/list.check
-status=$tmp/status
-> $status
+index_content=$tmp/index_mail_contents
+
+# Initialize index mail content
+> $index_content
 
 echo $TS
 # Check for results that are ready for processing: version 002 agents
@@ -116,10 +119,10 @@ typeset -i nerrs=0
 typeset -i nquarantined=0
 typeset -i ndups=0
 
-while read ck ;do
+while read result ;do
     ntotal=$ntotal+1
     # full pathname of tarball
-    tb=${ck%.md5}
+    tb=${result%.md5}
 
     # directory
     tbdir=$(dirname ${tb})
@@ -128,10 +131,22 @@ while read ck ;do
     resultname=$(basename ${tb})
     resultname=${resultname%.tar.xz}
 
-    # the controller hostname is the last component of the directory part of the full path
+    # the controller hostname is the last component of the directory part
+    # of the full path
     controller=$(basename ${tbdir})
 
-    dest=${archive}/${controller}
+    dest=${archive}
+
+#    # Make sure the inotify state directories are present
+#    for state in $linkdestlist ;do
+#        if [ ! -d "${INOTIFY_STATE_DIR}/$state" ]; then
+#            mkdir -p ${INOTIFY_STATE_DIR}/$state
+#            sts=$?
+#            if [ $sts -ne 0 ] ;then
+#                echo "$TS: Failed: \"mkdir -p ${INOTIFY_STATE_DIR}/$state\", status $sts" | tee -a $index_content >&4
+#            fi
+#        fi
+#    done
 
     # sanity checks
     if [ ! -f ${tb} ] ;then
@@ -142,6 +157,7 @@ while read ck ;do
         fi
         continue
     fi
+    
     # Impossible: the md5 file disappeared between the find and this check!
     if [ ! -f ${tb}.md5 ] ;then
         echo "$TS: Quarantined: ${tb}.md5 file does not exist" >&4
@@ -150,6 +166,7 @@ while read ck ;do
         continue
     fi
 
+    # check the md5sum
     pushd ${tbdir} >/dev/null 2>&4
     md5sum --check ${resultname}.tar.xz.md5
     sts=$?
@@ -164,50 +181,123 @@ while read ck ;do
 
     if [ -f ${dest}/${resultname}.tar.xz -o -f ${dest}/${resultname}.tar.xz.md5 ] ;then
         echo "$TS: Duplicate: ${tb} duplicate name" >&4
-        quarantine ${duplicates}/${controller}  ${tb} ${tb}.md5
+        quarantine ${duplicates}/${controller} ${tb} ${tb}.md5
         ndups=$ndups+1
     fi
 
-    mkdir -p ${dest}/TODO
-    sts=$?
-    if [ $sts -ne 0 ] ;then
-        echo "$TS: Error: \"mkdir -p ${dest}\", status $sts" |
-            tee -a $status >&4
+    # Create the trie structure using md5sum
+    hash=$(md5sum "${tb}" | awk '{ print $1 }')
+    if [ -z $hash ]; then
         quarantine ${errors}/${controller} ${tb} ${tb}.md5
+        echo "$TS: Failed: md5sum ${tb}" | tee -a $index_content >&4
         nerrs=$nerrs+1
         continue
     fi
 
-    mv ${tb} ${tb}.md5 $dest
-    sts=$?
-    if [ $sts -ne 0 ] ;then
-        echo "$TS: Error: \"mv ${tb} ${tb}.md5 $dest\", status $sts" |
-            tee -a $status >&4
+    hash_path=$(echo $hash | cut -b 1-2)/$(echo $hash | cut -b 3-4)/$(echo $hash | cut -b 5-)
+    if [ -z $hash_path ]; then
         quarantine ${errors}/${controller} ${tb} ${tb}.md5
+        echo "$TS: Failed to evaluate the trie structure path" | tee -a $index_content >&4
         nerrs=$nerrs+1
+        continue
     fi
 
-    pushd $dest/TODO > /dev/null >/dev/null 2>&1
-    ln -s $dest/$(basename $tb) .
+    # Create the trie structure path if not present
+    result_full_path="${dest}/$hash_path"
+    if [ ! -d "$result_full_path" ]; then
+        mkdir -p $result_full_path
+        sts=$?
+        if [ $sts -ne 0 ] ;then
+            quarantine ${errors}/${controller} ${tb} ${tb}.md5
+            echo "$TS: Failed: \"mkdir -p $result_full_path\", status $sts" | tee -a $index_content >&4
+            nerrs=$nerrs+1
+            continue
+        fi
+    fi
+
+#    # Make an entry in the hostnames directory if not present
+#    hostnames_full_path="${dest}/hostnames/${controller}"
+#    if [ ! -d "${hostnames_full_path}" ]; then
+#        mkdir -p ${hostnames_full_path}
+#        sts=$?
+#        if [ $sts -ne 0 ] ;then
+#            quarantine ${errors}/${controller} ${tb} ${tb}.md5
+#            echo "$TS: Failed: \"mkdir -p ${hostnames_full_path}\", status $sts" | tee -a $index_content >&4
+#            nerrs=$nerrs+1
+#            continue
+#        fi
+#    fi
+
+    # make sure that all the relevant state directories exist
+    mk_dirs inotify_state
+    status=$?
+    if [[ $status -ne 0 ]] ;then
+        quarantine ${errors}/${controller} ${tb} ${tb}.md5
+        echo "$TS: Creation of $controller processing directories failed: code $status" | tee -a $index_content >&4
+        nerrs=$nerrs+1
+        continue
+    fi
+
+    # move the tarball and its md5
+    mv ${tb} ${tb}.md5 ${result_full_path}
     sts=$?
     if [ $sts -ne 0 ] ;then
-        echo "$TS: Error: \"ln -s $dest/$(basename $tb) .\", status $sts" |
-            tee -a $status >&4
-        quarantine ${errors}/${controller} ${dest}/${tb} ${dest}/${tb}.md5 ${prefix}
+        quarantine ${errors}/${controller} ${tb} ${tb}.md5
+        echo "$TS: Failed: \"mv ${tb} ${tb}.md5 $result_full_path\", status $sts" | tee -a $index_content >&4
         nerrs=$nerrs+1
-    else
-        echo "$TS: processed ${tb}" >> $status
-        ntbs=$ntbs+1
+        continue
     fi
-    popd > /dev/null 2>&1
+
+    # generate the hostname file
+    tb_name=${tb##*/}
+    echo ${controller} > ${result_full_path}/${tb_name}.hostname
+    sts=$?
+    if [ $sts -ne 0 ] ;then
+        quarantine ${errors}/${controller} ${result_full_path}/${tb_name} \
+        ${result_full_path}/${tb_name}.md5 \
+        ${result_full_path}/${tb_name}.hostname
+        echo "$TS: Failed: \"echo ${controller} > ${result_full_path}/${tb_name}.hostname\", status $sts" | tee -a $index_content >&4
+        nerrs=$nerrs+1
+        continue
+    fi
+
+    # create a link in each state dir - if any fail, we should delete them all?# No, that would be racy.
+    for state in $linkdestlist ;do
+#        ln -s $result_full_path/${tb_name} $hostnames_full_path/$state
+#        status=$?
+#        if [[ $status -ne 0 ]] ;then
+#            quarantine ${errors}/${controller} ${result_full_path}/${tb_name} \
+#            ${result_full_path}/${tb_name}.md5 \
+#            ${result_full_path}/${tb_name}.hostname
+#            echo "$TS: Cannot create $result_full_path/${tb_name} link from $linksrc to $state: code $status" | tee -a $index_content >&4
+#            nerrs=$nerrs+1
+#            continue
+#	fi
+        watched_dir=${INOTIFY_STATE_DIR}/$state
+        ln -s $result_full_path/${tb_name} ${watched_dir}/$hash
+        sts=$?
+        if [ $sts -ne 0 ] ;then
+            quarantine ${errors}/${controller} ${result_full_path}/${tb_name} \
+            ${result_full_path}/${tb_name}.md5 \
+            ${result_full_path}/${tb_name}.hostname
+            rm $hostnames_full_path/$state/${tb_name}
+            echo "$TS: Failed: \"ln -s $result_full_path/${tb_name} ${watched_dir}/$md5\", status $sts" | tee -a $index_content >&4
+            nerrs=$nerrs+1
+            continue
+        fi
+    done
+
+    # log the success
+    echo "$TS: processed ${tb}" >> $index_content
+    ntbs=$ntbs+1
 done < $list
 
-echo "$TS: Processed $ntotal entries, $ntbs tarballs successful,"\
-     "$nquarantined quarantined tarballs, $ndups duplicately-named tarballs,"\
-     "$nerrs errors." | tee -a $status
+echo "$TS: Processed $ntotal entries, $ntbs tarballs successful,\
+   # $nquarantined quarantined tarballs, $ndups duplicately-named tarballs,\
+    $nerrs errors." | tee -a $index_content
 
 log_finish
 
-pbench-report-status --name $PROG --timestamp $TS --type status $status
+pbench-report-status --name $PROG --timestamp $TS --type status $index_content
 
 exit $nerrs

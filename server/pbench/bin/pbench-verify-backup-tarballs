@@ -43,7 +43,7 @@ primary=$ARCHIVE
 backup=$BDIR
 
 # work files
-controllers=$TMP/$PROG/controllers.$$
+results=$TMP/$PROG/results.$$
 files=$TMP/$PROG/files.$$
 allmd5s=$TMP/$PROG/allmd5s.$$
 list=$TMP/$PROG/list.$$
@@ -55,12 +55,13 @@ index_content=$TMP/$PROG/index_mail_contents
 # make sure the directory exists
 mkdir -p $TMP/$PROG
 
-trap "rm -f $controllers.[pb] $files.[pb] $allmd5s.[pb] $list.[pb] $out.[pb] $list.[pb].failed $only.[pb] $report $index_content; rmdir $TMP/$PROG" EXIT INT QUIT
+trap "rm -f $results.[pb] $files.[pb] $allmd5s.[pb] $list.[pb] $out.[pb] $list.[pb].failed $only.[pb] $report $index_content; rmdir $TMP/$PROG" EXIT INT QUIT
 
 # First argument is the exit code to use when a directory does not exist.
 function checkmd5 {
-    find . -maxdepth 1 -type d | grep -v '^\.$' | sort > $controllers.$1
+    find . -type f | grep -v '^\.$' | sort > $results.$1
     while read d ;do
+        d=${d%/*}
         pushd $d > /dev/null || exit $2
         ls | grep md5 | grep -v DUPLICATE__NAME > $files.$1
         > $allmd5s.$1
@@ -74,9 +75,9 @@ function checkmd5 {
         if [ -s $allmd5s.$1 ] ;then
             cat $allmd5s.$1 | sed -r 's;(^[0-9a-f]+)  (.+);\1  '$d/'\2;' >> $list.$1
             md5sum --check --warn $allmd5s.$1 | sed 's;^;'$d/';'
-        fi 
+        fi
         popd >/dev/null
-    done < $controllers.$1
+    done < $results.$1
 }
 
 log_init $(basename $0) $LOGSDIR/$(basename $0)
@@ -87,12 +88,14 @@ echo "start-$(timestamp)"
 > $index_content
 
 # primary archive
+> $list.p
 > $out.p
 if cd $primary ;then
     checkmd5 p 5 > $out.p 2>&1 &
 fi
 
 # backup location
+> $list.b
 > $out.b
 if cd $backup ;then
     checkmd5 b 6 > $out.b 2>&1 &

@@ -41,9 +41,6 @@ log_init $(basename $0) $LOGSDIR/$(basename $0)
 
 echo $TS: $PROG starting
 
-hosts="$(for host in $files;do echo ${host%%/*};done | sort -u )"
-tarballs=$(for tarball in $files; do echo ${tarball##*/}; done)
-
 typeset -i ntb=0
 typeset -i nerrs=0
 typeset -i ntberrs=0
@@ -52,6 +49,7 @@ typeset -i nstateerrs=0
 typeset -i nincomingerrs=0
 typeset -i nresultserrs=0
 typeset -i nprefixerrs=0
+typeset -i nhosterrs=0
 
 mail_content=$tmp/mail.log
 index_content=$tmp/index_mail_contents
@@ -60,83 +58,105 @@ index_content=$tmp/index_mail_contents
 > $mail_content
 > $index_content
 
-for host in $hosts; do
-    pushd $remotearchive/$host >/dev/null || exit 2
-    for x in $tarballs; do
-        ntb=$ntb+1
-        # remove tar file
-        if [ -s $x ]; then
-            rm $x
-        fi
+for link in $files; do
+    tar=$(readlink -e $remotearchive/$link)
+    pushd "${tar%/*}" >/dev/null || exit 2
+    ntb=$ntb+1
+
+    # remove tar file
+    if [ -s $tar ]; then
+        rm $tar
+    fi
+    rc=$?
+    if [ $rc != 0 ]; then
+        echo $TS: Failed to remove: $tar | tee -a $mail_content >&4
+        ntberrs=$ntberrs+1
+        # if we fail to remove the tarball, we'll just continue the loop
+        # but we'll send mail with the failure. Hopefully, the next time
+        # around we'll succeed (presumabley because the admins will have
+        # taken some action).
+        # OTOH, if we fail to remove any of the other related
+        # files/directories, we'll go on and try to delete the rest of them.
+        # If we manage to change the state, there might be remnants to clean
+        # up manually. The error mail will identify those.
+        # Note that if we do remove the tarball but fail to change the state,
+        # this error will persist until the state is changed manually.
+        continue
+    fi
+
+    # remove its md5
+    if [ -s $tar.md5 ]; then
+        rm $tar.md5
         rc=$?
         if [ $rc != 0 ]; then
-            echo $TS: Failed to remove: $remotearchive/$host/$x | tee -a $mail_content >&4 
-            ntberrs=$ntberrs+1
-            # if we fail to remove the tarball, we'll just continue the loop
-            # but we'll send mail with the failure. Hopefully, the next time around
-            # we'll succeed (presumabley because the admins will have taken some action).
-            # OTOH, if we fail to remove any of the other related files/directories, we'll
-            # go on and try to delete the rest of them. If we manage to change the state,
-            # there might be remnants to clean up manually. The error mail will identify those.
-            #
-            # Note that if we do remove the tarball but fail to change the state, this error
-            # will persist until the state is changed manually.
-            continue
-        fi
-        # remove its md5
-        if [ -s $x.md5 ]; then
-            rm $x.md5
-        fi
-        rc=$?
-        if [ $rc != 0 ]; then
-            echo $TS: Failed to remove: $remotearchive/$host/$x.md5 | tee -a $mail_content >&4 
+            echo $TS: Failed to remove: $tar.md5 | tee -a $mail_content >&4
             nmd5errs=$nmd5errs+1
         fi
-        # change the state to SATELLITE-DONE
-        if [ -L TO-DELETE/$x ]; then
-            mv TO-DELETE/$x SATELLITE-DONE
-        fi
+    fi
+
+    # change the state to SATELLITE-DONE
+    if [ -L $remotearchive/$link ]; then
+        mv $remotearchive/$link $(echo $remotearchive/$link | sed 's/TO-DELETE/SATELLITE-DONE/')
         if [ $rc != 0 ]; then
-            echo $TS: Failed to move: $remotearchive/$host/TO-DELETE/$x to SATELLITE-DONE | tee -a $mail_content >&4 
+            echo $TS: Failed to move: $remotearchive/$link to SATELLITE-DONE | tee -a $mail_content >&4
             nstateerrs=$nstateerrs+1
         fi
-        # remove from incoming
-        if [ -s $INCOMING/$host/${x%%.tar.xz} ]; then
-            rm -rf $INCOMING/$host/${x%%.tar.xz}
-        fi
+    fi
+
+    host=$(cat "$tar.hostname")
+    tar_name=${tar##*/}
+
+    # remove from incoming
+    if [ -s $INCOMING/hostnames/$host/${tar_name%%.tar.xz} ]; then
+        rm -rf $INCOMING/hostnames/$host/${tar_name%%.tar.xz}
         rc=$?
         if [ $rc != 0 ]; then
-            echo $TS: Failed to remove the tarball from Incoming directory: $INCOMING/$host/${x%%.tar.xz} | tee -a $mail_content >&4 
+            echo $TS: Failed to remove the tarball from Incoming directory: $INCOMING/hostnames/$host/${tar_name%%.tar.xz} | tee -a $mail_content >&4
             nincomingerrs=$nincomingerrs+1
         fi
-        #remove the results
-        if [ -s .prefix/prefix.${x%%.tar.xz} ]; then
-            prefix_value=$(cat ".prefix/prefix.${x%%.tar.xz}")
-        fi
-        if [ -z $prefix_value ]; then
-            sym_link=$RESULTS/$host/${x%%.tar.xz}
-        else
-            sym_link=$RESULTS/$host/$prefix_value/${x%%.tar.xz}
-        fi
-        if [ -L $sym_link ]; then
-            rm $sym_link
-            rc=$?
-            if [ $rc != 0 ]; then
-                echo $TS: Failed to remove: $sym_link | tee -a $mail_content >&4 
-                nresultserrs=$nresultserrs+1
-            fi
-        fi
-        # remove prefix if present
-        prefix=".prefix/prefix.${x%%.tar.xz}"
-        if [ -s $prefix ]; then
-            rm $prefix
-        fi
+    fi
+
+    #remove the results
+    if [ -s .prefix/prefix.${tar_name%%.tar.xz} ]; then
+        prefix_value=$(cat ".prefix/prefix.${tar_name%%.tar.xz}")
+    else
+        prefix_value=""
+    fi
+
+    if [ -z $prefix_value ]; then
+        sym_link=$RESULTS/hostnames/$host/${tar_name%%.tar.xz}
+    else
+        sym_link=$RESULTS/hostnames/$host/$prefix_value/${tar_name%%.tar.xz}
+    fi
+    if [ -L $sym_link ]; then
+        rm $sym_link
         rc=$?
         if [ $rc != 0 ]; then
-            echo $TS: Failed to remove: $prefix | tee -a $mail_content >&4 
+            echo $TS: Failed to remove: $sym_link | tee -a $mail_content >&4
+            nresultserrs=$nresultserrs+1
+        fi
+    fi
+
+    # remove prefix if present
+    prefix=".prefix/prefix.${tar_name%%.tar.xz}"
+    if [ -s $prefix ]; then
+        rm $prefix
+        rc=$?
+        if [ $rc != 0 ]; then
+            echo $TS: Failed to remove: $prefix | tee -a $mail_content >&4
             nprefixerrs=$nprefixerrs+1
         fi
-    done
+    fi
+
+    #remove the hostname file
+    if [ -s "$tar.hostname" ]; then
+        rm "$tar.hostname"
+        rc=$?
+        if [ $rc != 0 ]; then
+            echo $TS: Failed to remove: "$tar.hostname" | tee -a $mail_content >&4
+            nhosterrs=$nhosterrs+1
+        fi
+    fi
     popd > /dev/null
 done
 

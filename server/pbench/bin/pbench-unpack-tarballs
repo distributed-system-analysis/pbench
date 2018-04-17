@@ -52,7 +52,6 @@ case $opts in
 esac
 
 UNPACK_PATH=$1
-#mkdir -p $UNPACK_PATH
 
 # TOP, ARCHIVE, INCOMING, RESULTS, USERS are all defined by the base file
 . $dir/pbench-base.sh
@@ -73,11 +72,13 @@ test -d $RESULTS || doexit "Bad RESULTS=$RESULTS"
 # the link source and destination for this script
 linksrc=TO-UNPACK
 linkdest=UNPACKED
+#linksrc_inotify=TO-UNPACK-DIR
+#linkdest_inotify=TO-UNPACK-DONE-DIR
 echo $TS
 
 tmp=$TMP/$PROG.$$
 
-trap 'rm -rf $tmp' EXIT INT QUIT
+trap "rm -rf $tmp $TMP/$(basename $0).$$" EXIT INT QUIT
 
 mkdir -p $tmp
 
@@ -88,12 +89,6 @@ index_content=$tmp/index_mail_contents
 # get the list of files we'll be operating on - sort them by size
 list=$tmp/$PROG.list
 
-# find command will not generate any result if the linksrc is empty,
-# and because of that, du will not get any result to calculate the
-# size. In that scenario, du generates the size of the current
-# directory as output; to handle that exclude the current directory.
-find $ARCHIVE/*/$linksrc -type l -name '*.tar.xz' -printf "%l\n" 2>/dev/null | grep -v DUPLICATE | xargs du -b --exclude "." 2>/dev/null | sort -n > $list
-
 typeset -i ntb=0
 typeset -i ntotal=0
 typeset -i nerrs=0
@@ -103,9 +98,19 @@ typeset -i ndups=0
 > $mail_content
 > $index_content
 
+shift
+
+# move the files to tmp for multiple concurrent executions
+flock -x $ARCHIVE/inotify_state/$linksrc mv $ARCHIVE/inotify_state/$linksrc/* $tmp
+# find all the symlinks in tmp directory to be processed. find command will not
+# generate any result if the linksrc is empty, and because of that du will not
+# get any result to calculate the size. In that scenario du generates the size
+# of the current directory as output, to handle that exclude the current
+# directory.
+find $tmp -type l -printf "%p\n" 2>/dev/null |
+	grep -v DUPLICATE | xargs du -b --exclude "." 2>/dev/null | sort -n > $list
 while read size result ;do
     ntotal=$ntotal+1
-
     link=$(readlink -e $result)
     if [ ! -f "$link" ] ;then
         echo "$TS: $link does not exist" | tee -a $mail_content >&4
@@ -114,21 +119,13 @@ while read size result ;do
     fi
     resultname=$(basename $result)
     resultname=${resultname%.tar.xz}
-    hostname=$(basename $(dirname $link))
+    hostname=$(cat $link.hostname)
 
     # echo "Link=$link"
     # echo "Resultname=$resultname"
     # echo "Hostname=$hostname"
     # continue
 
-    # make sure that all the relevant state directories exist
-    mk_dirs $hostname
-    # ... and a couple of other necessities.
-    if [[ $? -ne 0 ]] ;then
-        echo "$TS: Creation of $hostname processing directories failed: code $status" | tee -a $mail_content >&4
-        nerrs=$nerrs+1
-        continue
-    fi
     mkdir -p $INCOMING/$hostname
     if [[ $? -ne 0 ]] ;then
         echo "$TS: Creation of $INCOMING/$hostname failed: code $status" | tee -a $mail_content >&4
@@ -253,11 +250,10 @@ while read size result ;do
             fi
         fi
     fi
-
-    mv $ARCHIVE/$hostname/$linksrc/$resultname.tar.xz $ARCHIVE/$hostname/$linkdest/$resultname.tar.xz
+    mv $tmp/${result##*/} $ARCHIVE/inotify_state/$linkdest
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: Cannot move $ARCHIVE/$hostname/$resultname from $linksrc to $linkdest: code $status" | tee -a $mail_content >&4
+        echo "$TS: Cannot move $result from $linksrc to $linkdest: code $status" | tee -a $mail_content >&4
         # Cleanup needed here but trap takes care of it.
         rm -rf $incoming
         rm $RESULTS/$hostname/$prefix$resultname
@@ -265,10 +261,19 @@ while read size result ;do
         continue
     fi
 
+#    mv $INOTIFY_STATE_DIR/$linksrc_inotify/$resultname.tar.xz $INOTIFY_STATE_DIR/$linkdest_inotify/$resultname.tar.xz
+#    status=$?
+#    if [[ $status -ne 0 ]] ;then
+#        echo "$TS: Cannot move $INOTIFY_STATE_DIR/$linksrc_inotify/$resultname.tar.xz to $linkdest_inotify: code $status" | tee -a $mail_content >&4
+#        nerrs=$nerrs+1
+#        continue
+#    fi
+
     let end_time=$(date +%s)
     let duration=end_time-start_time
     # log the success
-    echo "$TS: $hostname/$resultname: success - elapsed time (secs): $duration - size (bytes): $size"
+    echo "$TS: $hostname/$resultname: success - elapsed time (secs): $duration
+        - size (bytes): $size"
     ntb=$ntb+1
 done < $list
 

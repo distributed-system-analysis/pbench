@@ -46,4 +46,15 @@ satellite-archive = /pbench/archive/fs-version-001
 # the rest will come from the default config file.
 [config]
 paths = /opt/pbench-server/lib/config
-files = pbench-server-default.cfg.example
+files = pbench-server-default.cfg
+
+# configuration for pbench-inotify
+[pbench-inotify]
+inotify_state_dir = /pbench/archive/fs-version-002/inotify_state
+archive = /pbench/archive/fs-version-002
+shim_state =  # master: False, satellite: True
+
+[sync-satellite]
+sync_state =  # master: True, satellite: False
+prefix = TESTING
+satellite_host =

@@ -1,7 +1,7 @@
 #! /bin/bash
 # -*- mode: shell-script -*-
 
-# This script will run only on production environment as unpacking to incoming 
+# This script will run only on production environment as unpacking to incoming
 # is relatively slower than unpacking tarballs in a tmp directory and then
 # move it to incoming.
 
@@ -48,10 +48,12 @@ index_content=$tmp/index_mail_contents
 
 trap 'rm -rf $tmp' EXIT INT QUIT
 
-# find command will not generate any result if the linksrc is empty, and because of that du will not get any result 
-# to calculate the size. In that scenario du generates the size of the current directory as output, to handle
+# find command will not generate any result if the linksrc
+# is empty, and because of that du will not get any result
+# to calculate the size. In that scenario du generates the
+# size of the current # directory as output, to handle
 # that exclude the current directory.
-find $ARCHIVE/*/$linksrc -type l -name '*.tar.xz' -printf "%l\n" 2>/dev/null | grep -v DUPLICATE | xargs du -b --exclude "." 2>/dev/null | sort -n > $list
+find $ARCHIVE/inotify_state/$linksrc -type l -printf "%p\n" 2>/dev/null | grep -v DUPLICATE | xargs du -b --exclude "." 2>/dev/null | sort -n > $list
 
 typeset -i ntb=0
 
@@ -65,12 +67,12 @@ function process_tarball {
 
     link=$(readlink -e $result)
     if [ ! -f "$link" ] ;then
-        echo "$TS: $link does not exist" | tee -a $mail_content >&4 
+        echo "$TS: $link does not exist" | tee -a $mail_content >&4
         return 1
     fi
-    resultname=$(basename $result)
+    resultname=$(basename $link)
     resultname=${resultname%.tar.xz}
-    hostname=$(basename $(dirname $link))
+    hostname=$(cat $link.hostname)
 
     basedir=$(dirname $link)
 
@@ -97,17 +99,16 @@ function process_tarball {
     if [ ! -z $prefix -a ${prefix%/} = ${prefix} ] ;then
         prefix=${prefix}/
     fi
-
     # make sure that all the relevant state directories exist
-    mk_dirs $hostname
+    #mk_dirs inotify_state
     # ... and a couple of other necessities.
-    if [[ $? -ne 0 ]] ;then
-        echo "$TS: Creation of $hostname processing directories failed: code $status" | tee -a $mail_content >&4
-        return 1
-    fi
+    #if [[ $? -ne 0 ]] ;then
+    #    echo "$TS: Creation of $hostname processing directories failed: code $status" | tee -a $mail_content >&4
+    #    return 1
+    #fi
     mkdir -p $INCOMING/$hostname
     if [[ $? -ne 0 ]] ;then
-        echo "$TS: Creation of $INCOMING/$hostname failed: code $status" | tee -a $mail_content >&4 
+        echo "$TS: Creation of $INCOMING/$hostname failed: code $status" | tee -a $mail_content >&4
         return 1
     fi
 
@@ -116,19 +117,17 @@ function process_tarball {
     if [ ${resultname%%.*} == "DUPLICATE__NAME" ] ;then
         return 2
     fi
-
     incoming=$INCOMING/$hostname/$resultname
 
     let start_time=$(date +%s)
 
     # log the beginning process of tarball
     echo "Starting: $TS: $hostname/$resultname: size (bytes): $size"
-
     # copy the tarball contents to INCOMING - remove the link on failure
     cp -R $UNPACK_PATH/$hostname/$resultname $incoming.copy
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: Cannot copy $UNPACK_PATH/$hostname/$resultname to $incoming.copy: code $status" | tee -a $mail_content >&4 
+        echo "$TS: Cannot copy $UNPACK_PATH/$hostname/$resultname to $incoming.copy: code $status" | tee -a $mail_content >&4
         return 1
     fi
 
@@ -149,7 +148,7 @@ function process_tarball {
 	status=$?
     elif [ -e "$incoming" ] ;then
 	# impossible!
-	echo "$TS: Cannot happen - $incoming is neither a dir nor a symlink!" | tee -a $mail_content >&4 
+	echo "$TS: Cannot happen - $incoming is neither a dir nor a symlink!" | tee -a $mail_content >&4
 	return 1
     fi
     if [[ $status -ne 0 ]] ;then
@@ -172,31 +171,30 @@ function process_tarball {
         # move failed, $incoming.copy still exists
         rm -f $RESULTS/$hostname/$prefix$resultname
         ln -sf $incoming.copy $RESULTS/$hostname/$prefix$resultname
-        echo "$TS: Cannot rename $incoming.copy to $incoming: code $status" | tee -a $mail_content >&4 
+        echo "$TS: Cannot rename $incoming.copy to $incoming: code $status" | tee -a $mail_content >&4
         return 1
     else
-	# fix up the results link: this is usually not necessary
-	# but if $incoming was a dir (see above), then the link
-	# would point to $incoming.copy.
+        # fix up the results link: this is usually not necessary
+        # but if $incoming was a dir (see above), then the link
+        # would point to $incoming.copy.
         # Remove the link first (issue #771).
         rm -f $RESULTS/$hostname/$prefix$resultname
         ln -sf $incoming $RESULTS/$hostname/$prefix$resultname
     fi
-        
 
     # remove the unpacked tarballs from UNPACK_PATH directory
     rm -R $UNPACK_PATH/$hostname/$resultname
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: Cannot remove $UNPACK_PATH/$hostname/$resultname: code $status" | tee -a $mail_content >&4 
+        echo "$TS: Cannot remove $UNPACK_PATH/$hostname/$resultname: code $status" | tee -a $mail_content >&4
 	return 1
     fi
 
     # move the link to $linkdest directory
-    mv $ARCHIVE/$hostname/$linksrc/$resultname.tar.xz $ARCHIVE/$hostname/$linkdest/$resultname.tar.xz
+    mv $ARCHIVE/inotify_state/$linksrc/${result##*/} $ARCHIVE/inotify_state/$linkdest/$resultname.tar.xz
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: Cannot move $ARCHIVE/$hostname/$resultname from $linksrc to $linkdest: code $status" | tee -a $mail_content >&4 
+        echo "$TS: Cannot move $ARCHIVE/inotify_state/$resultname from $linksrc to $linkdest: code $status" | tee -a $mail_content >&4
         rm $RESULTS/$hostname/$prefix$resultname
         return 1
     fi

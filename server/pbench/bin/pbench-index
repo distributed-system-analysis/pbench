@@ -61,7 +61,7 @@ test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
 # make sure only one copy is running.
 # Use 'flock -n $LOCKFILE /home/pbench/bin/pbench-index' in the
 # crontab to ensure that only one copy is running. The script itself
-# does not use any locking. 
+# does not use any locking.
 
 # the link source and destination for this script
 linksrc=TO-INDEX
@@ -69,7 +69,7 @@ linkdest=INDEXED
 linkerrdest=WONT-INDEX
 
 # get the list of files we'll be operating on
-#list=$(ls $ARCHIVE/*/$linksrc/*.tar.xz 2>/dev/null)
+#list=$(ls $ARCHIVE/hostnames/*/$linksrc/*.tar.xz 2>/dev/null)
 # Better: avoids long command line problems and sorts by size
 TMPDIR=$TMP/pbench-index.$$
 # index-pbench need to get at it
@@ -97,7 +97,7 @@ trap "rm -rf $TMPDIR" EXIT QUIT INT
 > $errors_json
 
 list=$TMPDIR/list
-find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | sort -n > $list
+find -L $ARCHIVE/inotify_state/$linksrc -printf "%s\t%p\n" 2>/dev/null | sort -n > $list
 
 while read size result ;do
     echo "   $(timestamp): Starting $result (size $size)"
@@ -108,13 +108,13 @@ while read size result ;do
         echo $result >> $erred
         continue
     fi
-       
-    resultname=$(basename $result)
+
+    resultname=$(basename $link)
     resultname=${resultname%.tar.xz}
-    hostname=$(basename $(dirname $link))
+    hostname=$(cat $link.hostname)
 
     # make sure that all the relevant state directories exist
-    mk_dirs $hostname
+    # mk_dirs inotify_state
 
     # index it
     if [ ! -f $link  -o ! -f $link.md5 ] ;then
@@ -161,7 +161,7 @@ while read size result ;do
         cat $errors_json >> $errors_json.report
         pbench-report-status --name $PROG.errors --timestamp $TS --type status $errors_json.report
     fi
-    
+
     if [ $status -ne 0 ] ;then
         # Distinguish failure cases, so we can retry the indexing easily if possible.
         # Different WONT-INDEX directories for different failures:
@@ -179,7 +179,7 @@ while read size result ;do
         fi
         continue
     fi
-    
+
     # move the link to $linkdest directory
     # echo mv $result $(echo $result | sed "s/$linksrc/$linkdest/")
     mv $result $(echo $result | sed "s/$linksrc/$linkdest/")

@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+
+"""
+This script is a generic inotify script running as a systemd
+service. Using this script, the various server scripts can be
+invoked directly and immediately, instead of having to wait
+to be invoked by cron.
+
+Not every server script will be converted: some will continue
+to be run as cron jobs.
+
+The script uses the pyinotify library to create a watch over
+a list directory and triggers the associationed command if
+any changes happen to that directory. IOW, we assume that a
+new entry is added to the directory when a user submits a
+new result.
+"""
+
+import pyinotify
+import subprocess
+import os
+import sys
+import signal
+import fcntl
+import threading
+import configtools
+import time
+
+DEBUG = True
+
+options = []
+opts, args = configtools.parse_args(options)
+conf, files = configtools.init(opts)
+
+class Association(object):
+
+    """The Association class associates a server script to the
+    administrative list directory that are used to figure out
+    whether the script needs to be called.
+
+    The watch directory is modified externally(e.g. by
+    pbench-server-prep-version-002). At initialization, the
+    inotify handler establishes watches on *all* the list
+    directories, so when a change is seen, it use the list
+    directory name of the changed file as a key in a dict
+    of associations to select the correct one and calls the
+    server script for this association.
+    """
+
+    # class variable
+    INOTIFY_STATE_DIR = conf.get('pbench-inotify', 'inotify_state_dir')
+
+    def __init__(self, script, args, listd, doned):
+        self.script = script
+        self.args = args
+        self.list_dir = "%s/%s" % (self.INOTIFY_STATE_DIR, listd)
+        self.done_dir = "%s/%s" % (self.INOTIFY_STATE_DIR, doned)
+
+        # Make sure the directory and files are present
+        if not os.path.exists(self.INOTIFY_STATE_DIR):
+            os.makedirs(self.INOTIFY_STATE_DIR)
+        if not os.path.exists(self.list_dir):
+            os.makedirs(self.list_dir)
+        if not os.path.exists(self.done_dir):
+            os.makedirs(self.done_dir)
+
+
+"""
+The associations dictionary contains an entry for each directory that
+is to be run by the inotify script. It is indexed by the (simple)
+directory name of the list directory that inotify watches.
+
+A dictionary is being used here so that when we convert a cronjob to a
+service,all we need to do is add an entry to the dict.
+"""
+associations = {
+    'TO-UNPACK': Association(
+        'pbench-unpack-tarballs',
+        '/pbench/public_html/incoming',
+        'TO-UNPACK',
+        'UNPACKED'),
+    'TO-INDEX': Association(
+        'pbench-index',
+        '',
+        'TO-INDEX',
+        'INDEXED')
+}
+
+
+def sync_satellite():
+    """
+    Thread that runs periodically to sync the results from satellite host.
+    """
+    while True:
+        prefix = conf.get('sync-satellite', 'prefix')
+        satellite_host = conf.get('sync-satellite', 'satellite_host')
+        remotearchive = conf.get('pbench-inotify', 'archive')
+        subprocess.Popen(["pbench-sync-satellite-inotify",
+            str(prefix), str(satellite_host), str(remotearchive)])
+        time.sleep(60)
+
+
+class EventHandler(pyinotify.ProcessEvent):
+    """
+    This class handles the events for the scripts. If some changes are
+    detected on the watch directory then this class get triggered.
+    """
+
+    def process_IN_CREATE(self, event):
+        if DEBUG:
+            print ("\nEvent: %s" % event.pathname)
+        filename = event.pathname.split("/")[-2]
+        if DEBUG:
+            print("\nTRIGERRED BY: %s" % filename)
+        script_to_run = associations[filename].script
+        args = associations[filename].args
+        if DEBUG:
+            print(script_to_run, args)
+        subprocess.Popen(
+                [associations[filename].script, str(associations[filename].args)], env=os.environ.copy())
+
+    # Function to exit the script incase of event queue overflowed.
+    def process_IN_Q_OVERFLOW(self, event):
+        sys.exit(1)
+
+
+def main():
+    # set up signal handlers.
+    def signal_handler(signal, frame):
+        os._exit(1)
+
+    sig_type = ['SIGINT', 'SIGQUIT', 'SIGTERM']
+    for i in sig_type:
+        signum = getattr(signal, i)
+        signal.signal(signum, signal_handler)
+
+    # set up the inotify handler
+    wm = pyinotify.WatchManager()  # Watch Manager
+    mask = pyinotify.IN_CREATE | pyinotify.IN_Q_OVERFLOW  # watched events
+    notifier = pyinotify.ThreadedNotifier(wm, EventHandler())
+    notifier.start()
+
+    # now that the inotify handler is set up, add a watch to the list
+    # directory for each association, but first make sure that any work
+    # that was interrupted earlier (or was submitted while this script
+    # was not running) is done now: for each association, run the association
+    # script to make sure those results get processed.
+
+    for j in associations:
+        wd = wm.add_watch(associations[j].list_dir, mask)
+        if DEBUG:
+            print (wd)
+        # Run the associations scripts to cleanup (i.e process) the results
+        # which got accumulated while pbench-inotify was not running.
+        subprocess.Popen(
+                [associations[j].script, str(associations[j].args)], env=os.environ.copy())
+
+    # start the sync thread
+    sync_state = conf.get('sync-satellite', 'sync_state')
+    if sync_state == "True":
+        t2 = threading.Thread(target=sync_satellite)
+        t2.start()
+        t2.join()
+
+    return 0
+
+
+if __name__ == '__main__':
+    status = main()
+    sys.exit(status)

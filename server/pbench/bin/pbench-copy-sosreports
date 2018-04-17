@@ -78,7 +78,7 @@ fi
 echo "$TS: starting at $(timestamp)"
 
 # get the list of files we'll be operating on
-list=$(ls $ARCHIVE/*/$linksrc/*.tar.xz 2>/dev/null)
+list=$(ls $ARCHIVE/hostnames/*/$linksrc/*.tar.xz 2>/dev/null)
 
 typeset -i nresults=0
 typeset -i ntotal=0
@@ -103,7 +103,7 @@ for result in $list ;do
 
     resultname=$(basename $result)
     resultname=${resultname%.tar.xz}
-    hostname=$(basename $(dirname $link))
+    hostname=$(echo $(basename $(dirname $(dirname $result))))
 
     # echo $link
     # echo $resultname
@@ -111,12 +111,12 @@ for result in $list ;do
     # continue
 
     # make sure that all the relevant state directories exist
-    mk_dirs $hostname
+    mk_dirs hostnames/$hostname
 
     # the tarball is already unpacked, so go to the appropriate place
     # and find all the sosreports under it. This should be quick!
 
-    incoming=$INCOMING/$hostname/$resultname
+    incoming=$INCOMING/hostnames/$hostname/$resultname
 
     typeset -i nsr=0
     # we look in a few places for the sysinfo/ dir, because we support

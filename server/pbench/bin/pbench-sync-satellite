@@ -90,6 +90,8 @@ typeset -i nprocessed=0
 typeset -i nfailed_md5=0
 typeset -i nerrs=0
 
+linkdestlist=$(getconf.py -l dispatch-states pbench-server)
+
 unpack=$tmp/unpack.$prefix
 trap "rm -rf $tmp" EXIT QUIT INT
 
@@ -102,9 +104,11 @@ index_content=$tmp/index_mail_contents
 
 log_init $(basename $0) $LOGSDIR/$(basename $0)
 logdir=$LOGSDIR/$(basename $0)/$prefix/$TS
+
 # remove the tmp dir on exit; try to remove an empty $logdir
 # but suppress any complaints.
 trap "rm -rf $tmp; rmdir $logdir 2>/dev/null" EXIT QUIT INT
+
 mkdir -p $logdir
 rc=$?
 if [[ $rc != 0 ]] ;then
@@ -116,14 +120,12 @@ fi
 ssh $remotehost "/opt/pbench-server/bin/pbench-sync-package-tarballs" > $tmp/satellite.$prefix.tar
 rc=$?
 if [[ $rc != 0 ]] ;then
-    echo "$PROG: ssh $remotehost /opt/pbench-server/bin/pbench-sync-package-tarballs: failed." >&4
+    echo "$PROG: ssh $remotehost /opt/pbench-server/bin/pbench-sync-package-tarballs-inotify: failed." >&4
     exit 2
 fi
 
 # unpack the tarball into tmp directory
 tar -xf $tmp/satellite.$prefix.tar -C $unpack
-files=$(find $unpack -path '*.tar.xz' -printf '%P\n')
-hosts="$(for host in $files;do echo ${host%%/*};done | sort -u )"
 
 # initialize change state log and mail content
 > $LOGSDIR/change-state.$prefix.log
@@ -133,46 +135,96 @@ hosts="$(for host in $files;do echo ${host%%/*};done | sort -u )"
 let start_time=$(timestamp-seconds-since-epoch)
 echo "$TS: start - $(timestamp)"
 
-for host in $hosts ;do
+files=$(find $unpack -path '*.tar.xz' -printf '%P\n')
+
+pushd $unpack > /dev/null
+for tarball in $files ;do
     typeset -i processed=0
     typeset -i failed_md5=0
-    localdir=$ARCHIVE/$prefix::$host
 
-    if [ ! -d $localdir ] ;then
-        mkdir -p $localdir || exit 1
-    fi
-    pushd $localdir >/dev/null || exit 2
-    if [ ! -d $logdir/$host ] ;then
-        mkdir -p $logdir/$host
+    # Get the hostname from hostname file
+    controller=$(cat $tarball.hostname)
+    if [ -z $controller ]; then
+        echo "$TS: Unable to get the hostname" >&4
+        nerrs=$nerrs+1
+        continue
     fi
 
+    if [ ! -d $logdir/$prefix::$controller ] ;then
+        mkdir -p $logdir/$prefix::$controller
+    fi
+
+    # Create the trie structure using md5sum
+    hash=$(md5sum "$tarball" | awk '{ print $1 }')
+    if [ -z $hash ]; then
+        echo "$TS: Failed: md5sum $tarball" >&4
+        nerrs=$nerrs+1
+        continue
+    fi
+
+    hash_path=$(echo $hash | cut -b 1-2)/$(echo $hash | cut -b 3-4)/$(echo $hash | cut -b 5-)
+    if [ -z $hash_path ]; then
+        echo "$TS: Failed to calculate the trie structure path" >&4
+        nerrs=$nerrs+1
+        continue
+    fi
+
+    # Create the trie structure path if not present
+    result_full_path="$ARCHIVE/$hash_path"
+    if [ ! -d "$result_full_path" ]; then
+        mkdir -p $result_full_path
+        sts=$?
+        if [ $sts -ne 0 ] ;then
+            echo "$TS: Failed: \"mkdir -p $result_full_path\", status $sts" >> $status
+        fi
+    fi
+
+#    # Make an entry in the hostnames directory if not present
+#    hostnames_full_path="$ARCHIVE/hostnames/$prefix::$controller"
+#    if [ ! -d "$hostnames_full_path" ]; then
+#        mkdir -p $hostnames_full_path
+#        sts=$?
+#        if [ $sts -ne 0 ] ;then
+#            echo "$TS: Failed: \"mkdir -p $hostnames_full_path\", status $sts" >> $status
+#        fi
+#    fi
+
+    # make sure that all the relevant state directories exist
+    mk_dirs inotify_state
+    status=$?
+    if [[ $status -ne 0 ]] ;then
+        echo "$TS: Creation of $controller processing directories failed: code $status" >&4
+        nerrs=$nerrs+1
+        continue
+    fi
+
+    # tarball name
+    tb_name=${tarball##*/}
+
+    # move the tarball, its md5 and hostname file
+    mv $tarball $tarball.md5 $tarball.hostname $result_full_path
+    sts=$?
+    if [ $sts -ne 0 ] ;then
+        echo "$TS: Failed: \"mv $tarball $tarball.md5 $result_full_path\", status $sts" >> $index_content
+        nerrs=$nerrs+1
+    fi
+
+    pushd $result_full_path > /dev/null || exit 2
     # get the tarball list for this host
-    flist=$(find $unpack/$host -type f -name '*.tar.xz.md5' | sed 's;'$unpack/$host/';;')
-
+    flist=$(find . -type f -name '*.tar.xz.md5')
     echo $flist
-
-    # move the unpacked files from tmp directory to archive
-    mv $unpack/$host/* .
-
-    # move prefix files if present
-    if [[ -d $unpack/$host/.prefix ]] ;then
-        mkdir -p ./.prefix
-        mv $unpack/$host/.prefix/* ./.prefix
-    fi
-
-    # make the state dirs: TODO, TO-INDEX, TO-COPY-SOS etc.
-    mk_dirs $prefix::$host
 
     # check md5s and move md5s to its appropriate state directories according to pass or fail
     md5_list="$flist"
-    md5sum -c $md5_list > $logdir/$host/md5-checks.log
-    processed=$(wc -l < $logdir/$host/md5-checks.log)
+    md5sum -c $md5_list > $logdir/$controller/md5-checks.log
+    processed=$(wc -l < $logdir/$controller/md5-checks.log)
     nprocessed=$((nprocessed + processed))
-    grep 'OK' $logdir/$host/md5-checks.log > $logdir/$host/ok-checks.log
-    if [ -s $logdir/$host/ok-checks.log ] ;then
-        md5_pass=$(cat $logdir/$host/ok-checks.log | sed -n 's/: OK//p')
+
+    grep 'OK' $logdir/$controller/md5-checks.log > $logdir/$controller/ok-checks.log
+    if [ -s $logdir/$controller/ok-checks.log ] ;then
+        md5_pass=$(cat $logdir/$controller/ok-checks.log | sed -n 's/: OK//p')
         for x in $md5_pass; do
-            ln -sf $PWD/$x SATELLITE-MD5-PASSED/$x
+            ln -sf $PWD/$x $ARCHIVE/inotify_state/SATELLITE-MD5-PASSED/$x
             status=$?
             if [[ $status != 0 ]] ;then
                 nerrs=$nerrs+1
@@ -182,14 +234,15 @@ for host in $hosts ;do
             fi
         done
     fi
-    grep 'FAIL' $logdir/$host/md5-checks.log > $logdir/$host/fail-checks.log
-    cat $logdir/$host/fail-checks.log >> $mail_content
-    failed_md5=$(wc -l < $logdir/$host/fail-checks.log)
+
+    grep 'FAIL' $logdir/$controller/md5-checks.log > $logdir/$controller/fail-checks.log
+    cat $logdir/$controller/fail-checks.log >> $mail_content
+    failed_md5=$(wc -l < $logdir/$controller/fail-checks.log)
     nfailed_md5=$((nfailed_md5 + failed_md5))
-    if [ -s $logdir/$host/fail-checks.log ] ;then
-        md5_fail=$(cat $logdir/$host/fail-checks.log | sed -n 's/: FAIL//p')
+    if [ -s $logdir/$controller/fail-checks.log ] ;then
+        md5_fail=$(cat $logdir/$controller/fail-checks.log | sed -n 's/: FAIL//p')
         for x in $md5_fail; do
-            ln -sf $PWD/$x SATELLITE-MD5-FAILED/$x
+            ln -sf $PWD/$x $ARCHIVE/inotify_state/SATELLITE-MD5-FAILED/$x
             status=$?
             if [[ $status != 0 ]] ;then
                 nerrs=$nerrs+1
@@ -199,28 +252,44 @@ for host in $hosts ;do
             fi
         done
     fi
-    # create symlinks for the synced tarballs in TODO
-    if [ -s $logdir/$host/ok-checks.log ] ;then
-        for x in $md5_pass; do
-            ln -sf $PWD/$x TODO/$x
-            status=$?
-            if [[ $status != 0 ]] ;then
-                nerrs=$nerrs+1
-                echo "Failed to create the symlink for TODO state directory: ln -sf \
-                $PWD/$x TODO/$x" | tee -a $mail_content >&4
-                continue
-            fi
-        done
-    fi
+
+    # create a link in each state dir - if any fail, we should delete them all?# No, that would be racy.
+    for state in $linkdestlist ;do
+        ln -s $result_full_path/$tb_name $INOTIFY_STATE_DIR/$state
+        status=$?
+        if [[ $status -ne 0 ]] ;then
+            echo "$TS: Cannot create $result_full_path/$tb_name link from $linksrc to $state: code $status" >&4
+            nerrs=$nerrs+1
+            continue
+#        else
+#            if [ ! -d "$INOTIFY_STATE_DIR/$state" ]; then
+#                mkdir -p $INOTIFY_STATE_DIR/$state
+#            fi
+#            sts=$?
+#            if [ $sts -ne 0 ] ;then
+#                echo "$TS: Failed: \"mkdir -p $INOTIFY_STATE_DIR/$state-DIR\", status $sts" >> $index_content
+#                nerrs=$nerrs+1
+#            fi
+#            watched_dir=$INOTIFY_STATE_DIR/$state
+#	    ln -s $result_full_path/$tb_name $watched_dir
+#            sts=$?
+#            if [ $sts -ne 0 ] ;then
+#                echo "$TS: Failed: \"ln -s $result_full_path/$tb_name $watched_dir\", status $sts" >> $index_content
+#                nerrs=$nerrs+1
+#           fi
+        fi
+    done
+
     # save the contents of ok checks to further use it for state change
-    if [ -s $logdir/$host/ok-checks.log ] ;then
-        state_list=$(cat $logdir/$host/ok-checks.log | sed -n 's/: OK//p')
+    if [ -s $logdir/$controller/ok-checks.log ] ;then
+        state_list=$(cat $logdir/$controller/ok-checks.log | sed -n 's/: OK//p')
         for x in $state_list; do
-            echo "$host/TO-SYNC/$x" >> $LOGSDIR/change_state.$prefix.log
+            echo "inotify_state/TO-SYNC/$x" >> $LOGSDIR/change_state.$prefix.log
         done
     fi
     popd > /dev/null
 done
+popd > /dev/null
 
 # change the state of the tarballs on remote
 if [ -s $LOGSDIR/change_state.$prefix.log ] ;then

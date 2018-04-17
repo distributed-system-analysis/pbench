@@ -1,0 +1,17 @@
+[Unit]
+Description=Pbench Inotify
+
+[Service]
+User=pbench
+Group=pbench
+Environment=CONFIG=/opt/pbench-server/lib/config/pbench-server.cfg
+Environment=PATH=/opt/pbench-server/bin:/opt/pbench-server/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/X11R6/bin
+Environment=MAILTO=
+Environment=MAILFROM=
+ExecStart=/usr/bin/flock -n /opt/pbench-server/lib/locks/pbench-inotify.lock /opt/pbench-server/bin/pbench-inotify
+Restart=always
+RestartSec=3
+StandardOutput=null
+
+[Install]
+WantedBy=multi-user.target
