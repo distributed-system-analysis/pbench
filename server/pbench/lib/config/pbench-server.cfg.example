@@ -58,6 +58,7 @@ mailto=admins@example.com
 [pbench-server]
 user = %(default-user)s
 group = %(default-group)s
+use-mail-for-status = yes
 install-dir = %(default-deploy-dir)s
 # CHANGE ME!
 roles = pbench-results, pbench-backup
