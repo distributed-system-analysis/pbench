@@ -31,7 +31,7 @@ test -d $TMP || doexit "Bad TMP=$TMP"
 
 TOP=$(getconf.py pbench-top-dir pbench-files)
 BDIR=$(getconf.py pbench-backup-dir pbench-files)
-LOGSDIR=$(getconf.py pbench-logs-dir pbench-files)
+export LOGSDIR=$(getconf.py pbench-logs-dir pbench-files)
 
 ARCHIVE=${TOP}/archive/fs-version-001
 INOTIFY_STATE_DIR=${ARCHIVE}/inotify_state
@@ -63,7 +63,7 @@ if [ "$TS" = "" ]; then
 fi
 
 # the scripts may use this to send status messages
-mail_recipients=$(getconf.py mailto pbench-server)
+export mail_recipients=$(getconf.py mailto pbench-server)
 
 # make all the state directories for the pipeline and any others needed
 LINKDIRS="TODO TO-UNPACK TO-COPY-SOS TO-SYNC SYNCED TO-LINK TO-INDEX TO-BACKUP \
