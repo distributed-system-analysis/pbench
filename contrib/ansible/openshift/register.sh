@@ -79,7 +79,7 @@ while read -u 11 line;do
       prometheus_metrics_status=registered
     fi
   fi
-  if [ "$group" == "node" ] || [ "$group" == "cns" ]; then
+  if [ "$group" == "node" ] || [ "$group" == "cns" ] || [ "$group" == "infra" ]; then
     pbench-register-tool --label=$label --name=pprof --remote $remote -- --osecomponent=node --interval=$ose_node_interval
   fi
 done 11< $hosts
