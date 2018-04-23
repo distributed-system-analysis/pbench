@@ -17,6 +17,8 @@ lb - sar, pidstat, iostat, disk, perf
 
 glusterfs - sar, pidstat, iostat, pprof, disk, perf
 
+infra - sar, pidstat, iostat, disk, perf, pprof
+
 ### Sample inventory
 Your inventory should have groups of hosts describing the roles they play in the OpenShift cluster. This playbook looks for the following groups in the inventory file:
 ```
@@ -31,6 +33,8 @@ Your inventory should have groups of hosts describing the roles they play in the
 [lb]
 
 [glusterfs]
+
+[infra]
 
 [prometheus-metrics]
 <host> port=8443 cert=<cert> key=<key>
