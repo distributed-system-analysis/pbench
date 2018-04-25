@@ -6,8 +6,16 @@ bridges_file=$dir/bridges.txt
 stats_file=$dir/ovs-stats.txt
 rxq_mapping_file=$dir/pmd-rxq-show.txt
 
+version_file=$dir/ovs-version.txt
+ovs-vsctl --version >$version_file
+echo >> $version_file
+rpm -qif `readlink -e /proc/$(pidof ovs-vswitchd)/exe` >>$version_file 2>/dev/null
+
 info_file=$dir/ovs-info.txt
 ovs-vsctl show >$info_file
+
+cfg_file=$dir/ovs-cfg.txt
+ovs-vsctl get Open_vSwitch . other_config >$cfg_file
 
 bridge=`ovs-vsctl list-br | head -n 1`
 protocol_string=""
