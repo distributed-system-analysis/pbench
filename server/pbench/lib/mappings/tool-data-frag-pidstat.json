@@ -1,0 +1,46 @@
+{
+    "properties": {
+        "pidstat": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
+                "pid": {
+                    "type": "integer"
+                },
+                "command": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
+                "context_switches_nonvoluntary_switches": {
+                    "type": "float"
+                },
+                "context_switches_voluntary_switches": {
+                    "type": "float"
+                },
+                "cpu_usage": {
+                    "type": "float"
+                },
+                "io_reads": {
+                    "type": "float"
+                },
+                "io_writes": {
+                    "type": "float"
+                },
+                "memory_faults_major": {
+                    "type": "float"
+                },
+                "memory_faults_minor": {
+                    "type": "float"
+                },
+                "rss": {
+                    "type": "integer"
+                },
+                "vsz": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}

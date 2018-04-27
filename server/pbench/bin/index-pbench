@@ -194,7 +194,7 @@ def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config):
         template='%s.result-data.*' % (INDEX_PREFIX,),
         settings=index_settings,
         mappings=results_mappings)
-    
+
     if not es:
         # Don't do anything if we don't have an Elasticsearch client object.
         print(run_template_name, json.dumps(run_template_body, indent=4, sort_keys=True))
@@ -521,6 +521,103 @@ _known_csv_handlers = {
             'handling': 'individual'
         },
     },
+    'pidstat': {
+        '@prospectus': {
+            # For pidstat .csv files, we want to individually index
+            # each column entry as its own JSON document
+            'handling': 'unify'
+        },
+        'context_switches_nonvoluntary_switches_sec.csv': {
+            'class': 'pidstat',
+            'metric': 'context_switches_nonvoluntary_switches',
+            'display': 'Context_Switches_Nonvoluntary',
+            'units': 'count_per_sec',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)'),
+            'metadata': [ 'pid', 'command' ],
+            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+        },
+        'context_switches_voluntary_switches_sec.csv': {
+            'class': 'pidstat',
+            'metric': 'context_switches_voluntary_switches',
+            'display': 'Context_Switches_Voluntary',
+            'units': 'count_per_sec',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)'),
+            'metadata': [ 'pid', 'command' ],
+            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+        },
+        'cpu_usage_percent_cpu.csv': {
+            'class': 'pidstat',
+            'metric': 'cpu_usage',
+            'display': 'CPU_Usage',
+            'units': 'percent_cpu',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)'),
+            'metadata': [ 'pid', 'command' ],
+            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+        },
+        'file_io_io_reads_KB_sec.csv': {
+            'class': 'pidstat',
+            'metric': 'io_reads',
+            'display': 'IO_Reads',
+            'units': 'KB_per_sec',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)'),
+            'metadata': [ 'pid', 'command' ],
+            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+        },
+        'file_io_io_writes_KB_sec.csv': {
+            'class': 'pidstat',
+            'metric': 'io_writes',
+            'display': 'IO_Writes',
+            'units': 'KB_per_sec',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)'),
+            'metadata': [ 'pid', 'command' ],
+            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+        },
+        'memory_faults_major_faults_sec.csv': {
+            'class': 'pidstat',
+            'metric': 'memory_faults_major',
+            'display': 'Memory_Faults_Major',
+            'units': 'count_per_sec',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)'),
+            'metadata': [ 'pid', 'command' ],
+            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+        },
+        'memory_faults_minor_faults_sec.csv': {
+            'class': 'pidstat',
+            'metric': 'memory_faults_minor',
+            'display': 'Memory_Faults_Minor',
+            'units': 'count_per_sec',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)'),
+            'metadata': [ 'pid', 'command' ],
+            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+        },
+        'memory_usage_resident_set_size.csv': {
+            'class': 'pidstat',
+            'metric': 'rss',
+            'display': 'RSS',
+            'units': 'KB',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)'),
+            'metadata': [ 'pid', 'command' ],
+            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+        },
+        'memory_usage_virtual_size.csv': {
+            'class': 'pidstat',
+            'metric': 'vsz',
+            'display': 'VSZ',
+            'units': 'KB',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)'),
+            'metadata': [ 'pid', 'command' ],
+            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+        }
+    },
     'sar': {},
     'turbostat': {},
 }
@@ -566,7 +663,7 @@ class ToolData(object):
         # Impedance match between host names used when
         # registering tools and <label>:<hostname_s>
         # convention used when collecting the results.
-        
+
         # import pdb; pdb.set_trace()
         label = get_tool_label(host, mdlog)
         hostname_s = get_tool_hostname_s(host, mdlog)
@@ -615,9 +712,11 @@ class ToolData(object):
         # The list of identifiers is generated from the combined headers,
         # parsing out the IDs
         identifiers = _dict_const()
-        # The field mapping provides (identifier, subfield) tuples for all
-        # columns of all files.
+        # The field mapping provides (identifier, subfield, metadata)
+        # tuples for all columns of all files.
         field_mapping = _dict_const()
+        # Metadata extracted from column header
+        metadata = _dict_const()
         for csv in self.csv_files:
             assert csv['header'][0] == 'timestamp_ms'
             header = csv['header']
@@ -639,9 +738,30 @@ class ToolData(object):
                 else:
                     if subfield not in handler['subfields']:
                         raise Exception(
-                            "Handler subfields, %r, do not match header subfield"
-                            " name %s" % (handler['subfields'], subfield))
+                            "Handler subfields, %r, do not match header"
+                            " subfield name %s" % (
+                                handler['subfields'], subfield))
                 field_mapping[csv['basename']][idx] = (identifier, subfield)
+                try:
+                    metadata_pat = handler['metadata_pat']
+                except KeyError:
+                    pass
+                else:
+                    m = metadata_pat.match(col)
+                    if m:
+                        colmd = {}
+                        for md in handler['metadata']:
+                            try:
+                                val = m.group(md)
+                            except IndexError:
+                                raise Exception(
+                                    "Handler metadata, %r, not found in column"
+                                    " %r using pattern %r" % (
+                                        handler['metadata'], col,
+                                        handler['metadata_pat']))
+                            else:
+                                colmd[md] = val
+                        metadata[identifier] = colmd
         while True:
             # Read a row from each .csv file
             rows = _dict_const()
@@ -683,6 +803,12 @@ class ToolData(object):
                 datum[identifier][self.toolname] = _dict_const()
                 for klass in class_list.keys():
                     datum[identifier][self.toolname][klass] = _dict_const([('id',identifier)])
+                try:
+                    md = metadata[identifier]
+                except KeyError:
+                    pass
+                else:
+                    datum[identifier][self.toolname][klass].update(md)
             # Now we can perform the mapping from multiple .csv files to JSON
             # documents using a known field hierarchy (no identifiers in field
             # names) with the identifiers as additional metadata. Note that we
@@ -730,7 +856,7 @@ class ToolData(object):
                 except Exception:
                     # assume that item[@timestamp] is already in %Y-%m-%dT%H:%M:%S.%f%z format
                     pass
-                
+
                 yield item
         return
 
@@ -877,7 +1003,7 @@ def get_tool_hostname_s(host, mdlog):
         return mdlog.get("tools/" + host, "hostname-s")
     except:
         return ""
-    
+
 def mk_tool_data(mdlog, md5sum, tb, tstamp):
     experiment = mdlog.get("pbench", "name")
     try:
@@ -943,7 +1069,7 @@ def mk_result_data_actions(ptb, options, INDEX_PREFIX):
                 "_source":  source
             }
             yield action
-        
+
     return
 
 ###########################################################################
@@ -1311,7 +1437,7 @@ def _to_utc(l, u):
     """
     lts = datetime.strptime(l, "%Y-%m-%dT%H:%M:%S")
     uts = datetime.strptime(u[:u.rfind('.')] , "%Y-%m-%dT%H:%M:%S")
-        
+
     offset = lts - uts
     res = round(float(offset.seconds) / 60 / 60 + offset.days * 24, 1)
     return (lts - timedelta(0, int(res*60*60), 0)).isoformat()
