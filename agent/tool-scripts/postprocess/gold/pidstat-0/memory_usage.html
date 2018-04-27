@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">
+  </head>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.3/jschart.js"></script>
+    <center><h2>pidstat-0 - memory_usage</h2></center>
+    <div id="chart_1">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_1", "resident_set_size", null, null, { csvfiles: [ "csv/memory_usage_resident_set_size.csv" ], threshold: 100 });
+      </script>
+    </div>
+    <div id="chart_2">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_2", "virtual_size", null, null, { csvfiles: [ "csv/memory_usage_virtual_size.csv" ], threshold: 100 });
+      </script>
+    </div>
+  </body>
+</html>
