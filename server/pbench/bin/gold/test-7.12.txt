@@ -781,7 +781,7 @@ len(actions) = 19
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-data-prometheus-metrics.2018-02-05",
+        "_index": "pbench.tool-data-pidstat.2018-02-05",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -794,15 +794,28 @@ len(actions) = 19
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
-            "@timestamp": "2018-02-05T20:35:40.000000",
-            "metric": "APIServiceOpenAPIAggregationControllerQueue1_adds",
-            "type": "COUNTER",
-            "value": 0
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "/usr/lib/systemd/systemd_--switched-root",
+                    "context_switches_nonvoluntary_switches": "3.09",
+                    "context_switches_voluntary_switches": "3.29",
+                    "cpu_usage": "0.80",
+                    "id": "1-/usr/lib/systemd/systemd_--switched-root",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "33.47",
+                    "pid": "1",
+                    "rss": "6860",
+                    "vsz": "128136"
+                }
+            }
         },
-        "_type": "pbench-tool-data-prometheus-metrics"
+        "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_index": "pbench.tool-data-prometheus-metrics.2018-02-05",
+        "_index": "pbench.tool-data-pidstat.2018-02-05",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -815,15 +828,28 @@ len(actions) = 19
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
-            "@timestamp": "2018-02-05T20:35:40.000000",
-            "metric": "APIServiceOpenAPIAggregationControllerQueue1_depth",
-            "type": "GAUGE",
-            "value": 0
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "/usr/sbin/dnsmasq_-k",
+                    "context_switches_nonvoluntary_switches": "0.20",
+                    "context_switches_voluntary_switches": "6.18",
+                    "cpu_usage": "0.00",
+                    "id": "1001-/usr/sbin/dnsmasq_-k",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "1001",
+                    "rss": "2616",
+                    "vsz": "54396"
+                }
+            }
         },
-        "_type": "pbench-tool-data-prometheus-metrics"
+        "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_index": "pbench.tool-data-prometheus-metrics.2018-02-05",
+        "_index": "pbench.tool-data-pidstat.2018-02-05",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -836,15 +862,25 @@ len(actions) = 19
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
-            "@timestamp": "2018-02-05T20:35:40.000000",
-            "count": 0,
-            "metric": "APIServiceOpenAPIAggregationControllerQueue1_queue_latency",
-            "quantiles": "0.9",
-            "sum": 0,
-            "type": "SUMMARY",
-            "value": 0
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "/usr/bin/python_-Es_/usr/sbin/tuned_-l_-",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "1002-/usr/bin/python_-Es_/usr/sbin/tuned_-l_-",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "1002",
+                    "rss": "17740",
+                    "vsz": "574100"
+                }
+            }
         },
-        "_type": "pbench-tool-data-prometheus-metrics"
+        "_type": "pbench-tool-data-pidstat"
     }
 ]
 --- Finished indexing on /var/tmp/pbench-test-server/test-7.12 (status=0)

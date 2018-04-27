@@ -44139,12 +44139,12 @@ len(actions) = 22
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_index": "pbench.tool-data-pidstat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
                 "experiment": "uperf__2016-10-06_16:34:03",
-                "host": "flat7_40gb",
+                "host": "master_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
                 "runid": "c5deab694ef0599c3a2315888f8cb847",
@@ -44153,40 +44153,32 @@ len(actions) = 22
                 "toolgroup": "default"
             },
             "@timestamp": "2016-10-06T16:34:14.000000",
-            "iostat": {
-                "disk": {
-                    "id": "rhel72_java-root",
-                    "iops": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    },
-                    "qsize": "0.00",
-                    "reqmerges": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    },
-                    "reqsize": "0.00",
-                    "tput": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    },
-                    "util": "0.00",
-                    "wtime": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    }
+            "pidstat": {
+                "pidstat": {
+                    "command": "/usr/lib/systemd/systemd_--switched-root",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.33",
+                    "cpu_usage": "0.00",
+                    "id": "1-/usr/lib/systemd/systemd_--switched-root",
+                    "io_reads": "0.00",
+                    "io_writes": "4.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "1.00",
+                    "pid": "1",
+                    "rss": "4884",
+                    "vsz": "42508"
                 }
             }
         },
-        "_type": "pbench-tool-data-iostat"
+        "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_index": "pbench.tool-data-pidstat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
                 "experiment": "uperf__2016-10-06_16:34:03",
-                "host": "flat7_40gb",
+                "host": "master_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
                 "runid": "c5deab694ef0599c3a2315888f8cb847",
@@ -44195,40 +44187,32 @@ len(actions) = 22
                 "toolgroup": "default"
             },
             "@timestamp": "2016-10-06T16:34:14.000000",
-            "iostat": {
-                "disk": {
-                    "id": "rhel72_java-swap",
-                    "iops": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    },
-                    "qsize": "0.00",
-                    "reqmerges": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    },
-                    "reqsize": "0.00",
-                    "tput": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    },
-                    "util": "0.00",
-                    "wtime": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    }
+            "pidstat": {
+                "pidstat": {
+                    "command": "rcuob/1",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "10-rcuob/1",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "10",
+                    "rss": "0",
+                    "vsz": "0"
                 }
             }
         },
-        "_type": "pbench-tool-data-iostat"
+        "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_index": "pbench.tool-data-pidstat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
                 "experiment": "uperf__2016-10-06_16:34:03",
-                "host": "flat7_40gb",
+                "host": "master_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
                 "runid": "c5deab694ef0599c3a2315888f8cb847",
@@ -44237,40 +44221,32 @@ len(actions) = 22
                 "toolgroup": "default"
             },
             "@timestamp": "2016-10-06T16:34:14.000000",
-            "iostat": {
-                "disk": {
-                    "id": "vda",
-                    "iops": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    },
-                    "qsize": "0.00",
-                    "reqmerges": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    },
-                    "reqsize": "0.00",
-                    "tput": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    },
-                    "util": "0.00",
-                    "wtime": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    }
+            "pidstat": {
+                "pidstat": {
+                    "command": "SCREEN_-dmS_uperf-server_/var/lib/pbench",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "10331-SCREEN_-dmS_uperf-server_/var/lib/pbench",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "10331",
+                    "rss": "1260",
+                    "vsz": "125624"
                 }
             }
         },
-        "_type": "pbench-tool-data-iostat"
+        "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_index": "pbench.tool-data-pidstat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
                 "experiment": "uperf__2016-10-06_16:34:03",
-                "host": "flat7_40gb",
+                "host": "master_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
                 "runid": "c5deab694ef0599c3a2315888f8cb847",
@@ -44278,41 +44254,33 @@ len(actions) = 22
                 "sample": "sample1",
                 "toolgroup": "default"
             },
-            "@timestamp": "2016-10-06T16:34:17.000000",
-            "iostat": {
-                "disk": {
-                    "id": "rhel72_java-root",
-                    "iops": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    },
-                    "qsize": "0.00",
-                    "reqmerges": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    },
-                    "reqsize": "0.00",
-                    "tput": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    },
-                    "util": "0.00",
-                    "wtime": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    }
+            "@timestamp": "2016-10-06T16:34:14.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "/bin/sh_/var/lib/pbench-agent/uperf__201",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "10333-/bin/sh_/var/lib/pbench-agent/uperf__201",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "10333",
+                    "rss": "1196",
+                    "vsz": "113116"
                 }
             }
         },
-        "_type": "pbench-tool-data-iostat"
+        "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_index": "pbench.tool-data-pidstat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
                 "experiment": "uperf__2016-10-06_16:34:03",
-                "host": "flat7_40gb",
+                "host": "master_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
                 "runid": "c5deab694ef0599c3a2315888f8cb847",
@@ -44320,41 +44288,33 @@ len(actions) = 22
                 "sample": "sample1",
                 "toolgroup": "default"
             },
-            "@timestamp": "2016-10-06T16:34:17.000000",
-            "iostat": {
-                "disk": {
-                    "id": "rhel72_java-swap",
-                    "iops": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    },
-                    "qsize": "0.00",
-                    "reqmerges": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    },
-                    "reqsize": "0.00",
-                    "tput": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    },
-                    "util": "0.00",
-                    "wtime": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    }
+            "@timestamp": "2016-10-06T16:34:14.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "/usr/local/bin/uperf_-s_-P_21000",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "10336-/usr/local/bin/uperf_-s_-P_21000",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "10336",
+                    "rss": "49340",
+                    "vsz": "60432"
                 }
             }
         },
-        "_type": "pbench-tool-data-iostat"
+        "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2016-10-06",
+        "_index": "pbench.tool-data-pidstat.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@metadata": {
                 "experiment": "uperf__2016-10-06_16:34:03",
-                "host": "flat7_40gb",
+                "host": "master_40gb",
                 "iteration": "tcp_stream-16384B-32i",
                 "iterseqno": "1",
                 "runid": "c5deab694ef0599c3a2315888f8cb847",
@@ -44362,33 +44322,25 @@ len(actions) = 22
                 "sample": "sample1",
                 "toolgroup": "default"
             },
-            "@timestamp": "2016-10-06T16:34:17.000000",
-            "iostat": {
-                "disk": {
-                    "id": "vda",
-                    "iops": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    },
-                    "qsize": "0.00",
-                    "reqmerges": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    },
-                    "reqsize": "0.00",
-                    "tput": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    },
-                    "util": "0.00",
-                    "wtime": {
-                        "read": "0.00",
-                        "write": "0.00"
-                    }
+            "@timestamp": "2016-10-06T16:34:14.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "kworker/0:1H",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "1078-kworker/0:1H",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "1078",
+                    "rss": "0",
+                    "vsz": "0"
                 }
             }
         },
-        "_type": "pbench-tool-data-iostat"
+        "_type": "pbench-tool-data-pidstat"
     }
 ]
 --- Finished indexing on /var/tmp/pbench-test-server/test-7.8 (status=0)
