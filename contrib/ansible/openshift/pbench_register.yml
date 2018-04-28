@@ -43,12 +43,15 @@
     #- name: add infra nodes to the file
     #  shell: index=1; for infra in $(cat {{ inventory_file }} | grep -w "'region'":" 'infra'" | cut -d ' ' -f1); do echo -e $infra infra $index >> {{ file }} && ((index+=1)); done
     #  when: groups['nodes']|default([]) and not ( register_all_nodes | default(False) | bool )
-
+    
+    # This is expected to fail on openshift-qe jenkins job till the openshift-labeler supoort is added to the template 
+    # like what we have in setup-tooling job 
     - name: add infra nodes to the file
       shell: echo -e {{ item.1 }} infra {{ item.0 }} >> {{ file }}
       with_indexed_items:
        - "{{ groups['infra'] }}"
-      when: groups['infra]|default([])
+      when: groups['infra']|default([])
+      ignore_errors: true
 
     - name: add cns nodes to file
       shell: echo -e {{ item.1 }} cns {{ item.0 }} >> {{ file }}
