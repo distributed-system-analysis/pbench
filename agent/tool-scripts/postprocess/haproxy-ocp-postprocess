@@ -175,7 +175,7 @@ sub html_ln {
 }
 
 find(sub { push @router_csv, $File::Find::name if /router-.*\.csv$/ }, ("$dir"));
-open(my $index_page_fh, ">$index_page") || die "could not open `$index_page' for writing\n";
+open(my $index_page_fh, ">$dir/$index_page") || die "could not open `$index_page' for writing\n";
 html_head($index_page_fh);
 foreach my $csv (@router_csv) {
     my $router_index = $csv; $router_index =~ s/\.csv$/.html/;
