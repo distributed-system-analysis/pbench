@@ -1,0 +1,180 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
+# The following script collect heap used stats for jvm and containerized jvm
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+# Perftool scripts must provide the following functions
+# 1) Install the tool
+# 2) Start data collection
+# 3) Stop data collection
+# 4) post-process the data
+
+# Defaults
+tool=jstack
+tool_bin=/usr/bin/$tool
+group=default
+dir=""
+mode=""
+iteration="1"
+options="none"
+interval=5
+
+function usage() {
+	echo "
+	USAGE:
+	$script_name: you specified an invalid option
+	The following options are available:
+	--install,			        install this perf tool
+	--start|stop|postprocess	start/stop/post-process the data collection
+	--iteration=int 		    the iteration (required)
+	--group=str		            the perftool group (not-required)
+	--dir=str			        directory to store data collection (required)
+	--pid=int		            a process ID to profile
+	--pattern			        collect jvm stats for any PID which name matches this string
+	--interval 							    interval sleep time (5sec or higher).
+	"
+}
+
+function run_jstack() {
+	# get java pids running on host.
+	jvm_pids=$(pgrep java)
+
+	for jvm_pid in $jvm_pids; do
+		tool_stderr_file=$tool_output_dir/$tool-$jvm_pid-stderr.txt
+		tool_pid_file=$pbench_tmp/$group.$iteration.$tool-$jvm_pid.pid
+		tool_cmd_file="$tool_output_dir/$tool-$jvm_pid.cmd"
+
+		# map pid to process name.
+		if [[ $(ls -A /proc/$jvm_pid/cmdline) ]]; then
+			pname=`echo "$jvm_pid-$(cat /proc/$jvm_pid/cmdline)"`
+			tool_stdout_file=$tool_output_dir/$tool-$jvm_pid_$pname-stdout.txt
+		fi
+
+		# check if containerized.
+		if [[ $(grep -c 'user.slice' /proc/$jvm_pid/cgroup) -eq "0" ]]; then
+			jpid=$(grep hsperfdata /proc/$jvm_pid/task/$jvm_pid/maps |awk -F "hsperfdata" '{print $2}' | sed "s/[^0-9]//g")
+			nsenter --target $jvm_pid --mount --uts --ipc --net --pid $tool_bin $jpid > /tmp/$jvm_pid-threads.log
+		else
+			$tool_bin $jvm_pid > /tmp/$jvm_pid-threads.log
+		fi
+
+		b=`grep -c BLOCK /tmp/$jvm_pid-threads.log`
+		ru=`grep -c RUNN /tmp/$jvm_pid-threads.log`
+		w=`grep -c WAITING /tmp/$jvm_pid-threads.log`
+		echo "$(date "+%s"),$ru,$b,$w" >> "$tool_stdout_file"
+	done
+}
+
+
+# Process options and arguments
+opts=$(getopt -q -o idp --longoptions "dir:,group:,iteration:,pid:,pattern:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+if [ $? -ne 0 ]; then
+	usage
+	exit 1
+fi
+
+eval set -- "$opts";
+while true; do
+	case "$1" in
+		--install)
+		mode="install"
+		shift;
+		;;
+		--start)
+		mode="start"
+		shift;
+		;;
+		--stop)
+		mode="stop"
+		shift;
+		;;
+		--postprocess)
+		mode="postprocess"
+		shift;
+		;;
+		-d|--dir)
+		shift;
+		if [ -n "$1" ]; then
+			dir="$1"
+			shift
+		fi
+		;;
+		-g|--group)
+		shift;
+		if [ -n "$1" ]; then
+			group="$1"
+			shift
+		fi
+		;;
+		-i|--iteration)
+		shift;
+		if [ -n "$1" ]; then
+			iteration="$1"
+			shift
+		fi
+		;;
+		--pid)
+		shift;
+		if [ -n "$1" ]; then
+			jvm_pid="$1"
+			shift
+		fi
+		;;
+		--pattern)
+		shift;
+		if [ -n "$1" ]; then
+			pattern="$1"
+			shift
+		fi
+		;;
+		-s|--interval)
+		shift;
+		if [ -n "$1" ]; then
+			interval="$1"
+			shift
+		fi
+		;;
+		--)
+		shift;
+		break;
+		;;
+		*)
+		break;
+	esac
+done
+
+tool_dir="$dir/tools-$group"
+tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
+case "$mode" in
+	install)
+	yum install -y --nogpgcheck java-openjdk
+	;;
+	start)
+	mkdir -p $tool_output_dir
+	echo "$script_name: running $tool_cmd"
+	while true; do
+		run_jstack
+		sleep $interval
+	done
+	;;
+	stop)
+	if [[ -s "$tool_pid_file" ]]; then
+		for tool_pid_file in `/bin/ls $pbench_tmp | grep ".pid"`; do
+			tool_pid=`cat "$pbench_tmp/$tool_pid_file"`
+			kill $tool_pid && /bin/rm "$pbench_tmp/$tool_pid_file"
+		done
+	else
+		warn_log "[$script_name]: tool is not running, nothing to kill"
+	fi
+	;;
+	postprocess)
+	debug_log "postprocessing $script_name"
+	$script_path/postprocess/$script_name-postprocess $tool_output_dir
+	;;
+esac
