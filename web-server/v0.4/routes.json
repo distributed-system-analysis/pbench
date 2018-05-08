@@ -14,8 +14,16 @@
     "page": "./pages/results"
   },
   {
+    "path": "/dashboard/results/comparison",
+    "page": "./pages/comparison"
+  },
+  {
     "path": "/dashboard/results/summary",
     "page": "./pages/summary"
+  },
+  {
+    "path": "/dashboard/results/comparison/iterations",
+    "page": "./pages/iteration_comparison"
   },
   {
     "path": "/dashboard/results/:controller/:result/:iteration_name/:iteration_sample_number",
