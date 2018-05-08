@@ -160,8 +160,6 @@ class Summary extends React.Component {
       }
       iterations.push(iterationObject);
     };
-
-
     this.setState({columns: columns});
     this.setState({iterations: iterations});
     this.setState({loading: false});
@@ -287,7 +285,7 @@ class Summary extends React.Component {
                 <Button type="primary" onClick={this.onSearch}>Search</Button>
                 <Table style={{marginTop: 20}} columns={columns} dataSource={iterationSearch.length > 0 ? iterationSearch : iterations} onRowClick={this.retrieveResults.bind(this)} scroll={{ x: 1500 }} bordered/>
               </div>
-              <div className="col-sm-4 col-md-3 sidebar-pf sidebar-pf-right">
+              <div className="col-sm-3  sidebar-pf sidebar-pf-right">
                 <div className="sidebar-header sidebar-header-bleed-left sidebar-header-bleed-right">
                   <h2 className="h5">Result Metadata</h2>
                 </div>
@@ -306,7 +304,7 @@ class Summary extends React.Component {
                   </li>
                   <li className="list-group-item">
                     <h3 className="list-group-item-heading">File Name</h3>
-                    <p className="list-group-item-text" id="file_name">{summaryResult[0]._source[metadataTag]['file-name']}</p>
+                    <p className="list-group-item-text" style={{overflowWrap: 'break-word'}} id="file_name">{summaryResult[0]._source[metadataTag]['file-name']}</p>
                   </li>
                   <li className="list-group-item">
                     <h3 className="list-group-item-heading">Pbench Agent Version</h3>

@@ -1,6 +1,6 @@
 import React, {PropTypes} from 'react';
 import history from '../../core/history';
-import {Table, Input, Button, LocaleProvider} from 'antd';
+import {notification, Card, Tag, Table, Input, Button, LocaleProvider} from 'antd';
 import enUS from 'antd/lib/locale-provider/en_US';
 import axios, { CancelToken } from 'axios';
 
@@ -35,13 +35,36 @@ class ResultListView extends React.Component {
     }, 1000);
   }
 
+  openNotificationWithIcon = (type) => {
+    notification[type]({
+      message: 'Please select two results for comparison.',
+      placement: 'bottomRight'
+    });
+  }
+
+  onCompareResults = () => {
+    const { selectedRowKeys, results } = this.state;
+    const { controller } = this.props;
+    if (selectedRowKeys.length != 2) {
+      this.openNotificationWithIcon('error')
+    } else {
+      var selectedResults = [];
+      for (var item in selectedRowKeys) {
+        var result = results[selectedRowKeys[item]];
+        result["controller"] = controller;
+        selectedResults.push(results[selectedRowKeys[item]])
+      }
+      this.compareResults(selectedResults)
+    }
+  }
+
   onSelectChange = (selectedRowKeys) => {
     this.setState({ selectedRowKeys });
   }
 
   getResultMetadata(key) {
-    return axios.get('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?source={ "query": { "match": { "run.name": "' + key + '" } }, "fields": [ "run.name", "run.config", "run.start_run", "run.end_run", "run.script" ], "sort": "_index" }', { cancelToken: this.cancelToken.token }).then(res => {
-      this.setState({results: this.state.results.concat({result: res.data.hits.hits[0].fields['run.name'][0], config: res.data.hits.hits[0].fields['run.config'][0], startRun: res.data.hits.hits[0].fields['run.start_run'][0], endRun: res.data.hits.hits[0].fields['run.end_run'][0]})});
+    return axios.get('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?source={ "query": { "match": { "run.name": "' + key + '" } }, "fields": [ "run.name", "run.config", "run.start_run", "run.end_run", "run.script" ]}', { cancelToken: this.cancelToken.token }).then(res => {
+      this.setState({results: this.state.results.concat({result: res.data.hits.hits[0].fields['run.name'][0], config: res.data.hits.hits[0].fields['run.config'][0], startRunUnixTimestamp: Date.parse(res.data.hits.hits[0].fields['run.start_run'][0]), startRun: res.data.hits.hits[0].fields['run.start_run'][0], endRun: res.data.hits.hits[0].fields['run.end_run'][0]})});
     });
   }
 
@@ -52,13 +75,12 @@ class ResultListView extends React.Component {
   componentDidMount() {
     this.setState({loading: true});
     axios.get('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?search_type=count&source={ "query": { "match": { "run.controller": "' + this.props.controller + '" } }, "aggs": { "run": { "terms": { "field": "run.name", "size": 0 } } } }').then(res => {
-      const response = res.data.aggregations.run.buckets;
+      var response = res.data.aggregations.run.buckets;
+      response.reverse();
       var results = [];
       for (var item in response) {
         results.push(this.getResultMetadata(response[item].key))
       }
-      axios.all(results).then(axios.spread(function (results) {
-      }));
       this.setState({loading: false});
     }).catch(error => {
       console.log(error);
@@ -99,6 +121,15 @@ class ResultListView extends React.Component {
     });
   }
 
+  compareResults = (params) => {
+    history.push({
+      pathname: '/dashboard/results/comparison',
+      state: {
+        results: params
+      }
+    })
+  }
+
   retrieveResults(params) {
     history.push({
       pathname: '/dashboard/results/summary',
@@ -111,12 +142,18 @@ class ResultListView extends React.Component {
 
   render() {
     const location = history.getCurrentLocation();
-    const {results, resultSearch, loading, loadingButton, selectedRowKeys} = this.state;
+    const { resultSearch, loading, loadingButton, selectedRowKeys} = this.state;
+    var {results} = this.state;
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
+      hideDefaultSelections: true,
+      fixed: true
     };
     const hasSelected = selectedRowKeys.length > 0;
+    results.sort(function (a, b) {
+      return b.startRunUnixTimestamp - a.startRunUnixTimestamp;
+    });
 
     const columns = [
       {
@@ -133,12 +170,11 @@ class ResultListView extends React.Component {
         title: 'Start Time',
         dataIndex: 'startRun',
         key: 'startRun',
-        sorter: (a, b) => a.start_time - b.start_time
+        sorter: (a, b) => a.startRunUnixTimestamp - b.startRunUnixTimestamp
       }, {
         title: 'End Time',
         dataIndex: 'endRun',
-        key: 'endRun',
-        sorter: (a, b) => a.end_time - b.end_time
+        key: 'endRun'
       }
     ];
 
@@ -146,24 +182,24 @@ class ResultListView extends React.Component {
       <LocaleProvider locale={enUS}>
         <div style={{marginTop: 4}} className="container-fluid container-pf-nav-pf-vertical">
           <h1>{this.props.controller}</h1>
-          <Button
-            style={{marginTop: 20}}
-            type="primary"
-            onClick={this.start}
-            disabled={!hasSelected}
-            loading={loadingButton}
-          >
-            Compare
-          </Button>
           <Input
-            style={{width: 300, marginLeft: 16, marginRight: 8}}
+            style={{width: 300, marginRight: 8, marginTop: 16}}
             ref={ele => this.searchInput = ele}
-            placeholder = "Search results"
+            placeholder = "Search Results"
             value = {this.state.searchText}
             onChange = {this.onInputChange}
             onPressEnter = {this.onSearch}
           />
           <Button type="primary" onClick={this.onSearch}>Search</Button>
+          {selectedRowKeys.length > 0 ?
+            <Card style={{marginTop: 16}} hoverable={false} title={<Button type="primary" onClick={this.onCompareResults} disabled={!hasSelected} loading={loadingButton}>Compare Results</Button>} hoverable={false} type="inner">
+              {selectedRowKeys.map((row,i) =>
+                <Tag id={row}>{results[row].result}</Tag>
+              )}
+            </Card>
+            :
+            <div></div>
+          }
           <Table style={{marginTop: 20}} rowSelection={rowSelection} columns={columns} dataSource={resultSearch.length > 0 ? resultSearch: results} onRowClick={this.retrieveResults.bind(this)} loading={loading} bordered/>
         </div>
       </LocaleProvider>
