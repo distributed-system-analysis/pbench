@@ -86,6 +86,7 @@ erred=$TMPDIR/$PROG.$TS.erred
 typeset -i nskip=0
 skipped=$TMPDIR/$PROG.$TS.skipped
 mail_body=$TMPDIR/$PROG.$TS.mail
+index_content=$TMPDIR/$PROG.$TS.index_mail_contents
 
 mkdir -p $TMPDIR
 trap "rm -rf $TMPDIR" EXIT QUIT INT
@@ -94,6 +95,7 @@ trap "rm -rf $TMPDIR" EXIT QUIT INT
 > $erred
 > $skipped
 > $mail_body
+> $index_content
 
 list=$TMPDIR/list
 find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | sort -n > $list
