@@ -1,10 +1,7 @@
-# Created 2018-05-11 Fri 18:33
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
 #+OPTIONS: H:1
-#+OPTIONS: toc:nil html-postamble:nil num:nil
-#+TITLE: PBench Documentation and Quick Links
 #+HTML_DOCTYPE: xhtml-strict
 #+HTML_CONTAINER: div
 #+KEYWORDS: pbench
@@ -15,6 +12,9 @@
 #+SUBTITLE: 
 #+INFOJS_OPT: 
 #+LATEX_HEADER: 
+#+AUTHOR: 
+#+OPTIONS: toc:nil html-postamble:nil num:nil
+#+TITLE: PBench Documentation and Quick Links
 
 * User documentation
 ** [[file:./release-notes/RELEASE-NOTES.org][Release notes]].
