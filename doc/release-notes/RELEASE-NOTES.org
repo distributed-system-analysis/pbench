@@ -746,12 +746,7 @@ Some of these were in v0.44 - they are repeated here for convenience.
 
 
 
-<<<<<<< HEAD
 https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
-=======
-[[https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo]]
->>>>>>> 59b480252bf8f203059f703edda459f0d7081711
-
 
 
 to =/etc/yum.repos.d=.
@@ -1081,13 +1076,7 @@ These are identical to v0.43 and are repeated here for convenience:
 
 
 
-<<<<<<< HEAD
 https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
-=======
-[[https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo]]
->>>>>>> 59b480252bf8f203059f703edda459f0d7081711
-
-
 
 to =/etc/yum.repos.d=.
 
@@ -1155,8 +1144,6 @@ and mark it "v0.45".
 
   and have been merged, so things work properly now.
 
-<<<<<<< HEAD
-
 
 See upstream issues:
 
@@ -1179,33 +1166,6 @@ https://github.com/prometheus/prom2json/pull/22
 If you find any problems, please open an issue, but as far as
 
 we know, there should not be any.
-
-=======
-
-
-See upstream issues:
-
-
-
-[[https://github.com/prometheus/prom2json/issues/18]],
-
-[[https://github.com/prometheus/prom2json/issues/20]]
-
-
-
-and associated PR:
-
-
-
-[[https://github.com/prometheus/prom2json/pull/22]]
-
-
-
-If you find any problems, please open an issue, but as far as
-
-we know, there should not be any.
-
->>>>>>> 59b480252bf8f203059f703edda459f0d7081711
 
 
 - Various tools added to the default configuration for openshift.
@@ -1373,11 +1333,7 @@ of the pbench-agent RPM installed.
 
 
 
-<<<<<<< HEAD
 https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
-=======
-[[https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo]]
->>>>>>> 59b480252bf8f203059f703edda459f0d7081711
 
 
 
@@ -1413,7 +1369,6 @@ to =/etc/yum.repos.d=.
 
   which pbench-user-benchmark will upload for indexing.
 
-<<<<<<< HEAD
 
 
 - Benchmark directory names contain a time stamp, which previously
@@ -1462,58 +1417,6 @@ benchmark scripts will then follow (probably in v0.45, although
 
 depending on demand, we may convert some of them earlier).
 
-
-=======
-
-
-- Benchmark directory names contain a time stamp, which previously
-
-  contained colons. This caused difficulties with docker, so the
-
-  timestamp format has been changed to contain only periods. Internal
-
-  timestamps (e.g. in the metadata.log) are still in the original format
-
-  using colons; there is no plan to change those.
-
-
-
-- Some benchmark scripts now take an additional option: --sysinfo=<val>
-
-  where <val> can be "default", "all", "none", or a comma-separated
-
-  list of words from the following list: kernel_config, block,
-
-  libvirt, sos, block, topology, ara.  The <val> is passed through to
-
-  pbench-collect-sysinfo, to allow the the user to tailor what kind of
-
-  system information will be collected (if any). E.g.
-
-
-
-pbench-fio --sysinfo=none <other args>
-
-
-
-will not collect *any* system information.
-
-
-
-Although this was meant to be applied generally, currently only
-
-pbench-user-benchmark has been converted. There are outstanding
-
-PRs for pbench-fio, pbench-uperf and uperf-moongen to be modified
-
-the same way - they will be available in v0.44. The rest of the
-
-benchmark scripts will then follow (probably in v0.45, although
-
-depending on demand, we may convert some of them earlier).
-
-
->>>>>>> 59b480252bf8f203059f703edda459f0d7081711
 
 - A "disk" tool has been added: it runs "df" periodically, collects
 
@@ -2479,13 +2382,8 @@ The pbench-netperf script seems to have bit-rotted. We are trying to
 
 decide whether to fix it or abandon it. If you have an opinion, please
 
-<<<<<<< HEAD
 comment at https://github.com/distributed-system-analysis/pbench/issues/291.
 
-
-=======
-comment at [[https://github.com/distributed-system-analysis/pbench/issues/291]].
->>>>>>> 59b480252bf8f203059f703edda459f0d7081711
 
 
 
@@ -2590,10 +2488,6 @@ name to a safe length.
 See [[#web-server-0.39][web-server]] below.
 
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 59b480252bf8f203059f703edda459f0d7081711
 ** server
 
 Server installation was simplified in v0.38: there is an RPM on COPR that can be used
@@ -2875,13 +2769,7 @@ is an external RPM available from COPR that includes all the scripts,
 
 and some configuration scripts that can be used to install the config
 
-<<<<<<< HEAD
-file and perform the rest of the server configuration. See the [[file:../server/installation.org][server
-=======
-file and perform the rest of the server configuration. See the [[[[file:../server/installation.org][server]]
->>>>>>> 59b480252bf8f203059f703edda459f0d7081711
-
-installation guide]].
+file and perform the rest of the server configuration. See the [[file:../server/installation.org][server installation guide]].
 
 
 

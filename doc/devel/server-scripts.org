@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# Created 2018-05-11 Fri 18:33
-=======
->>>>>>> 59b480252bf8f203059f703edda459f0d7081711
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
