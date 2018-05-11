@@ -1,4 +1,4 @@
-# Created 2018-02-07 Wed 10:04
+# Created 2018-05-11 Fri 18:33
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -16,48 +16,396 @@
 #+INFOJS_OPT: 
 #+LATEX_HEADER: 
 
-
-* Version 0.47
+* Version 0.50
 
 ** Installation                                                    :external:
 
 There are no installation changes in this release: see the
 [[file:../agent/installation.org][Installation Instructions]] for how to install or update.
 
-After installation or update, you should have version 0.47-1g2cfe130
+After installation or update, you should have version 0.50-1g799ea02
 of the pbench-agent RPM installed.
 
 ** agent
 
+Fedora 28 has been added to the build list on COPR and agent RPMs
+for it have been produced. However, we have not produced RPMs for
+the benchmarks and tools that pbench provides. That will be done
+shortly and a separate announcement will be sent out.
+
 *** Known problems and backward incompatibilities
 
-The pprof tools is undergoing some renovation right now: see issue #675
+See the [[https://github.com/distributed-system-analysis/pbench/issues][issues on Github]].
 
 *** Bug fixes and enhancements
 
-- Running xz in multithread mode in =pbench-move/copy-results= is a
-  definite win in most cases, but there was one case reported where it
-  segfaulted; running it single-threaded took longer but succeeded. In
-  order to allow this fallback, a new option was added to
-  =pbench-move/copy-results=: =--xz-single-threaded=.
+- Openvswitch tool has been added.
+
+- External data source tool has been added. This allows
+  an external data source that is gathering data during the run
+  to be specified and added to the metadata for the run. See
+  issue #379.
+
+- pbench-sysinfo-dump gathers Spectre/Meltdown data if available.
 
 ** server
 
 *** Known problems and backward incompatibilities
 
-- pbench-move-unpacked occasionally leaves a dangling symlink in the
-  results/ URL for reasons that we do not quite understand yet. If you
-  notice missing results, this is probably the reason. These failures
-  were captured in the error log, but not sent as errors in the mail
-  sent to the mailing list, so the failures were somewhat hidden. We
-  have been monitoring the error log regularly however and fixing such
-  failures in fairly short order.
+
+*** Bug fixes and enhancements
+- Pidstat data are now indexed into ElasticSearch.
+
+- In response to an IT request, we are implementing changes to cut
+  down on the volume of email that the cron jobs produce.  This
+  release includes changes to the server scripts that index
+  status/error reports from the scripts into ElasticSearch, instead of
+  sending mail. There are other mitigation strategies being pursued
+  but they are outside the scope of pbench, so they are not described
+  here.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.50
+:END:
+
+** Changelog
+This is the list of visible (non-merge, non-unit-test-related) commits
+since v0.49:
+
+- 799ea025 (HEAD -> master, tag: v0.50, dsa/master) Bump the version to 0.50
+- 8aa0f27a (chaitanyaenr/master) pbench-report-status: fix it and make it findable for execution.
+- 32e0ea0d (v0.50-cand) Index pidstat tool data
+- 0f315a1e Add a reduced-in-size pidstat sample unit test
+- 6d795d1a Ensure haproxy-ocp creates html in proper dir
+- b18522ad Bug fixes.
+- ac656c9f Add a script to index collected mail log into elasticsearch
+- a7f6cecd add the option to the example config file.
+- e8a63db0 Update Unitests
+- 8eae4875 Make changes on server script to index mail log
+- 823335cf proc-interrupts-postprocess: fix unit tests.
+- 65b62898 proc-interrupts-postprocess: deal with partly numeric IRQ names
+- 11f378bc pbench-sysinfo-dump: fix handling of spectre/meltdown data
+- 98dc4ccf openvswitch-datalog: collect OVS version and cfg info
+- b07e4594 Add a note about need to add openshift-labeler support to openshift-qe templates
+- 6b169df4 Modify pbench-ansible to monitor nodes under infra group
+- f608aaa9 pbench-trafficgen: ensure passthrough argument priority
+- 1e8c2198 Add external-data-source-tool
+- 9f53932c openvswitch-postprocess: reveal some existing OVS stats
+- dfc741bb openvswitch-postprocess: process new OVS counters
+- 5257c6f8 openvswitch tool: track the number of MAC addresses learned for each port
+- 996e555a user-benchmark: evaluate the contents of pbench-post flag
+- 7693283f (wip-index-text) user-benchmark: change underscore to dash in pbench_post option
+
+
+* Version 0.49
+
+** Installation                                                    :external:
+
+There are no installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.49-1g6b67ec6
+of the pbench-agent RPM installed.
+
+** agent
+
+We rebuilt pbench-sysstat and benchmark RPMs to include Fedora 27.  We
+can no longer build for Fedora 25 or earlier on COPR, so those
+platforms are not supported any longer.
+
+*** Known problems and backward incompatibilities
+
+See the [[https://github.com/distributed-system-analysis/pbench/issues][issues on Github]] for an (extensive) list.
 
 *** Bug fixes and enhancements
 
+- New benchmark: pbench-trafficgen.
+- The pbench-fio RPM is now based on upstream fio 3.3.
+- We moved some default settings from the pbench-fio script
+  to the config file, in order to make testing easier.
+- The config file has been split into an environment-specific
+  and a generic piece, very much like the split that was done
+  on the server. This change should be invisible to the end-user,
+  but if you encounter problems during installation/initial setup,
+  please let us know asap.
+
+** server
+
+This is still TBD: For the next release (scheduled for mid April), we
+hope to finish the sar indexing work.  The rest of the tool results
+will follow.
+
+The inotify implementation has been committed but it is not activated
+yet, because of backward-compatibility concerns. We need to
+reimplement pbench-move-results on the agent side before we activate
+inotify. That will be done in v0.50.
+
+*** Known problems and backward incompatibilities
+
+None known.
+
+*** Bug fixes and enhancements
+- Various small fixes plus better logging in some cases.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.49
+:END:
+
+The pbench-web-server package has not been updated. There are no changes to
+the package, so you can still use the existing 0.47 package if you want to 
+install it locally.
+
+** Changelog
+This is the list of visible (non-merge, non-unit-test-related) commits
+since v0.48:
+
+- 6b67ec6 Bump the version to 0.49
+- b971156 Fix unit tests
+- a72c2f7 Add support to run additional scripts after postprocessing
+- 54fcd46 pbench-trafficgen: Fix unit tests.
+- e0a1ebd pbench-trafficgen: add unit test.
+- eb7cf44 pbench-trafficgen: new benchmark script
+- 559c6ab update pbench_registry.yaml to create /var/lib/pbench-agent/tools-default on pbench-controller
+- ae097a1 Fix DEBUG test.
+- ad51bc3 Server-side result state setting script.
+- 9d6a345 inotify version of unittests
+- 1bfacb2 inotify version of pbench-unpack-tarballs
+- ffdb29c inotify version of pbench-dispatch
+- 8971d32 pbench-sync-satellite: add entry to dispatch-list file
+- 9dd56ae script-all: pass logdir as an argument for logging
+- b8add69 unpack-tarballs: pass logdir as an argument for logging
+- 26356e8 pbench-dispatch: pass logdir as an argument for logging
+- 5839da5 example of the service file
+- 8eaa5a2 base.sh: add a new funtion for appending logs of service scripts
+- 2ef08e3 generic inotify service script
+- 5431c59 Fix the checking of prefix avaialble
+- ad4adb7 pbench-ansible: monitor controller or jump host
+- bb72044 Fix bug and better logging
+- 25cf855 fix of pbench-dispatch: missing $
+
+
+* Version 0.48
+
+** Installation                                                    :external:
+
+There are no installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.48-1g87190ca
+of the pbench-agent RPM installed.
+
+** agent
+
+We rebuilt pbench-sysstat and benchmark RPMs to include Fedora 27.  We
+can no longer build for Fedora 25 or earlier on COPR, so those
+platforms are not supported any longer.
+
+*** Known problems and backward incompatibilities
+
+pbench-fio has had a bunch of fixes in this release but problems
+remain: see the [[https://github.com/distributed-system-analysis/pbench/issues][issues on Github]] for an (extensive) list.
+
+*** Bug fixes and enhancements
+
+- The pbench-fio RPM is now based on upstream fio 3.3.
+- We are moving some default setting from the pbench-fio script
+  to the config file, in order to make testing easier.
+- The config file has been split into an environment-specific
+  and a generic piece, very much like the split that was done
+  on the server. This change should be invisible to the end-user,
+  but if you encounter problems during installation/initial setup,
+  please let us know asap.
+
+** server
+
+The indexing script now indexes fio, uperf and moongen results,
+including the time series data. It also has undergone some fixes
+to deal with different hostname conventions (public vs private
+names). It currently indexes iostat and prometheus-metrics data.
+
+For the next release (scheduled for the end of February), we hope to
+finish the sar indexing work.  The rest of the tool results will
+follow.
+
+The inotify implementation is proceeding but did not make it
+for this release. We had a couple of false starts, but we now
+think that we have a reasonable implementation and a good chance
+that it will land in time for the next release.
+
+*** Known problems and backward incompatibilities
+
+None known
+
+*** Bug fixes and enhancements
+
+- The long-standing pbench-move-unpacked problem (in some cases,
+  the incoming directory existed and the script failed to get all
+  the required links right) has been fixed.
+
+- In the process of fixing the above, a bug was introduced that caused
+  a spurious link to be added to the directory of a run: the link pointed
+  to the directory itself with confusing results. This has been fixed
+  as well.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.48
+:END:
+
+There are no changes to the package (except for the version bump).
+
+If you do decide to update, the instructions are standard:
+#+BEGIN_EXAMPLE
+dnf clean expire-cache
+dnf update pbench-web-server
+#+END_EXAMPLE
+(or the yum equivalents.)  The current version available from COPR
+is 0.48-1g87190ca.
+
+** Changelog
+This is the list of visible (non-merge, non-unit-test-related) commits
+since v0.47:
+
+- 172bbcbb index-pbench: Add unit tests
+- f7fe1884 index-pbench: hostname impedance matching with tools
+- e2e4c9f1 index-pbench: add results mapping and convert ts values to float
+- e9e9d6c7 pbench-move-unpacked: do not create spurious links
+- b6660834 pbench-fio: put defaults in config file
+- edf3d4dd Bump fio version to 3.3
+- 2c46514a pbench-agent-config-activate: allow more than one config file
+- 73f278df (pbench-dashboard)  Fix app title
+- 6e62ee39 (pbench-dashboard)  Group result network calls into promises and execute once, cancel request when switching page
+- c71d44a5 (pbench-dashboard)  Routing fixes
+- 3bf52e17 (pbench-dashboard)  Update pushed routes with /dashboard prefix and use CancelTokens for aborting axios requests on page changes
+- 94e08aa1 (pbench-dashboard)  Remove unused routes and update with /dashboard prefix
+- 3b4644ac (pbench-dashboard)  Only define title and url of app
+- fbe663c7 (pbench-dashboard)  Remove irrelevant component mount calls and definitions
+- 638e3df9 (pbench-dashboard)  Remove unused script tags
+- c39038cc (pbench-dashboard)  Remove irrelevant script tags
+- 3c10ad8a (pbench-dashboard)  Remove unused component definitions and page definitions
+- d12493c7 (pbench-dashboard)  Fix pointers to dependencies existing on server
+- a75a1e90 (pbench-dashboard)  Entry point for iteration summary
+- dc080dbc (pbench-dashboard)  HTML parser dependencies
+- 6ed21ec0 (pbench-dashboard)  Adjust routing for iteration summary view
+- b7aa48df (pbench-dashboard)  Fix routing to jscharts
+- b8edc657 (pbench-dashboard)  Iteration Summary component definition
+- b78f15be (pbench-dashboard)  Routing for iteration summaries
+- c473b659 (pbench-dashboard)  Fix column bug and improve parsing efficiency
+- b589b9ad (pbench-dashboard)  Remove unneeded dependencies
+- 9468b6f3 (pbench-dashboard)  Parser for natively rendering iteration table data
+- d470edc9 (pbench-dashboard)  Delete d3 dependencies
+- e1d046b8 (pbench-dashboard)  Bug fix for navigating to result after searching
+- f54fe204 (pbench-dashboard)  Initial commit
+- 215eef90 (pbench-dashboard)  Initial commit
+- 38ad7c48 (pbench-dashboard)  Initial commit
+- 57ee91fa Convert to float only if the list or dict is not empty
+- 76d39b5c pbench-collect-sysinfo: collect security mitigation data
+- 812d4e0b Ignore go_memstats_last_gc_time_seconds metric during postprocess
+- d9ea08a0 Use the built-in variable fixed in recent ansible version
+- 5c9825cd Fix unit tests.
+- 51c2ea22 Avoid "Use of uninitialized value" errors.
+- 6379aa61 BenchPostProcess: calculate aggregate metrics better.
+- fa86780e Add Ceph RBD block storage doc section
+- 71d3d55a pbench-move-unpacked: fix bug.
+- 273cfd4a update fio unit tests due to hostname modification
+- 85c12e84 fio-postprocess: treat fio jobs as separate clients
+- b6085f2f pbench-move-unpacked: initialize $prefix.
+- 98faeb98 pbench-collect-sysinfo: Fix usage string
+- 09bf3fc3 pbench-server-activate*: do not exit on failures.
+- 89c70d9f pbench-move-unpacked: fix long-standing bug
+- c29283f5 show user default from variable not hardcoded
+- 7cce9cde fix gold output files to match online help for added parameter
+- e0cf0153 add param histogram-interval-msec, default 10 sec not 60
+- 2c403cbd fix gold output files to match new jobflie format
+- f29ad234 move non-workload params to global section
+
+
+
+* Version 0.47
+
+
+
+** Installation                                                    :external:
+
+
+
+There are no installation changes in this release: see the
+
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+
+
+After installation or update, you should have version 0.47-1g2cfe130
+
+of the pbench-agent RPM installed.
+
+
+
+** agent
+
+
+
+*** Known problems and backward incompatibilities
+
+
+
+The pprof tools is undergoing some renovation right now: see issue #675
+
+
+
+*** Bug fixes and enhancements
+
+
+
+- Running xz in multithread mode in =pbench-move/copy-results= is a
+
+  definite win in most cases, but there was one case reported where it
+
+  segfaulted; running it single-threaded took longer but succeeded. In
+
+  order to allow this fallback, a new option was added to
+
+  =pbench-move/copy-results=: =--xz-single-threaded=.
+
+
+
+** server
+
+
+
+*** Known problems and backward incompatibilities
+
+
+
+- pbench-move-unpacked occasionally leaves a dangling symlink in the
+
+  results/ URL for reasons that we do not quite understand yet. If you
+
+  notice missing results, this is probably the reason. These failures
+
+  were captured in the error log, but not sent as errors in the mail
+
+  sent to the mailing list, so the failures were somewhat hidden. We
+
+  have been monitoring the error log regularly however and fixing such
+
+  failures in fairly short order.
+
+
+
+*** Bug fixes and enhancements
+
+
+
 - Made the above failure in pbench-move-unpacked visible in the email
+
   sent to the mailing list, with additional debugging information to
+
   help us diagnose the error once and for alland fix it (we hope in v0.48).
+
+
 
 ** web-server
 :PROPERTIES:
@@ -66,235 +414,462 @@ The pprof tools is undergoing some renovation right now: see issue #675
 
 There are no changes to the package (except for the version bump).
 
+
+
 If you do decide to update, the instructions are standard:
+
 #+BEGIN_EXAMPLE
+
 dnf clean expire-cache
+
 dnf update pbench-web-server
 #+END_EXAMPLE
+
 (or the yum equivalents.)  The current version available from COPR
+
 is 0.47-1g2cfe130.
 
+
+
 ** Changelog
+
 This is the list of visible (non-merge, non-unit-test-related) commits
+
 since v0.46:
 
+
+
 - 2cfe130 Bump the version to v0.47
+
 - 4d821fd pbench-metadata-log: fix the unittests.
+
 - 787e6af pbench-metadata-log: do not muck around with hostnames
+
 - 6ea0782 pbench-move-unpacked: fix error handling
+
 - e323768 Add show-server option in pbench-move-results usage
+
 - 6a7766a Avoid printing logs to stdout to avoid tar ball corruption
+
 - 404fb64 Fix collect-sysinfo to treat "all" and "default" options differently
+
 - 6873097 Clean up readme
+
 - 1d1c320 Refactor containerized pbench
+
 - 4616a19 pbench-fio: fix pre-iteration-script and targets option handling.
+
 - feeaa0f Fix lockstat tool
+
 - 30019c5 Extend optional sysinfo collection to all the benchmarks
+
 - 8baed64 pbench agent scripts: fix using of -p with scp command
+
 - bcce0d4 Log the things pbench-collect-sysinfo is collecting
+
 - 312ceee Warn instead of failing with a non-zero exit code
+
 - 1ad33c9 pbench-move-results: add --show-server option
+
 - b8da534 refactor code to reduce duplication
+
 - 1729971 rectify the broken: sort by size
+
 - e284100 rectify the misnamed 'list' variables
+
 - 69176b9 Add older ansible version < 2.4 support to pbench-ansible
+
 - a44b038 Example config file: add tool-specific interval
+
 - 46c6a6f util-scripts unittests: clean up
+
 - a8f24ad pbench-register-tool-set: flexible specification of tool collection intervals
+
 - 32a3005 pbench-move-unpacked: work around job pool hang
+
 - 05d834a pbench-server-activate: relax hostname check
+
+
 
 * Version 0.46
 
+
+
 ** Installation                                                    :external:
 
+
+
 There are no installation changes in this release: see the
+
 [[file:../agent/installation.org][Installation Instructions]] for how to install or update.
 
+
+
 After installation or update, you should have version 0.46-1g6327ec7
+
 of the pbench-agent RPM installed.
+
+
 
 ** agent
 
+
+
 *** Known problems and backward incompatibilities
+
+
 
 The pprof tools is undergoing some renovation right now: see issue #675
 
+
+
 *** Bug fixes and enhancements
 
+
+
 - Running xz in multithread mode in =pbench-move/copy-results= is a
+
   definite win in most cases, but there was one case reported where it
+
   segfaulted; running it single-threaded took longer but succeeded. In
+
   order to allow this fallback, a new option was added to
+
   =pbench-move/copy-results=: =--xz-single-threaded=.
+
+
 
 ** server
 
+
+
 *** Known problems and backward incompatibilities
 
+
+
 The script that copies the contents of each tarball to the distributed
+
 file system uses a job queue implementation to do multiple copies in
+
 parallel. Occasionally, the job queue system gets stuck and it needs a
+
 kick. Fortunately, this is not user-visible, as long as the local
+
 storage can accommodate the backlog. We are hoping to resolve this
+
 problem in v0.47.
+
+
 
 *** Bug fixes and enhancements
 
+
+
 Most of the changes in this release are to fix some problems in the
+
 handling of satellite servers. There were fairly massive changes
+
 implemented in v0.45, but inevitably there were problems (and there
+
 probably are more).
 
+
+
 Almost all of the scripts are running from cron at a 1-minute
+
 interval. In most cases, the script is able to finish all the work
+
 during that one minute. There are two exceptions: moving the tarball
+
 contents from local storage to a DFS backend can take a long time
+
 potentially, but that latency is hidden from the user; data collected
+
 at a satellite server and synced to a master server are deleted once
+
 an hour.
 
+
+
 These updates have been pushed to the production server and the
+
 satellite servers. If you see problems, please open an issue.
+
+
 
 ** web-server
 :PROPERTIES:
 :CUSTOM_ID: web-server-0.46
 :END:
 
+
+
 There are no changes to the package (except for the version bump).
 
+
+
 If you do decide to update, the instructions are standard:
+
 #+BEGIN_EXAMPLE
+
 dnf clean expire-cache
+
 dnf update pbench-web-server
 #+END_EXAMPLE
+
 (or the yum equivalents.)  The current version available from COPR
+
 is 0.46-1g6327ec7.
 
+
+
 ** Changelog
+
 This is the list of visible (non-merge, non-unit-test-related) commits
+
 since v0.45:
 
+
+
 - 90ed6e2 Version bump
+
 - ce9dab4 pbench server: fix race with prefix file.
+
 - 47e2051 pbench-sync-satellite: fix the file list for md5 checking
+
 - 665fbd0 pbench-server: fix two bugs and a typo.
+
 - 3d53059 pbench-unpack-tarballs: fix conflicting file names.
+
 - 7d03d86 Fix thinko and unit test.
+
 - 192d269 pbench-sync-satellite: do not send non-errors to error log
+
 - 96b1d66 Refactor  prometheus-metrics tool to be more generic
+
 - 0a1c63c Update the script for different error checks as well as rectify the undefined variables
+
 - 4b1073e pbench-move-results: Add --xz-single-threaded option
+
 - 0876b5b pbench-server-activate-create-results-dir-structure: Avoid chown -R
+
 - 5f6c4e3 Fix ansible 2.4 compatability issues
+
 - 8dec7fc Rectify different syntax errors
+
 - 643311a Update the pbench-satellite-cleanup script to not create empty logdir on every run
+
 - 05ef05b Update the mail_content destination path
+
 - 761163b Check for oc client instead of openshift rpm's
+
 - 5ea4772 Removing check_install_rpm atomic-openshift-clients, just checking for oc.
+
+
 
 * Version 0.45
 
+
+
 ** Installation                                                    :external:
 
+
+
 There are no installation changes in this release: see the
+
 [[file:../agent/installation.org][Installation Instructions]] for how to install or update.
 
+
+
 After installation or update, you should have version 0.45-1g8874a17
+
 of the pbench-agent RPM installed.
+
+
 
 ** agent
 
+
+
 *** Known problems and backward incompatibilities
+
 Some of these were in v0.44 - they are repeated here for convenience.
 
+
+
 - =pbench-user-benchmark= will now produce a warning about a
+
   non-existent JSON result file (see v0.44 release notes). We have a
+
   work item to fix this in v0.46.
 
+
+
 - =pbench-fio= issues multiple warnings after postprocessing the
+
   latency log files. We thought that this was caused by the last two
+
   lines in two of these files having the same timestamp, but there may
+
   be duplicate timestamps in other places as well. This is
+
   probably a fio bug.
 
+
+
 - (not fixed in v0.44) The Python Pandas package goes by different
+
   names on RHEL and Fedora.  The current code uses "python-pandas"
+
   which works for RHEL, but not for Fedora.  The workaround for Fedora
+
   is to actually change the =pbench-fio= script to install
+
   "python2-pandas". This has been fixed in v0.45.
 
+
+
 - Two new dependencies have been added to =pbench-agent=: =perl-JSON=
+
   and =perl-Switch=. These are used to produce JSON files for the
+
   results of benchmarks (currently, =pbench-uperf=, =pbench-moongen=
+
   and =pbench-fio= produce such JSON files). =perl-JSON= is available
+
   from the standard RHEL and Fedora repos, but =perl-Switch= is only
+
   available from the standard Fedora repos; on RHEL, you will need to
+
   add the RHEL "optional packages" repo. This can be done by copying
 
-  https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
 
-  to =/etc/yum.repos.d=.
+
+https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
+
+
+
+to =/etc/yum.repos.d=.
+
+
 
 *** Bug fixes and enhancements
 
+
+
 - Some benchmark scripts now take an additional option:
+
   --sysinfo=<val> where <val> can be "default", "all", "none", or a
+
   comma-separated list of words from the following list:
+
   kernel_config, block, libvirt, sos, block, topology, ara.  The <val>
+
   is passed through to pbench-collect-sysinfo, to allow the the user
+
   to tailor what kind of system information will be collected (if
+
   any). E.g.
 
-  pbench-fio --sysinfo=none <other args>
 
-  will not collect *any* system information.
 
-  pbench-user-benchmark, pbench-fio, pbench-uperf and pbench-moongen
-  have been modified to accept the new option. We did not get to the
-  rest of the benchmarks in v0.45, but if you need a benchmark
-  modified along these lines asap, please open an issue and mark it
-  "v0.46".
+pbench-fio --sysinfo=none <other args>
 
-  Unfortunately, there was a bug that caused the script to *not*
-  collect any sosreport (and most other) data in the default
-  configuration. This has been fixed in v0.45.
+
+
+will not collect *any* system information.
+
+
+
+pbench-user-benchmark, pbench-fio, pbench-uperf and pbench-moongen
+
+have been modified to accept the new option. We did not get to the
+
+rest of the benchmarks in v0.45, but if you need a benchmark
+
+modified along these lines asap, please open an issue and mark it
+
+"v0.46".
+
+
+
+Unfortunately, there was a bug that caused the script to *not*
+
+collect any sosreport (and most other) data in the default
+
+configuration. This has been fixed in v0.45.
+
+
 
 - The prometheus tool now accepts some additional options: a port
+
   number can be specified instead of the default, as well as
+
   non-default certs. It also sets GOPATH properly. Note that the
+
   prom2json tool that is used underneath the covers has undergone
+
   some changes that broke functionality. Fixes were submitted upstream
+
   and have been merged, so things work properly now.
 
-  Various bugs have been addressed in v0.45 and the tool has
-  seen some enhancements.
+
+
+Various bugs have been addressed in v0.45 and the tool has
+
+seen some enhancements.
+
+
 
 - The openvswitch tool has undergone many fixes and enhancements.
 
+
+
 - A bug in the pbench-user-tool script has been fixed.
+
+
 
 ** server
 
+
+
 The server code underwent fairly radical changes:
 
+
+
 - There is a new dispatch script that handles incoming tarballs, checks
+
   MD5s and dispatches to the appropriate set of scripts (depending
+
   on the server).
+
 - Tarballs are unpacked locally and are *not* copied to the distributed
+
   file system backend synchronously. Instead, the data can be viewed from
+
   this temporary location. This should alleviate the latency problem that
+
   we have been suffering from.
+
 - A new script copies the unpacked data to the backend asynchronously
+
   and then patches up the links to allow data viewing from the "permanent"
+
   location.
+
 - The satellite-server-to-production-server sync mechanism has been
+
   revamped to allow much more frequent syncing. Unfortunately, there
+
   are some problems that we hope to resolve imminently.
 
+
+
 The new server bits have been deployed on the production server. They are
+
 going to be deployed on the satellite servers in the next day or two.
+
+
 
 ** web-server
 :PROPERTIES:
@@ -302,1046 +877,2058 @@ going to be deployed on the satellite servers in the next day or two.
 :END:
 
 A fix to speed up loading of pidstat data was added to jschart.js
+
 (issue #608 describes the problem in detail).
 
+
+
 If you do decide to update, the instructions are standard:
+
 #+BEGIN_EXAMPLE
+
 dnf clean expire-cache
+
 dnf update pbench-web-server
 #+END_EXAMPLE
+
 (or the yum equivalents.)  The current version available from COPR
+
 is 0.45-1g8874a17.
 
+
+
 ** Changelog
+
 This is the list of visible (non-merge, non-unit-test-related) commits
+
 since v0.44:
 
+
+
 - febcbec v0.45: version bump
+
 - 51bd53c Clean up server
+
 - 99df806 Use xz with multi-threaded support when copying/moving results.
+
 - 887f2ab Update the config file to have pandas package name for RHEL and fedora
+
 - d2a60dd pbench-user-tool: pass SIGTERM to the tool for graceful handling
+
 - 095e404 Add dispatch script
+
 - 23bc56a Hide latency of copying unpacked tarballs
+
 - 3ffd96a Update the script to unpack tarballs and create symlinks for them
+
 - fa21b13 Add support for creating job pools
+
 - 511ccc5 openvswitch-portprocess: tweak line processing
+
 - 5118b7f Update the script to have the ability to install python-pandas on different distros.
+
 - bf2f4c7 Add a python script to change the state directory
+
 - 50e87bf Add new cleanup bash script to remove tar, md5 and prefix
+
 - 08562bf Add new state directories
+
 - 3ad44e2 Add new sync script instead of rsync
+
 - 54bba60 Add sync-package-tarballs script
+
 - 91102fe openvswitch-[datalog|postprocess]: handle OpenFlow13 protocol better
+
 - 526d02c openvswitch-postprocess: bug fix
+
 - 3b81384 pbench-collect-sysinfo: if no sysinfo is specified, assume default.
+
 - 3e303af Pass sysinfo opts as comma separated values
+
 - dc0ee55 openvswitch-datalog: capture holistic view of ovsdb contents
+
 - eb2f206 openvswitch: updates to include PMD and flow stats
+
 - dedd6f8 openvswitch-postprocess: fix detection of pmd threads Also check for existence of pmd thread ID before referencing
+
 - 2f892cf prometheus-tool: Refactor postprocess to support visualizations
+
 - 7ab549a prometheus-tool: Fix script to copy inv even from ansible controller
+
 - 0164879 prometheus-tool: Rename result files to include port to avoid conflicts
+
 - 69c4413 prometheus-tool: Add docs about monitoring multiple endpoints
+
 - 150c732 prometheus-tool: copy inventory to master,pbench-controller nodes
+
 - 05c8bef uperf-postprocess: force port_labels to be strings
+
 - 3c4eaf0 Add ansible playbook for using pbench
+
 - e1ba029 Register prometheus-metrics on just one master
+
 - 9df7de0 jschart.js: add URL parameter overrides
+
 - c85da71 pbench-index: Fix exception handling
+
 - 4736bbb pbench-index: Add results indexing
+
 - 37ddbb6 pbench-index: Prelim version of prometheus and results indexer
+
 - 59b9a60 pbench-user-benchmark: Log the message with level info instead of warning
+
 - 5e322d6 prometheus-tool: Use different certs, port for each endpoint
+
 - 52f90bb Fix script to register perf on remotes
+
 - 4d1c95e Register perf tool on all the nodes
+
 - 6a1c153 openvswitch-postprocess: add EMC/Megaflow hit statistics
+
 - efceef0 Another fix for openvswitch postprocess
+
 - b8c3aa8 openvswitch: fix regex for port maaapings
+
 - b8f301c openvswitch: more minor fixes, renaming series
+
 - 9db6942 openvswitch: update tool for many enhancements
+
 - c22b773 Revert "fio: convert to json for metric data"
+
 - 31b6432 fio: convert to json for metric data
+
+
 
 * Version 0.44
 
+
+
 ** Installation                                                    :external:
 
+
+
 There are no installation changes in this release: see the
+
 [[file:../agent/installation.org][Installation Instructions]] for how to install or update.
 
+
+
 After installation or update, you should have version 0.44-1gf694c2f
+
 of the pbench-agent RPM installed.
+
+
 
 ** agent
 
+
+
 *** Known problems and backward incompatibilities
+
+
 
 These are identical to v0.43 and are repeated here for convenience:
 
+
+
 - =pbench-user-benchmark= will now produce a warning about a non-existent
+
   JSON result file (see below).
 
+
+
 - =pbench-fio= issues two warnings after postprocessing the latency log
+
   files.  This is caused by the last two lines in two of these files
+
   having the same timestamp. This is probably a fio bug.
 
+
+
 - (not fixed in v0.44) The Python Pandas package goes by different
+
   names on RHEL and Fedora.  The current code uses "python-pandas"
+
   which works for RHEL, but not for Fedora.  The workaround for Fedora
+
   is to actually change the =pbench-fio= script to install
+
   "python2-pandas". We have a work item to fix this for v0.45.
 
+
+
 - Two new dependencies have been added to =pbench-agent=: =perl-JSON=
+
   and =perl-Switch=. These are used to produce JSON files for the
+
   results of benchmarks (currently, =pbench-uperf=, =pbench-moongen=
+
   and =pbench-fio= produce such JSON files). =perl-JSON= is available
+
   from the standard RHEL and Fedora repos, but =perl-Switch= is only
+
   available from the standard Fedora repos; on RHEL, you will need to
+
   add the RHEL "optional packages" repo. This can be done by copying
 
-  https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
 
-  to =/etc/yum.repos.d=.
+
+https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
+
+
+
+to =/etc/yum.repos.d=.
+
+
 
 *** Bug fixes and enhancements
 
+
+
 - (v0.43) pbench-user-benchmark also produces a rudimentary JSON result
+
   file (it only includes a duration for the run), but there are
+
   provisions to allow the user benchmark to produce a JSON file
+
   which pbench-user-benchmark will upload for indexing.
 
+
+
 - (v0.43 with updates) Some benchmark scripts now take an additional
+
   option: --sysinfo=<val> where <val> can be "default", "all", "none",
+
   or a comma-separated list of words from the following list:
+
   kernel_config, block, libvirt, sos, block, topology, ara.  The <val>
+
   is passed through to pbench-collect-sysinfo, to allow the the user
+
   to tailor what kind of system information will be collected (if
+
   any). E.g.
 
-  pbench-fio --sysinfo=none <other args>
 
-  will not collect *any* system information.
 
-  pbench-user-benchmark, pbench-fio, pbench-uperf and pbench-moongen
-  have been modified to accept the new option. We may (or may not)
-  get to the rest of the benchmarks in v0.45, but if you need a
-  benchmark modified along these lines asap, please open an issue
-  and mark it "v0.45".
+pbench-fio --sysinfo=none <other args>
+
+
+
+will not collect *any* system information.
+
+
+
+pbench-user-benchmark, pbench-fio, pbench-uperf and pbench-moongen
+
+have been modified to accept the new option. We may (or may not)
+
+get to the rest of the benchmarks in v0.45, but if you need a
+
+benchmark modified along these lines asap, please open an issue
+
+and mark it "v0.45".
+
+
 
 - The prometheus tool now accepts some additional options: a port
+
   number can be specified instead of the default, as well as
+
   non-default certs. It also sets GOPATH properly. Note that the
+
   prom2json tool that is used underneath the covers has undergone
+
   some changes that broke functionality. Fixes were submitted upstream
-  and have been merged, so things work properly now.   
 
-  See upstream issues:
+  and have been merged, so things work properly now.
 
-  https://github.com/prometheus/prom2json/issues/18,
-  https://github.com/prometheus/prom2json/issues/20
 
-  and associated PR:
 
-  https://github.com/prometheus/prom2json/pull/22
+See upstream issues:
 
-  If you find any problems, please open an issue, but as far as
-  we know, there should not be any.
+
+
+https://github.com/prometheus/prom2json/issues/18,
+
+https://github.com/prometheus/prom2json/issues/20
+
+
+
+and associated PR:
+
+
+
+https://github.com/prometheus/prom2json/pull/22
+
+
+
+If you find any problems, please open an issue, but as far as
+
+we know, there should not be any.
+
+
 
 - Various tools added to the default configuration for openshift.
 
+
+
 - A bug in BenchPostprocess::get_uid has been fixed: it was fixed
+
   previously, but the fix got lost somehow. It is now fixed again,
+
   hopefully for good.
 
+
+
 ** server
+
 There is a minor change in the server to make a mail message report
+
 more accurately. This will be deployed opportunistically.
+
+
 
 ** web-server
 :PROPERTIES:
 :CUSTOM_ID: web-server-0.44
 :END:
+
 There is a new RPM that should be identical to the two previous
+
 versions. The dependencies are now handled correctly, so it should
+
 be safe to update to v0.44 if you want.
 
+
+
 If you do decide to update, the instructions are standard:
+
 #+BEGIN_EXAMPLE
+
 dnf clean expire-cache
+
 dnf update pbench-web-server
 #+END_EXAMPLE
+
 (or the yum equivalents.)  The current version available from COPR
+
 is 0.44-1gf694c2f.
 
+
+
 ** Changelog
+
 This is the list of visible (non-merge, non-unit-test-related) commits
+
 since v0.43:
 
+
+
 - f694c2f Version bump
+
 - 54fba8a pidstat-postprocess: nuke commas from commands.
+
 - 4010360 Modify installation steps of prom2json
+
 - 24f2b9c Fix a subsitution bug in BenchPostprocess::get_uid
+
 - aacd800 Update the subject and body message of ssh failure mail
+
 - 6303e80 Fixes the way GOPATH is set
+
 - 3b084b1 Parameterize certs and port for prometheus-metrics
+
 - ceafcf0 Register tools on OpenShift infra, cns nodes
+
 - 4a8928a Fix script to write all the metrics
+
 - a9b066a move, clear results only when set in vars
+
 - 9c4e24d Register prometheus-metrics tool on openshift
+
 - 481b636 Register disk tool on the OpenShift cluster
+
 - 2834781 Register haproxy-ocp tool on masters
+
 - 89476b8 Add unit tests for pbench-fio bench-script
+
 - c46a8e7 Add support to fio to collect the info requested
+
 - 9f96951 Add unit tests for uperf bench-script
+
 - 85173ec Add support to uperf to collect the info requested
+
 - 07a5045 Add unit tests
+
 - 6a9c902 Add support to moongen to collect the info requested
+
 - 3d0ff25 Do not assume that unit tests are sequentially numbered
+
 - 9842b5f Show labels of oc-nodes
+
+
 
 * Version 0.43
 
+
+
 ** Installation                                                    :external:
 
+
+
 There are no installation changes in this release: see the
+
 [[file:../agent/installation.org][Installation Instructions]] for how to install or update.
 
+
+
 After installation or update, you should have version 0.43-1g87c4f83
+
 of the pbench-agent RPM installed.
+
+
 
 ** agent
 
+
+
 *** Known problems and backward incompatibilities
 
+
+
 - =pbench-user-benchmark= will now produce a warning about a non-existent
+
   JSON result file (see below).
+
 - =pbench-fio= issues two warnings after postprocessing the latency log
+
   files.  This is caused by the last two lines in two of these files
+
   having the same timestamp. This is probably a fio bug.
+
 - The Python Pandas package goes by different names on RHEL and
+
   Fedora.  The current code uses "python-pandas" which works for RHEL,
+
   but not for Fedora.  The workaround for Fedora is to actually change
+
   the =pbench-fio= script to install "python2-pandas". We have a work
+
   item to fix this for the next release.
+
 - Two new dependencies have been added to =pbench-agent=: =perl-JSON=
+
   and =perl-Switch=. These are used to produce JSON files for the
+
   results of benchmarks (currently, =pbench-uperf=, =pbench-moongen=
+
   and =pbench-fio= produce such JSON files). =perl-JSON= is available
+
   from the standard RHEL and Fedora repos, but =perl-Switch= is only
+
   available from the standard Fedora repos; on RHEL, you will need to
+
   add the RHEL "optional packages" repo. This can be done by copying
 
-  https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
 
-  to =/etc/yum.repos.d=.
+
+https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
+
+
+
+to =/etc/yum.repos.d=.
+
 - Note that the output of the benchmarks that have been converted to
+
   produce JSON files is now stored in files named
+
   =result.{txt,csv,json,html}=. The information in these files should
+
   be the same as in the older =summary-result.{txt,csv,html}=, although
+
   the format may be different.
+
+
 
 *** Bug fixes and enhancements
 
+
+
 - pbench-fio produces JSON results now, using the same libraries
+
   that were used in pbench-uperf and pbench-moongen.
 
+
+
 - pbench-user-benchmark also produces a rudimentary JSON result
+
   file (it only includes a duration for the run), but there are
+
   provisions to allow the user benchmark to produce a JSON file
+
   which pbench-user-benchmark will upload for indexing.
 
+
+
 - Benchmark directory names contain a time stamp, which previously
+
   contained colons. This caused difficulties with docker, so the
+
   timestamp format has been changed to contain only periods. Internal
+
   timestamps (e.g. in the metadata.log) are still in the original format
+
   using colons; there is no plan to change those.
 
+
+
 - Some benchmark scripts now take an additional option: --sysinfo=<val>
+
   where <val> can be "default", "all", "none", or a comma-separated
+
   list of words from the following list: kernel_config, block,
+
   libvirt, sos, block, topology, ara.  The <val> is passed through to
+
   pbench-collect-sysinfo, to allow the the user to tailor what kind of
+
   system information will be collected (if any). E.g.
 
-  pbench-fio --sysinfo=none <other args>
 
-  will not collect *any* system information.
 
-  Although this was meant to be applied generally, currently only
-  pbench-user-benchmark has been converted. There are outstanding
-  PRs for pbench-fio, pbench-uperf and uperf-moongen to be modified
-  the same way - they will be available in v0.44. The rest of the
-  benchmark scripts will then follow (probably in v0.45, although
-  depending on demand, we may convert some of them earlier).
+pbench-fio --sysinfo=none <other args>
+
+
+
+will not collect *any* system information.
+
+
+
+Although this was meant to be applied generally, currently only
+
+pbench-user-benchmark has been converted. There are outstanding
+
+PRs for pbench-fio, pbench-uperf and uperf-moongen to be modified
+
+the same way - they will be available in v0.44. The rest of the
+
+benchmark scripts will then follow (probably in v0.45, although
+
+depending on demand, we may convert some of them earlier).
+
+
 
 - A "disk" tool has been added: it runs "df" periodically, collects
+
   the results and post-processes them to render various graphs.
 
+
+
 - There will be a number of documentation changes that will be
+
   rolled out in the next couple of weeks, out-of-band with the
+
   releases. Notification will be sent out about those changes
+
   as they happen.
+
+
 
 ** server
 
+
+
 The script that syncs "satellite" pbench servers to a master server
+
 has been sped up to allow more frequent invocation from cron. However,
+
 the rsyncing itself and (particularly) the unpacking of the synced
+
 tarballs on the master server is still a bottleneck. We have a work
+
 item to improve that in v0.44.
 
+
+
 The indexing script continues to be enahnced: it now indexes iostat
+
 tool data, and more information has been added to the metadata:
+
 iterations and samples are now indexed. We are planning to deploy test
+
 versions of the indexer in the next month that will index results and
+
 more tool data (to the staging ES instance), then roll it into the
+
 production server in the v0.44 release.  It is likely however that
+
 we'll iterate a number of times on the indexer in the next few
+
 months.
 
+
+
 *** Instructions                                                   :external:
+
 TBD.
+
+
 
 ** web-server
 :PROPERTIES:
 :CUSTOM_ID: web-server-0.43
 :END:
+
 There are no updates to the web-server in this release, but there
+
 is a new RPM that should be identical (other than the version number)
+
 to the previous version. For now, we recommend that you do *not* update:
+
 the testing has been fairly superficial and somewhat inconclusive. We
+
 plan to work on this in the next week or two. We'll send out details
+
 when it's ready.
 
+
+
 If you do decide to update, the instructions are standard:
+
 #+BEGIN_EXAMPLE
+
 dnf clean expire-cache
+
 dnf update pbench-web-server
 #+END_EXAMPLE
+
 (or the yum equivalents.)  The current version available from COPR
+
 is 0.43-1g87c4f83
 
+
+
 ** Changelog
+
 This is the list of visible (non-merge, non-unit-test-related) commits
+
 since v0.42:
 
+
+
 - 87c4f83 Version bump: v0.43
+
 - a0811d9 Fix unit tests.
+
 - caf4a37 Fix fio-postprocess
+
 - 86213bf Fixes to pbench-fio.
+
 - 1c0a117 fio: convert to json for metric data
+
 - 29a365d generate-benchmark-summary: process iterations in numerical order
+
 - 7134e34 Fix unit tests for pbench-rsync-satellite.
+
 - cbb782f Add cleanup script
+
 - 6595a23 Speed up the rsync script.
+
 - bca3c94 Add containerized pbench for openshift
+
 - 1fc8e0c Add unit tests
+
 - eca3b7b Add support to user-benchmark to emit a json file
+
 - c9c21ad Add support to fetch kube config from master
+
 - 597a006 Unit test for index-pbench added
+
 - 7052f9e Handle exceptions more selectively
+
 - 4861e03 Modify index-pbench for pbench-user-benchmark
+
 - b073599 pbench-rsync-satellite: add unit test
+
 - 533f55e pbench-rsync-satellite: bug fixes and unittest prep
+
 - 019031b Send mail only if a counter is nontrivial
+
 - b03b8fb pbench-metadata-log: reduction of ssh invocations
+
 - b0d6b8d Add flexible way to register tools on nodes
+
 - 7fd3b2a Fix df command to ignore openshift volumes, header
+
 - c2f7da9 Change time format in suffix of run directory
+
 - a66c892 Rename variable to avoid collision
+
 - 8207437 Fix syntax of the check
+
 - e389968 Add disk tool to pbench
+
 - 042e3b5 Add mock for pbench-metadata-log unitests
+
 - 3771cbc Update all the benchmarks to call pbench-metadata-log directly
+
 - 6b37e67 Break out of loop in exception handler
+
 - d20464f documentation for pbench-fio and pbench-uperf
+
 - 6fb57e5 Add support to collect-sysinfo to collect ara data
+
 - cc9460b Rename openshift-metrics to prometheus-metrics
+
 - 334f93e Use 'exited' instead of 'failed' on success
+
 - d96c01c Fix playbook to handle non-existant groups in inventory,labeling
+
 - 9645ccb Rework help and usage for user-benchmark
+
 - bdf6f0c Rename the tar files to remove confusion, instead of, compress the tar ball
+
 - 8abd2e8 Use RPM to avoid issues with dashes in awk
+
 - 681a0ef Close using the proper file variable
+
 - d915a3a Fix up dates to put them in standard format
+
 - 4620b28 Add support to pbench-collect-sysinfo to collect only the info requested
+
 - 39935b0 One version file to rule them all
+
 - 9a29587 Contrib VERSION
+
 - f8c76ba Fix the timestamp format
+
 - b4e1b55 Fix WONT-INDEX.xx range to reflect the errors that index-pbench returns
+
 - 80947ed Fix path of index-pbench, PYTHONPATH and config file path.
+
 - 9a5052e Final changes for automating server installation
+
 - b7fd923 Do not try to yum install packages to provide semanage/restorecon
+
 - ac6e5b7 correct timezone to UTC while os.stat'g tb fname
+
 - 3a270ca Index .csv tool data files
+
 - 1df7eff Decompose iteration names into components
+
 - 77783ae Change the date format in agent/base to satisfy ES needs
+
+
 
 * Version 0.42
 
+
+
 ** Installation                                                    :external:
+
 N.B. COPR has deleted the Fedora 23 chroot, so we can no longer
+
 produce Fedora 23 packages; Fedora 23 is no longer supported.
 
+
+
 There are no installation changes in this release: see the
+
 [[file:../agent/installation.org][Installation Instructions]] for how to install or update.
 
+
+
 After installation or update, you should have version 0.42-1gcf7a941
+
 of the pbench-agent RPM installed.
+
+
 
 ** agent
 
+
+
 *** Backward incompatibilities
+
 None known.
+
+
 
 *** Bug fixes and enhancements
 
+
+
 User-visible changes include:
 
+
+
 - HAProxy OCP plugin has been merged
+
 - openshift-metrics tool has been merged
+
 - pbench-clear-tools regained its --remote option (it was lost some time ago).
+
 - pbench-uperf post-processing catches more errors and recovers much better
+
   than before.
 
+
+
 One thing that did not make it is the JSON output for =pbench-fio=:
+
 there were some problems which we didn't have time to address in this
+
 cycle. It will be in v0.43.
+
+
 
 ** server
 
+
+
 Indexing work has been proceeding on a branch. It has not been merged onto the master
+
 branch yet and is not part of this release. The plan is to merge it after the release and
+
 deploy it with the next release.
+
+
 
 The server has seen fixes for installing into different environments.
 
+
+
 *** Instructions                                                   :external:
+
 TBD.
+
+
 
 ** web-server
 :PROPERTIES:
 :CUSTOM_ID: web-server-0.42
 :END:
+
 The pbench-web-server RPM has been updated with scatterplot support
+
 and a number of fixes.
 
+
+
 If you have it installed, you will want to update:
+
 #+BEGIN_EXAMPLE
+
 dnf clean expire-cache
+
 dnf update pbench-web-server
 #+END_EXAMPLE
+
 (or the yum equivalents.)  The current version available from COPR
+
 is 0.42-1gcf7a941.
 
+
+
 ** Changelog
+
 This is the list of visible (non-merge, non-unit-test-related) commits
+
 since v0.41:
 
+
+
 - 00d4fe0 Fix command to parse openshift inv
+
 - e9c6634 White space fixes - also fixed some typos
+
 - fc479c4 pbench-metadata-log changes to record iterations
+
 - 1d3508a All pbench benchmark scripts record their iterations
+
 - 78a3b6b Pbench agent base script: do not recalculate $date
+
 - c07a010 Check whether selinuxenabled exists before calling it
+
 - eadc311 Add remote option to pbench-clear-tools
+
 - fab942f Added test fix too
+
 - 0e13532 Fix typo
+
 - 15a8bd1 playbook to register pbench-tools on openshift cluster
+
 - ced507a Fixes distributed-system-analysis/pbench#479
+
 - d24406d Specify the sorting columns explicitly
+
 - 8151b84 Fix invocation of index-pbench
+
 - b38b247 openshift-metrics tool for pbench
+
 - cf950a8 Check ssh status in pbench-rsync-satellite
+
 - 0f545e3 generate-benchmark-summary: skip over missing result.json iterations
+
 - c851d60 pbench-uperf: allow any process-iteration-samples failure to re-try
+
 - ab0cb7b Fix unit tests
+
 - 45a571e Decorate the mail sent by server scripts with environment information
+
 - d120260 Update to pbench-uperf --help
+
 - 29b2929 Fill gaps in server installation
+
 - fee78ab Add scatterplot support to jschart
+
 - 6600716 Correct invalid jschart API calls
+
 - 683c0d1 Fix date format for seconds since epoch
+
 - b58ff7b BenchPostprocess.pm: fix div by zero and other small clean-ups
+
 - eebd592 Added haproxy-ocp unittests.
+
 - ff46508 Set thresholds on graphs with 0 values.
+
 - 702aa8f Collect HAProxy's version and default settings.  Set thresholds on graphs with 0 values.
+
 - c16d833 - Split logs directory to config/logs. ...
+
 - d103e31 Replacing BASH_SOURCE variable.  Assuming plugins will not be 'sourced' by other scripts.
+
 - cda6444 Adding HAProxy OCP plugin.
+
+
 
 * Version 0.41
 
+
+
 ** Installation                                                    :external:
+
 There are no installation changes in this release: see the
+
 [[file:../agent/installation.org][Installation Instructions]] for how to install.
 
+
+
 After installation or update, you should have version 0.40-1gf281562
+
 of the pbench-agent RPM installed.
+
+
 
 ** agent
 
+
+
 *** Backward incompatibilities
+
 None known.
+
+
 
 *** Bug fixes and enhancements
 
+
+
 User-visible changes include:
 
+
+
 **** New pbench-mpt benchmark
+
 Thanks to Ottavio Piske for this addition which runs msg-perf-tool.
 
+
+
 **** =pbench-fio=
+
 Various fixes to the recently added latency histogram functionality.
 
+
+
 **** iostat graphs
+
 Improve the graph descriptions by adding units to them. This is
+
 probably just a stopgap first step: there are plans to make various
+
 graph characteristics specified easily and in some cases customizable
+
 by the user.
 
+
+
 **** =pbench-moongen=
+
 Add latency data plus various fixes.
 
+
+
 **** Fixes to graph rendering
+
 See [[#web-server-0.41][web-server]] below.
+
+
 
 ** server
 
+
+
 - Various fixes to rsyncing from satellite servers.
+
+
 
 ** web-server
 :PROPERTIES:
 :CUSTOM_ID: web-server-0.41
 :END:
+
 The pbench-web-server RPM has been updated with many fixes, cleanups
+
 and optimizations: sort table datasets by value, dataset cursor value
+
 locking, add a "Misc. Controls" panel to the table.
 
+
+
 If you have it installed, you probably want to update:
+
 #+BEGIN_EXAMPLE
+
 dnf clean expire-cache
+
 dnf update pbench-web-server
 #+END_EXAMPLE
+
 (or the yum equivalents.)  The current version available from COPR
+
 is 0.41-1g97296c4.
 
+
+
 ** Changelog
+
 This is the list of visible (non-merge, non-unit-test-related) commits
+
 since v0.40:
 
+
+
 - f780656 Fix a latency processing bug in moongen-postprocess
+
 - 8a9f445 Unit test gold files changes for PR#434
+
 - bc787eb Fix benchmark postprocessing infloop
+
 - d8ef7ff Add a "Misc. Controls" panel to the jschart table
+
 - eced272 Don't call fiologparser_hist.py twice
+
 - 49fafc2 Fix iostat unit tests.
+
 - aca5ffc Change the iostat keys to more accurately reflect the nature of the metrics
+
 - 4580156 Fix iostat unit tests
+
 - eadcde1 Change the keys of the iostat hash to make them more descriptive
+
 - 9672161 Collect the kernel config file
+
 - f9bc55a use correct units for fio histogram-derived latency graph
+
 - e1a6825 add 95th percentile to fio histogram-derived latency graph
+
 - acfff77 Update jschart by adding dataset cursor value locking
+
 - 5426fab Update jschart to sort the table datasets by value
+
 - f902160 pass job file to fiologparser_hist.py
+
 - 5068ed0 Fix short-form -n option
+
 - be6172f Only display the information about the location of the test results when actually running a test
+
 - 2a80577 The script does not require any options for the install-only mode, therefore prevent checking the test options
+
 - b487f24 Changes the order on which the help options are presented to the user to match the order they are declared
+
 - a505370 Fixes handling of long options, which were missing in the previous versions of the script
+
 - f207c4b Removes the logic to set the default throttle because it is already set earlier
+
 - 02d8ae7 Added support for 'install only' option, which can be used to install mpt dependencies on the test host
+
 - 27547a3 Added support for installing packages from Fedora COPR repositories (WIP)
+
 - 076f496 Minor cleanups by removing unused code on pbench-mpt script
+
 - 1badc9e Added a simple runner script for msg-perf-tool.
+
 - 35ee777 Fix incorrect addressing of 'webserver' variable that would prevent rendering host_info_url setting.
+
 - dc14a7b Downgrade sysstat further to 11.2.0
+
 - 84878ca Downgrade pbench-sysstat req to 11.4.1
+
 - d413085 Allow the user to tell pbench-moongen to accept negative packet loss
+
 - 7bb0c24 Update pbench-moongen to use lua-trafficgen
+
 - 47cca9c Parse new moongen output to find latency data
+
 - 5f898e3 Bump the required sysstat version to 11.5.1
+
 - 6ac5318 Event collection has to be for all namespaces
+
 - 3e03486 Typo
+
 - dbefb1b Crontab entries for satellite handling
+
 - e4d9fe9 Define all relevant variables in pbench-base.sh
+
 - 4b473f7 Improvements to status email
+
 - d23a302 Clean up the status mail
+
 - bbffa61 pbench-rsync-satellite: Fix tarball deletions and send status email
+
+
 
 * Version 0.40
 
+
+
 ** Installation                                                    :external:
+
 There are no installation changes in this release: see the
+
 [[file:../agent/installation.org][Installation Instructions]] for how to install.
 
+
+
 After installation or update, you should have version 0.40-1gf281562
+
 of the pbench-agent RPM installed.
+
+
 
 ** agent
 
+
+
 *** Backward incompatibilities
+
 None known.
+
+
 
 *** Bug fixes and enhancements
 
+
+
 User-visible changes include:
 
+
+
 **** =pbench-fio=
+
 The pbench-fio script has undergone significant enhancements in order
+
 to take advantage of several facilities implemented in the upstream fio
+
 project. In particular, it gathers and reports latency histograms as
+
 implemented by Karl Cronburg.
 
+
+
 *N.B.* The script that processes the logs to get the histograms uses the
+
 Python Pandas library. This script only runs on the controller, so the
+
 library has to be installed there. =pbench-fio= tries to install the library
+
 and it should succeed e.g. on Fedora systems. On RHEL systems however, the
+
 =python-pandas= library is available from EPEL, but not from the standard
+
 installation repos. You will therefore need to install the EPEL repo before
+
 running =pbench-fio= on your controller. Details on EPEL can be found [[https://fedoraproject.org/wiki/EPEL][here]].
 
+
+
 The process is as follows: on your RHEL7 controller (and similarly for RHEL6)
+
 #+BEGIN_EXAMPLE
+
 cd /tmp
+
 curl --output ./epel-release-latest-7.noarch.rpm  https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
 yum install ./epel-release-latest-7.noarch.rpm
 #+END_EXAMPLE
+
 After that, the =pbench-fio= script should be able to find and install
+
 the =python-pandas= package.
 
+
+
 *N.B.* You need the 2.14-9 (or later) version of the pbench-fio RPM,
+
 which is available from the COPR pbench repo. This RPM is based on current
+
 upstream fio master. The =pbench-fio= script will check for and install
+
 this version, but please bear the dependency in mind if something goes
+
 wrong.
 
+
+
 You can now explicitly pass a fio job file to the script, instead of
+
 or in addition to specifying fio options on the command line. We generally
+
 recommend using the command line options for simple usage where that suffices,
+
 but if you need options that =pbench-fio= does not implement, then using
+
 a job file will be necessary.
 
+
+
 You can run fio on a set of clients either by using the --clients=... option
+
 to =pbench-fio=, explicitly listing the set of clients; or you can use the
+
 --client-file=... option to pass a file containing the list of clients, one
+
 client per line.
 
+
+
 **** =pbench-moongen=
+
 New options.
 
+
+
 **** pbench-user-benchmark
+
 The variable specifying the run directory, =benchmark_run_dir=, is now
+
 exported by the main script, making it available to the user-provided
+
 benchmark script (e.g. for squirreling away stuff to package up with the
+
 rest of the data for storage/processing on the server).
+
+
 
 This is only one part of a larger [[https://github.com/distributed-system-analysis/pbench/issues/349][issue #349]].
 
+
+
 **** Triggers
+
 Trigger functionality has been restored.
 
+
+
 **** Hardening of tools-<group> directory handling
+
 In some cases, additional files or subdirectories in the tools-default (or
+
 more generally, tools-<group>) directory have caused problems. We now skip
+
 subdirectories and check files against the available tools list, skipping
+
 any that don't match. A warning is issued in either case suggesting that
+
 the suspect file/subdirectory be removed.
 
+
+
 **** Fixes to graph rendering
+
 See [[#web-server-0.40][web-server]] below.
+
+
 
 ** server
 
+
+
 - Add mail notifications to the scripts that backs up results tarballs
+
   for safekeeping.
+
+
 
 - Add verification script to detect bit-rot in tarballs.
 
+
+
 - We now run a cron job to fetch tarballs from "satellite" servers and
+
   store them on our "production" server. The intent is to relieve some
+
   of the disk space pressure on the satellite, and to take advantage
+
   of the backup and bit-rot detection facilities that we employ on the
+
   production server.
 
+
+
 - An additional script to age out results on a satellite server is in
+
   the works but is not running yet.
+
+
 
 ** web-server
 :PROPERTIES:
 :CUSTOM_ID: web-server-0.40
 :END:
+
 The pbench-web-server RPM has been updated with many fixes, cleanups
+
 and optimizations. The major user-visible change is better handling
+
 of outliers - see [[https://github.com/distributed-system-analysis/pbench/issues/317][issue #317]].
 
+
+
 If you have it installed, you probably want to update:
+
 #+BEGIN_EXAMPLE
+
 dnf clean expire-cache
+
 dnf update pbench-web-server
 #+END_EXAMPLE
+
 (or the yum equivalents.)  The current version available from COPR
+
 is 0.40-1gf281562.
 
+
+
 ** Changelog
+
 This is the list of visible (non-merge, non-unit-test-related) commits
+
 since v0.39:
 
+
+
 - 5409667 Make client file pathname absolute
+
 - 0192eda Check for and install python-pandas
+
 - fa328b4 use a smaller port number increment to allow greater scalability
+
 - 7e98d63 change --cache-drop-script to --pre-iteration-script
+
 - 988c586 Add --dst-macs option to pbench-moongen
+
 - c7420f9 Save client file in the run directory
+
 - 19cf29d Redirect various "No such file or directory" messages to /dev/null
+
 - 1301c1a Fix label complaint in tools-<group> sanity checking code
+
 - de11f82 Pass file from --client-file option directly to fio
+
 - f53293a pbench-list-triggers rewrite.
+
 - cd3dfb5 Grammar and spelling updates to the jschart docs
+
 - fa45c15 Check for spurious files/subdirectories of tools-<group> dir
+
 - e19d81a Fix triggers
+
 - 4a83b02 Update jschart API call in fio-postprocess-viz.py
+
 - ad84dca Update unit tests for new jschart API
+
 - 0cfe6b7 Add View Port Controls to jschart
+
 - 1fd5b11 Use the create_jschart interface
+
 - 5dad7d0 Add documentation to jschart and do minor cleanups
+
 - 60f2a52 Update jschart to include the number of histogram buckets in the table
+
 - abdcec5 Update jschart to show the datapoints on highlighted datasets for histogram and xy charts
+
 - 1cb8864 Delete remote tarballs after checking.
+
 - 480b20a Sync satellite to master.
+
 - 4c1f1e4 Move bad-md5 links to their own state directory.
+
 - 9202d3d Fix some typos in pbench-uperf help strings.
+
 - 7d0f360 Add/fix help string to pbench_fio.
+
 - 65de78b Add verify script for backup tarballs.
+
 - cc8594a Fix a subsitution bug in BenchPostprocess::get_uid
+
 - b8995ed Add new MoonGen queue control options
+
 - 3a13b5a Process only the last moongen validation phase
+
 - d21fd21 Add mail notification for pbench-backup-tarballs
+
 - 0465506 Fixes to fully handle epoch time: - Parse job file from fio-postprocess-viz.py to detect when log_unix_epoch is present (using 'timeseries' instead of 'xy' in jschart) - jschart expects ms not s (no more divide by 1000 on time values) - Pass job file parameter whenever we call fiologparser_hist.py and fio-postproces-viz.py - Update to make-fio-jobfile.py to handle config options without values (e.g. 'stonewall' in fio)
+
 - b0fff69 Add pprof heap support
+
 - 930ee68 Run fiologparser_hist.py during postprocessing, and generate jschart HTML docs showing the histogram data for each individual sample as well as (merged) across all samples for a particular iteration.
+
 - 1c52ee2 Make the run directory available to the called user script.
+
 - debc148 Templating prototype for `pbench-fio`, using config files to specify fio parameters. The order of precedence used is as follows: (from high to low)
+
 - 5958d94 Add --client-file option to specify a list of clients
+
 - 3fd2741 Remove redundant $bench_opts
+
 - bbe6b9b Ensure --samples is documented in --help
+
 - f9d939e Ensure $client is assigned before it is referenced
+
 - a5ed3eb use correct benchmark name
+
 - da5928e Respect GOROOT env var if set
+
 - 5969500 Fix exit status of pbench-{move/copy}-results.
+
+
 
 * Version 0.39
 
+
+
 ** Installation                                                    :external:
+
 There are no installation changes in this release: see the
+
 [[file:../agent/installation.org][Installation Instructions]] for how to install.
 
+
+
 After installation or update, you should have version 0.39-3g4f9ab11
+
 of the pbench-agent RPM installed.
 
+
+
 ** agent
+
 *** Backward incompatibilities
+
 **** pbench-agent config file renamed
+
 All configuration files now have a suffix of ".cfg", rather than
+
 ".conf".  In particular, the default pbench-agent config file is now
+
 ~/opt/pbench-agent/config/pbench-agent.cfg~.  You might have to rename
+
 your existing config file:
+
 #+BEGIN_EXAMPLE
+
 cd /opt/pbench-agent/config
+
 mv pbench-agent.conf pbench-agent.cfg
 #+END_EXAMPLE
+
 If you have problems (e.g. =pbench-register-tool-set= only registers the ~perf~
+
 tool, rather than a complete set; =pbench-move-results= fails because it cannot
+
 find a server), check with:
+
 #+BEGIN_EXAMPLE
+
 cat $CONFIG
 #+END_EXAMPLE
+
 If that fails, then pbench cannot find the config file, most probably because
+
 of the renaming described above.
+
 **** pbench-netperf script has bit-rotted
+
 The pbench-netperf script seems to have bit-rotted. We are trying to
+
 decide whether to fix it or abandon it. If you have an opinion, please
+
 comment at https://github.com/distributed-system-analysis/pbench/issues/291.
 
+
+
 *** New features
+
 Please submit suggestions/issues to the [[https://github.com/distributed-system-analysis/pbench/issues][issue tracker]].
 
+
+
 **** JSON files for pbench-uperf
+
 The postprocessing now produces JSON files that we are planning to use
+
 in order to index benchmark results and tool output into ES. The
+
 backend work necessary to index these results will be done between
+
 v0.39 and v0.40 and might necessitate changes to the JSON output. So
+
 pbench-uperf is treated as a guinea pig and once the output format
+
 solidifies, the rest of the benchmarks are going to be converted as
+
 well, probably starting with pbench-fio.
 
+
+
 A large part of the work for pbench-uperf has been to refactor the
+
 pbench-uperf script, so that the resulting pieces can be
+
 reused. Andrew hopes to have 90% of each benchmark script code in
+
 reusable packages, which will also simplify adding new scripts in the
+
 future.
 
+
+
 **** The pbench docs on github have been revamped
+
 The docs can now be processed in two ways: to produce "internal"
+
 documents, including the more automated installation that is possible
+
 internally, as well as "external" documents that are more generic and
+
 depend only on externally available resources.
 
+
+
 The docs on github have been replaced by the "external" documents:
+
 there are still some ~example.com~ fake URLs (clearly marked, we hope)
+
 but almost all URLs now point to their correct referent and the instructions
+
 should be enough to get pbench-agent/pbench-server/pbench-web-server installed
+
 in an arbitrary environment, but with some manual work required (again, clearly
+
 described, we hope, even if it is somewhat laborious).
+
+
 
 *** Bug fixes
 
+
+
 **** Better error handling by utility scripts
+
 In particular, errors in ssh invocations in pipelines are caught and returned
+
 properly. More work is planned in this area for upcoming releases, in particular
+
 hardening the benchmark scripts so that they deal better with errors and signals.
 
+
+
 **** Safer killing of tools
+
 A safer kill has been implemented for all the tools that are linked to
+
 =kvm-spinlock=.  Assuming no problems surface, the sar-based tools
+
 will get the same treatment in upcoming releases.
 
+
+
 **** Screen session names were too long
+
 The screen command fails when the name of the screen session (-S) is
+
 very long. This happens when the iteration full name is quite long. A
+
 fix for this uses only the iteration number, reducing the screen
+
 name to a safe length.
+
 **** Fixes to graph rendering
+
 See [[#web-server-0.39][web-server]] below.
 
+
 ** server
+
 Server installation was simplified in v0.38: there is an RPM on COPR that can be used
+
 for installation, but as for the pbench-agent, it is not completely self-contained: one
+
 needs to install various configuration files and generate a directory structure for apache,
+
 a directory structure for results and a crontab that invokes the various scripts to process
+
 incoming results and make them available for viewing on the web.
 
+
+
 This release adds scripts to do these tasks somewhat more conveniently. It is possible to
+
 use these scripts from an RPM that installs the config files and then invokes the scripts to
+
 finish the installation. But it is also possible to do these steps manually. See the
+
 [[file:~/src/internal/pbench/doc/server/installation.org][server installation guide]] for details.
+
+
 
 ** web-server
 :PROPERTIES:
 :CUSTOM_ID: web-server-0.39
 :END:
+
 The pbench-web-server RPM has been updated with many fixes, cleanups
+
 and optimizations.  Changes that are user-visible are:
 
+
+
 - Update jschart to better handle errors while loading datasets
+
 - Update jschart to support alternative csv file formatting
+
 - Fix a jschart bug where the wrong clip-path is referenced
+
 - Update jschart to add percentiles to the values displayed in the
+
   table when the mouse is moving across a histogram chart
 
+
+
 If you have it installed, you probably want to update:
+
 #+BEGIN_EXAMPLE
+
 dnf clean expire-cache
+
 dnf update pbench-web-server
 #+END_EXAMPLE
+
 (or the yum equivalents.)  The current version available from COPR
+
 is 0.3-19gaf1ffe4.
 
+
+
 ** Changelog
+
 - 9c2554f Bump versions for various benchmarks.
+
 - a02ad33 Bump VERSION.
+
 - 48b8c27 Fix condition for warning of already running tools.
+
 - f4f5618 Add unit tests.
+
 - cf59a06 Check status of backgrounded commands in pbench-postprocess-tools.
+
 - fe15a81 Catch pipeline failures and return proper error status.
+
 - 75ca51c Use pidof -x to get list of pids.
+
 - 7bbb4dd Revert the change to perf.
+
 - 11a0ad9 Add unit tests for safe_kill.
+
 - fa80b08 Safer kill: check for strange situations and deal with them.
+
 - 862e68b Change the name of the config file in profile.
+
 - 9e0ecef Fix pbench-agent-config-activate and add unit test.
+
 - 19039eb Allow partial execution of unittests.
+
 - 57b56e7 Fix links to point to DSA github.io area.
+
 - d720f61 updated pprof to point to correct package name for "go" it is golang, not go - added tool_bin to point to /usr/bin/go
+
 - ee321d6 Add missing '$'
+
 - d38ba9b Reduce screen session name to avoid screen error
+
 - 66c6996 Update jschart's d3-queue support from version 2 to version 3
+
 - bc34df8 Update jschart to support alternative csv file formatting
+
 - 343f715 Fix a jschart bug where the wrong clip-path is referenced
+
 - 333978c Update jschart to add percentiles to the values displayed in the table when the mouse is moving across a histogram chart
+
 - 8608c57 Update jschart to better handle errors while loading datasets
+
 - cae9788 Update jschart by eliminating the use of map
+
 - 2423475 Bug fix for jschart to pass a proper reference to the SVG to saveSvgAsPng
+
 - 826e5d7 Update jschart by eliminating as many global variables as possible to avoid out of scope references
+
 - 521cb95 Update jschart to minimize global variable references to the charts object
+
 - 74b30a8 Update jschart with cleanups and optimizations
+
 - 932679a Benchmark and iteration summary/processing scripts, JSON files and MoonGen benchmark support
+
 - 775f208 Remove duplicate data collected by sosreports
+
 - a395811 Links to revised documentation.
+
 - e6605d6 Add memory usage pidstat graphs
+
 - 124c787 Server installation link added.
+
 - feb8aed bgtasks --> pbench-server
+
 - f51df98 Links to revised docs.
+
 - d21eefa Server version bump.
+
 - 66382bb Add server activation unit test.
+
 - 455c7f8 Fix command path.
+
 - df7aaab Allow different set-ups during server activation.
+
 - b63bdf5 Fix quoting of patterns for pidstat.
+
+
 
 * Version 0.38
 
+
+
 ** Installation                                                    :external:
+
 There are no installation changes in this release: see the
+
 [[file:../agent/installation.org][Installation Instructions]] for how to install.
 
+
+
 After installation or update, you should have version 0.38-1g0db11ba
+
 of the pbench-agent RPM installed.
 
+
+
 ** agent
+
 *** Backward incompatibilities
+
 In the v0.36 timeframe, all pbench scripts and benchmarks that are
+
 normally accessible were renamed: those that did not have a prefix at
+
 all were renamed with a "pbench-" prefix; the benchmarks had a
+
 "pbench_" prefix and were renamed for consistency with a "pbench-"
+
 prefix as well.
+
+
 
 In v0.37, there were compatibility links to the old names in util-scripts.
 
+
+
 In v0.38, these links have been deleted: you will have to make sure
+
 that you use (and all your scripts use) the names with the "pbench-"
+
 prefix.
 
+
+
 *** New features
+
 Please submit suggestions/issues to the [[https://github.com/distributed-system-analysis/pbench/issues][issue tracker]].
+
+
 
 **** New graphs
 
+
+
 The major change in this release is the replacement of the original
+
 nvd3 graphs with graphs produced by a library written by Karl Rister.
+
 The advantage of this library is that it is much less demanding on
+
 the browser than the original graph library.
 
+
+
 Note that it uses the same CSV files that the original graphs used,
+
 which it downloads from the server[fn:1]: big data sets are still
+
 going to incur long time penalties for the transfer. The difference is
+
 that once the download is complete, your browser will stand a much
+
 better chance of staying alive and able to display the graphs.
 
 [fn:1] Unless you install locally - see [[http://pbench.example.com/server/pbench-web-server.html][PBench web server]] for instructions.
 
+
+
 *** Bug fixes
 
+
+
 **** Fixed the RPM names for tools and benchmarks to include the pbench- prefix
+
 PBench will now be able to find and install the correct RPMs (with the
+
 current exception of pbench-iperf as noted above).
 
+
+
 **** Fixed the URL for the COPR repo
+
 The documentation on GitHub was pointing to a non-existent place for
+
 the COPR pbench-agent RPM: it used a sanitized =example.com=
+
 address. This was fixed, but note that the documentation still
+
 contains dead links and will undergo a significant overhaul for
+
 the next release.
 
+
+
 **** The pbench-kiil-tools symlink in the repo was wrong.
+
 That was fixed, but the bug did not and does not have any effect on a
+
 local installation: those symlinks are created on the fly by an RPM
+
 %post action.
 
+
+
 **** The sar script was modified to handle user-defined options.
+
 Note however that if you use non-standard options, the postprocessing
+
 step for the sar tool (and its relatives) will be skipped, since
+
 pbench does not know how to handle the modified output.
 
 
+
+
+
 ** server                                                          :external:
+
 The server has now been organized in the same way as the agent: there
+
 is an external RPM available from COPR that includes all the scripts,
+
 and some configuration scripts that can be used to install the config
+
 file and perform the rest of the server configuration. See the [[file:../server/installation.org][server
+
 installation guide]].
+
+
 
 ** web-server
 
+
+
 There is an RPM available on COPR that allows local viewing of graphs,
+
 both in the v0.2 format (Andrew's graphs using nvd3) or in the v0.3
+
 format (Karl's graphs using d3). This now includes Karl's latest fixes.
+
 If you have installed an older version, please upgrade. The current version
+
 on COPR is 0.3-10.
+
+
 
 ** Fedora 24 RPMs on COPR
 
+
+
 Fedora 24 has been added to the build list and Fedora 21 has been
+
 deleted from it, for all the RPMS (benchmarks, tools,
+
 pbench-agent, pbench-server, pbench-web-server, configtools).
 
+
+
 One benchmark RPM (=pbench-iperf=) is currently failing to build. This
+
 will be fixed shortly.
 
+
+
 ** Changelog
+
 - 4a65484 Version bump.
+
 - 0d5a976 Delete compatibility wrapper.
+
 - 2dff665 Wrong link for pbench-kill-tools.
+
 - 58dbb63 Update jschart and fix a small bug by cleaning up the y axis label updating code
+
 - a9ac750 Fix a bug in the jschart tooltip implementation when the tooltip belongs to an Y axis label
+
 - 8ca3d37 Long overdue cleanup of the jschart style and class code
+
 - 99fc942 Update the jschart legend rectangle outlining code to work with Firefox and vector zooming
+
 - ef211e8 Update jschart live_update to a timeseries data model which uses milliseconds since the epoch timestamps
+
 - b4372f6 Update jschart with a new filtering capability based on the dataset name and resort the table (if sorting is enabled) when datasets are hidden or unhidden
+
 - 281d89c Update the jschart show/hide all events to use static functions with locally scoped variables
+
 - 9453829 Update jschart threshold application events to use static functions with locally scoped variables
+
 - 76590ed Update the the jschart dataset mouseover, mouseout, and click events to use static functions with locally scoped variables
+
 - 844b87b Update the jschart viewport event handlers to use static functions with locally scoped variables instead of closures
+
 - 3bef541 Update jschart to eliminate some calls to map that are made often during some runtime behaviors
+
 - 6dbc809 Update jschart by replacing many data accesor closures with static functions
+
 - 82a0151 Update jschart to display the datasets value in the table that most closely aligns with the cursor's position in the viewport
+
 - 3a8cd33 Remove some dead code from jschart
+
 - 94c0808 Update the jschart table creations to use D3 principles to improve maintainability and reduce code bloat
+
 - c332ef9 Update jschart to improve maintainability and performance
+
 - 5d83c24 Update jschart to be able to apply a dynamic threshold based on a a dataset's maximum y value or y mean
+
 - 325f17e Update the jschart live update controls to fix some bugs introduced with the recent code churn
+
 - 25bf0b1 Update jschart to automatically sort the datasets in descending order based on their mean by default
+
 - 5ea4df3 Update jschart to honor the threshold and use it to determine if datasets should be automatically hidden
+
 - b276f78 Move some jschart hard coded values into global variables for easier maintanance and use moving forward
+
 - 3a45dfa Update jschart to be more dynamic when hiding and unhiding datasets
+
 - 44d5238 Allow hidden datasets in jschart to be unhidden by clicking their table row
+
 - 9b000bf Add jschart support for log scale on the x and y axis
+
 - 3534f88 Update the jschart axes references to conform to other chart object references
+
 - 3bce44d Update the jschart axes without doing DOM searches
+
 - a1af8da Refactor the code to use a global array of chart objects with references to all chart elements and data that may be accessed at runtime
+
 - b1e93ea Squash some tooltip bugs
+
 - 69813a4 Add the ability to hide all or individual datasets and the requisite ability to unhide them
+
 - 09f33a5 Refactor the dataset highlighting code to track state and improve performance
+
 - 5f0e909 Add a link from a chart_ref to it's datasets and links from the datasets to their DOM objects
+
 - bf5732f Update the legend boxes to always have a constant colored outline
+
 - e15db96 Update the description and dependency information for jschart
+
 - bbc21f0 Update the wording that refers to the EPL LICENSE.TXT file locations
+
 - dcbf39b Update the verbage in the demo web server to better reflect it's usage
+
 - 388d319 Add a simple web server from LPCPU for use in demoing/testing jschart
+
 - 43ed280 Add a jschart demo for testing purposes
+
 - db0ece1 Add support for a new data model type called histogram
+
 - c99c7d3 More jschart whitespace formatting cleanups
+
 - c8cfe1e Fix a bug in the jschart "Apply X-Axis Zoom to All" feature caused by the new support for timeseries charts
+
 - a2f1056 Fix some bugs in the zoom_it function in jschart when the data model is timeseries:
+
 - e471473 Remove dead code from the handle_brush_actions function in jschart
+
 - 87c7647 Update the mouse coordinate display to support when the chart is timeseries
+
 - 583ef9e Fixup timezone and time formatting support, defaulting to UTC
+
 - 9f0a3a7 Update jschart to use a dynamic x-axis label showing the (zoomed) time range when the chart is timeseries
+
 - 3534125 Update GenData to use jschart
+
 - bb36819 Update jschart to be compatible with GenData chart type specifications
+
 - 3b3889f Update the jschart highlight functions to have more descriptive names
+
 - 1f354a7 Update D3 Queue initialization to match d3-queue code available via npm
+
 - 28d51b9 Add support for saveSvgAsPng to jschart
+
 - 3029052 Add support for specifying whether a jschart is a XY plot or timeseries
+
 - 247216b Remove the jschart assertion that the x-axis domain should have a minimum=0 unless otherwise specified
+
 - 72a42e9 Add support for loading CSV data files into jschart
+
 - 785b27c Update jschart.js to dynamically build the summary table at runtime
+
 - c8b781a Initial commit of jschart files pulled from LPCPU
+
 - 7224a5a Clean up the list file.
+
 - ef3f12b Fix the COPR repo URL.
+
 - 6a1e74f Store cron job script logs in the local file system.
+
 - fc9d61d modified oc scrit -> fixed typo -> if decided to start too, instructed to install 'expect' package - necessary for unbuffer
+
 - 02eb062 Fix the calls to check_installed_rpm in all the benchmarks.
+
 - 6c48dbe Script rename: metadata-log --> pbench-metadata-log
+
 - 2b8b991 Modify the sar script (and its relatives) to handle user-defined options.
