@@ -33,6 +33,16 @@ TOP=$(getconf.py pbench-top-dir pbench-files)
 BDIR=$(getconf.py pbench-backup-dir pbench-files)
 export LOGSDIR=$(getconf.py pbench-logs-dir pbench-files)
 
+if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
+    # the real thing
+    BINDIR=$(getconf.py script-dir pbench-server)
+else
+    # running unit tests
+    BINDIR=.
+fi
+# need this to find pbench-report-status
+PATH=$BINDIR:$PATH
+
 ARCHIVE=${TOP}/archive/fs-version-001
 INOTIFY_STATE_DIR=${ARCHIVE}/inotify_state
 INCOMING=${TOP}/public_html/incoming

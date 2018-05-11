@@ -21,6 +21,7 @@ while true; do
             ;;
         -t|--timestamp)
             timestamp="${2#run-}"
+            timestamp="${timestamp%-UTC}"
             shift 2
             ;;
         -T|--type)
@@ -72,7 +73,7 @@ CONFIG=/opt/pbench-server/lib/config/pbench-index.cfg
 
 server=$(getconf.py server Server)
 datestamp=${timestamp%-*}
-index=$(getconf.py index_prefix Settings)-"$name"-"$datestamp"
+index=$(getconf.py index_prefix Settings)."$name"."$datestamp"
 md5=$(md5sum $file | cut -d' ' -f1)
 
 # Translate newlines to spaces and translate tildes which are used as
