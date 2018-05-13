@@ -618,7 +618,221 @@ _known_csv_handlers = {
             'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
         }
     },
-    'sar': {},
+    'sar': {
+        '@prospectus': {
+            # For sar .csv files, we want to individually index
+            # each column entry as its own JSON document
+            'handling': 'unify'
+        },
+        'cpu_all_cpu_busy.csv': {
+            'class': 'sar',
+            'metric': 'cpu_all_cpu_busy',
+            'display': 'CPU_busy',
+            'units': 'percent_cpu',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        },
+        'cpu_frequency_MHz.csv': {
+            'class': 'sar',
+            'metric': 'cpu_frequency_MHz',
+            'display': 'CPU_Frequency',
+            'units': 'MHz',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)'),
+            'metadata': [ 'pid', 'command' ],
+            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+        },
+        'memory_memory_activity.csv': {
+            'class': 'sar',
+            'metric': 'memory_activity',
+            'display': 'Memory_Activity',
+            'units': 'count_per_sec',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        },
+        'memory_memory_usage.csv': {
+            'class': 'sar',
+            'metric': 'memory_usage',
+            'display': 'Memory_Usage',
+            'units': 'KB',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        },
+        'network_l2_carrier_errors.csv': {
+            'class': 'sar',
+            'metric': 'network_l2_carrier_errors',
+            'display': 'Network_Carrier_Errors',
+            'units': 'count_per_sec',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        },
+        'network_l2_drops_sec.csv': {
+            'class': 'sar',
+            'metric': 'network_l2_drops_sec',
+            'display': 'Network_Drops',
+            'units': 'count_per_sec',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)'),
+            'metadata': [ 'dev', 'io' ],
+            'metadata_pat': re.compile(r'(?P<dev>.+?)-(?P<io>.+)')
+        },
+        'network_l2_errors_sec.csv': {
+            'class': 'sar',
+            'metric': 'network_l2_errors_sec',
+            'display': 'Network_Errors',
+            'units': 'count_per_sec',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)'),
+            'metadata': [ 'dev', 'io' ],
+            'metadata_pat': re.compile(r'(?P<dev>.+?)-(?P<io>.+)')
+        },
+        'network_l2_fifo_overrun_errors.csv': {
+            'class': 'sar',
+            'metric': 'network_l2_fifo_overrun_errors',
+            'display': 'Network_FIFO_Overrun_Errors',
+            'units': 'count_per_sec',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)'),
+            'metadata': [ 'dev', 'io' ],
+            'metadata_pat': re.compile(r'(?P<dev>.+?)-(?P<io>.+)')
+        },
+        'network_l2_frame_alignment_errors.csv': {
+            'class': 'sar',
+            'metric': 'network_l2_frame_alignment_errors',
+            'display': 'Network_Frame_Alignment_Errors',
+            'units': 'count_per_sec',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        },
+        'network_l2_network_compressed_packets_sec.csv': {
+            'class': 'sar',
+            'metric': 'network_l2_network_compressed_packets_sec',
+            'display': 'Network_Compressed_Packets',
+            'units': 'pps',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)'),
+            'metadata': [ 'dev', 'io' ],
+            'metadata_pat': re.compile(r'(?P<dev>.+?)-(?P<io>.+)')
+        },
+        'network_l2_network_Mbits_sec.csv': {
+            'class': 'sar',
+            'metric': 'network_l2_network_Mbits_sec',
+            'display': 'Network_Throughput',
+            'units': 'Mbps',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)'),
+            'metadata': [ 'dev', 'io' ],
+            'metadata_pat': re.compile(r'(?P<dev>.+?)-(?P<io>.+)')
+        },
+        'network_l2_network_multicast_packets_sec.csv': {
+            'class': 'sar',
+            'metric': 'network_l2_network_multicast_packets_sec',
+            'display': 'Network_Multicast_Throughput',
+            'units': 'pps',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)'),
+            'metadata': [ 'dev', 'io' ],
+            'metadata_pat': re.compile(r'(?P<dev>.+?)-(?P<io>.+)')
+        },
+        'network_l2_network_packets_sec.csv': {
+            'class': 'sar',
+            'metric': 'network_l2_network_packets_sec',
+            'display': 'Network_Throughput_Packets',
+            'units': 'pps',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)'),
+            'metadata': [ 'dev', 'io' ],
+            'metadata_pat': re.compile(r'(?P<dev>.+?)-(?P<io>.+)')
+        },
+        'network_l345_ip.csv': {
+            'class': 'sar',
+            'metric': 'network_l345_ip',
+            'display': 'Network_L345_IP',
+            'units': 'count_per_sec',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        },
+        'network_l345_nfs_client.csv': {
+            'class': 'sar',
+            'metric': 'network_l345_nfs_client',
+            'display': 'Network_NFS_Client',
+            'units': 'count_per_sec',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        },
+        'network_l345_sockets.csv': {
+            'class': 'sar',
+            'metric': 'network_l345_sockets',
+            'display': 'Network_L345_Sockets',
+            'units': 'count',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        },
+        'network_l345_tcp_sockets.csv': {
+            'class': 'sar',
+            'metric': 'network_l345_tcp_sockets',
+            'display': 'Network_L345_TCP_Sockets',
+            'units': 'count_per_sec',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        },
+        'network_l345_udp.csv': {
+            'class': 'sar',
+            'metric': 'network_l345_udp',
+            'display': 'Network_L345_UDP',
+            'units': 'count_per_sec',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        },
+        'per_cpu_cpu_00.csv': {
+            'class': 'sar',
+            'metric': 'per_cpu_00',
+            'display': 'Per_CPU_00',
+            'units': 'percent_cpu',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        },
+        'per_cpu_cpu_01.csv': {
+            'class': 'sar',
+            'metric': 'per_cpu_01',
+            'display': 'Per_CPU_01',
+            'units': 'percent_cpu',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        },
+        'per_cpu_cpu_02.csv': {
+            'class': 'sar',
+            'metric': 'per_cpu_02',
+            'display': 'Per_CPU_02',
+            'units': 'percent_cpu',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        },
+        'per_cpu_cpu_03.csv': {
+            'class': 'sar',
+            'metric': 'per_cpu_03',
+            'display': 'Per_CPU_03',
+            'units': 'percent_cpu',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        },
+        'system_interrupts_sec.csv': {
+            'class': 'sar',
+            'metric': 'system_interrupts_sec',
+            'display': 'System_Interrupts',
+            'units': 'count_per_sec',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        },
+        'system_proc_cswch_sec.csv': {
+            'class': 'sar',
+            'metric': 'system_proc_cswch_sec',
+            'display': 'System_Proc_Context_Switches',
+            'units': 'count_per_sec',
+            'subfields': [],
+            'colpat': re.compile(r'(?P<id>.+)')
+        }
+    },
     'turbostat': {},
 }
 
