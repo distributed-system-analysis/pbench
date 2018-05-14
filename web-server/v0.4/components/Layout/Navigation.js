@@ -18,7 +18,7 @@ class Navigation extends React.Component {
       <div className="nav-pf-vertical">
         <ul className="list-group">
           <li className={"list-group-item" + (location.pathname == '/' ? ' active' : '')}>
-            <Link to="/">
+            <Link to="/dashboard">
               <span className="fa fa-dashboard" data-toggle="tooltip" title="Controllers"></span>
               <span className="list-group-item-value">Controllers</span>
             </Link>

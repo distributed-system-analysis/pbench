@@ -1,0 +1,21 @@
+.graphCard .graphBar {
+  padding: 0 0 32px 32px;
+}
+.graphCard .graphRank {
+  padding: 0 32px 32px 72px;
+}
+.graphCard :global .ant-tabs-bar {
+  padding-left: 16px;
+}
+.graphCard :global .ant-tabs-bar .ant-tabs-nav .ant-tabs-tab {
+  padding-top: 16px;
+  padding-bottom: 14px;
+  line-height: 24px;
+}
+.graphCard :global .ant-tabs-extra-content {
+  padding-right: 24px;
+  line-height: 55px;
+}
+.graphCard :global .ant-card-head {
+  position: relative;
+}

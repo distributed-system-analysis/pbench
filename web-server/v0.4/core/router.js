@@ -41,7 +41,9 @@ function matchURI(route, path) {
 function resolve(routes, context) {
   for (const route of routes) {
     const params = matchURI(route, context.error ? '/error' : context.pathname);
-
+    if (context.error) {
+      console.log(context.error)
+    }
     if (!params) {
       continue;
     }

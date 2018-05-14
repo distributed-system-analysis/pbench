@@ -1,10 +1,9 @@
-import React, {PropTypes} from 'react';
+import React from 'react';
 import history from '../../core/history';
+import datastore from '../../utils/datastore';
 import {Table, Input, Button, LocaleProvider} from 'antd';
 import enUS from 'antd/lib/locale-provider/en_US';
 import axios from 'axios';
-
-const Search = Input.Search;
 
 class ControllerListView extends React.Component {
   constructor(props) {
@@ -21,18 +20,46 @@ class ControllerListView extends React.Component {
 
   componentDidMount() {
     this.setState({loading: true});
-    axios.get('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?search_type=count&source={ "aggs": { "run": { "terms": { "field": "controller", "size": 0 } } } }').then(res => {
-      const response = res.data.aggregations.run.buckets;
-      var controllers = [];
-      response.map(function(controller) {
-        controllers.push({key: controller.key, controller: controller.key, results: controller.doc_count});
+    let data = localStorage.getItem('controllers');
+    
+    if (!data) {
+      axios.post(datastore.elasticsearch + datastore.prefix + datastore.run_indices,
+      {
+        "aggs": {
+          "controllers": {
+            "terms": {
+              "field": "controller",
+              "size": 0,
+              "order": {
+                "runs": "desc"
+              }
+            },
+            "aggs": {
+              "runs": {
+                "min": {
+                  "field": "run.start_run"
+                }
+              }
+            }
+          }
+        }
+      }).then(res => {
+        const response = res.data.aggregations.controllers.buckets;
+        var controllers = [];
+        response.map(function(controller) {
+          controllers.push({key: controller.key, controller: controller.key, results: controller.doc_count, last_modified_value: controller.runs.value, last_modified_string: controller.runs.value_as_string});
+        });
+        this.setState({controllers: controllers})
+        this.setState({loading: false})
+        localStorage.setItem('controllers', JSON.stringify(controllers))
+      }).catch(error => {
+        console.log(error);
+        this.setState({loading: false});
       });
-      this.setState({controllers: controllers})
-      this.setState({loading: false});
-    }).catch(error => {
-      console.log(error);
-      this.setState({loading: false});
-    });
+    } else {
+        this.setState({controllers: JSON.parse(data)})
+        this.setState({loading: false})
+    }
   }
 
   onInputChange = (e) => {
@@ -72,7 +99,6 @@ class ControllerListView extends React.Component {
   }
 
   render() {
-    const location = history.getCurrentLocation();
     const {controllers, controllerSearch, loading} = this.state;
 
     const columns = [
@@ -81,6 +107,11 @@ class ControllerListView extends React.Component {
         dataIndex: 'controller',
         key: 'controller',
         sorter: (a, b) => compareByAlph(a.controller, b.controller)
+      }, {
+        title: 'Last Modified',
+        dataIndex: 'last_modified_string',
+        key: 'last_modified_string', 
+        sorter: (a, b) => a.last_modified_value - b.last_modified_value
       }, {
         title: 'Results',
         dataIndex: 'results',
@@ -101,7 +132,7 @@ class ControllerListView extends React.Component {
             onPressEnter = {this.onSearch}
           />
           <Button type="primary" onClick={this.onSearch}>Search</Button>
-          <Table style={{marginTop: 20}} columns={columns} dataSource={controllerSearch.length > 0 ? controllerSearch : controllers} onRowClick={this.retrieveResults.bind(this)} loading={loading} bordered/>
+          <Table style={{marginTop: 20}} columns={columns} dataSource={controllerSearch.length > 0 ? controllerSearch : controllers} defaultPageSize={20} onRowClick={this.retrieveResults.bind(this)} loading={loading} showSizeChanger={true} showTotal={true} bordered/>
         </div>
       </LocaleProvider>
     )

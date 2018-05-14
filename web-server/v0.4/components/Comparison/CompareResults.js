@@ -1,15 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Select, Card, Spin, Tag, Table, Button } from 'antd';
 import history from '../../core/history';
 import datastore from '../../utils/datastore';
-import { Select, Spin, Tag, Table, Button, Card } from 'antd';
 import axios from 'axios';
 import cloneDeep from 'lodash/cloneDeep';
-import PageHeader from 'ant-design-pro/lib/PageHeader';
 
-export default class Summary extends React.Component {
+class CompareResults extends React.Component {
   static propTypes = {
-    result: PropTypes.string,
+    results: PropTypes.array,
     controller: PropTypes.string
   };
 
@@ -17,62 +16,106 @@ export default class Summary extends React.Component {
     super(props);
 
     this.state = {
-      summaryResult: [],
-      iterations: [],
-      iterationSearch: [],
-      columns: [],
-      configData: {},
-      selectedConfig: [],
-      responseData: {},
+      responseData: [],
+      responseDataAll: [],
+      loading: true,
+      loadingButton: false,
+      tables: [],
+      selectedRowKeys: [],
+      rowSelections: [],
       selectedPort: "all",
       ports: [],
-      loading: true,
-      searchText: '',
-      activeTab: 'iterations'
-    }
+      configData: [],
+      selectedConfig: []
+    };
   }
 
-   componentDidMount() {
+  componentDidMount() {
     this.setState({loading: true});
-    const { result, controller } = this.props;
-    axios.get(datastore.elasticsearch + datastore.prefix + datastore.run_indices + '/_search?source={ "query": { "match": { "run.name": "' + this.props.result + '" } }, "sort": "_index" }').then(res => {
-      var result = [];
-      result.push(res.data.hits.hits[0]);
-      this.setState({summaryResult: result});
-    });
-
-    var iterationEndpoint = "";
-    if (controller.includes('.')) {
-      iterationEndpoint = datastore.pbench_server + '/results/' + encodeURI((controller).slice(0, (controller).indexOf("."))) +'/'+ encodeURI(result) + '/result.json';
-    } else {
-      iterationEndpoint = datastore.pbench_server + '/results/' + encodeURI(controller) +'/'+ encodeURI(result) + '/result.json';
+    const { results } = this.props;
+    var iterationRequests = [];
+    for (var result in results) {
+      if (results[result].controller.includes('.')) {
+        iterationRequests.push(axios.get(datastore.pbench_server + '/results/' + encodeURI((results[result].controller).slice(0, (results[result].controller).indexOf("."))) +'/'+ encodeURI(results[result].result) + '/result.json'))
+      } else {
+        iterationRequests.push(axios.get(datastore.pbench_server + '/results/' + encodeURI((results[result].controller)) +'/'+ encodeURI(results[result].result) + '/result.json'))
+      }
     }
-    axios.get(iterationEndpoint).then(res => {
-      const response = res.data;
-      const responseData = this.parseJSONData(response, result, controller);
+    axios.all(iterationRequests)
+    .then(args => {
+      var responseData = [];
+      var rowSelections = [];
+      var selectedRowKeys = this.state.selectedRowKeys;
+      for (var response in args) {
+        if (args[response].data != null) {
+          var iterationData = args[response].data;
+          var controllerName = args[response].config.url.split('/')[4]
+          var resultName = args[response].config.url.split('/')[5]
+          responseData.push(this.parseJSONData(iterationData, resultName, controllerName, response));
+          selectedRowKeys.push([]);
+        }
+      }
+      this.setState({selectedRowKeys: selectedRowKeys});
+      this.setState({rowSelections: rowSelections});
       this.setState({responseData: responseData});
       this.setState({loading: false});
     })
     .catch(error => {
       console.log(error);
-      this.setState({loading: false});
+      if (error.response.status === 404) {
+        this.setState({loading: false});
+        history.push({
+          pathname: "/dashboard/results/comparison/exception"
+        })
+      }
     });
   }
 
-  retrieveResults(params) {
-    history.push({
-      pathname: '/dashboard/results/' + this.props.controller.slice(0, this.props.controller.indexOf(".")) + '/' + this.props.result + '/'+ params[1].iteration_number + '-' + params[1].iteration_name + '/sample' + params[0],
-      state: {
-        controllerName: params[1].controller_name, 
-        resultName: params[1].result_name, 
-        iterationNumber: params[1].iteration_number,
-        iterationName: params[1].iteration_name, 
-        closestSample: params[1].closest_sample
-      }
-    })
+  start = () => {
+    this.setState({ loadingButton: true });
+    setTimeout(() => {
+      this.setState({
+        selectedRowKeys: [],
+        loadingButton: false,
+      });
+    }, 1000);
   }
 
-  parseJSONData(response, resultName, controllerName) {
+  openNotificationWithIcon = (type) => {
+    notification[type]({
+      message: 'Please select two results for comparison.',
+      placement: 'bottomRight'
+    });
+  }
+
+  onCompareIterations = () => {
+    const { selectedRowKeys, responseData } = this.state;
+    if (selectedRowKeys.length < 2) {
+      this.openNotificationWithIcon('error')
+    }
+    var selectedRowData = [];
+    for (var item in selectedRowKeys) {
+      if (selectedRowKeys[item].length > 0) {
+        for (var row in selectedRowKeys[item]) {
+          selectedRowData.push(responseData[item].iterations[selectedRowKeys[item][row]]);
+        }
+      }
+    }
+    this.compareIterations(selectedRowData)
+  }
+
+  updateSelection = (table) => {
+    this.setState({tableSelected: table})
+  }
+
+  onSelectChange = (record, selected, selectedRows) => {
+    var { selectedRowKeys } = this.state;
+    selectedRowKeys[record.table].push(record.key);
+    this.setState({ selectedRowKeys });
+  }
+
+  //Transforms the queried ES data into the appriopriate schema for visualization in charts and tables.
+  parseJSONData(response, resultName, controllerName, table) {
     var responseData = [];
     var columns = [{
       title: 'Iteration Number',
@@ -94,7 +137,7 @@ export default class Summary extends React.Component {
 
     for (var iteration in response) {
       if (!response[iteration].iteration_name.includes("fail")) {
-        var iterationObject = {iteration_name: response[iteration].iteration_name, iteration_number: response[iteration].iteration_number, result_name: resultName, controller_name: controllerName};
+        var iterationObject = {iteration_name: response[iteration].iteration_name, iteration_number: response[iteration].iteration_number, result_name: resultName, controller_name: controllerName, table: table};
         var configObject = {};
         var keys = [];
         if (response[iteration].iteration_data.parameters.benchmark[0] != undefined ) {
@@ -173,7 +216,7 @@ export default class Summary extends React.Component {
                       if (columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"] == undefined) {
                           columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"] = [{title: "closest sample", dataIndex: columnSample, key: columnSample, sorter: (a, b) => a[columnSample] - b[columnSample], render: (text, record) => {
                               return (
-                                <a onClick={() => this.retrieveResults([text, record])}>{text}</a>
+                                <div>{text}</div>
                               );
                             },
                           }];
@@ -182,7 +225,7 @@ export default class Summary extends React.Component {
                       } else {
                           columns[parentColumnIndex].children[childColumnIndex].children[dataChildColumnIndex]["children"].push({title: "closest sample", dataIndex: columnSample, key: columnSample, sorter: (a, b) => a[columnSample] - b[columnSample], render: (text, record) => {
                               return (
-                                <a onClick={() => this.retrieveResults([text, record])}>{text}</a>
+                                <div>{text}</div>
                               );
                             },
                           });
@@ -212,11 +255,15 @@ export default class Summary extends React.Component {
       }
     };
     iterations.sort(function(a, b){return a.iteration_number - b.iteration_number});
+    for (var iteration in iterations) {
+      iterations[iteration]["key"] = iteration;
+    }
     responseData["resultName"] = resultName;
     responseData["columns"] = columns;
     responseData["iterations"] = iterations;
     this.setState({ports: ports})
     this.setState({configData: configCategories});
+    this.setState({responseDataAll: this.state.responseDataAll.concat(iterations)});
     return responseData;
   }
 
@@ -273,33 +320,36 @@ export default class Summary extends React.Component {
     }
   }
 
-  onInputChange = (e) => {
-    this.setState({ searchText: e.target.value });
+  compareIterations = (params) => {
+    const { configData } = this.state;
+    const { results, controller } = this.props;
+    const configCategories = Object.keys(configData);
+    history.push({
+      pathname: '/dashboard/results/comparison/iterations',
+      state: {
+        iterations: params,
+        configCategories: configCategories,
+        configData: configData,
+        results: results,
+        controller: controller
+      }
+    })
   }
 
-  onSearch = () => {
-    const { searchText, iterations } = this.state;
-    const reg = new RegExp(searchText, 'gi');
-    var iterationSearch = iterations.slice();
-    this.setState({
-      filtered: !!searchText,
-      iterationSearch: iterationSearch.map((record) => {
-        const match = record.iteration_name.match(reg);
-        if (!match) {
-          return null;
-        }
-        return {
-          ...record,
-          iteration_name: (
-            <span>
-              {record.iteration_name.split(reg).map((text, i) => (
-                i > 0 ? [<span style={{color: 'orange'}}>{match[0]}</span>, text] : text
-              ))}
-            </span>
-          )
-        }
-      }).filter(record => !!record),
-    });
+  compareAllIterations = () => {
+    const { responseDataAll, configData } = this.state;
+    const { results, controller } = this.props;
+    const configCategories = Object.keys(configData);
+    history.push({
+      pathname: '/dashboard/results/comparison/iterations',
+      state: {
+        iterations: responseDataAll,
+        configCategories: configCategories,
+        configData: configData,
+        results: results,
+        controller: controller
+      }
+    })
   }
 
   configChange = (value, category) => {
@@ -318,32 +368,40 @@ export default class Summary extends React.Component {
   }
 
   portChange = (value) => {
-    if (value == "all") {
-      this.setState({selectedPort: value})
-      this.forceUpdate();
-    }
     this.setState({selectedPort: value})
   }
 
   render() {
-    var { summaryResult, responseData, loading, selectedConfig, selectedPort, ports, configData } = this.state;
+    const { responseData, loading, loadingButton, selectedRowKeys, selectedPort, ports, configData, selectedConfig } = this.state;
 
-    var controllerName = "controller: " + this.props.controller;
+    var selectedRowNames = [];
+    for (var item in selectedRowKeys) {
+      if (selectedRowKeys[item].length > 0) {
+        for (var row in selectedRowKeys[item]) {
+          selectedRowNames.push(responseData[item].iterations[selectedRowKeys[item][row]].iteration_name);
+        }
+      }
+    }
 
-    var responseDataCopy = {};
-    responseDataCopy["columns"] = cloneDeep(responseData.columns)
-    responseDataCopy["iterations"] = cloneDeep(responseData.iterations)
-    responseDataCopy["resultName"] = cloneDeep(responseData.resultName)
+    var responseDataCopy = [];
+    for (var response in responseData) {
+      responseDataCopy[response] = [];
+      responseDataCopy[response]["columns"] = cloneDeep(responseData[response].columns)
+      responseDataCopy[response]["iterations"] = cloneDeep(responseData[response].iterations)
+      responseDataCopy[response]["resultName"] = cloneDeep(responseData[response].resultName)
+    }
 
-    var responseColumns = responseDataCopy.columns;
-    var responseIterations = responseDataCopy.iterations;
-    for (var column in responseColumns) {
-      if (responseColumns[column]["children"] != undefined) {
-        for (var networkColumn in responseColumns[column]["children"]) {
-          if (responseColumns[column]["children"][networkColumn]["children"] != undefined) {
-            for (var portColumn in responseColumns[column]["children"][networkColumn]["children"]) {
-              if (!responseColumns[column]["children"][networkColumn]["children"][portColumn]["title"].includes(selectedPort)) {
-                responseColumns[column]["children"][networkColumn]["children"].splice(portColumn, 1);
+    for (var response in responseDataCopy) {
+      var responseColumns = responseDataCopy[response].columns;
+      var responseIterations = responseDataCopy[response].iterations;
+      for (var column in responseColumns) {
+        if (responseColumns[column]["children"] != undefined) {
+          for (var networkColumn in responseColumns[column]["children"]) {
+            if (responseColumns[column]["children"][networkColumn]["children"] != undefined) {
+              for (var portColumn in responseColumns[column]["children"][networkColumn]["children"]) {
+                if (!responseColumns[column]["children"][networkColumn]["children"][portColumn]["title"].includes(selectedPort)) {
+                  responseColumns[column]["children"][networkColumn]["children"].splice(portColumn, 1);
+                }
               }
             }
           }
@@ -363,201 +421,51 @@ export default class Summary extends React.Component {
             filteredResponseData.push(responseIterations[iteration])
           }
         }
-        responseDataCopy.iterations = filteredResponseData;
+        responseDataCopy[response].iterations = filteredResponseData;
       }
     }
 
-    if (summaryResult.length > 0 && Object.keys(summaryResult[0]).length !== 0) {
-      var metadataTag = '';
-      const hostTools = summaryResult[0]._source.host_tools_info;
-
-      if (typeof summaryResult[0]._source['@metadata'] !== 'undefined') {
-          metadataTag = '@metadata';
-      } else {
-          metadataTag = '_metadata';
-      }
-      return (
-        <div style={{ marginLeft: 72 }} className="container-fluid container-pf-nav-pf-vertical">
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <div>
-                <div style={{ marginTop: 16, marginBottom: 16 }}>
-                  <PageHeader
-                    title={this.props.result}
-                    content={
-                      <Tag color="blue" key={this.props.controller}>
-                        {controllerName}
-                      </Tag>
-                    }
-                  />
+    return (
+      <div style={{ marginLeft: 80 }} className="container-fluid container-pf-nav-pf-vertical" ref={(node) => { this.container = node; }}>
+        <Spin style={{marginTop: 200, alignSelf: 'center'}} spinning={loading}>
+          {selectedRowNames.length > 0 ?
+              <Card style={{marginTop: 16}} title={<Button type="primary" onClick={this.onCompareIterations} disabled={selectedRowNames.length == 0} loading={loadingButton}>Compare Iterations</Button>} type="inner">
+                {selectedRowNames.map((row,i) =>
+                  <Tag id={i}>{row}</Tag>
+                )}
+              </Card>
+            :
+            <div></div>
+          }
+          <Button type="primary" style={{alignSelf: 'flex-start', marginTop: 32}} onClick={this.compareAllIterations} loading={loadingButton}>Compare All Iterations</Button>
+          <Button style={{marginLeft: 8}} onClick={this.clearFilters} loading={loadingButton}>Clear Filters</Button>
+          <br></br>
+          <Select allowClear={true} placeholder="Filter Hostname & Port" style={{ marginTop: 16, width: 160 }} onChange={this.portChange} value={selectedPort}>
+            {ports.map((port, i) =>
+              <Select.Option value={port}>{port}</Select.Option>
+            )}
+          </Select>
+          {Object.keys(configData).map((category, i) =>
+            <Select allowClear={true} placeholder={category} style={{ marginLeft: 8, width: 160 }} value={selectedConfig[category]} onChange={(value) => this.configChange(value, category)}>
+              {configData[category].map((categoryData, i) =>
+                <Select.Option value={categoryData}>{categoryData}</Select.Option>
+              )}
+            </Select>
+          )}
+          {responseDataCopy.map((response, i) => {
+              const rowSelection = { selectedRowKeys: selectedRowKeys[i], onSelect: (record, selected, selectedRows) => this.onSelectChange(record, selected, selectedRows), hideDefaultSelections: true, fixed: true }
+              return (
+                <div>
+                  <h2 style={{marginTop: 32}}>{response.resultName}</h2>
+                  <Table key={i} style={{marginTop: 16}} rowSelection={rowSelection} columns={response.columns} dataSource={response.iterations} bordered/>
                 </div>
-                <Button onClick={this.clearFilters}>Clear Filters</Button>
-                <br />
-                <Select
-                  allowClear={true}
-                  placeholder="Filter Hostname & Port"
-                  style={{ marginTop: 16, width: 160 }}
-                  onChange={this.portChange}
-                >
-                  {ports.map((port, i) => (
-                    <Select.Option value={port}>{port}</Select.Option>
-                  ))}
-                </Select>
-                {Object.keys(configData).map((category, i) => (
-                  <Select
-                    allowClear={true}
-                    placeholder={category}
-                    style={{ marginLeft: 8, width: 160 }}
-                    value={selectedConfig[category]}
-                    onChange={value => this.configChange(value, category)}
-                  >
-                    {configData[category].map((categoryData, i) => (
-                      <Select.Option value={categoryData}>
-                        {categoryData}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                ))}
-                <Table
-                  style={{ marginTop: 20 }}
-                  columns={responseDataCopy.columns}
-                  dataSource={responseDataCopy.iterations}
-                  onRowClick={this.retrieveResults.bind(this)}
-                  bordered
-                />
-              </div>
-              <Card title="Result Metadata" style={{ marginTop: 32 }}>
-                <ul className="list-group">
-                  <li className="list-group-item">
-                    <h5 className="list-group-item-heading">Script</h5>
-                    <p className="list-group-item-text" id="script">
-                      {summaryResult[0]._source.run.script}
-                    </p>
-                  </li>
-                  <li className="list-group-item">
-                    <h5 className="list-group-item-heading">Configuration</h5>
-                    <p className="list-group-item-text" id="config">
-                      {summaryResult[0]._source.run.config}
-                    </p>
-                  </li>
-                  <li className="list-group-item">
-                    <h5 className="list-group-item-heading">Controller</h5>
-                    <p className="list-group-item-text" id="controller">
-                      {summaryResult[0]._source.run.controller}
-                    </p>
-                  </li>
-                  <li className="list-group-item">
-                    <h5 className="list-group-item-heading">File Name</h5>
-                    <p
-                      className="list-group-item-text"
-                      style={{ overflowWrap: "break-word" }}
-                      id="file_name"
-                    >
-                      {summaryResult[0]._source[metadataTag]["file-name"]}
-                    </p>
-                  </li>
-                  <li className="list-group-item">
-                    <h5 className="list-group-item-heading">
-                      Pbench Agent Version
-                    </h5>
-                    <p className="list-group-item-text" id="pbench_version">
-                      {
-                        summaryResult[0]._source[metadataTag][
-                          "pbench-agent-version"
-                        ]
-                      }
-                    </p>
-                  </li>
-                  <li className="list-group-item">
-                    <h5 className="list-group-item-heading">Indexer Name</h5>
-                    <p className="list-group-item-text" id="generated_by">
-                      {summaryResult[0]._source[metadataTag]["generated-by"]}
-                    </p>
-                  </li>
-                  <li className="list-group-item">
-                    <h5 className="list-group-item-heading">Indexer Version</h5>
-                    <p
-                      className="list-group-item-text"
-                      id="generated_by_version"
-                    >
-                      {summaryResult[0]._source[metadataTag]["md5"]}
-                    </p>
-                  </li>
-                </ul>
-              </Card>
-              <Card title="Tools and Parameters" style={{ marginTop: 32 }}>
-                {hostTools.map((host, i) => (
-                  <div key={i}>
-                    <br />
-                    <li className="list-group-item">
-                      <h5 className="list-group-item-heading">Host</h5>
-                      <p className="list-group-item-text">{host.hostname}</p>
-                    </li>
-                    <li className="list-group-item">
-                      <h5 className="list-group-item-heading">mpstat</h5>
-                      <p className="list-group-item-text">
-                        {host.tools.mpstat}
-                      </p>
-                    </li>
-                    <li className="list-group-item">
-                      <h5 className="list-group-item-heading">perf</h5>
-                      <p className="list-group-item-text">{host.tools.perf}</p>
-                    </li>
-                    <li className="list-group-item">
-                      <h5 className="list-group-item-heading">
-                        proc-interrupts
-                      </h5>
-                      <p className="list-group-item-text">
-                        {host.tools["proc-interrupts"]}
-                      </p>
-                    </li>
-                    <li className="list-group-item">
-                      <h5 className="list-group-item-heading">proc-vmstat</h5>
-                      <p className="list-group-item-text">
-                        {host.tools["proc-vmstat"]}
-                      </p>
-                    </li>
-                    <li className="list-group-item">
-                      <h5 className="list-group-item-heading">sar</h5>
-                      <p className="list-group-item-text">{host.tools.sar}</p>
-                    </li>
-                    <li className="list-group-item">
-                      <h5 className="list-group-item-heading">pidstat</h5>
-                      <p className="list-group-item-text">
-                        {host.tools.pidstat}
-                      </p>
-                    </li>
-                    <li className="list-group-item">
-                      <h5 className="list-group-item-heading">turbostat</h5>
-                      <p className="list-group-item-text">
-                        {host.tools.turbostat}
-                      </p>
-                    </li>
-                    <li className="list-group-item">
-                      <h5 className="list-group-item-heading">iostat</h5>
-                      <p className="list-group-item-text">
-                        {host.tools.iostat}
-                      </p>
-                    </li>
-                  </div>
-                ))}
-              </Card>
-            </div>
-        </div>
-      );
-    } else {
-      return (
-        <Spin></Spin>
-      );
-    }
+              )
+          })}
+        </Spin>
+      </div>
+    );
   }
+
 }
 
-function compareByAlph(a, b) {
-  if (a > b) {
-    return -1;
-  }
-  if (a < b) {
-    return 1;
-  }
-  return 0;
-}
+export default CompareResults;
