@@ -1,14 +1,14 @@
-import React, {PropTypes} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import history from '../../core/history';
-import {Table, Input, Button, LocaleProvider} from 'antd';
+import datastore from '../../utils/datastore';
+import {notification, Card, Tag, Table, Input, Button, LocaleProvider} from 'antd';
 import enUS from 'antd/lib/locale-provider/en_US';
-import axios, { CancelToken } from 'axios';
-
-const Search = Input.Search;
+import axios from 'axios';
 
 class ResultListView extends React.Component {
   static propTypes = {
-    controller: React.PropTypes.string
+    controller: PropTypes.string
   };
 
   constructor(props) {
@@ -35,39 +35,73 @@ class ResultListView extends React.Component {
     }, 1000);
   }
 
+  openNotificationWithIcon = (type) => {
+    notification[type]({
+      message: 'Please select two results for comparison.',
+      placement: 'bottomRight'
+    });
+  }
+
+  onCompareResults = () => {
+    const { selectedRowKeys, results } = this.state;
+    const { controller } = this.props;
+      var selectedResults = [];
+      for (var item in selectedRowKeys) {
+        var result = results[selectedRowKeys[item]];
+        result["controller"] = controller;
+        selectedResults.push(results[selectedRowKeys[item]])
+      }
+      this.compareResults(selectedResults)
+  }
+
   onSelectChange = (selectedRowKeys) => {
     this.setState({ selectedRowKeys });
   }
 
-  getResultMetadata(key) {
-    return axios.get('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?source={ "query": { "match": { "run.name": "' + key + '" } }, "fields": [ "run.name", "run.config", "run.start_run", "run.end_run", "run.script" ], "sort": "_index" }', { cancelToken: this.cancelToken.token }).then(res => {
-      this.setState({results: this.state.results.concat({result: res.data.hits.hits[0].fields['run.name'][0], config: res.data.hits.hits[0].fields['run.config'][0], startRun: res.data.hits.hits[0].fields['run.start_run'][0], endRun: res.data.hits.hits[0].fields['run.end_run'][0]})});
-    });
-  }
-
-  componentWillMount() {
-    this.cancelToken = CancelToken.source();
-  }
-
   componentDidMount() {
     this.setState({loading: true});
-    axios.get('http://es-perf44.perf.lab.eng.bos.redhat.com:9280/dsa.pbench.*/_search?search_type=count&source={ "query": { "match": { "run.controller": "' + this.props.controller + '" } }, "aggs": { "run": { "terms": { "field": "run.name", "size": 0 } } } }').then(res => {
-      const response = res.data.aggregations.run.buckets;
-      var results = [];
-      for (var item in response) {
-        results.push(this.getResultMetadata(response[item].key))
-      }
-      axios.all(results).then(axios.spread(function (results) {
-      }));
-      this.setState({loading: false});
-    }).catch(error => {
-      console.log(error);
-      this.setState({loading: false});
-    });
-  }
+    const { controller } = this.props;
+    let data = localStorage.getItem(controller);
 
-  componentWillUnmount() {
-    this.cancelToken.cancel('Operation canceled by the user.');
+    if (!data) {
+      axios.post(datastore.elasticsearch + datastore.prefix + datastore.run_indices, 
+      {
+          "fields": [
+            "run.controller",
+            "run.start_run",
+            "run.end_run",
+            "run.name",
+            "run.config",
+          ],
+          "sort": {
+            "run.end_run": {
+              "order": "desc",
+              "ignore_unmapped": true
+            }
+          },
+          "query": {
+            "term": {
+              "run.controller": controller
+            }
+          },
+          "size": 5000
+      }).then(res => {
+        var res = res.data.hits.hits;
+        var results = [];
+        for (var response in res) {
+          results.push({result: res[response].fields['run.name'][0], config: res[response].fields['run.config'][0], startRunUnixTimestamp: Date.parse(res[response].fields['run.start_run'][0]), startRun: res[response].fields['run.start_run'][0], endRun: res[response].fields['run.end_run'][0]})
+        }
+        this.setState({results: results})
+        this.setState({loading: false})
+        localStorage.setItem(controller, JSON.stringify(results))
+      }).catch(error => {
+        console.log(error);
+        this.setState({loading: false});
+      });
+    } else {
+        this.setState({results: JSON.parse(data)})
+        this.setState({loading: false})
+    }
   }
 
   onInputChange = (e) => {
@@ -99,6 +133,16 @@ class ResultListView extends React.Component {
     });
   }
 
+  compareResults = (params) => {
+    history.push({
+      pathname: '/dashboard/results/comparison',
+      state: {
+        results: params,
+        controller: this.props.controller
+      }
+    })
+  }
+
   retrieveResults(params) {
     history.push({
       pathname: '/dashboard/results/summary',
@@ -110,13 +154,18 @@ class ResultListView extends React.Component {
   }
 
   render() {
-    const location = history.getCurrentLocation();
-    const {results, resultSearch, loading, loadingButton, selectedRowKeys} = this.state;
+    const { resultSearch, loading, loadingButton, selectedRowKeys} = this.state;
+    var {results} = this.state;
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
+      hideDefaultSelections: true,
+      fixed: true
     };
     const hasSelected = selectedRowKeys.length > 0;
+    for (var result in results) {
+      results[result]["key"] = result;
+    }
 
     const columns = [
       {
@@ -127,43 +176,41 @@ class ResultListView extends React.Component {
       }, {
         title: 'Config',
         dataIndex: 'config',
-        key: 'config',
-        sorter: (a, b) => compareByAlph(a.config, b.config)
+        key: 'config'
       }, {
         title: 'Start Time',
         dataIndex: 'startRun',
         key: 'startRun',
-        sorter: (a, b) => a.start_time - b.start_time
+        sorter: (a, b) => a.startRunUnixTimestamp - b.startRunUnixTimestamp
       }, {
         title: 'End Time',
         dataIndex: 'endRun',
-        key: 'endRun',
-        sorter: (a, b) => a.end_time - b.end_time
+        key: 'endRun'
       }
     ];
 
     return (
       <LocaleProvider locale={enUS}>
         <div style={{marginTop: 4}} className="container-fluid container-pf-nav-pf-vertical">
-          <h1>{this.props.controller}</h1>
-          <Button
-            style={{marginTop: 20}}
-            type="primary"
-            onClick={this.start}
-            disabled={!hasSelected}
-            loading={loadingButton}
-          >
-            Compare
-          </Button>
+          <h1 style={{marginTop: 8}}>{this.props.controller}</h1>
           <Input
-            style={{width: 300, marginLeft: 16, marginRight: 8}}
+            style={{width: 300, marginRight: 8, marginTop: 16}}
             ref={ele => this.searchInput = ele}
-            placeholder = "Search results"
+            placeholder = "Search Results"
             value = {this.state.searchText}
             onChange = {this.onInputChange}
             onPressEnter = {this.onSearch}
           />
           <Button type="primary" onClick={this.onSearch}>Search</Button>
+          {selectedRowKeys.length > 0 ?
+            <Card style={{marginTop: 16}} hoverable={false} title={<Button type="primary" onClick={this.onCompareResults} disabled={!hasSelected} loading={loadingButton}>Compare Results</Button>} hoverable={false} type="inner">
+              {selectedRowKeys.map((row,i) =>
+                <Tag id={row}>{results[row].result}</Tag>
+              )}
+            </Card>
+            :
+            <div></div>
+          }
           <Table style={{marginTop: 20}} rowSelection={rowSelection} columns={columns} dataSource={resultSearch.length > 0 ? resultSearch: results} onRowClick={this.retrieveResults.bind(this)} loading={loading} bordered/>
         </div>
       </LocaleProvider>

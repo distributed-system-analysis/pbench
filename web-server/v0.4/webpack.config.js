@@ -33,12 +33,10 @@ const config = {
   // The entry point for the bundle
   entry: [
     //css entries
-    // '!!style!css!patternfly/dist/css/patternfly.css',
-    // '!!style!css!patternfly/dist/css/patternfly-additions.css',
-    // 'antd/dist/antd.css',
+    'antd/dist/antd.css',
+    'ant-design-pro/dist/ant-design-pro.css',
 
     //js entries
-    'jquery-match-height/dist/jquery.matchHeight.js',
     /* The main entry point of your JavaScript application */
     './main.js'
   ],
