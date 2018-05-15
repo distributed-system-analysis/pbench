@@ -96,7 +96,8 @@ def replace_val(dct, magic, delta):
 # Other arguments that can override those given in the job file:
 other_args = \
     ['bs', 'rw', 'ioengine', 'iodepth', 'direct', 'sync',
-     'runtime', 'ramptime', 'size', 'rate_iops', 'log_hist_msec']
+     'runtime', 'ramptime', 'size', 'rate_iops', 'log_hist_msec',
+     'numjobs']
 
 def main(ctx):
 
