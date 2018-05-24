@@ -28,6 +28,12 @@ then
 fi
 
 echo "CONFIG=$CONFIG" > $crontab
+bindir=$(getconf.py script-dir pbench-server)
+if [ -z "$bindir" ] ;then
+    echo "No 'script-dir' setting in [pbench-server] section of config file $CONFIG"
+    exit 3
+fi
+echo "PATH=$bindir:$PATH" >> $crontab
 
 roles=$(getconf.py -l roles pbench-server)
 hostname=$(hostname -f)
