@@ -40,8 +40,6 @@ else
     # running unit tests
     BINDIR=.
 fi
-# need this to find pbench-report-status
-PATH=$BINDIR:$PATH
 
 ARCHIVE=${TOP}/archive/fs-version-001
 INOTIFY_STATE_DIR=${ARCHIVE}/inotify_state
