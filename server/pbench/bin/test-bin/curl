@@ -3,4 +3,4 @@
 echo ${0##*/} $* | sed 's/pbench-report-status.[0-9][0-9]*/pbench-report-status.NNNN/'
 
 file=${6#@}
-cat $file > $_testcurlpayload
+cat $file >> $_testcurlpayload

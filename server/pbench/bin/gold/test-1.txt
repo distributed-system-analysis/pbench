@@ -1,6 +1,9 @@
 +++ Running pbench-unpack-tarballs
 pbench-unpack-tarballs: Bad TMP=/var/tmp/pbench-test-server/pbench/tmp
 --- Finished pbench-unpack-tarballs (status=1)
++++ Running pbench-move-unpacked
+pbench-move-unpacked: Bad TMP=/var/tmp/pbench-test-server/pbench/tmp
+--- Finished pbench-move-unpacked (status=1)
 +++ Running pbench-copy-sosreports
 pbench-copy-sosreports: Bad TMP=/var/tmp/pbench-test-server/pbench/tmp
 --- Finished pbench-copy-sosreports (status=1)

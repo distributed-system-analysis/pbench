@@ -95,9 +95,16 @@ function _run_activate {
 }
 
 function _run_allscripts {
+    if [ -z "${1}" ]; then
+        arg0="${_testdir}/public_html/incoming"
+    else
+        arg0="${1}"
+    fi
+
     # _run pbench-backup-tarballs
-    # These next three are related and would flow in this order
-    _run pbench-unpack-tarballs $_testdir
+    # These next four are related and would flow in this order
+    _run pbench-unpack-tarballs $arg0
+    _run pbench-move-unpacked $arg0
     _run pbench-copy-sosreports
     _run pbench-index
     # These two are independent
@@ -237,6 +244,7 @@ declare -A cmds=(
     [test-4]="_run_allscripts"
     # check that it runs if everything is there
     [test-5]="_run_allscripts"
+    [test-5.1]="_run_allscripts ${_testdir}/tmp"
 
     # backup tests
     # check for normal operation
@@ -304,10 +312,15 @@ declare -A cmds=(
     [test-14]="_run pbench-server-prep-shim-001"
     [test-15]="_run pbench-server-prep-shim-002"
 
-    # pbench-unpack-tarballs not unpacking locally
+    # pbench-unpack-tarballs unpacking to the incoming directory
     [test-16]="_run pbench-unpack-tarballs ${_testdir}/public_html/incoming"
-    # pbench-unpack-tarballs unpacking locally
+    # pbench-unpack-tarballs unpacking to a temporary directory
     [test-17]="_run pbench-unpack-tarballs ${_testdir}/tmp"
+
+    # pbench-move-unpacked should work as expected using a temporary directory
+    [test-18]="_run pbench-move-unpacked ${_testdir}/tmp"
+    # pbench-move-unpacked should do nothing when incoming directory is target
+    [test-19]="_run pbench-move-unpacked ${_testdir}/public_html/incoming"
 )
 
 tests=$*
