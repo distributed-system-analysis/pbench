@@ -1,5 +1,7 @@
 +++ Running pbench-unpack-tarballs
 --- Finished pbench-unpack-tarballs (status=1)
++++ Running pbench-move-unpacked
+--- Finished pbench-move-unpacked (status=1)
 +++ Running pbench-copy-sosreports
 --- Finished pbench-copy-sosreports (status=1)
 +++ Running pbench-index
@@ -23,6 +25,9 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-index
 /var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.error
 /var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log
+/var/tmp/pbench-test-server/pbench/logs/pbench-move-unpacked
+/var/tmp/pbench-test-server/pbench/logs/pbench-move-unpacked/pbench-move-unpacked.error
+/var/tmp/pbench-test-server/pbench/logs/pbench-move-unpacked/pbench-move-unpacked.log
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
@@ -33,6 +38,7 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-copy-sosreports/pbench-copy-sosreports.log:pbench-copy-sosreports: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 /var/tmp/pbench-test-server/pbench/logs/pbench-edit-prefixes/pbench-edit-prefixes.log:pbench-edit-prefixes: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 /var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:pbench-index: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
+/var/tmp/pbench-test-server/pbench/logs/pbench-move-unpacked/pbench-move-unpacked.log:pbench-move-unpacked: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:pbench-unpack-tarballs: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- pbench log file contents
 +++ test-execution.log file contents

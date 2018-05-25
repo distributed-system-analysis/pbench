@@ -27,6 +27,18 @@ UNPACK_PATH=$1
 
 log_init $(basename $0) $LOGSDIR/$(basename $0)
 
+# check that all the directories exist
+test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
+test -d $INCOMING || doexit "Bad INCOMING=$INCOMING"
+test -d $RESULTS || doexit "Bad RESULTS=$RESULTS"
+test -d $UNPACK_PATH || doexit "Bad UNPACK_PATH=$UNPACK_PATH"
+
+if [ "$UNPACK_PATH" = "$INCOMING" ]; then
+    echo "$TS: the unpack path, $UNPACK_PATH, is the same as the incoming path, $INCOMING; nothing to do"
+    log_finish
+    exit 0
+fi
+
 # make sure only one copy is running.
 # Use 'flock -n $LOCKFILE /home/pbench/bin/pbench-move-unpacked' in the
 # crontab to ensure that only one copy is running. The script itself
@@ -37,25 +49,51 @@ linksrc=UNPACKED
 linkdest=MOVED-UNPACKED
 
 echo $TS
-
-# get the list of files we'll be operating on - sort them by size
 tmp=$TMP/$PROG.$$
-list=$tmp/$PROG.list
+trap 'rm -rf $tmp' EXIT INT QUIT
 
 mkdir -p $tmp
+
+# Accumulate errors and logs in files for reporting at the end.
 mail_content=$tmp/mail_content.log
 index_content=$tmp/index_mail_contents
 
-trap 'rm -rf $tmp' EXIT INT QUIT
+# get the list of files we'll be operating on - sort them by size
+list=$tmp/$PROG.list
 
-# find command will not generate any result if the linksrc is empty, and because of that du will not get any result 
-# to calculate the size. In that scenario du generates the size of the current directory as output, to handle
-# that exclude the current directory.
-find $ARCHIVE/*/$linksrc -type l -name '*.tar.xz' -printf "%l\n" 2>/dev/null | grep -v DUPLICATE | xargs du -b --exclude "." 2>/dev/null | sort -n > $list
+# Find all the links in all the $ARCHIVE/<controller>/$linksrc
+# directories, emitting a list of their full paths with the size
+# in bytes of the file the link points to, and then sort them so
+# that we process the smallest tar balls first.
+> ${list}.unsorted
+# First we find all the $linksrc directories
+for linksrc_dir in $(find $ARCHIVE/ -maxdepth 2 -name $linksrc); do
+    # Find all the links in a given $linksrc directory that are
+    # links to actual files (bad links are not emitted!).
+    find -L $linksrc_dir -type f -name '*.tar.xz' -printf "%s %p\n" 2>/dev/null >> ${list}.unsorted
+    # Find all the links in the same $linksrc directory that don't
+    # link to anything so that we can count them as errors below.
+    find -L $linksrc_dir -type l -name '*.tar.xz' -printf "%s %p\n" 2>/dev/null >> ${list}.unsorted
+done
+sort -n ${list}.unsorted > ${list}
+rm -f ${list}.unsorted
 
-typeset -i ntb=0
+# If there is nothing to be done, exit now: do not create the job
+# pool.
 
-# Initialize mail content
+# This is a workaround for a job pool problem: it seems that a
+# job termination message gets lost, so occasionally the script hangs with
+# a job pool process trying to read the next job from the job pool
+# queue, but there *is* no next job. This seems to happen *only* when
+# there is no work to be done.
+
+if [[ ! -s $list ]] ;then
+    echo "$TS: Processed 0 tarballs"
+    log_finish
+    exit 0
+fi
+
+# Initialize report content
 > $mail_content
 > $index_content
 
@@ -64,60 +102,52 @@ function process_tarball {
     size=$2
 
     link=$(readlink -e $result)
-    if [ ! -f "$link" ] ;then
-        echo "$TS: $link does not exist" | tee -a $mail_content >&4 
+    if [ -z "$link" ] ;then
+        echo "$TS: symlink target for $result does not exist" | tee -a $mail_content >&4
+        # FIXME: quarantine $result
         return 1
     fi
     resultname=$(basename $result)
     resultname=${resultname%.tar.xz}
-    hostname=$(basename $(dirname $link))
 
-    basedir=$(dirname $link)
-
-    # Version 002 agents use the metadata log to store a prefix.
-    # They may also store a user option in the metadata log.
-    # We check for both of these here (n.b. if nothing is found
-    # they are going to be empty strings):
-    prefix=$(getconf.py -C $UNPACK_PATH/$hostname/$resultname/metadata.log prefix run)
-    user=$(getconf.py -C $UNPACK_PATH/$hostname/$resultname/metadata.log user run)
-
-    # Version 001 agents use a prefix file
-    # If there is a prefix file, create a link as specified by the
-    # prefix.  Even if no prefix is specified, we still want to link
-    # from the results/ hierarchy to incoming/.
-    basedir=$(dirname $link)
-    # pbench-dispatch has already moved it to the .prefix subdir
-    prefixfile=$basedir/.prefix/$resultname.prefix
-    if [ -f $prefixfile ] ;then
-        # add the slash to make both cases uniform in what follows
-        prefix=$(cat $prefixfile)
+    # XXXX - for now, if it's a duplicate name, just punt and avoid
+    # producing the error
+    if [ ${resultname%%.*} == "DUPLICATE__NAME" ] ;then
+        # FIXME: quarantine $result
+        return 2
     fi
 
-    # if non-empty and does not contain a trailing slash, add one
-    if [ ! -z $prefix -a ${prefix%/} = ${prefix} ] ;then
-        prefix=${prefix}/
-    fi
+    basedir=$(dirname $link)
+    hostname=$(basename $basedir)
 
     # make sure that all the relevant state directories exist
     mk_dirs $hostname
     # ... and a couple of other necessities.
     if [[ $? -ne 0 ]] ;then
-        echo "$TS: Creation of $hostname processing directories failed: code $status" | tee -a $mail_content >&4
+        echo "$TS: Creation of $hostname processing directories failed for $result: code $status" | tee -a $mail_content >&4
+        # FIXME: quarantine $result
         return 1
     fi
     mkdir -p $INCOMING/$hostname
     if [[ $? -ne 0 ]] ;then
-        echo "$TS: Creation of $INCOMING/$hostname failed: code $status" | tee -a $mail_content >&4 
+        echo "$TS: Creation of $INCOMING/$hostname failed for $result: code $status" | tee -a $mail_content >&4 
+        # FIXME: quarantine $result
         return 1
     fi
-
-    # XXXX - for now, if it's a duplicate name, just punt and avoid producing the error - the full
-    # solution will involve renaming the unpacked directory appropriately.
-    if [ ${resultname%%.*} == "DUPLICATE__NAME" ] ;then
-        return 2
-    fi
-
     incoming=$INCOMING/$hostname/$resultname
+    if [ -L $incoming ]; then
+        # assert $incoming is a symlink
+        :
+    elif [ -d $incoming ]; then
+        echo "$TS: Incoming result, $INCOMING/$hostname/$resultname/, already exists as a directory, skipping $result" | tee -a $mail_content >&4
+        # FIXME: quarantine $result
+        return 1
+    else
+	# impossible!
+	echo "$TS: Cannot happen - $incoming is not a symlink or does not exist!" | tee -a $mail_content >&4 
+        # FIXME: quarantine $result
+	return 1
+    fi
 
     let start_time=$(date +%s)
 
@@ -125,64 +155,42 @@ function process_tarball {
     echo "Starting: $TS: $hostname/$resultname: size (bytes): $size"
 
     # copy the tarball contents to INCOMING - remove the link on failure
-    cp -R $UNPACK_PATH/$hostname/$resultname $incoming.copy
+    cp -a $UNPACK_PATH/$hostname/$resultname ${incoming}.copy
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: Cannot copy $UNPACK_PATH/$hostname/$resultname to $incoming.copy: code $status" | tee -a $mail_content >&4 
+        echo "$TS: Cannot copy $UNPACK_PATH/$hostname/$resultname to ${incoming}.copy: code $status" | tee -a $mail_content >&4 
+        rm -rf ${incoming}.copy
         return 1
     fi
 
-    # If $incoming exists, it can only be a directory or a symlink.
-    # If it does not exist, then we go on; but that's probably a bug
-    # in pbench-unpack-tarballs.
-    if [ -d "$incoming" ] ;then
-	# Probably left over from a previous unsuccessful pbench-move-unpacked.
-	# In general, this should be a symlink, *NOT* a directory. We remove it
-	# forcibly, but that's OK, since $incoming.copy was successfully created
-	# above (otherwise we'd never get here).
-	rm -rf "$incoming"
-	status=$?
-    elif [ -L "$incoming" ] ;then
-        # this is the standard case
-	# remove the symlink from incoming
-	rm $incoming
-	status=$?
-    elif [ -e "$incoming" ] ;then
-	# impossible!
-	echo "$TS: Cannot happen - $incoming is neither a dir nor a symlink!" | tee -a $mail_content >&4 
-	return 1
-    fi
-    if [[ $status -ne 0 ]] ;then
-	rm $RESULTS/$hostname/$prefix$resultname
-        if [ -d $incoming.copy ] ;then
-	    ln -s $incoming.copy $RESULTS/$hostname/$prefix$resultname
-            echo "$TS: Created symlink of $incoming.copy in $RESULTS: code $status" | tee -a $mail_content >&4
-        else
-            (echo "$TS: $incoming could not be removed for some reason: code $status";
-             ls $incoming; echo "----") | tee -a $mail_content >&4
-        fi
-	return 1
-    fi
-
-    # Rename the copied file to its original name.
-    # One way or another, $incoming is gone at this point.
-    mv $incoming.copy $incoming
+    # Move the symlink to the side
+    mv -T $incoming ${incoming}.link
     status=$?
     if [[ $status -ne 0 ]] ;then
-        # move failed, $incoming.copy still exists
-        rm -f $RESULTS/$hostname/$prefix$resultname
-        ln -sf $incoming.copy $RESULTS/$hostname/$prefix$resultname
+        # move failed, $incoming.copy still exists, remove it
+        rm -rf ${incoming}.copy
+        echo "$TS: Cannot rename $incoming to ${incoming}.link: code $status" | tee -a $mail_content >&4 
+        return 1
+    fi
+
+    # NOTE: this is a window where the result symlink points to nothing.
+
+    # Rename the copied result hierarchy to its original name.
+    mv ${incoming}.copy $incoming
+    status=$?
+    if [[ $status -ne 0 ]] ;then
+        # move failed, $incoming.copy still exists, remove it
+        rm -rf ${incoming}.copy
+        mv -f ${incoming}.link ${incoming}
         echo "$TS: Cannot rename $incoming.copy to $incoming: code $status" | tee -a $mail_content >&4 
         return 1
-    else
-	# fix up the results link: this is usually not necessary
-	# but if $incoming was a dir (see above), then the link
-	# would point to $incoming.copy.
-        # Remove the link first (issue #771).
-        rm -f $RESULTS/$hostname/$prefix$resultname
-        ln -sf $incoming $RESULTS/$hostname/$prefix$resultname
     fi
-        
+
+    rm -f ${incoming}.link
+    status=$?
+    if [[ $status -ne 0 ]] ;then
+        echo "$TS: WARNING, could not remove ${incoming}.link: code $status" | tee -a $mail_content >&4 
+    fi
 
     # remove the unpacked tarballs from UNPACK_PATH directory
     rm -R $UNPACK_PATH/$hostname/$resultname
@@ -212,26 +220,12 @@ if [[ -z $njobs ]] ;then
     njobs=1
 fi
 
-# If there is nothing to be done, exit now: do not create the job
-# pool.
-
-# This is a workaround for a job pool problem: it seems that a
-# job termination message gets lost, so occasionally the script hangs with
-# a job pool process trying to read the next job from the job pool
-# queue, but there *is* no next job. This seems to happen *only* when
-# there is no work to be done.
-
-if [[ ! -s $list ]] ;then
-    echo "$TS: Processed 0 tarballs"
-    log_finish
-    exit 0
-fi
-
 # echo job pool commands
 job_pool_echo_command=1
 
 job_pool_init $njobs 0
 
+typeset -i ntb=0
 while read size result ;do
     # add a job to the pool for the item
     job_pool_run process_tarball $result $size
@@ -245,15 +239,15 @@ done < $list
 # Shut down the job pool
 job_pool_shutdown
 
-echo "$TS: Processed $ntb tarballs"
+echo "$TS: Processed $ntb tar balls"
 
 log_finish
 
 if [[ -s $mail_content ]]; then
-    subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
+    subj="$PROG.$TS($PBENCH_ENV) - $ntb tar balls"
     cat << EOF > $index_content
 $subj
-Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates
+Processed $ntb result tar balls
 
 EOF
     cat $mail_content >> $index_content

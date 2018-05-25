@@ -1,15 +1,15 @@
 +++ Running pbench-unpack-tarballs
---- Finished pbench-unpack-tarballs (status=1)
+--- Finished pbench-unpack-tarballs (status=0)
 +++ Running pbench-move-unpacked
---- Finished pbench-move-unpacked (status=1)
+--- Finished pbench-move-unpacked (status=0)
 +++ Running pbench-copy-sosreports
 --- Finished pbench-copy-sosreports (status=0)
 +++ Running pbench-index
 --- Finished pbench-index (status=0)
 +++ Running pbench-clean-up-dangling-results-links
---- Finished pbench-clean-up-dangling-results-links (status=1)
+--- Finished pbench-clean-up-dangling-results-links (status=0)
 +++ Running pbench-edit-prefixes
---- Finished pbench-edit-prefixes (status=1)
+--- Finished pbench-edit-prefixes (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
 /var/tmp/pbench-test-server/pbench/archive
@@ -35,19 +35,23 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 /var/tmp/pbench-test-server/pbench/public_html
 /var/tmp/pbench-test-server/pbench/public_html/incoming
+/var/tmp/pbench-test-server/pbench/public_html/results
+/var/tmp/pbench-test-server/pbench/public_html/users
 /var/tmp/pbench-test-server/pbench/tmp
 --- pbench tree state
 +++ pbench log file contents
-/var/tmp/pbench-test-server/pbench/logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log:pbench-clean-up-dangling-results-links: Bad RESULTS=/var/tmp/pbench-test-server/pbench/public_html/results
 /var/tmp/pbench-test-server/pbench/logs/pbench-copy-sosreports/pbench-copy-sosreports.log:run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-copy-sosreports/pbench-copy-sosreports.log:run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, processed 0 sosreports for 0 results directories with 0 errors
-/var/tmp/pbench-test-server/pbench/logs/pbench-edit-prefixes/pbench-edit-prefixes.log:pbench-edit-prefixes: Bad RESULTS=/var/tmp/pbench-test-server/pbench/public_html/results
+/var/tmp/pbench-test-server/pbench/logs/pbench-edit-prefixes/pbench-edit-prefixes.log:run-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-edit-prefixes/pbench-edit-prefixes.log:run-1900-01-01T00:00:00-UTC: Processed 0 edit-prefix requests
 /var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 0 (skipped 0) results, 0 errors
 /var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01/status/86b27ea1db1e4119089cb4dff57df63e --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:
-/var/tmp/pbench-test-server/pbench/logs/pbench-move-unpacked/pbench-move-unpacked.log:pbench-move-unpacked: Bad RESULTS=/var/tmp/pbench-test-server/pbench/public_html/results
-/var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:pbench-unpack-tarballs: Bad RESULTS=/var/tmp/pbench-test-server/pbench/public_html/results
+/var/tmp/pbench-test-server/pbench/logs/pbench-move-unpacked/pbench-move-unpacked.log:run-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-move-unpacked/pbench-move-unpacked.log:run-1900-01-01T00:00:00-UTC: Processed 0 tarballs
+/var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:run-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:run-1900-01-01T00:00:00-UTC: Processed 0 tarballs
 --- pbench log file contents
 +++ test-execution.log file contents
 --- test-execution.log file contents
