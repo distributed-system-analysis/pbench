@@ -258,42 +258,45 @@ function safe_kill() {
 		# should not happen
 		return 1
 	fi
-	
+
 	# check that the pid corresponds to the tool
 	pidlist=$(pidof -x $tool)
-	typeset -i len=0
 	for p in $pidlist ;do
-		len=$len+1
 		if [[ $p == $pid ]] ;then
 			pid_to_kill=$pid
 		fi
 	done
-	# hack: individual tools will have a different number of pids running.
-	# we might just delete the warning if it gets too cumbersome.
-	if [[ $len > 4 || ($len > 3 && $tool != "turbostat") ]] ;then
-		warn_log "Too many pids for $tool: $pidlist -- maybe old tools running? Use pbench-kill-tools."
-	fi
-	
+
 	rc=0
 	if [ ! -z "$pid_to_kill" ] ;then
 		kill -s $signal $pid_to_kill 2>/dev/null
 		rc=$?
 	fi
-	
 	[[ $rc == 0 ]] && return 0
 
 	# check if the process is still running.
+	pid_to_kill=""
+	typeset -i len=0
 	pidlist=$(pidof -x $tool)
 	for p in $pidlist ;do
+		len=$len+1
 		if [[ $p == $pid ]] ;then
 			# why is the pid still there?
-			kill -s KILL $pid 2>/dev/null
-			return 2
+			pid_to_kill=$pid
 		# else
 			# why are there other tool processes running?
 			# should we kill them?
 		fi
 	done
+
+	if [ ! -z "$pid_to_kill" ] ;then
+		kill -s KILL $pid_to_kill 2>/dev/null
+		return 2
+	fi
+
+	if [[ $len > 4 || ($len > 3 && $tool != "turbostat") ]] ;then
+		warn_log "Too many pids for $tool: $pidlist -- maybe old tools running? Use pbench-kill-tools."
+	fi
 	return 0
 }
 
