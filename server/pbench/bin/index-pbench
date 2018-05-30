@@ -20,6 +20,7 @@ from elasticsearch import VERSION, Elasticsearch, helpers, exceptions as es_excs
 from urllib3 import exceptions as ul_excs, Timeout
 from datetime import datetime, timedelta
 from vos.analysis.lib import tstos
+from collections import Counter
 
 _VERSION_ = "0.1.0.0"
 _NAME_    = "index-pbench"
@@ -648,6 +649,14 @@ class ToolData(object):
             (iterseqno, itername) = iteration.split('-', 1)
         except Exception:
             iterseqno = itername = iteration
+        try:
+            self.start_run_ts = datetime.strptime(tstamp, "%Y-%m-%dT%H:%M:%S.%f")
+        except ValueError:
+            try:
+                self.start_run_ts = datetime.strptime(tstamp, "%Y-%m-%dT%H:%M:%S")
+            except ValueError:
+                self.start_run_ts = None
+        self.counters = Counter()
         self.run_metadata = {
             "runtstamp": tstamp,
             "runid": md5sum,
@@ -695,6 +704,15 @@ class ToolData(object):
                                                           hostpath, tool, toolgroup,
                                                           mdlog, tb)
 
+    def convert_timestamp(self, orig_ts):
+        # Convert the given string timestamp, assumed to be a float in
+        # milliseconds since the epoch, to the expected string timestamp format.
+        ts_float = float(orig_ts)/1000
+        ts = datetime.utcfromtimestamp(ts_float)
+        if self.start_run_ts is not None and ts < self.start_run_ts:
+            self.counters['tool_ts_before_start_run_ts'] += 1
+        return ts.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+
     def _make_source_unified(self):
         """Process each .csv file at the same time, reading one row from each,
         unifying them into one record per column identifier when the
@@ -718,7 +736,14 @@ class ToolData(object):
         # Metadata extracted from column header
         metadata = _dict_const()
         for csv in self.csv_files:
-            assert csv['header'][0] == 'timestamp_ms'
+            if csv['header'][0] != 'timestamp_ms':
+                print("Expected first column of .csv file (%s) to be"
+                        " 'timestamp_ms', found %s",
+                        (csv['basename'], csv['header'][0]))
+                # FIXME: consider counting this issue and reporting with a
+                # summary of the indexing work.
+                self.counters['first_column_not_timestamp_ms'] += 1
+                continue
             header = csv['header']
             handler = self.handler[csv['basename']]
             colpat = handler['colpat']
@@ -737,10 +762,14 @@ class ToolData(object):
                     subfield = None
                 else:
                     if subfield not in handler['subfields']:
-                        raise Exception(
-                            "Handler subfields, %r, do not match header"
-                            " subfield name %s" % (
-                                handler['subfields'], subfield))
+                        print("Column header, %r, has an unexpected subfield,"
+                                " %r, expected %r subfields, for .csv %s" % (
+                                    col, subfield, handler['subfields'],
+                                    csv['basename']))
+                        # FIXME: Consider counting this error and reporting
+                        # with a summary of the indexing work.
+                        self.counters['column_subfields_do_not_match_handler'] += 1
+                        subfield = None
                 field_mapping[csv['basename']][idx] = (identifier, subfield)
                 try:
                     metadata_pat = handler['metadata_pat']
@@ -754,11 +783,16 @@ class ToolData(object):
                             try:
                                 val = m.group(md)
                             except IndexError:
-                                raise Exception(
-                                    "Handler metadata, %r, not found in column"
-                                    " %r using pattern %r" % (
-                                        handler['metadata'], col,
-                                        handler['metadata_pat']))
+                                print("Handler metadata, %r, not found in"
+                                        " column %r using pattern %r, for"
+                                        " .csv %s" % (
+                                            handler['metadata'], col,
+                                            handler['metadata_pat'],
+                                            csv['basename']))
+                                # FIXME: Consider counting this error and
+                                # reporting it with a summary of the indexing
+                                # work.
+                                self.counters['expected_column_metadata_not_found'] += 1
                             else:
                                 colmd[md] = val
                         metadata[identifier] = colmd
@@ -782,16 +816,20 @@ class ToolData(object):
             first = None
             for fname in rows.keys():
                 tstamp = rows[fname][0]
-                if not first:
+                if first is None:
                     first = tstamp
-                else:
-                    assert(first == tstamp)
+                elif first != tstamp:
+                    print("tool-data-indexing: %s csv files have inconsistent"
+                            " timestamps per row" % self.toolname)
+                    # FIXME: We should consider counting these inconsistent
+                    # timestamps and reporting them with the summary of the
+                    # indexing work.
+                    self.counters['inconsistent_timestamps_across_csv_files'] += 1
+                    break
             # Create the base document per identifier; the timestamp is taken
             # from the "first" timestamp, converted to a floating point
             # seconds value, and then formatted as a string.
-            first = int(first)/1000
-            ts = datetime.utcfromtimestamp(first)
-            ts_str = ts.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+            ts_str = self.convert_timestamp(first)
             datum = _dict_const()
             for identifier in identifiers.keys():
                 datum[identifier] = _dict_const([
@@ -852,11 +890,20 @@ class ToolData(object):
                 try:
                     # unix seconds since epoch timestamp
                     ts = datetime.utcfromtimestamp(item['@timestamp'])
+                except TypeError:
+                    # assume that item[@timestamp] is already in the expected
+                    # format.
+                    self.counters['json_doc_timestamp_not_validated'] += 1
+                except KeyError:
+                    # missing timestamps
+                    #
+                    # FIXME: We should consider logging the first record with
+                    # missing timestamps, and then count the rest and report
+                    # the count with the summary of how the indexing went.
+                    self.counters['json_doc_missing_timestamp'] += 1
+                else:
                     ts_str = ts.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
                     item['@timestamp'] = ts_str
-                except Exception:
-                    # assume that item[@timestamp] is already in %Y-%m-%dT%H:%M:%S.%f%z format
-                    pass
 
                 yield item
         return
@@ -1437,7 +1484,7 @@ def _to_utc(l, u):
     ISO format date.
     """
     lts = datetime.strptime(l, "%Y-%m-%dT%H:%M:%S")
-    uts = datetime.strptime(u[:u.rfind('.')] , "%Y-%m-%dT%H:%M:%S")
+    uts = datetime.strptime(u[:u.rfind('.')], "%Y-%m-%dT%H:%M:%S")
 
     offset = lts - uts
     res = round(float(offset.seconds) / 60 / 60 + offset.days * 24, 1)
