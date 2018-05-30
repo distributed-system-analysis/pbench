@@ -801,14 +801,15 @@ class ToolData(object):
                     ('@metadata', self.run_metadata)
                 ])
                 datum[identifier][self.toolname] = _dict_const()
-                for klass in class_list.keys():
-                    datum[identifier][self.toolname][klass] = _dict_const([('id',identifier)])
                 try:
                     md = metadata[identifier]
                 except KeyError:
-                    pass
-                else:
-                    datum[identifier][self.toolname][klass].update(md)
+                    md = None
+                for klass in class_list.keys():
+                    d = _dict_const([('id',identifier)])
+                    if md:
+                        d.update(md)
+                    datum[identifier][self.toolname][klass] = d
             # Now we can perform the mapping from multiple .csv files to JSON
             # documents using a known field hierarchy (no identifiers in field
             # names) with the identifiers as additional metadata. Note that we
