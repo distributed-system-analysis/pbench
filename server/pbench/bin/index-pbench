@@ -376,6 +376,7 @@ def convert_to_float(d):
     else:
         pass
 
+
 class ResultData(object):
     def __init__(self, tstamp, md5sum, experiment, mdlog, tb, opctx):
         self.run_metadata = {
@@ -670,24 +671,31 @@ _aliases = {
 
 
 class ToolData(object):
-    def __init__(self, tstamp, md5sum, experiment, iteration, sample, host, tool, toolgroup,
-                 mdlog, tb, opctx):
+    def __init__(self, start_run_tstamp, end_run_tstamp, md5sum, experiment,
+                iteration, sample, host, tool, toolgroup, mdlog, tb, opctx):
         self.toolname = tool
-        try:
-            (iterseqno, itername) = iteration.split('-', 1)
-        except Exception:
-            iterseqno = itername = iteration
-        try:
-            self.start_run_ts = datetime.strptime(tstamp, "%Y-%m-%dT%H:%M:%S.%f")
-        except ValueError:
-            try:
-                self.start_run_ts = datetime.strptime(tstamp, "%Y-%m-%dT%H:%M:%S")
-            except ValueError:
-                self.start_run_ts = None
         self.counters = Counter()
         opctx.append({ "object": "ToolData-%s" % (tool), "counters": self.counters })
+        try:
+            (iterseqno, itername) = iteration.split('-', 1)
+        except ValueError:
+            iterseqno = itername = iteration
+        try:
+            self.start_run_ts = datetime.strptime(start_run_tstamp, "%Y-%m-%dT%H:%M:%S.%f")
+        except ValueError:
+            try:
+                self.start_run_ts = datetime.strptime(start_run_tstamp, "%Y-%m-%dT%H:%M:%S")
+            except ValueError:
+                self.start_run_ts = None
+        try:
+            self.end_run_ts = datetime.strptime(end_run_tstamp, "%Y-%m-%dT%H:%M:%S.%f")
+        except ValueError:
+            try:
+                self.end_run_ts = datetime.strptime(end_run_tstamp, "%Y-%m-%dT%H:%M:%S")
+            except ValueError:
+                self.end_run_ts = None
         self.run_metadata = {
-            "runtstamp": tstamp,
+            "runtstamp": start_run_tstamp,
             "runid": md5sum,
             "experiment": experiment,
             # FIXME: What are the constituent parts of an iteration name?
@@ -740,6 +748,8 @@ class ToolData(object):
         ts = datetime.utcfromtimestamp(ts_float)
         if self.start_run_ts is not None and ts < self.start_run_ts:
             self.counters['tool_ts_before_start_run_ts'] += 1
+        if self.end_run_ts is not None and ts > self.end_run_ts:
+            self.counters['tool_ts_after_end_run_ts'] += 1
         return ts.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
 
     def _make_source_unified(self):
@@ -1095,7 +1105,7 @@ def get_tool_hostname_s(host, mdlog):
     except:
         return ""
 
-def mk_tool_data(mdlog, md5sum, tb, tstamp, opctx):
+def mk_tool_data(mdlog, md5sum, tb, start_run_tstamp, end_run_tstamp, opctx):
     experiment = mdlog.get("pbench", "name")
     try:
         toolsgroup = mdlog.get("tools", "group")
@@ -1110,13 +1120,15 @@ def mk_tool_data(mdlog, md5sum, tb, tstamp, opctx):
                 tools = get_tools(iteration, sample, host, mdlog, tb)
                 for tool in tools:
                     yield ToolData(
-                        tstamp, md5sum, experiment, iteration, sample,
-                        host, tool, toolsgroup, mdlog, tb, opctx)
+                            start_run_tstamp, end_run_tstamp, md5sum,
+                            experiment, iteration, sample, host, tool,
+                            toolsgroup, mdlog, tb, opctx)
     return
 
 def mk_tool_data_actions(ptb, options, INDEX_PREFIX, opctx):
     index_name_template = "%s.tool-data-%%s" % INDEX_PREFIX
-    for td in mk_tool_data(ptb.mdconf, ptb.md5sum, ptb.tb, ptb.start_run, opctx):
+    for td in mk_tool_data(ptb.mdconf, ptb.md5sum, ptb.tb, ptb.start_run,
+            ptb.end_run, opctx):
         # Each ToolData object, td, that is returned here represents how
         # data collected for that tool across all hosts is to be returned.
         # The make_source method returns a generator that will emit each
@@ -1705,6 +1717,7 @@ class PbenchTarBall(object):
             split_date_str = self.start_run.split('T')
             # List of constituent date components, year [0], month [1], day [2]
             self.date = [ int(x) for x in split_date_str[0].split("-") ]
+            self.end_run = fix_date_format(self.mdconf.get('run', 'end_run'))
         except Exception:
             raise BadDate(self.tbname)
         # Open the MD5 file of the tarball and read the MD5 sum from it.
