@@ -377,12 +377,14 @@ def convert_to_float(d):
         pass
 
 class ResultData(object):
-    def __init__(self, tstamp, md5sum, experiment, mdlog, tb):
+    def __init__(self, tstamp, md5sum, experiment, mdlog, tb, opctx):
         self.run_metadata = {
             "runtstamp": tstamp,
             "runid": md5sum,
             "experiment": experiment,
         }
+        self.counters = Counter()
+        opctx.append({ "object": "ResultData", "counters": self.counters })
         self.json_files = None
         try:
             self.json_files = ResultData.get_json_files(mdlog, tb)
@@ -391,14 +393,38 @@ class ResultData(object):
 
     def _make_source_json(self):
         for df in self.json_files:
-            item = {}
-            results = json.loads(open(os.path.join(_tmpdir, df['path'])).read())
+            try:
+                # Read it once to generate the source_id
+                with open(os.path.join(_tmpdir, df['path']), "rb") as fp:
+                    hash_md5 = hashlib.md5()
+                    for chunk in iter(lambda: fp.read(4096), b""):
+                        hash_md5.update(chunk)
+                    source_id = hash_md5.hexdigest()
+            except Exception as e:
+                print("result-data-indexing: encountered unreadable JSON file,"
+                        " %s: %r" % (df['path'], e))
+                self.counters['unreadable_json_file'] += 1
+                continue
+
+            try:
+                # Read it a second time to interpret it as a JSON document.
+                with open(os.path.join(_tmpdir, df['path'])) as fp:
+                    results = json.load(fp)
+            except Exception as e:
+                print("result-data-indexing: encountered invalid JSON file,"
+                        " %s: %r" % (df['path'], e))
+                self.counters['not_valid_json_file'] += 1
+                continue
+
             convert_to_float(results)
-            item['results'] = results
-            item['@metadata'] = self.run_metadata
+
+            source = {}
+            source['results'] = results
+            source['@metadata'] = self.run_metadata
             ts_str = self.run_metadata['runtstamp']
-            item['@timestamp'] = ts_str
-            yield item
+            source['@timestamp'] = ts_str
+
+            yield source, source_id
         return
 
     def make_source(self):
@@ -422,12 +448,14 @@ class ResultData(object):
             fname = os.path.basename(p)
             datafile = { "path": p, "basename": fname }
             datafiles.append(datafile)
-
         return datafiles
 
 
 ###########################################################################
 # Tool data routines
+
+def _make_source_id(source):
+    return hashlib.md5(json.dumps(source, sort_keys=True).encode('utf-8')).hexdigest()
 
 # Handlers data table / dictionary describing how to process a given tool's
 # .csv files.  The outer dictionary holds one dictionary for each tool. Each
@@ -643,7 +671,7 @@ _aliases = {
 
 class ToolData(object):
     def __init__(self, tstamp, md5sum, experiment, iteration, sample, host, tool, toolgroup,
-                 mdlog, tb):
+                 mdlog, tb, opctx):
         self.toolname = tool
         try:
             (iterseqno, itername) = iteration.split('-', 1)
@@ -657,6 +685,7 @@ class ToolData(object):
             except ValueError:
                 self.start_run_ts = None
         self.counters = Counter()
+        opctx.append({ "object": "ToolData-%s" % (tool), "counters": self.counters })
         self.run_metadata = {
             "runtstamp": tstamp,
             "runid": md5sum,
@@ -737,11 +766,9 @@ class ToolData(object):
         metadata = _dict_const()
         for csv in self.csv_files:
             if csv['header'][0] != 'timestamp_ms':
-                print("Expected first column of .csv file (%s) to be"
-                        " 'timestamp_ms', found %s",
+                print("tool-data-indexing: expected first column of .csv file"
+                        " (%s) to be 'timestamp_ms', found %s",
                         (csv['basename'], csv['header'][0]))
-                # FIXME: consider counting this issue and reporting with a
-                # summary of the indexing work.
                 self.counters['first_column_not_timestamp_ms'] += 1
                 continue
             header = csv['header']
@@ -762,12 +789,11 @@ class ToolData(object):
                     subfield = None
                 else:
                     if subfield not in handler['subfields']:
-                        print("Column header, %r, has an unexpected subfield,"
-                                " %r, expected %r subfields, for .csv %s" % (
+                        print("tool-data-indexing: column header, %r, has an"
+                                " unexpected subfield, %r, expected %r"
+                                " subfields, for .csv %s" % (
                                     col, subfield, handler['subfields'],
                                     csv['basename']))
-                        # FIXME: Consider counting this error and reporting
-                        # with a summary of the indexing work.
                         self.counters['column_subfields_do_not_match_handler'] += 1
                         subfield = None
                 field_mapping[csv['basename']][idx] = (identifier, subfield)
@@ -783,15 +809,12 @@ class ToolData(object):
                             try:
                                 val = m.group(md)
                             except IndexError:
-                                print("Handler metadata, %r, not found in"
-                                        " column %r using pattern %r, for"
-                                        " .csv %s" % (
+                                print("tool-data-indexing: handler metadata,"
+                                        " %r, not found in column %r using"
+                                        " pattern %r, for .csv %s" % (
                                             handler['metadata'], col,
                                             handler['metadata_pat'],
                                             csv['basename']))
-                                # FIXME: Consider counting this error and
-                                # reporting it with a summary of the indexing
-                                # work.
                                 self.counters['expected_column_metadata_not_found'] += 1
                             else:
                                 colmd[md] = val
@@ -821,9 +844,6 @@ class ToolData(object):
                 elif first != tstamp:
                     print("tool-data-indexing: %s csv files have inconsistent"
                             " timestamps per row" % self.toolname)
-                    # FIXME: We should consider counting these inconsistent
-                    # timestamps and reporting them with the summary of the
-                    # indexing work.
                     self.counters['inconsistent_timestamps_across_csv_files'] += 1
                     break
             # Create the base document per identifier; the timestamp is taken
@@ -869,9 +889,10 @@ class ToolData(object):
                         datum[identifier][self.toolname][klass][metric] = val
             # At this point we have fully mapped all data from all .csv files
             # to their proper fields for each identifier. Now we can yield
-            # record for the identifiers.
-            for key,source in datum.items():
-                yield source
+            # records for each of the identifiers.
+            for _id,source in datum.items():
+                source_id = _make_source_id(source)
+                yield source, source_id
         return
 
     def _make_source_individual(self):
@@ -881,31 +902,54 @@ class ToolData(object):
 
     def _make_source_json(self):
         for df in self.json_files:
-            payload = json.loads(open(os.path.join(_tmpdir, df['path'])).read())
-            for item in payload:
-                item['@metadata'] = self.run_metadata
-                # any transformations needed should be done here
+            try:
+                with open(os.path.join(_tmpdir, df['path'])) as fp:
+                    payload = json.load(fp)
+            except Exception as e:
+                print("tool-data-indexing: encountered bad JSON file,"
+                        " %s: %r" % (df['path'], e))
+                self.counters["bad_json_file"] += 1
+                continue
 
-                # timestamp handling.
+            missing_ts = False
+            for source in payload:
                 try:
-                    # unix seconds since epoch timestamp
-                    ts = datetime.utcfromtimestamp(item['@timestamp'])
-                except TypeError:
-                    # assume that item[@timestamp] is already in the expected
-                    # format.
-                    self.counters['json_doc_timestamp_not_validated'] += 1
+                    ts_val = source['@timestamp']
                 except KeyError:
                     # missing timestamps
-                    #
-                    # FIXME: We should consider logging the first record with
-                    # missing timestamps, and then count the rest and report
-                    # the count with the summary of how the indexing went.
+                    if not missing_ts:
+                        # Log the first record with missing timestamps we
+                        # encounter for this file, and then count the rest and
+                        # report the count with the summary of how the
+                        # indexing went.
+                        missing_ts = True
+                        print("tool-data-indexing: encountered JSON file, %s,"
+                                " with missing @timestamp fields" % (
+                                    df['path']))
                     self.counters['json_doc_missing_timestamp'] += 1
+                    continue
+
+                # further timestamp handling
+                try:
+                    # unix seconds since epoch timestamp
+                    ts = datetime.utcfromtimestamp(ts_val)
+                except TypeError:
+                    # the timestamp value is not in seconds since the epoch,
+                    # so assume that source[@timestamp] is already in the
+                    # expected format.
+                    #
+                    # FIXME - Should we validate the expected string format?
+                    self.counters['json_doc_timestamp_not_validated'] += 1
                 else:
                     ts_str = ts.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
-                    item['@timestamp'] = ts_str
+                    source['@timestamp'] = ts_str
 
-                yield item
+                source['@metadata'] = self.run_metadata
+
+                # any transformations needed should be done here
+
+                source_id = _make_source_id(source)
+                yield source, source_id
         return
 
     def make_source(self):
@@ -970,7 +1014,6 @@ class ToolData(object):
             fname = os.path.basename(p)
             datafile = { "path": p, "basename": fname, 'handler': handler }
             datafiles.append(datafile)
-
         return datafiles
 
 # tool data are stored in csv files in the tarball.
@@ -1052,7 +1095,7 @@ def get_tool_hostname_s(host, mdlog):
     except:
         return ""
 
-def mk_tool_data(mdlog, md5sum, tb, tstamp):
+def mk_tool_data(mdlog, md5sum, tb, tstamp, opctx):
     experiment = mdlog.get("pbench", "name")
     try:
         toolsgroup = mdlog.get("tools", "group")
@@ -1068,12 +1111,12 @@ def mk_tool_data(mdlog, md5sum, tb, tstamp):
                 for tool in tools:
                     yield ToolData(
                         tstamp, md5sum, experiment, iteration, sample,
-                        host, tool, toolsgroup, mdlog, tb)
+                        host, tool, toolsgroup, mdlog, tb, opctx)
     return
 
-def mk_tool_data_actions(ptb, options, INDEX_PREFIX):
+def mk_tool_data_actions(ptb, options, INDEX_PREFIX, opctx):
     index_name_template = "%s.tool-data-%%s" % INDEX_PREFIX
-    for td in mk_tool_data(ptb.mdconf, ptb.md5sum, ptb.tb, ptb.start_run):
+    for td in mk_tool_data(ptb.mdconf, ptb.md5sum, ptb.tb, ptb.start_run, opctx):
         # Each ToolData object, td, that is returned here represents how
         # data collected for that tool across all hosts is to be returned.
         # The make_source method returns a generator that will emit each
@@ -1085,39 +1128,36 @@ def mk_tool_data_actions(ptb, options, INDEX_PREFIX):
         asource = td.make_source()
         if not asource:
             continue
-        for source in asource:
+        for source, source_id in asource:
             action = {
                 "_op_type": _op_type,
                 "_index":   index_name_template_for_tool + source['@timestamp'].split('T', 1)[0],
                 "_type":    "pbench-tool-data-%s" % td.toolname,
-                # FIXME: we should generate our own JSON doc ID
-                #"_id":      source_id,
+                "_id":      source_id,
                 "_source":  source
             }
             yield action
     return
 
-def mk_result_data_actions(ptb, options, INDEX_PREFIX):
+def mk_result_data_actions(ptb, options, INDEX_PREFIX, opctx):
     index_name_template = "%s.result-data." % INDEX_PREFIX
     mdlog = ptb.mdconf
     experiment = mdlog.get("pbench", "name")
-    rd = ResultData(ptb.start_run, ptb.md5sum, experiment, mdlog, ptb.tb)
+    rd = ResultData(ptb.start_run, ptb.md5sum, experiment, mdlog, ptb.tb, opctx)
     if not rd:
         return
     sources = rd.make_source()
     if not sources:
         return
-    for source in sources:
-            action = {
-                "_op_type": _op_type,
-                "_index":   index_name_template + source['@timestamp'].split('T', 1)[0],
-                "_type":    "pbench-result-data",
-                # FIXME: we should generate our own JSON doc ID
-                #"_id":      source_id,
-                "_source":  source
-            }
-            yield action
-
+    for source, source_id in sources:
+        action = {
+            "_op_type": _op_type,
+            "_index":   index_name_template + source['@timestamp'].split('T', 1)[0],
+            "_type":    "pbench-result-data",
+            "_id":      source_id,
+            "_source":  source
+        }
+        yield action
     return
 
 ###########################################################################
@@ -1172,7 +1212,7 @@ def get_md5sum_of_dir(dir, parentid):
                 h.update(repr(f[k]).encode('utf-8'))
     return h.hexdigest()
 
-def mk_toc_actions(ptb, options, INDEX_PREFIX):
+def mk_toc_actions(ptb, options, INDEX_PREFIX, opctx):
     """Construct Table-of-Contents actions.
 
     These are indexed into the run index along side the runs."""
@@ -1559,8 +1599,7 @@ def mk_metadata(fname, tb, mdconf, md5sum):
     }
     return mddict
 
-def mk_run_action(ptb, options, INDEX_PREFIX):
-    #mk_run_action(hostname, tbname, dirname, dirprefix, tb, mdconf, idxname, md5sum, ts, options):
+def mk_run_action(ptb, options, INDEX_PREFIX, opctx):
     """Extract metadata from the named tarball and create an indexing
        action out of them.
 
@@ -1600,7 +1639,7 @@ def mk_run_action(ptb, options, INDEX_PREFIX):
     if debug_time_operations: ts("Done!", newline=True)
     return action
 
-def make_all_actions(ptb, options, INDEX_PREFIX, INDEX_VERSION):
+def make_all_actions(ptb, options, INDEX_PREFIX, INDEX_VERSION, opctx):
     """Driver for generating all actions on source documents for indexing
     into Elasticsearch. This generator drives the generation of the run
     source document, the table-of-contents tar ball documents, and finally
@@ -1608,15 +1647,15 @@ def make_all_actions(ptb, options, INDEX_PREFIX, INDEX_VERSION):
     """
     debug_time_operations = options.debug_time_operations
     if debug_time_operations: ts("mk_run_action")
-    yield mk_run_action(ptb, options, INDEX_PREFIX)
+    yield mk_run_action(ptb, options, INDEX_PREFIX, opctx)
     if debug_time_operations: ts("mk_toc_actions")
-    for action in mk_toc_actions(ptb, options, INDEX_PREFIX):
+    for action in mk_toc_actions(ptb, options, INDEX_PREFIX, opctx):
         yield action
     if debug_time_operations: ts("mk_result_data_actions")
-    for action in mk_result_data_actions(ptb, options, INDEX_PREFIX):
+    for action in mk_result_data_actions(ptb, options, INDEX_PREFIX, opctx):
         yield action
     if debug_time_operations: ts("mk_tool_data_actions")
-    for action in mk_tool_data_actions(ptb, options, INDEX_PREFIX):
+    for action in mk_tool_data_actions(ptb, options, INDEX_PREFIX, opctx):
         yield action
     if debug_time_operations: ts("", newline=True)
     return
@@ -1720,6 +1759,7 @@ def main(options, args):
     # FileNotFoundError is python 3.3 and the travis-ci hosts still (2015-10-01) run
     # python 3.2
     filenotfounderror = getattr(__builtins__, 'FileNotFoundError', IOError)
+    opctx = []
 
     try:
         config=SafeConfigParser()
@@ -1751,7 +1791,12 @@ def main(options, args):
 
         # prepare the actions - the tarball name is the only argument.
         ptb = PbenchTarBall(args[0])
-        actions = make_all_actions(ptb, options, INDEX_PREFIX, INDEX_VERSION)
+
+        # Construct the generator for emitting all actions.  The `opctx`
+        # dictionary is passed along to each generator so that it can add its
+        # context for error handling to the list.
+        actions = make_all_actions(
+                ptb, options, INDEX_PREFIX, INDEX_VERSION, opctx)
 
         # Create the various index templates
         if options.debug_time_operations: ts("es_template")
@@ -1809,6 +1854,13 @@ def main(options, args):
         res = 12
 
     finally:
+        dump = False
+        for ctx in opctx:
+            if ctx['counters']:
+                dump = True
+        if dump:
+            print("** Errors encountered while indexing:")
+            print(json.dumps(opctx, indent=4, sort_keys=True))
         if options.debug_time_operations: ts("Done", newline=True)
 
     # status codes: these are used by pbench-index to segregate tarballs into
