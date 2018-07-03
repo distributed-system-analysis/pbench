@@ -120,7 +120,6 @@ collect_data() {
 get_masters() {
     declare -A master_pids
     while true; do
-        i=1
         for master in "${masters[@]}"; do
             oc get --raw /debug/pprof/profile?seconds=${interval} --server https://${master}:8443 > /tmp/${master}_api_profile && ${tool_bin} tool ${tool} -text -seconds=${interval} -output $PPROF_TMPDIR/${master}/$(date +%Y-%m-%d:%H:%M:%S)_api_profile.txt /tmp/${master}_api_profile &
             master_pids[${master}_api]=$!
@@ -128,11 +127,9 @@ get_masters() {
             oc get --raw /debug/pprof/profile?seconds=${interval} --server https://${master}:8444 > /tmp/${master}_controller_profile && ${tool_bin} tool ${tool} -text -seconds=${interval} -output $PPROF_TMPDIR/${master}/$(date +%Y-%m-%d:%H:%M:%S)_controller_profile.txt /tmp/${master}_controller_profile &
             master_pids[${master}_controller]=$!
             oc get --raw /debug/pprof/heap --server https://${master}:8444 > /tmp/${master}_controller_heap && ${tool_bin} tool ${tool} -text -seconds=${interval} -output $PPROF_TMPDIR/${master}/$(date +%Y-%m-%d:%H:%M:%S)_controller_heap.txt /tmp/${master}_controller_heap &
-            if (( i++%${#masters[@]}==0 )); then
-		for pid in ${master_pids[*]}; do
-                    wait ${pid}
-                done
-            fi
+        done
+	for pid in ${master_pids[*]}; do
+            wait ${pid}
         done
     done
 }
@@ -140,16 +137,13 @@ get_masters() {
 get_hosts() {
     declare -A node_pids
     while true; do
-        j=1
         for host in "${hosts[@]}"; do
             oc get --raw /debug/pprof/profile?seconds=${interval} --server https://${host}:10250 > /tmp/${host}_profile && ${tool_bin} tool ${tool} -text -seconds=${interval} -output $PPROF_TMPDIR/${host}/$(date +%Y-%m-%d:%H:%M:%S)_profile.txt /tmp/${host}_profile &
             node_pids[${host}]=$!
             oc get --raw /debug/pprof/heap --server https://${host}:10250 > /tmp/${host}_heap && ${tool_bin} tool ${tool} -text -seconds=${interval} -output $PPROF_TMPDIR/${host}/$(date +%Y-%m-%d:%H:%M:%S)_heap.txt /tmp/${host}_heap &
-            if (( j++%${#hosts[@]}==0 )); then
-		for pid in ${node_pids[*]}; do
-                    wait ${pid}
-                done
-            fi
+        done
+	for pid in ${node_pids[*]}; do
+            wait ${pid}
         done
     done
 }
