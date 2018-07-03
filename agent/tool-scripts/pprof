@@ -99,6 +99,12 @@ while true ; do
 esac
 done 
 
+## check if the inventory variable is set correctly
+if [[ ! -s "$inventory" ]] || [[ ! -f "$inventory" ]]; then
+	echo "Please check if the inventory file exists, is not empty and the inventory variable is not set to a directory"
+	exit 1
+fi
+
 tool_cmd="$tool_bin $record_opts"
 tool_dir="$dir/tools-$group"
 tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
@@ -147,12 +153,6 @@ get_hosts() {
         done
     done
 }
-
-## check if the inventory variable is set correctly
-if [[ ! -s "$inventory" ]] || [[ ! -f "$inventory" ]]; then
-	echo "Please check if the inventory file exists, is not empty and the inventory variable is not set to a directory"
-	exit 1
-fi
 
 case "$mode" in 
     install)
