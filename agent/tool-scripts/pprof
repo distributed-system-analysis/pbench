@@ -23,14 +23,8 @@ mode=""
 iteration="1"
 options="none"
 interval=60
-origin_master="/etc/sysconfig/origin-master"
-origin_node="/etc/sysconfig/origin-node"
-ose_openshift_master="/etc/sysconfig/atomic-openshift-master"
-ose_openshift_node="/etc/sysconfig/atomic-openshift-node"
-ose_openshift_master_api="/etc/sysconfig/atomic-openshift-master-api"
-ose_openshift_master_controllers="/etc/sysconfig/atomic-openshift-master-controllers"
 
-opts=$(getopt -o d --longoptions "dir:,group:,iteration:,osecomponent:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+opts=$(getopt -o d --longoptions "dir:,group:,iteration:,osecomponent:,interval:,inventory:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
 
 eval set -- "$opts"; 
 while true ; do 
@@ -86,6 +80,13 @@ while true ; do
             shift;
         fi
     ;; 
+    --inventory)
+        shift;
+        if [ -n "$1" ]; then
+            inventory="$1"
+            shift
+        fi
+    ;;
     --)
         shift;
         break;
@@ -101,88 +102,75 @@ done
 tool_cmd="$tool_bin $record_opts"
 tool_dir="$dir/tools-$group"
 tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
-tool_cmd_file="$tool_output_dir/$tool.cmd"
-tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
-tool_output_file=$tool_output_dir/$tool.txt
 export PPROF_TMPDIR=$tool_output_dir
-
-# function to setup openshift master or node file to support web profile, depending
-# is it Openshift Enterprise, or upstream Openshift Origin
-ose_pprof() {
-    case "$osecomponent" in
-        master)
-            if [ -e $origin-master ]; then 
-                if grep -q "^OPENSHIFT_PROFILE=web" $origin_master; then
-                    systemctl restart openshift-master.service
-                else
-                    echo "OPENSHIFT_PROFILE=web" >> $origin_master
-                    systemctl restart openshift-master.service
-                fi
-            else
-                #check if openshift-master service is master, that means its a ha installation
-                if [ $(systemctl list-unit-files | grep atomic-openshift-master.service | awk {'print $2'}) == "masked" ]; then
-                    if grep -q "^OPENSHIFT_PROFILE=web" $ose_openshift_master_api; then
-                        systemctl restart atomic-openshift-master-api atomic-openshift-master-controllers
-                    else
-                        echo "OPENSHIFT_PROFILE=web" >> $ose_openshift_master_api
-                        echo "OPENSHIFT_PROFILE=web" >> $ose_openshift_master_controllers
-                        echo "OPENSHIFT_PROFILE_PORT=6061" >> $ose_openshift_master_api
-                        systemctl restart atomic-openshift-master-api.service atomic-openshift-master-controllers.service
-                    fi
-                else
-                    if grep -q "^OPENSHIFT_PROFILE=web" $ose_openshift_master; then
-                        systemctl restart atomic-openshift-master
-                    else
-                        echo "OPENSHIFT_PROFILE=web" >> $ose_openshift_master
-                        systemctl restart atomic-openshift-master.service
-                    fi
-                fi
-            fi 
-            ;;
-        node)
-            if [ -e $origin-node ]; then 
-                if grep -q "^OPENSHIFT_PROFILE=web" $origin_node; then
-                    systemctl restart openshift-node.service
-                else
-                    echo "OPENSHIFT_PROFILE=web" >> $origin_node
-                    systemctl restart openshift-node.service
-                fi 
-            else
-                if grep -q "^OPENSHIFT_PROFILE=web" $ose_openshift_node; then
-                    systemctl restart atomic-openshift-node.service
-                else
-                    echo "OPENSHIFT_PROFILE=web" >> $ose_openshift_node
-                    systemctl restart atomic-openshift-node.service
-                fi
-            fi 
-    esac
-}
+declare -a hosts=($(cat $inventory | sed -n '/^\[pprof\]/,/^$/p' | awk 'length {if (NR!=1) {print}}'))
+declare -a masters=($(cat $inventory | sed -n '/^\[masters\]/,/^$/p' | awk 'length {if (NR!=1) {print}}'))
 
 collect_data() {
-    while true; do
-        if [ $(systemctl list-unit-files | grep atomic-openshift-master.service | awk {'print $2'}) == "masked" ]; then
-            $tool_bin tool $tool -text -seconds=$interval -output $PPROF_TMPDIR/$(date +%Y-%m-%d:%H:%M:%S)_controller.txt http://localhost:6060/debug/pprof/profile 
-            $tool_bin tool $tool -text -seconds=$interval -output $PPROF_TMPDIR/$(date +%Y-%m-%d:%H:%M:%S)_controller_heap.txt http://localhost:6060/debug/pprof/heap 
-            $tool_bin tool $tool -text -seconds=$interval -output $PPROF_TMPDIR/$(date +%Y-%m-%d:%H:%M:%S)_api.txt http://localhost:6061/debug/pprof/profile
-            $tool_bin tool $tool -text -seconds=$interval -output $PPROF_TMPDIR/$(date +%Y-%m-%d:%H:%M:%S)_api_heap.txt http://localhost:6061/debug/pprof/heap 
-        else
-            $tool_bin tool $tool -text -seconds=$interval -output $PPROF_TMPDIR/$(date +%Y-%m-%d:%H:%M:%S).txt http://localhost:6060/debug/pprof/profile 
-            $tool_bin tool $tool -text -seconds=$interval -output $PPROF_TMPDIR/$(date +%Y-%m-%d:%H:%M:%S)_heap.txt http://localhost:6060/debug/pprof/heap 
-        fi
-    done 
+    get_masters &
+    get_hosts
 } 
+
+get_masters() {
+    declare -A master_pids
+    while true; do
+        i=1
+        for master in "${masters[@]}"; do
+            oc get --raw /debug/pprof/profile?seconds=${interval} --server https://${master}:8443 > ${master}_api_profile && ${tool_bin} tool ${tool} -text -seconds=${interval} -output $PPROF_TMPDIR/${master}/$(date +%Y-%m-%d:%H:%M:%S)_api_profile.txt /tmp/${master}_api_profile &
+            master_pids[${master}_api]=$!
+            oc get --raw /debug/pprof/heap --server https://${master}:8443 > ${master}_api_heap && ${tool_bin} tool ${tool} -text -seconds=${interval} -output $PPROF_TMPDIR/${master}/$(date +%Y-%m-%d:%H:%M:%S)_api_heap.txt /tmp/${master}_api_heap &
+            oc get --raw /debug/pprof/profile?seconds=${interval} --server https://${master}:8444 > ${master}_controller_profile && ${tool_bin} tool ${tool} -text -seconds=${interval} -output $PPROF_TMPDIR/${master}/$(date +%Y-%m-%d:%H:%M:%S)_controller_profile.txt /tmp/${master}_controller_profile &
+            master_pids[${master}_controller]=$!
+            oc get --raw /debug/pprof/heap --server https://${master}:8444 > ${master}_controller_heap && ${tool_bin} tool ${tool} -text -seconds=${interval} -output $PPROF_TMPDIR/${master}/$(date +%Y-%m-%d:%H:%M:%S)_controller_heap.txt /tmp/${master}_controller_heap &
+            if (( i++%${#masters[@]}==0 )); then
+		for pid in ${master_pids[*]}; do
+                    wait ${pid}
+                done
+            fi
+        done
+    done
+}
+
+get_hosts() {
+    declare -A node_pids
+    while true; do
+        j=1
+        for host in "${hosts[@]}"; do
+            oc get --raw /debug/pprof/profile?seconds=${interval} --server https://${host}:10250 > ${host}_profile && ${tool_bin} tool ${tool} -text -seconds=${interval} -output $PPROF_TMPDIR/${host}/$(date +%Y-%m-%d:%H:%M:%S)_profile.txt /tmp/${host}_profile &
+            node_pids[${host}]=$!
+            oc get --raw /debug/pprof/heap --server https://${host}:10250 > ${host}_heap && ${tool_bin} tool ${tool} -text -seconds=${interval} -output $PPROF_TMPDIR/${host}/$(date +%Y-%m-%d:%H:%M:%S)_heap.txt /tmp/${host}_heap &
+            if (( j++%${#hosts[@]}==0 )); then
+		for pid in ${node_pids[*]}; do
+                    wait ${pid}
+                done
+            fi
+        done
+    done
+}
+
+## check if the inventory variable is set correctly
+if [[ ! -s "$inventory" ]] || [[ ! -f "$inventory" ]]; then
+	echo "Please check if the inventory file exists, is not empty and the inventory variable is not set to a directory"
+	exit 1
+fi
+
 case "$mode" in 
     install)
         check_install_rpm $tool_package 
-        ose_pprof
     ;; 
     start)
-        mkdir -p $tool_output_dir
+    	for master in "${masters[@]}"; do
+    	    mkdir -p $tool_output_dir/${master}
+    	done
+    	for host in "${hosts[@]}"; do
+    	    mkdir -p $tool_output_dir/${host}
+    	done
         collect_data
     ;; 
     stop)
         # killing pprof processes at end on of itteration 
         for pprof_process in $(ps aux | grep pbench-tool-$tool | grep -v grep | awk '{print $2}'); do kill -9 $pprof_process; done
+        rm /tmp/*_profile && rm /tmp/*_heap
     ;; 
     postprocess)
         printf "This script does not do any postprocessing\n"

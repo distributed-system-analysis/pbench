@@ -1,0 +1,8 @@
+io_reads_KB_sec-1-/usr/lib/systemd/systemd_--switched-root=6360.211905
+io_reads_KB_sec-1409-/sbin/rsyslogd_-n=0.000000
+io_reads_KB_sec-1986-/usr/bin/memcached_-u_memcached_-p_11211=0.000000
+io_reads_KB_sec-4689-cat=0.000000
+io_writes_KB_sec-1-/usr/lib/systemd/systemd_--switched-root=7629.489048
+io_writes_KB_sec-1409-/sbin/rsyslogd_-n=0.380000
+io_writes_KB_sec-1986-/usr/bin/memcached_-u_memcached_-p_11211=0.000000
+io_writes_KB_sec-4689-cat=0.000000

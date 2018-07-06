@@ -126,6 +126,8 @@ while (my $line = <TXT>) {
 # cookie=0xb9a6deb9663c7428, duration=76802.554s, table=24, n_packets=359, n_bytes=15078, idle_age=75, hard_age=65534, priority=2,arp,in_port=12,arp_spa=10.1.1.7 actions=resubmit(,25)
 # cookie=0xb9a6deb9663c7428, duration=426577.755s, table=24, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=0 actions=drop
 # cookie=0xb9a6deb9663c7428, duration=76802.561s, table=25, n_packets=69774, n_bytes=21763254, idle_age=0, hard_age=65534, priority=2,in_port=12,dl_src=fa:16:3e:71:12:98 actions=NORMAL
+#bridge: phy-br-0 stats: fdb/show
+# port=1 count=1000
 #bridge: phy-br-1 stats: dump-ports
 #OFPST_PORT reply (xid=0x2): 2 ports
 #  port LOCAL: rx pkts=8, bytes=648, drop=0, errs=0, frame=0, over=0, crc=0
@@ -216,6 +218,95 @@ while (my $line = <TXT>) {
 		next;
 	}
 
+	#  port=N count=X
+	if ($line =~ /^\s+port=(\S+)\s+count=(\S+)/ and $stats_mode eq "bridge" and $stats_type eq "fdb/show") {
+		$port = $1;
+		my $entry_count = $2;
+
+		$bridge_data{$bridge}{$port}{'fdb-entries'}{$timestamp_ms} = $entry_count;
+
+		next;
+	}
+
+	#       packet recirculations: 0
+	if ( $line =~ /\s*packet\srecirculations:\s*(\d+)/ and $stats_mode eq "dpdk" ) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-packet-recirculations"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a PMD packet recirculations stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+		}
+		next;
+	}
+
+	#       packets received: 0
+	if ( $line =~ /\s*packets\sreceived:\s*(\d+)/ and $stats_mode eq "dpdk" ) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-packets-received"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a PMD received packets stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+		}
+		next;
+	}
+
+	#       avg. packets per output batch: 14.67
+	if ( $line =~ /\s*avg\.\spackets\sper\soutput\sbatch:\s*(\d+\.\d+)/ and $stats_mode eq "dpdk" ) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-packets-per-output-batch"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a PMD packets per output batch stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+		}
+		next;
+	}
+
+	#       avg. datapath passes per packet: 0.00
+	if ( $line =~ /\s*avg\.\sdatapath\spasses\sper\spacket:\s*(\d+\.\d+)/ and $stats_mode eq "dpdk" ) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-datapath-passes-per-packet"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a PMD datapath passes per packet stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+		}
+		next;
+	}
+
+	#       avg. subtable lookups per megaflow hit: 1.62
+	if ( $line =~ /\s*avg\.\ssubtable\slookups\sper\smegaflow\shit:\s*(\d+\.\d+)/ and $stats_mode eq "dpdk" ) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-subtable-lookups-per-megaflow-hit"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a PMD subtable lookup per megaflow hit stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+		}
+		next;
+	}
+
+	if ( $line =~ /avg\.\ssubtable\slookups\sper\shit:\s*(\d+\.\d+)/ and $stats_mode eq "dpdk" ) {
+	    if (exists $pmd_mappings{$pmd_thread_id}) {
+		$rate{"openvswitch"}{"PMDthread-subtable-lookups-per-hit"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+	    } else {
+		printf "warning: a PMD subtable lookup per hit stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+	    }
+	    next;
+        }
+
+	#       miss with success upcall: 0
+	if ( $line =~ /\s*miss\swith\ssuccess\supcall:\s*(\d+)/ and $stats_mode eq "dpdk" ) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-upcalls"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id} . "-success"}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a PMD miss with success upcall stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+		}
+		next;
+	}
+
+	#       miss with failed upcall: 0
+	if ( $line =~ /\s*miss\swith\sfailed\supcall:\s*(\d+)/ and $stats_mode eq "dpdk" ) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-upcalls"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id} . "-failed"}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a PMD miss with failed upcall stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+		}
+		next;
+	}
+
 	#       polling cycles:0 (0.00%)
 	if ( $line =~ /\s*polling\scycles:\s*\d+\s+\((\d+\.\d+)\%\)/ and $stats_mode eq "dpdk" ) {
 		if (exists $pmd_mappings{$pmd_thread_id}) {
@@ -236,12 +327,32 @@ while (my $line = <TXT>) {
 		next;
 	}
 
+	#       idle cycles:0 (0.00%)
+	if ( $line =~ /\s*idle\scycles:\s*\d+\s+\((\d+\.\d+)\%\)/ and $stats_mode eq "dpdk" ) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-idle-utilization-percent"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a PMD idle utilization percent stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+		}
+		next;
+	}
+
 	#	avg processing cycles per packet: 618.17 (2612413532/4226062)
 	if ( $line =~ /\s*avg\sprocessing\scycles\sper\spacket:\s*(\d+\.\d+)/ and $stats_mode eq "dpdk" ) {
 		if (exists $pmd_mappings{$pmd_thread_id}) {
 			$rate{"openvswitch"}{"PMDthread-processing-cycles-per-packet"}{$pmd_thread_id. $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
 		} else {
 			printf "warning: a processing cycles per packet stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+		}
+		next;
+	}
+
+	#	avg cycles per packet: 1343.67 (6650670772/4949637)
+	if ( $line =~ /\s*avg\scycles\sper\spacket:\s*(\d+\.\d+)/ and $stats_mode eq "dpdk" ) {
+		if (exists $pmd_mappings{$pmd_thread_id}) {
+			$rate{"openvswitch"}{"PMDthread-total-cycles-per-packet"}{$pmd_thread_id. $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+		} else {
+			printf "warning: a total cycles per packet stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
 		}
 		next;
 	}
@@ -283,12 +394,11 @@ while (my $line = <TXT>) {
 		next;
 	}
 
-	if ( $line =~ /avg\scycles\sper\spacket/ or $line =~ /OFPST_PORT/ or $line =~ /NXST_FLOW/ or $line =~ /OFPST_PORT/ or $line =~ /NXST_FLOW/ or
-	     $line =~ /dpdk-stats:\spmd-stats-show/ or $line =~ /avg\.\ssubtable\slookups\sper\shit/ or $line =~ /miss:/ or $line =~ /lost:/ or
-	     $line =~ /main\sthread:/ or $line =~ /OFPST_FLOW/ or $line =~ /^\s*duration=/ or $line eq "") {
+	if ( $line =~ /OFPST_PORT/ or $line =~ /NXST_FLOW/ or $line =~ /OFPST_PORT/ or $line =~ /NXST_FLOW/ or $line =~ /dpdk-stats:\spmd-stats-show/ or
+	     $line =~ /miss:/ or $line =~ /lost:/ or $line =~ /main\sthread:/ or $line =~ /OFPST_FLOW/ or $line =~ /^\s*duration=/ or $line eq "") {
 		next;
 	}
-	print "found unregonozed line: $line\n";
+	print "found unrecognized line: $line\n";
 }
 close(TXT);
 
@@ -344,7 +454,9 @@ for $bridge (sort keys %bridge_data) {
 					my $duration = ($timestamp_ms - $last_timestamp_ms)/1000;
 					my $value_diff = $value - $last_value;
 					my $this_rate = $value_diff / $duration;
-					if ( $stat =~ /bytes/ ) {
+					if ( $stat =~ /fdb-entries/ ) {
+						$rate{"openvswitch"}{$bridge . "-fdb-entries"}{$port_name . "-" . $stat}{$timestamp_ms} = $value;
+					} elsif ( $stat =~ /bytes/ ) {
 						$rate{"openvswitch"}{$bridge . "-bytes"}{$port_name . "-" . $stat}{$timestamp_ms} = $this_rate;
 					} else {
 						$rate{"openvswitch"}{$bridge . "-packets"}{$port_name . "-" . $stat}{$timestamp_ms} = $this_rate;

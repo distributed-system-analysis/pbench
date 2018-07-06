@@ -75,7 +75,7 @@ TMPDIR=$TMP/pbench-index.$$
 # index-pbench need to get at it
 export TMPDIR
 
-log_init $(basename $0)
+log_init $(basename $0) $LOGSDIR/$(basename $0)
 
 echo "$TS: starting at $(timestamp)"
 
@@ -86,6 +86,7 @@ erred=$TMPDIR/$PROG.$TS.erred
 typeset -i nskip=0
 skipped=$TMPDIR/$PROG.$TS.skipped
 mail_body=$TMPDIR/$PROG.$TS.mail
+index_content=$TMPDIR/$PROG.$TS.index_mail_contents
 
 mkdir -p $TMPDIR
 trap "rm -rf $TMPDIR" EXIT QUIT INT
@@ -94,6 +95,7 @@ trap "rm -rf $TMPDIR" EXIT QUIT INT
 > $erred
 > $skipped
 > $mail_body
+> $index_content
 
 list=$TMPDIR/list
 find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | sort -n > $list
@@ -204,17 +206,21 @@ if [[ $nidx -gt 0 || $nskip -gt 0 || $nerrs -gt 0 ]]; then
     # That solved the problem of embedded parens - in the meantime, we got rid of the
     # parens, so it has become moot.
     if [[ $nerrs > 0 && $nskip > 0 ]] ;then
-        subj='$PROG.$TS - Indexed $nidx results, skipped $nskip results, w/ $nerrs errors'
+        subj="$PROG.$TS - Indexed $nidx results, skipped $nskip results, w/ $nerrs errors"
     elif [[ $nskip > 0 ]] ;then
-        subj='$PROG.$TS - Indexed $nidx results, skipped $nskip results'
+        subj="$PROG.$TS - Indexed $nidx results, skipped $nskip results"
     elif [[ $nerrs > 0 ]] ;then
-        subj='$PROG.$TS($PBENCH_ENV) - Indexed $nidx results, w/ $nerrs errors'
+        subj="$PROG.$TS($PBENCH_ENV) - Indexed $nidx results, w/ $nerrs errors"
     else
-        subj='$PROG.$TS($PBENCH_ENV) - Indexed $nidx results'
+        subj="$PROG.$TS($PBENCH_ENV) - Indexed $nidx results"
     fi
     if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
         # send mail if not unit testing
-        mailcmd="mailx -s \"$subj\" $mail_recipients < $mail_body"
+        cat << EOF > $index_content
+$subj
+EOF
+        cat $mail_body >> $index_content
+        mailcmd="pbench-report-status --name $PROG --timestamp $TS --type status $index_content"
     else
         # otherwise store the output in the log
         mailcmd="echo \"$subj\"; cat $mail_body"

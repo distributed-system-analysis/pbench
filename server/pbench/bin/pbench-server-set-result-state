@@ -1,0 +1,43 @@
+#! /bin/bash
+
+###########################################################################
+# load common things
+opts=$SHELLOPTS
+case $opts in
+    *xtrace*)
+        dir=$(dirname $(which $0))
+        PROG=$(basename $(which $0))
+        ;;
+    *)
+        dir=$(dirname $0)
+        PROG=$(basename $0)
+        ;;
+esac
+
+export CONFIG=/opt/pbench-server/lib/config/pbench-server.cfg
+
+. $dir/pbench-base.sh
+###########################################################################
+
+results_full_path=$1
+tarball=$2
+
+# symlink into the TODO state dir
+mkdir -p $results_full_path/TODO
+cd $results_full_path/TODO
+ln -s $results_full_path/$tarball .
+
+# we will get rid of this after a full release cycle,
+# thereby allowing the following code to run. See
+# issue #786.
+exit 0
+
+# add entry to watched file for inotify service
+mkdir -p ${INOTIFY_STATE_DIR}
+watched_file=${INOTIFY_STATE_DIR}/TO-DISPATCH-LIST
+flock -x ${watched_file} echo \"$results_full_path/TODO/$tarball\" >> ${watched_file}
+
+exit 0
+
+
+

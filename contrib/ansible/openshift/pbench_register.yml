@@ -8,6 +8,9 @@
     - file: /run/pbench/register.hosts
     - inventory_file_path: /root/inv
   tasks:
+    - name: create /var/lib/pbench-agent/tools-default directory
+      file: path=/var/lib/pbench-agent/tools-default state=directory 
+
     - name: create pbench directory
       file: path=/run/pbench state=directory
 
@@ -31,15 +34,24 @@
     - name: add nodes to the file
       shell: echo -e {{ item.1 }} node {{ item.0 }} >> {{ file }}
       with_indexed_items: 
-       - "{{ groups['nodes'][-1] }}" 
-       - "{{ groups['nodes'][-2] }}"
+       - "{{ groups['nodes'][0] }}" 
+       - "{{ groups['nodes'][1] }}"
       when: groups['nodes']|default([]) and not ( register_all_nodes | default(False) | bool )
     
     #  registers tools on the nodes with the following label openshift_node_labels="{'region': 'infra'} in the inventory
     #  along with the last two nodes when register_all_nodes is set to False in the inventory
+    #- name: add infra nodes to the file
+    #  shell: index=1; for infra in $(cat {{ inventory_file }} | grep -w "'region'":" 'infra'" | cut -d ' ' -f1); do echo -e $infra infra $index >> {{ file }} && ((index+=1)); done
+    #  when: groups['nodes']|default([]) and not ( register_all_nodes | default(False) | bool )
+    
+    # This is expected to fail on openshift-qe jenkins job till the openshift-labeler supoort is added to the template 
+    # like what we have in setup-tooling job 
     - name: add infra nodes to the file
-      shell: index=1; for infra in $(cat {{ inventory_file }} | grep -w "'region'":" 'infra'" | cut -d ' ' -f1); do echo -e $infra infra $index >> {{ file }} && ((index+=1)); done
-      when: groups['nodes']|default([]) and not ( register_all_nodes | default(False) | bool )
+      shell: echo -e {{ item.1 }} infra {{ item.0 }} >> {{ file }}
+      with_indexed_items:
+       - "{{ groups['infra'] }}"
+      when: groups['infra']|default([])
+      ignore_errors: true
 
     - name: add cns nodes to file
       shell: echo -e {{ item.1 }} cns {{ item.0 }} >> {{ file }}

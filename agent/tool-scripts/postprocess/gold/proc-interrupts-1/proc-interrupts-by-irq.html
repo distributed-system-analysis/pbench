@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">
+  </head>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.3/jschart.js"></script>
+    <center><h2>proc-interrupts-1 - proc-interrupts-by-irq</h2></center>
+    <div id="chart_1">
+      <script>
+        create_jschart("stackedAreaChart", "timeseries", "chart_1", "IRQ_118_GICv3_23_Level_arm-pmu", null, null, { csvfiles: [ "csv/proc-interrupts-by-irq_IRQ_118_GICv3_23_Level_arm-pmu.csv" ], threshold: 100 });
+      </script>
+    </div>
+  </body>
+</html>

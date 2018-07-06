@@ -31,9 +31,18 @@ test -d $TMP || doexit "Bad TMP=$TMP"
 
 TOP=$(getconf.py pbench-top-dir pbench-files)
 BDIR=$(getconf.py pbench-backup-dir pbench-files)
-LOGSDIR=$(getconf.py pbench-logs-dir pbench-files)
+export LOGSDIR=$(getconf.py pbench-logs-dir pbench-files)
+
+if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
+    # the real thing
+    BINDIR=$(getconf.py script-dir pbench-server)
+else
+    # running unit tests
+    BINDIR=.
+fi
 
 ARCHIVE=${TOP}/archive/fs-version-001
+INOTIFY_STATE_DIR=${ARCHIVE}/inotify_state
 INCOMING=${TOP}/public_html/incoming
 # this is where the symlink forest is going to go
 RESULTS=${TOP}/public_html/results
@@ -61,8 +70,8 @@ if [ "$TS" = "" ]; then
     TS="run-$(timestamp)"
 fi
 
-# all the scripts use this to send status messages
-mail_recipients=$(getconf.py mailto pbench-server)
+# the scripts may use this to send status messages
+export mail_recipients=$(getconf.py mailto pbench-server)
 
 # make all the state directories for the pipeline and any others needed
 LINKDIRS="TODO TO-UNPACK TO-COPY-SOS TO-SYNC SYNCED TO-LINK TO-INDEX TO-BACKUP \
@@ -90,7 +99,9 @@ function mk_dirs {
 }
 
 function log_init {
-    LOG_DIR=$LOGSDIR/$(basename $0)
+    #LOG_DIR=$LOGSDIR/$(basename $0)
+    #TMP_DIR=$TMP/$(basename $0).$$
+    LOG_DIR=$2
     mkdir -p $LOG_DIR
     if [[ $? -ne 0 || ! -d "$LOG_DIR" ]]; then
         doexit "Unable to find/create logging directory, $LOG_DIR"
@@ -112,4 +123,29 @@ function log_finish {
     exec 2>&200  # Restore stderr
     exec 100>&-  # Close log file
     exec 4>&-    # Close error file
+}
+
+# The inotify script runs the server scripts like dispatch 
+# and unpack asynchronously (more will be added in future), 
+# results in multiple instances of those scripts running in 
+# parallel. If every instance tries to write in the same file 
+# then it will be chaos and make things difficult to debug. 
+# In that case, this function will acquire a lock on the main
+# log file and allow every instance to append the log saved in 
+# the /tmp directory (with different PID) to the main log file.
+
+function log_append {
+    #log_append $TMP/$(basename $0).$$ $LOGSDIR/$(basename $0)
+    TMP_DIR=$1
+    LOG_DIR=$2
+    mkdir -p $LOG_DIR
+    if [[ $? -ne 0 || ! -d "$LOG_DIR" ]]; then
+        doexit "Unable to find/create logging directory, $LOG_DIR"
+    fi
+
+    log_file=$LOG_DIR/$(basename $0).log
+    error_file=$LOG_DIR/$(basename $0).error
+
+    flock -n $log_file cat $TMP_DIR/$(basename $0).log >> $log_file
+    flock -n $error_file cat $TMP_DIR/$(basename $0).error >> $error_file
 }

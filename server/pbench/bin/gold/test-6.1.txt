@@ -18,5 +18,4 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:pbench-backup-tarballs: The ARCHIVE directory does not resolve to a real location, /var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- pbench log file contents
 +++ test-execution.log file contents
-grep: /var/tmp/pbench-test-server/test-execution.log: No such file or directory
 --- test-execution.log file contents

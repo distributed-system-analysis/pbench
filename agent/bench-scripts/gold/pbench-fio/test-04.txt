@@ -23,6 +23,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=rw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1/fio.job
 fio job complete
@@ -50,6 +51,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=rw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2/fio.job
 fio job complete
@@ -77,6 +79,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=rw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample3/fio.job
 fio job complete
@@ -104,6 +107,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=rw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample4/fio.job
 fio job complete
@@ -131,6 +135,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=rw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample5/fio.job
 fio job complete
@@ -158,6 +163,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=rw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample1/fio.job
 fio job complete
@@ -185,6 +191,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=rw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample2/fio.job
 fio job complete
@@ -212,6 +219,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=rw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample3/fio.job
 fio job complete
@@ -239,6 +247,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=rw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample4/fio.job
 fio job complete
@@ -266,6 +275,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=rw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample5/fio.job
 fio job complete
@@ -293,6 +303,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=rw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample1/fio.job
 fio job complete
@@ -320,6 +331,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=rw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample2/fio.job
 fio job complete
@@ -347,6 +359,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=rw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample3/fio.job
 fio job complete
@@ -374,6 +387,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=rw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample4/fio.job
 fio job complete
@@ -401,6 +415,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=rw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample5/fio.job
 fio job complete
@@ -428,6 +443,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=randrw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample1/fio.job
 fio job complete
@@ -455,6 +471,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=randrw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample2/fio.job
 fio job complete
@@ -482,6 +499,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=randrw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample3/fio.job
 fio job complete
@@ -509,6 +527,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=randrw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample4/fio.job
 fio job complete
@@ -536,6 +555,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=randrw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample5/fio.job
 fio job complete
@@ -563,6 +583,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=randrw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample1/fio.job
 fio job complete
@@ -590,6 +611,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=randrw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample2/fio.job
 fio job complete
@@ -617,6 +639,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=randrw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample3/fio.job
 fio job complete
@@ -644,6 +667,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=randrw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample4/fio.job
 fio job complete
@@ -671,6 +695,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=randrw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample5/fio.job
 fio job complete
@@ -698,6 +723,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=randrw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample1/fio.job
 fio job complete
@@ -725,6 +751,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=randrw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample2/fio.job
 fio job complete
@@ -752,6 +779,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=randrw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample3/fio.job
 fio job complete
@@ -779,6 +807,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=randrw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample4/fio.job
 fio job complete
@@ -806,6 +835,7 @@ log_hist_msec=10000
 filename=/tmp/fio
 rw=randrw
 size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample5/fio.job
 fio job complete

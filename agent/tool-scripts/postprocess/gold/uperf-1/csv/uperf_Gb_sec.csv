@@ -1,4 +1,4 @@
-timestamp_client_hostname:all-server_hostname:all-server_port:all-server_port:all_ms,client_hostname:all-server_hostname:all-server_port:all-server_port:all,timestamp_client_hostname:perf102-server_hostname:perf104-server_port:21000_ms,client_hostname:perf102-server_hostname:perf104-server_port:21000,timestamp_client_hostname:perf102-server_hostname:perf104-server_port:22000_ms,client_hostname:perf102-server_hostname:perf104-server_port:22000
+timestamp_client_hostname:all-server_hostname:all-server_port:all_ms,client_hostname:all-server_hostname:all-server_port:all,timestamp_client_hostname:perf102-server_hostname:perf104-server_port:21000_ms,client_hostname:perf102-server_hostname:perf104-server_port:21000,timestamp_client_hostname:perf102-server_hostname:perf104-server_port:22000_ms,client_hostname:perf102-server_hostname:perf104-server_port:22000
 1459956699534,0.944915744845566,1459956698533,0.515041341317365,1459956698640,0.429205205588822
 1459956700535,0.942159573509408,1459956699534,0.515334905094905,1459956699641,0.429625798201798
 1459956701536,0.94209097988525,1459956700535,0.485095704295704,1459956700642,0.460347844155844

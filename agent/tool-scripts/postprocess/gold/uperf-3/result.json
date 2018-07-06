@@ -1185,7 +1185,7 @@
                   "value" : 0.941157763219797
                }
             ],
-            "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
+            "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
             "value" : 0.941534062491512
          },
          {
