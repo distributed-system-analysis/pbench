@@ -1,5 +1,5 @@
 +++ Running test-23 pbench-collect-sysinfo
-Usage: pbench-collect-sysinfo [options]
+Usage: pbench-collect-sysinfo [options] beg|end 
 
 Options specified can be one of:
 	-d str --dir=str,     str = a directory where the pbench-collect-sysinfo
@@ -9,7 +9,7 @@ Options specified can be one of:
 	                            (the default group is 'default')
 
 	       --sysinfo=str, str = comma separated values of system information to be collected
-	                            available: default, none, all, block, libvirt, kernel_config, sos, topology
+	                            available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 	       --check,       checks if sysinfo is set to one of the accepted values
 --- Finished test-23 pbench-collect-sysinfo (status=0)

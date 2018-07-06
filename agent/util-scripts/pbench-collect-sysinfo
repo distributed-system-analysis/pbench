@@ -16,20 +16,25 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # Defaults
 group=default
 dir="/tmp"
-sysinfo_opts_default=( block libvirt kernel_config sos topology )
-sysinfo_opts=${sysinfo_opts_default[*]}
+# array containing all the possible sysinfo options
+sysinfo_opts_default=( block libvirt kernel_config security_mitigations sos topology )
+sysinfo_opts_available=( block libvirt kernel_config security_mitigations sos topology ara )
+# get comma seperated values
+sysinfo_opts_default_comma_separated=$(IFS=,; echo "${sysinfo_opts_default[*]}")
+sysinfo_opts_available_comma_separated=$(IFS=,; echo "${sysinfo_opts_available[*]}")
 check=false
 
 # Display sysinfo options 
 function display_sysinfo_opts {
 	printf "default, none, all"
-	for item in ${sysinfo_opts[*]}; do printf ", %s" $item ; done
+	for item in ${sysinfo_opts_available[*]}; do printf ", %s" $item ; done
+	printf "\n"
 }
 
 # Process options and arguments
 
 function usage {
-	printf "Usage: $script_name [options]\n"
+	printf "Usage: $script_name [options] beg|end \n"
 	printf "\n"
 	printf "Options specified can be one of:\n"
 	printf -- "\t-d str --dir=str,     str = a directory where the $script_name\n"
@@ -93,13 +98,20 @@ while true; do
 		;;
 	esac
 done
-	
+
+# if unspecified, collect the default sysinfo
+if [ -z "$sysinfo" ] ;then
+	sysinfo=default
+fi
+
+# check if the input sysinfo parameter passed by the user is a valid option or not
 if $check; then
+	debug_log "[$script_name]: sysinfo option is set to $sysinfo" 
 	if [ "$sysinfo" == "all" ] || [ "$sysinfo" == "default" ] || [ "$sysinfo" == "none" ]; then
 		:
 	else
 		for item in ${sysinfo//,/ }; do
-			if echo "${sysinfo_opts[@]}" | grep -q -w "$item"; then
+			if echo "${sysinfo_opts_available[@]}" | grep -q -w "$item"; then
 				continue
 			else
 				if [ "$item" == "all" ] || [ "$item" == "default" ] || [ "$item" == "none" ]; then
@@ -113,14 +125,16 @@ if $check; then
 	fi
 	exit 0
 fi
+# don't collect anything if sysinfo is none
 if [ "$sysinfo" == "none" ]; then
 	exit 0
 fi
-if [ "$sysinfo" == "default" ]; then
-	sysinfo=${sysinfo_opts_default[*]}
-fi
+# collect everything if sysinfo is all
 if [ "$sysinfo" == "all" ]; then
-	sysinfo=${sysinfo_opts[*]}
+	sysinfo=${sysinfo_opts_available_comma_separated}
+fi
+if [ "$sysinfo" == "default" ]; then
+        sysinfo=${sysinfo_opts_default_comma_separated}
 fi
 
 name="$1"

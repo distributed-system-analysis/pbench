@@ -4,3 +4,17 @@
 # benchmarks, uperf, linpack, iozone, fio, etc.
 
 echo "$0 $*" >> $_testlog
+
+case $PBENCH_UNITTEST_BENCHMARK in
+    pbench-fio)
+        case $PBENCH_UNITTEST_TEST in
+            test-04)
+                # copy the "results"
+                echo PWD: $PWD >> $_testlog
+                echo tar xf ../../../samples/$PBENCH_UNITTEST_TEST.tar.xz >> $_testlog
+                tar xf ../../../samples/$PBENCH_UNITTEST_TEST.tar.xz >> $_testlog 2>&1
+                echo Status: $? >> $_testlog
+                ;;
+        esac
+        ;;
+esac

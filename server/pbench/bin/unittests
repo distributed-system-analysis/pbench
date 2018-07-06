@@ -72,7 +72,7 @@ function _run_activate {
 function _run_allscripts {
     # _run pbench-backup-tarballs
     # These next three are related and would flow in this order
-    _run pbench-unpack-tarballs
+    _run pbench-unpack-tarballs $_testdir
     _run pbench-copy-sosreports
     _run pbench-index
     # These two are independent
@@ -171,7 +171,15 @@ declare -A cmds=(
     [test-7.7]="_run_index $_testroot/test-7.7"
     # uperf tarball
     [test-7.8]="_run_index $_testroot/test-7.8"
+    # pbench-user-benchmark tarball
+    [test-7.9]="_run_index $_testroot/test-7.9"
 
+    # uperf, fio results data and prometheus data
+    # with float conversion
+    [test-7.10]="_run_index $_testroot/test-7.10"
+    [test-7.11]="_run_index $_testroot/test-7.11"
+    [test-7.12]="_run_index $_testroot/test-7.12"
+    
     # activation test
     [test-8]="_run_activate $_testroot/test-8"
 
@@ -187,12 +195,19 @@ declare -A cmds=(
     # bad md5 in backup
     [test-9.5]="_run pbench-verify-backup-tarballs"
 
-    # pbench-rsync-satellite
-    [test-10]="_run pbench-rsync-satellite TEST foo.bar.com $_testroot/pbench/archive"
+    # pbench-sync-satellite - currently broken
+    # trivial results: no mail
+    [test-10]="_run pbench-sync-satellite TEST foo.bar.com $_testroot/pbench/archive"
+    # non-trivial results: mail
+    [test-11]="_run pbench-sync-satellite TEST2 foo2.bar.com $_testroot/pbench/archive"
 )
 
 declare -A links=(
     [test-7.8]="uperf__2016-10-06_16:34:03"
+    [test-7.9]="pbench-user-benchmark__2017-04-21_20:38:16"
+    [test-7.10]="uperf_uperftest_2018.02.02T20.58.00"
+    [test-7.11]="fio_rw_2018.02.01T22.40.57"
+    [test-7.12]="pbench-user-benchmark__2018.02.05T20.35.36"
 )
 
 # indexing unit tests - why is this necessary?

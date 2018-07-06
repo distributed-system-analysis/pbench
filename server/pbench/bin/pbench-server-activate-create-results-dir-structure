@@ -40,11 +40,22 @@ if [ ! -z "$testdir" ] ;then
     archive_dir=${testdir}${archive_dir}
 fi
 
-mkdir -p $archive_dir  || exit 6
-mkdir -p $pbench_dir/public_html/incoming || exit 7
-mkdir -p $pbench_dir/public_html/results || exit 8
+# it's OK if the directories exist already.
+mkdir -p $archive_dir
+mkdir -p $pbench_dir/public_html/incoming
+mkdir -p $pbench_dir/public_html/results
 
-chown -R $user.$group $pbench_dir || exit 9
+
+chown $user.$group $pbench_dir \
+      $archive_dir $pbench_dir/public_html $pbench_dir/public_html/incoming $pbench_dir/public_html/results
+sts=$?
+if [ "$sts" != "0" ] ;then
+    nerrs=$nerrs+1
+fi
+
+# it's OK if this fails: the directories may be empty
+chown $user.$group $pbench_dir \
+      $archive_dir/* $pbench_dir/public_html/incoming/* $pbench_dir/public_html/results/* 2>/dev/null
 
 if which selinuxenabled > /dev/null 2>&1 && selinuxenabled ;then
      if [ "${_PBENCH_SERVER_TEST}" != 1 ] ;then
@@ -56,21 +67,26 @@ if which selinuxenabled > /dev/null 2>&1 && selinuxenabled ;then
 
         # we assume that semanage and restorecon are available.
         # fix up the public_html subdirs for selinux
-        semanage fcontext -a -t httpd_sys_content_t $pbench_dir/public_html/incoming'(/.*)?'
-        semanage fcontext -a -t httpd_sys_content_t $pbench_dir/public_html/results'(/.*)?'
-        restorecon -R -v $pbench_dir/public_html
+        semanage fcontext -a -t httpd_sys_content_t $pbench_dir/public_html/incoming
+        semanage fcontext -a -t httpd_sys_content_t $pbench_dir/public_html/results
+        restorecon -v $pbench_dir/public_html $pbench_dir/public_html/incoming $pbench_dir/public_html/results
     fi
 fi
 
 # create the logs directory
 logsdir=$(getconf.py deploy-pbench-logs-dir results)
-mkdir -p $logsdir || exit 9
-chown -R $user.$group $logsdir || exit 10
+mkdir -p $logsdir && chown $user.$group $logsdir
+
+# it's OK if this fails
+chown $user.$group $logsdir/* 2>/dev/null
 
 # create the tmp directory
 tmpdir=$(getconf.py deploy-pbench-tmp-dir results)
-mkdir -p $tmpdir || exit 11
-chown -R $user.$group $tmpdir || exit 11
+mkdir -p $tmpdir && chown $user.$group $tmpdir
+
+# it's OK if this fails
+chown $user.$group $tmpdir/* 2>/dev/null
+
 
 exit 0
 

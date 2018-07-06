@@ -1,0 +1,16 @@
++++ Running test-19 pbench-fio
+ERROR: foo must be executable
+--- Finished test-19 pbench-fio (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench
+/var/tmp/pbench-test-bench/pbench/samples
+/var/tmp/pbench-test-bench/pbench/tmp
+/var/tmp/pbench-test-bench/pbench/tools-default
+/var/tmp/pbench-test-bench/pbench/tools-default/mpstat
+/var/tmp/pbench-test-bench/pbench/tools-default/sar
+--- pbench tree state
++++ pbench.log file contents
+grep: /var/tmp/pbench-test-bench/pbench/pbench.log: No such file or directory
+--- pbench.log file contents
++++ test-execution.log file contents
+--- test-execution.log file contents

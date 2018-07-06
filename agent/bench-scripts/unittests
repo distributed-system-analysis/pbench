@@ -48,6 +48,7 @@ mv $_testopt/unittest-scripts/mock-postprocess/* $_testopt/bench-scripts/postpro
 mv $_testopt/unittest-scripts/mock-MoonGen $moongen_dir/build/MoonGen
 let res=res+$?
 
+
 if [[ $res -ne 0 ]]; then
     echo "ERROR: failed to construct unittest execution directory hierarchy" \
          "under, \"$_testroot\"" >&2
@@ -68,7 +69,12 @@ function _run {
     shift
     echo "$tname $tscrpt $@"
     echo "+++ Running $tname $tscrpt" >> $_testout
-    benchmark_bin=$_testopt/unittest-scripts/bm pbench_run=$_testdir pbench_log=$_testdir/pbench.log $_testopt/bench-scripts/$tscrpt $@ >> $_testout 2>&1
+    #echo PWD: $(pwd) _TDIR: $_tdir >> $_testout
+    _TEST_ALTERNATE_BENCH_LIBRARY=$_tdir/postprocess \
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$_tdir/../tool-scripts/postprocess \
+                                 PBENCH_UNITTEST_BENCHMARK=$tscrpt PBENCH_UNITTEST_TEST=$tname \
+                                 benchmark_bin=$_testopt/unittest-scripts/bm pbench_run=$_testdir pbench_log=$_testdir/pbench.log \
+                                 $_testopt/bench-scripts/$tscrpt $@  >> $_testout 2>&1
     sts=$?
     echo "--- Finished $tname $tscrpt (status=$sts)" >> $_testout
     return $sts
@@ -85,7 +91,7 @@ function _dump_logs {
     grep -HvF "\-\-should-n0t-ex1st--" $_testdir/pbench.log >> $_testout 2>&1
     echo "--- pbench.log file contents" >> $_testout
     echo "+++ test-execution.log file contents" >> $_testout
-    grep -HvF "\-\-should-n0t-ex1st--" $_testroot/test-execution.log | sort >> $_testout 2>&1
+    grep -sHvF "\-\-should-n0t-ex1st--" $_testroot/test-execution.log | sort >> $_testout 2>&1
     echo "--- test-execution.log file contents" >> $_testout
     rm -f $_testroot/test-execution.log
     if [ ! -z "$1" ] ;then
@@ -98,29 +104,43 @@ function _verify_output {
     tname=$2
     tscrpt=$3
     expected_status=${4:-0}
-    diff -cw $_tdir/gold/${tscrpt}/${tname}.txt $_testout
+    # fix up stupidities in python exception output: lib64->lib, line numbers->XXX
+    # fix up Ubuntu stupidities: 
+    # backtick to single quote
+    # UTF-8 left single quote to ASCII apostrophe
+    # UTF-8 right single quote to ASCII apostrophe
+    sed 's/lib64/lib/g
+         s/, line [1-9][0-9]*, in/, line XXX, in/g' $_testout |
+         tr '\140' '\047' |
+         sed 's/\xe2\x80\x98/\x27/' | 
+         sed 's/\xe2\x80\x99/\x27/' > $_testout.1
+    diff -cw $_tdir/gold/${tscrpt}/${tname}.txt $_testout.1
     if [[ $? -gt 0 ]]; then
         echo "FAIL - $tname"
-        mv $_testout $_testroot/${tname}_output.txt
+        rm $_testout
+        mv $_testout.1 $_testroot/${tname}_output.txt
         sts=1
     else
         if [[ $sts -eq 0 ]]; then
             echo "PASS - $tname"
-            rm $_testout
+            rm $_testout $_testout.1
+            # mv $_testout $_testout.1 /tmp/pbench
         else
 	    if [[ $sts -eq $expected_status ]]; then
-		echo "PASS - $tname failed with expected exit status: $sts"
-		rm $_testout
+		echo "PASS - $tname exited with expected status: $sts"
+		rm $_testout $_testout.1
 		sts=0
 	    else
 		echo "FAIL - $tname: PASS output but execution returned non-zero exit status"
+                rm $_testout
+                mv $_testout.1 $_testroot/${tname}_output.txt
 	    fi
         fi
     fi
     return $sts
 }
 function _setup_state {
-    mkdir $_testdir
+    mkdir -p $_testdir/samples
     if [[ $? -ne 0 ]]; then
         echo "ERROR: failed to create test pbench directory, \"$_testdir\"" >&2
         exit 1
@@ -151,13 +171,29 @@ declare -A cmds=(
     [test-06]="pbench-fio --config=test-06  --test-type=throughput --samples=1 --client-file=/tmp/foo"
     [test-07]="pbench-user-benchmark --help"
     [test-08]="pbench-user-benchmark --sysinfo=bad"
+    [test-09]="pbench-user-benchmark -- user-benchmark-script no-file"
+    [test-10]="pbench-user-benchmark -- user-benchmark-script no-duration"
+    [test-11]="pbench-user-benchmark -- user-benchmark-script with-duration"
+    [test-12]="pbench-user-benchmark -- user-benchmark-script bad-format"
+    [test-13]="pbench-moongen --sysinfo=bad"
+    [test-14]="pbench-moongen --help"
+    [test-15]="pbench-uperf --sysinfo=bad"
+    [test-16]="pbench-uperf --help"
+    [test-17]="pbench-fio --sysinfo=bad"
+    [test-18]="pbench-fio --help"
+    [test-19]="pbench-fio --pre-iteration-script=foo"
+#    [test-20]="pbench-fio --targets=/dev/foo,/dev/bar --config=test-06  --test-type=throughput --samples=1 --client-file=/tmp/foo"
 )
 
 declare -A expected_status=(
     [test-08]=1
+    [test-13]=1
+    [test-15]=1
+    [test-17]=1
+    [test-19]=1
 )
 
-date="1900-01-01T00:00:00"
+date="1900.01.01T00.00.00"
 declare -A rundirs=(
     [test-00]="uperf_test-00_$date"
     [test-01]="uperf_test-01_$date"
@@ -167,11 +203,17 @@ declare -A rundirs=(
     
 )
 declare -A pre=(
-    [test-06]="echo foo bar baz | tr ' ' '\n' > /tmp/foo"
+    [test-04]="cp $_tdir/samples/test-04.tar.xz $_testdir/samples; mkdir -p $_testopt/config;cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
+    [test-05]="cp $_tdir/samples/test-05.tar.xz $_testdir/samples; mkdir -p $_testopt/config;cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
+    [test-06]="cp $_tdir/samples/test-06.tar.xz $_testdir/samples; mkdir -p $_testopt/config;cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg; echo foo bar baz | tr ' ' '\n' > /tmp/foo"
 )
 
 declare -A post=(
     [test-06]="rm -f /tmp/foo"
+    [test-09]="cat $_testdir/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json >> $_testout"
+    [test-10]="cat $_testdir/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json >> $_testout"
+    [test-11]="cat $_testdir/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json >> $_testout"
+    [test-12]="cat $_testdir/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json >> $_testout"
 )
 
 
@@ -179,7 +221,7 @@ tests="$*"
 if [ -z "$tests" ] ;then
     typeset -i len=${#cmds[@]}
     len=$len-1
-    tests="$(seq -f "test-%02g" 0 $len)"
+    tests=$(echo ${!cmds[*]} | tr ' ' '\n' | sort)
 fi
 
 for tst in $tests; do

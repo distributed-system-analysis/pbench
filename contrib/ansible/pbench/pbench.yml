@@ -1,0 +1,49 @@
+---
+- hosts: remote
+  user: root
+  roles:
+    - role: pbench-repo-install
+    - role: pbench-agent-install
+
+- hosts: controller
+  user: root
+  vars_files:
+    - vars.yml
+  roles:
+    - role: pbench-repo-install
+    - role: pbench-agent-install
+  tasks:
+    - name: clear tools
+      shell: pbench-clear-tools
+      when: clear_tools | default(False) | bool
+    - name: register default tool-set on controller
+      shell: pbench-register-tool-set
+      when: (register_controller_tools | default(False) | bool) and (tools == "default")
+    - name: register default tool-set on remotes
+      shell: pbench-register-tool-set --remote="{{ item }}"
+      with_items:
+        - "{{ groups['remote'] }}"
+      when: (register_remote_tools | default(False) | bool) and (tools == "default")
+    - name: register tool set on controller
+      shell: pbench-register-tool --name="{{ item }}"
+      with_items:
+        - "{{ tools }}"
+      when: (register_controller_tools | default(False) | bool) and (tools != "default")
+    - name: register tools on remote
+      shell: pbench-register-tool --name="{{ item.0 }}" --remote="{{ item.1 }}"
+      with_together: 
+        - "{{ tools }}"
+        - "{{ groups['remote'] }}"
+      when: (register_remote_tools | default(False) | bool) and (tools != "default")
+    - block:
+        - name: list tools
+          shell: pbench-list-tools
+          register: tools_list
+        - debug: msg="{{ tools_list.stdout }}"
+      when: (register_controller_tools | default(False) | bool) or (register_remote_tools | default(False) | bool)
+    - name: run benchmark
+      shell: "{{ benchmark }}"
+      when: benchmark is defined
+    - name: Move results
+      shell: pbench-move-results
+      when: move_results | default(False) | bool

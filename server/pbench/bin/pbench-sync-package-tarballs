@@ -1,0 +1,121 @@
+#! /bin/bash
+
+export CONFIG=/opt/pbench-server/lib/config/pbench-server.cfg
+
+# load common things
+opts=$SHELLOPTS
+case $opts in
+    *xtrace*)
+        dir=$(dirname $(which $0))
+        PROG=$(basename $(which $0))
+        ;;
+    *)
+        dir=$(dirname $0)
+        PROG=$(basename $0)
+        ;;
+esac
+
+# TOP, TMP, LOGSDIR, ARCHIVE, TS are all defined in pbench-base.sh
+. $dir/pbench-base.sh
+
+remotearchive=$ARCHIVE
+
+files=$(if cd $remotearchive;then find . -path '*/TO-SYNC/*.tar.xz' -printf '%P\n' ;else exit 1 ;fi)
+
+# check if we are running under the unit test regime
+if [ "${_PBENCH_SERVER_TEST}" = "1" ] ;then
+    # make the names reproducible for unit tests
+    tmp=$TMP/$PROG.XXXXX
+    status=status.XXXXX
+    # don't submit any tarballs for further processing
+    dryrun=--dry-run
+else
+    tmp=$TMP/$PROG.$$
+    status=status.$$
+    dryrun=
+fi
+
+trap "rm -rf $tmp" EXIT
+typeset -i nerrs=0
+typeset -i nprocessed=0
+
+mkdir -p "$tmp"
+
+log_init $(basename $0)
+if [[ -z "$mail_recipients" ]] ;then
+    echo "$TS: $PROG: mail_recipients is not defined" >&4
+    exit 1
+fi
+
+logdir=$LOGSDIR/$(basename $0)/$prefix/$TS
+mkdir -p "$logdir"
+rc=$?
+if [[ $rc != 0 ]] ;then
+    echo "$TS: Failed: mkdir -p $logdir" >&4
+    exit 2
+fi
+
+calculate_prefixname () {
+    local prefix
+
+    tarname=${1##*/}
+    prefixname=${tarname%%.tar.xz}
+    despath=${1%/*}
+    prefixpath=`echo $prefixname | sed 's;^;'.prefix/prefix.';'`
+    prefix="$despath/$prefixpath"
+    echo $prefix
+}
+
+calculate_md5_prefix () {
+    local tar_list
+
+    tar_list="$@"
+    for tar in ${tar_list[@]}; do
+        if [ -s $remotearchive/$tar ]; then
+            if [[ -s $remotearchive/$tar.md5 ]]; then
+                echo "$tar"
+                echo "$tar.md5"
+            else
+                echo Failed: "$remotearchive/$tar" exist but "$remotearchive/$tar.md5" not exist >> $tmp/mail.log
+            fi
+            prefix=$(calculate_prefixname $tar)
+            if [ -s $remotearchive/$prefix ]; then
+                echo "$prefix"
+            fi
+        else
+            echo Failed: "$remotearchive/$tar" not exist >> $tmp/mail.log
+        fi
+    done
+}
+
+tar_list=$(echo $files | sed 's/\/TO-SYNC//g')
+calculate_md5_prefix $tar_list > $tmp/files-to-sync
+
+pushd $remotearchive >/dev/null || exit 2
+if [ ! -d $remotearchive ] ;then
+    mkdir -p $remotearchive
+fi
+
+# package everything and use the saved stdout (see log_init)
+tar cf - -T $tmp/files-to-sync >&100
+status=$?
+if [[ $status != 0 ]] ;then
+    echo "$TS: Failed: tar --create -T $tmp/files-to-sync" >&4
+    exit 2
+fi
+popd > /dev/null
+log_finish
+
+nprocessed=$(wc -l < $tmp/files-to-sync)
+if [ -s $tmp/mail.log ]; then
+    nerrs=$(wc -l < $tmp/mail.log)
+fi
+
+# if there are errors, send mail
+if [ "$nerrs" -gt 0 ]  ;then
+    mailx -s \
+    "$PROG: Processed $nprocessed result tar balls, with $nerrs errors"\
+    $mail_recipients < $tmp/mail.log
+fi
+
+exit 0

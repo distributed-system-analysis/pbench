@@ -65,7 +65,12 @@ fi
 mail_recipients=$(getconf.py mailto pbench-server)
 
 # make all the state directories for the pipeline and any others needed
-LINKDIRS="TODO TO-COPY-SOS TO-INDEX INDEXED WONT-INDEX DONE BAD-MD5"
+LINKDIRS="TODO TO-UNPACK TO-COPY-SOS TO-SYNC SYNCED TO-LINK TO-INDEX TO-BACKUP \
+	INDEXED WONT-INDEX DONE BAD-MD5 SATELLITE-MD5-PASSED SATELLITE-MD5-FAILED \
+	TO-DELETE SATELLITE-DONE TO-UNPACK UNPACKED MOVED-UNPACKED"
+
+# list of the state directories which will be excluded during rsync
+EXCLUDE_DIRS="$LINKDIRS WONT-INDEX*"
 
 function mk_dirs {
     hostname=$1

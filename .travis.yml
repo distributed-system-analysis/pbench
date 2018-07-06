@@ -1,3 +1,4 @@
+dist: precise
 language: perl
 perl:
  - "5.20"
@@ -7,7 +8,7 @@ perl:
 before_install:
  - sudo apt-get update
 install:
- - sudo apt-get install python python-pip bc libjson-perl realpath
+ - sudo apt-get install python python-pip bc libjson-perl libswitch-perl realpath
  - sudo pip install configtools elasticsearch
  - sudo apt-get install python-software-properties
  - sudo add-apt-repository ppa:fkrull/deadsnakes -y
@@ -18,7 +19,7 @@ install:
  - sudo pip install 'configtools<0.4.0' elasticsearch
  - sudo ln -sf python3.5 /usr/bin/python3
 script:
- - ./agent/bench-scripts/unittests
- - ./agent/tool-scripts/postprocess/unittests
- - ./agent/util-scripts/unittests
- - ./server/pbench/bin/unittests
+ - LANG=C ./agent/bench-scripts/unittests
+ - LANG=C ./agent/tool-scripts/postprocess/unittests
+ - LANG=C ./agent/util-scripts/unittests
+ - LANG=C ./server/pbench/bin/unittests

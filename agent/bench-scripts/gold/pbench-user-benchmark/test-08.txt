@@ -15,6 +15,7 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
 /var/tmp/pbench-test-bench/pbench/pbench.log
+/var/tmp/pbench-test-bench/pbench/samples
 /var/tmp/pbench-test-bench/pbench/tmp
 /var/tmp/pbench-test-bench/pbench/tools-default
 /var/tmp/pbench-test-bench/pbench/tools-default/mpstat

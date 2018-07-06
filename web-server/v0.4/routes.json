@@ -1,0 +1,24 @@
+[
+  {
+    "path": "/dashboard",
+    "page": "./pages/home",
+    "chunk": "main"
+  },
+  {
+    "path": "/dashboard/error",
+    "page": "./pages/error",
+    "chunk": "main"
+  },
+  {
+    "path": "/dashboard/results",
+    "page": "./pages/results"
+  },
+  {
+    "path": "/dashboard/results/summary",
+    "page": "./pages/summary"
+  },
+  {
+    "path": "/dashboard/results/:controller/:result/:iteration_name/:iteration_sample_number",
+    "page": "./pages/iteration_summary"
+  }
+]

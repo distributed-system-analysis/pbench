@@ -1,0 +1,917 @@
+{
+   "latency" : {
+      "clat" : [
+         {
+            "client_hostname" : "all",
+            "description" : "Average completion latency per I/O operation",
+            "role" : "aggregate",
+            "server_hostname" : "all",
+            "server_port" : "all",
+            "timeseries" : [
+               {
+                  "date" : 1000,
+                  "value" : 2888
+               },
+               {
+                  "date" : 2000,
+                  "value" : 2885
+               },
+               {
+                  "date" : 3000,
+                  "value" : 2887
+               },
+               {
+                  "date" : 4000,
+                  "value" : 2891
+               },
+               {
+                  "date" : 5000,
+                  "value" : 2889
+               },
+               {
+                  "date" : 6000,
+                  "value" : 2887
+               },
+               {
+                  "date" : 7000,
+                  "value" : 2889
+               },
+               {
+                  "date" : 8000,
+                  "value" : 2888
+               },
+               {
+                  "date" : 9000,
+                  "value" : 2896
+               },
+               {
+                  "date" : 10000,
+                  "value" : 2896
+               },
+               {
+                  "date" : 11000,
+                  "value" : 2893
+               },
+               {
+                  "date" : 12000,
+                  "value" : 2896
+               },
+               {
+                  "date" : 13000,
+                  "value" : 2898
+               },
+               {
+                  "date" : 14000,
+                  "value" : 2887
+               },
+               {
+                  "date" : 15000,
+                  "value" : 2887
+               },
+               {
+                  "date" : 16000,
+                  "value" : 2890
+               },
+               {
+                  "date" : 17000,
+                  "value" : 2886
+               },
+               {
+                  "date" : 18000,
+                  "value" : 2887
+               },
+               {
+                  "date" : 19000,
+                  "value" : 2886
+               },
+               {
+                  "date" : 20000,
+                  "value" : 2890
+               },
+               {
+                  "date" : 21000,
+                  "value" : 2885
+               },
+               {
+                  "date" : 22000,
+                  "value" : 2886
+               },
+               {
+                  "date" : 23000,
+                  "value" : 2887
+               },
+               {
+                  "date" : 24000,
+                  "value" : 2887
+               },
+               {
+                  "date" : 25000,
+                  "value" : 2888
+               },
+               {
+                  "date" : 26000,
+                  "value" : 2889
+               },
+               {
+                  "date" : 27000,
+                  "value" : 2882
+               },
+               {
+                  "date" : 28000,
+                  "value" : 2888
+               },
+               {
+                  "date" : 29000,
+                  "value" : 2892
+               },
+               {
+                  "date" : 30000,
+                  "value" : 2897
+               },
+               {
+                  "date" : 30002,
+                  "value" : 4159
+               }
+            ],
+            "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
+            "value" : 2930.1935483871
+         },
+         {
+            "client_hostname" : "localhost-1",
+            "description" : "Average completion latency per I/O operation",
+            "role" : "client",
+            "timeseries" : [
+               {
+                  "date" : 1000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2888
+               },
+               {
+                  "date" : 2000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2885
+               },
+               {
+                  "date" : 3000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2887
+               },
+               {
+                  "date" : 4000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2891
+               },
+               {
+                  "date" : 5000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2889
+               },
+               {
+                  "date" : 6000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2887
+               },
+               {
+                  "date" : 7000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2889
+               },
+               {
+                  "date" : 8000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2888
+               },
+               {
+                  "date" : 9000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2896
+               },
+               {
+                  "date" : 10000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2896
+               },
+               {
+                  "date" : 11000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2893
+               },
+               {
+                  "date" : 12000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2896
+               },
+               {
+                  "date" : 13000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2898
+               },
+               {
+                  "date" : 14000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2887
+               },
+               {
+                  "date" : 15000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2887
+               },
+               {
+                  "date" : 16000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2890
+               },
+               {
+                  "date" : 17000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2886
+               },
+               {
+                  "date" : 18000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2887
+               },
+               {
+                  "date" : 19000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2886
+               },
+               {
+                  "date" : 20000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2890
+               },
+               {
+                  "date" : 21000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2885
+               },
+               {
+                  "date" : 22000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2886
+               },
+               {
+                  "date" : 23000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2887
+               },
+               {
+                  "date" : 24000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2887
+               },
+               {
+                  "date" : 25000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2888
+               },
+               {
+                  "date" : 26000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2889
+               },
+               {
+                  "date" : 27000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2882
+               },
+               {
+                  "date" : 28000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2888
+               },
+               {
+                  "date" : 29000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2892
+               },
+               {
+                  "date" : 30000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2897
+               },
+               {
+                  "date" : 30002,
+                  "read(0) or write(1)" : 0,
+                  "value" : 4159
+               }
+            ],
+            "uid" : "client_hostname:%client_hostname%",
+            "value" : 2930.1935483871
+         }
+      ],
+      "lat" : [
+         {
+            "client_hostname" : "all",
+            "description" : "Average total latency per I/O operation",
+            "role" : "aggregate",
+            "server_hostname" : "all",
+            "server_port" : "all",
+            "timeseries" : [
+               {
+                  "date" : 1000,
+                  "value" : 2909
+               },
+               {
+                  "date" : 2000,
+                  "value" : 2906
+               },
+               {
+                  "date" : 3000,
+                  "value" : 2908
+               },
+               {
+                  "date" : 4000,
+                  "value" : 2911
+               },
+               {
+                  "date" : 5000,
+                  "value" : 2909
+               },
+               {
+                  "date" : 6000,
+                  "value" : 2908
+               },
+               {
+                  "date" : 7000,
+                  "value" : 2910
+               },
+               {
+                  "date" : 8000,
+                  "value" : 2909
+               },
+               {
+                  "date" : 9000,
+                  "value" : 2917
+               },
+               {
+                  "date" : 10000,
+                  "value" : 2918
+               },
+               {
+                  "date" : 11000,
+                  "value" : 2914
+               },
+               {
+                  "date" : 12000,
+                  "value" : 2917
+               },
+               {
+                  "date" : 13000,
+                  "value" : 2919
+               },
+               {
+                  "date" : 14000,
+                  "value" : 2908
+               },
+               {
+                  "date" : 15000,
+                  "value" : 2908
+               },
+               {
+                  "date" : 16000,
+                  "value" : 2910
+               },
+               {
+                  "date" : 17000,
+                  "value" : 2906
+               },
+               {
+                  "date" : 18000,
+                  "value" : 2909
+               },
+               {
+                  "date" : 19000,
+                  "value" : 2908
+               },
+               {
+                  "date" : 20000,
+                  "value" : 2910
+               },
+               {
+                  "date" : 21000,
+                  "value" : 2906
+               },
+               {
+                  "date" : 22000,
+                  "value" : 2906
+               },
+               {
+                  "date" : 23000,
+                  "value" : 2908
+               },
+               {
+                  "date" : 24000,
+                  "value" : 2908
+               },
+               {
+                  "date" : 25000,
+                  "value" : 2910
+               },
+               {
+                  "date" : 26000,
+                  "value" : 2910
+               },
+               {
+                  "date" : 27000,
+                  "value" : 2903
+               },
+               {
+                  "date" : 28000,
+                  "value" : 2908
+               },
+               {
+                  "date" : 29000,
+                  "value" : 2912
+               },
+               {
+                  "date" : 30000,
+                  "value" : 2918
+               },
+               {
+                  "date" : 30002,
+                  "value" : 4182
+               }
+            ],
+            "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
+            "value" : 2951.12903225806
+         },
+         {
+            "client_hostname" : "localhost-1",
+            "description" : "Average total latency per I/O operation",
+            "role" : "client",
+            "timeseries" : [
+               {
+                  "date" : 1000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2909
+               },
+               {
+                  "date" : 2000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2906
+               },
+               {
+                  "date" : 3000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2908
+               },
+               {
+                  "date" : 4000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2911
+               },
+               {
+                  "date" : 5000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2909
+               },
+               {
+                  "date" : 6000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2908
+               },
+               {
+                  "date" : 7000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2910
+               },
+               {
+                  "date" : 8000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2909
+               },
+               {
+                  "date" : 9000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2917
+               },
+               {
+                  "date" : 10000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2918
+               },
+               {
+                  "date" : 11000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2914
+               },
+               {
+                  "date" : 12000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2917
+               },
+               {
+                  "date" : 13000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2919
+               },
+               {
+                  "date" : 14000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2908
+               },
+               {
+                  "date" : 15000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2908
+               },
+               {
+                  "date" : 16000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2910
+               },
+               {
+                  "date" : 17000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2906
+               },
+               {
+                  "date" : 18000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2909
+               },
+               {
+                  "date" : 19000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2908
+               },
+               {
+                  "date" : 20000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2910
+               },
+               {
+                  "date" : 21000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2906
+               },
+               {
+                  "date" : 22000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2906
+               },
+               {
+                  "date" : 23000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2908
+               },
+               {
+                  "date" : 24000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2908
+               },
+               {
+                  "date" : 25000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2910
+               },
+               {
+                  "date" : 26000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2910
+               },
+               {
+                  "date" : 27000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2903
+               },
+               {
+                  "date" : 28000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2908
+               },
+               {
+                  "date" : 29000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2912
+               },
+               {
+                  "date" : 30000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 2918
+               },
+               {
+                  "date" : 30002,
+                  "read(0) or write(1)" : 0,
+                  "value" : 4182
+               }
+            ],
+            "uid" : "client_hostname:%client_hostname%",
+            "value" : 2951.12903225806
+         }
+      ],
+      "slat" : [
+         {
+            "client_hostname" : "all",
+            "description" : "Average submission latency per I/O operation",
+            "role" : "aggregate",
+            "server_hostname" : "all",
+            "server_port" : "all",
+            "timeseries" : [
+               {
+                  "date" : 0,
+                  "value" : 20
+               },
+               {
+                  "date" : 1000,
+                  "value" : 21
+               },
+               {
+                  "date" : 2000,
+                  "value" : 21
+               },
+               {
+                  "date" : 3000,
+                  "value" : 20
+               },
+               {
+                  "date" : 4000,
+                  "value" : 20
+               },
+               {
+                  "date" : 5000,
+                  "value" : 20
+               },
+               {
+                  "date" : 6000,
+                  "value" : 21
+               },
+               {
+                  "date" : 7000,
+                  "value" : 21
+               },
+               {
+                  "date" : 8000,
+                  "value" : 20
+               },
+               {
+                  "date" : 9000,
+                  "value" : 21
+               },
+               {
+                  "date" : 10000,
+                  "value" : 21
+               },
+               {
+                  "date" : 11000,
+                  "value" : 21
+               },
+               {
+                  "date" : 12000,
+                  "value" : 21
+               },
+               {
+                  "date" : 13000,
+                  "value" : 20
+               },
+               {
+                  "date" : 14000,
+                  "value" : 20
+               },
+               {
+                  "date" : 15000,
+                  "value" : 20
+               },
+               {
+                  "date" : 16000,
+                  "value" : 20
+               },
+               {
+                  "date" : 17000,
+                  "value" : 20
+               },
+               {
+                  "date" : 18000,
+                  "value" : 21
+               },
+               {
+                  "date" : 19000,
+                  "value" : 21
+               },
+               {
+                  "date" : 20000,
+                  "value" : 19
+               },
+               {
+                  "date" : 21000,
+                  "value" : 21
+               },
+               {
+                  "date" : 22000,
+                  "value" : 20
+               },
+               {
+                  "date" : 23000,
+                  "value" : 21
+               },
+               {
+                  "date" : 24000,
+                  "value" : 20
+               },
+               {
+                  "date" : 25000,
+                  "value" : 21
+               },
+               {
+                  "date" : 26000,
+                  "value" : 21
+               },
+               {
+                  "date" : 27000,
+                  "value" : 20
+               },
+               {
+                  "date" : 28000,
+                  "value" : 20
+               },
+               {
+                  "date" : 29000,
+                  "value" : 19
+               },
+               {
+                  "date" : 30000,
+                  "value" : 21
+               }
+            ],
+            "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
+            "value" : 20.4193548387097
+         },
+         {
+            "client_hostname" : "localhost-1",
+            "description" : "Average submission latency per I/O operation",
+            "role" : "client",
+            "timeseries" : [
+               {
+                  "date" : 0,
+                  "read(0) or write(1)" : 0,
+                  "value" : 20
+               },
+               {
+                  "date" : 1000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 21
+               },
+               {
+                  "date" : 2000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 21
+               },
+               {
+                  "date" : 3000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 20
+               },
+               {
+                  "date" : 4000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 20
+               },
+               {
+                  "date" : 5000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 20
+               },
+               {
+                  "date" : 6000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 21
+               },
+               {
+                  "date" : 7000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 21
+               },
+               {
+                  "date" : 8000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 20
+               },
+               {
+                  "date" : 9000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 21
+               },
+               {
+                  "date" : 10000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 21
+               },
+               {
+                  "date" : 11000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 21
+               },
+               {
+                  "date" : 12000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 21
+               },
+               {
+                  "date" : 13000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 20
+               },
+               {
+                  "date" : 14000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 20
+               },
+               {
+                  "date" : 15000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 20
+               },
+               {
+                  "date" : 16000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 20
+               },
+               {
+                  "date" : 17000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 20
+               },
+               {
+                  "date" : 18000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 21
+               },
+               {
+                  "date" : 19000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 21
+               },
+               {
+                  "date" : 20000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 19
+               },
+               {
+                  "date" : 21000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 21
+               },
+               {
+                  "date" : 22000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 20
+               },
+               {
+                  "date" : 23000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 21
+               },
+               {
+                  "date" : 24000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 20
+               },
+               {
+                  "date" : 25000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 21
+               },
+               {
+                  "date" : 26000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 21
+               },
+               {
+                  "date" : 27000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 20
+               },
+               {
+                  "date" : 28000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 20
+               },
+               {
+                  "date" : 29000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 19
+               },
+               {
+                  "date" : 30000,
+                  "read(0) or write(1)" : 0,
+                  "value" : 21
+               }
+            ],
+            "uid" : "client_hostname:%client_hostname%",
+            "value" : 20.4193548387097
+         }
+      ]
+   },
+   "parameters" : {
+      "benchmark" : [
+         {
+            "benchmark_name" : "fio",
+            "benchmark_version" : null,
+            "primary_metric" : "iops_sec",
+            "uid" : "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+         }
+      ]
+   }
+}

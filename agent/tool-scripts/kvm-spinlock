@@ -206,8 +206,11 @@ case "$tool" in
 	sysfs)
 	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file \"$path\" \"$maxdepth\" \"$pattern\""
 	;;
-	docker-info|docker|dm-cache|turbostat|openvswitch|proc-sched_debug|proc-vmstat|proc-interrupts|cpuacct|numastat|kvmstat|kvm-spinlock|vmstat)
+	docker-info|docker|dm-cache|turbostat|proc-sched_debug|proc-vmstat|proc-interrupts|cpuacct|numastat|kvmstat|kvm-spinlock|vmstat)
 	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file"
+	;;
+	openvswitch)
+	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_dir"
 	;;
 	numastat)
 	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file $pattern"
@@ -234,6 +237,9 @@ case "$tool" in
 	;;
 	rabbit)
 	tool_cmd="$script_path/datalog/$tool-datalog $interval $username $password $tool_stdout_file"
+	;;
+	disk)
+	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_stdout_file"
 	;;
 esac
 
@@ -338,6 +344,13 @@ case "$mode" in
 			exit 1
 		fi
 		;;
+		disk)
+		tool_bin="/usr/bin/df"
+		if [ ! -e $tool_bin ]; then
+			error_log "$tool_bin not installed, exiting"
+			exit 1
+		fi
+		;;
 	esac
 	;;
 	start)
@@ -358,30 +371,34 @@ case "$mode" in
 	;;
 	stop)
 	debug_log "stopping $script_name"
-	pid=`cat $tool_pid_file`
-	if [ ! -z "$pid" ] ;then
-		if [ "$tool" == "kvmtrace" ]; then
-			if [ -z "$sleep_cmd" ]; then
-				# kill the perf cmd
-				safe_kill $tool $pid INT
-			else
-				# kill the sleep process if it still exists
-				sleep_pid=`ps --ppid $pid | pgrep sleep`
-				if [ ! -z "$sleep_pid" ]; then
-					safe_kill $tool $sleep_pid
+	if [[ -s "$tool_pid_file" ]]; then
+		pid=`cat $tool_pid_file`
+		if [ ! -z "$pid" ] ;then
+			if [ "$tool" == "kvmtrace" ]; then
+				if [ -z "$sleep_cmd" ]; then
+					# kill the perf cmd
+					safe_kill $tool $pid INT
+				else
+					# kill the sleep process if it still exists
+					sleep_pid=`ps --ppid $pid | pgrep sleep`
+					if [ ! -z "$sleep_pid" ]; then
+						safe_kill $tool $sleep_pid
+					fi
 				fi
+				# wait for the trace-cmd pid to complete
+				while [ -d /proc/$pid ]; do
+					debug_log "waiting for PID $pid to die"
+					sleep 0.5
+				done
+				rc=0
+			else
+				safe_kill $tool $pid
+				rc=$?
+				/bin/rm -f "$tool_pid_file"
 			fi
-			# wait for the trace-cmd pid to complete
-			while [ -d /proc/$pid ]; do
-				debug_log "waiting for PID $pid to die"
-				sleep 0.5
-			done
-			rc=0
-		else
-			safe_kill $tool $pid
-			rc=$?
-			/bin/rm -f "$tool_pid_file"
 		fi
+	else
+		warn_log "[$script_name]: tool is not running, nothing to kill"
 	fi
 	;;
 	postprocess)

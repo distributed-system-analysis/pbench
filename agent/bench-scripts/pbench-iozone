@@ -61,6 +61,7 @@ record_sizes="1,2"
 number_of_runs=10
 iteration=1 
 tool_group=default
+sysinfo="default"
 
 ## Ensure the right version of the benchmark is installed
 
@@ -71,23 +72,29 @@ else
 	exit 1
 fi
 
-opts=$(getopt -q -o C:d:s:r:n: --longoptions "config:,targets:,file_sizes:,record_sizes:,number_of_runs:,tool-group:" -n "getopt.sh" -- "$@");
-
-if [ $? -ne 0 ]; then
-        printf -- "$*\n"
-        printf "\n"
-        printf "\t${benchmark}: you specified an invalid option\n\n"
-        printf "\tThe following options are available:\n\n"
-        printf -- "\t\t-C str --config=str name of the test config\n"
+function usage{
+	printf "\tThe following options are available:\n\n"
+	printf -- "\t\t-C str --config=str name of the test config\n"
 	printf -- "\t\t-d str[,str] --targets=str[,str]\n"
 	printf "\t\t\tfile to use for iozone test in format /dir/file - this is iozone : -f option\n"
 	printf -- "\t\t-s str[,str] --file_sizes=str[,str]\n"
 	printf "\t\t\tone or more file_sizes sizes to use\n"
 	printf -- "\t\t-r str[,str] --record_sizes=str[,str]\n"
-        printf "\t\t\tone or more record_sizes sizes to use\n"
+	printf "\t\t\tone or more record_sizes sizes to use\n"
 	printf -- "\t\t-n str[,str] --number_of_runs=str[,str]\n"
 	printf "\t\t\tnumber of iozone runs - default is 10 runs\n"
 	printf -- "\t\t--tool-group=str\n"
+	printf -- "\t\t--sysinfo=str, str= comma seperated values of sysinfo to be collected\n"
+	printf -- "\t\t                    available: $(pbench-collect-sysinfo --options)\n"
+}
+
+opts=$(getopt -q -o C:d:s:r:n: --longoptions "config:,targets:,file_sizes:,record_sizes:,number_of_runs:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@");
+
+if [ $? -ne 0 ]; then
+        printf -- "$*\n"
+        printf "\n"
+        printf "\t${benchmark}: you specified an invalid option\n\n"
+	usage
         exit 1
 fi
 
@@ -124,7 +131,14 @@ while true; do
 			record_sizes="$1"
 			shift;
 		fi
-		;; 
+		;;
+	         --sysinfo)
+		shift;
+		if [ -n "$1" ]; then
+			sysinfo="$1"
+			shift;
+		fi
+		;;	
 
 		-n|--number_of_runs)
 		shift
@@ -132,6 +146,11 @@ while true; do
 			number_of_runs="$1"
 			shift;
 		fi
+		;;
+
+		h|--help)
+		usage
+		exit 0
 		;;
 
 		--tool-group)
@@ -156,14 +175,23 @@ done
 
 verify_tool_group $tool_group
 
-benchmark_fullname="${benchmark}_${config}_${date}"
-benchmark_run_dir="$pbench_run/${benchmark_fullname}"
+pbench-collect-sysinfo --sysinfo=$sysinfo --check
+if [ $? != 0 ]; then
+        printf -- "$*\n\n"
+        printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
+        usage
+        exit 1
+fi
+
+benchmark_fullname="${benchmark}_${config}_${date_suffix}"
+export benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
 benchmark_summary_file="$benchmark_run_dir/$benchmark-summary.txt"
 
 mkdir -p $benchmark_run_dir/.running
 export benchmark config
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 
 benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
 echo $iteration >> $benchmark_iterations
@@ -185,7 +213,8 @@ done
 
 pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 
 rmdir $benchmark_run_dir/.running
 

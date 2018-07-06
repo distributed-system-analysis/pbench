@@ -24,8 +24,6 @@ mode=""
 iteration="1"
 options="none"
 interval=10
-origin_master="/etc/sysconfig/origin-master"
-ose_openshift_master="/etc/sysconfig/atomic-openshift-master"
 
 opts=$(getopt -o d --longoptions "dir:,group:,iteration:,occomponent:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
 # occomponent not used at time, place holder for eventual future PR where oc parameters will be specified from command line 
@@ -110,17 +108,16 @@ oc_data_collect() {
 }
 
 oc_data_once() { 
-    oc get nodes -o wide >> "${tool_output_dir}"/nodes.txt 
+    oc get nodes -o wide --show-labels >> "${tool_output_dir}"/nodes.txt 
     oc get ev --all-namespaces -o wide >> "${tool_output_dir}"/ev.txt 
 } 
 
 case "$mode" in 
     install)
-        if [[ -e $ose_openshift_master  ||  -e $origin_master ]]; then 
-            check_install_rpm $tool_package 
-        else
-            printf "This machine is not Openshift master, ... not possible to start $tool on this machine\n"
-        fi 
+	if ! oc --help >/dev/null 2>&1 ; then
+            printf "${script_name} needs an OpenShift client to work\n"
+            exit 1
+	fi
     ;; 
     start)
         mkdir -p $tool_output_dir
