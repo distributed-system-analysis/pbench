@@ -902,8 +902,8 @@
       "benchmark" : [
          {
             "benchmark_name" : "fio",
-            "benchmark_version" : null,
             "primary_metric" : "iops_sec",
+            "total_jobs" : 1,
             "uid" : "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
          }
       ]
