@@ -18,7 +18,6 @@ tool=pprof
 tool_bin=${GOROOT:-/usr}/bin/go
 tool_package=golang
 group=default
-dir="/tmp"
 mode=""
 iteration="1"
 options="none"
@@ -121,12 +120,12 @@ get_masters() {
     declare -A master_pids
     while true; do
         for master in "${masters[@]}"; do
-            oc get --raw /debug/pprof/profile?seconds=${interval} --server https://${master}:8443 > /tmp/${master}_api_profile && ${tool_bin} tool ${tool} -text -seconds=${interval} -output $PPROF_TMPDIR/${master}/$(date +%Y-%m-%d:%H:%M:%S)_api_profile.txt /tmp/${master}_api_profile &
+            oc get --raw /debug/pprof/profile?seconds=${interval} --server https://${master}:8443 > ${pbench_tmp}/${master}_api_profile && ${tool_bin} tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${master}/$(date +%Y-%m-%d:%H:%M:%S)_api_profile.txt ${pbench_tmp}/${master}_api_profile &
             master_pids[${master}_api]=$!
-            oc get --raw /debug/pprof/heap --server https://${master}:8443 > /tmp/${master}_api_heap && ${tool_bin} tool ${tool} -text -seconds=${interval} -output $PPROF_TMPDIR/${master}/$(date +%Y-%m-%d:%H:%M:%S)_api_heap.txt /tmp/${master}_api_heap &
-            oc get --raw /debug/pprof/profile?seconds=${interval} --server https://${master}:8444 > /tmp/${master}_controller_profile && ${tool_bin} tool ${tool} -text -seconds=${interval} -output $PPROF_TMPDIR/${master}/$(date +%Y-%m-%d:%H:%M:%S)_controller_profile.txt /tmp/${master}_controller_profile &
+            oc get --raw /debug/pprof/heap --server https://${master}:8443 > ${pbench_tmp}/${master}_api_heap && ${tool_bin} tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${master}/$(date +%Y-%m-%d:%H:%M:%S)_api_heap.txt ${pbench_tmp}/${master}_api_heap &
+            oc get --raw /debug/pprof/profile?seconds=${interval} --server https://${master}:8444 > ${pbench_tmp}/${master}_controller_profile && ${tool_bin} tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${master}/$(date +%Y-%m-%d:%H:%M:%S)_controller_profile.txt ${pbench_tmp}/${master}_controller_profile &
             master_pids[${master}_controller]=$!
-            oc get --raw /debug/pprof/heap --server https://${master}:8444 > /tmp/${master}_controller_heap && ${tool_bin} tool ${tool} -text -seconds=${interval} -output $PPROF_TMPDIR/${master}/$(date +%Y-%m-%d:%H:%M:%S)_controller_heap.txt /tmp/${master}_controller_heap &
+            oc get --raw /debug/pprof/heap --server https://${master}:8444 > ${pbench_tmp}/${master}_controller_heap && ${tool_bin} tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${master}/$(date +%Y-%m-%d:%H:%M:%S)_controller_heap.txt ${pbench_tmp}/${master}_controller_heap &
         done
 	for pid in ${master_pids[*]}; do
             wait ${pid}
@@ -138,9 +137,9 @@ get_hosts() {
     declare -A node_pids
     while true; do
         for host in "${hosts[@]}"; do
-            oc get --raw /debug/pprof/profile?seconds=${interval} --server https://${host}:10250 > /tmp/${host}_profile && ${tool_bin} tool ${tool} -text -seconds=${interval} -output $PPROF_TMPDIR/${host}/$(date +%Y-%m-%d:%H:%M:%S)_profile.txt /tmp/${host}_profile &
+            oc get --raw /debug/pprof/profile?seconds=${interval} --server https://${host}:10250 > ${pbench_tmp}/${host}_profile && ${tool_bin} tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${host}/$(date +%Y-%m-%d:%H:%M:%S)_profile.txt ${pbench_tmp}/${host}_profile &
             node_pids[${host}]=$!
-            oc get --raw /debug/pprof/heap --server https://${host}:10250 > /tmp/${host}_heap && ${tool_bin} tool ${tool} -text -seconds=${interval} -output $PPROF_TMPDIR/${host}/$(date +%Y-%m-%d:%H:%M:%S)_heap.txt /tmp/${host}_heap &
+            oc get --raw /debug/pprof/heap --server https://${host}:10250 > ${pbench_tmp}/${host}_heap && ${tool_bin} tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${host}/$(date +%Y-%m-%d:%H:%M:%S)_heap.txt ${pbench_tmp}/${host}_heap &
         done
 	for pid in ${node_pids[*]}; do
             wait ${pid}
@@ -154,10 +153,10 @@ case "$mode" in
     ;; 
     start)
     	for master in "${masters[@]}"; do
-    	    mkdir -p $tool_output_dir/${master}
+    	    mkdir -p ${tool_output_dir}/${master}
     	done
     	for host in "${hosts[@]}"; do
-    	    mkdir -p $tool_output_dir/${host}
+    	    mkdir -p ${tool_output_dir}/${host}
     	done
         collect_data
     ;; 
@@ -169,6 +168,6 @@ case "$mode" in
     postprocess)
         printf "This script does not do any postprocessing\n"
         printf "Data already collected\n" 
-        ls -l $tool_output_dir 
+        ls -l ${tool_output_dir}
     ;; 
 esac 
