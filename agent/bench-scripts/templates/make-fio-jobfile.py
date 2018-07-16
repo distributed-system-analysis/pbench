@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! /usr/bin/env python3
 """ Constructs an fio job file with the following precedence
     from high to low:
 

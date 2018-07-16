@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! /usr/bin/env python3
 
 import sys, json, os, logging, shutil
 
@@ -13,7 +13,7 @@ with open('%s/user-benchmark-summary.json' % benchmark_run_dir, 'a+') as data_fi
         if position != 0:
             # Log the exception if the position is not 0.
             logging.exception("current position: %d", position)
-        data = {}        
+        data = {}
     if "duration" not in data:
         # At this point we may or may not have a dictionary of data loaded from
         # the JSON file, but we do know that if we did load some JSON it did not
@@ -23,7 +23,7 @@ with open('%s/user-benchmark-summary.json' % benchmark_run_dir, 'a+') as data_fi
     if data_file.tell() == 0:
         # Either there was nothing in the file, or they didn't create the file.
         logging.info("pbench-user-benchmark run didn't create a %s/user-benchmark-summary.json or the file is empty, creating %s/user-benchmark-summary.json containing info about the run", benchmark_run_dir)
-    # copy the input user-benchmark-summary.json file to 
+    # copy the input user-benchmark-summary.json file to
     # user-benchmark-summary-debug.json for debugging purposes
     shutil.copyfile('%s/user-benchmark-summary.json' % benchmark_run_dir, '%s/user-benchmark-summary-debug.json' % benchmark_run_dir)
     # Prepare to re-write the file with an updated JSON document.
