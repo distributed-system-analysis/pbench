@@ -88,6 +88,8 @@ tmp=/tmp/$prog.$$
 
 trap "rm -rf $tmp" EXIT QUIT INT
 
+mkdir $tmp
+
 echo '
 {
     "@timestamp": %timestamp%,
@@ -98,12 +100,15 @@ echo '
 sed 's/%timestamp%/"'$timestamp'"/
      s/%name%/"'$name'"/
      s/%type%/"'$doctype'"/
-     s~%text%~"'"$text"'"~' > $tmp
+     s~%text%~"'"$text"'"~' > ${tmp}/payload
 
-curl -XPOST -H 'Content-Type: application/json' "http://$server/$index/$doctype/$md5" --data @"${tmp}" >> $LOGSDIR/$name/$name.log 2>&1
+curl -XPOST -H 'Content-Type: application/json' "http://$server/$index/$doctype/$md5" --data @"${tmp}/payload" >> ${tmp}/log 2>&1
 status=$?
 
-echo >> $LOGSDIR/$name/$name.log
+echo >> ${tmp}/log
+
+if [ -f "$LOGSDIR/$name/$name.log" ]; then
+    cat ${tmp}/log >> $LOGSDIR/$name/$name.log
+fi
 
 exit $status
-
