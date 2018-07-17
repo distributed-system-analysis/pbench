@@ -14,8 +14,10 @@ if [[ $? -gt 0 ]]; then
     echo "ERROR: failed to empty test root directory, \"$_testroot\"" >&2
     exit 1
 fi
+
 _testout=$_testroot/output.txt
 export _testlog=$_testroot/test-execution.log
+export _testreportstatus=$_testroot/test-report-status.log
 _testdir=$_testroot/pbench
 mkdir -p $_testdir
 if [[ ! -d $_testdir ]]; then
@@ -108,11 +110,20 @@ function _dump_logs {
             done
     fi
     echo "--- pbench log file contents" >> $_testout
+
     echo "+++ test-execution.log file contents" >> $_testout
     grep -HvF "\-\-should-n0t-ex1st--" $_testroot/test-execution.log 2>/dev/null |
          sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' >> $_testout>> $_testout 2>&1
     echo "--- test-execution.log file contents" >> $_testout
     rm -f $_testroot/test-execution.log
+
+    if [ -s $_testroot/test-report-status.log ]; then
+        echo "+++ test-report-status.log file contents" >> $_testout
+        grep -HvF "\-\-should-n0t-ex1st--" $_testroot/test-report-status.log 2>/dev/null |
+             sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' >> $_testout>> $_testout 2>&1
+        echo "--- test-report-status.log file contents" >> $_testout
+    fi
+    rm -f $_testroot/test-report-status.log
 }
 
 function _verify_output {
