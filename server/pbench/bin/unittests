@@ -27,7 +27,7 @@ fi
 export _PBENCH_SERVER_TEST=1
 
 # execution environment
-_testopt=$_testroot/opt/pbench-agent
+_testopt=$_testroot/opt/pbench-server
 res=0
 mkdir -p $_testopt/unittest-scripts/
 let res=res+$?

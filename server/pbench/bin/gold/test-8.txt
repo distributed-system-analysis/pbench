@@ -36,8 +36,8 @@ chown pbench.pbench /var/tmp/pbench-test-server/pbench/tmp/*
 +++ pbench log file contents
 --- pbench log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/ln -sf pbench-results-host-info.URL001.active pbench-results-host-info.URL001
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/systemctl enable httpd.service
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/systemctl start httpd.service
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/ln -s /pbench/public_html/incoming /pbench/public_html/results /var/www/html
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -sf pbench-results-host-info.URL001.active pbench-results-host-info.URL001
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/systemctl enable httpd.service
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/systemctl start httpd.service
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -s /pbench/public_html/incoming /pbench/public_html/results /var/www/html
 --- test-execution.log file contents
