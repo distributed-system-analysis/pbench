@@ -13,12 +13,18 @@
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz.md5
+/var/tmp/pbench-test-server/pbench/logs
+/var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs
+/var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.error
+/var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 /var/tmp/pbench-test-server/pbench/public_html
 /var/tmp/pbench-test-server/pbench/public_html/incoming
 /var/tmp/pbench-test-server/pbench/public_html/results
 /var/tmp/pbench-test-server/pbench/tmp
 --- pbench tree state
 +++ pbench log file contents
+/var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:start-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:end-1900-01-01T00:00:00-UTC
 --- pbench log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/pbench-report-status --name pbench-verify-backup-tarballs --timestamp run-1900-01-01T00:00:00-UTC --type status /var/tmp/pbench-test-server/pbench/tmp/pbench-verify-backup-tarballs/index_mail_contents
