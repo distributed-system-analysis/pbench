@@ -33,9 +33,17 @@ mkdir -p $_testopt/unittest-scripts/
 let res=res+$?
 cp $_tdir/test-bin/* $_testopt/unittest-scripts/
 let res=res+$?
-
 export PATH=$_testopt/unittest-scripts:$_tconfigtoolsbin:$PATH
 export CONFIG=$_testroot/opt/pbench-server/config/pbench-server.cfg
+mkdir -p $(dirname $CONFIG)
+let res=res+$?
+cp $_tdir/state/config/pbench-server.cfg $CONFIG
+let res=res+$?
+
+if [ $res -ne 0 ]; then
+    echo "ERROR: failed to properly setup the test environment root, \"$_testroot\"" >&2
+    exit $res
+fi
 
 function _run {
     tname=$1
@@ -81,6 +89,7 @@ function _run_allscripts {
     _run pbench-clean-up-dangling-results-links
     _run pbench-edit-prefixes
 }
+
 function _save_tree {
     # Save state of the tree
     echo "+++ pbench tree state" >> $_testout
@@ -88,6 +97,7 @@ function _save_tree {
         sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*$;tmp/pbench-\1.NNNN;' >> $_testout
     echo "--- pbench tree state" >> $_testout
 }
+
 function _dump_logs {
     # Dump the state of any generated script logs
     echo "+++ pbench log file contents" >> $_testout
@@ -103,8 +113,8 @@ function _dump_logs {
          sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' >> $_testout>> $_testout 2>&1
     echo "--- test-execution.log file contents" >> $_testout
     rm -f $_testroot/test-execution.log
-
 }
+
 function _verify_output {
     res=$1
     tname=$2
@@ -119,6 +129,7 @@ function _verify_output {
     fi
     return $res
 }
+
 function _setup_state {
     _state_tb=$_tdir/state/${1}.tar.xz
     (cd $_testroot; tar xf $_state_tb; if [ ! -z "${2}" ] ;then /bin/ln -s ${2}.tar.xz ${1}.tar.xz ;fi)
@@ -127,6 +138,7 @@ function _setup_state {
         exit 1
     fi
 }
+
 function _reset_state {
     rm -rf $_testdir
     if [[ -d $_testdir ]]; then
