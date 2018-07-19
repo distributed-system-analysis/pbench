@@ -11,7 +11,7 @@
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
 /var/tmp/pbench-test-server/pbench/archive
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002
 /var/tmp/pbench-test-server/pbench/logs
 /var/tmp/pbench-test-server/pbench/logs/pbench-clean-up-dangling-results-links
 /var/tmp/pbench-test-server/pbench/logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
@@ -43,6 +43,7 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01/status/86b27ea1db1e4119089cb4dff57df63e --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:run-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:flock: cannot open lock file /var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/TO-UNPACK: No such file or directory
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:run-1900-01-01T00:00:00-UTC: Processed 0 tarballs
 --- pbench log file contents
 +++ test-execution.log file contents

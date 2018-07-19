@@ -5,10 +5,44 @@
 /var/tmp/pbench-test-server/pbench/archive
 /var/tmp/pbench-test-server/pbench/archive/duplicates
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/Controller
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/Controller/TODO
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz.md5
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/5a
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/5a/5e
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/5a/5e/2903f2a39048ef3d3ec59b9b913c
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/5a/5e/2903f2a39048ef3d3ec59b9b913c/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/5a/5e/2903f2a39048ef3d3ec59b9b913c/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz.hostname
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001/5a/5e/2903f2a39048ef3d3ec59b9b913c/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz.md5
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/BAD-MD5
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/COPIED-SOS
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/INDEXED
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/MOVED-UNPACKED
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/SATELLITE-DONE
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/SATELLITE-MD5-FAILED
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/SATELLITE-MD5-PASSED
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/SYNCED
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/TO-BACKUP
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/TO-COPY-SOS
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/TO-DELETE
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/TO-INDEX
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/TO-LINK
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/TO-SYNC
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/TO-UNPACK
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/TODO
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/UNPACKED
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/WONT-INDEX
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/WONT-INDEX.1
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/WONT-INDEX.10
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/WONT-INDEX.11
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/WONT-INDEX.12
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/WONT-INDEX.2
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/WONT-INDEX.3
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/WONT-INDEX.4
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/WONT-INDEX.5
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/WONT-INDEX.6
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/WONT-INDEX.7
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/WONT-INDEX.8
+/var/tmp/pbench-test-server/pbench/archive/fs-version-002/inotify_state/WONT-INDEX.9
 /var/tmp/pbench-test-server/pbench/archive/quarantine
 /var/tmp/pbench-test-server/pbench/logs
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002
@@ -29,16 +63,15 @@
 +++ pbench log file contents
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:run-1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz: OK
-/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:run-1900-01-01T00:00:00-UTC: Processed 1 entries, 1 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.
-/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-server-prep-shim-002.1900-01/status/6c47622853ffc8d0ca9cddbc1238f35a --data @/tmp/pbench-report-status.NNNN/payload
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:run-1900-01-01T00:00:00-UTC: Processed 1 entries, 1 tarballs successful,   # 0 quarantined tarballs, 0 duplicately-named tarballs,    0 errors.
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-server-prep-shim-002.1900-01/status/cec860a3d7fa88da4dac9c996a2b8f41 --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:
 --- pbench log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -s /var/tmp/pbench-test-server/pbench/archive/fs-version-001/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz .
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
 /var/tmp/pbench-test-server/test-curl-payload.log:{
-/var/tmp/pbench-test-server/test-curl-payload.log:    "text": "run-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/pbench-local/fs-version-002/pbench-move-results-receive/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz\nrun-1900-01-01T00:00:00-UTC: Processed 1 entries, 1 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n", 
+/var/tmp/pbench-test-server/test-curl-payload.log:    "text": "run-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/pbench-local/fs-version-002/pbench-move-results-receive/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz\nrun-1900-01-01T00:00:00-UTC: Processed 1 entries, 1 tarballs successful,   # 0 quarantined tarballs, 0 duplicately-named tarballs,    0 errors.\n", 
 /var/tmp/pbench-test-server/test-curl-payload.log:    "@timestamp": "1900-01-01T00:00:00", 
 /var/tmp/pbench-test-server/test-curl-payload.log:    "name": "pbench-server-prep-shim-002", 
 /var/tmp/pbench-test-server/test-curl-payload.log:    "doctype": "status"
