@@ -31,6 +31,6 @@
 --- test-execution.log file contents
 +++ test-report-status.log file contents
 /var/tmp/pbench-test-server/test-report-status.log:pbench-verify-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)
-/var/tmp/pbench-test-server/test-report-status.log:* Files that exist only in backup directory - this should not happen.
-/var/tmp/pbench-test-server/test-report-status.log:/var/tmp/pbench-test-server/pbench/archive.backup/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: OK
+/var/tmp/pbench-test-server/test-report-status.log:* Files that exist only in backup directory - this should only happen if a backup or primary tar ball becomes corrupted.
+/var/tmp/pbench-test-server/test-report-status.log:4fe570aea2be3dab96b328da5a8cfcc9  ./controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
 --- test-report-status.log file contents
