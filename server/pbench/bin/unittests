@@ -203,8 +203,12 @@ declare -A cmds=(
     [test-6.2]="_run pbench-backup-tarballs"
     # checks that the dest directory is not bogus
     [test-6.3]="_run pbench-backup-tarballs"
-    # real dest directory - should succeed
+    # real dest directory, no files needing backup - should succeed
     [test-6.4]="_run pbench-backup-tarballs"
+    # real dest directory, all files needing backup - should succeed
+    [test-6.5]="_run pbench-backup-tarballs"
+    # real dest directory, no files needing backup - corrupted archive should not be copied
+    [test-6.6]="_run pbench-backup-tarballs"
 
     # indexing tests
     [test-7.1]="_run_index"

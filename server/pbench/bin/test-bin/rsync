@@ -1,21 +1,15 @@
 #!/bin/bash
 
+dir=$(dirname $0)
+tmp=$(dirname $_testlog)
+stdout=$tmp/rsync.$$.out
+stderr=$tmp/rsync.$$.err
+
+trap "rm -f $stdout $stderr" EXIT INT QUIT
+
 echo "$0 $*" >> $_testlog
-echo "
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Number of files: 1 (dir: 1)
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Number of created files: 0
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Number of deleted files: 0
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Number of regular files transferred: 0
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Total file size: 0 bytes
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Total transferred file size: 0 bytes
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Literal data: 0 bytes
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Matched data: 0 bytes
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:File list size: 0
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:File list generation time: 0.001 seconds
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:File list transfer time: 0.000 seconds
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Total bytes sent: 54
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Total bytes received: 19
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:sent ### bytes  received ### bytes  ###.## bytes/sec
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:total size is 0  speedup is 0.00
-" >> $_testlog
+
+/usr/bin/rsync $* > $stdout 2> $stderr
+
+sed -E -f $dir/rsync.sed $stdout
+cat $stderr

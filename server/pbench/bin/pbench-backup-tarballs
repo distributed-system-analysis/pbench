@@ -26,7 +26,7 @@ stats=$tmp/stats
 index_content=$tmp/index_mail_contents
 
 trap "rm -rf $tmp" EXIT INT QUIT
-                 
+
 log_init $(basename $0) $LOGSDIR/$(basename $0)
 
 # Initialize index mail content
