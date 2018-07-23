@@ -46,38 +46,37 @@ backup=$BDIR
 controllers=$TMP/$PROG/controllers.$$
 files=$TMP/$PROG/files.$$
 allmd5s=$TMP/$PROG/allmd5s.$$
-listp=$TMP/$PROG/primary.$$
-listb=$TMP/$PROG/backup.$$
-tmp=$TMP/$PROG/tmp.$$
-ponly=$TMP/$PROG/primary.only
-bonly=$TMP/$PROG/backup.only
+list=$TMP/$PROG/list.$$
+out=$TMP/$PROG/out.$$
+only=$TMP/$PROG/only.$$
 report=$TMP/$PROG/report.$$
 index_content=$TMP/$PROG/index_mail_contents
 
 # make sure the directory exists
 mkdir -p $TMP/$PROG
 
-trap "rm -f $controllers $files $allmd5s $listp $listp.failed $listb $listb.failed $tmp $ponly $bonly $report $index_content; rmdir $TMP/$PROG" EXIT INT QUIT
+trap "rm -f $controllers.[pb] $files.[pb] $allmd5s.[pb] $list.[pb] $out.[pb] $list.[pb].failed $only.[pb] $report $index_content; rmdir $TMP/$PROG" EXIT INT QUIT
 
 # First argument is the exit code to use when a directory does not exist.
 function checkmd5 {
-    find . -maxdepth 1 -type d | grep -v '^\.$' > $controllers
+    find . -maxdepth 1 -type d | grep -v '^\.$' | sort > $controllers.$1
     while read d ;do
-        pushd $d > /dev/null || exit $1
-        ls | grep md5 | grep -v DUPLICATE__NAME > $files
-        > $allmd5s
+        pushd $d > /dev/null || exit $2
+        ls | grep md5 | grep -v DUPLICATE__NAME > $files.$1
+        > $allmd5s.$1
         while read f ;do
             if [ -s $f ]; then
-                cat $f >> $allmd5s
+                cat $f >> $allmd5s.$1
             else
                 echo "FAIL: Empty .md5 file: $d/$f"
             fi
-        done < $files
-        if [ -s $allmd5s ] ;then
-            md5sum --check --warn $allmd5s | sed 's;^;'$d/';'
+        done < $files.$1
+        if [ -s $allmd5s.$1 ] ;then
+            cat $allmd5s.$1 | sed -r 's;(^[0-9a-f]+)  (.+);\1  '$d/'\2;' >> $list.$1
+            md5sum --check --warn $allmd5s.$1 | sed 's;^;'$d/';'
         fi 
         popd >/dev/null
-    done < $controllers
+    done < $controllers.$1
 }
 
 log_init $(basename $0) $LOGSDIR/$(basename $0)
@@ -88,38 +87,40 @@ echo "start-$(timestamp)"
 > $index_content
 
 # primary archive
-> $listp
+> $out.p
 if cd $primary ;then
-    checkmd5 5 | sort > $listp
+    checkmd5 p 5 > $out.p 2>&1 &
 fi
 
 # backup location
-> $listb
+> $out.b
 if cd $backup ;then
-    checkmd5 6 | sort > $listb
+    checkmd5 b 6 > $out.b 2>&1 &
 fi
+
+wait
 
 let ret=0
 
 # Construct the report file
 > $report
 
-grep FAIL $listp > $listp.failed
-if [ -s $listp.failed ] ;then
-    (echo "* In $primary: The calculated MD5 of the following entries failed to match the stored MD5"
-     cat $listp.failed | sed 's;^\.;'$primary';'; echo) >> $report
-elif [ -s $listp -a ! -s $listp.failed ] ;then
+grep -E "(^md5sum: |FAIL)" $out.p > $list.p.failed
+if [ -s $list.p.failed ] ;then
+    (echo "* In $primary: the calculated MD5 of the following entries failed to match the stored MD5"
+     cat $list.p.failed | sed 's;^\.;'$primary';'; echo) >> $report
+elif [ -s $out.p -a ! -s $list.p.failed ] ;then
     :
 else
     echo "Primary list is empty - is $primary mounted?" >> $report
     ret=7
 fi
 
-grep FAIL $listb > $listb.failed
-if [ -s $listb.failed ] ;then
-    (echo "* In $backup: The calculated MD5 of the following entries failed to match the stored MD5"
-     cat $listb.failed | sed 's;^\.;'$backup';'; echo) >> $report
-elif [ -s $listb -a ! -s $listb.failed ] ;then
+grep -E "(^md5sum: |FAIL)" $out.b > $list.b.failed
+if [ -s $list.b.failed ] ;then
+    (echo "* In $backup: the calculated MD5 of the following entries failed to match the stored MD5"
+     cat $list.b.failed | sed 's;^\.;'$backup';'; echo) >> $report
+elif [ -s $out.b -a ! -s $list.b.failed ] ;then
     :
 else
     echo "Backup list is empty - is $backup mounted?" >> $report
@@ -133,17 +134,17 @@ fi
 # will be empty.
 
 if [[ $ret == 0 ]] ;then
-    comm -13 $listp $listb > $bonly
-    comm -23 $listp $listb > $ponly
+    comm -23 --nocheck-order $list.p $list.b > $only.p
+    comm -13 --nocheck-order $list.p $list.b > $only.b
 
-    if [ -s $ponly ] ;then
+    if [ -s $only.p ] ;then
         (echo "* Files that exist only in primary directory - extra files in this list are probably OK: they just have not been backed up yet.";
-         cat $ponly | sed 's;^\.;'$primary';') >> $report
+         cat $only.p | sed 's;^\.;'$primary';') >> $report
     fi
 
-    if [ -s $bonly ] ;then
-        (echo "* Files that exist only in backup directory - this should not happen.";
-         cat $bonly | sed 's;^\.;'$backup';') >> $report
+    if [ -s $only.b ] ;then
+        (echo "* Files that exist only in backup directory - this should only happen if a backup or primary tar ball becomes corrupted.";
+         cat $only.b | sed 's;^\.;'$backup';') >> $report
     fi
 fi
 
