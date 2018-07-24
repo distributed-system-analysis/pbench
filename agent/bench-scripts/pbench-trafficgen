@@ -43,7 +43,7 @@ traffic_generator="trex-txrx" # can be either trex-txrx or moongen-txrx
 trex_use_ht="n"
 trex_use_l2="n"
 benchmark_run_dir=""
-traffic_directions="bidirec"
+traffic_directions="bidirectional"
 max_loss_pcts="0.002"
 num_flows="1024"
 num_samples=1
@@ -182,10 +182,11 @@ if [ $? -ne 0 ]; then
 	printf -- "       --rate=50%% --rate-unit=%% --frame-size=64\n"
 	printf -- "\n"
 	printf -- "--traffic-direction[s]=str[,str]\n"
-	printf -- "  A list of one or more: unidirec, revunidirec, or bidirec (default $traffic_directions)\n"
-	printf -- "  unidirec: packets will Tx out the 1st device and Rx in the 2nd device\n"
-	printf -- "  revunidirec: packets will Tx out the 2nd device and RX in the 1st device\n"
-	printf -- "  biidirec: packets will Tx out the both devices and Rx in both devices\n"
+	printf -- "  A list of one or more: unidirectional, revunidirectional, or bidirectional\n"
+	printf -- "  (default $traffic_directions)\n"
+	printf -- "  unidirectional: packets will Tx out the 1st device and Rx in the 2nd device\n"
+	printf -- "  revunidirectional: packets will Tx out the 2nd device and RX in the 1st device\n"
+	printf -- "  bidirectional: packets will Tx out the both devices and Rx in both devices\n"
 	printf -- "\n"
 	printf -- "--max-loss-pct[s]=fl,[fl]\n"
 	printf -- "  A list of maximum allowed percentage of dropped frames, used for binary search\n"
@@ -933,14 +934,7 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 						failures=0
 						echo "Starting iteration[$iteration] ($count of $total_iterations)"
 						log "Starting iteration[$iteration] ($count of $total_iterations)"
-						# Add any benchmark-iteration-specific options
-						if [  $traffic_direction == "unidirec" ]; then
-							iteration_options="$iteration_options --run-bidirec=0 --run-revunidirec=0"
-						elif [ $traffic_direction == "revunidirec" ]; then
-							iteration_options="$iteration_options --run-bidirec=0 --run-revunidirec=1"
-						else
-							iteration_options="$iteration_options --run-bidirec=1 --run-revunidirec=0"
-						fi
+						iteration_options="${iteration_options} --traffic-direction=${traffic_direction}"
 						iteration_options="$iteration_options --max-loss-pct=$max_loss_pct"
 						iteration_options="$iteration_options --frame-size=$frame_size"
 						iteration_options="$iteration_options --num-flows=$num_flow"
