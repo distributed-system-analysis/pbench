@@ -1,5 +1,5 @@
 +++ Running pbench-sync-satellite
---- Finished pbench-sync-satellite (status=0}
+--- Finished pbench-sync-satellite (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
 /var/tmp/pbench-test-server/pbench/archive

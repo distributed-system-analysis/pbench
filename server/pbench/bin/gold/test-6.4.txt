@@ -1,5 +1,5 @@
 +++ Running pbench-backup-tarballs
---- Finished pbench-backup-tarballs (status=0}
+--- Finished pbench-backup-tarballs (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
 /var/tmp/pbench-test-server/pbench/archive
