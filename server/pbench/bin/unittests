@@ -1,6 +1,7 @@
 #!/bin/bash
 
 _tdir=$(dirname $(readlink -f $0))
+_gitdir=$(dirname $(dirname $(dirname $_tdir)))
 _tlib=${_tdir}/../lib
 
 _testroot=/var/tmp/pbench-test-server
@@ -19,33 +20,15 @@ _testout=$_testroot/output.txt
 export _testlog=$_testroot/test-execution.log
 export _testreportstatus=$_testroot/test-report-status.log
 _testdir=$_testroot/pbench
-mkdir -p $_testdir
-if [[ ! -d $_testdir ]]; then
-    echo "ERROR: failed to create test pbench directory, \"$_testdir\"" >&2
-    exit 1
-fi
+_testtmp=$_testroot/tmp
 
 # Fixed timestamp output
 export _PBENCH_SERVER_TEST=1
 
 # execution environment
 _testopt=$_testroot/opt/pbench-server
-res=0
-mkdir -p $_testopt/unittest-scripts/
-let res=res+$?
-cp $_tdir/test-bin/* $_testopt/unittest-scripts/
-let res=res+$?
 export PATH=$_testopt/unittest-scripts:$_tconfigtoolsbin:$PATH
-export CONFIG=$_testroot/opt/pbench-server/config/pbench-server.cfg
-mkdir -p $(dirname $CONFIG)
-let res=res+$?
-cp $_tdir/state/config/pbench-server.cfg $CONFIG
-let res=res+$?
-
-if [ $res -ne 0 ]; then
-    echo "ERROR: failed to properly setup the test environment root, \"$_testroot\"" >&2
-    exit $res
-fi
+export CONFIG=$_testopt/config/pbench-server.cfg
 
 function _run {
     tname=$1
@@ -56,21 +39,14 @@ function _run {
 }
 
 function _run_index {
-    dname=$1
-    shift
-    # Will get deleted by _reset_state
-    mkdir -p $_testroot/pbench
-    mkdir -p $_testroot/tmp
-    echo "+++ Running indexing on $dname" >> $_testout
-    TMPDIR=$_testroot/tmp PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_tlib}/config/pbench-index.cfg.example $(readlink -f $dname.tar.xz) >> $_testout 2>&1
-    echo "--- Finished indexing on $dname (status=$?)" >> $_testout
-    _gitdir=$(dirname $(dirname $(dirname $_tdir)))
+    echo "+++ Running indexing for $test" >> $_testout
+    TMPDIR=$_testtmp PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_testopt}/config/pbench-index.cfg $(readlink -f $_testdir/*.tar.xz) >> $_testout 2>&1
+    echo "--- Finished indexing for $test (status=$?)" >> $_testout
     sed -i '/File "'$(echo ${_gitdir} | sed 's;/;\\/;g')'/s;'${_gitdir}'/server/;/home/user/repo/pbench/server/;' $_testout
 }
 
 function _run_activate {
-    rootdir=${1%/}
-    $_tdir/pbench-server-config-activate ${rootdir}/pbench-server-internal/pbench/lib/config/pbench-server.cfg ${_testdir} >> $_testout
+    $_tdir/pbench-server-config-activate ${_testdir}/pbench-server-internal/pbench/lib/config/pbench-server.cfg ${_testdir} >> $_testout
     rc=$?
     if [ $rc != 0 ] ;then
         return 1
@@ -142,8 +118,36 @@ function _verify_output {
 }
 
 function _setup_state {
+    res=0
+    mkdir -p $_testopt/unittest-scripts/
+    let res=res+$?
+    cp $_tdir/test-bin/* $_testopt/unittest-scripts/
+    let res=res+$?
+    mkdir -p $(dirname $CONFIG)
+    let res=res+$?
+    cp $_tdir/state/config/pbench-server.cfg $_tdir/state/config/pbench-index.cfg $(dirname $CONFIG)/
+    let res=res+$?
+
+    if [ $res -ne 0 ]; then
+	echo "ERROR: failed to properly setup the test environment root, \"$_testroot\"" >&2
+	exit $res
+    fi
+
+    mkdir $_testdir $_testtmp
+    if [[ $? -gt 0 ]]; then
+	echo "ERROR: failed to create test pbench and tmp directories, \"$_testdir\" and/or \"$_testtmp\"" >&2
+	exit 1
+    fi
+    if [[ ! -d $_testdir ]]; then
+	echo "ERROR: test pbench directory does not exist, \"$_testdir\"" >&2
+	exit 1
+    fi
+    if [[ ! -d $_testtmp ]]; then
+	echo "ERROR: test tmp directory does not exist, \"$_testtmp\"" >&2
+	exit 1
+    fi
     _state_tb=$_tdir/state/${1}.tar.xz
-    (cd $_testroot; tar xf $_state_tb; if [ ! -z "${2}" ] ;then /bin/ln -s ${2}.tar.xz ${1}.tar.xz ;fi)
+    (cd $_testroot; tar xpf $_state_tb)
     if [[ $? -gt 0 ]]; then
         echo "ERROR: unable to create pbench hierarchy for state $1" >&2
         exit 1
@@ -156,9 +160,14 @@ function _reset_state {
         echo "ERROR: unable to remove pbench hierarchy" >&2
         exit 1
     fi
-    rm -rf $_testroot/tmp
-    if [[ -d $_testroot/tmp ]]; then
+    rm -rf $_testtmp
+    if [[ -d $_testtmp ]]; then
         echo "ERROR: unable to remove tmp hierarchy" >&2
+        exit 1
+    fi
+    rm -rf $_testroot/opt
+    if [[ -d $_testroot/opt ]]; then
+        echo "ERROR: unable to remove opt hierarchy" >&2
         exit 1
     fi
 }
@@ -188,25 +197,25 @@ declare -A cmds=(
     [test-6.4]="_run pbench-backup-tarballs"
 
     # indexing tests
-    [test-7.1]="_run_index $_testroot/test-7.1"
-    [test-7.2]="_run_index $_testroot/test-7.2"
-    [test-7.3]="_run_index $_testroot/test-7.3"
-    [test-7.4]="_run_index $_testroot/test-7.4"
-    [test-7.5]="_run_index $_testroot/test-7.5"
-    [test-7.6]="_run_index $_testroot/test-7.6"
-    [test-7.7]="_run_index $_testroot/test-7.7"
+    [test-7.1]="_run_index"
+    [test-7.2]="_run_index"
+    [test-7.3]="_run_index"
+    [test-7.4]="_run_index"
+    [test-7.5]="_run_index"
+    [test-7.6]="_run_index"
+    [test-7.7]="_run_index"
     # uperf tarball
-    [test-7.8]="_run_index $_testroot/test-7.8"
+    [test-7.8]="_run_index"
     # pbench-user-benchmark tarball
-    [test-7.9]="_run_index $_testroot/test-7.9"
+    [test-7.9]="_run_index"
     # uperf, fio results data and prometheus data
     # with float conversion
-    [test-7.10]="_run_index $_testroot/test-7.10"
-    [test-7.11]="_run_index $_testroot/test-7.11"
-    [test-7.12]="_run_index $_testroot/test-7.12"
+    [test-7.10]="_run_index"
+    [test-7.11]="_run_index"
+    [test-7.12]="_run_index"
     
     # activation test
-    [test-8]="_run_activate $_testroot/test-8"
+    [test-8]="_run_activate"
 
     # pbench-verify-backup-tarballs
     # normal case
@@ -227,14 +236,6 @@ declare -A cmds=(
     [test-11]="_run pbench-sync-satellite TEST2 foo2.bar.com $_testroot/pbench/archive"
 )
 
-declare -A links=(
-    [test-7.8]="uperf__2016-10-06_16:34:03"
-    [test-7.9]="pbench-user-benchmark__2017-04-21_20:38:16"
-    [test-7.10]="uperf_uperftest_2018.02.02T20.58.00"
-    [test-7.11]="fio_rw_2018.02.01T22.40.57"
-    [test-7.12]="pbench-user-benchmark__2018.02.05T20.35.36"
-)
-
 # indexing unit tests - why is this necessary?
 # PATH=/usr/local/bin:$PATH
 
@@ -244,8 +245,8 @@ if [ -z "$tests" ] ;then
 fi
 
 let failures=0
-for test in  $tests ;do
-    _setup_state ${test} ${links[$test]}
+for test in $tests ;do
+    _setup_state ${test}
     cmd=${cmds[$test]}
     # echo ${test}: ${cmd}
     ${cmd}

@@ -1,4 +1,4 @@
-+++ Running indexing on /var/tmp/pbench-test-server/test-7.8
++++ Running indexing for test-7.8
 len(actions) = 22
 [
     {
@@ -8,7 +8,7 @@ len(actions) = 22
         "_source": {
             "@metadata": {
                 "file-date": "2017-02-22",
-                "file-name": "/var/tmp/pbench-test-server/uperf__2016-10-06_16:34:03.tar.xz",
+                "file-name": "/var/tmp/pbench-test-server/pbench/uperf__2016-10-06_16:34:03.tar.xz",
                 "generated-by": "index-pbench",
                 "generated-by-version": "0.1.0.0",
                 "md5": "c5deab694ef0599c3a2315888f8cb847",
@@ -44343,9 +44343,11 @@ len(actions) = 22
         "_type": "pbench-tool-data-pidstat"
     }
 ]
---- Finished indexing on /var/tmp/pbench-test-server/test-7.8 (status=0)
+--- Finished indexing for test-7.8 (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
+/var/tmp/pbench-test-server/pbench/uperf__2016-10-06_16:34:03.tar.xz
+/var/tmp/pbench-test-server/pbench/uperf__2016-10-06_16:34:03.tar.xz.md5
 --- pbench tree state
 +++ pbench log file contents
 --- pbench log file contents
