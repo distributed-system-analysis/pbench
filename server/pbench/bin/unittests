@@ -42,7 +42,15 @@ function _run {
 
 function _run_index {
     echo "+++ Running indexing for $test" >> $_testout
-    TMPDIR=$_testtmp PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_testopt}/config/pbench-index.cfg $(readlink -f $_testdir/*.tar.xz) >> $_testout 2>&1
+    cmd="TMPDIR=$_testtmp PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_testopt}/config/pbench-index.cfg $(readlink -f $_testdir/*.tar.xz)"
+    if which python3 > /dev/null 2>&1 ;then
+	eval $cmd >> $_testout 2>&1
+    elif which scl > /dev/null 2>&1 ;then
+        echo "$cmd" | scl enable rh-python36 - >> $_testout 2>&1
+    else
+	echo "ERROR: unknown Python 3 environment for unit tests" >&2
+	exit 1
+    fi
     echo "--- Finished indexing for $test (status=$?)" >> $_testout
     sed -i '/File "'$(echo ${_gitdir} | sed 's;/;\\/;g')'/s;'${_gitdir}'/server/;/home/user/repo/pbench/server/;' $_testout
 }
