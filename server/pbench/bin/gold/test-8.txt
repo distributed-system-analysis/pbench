@@ -25,6 +25,12 @@ chown pbench.pbench /var/tmp/pbench-test-server/pbench/tmp/*
 /var/tmp/pbench-test-server/pbench/pbench/public_html
 /var/tmp/pbench-test-server/pbench/pbench/public_html/incoming
 /var/tmp/pbench-test-server/pbench/pbench/public_html/results
+/var/tmp/pbench-test-server/pbench/pbench-server-internal
+/var/tmp/pbench-test-server/pbench/pbench-server-internal/pbench
+/var/tmp/pbench-test-server/pbench/pbench-server-internal/pbench/lib
+/var/tmp/pbench-test-server/pbench/pbench-server-internal/pbench/lib/config
+/var/tmp/pbench-test-server/pbench/pbench-server-internal/pbench/lib/config/pbench-index.cfg
+/var/tmp/pbench-test-server/pbench/pbench-server-internal/pbench/lib/config/pbench-server.cfg
 /var/tmp/pbench-test-server/pbench/tmp
 /var/tmp/pbench-test-server/pbench/var
 /var/tmp/pbench-test-server/pbench/var/www
