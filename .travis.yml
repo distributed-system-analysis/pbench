@@ -19,7 +19,4 @@ install:
  - sudo pip install 'configtools<0.4.0' elasticsearch
  - sudo ln -sf python3.5 /usr/bin/python3
 script:
- - LANG=C ./agent/bench-scripts/unittests
- - LANG=C ./agent/tool-scripts/postprocess/unittests
- - LANG=C ./agent/util-scripts/unittests
- - LANG=C ./server/pbench/bin/unittests
+ - ./run-unittests

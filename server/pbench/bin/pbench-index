@@ -147,7 +147,7 @@ while read size result ;do
             status=$?
         elif which scl > /dev/null 2>&1 ;then
             # we fall back to SCL
-            PYTHONPATH=${PROGLOC}/lib:$PYTHONPATH scl enable python33 \
+            PYTHONPATH=${PROGLOC}/lib:$PYTHONPATH scl enable rh-python36 \
                 "python ${PROGLOC}/bin/index-pbench --config ${PROGLOC}/lib/config/pbench-index.cfg $link"
             status=$?
         else
