@@ -3,7 +3,7 @@
 +++ Running pbench-copy-sosreports
 --- Finished pbench-copy-sosreports (status=1}
 +++ Running pbench-index
---- Finished pbench-index (status=0}
+--- Finished pbench-index (status=0)
 +++ Running pbench-clean-up-dangling-results-links
 --- Finished pbench-clean-up-dangling-results-links (status=1}
 +++ Running pbench-edit-prefixes

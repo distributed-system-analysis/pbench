@@ -35,7 +35,7 @@ function _run {
     shift
     echo "+++ Running $tname" >> $_testout
     $_tdir/$tname $@ >> $_testout 2>&1
-    echo "--- Finished $tname (status=$?}" >> $_testout
+    echo "--- Finished $tname (status=$?)" >> $_testout
 }
 
 function _run_index {
