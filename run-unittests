@@ -1,0 +1,43 @@
+#!/bin/bash
+
+dir=$(dirname $0)
+let sts=0
+
+echo "+++ Agent bench-scripts Unit Tests +++"
+echo ""
+$dir/agent/bench-scripts/unittests
+let sts=sts+$?
+echo ""
+echo "--- Agent bench-scripts Unit Tests ---"
+echo ""
+echo ""
+echo ""
+echo "+++ Agent tool-scripts/postprocess Unit Tests +++"
+echo ""
+$dir/agent/tool-scripts/postprocess/unittests
+let sts=sts+$?
+echo ""
+echo "--- Agent tool-scripts/postprocess Unit Tests ---"
+echo ""
+echo ""
+echo ""
+echo "+++ Agent util-scripts Unit Tests +++"
+echo ""
+$dir/agent/util-scripts/unittests
+let sts=sts+$?
+echo ""
+echo "--- Agent util-scripts Unit Tests ---"
+echo ""
+echo ""
+echo ""
+echo "+++ Server Unit Tests +++"
+echo ""
+$dir/server/pbench/bin/unittests
+let sts=sts+$?
+echo ""
+echo "--- Server Unit Tests ---"
+
+if [ $sts -gt 0 ]; then
+    echo "Unit tests FAILED"
+fi
+exit $sts
