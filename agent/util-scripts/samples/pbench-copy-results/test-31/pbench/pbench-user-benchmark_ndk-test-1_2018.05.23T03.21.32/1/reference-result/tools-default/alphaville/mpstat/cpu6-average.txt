@@ -1,0 +1,9 @@
+cpu6-guest=0.000000
+cpu6-idle=94.691500
+cpu6-iowait=0.033000
+cpu6-irq=0.283000
+cpu6-nice=0.000000
+cpu6-softirq=0.066000
+cpu6-steal=0.000000
+cpu6-sys=1.185000
+cpu6-usr=3.739000

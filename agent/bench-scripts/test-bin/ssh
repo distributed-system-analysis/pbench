@@ -4,6 +4,9 @@ echo "$0 $*" >> $_testlog
 
 while true ;do
     case $1 in
+        -i)
+            shift 2
+            ;;
         -o)
             shift 2
             ;;
@@ -25,7 +28,14 @@ if [[ "$2" == "hostname" && "$3" == "-s" ]]; then
     echo "$remote"
 fi
 
-if [[ "$remote" == "fubar" ]] ;then
+# test -f (unquoted) should return failure
+if [[ "$2" == "test" && "$3" == "-f" ]]; then
+    exit 1
+elif [[ "$2" =~ "test -f".* ]]; then
+    # quoted "test -f ..." should also return failure
+    # util-scripts/test-31 depends on this
+    exit 1
+elif [[ "$remote" == "fubar" ]] ;then
     exit 255
 else
     exit 0
