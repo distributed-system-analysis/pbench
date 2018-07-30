@@ -1,0 +1,4 @@
+#! /bin/bash
+
+# fake out the hostname -f in pbench-move-results
+echo "agent.example.com"
