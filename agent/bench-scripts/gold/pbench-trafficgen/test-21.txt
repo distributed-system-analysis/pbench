@@ -10,7 +10,7 @@ trafficgen general test options
 -------------------------------
 
 --traffic-generator=str
-  The traffic generation engine to use (trex-txrx or moongen-txrx)
+  The traffic generation engine to use (trex-txrx or trex-txrx-profile or moongen-txrx)
   Default is trex-txrx
 
 --devices=str,str
@@ -47,6 +47,12 @@ trafficgen general test options
 
       would produce 32 different test permutations
 
+--traffic-profile[s]=FILE[,FILE]
+  A list of traffic profiles to load when --traffic-generator=trex-txrx-profile.  The
+  profile contains a list of streams, each with fine grained options defined on a per
+  stream basis.  See README-trex-txrx-profile.md in the trafficgen distribution for
+  documentation on the file format.
+
 --rate[s]=value[,value]]
   A list of packet rates, in millions of packets per second (mpps), unless
   --rate-unit=% is used, where the rate value is interpreted as a percentage
@@ -63,10 +69,11 @@ trafficgen general test options
        --rate=50% --rate-unit=% --frame-size=64
 
 --traffic-direction[s]=str[,str]
-  A list of one or more: unidirec, revunidirec, or bidirec (default bidirec)
-  unidirec: packets will Tx out the 1st device and Rx in the 2nd device
-  revunidirec: packets will Tx out the 2nd device and RX in the 1st device
-  biidirec: packets will Tx out the both devices and Rx in both devices
+  A list of one or more: unidirectional, revunidirectional, or bidirectional
+  (default bidirectional)
+  unidirectional: packets will Tx out the 1st device and Rx in the 2nd device
+  revunidirectional: packets will Tx out the 2nd device and RX in the 1st device
+  bidirectional: packets will Tx out the both devices and Rx in both devices
 
 --max-loss-pct[s]=fl,[fl]
   A list of maximum allowed percentage of dropped frames, used for binary search
