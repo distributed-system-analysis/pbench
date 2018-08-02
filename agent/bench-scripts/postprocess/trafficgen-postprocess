@@ -116,7 +116,7 @@ my $json_file = $dir . "/result.json";
 my $primary_metric="rx_mpps";
 my %config;
 
-my @expceted_metrics = (
+my @expected_metrics = (
 			{ 'js_label' => 'rx_latency_maximum', 'metric_label' => 'latency_max', 'tx_or_rx' => 'rx', 'metric_class' => 'latency',
 			  'desc' => 'Time in microseconds between packet transmission and reception', 'divisor' => int 1 },
 
@@ -183,7 +183,7 @@ foreach my $dev_pair ( @{ $last_trial{'trial_params'}{'test_dev_pairs'} } ) {
 	# rx_latency_bandwidth, tx_pps_target, rx_lost_packets, tx_tolerance_min, rx_lost_pps, tx_tolerance_max,
 	# tx_pps, tx_latency_pps, tx_l1_Gbps, tx_l2_Gbps, tx_packets, rx_latency_lost_pps, rx_latency_lost_packets,
 	# rx_lost_packets_pct, tx_latency_bandwidth, tx_latency_packets, rx_latency_packets, rx_l1_Gbps, rx_l2_Gbps
-	for my $expected_metric ( @expceted_metrics ) {
+	for my $expected_metric ( @expected_metrics ) {
 		my %metric;
 		$metric{'uid'} = "tx_port:%tx_port%-rx_port:%rx_port%";
 		$metric{'tx_port'} = int $$dev_pair{'tx'};
