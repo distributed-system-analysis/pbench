@@ -1,12 +1,12 @@
 chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/config
+pbench-rsync-satellites: No mailfrom specified
 chown pbench.pbench /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/crontab/crontab
 chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/locks
-chown pbench.pbench /var/tmp/pbench-test-server/pbench/pbench /var/tmp/pbench-test-server/pbench/pbench/archive/fs-version-001 /var/tmp/pbench-test-server/pbench/pbench/public_html /var/tmp/pbench-test-server/pbench/pbench/public_html/incoming /var/tmp/pbench-test-server/pbench/pbench/public_html/results
+chown pbench.pbench /var/tmp/pbench-test-server/pbench/pbench /var/tmp/pbench-test-server/pbench/pbench/archive/fs-version-001 /var/tmp/pbench-test-server/pbench/pbench/public_html /var/tmp/pbench-test-server/pbench/pbench/public_html/incoming /var/tmp/pbench-test-server/pbench/pbench/public_html/results /var/tmp/pbench-test-server/pbench/pbench/public_html/users
 chown pbench.pbench /var/tmp/pbench-test-server/pbench/pbench /var/tmp/pbench-test-server/pbench/pbench/archive/fs-version-001/* /var/tmp/pbench-test-server/pbench/pbench/public_html/incoming/* /var/tmp/pbench-test-server/pbench/pbench/public_html/results/*
-chown pbench.pbench /var/tmp/pbench-test-server/pbench/logs
-chown pbench.pbench /var/tmp/pbench-test-server/pbench/logs/*
-chown pbench.pbench /var/tmp/pbench-test-server/pbench/tmp
-chown pbench.pbench /var/tmp/pbench-test-server/pbench/tmp/*
+chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/logs
+chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/tmp
+chown -R pbench.pbench
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
 /var/tmp/pbench-test-server/pbench/logs
@@ -31,19 +31,17 @@ chown pbench.pbench /var/tmp/pbench-test-server/pbench/tmp/*
 /var/tmp/pbench-test-server/pbench/pbench/public_html
 /var/tmp/pbench-test-server/pbench/pbench/public_html/incoming
 /var/tmp/pbench-test-server/pbench/pbench/public_html/results
+/var/tmp/pbench-test-server/pbench/pbench/public_html/users
 /var/tmp/pbench-test-server/pbench/tmp
 /var/tmp/pbench-test-server/pbench/var
 /var/tmp/pbench-test-server/pbench/var/www
 /var/tmp/pbench-test-server/pbench/var/www/html
 /var/tmp/pbench-test-server/pbench/var/www/html/pbench-results-host-info.versioned
-/var/tmp/pbench-test-server/pbench/var/www/html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
-/var/tmp/pbench-test-server/pbench/var/www/html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 --- pbench tree state
 +++ pbench log file contents
 --- pbench log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -sf pbench-results-host-info.URL001.active pbench-results-host-info.URL001
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/systemctl enable httpd.service
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/systemctl start httpd.service
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -s /pbench/public_html/incoming /pbench/public_html/results /var/www/html
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -s /pbench/public_html/incoming /pbench/public_html/results /pbench/public_html/users /var/www/html
 --- test-execution.log file contents
