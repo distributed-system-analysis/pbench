@@ -46,10 +46,10 @@ if [ ! -z "$testdir" ] ;then
 fi
 cd $documentroot || exit 1
 
-# the directory and filename are specified in the agent config file as the value of
-# [results]/host_info_url 
-# and the setting is duplicated in the server config file: if it changes in one, it
-# *has* to change in the other.
+# the directory and filename are specified in the agent config file as
+# the value of [results]/host_info_url and the setting is duplicated
+# (except for the version number which is appended here) in the server
+# config file: if it changes in one, it *has* to change in the other.
 
 results_host_info_url=$(getconf.py host_info_url results)
 if [ -z "$results_host_info_url" ] ;then
@@ -62,21 +62,26 @@ path=$(echo $results_host_info_url | sed 's/http:\/\///' | sed 's/[^/]*\///')
 
 mkdir -p $(dirname $path)
 cd $(dirname $path) >/dev/null 2>&1 || exit 6
-prefix=$(basename $path)
 user=$(getconf.py user pbench-server)
 host=$(getconf.py default-host pbench-server)
-archive=$(getconf.py deploy-archive-dir pbench-server)
-results_host_info=$user@$host:$archive
-echo $results_host_info > $prefix.active
 
-# create the maintenance file as well
-# the format is fixed: see the pbench-agent move-results script for details
-mailaddr=$(getconf.py mailto results)
-msg="MESSAGE===System Under Maintenance - please retry at a later time ($mailaddr)"
+versions=$(getconf.py versions results)
+for version in $versions ;do
+    prefix=$(basename $path)${version}
+    receive_dir=$(getconf.py receive-dir-${version} pbench-server)
+    results_host_info=$user@$host:${receive_dir}
+    echo $results_host_info > $prefix.active
 
-echo $msg > $prefix.maint
+    # create the maintenance file as well
+    # the format is *fixed*: see the pbench-agent move-results script for details
+    # IOW, do *NOT* change anything here
+    mailaddr=$(getconf.py mailto results)
+    msg="MESSAGE===System Under Maintenance - please retry at a later time ($mailaddr)"
 
-# it's OK if this fails
-ln -sf $prefix.active $prefix 2>/dev/null
+    echo $msg > $prefix.maint
+
+    # mark it active
+    ln -sf $prefix.active $prefix 2>/dev/null
+done
 
 exit 0

@@ -8,13 +8,15 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # source the base script
 . "$pbench_bin"/base
 
+controller=$hostname
+
 function usage() {
     printf "usage:\n"
     printf "$script_name [--prefix=<path>] [--xz-single-threaded] [--show-server]\n"
 }
 
 # Process options and arguments
-opts=$(getopt -q -o p:xS --longoptions "prefix:,xz-single-threaded,show-server" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o u:p:xS --longoptions "user:,prefix:,xz-single-threaded,show-server" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
     printf "\n"
     printf "%s\n" $*
@@ -24,11 +26,20 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+user=${PBENCH_USER}
+prefix=
 xz_single_threaded=
 show_server=
 eval set -- "$opts";
 while true; do
     case "$1" in
+	-u|--user)
+	    shift;
+            if [ -n "$1" ]; then
+                user="$1"
+                shift;
+            fi
+            ;;
         -p|--prefix)
             shift;
             if [ -n "$1" ]; then
@@ -43,7 +54,7 @@ while true; do
 	-S|--show-server)
 	    shift;
 	    show_server=1
-	    ;;	
+	    ;;
         --)
             shift;
             break;
@@ -61,6 +72,7 @@ if [ ! -f "$pbench_bin/id_rsa" ]; then
 	exit 1
 fi
 
+# ask the server where to send the tarballs
 results_webserver=$(getconf.py webserver results)
 if [ -z "$results_webserver" ]; then
     error_log "ERROR: No web server host configured from which we can fetch the FQDN of the host to which we copy/move results"
@@ -123,7 +135,6 @@ if [ -z "$results_path_prefix" ]; then
     debug_log "expected the results_host_info to have the form: <results_user>@<results_host(FQDN)>:<results_path_prefix>"
     exit 1
 fi
-results_full_path="$results_path_prefix/$hostname"
 
 if [[ ! -z "$show_server" ]] ;then
     echo ${results_repo}
@@ -137,17 +148,20 @@ if [ $? -ne 0 ]; then
     debug_log "the following ssh command failed: \"ssh -q -i $pbench_bin/id_rsa $ssh_opts $results_repo exit\""
     exit 1
 fi
-ssh -i $pbench_bin/id_rsa $ssh_opts $results_repo "mkdir -p $results_full_path"
-if [ $? -ne 0 ]; then
-    error_log "ERROR: unable to create remote results path, $results_repo:$results_full_path"
-    exit 1
-fi
 
 let runs_copied=0
 let failures=0
 
-trap "rm -f $pbench_tmp/prefix.*" EXIT INT QUIT
+tmp=${pbench_tmp}/${script_name}.$$
+trap "rm -rf $tmp" EXIT INT QUIT
 
+mkdir -p $tmp/$controller
+sts=$?
+if [ $sts -ne 0 ] ;then
+    error_log "Failed: \"mkdir -p $tmp/$controller\", status $sts"
+    exit 1
+fi
+# We can now start copying tarballs to the server
 
 # Move into pbench run collection directory
 pushd $pbench_run >/dev/null
@@ -172,120 +186,85 @@ for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v 
         /bin/cp pbench.log $pbench_run_name/
     fi
 
+    # if -u was specified, store the specified user in metadata.log
+    if [ ! -z $user ] ;then
+	mdlog=${pbench_run_name}/metadata.log
+	echo $user | pbench-add-metalog-option ${mdlog} run user
+    fi
+
+    # if -p was specified, store the specified prefix in metadata.log
+    if [ ! -z $prefix ] ;then
+	mdlog=${pbench_run_name}/metadata.log
+	echo $prefix | pbench-add-metalog-option ${mdlog} run prefix
+    fi
+
     results_size=`du -sm $pbench_run_name | awk '{print $1}'`
     debug_log "preparing to copy $results_size MB of data from $pbench_run/$pbench_run_name"
 
-    tarball="$pbench_run_name.tar.xz"
+    # Create a temp directory $tmp/$controller to contain the tarball
+    # and the md5 file (as ${tb}.tar.xz.md5.check). Copy the directory
+    # with scp -r $tmp/$controller $remote: that will create the
+    # $controller subdirectory on the remote (if necessary) OR fail.
+
+    # If it does not fail, then check the MD5 sum and rename the foo.tar.xz.md5.check file
+    # to foo.tar.xz.md5. That's the signal that the agent has finished with this tarball.
+
+    tarball="$tmp/$controller/$pbench_run_name.tar.xz"
     if [[ ${xz_single_threaded} != "1" ]] ;then
 	echo "tar --create --force-local \"$pbench_run_name\" | xz -T0 > \"$tarball\" "
 	tar --create --force-local "$pbench_run_name" | xz -T0 > "$tarball"
     else
 	echo "tar --create --xz --force-local --file=\"$tarball\" \"$pbench_run_name\" "
-	tar --create --xz --force-local --file="$tarball" "$pbench_run_name" 
+	tar --create --xz --force-local --file="$tarball" "$pbench_run_name"
     fi
-    
+
     if [ $? -ne 0 ]; then
         error_log "ERROR: tar failed for $pbench_run/$pbench_run_name, skipping"
         rm -f "$tarball"
         let failures=failures+1
         continue
     fi
-    md5sum "$tarball" > "$tarball.md5"
+
+    tarballmd5="$tarball.md5.check"
+    # we need to calculate the md5 sum in the temp directory
+    # in order to get the filename right.
+    pushd $(dirname $tarball) > /dev/null
+    md5sum "$(basename $tarball)" > "$tarballmd5"
     if [ $? -ne 0 ]; then
         error_log "ERROR: md5sum failed for $tarball, skipping"
-        rm -f $tarball $tarball.md5
+        rm -f "$tarball" "$tarballmd5"
         let failures=failures+1
+	popd >/dev/null
         continue
     fi
-
-    # Perform the actual copy
-    # if a prefix is provided, copy it to the other side - maybe this should be part of the tarball?
-    prefixfile=""
-    if [ ! -z "$prefix" ] ;then
-        prefixfile=$pbench_tmp/prefix.$pbench_run_name
-        echo "$prefix" > $prefixfile
-    fi
-
-    ssh -i $pbench_bin/id_rsa $ssh_opts $results_repo "mkdir -p $results_full_path"
-
-    # check if there is a name collision and resolve it
-    typeset -i i=1
-    rtarball=$tarball
-    rprefixfile=$prefixfile
-    while (( 1 )) ; do
-        ssh -i $pbench_bin/id_rsa $ssh_opts $results_repo "test -f $results_full_path/$rtarball"
-        if [ $? -eq 0 ] ;then
-            # collision - warn the first time around
-            if [ $i -eq 1 ] ;then
-                log "WARNING: name collision - $results_repo:$results_full_path/$rtarball exists"
-            fi
-        else
-            # collision resolution found
-            if [ "$tarball" != "$rtarball" ] ;then
-                mv $tarball $rtarball
-                mv $tarball.md5 $rtarball.md5
-                tarball=$rtarball
-                if [ ! -z "$prefixfile" ]; then
-                    mv $prefixfile $rprefixfile
-                    prefixfile=$rprefixfile
-                fi
-            fi
-            break
-        fi
-        rtarball="DUPLICATE__NAME.$i.$pbench_run_name.tar.xz"
-        if [ ! -z "$prefixfile" ] ;then
-            rprefixfile="$prefixfile.$i"
-        fi
-        i=$i+1
-    done
-
-    # FIXME: don't assume final path contains /incoming in it
-    if [[ $i -eq 1 ]]; then
-        if [[ ! -z "$prefix" ]]; then
-            debug_log "copying $tarball to http://$results_webserver/results/$hostname/$prefix/..."
-        else
-            debug_log "copying $tarball to http://$results_webserver/results/$hostname/..."
-        fi
-    else
-        debug_log "archiving $tarball to $results_webserver, but not being made available via the web"
-    fi
+    popd >/dev/null
 
     # finally do the copy
-    scp $scp_opts -i $pbench_bin/id_rsa $ssh_opts ./$tarball ./$tarball.md5 $prefixfile $results_repo:$results_full_path
+    scp -r $scp_opts -i $pbench_bin/id_rsa $ssh_opts $tmp/$controller $results_repo:$results_path_prefix
     if [ $? -ne 0 ]; then
-        error_log "ERROR: unable to copy results tarball, $tarball, to $results_repo:$results_full_path"
-        rm -f $tarball $tarball.md5
+        error_log "ERROR: unable to copy results tarball, $tarball, to $results_repo:$results_path_prefix"
+        rm -f $tarball $tarballmd5
         let failures=failures+1
         continue
-    fi
-
-    # clean up the prefix file (if present)
-    if [ ! -z "$prefixfile" -a -f "$prefixfile" ] ;then
-        rm -f $prefixfile
     fi
 
     # Verify the bits copied are good
-    ssh -i $pbench_bin/id_rsa $ssh_opts $results_repo "cd $results_full_path; md5sum --check $pbench_run_name.tar.xz.md5"
+    md5name=$(basename $tarball).md5
+    ssh -i $pbench_bin/id_rsa $ssh_opts $results_repo "cd $results_path_prefix/$controller; md5sum --check ${md5name}.check && mv ${md5name}.check ${md5name}"
     chk_res=$?
-    rm -f $tarball $tarball.md5
     if [ $chk_res -ne 0 ]; then
         error_log "ERROR: remote copy failed, remote tarball MD5 does not match original"
-        rm -f $tarball $tarball.md5
+        rm -f $tarball $tarballmd5
         let failures=failures+1
         continue
-    else
-        if [ "$script_name" == "pbench-move-results" ]; then
-            rm -rf $pbench_run_name
-        else
-            touch $pbench_run_name.copied
-        fi
     fi
+    rm -f $tarball $tarballmd5
 
-    # set the state of the result appropriately so that it will be processed
-    # by the server scripts.
-    ssh -i $pbench_bin/id_rsa $ssh_opts $results_repo \
-	/opt/pbench-server/bin/pbench-server-set-result-state $results_full_path $tarball
-
+    if [ "$script_name" == "pbench-move-results" ]; then
+        rm -rf $pbench_run_name
+    else
+        touch $pbench_run_name.copied
+    fi
     let runs_copied=runs_copied+1
 done
 

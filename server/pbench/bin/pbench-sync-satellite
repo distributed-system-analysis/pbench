@@ -6,29 +6,12 @@
 
 # This script simulates what pbench-move-results does with the
 # tarballs that it copies from a satellite server. It runs as a cron
-# job every night.
+# job once a minute.
 
-# The script rsyncs the archive of pbench tarballs of a satellite
-# server to the archive of the internal production server. In the
-# process, it renames the local copy of each remote host directory by
-# prepending a specified prefix.  That way, hosts associated with the
-# satellite are disambiguated and distinguished from every other host
-# (internal or from another satellite), as long as the prefixes are
-# unique.
+# Assumption: this script is running as user "pbench" on the master
+# server and can ssh as user "pbench" to the satellite server, without
+# a password.
 
-# The tarballs are sorted by size and the list is passed to the
-# scheduler (pbench-rsync-satellite-process-work-queue), which chops
-# down the list into chunks whose total size does not exceed 50MB. The
-# scheduler then creates the link in the TODO directory of each host,
-# just as if pbench-move-results had moved the tarball here. The
-# scheduler waits for the last tarball of the chunk to be finished,
-# before submitting the next chunk. In order to make steady progress
-# through the list, the scheduler will always submit at least one
-# file, so files larger than 50MB are submitted individually. The hope
-# is that that will reduce the chance of any breakage in the
-# distributed file system where the archive is stored and will limit
-# the wait for the processing of any tarballs that are submitted by
-# pbench-move-results.
 
 # load common things
 opts=$SHELLOPTS
@@ -74,7 +57,8 @@ else
     dryrun=
 fi
 
-# check whether any previous ssh failure; if any try again and if it fails again then exit without going further.
+# check whether any previous ssh failure; if any try again and if it
+# fails again then exit without going further.
 if [ -s $LOGSDIR/change_state.$prefix.log ] ;then
     ssh $remotehost "cd $remotearchive; /opt/pbench-server/bin/pbench-satellite-state-change" < $LOGSDIR/change_state.$prefix.log
     status=$?
@@ -93,7 +77,8 @@ EOF
             cat << EOF > $index_content
 $PROG: $prefix: Failed to remove $LOGSDIR/change_state.$prefix.log
 
-ssh to the $remotehost sucessfull for changing the state of tarballs, but failed to remove $LOGSDIR/change_state.$prefix.log
+ssh to the $remotehost sucessfull for changing the state of tarballs,
+but failed to remove local $LOGSDIR/change_state.$prefix.log
 EOF
             pbench-report-status --name $PROG --timestamp $TS --type error $index_content
             exit 1
@@ -129,7 +114,7 @@ fi
 
 # get the tarball from remote
 ssh $remotehost "/opt/pbench-server/bin/pbench-sync-package-tarballs" > $tmp/satellite.$prefix.tar
-rc=$? 
+rc=$?
 if [[ $rc != 0 ]] ;then
     echo "$PROG: ssh $remotehost /opt/pbench-server/bin/pbench-sync-package-tarballs: failed." >&4
     exit 2
@@ -152,6 +137,7 @@ for host in $hosts ;do
     typeset -i processed=0
     typeset -i failed_md5=0
     localdir=$ARCHIVE/$prefix::$host
+
     if [ ! -d $localdir ] ;then
         mkdir -p $localdir || exit 1
     fi
@@ -164,7 +150,7 @@ for host in $hosts ;do
     flist=$(find $unpack/$host -type f -name '*.tar.xz.md5' | sed 's;'$unpack/$host/';;')
 
     echo $flist
-    
+
     # move the unpacked files from tmp directory to archive
     mv $unpack/$host/* .
 
@@ -173,7 +159,7 @@ for host in $hosts ;do
         mkdir -p ./.prefix
         mv $unpack/$host/.prefix/* ./.prefix
     fi
-    
+
     # make the state dirs: TODO, TO-INDEX, TO-COPY-SOS etc.
     mk_dirs $prefix::$host
 
@@ -191,7 +177,7 @@ for host in $hosts ;do
             if [[ $status != 0 ]] ;then
                 nerrs=$nerrs+1
                 echo "Failed to create the symlink for md5 check passed tarballs: ln -sf \
-                $PWD/$x SATELLITE-MD5-PASSED/$x" | tee -a $mail_content >&4 
+                $PWD/$x SATELLITE-MD5-PASSED/$x" | tee -a $mail_content >&4
                 continue
             fi
         done
@@ -208,7 +194,7 @@ for host in $hosts ;do
             if [[ $status != 0 ]] ;then
                 nerrs=$nerrs+1
                 echo "Failed to create the symlink for md5 check failed tarballs: ln -sf \
-                $PWD/$x SATELLITE-MD5-FAILED/$x" | tee -a $mail_content >&4 
+                $PWD/$x SATELLITE-MD5-FAILED/$x" | tee -a $mail_content >&4
                 continue
             fi
         done
@@ -221,12 +207,9 @@ for host in $hosts ;do
             if [[ $status != 0 ]] ;then
                 nerrs=$nerrs+1
                 echo "Failed to create the symlink for TODO state directory: ln -sf \
-                $PWD/$x TODO/$x" | tee -a $mail_content >&4 
+                $PWD/$x TODO/$x" | tee -a $mail_content >&4
                 continue
             fi
-            # For the synced tarballs, add an entry to the dispatch
-            # list watching by inotify script.  
-            flock -x $INOTIFY_STATE_DIR/TO-DISPATCH-LIST echo $PWD/TODO/$x >> $INOTIFY_STATE_DIR/TO-DISPATCH-LIST
         done
     fi
     # save the contents of ok checks to further use it for state change
@@ -235,7 +218,7 @@ for host in $hosts ;do
         for x in $state_list; do
             echo "$host/TO-SYNC/$x" >> $LOGSDIR/change_state.$prefix.log
         done
-    fi 
+    fi
     popd > /dev/null
 done
 
