@@ -1,6 +1,11 @@
 #! /bin/bash
 
-export CONFIG=/opt/pbench-server/lib/config/pbench-server.cfg
+# This script collects tarballs in TO-SYNC state and packages
+# them up as a single tarball on its standard output.
+# WARNING; Do not put anything in here that will pollute the
+# standard output!
+
+export CONFIG=${CONFIG:-/opt/pbench-server/lib/config/pbench-server.cfg}
 
 # load common things
 opts=$SHELLOPTS
@@ -61,7 +66,7 @@ calculate_prefixname () {
     tarname=${1##*/}
     prefixname=${tarname%%.tar.xz}
     despath=${1%/*}
-    prefixpath=`echo $prefixname | sed 's;^;'.prefix/prefix.';'`
+    prefixpath=".prefix/$prefixname.prefix"
     prefix="$despath/$prefixpath"
     echo $prefix
 }

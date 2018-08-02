@@ -50,14 +50,13 @@ function crontab_normal() {
     mailfrom=$(getconf.py mailfrom $role pbench-server)
     if [ -z "$mailfrom" ] ;then
         echo "$role: No mailfrom specified"
-        continue
     fi
     mailto=$(getconf.py mailto $role pbench-server)
     if [ -z "$mailto" ] ;then
         echo "$role: No mailto specified"
-        continue
+
     fi
-    
+
     grep -q MAILTO $crontab ||
         echo "MAILTO=$mailto" >> $crontab
     grep -q MAILFROM $crontab ||
@@ -69,6 +68,26 @@ function crontab_normal() {
     done
 }
 
+# This function expands a crontab template from a task in the config file
+# with values from a specific section that specifies replacements.
+# E.g. the crontab option in the task [pbench-sync] might have this
+# value:
+#   * * * * * flock -n %(deploy-lock-dir)s/$SATELLITE_LOCK %(deploy-script-dir)s/pbench-sync-satellite\
+#                    $SATELLITE_PREFIX $SATELLITE_HOST $SATELLITE_ARCHIVE
+# The placeholders (the $-prefixed names) are replaced from the section
+# that is passed in as the first argument. E.g if the section is "satellite-testing"
+# and the [satellite-testing] section looks like this:
+#
+# [satellite-testing]
+# satellite-host = dhcp31-38.perf.lab.eng.bos.redhat.com
+# satellite-prefix = TESTING
+# satellite-lock = pbench-sync-satellite-dhcp31-38.lock
+# satellite-archive = /pbench/archive/fs-version-001
+#
+# the (admittedly obscure) last line substitutes for $SATELLITE_HOST the
+# value of satellite-host in the section and similarly for all the other
+# options in the section.
+#
 function crontab_with_substitutions() {
     local section=$1
     local task=$2
@@ -85,12 +104,21 @@ for role in $roles ;do
         fi
     fi
     case $role in
-        pbench-rsync-satellites)
+        pbench-sync-satellites)
             satellites=$(getconf.py -l satellites $role)
             tasks=$(getconf.py -l tasks $role)
             for satellite in $satellites ;do
                 for task in $tasks; do
                     crontab_with_substitutions $satellite $task
+                done
+            done
+            ;;
+        pbench-prep)
+            shims=$(getconf.py -l shims $role)
+            tasks=$(getconf.py -l tasks $role)
+            for shim in $shims ;do
+                for task in $tasks; do
+                    crontab_with_substitutions $shim $task
                 done
             done
             ;;

@@ -54,7 +54,7 @@ esac
 UNPACK_PATH=$1
 #mkdir -p $UNPACK_PATH
 
-# TOP, ARCHIVE, INCOMING, RESULTS are all defined by the base file
+# TOP, ARCHIVE, INCOMING, RESULTS, USERS are all defined by the base file
 . $dir/pbench-base.sh
 ###########################################################################
 
@@ -88,9 +88,10 @@ index_content=$tmp/index_mail_contents
 # get the list of files we'll be operating on - sort them by size
 list=$tmp/$PROG.list
 
-# find command will not generate any result if the linksrc is empty, and because of that du will not get any result 
-# to calculate the size. In that scenario du generates the size of the current directory as output, to handle
-# that exclude the current directory.
+# find command will not generate any result if the linksrc is empty,
+# and because of that, du will not get any result to calculate the
+# size. In that scenario, du generates the size of the current
+# directory as output; to handle that exclude the current directory.
 find $ARCHIVE/*/$linksrc -type l -name '*.tar.xz' -printf "%l\n" 2>/dev/null | grep -v DUPLICATE | xargs du -b --exclude "." 2>/dev/null | sort -n > $list
 
 typeset -i ntb=0
@@ -107,7 +108,7 @@ while read size result ;do
 
     link=$(readlink -e $result)
     if [ ! -f "$link" ] ;then
-        echo "$TS: $link does not exist" | tee -a $mail_content >&4 
+        echo "$TS: $link does not exist" | tee -a $mail_content >&4
         nerrs=$nerrs+1
         continue
     fi
@@ -124,38 +125,38 @@ while read size result ;do
     mk_dirs $hostname
     # ... and a couple of other necessities.
     if [[ $? -ne 0 ]] ;then
-        echo "$TS: Creation of $hostname processing directories failed: code $status" | tee -a $mail_content >&4 
+        echo "$TS: Creation of $hostname processing directories failed: code $status" | tee -a $mail_content >&4
         nerrs=$nerrs+1
         continue
     fi
     mkdir -p $INCOMING/$hostname
     if [[ $? -ne 0 ]] ;then
-        echo "$TS: Creation of $INCOMING/$hostname failed: code $status" | tee -a $mail_content >&4 
+        echo "$TS: Creation of $INCOMING/$hostname failed: code $status" | tee -a $mail_content >&4
         nerrs=$nerrs+1
         continue
     fi
-    
+
     mkdir -p $UNPACK_PATH/$hostname
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: mkdir -p $UNPACK_PATH/$hostname failed: code $status" | tee -a $mail_content >&4 
+        echo "$TS: mkdir -p $UNPACK_PATH/$hostname failed: code $status" | tee -a $mail_content >&4
         nerrs=$nerrs+1
         continue
     fi
-    
+
     # XXXX - for now, if it's a duplicate name, just punt and avoid producing the error - the full
     # solution will involve renaming the unpacked directory appropriately.
     if [ ${resultname%%.*} == "DUPLICATE__NAME" ] ;then
         ndups=$ndups+1
         continue
     fi
-    
+
     let start_time=$(date +%s)
     pushd $UNPACK_PATH/$hostname > /dev/null 2>&1
     tar --extract --no-same-owner --no-overwrite-dir --touch --file="$result"
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: 'tar -xf $result' failed: code $status" | tee -a $mail_content >&4 
+        echo "$TS: 'tar -xf $result' failed: code $status" | tee -a $mail_content >&4
         nerrs=$nerrs+1
         popd > /dev/null 2>&1
         continue
@@ -165,7 +166,7 @@ while read size result ;do
     find . -type d -print0 | xargs -0 chmod ugo+rx
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: 'chmod ugo+rx' of subdirs failed: code $status" | tee -a $mail_content >&4 
+        echo "$TS: 'chmod ugo+rx' of subdirs failed: code $status" | tee -a $mail_content >&4
         nerrs=$nerrs+1
         rm -rf $resultname
         popd > /dev/null 2>&1
@@ -176,7 +177,7 @@ while read size result ;do
     chmod -R ugo+r .
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: 'chmod -R ugo+r .' failed: code $status" | tee -a $mail_content >&4 
+        echo "$TS: 'chmod -R ugo+r .' failed: code $status" | tee -a $mail_content >&4
         nerrs=$nerrs+1
         rm -rf $resultname
         popd > /dev/null 2>&1
@@ -184,18 +185,28 @@ while read size result ;do
     fi
     popd > /dev/null 2>&1
 
-    # if there is a prefix file, create a link as specified by the prefix
-    # even if no prefix is specified, we still want to link from the results/ hierarchy to incoming/.
-    # user access will eventually be through results/ only.
+    # Version 002 agents use the metadata log to store a prefix.
+    # They may also store a user option in the metadata log.
+    # We check for both of these here (n.b. if nothing is found
+    # they are going to be empty strings):
+    prefix=$(getconf.py -C $UNPACK_PATH/$hostname/$resultname/metadata.log prefix run)
+    user=$(getconf.py -C $UNPACK_PATH/$hostname/$resultname/metadata.log user run)
 
+    # Version 001 agents use a prefix file
+    # If there is a prefix file, create a link as specified by the
+    # prefix.  Even if no prefix is specified, we still want to link
+    # from the results/ hierarchy to incoming/.
     basedir=$(dirname $link)
     # pbench-dispatch has already moved it to the .prefix subdir
-    prefixfile=$basedir/.prefix/prefix.$resultname
+    prefixfile=$basedir/.prefix/$resultname.prefix
     if [ -f $prefixfile ] ;then
         # add the slash to make both cases uniform in what follows
-        prefix=$(cat $prefixfile)/
-    else
-        prefix=""
+        prefix=$(cat $prefixfile)
+    fi
+
+    # if non-empty and does not contain a trailing slash, add one
+    if [ ! -z $prefix -a ${prefix%/} = ${prefix} ] ;then
+        prefix=${prefix}/
     fi
 
     incoming=$INCOMING/$hostname/$resultname
@@ -216,9 +227,10 @@ while read size result ;do
             if [[ $status -ne 0 ]] ;then
                 echo "$TS: code $status: ln -s $UNPACK_PATH/$hostname/$resultname $incoming" | tee -a $mail_content >&4
                 # Cleanup needed here but trap takes care of it.
-                continue 
+                continue
             fi
         fi
+        # make a link in results/
         echo "ln -s $incoming $RESULTS/$hostname/$prefix$resultname"
         ln -s $incoming $RESULTS/$hostname/$prefix$resultname
         status=$?
@@ -226,6 +238,19 @@ while read size result ;do
             echo "$TS: code $status: ln -s $incoming $RESULTS/$hostname/$prefix$resultname" | tee -a $mail_content >&4
             rm -rf $incoming
             continue
+        fi
+
+        if [ ! -z ${user} ] ;then
+            # make a link in users/ but first make sure the directory exists
+            mkdir -p $USERS/${user}/${hostname}/${prefix}
+            echo "ln -s ${incoming} $USERS/${user}/${hostname}/${prefix}${resultname}"
+            ln -s ${incoming} $USERS/${user}/${hostname}/${prefix}${resultname}
+            status=$?
+            if [[ $status -ne 0 ]] ;then
+                echo "$TS: code $status: ln -s ${incoming} $USERS/${user}/$hostname/$prefix$resultname" | tee -a $mail_content >&4
+                rm -rf ${incoming}
+                continue
+            fi
         fi
     fi
 
