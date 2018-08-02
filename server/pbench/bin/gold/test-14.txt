@@ -1,0 +1,41 @@
++++ Running pbench-server-prep-shim-001
+--- Finished pbench-server-prep-shim-001 (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-server/pbench
+/var/tmp/pbench-test-server/pbench/archive
+/var/tmp/pbench-test-server/pbench/archive/duplicates
+/var/tmp/pbench-test-server/pbench/archive/quarantine
+/var/tmp/pbench-test-server/pbench/logs
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.error
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log
+/var/tmp/pbench-test-server/pbench/tmp
+--- pbench tree state
++++ pbench-local tree state
+/var/tmp/pbench-test-server/pbench-local
+/var/tmp/pbench-test-server/pbench-local/fs-version-001
+/var/tmp/pbench-test-server/pbench-local/fs-version-001/pbench-move-results-receive
+/var/tmp/pbench-test-server/pbench-local/fs-version-001/pbench-move-results-receive/Controller
+/var/tmp/pbench-test-server/pbench-local/fs-version-001/pbench-move-results-receive/Controller/TODO
+/var/tmp/pbench-test-server/pbench-local/fs-version-001/pbench-move-results-receive/Controller/TODO/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz
+/var/tmp/pbench-test-server/pbench-local/quarantine
+/var/tmp/pbench-test-server/pbench-local/quarantine/duplicates-001
+/var/tmp/pbench-test-server/pbench-local/quarantine/errors-001
+/var/tmp/pbench-test-server/pbench-local/quarantine/md5-001
+/var/tmp/pbench-test-server/pbench-local/quarantine/md5-001/Controller
+/var/tmp/pbench-test-server/pbench-local/quarantine/md5-001/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz
+/var/tmp/pbench-test-server/pbench-local/quarantine/md5-001/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz.md5
+--- pbench-local tree state
++++ pbench log file contents
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.error:run-1900-01-01T00:00:00-UTC: Quarantined: /var/tmp/pbench-test-server/pbench-local/fs-version-001/pbench-move-results-receive/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz failed MD5 check
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:run-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz: FAILED
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:md5sum: WARNING: 1 computed checksum did NOT match
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:run-1900-01-01T00:00:00-UTC: Processed 1 entries, 0 tarballs successful, 1 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.
+--- pbench log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/pbench-report-status --name pbench-server-prep-shim-001 --timestamp run-1900-01-01T00:00:00-UTC --type status /var/tmp/pbench-test-server/pbench/tmp/pbench-server-prep-shim-001.NNNN/status
+--- test-execution.log file contents
++++ test-report-status.log file contents
+/var/tmp/pbench-test-server/test-report-status.log:run-1900-01-01T00:00:00-UTC: Processed 1 entries, 0 tarballs successful, 1 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.
+--- test-report-status.log file contents

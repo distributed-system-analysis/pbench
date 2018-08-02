@@ -234,7 +234,7 @@ declare -A options=(
     [test-28]="--check --sysinfo=block,libvirt,kernel_config,sos,topology"
     [test-29]="--check --sysinfo=block,sos,bad,topology"
     [test-30]="--check --sysinfo=libvirt,default,kernel_config,all,topology,none"
-    [test-31]="--prefix=foo/bar"
+    [test-31]="--prefix=foo/bar --user=ndk"
 )
 
 declare -A expected_status=(

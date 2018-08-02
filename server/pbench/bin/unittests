@@ -22,6 +22,7 @@ _testout=$_testroot/output.txt
 export _testlog=$_testroot/test-execution.log
 export _testreportstatus=$_testroot/test-report-status.log
 _testdir=$_testroot/pbench
+_testdir_local=$_testroot/pbench-local
 _testtmp=$_testroot/tmp
 
 # Fixed timestamp output
@@ -84,6 +85,12 @@ function _save_tree {
     find $_testdir | sort |
         sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*$;tmp/pbench-\1.NNNN;' >> $_testout
     echo "--- pbench tree state" >> $_testout
+    if [ -d ${_testdir_local} ] ;then
+        echo "+++ pbench-local tree state" >> $_testout
+        find ${_testdir_local} | sort |
+            sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*$;tmp/pbench-\1.NNNN;' >> $_testout
+        echo "--- pbench-local tree state" >> $_testout
+    fi
 }
 
 function _dump_logs {
@@ -99,7 +106,7 @@ function _dump_logs {
 
     echo "+++ test-execution.log file contents" >> $_testout
     grep -HvF "\-\-should-n0t-ex1st--" $_testroot/test-execution.log 2>/dev/null |
-         sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' >> $_testout>> $_testout 2>&1
+         sed 's;tmp/pbench-\([-a-zA-Z0-9]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' >> $_testout>> $_testout 2>&1
     echo "--- test-execution.log file contents" >> $_testout
     rm -f $_testroot/test-execution.log
 
@@ -170,6 +177,11 @@ function _reset_state {
         echo "ERROR: unable to remove pbench hierarchy" >&2
         exit 1
     fi
+    rm -rf ${_testdir_local}
+    if [[ -d ${_testdir_local} ]]; then
+        echo "ERROR: unable to remove pbench-local hierarchy" >&2
+        exit 1
+    fi
     rm -rf $_testtmp
     if [[ -d $_testtmp ]]; then
         echo "ERROR: unable to remove tmp hierarchy" >&2
@@ -227,7 +239,6 @@ declare -A cmds=(
     [test-7.10]="_run_index"
     [test-7.11]="_run_index"
     [test-7.12]="_run_index"
-    
     # activation test
     [test-8]="_run_activate"
 
@@ -248,10 +259,14 @@ declare -A cmds=(
     [test-10]="_run pbench-sync-satellite TEST foo.bar.com $_testdir/archive"
     # non-trivial results: mail
     [test-11]="_run pbench-sync-satellite TEST2 foo2.bar.com $_testdir/archive"
-)
 
-# indexing unit tests - why is this necessary?
-# PATH=/usr/local/bin:$PATH
+    # shim - success
+    [test-12]="_run pbench-server-prep-shim-001"
+    [test-13]="_run pbench-server-prep-shim-002"
+    # shim - failure md5
+    [test-14]="_run pbench-server-prep-shim-001"
+    [test-15]="_run pbench-server-prep-shim-002"
+)
 
 tests=$*
 if [ -z "$tests" ] ;then
@@ -270,6 +285,7 @@ for test in $tests ;do
     if [[ $res != 0 ]] ;then
         let failures=failures+1
     fi
+
     _reset_state
 done
 exit $failures
