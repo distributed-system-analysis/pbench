@@ -10,7 +10,7 @@ len(actions) = 22
                 "file-date": "2018-02-06",
                 "file-name": "/var/tmp/pbench-test-server/pbench/fio_rw_2018.02.01T22.40.57.tar.xz",
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.1.0.0",
+                "generated-by-version": "0.2.0.0",
                 "md5": "492a697c9dc7d73d1bd92c98d3fa8b2a",
                 "pbench-agent-version": "0.47-91gb666083"
             },

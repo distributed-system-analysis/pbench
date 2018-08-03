@@ -10,7 +10,7 @@ len(actions) = 19
                 "file-date": "2017-04-21",
                 "file-name": "/var/tmp/pbench-test-server/pbench/pbench-user-benchmark__2017-04-21_20:38:16.tar.xz",
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.1.0.0",
+                "generated-by-version": "0.2.0.0",
                 "md5": "dac368cffba8e02c1ecac69dfe46ffcc",
                 "pbench-agent-version": "0.42-1gcf7a941"
             },
