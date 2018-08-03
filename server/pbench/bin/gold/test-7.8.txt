@@ -10,7 +10,7 @@ len(actions) = 22
                 "file-date": "2017-02-22",
                 "file-name": "/var/tmp/pbench-test-server/pbench/uperf__2016-10-06_16:34:03.tar.xz",
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.1.0.0",
+                "generated-by-version": "0.2.0.0",
                 "md5": "c5deab694ef0599c3a2315888f8cb847",
                 "pbench-agent-version": "0.40-2g191b627"
             },

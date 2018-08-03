@@ -22,7 +22,7 @@ from datetime import datetime, timedelta
 from vos.analysis.lib import tstos
 from collections import Counter
 
-_VERSION_ = "0.1.0.0"
+_VERSION_ = "0.2.0.0"
 _NAME_    = "index-pbench"
 _DEBUG    = 9
 
@@ -378,17 +378,18 @@ def convert_to_float(d):
 
 
 class ResultData(object):
-    def __init__(self, tstamp, md5sum, experiment, mdlog, tb, opctx):
+    def __init__(self, ptb, experiment, opctx):
         self.run_metadata = {
-            "runtstamp": tstamp,
-            "runid": md5sum,
+            "runtstamp": ptb.start_run,
+            "runid": ptb.md5sum,
             "experiment": experiment,
         }
+        self.ptb = ptb
         self.counters = Counter()
         opctx.append({ "object": "ResultData", "counters": self.counters })
         self.json_files = None
         try:
-            self.json_files = ResultData.get_json_files(mdlog, tb)
+            self.json_files = ResultData.get_json_files(ptb)
         except KeyError:
             self.json_files = None
 
@@ -396,7 +397,7 @@ class ResultData(object):
         for df in self.json_files:
             try:
                 # Read it once to generate the source_id
-                with open(os.path.join(_tmpdir, df['path']), "rb") as fp:
+                with open(os.path.join(self.ptb.extracted_root, df['path']), "rb") as fp:
                     hash_md5 = hashlib.md5()
                     for chunk in iter(lambda: fp.read(4096), b""):
                         hash_md5.update(chunk)
@@ -409,7 +410,7 @@ class ResultData(object):
 
             try:
                 # Read it a second time to interpret it as a JSON document.
-                with open(os.path.join(_tmpdir, df['path'])) as fp:
+                with open(os.path.join(self.ptb.extracted_root, df['path'])) as fp:
                     results = json.load(fp)
             except Exception as e:
                 print("result-data-indexing: encountered invalid JSON file,"
@@ -438,12 +439,12 @@ class ResultData(object):
         return gen
 
     @staticmethod
-    def get_json_files(mdlog, tb):
+    def get_json_files(ptb):
         """
         Fetch the list of result.json files for this experiment;
         return a list of dicts containing their metadata.
         """
-        paths = [x for x in tb.getnames() if x.find("result.json") >= 0 and tb.getmember(x).isfile()]
+        paths = [x for x in ptb.tb.getnames() if x.find("result.json") >= 0 and ptb.tb.getmember(x).isfile()]
         datafiles = []
         for p in paths:
             fname = os.path.basename(p)
@@ -459,206 +460,224 @@ def _make_source_id(source):
     return hashlib.md5(json.dumps(source, sort_keys=True).encode('utf-8')).hexdigest()
 
 # Handlers data table / dictionary describing how to process a given tool's
-# .csv files.  The outer dictionary holds one dictionary for each tool. Each
-# tool entry has one '@prospectus' entry, which records behavior and handling
-# controls, and then one entry for each .csv file name emitted by the tool.
+# data files to be indexed.  The outer dictionary holds one dictionary for
+# each tool. Each tool entry has one '@prospectus' entry, which records
+# behavior and handling controls for that tool, and a "patterns" list, which
+# contains a handler record for each file that match a given pattern emitted
+# by the tool (can be per file or a pattern to match multiple files).
 #
-# For each .csv file, we record the metric "class", and its name, "metric".
-# E.g. The metadata path hierarchy for iostat disk_IOPS.csv data would be,
-# 'iostat.disk.iops', for disk_Queue_Size.csv it would be 'iostat.disk.qsize',
-# etc.
+# For each data file's handler record, we record the metric "class" (e.g.
+# "disk"), and its "metric" name (e.g. "iops), which are used to contruct the
+# fully qualified namespace for the index field values.  E.g., the metadata
+# path hierarchy for iostat disk_IOPS.csv data would be, 'iostat.disk.iops',
+# for disk_Queue_Size.csv it would be 'iostat.disk.qsize', etc.
 #
-# We record the metrics "display" name (human readable, or really what is
+# We also record the metrics "display" name (human readable, or really what is
 # currently used by pbench today in generated html charts), and the "units"
 # for the metric, but neither field is currently indexed (FIXME!).
 #
 # The "colpat" field, or column pattern, describes as a regular expression the
-# constituent components of the .csv file column header. Currently, the "id"
+# constituent components of the .csv file column header.  Currently, the "id"
 # and "subfield" match groups are the only two expected groups, with
 # "subfield" considered optional.
 #
 # The "subfields" field contents in the handler data structure itself is
 # meant to be a programmatic way to ensure any subfield derived from a column
 # header can be checked, but that is not currently used (FIXME!).
-_known_csv_handlers = {
+#
+# The "metadata" field and "metadata_pat" are option entries which control how
+# to extract metadata from column headers.
+_known_handlers = {
     'iostat': {
         '@prospectus': {
             # For iostat .csv files, we want to merge all columns into one
             # JSON document
-            'handling': 'unify'
+            'handling': 'csv',
+            'method': 'unify'
         },
-        'disk_IOPS.csv': {
-            'class': 'disk',
-            'metric': 'iops',
-            'display': 'IOPS',
-            'units': 'count_per_sec',
-            'subfields': [ 'read', 'write' ],
-            'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)')
-        },
-        'disk_Queue_Size.csv': {
-            'class': 'disk',
-            'metric': 'qsize',
-            'display': 'Queue_Size',
-            'units': 'count',
-            'subfields': [],
-            'colpat': re.compile(r'(?P<id>.+)')
-        },
-        'disk_Request_Merges_per_sec.csv': {
-            'class': 'disk',
-            'metric': 'reqmerges',
-            'display': 'Request_Merges',
-            'units': 'count_per_sec',
-            'subfields': [ 'read', 'write' ],
-            'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)')
-        },
-        'disk_Request_Size_in_512_byte_sectors.csv': {
-            'class': 'disk',
-            'metric': 'reqsize',
-            'display': 'Request_Size',
-            'units': 'count_512b_sectors',
-            'subfields': [],
-            'colpat': re.compile(r'(?P<id>.+)')
-        },
-        'disk_Throughput_MB_per_sec.csv': {
-            'class': 'disk',
-            'metric': 'tput',
-            'display': 'Throughput',
-            'units': 'MB_per_sec',
-            'subfields': [ 'read', 'write' ],
-            'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)')
-        },
-        'disk_Utilization_percent.csv': {
-            'class': 'disk',
-            'metric': 'util',
-            'display': 'Utilization',
-            'units': 'percent',
-            'subfields': [],
-            'colpat': re.compile(r'(?P<id>.+)')
-        },
-        'disk_Wait_Time_msec.csv': {
-            'class': 'disk',
-            'metric': 'wtime',
-            'display': 'Wait_Time',
-            'units': 'msec',
-            'subfields': [ 'read', 'write' ],
-            'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)')
-        }
-    },
-    'proc-interrupts': {
-        '@prospectus': {
-            # For proc-interrupts .csv files, we want to individually index
-            # each column entry as its own JSON document
-            'handling': 'individual'
-        },
+        'patterns': [
+            {
+                'pattern': re.compile(r'disk_IOPS\.csv'),
+                'class': 'disk',
+                'metric': 'iops',
+                'display': 'IOPS',
+                'units': 'count_per_sec',
+                'subfields': [ 'read', 'write' ],
+                'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)')
+            }, {
+                'pattern': re.compile(r'disk_Queue_Size\.csv'),
+                'class': 'disk',
+                'metric': 'qsize',
+                'display': 'Queue_Size',
+                'units': 'count',
+                'subfields': [],
+                'colpat': re.compile(r'(?P<id>.+)')
+            }, {
+                'pattern': re.compile(r'disk_Request_Merges_per_sec\.csv'),
+                'class': 'disk',
+                'metric': 'reqmerges',
+                'display': 'Request_Merges',
+                'units': 'count_per_sec',
+                'subfields': [ 'read', 'write' ],
+                'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)')
+            }, {
+                'pattern': re.compile(r'disk_Request_Size_in_512_byte_sectors\.csv'),
+                'class': 'disk',
+                'metric': 'reqsize',
+                'display': 'Request_Size',
+                'units': 'count_512b_sectors',
+                'subfields': [],
+                'colpat': re.compile(r'(?P<id>.+)')
+            }, {
+                'pattern': re.compile(r'disk_Throughput_MB_per_sec\.csv'),
+                'class': 'disk',
+                'metric': 'tput',
+                'display': 'Throughput',
+                'units': 'MB_per_sec',
+                'subfields': [ 'read', 'write' ],
+                'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)')
+            }, {
+                'pattern': re.compile(r'disk_Utilization_percent\.csv'),
+                'class': 'disk',
+                'metric': 'util',
+                'display': 'Utilization',
+                'units': 'percent',
+                'subfields': [],
+                'colpat': re.compile(r'(?P<id>.+)')
+            }, {
+                'pattern': re.compile(r'disk_Wait_Time_msec\.csv'),
+                'class': 'disk',
+                'metric': 'wtime',
+                'display': 'Wait_Time',
+                'units': 'msec',
+                'subfields': [ 'read', 'write' ],
+                'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)')
+            }
+        ]
     },
     'pidstat': {
         '@prospectus': {
             # For pidstat .csv files, we want to individually index
             # each column entry as its own JSON document
-            'handling': 'unify'
+            'handling': 'csv',
+            'method': 'unify'
         },
-        'context_switches_nonvoluntary_switches_sec.csv': {
-            'class': 'pidstat',
-            'metric': 'context_switches_nonvoluntary_switches',
-            'display': 'Context_Switches_Nonvoluntary',
-            'units': 'count_per_sec',
-            'subfields': [],
-            'colpat': re.compile(r'(?P<id>.+)'),
-            'metadata': [ 'pid', 'command' ],
-            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
-        },
-        'context_switches_voluntary_switches_sec.csv': {
-            'class': 'pidstat',
-            'metric': 'context_switches_voluntary_switches',
-            'display': 'Context_Switches_Voluntary',
-            'units': 'count_per_sec',
-            'subfields': [],
-            'colpat': re.compile(r'(?P<id>.+)'),
-            'metadata': [ 'pid', 'command' ],
-            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
-        },
-        'cpu_usage_percent_cpu.csv': {
-            'class': 'pidstat',
-            'metric': 'cpu_usage',
-            'display': 'CPU_Usage',
-            'units': 'percent_cpu',
-            'subfields': [],
-            'colpat': re.compile(r'(?P<id>.+)'),
-            'metadata': [ 'pid', 'command' ],
-            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
-        },
-        'file_io_io_reads_KB_sec.csv': {
-            'class': 'pidstat',
-            'metric': 'io_reads',
-            'display': 'IO_Reads',
-            'units': 'KB_per_sec',
-            'subfields': [],
-            'colpat': re.compile(r'(?P<id>.+)'),
-            'metadata': [ 'pid', 'command' ],
-            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
-        },
-        'file_io_io_writes_KB_sec.csv': {
-            'class': 'pidstat',
-            'metric': 'io_writes',
-            'display': 'IO_Writes',
-            'units': 'KB_per_sec',
-            'subfields': [],
-            'colpat': re.compile(r'(?P<id>.+)'),
-            'metadata': [ 'pid', 'command' ],
-            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
-        },
-        'memory_faults_major_faults_sec.csv': {
-            'class': 'pidstat',
-            'metric': 'memory_faults_major',
-            'display': 'Memory_Faults_Major',
-            'units': 'count_per_sec',
-            'subfields': [],
-            'colpat': re.compile(r'(?P<id>.+)'),
-            'metadata': [ 'pid', 'command' ],
-            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
-        },
-        'memory_faults_minor_faults_sec.csv': {
-            'class': 'pidstat',
-            'metric': 'memory_faults_minor',
-            'display': 'Memory_Faults_Minor',
-            'units': 'count_per_sec',
-            'subfields': [],
-            'colpat': re.compile(r'(?P<id>.+)'),
-            'metadata': [ 'pid', 'command' ],
-            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
-        },
-        'memory_usage_resident_set_size.csv': {
-            'class': 'pidstat',
-            'metric': 'rss',
-            'display': 'RSS',
-            'units': 'KB',
-            'subfields': [],
-            'colpat': re.compile(r'(?P<id>.+)'),
-            'metadata': [ 'pid', 'command' ],
-            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
-        },
-        'memory_usage_virtual_size.csv': {
-            'class': 'pidstat',
-            'metric': 'vsz',
-            'display': 'VSZ',
-            'units': 'KB',
-            'subfields': [],
-            'colpat': re.compile(r'(?P<id>.+)'),
-            'metadata': [ 'pid', 'command' ],
-            'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
-        }
+        'patterns': [
+            {
+                'pattern': re.compile(r'context_switches_nonvoluntary_switches_sec\.csv'),
+                'class': 'pidstat',
+                'metric': 'context_switches_nonvoluntary_switches',
+                'display': 'Context_Switches_Nonvoluntary',
+                'units': 'count_per_sec',
+                'subfields': [],
+                'colpat': re.compile(r'(?P<id>.+)'),
+                'metadata': [ 'pid', 'command' ],
+                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+            }, {
+                'pattern': re.compile(r'context_switches_voluntary_switches_sec\.csv'),
+                'class': 'pidstat',
+                'metric': 'context_switches_voluntary_switches',
+                'display': 'Context_Switches_Voluntary',
+                'units': 'count_per_sec',
+                'subfields': [],
+                'colpat': re.compile(r'(?P<id>.+)'),
+                'metadata': [ 'pid', 'command' ],
+                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+            }, {
+                'pattern': re.compile(r'cpu_usage_percent_cpu\.csv'),
+                'class': 'pidstat',
+                'metric': 'cpu_usage',
+                'display': 'CPU_Usage',
+                'units': 'percent_cpu',
+                'subfields': [],
+                'colpat': re.compile(r'(?P<id>.+)'),
+                'metadata': [ 'pid', 'command' ],
+                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+            }, {
+                'pattern': re.compile(r'file_io_io_reads_KB_sec\.csv'),
+                'class': 'pidstat',
+                'metric': 'io_reads',
+                'display': 'IO_Reads',
+                'units': 'KB_per_sec',
+                'subfields': [],
+                'colpat': re.compile(r'(?P<id>.+)'),
+                'metadata': [ 'pid', 'command' ],
+                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+            }, {
+                'pattern': re.compile(r'file_io_io_writes_KB_sec\.csv'),
+                'class': 'pidstat',
+                'metric': 'io_writes',
+                'display': 'IO_Writes',
+                'units': 'KB_per_sec',
+                'subfields': [],
+                'colpat': re.compile(r'(?P<id>.+)'),
+                'metadata': [ 'pid', 'command' ],
+                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+            }, {
+                'pattern': re.compile(r'memory_faults_major_faults_sec\.csv'),
+                'class': 'pidstat',
+                'metric': 'memory_faults_major',
+                'display': 'Memory_Faults_Major',
+                'units': 'count_per_sec',
+                'subfields': [],
+                'colpat': re.compile(r'(?P<id>.+)'),
+                'metadata': [ 'pid', 'command' ],
+                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+            }, {
+                'pattern': re.compile(r'memory_faults_minor_faults_sec\.csv'),
+                'class': 'pidstat',
+                'metric': 'memory_faults_minor',
+                'display': 'Memory_Faults_Minor',
+                'units': 'count_per_sec',
+                'subfields': [],
+                'colpat': re.compile(r'(?P<id>.+)'),
+                'metadata': [ 'pid', 'command' ],
+                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+            }, {
+                'pattern': re.compile(r'memory_usage_resident_set_size\.csv'),
+                'class': 'pidstat',
+                'metric': 'rss',
+                'display': 'RSS',
+                'units': 'KB',
+                'subfields': [],
+                'colpat': re.compile(r'(?P<id>.+)'),
+                'metadata': [ 'pid', 'command' ],
+                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+            }, {
+                'pattern': re.compile(r'memory_usage_virtual_size\.csv'),
+                'class': 'pidstat',
+                'metric': 'vsz',
+                'display': 'VSZ',
+                'units': 'KB',
+                'subfields': [],
+                'colpat': re.compile(r'(?P<id>.+)'),
+                'metadata': [ 'pid', 'command' ],
+                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+            }
+        ]
     },
-    'sar': {},
-    'turbostat': {},
-}
-
-_known_json_handlers = {
+    'proc-interrupts': {
+        '@prospectus': {
+            # For proc-interrupts .csv files, we want to individually index
+            # each column entry as its own JSON document
+            'handling': 'csv',
+            'method': 'individual'
+        },
+        'patterns': []
+    },
     'prometheus-metrics': {
         '@prospectus': {
             'handling': 'json',
-         },
+            'method': 'json'
+         }
      },
+    'sar': None,
+    'turbostat': None,
+    'mpstat': None,
+    'perf': None,
+    'proc-vmstat': None
 }
+
 # If we need to deal with old .csv file names, place an alias here to map to
 # an existing handler above.
 _aliases = {
@@ -671,8 +690,9 @@ _aliases = {
 
 
 class ToolData(object):
-    def __init__(self, start_run_tstamp, end_run_tstamp, md5sum, experiment,
-                iteration, sample, host, tool, toolgroup, mdlog, tb, opctx):
+    def __init__(self, ptb, experiment, iteration, sample, host, tool,
+                toolgroup, opctx):
+        self.ptb = ptb
         self.toolname = tool
         self.counters = Counter()
         opctx.append({ "object": "ToolData-%s" % (tool), "counters": self.counters })
@@ -681,22 +701,22 @@ class ToolData(object):
         except ValueError:
             iterseqno = itername = iteration
         try:
-            self.start_run_ts = datetime.strptime(start_run_tstamp, "%Y-%m-%dT%H:%M:%S.%f")
+            self.start_run_ts = datetime.strptime(ptb.start_run, "%Y-%m-%dT%H:%M:%S.%f")
         except ValueError:
             try:
-                self.start_run_ts = datetime.strptime(start_run_tstamp, "%Y-%m-%dT%H:%M:%S")
+                self.start_run_ts = datetime.strptime(ptb.start_run, "%Y-%m-%dT%H:%M:%S")
             except ValueError:
                 self.start_run_ts = None
         try:
-            self.end_run_ts = datetime.strptime(end_run_tstamp, "%Y-%m-%dT%H:%M:%S.%f")
+            self.end_run_ts = datetime.strptime(ptb.end_run, "%Y-%m-%dT%H:%M:%S.%f")
         except ValueError:
             try:
-                self.end_run_ts = datetime.strptime(end_run_tstamp, "%Y-%m-%dT%H:%M:%S")
+                self.end_run_ts = datetime.strptime(ptb.end_run, "%Y-%m-%dT%H:%M:%S")
             except ValueError:
                 self.end_run_ts = None
         self.run_metadata = {
-            "runtstamp": start_run_tstamp,
-            "runid": md5sum,
+            "runtstamp": ptb.start_run,
+            "runid": ptb.md5sum,
             "experiment": experiment,
             # FIXME: What are the constituent parts of an iteration name?
             "iteration": itername,
@@ -711,8 +731,8 @@ class ToolData(object):
         # convention used when collecting the results.
 
         # import pdb; pdb.set_trace()
-        label = get_tool_label(host, mdlog)
-        hostname_s = get_tool_hostname_s(host, mdlog)
+        label = get_tool_label(host, ptb.mdconf)
+        hostname_s = get_tool_hostname_s(host, ptb.mdconf)
         if label and hostname_s:
             hostpath = "{}:{}".format(label, hostname_s)
         elif hostname_s:
@@ -720,26 +740,16 @@ class ToolData(object):
         else:
             hostpath = host
 
-        self.csv_files = None
-        self.json_files = None
         try:
-            self.handler = _known_json_handlers[tool]
+            self.handler = _known_handlers[tool]
         except KeyError:
-            try:
-                self.handler = _known_csv_handlers[tool]
-            except KeyError:
-                self.handler = None
-            else:
-                # Fetch all the .csv files as a dictionary containing metadata
-                # about them, a csv reader object, and the header line from each
-                # file.
-                self.csv_files = ToolData.get_csv_files(
-                    self.handler, iteration, sample, hostpath, tool, toolgroup, mdlog, tb)
+            self.handler = None
+            self.files = None
         else:
-            self.json_files = ToolData.get_json_files(self.handler,
-                                                          iteration, sample,
-                                                          hostpath, tool, toolgroup,
-                                                          mdlog, tb)
+            # Fetch all the data files as a dictionary containing metadata
+            # about them.
+            self.files = ToolData.get_files(
+                    self.handler, iteration, sample, hostpath, tool, toolgroup, ptb)
 
     def convert_timestamp(self, orig_ts):
         # Convert the given string timestamp, assumed to be a float in
@@ -761,11 +771,6 @@ class ToolData(object):
         # The metric mapping provides (klass, metric) tuples for a given
         # .csv file.
         metric_mapping = _dict_const()
-        for k,v in self.handler.items():
-            if k.startswith('@'):
-                continue
-            class_list[v['class']] = True
-            metric_mapping[k] = (v['class'], v['metric'])
         # The list of identifiers is generated from the combined headers,
         # parsing out the IDs
         identifiers = _dict_const()
@@ -774,7 +779,7 @@ class ToolData(object):
         field_mapping = _dict_const()
         # Metadata extracted from column header
         metadata = _dict_const()
-        for csv in self.csv_files:
+        for csv in self.files:
             if csv['header'][0] != 'timestamp_ms':
                 print("tool-data-indexing: expected first column of .csv file"
                         " (%s) to be 'timestamp_ms', found %s",
@@ -782,8 +787,10 @@ class ToolData(object):
                 self.counters['first_column_not_timestamp_ms'] += 1
                 continue
             header = csv['header']
-            handler = self.handler[csv['basename']]
-            colpat = handler['colpat']
+            handler_rec = csv['handler_rec']
+            class_list[handler_rec['class']] = True
+            metric_mapping[csv['basename']] = (handler_rec['class'], handler_rec['metric'])
+            colpat = handler_rec['colpat']
             if csv['basename'] not in field_mapping:
                 field_mapping[csv['basename']] = _dict_const()
             for idx,col in enumerate(header):
@@ -798,32 +805,32 @@ class ToolData(object):
                 except IndexError:
                     subfield = None
                 else:
-                    if subfield not in handler['subfields']:
+                    if subfield not in handler_rec['subfields']:
                         print("tool-data-indexing: column header, %r, has an"
                                 " unexpected subfield, %r, expected %r"
                                 " subfields, for .csv %s" % (
-                                    col, subfield, handler['subfields'],
+                                    col, subfield, handler_rec['subfields'],
                                     csv['basename']))
                         self.counters['column_subfields_do_not_match_handler'] += 1
                         subfield = None
                 field_mapping[csv['basename']][idx] = (identifier, subfield)
                 try:
-                    metadata_pat = handler['metadata_pat']
+                    metadata_pat = handler_rec['metadata_pat']
                 except KeyError:
                     pass
                 else:
                     m = metadata_pat.match(col)
                     if m:
                         colmd = {}
-                        for md in handler['metadata']:
+                        for md in handler_rec['metadata']:
                             try:
                                 val = m.group(md)
                             except IndexError:
                                 print("tool-data-indexing: handler metadata,"
                                         " %r, not found in column %r using"
                                         " pattern %r, for .csv %s" % (
-                                            handler['metadata'], col,
-                                            handler['metadata_pat'],
+                                            handler_rec['metadata'], col,
+                                            handler_rec['metadata_pat'],
                                             csv['basename']))
                                 self.counters['expected_column_metadata_not_found'] += 1
                             else:
@@ -832,7 +839,7 @@ class ToolData(object):
         while True:
             # Read a row from each .csv file
             rows = _dict_const()
-            for csv in self.csv_files:
+            for csv in self.files:
                 try:
                     rows[csv['basename']] = next(csv['reader'])
                 except StopIteration:
@@ -911,9 +918,9 @@ class ToolData(object):
         pass
 
     def _make_source_json(self):
-        for df in self.json_files:
+        for df in self.files:
             try:
-                with open(os.path.join(_tmpdir, df['path'])) as fp:
+                with open(os.path.join(self.ptb.extracted_root, df['path'])) as fp:
                     payload = json.load(fp)
             except Exception as e:
                 print("tool-data-indexing: encountered bad JSON file,"
@@ -965,65 +972,89 @@ class ToolData(object):
     def make_source(self):
         """Simple jump method to pick the write source generator based on the
         handler's prospectus."""
-        if not self.csv_files and not self.json_files:
-            # If we do not have any csv or json files for this tool, ignore it.
+        if not self.files:
+            # If we do not have any data files for this tool, ignore it.
             return
-        if self.handler['@prospectus']['handling'] == 'unify':
+        if self.handler['@prospectus']['method'] == 'unify':
             gen = self._make_source_unified()
-        elif self.handler['@prospectus']['handling'] == 'individual':
+        elif self.handler['@prospectus']['method'] == 'individual':
             gen = self._make_source_individual()
-        elif self.handler['@prospectus']['handling'] == 'json':
+        elif self.handler['@prospectus']['method'] == 'json':
             gen = self._make_source_json()
         else:
             raise Exception("Logic bomb!")
         return gen
 
     @staticmethod
-    def get_csv_files(handler, iteration, sample, host, tool, toolgroup, mdlog, tb):
+    def get_csv_files(handler, iteration, sample, host, tool, toolgroup, ptb):
         """
         Fetch the list of .csv files for this tool, fetch their headers, and
         return a dictionary mapping their column headers to their field names.
         """
         path = os.path.join(iteration, sample, "tools-%s" % (toolgroup,), host, tool, "csv")
-        paths = [x for x in tb.getnames() if x.find(path) >= 0 and tb.getmember(x).isfile()]
+        paths = [x for x in ptb.tb.getnames() if x.find(path) >= 0 and ptb.tb.getmember(x).isfile()]
         datafiles = []
         for p in paths:
             fname = os.path.basename(p)
-            try:
-                handler_rec = handler[fname]
-            except KeyError:
+            for rec in handler['patterns']:
+                if rec['pattern'].match(fname):
+                    handler_rec = rec
+                    break
+            else:
                 # Try an alias
-                alias_name = fname
                 try:
-                    fname = _aliases[alias_name]
-                    handler_rec = handler[fname]
+                    alias_name = _aliases[fname]
                 except KeyError:
-                    # Ignore .csv files for which we don't have a handler
-                    #print("WARNING: no .csv handler for %s\n" % (p,), file=sys.stdout)
+                    # Ignore .csv files for which we don't have a handler,
+                    # after checking to see if they might have an alias
+                    # name.
+                    #print("WARNING: no .csv handler for %s (%s)\n" % (fname, p), file=sys.stdout)
                     continue
-            datafile = { "path": p, "basename": fname, 'handler': handler_rec }
+                else:
+                    for rec in handler['patterns']:
+                        if rec['pattern'].match(alias_name):
+                            handler_rec = rec
+                            break
+                    else:
+                        # Ignore .csv files for which we don't have a handler
+                        #print("WARNING: no .csv handler for %s (%s, %s)\n" % (alias_name, fname, p), file=sys.stdout)
+                        continue
+            assert handler_rec is not None
+            datafile = { "path": p, "basename": fname, 'handler_rec': handler_rec }
             # FIXME: we might have to deal with UTF-8 decoding issues
             # reader = csv.reader(codecs.iterdecode(tb.extractfile(dfilepath), 'utf-8'))
-            datafile['reader'] = reader = csv.reader(open(os.path.join(_tmpdir, p)))
+            datafile['reader'] = reader = csv.reader(open(os.path.join(ptb.extracted_root, p)))
             # FIXME: how should we handle .csv files that are empty?
             datafile['header'] = next(reader)
             datafiles.append(datafile)
         return datafiles
 
     @staticmethod
-    def get_json_files(handler, iteration, sample, host, tool, toolgroup, mdlog, tb):
+    def get_json_files(handler, iteration, sample, host, tool, toolgroup, ptb):
         """
         Fetch the list of json files for this tool, and
         return a list of dicts containing their metadata.
         """
         # import pdb; pdb.set_trace()
         path = os.path.join(iteration, sample, "tools-%s" % (toolgroup,), host, tool, "json")
-        paths = [x for x in tb.getnames() if x.find(path) >= 0 and tb.getmember(x).isfile()]
+        paths = [x for x in ptb.tb.getnames() if x.find(path) >= 0 and ptb.tb.getmember(x).isfile()]
         datafiles = []
         for p in paths:
             fname = os.path.basename(p)
-            datafile = { "path": p, "basename": fname, 'handler': handler }
+            datafile = { "path": p, "basename": fname, 'handler_rec': None }
             datafiles.append(datafile)
+        return datafiles
+
+    @staticmethod
+    def get_files(handler, iteration, sample, host, tool, toolgroup, ptb):
+        if handler is None:
+            datafiles = []
+        elif handler['@prospectus']['handling'] == 'csv':
+            datafiles = ToolData.get_csv_files(handler, iteration, sample, host, tool, toolgroup, ptb)
+        elif handler['@prospectus']['handling'] == 'json':
+            datafiles = ToolData.get_json_files(handler, iteration, sample, host, tool, toolgroup, ptb)
+        else:
+            raise Exception("Logic bomb! %s" % (handler['@prospectus']['handling']))
         return datafiles
 
 # tool data are stored in csv files in the tarball.
@@ -1034,9 +1065,9 @@ class ToolData(object):
 # that may not be possible; in the latter case, we fall back to trawling through the
 # tarball and using heuristics.
 
-def get_iterations(mdlog, tb):
+def get_iterations(mdconf, tb):
     try:
-        return mdlog.get("pbench", "iterations").split(', ')
+        return mdconf.get("pbench", "iterations").split(', ')
     except Exception:
         # TBD - trawl through tb with some heuristics
         iterations = []
@@ -1049,7 +1080,7 @@ def get_iterations(mdlog, tb):
                 iterations.append(iter)
         return iterations
 
-def get_samples(iteration, mdlog, tb):
+def get_samples(iteration, mdconf, tb):
     samples = []
     for x in tb.getnames():
         if x.find("{}/".format(iteration)) < 0:
@@ -1064,10 +1095,10 @@ def get_samples(iteration, mdlog, tb):
         samples.append('reference-result')
     return samples
 
-def get_pbench_hosts(iteration, sample, mdlog, tb):
+def get_pbench_hosts(iteration, sample, mdconf, tb):
     try:
         # N.B. Space-separated list
-        return mdlog.get("tools", "hosts").split()
+        return mdconf.get("tools", "hosts").split()
     except ConfigParserError:
         print("ConfigParser error in get_pbench_hosts: tool data will *not* be indexed.")
         print("This is most probably a bug: please open an issue.")
@@ -1079,9 +1110,9 @@ def get_pbench_hosts(iteration, sample, mdlog, tb):
         print("No hosts in [tools] section in metadata log: tool data will *NOT* be indexed.")
         return []
 
-def get_tools(iteration, sample, host, mdlog, tb):
+def get_tools(iteration, sample, host, mdconf, tb):
     try:
-        return mdlog.options("tools/{}".format(host))
+        return mdconf.options("tools/{}".format(host))
     except ConfigParserError:
         print("ConfigParser error in get_tools: tool data will *not* be indexed.")
         print("This is most probably a bug: please open an issue.")
@@ -1093,42 +1124,40 @@ def get_tools(iteration, sample, host, mdlog, tb):
         print("No tools in [tools/{}] section in metadata log: tool data will *NOT* be indexed.".format(host))
         return []
 
-def get_tool_label(host, mdlog):
+def get_tool_label(host, mdconf):
     try:
-        return mdlog.get("tools/" + host, "label")
+        return mdconf.get("tools/" + host, "label")
     except:
         return ""
 
-def get_tool_hostname_s(host, mdlog):
+def get_tool_hostname_s(host, mdconf):
     try:
-        return mdlog.get("tools/" + host, "hostname-s")
+        return mdconf.get("tools/" + host, "hostname-s")
     except:
         return ""
 
-def mk_tool_data(mdlog, md5sum, tb, start_run_tstamp, end_run_tstamp, opctx):
-    experiment = mdlog.get("pbench", "name")
+def mk_tool_data(ptb, opctx):
+    experiment = ptb.mdconf.get("pbench", "name")
     try:
-        toolsgroup = mdlog.get("tools", "group")
+        toolsgroup = ptb.mdconf.get("tools", "group")
     except Exception:
         toolsgroup = "default"
-    iterations = get_iterations(mdlog, tb)
+    iterations = get_iterations(ptb.mdconf, ptb.tb)
     for iteration in iterations:
-        samples = get_samples(iteration, mdlog, tb)
+        samples = get_samples(iteration, ptb.mdconf, ptb.tb)
         for sample in samples:
-            hosts = get_pbench_hosts(iteration, sample, mdlog, tb)
+            hosts = get_pbench_hosts(iteration, sample, ptb.mdconf, ptb.tb)
             for host in hosts:
-                tools = get_tools(iteration, sample, host, mdlog, tb)
+                tools = get_tools(iteration, sample, host, ptb.mdconf, ptb.tb)
                 for tool in tools:
                     yield ToolData(
-                            start_run_tstamp, end_run_tstamp, md5sum,
-                            experiment, iteration, sample, host, tool,
-                            toolsgroup, mdlog, tb, opctx)
+                            ptb, experiment, iteration, sample, host, tool,
+                            toolsgroup, opctx)
     return
 
 def mk_tool_data_actions(ptb, options, INDEX_PREFIX, opctx):
     index_name_template = "%s.tool-data-%%s" % INDEX_PREFIX
-    for td in mk_tool_data(ptb.mdconf, ptb.md5sum, ptb.tb, ptb.start_run,
-            ptb.end_run, opctx):
+    for td in mk_tool_data(ptb, opctx):
         # Each ToolData object, td, that is returned here represents how
         # data collected for that tool across all hosts is to be returned.
         # The make_source method returns a generator that will emit each
@@ -1153,9 +1182,8 @@ def mk_tool_data_actions(ptb, options, INDEX_PREFIX, opctx):
 
 def mk_result_data_actions(ptb, options, INDEX_PREFIX, opctx):
     index_name_template = "%s.result-data." % INDEX_PREFIX
-    mdlog = ptb.mdconf
-    experiment = mdlog.get("pbench", "name")
-    rd = ResultData(ptb.start_run, ptb.md5sum, experiment, mdlog, ptb.tb, opctx)
+    experiment = ptb.mdconf.get("pbench", "name")
+    rd = ResultData(ptb, experiment, opctx)
     if not rd:
         return
     sources = rd.make_source()
@@ -1231,7 +1259,7 @@ def mk_toc_actions(ptb, options, INDEX_PREFIX, opctx):
     index_name_template = "%s.run.%%d-%%02d" % INDEX_PREFIX
     tstamp = ptb.start_run.replace('_', 'T')
     prefix, dirs = mk_toc(ptb.tb, ptb.md5sum, options)
-    assert(prefix == ptb.dirprefix)
+    assert(prefix == ptb.dirname)
     for dname,d in dirs.items():
         d["@timestamp"] = tstamp
         action = {
@@ -1568,7 +1596,7 @@ def fix_date_format(ts):
         # on any other exception, we give up
         return "1900-01-01T00:00:00"
 
-def mk_run_metadata(mdconf, md5sum, dirname, dirprefix):
+def mk_run_metadata(mdconf, md5sum, dirname):
     try:
         d = {}
         d.update(mdconf.items('run'))
@@ -1583,7 +1611,7 @@ def mk_run_metadata(mdconf, md5sum, dirname, dirprefix):
         # it's what ties all of the relevant documents together.
         d['id'] = md5sum
         d['tarball-dirname'] = dirname
-        d['tarball-toc-prefix'] = dirprefix
+        d['tarball-toc-prefix'] = dirname
         del d['rpm-version']
         return d
     except KeyError as e:
@@ -1633,7 +1661,7 @@ def mk_run_action(ptb, options, INDEX_PREFIX, opctx):
     #if debug_time_operations: ts("mk_pbench_metadata")
     #source['pbench'] = mk_pbench_metadata(mdconf)
     if debug_time_operations: ts("mk_run_metadata")
-    source['run'] = mk_run_metadata(ptb.mdconf, ptb.md5sum, ptb.dirname, ptb.dirprefix)
+    source['run'] = mk_run_metadata(ptb.mdconf, ptb.md5sum, ptb.dirname)
     if debug_time_operations: ts("mk_sosreports")
     source['sosreports'] = sos_d = mk_sosreports(ptb.tb)
     if debug_time_operations: ts("mk_tool_info")
@@ -1688,26 +1716,29 @@ class PbenchTarBall(object):
         # compressed with a different compression mechanism from xz?
         self.dirname = dirname[:dirname.rfind('.tar.xz')]
         # ... but let's make sure.
-        # FIXME: how are we making sure it is the first component of every
-        # member of the tar ball?  Here we seem to be only looking at the
-        # first, and not comparing it to self.dirname.
-        self.dirprefix = self.tb.getmembers()[0].name.split(os.path.sep)[0]
+        sampled_prefix = self.tb.getmembers()[0].name.split(os.path.sep)[0]
+        if sampled_prefix != self.dirname:
+            # All members of the tarball should have self.dirname as its
+            # prefix.
+            raise UnsupportedTarballFormat(self.tbname)
 
         # Verify we have a metadata.log file in the tar ball before we
         # start extracting.
         member_name = "%s/metadata.log" % (self.dirname)
         try:
-            self.mdlog = self.tb.getmember(member_name)
+            self.tb.getmember(member_name)
         except KeyError:
             raise UnsupportedTarballFormat(self.tbname)
 
-        # FIXME: Should we have the option of using an already extracted
-        # version of the tar ball?
-        # FIXME: Is this a temporary extraction or permanent? If temporary,
-        # where does it get cleaned up?
+        # The caller of index-pbench is expected to clean up the temporary
+        # directory.
         self.tb.extractall(path=_tmpdir)
+        self.extracted_root = _tmpdir
+        if not os.path.isdir(os.path.join(self.extracted_root, self.dirname)):
+            raise UnsupportedTarballFormat(self.tbname)
         try:
-            self.mdconf = PbenchTarBall.get_mdconfig(os.path.join(_tmpdir, member_name))
+            self.mdconf = PbenchTarBall.get_mdconfig(
+                    os.path.join(self.extracted_root, member_name))
         except Exception:
             raise BadMDLogFormat(self.tbname)
         # We get the start date out of the metadata log.
@@ -1722,7 +1753,6 @@ class PbenchTarBall(object):
             raise BadDate(self.tbname)
         # Open the MD5 file of the tarball and read the MD5 sum from it.
         self.md5sum = open("%s.md5" % (self.tbname)).read().split()[0]
-        # FIXME: at this point, do we assume the MD5 sum of the tar ball is good?
 
     @staticmethod
     def get_mdconfig(mdf):
