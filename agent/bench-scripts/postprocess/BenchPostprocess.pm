@@ -51,6 +51,7 @@ sub get_label {
 			'primary_metric_label' => 'primary_metric',
 			'max_stddevpct_label' => 'max_stddevpct',
 			'max_failures_label' => 'max_failures',
+			'skip_aggregate_label' => 'skip_aggregate',
 	                'rw_label' => 'read(0) or write(1)' );
 	if ( $labels{$key} ) {
 		return $labels{$key}
@@ -443,6 +444,10 @@ sub calc_aggregate_metrics {
 		if ($$workload_ref{$metric_class}) {
 			my $metric_type;
 			foreach $metric_type (keys %{ $$workload_ref{$metric_class} }) {
+				if (exists($$workload_ref{$metric_class}{$metric_type}[0]{get_label('skip_aggregate_label')})) {
+					next;
+				}
+
 				my %agg_dataset; # a new dataset for aggregated results
 				$agg_dataset{get_label('role_label')} = "aggregate";
 				$agg_dataset{get_label('description_label')} = $$workload_ref{$metric_class}{$metric_type}[0]{get_label('description_label')};
@@ -456,7 +461,12 @@ sub calc_aggregate_metrics {
 				# Ensure we have at least 1 good series
 				my $num_ts = 0;
 				my $num_metrics = 0;
+				my $skip_metric = 0;
 				for (my $i = 0; $i < scalar @{ $$workload_ref{$metric_class}{$metric_type} }; $i++) {
+					if (exists($$workload_ref{$metric_class}{$metric_type}[$i]{get_label('skip_aggregate_label')})) {
+						$skip_metric = 1
+					}
+
 					# A timeseries is considered valid if it has at least 2 timestamps
 					if ((defined $$workload_ref{$metric_class}{$metric_type}[$i]{get_label('timeseries_label')}) and
 					    (scalar get_timestamps(\@{ $$workload_ref{$metric_class}{$metric_type}[$i]{get_label('timeseries_label')}}) > 1)) {
@@ -464,7 +474,7 @@ sub calc_aggregate_metrics {
 					}
 					$num_metrics++;
 				}
-				if ($num_metrics == 0) {
+				if (($num_metrics == 0) || ($skip_metric == 1)) {
 					next;
 				}
 				# In order to create an aggregate timeseries, we need at least 1 time series and all metrics must have timeseries data
