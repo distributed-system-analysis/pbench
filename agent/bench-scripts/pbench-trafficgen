@@ -76,7 +76,6 @@ keep_failed_tool_data="y"
 tar_nonref_data="n"
 orig_cmd="$*"
 tool_group=default
-install_only="n"
 one_shot="n"
 skip_trex_install="n"
 skip_trex_server="n"
@@ -118,7 +117,7 @@ function convert_number_range() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o c: --longoptions "pre-benchmark-cmd:,skip-trex-install,skip-trex-server,skip-git-pull,traffic-generator:,devices:,active-devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2,traffic-profile:,traffic-profiles:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o c: --longoptions "pre-benchmark-cmd:,skip-trex-install,skip-trex-server,skip-git-pull,traffic-generator:,devices:,active-devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2,traffic-profile:,traffic-profiles:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
@@ -353,11 +352,6 @@ eval set -- "$opts"
 debug_log "[$script_name]processing options"
 while true; do
 	case "$1" in
-		--install)
-		shift
-		install_only="y"
-		exit
-		;;
 		--tool-label-pattern)
 		shift
 		if [ -n "$1" ]; then
