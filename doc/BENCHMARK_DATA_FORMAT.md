@@ -140,7 +140,7 @@ even if they are not provided by the user when calling the pbench-benchmark
 script.  For example, if a user does not specify --ioengine for fio, but fio uses
 ioengine=sync by default, it should be documented here.
 
-## Benchmark Metrics: Throughput, Latency, Resource, and Efficiency
+## Metric-Classes: Throughput, Latency, Resource, and Efficiency
 
 The four remaining entris in a bechmark iteration represent the benchmark output.  These
 are called metric classes.  The two primary metric classes are throughput (work over time)
@@ -151,22 +151,105 @@ disk utilization or busy cpu cycles.  The efificency metric is a ratio of some t
 metric divided by some resource metric, like "gigabits-per-second per processor-core".  If
 this is used, it is almost always a derivation of two other metrics in the result.json.
 
-### Benchmark-defined Metrics (Metric Types)
+## Benchmark-defined Metrics (Metric-Types)
 
-Within the metric classes are metric types.  A metric type is a specific kind of metric.
-For example, a metric type of "received-packets-per-second", or "transmitted-packets-per-second"
-would be defined in the metric class of throughput.
-A benchmark may define any metric type, as long as it represents the metric class
-appropriately (for example, "packet-per-second" a throughput metric and "packet-round-trip-time"
-a latency metric).
-
-There can be multiple instances of the same metric type.  The only requirement is that the
-instances have enough meta-data to uniquely identify them from other instances of the same
-matric type.
-
-For example, a metric type for the Uperf benchmark, "Gbps" could be defined the following way:
+Within the metric-classes are metric-types.  A metric type is a specific kind of that metric-class.  For example, a metric-type of "received-packets-per-second", or "transmitted-packets-per-second" would be defined in the metric-class of throughput.  Another example could be "file-create-time" and fall under the latency metric-class.  A benchmark may define any metric type, as long as it represents the metric class appropriately.  Below is an example, Gb_sec:
 
 result.json:
+<pre>
+[
+  {"iteration_data": {
+    "parameters": { },
+    "throughput": {
+      "Gb_sec": [
+        {
+          "client_hostname": "10.10.20.189",
+          "description": "Number of gigabits sent by client for a period of 1 second",
+          "mean": 0.2502,
+          "server_hostname": "10.10.20.81",
+          "server_port": "20010",
+          "uid": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
+  }
+   "iteration_number": <integer>,
+   "iteration_name": <string>
+  },
+  { <another-iteration> },
+  { <another-iteration> }
+]
+</pre>
+
+When defining the metric-type, the following fields must be included:
+
+1. mean: This is the actual metric value (in this case how many gigabits per second).  It is called the mean because pbench supports the concept of running the same test mulitple times (documented h-e-r-e), collecting multiple samples of the result, and then computing a "mean" [and standard deviation].  However one can omit this field in their results only if their document provides multiple samples (not to be confused with instances, below) of this metric-type.
+
+2. description: This is the definition of the metric-type, like, "Number of gigabits sent by client for a period of 1 second".  This should be as descriptive as possible without exceeding one sentance.
+
+3. uid: This describes the format of the metric-type UID.  This instructs Pbench how to assemble the UID from the other fields provided.  Note that the fields described in uid are also required.  For example, if uid is defnied as "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%", this metric type must also provide definitions for "client_hostname", "server_hostname", and "server_port".
+
+Optionally the following fields may also be defined:
+
+1. samples: This is an array of multiple values for this metric-type, one for each benchmark execution.  The multiple executions (samples) of the benchmark should be run in the exact same way.  Each element in the array can have one of two field types:
+
+<pre>
+"samples":
+            [
+              {
+                "timeseries":
+                  [
+                    {"date": 1532427464295, "value": 0.257708371628372},
+                    {"date": 1532427465296, "value": 0.256177998001998}
+                  ]
+              },
+              {
+                 "timeseries":
+                  [
+                    {"date": 1532427464295, "value": 0.257708371628372},
+                    {"date": 1532427465296, "value": 0.256177998001998}
+                  ]
+              }
+            ]
+</pre>
+
+In the example above, the timeseries field is assigned an array of records composed of a timestamp and a value.  This is used when a benchmark provides a series of values over time, like a periodic output of gigabits-per-second.  When this is provided, pbench will compute a average of the timeseries data for you and add to the document once processed:
+
+<pre>
+"samples":
+            [
+              {
+                "timeseries":
+                  [
+                    {"date": 1532427464295, "value": 0.257708371628372},
+                    {"date": 1532427465296, "value": 0.256177998001998}
+                  ]
+                "value": 0.249042502073812
+              },
+              {
+                 "timeseries":
+                  [
+                    {"date": 1532427464295, "value": 0.257708371628372},
+                    {"date": 1532427465296, "value": 0.256177998001998}
+                  ]
+                "value": 0.258456676332289
+              }
+            ]
+</pre>
+
+If the timeseries data is not provided, then the "value" field is required:
+
+<pre>
+"samples":
+            [
+              {
+                "value": 0.249042502073812
+              },
+              {
+                "value": 0.258456676332289
+              }
+            ]
+</pre>
+
+When there is a presence of mltuple samples, whether it be from timeseries data or just value fields, pbench processing will use this information to populate the "mean" field for you , as well and two more fields, maxstddev and maxstddevpct.  After processing, it would look like:
+
 <pre>
 [
   {"iteration_data": {
@@ -212,19 +295,148 @@ result.json:
 ]
 </pre>
 
-In the above example, there is one instance of the metric-type, "Gb_sec".  The minimum fields required [for both pbench reporting and for data import to ElasticSearch] for an instance are:
+### Multiple Instances of the Same Metric-Type
 
-1. role: This is just a overall term for the role of this metric, as it realtes to the benchmark component that generated it.  For exmaple, in Uperf, this metric came from the client process, so the role is "client".  There is no restriction on what the value can be as long as it is alpha-numeric.
+For some benchmarks there may be only one instance of a particular metric-type.  For example, if you have a benchmark which measures how quickly a container platform can start new containers, you might have a metric like "containers_started_per_second", and this is all the informaiton you are interested in, so you have a single instance of that metric.  However, let's say the benchmark is enhanced to start containers on multiple clusters at the same time.  Now you may be intersted in the number of containers started per second on each of the clusters.  Now we would require multiple instances of the same metric-type.  
 
-2. mean [, stddev, stdevstddevpct, and closest-sample]: This is the actual metric value.  It is called the mean because pbench supports the concept of running the same test mulitple times, collecting multiple samples of the result, and then computing a "mean" [and standard deviation].  Note that it is not required that the netive benchmark handle the execution of multiple test samples (pbench can do this for you), and the user can even request that only one test sample is taken.  However, in order to have a consistent format for storing data, the "mean", "stddev", and "stddevpct" is always used, regardless of the number of test samples executed.  Note: if your benchmark script is using the built-in script, "process-iteration-samples", then that script will calculate and populate these values for you.  See further details in the built-in benhcmark processing scripts section.
+For example, here are multiple instacnes of the Gb_sec metric-type, as provided by the benchmark for processing by pbench:
 
-3. description: This is the definition of the metric type, like, "Number of gigabits sent by client for a period of 1 second".  This should be as descriptive as possible without exceeding one sentance.  The description is probably not adequate if it does not provide more information that the name of the metric-type.  For exmaple, the description for the metric type, "Gb_sec", should not simply be, "Gigabits per second".
-
-4. uid: This describes the format of the UID.  Pbench then uses this format to construct the UID for an instance of the metric type, and this is how mulitple instances of the same metric type are uniquely identified.  Note that the fields described in uid are also required.  For example, if uid is defnied as "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%", this metric type must also provide definitions for "client_hostname", "server_hostname", and "server_port".  The selection of these fileds in uid are at the discretion of the benchmark script author, but they must be chosen such that multiple instances do not have the same values for all of the these fields referenced.  Extra care should be used to identify all of the charateristics of a metric instance.
-
-The section, "samples", describes the metric data from mutliple samples of test execution.  If there are not mutiple test execution samples, then mean, stddev, stdevstddevpct must be populated.  If there are multiple test samples, then this samples filed must be populated.  At a minimum, the "value" field must be defined, and optionally the timeseries can also be used.
-
+<pre>
+[
+  {"iteration_data": {
+    "parameters": { },
+    "throughput": {
+      "Gb_sec": [
+        {
+          "client_hostname": "10.10.20.189",
+          "closest sample": 1,
+          "description": "Number of gigabits sent by client for a period of 1 second",
+          "mean": 0.2502,
+          "role": "client",
+          "server_hostname": "10.10.20.81",
+          "server_port": "20010",
+          "stddev": 0.005392,
+          "stddevpct": 2.155,
+          "uid": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
+          "samples":
+            [
+              {
+                "value": 1.1
+              },
+              {
+                "value": 1.1
+              }
+            ]
+          },
+          {
+          "client_hostname": "10.10.20.190",
+          "closest sample": 1,
+          "description": "Number of gigabits sent by client for a period of 1 second",
+          "mean": 2.1,
+          "role": "client",
+          "server_hostname": "10.10.20.82",
+          "server_port": "20010",
+          "stddev": 0,
+          "stddevpct": 0,
+          "uid": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
+          "samples":
+            [
+              {
+                "value": 2.1
+              },
+              {
+                "value": 2.1
+              }
+            ]
+          }
+  }
+   "iteration_number": <integer>,
+   "iteration_name": <string>
+  },
+  { <another-iteration> },
+  { <another-iteration> }
+]
+</pre>
 
 ## Aggreation of Metrics
 
+During processing, pbench will attempt to aggrgate multiple instances of the same metric-type, provided the benchmark did not already define one of the instances with the "role" field assigned to "aggregate".  When creating the new [aggregeate] instance of this metric type, the field for "mean" will represent the sum for all of the instances for a throughput metric-class, and an average for a latency metric-class.  If "samples" are present in the instances, those values will first be aggregated (either by summation or average), then the "mean", "stddev", and "stddevpct" field values will be calculated.  Finally, pbench will copy from the other instances all other field names, and these fields will be assigned a value of "all":
+
+<pre>
+[
+  {"iteration_data": {
+    "parameters": { },
+    "throughput": {
+      "Gb_sec": [
+        {
+          "client_hostname": "all",
+          "closest sample": 1,
+          "description": "Number of gigabits sent by client for a period of 1 second",
+          "mean": 3.2,
+          "role": "aggregate",
+          "server_hostname": "all",
+          "server_port": "all",
+          "stddev": 0,
+          "stddevpct": 0,
+          "uid": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
+          "samples":
+            [
+              {
+                "value": 3.2
+              },
+              {
+                "value": 3.2
+              }
+            ]
+        },
+        {
+          "client_hostname": "10.10.20.189",
+          "closest sample": 1,
+          "description": "Number of gigabits sent by client for a period of 1 second",
+          "mean": 0.2502,
+          "role": "client",
+          "server_hostname": "10.10.20.81",
+          "server_port": "20010",
+          "stddev": 0.005392,
+          "stddevpct": 2.155,
+          "uid": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
+          "samples":
+            [
+              {
+                "value": 1.1
+              },
+              {
+                "value": 1.1
+              }
+            ]
+        },
+        {
+          "client_hostname": "10.10.20.190",
+          "closest sample": 1,
+          "description": "Number of gigabits sent by client for a period of 1 second",
+          "mean": 2.1,
+          "role": "client",
+          "server_hostname": "10.10.20.82",
+          "server_port": "20010",
+          "stddev": 0,
+          "stddevpct": 0,
+          "uid": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
+          "samples":
+            [
+              {
+                "value": 2.1
+              },
+              {
+                "value": 2.1
+              }
+            ]
+        }
+  }
+   "iteration_number": <integer>,
+   "iteration_name": <string>
+  },
+  { <another-iteration> },
+  { <another-iteration> }
+]
+</pre>
 
