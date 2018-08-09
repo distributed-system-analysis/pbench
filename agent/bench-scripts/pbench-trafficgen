@@ -651,132 +651,142 @@ if [ $one_shot == "y" ]; then
 	cmd="$cmd --one-shot=1"
 fi
 
-# Before running any tests, the following must be satisfied:
-# -IOMMU must be enabled
-if cat /proc/cmdline | grep -q "intel_iommu=on"; then
-	echo "found IOMMU option, continuing"
-else
-	warn_log "could not find IOMMU option, intel_iommu=on, in /proc/cmdline, exiting"
-	exit 1
-fi
-# -dpdk-tools package must be installed
-if check_install_rpm dpdk-tools; then
-	echo "found dpdk-tools, continuing"
-else
-	warn_log "could not find dpdk-tools, exiting"
-	exit 1
-fi
-# -PCI devices bound to vfio-pci
-if [ -z "$devices" ]; then
-	warn_log "no devices were provided (--devices), exiting"
-	exit 1
-fi
-for module in vfio vfio_pci; do
-	if [ ! -e /sys/module/$module ]; then
-		echo "attempting to load $module"
-		modprobe $module
-		if [ ! -e /sys/module/$module ]; then
-			error_log "could not load $module module, exiting"
-			exit 1
-		fi
-	fi
-done
-total_devices=$(echo ${devices} | sed -e "s/,/ /g" | wc -w)
-if [ $(echo "${total_devices} % 2" | bc) != 0 ]; then
-	error_log "devices must be supplied in quantities of 2, exiting"
-	exit 1
-else
-	total_device_pairs=$(echo "${total_devices} / 2" | bc)
-	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
-		device_pair_index=0
-		cmd+=" --device-pairs="
-		for device in $(seq 1 2 ${total_devices}); do
-			device_a=$(( device - 1))
-			device_b=${device}
-			cmd+="${device_a}:${device_b}"
-			(( device_pair_index++ ))
-			if [ ${device_pair_index} -lt ${total_device_pairs} ]; then
-				cmd+=","
-			fi
-		done
+if [ "${postprocess_only}" == "n" ]; then
+	# Before running any tests, the following must be satisfied:
+	# -IOMMU must be enabled
+	if cat /proc/cmdline | grep -q "intel_iommu=on"; then
+		echo "found IOMMU option, continuing"
 	else
-		if [ "${total_device_pairs}" -gt 1 ]; then
-			error_log "only the trex-txrx* traffic generators support more than 1 pair of devices, exiting"
-			exit 1
-		fi
-	fi
-fi
-total_active_devices=$(echo ${active_devices} | sed -e "s/,/ /g" | wc -w)
-if [ $(echo "${total_active_devices} % 2" | bc) -ne 0 ]; then
-	error_log "active devices must be supplied in quantities of 2, exiting"
-	exit 1
-else
-	if $(echo $traffic_generator | grep -q "^trex-txrx") && [ "${devices}" != "${active_devices}" ]; then
-		error_log "only the trex-txrx* traffic generators support --devices != --active-devices, exiting"
+		warn_log "could not find IOMMU option, intel_iommu=on, in /proc/cmdline, exiting"
 		exit 1
-	else
-		if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
-			active_device_pair_index=0
-			cmd+=" --active-device-pairs="
-			active_device_state=0
-			active_devices_processed=0
-			for active_device in `echo $active_devices | sed -e s/,/" "/g`; do
-				device_index=0
-				active_device_index=-1
-				for device in `echo $devices | sed -e s/,/" "/g`; do
-					if [ "${device}" == "${active_device}" ]; then
-						active_device_index=${device_index}
-					fi
-					(( device_index++ ))
-				done
-				(( active_devices_processed++ ))
-				if [ ${active_device_index} -ne -1 ]; then
-					if [ ${active_device_state} -eq 0 ]; then
-						cmd+="${active_device_index}:"
-						(( active_device_state++ ))
-					elif [ ${active_device_state} -eq 1 ]; then
-						cmd+="${active_device_index}"
-						active_device_state=0
-						if [ ${active_devices_processed} -lt ${total_active_devices} ]; then
-							cmd+=","
-						fi
-					fi
-				else
-					error_log "couldn't find an active device [${active_device}] in the list of devices [${devices}], exiting"
-					exit 1
-				fi
-			done
-		fi
 	fi
-fi
-for dev in `echo $devices | sed -e s/,/" "/g`; do
-	echo "configuring device $dev"
-	if /bin/ls /sys/module/vfio_pci/drivers/pci\:vfio-pci/ | grep -q "$dev"; then
-		echo "device $dev already bound to vfio-pci"
+	# -dpdk-tools package must be installed
+	if check_install_rpm dpdk-tools; then
+		echo "found dpdk-tools, continuing"
 	else
-		if [ -e /sys/bus/pci/devices/$dev/driver ]; then
-			if dpdk-devbind -u $dev; then
-				dpdk-devbind -b vfio-pci $dev
-			else
-				log_warn "could not unbind device, exiting"
+		warn_log "could not find dpdk-tools, exiting"
+		exit 1
+	fi
+	# -PCI devices bound to vfio-pci
+	if [ -z "$devices" ]; then
+		warn_log "no devices were provided (--devices), exiting"
+		exit 1
+	fi
+	for module in vfio vfio_pci; do
+		if [ ! -e /sys/module/$module ]; then
+			echo "attempting to load $module"
+			modprobe $module
+			if [ ! -e /sys/module/$module ]; then
+				error_log "could not load $module module, exiting"
 				exit 1
 			fi
+		fi
+	done
+	total_devices=$(echo ${devices} | sed -e "s/,/ /g" | wc -w)
+	if [ $(echo "${total_devices} % 2" | bc) != 0 ]; then
+		error_log "devices must be supplied in quantities of 2, exiting"
+		exit 1
+	else
+		total_device_pairs=$(echo "${total_devices} / 2" | bc)
+		if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
+			device_pair_index=0
+			cmd+=" --device-pairs="
+			for device in $(seq 1 2 ${total_devices}); do
+				device_a=$(( device - 1))
+				device_b=${device}
+				cmd+="${device_a}:${device_b}"
+				(( device_pair_index++ ))
+				if [ ${device_pair_index} -lt ${total_device_pairs} ]; then
+					cmd+=","
+				fi
+			done
 		else
-			dpdk-devbind -b vfio-pci $dev
+			if [ "${total_device_pairs}" -gt 1 ]; then
+				error_log "only the trex-txrx* traffic generators support more than 1 pair of devices, exiting"
+				exit 1
+			fi
 		fi
 	fi
-done
-for dev in `echo $devices | sed -e s/,/" "/g`; do
-	if /bin/ls /sys/module/vfio_pci/drivers/pci\:vfio-pci/ | grep -q "$dev"; then
-		echo "device $dev bound to vfio-pci"
+	total_active_devices=$(echo ${active_devices} | sed -e "s/,/ /g" | wc -w)
+	if [ $(echo "${total_active_devices} % 2" | bc) -ne 0 ]; then
+		error_log "active devices must be supplied in quantities of 2, exiting"
+		exit 1
 	else
-		echo "device $dev not bound to vfio-pci, exiting"
+		if $(echo $traffic_generator | grep -q "^trex-txrx") && [ "${devices}" != "${active_devices}" ]; then
+			error_log "only the trex-txrx* traffic generators support --devices != --active-devices, exiting"
+			exit 1
+		else
+			if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
+				active_device_pair_index=0
+				cmd+=" --active-device-pairs="
+				active_device_state=0
+				active_devices_processed=0
+				for active_device in `echo $active_devices | sed -e s/,/" "/g`; do
+					device_index=0
+					active_device_index=-1
+					for device in `echo $devices | sed -e s/,/" "/g`; do
+						if [ "${device}" == "${active_device}" ]; then
+							active_device_index=${device_index}
+						fi
+						(( device_index++ ))
+					done
+					(( active_devices_processed++ ))
+					if [ ${active_device_index} -ne -1 ]; then
+						if [ ${active_device_state} -eq 0 ]; then
+							cmd+="${active_device_index}:"
+							(( active_device_state++ ))
+						elif [ ${active_device_state} -eq 1 ]; then
+							cmd+="${active_device_index}"
+							active_device_state=0
+							if [ ${active_devices_processed} -lt ${total_active_devices} ]; then
+								cmd+=","
+							fi
+						fi
+					else
+						error_log "couldn't find an active device [${active_device}] in the list of devices [${devices}], exiting"
+						exit 1
+					fi
+				done
+			fi
+		fi
 	fi
-done
+	for dev in `echo $devices | sed -e s/,/" "/g`; do
+		echo "configuring device $dev"
+		if /bin/ls /sys/module/vfio_pci/drivers/pci\:vfio-pci/ | grep -q "$dev"; then
+			echo "device $dev already bound to vfio-pci"
+		else
+			if [ -e /sys/bus/pci/devices/$dev/driver ]; then
+				if dpdk-devbind -u $dev; then
+					dpdk-devbind -b vfio-pci $dev
+				else
+					log_warn "could not unbind device, exiting"
+					exit 1
+				fi
+			else
+				dpdk-devbind -b vfio-pci $dev
+			fi
+		fi
+	done
+	for dev in `echo $devices | sed -e s/,/" "/g`; do
+		if /bin/ls /sys/module/vfio_pci/drivers/pci\:vfio-pci/ | grep -q "$dev"; then
+			echo "device $dev bound to vfio-pci"
+		else
+			echo "device $dev not bound to vfio-pci, exiting"
+		fi
+	done
 
-if [ -d $trafficgen_dir ]; then
-	if [ $skip_git_pull == "n" ]; then
-		if pushd $trafficgen_dir >/dev/null && git pull && git checkout master; then
+	if [ -d $trafficgen_dir ]; then
+		if [ $skip_git_pull == "n" ]; then
+			if pushd $trafficgen_dir >/dev/null && git pull && git checkout master; then
+				echo "lua-trafficgen is up to date"
+				popd >/dev/null
+			else
+				warn_log "could not get latest lua-trafficgen"
+				exit 1
+			fi
+		fi
+	else
+		if pushd /opt >/dev/null && git clone https://github.com/atheurer/lua-trafficgen.git; then
 			echo "lua-trafficgen is up to date"
 			popd >/dev/null
 		else
@@ -784,45 +794,36 @@ if [ -d $trafficgen_dir ]; then
 			exit 1
 		fi
 	fi
-else
-	if pushd /opt >/dev/null && git clone https://github.com/atheurer/lua-trafficgen.git; then
-		echo "lua-trafficgen is up to date"
-		popd >/dev/null
-	else
-		warn_log "could not get latest lua-trafficgen"
-		exit 1
-	fi
-fi
-trafficgen_version=$(pushd ${trafficgen_dir} >/dev/null; git log --max-count=1 --pretty=%h; popd >/dev/null)
 
-# Moongen is built under the lua-trafficgen repo
-if [ $traffic_generator == "moongen-txrx" ]; then
-	if ! [ -x $trafficgen_dir/MoonGen/build/MoonGen ]; then
-		pushd >/dev/null $trafficgen_dir
-		echo "building MoonGen"
-		if ./setup.sh; then
-			echo "MoonGen build complete"
-		else
-			warn_log "could not build MoonGen"
-			exit 1
-		fi
-	fi
-fi
-	
-if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
-	if [ $skip_trex_server == "n" ]; then
-		kill_trex
-
-		trex_base_dir="/opt/trex"
-		trex_dir="${trex_base_dir}/current"
-		if [ "${skip_trex_install}" == "n" ]; then
-			if ! ${trafficgen_dir}/install-trex.sh --tmp-dir=${pbench_tmp} --base-dir=${trex_base_dir}; then
+	# Moongen is built under the lua-trafficgen repo
+	if [ $traffic_generator == "moongen-txrx" ]; then
+		if ! [ -x $trafficgen_dir/MoonGen/build/MoonGen ]; then
+			pushd >/dev/null $trafficgen_dir
+			echo "building MoonGen"
+			if ./setup.sh; then
+				echo "MoonGen build complete"
+			else
+				warn_log "could not build MoonGen"
 				exit 1
 			fi
 		fi
+	fi
+	
+	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
+		if [ $skip_trex_server == "n" ]; then
+			kill_trex
 
-		if ! ${trafficgen_dir}/launch-trex.sh --tmp-dir=${pbench_tmp} --trex-dir=${trex_dir} --use-ht=${trex_use_ht} --use-l2=${trex_use_l2} --devices=${devices}; then
-			exit 1
+			trex_base_dir="/opt/trex"
+			trex_dir="${trex_base_dir}/current"
+			if [ "${skip_trex_install}" == "n" ]; then
+				if ! ${trafficgen_dir}/install-trex.sh --tmp-dir=${pbench_tmp} --base-dir=${trex_base_dir}; then
+					exit 1
+				fi
+			fi
+
+			if ! ${trafficgen_dir}/launch-trex.sh --tmp-dir=${pbench_tmp} --trex-dir=${trex_dir} --use-ht=${trex_use_ht} --use-l2=${trex_use_l2} --devices=${devices}; then
+				exit 1
+			fi
 		fi
 	fi
 fi
@@ -1066,6 +1067,7 @@ function inner_most_loop() {
 						log "Not going to run $benchmnark_name.  Only postprocesing existing data"
 					fi
 					if [ $rc -eq 0 ]; then
+						trafficgen_version=$(pushd ${trafficgen_dir} >/dev/null; git log --max-count=1 --pretty=%h; popd >/dev/null)
 						echo "$script_path/postprocess/$benchmark_name-postprocess $benchmark_results_dir $iteration $max_loss_pct $trafficgen_version $tool_label_pattern $tool_group" >"$benchmark_results_dir/$benchmark_name-postprocess.cmd"
 						chmod +x "$benchmark_results_dir/$benchmark_name-postprocess.cmd"
 						$benchmark_results_dir/$benchmark_name-postprocess.cmd || rc=1
@@ -1140,13 +1142,17 @@ if [ $rc -eq 0 ]; then
 	$script_path/postprocess/generate-benchmark-summary "$benchmark_name" "$orig_cmd" "$benchmark_run_dir"
 	#pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 fi
-if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
-	if [ $skip_trex_server == "n" ]; then
-		kill_trex
 
-		if [ "${trex_use_l2}" == "y" ]; then
-			mv -v /etc/trex_cfg.yaml.pbench-backup /etc/trex_cfg.yaml
+if [ "${postprocess_only}" == "n" ]; then
+	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
+		if [ $skip_trex_server == "n" ]; then
+			kill_trex
+
+			if [ "${trex_use_l2}" == "y" ]; then
+				mv -v /etc/trex_cfg.yaml.pbench-backup /etc/trex_cfg.yaml
+			fi
 		fi
 	fi
 fi
+
 rmdir $benchmark_run_dir/.running
