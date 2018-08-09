@@ -1067,7 +1067,10 @@ function inner_most_loop() {
 						log "Not going to run $benchmnark_name.  Only postprocesing existing data"
 					fi
 					if [ $rc -eq 0 ]; then
-						trafficgen_version=$(pushd ${trafficgen_dir} >/dev/null; git log --max-count=1 --pretty=%h; popd >/dev/null)
+						trafficgen_version="unknown"
+						if [ -d ${trafficgen_dir} ]; then
+							trafficgen_version=$(pushd ${trafficgen_dir} >/dev/null; git log --max-count=1 --pretty=%h; popd >/dev/null)
+						fi
 						echo "$script_path/postprocess/$benchmark_name-postprocess $benchmark_results_dir $iteration $max_loss_pct $trafficgen_version $tool_label_pattern $tool_group" >"$benchmark_results_dir/$benchmark_name-postprocess.cmd"
 						chmod +x "$benchmark_results_dir/$benchmark_name-postprocess.cmd"
 						$benchmark_results_dir/$benchmark_name-postprocess.cmd || rc=1
