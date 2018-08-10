@@ -1,4 +1,4 @@
-# Created 2018-08-10 Fri 17:32
+# Created 2018-08-10 Fri 18:08
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -23,7 +23,7 @@
 There are no installation changes in this release: see the
 [[file:../agent/installation.org][Installation Instructions]] for how to install or update.
 
-After installation or update, you should have version 0.51-1gXXX
+After installation or update, you should have version 0.51-1g8d37ba0
 of the pbench-agent RPM installed.
 
 ** agent
@@ -98,6 +98,9 @@ notes) is improved to make the status more readable.
 :PROPERTIES:
 :CUSTOM_ID: web-server-0.51
 :END:
+
+A new build of the pbench web server has been made, although it does
+not include any changes from before. The version is 0.51-1g8d37ba0.
 
 ** Changelog
 This is the list of visible (non-merge, non-unit-test-related) commits
