@@ -186,6 +186,7 @@ declare -A cmds=(
     [test-19]="pbench-fio --pre-iteration-script=foo"
     [test-20]="pbench-fio --targets=/dev/foo,/dev/bar --config=test-06  --test-type=throughput --samples=1 --client-file=/tmp/foo"
     [test-21]="pbench-trafficgen --help"
+    [test-22]="pbench-trafficgen --config=test-22 --traffic-generator=trex-txrx-profile --max-loss-pct=0.0  --samples=1 --validation-runtime=30 --rate=5000000 --num-flows=1000 --frame-size=74 --traffic-direction=bidirectional,unidirectional,revunidirectional --flow-mods=src-ip,dst-ip,src-port,dst-port,protocol --one-shot --postprocess-only=y --run-dir=$_testdir"
 )
 
 declare -A expected_status=(
@@ -205,12 +206,13 @@ declare -A rundirs=(
     [test-04]="fio_test-04_$date"
     [test-05]="fio_test-05_$date"
     [test-06]="fio_test-06_$date"
-    
+    [test-22]="trafficgen_test-22_$date"
 )
 declare -A pre=(
     [test-04]="cp $_tdir/samples/test-04.tar.xz $_testdir/samples; mkdir -p $_testopt/config;cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
     [test-05]="cp $_tdir/samples/test-05.tar.xz $_testdir/samples; mkdir -p $_testopt/config;cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
     [test-06]="cp $_tdir/samples/test-06.tar.xz $_testdir/samples; mkdir -p $_testopt/config;cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg; echo foo bar baz | tr ' ' '\n' > /tmp/foo"
+    [test-22]="tar xf $_tdir/samples/test-22.tar.xz -C $_testdir/"
 )
 
 declare -A post=(
