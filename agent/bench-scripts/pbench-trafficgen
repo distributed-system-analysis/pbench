@@ -846,6 +846,14 @@ mkdir -p $benchmark_run_dir/.running
 echo "$script_name $pbench_cmd" >$benchmark_run_dir/$script_name.cmd
 chmod +x $benchmark_run_dir/$script_name.cmd
 
+if [ "${postprocess_only}" == "n" ]; then
+	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
+		if [ $skip_trex_server == "n" ]; then
+			cp ${pbench_tmp}/trex_cfg.yaml ${benchmark_run_dir}
+		fi
+	fi
+fi
+
 function record_default_iteration {
 	local count=$1
 	local direction=$2
