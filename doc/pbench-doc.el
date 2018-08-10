@@ -6,9 +6,11 @@
 
 (add-to-list 'load-path "/home/nick/src/emacs/org/org-mode/contrib/lisp")
 (add-to-list 'load-path "/home/nick/src/emacs/org/org-mode/lisp")
+(add-to-list 'load-path "/home/nick/elisp")
 
 (require 'org-loaddefs)
 (require 'ox)
+(require 'htmlize)
 
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 

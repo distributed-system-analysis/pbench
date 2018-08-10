@@ -3,11 +3,12 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-05-11 Fri 19:30 -->
+<!-- 2018-08-10 Fri 17:33 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench User Guide</title>
 <meta name="generator" content="Org mode" />
+<meta name="author" content="Nick Dokos" />
 <meta name="keywords" content="pbench" />
 <style type="text/css">
  <!--/*--><![CDATA[/*><!--*/
@@ -161,6 +162,19 @@
   .footdef  { margin-bottom: 1em; }
   .figure { padding: 1em; }
   .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
   .inlinetask {
     padding: 10px;
     border: 2px solid gray;
@@ -613,9 +627,12 @@ The semi-generic ones are:
 <dt><code>--max-failures</code></dt><dd>the maximum number of failures to achieve the allowed standard deviation.</dd>
 <dt><code>--postprocess-only</code></dt><dd></dd>
 
+
 <dt><code>--run-dir</code></dt><dd></dd>
 
+
 <dt><code>--start-iteration-num</code></dt><dd></dd>
+
 
 <dt><code>--tool-label-pattern</code></dt><dd></dd>
 </dl>
@@ -697,17 +714,24 @@ TBD
 <dl class="org-dl">
 <dt><code>--kvm-host</code></dt><dd></dd>
 
+
 <dt><code>--message-sizes</code></dt><dd></dd>
+
 
 <dt><code>--protocols</code></dt><dd></dd>
 
+
 <dt><code>--instances</code></dt><dd></dd>
+
 
 <dt><code>--servers</code></dt><dd></dd>
 
+
 <dt><code>--server-nodes</code></dt><dd></dd>
 
+
 <dt><code>--client-nodes</code></dt><dd></dd>
+
 
 <dt><code>--log-response-times</code></dt><dd></dd>
 </dl>
@@ -1326,7 +1350,7 @@ It then pipes the output of the benchmark into <code>pbench-tool-trigger</code>:
 <pre class="example">
 $benchmark_bin --machine-readable --directory=$dir --timelimit=$runtime
                --warmup=$warmup --loadfile $loadfile $client |
-	           tee $benchmark_results_dir/result.txt |
+  	         tee $benchmark_results_dir/result.txt |
                pbench-tool-trigger "$iteration" "$benchmark_results_dir" no
 </pre>
 
@@ -1531,8 +1555,8 @@ and use that as the tool command:
 <pre class="example">
 case "$script_name" in
     turbostat)
-	tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file"
-	;;
+      tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file"
+      ;;
 esac
 </pre>
 <p>
@@ -1563,28 +1587,28 @@ esac
 
 case "$mode" in
     install)
-	if [ ! -e $tool_bin ]; then
+      if [ ! -e $tool_bin ]; then
             yum install $pkg
-	        echo $script_name is installed
-	else
-	        echo $script_name is installed
-	fi
+  	      echo $script_name is installed
+      else
+  	      echo $script_name is installed
+      fi
     start)
-	mkdir -p $tool_output_dir
-	echo "$tool_cmd" &gt;$tool_cmd_file
-	debug_log "$script_name: running $tool_cmd"
-	$tool_cmd &gt;&gt;"$tool_output_file" &amp; echo $! &gt;$tool_pid_file
-	wait
-	;;
+      mkdir -p $tool_output_dir
+      echo "$tool_cmd" &gt;$tool_cmd_file
+      debug_log "$script_name: running $tool_cmd"
+      $tool_cmd &gt;&gt;"$tool_output_file" &amp; echo $! &gt;$tool_pid_file
+      wait
+      ;;
     stop)
-	pid=`cat "$tool_pid_file"`
-	debug_log "stopping $script_name"
-	kill $pid &amp;&amp; /bin/rm "$tool_pid_file"
-	;;
+      pid=`cat "$tool_pid_file"`
+      debug_log "stopping $script_name"
+      kill $pid &amp;&amp; /bin/rm "$tool_pid_file"
+      ;;
     postprocess)
-	debug_log "postprocessing $script_name"
-	$script_path/postprocess/$script_name-postprocess $tool_output_dir
-	;;
+      debug_log "postprocessing $script_name"
+      $script_path/postprocess/$script_name-postprocess $tool_output_dir
+      ;;
 esac
 </pre>
 
@@ -1735,7 +1759,7 @@ all available tools - the current workaround is to check the contents of
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2018-05-11 Fri 19:30</p>
+<p class="date">Page updated: 2018-08-10 Fri 17:33</p>
 </div>
 </body>
 </html>

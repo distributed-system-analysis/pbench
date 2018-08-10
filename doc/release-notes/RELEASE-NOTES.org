@@ -1,20 +1,134 @@
-# Created 2018-05-11 Fri 18:33
+# Created 2018-08-10 Fri 17:32
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
 #+OPTIONS: ^:{} H:2
 #+TITLE: PBench release notes
-#+HTML_DOCTYPE: xhtml-strict
-#+HTML_CONTAINER: div
-#+KEYWORDS: pbench
-#+HTML_LINK_HOME: 
-#+HTML_LINK_UP: 
-#+HTML_MATHJAX: 
-#+HTML_HEAD_EXTRA: 
-#+SUBTITLE: 
-#+INFOJS_OPT: 
-#+LATEX_HEADER: 
+#+html_doctype: xhtml-strict
+#+html_container: div
+#+keywords: pbench
+#+html_link_home: 
+#+html_link_up: 
+#+html_mathjax: 
+#+html_head_extra: 
+#+subtitle: 
+#+infojs_opt: 
+#+latex_header: 
+
+* Version 0.51
+
+** Installation                                                    :external:
+
+There are no installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.51-1gXXX
+of the pbench-agent RPM installed.
+
+** agent
+
+~pbench-{move,copy}-results~ has acquired a ~--user~ option. If you
+say "pbench-move-results --user=ndk", then the results will be
+available under a new hierarchy on the server:
+
+http://pbench.example.com/users/ndk/<controller>
+
+as well as under the existing results/hierarchy:
+
+http://pbench.example.com/results/<controller>
+
+The ~--prefix~ option is still available and will change the hierarchy
+after the <controller> part, e.g. ~pbench-move-results --user=ndk --prefix=foo/bar~
+will create entries for the current set of results under 
+
+http://pbench.example.com/users/ndk/<controller>/foo/bar
+
+and also under
+
+http://pbench.example.com/results/<controller>/foo/bar
+
+The ~--user~ and ~--prefix~ options are handled differently now: they are
+part of the metadata for the run and get indexed into ES along with
+the rest of the metadata. As a result, they are an immutable part of
+the run: there is no way to edit them currently, although this is subject
+to change. In particular, the ~pbench-edit-prefix~ script will not work as
+it stands.
+
+An alternative way to tag the results with a user is to set the environment
+variable PBENCH_USER and export it. If you are driving pbench through your
+own script, then adding
+#+begin_src shell
+  export PBENCH_USER=ndk
+#+end_src
+might be more convenient than modifying the invocation(s) of
+~pbench-{move,copy}-results~.
+
+
+*** Known problems and backward incompatibilities
+
+See the [[https://github.com/distributed-system-analysis/pbench/issues][issues on Github]].
+
+*** Bug fixes and enhancements
+
+- ~pbench-move-results~ was reworked to decouple it as much as possible
+from the server implementation. As a result, the number of ssh calls
+it makes to the server was reduced substantially.
+
+- ~pbench-trafficgen~ got a large number of updates, including
+a new traffic generator, ~trex-txrx-profile~.
+
+** server
+
+*** Known problems and backward incompatibilities
+
+
+*** Bug fixes and enhancements
+
+- The scripts that back up tarballs and verify their integrity
+were reworked after the server migration that we went through,
+to make them more robust and to detect problems as early as
+possible.
+
+- status reporting by the server scripts (which now goes to ES
+as part of the mail flood mitigation mentioned in the v0.50 release
+notes) is improved to make the status more readable.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.51
+:END:
+
+** Changelog
+This is the list of visible (non-merge, non-unit-test-related) commits
+since v0.50:
+
+- 8d37ba07 (HEAD -> master, dsa/master) Bump the version to 0.51
+- bcdd8dc0 pbench-trafficgen: capture trex yaml config file
+- c7d35899 (krister-873) Trafficgen updates (#858)
+- ecf68a96 (chaitanyaenr/master, pbench-fio-directory) Unit tests for pbench-copy-results and shims.
+- 29984600 Decouple pbench-move-results from server
+- 55a92a0b Enable actual use of rsync
+- b606d38c (python-2-3) Parallelize archive directory checks; compare file lists
+- a56fa2b5 Unit test for pbench-copy-results.
+- 8cfaaf16 Handle proper setup of python3 environment for index-pbench
+- 4fec3ec7 Explicitly require a specific python version
+- 20787126 Enhance the unit test run environment
+- a72e2f10 Reduce use of _testroot references in server unittests
+- 248fb946 Fix trailing squirly brace in unit test output
+- 3f807a7b Clean up test state entirely between tests
+- b38fb776 Replace use of sed with a JSON payload generator
+- e30caf09 Add a proper log environment for verify-backup-tarballs
+- 7ad4bbc9 Capture pbench-report-status payload in unittests
+- 6dfcaf8a Fix report-status to operate in the face of a missing log file
+- ca3afdb3 Remove the pbench-server config from test state files
+- 4075e2f7 Rename agent directory to server in unittests
+- 0c844f20 missed some tmp dirs for pprof tool (#847)
+- c9c9d131 (origin/master, origin/HEAD, wip-unmock-ln) Remove the partially implemented -inotify support
+- 68f6e5c4 Update pprof tool-script for RBAC access
+- b10f85b3 (origin/wip-pbench-move-results) Add --pbench-pre hook for UB; move wrapper
+- df455df6 pbench-fio: fix numjobs
+- 9ab6360e Undo setting of PATH in pbench-base.sh.
 
 * Version 0.50
 
@@ -41,10 +155,10 @@ See the [[https://github.com/distributed-system-analysis/pbench/issues][issues o
 
 - Openvswitch tool has been added.
 
-- External data source tool has been added. This allows
-  an external data source that is gathering data during the run
-  to be specified and added to the metadata for the run. See
-  issue #379.
+- External data source tool has been added. This allows an external
+  data source that is gathering data during the run to be specified
+  and added to the metadata for the run. See issue #379 and PR #796
+  (https://github.com/distributed-system-analysis/pbench/blob/master/agent/tool-scripts/external-data-source).
 
 - pbench-sysinfo-dump gathers Spectre/Meltdown data if available.
 
@@ -54,7 +168,7 @@ See the [[https://github.com/distributed-system-analysis/pbench/issues][issues o
 
 
 *** Bug fixes and enhancements
-- Pidstat data are now indexed into ElasticSearch.
+- Pidstat data are now indexed into Elasticsearch.
 
 - In response to an IT request, we are implementing changes to cut
   down on the volume of email that the cron jobs produce.  This
@@ -79,7 +193,7 @@ since v0.49:
 - 0f315a1e Add a reduced-in-size pidstat sample unit test
 - 6d795d1a Ensure haproxy-ocp creates html in proper dir
 - b18522ad Bug fixes.
-- ac656c9f Add a script to index collected mail log into elasticsearch
+- ac656c9f Add a script to index collected mail log into Elasticsearch
 - a7f6cecd add the option to the example config file.
 - e8a63db0 Update Unitests
 - 8eae4875 Make changes on server script to index mail log
@@ -257,10 +371,10 @@ None known
 There are no changes to the package (except for the version bump).
 
 If you do decide to update, the instructions are standard:
-#+BEGIN_EXAMPLE
-dnf clean expire-cache
-dnf update pbench-web-server
-#+END_EXAMPLE
+#+begin_example
+  dnf clean expire-cache
+  dnf update pbench-web-server
+#+end_example
 (or the yum equivalents.)  The current version available from COPR
 is 0.48-1g87190ca.
 
@@ -322,7 +436,10 @@ since v0.47:
 - f29ad234 move non-workload params to global section
 
 
+
 * Version 0.47
+
+
 
 ** Installation                                                    :external:
 
@@ -409,21 +526,18 @@ The pprof tools is undergoing some renovation right now: see issue #675
 :CUSTOM_ID: web-server-0.47
 :END:
 
-
-
 There are no changes to the package (except for the version bump).
 
 
 
 If you do decide to update, the instructions are standard:
 
-#+BEGIN_EXAMPLE
+#+begin_example
 
-dnf clean expire-cache
+  dnf clean expire-cache
 
-dnf update pbench-web-server
-
-#+END_EXAMPLE
+  dnf update pbench-web-server
+#+end_example
 
 (or the yum equivalents.)  The current version available from COPR
 
@@ -610,13 +724,12 @@ There are no changes to the package (except for the version bump).
 
 If you do decide to update, the instructions are standard:
 
-#+BEGIN_EXAMPLE
+#+begin_example
 
-dnf clean expire-cache
+  dnf clean expire-cache
 
-dnf update pbench-web-server
-
-#+END_EXAMPLE
+  dnf update pbench-web-server
+#+end_example
 
 (or the yum equivalents.)  The current version available from COPR
 
@@ -749,6 +862,7 @@ Some of these were in v0.44 - they are repeated here for convenience.
 https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
 
 
+
 to =/etc/yum.repos.d=.
 
 
@@ -876,8 +990,6 @@ going to be deployed on the satellite servers in the next day or two.
 :CUSTOM_ID: web-server-0.45
 :END:
 
-
-
 A fix to speed up loading of pidstat data was added to jschart.js
 
 (issue #608 describes the problem in detail).
@@ -886,13 +998,12 @@ A fix to speed up loading of pidstat data was added to jschart.js
 
 If you do decide to update, the instructions are standard:
 
-#+BEGIN_EXAMPLE
+#+begin_example
 
-dnf clean expire-cache
+  dnf clean expire-cache
 
-dnf update pbench-web-server
-
-#+END_EXAMPLE
+  dnf update pbench-web-server
+#+end_example
 
 (or the yum equivalents.)  The current version available from COPR
 
@@ -1078,6 +1189,8 @@ These are identical to v0.43 and are repeated here for convenience:
 
 https://github.com/redhat-performance/perf-dept/blob/master/repo_files/rhel7-latest.repo
 
+
+
 to =/etc/yum.repos.d=.
 
 
@@ -1145,6 +1258,7 @@ and mark it "v0.45".
   and have been merged, so things work properly now.
 
 
+
 See upstream issues:
 
 
@@ -1166,6 +1280,7 @@ https://github.com/prometheus/prom2json/pull/22
 If you find any problems, please open an issue, but as far as
 
 we know, there should not be any.
+
 
 
 - Various tools added to the default configuration for openshift.
@@ -1203,13 +1318,12 @@ be safe to update to v0.44 if you want.
 
 If you do decide to update, the instructions are standard:
 
-#+BEGIN_EXAMPLE
+#+begin_example
 
-dnf clean expire-cache
+  dnf clean expire-cache
 
-dnf update pbench-web-server
-
-#+END_EXAMPLE
+  dnf update pbench-web-server
+#+end_example
 
 (or the yum equivalents.)  The current version available from COPR
 
@@ -1418,6 +1532,7 @@ benchmark scripts will then follow (probably in v0.45, although
 depending on demand, we may convert some of them earlier).
 
 
+
 - A "disk" tool has been added: it runs "df" periodically, collects
 
   the results and post-processes them to render various graphs.
@@ -1495,13 +1610,12 @@ when it's ready.
 
 If you do decide to update, the instructions are standard:
 
-#+BEGIN_EXAMPLE
+#+begin_example
 
-dnf clean expire-cache
+  dnf clean expire-cache
 
-dnf update pbench-web-server
-
-#+END_EXAMPLE
+  dnf update pbench-web-server
+#+end_example
 
 (or the yum equivalents.)  The current version available from COPR
 
@@ -1718,13 +1832,12 @@ and a number of fixes.
 
 If you have it installed, you will want to update:
 
-#+BEGIN_EXAMPLE
+#+begin_example
 
-dnf clean expire-cache
+  dnf clean expire-cache
 
-dnf update pbench-web-server
-
-#+END_EXAMPLE
+  dnf update pbench-web-server
+#+end_example
 
 (or the yum equivalents.)  The current version available from COPR
 
@@ -1899,13 +2012,12 @@ locking, add a "Misc. Controls" panel to the table.
 
 If you have it installed, you probably want to update:
 
-#+BEGIN_EXAMPLE
+#+begin_example
 
-dnf clean expire-cache
+  dnf clean expire-cache
 
-dnf update pbench-web-server
-
-#+END_EXAMPLE
+  dnf update pbench-web-server
+#+end_example
 
 (or the yum equivalents.)  The current version available from COPR
 
@@ -2067,15 +2179,14 @@ running =pbench-fio= on your controller. Details on EPEL can be found [[https://
 
 The process is as follows: on your RHEL7 controller (and similarly for RHEL6)
 
-#+BEGIN_EXAMPLE
+#+begin_example
 
-cd /tmp
+  cd /tmp
 
-curl --output ./epel-release-latest-7.noarch.rpm  https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+  curl --output ./epel-release-latest-7.noarch.rpm  https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 
-yum install ./epel-release-latest-7.noarch.rpm
-
-#+END_EXAMPLE
+  yum install ./epel-release-latest-7.noarch.rpm
+#+end_example
 
 After that, the =pbench-fio= script should be able to find and install
 
@@ -2212,13 +2323,12 @@ of outliers - see [[https://github.com/distributed-system-analysis/pbench/issues
 
 If you have it installed, you probably want to update:
 
-#+BEGIN_EXAMPLE
+#+begin_example
 
-dnf clean expire-cache
+  dnf clean expire-cache
 
-dnf update pbench-web-server
-
-#+END_EXAMPLE
+  dnf update pbench-web-server
+#+end_example
 
 (or the yum equivalents.)  The current version available from COPR
 
@@ -2352,13 +2462,12 @@ All configuration files now have a suffix of ".cfg", rather than
 
 your existing config file:
 
-#+BEGIN_EXAMPLE
+#+begin_example
 
-cd /opt/pbench-agent/config
+  cd /opt/pbench-agent/config
 
-mv pbench-agent.conf pbench-agent.cfg
-
-#+END_EXAMPLE
+  mv pbench-agent.conf pbench-agent.cfg
+#+end_example
 
 If you have problems (e.g. =pbench-register-tool-set= only registers the ~perf~
 
@@ -2366,11 +2475,10 @@ tool, rather than a complete set; =pbench-move-results= fails because it cannot
 
 find a server), check with:
 
-#+BEGIN_EXAMPLE
+#+begin_example
 
-cat $CONFIG
-
-#+END_EXAMPLE
+  cat $CONFIG
+#+end_example
 
 If that fails, then pbench cannot find the config file, most probably because
 
@@ -2383,7 +2491,6 @@ The pbench-netperf script seems to have bit-rotted. We are trying to
 decide whether to fix it or abandon it. If you have an opinion, please
 
 comment at https://github.com/distributed-system-analysis/pbench/issues/291.
-
 
 
 
@@ -2537,13 +2644,12 @@ and optimizations.  Changes that are user-visible are:
 
 If you have it installed, you probably want to update:
 
-#+BEGIN_EXAMPLE
+#+begin_example
 
-dnf clean expire-cache
+  dnf clean expire-cache
 
-dnf update pbench-web-server
-
-#+END_EXAMPLE
+  dnf update pbench-web-server
+#+end_example
 
 (or the yum equivalents.)  The current version available from COPR
 
@@ -2769,7 +2875,9 @@ is an external RPM available from COPR that includes all the scripts,
 
 and some configuration scripts that can be used to install the config
 
-file and perform the rest of the server configuration. See the [[file:../server/installation.org][server installation guide]].
+file and perform the rest of the server configuration. See the [[file:../server/installation.org][server
+
+installation guide]].
 
 
 

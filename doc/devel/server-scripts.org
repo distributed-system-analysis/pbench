@@ -1,20 +1,20 @@
+# Created 2018-08-10 Fri 17:32
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
-#+HTML_DOCTYPE: xhtml-strict
-#+HTML_CONTAINER: div
-#+KEYWORDS: pbench
-#+HTML_LINK_HOME: 
-#+HTML_LINK_UP: 
-#+HTML_MATHJAX: 
-#+HTML_HEAD_EXTRA: 
-#+SUBTITLE: 
-#+INFOJS_OPT: 
-#+LATEX_HEADER: 
-#+AUTHOR: 
 #+OPTIONS: ^:{}
 #+TITLE: PBench server script states and rsyncing from remotes
+#+html_doctype: xhtml-strict
+#+html_container: div
+#+keywords: pbench
+#+html_link_home: 
+#+html_link_up: 
+#+html_mathjax: 
+#+html_head_extra: 
+#+subtitle: 
+#+infojs_opt: 
+#+latex_header: 
 
 * Introduction
 
@@ -32,7 +32,7 @@ directory for the next script.
 
 Schematically each script does the following:
 
-#+BEGIN_SRC shell
+#+begin_src shell
   linksrc = state subdirectory for this script
   linkdest = state sudbdirectory for next script
 
@@ -46,7 +46,7 @@ Schematically each script does the following:
          move it to some error subdirectory
   done
   send mail with the list of successes and failures
-#+END_SRC
+#+end_src
 
 The =linksrc= and =linkdest= of each script are currently hard-coded, but
 this is a bug: they are dependent on the configuration (production
@@ -81,28 +81,28 @@ The =pbench-rsync-remote= script is a bit different. It takes the environment
 name, the name of the remote server and the remote archive directory as arguments
 and currently does something like this:
 
-#+BEGIN_EXAMPLE shell
+#+begin_example shell
 
-ARCHIVE=local-archive-directory
-hosts=$(ssh $remoteserver 'cd $remotearchive; ls')
+  ARCHIVE=local-archive-directory
+  hosts=$(ssh $remoteserver 'cd $remotearchive; ls')
 
-for host in $hosts ;do
-    # make local host directory to receive the contents of the remote host directory
-    mkdir -p $ARCHIVE/$prefix::$host
-    cd $ARCHIVE/$prefix::$host
-    # copy the remote contents over
-    rsync $remoteserver:$remotearchive/$host/ .
-    check MD5
-    if success
-       delete the tarball and its MD5 sum from the remote
-    else
-       report the failure
-done
+  for host in $hosts ;do
+      # make local host directory to receive the contents of the remote host directory
+      mkdir -p $ARCHIVE/$prefix::$host
+      cd $ARCHIVE/$prefix::$host
+      # copy the remote contents over
+      rsync $remoteserver:$remotearchive/$host/ .
+      check MD5
+      if success
+         delete the tarball and its MD5 sum from the remote
+      else
+         report the failure
+  done
 
-Add the tarballs that were good to the processing queue, sorted by size.
-Submit them a few at a time for unpacking on the local system.
-Send mail with the stats.
-#+END_EXAMPLE
+  Add the tarballs that were good to the processing queue, sorted by size.
+  Submit them a few at a time for unpacking on the local system.
+  Send mail with the stats.
+#+end_example
 The trouble is that the rsync is run for every host, whether that host
 has any tarballs for copying or not. Unfortunately, that takes about 5
 seconds, even if the host directory is empty. For a couple of hundred

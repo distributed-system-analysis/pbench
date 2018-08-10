@@ -1,20 +1,20 @@
+# Created 2018-08-10 Fri 17:32
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
-#+HTML_DOCTYPE: xhtml-strict
-#+HTML_CONTAINER: div
-#+KEYWORDS: pbench
-#+HTML_LINK_HOME: 
-#+HTML_LINK_UP: 
-#+HTML_MATHJAX: 
-#+HTML_HEAD_EXTRA: 
-#+SUBTITLE: 
-#+INFOJS_OPT: 
-#+LATEX_HEADER: 
-#+AUTHOR: 
 #+OPTIONS: ^:{}
 #+TITLE: PBench agent installation
+#+html_doctype: xhtml-strict
+#+html_container: div
+#+keywords: pbench
+#+html_link_home: 
+#+html_link_up: 
+#+html_mathjax: 
+#+html_head_extra: 
+#+subtitle: 
+#+infojs_opt: 
+#+latex_header: 
 
 * Introduction
 
@@ -51,15 +51,15 @@ the internal repo on every machine where you are planning to run
 
 ** External repo                                                   :external:
 If your system supports =dnf=, then you can copy the repo locally with:
-#+BEGIN_EXAMPLE
-dnf copr enable ndokos/pbench
-#+END_EXAMPLE
+#+begin_example
+  dnf copr enable ndokos/pbench
+#+end_example
 If your system only supports =yum=, you may be able to install the COPR plugin
 and install similarly:
-#+BEGIN_EXAMPLE
-yum install yum-plugin-copr
-yum copr enable ndokos/pbench
-#+END_EXAMPLE
+#+begin_example
+  yum install yum-plugin-copr
+  yum copr enable ndokos/pbench
+#+end_example
 If all else fails, you can manually download the repo, by visiting
 [[https://copr.fedorainfracloud.org/coprs/ndokos/pbench/]] and clicking
 on the appropriate repo (Epel 6, Epel 7, Fedora XX).
@@ -83,10 +83,10 @@ the external repo above.
 Once you have the COPR repo installed, you can install the =pbench-agent= RPM
 and source the startup file to initialize your PATH and CONFIG environment
 variables:
-#+BEGIN_EXAMPLE
-dnf install pbench-agent
-. /etc/profile.d/pbench-agent.sh
-#+END_EXAMPLE
+#+begin_example
+  dnf install pbench-agent
+  . /etc/profile.d/pbench-agent.sh
+#+end_example
 The =pbench-agent= RPM is *not* self-contained.  You will need to
 somehow be given access to the config file and the pbench ssh private
 key for your installation. They may be part of another RPM, or you may
@@ -94,12 +94,12 @@ be able to copy them from a central location or from media that your
 administrator provides.
 
 You can install these two as follows:
-#+BEGIN_EXAMPLE
-configfile=/path/to/config/file/pbench-agent.cfg
-keyfile=/path/to/pbench/private/key/id_rsa
-pbench-agent-config-activate $configfile
-pbench-agent-config-ssh-key $configfile $keyfile
-#+END_EXAMPLE
+#+begin_example
+  configfile=/path/to/config/file/pbench-agent.cfg
+  keyfile=/path/to/pbench/private/key/id_rsa
+  pbench-agent-config-activate $configfile
+  pbench-agent-config-ssh-key $configfile $keyfile
+#+end_example
 You should be ready to roll.
 
 * Administrator responsibility: Config file and ssh private key file :external:
@@ -114,9 +114,9 @@ a safe place and rename it to =pbench-agent.cfg=; then edit the lines that
 are flagged with =# CHANGE ME!= comments to reflect your setup.
 
 The ssh key pair can be generated with
-#+BEGIN_EXAMPLE
-ssh-keygen -t rsa
-#+END_EXAMPLE
+#+begin_example
+  ssh-keygen -t rsa
+#+end_example
 and an empty passphrase. The private key has to be made available to users
 so they can complete their installation of =pbench-agent= as described above.
 The public key should be added to the =authorized-keys= file of the =pbench=
