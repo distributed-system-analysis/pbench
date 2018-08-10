@@ -3,6 +3,7 @@ Bad hostname in sosreport:  The sosreport did not collect a hostname other than 
 --- Finished indexing for test-7.5 (status=10)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
+/var/tmp/pbench-test-server/pbench/errors-json-unittests.json
 /var/tmp/pbench-test-server/pbench/test-7.5.tar.xz
 /var/tmp/pbench-test-server/pbench/test-7.5.tar.xz.md5
 --- pbench tree state

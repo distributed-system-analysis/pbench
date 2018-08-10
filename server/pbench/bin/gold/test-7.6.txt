@@ -1,5 +1,7 @@
 +++ Running indexing for test-7.6
-len(actions) = 4
+	done (end ts: 1900-01-01T00:00:00-UTC, duration: 0.00s, success: 5, duplicates: 0, failures: 0)
+Index:  pbench-unittests.run.2015-09 5
+len(actions) = 5
 [
     {
         "_id": "c71b2c9c961ebd55f61273a6a020bdc6",
@@ -93,11 +95,35 @@ len(actions) = 4
             "directory": "/sysinfo/foo/"
         },
         "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "69b96118335d82179c2ae07b8fc89c4a",
+        "_index": "pbench-unittests.run.2015-09",
+        "_op_type": "create",
+        "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
+        "_source": {
+            "@timestamp": "2015-09-21T19:31:12.673292621",
+            "directory": "/sysinfo/foo/end/",
+            "files": [
+                {
+                    "mode": "0o664",
+                    "name": "sosreport.tar.xz",
+                    "size": 880
+                },
+                {
+                    "mode": "0o664",
+                    "name": "sosreport.tar.xz.md5",
+                    "size": 51
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
     }
 ]
 --- Finished indexing for test-7.6 (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
+/var/tmp/pbench-test-server/pbench/errors-json-unittests.json
 /var/tmp/pbench-test-server/pbench/test-7.6.tar.xz
 /var/tmp/pbench-test-server/pbench/test-7.6.tar.xz.md5
 --- pbench tree state

@@ -43,7 +43,7 @@ function _run {
 
 function _run_index {
     echo "+++ Running indexing for $test" >> $_testout
-    cmd="TMPDIR=$_testtmp PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_testopt}/config/pbench-index.cfg $(readlink -f $_testdir/*.tar.xz)"
+    cmd="TMPDIR=$_testtmp PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_testopt}/config/pbench-index.cfg -E $_testdir/errors-json-unittests.json $(readlink -f $_testdir/*.tar.xz)"
     if which python3 > /dev/null 2>&1 ;then
 	eval $cmd >> $_testout 2>&1
     elif which scl > /dev/null 2>&1 ;then

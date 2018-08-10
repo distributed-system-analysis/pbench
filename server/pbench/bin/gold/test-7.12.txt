@@ -1,9 +1,11 @@
 +++ Running indexing for test-7.12
-	done (end ts: 1900-01-01T00:00:00-UTC, duration: 0.00s, success: 42397, duplicates: 0, failures: 0)
+	done (end ts: 1900-01-01T00:00:00-UTC, duration: 0.00s, success: 42397, duplicates: 2254, failures: 0)
 Index:  pbench-unittests.run.2018-02 56
 Index:  pbench-unittests.tool-data-iostat.2018-02-05 36
 Index:  pbench-unittests.tool-data-pidstat.2018-02-05 1554
 Index:  pbench-unittests.tool-data-prometheus-metrics.2018-02-05 43005
+Duplicates:  5480 Multiple dupes:  1613
+Index dupes:  pbench-unittests.tool-data-prometheus-metrics.2018-02-05 1613
 len(actions) = 60
 [
     {
@@ -2949,6 +2951,7 @@ len(actions) = 60
 --- Finished indexing for test-7.12 (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
+/var/tmp/pbench-test-server/pbench/errors-json-unittests.json
 /var/tmp/pbench-test-server/pbench/pbench-user-benchmark__2018.02.05T20.35.36.tar.xz
 /var/tmp/pbench-test-server/pbench/pbench-user-benchmark__2018.02.05T20.35.36.tar.xz.md5
 --- pbench tree state
