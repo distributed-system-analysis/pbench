@@ -1,5 +1,9 @@
 +++ Running indexing for test-7.9
-len(actions) = 19
+	done (end ts: 1900-01-01T00:00:00-UTC, duration: 0.00s, success: 3144, duplicates: 0, failures: 0)
+Index:  pbench-unittests.run.2017-04 24
+Index:  pbench-unittests.tool-data-iostat.2017-04-21 60
+Index:  pbench-unittests.tool-data-pidstat.2017-04-21 3060
+len(actions) = 45
 [
     {
         "_id": "dac368cffba8e02c1ecac69dfe46ffcc",
@@ -122,6 +126,430 @@ len(actions) = 19
                     "mode": "0o644",
                     "name": "result.txt",
                     "size": 0
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "1dd23d9668e1d467fadcc8cbc100a3d9",
+        "_index": "pbench-unittests.run.2017-04",
+        "_op_type": "create",
+        "_parent": "dac368cffba8e02c1ecac69dfe46ffcc",
+        "_source": {
+            "@timestamp": "2017-04-21T20:38:16.618515395",
+            "directory": "/1/reference-result/tools-default/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "8256c6c3d378edaf4e00bdf32301785b",
+        "_index": "pbench-unittests.run.2017-04",
+        "_op_type": "create",
+        "_parent": "dac368cffba8e02c1ecac69dfe46ffcc",
+        "_source": {
+            "@timestamp": "2017-04-21T20:38:16.618515395",
+            "directory": "/1/reference-result/tools-default/dhcp31-144/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "6636466f403564591de8870cef15837a",
+        "_index": "pbench-unittests.run.2017-04",
+        "_op_type": "create",
+        "_parent": "dac368cffba8e02c1ecac69dfe46ffcc",
+        "_source": {
+            "@timestamp": "2017-04-21T20:38:16.618515395",
+            "directory": "/1/reference-result/tools-default/dhcp31-144/iostat/",
+            "files": [
+                {
+                    "mode": "0o755",
+                    "name": "iostat.cmd",
+                    "size": 47
+                },
+                {
+                    "mode": "0o644",
+                    "name": "iostat-stdout.txt",
+                    "size": 12499
+                },
+                {
+                    "mode": "0o644",
+                    "name": "iostat-stderr.txt",
+                    "size": 0
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk-average.txt",
+                    "size": 1320
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk.html",
+                    "size": 1594
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "3e5871b5792217997b72088311839ead",
+        "_index": "pbench-unittests.run.2017-04",
+        "_op_type": "create",
+        "_parent": "dac368cffba8e02c1ecac69dfe46ffcc",
+        "_source": {
+            "@timestamp": "2017-04-21T20:38:16.618515395",
+            "directory": "/1/reference-result/tools-default/dhcp31-144/iostat/csv/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "disk_IOPS.csv",
+                    "size": 987
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_Queue_Size.csv",
+                    "size": 621
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_Request_Merges_per_sec.csv",
+                    "size": 982
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_Request_Size_in_512_byte_sectors.csv",
+                    "size": 632
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_Throughput_MB_per_sec.csv",
+                    "size": 982
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_Utilization_percent.csv",
+                    "size": 621
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_Wait_Time_msec.csv",
+                    "size": 982
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "db494863a2d7bea0746d8ca28ee62b63",
+        "_index": "pbench-unittests.run.2017-04",
+        "_op_type": "create",
+        "_parent": "dac368cffba8e02c1ecac69dfe46ffcc",
+        "_source": {
+            "@timestamp": "2017-04-21T20:38:16.618515395",
+            "directory": "/1/reference-result/tools-default/dhcp31-144/mpstat/",
+            "files": [
+                {
+                    "mode": "0o755",
+                    "name": "mpstat.cmd",
+                    "size": 39
+                },
+                {
+                    "mode": "0o644",
+                    "name": "mpstat-stdout.txt",
+                    "size": 5938
+                },
+                {
+                    "mode": "0o644",
+                    "name": "mpstat-stderr.txt",
+                    "size": 0
+                },
+                {
+                    "mode": "0o644",
+                    "name": "cpu0-average.txt",
+                    "size": 176
+                },
+                {
+                    "mode": "0o644",
+                    "name": "cpuall-average.txt",
+                    "size": 194
+                },
+                {
+                    "mode": "0o644",
+                    "name": "cpu0.html",
+                    "size": 654
+                },
+                {
+                    "mode": "0o644",
+                    "name": "cpuall.html",
+                    "size": 662
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "d0d640b059fd4c5f1c0ec99fc6877be9",
+        "_index": "pbench-unittests.run.2017-04",
+        "_op_type": "create",
+        "_parent": "dac368cffba8e02c1ecac69dfe46ffcc",
+        "_source": {
+            "@timestamp": "2017-04-21T20:38:16.618515395",
+            "directory": "/1/reference-result/tools-default/dhcp31-144/mpstat/csv/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "cpu0_cpu0.csv",
+                    "size": 1264
+                },
+                {
+                    "mode": "0o644",
+                    "name": "cpuall_cpuall.csv",
+                    "size": 1264
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "ebda6df5e56eb4bf47cb3403228e90ea",
+        "_index": "pbench-unittests.run.2017-04",
+        "_op_type": "create",
+        "_parent": "dac368cffba8e02c1ecac69dfe46ffcc",
+        "_source": {
+            "@timestamp": "2017-04-21T20:38:16.618515395",
+            "directory": "/1/reference-result/tools-default/dhcp31-144/perf/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "perf.cmd",
+                    "size": 35
+                },
+                {
+                    "mode": "0o644",
+                    "name": "perf-stdout.txt",
+                    "size": 0
+                },
+                {
+                    "mode": "0o644",
+                    "name": "perf-stderr.txt",
+                    "size": 118
+                },
+                {
+                    "mode": "0o644",
+                    "name": "perf.data.xz",
+                    "size": 89828
+                },
+                {
+                    "mode": "0o644",
+                    "name": "perf-report-consolidated.txt",
+                    "size": 2745
+                },
+                {
+                    "mode": "0o644",
+                    "name": "perf-report.txt.xz",
+                    "size": 2428
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "20c43e70095d6c72c06013eab7723ff0",
+        "_index": "pbench-unittests.run.2017-04",
+        "_op_type": "create",
+        "_parent": "dac368cffba8e02c1ecac69dfe46ffcc",
+        "_source": {
+            "@timestamp": "2017-04-21T20:38:16.618515395",
+            "directory": "/1/reference-result/tools-default/dhcp31-144/perf/perf-percpu/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "perf-report-cpu_0.txt.xz",
+                    "size": 2380
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "dba8a450502155829929e87fee88ff83",
+        "_index": "pbench-unittests.run.2017-04",
+        "_op_type": "create",
+        "_parent": "dac368cffba8e02c1ecac69dfe46ffcc",
+        "_source": {
+            "@timestamp": "2017-04-21T20:38:16.618515395",
+            "directory": "/1/reference-result/tools-default/dhcp31-144/pidstat/",
+            "files": [
+                {
+                    "mode": "0o755",
+                    "name": "pidstat.cmd",
+                    "size": 60
+                },
+                {
+                    "mode": "0o644",
+                    "name": "pidstat-stdout.txt",
+                    "size": 427562
+                },
+                {
+                    "mode": "0o644",
+                    "name": "pidstat-stderr.txt",
+                    "size": 0
+                },
+                {
+                    "mode": "0o644",
+                    "name": "context_switches-average.txt",
+                    "size": 19499
+                },
+                {
+                    "mode": "0o644",
+                    "name": "cpu_usage-average.txt",
+                    "size": 7861
+                },
+                {
+                    "mode": "0o644",
+                    "name": "file_io-average.txt",
+                    "size": 17083
+                },
+                {
+                    "mode": "0o644",
+                    "name": "memory_faults-average.txt",
+                    "size": 17240
+                },
+                {
+                    "mode": "0o644",
+                    "name": "memory_usage-average.txt",
+                    "size": 17745
+                },
+                {
+                    "mode": "0o644",
+                    "name": "context_switches.html",
+                    "size": 787
+                },
+                {
+                    "mode": "0o644",
+                    "name": "cpu_usage.html",
+                    "size": 693
+                },
+                {
+                    "mode": "0o644",
+                    "name": "file_io.html",
+                    "size": 693
+                },
+                {
+                    "mode": "0o644",
+                    "name": "memory_faults.html",
+                    "size": 706
+                },
+                {
+                    "mode": "0o644",
+                    "name": "memory_usage.html",
+                    "size": 932
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "7a3de880d95d37bc3263ee8cee5e7795",
+        "_index": "pbench-unittests.run.2017-04",
+        "_op_type": "create",
+        "_parent": "dac368cffba8e02c1ecac69dfe46ffcc",
+        "_source": {
+            "@timestamp": "2017-04-21T20:38:16.618515395",
+            "directory": "/1/reference-result/tools-default/dhcp31-144/pidstat/csv/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "context_switches_nonvoluntary_switches_sec.csv",
+                    "size": 16682
+                },
+                {
+                    "mode": "0o644",
+                    "name": "context_switches_voluntary_switches_sec.csv",
+                    "size": 16683
+                },
+                {
+                    "mode": "0o644",
+                    "name": "cpu_usage_percent_cpu.csv",
+                    "size": 16657
+                },
+                {
+                    "mode": "0o644",
+                    "name": "file_io_io_reads_KB_sec.csv",
+                    "size": 16657
+                },
+                {
+                    "mode": "0o644",
+                    "name": "file_io_io_writes_KB_sec.csv",
+                    "size": 16663
+                },
+                {
+                    "mode": "0o644",
+                    "name": "memory_faults_major_faults_sec.csv",
+                    "size": 16657
+                },
+                {
+                    "mode": "0o644",
+                    "name": "memory_faults_minor_faults_sec.csv",
+                    "size": 16778
+                },
+                {
+                    "mode": "0o644",
+                    "name": "memory_usage_resident_set_size.csv",
+                    "size": 16675
+                },
+                {
+                    "mode": "0o644",
+                    "name": "memory_usage_virtual_size.csv",
+                    "size": 20052
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "2138fc029c680da45ce46ab9cf3ebb55",
+        "_index": "pbench-unittests.run.2017-04",
+        "_op_type": "create",
+        "_parent": "dac368cffba8e02c1ecac69dfe46ffcc",
+        "_source": {
+            "@timestamp": "2017-04-21T20:38:16.618515395",
+            "directory": "/1/reference-result/tools-default/dhcp31-144/proc-interrupts/",
+            "files": [
+                {
+                    "mode": "0o755",
+                    "name": "proc-interrupts.cmd",
+                    "size": 206
+                },
+                {
+                    "mode": "0o644",
+                    "name": "proc-interrupts-stderr.txt",
+                    "size": 0
+                },
+                {
+                    "mode": "0o644",
+                    "name": "proc-interrupts-stdout.txt",
+                    "size": 29694
+                },
+                {
+                    "mode": "0o644",
+                    "name": "proc-interrupts-by-cpu-average.txt",
+                    "size": 1505
+                },
+                {
+                    "mode": "0o644",
+                    "name": "proc-interrupts-by-irq-average.txt",
+                    "size": 1505
+                },
+                {
+                    "mode": "0o644",
+                    "name": "proc-interrupts-by-cpu.html",
+                    "size": 721
+                },
+                {
+                    "mode": "0o644",
+                    "name": "proc-interrupts-by-irq.html",
+                    "size": 767
                 }
             ]
         },
@@ -771,11 +1199,537 @@ len(actions) = 19
             }
         },
         "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "5d368bb144f335f828d0143c366e178a",
+        "_index": "pbench-unittests.tool-data-pidstat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:21.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "/usr/lib/systemd/systemd_--switched-root",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.65",
+                    "cpu_usage": "0.00",
+                    "id": "1-/usr/lib/systemd/systemd_--switched-root",
+                    "io_reads": "0.00",
+                    "io_writes": "3.90",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "1",
+                    "rss": "10460",
+                    "vsz": "214832"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "5b10ab7ec5b4346296b7525793f63df2",
+        "_index": "pbench-unittests.tool-data-pidstat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:21.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "sshd:_root_[priv]",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "12567-sshd:_root_[priv]",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "12567",
+                    "rss": "8268",
+                    "vsz": "146840"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "0161e6a8f8c1f7e5fe2eb9fc140cd92f",
+        "_index": "pbench-unittests.tool-data-pidstat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:21.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "sshd:_root@pts/6",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "12570-sshd:_root@pts/6",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "12570",
+                    "rss": "4468",
+                    "vsz": "146840"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "5446475e3e4f57df6bf5734d980ff706",
+        "_index": "pbench-unittests.tool-data-pidstat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:21.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "-bash",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "12580--bash",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "12580",
+                    "rss": "4516",
+                    "vsz": "123060"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "b28d816e7732f8f7fd52f641dde72db0",
+        "_index": "pbench-unittests.tool-data-pidstat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:21.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "sshd:_root_[priv]",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "12602-sshd:_root_[priv]",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "12602",
+                    "rss": "8384",
+                    "vsz": "146840"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "ec7502612ac8f4c05b23a84584757d40",
+        "_index": "pbench-unittests.tool-data-pidstat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:21.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "sshd:_root@pts/7",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "12605-sshd:_root@pts/7",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "12605",
+                    "rss": "3356",
+                    "vsz": "146840"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "d796d4d71029e2c99f46e1ddcf774b37",
+        "_index": "pbench-unittests.tool-data-pidstat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:21.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "-bash",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "12613--bash",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "12613",
+                    "rss": "4572",
+                    "vsz": "123060"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "03ace349fc7b034650c3dcae90025a2a",
+        "_index": "pbench-unittests.tool-data-pidstat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:21.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "sshd:_pbench_[priv]",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "12725-sshd:_pbench_[priv]",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "12725",
+                    "rss": "8380",
+                    "vsz": "146840"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "77905b11ab341b0aed23b2c872734b63",
+        "_index": "pbench-unittests.tool-data-pidstat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:21.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "sshd:_pbench@pts/10",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "12728-sshd:_pbench@pts/10",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "12728",
+                    "rss": "4540",
+                    "vsz": "146840"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "df6e66cddb50377e5fabf948f8bbfb95",
+        "_index": "pbench-unittests.tool-data-pidstat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:21.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "-bash",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "12729--bash",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "12729",
+                    "rss": "4596",
+                    "vsz": "123056"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "31d8bc99fefe529a067e331666652e70",
+        "_index": "pbench-unittests.tool-data-pidstat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:21.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "less_-S_pbench-index.log",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "13552-less_-S_pbench-index.log",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "13552",
+                    "rss": "2348",
+                    "vsz": "116908"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "0a3fc6a3cee596eaf557ae3e92452175",
+        "_index": "pbench-unittests.tool-data-pidstat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:21.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "sshd:_root_[priv]",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "14232-sshd:_root_[priv]",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "14232",
+                    "rss": "8288",
+                    "vsz": "146840"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "1c31bf557b23db213f43781a3e8a81a2",
+        "_index": "pbench-unittests.tool-data-pidstat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:21.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "sshd:_root@pts/3",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "14235-sshd:_root@pts/3",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "14235",
+                    "rss": "4652",
+                    "vsz": "146972"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "569e43a47d0ffdbba9ca7bbfc8c63820",
+        "_index": "pbench-unittests.tool-data-pidstat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:21.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "-bash",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "14244--bash",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "14244",
+                    "rss": "4676",
+                    "vsz": "123060"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "3b94c151ab915e4cbaf3bf150f88f3e3",
+        "_index": "pbench-unittests.tool-data-pidstat.2017-04-21",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2017-04-21_20:38:16",
+                "host": "dhcp31-144",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "dac368cffba8e02c1ecac69dfe46ffcc",
+                "runtstamp": "2017-04-21T20:38:16.618515395",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2017-04-21T20:38:21.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "sshd:_pbench_[priv]",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "14266-sshd:_pbench_[priv]",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "14266",
+                    "rss": "8216",
+                    "vsz": "146844"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
     }
 ]
 --- Finished indexing for test-7.9 (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
+/var/tmp/pbench-test-server/pbench/errors-json-unittests.json
 /var/tmp/pbench-test-server/pbench/pbench-user-benchmark__2017-04-21_20:38:16.tar.xz
 /var/tmp/pbench-test-server/pbench/pbench-user-benchmark__2017-04-21_20:38:16.tar.xz.md5
 --- pbench tree state

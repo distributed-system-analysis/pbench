@@ -44,4 +44,8 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:run-1900-01-01T00:00:00-UTC: Processed 0 tarballs
 --- pbench log file contents
 +++ test-execution.log file contents
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/pbench-report-status --name pbench-index --timestamp run-1900-01-01T00:00:00-UTC --type status /var/tmp/pbench-test-server/pbench/tmp/pbench-index.NNNN/pbench-index.run-1900-01-01T00:00:00-UTC.report
 --- test-execution.log file contents
++++ test-report-status.log file contents
+/var/tmp/pbench-test-server/test-report-status.log:pbench-index.run-1900-01-01T00:00:00-UTC(unit-test) - Indexed 0 results
+--- test-report-status.log file contents

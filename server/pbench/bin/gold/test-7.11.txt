@@ -1,5 +1,9 @@
 +++ Running indexing for test-7.11
-len(actions) = 22
+	done (end ts: 1900-01-01T00:00:00-UTC, duration: 0.00s, success: 46, duplicates: 0, failures: 0)
+Index:  pbench-unittests.result-data.2018-02-01 3
+Index:  pbench-unittests.run.2018-02 28
+Index:  pbench-unittests.tool-data-iostat.2018-02-01 15
+len(actions) = 33
 [
     {
         "_id": "492a697c9dc7d73d1bd92c98d3fa8b2a",
@@ -169,6 +173,326 @@ len(actions) = 22
         "_source": {
             "@timestamp": "2018-02-01T22:41:00.276959021",
             "directory": "/sysinfo/beg/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "9de1e933d83f29360c2903e5ab7b3bbf",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/sysinfo/beg/dhcp31-44/",
+            "files": [
+                {
+                    "mode": "0o775",
+                    "name": "block-params.log",
+                    "size": 4661
+                },
+                {
+                    "mode": "0o775",
+                    "name": "config-4.13.9-300.fc27.x86_64",
+                    "size": 190476
+                },
+                {
+                    "mode": "0o775",
+                    "name": "security-mitigation-data.txt",
+                    "size": 0
+                },
+                {
+                    "mode": "0o775",
+                    "name": "sosreport-dhcp31-44.perf.lab.eng.bos.redhat.com-pbench-20180201224057.tar.xz",
+                    "size": 1007264
+                },
+                {
+                    "mode": "0o775",
+                    "name": "sosreport-dhcp31-44.perf.lab.eng.bos.redhat.com-pbench-20180201224057.tar.xz.md5",
+                    "size": 33
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "7d7aed309e6b96668e9b83b9ded12832",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/sysinfo/end/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "44edff26b32fbaf0688107114aed9b9f",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/sysinfo/end/dhcp31-44/",
+            "files": [
+                {
+                    "mode": "0o775",
+                    "name": "block-params.log",
+                    "size": 4661
+                },
+                {
+                    "mode": "0o775",
+                    "name": "config-4.13.9-300.fc27.x86_64",
+                    "size": 190476
+                },
+                {
+                    "mode": "0o775",
+                    "name": "security-mitigation-data.txt",
+                    "size": 0
+                },
+                {
+                    "mode": "0o775",
+                    "name": "sosreport-dhcp31-44.perf.lab.eng.bos.redhat.com-pbench-20180201224119.tar.xz",
+                    "size": 1007992
+                },
+                {
+                    "mode": "0o775",
+                    "name": "sosreport-dhcp31-44.perf.lab.eng.bos.redhat.com-pbench-20180201224119.tar.xz.md5",
+                    "size": 33
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "df39338592ad200e5197fbeb1ab68256",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/1-rw-4KiB/",
+            "files": [
+                {
+                    "mode": "0o755",
+                    "name": "process-iteration-samples.cmd",
+                    "size": 168
+                },
+                {
+                    "mode": "0o644",
+                    "name": "result.json",
+                    "size": 30267
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "a0701f0ec16172b16b10b9a93de916fe",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/1-rw-4KiB/sample1/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "fio.job",
+                    "size": 284
+                },
+                {
+                    "mode": "0o755",
+                    "name": "fio.cmd",
+                    "size": 116
+                },
+                {
+                    "mode": "0o644",
+                    "name": "fio-result.txt",
+                    "size": 7988
+                },
+                {
+                    "mode": "0o755",
+                    "name": "fio-postprocess.cmd",
+                    "size": 146
+                },
+                {
+                    "mode": "0o644",
+                    "name": "fio-average.txt",
+                    "size": 552
+                },
+                {
+                    "mode": "0o644",
+                    "name": "fio.html",
+                    "size": 1207
+                },
+                {
+                    "mode": "0o644",
+                    "name": "result.json",
+                    "size": 24084
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "6a3632aeb1fa00ea342ff5a4c923388c",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/1-rw-4KiB/sample1/clients/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "4c283b696fafcb4e47fbe6d22d7bb8a0",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/1-rw-4KiB/sample1/clients/localhost/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "fio_bw.1.log",
+                    "size": 380
+                },
+                {
+                    "mode": "0o644",
+                    "name": "fio_clat.1.log",
+                    "size": 424
+                },
+                {
+                    "mode": "0o644",
+                    "name": "fio_clat_hist.1.log",
+                    "size": 0
+                },
+                {
+                    "mode": "0o644",
+                    "name": "fio_iops.1.log",
+                    "size": 362
+                },
+                {
+                    "mode": "0o644",
+                    "name": "fio_lat.1.log",
+                    "size": 424
+                },
+                {
+                    "mode": "0o644",
+                    "name": "fio_slat.1.log",
+                    "size": 351
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "fefed367788b933cf6503f93deb56422",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/1-rw-4KiB/sample1/tools-default/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "5497dcdb6023b0839153c73f1f4a3386",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/1-rw-4KiB/sample1/tools-default/dhcp31-44/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "b8343687d158aaff3c77da9a17cdb0fa",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/",
+            "files": [
+                {
+                    "mode": "0o755",
+                    "name": "iostat.cmd",
+                    "size": 47
+                },
+                {
+                    "mode": "0o644",
+                    "name": "iostat-stdout.txt",
+                    "size": 3198
+                },
+                {
+                    "mode": "0o644",
+                    "name": "iostat-stderr.txt",
+                    "size": 0
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk-average.txt",
+                    "size": 1341
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk.html",
+                    "size": 2058
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "b97f4ce5aca91eb574272a516a2a7c7d",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/csv/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "disk_IOPS.csv",
+                    "size": 362
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_Queue_Size.csv",
+                    "size": 186
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_Request_Merges_per_sec.csv",
+                    "size": 323
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_Request_Size_in_512_byte_sectors.csv",
+                    "size": 206
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_Throughput_MB_per_sec.csv",
+                    "size": 358
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_Utilization_percent.csv",
+                    "size": 196
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_Wait_Time_msec.csv",
+                    "size": 322
+                }
+            ]
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -3525,6 +3849,7 @@ len(actions) = 22
 --- Finished indexing for test-7.11 (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
+/var/tmp/pbench-test-server/pbench/errors-json-unittests.json
 /var/tmp/pbench-test-server/pbench/fio_rw_2018.02.01T22.40.57.tar.xz
 /var/tmp/pbench-test-server/pbench/fio_rw_2018.02.01T22.40.57.tar.xz.md5
 --- pbench tree state
