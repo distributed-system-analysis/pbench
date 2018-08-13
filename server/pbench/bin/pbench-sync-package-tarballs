@@ -5,7 +5,12 @@
 # WARNING; Do not put anything in here that will pollute the
 # standard output!
 
-export CONFIG=${CONFIG:-/opt/pbench-server/lib/config/pbench-server.cfg}
+# This script is invoked remotely from a master server. Since it is
+# not invoked from cron, it can not get access to the server config
+# file through the CONFIG setting in the crontab.  But it does need
+# access to the server config file, so make sure that CONFIG is set
+# here and points to the server config file.
+export CONFIG=/opt/pbench-server/lib/config/pbench-server.cfg
 
 # load common things
 opts=$SHELLOPTS
