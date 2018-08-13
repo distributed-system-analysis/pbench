@@ -229,6 +229,19 @@ while read tblink ;do
         continue
     fi
 
+    # Remove the link from the reception area.  rm -f returns the same
+    # exit status as rm, except in the case when $tblink does not
+    # exist.
+    rm -f $tblink
+    sts=$?
+    if [ $sts -ne 0 ] ;then
+        echo "$TS: Error: \"rm -f $tblink\", status $sts" |
+            tee -a $status >&4
+        nerrs=$nerrs+1
+        # this will continue to give errors every time through
+        # so we need a better solution
+    fi
+
     pushd $dest/TODO > /dev/null
     ln -s $dest/$(basename $tb) .
     sts=$?
