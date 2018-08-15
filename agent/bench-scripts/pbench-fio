@@ -416,6 +416,7 @@ function fio_process_options() {
 		benchmark_run_dir="$run_dir"
 	fi
 	benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
+	> ${benchmark_iterations}
 
 	verify_tool_group $tool_group
 }
