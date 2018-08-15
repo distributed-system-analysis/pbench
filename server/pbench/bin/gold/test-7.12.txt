@@ -1,5 +1,10 @@
 +++ Running indexing for test-7.12
-len(actions) = 19
+	done (end ts: 1900-01-01T00:00:00-UTC, duration: 0.00s, success: 42397, duplicates: 0, failures: 0)
+Index:  pbench-unittests.run.2018-02 56
+Index:  pbench-unittests.tool-data-iostat.2018-02-05 36
+Index:  pbench-unittests.tool-data-pidstat.2018-02-05 1554
+Index:  pbench-unittests.tool-data-prometheus-metrics.2018-02-05 43005
+len(actions) = 60
 [
     {
         "_id": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
@@ -271,6 +276,1143 @@ len(actions) = 19
                     "mode": "0o644",
                     "name": "result.txt",
                     "size": 0
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "74848e33fd762d4189dbe511e228d008",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+        "_source": {
+            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "fdd02f2fb1a11b5652e06bebae921e83",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+        "_source": {
+            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/disk/",
+            "files": [
+                {
+                    "mode": "0o755",
+                    "name": "disk.cmd",
+                    "size": 174
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk-stderr.txt",
+                    "size": 0
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk-stdout.txt",
+                    "size": 6559
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_info-average.txt",
+                    "size": 3182
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_info.html",
+                    "size": 1726
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "1cdcfcab7f4f49608d729cc5f6c6ba5f",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+        "_source": {
+            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/disk/csv/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "disk_info_blocks.csv",
+                    "size": 927
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_info_free_space_in_KB.csv",
+                    "size": 696
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_info_ifree.csv",
+                    "size": 696
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_info_inodes.csv",
+                    "size": 864
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_info_iused.csv",
+                    "size": 591
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_info_space_used_in_KB.csv",
+                    "size": 976
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "be527dd1fba0a3503d89cc0a4cadfccb",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+        "_source": {
+            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/",
+            "files": [
+                {
+                    "mode": "0o755",
+                    "name": "haproxy-ocp.cmd",
+                    "size": 157
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8.csv",
+                    "size": 17618
+                },
+                {
+                    "mode": "0o644",
+                    "name": "haproxy-ocp-stdout.txt",
+                    "size": 0
+                },
+                {
+                    "mode": "0o644",
+                    "name": "haproxy-ocp-stderr.txt",
+                    "size": 0
+                },
+                {
+                    "mode": "0o644",
+                    "name": "index.html",
+                    "size": 293
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8.html",
+                    "size": 5502
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-act-average.txt",
+                    "size": 1416
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-bck-average.txt",
+                    "size": 1416
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-bin-average.txt",
+                    "size": 729
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-bout-average.txt",
+                    "size": 755
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-check_code-average.txt",
+                    "size": 1065
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-check_duration-average.txt",
+                    "size": 1325
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-chkdown-average.txt",
+                    "size": 1065
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-chkfail-average.txt",
+                    "size": 974
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-cli_abrt-average.txt",
+                    "size": 1286
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-comp_byp-average.txt",
+                    "size": 1325
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-comp_in-average.txt",
+                    "size": 1338
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-comp_out-average.txt",
+                    "size": 1403
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-comp_rsp-average.txt",
+                    "size": 1273
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-ctime-average.txt",
+                    "size": 1403
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-dashboard-average.txt",
+                    "size": 9118
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-downtime-average.txt",
+                    "size": 1039
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-dreq-average.txt",
+                    "size": 1208
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-dresp-average.txt",
+                    "size": 1234
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-econ-average.txt",
+                    "size": 1702
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-ereq-average.txt",
+                    "size": 818
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-eresp-average.txt",
+                    "size": 1091
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hanafail-average.txt",
+                    "size": 1052
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hrsp_1xx-average.txt",
+                    "size": 1052
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hrsp_2xx-average.txt",
+                    "size": 1052
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hrsp_3xx-average.txt",
+                    "size": 1052
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hrsp_4xx-average.txt",
+                    "size": 1052
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hrsp_5xx-average.txt",
+                    "size": 1052
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hrsp_other-average.txt",
+                    "size": 1338
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-iid-average.txt",
+                    "size": 820
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-lastchg-average.txt",
+                    "size": 1400
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-lastsess-average.txt",
+                    "size": 1516
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-lbtot-average.txt",
+                    "size": 1208
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-pid-average.txt",
+                    "size": 1299
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-qcur-average.txt",
+                    "size": 935
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-qlimit-average.txt",
+                    "size": 1104
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-qmax-average.txt",
+                    "size": 857
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-qtime-average.txt",
+                    "size": 1377
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-rate-average.txt",
+                    "size": 1338
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-rate_lim-average.txt",
+                    "size": 1247
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-rate_max-average.txt",
+                    "size": 1169
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-req_rate-average.txt",
+                    "size": 1325
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-req_rate_max-average.txt",
+                    "size": 1351
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-req_tot-average.txt",
+                    "size": 1169
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-scur-average.txt",
+                    "size": 844
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-sid-average.txt",
+                    "size": 1052
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-slim-average.txt",
+                    "size": 973
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-smax-average.txt",
+                    "size": 792
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-srv_abrt-average.txt",
+                    "size": 1286
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-stot-average.txt",
+                    "size": 1052
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-throttle-average.txt",
+                    "size": 1234
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-tracked-average.txt",
+                    "size": 1208
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-ttime-average.txt",
+                    "size": 1364
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-type-average.txt",
+                    "size": 1312
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-weight-average.txt",
+                    "size": 1268
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-wredis-average.txt",
+                    "size": 1351
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-wretr-average.txt",
+                    "size": 1325
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-act.html",
+                    "size": 818
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-bck.html",
+                    "size": 679
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-bin.html",
+                    "size": 712
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-bout.html",
+                    "size": 718
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-check_code.html",
+                    "size": 659
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-check_duration.html",
+                    "size": 683
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-chkdown.html",
+                    "size": 656
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-chkfail.html",
+                    "size": 649
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-cli_abrt.html",
+                    "size": 674
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-comp_byp.html",
+                    "size": 677
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-comp_in.html",
+                    "size": 677
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-comp_out.html",
+                    "size": 683
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-comp_rsp.html",
+                    "size": 673
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-ctime.html",
+                    "size": 680
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-dashboard.html",
+                    "size": 1374
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-downtime.html",
+                    "size": 655
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-dreq.html",
+                    "size": 664
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-dresp.html",
+                    "size": 667
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-econ.html",
+                    "size": 702
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-ereq.html",
+                    "size": 634
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-eresp.html",
+                    "size": 656
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hanafail.html",
+                    "size": 656
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hrsp_1xx.html",
+                    "size": 656
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hrsp_2xx.html",
+                    "size": 772
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hrsp_3xx.html",
+                    "size": 656
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hrsp_4xx.html",
+                    "size": 656
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hrsp_5xx.html",
+                    "size": 656
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hrsp_other.html",
+                    "size": 680
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-iid.html",
+                    "size": 726
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-lastchg.html",
+                    "size": 818
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-lastsess.html",
+                    "size": 691
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-lbtot.html",
+                    "size": 665
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-pid.html",
+                    "size": 800
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-qcur.html",
+                    "size": 643
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-qlimit.html",
+                    "size": 658
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-qmax.html",
+                    "size": 637
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-qtime.html",
+                    "size": 678
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-rate.html",
+                    "size": 674
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-rate_lim.html",
+                    "size": 671
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-rate_max.html",
+                    "size": 790
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-req_rate.html",
+                    "size": 677
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-req_rate_max.html",
+                    "size": 826
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-req_tot.html",
+                    "size": 788
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-scur.html",
+                    "size": 636
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-sid.html",
+                    "size": 762
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-slim.html",
+                    "size": 748
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-smax.html",
+                    "size": 724
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-srv_abrt.html",
+                    "size": 674
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-stot.html",
+                    "size": 764
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-throttle.html",
+                    "size": 670
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-tracked.html",
+                    "size": 667
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-ttime.html",
+                    "size": 677
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-type.html",
+                    "size": 804
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-weight.html",
+                    "size": 800
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-wredis.html",
+                    "size": 677
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-wretr.html",
+                    "size": 674
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "f3783e6252d70a0a24e7e429b0d8e176",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+        "_source": {
+            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/logs/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "cfd14ef2856eacae7487ec5d7b68e9d5",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+        "_source": {
+            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/logs/start/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "oc_get_pods-router.log",
+                    "size": 61
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8.log",
+                    "size": 150001
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "5e864ff3d6349ff43812afa7839a29e1",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+        "_source": {
+            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/logs/stop/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "oc_get_pods-router.log",
+                    "size": 61
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8.log",
+                    "size": 150001
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "da75bbebcc3b50737b8a24ff4305e335",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+        "_source": {
+            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/config/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "243012042e06b3a0cfae4ad8154aed06",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+        "_source": {
+            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/config/stop/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-haproxy-vv.txt",
+                    "size": 1512
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-haproxy.config",
+                    "size": 9084
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "c131ffb98436e47ea87fefc14de546b7",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+        "_source": {
+            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/config/start/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-haproxy.config",
+                    "size": 9084
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-haproxy-vv.txt",
+                    "size": 1512
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "5cce4328ae8c1382860e11f585043706",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+        "_source": {
+            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/csv/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-act_act: number of active servers (backend), server is active (server).csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-bck_bck: number of backup servers (backend), server is backup (server).csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-bin_bin: bytes in.csv",
+                    "size": 711
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-bout_bout: bytes out.csv",
+                    "size": 711
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-check_code_check_code: layer5-7 code, if available.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-check_duration_check_duration: time in ms took to finish last health check.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-chkdown_chkdown: number of UP->DOWN transitions.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-chkfail_chkfail: number of failed checks.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-cli_abrt_cli_abrt: number of data transfers aborted by the client.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-comp_byp_comp_byp: number of bytes that bypassed the HTTP compressor.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-comp_in_comp_in: number of HTTP response bytes fed to the compressor.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-comp_out_comp_out: number of HTTP response bytes emitted by the compressor.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-comp_rsp_comp_rsp: number of HTTP responses that were compressed.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-ctime_ctime: the average connect time in ms over the 1024 last requests.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-dashboard_check_duration: time in ms took to finish last health check.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-dashboard_chkfail: number of failed checks.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-dashboard_rate: number of sessions per second over last elapsed second.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-dashboard_rate_max: max number of new sessions per second.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-dashboard_req_rate: HTTP requests per second over last elapsed second.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-dashboard_req_rate_max: max number of HTTP requests per second observed.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-dashboard_scur: current sessions.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-dashboard_smax: max sessions.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-downtime_downtime: total downtime (in seconds).csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-dreq_dreq: requests denied because of security concerns.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-dresp_dresp: responses denied because of security concerns.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-econ_econ: number of requests that encountered an error trying to connect to a backend server.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-ereq_ereq: request errors.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-eresp_eresp: response errors including srv_abrt.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hanafail_hanafail: failed health checks details.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hrsp_1xx_hrsp_1xx: http responses with 1xx code.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hrsp_2xx_hrsp_2xx: http responses with 2xx code.csv",
+                    "size": 700
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hrsp_3xx_hrsp_3xx: http responses with 3xx code.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hrsp_4xx_hrsp_4xx: http responses with 4xx code.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hrsp_5xx_hrsp_5xx: http responses with 5xx code.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-hrsp_other_hrsp_other: http responses with other codes (protocol error).csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-iid_iid: unique proxy id.csv",
+                    "size": 711
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-lastchg_lastchg: number of seconds since the last UP<->DOWN transition.csv",
+                    "size": 915
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-lastsess_lastsess: number of seconds since last session assigned to server-backend.csv",
+                    "size": 753
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-lbtot_lbtot: total number of times a server was selected.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-pid_pid: process id (0 for first instance, 1 for second, ...).csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-qcur_qcur: current queued requests.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-qlimit_qlimit: configured maxqueue for the server.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-qmax_qmax: max value of qcur.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-qtime_qtime: the average queue time in ms over the 1024 last requests.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-rate_rate: number of sessions per second over last elapsed second.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-rate_lim_rate_lim: configured limit on new sessions per second.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-rate_max_rate_max: max number of new sessions per second.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-req_rate_req_rate: HTTP requests per second over last elapsed second.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-req_rate_max_req_rate_max: max number of HTTP requests per second observed.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-req_tot_req_tot: total number of HTTP requests received.csv",
+                    "size": 700
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-scur_scur: current sessions.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-sid_sid: server id (unique inside a proxy).csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-slim_slim: configured session limit.csv",
+                    "size": 849
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-smax_smax: max sessions.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-srv_abrt_srv_abrt: number of data transfers aborted by the server.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-stot_stot: cumulative number of connections.csv",
+                    "size": 700
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-throttle_throttle: current throttle percentage for the server.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-tracked_tracked: id of proxy-server if tracking is enabled.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-ttime_ttime: the average total session time in ms over the 1024 last.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-type_type: (0:frontend, 1:backend, 2:server, 3:socket-listener).csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-weight_weight: total weight (backend), server weight (server).csv",
+                    "size": 747
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-wredis_wredis: number of times a request was redispatched to another.csv",
+                    "size": 699
+                },
+                {
+                    "mode": "0o644",
+                    "name": "router-1-wxzk8-wretr_wretr: number of times a connection to a server was retried.csv",
+                    "size": 699
                 }
             ]
         },
@@ -896,6 +2038,912 @@ len(actions) = 19
             }
         },
         "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "f0f65b80c3229416461c0486d6a158a3",
+        "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "/usr/libexec/postfix/master_-w",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "1186-/usr/libexec/postfix/master_-w",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "1186",
+                    "rss": "2180",
+                    "vsz": "89608"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "045096629119ae30753e2a50cf94c4ec",
+        "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "qmgr_-l_-t_unix_-u",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "1190-qmgr_-l_-t_unix_-u",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "1190",
+                    "rss": "4080",
+                    "vsz": "89780"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "8a06b439dfe8cc111d08568809f42766",
+        "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "/usr/bin/openshift_start_master_api_--co",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "4.88",
+                    "id": "12276-/usr/bin/openshift_start_master_api_--co",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "139.14",
+                    "pid": "12276",
+                    "rss": "411460",
+                    "vsz": "1056708"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "448da8725fab95ef869e893699997cb9",
+        "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "/usr/bin/openshift_start_master_controll",
+                    "context_switches_nonvoluntary_switches": "2.69",
+                    "context_switches_voluntary_switches": "296.12",
+                    "cpu_usage": "3.39",
+                    "id": "12334-/usr/bin/openshift_start_master_controll",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.10",
+                    "pid": "12334",
+                    "rss": "244336",
+                    "vsz": "780212"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "0c9df30a883c99105f8597d0f8aa1ee0",
+        "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "/usr/bin/etcd_--name=ip-172-31-47-216.us",
+                    "context_switches_nonvoluntary_switches": "12.25",
+                    "context_switches_voluntary_switches": "29.38",
+                    "cpu_usage": "0.90",
+                    "id": "1250-/usr/bin/etcd_--name=ip-172-31-47-216.us",
+                    "io_reads": "0.00",
+                    "io_writes": "62.15",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "1250",
+                    "rss": "213324",
+                    "vsz": "5800332"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "7acc68594d0ffc7cd27a05718fc20308",
+        "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "/usr/sbin/sshd_-D",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.40",
+                    "cpu_usage": "0.00",
+                    "id": "1261-/usr/sbin/sshd_-D",
+                    "io_reads": "0.00",
+                    "io_writes": "0.40",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "1.20",
+                    "pid": "1261",
+                    "rss": "4304",
+                    "vsz": "112788"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "defa945ee8baef6fb8737426527b9ddb",
+        "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "/usr/sbin/crond_-n",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "1266-/usr/sbin/crond_-n",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "1266",
+                    "rss": "1692",
+                    "vsz": "126280"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "f349d6021590666400d34eae8ffe560d",
+        "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "/sbin/agetty_--noclear_tty1_linux",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "1269-/sbin/agetty_--noclear_tty1_linux",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "1269",
+                    "rss": "864",
+                    "vsz": "110088"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "af0dcb6ed1062e0df26508aae73da059",
+        "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "/sbin/agetty_--keep-baud_115200_38400_96",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "1271-/sbin/agetty_--keep-baud_115200_38400_96",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "1271",
+                    "rss": "880",
+                    "vsz": "110088"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "74093556a28b9216a2fe7b7953468699",
+        "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "rhnsd",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "1310-rhnsd",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "1310",
+                    "rss": "572",
+                    "vsz": "107964"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "232f1c99f0d042ff08b9e36f89072d4b",
+        "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "/usr/bin/dockerd-current_--add-runtime_d",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.40",
+                    "id": "1363-/usr/bin/dockerd-current_--add-runtime_d",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "1363",
+                    "rss": "42368",
+                    "vsz": "630848"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "e1756ae812139d173f38a2575c38b317",
+        "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "pidstat": {
+                "pidstat": {
+                    "command": "/usr/bin/docker-containerd-current_-l_un",
+                    "context_switches_nonvoluntary_switches": "0.00",
+                    "context_switches_voluntary_switches": "0.00",
+                    "cpu_usage": "0.00",
+                    "id": "1460-/usr/bin/docker-containerd-current_-l_un",
+                    "io_reads": "0.00",
+                    "io_writes": "0.00",
+                    "memory_faults_major": "0.00",
+                    "memory_faults_minor": "0.00",
+                    "pid": "1460",
+                    "rss": "8368",
+                    "vsz": "298268"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "9a96ea3dd094a566c2363a00d2d3ecba",
+        "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:40.000000",
+            "metric": "APIServiceOpenAPIAggregationControllerQueue1_adds",
+            "type": "COUNTER",
+            "value": 0
+        },
+        "_type": "pbench-tool-data-prometheus-metrics"
+    },
+    {
+        "_id": "d280a1583fddad2d0ef213781766c710",
+        "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:40.000000",
+            "metric": "APIServiceOpenAPIAggregationControllerQueue1_depth",
+            "type": "GAUGE",
+            "value": 0
+        },
+        "_type": "pbench-tool-data-prometheus-metrics"
+    },
+    {
+        "_id": "4a4b18177dc43a8e4aca411ffdcf14ef",
+        "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:40.000000",
+            "count": 0,
+            "metric": "APIServiceOpenAPIAggregationControllerQueue1_queue_latency",
+            "quantiles": "0.9",
+            "sum": 0,
+            "type": "SUMMARY",
+            "value": 0
+        },
+        "_type": "pbench-tool-data-prometheus-metrics"
+    },
+    {
+        "_id": "0a500076143c63e99dd937abaa477257",
+        "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:40.000000",
+            "count": 0,
+            "metric": "APIServiceOpenAPIAggregationControllerQueue1_queue_latency",
+            "quantiles": "0.5",
+            "sum": 0,
+            "type": "SUMMARY",
+            "value": 0
+        },
+        "_type": "pbench-tool-data-prometheus-metrics"
+    },
+    {
+        "_id": "c735f889e6dda55f413285a4e5dcb3fd",
+        "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:40.000000",
+            "count": 0,
+            "metric": "APIServiceOpenAPIAggregationControllerQueue1_queue_latency",
+            "quantiles": "0.99",
+            "sum": 0,
+            "type": "SUMMARY",
+            "value": 0
+        },
+        "_type": "pbench-tool-data-prometheus-metrics"
+    },
+    {
+        "_id": "5c97ce97cb39163b74825f1c558f7114",
+        "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:40.000000",
+            "metric": "APIServiceOpenAPIAggregationControllerQueue1_retries",
+            "type": "COUNTER",
+            "value": 0
+        },
+        "_type": "pbench-tool-data-prometheus-metrics"
+    },
+    {
+        "_id": "495771af79b034c7e25f1c0e6e1d30be",
+        "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:40.000000",
+            "count": 0,
+            "metric": "APIServiceOpenAPIAggregationControllerQueue1_work_duration",
+            "quantiles": "0.9",
+            "sum": 0,
+            "type": "SUMMARY",
+            "value": 0
+        },
+        "_type": "pbench-tool-data-prometheus-metrics"
+    },
+    {
+        "_id": "e985960178b0e0c8f36e7156add14186",
+        "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:40.000000",
+            "count": 0,
+            "metric": "APIServiceOpenAPIAggregationControllerQueue1_work_duration",
+            "quantiles": "0.5",
+            "sum": 0,
+            "type": "SUMMARY",
+            "value": 0
+        },
+        "_type": "pbench-tool-data-prometheus-metrics"
+    },
+    {
+        "_id": "1a138cbf8952472bf98b66c222e43fb4",
+        "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:40.000000",
+            "count": 0,
+            "metric": "APIServiceOpenAPIAggregationControllerQueue1_work_duration",
+            "quantiles": "0.99",
+            "sum": 0,
+            "type": "SUMMARY",
+            "value": 0
+        },
+        "_type": "pbench-tool-data-prometheus-metrics"
+    },
+    {
+        "_id": "1473e40201a89ba08bb1cbcf1701c4d4",
+        "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:40.000000",
+            "metric": "APIServiceRegistrationController_adds",
+            "type": "COUNTER",
+            "value": 2627
+        },
+        "_type": "pbench-tool-data-prometheus-metrics"
+    },
+    {
+        "_id": "f7c9a4ab74dfb13406be9f05dd2110cf",
+        "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:40.000000",
+            "metric": "APIServiceRegistrationController_depth",
+            "type": "GAUGE",
+            "value": 0
+        },
+        "_type": "pbench-tool-data-prometheus-metrics"
+    },
+    {
+        "_id": "9eff532221cd4536739fdb4c3cfdd3ff",
+        "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:40.000000",
+            "count": 2627,
+            "metric": "APIServiceRegistrationController_queue_latency",
+            "quantiles": "0.9",
+            "sum": 3197200.0,
+            "type": "SUMMARY",
+            "value": 31
+        },
+        "_type": "pbench-tool-data-prometheus-metrics"
+    },
+    {
+        "_id": "6bc3733c10add161ca16aa191b6fb2d4",
+        "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:40.000000",
+            "count": 2627,
+            "metric": "APIServiceRegistrationController_queue_latency",
+            "quantiles": "0.5",
+            "sum": 3197200.0,
+            "type": "SUMMARY",
+            "value": 16
+        },
+        "_type": "pbench-tool-data-prometheus-metrics"
+    },
+    {
+        "_id": "a72f35090c679a103bc541d40c24d222",
+        "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:40.000000",
+            "count": 2627,
+            "metric": "APIServiceRegistrationController_queue_latency",
+            "quantiles": "0.99",
+            "sum": 3197200.0,
+            "type": "SUMMARY",
+            "value": 44
+        },
+        "_type": "pbench-tool-data-prometheus-metrics"
+    },
+    {
+        "_id": "76cb872916533445aff29ce4822c31d2",
+        "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:40.000000",
+            "metric": "APIServiceRegistrationController_retries",
+            "type": "COUNTER",
+            "value": 0
+        },
+        "_type": "pbench-tool-data-prometheus-metrics"
+    },
+    {
+        "_id": "bc1fd6b3b34c1d917ce10ac088c223c6",
+        "_index": "pbench-unittests.tool-data-iostat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-217-11-170.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "iostat": {
+                "disk": {
+                    "id": "xvda",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.30"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "26.67",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.01",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "1.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "c836030f491d375db927c6f3131ea269",
+        "_index": "pbench-unittests.tool-data-iostat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-217-11-170.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:49.000000",
+            "iostat": {
+                "disk": {
+                    "id": "xvdb",
+                    "iops": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "0.00",
+                    "tput": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "util": "0.00",
+                    "wtime": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "ad7fb3ebb7ee289b685466f42e360fca",
+        "_index": "pbench-unittests.tool-data-iostat.2018-02-05",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "pbench-user-benchmark__2018.02.05T20.35.36",
+                "host": "ec2-34-217-11-170.us-west-2.compute.amazonaws.com",
+                "iteration": "1",
+                "iterseqno": "1",
+                "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
+                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "sample": "reference-result",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-05T20:35:59.000000",
+            "iostat": {
+                "disk": {
+                    "id": "xvda",
+                    "iops": {
+                        "read": "1.40",
+                        "write": "0.00"
+                    },
+                    "qsize": "0.00",
+                    "reqmerges": {
+                        "read": "0.00",
+                        "write": "0.00"
+                    },
+                    "reqsize": "240.00",
+                    "tput": {
+                        "read": "0.16",
+                        "write": "0.00"
+                    },
+                    "util": "0.05",
+                    "wtime": {
+                        "read": "1.93",
+                        "write": "0.00"
+                    }
+                }
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
     }
 ]
 --- Finished indexing for test-7.12 (status=0)
