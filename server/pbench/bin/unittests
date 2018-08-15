@@ -239,6 +239,7 @@ declare -A cmds=(
     [test-7.10]="_run_index"
     [test-7.11]="_run_index"
     [test-7.12]="_run_index"
+
     # activation test
     [test-8]="_run_activate"
 
