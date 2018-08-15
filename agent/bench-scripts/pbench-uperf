@@ -405,6 +405,7 @@ else
 fi
 # we'll record the iterations in this file
 benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
+> ${benchmark_iterations}
 mdlog=${benchmark_run_dir}/metadata.log
 
 function record_iteration {
