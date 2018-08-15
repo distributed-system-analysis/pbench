@@ -270,7 +270,7 @@ declare -A cmds=(
 
 tests=$*
 if [ -z "$tests" ] ;then
-    tests=$(for x in ${!cmds[@]} ;do echo $x ;done | sort -t- -k 2 -n)
+    tests=$(for x in ${!cmds[@]} ;do echo $x ;done | sed 's/\./-/' | sort -n -t '-' -k 3 | sort -n -t '-' -k 2 --stable | sed 's/\(.*-[0-9]\)-\([0-9]\)/\1.\2/')
 fi
 
 let failures=0
