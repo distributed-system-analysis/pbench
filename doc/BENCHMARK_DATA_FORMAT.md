@@ -401,4 +401,161 @@ During processing, pbench will attempt to aggrgate multiple instances of the sam
 
 ## Example Benchmark: dd
 
+Here we will take a benchmark which is not in pbench and create a result.json.  In this example, we will use dd:
+
+<pre>
+# dd if=/dev/zero of=/tmp/myfile bs=4k oflag=sync count=100000
+100000+0 records in
+100000+0 records out
+409600000 bytes (410 MB) copied, 6.76498 s, 60.5 MB/s
+</pre>
+
+In this case, we only ran dd once, and so we only have one benchmark iteration and 1 benhcmark sample.  So, there will be just one element in the JSON array:
+
+<pre>
+[
+  {
+   "iteration_data": {},
+   "iteration_number": 1,
+   "iteration_name": "my-test-dd"
+  },
+]
+</pre>
+
+From the command, we can see that five parameters are used: if, of, bs, oflag, and count.  We also need the benchmark version, so we'll run:
+
+<pre>
+# dd --version
+dd (coreutils) 8.22
+</pre>
+
+Now we have enough information to populate the parameters section:
+
+<pre>
+[
+  {
+    "parameters":
+      {
+        "benchmark":
+          [
+            {
+              "benchmark_name": "dd",
+              "benchmark_version": "8.22",
+              "if": "/dev/zero",
+              "of": "/tmp/myfile",
+              "bs": "4k",
+              "oflag": "sync",
+              "count" : "100000"
+            }
+          ]
+      }
+</pre>
+
+Now we need to create the metrics for this iteration.  From the output, we have two possible metrics:
+
+<pre>
+409600000 bytes (410 MB) copied, 6.76498 s, 60.5 MB/s
+</pre>
+
+One is the throughput metric (work over time), megabytes per second, 60.5.  The other is a latency metric (elapsed time to complete an item of work), the number of seconds complete the dd command, 6.76498.  Now some may not be quite that interested in the total time, but it could be an interesting metric to some, so we will keep it.  However, we will make the megabytes per second the primary metric.  Let's first update the parameters section for that:
+
+<pre>
+            {
+              "benchmark_name": "dd",
+              "benchmark_version": "8.22",
+              "primary_metric": "MB_sec",
+              "if": "/dev/zero",
+              "of": "/tmp/myfile",
+              "bs": "4k",
+              "oflag": "sync",
+              "count" : "100000"
+            }
+</pre>
+
+Now let's create a metric-type and an instance of the metric type for megabytes per second.  At the very leat, we need a description and a uid.  At this point, since we only have one "dd" running at one time, and we don't have multiple instances of the MB_sec metric-type, there's really no point to use a UID with unique fields -as there can be only one instance of the metric anyway.  However, if you were to write a script which laucnhed many concurrent copies of dd, then the UID would be necessary.  The UID could include information like where data was read from, or where data was written to.  However, for now, we will skip this:
+
+<pre>
+{
+    "parameters": {}
+    "throughput": 
+      {
+        "MB_sec":
+          [
+            {
+              "description": "The average number of megabytes copied in a period of 1 second",
+              "uid": "",
+              "mean": 60.5,
+            }
+          ]
+      }
+      
+And that's all we need for this metric.  For the latency metric, we'll add:
+
+{
+    "parameters": {}
+    "throughput": {}
+    "latency":
+      {
+        "elapsed_time_sec":
+          [
+            {
+              "description": "The total elapsed time in seconds to complete the dd command",
+              "uid": "",
+              "mean": 6.76498,
+            }
+          ]
+      }
+      
+And that's all there is to it!  The complete JSON doc would look like:
+
+<pre>
+[
+  {
+    "iteration_data":
+      {
+        "parameters":
+          {
+            "benchmark":
+              [
+                {
+                  "benchmark_name": "dd",
+                  "benchmark_version": "8.22",
+                  "if": "/dev/zero",
+                  "of": "/tmp/myfile",
+                  "bs": "4k",
+                  "oflag": "sync",
+                  "count" : "100000"
+                }
+              ]
+          },
+        "throughput": 
+          {
+            "MB_sec":
+              [
+                {
+                  "description": "The average number of megabytes copied in a period of 1 second",
+                  "uid": "",
+                  "mean": 60.5,
+                }
+              ]
+          },
+        "latency":
+          {
+            "elapsed_time_sec":
+              [
+                {
+                  "description": "The total elapsed time in seconds to complete the dd command",
+                  "uid": "",
+                  "mean": 6.76498,
+                }
+              ]
+          }      
+      },
+    "iteration_number": 1,
+    "iteration_name": "my-first-dd-test"
+  }
+]  
+</pre>
+
+
 ## Example Benchmark: fio
