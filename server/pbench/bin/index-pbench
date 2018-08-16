@@ -296,11 +296,11 @@ def es_index(es, actions, errorsfp, dbg=0):
         # bulk method.
         mock = MockStreamingBulk(15)
         streaming_bulk = mock.our_streaming_bulk
-        def tstos(arg):
+        def tstos(*args):
             return "1900-01-01T00:00:00-UTC"
-        def ts():
+        def _ts():
             return 0
-        _do_ts = ts
+        _do_ts = _ts
     else:
         mock = None
         streaming_bulk = helpers.streaming_bulk
