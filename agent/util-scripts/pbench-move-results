@@ -12,11 +12,11 @@ controller=$hostname
 
 function usage() {
     printf "usage:\n"
-    printf "$script_name [--prefix=<path>] [--xz-single-threaded] [--show-server]\n"
+    printf "$script_name [--help] [--user=<user>] [--prefix=<path>] [--xz-single-threaded] [--show-server]\n"
 }
 
 # Process options and arguments
-opts=$(getopt -q -o u:p:xS --longoptions "user:,prefix:,xz-single-threaded,show-server" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o u:p:xSh --longoptions "user:,prefix:,xz-single-threaded,show-server,help" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
     printf "\n"
     printf "%s\n" $*
@@ -54,6 +54,10 @@ while true; do
 	-S|--show-server)
 	    shift;
 	    show_server=1
+	    ;;
+	-h|--help)
+	    usage
+   	    exit 0
 	    ;;
         --)
             shift;
