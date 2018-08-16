@@ -24,7 +24,7 @@ try:
     from elasticsearch1 import VERSION as es_VERSION, Elasticsearch, helpers, exceptions as es_excs
 except ImportError:
     from elasticsearch import VERSION as es_VERSION, Elasticsearch, helpers, exceptions as es_excs
-from vos.analysis.lib import tstos
+from pbench import tstos
 
 _VERSION_ = "0.2.0.0"
 _NAME_    = "index-pbench"
