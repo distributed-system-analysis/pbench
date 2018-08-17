@@ -1,4 +1,4 @@
-# Created 2018-08-10 Fri 18:08
+# Created 2018-08-17 Fri 16:08
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -71,12 +71,12 @@ See the [[https://github.com/distributed-system-analysis/pbench/issues][issues o
 
 *** Bug fixes and enhancements
 
-- ~pbench-move-results~ was reworked to decouple it as much as possible
-from the server implementation. As a result, the number of ssh calls
-it makes to the server was reduced substantially.
+- ~pbench-move-results~ was reworked to decouple it as much as
+  possible from the server implementation. As a result, the number of
+  ssh calls it makes to the server was reduced substantially.
 
-- ~pbench-trafficgen~ got a large number of updates, including
-a new traffic generator, ~trex-txrx-profile~.
+- ~pbench-trafficgen~ got a large number of updates, including a new
+  traffic generator, ~trex-txrx-profile~.
 
 ** server
 
@@ -85,14 +85,13 @@ a new traffic generator, ~trex-txrx-profile~.
 
 *** Bug fixes and enhancements
 
-- The scripts that back up tarballs and verify their integrity
-were reworked after the server migration that we went through,
-to make them more robust and to detect problems as early as
-possible.
+- The scripts that back up tarballs and verify their integrity were
+  reworked after the server migration that we went through, to make
+  them more robust and to detect problems as early as possible.
 
-- status reporting by the server scripts (which now goes to ES
-as part of the mail flood mitigation mentioned in the v0.50 release
-notes) is improved to make the status more readable.
+- status reporting by the server scripts (which now goes to ES as part
+  of the mail flood mitigation mentioned in the v0.50 release notes)
+  is improved to make the status more readable.
 
 ** web-server
 :PROPERTIES:

@@ -1,4 +1,4 @@
-# Created 2018-08-10 Fri 17:32
+# Created 2018-08-17 Fri 15:52
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -98,11 +98,16 @@ The installation directory (=/opt/pbench-server= by default) holds all
 the scripts, config files and the crontab. There may be more than one
 config file, depending on what services the server provides, but this
 document only describes the basic setup of the server, for which the
-config file is =/opt/pbench-server/lib/config/pbench-server.cfg=.
+config file is =/opt/pbench-server/lib/config/pbench-server.cfg=
+(there is another config file,
+=/opt/pbench-server/lib/config/pbench-server-default.cfg=, that
+contains settings that are independent of any particular setup. You
+should not modify this file at all).
 
 ** Config files
-Example config files are installed under =/opt/pbench-server/lib/config=. You should
-make copies of these files:
+Example config files are installed under
+=/opt/pbench-server/lib/config=. You should make copies of these
+files:
 #+begin_example
   cp pbench-server.cfg.example pbench-server.cfg
   cp pbench-index.cfg.example pbench-index.cfg
@@ -166,12 +171,14 @@ The final step is to manually activate the crontab (as user =pbench=,
 #+begin_example
   su - pbench
   crontab /opt/pbench-server/lib/crontab/crontab
+  # or ...
+  crontab -u pbench /opt/pbench-server/lib/crontab/crontab
 #+end_example
 
 * Testing
 You should then test the whole shebang by setting up a =pbench-agent=
 (see [[file:../agent/installation.org][PBench agent installation]]), running a simple benchmark and moving
 the results to the server (see the [[file:../agent/user-guide.org][PBench agent user guide]] for
-details).  Watch the log files on the server (=/pbench/logs= and
+details).  Watch the log files on the server (=/pbench-local/logs= and
 subdirs thereof by default) to make sure that all stages of processing
 are correctly done.

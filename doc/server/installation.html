@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-08-10 Fri 18:08 -->
+<!-- 2018-08-17 Fri 16:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench server installation</title>
@@ -393,7 +393,11 @@ The installation directory (<code>/opt/pbench-server</code> by default) holds al
 the scripts, config files and the crontab. There may be more than one
 config file, depending on what services the server provides, but this
 document only describes the basic setup of the server, for which the
-config file is <code>/opt/pbench-server/lib/config/pbench-server.cfg</code>.
+config file is <code>/opt/pbench-server/lib/config/pbench-server.cfg</code>
+(there is another config file,
+<code>/opt/pbench-server/lib/config/pbench-server-default.cfg</code>, that
+contains settings that are independent of any particular setup. You
+should not modify this file at all).
 </p>
 </div>
 </div>
@@ -402,8 +406,9 @@ config file is <code>/opt/pbench-server/lib/config/pbench-server.cfg</code>.
 <h3 id="org1911386">Config files</h3>
 <div class="outline-text-3" id="text-org1911386">
 <p>
-Example config files are installed under <code>/opt/pbench-server/lib/config</code>. You should
-make copies of these files:
+Example config files are installed under
+<code>/opt/pbench-server/lib/config</code>. You should make copies of these
+files:
 </p>
 <pre class="example">
 cp pbench-server.cfg.example pbench-server.cfg
@@ -491,6 +496,8 @@ The final step is to manually activate the crontab (as user <code>pbench</code>,
 <pre class="example">
 su - pbench
 crontab /opt/pbench-server/lib/crontab/crontab
+# or ...
+crontab -u pbench /opt/pbench-server/lib/crontab/crontab
 </pre>
 </div>
 </div>
@@ -503,7 +510,7 @@ crontab /opt/pbench-server/lib/crontab/crontab
 You should then test the whole shebang by setting up a <code>pbench-agent</code>
 (see <a href="../agent/installation.html">PBench agent installation</a>), running a simple benchmark and moving
 the results to the server (see the <a href="../agent/user-guide.html">PBench agent user guide</a> for
-details).  Watch the log files on the server (<code>/pbench/logs</code> and
+details).  Watch the log files on the server (<code>/pbench-local/logs</code> and
 subdirs thereof by default) to make sure that all stages of processing
 are correctly done.
 </p>
@@ -524,7 +531,7 @@ described in <a href="#orgb6bdb74">Server installation (generic)</a>.
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2018-08-10 Fri 18:08</p>
+<p class="date">Page updated: 2018-08-17 Fri 16:11</p>
 </div>
 </body>
 </html>
