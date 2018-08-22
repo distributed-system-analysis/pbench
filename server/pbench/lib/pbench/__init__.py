@@ -37,7 +37,6 @@ class MockPutTemplate(object):
             self.name = name
         else:
             assert self.name == name
-        #print(name, json.dumps(kwargs['body'], indent=4, sort_keys=True))
         return None
 
     def report(self):
