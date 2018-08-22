@@ -23,7 +23,7 @@ try:
 except ImportError:
     from elasticsearch import VERSION as es_VERSION, Elasticsearch
 
-from pbench import es_index
+from pbench import tstos, es_index, es_put_template
 
 
 _VERSION_ = "0.2.0.0"
@@ -33,8 +33,10 @@ _DEBUG    = 0
 # global - defaults to normal dict, ordered dict for unittests
 _dict_const = dict
 
-# 30 second timeout talking to Elasticsearch
-_read_timeout = 30
+# 100,000 minute timeout talking to Elasticsearch; basically we just don't
+# want to timeout waiting for Elasticsearch and then have to retry, as that
+# can add undue burden to the Elasticsearch cluster.
+_read_timeout = 100000*60
 
 # All indexing uses "create" (instead of "index") to avoid updating
 # existing records, allowing us to detect duplicates.
@@ -112,16 +114,12 @@ def fetch_mapping(mapping_fn):
         raise MappingFileError("Invalid mapping file: %s" % mapping_fn)
     return keys[0], mapping
 
-def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config):
+def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config, dbg=0):
     """Load the various Elasticsearch index templates required by pbench.
 
     We first load the pbench-run index templates, and then we construct and
     load the templates for each tool data index.
     """
-    if not es:
-        # Don't do anything if we don't have an Elasticsearch client object.
-        return
-
     index_settings = _dict_const(
         gateway=_dict_const(
             local=_dict_const(
@@ -181,7 +179,7 @@ def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config):
     for toolname,frag in tool_mapping_frags.items():
         tool_skel = copy.deepcopy(skel)
         tool_skel['properties'][toolname] = frag
-        tool_mapping = _dict_const(("pbench-tool-data-%s" % toolname, tool_skel))
+        tool_mapping = _dict_const([("pbench-tool-data-%s" % toolname, tool_skel)])
         tool_template_body = _dict_const(
             template='%s.tool-data-%s.*' % (INDEX_PREFIX, toolname),
             settings=index_settings,
@@ -192,7 +190,7 @@ def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config):
     results_mappings = _dict_const()
     for mapping_fn in glob.iglob(os.path.join(MAPPING_DIR, "result-*.json")):
         key, mapping = fetch_mapping(mapping_fn)
-        if options.debug_unittest:
+        if dbg > 0:
             print("fetch_mapping: {}".format(key))
             from pprint import pprint;
             pprint(mapping)
@@ -204,25 +202,26 @@ def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config):
         settings=index_settings,
         mappings=results_mappings)
 
-    if not es:
-        # Don't do anything if we don't have an Elasticsearch client object.
-        print(run_template_name, json.dumps(run_template_body, indent=4, sort_keys=True))
-        for name, body in tool_templates:
-            print(name, json.dumps(body, indent=4, sort_keys=True))
-        return
-
     # FIXME: We should query to see if a template exists, and only
     # create it if it does not, or if the version of it is older than
     # expected.
     try:
         # Pbench Run template
-        res = es.indices.put_template(name=run_template_name, body=run_template_body)
+        beg, end, retries = es_put_template(es, name=run_template_name, body=run_template_body)
+        successes = 1
         # Pbench Tool Data templates
         for name, body in tool_templates:
             tool_template_name = '%s.tool-data-%s' % (INDEX_PREFIX,name)
-            res = es.indices.put_template(name=tool_template_name, body=body)
+            _, end, retry_count = es_put_template(es, name=tool_template_name, body=body)
+            retries += retry_count
+            successes += 1
     except Exception as e:
         raise TemplateError(e)
+    else:
+        print("\tdone templates (end ts: %s, duration: %.2fs,"
+                " successes: %d, retries: %d)" % (
+            tstos(end), end - beg, successes, retries))
+        sys.stdout.flush()
 
 
 ###########################################################################
@@ -1821,7 +1820,7 @@ def main(options, args):
 
         # Create the various index templates
         if options.debug_time_operations: ts("es_template")
-        es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config)
+        es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config, dbg=_DEBUG)
 
         # returns 0 or 1
         if options.indexing_errors:
@@ -1831,6 +1830,12 @@ def main(options, args):
         with open(ie_filename, "w") as fp:
             if options.debug_time_operations: ts("es_index")
             res = es_index(es, actions, fp, dbg=_DEBUG)
+            beg, end, successes, duplicates, failures, retries = res
+            print("\tdone indexing (end ts: %s, duration: %.2fs,"
+                    " successes: %d, duplicates: %d, failures: %d, retries: %d)" % (
+                tstos(end), end - beg, successes, duplicates, failures, retries))
+            sys.stdout.flush()
+            res = 1 if failures > 0 else 0
 
     except ConfigFileNotSpecified as e:
         print(e, file=sys.stderr)
