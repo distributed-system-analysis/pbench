@@ -1,5 +1,8 @@
 +++ Running indexing for test-7.10
-	done (end ts: 1900-01-01T00:00:00-UTC, duration: 0.00s, success: 514, duplicates: 0, failures: 0)
+Template:  pbench-unittests.run
+Template:  pbench-unittests.tool-data-iostat
+Template:  pbench-unittests.tool-data-pidstat
+	done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 3, retries: 0)
 Index:  pbench-unittests.result-data.2018-02-02 5
 Index:  pbench-unittests.run.2018-02 47
 Index:  pbench-unittests.tool-data-iostat.2018-02-02 120
@@ -7511,6 +7514,7 @@ len(actions) = 50
         "_type": "pbench-tool-data-pidstat"
     }
 ]
+	done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 514, duplicates: 0, failures: 0, retries: 0)
 --- Finished indexing for test-7.10 (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench

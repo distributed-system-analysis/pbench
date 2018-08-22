@@ -2,14 +2,15 @@
 Simple module level convenience functions.
 """
 
-import sys, os, time, json, errno, logging
+import sys, os, time, json, errno, logging, math
 
 from random import SystemRandom
 from collections import Counter, deque
+from urllib3 import exceptions as ul_excs
 try:
-    from elasticsearch1 import VERSION as es_VERSION, helpers
+    from elasticsearch1 import VERSION as es_VERSION, helpers, exceptions as es_excs
 except ImportError:
-    from elasticsearch import VERSION as es_VERSION, helpers
+    from elasticsearch import VERSION as es_VERSION, helpers, exceptions as es_excs
 
 
 def tstos(ts=None):
@@ -23,6 +24,69 @@ def calc_backoff_sleep(backoff):
     global _r
     b = math.pow(2, backoff)
     return _r.uniform(0, min(b, _MAX_SLEEP_TIME))
+
+
+class MockPutTemplate(object):
+    def __init__(self):
+        self.name = None
+
+    def put_template(self, *args, **kwargs):
+        assert 'name' in kwargs and 'body' in kwargs
+        name = kwargs['name']
+        if self.name is None:
+            self.name = name
+        else:
+            assert self.name == name
+        #print(name, json.dumps(kwargs['body'], indent=4, sort_keys=True))
+        return None
+
+    def report(self):
+        print("Template: ", self.name)
+
+
+def es_put_template(es, name=None, body=None):
+    assert name is not None and body is not None
+    if not es:
+        mock = MockPutTemplate()
+        def _ts():
+            return 0
+        _do_ts = _ts
+        _put_template = mock.put_template
+    else:
+        mock = None
+        _do_ts = time.time
+        _put_template = es.indices.put_template
+        # FIXME: we should just change these two loggers to write to a
+        # file instead of setting the logging level up so high.
+        logging.getLogger("urllib3").setLevel(logging.FATAL)
+        logging.getLogger("elasticsearch1").setLevel(logging.FATAL)
+
+    retry = True
+    retry_count = 0
+    backoff = 1
+    beg, end = _do_ts(), None
+    while retry:
+        try:
+            _put_template(name=name, body=body)
+        except es_excs.TransportError as exc:
+            # Only retry on certain 500 errors
+            if not exc.status in [500, 503, 504]:
+                raise
+            time.sleep(calc_backoff_sleep(backoff))
+            backoff += 1
+            retry_count += 1
+        except es_excs.ConnectionError as exc:
+            # We retry all connection errors
+            time.sleep(calc_backoff_sleep(backoff))
+            backoff += 1
+            retry_count += 1
+        else:
+            retry = False
+    end = _do_ts()
+
+    if mock:
+        mock.report()
+    return beg, end, retry_count
 
 
 class MockStreamingBulk(object):
@@ -51,6 +115,7 @@ class MockStreamingBulk(object):
                 ok = False
             else:
                 # For now, all other docs are considered successful
+                resp[action['_op_type']]['status'] = 200
                 ok = True 
             yield ok, resp
 
@@ -71,21 +136,29 @@ class MockStreamingBulk(object):
         print(json.dumps(self.actions_l, indent=4, sort_keys=True))
 
 
+# Always use "create" operations, as we also ensure each JSON document being
+# indexed has an "_id" field, so we can tell when we are indexing duplicate
+# data.
 _op_type = "create"
+# 100,000 minute timeout talking to Elasticsearch; basically we just don't
+# want to timeout waiting for Elasticsearch and then have to retry, as that
+# can add undue burden to the Elasticsearch cluster.
 _request_timeout = 100000*60.0
 
 def es_index(es, actions, errorsfp, dbg=0):
     """
     Now do the indexing specified by the actions.
     """
+    global tstos
     if not es:
         # If we don't have an Elasticsearch client object, we assume this is
         # for unit tests or debugging, so we'll use our mocked out streaming
         # bulk method.
         mock = MockStreamingBulk(15)
         streaming_bulk = mock.our_streaming_bulk
-        def tstos(*args):
-            return "1900-01-01T00:00:00-UTC"
+        def _tstos(*args):
+            return "1970-01-01T00:00:00-UTC"
+        tstos = _tstos
         def _ts():
             return 0
         _do_ts = _ts
@@ -93,14 +166,20 @@ def es_index(es, actions, errorsfp, dbg=0):
         mock = None
         streaming_bulk = helpers.streaming_bulk
         _do_ts = time.time
+        # FIXME: we should just change these two loggers to write to a
+        # file instead of setting the logging level up so high.
+        logging.getLogger("urllib3").setLevel(logging.FATAL)
+        logging.getLogger("elasticsearch1").setLevel(logging.FATAL)
 
-    # FIXME: we should just change these two loggers to write to a
-    # file instead of setting the logging level up so high.
-    logging.getLogger("urllib3").setLevel(logging.FATAL)
-    logging.getLogger("elasticsearch1").setLevel(logging.FATAL)
-
+    # These need to be defined before the closure below. These work because
+    # a closure remembers the binding of a name to an object. If integer
+    # objects were used, the name would be bound to that integer value only
+    # so for the retries, incrementing the integer would change the outer
+    # scope's view of the name.  By using a Counter object, the name to
+    # object binding is maintained, but the object contents are changed.
     actions_deque = deque()
     actions_retry_deque = deque()
+    retries_tracker = Counter()
 
     def actions_tracking_closure(cl_actions):
         for cl_action in cl_actions:
@@ -116,6 +195,7 @@ def es_index(es, actions, errorsfp, dbg=0):
             backoff = 1
             while len(actions_retry_deque) > 0:
                 time.sleep(calc_backoff_sleep(backoff))
+                retries_tracker['retries'] += 1
                 retry_actions = []
                 # First drain the retry deque entirely so that we know when we
                 # have cycled through the entire list to be retried.
@@ -130,11 +210,6 @@ def es_index(es, actions, errorsfp, dbg=0):
                 backoff += 1
 
     beg, end = _do_ts(), None
-
-    if dbg > 0:
-        print("\tbulk index (beg ts: %s) ..." % tstos(beg))
-        sys.stdout.flush()
-
     successes = 0
     duplicates = 0
     failures = 0
@@ -146,26 +221,36 @@ def es_index(es, actions, errorsfp, dbg=0):
             es, generator, raise_on_error=False,
             raise_on_exception=False, request_timeout=_request_timeout)
 
-    for ok, resp in streaming_bulk_generator:
+    for ok, resp_payload in streaming_bulk_generator:
         retry_count, action = actions_deque.popleft()
-        assert action['_id'] == resp[_op_type]['_id']
+        try:
+            resp = resp_payload[_op_type]
+            status = resp['status']
+        except KeyError as e:
+            assert not ok
+            # resp is not of expected form
+            print(resp)
+            status = 999
+        else:
+            assert action['_id'] == resp['_id']
         if ok:
             successes += 1
         else:
-            if resp[_op_type]['status'] == 409:
+            if status == 409:
                 if retry_count == 0:
                     # Only count duplicates if the retry count is 0 ...
                     duplicates += 1
                 else:
                     # ... otherwise consider it successful.
                     successes += 1
-            elif resp[_op_type]['status'] == 400:
+            elif status == 400:
                 jsonstr = json.dumps({ "action": action, "ok": ok, "resp": resp, "retry_count": retry_count, "timestamp": tstos(_do_ts()) }, indent=4, sort_keys=True)
                 print(jsonstr, file=errorsfp)
                 errorsfp.flush()
                 failures += 1
             else:
                 # Retry all other errors
+                print(resp)
                 actions_retry_deque.append((retry_count + 1, action))
 
     end = _do_ts()
@@ -173,13 +258,7 @@ def es_index(es, actions, errorsfp, dbg=0):
     assert len(actions_deque) == 0
     assert len(actions_retry_deque) == 0
 
-    print("\tdone (end ts: %s, duration: %.2fs,"
-            " success: %d, duplicates: %d, failures: %d)" % (
-        tstos(end), end - beg, successes, duplicates, failures))
-    sys.stdout.flush()
-
     if mock:
         mock.report()
 
-    return failures
-
+    return (beg, end, successes, duplicates, failures, retries_tracker['retries'])
