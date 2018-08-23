@@ -122,14 +122,14 @@ def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config):
         # Don't do anything if we don't have an Elasticsearch client object.
         return
 
-    index_settings = dict(
-        gateway=dict(
-            local=dict(
+    index_settings = _dict_const(
+        gateway=_dict_const(
+            local=_dict_const(
                 sync='1m')),
-        merge=dict(
-            scheduler=dict(
+        merge=_dict_const(
+            scheduler=_dict_const(
                 max_thread_count=1)),
-        translog=dict(
+        translog=_dict_const(
             flush_threshold_size='1g'),
     )
 
@@ -152,7 +152,7 @@ def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config):
         os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))),
         'lib', 'mappings')
 
-    run_mappings = {}
+    run_mappings = _dict_const()
     for mapping_fn in glob.iglob(os.path.join(MAPPING_DIR, "run*.json")):
         key, mapping = fetch_mapping(mapping_fn)
         run_mappings[key] = mapping
@@ -160,7 +160,7 @@ def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config):
     # The API body for the create() contains a dictionary with the settings and
     # the mappings.
     run_template_name = '%s.run' % (INDEX_PREFIX,)
-    run_template_body = dict(
+    run_template_body = _dict_const(
         template='%s.run.*' % (INDEX_PREFIX,),
         settings=index_settings,
         mappings=run_mappings)
@@ -171,7 +171,7 @@ def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config):
 
     # Next we load all the tool fragments
     fpat = re.compile(r'tool-data-frag-(?P<toolname>.+)\.json')
-    tool_mapping_frags = {}
+    tool_mapping_frags = _dict_const()
     for mapping_fn in glob.iglob(os.path.join(MAPPING_DIR, "tool-data-frag-*.json")):
         m = fpat.match(os.path.basename(mapping_fn))
         toolname = m.group('toolname')
@@ -181,15 +181,15 @@ def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config):
     for toolname,frag in tool_mapping_frags.items():
         tool_skel = copy.deepcopy(skel)
         tool_skel['properties'][toolname] = frag
-        tool_mapping = { "pbench-tool-data-%s" % toolname: tool_skel }
-        tool_template_body = dict(
+        tool_mapping = _dict_const(("pbench-tool-data-%s" % toolname, tool_skel))
+        tool_template_body = _dict_const(
             template='%s.tool-data-%s.*' % (INDEX_PREFIX, toolname),
             settings=index_settings,
             mappings=tool_mapping)
         tool_templates.append((toolname, tool_template_body))
 
     # Next we load all the results
-    results_mappings = {}
+    results_mappings = _dict_const()
     for mapping_fn in glob.iglob(os.path.join(MAPPING_DIR, "result-*.json")):
         key, mapping = fetch_mapping(mapping_fn)
         if options.debug_unittest:
@@ -199,7 +199,7 @@ def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config):
         results_mappings[key] = mapping
 
     results_template_name = '%s.result-data' % (INDEX_PREFIX,)
-    results_template_body = dict(
+    results_template_body = _dict_const(
         template='%s.result-data.*' % (INDEX_PREFIX,),
         settings=index_settings,
         mappings=results_mappings)
@@ -248,14 +248,14 @@ def convert_to_float(d):
 
 class ResultData(object):
     def __init__(self, ptb, experiment, opctx):
-        self.run_metadata = {
-            "runtstamp": ptb.start_run,
-            "runid": ptb.md5sum,
-            "experiment": experiment,
-        }
+        self.run_metadata = _dict_const([
+            ("runtstamp", ptb.start_run),
+            ("runid", ptb.md5sum),
+            ("experiment", experiment)
+        ])
         self.ptb = ptb
         self.counters = Counter()
-        opctx.append({ "object": "ResultData", "counters": self.counters })
+        opctx.append(_dict_const(object="ResultData", counters=self.counters))
         self.json_files = None
         try:
             self.json_files = ResultData.get_json_files(ptb)
@@ -289,7 +289,7 @@ class ResultData(object):
 
             convert_to_float(results)
 
-            source = {}
+            source = _dict_const()
             source['results'] = results
             source['@metadata'] = self.run_metadata
             ts_str = self.run_metadata['runtstamp']
@@ -317,7 +317,7 @@ class ResultData(object):
         datafiles = []
         for p in paths:
             fname = os.path.basename(p)
-            datafile = { "path": p, "basename": fname }
+            datafile = _dict_const(path=p, basename=fname)
             datafiles.append(datafile)
         return datafiles
 
@@ -564,7 +564,7 @@ class ToolData(object):
         self.ptb = ptb
         self.toolname = tool
         self.counters = Counter()
-        opctx.append({ "object": "ToolData-%s" % (tool), "counters": self.counters })
+        opctx.append(_dict_const(object="ToolData-%s" % (tool), counters=self.counters))
         try:
             (iterseqno, itername) = iteration.split('-', 1)
         except ValueError:
@@ -583,17 +583,17 @@ class ToolData(object):
                 self.end_run_ts = datetime.strptime(ptb.end_run, "%Y-%m-%dT%H:%M:%S")
             except ValueError:
                 self.end_run_ts = None
-        self.run_metadata = {
-            "runtstamp": ptb.start_run,
-            "runid": ptb.md5sum,
-            "experiment": experiment,
-            # FIXME: What are the constituent parts of an iteration name?
-            "iteration": itername,
-            "iterseqno": iterseqno,
-            "sample": sample,
-            "host": host,
-            "toolgroup": toolgroup,
-        }
+        self.run_metadata = _dict_const(
+            runtstamp=ptb.start_run,
+            runid=ptb.md5sum,
+            experiment=experiment,
+            # FIXME=What are the constituent parts of an iteration name?
+            iteration=itername,
+            iterseqno=iterseqno,
+            sample=sample,
+            host=host,
+            toolgroup=toolgroup,
+        )
 
         # Impedance match between host names used when
         # registering tools and <label>:<hostname_s>
@@ -747,7 +747,7 @@ class ToolData(object):
                     # header.
                     m = metadata_pat.match(col)
                     if m:
-                        colmd = {}
+                        colmd = _dict_const()
                         # We matched one or more names, loop through
                         # the list of expected metadata regex group
                         # names to build up the mapping of regex
@@ -986,7 +986,7 @@ class ToolData(object):
                         #print("WARNING: no .csv handler for %s (%s, %s)\n" % (alias_name, fname, p), file=sys.stdout)
                         continue
             assert handler_rec is not None
-            datafile = { "path": p, "basename": fname, 'handler_rec': handler_rec }
+            datafile = _dict_const(path=p, basename=fname, handler_rec=handler_rec)
             # FIXME: we might have to deal with UTF-8 decoding issues
             # reader = csv.reader(codecs.iterdecode(tb.extractfile(dfilepath), 'utf-8'))
             datafile['reader'] = reader = csv.reader(open(os.path.join(ptb.extracted_root, p)))
@@ -1007,7 +1007,7 @@ class ToolData(object):
         datafiles = []
         for p in paths:
             fname = os.path.basename(p)
-            datafile = { "path": p, "basename": fname, 'handler_rec': None }
+            datafile = _dict_const(path=p, basename=fname, handler_rec=None)
             datafiles.append(datafile)
         return datafiles
 
@@ -1153,13 +1153,13 @@ def mk_tool_data_actions(ptb, options, INDEX_PREFIX, opctx):
         if not asource:
             continue
         for source, source_id in asource:
-            action = {
-                "_op_type": _op_type,
-                "_index":   index_name_template_for_tool + source['@timestamp'].split('T', 1)[0],
-                "_type":    "pbench-tool-data-%s" % td.toolname,
-                "_id":      source_id,
-                "_source":  source
-            }
+            action = _dict_const(
+                _op_type=_op_type,
+                _index=index_name_template_for_tool + source['@timestamp'].split('T', 1)[0],
+                _type="pbench-tool-data-%s" % td.toolname,
+                _id=source_id,
+                _source=source
+            )
             yield action
     return
 
@@ -1173,13 +1173,13 @@ def mk_result_data_actions(ptb, options, INDEX_PREFIX, opctx):
     if not sources:
         return
     for source, source_id in sources:
-        action = {
-            "_op_type": _op_type,
-            "_index":   index_name_template + source['@timestamp'].split('T', 1)[0],
-            "_type":    "pbench-result-data",
-            "_id":      source_id,
-            "_source":  source
-        }
+        action = _dict_const(
+            _op_type=_op_type,
+            _index=index_name_template + source['@timestamp'].split('T', 1)[0],
+            _type="pbench-result-data",
+            _id=source_id,
+            _source=source
+        )
         yield action
     return
 
@@ -1245,14 +1245,14 @@ def mk_toc_actions(ptb, options, INDEX_PREFIX, opctx):
     assert(prefix == ptb.dirname)
     for dname,d in dirs.items():
         d["@timestamp"] = tstamp
-        action = {
-            "_id":      get_md5sum_of_dir(d, ptb.md5sum),
-            "_op_type": _op_type,
-            "_index":   index_name_template % (int(ptb.date[0]), int(ptb.date[1])),
-            "_type":    "pbench-run-toc-entry",
-            "_source":  d,
-            "_parent":  ptb.md5sum
-        }
+        action = _dict_const(
+            _id=get_md5sum_of_dir(d, ptb.md5sum),
+            _op_type=_op_type,
+            _index=index_name_template % (int(ptb.date[0]), int(ptb.date[1])),
+            _type="pbench-run-toc-entry",
+            _source=d,
+            _parent=ptb.md5sum
+        )
         yield action
     return
 
@@ -1302,10 +1302,10 @@ def mk_tool_info(sos_d, mdconf):
         tools_array = []
         # from pprint import pprint; pprint(mdconf.get("tools", "hosts"))
 
-        labels = {}
+        labels = _dict_const()
         for host in mdconf.get("tools", "hosts").split():
             # from pprint import pprint; pprint(host)
-            tools_info = {}
+            tools_info = _dict_const()
             # XXX - we should have an FQDN for the host but
             # sometimes we have only an IP address.
             tools_info['hostname'] = host
@@ -1329,7 +1329,7 @@ def mk_tool_info(sos_d, mdconf):
             # now, forget about any label or remote entries - they have been dealt with.
             items = [x for x in items if x[0] != 'label' and not x[0].startswith('remote')]
 
-            tools = {}
+            tools = _dict_const()
             tools.update(items)
             tools_info['tools'] = tools
             tools_array.append(tools_info)
@@ -1408,7 +1408,7 @@ def if_ip_from_sosreport(ip_addr_f):
     """
 
     s = str(ip_addr_f.read(), 'iso8859-1')
-    d = {}
+    d = _dict_const()
     # if it's an ip_address file, convert it to ip_-o_addr format
     s = ip_address_to_ip_o_addr(s)
     for l in s.split('\n'):
@@ -1420,7 +1420,7 @@ def if_ip_from_sosreport(ip_addr_f):
         ifip = fields[3].split('/')[0]
         if ifproto not in d:
             d[ifproto] = []
-        d[ifproto].append({"ifname": ifname, "ipaddr" : ifip})
+        d[ifproto].append(_dict_const(ifname=ifname, ipaddr=ifip))
 
     return d
 
@@ -1497,10 +1497,10 @@ def hostnames_if_ip_from_sosreport(sos):
     else:
         pass
 
-    d = {
-        'hostname-f': hostname_f,
-        'hostname-s': hostname_s
-    }
+    d = _dict_const([
+        ('hostname-f', hostname_f),
+        ('hostname-s', hostname_s)
+    ])
 
     # get the ip addresses for all interfaces
     ipfiles = [x for x in sostb.getnames() if x.find('sos_commands/networking/ip_') >= 0]
@@ -1522,7 +1522,7 @@ def mk_sosreports(tb):
     for x in sosreports:
         if x.endswith('.md5'):
             # x is the *sosreport*.tar.xz.md5 filename
-            d = {}
+            d = _dict_const()
             sos = x[:x.rfind('.md5')]
             d['name'] = sos
             d['md5'] = tb.extractfile(x).read().decode('ascii')[:-1]
@@ -1533,7 +1533,7 @@ def mk_sosreports(tb):
     return sosreportlist
 
 def mk_pbench_metadata(mdconf):
-    d = {}
+    d = _dict_const()
     try:
         d['pbench-rpm-version'] = mdconf.get("pbench", "rpm-version")
     except Exception:
@@ -1580,8 +1580,8 @@ def fix_date_format(ts):
         return "1900-01-01T00:00:00"
 
 def mk_run_metadata(mdconf, md5sum, dirname):
+    d = _dict_const()
     try:
-        d = {}
         d.update(mdconf.items('run'))
         d.update(mdconf.items('pbench'))
         # Fix up old format dates so ES won't barf on them.
@@ -1596,10 +1596,10 @@ def mk_run_metadata(mdconf, md5sum, dirname):
         d['tarball-dirname'] = dirname
         d['tarball-toc-prefix'] = dirname
         del d['rpm-version']
-        return d
     except KeyError as e:
         print("Tarball: %s - %s is missing in metadata.log\n" % (dirname, e), file=sys.stdout)
-        return {}
+        d = _dict_const()
+    return d
 
 def mk_user_specified_metadata(options):
     # parse the JSON string into a dict and return it
@@ -1613,13 +1613,14 @@ def mk_metadata(fname, tb, mdconf, md5sum):
     """Return a dict with metadata about a tarball"""
     mtime = datetime.utcfromtimestamp(os.stat(fname)[stat.ST_MTIME])
 
-    mddict = {'generated-by': _NAME_,
-              'generated-by-version': _VERSION_,
-              'pbench-agent-version': mdconf.get("pbench", "rpm-version"),
-              'file-date': mtime.strftime("%Y-%m-%d"),
-              'file-name': fname,
-              'md5': md5sum
-    }
+    mddict = _dict_const([
+        ('generated-by', _NAME_),
+        ('generated-by-version', _VERSION_),
+        ('pbench-agent-version', mdconf.get("pbench", "rpm-version")),
+        ('file-date', mtime.strftime("%Y-%m-%d")),
+        ('file-name', fname),
+        ('md5', md5sum)
+    ])
     return mddict
 
 def mk_run_action(ptb, options, INDEX_PREFIX, opctx):
@@ -1631,7 +1632,7 @@ def mk_run_action(ptb, options, INDEX_PREFIX, opctx):
        the tarball: its name, size, md5, mtime.
        Metadata about the run are *data* to be indexed.
     """
-    source = { '@timestamp': ptb.start_run.replace('_', 'T') }
+    source = _dict_const([('@timestamp', ptb.start_run.replace('_', 'T'))])
 
     # debug: -T options will cause each call below to be timed
     # and the elapsed interval printed.
@@ -1652,13 +1653,13 @@ def mk_run_action(ptb, options, INDEX_PREFIX, opctx):
 
     # make a simple action for indexing
     index_name_template = "%s.run.%%d-%%02d" % INDEX_PREFIX
-    action = {
-        "_op_type": _op_type,
-        "_index":   index_name_template % (int(ptb.date[0]), int(ptb.date[1])),
-        "_type":    "pbench-run",
-        "_id":      ptb.md5sum,
-        "_source":  source,
-    }
+    action = _dict_const(
+        _op_type=_op_type,
+        _index=index_name_template % (int(ptb.date[0]), int(ptb.date[1])),
+        _type="pbench-run",
+        _id=ptb.md5sum,
+        _source=source,
+    )
     if debug_time_operations: ts("Done!", newline=True)
     return action
 
@@ -1745,7 +1746,7 @@ class PbenchTarBall(object):
         mdfconfig.read(mdf)
 
         # FIXME: verify start_run and end_run dictionary items are present
-        d = {}
+        d = _dict_const()
         d.update(mdfconfig.items('run'))
         if "start_run" not in d or "end_run" not in d:
             raise Exception('Missing start_run or end_run elements')
@@ -1770,7 +1771,7 @@ def get_es_hosts(config):
     else:
         host, port = URL.rsplit(':', 1)
     timeoutobj = Timeout(total=1200, connect=10, read=_read_timeout)
-    return [dict(host=host, port=port, timeout=timeoutobj),]
+    return [_dict_const(host=host, port=port, timeout=timeoutobj),]
 
 ###########################################################################
 # main: create index from template if necessary, prepare the action and ship
