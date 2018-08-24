@@ -1,4 +1,4 @@
-# Created 2018-08-17 Fri 16:08
+# Created 2018-08-24 Fri 15:12
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -16,6 +16,78 @@
 #+infojs_opt: 
 #+latex_header: 
 
+* Version 0.52
+
+** Installation                                                    :external:
+
+There are no installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.52-1gbb9ce25
+of the pbench-agent RPM installed.
+
+** agent
+
+No changes were made to the agent for this release (apart from a fix
+to the help message of ~pbench-move-results~). Please see the [[#v0.51-agent][v0.51 changes]]
+for some important information that you *really want* to know
+about. 
+
+*** Known problems and backward incompatibilities
+
+See the [[https://github.com/distributed-system-analysis/pbench/issues][issues on Github]].
+
+*** Bug fixes and enhancements
+
+- ~pbench-move-results --help~ now gives complete information.
+
+** server
+
+The ~index-pbench~ script got roto-tilled fairly extensively. Most
+of the changes are designed to make it a better citizen in the ES world:
+reducing the load on ES and dealing better with errors. The secong goal
+was to split the indexing itself into its own module that can be used
+not only by pbench (through the ~index-pbench~ script), but by other
+clients. The next step is to move that module into its own repo.
+
+*** Bug fixes and enhancements
+- ~index-pbench~: see the changelog for the extensive set of changes.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.52
+:END:
+
+A new build of the pbench web server has been made, although it does
+not include any changes from before. The version is 0.52-1gbb9ce25.
+
+** Changelog
+This is the list of visible (non-merge, non-unit-test-related) commits
+since v0.51:
+
+- bb9ce251 (HEAD -> master, tag: v0.52, dsa/master) Bump the version to v0.52
+- 199cd73c Fix indexing work to improve error handling
+- 956075db Ensure UTC for timezone in unittests
+- 706516fc Use dictionary constructor to avoid sorting issues
+- d73c0443 Move warning about too many pids to error path
+- bb441c11 Pull es_index into its own module
+- 22cb493e Differentiate mocked time fetching and ts() method
+- 75472356 Rename vos/analysis/lib to pbench
+- 8ddd17e1 Index into Elasticsearch with streaming_bulk() API
+- 4546946b Ensure we only process tool data once
+- 85fe020f Change index name prefix for unittests
+- a5046895 Refactor use of PbenchTarBall & csv handler table
+- 736b3abd Check tool timestamps against run end
+- 0e8a2ced Add pre-computed source IDs to each indexed doc
+- c5569317 Fix timestamp handling; move errors to counters
+- e411c654 Fix extracted column metadata when indexing
+- bf733bfc Update pbench-fio help text to fix formatting
+- 24a42c93 Add --user and --help to pbench-{move,copy}-results usage
+- 190bb254 Properly initialize the benchmark iteration file
+- 67a8645a Sort unit tests more sensibly.
+- fc1c7573 Fixes for two bugs discovered when deploying the server
+
+
 * Version 0.51
 
 ** Installation                                                    :external:
@@ -27,6 +99,9 @@ After installation or update, you should have version 0.51-1g8d37ba0
 of the pbench-agent RPM installed.
 
 ** agent
+:PROPERTIES:
+:CUSTOM_ID: v0.51-agent
+:END:
 
 ~pbench-{move,copy}-results~ has acquired a ~--user~ option. If you
 say "pbench-move-results --user=ndk", then the results will be
