@@ -32,6 +32,8 @@ export _PBENCH_SERVER_TEST=1
 _testopt=$_testroot/opt/pbench-server
 export PATH=$_testopt/unittest-scripts:$_tconfigtoolsbin:$PATH
 export CONFIG=$_testopt/config/pbench-server.cfg
+export TMPDIR=$_testtmp
+export TZ="UTC"
 
 function _run {
     tname=$1
@@ -43,7 +45,7 @@ function _run {
 
 function _run_index {
     echo "+++ Running indexing for $test" >> $_testout
-    cmd="TMPDIR=$_testtmp PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_testopt}/config/pbench-index.cfg -E $_testdir/errors-json-unittests.json $(readlink -f $_testdir/*.tar.xz)"
+    cmd="PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_testopt}/config/pbench-index.cfg -E $_testdir/errors-json-unittests.json $(readlink -f $_testdir/*.tar.xz)"
     if which python3 > /dev/null 2>&1 ;then
 	eval $cmd >> $_testout 2>&1
     elif which scl > /dev/null 2>&1 ;then
