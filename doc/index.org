@@ -1,4 +1,4 @@
-# Created 2018-08-24 Fri 15:12
+# Created 2018-08-24 Fri 16:31
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
@@ -19,8 +19,8 @@
 * User documentation
 ** [[file:./release-notes/RELEASE-NOTES.org][Release notes]].
 ** [[file:./agent/installation.org][PBench agent installation instructions]].
-** [[file:./agent/user-guide.org][PBench agent user guide]]
-** [[file:./agent/faq.org][Pbench agent FAQ]]
+** [[file:./agent/user-guide.org][PBench agent user guide]].
+** [[file:./agent/faq.org][PBench agent FAQ]].
 ** [[file:./server/pbench-web-server.org][PBench web server installation instructions and use]].
 * Admin documentation
 ** [[file:./server/installation.org][PBench server installation instructions]].
