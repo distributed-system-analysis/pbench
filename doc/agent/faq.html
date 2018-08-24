@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-08-24 Fri 16:16 -->
+<!-- 2018-08-24 Fri 16:24 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>&lrm;</title>
@@ -245,10 +245,128 @@ for the JavaScript code in this tag.
 </head>
 <body>
 <div id="content">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org6e7bc86">Frequently asked questions</a>
+<ul>
+<li><a href="#org7d55db4">I want to group related results together - how do I do that?</a></li>
+</ul>
+</li>
+<li><a href="#orgedca930">Do's and don'ts</a>
+<ul>
+<li><a href="#org0e67da4">Do</a></li>
+<li><a href="#org77d4a0c">Do not</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org6e7bc86" class="outline-2">
+<h2 id="org6e7bc86">Frequently asked questions</h2>
+<div class="outline-text-2" id="text-org6e7bc86">
+</div>
+<div id="outline-container-org7d55db4" class="outline-3">
+<h3 id="org7d55db4">I want to group related results together - how do I do that?</h3>
+<div class="outline-text-3" id="text-org7d55db4">
+<p>
+There are two useful options to <code>pbench-move-results</code>: <code>--prefix</code> and
+<code>--user--</code>. The latter was introduced in v0.51, the former has existed
+for some time now. Basic usage is
+</p>
+<div class="org-src-container">
+<pre class="src src-shell">pbench-move-results --user=&lt;user&gt; --prefix=foo/bar
+</pre>
+</div>
+<p>
+Let's say there are three result directories in your controller's <code>/var/lib/pbench-agent</code> directory:
+</p>
+
+<ul class="org-ul">
+<li><code>benchmark_config_2018-08-15T20:12:21/</code></li>
+<li><code>benchmark_config_2018-08-16T18:02:34/</code></li>
+<li><code>benchmark_config_2018-08-15T17:55:32/</code></li>
+</ul>
+
+<p>
+Then the three tarballs that <code>pbench-move-results</code> moves to the server
+are organized as follows:
+</p>
+
+<ul class="org-ul">
+<li>controller view: under the controller name
+~results/&lt;controller&gt;/foo/bar, you will find (symlinks to) the
+directories created from unpacking the tarballs.</li>
+<li>user view: under <code>users/&lt;user&gt;/&lt;controller&gt;/foo/bar</code>, you will find
+the same entries.</li>
+</ul>
+
+<p>
+The value of <code>prefix</code> is an arbitrary sequence of names separated by <code>/</code>.
+Each component is mapped to a subdirectory of each hierarchy. The value
+of <code>user</code> is also arbitrary, but the expectation is that users are going
+to use something line an IRC nick or email address to identify themselves.
+If you are calling <code>pbench-move-results</code> from a script, you might want to
+set the value of the <code>user</code> option using an environment variable, instead
+of passing it as an option:
+</p>
+<div class="org-src-container">
+<pre class="src src-shell"><span style="font-weight: bold;">export</span> <span style="font-weight: bold; font-style: italic;">PBENCH_USER</span>=&lt;user&gt;
+...
+pbench-move-results --prefix=foo/bar
+</pre>
+</div>
+<p>
+is equivalent to
+</p>
+<div class="org-src-container">
+<pre class="src src-shell">pbench-move-results --user=&lt;user&gt; --prefix=foo/bar
+</pre>
+</div>
+<p>
+The values of both of these options are indexed, so the dashboard will
+have access to them as well.  Currently, the dashboard ignores both of
+them, but we anticipate that they will soon be used as selection criteria
+for the results that a user might be interested in.
+</p>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-orgedca930" class="outline-2">
+<h2 id="orgedca930">Do's and don'ts</h2>
+<div class="outline-text-2" id="text-orgedca930">
+</div>
+<div id="outline-container-org0e67da4" class="outline-3">
+<h3 id="org0e67da4">Do</h3>
+<div class="outline-text-3" id="text-org0e67da4">
+<ul class="org-ul">
+<li>namespace your results by using the <code>--prefix</code> and <code>--user</code> options
+of <code>pbench-move-results</code> - see:
+<a href="#org7d55db4">I want to group related results together - how do I do that?</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org77d4a0c" class="outline-3">
+<h3 id="org77d4a0c">Do not</h3>
+<div class="outline-text-3" id="text-org77d4a0c">
+<ul class="org-ul">
+<li>move multiple results into a subdirectory of <code>/var/lib/pbench-agent</code>
+in an effort to namespace the results: <code>pbench-move-results</code> will
+create a single tarball and it will unpack it seemingly
+successfully, but your results will fail to index, because the
+indexer cannot make heads or tails of the structure.</li>
+</ul>
+</div>
+</div>
+</div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Nick Dokos</p>
-<p class="date">Created: 2018-08-24 Fri 16:16</p>
+<p class="date">Created: 2018-08-24 Fri 16:24</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

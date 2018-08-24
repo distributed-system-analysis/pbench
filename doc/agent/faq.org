@@ -1,3 +1,63 @@
-# Created 2018-08-24 Fri 16:15
+# Created 2018-08-24 Fri 16:24
 #+TITLE: 
 #+AUTHOR: Nick Dokos
+* Frequently asked questions
+
+** I want to group related results together - how do I do that?
+
+There are two useful options to ~pbench-move-results~: ~--prefix~ and
+~--user--~. The latter was introduced in v0.51, the former has existed
+for some time now. Basic usage is
+#+begin_src shell
+  pbench-move-results --user=<user> --prefix=foo/bar
+#+end_src
+Let's say there are three result directories in your controller's ~/var/lib/pbench-agent~ directory:
+
+- ~benchmark_config_2018-08-15T20:12:21/~
+- ~benchmark_config_2018-08-16T18:02:34/~
+- ~benchmark_config_2018-08-15T17:55:32/~
+
+Then the three tarballs that ~pbench-move-results~ moves to the server
+are organized as follows:
+
+- controller view: under the controller name
+  ~results/<controller>/foo/bar, you will find (symlinks to) the
+  directories created from unpacking the tarballs.
+- user view: under ~users/<user>/<controller>/foo/bar~, you will find
+  the same entries.
+
+The value of ~prefix~ is an arbitrary sequence of names separated by ~/~.
+Each component is mapped to a subdirectory of each hierarchy. The value
+of ~user~ is also arbitrary, but the expectation is that users are going
+to use something line an IRC nick or email address to identify themselves.
+If you are calling ~pbench-move-results~ from a script, you might want to
+set the value of the ~user~ option using an environment variable, instead
+of passing it as an option:
+#+begin_src shell
+  export PBENCH_USER=<user>
+  ...
+  pbench-move-results --prefix=foo/bar
+#+end_src
+is equivalent to
+#+begin_src shell
+  pbench-move-results --user=<user> --prefix=foo/bar
+#+end_src
+The values of both of these options are indexed, so the dashboard will
+have access to them as well.  Currently, the dashboard ignores both of
+them, but we anticipate that they will soon be used as selection criteria
+for the results that a user might be interested in.
+
+
+* Do's and don'ts
+
+** Do
+- namespace your results by using the ~--prefix~ and ~--user~ options
+  of ~pbench-move-results~ - see:
+  [[*I want to group related results together - how do I do that?][I want to group related results together - how do I do that?]]
+
+** Do not
+- move multiple results into a subdirectory of ~/var/lib/pbench-agent~
+  in an effort to namespace the results: ~pbench-move-results~ will
+  create a single tarball and it will unpack it seemingly
+  successfully, but your results will fail to index, because the
+  indexer cannot make heads or tails of the structure.
