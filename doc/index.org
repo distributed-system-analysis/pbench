@@ -19,7 +19,8 @@
 * User documentation
 ** [[file:./release-notes/RELEASE-NOTES.org][Release notes]].
 ** [[file:./agent/installation.org][PBench agent installation instructions]].
-** [[file:./agent/user-guide.org][PBench agent user guide]].
+** [[file:./agent/user-guide.org][PBench agent user guide]]
+** [[file:./agent/faq.org][Pbench agent FAQ]]
 ** [[file:./server/pbench-web-server.org][PBench web server installation instructions and use]].
 * Admin documentation
 ** [[file:./server/installation.org][PBench server installation instructions]].
