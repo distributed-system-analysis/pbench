@@ -124,7 +124,7 @@ function _dump_logs {
 function _verify_output {
     res=$1
     tname=$2
-    diff -cw $_tdir/gold/${tname}.txt $_testout
+    diff -c $_tdir/gold/${tname}.txt $_testout
     if [[ $? -gt 0 ]]; then
         echo "FAIL - $tname"
         mv $_testout $_testroot/${tname}_output.txt
