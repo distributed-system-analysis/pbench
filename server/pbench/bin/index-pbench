@@ -210,7 +210,7 @@ def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config, dbg=0):
         beg, end, retries = es_put_template(es, name=run_template_name, body=run_template_body)
         successes = 1
         # Pbench Tool Data templates
-        for name, body in tool_templates:
+        for name, body in sorted(tool_templates):
             tool_template_name = '%s.tool-data-%s' % (INDEX_PREFIX,name)
             _, end, retry_count = es_put_template(es, name=tool_template_name, body=body)
             retries += retry_count
