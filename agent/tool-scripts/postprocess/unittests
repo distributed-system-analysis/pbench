@@ -63,6 +63,17 @@ function remove_sample_data {
     done
 }
 
+function testjstack {
+    echo "Testing jstack under sample $1 ..."
+
+    mkdir -p /tmp/GenData/$1
+    cp -r samples/$1 /tmp/GenData/
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./jstack-postprocess /tmp/GenData/$1 > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+
+    diff -cr gold/$1/csv /tmp/GenData/$1/csv
+    return $?
+}
+
 function testprocessiterationsamples {
     echo "Testing bench-scripts/postprocess/process-iteration-samples under sample $1 ..."
 
@@ -147,6 +158,17 @@ function testhaproxy_ocp {
     return $?
 }
 
+function testjmap {
+    echo "Testing jmap under sample $1 ..."
+
+    mkdir -p /tmp/GenData/$1
+    cp -r samples/$1 /tmp/GenData/
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./jmap-postprocess /tmp/GenData/$1 > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+
+    diff -cr gold/$1/csv /tmp/GenData/$1/csv
+    return $?
+}
+
 function testprometheus-metrics {
     echo "Testing prometheus-metrics-postprocess under sample $1 ..."
 
@@ -194,6 +216,14 @@ for i in $(ls -1 samples/) ; do
             ;;
         haproxy-ocp)
             testhaproxy_ocp $i
+            sts=$?
+            ;;
+        jmap)
+            testjmap $i
+            sts=$?
+            ;;
+        jstack)
+            testjstack $i
             sts=$?
             ;;
         prometheus-metrics)
