@@ -73,15 +73,25 @@ function _run_index {
 }
 
 function _run_activate {
-    $_tdir/pbench-server-config-activate ${_testdir}/pbench-server-internal/pbench/lib/config/pbench-server.cfg ${_testdir} >> $_testout
+    echo "+++ Running activate for $test" >> $_testout
+    oconfig=$CONFIG
+    unset CONFIG
+    # The activate invocations are supposed to work without CONFIG being set, so they
+    # do *not* use the global CONFIG file that the rest of the tests use.
+    # The tarball for the test installs the config file in the "pbench-server-internal" hierarchy.
+    # This script copies it to its "final" resting place.
+    pbench-server-config-activate ${_testdir}/pbench-server-internal/pbench/lib/config/pbench-server.cfg ${_testdir} >> $_testout
     rc=$?
     if [ $rc != 0 ] ;then
         return 1
     fi
-    oldpath=$PATH
-    PATH=$_tdir:$PATH
-    $_tdir/pbench-server-activate ${_testdir}/opt/pbench-server/lib/config/pbench-server.cfg ${_testdir} >> $_testout
-    PATH=$oldpath
+    # This script uses the copied config file to do the rest.
+    pbench-server-activate ${_testdir}/opt/pbench-server/lib/config/pbench-server.cfg ${_testdir} >> $_testout
+    echo "--- Finished activate for $test (status=$?)" >> $_testout
+    echo "+++ ${_testdir}/opt/pbench-server/lib/crontab/crontab" >> $_testout
+    cat ${_testdir}/opt/pbench-server/lib/crontab/crontab >> $_testout
+    export CONFIG=$oconfig
+    echo "--- ${_testdir}/opt/pbench-server/lib/crontab/crontab" >> $_testout
 }
 
 function _run_allscripts {
