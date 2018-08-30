@@ -10,7 +10,7 @@ systemctl start httpd.service
 
 # firewall-cmd requires root privileges
 # so we don't do this during unit tests.
-if [ ${_PBENCH_SERVER_TEST} != 1 ] ;then
+if [ "${_PBENCH_SERVER_TEST}" != 1 ] ;then
     # open up the port permanently
     firewall-cmd --add-service=http
     firewall-cmd --permanent --add-service=http

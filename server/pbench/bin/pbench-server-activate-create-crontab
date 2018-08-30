@@ -21,46 +21,61 @@ mkdir -p $crontabpath
 chmod 755 $crontabpath
 crontab=$crontabpath/crontab
 
-if [ ! -f $CONFIG ]
+> $crontab
+
+if [ ! -f "$CONFIG" ]
 then
     echo "Config file $CONFIG does not exist"
     exit 2
 fi
 
-echo "CONFIG=$CONFIG" > $crontab
 bindir=$(getconf.py script-dir pbench-server)
 if [ -z "$bindir" ] ;then
     echo "No 'script-dir' setting in [pbench-server] section of config file $CONFIG"
     exit 3
 fi
-echo "PATH=$bindir:$PATH" >> $crontab
 
+# what roles does this server play?
 roles=$(getconf.py -l roles pbench-server)
+
+# the hostname of the host we are installing in.
 hostname=$(hostname -f)
-# in some cases, the host specified in the config file
+
+# In some cases, the host specified in the config file
 # is different from what hostname -f returns. In such
 # cases, we also have a "real" name in the config file
-# that *should* match what hostname -f returns
+# that *should* match what hostname -f returns, otherwise
+# the sanity check below will just skip all the roles for
+# the host, leaving us with an empty crontab. If you do
+# get an empty crontab, this is a good thing to check.
 realhost=$(getconf.py realhost pbench-server)
+
+function crontab_header() {
+    local mailfrom mailto
+
+    echo "PATH=$bindir:$PATH" >> $crontab
+    echo "CONFIG=$CONFIG" >> $crontab
+
+    mailfrom=$(getconf.py mailfrom pbench-server)
+    if [ -z "$mailfrom" ] ;then
+        echo "No mailfrom specified in [pbench-server] section of the config file"
+    fi
+    mailto=$(getconf.py mailto pbench-server)
+    if [ -z "$mailto" ] ;then
+        echo "No mailto specified in [pbench-server] section of the config file"
+    fi
+
+    if [[ ! -z "$mailto" ]] ;then
+            echo "MAILTO=$mailto" >> $crontab
+    fi
+    if [[ ! -z "$mailfrom" ]] ;then
+        echo "MAILFROM=$mailfrom" >> $crontab
+    fi
+}
 
 function crontab_normal() {
     local role=$1
-    local host mailfrom mailto
 
-    mailfrom=$(getconf.py mailfrom $role pbench-server)
-    if [ -z "$mailfrom" ] ;then
-        echo "$role: No mailfrom specified"
-    fi
-    mailto=$(getconf.py mailto $role pbench-server)
-    if [ -z "$mailto" ] ;then
-        echo "$role: No mailto specified"
-
-    fi
-
-    grep -q MAILTO $crontab ||
-        echo "MAILTO=$mailto" >> $crontab
-    grep -q MAILFROM $crontab ||
-        echo "MAILFROM=$mailfrom" >> $crontab
     tasks=$(getconf.py -l tasks $role)
     for task in $tasks ;do
         crontabline=$(getconf.py crontab $task)
@@ -96,8 +111,16 @@ function crontab_with_substitutions() {
     echo "$crontabline" | sed "$(getconf.py -a $section | grep = | awk -F' = ' '{gsub(/-/, "_", $1); printf "s;$%s;%s;g\n", toupper($1) , $2;}')"  >> $crontab
 }
 
+# produce the header
+crontab_header
+
 for role in $roles ;do
+
     host=$(getconf.py host $role)
+    # Sanity test: either host or realhost (from the config file)
+    # *must* match the hostname of the host where this is being
+    # installed, otherwise this role is irrelevant for this host
+    # and we skip it.
     if [ "$host" != "$hostname" -a "$realhost" != "$hostname" ] ;then
         if [ "${_PBENCH_SERVER_TEST}" != "1" ] ;then 
             continue
