@@ -1,4 +1,10 @@
 #!/bin/bash
+
+unset PATH
+unset CONFIG
+
+PATH=/usr/bin:/bin
+
 export LANG=C
 export LC_ALL=C
 
@@ -20,7 +26,7 @@ fi
 
 _testout=$_testroot/output.txt
 export _testlog=$_testroot/test-execution.log
-export _testreportstatus=$_testroot/test-report-status.log
+export _testcurlpayload=$_testroot/test-curl-payload.log
 _testdir=$_testroot/pbench
 _testdir_local=$_testroot/pbench-local
 _testtmp=$_testroot/tmp
@@ -30,8 +36,15 @@ export _PBENCH_SERVER_TEST=1
 
 # execution environment
 _testopt=$_testroot/opt/pbench-server
-export PATH=$_testopt/unittest-scripts:$_tconfigtoolsbin:$PATH
+
+# All the "real" scripts are found at $_tdir, the mock scripts are found in
+# $_testopt/unittest-scripts. $_tconfigtoolsbin is not defined - should it? It should presumably
+# be the place where getconf.py is, but that's assumed to be installed already
+# in /usr/bin.
+export PATH=$_testopt/unittest-scripts:$_tconfigtoolsbin:$_tdir:/usr/bin
 export CONFIG=$_testopt/config/pbench-server.cfg
+# used by pbench-report-status
+export IDXCONFIG=$_testopt/config/pbench-index.cfg
 export TMPDIR=$_testtmp
 export TZ="UTC"
 
@@ -112,13 +125,13 @@ function _dump_logs {
     echo "--- test-execution.log file contents" >> $_testout
     rm -f $_testroot/test-execution.log
 
-    if [ -s $_testroot/test-report-status.log ]; then
-        echo "+++ test-report-status.log file contents" >> $_testout
-        grep -HvF "\-\-should-n0t-ex1st--" $_testroot/test-report-status.log 2>/dev/null |
+    if [ -s $_testcurlpayload ]; then
+        echo "+++ test-curl-payload.log file contents" >> $_testout
+        grep -HvF "\-\-should-n0t-ex1st--" $_testcurlpayload 2>/dev/null |
              sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' >> $_testout>> $_testout 2>&1
-        echo "--- test-report-status.log file contents" >> $_testout
+        echo "--- test-curl-payload.log file contents" >> $_testout
     fi
-    rm -f $_testroot/test-report-status.log
+    rm -f $_testcurlpayload
 }
 
 function _verify_output {
@@ -273,6 +286,7 @@ declare -A cmds=(
     # shim - failure md5
     [test-14]="_run pbench-server-prep-shim-001"
     [test-15]="_run pbench-server-prep-shim-002"
+
 )
 
 tests=$*

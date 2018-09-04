@@ -27,10 +27,16 @@
 +++ pbench log file contents
 /var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:start-1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:end-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-verify-backup-tarballs.1900-01-01/status/0e73d0d7e1287b71e63271d2b4d8efa2 --data @/tmp/pbench-report-status.NNNN/payload
+/var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:
 --- pbench log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/pbench-report-status --name pbench-verify-backup-tarballs --timestamp run-1900-01-01T00:00:00-UTC --type status /var/tmp/pbench-test-server/pbench/tmp/pbench-verify-backup-tarballs/index_mail_contents
 --- test-execution.log file contents
-+++ test-report-status.log file contents
-/var/tmp/pbench-test-server/test-report-status.log:pbench-verify-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)
---- test-report-status.log file contents
++++ test-curl-payload.log file contents
+/var/tmp/pbench-test-server/test-curl-payload.log:{
+/var/tmp/pbench-test-server/test-curl-payload.log:    "text": "pbench-verify-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n", 
+/var/tmp/pbench-test-server/test-curl-payload.log:    "@timestamp": "1900-01-01T00:00:00-UTC", 
+/var/tmp/pbench-test-server/test-curl-payload.log:    "name": "pbench-verify-backup-tarballs", 
+/var/tmp/pbench-test-server/test-curl-payload.log:    "doctype": "status"
+/var/tmp/pbench-test-server/test-curl-payload.log:}
+--- test-curl-payload.log file contents
