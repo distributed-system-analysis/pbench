@@ -1,8 +1,15 @@
-+++ Running indexing on /var/tmp/pbench-test-server/test-7.4
++++ Running indexing for test-7.4
+Template:  pbench-unittests.run
+Template:  pbench-unittests.tool-data-iostat
+Template:  pbench-unittests.tool-data-pidstat
+	done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 3, retries: 0)
 Bad hostname in sosreport:  The sosreport did not collect a hostname other than 'localhost'
---- Finished indexing on /var/tmp/pbench-test-server/test-7.4 (status=10)
+--- Finished indexing for test-7.4 (status=10)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
+/var/tmp/pbench-test-server/pbench/errors-json-unittests.json
+/var/tmp/pbench-test-server/pbench/test-7.4.tar.xz
+/var/tmp/pbench-test-server/pbench/test-7.4.tar.xz.md5
 --- pbench tree state
 +++ pbench log file contents
 --- pbench log file contents

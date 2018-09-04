@@ -43,6 +43,7 @@ Iteration 2-48thread complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/1-24thread/dbench-1-127.0.0.1.cmd
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/1-24thread/dbench-2-127.0.0.1.cmd
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/1-24thread/reference-result
+/var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/1-24thread/sample-runs-summary.txt
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/1-24thread/sample1
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/1-24thread/sample1/result-1-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/1-24thread/sample1/result-2-127.0.0.1.txt
@@ -63,11 +64,11 @@ Iteration 2-48thread complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/1-24thread/sample5/result-1-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/1-24thread/sample5/result-2-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/1-24thread/sample5/result.txt
-/var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/1-24thread/sample-runs-summary.txt
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/2-48thread
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/2-48thread/dbench-1-127.0.0.1.cmd
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/2-48thread/dbench-2-127.0.0.1.cmd
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/2-48thread/reference-result
+/var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/2-48thread/sample-runs-summary.txt
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/2-48thread/sample1
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/2-48thread/sample1/result-1-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/2-48thread/sample1/result-2-127.0.0.1.txt
@@ -88,7 +89,6 @@ Iteration 2-48thread complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/2-48thread/sample5/result-1-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/2-48thread/sample5/result-2-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/2-48thread/sample5/result.txt
-/var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/2-48thread/sample-runs-summary.txt
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/summary-result.csv
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/summary-result.html
 /var/tmp/pbench-test-bench/pbench/dbench__1900.01.01T00.00.00/summary-result.txt

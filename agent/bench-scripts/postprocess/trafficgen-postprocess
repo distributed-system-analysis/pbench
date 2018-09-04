@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+# -*- mode: perl; indent-tabs-mode: t; perl-indent-level: 8 -*-
+
 #
 ## Author: Andrew Theurer
 # Post-process a result sample for pbench-trafficgen benchmark
@@ -25,6 +27,7 @@ BEGIN {
 use lib "$_test_alt_tools_lib";
 use lib "$_test_alt_bench_lib";
 no lib ".";
+use GenData qw(gen_data);
 use BenchPostprocess qw(trim_series get_label create_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash);
 use File::Basename;
 use Data::Dumper;
@@ -102,19 +105,32 @@ my @tx_L2_Gbps; # each array element contains a hash with:
 	    	# role: packet-generator
 	    	# the number value for 10^9 bits per second for physical Ethernet (layer 1, including CRC and padding)
 
-
 sub mean {
     return sum(@_)/@_;
 }
 
 my $script = basename($0);
 my $dir = $ARGV[0];
+my $iteration = $ARGV[1];
+my $max_loss_pct = $ARGV[2];
+my $benchmark_version = $ARGV[3];
+my $tool_label_pattern = $ARGV[4];
+my $tool_group = $ARGV[5];
+
 my $result_file = $dir . "/binary-search.json";
 my $json_file = $dir . "/result.json";
+my $benchmark_name = 'trafficgen';
 my $primary_metric="rx_mpps";
 my %config;
 
-my @expceted_metrics = (
+my %benchmark_parameters_dataset = ( 	get_label('benchmark_name_label') => $benchmark_name,
+					get_label('benchmark_version_label') => $benchmark_version,
+					get_label('primary_metric_label') => $primary_metric,
+					get_label('uid_label') => create_uid('benchmark_name_label', 'controller_host_label')  );
+
+push(@benchmark, \%benchmark_parameters_dataset);
+
+my @expected_metrics = (
 			{ 'js_label' => 'rx_latency_maximum', 'metric_label' => 'latency_max', 'tx_or_rx' => 'rx', 'metric_class' => 'latency',
 			  'desc' => 'Time in microseconds between packet transmission and reception', 'divisor' => int 1 },
 
@@ -153,21 +169,18 @@ close TXT;
 my $json_result = from_json($json_text);
 my %last_trial = %{ $$json_result{'trials'}[-1] };
 
-#foreach my $key ( keys %last_trial ) {
-	#print "key: $key\n";
-#}
-#foreach my $section ( keys %last_trial ) {
-	#print "section: $section\n";
-#}
-#my $device_pairs=$last_trial{'trial_params'}{'active_device_pairs'};
-#print "device_pairs: $device_pairs\n";
+#print Dumper $json_result;
+#exit;
 
 foreach my $trial_param ( keys %{ $last_trial{'trial_params'} } ) {
 	if ( $last_trial{'trial_params'}{$trial_param} ) {
 		$config{$trial_param} = $last_trial{'trial_params'}{$trial_param}
 	}
 }
-$config{get_label('uid_label')} = 'something';
+$config{get_label('uid_label')} = sprintf("%s-%s", $benchmark_name, $benchmark_version);
+if (exists($config{'trial'}) && defined($config{'trial'}) && exists($config{'traffic_generator'}) && defined($config{'traffic_generator'})) {
+	$config{get_label('uid_label')} .= "-traffic_generator:%traffic_generator%-trial:%trial%";
+}
 push(@benchmark, \%config);
 
 foreach my $dev_pair ( @{ $last_trial{'trial_params'}{'test_dev_pairs'} } ) {
@@ -181,7 +194,7 @@ foreach my $dev_pair ( @{ $last_trial{'trial_params'}{'test_dev_pairs'} } ) {
 	# rx_latency_bandwidth, tx_pps_target, rx_lost_packets, tx_tolerance_min, rx_lost_pps, tx_tolerance_max,
 	# tx_pps, tx_latency_pps, tx_l1_Gbps, tx_l2_Gbps, tx_packets, rx_latency_lost_pps, rx_latency_lost_packets,
 	# rx_lost_packets_pct, tx_latency_bandwidth, tx_latency_packets, rx_latency_packets, rx_l1_Gbps, rx_l2_Gbps
-	for my $expected_metric ( @expceted_metrics ) {
+	for my $expected_metric ( @expected_metrics ) {
 		my %metric;
 		$metric{'uid'} = "tx_port:%tx_port%-rx_port:%rx_port%";
 		$metric{'tx_port'} = int $$dev_pair{'tx'};
@@ -200,33 +213,289 @@ foreach my $dev_pair ( @{ $last_trial{'trial_params'}{'test_dev_pairs'} } ) {
 	}
 }
 
-# trial_params: (should really be benchmark params)
-# active_device_pairs
-# rate_tolerance
-# vlan_ids
-# src_macs
-# encap_dst_ips
-# encap_src_macs
-# rate_unit
-# max_loss_pct
-# enable_flow_cache
-# measure_latency
-# use_src_mac_flows
-# vxlan_ids
-# traffic_generator
-# active_device_pairs
-# use_dst_mac_flows
-# trial_mode
-# use_dst_ip_flows
-# use_src_port_flows
-# src_ips
-# frame_size
-# run_revunidirec
-# max_port
-# device_pairs
-# use_encap_src_mac_flows
-# encap_src_ips
-# encap_dst_macs
+if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'})) {
+	#print Dumper $last_trial{'profiler-data'};
+
+	my @profiler_metrics = (
+		{ 'category' => 'global', 'js_label' => 'Global PPS', 'field' => 'pps', 'metric_label' => 'rx', 'group' => 'rx',
+		  'metric_class' => 'throughput', 'desc' => 'The number of packets (Ethernet frames) received per second',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'global', 'js_label' => 'Global PPS', 'field' => 'pps', 'metric_label' => 'tx', 'group' => 'tx',
+		  'metric_class' => 'throughput', 'desc' => 'The number of packets (Ethernet frames) transmitted per second', 
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'global', 'js_label' => 'Global BPS', 'field' => 'bps', 'metric_label' => 'rx', 'group' => 'rx',
+		  'metric_class' => 'throughput', 'desc' => 'The number of bits received per second',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'global', 'js_label' => 'Global BPS', 'field' => 'bps', 'metric_label' => 'tx', 'group' => 'tx',
+		  'metric_class' => 'throughput', 'desc' => 'The number of bits transmitted per second',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'global', 'js_label' => 'Global BPS', 'field' => 'drop_bps', 'metric_label' => 'drop', 'group' => 'rx',
+		  'metric_class' => 'throughput', 'desc' => 'The number of bits dropped per second',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'global', 'js_label' => 'Global CPU Utilization', 'field' => 'cpu_util', 'metric_label' => 'TX CPU', 'group' => 'misc',
+		  'metric_class' => 'resource', 'desc' => 'The CPU utilization % for the TX cores',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'global', 'js_label' => 'Global CPU Utilization', 'field' => 'cpu_util', 'metric_label' => 'RX CPU', 'group' => 'rx',
+		  'metric_class' => 'resource', 'desc' => 'The CPU utilization % for the RX core',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'global', 'js_label' => 'Global Per Core Bandwidth', 'field' => 'bw_per_core', 'metric_label' => 'Per Core Bandwidth', 'group' => 'misc',
+		  'metric_class' => 'throughput', 'desc' => 'The bandwidth per core',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'global', 'js_label' => 'Global Queue Full', 'field' => 'queue_full', 'metric_label' => 'Queue Full Count', 'group' => 'misc',
+		  'metric_class' => 'throughput', 'desc' => 'The number of times a queue was full when a packet enqueue was attempted',
+		  'divisor' => int 1, 'cumulative' => 1, 'last' => 0 },
+
+		{ 'category' => 'ports', 'js_label' => 'Interface PPS - Port ', 'field' => 'pps', 'metric_label' => 'rx', 'group' => 'rx',
+		  'metric_class' => 'throughput', 'desc' => 'The number of packets (Ethernet frames) received per second',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'ports', 'js_label' => 'Interface PPS - Port ', 'field' => 'pps', 'metric_label' => 'tx', 'group' => 'tx',
+		  'metric_class' => 'throughput', 'desc' => 'The number of packets (Ethernet frames) transmitted per second',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'ports', 'js_label' => 'Interface BPS - Port ', 'field' => 'bps_l1', 'metric_label' => 'L1 rx', 'group' => 'rx',
+		  'metric_class' => 'throughput', 'desc' => 'The number of L1 bits received per second',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'ports', 'js_label' => 'Interface BPS - Port ', 'field' => 'bps_l1', 'metric_label' => 'L1 tx', 'group' => 'tx',
+		  'metric_class' => 'throughput', 'desc' => 'The number of L1 bits transmitted per second',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'ports', 'js_label' => 'Interface BPS - Port ', 'field' => 'bps', 'metric_label' => 'L2 rx', 'group' => 'rx',
+		  'metric_class' => 'throughput', 'desc' => 'The number of L2 bits received per second',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'ports', 'js_label' => 'Interface BPS - Port ', 'field' => 'bps', 'metric_label' => 'L2 tx', 'group' => 'tx',
+		  'metric_class' => 'throughput', 'desc' => 'The number of L2 bits transmitted per second',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'ports', 'js_label' => 'Interface Utilization - Port ', 'field' => 'util', 'metric_label' => 'tx', 'group' => 'tx',
+		  'metric_class' => 'resource', 'desc' => 'The TX port utilization',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'ports', 'js_label' => 'Interface Utilization - Port ', 'field' => 'util', 'metric_label' => 'rx', 'group' => 'rx',
+		  'metric_class' => 'resource', 'desc' => 'The RX port utilization',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'pgids', 'js_label' => 'Stream PPS - PGID ', 'field' => '', 'metric_label' => 'rx', 'group' => 'rx_pps',
+		  'metric_class' => 'throughput', 'desc' => 'The number of bits received per second',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'pgids', 'js_label' => 'Stream PPS - PGID ', 'field' => '', 'metric_label' => 'tx', 'group' => 'tx_pps',
+		  'metric_class' => 'throughput', 'desc' => 'The number of bits transmitted per second',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'pgids', 'js_label' => 'Stream Latency - PGID ', 'field' => 'average', 'metric_label' => '', 'group' => 'latency',
+		  'metric_class' => 'latency', 'desc' => 'Average time in microseconds between packet transmission and reception',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'pgids', 'js_label' => 'Stream Latency - PGID ', 'field' => 'total_max', 'metric_label' => '', 'group' => 'latency',
+		  'metric_class' => 'latency', 'desc' => 'Maximum time in microseconds between packet transmission and reception',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'pgids', 'js_label' => 'Stream Latency - PGID ', 'field' => 'total_min', 'metric_label' => '', 'group' => 'latency',
+		  'metric_class' => 'latency', 'desc' => 'Minimum time in microseconds between packet transmission and reception',
+		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+	    );
+
+	my %trex_ports;
+	my %trex_pgids;
+
+	foreach my $timestamp_ms (sort (keys %{ $last_trial{'profiler-data'} } ) ) {
+		foreach my $port (keys %{ $last_trial{'profiler-data'}{$timestamp_ms}{'ports'} }) {
+			$trex_ports{$port} = 1;
+		}
+
+		foreach my $pgid (keys %{ $last_trial{'profiler-data'}{$timestamp_ms}{'pgids'} }) {
+			$trex_pgids{$pgid} = 1;
+		}
+
+	}
+
+	for my $profiler_metric ( @profiler_metrics ) {
+		if ($$profiler_metric{'category'} eq 'global') {
+			my @samples;
+
+			foreach my $timestamp_ms (sort (keys %{ $last_trial{'profiler-data'} } ) ) {
+				my $value = $last_trial{'profiler-data'}{$timestamp_ms}{'global'}{$$profiler_metric{'group'}}{$$profiler_metric{'field'}};
+
+				if ($$profiler_metric{'cumulative'}) {
+					my $tmp = $value;
+					$value = $value - $$profiler_metric{'last'};
+					$$profiler_metric{'last'} = $tmp;
+				}
+
+				my %sample = ( get_label('date_label') => int $timestamp_ms,
+					       get_label('value_label') => $value );
+				push(@samples, \%sample);
+			}
+
+			if (@samples) {
+				my %this_dataset;
+				my $mean = get_mean(\@samples);
+				%this_dataset = ( get_label('skip_aggregate_label') => 1,
+						  get_label('value_label') => $mean,
+						  get_label('timeseries_label') => \@samples,
+						  get_label('description_label') => $$profiler_metric{'desc'},
+						  'category' => $$profiler_metric{'category'},
+						  'group' => $$profiler_metric{'group'},
+						  'field' => $$profiler_metric{'field'},
+						  get_label('uid_label') => 'category:%category%-group:%group%-field:%field%' );
+
+				if ($$profiler_metric{'metric_class'} eq 'throughput') {
+					push(@{ $throughput{$$profiler_metric{'js_label'}}}, \%this_dataset);
+				} elsif ($$profiler_metric{'metric_class'} eq 'resource') {
+					push(@{ $resource{$$profiler_metric{'js_label'}}}, \%this_dataset);
+				} elsif ($$profiler_metric{'metric_class'} eq 'latency') {
+					push(@{ $latency{$$profiler_metric{'js_label'}}}, \%this_dataset);
+				}
+			}
+		} elsif ($$profiler_metric{'category'} eq 'ports') {
+			foreach my $port (sort (keys %trex_ports)) {
+				my @samples;
+
+				foreach my $timestamp_ms (sort (keys %{ $last_trial{'profiler-data'} } ) ) {
+					my $value = $last_trial{'profiler-data'}{$timestamp_ms}{'ports'}{$port}{$$profiler_metric{'group'}}{$$profiler_metric{'field'}};
+
+					if ($$profiler_metric{'cumulative'}) {
+						my $tmp = $value;
+						$value = $value - $$profiler_metric{'last'};
+						$$profiler_metric{'last'} = $tmp;
+					}
+
+					my %sample = ( get_label('date_label') => int $timestamp_ms,
+						       get_label('value_label') => $value );
+					push(@samples, \%sample);
+				}
+
+				if (@samples) {
+					my %this_dataset;
+					my $mean = get_mean(\@samples);
+					%this_dataset = ( get_label('skip_aggregate_label') => 1,
+							  get_label('value_label') => $mean,
+							  get_label('timeseries_label') => \@samples,
+							  get_label('description_label') => $$profiler_metric{'desc'},
+							  'category' => $$profiler_metric{'category'},
+							  'group' => $$profiler_metric{'group'},
+							  'field' => $$profiler_metric{'field'},
+							  'port' => $port,
+							  get_label('uid_label') => "category:%category%-port:%port%-group:%group%-field:%field%" );
+
+					if ($$profiler_metric{'metric_class'} eq 'throughput') {
+						push(@{ $throughput{$$profiler_metric{'js_label'} . $port}}, \%this_dataset);
+					} elsif ($$profiler_metric{'metric_class'} eq 'resource') {
+						push(@{ $resource{$$profiler_metric{'js_label'} . $port}}, \%this_dataset);
+					} elsif ($$profiler_metric{'metric_class'} eq 'latency') {
+						push(@{ $latency{$$profiler_metric{'js_label'} . $port}}, \%this_dataset);
+					}
+				}
+			}
+		} elsif ($$profiler_metric{'category'} eq 'pgids') {
+			foreach my $pgid (sort (keys %trex_pgids)) {
+				if ($$profiler_metric{'group'} eq 'latency') {
+					my @samples;
+					my $valid = 0;
+
+					foreach my $timestamp_ms (sort (keys %{ $last_trial{'profiler-data'} } ) ) {
+						my $value;
+						if (! exists($last_trial{'profiler-data'}{$timestamp_ms}{'pgids'}{$pgid}{$$profiler_metric{'group'}}{$$profiler_metric{'field'}})) {
+							$value = 0;
+						} else {
+							$value = $last_trial{'profiler-data'}{$timestamp_ms}{'pgids'}{$pgid}{$$profiler_metric{'group'}}{$$profiler_metric{'field'}};
+							$valid = 1;
+						}
+
+						if ($$profiler_metric{'cumulative'}) {
+							my $tmp = $value;
+							$value = $value - $$profiler_metric{'last'};
+							$$profiler_metric{'last'} = $tmp;
+						}
+
+						my %sample = ( get_label('date_label') => int $timestamp_ms,
+							       get_label('value_label') => $value );
+						push(@samples, \%sample);
+					}
+
+					if ($valid && @samples) {
+						my %this_dataset;
+						my $mean = get_mean(\@samples);
+						%this_dataset = ( get_label('skip_aggregate_label') => 1,
+								  get_label('value_label') => $mean,
+								  get_label('timeseries_label') => \@samples,
+								  get_label('description_label') => $$profiler_metric{'desc'},
+								  'category' => $$profiler_metric{'category'},
+								  'group' => $$profiler_metric{'group'},
+								  'pgid' => $pgid,
+								  'field' => $$profiler_metric{'field'},
+								  get_label('uid_label') => "category:%category%-pgid:%pgid%-group:%group%-field:%field%" );
+
+						if ($$profiler_metric{'metric_class'} eq 'throughput') {
+							push(@{ $throughput{$$profiler_metric{'js_label'} . $pgid}}, \%this_dataset);
+						} elsif ($$profiler_metric{'metric_class'} eq 'resource') {
+							push(@{ $resource{$$profiler_metric{'js_label'} . $pgid}}, \%this_dataset);
+						} elsif ($$profiler_metric{'metric_class'} eq 'latency') {
+							push(@{ $latency{$$profiler_metric{'js_label'} . $pgid}}, \%this_dataset);
+						}
+					}
+				} else {
+					foreach my $port (sort (keys %trex_ports)) {
+						my @samples;
+
+						foreach my $timestamp_ms (sort (keys %{ $last_trial{'profiler-data'} } ) ) {
+							my $value;
+							if (! exists($last_trial{'profiler-data'}{$timestamp_ms}{'pgids'}{$pgid}{$$profiler_metric{'group'}}{$port})) {
+								$value = 0;
+							} else {
+								$value = $last_trial{'profiler-data'}{$timestamp_ms}{'pgids'}{$pgid}{$$profiler_metric{'group'}}{$port};
+							}
+
+							if ($$profiler_metric{'cumulative'}) {
+								my $tmp = $value;
+								$value = $value - $$profiler_metric{'last'};
+								$$profiler_metric{'last'} = $tmp;
+							}
+
+							my %sample = ( get_label('date_label') => int $timestamp_ms,
+								       get_label('value_label') => $value );
+							push(@samples, \%sample);
+						}
+
+						if (@samples) {
+							my %this_dataset;
+							my $mean = get_mean(\@samples);
+							%this_dataset = ( get_label('skip_aggregate_label') => 1,
+									  get_label('value_label') => $mean,
+									  get_label('timeseries_label') => \@samples,
+									  get_label('description_label') => $$profiler_metric{'desc'},
+									  'category' => $$profiler_metric{'category'},
+									  'group' => $$profiler_metric{'group'},
+									  'port' => $port,
+									  'pgid' => $pgid,
+									  get_label('uid_label') => "category:%category%-pgid:%pgid%-group:%group%-port:%port%" );
+
+							if ($$profiler_metric{'metric_class'} eq 'throughput') {
+								push(@{ $throughput{$$profiler_metric{'js_label'} . $pgid}}, \%this_dataset);
+							} elsif ($$profiler_metric{'metric_class'} eq 'resource') {
+								push(@{ $resource{$$profiler_metric{'js_label'} . $pgid}}, \%this_dataset);
+							} elsif ($$profiler_metric{'metric_class'} eq 'latency') {
+								push(@{ $latency{$$profiler_metric{'js_label'} . $pgid}}, \%this_dataset);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
 
 if ( %throughput ) {
 	$workload{'throughput'} = \%throughput;
@@ -270,45 +539,15 @@ if ( %resource ) {
 	$workload{'resource'} = \%resource;
 }
 
+my %graph;
+create_graph_hash(\%graph, \%workload);
+my %graph_threshold;
+my %graph_type;
+gen_data(\%graph, \%graph_type, \%graph_threshold, $dir, 1);
+
 $json_text   = to_json( \%workload, { ascii => 1, pretty => 1 } );
 open(JSON, ">$json_file") || die "$script: could not open file $json_file: $!\n";
 print JSON $json_text;
 close(JSON);
 
 exit;
-
-	#if ($last_trial{'stats'}{$$dev_pair{'rx'}}{'rx_pps'}) {
-		#$metric{'value'} = $last_trial{'stats'}{$$dev_pair{'rx'}}{'rx_pps'} / 1000000;
-		#$metric{'description'} = "The number of 10^6 packets (Ethernet frames) received per second";
-		#push(@rx_Mpps, \%metric);
-	#}
-#
-	#if ($last_trial{'stats'}{$$dev_pair{'tx'}}{'tx_pps'}) {
-		#$metric{'value'} = $last_trial{'stats'}{$$dev_pair{'tx'}}{'tx_pps'} / 1000000;
-		#$metric{'description'} = "The number of 10^6 packets (Ethernet frames) trasmitted per second";
-		#push(@tx_Mpps, \%metric);
-	#}
-#
-	#if ($last_trial{'stats'}{$$dev_pair{'rx'}}{'rx_l1_bps'}) {
-		#$metric{'value'} = $last_trial{'stats'}{$$dev_pair{'rx'}}{'rx_l1_bps'} / 1000000;
-		#$metric{'description'} = "The number of layer-1 received 10^9 bits per second";
-		#push(@rx_L1_Gbps, \%metric);
-	#}
-#
-	#if ($last_trial{'stats'}{$$dev_pair{'tx'}}{'tx_l1_bps'}) {
-		#$metric{'value'} = $last_trial{'stats'}{$$dev_pair{'tx'}}{'tx_l1_bps'} / 1000000;
-		#$metric{'description'} = "The number of layer-1 trasmitted 10^9 bits per second";
-		#push(@tx_L1_Gbps, \%metric);
-	#}
-#
-	#if ($last_trial{'stats'}{$$dev_pair{'rx'}}{'rx_l2_bps'}) {
-		#$metric{'value'} = $last_trial{'stats'}{$$dev_pair{'rx'}}{'rx_l1_bps'} / 1000000;
-		#$metric{'description'} = "The number of layer-2 received 10^9 bits per second";
-		#push(@rx_L2_Gbps, \%metric);
-	#}
-#
-	#if ($last_trial{'stats'}{$$dev_pair{'tx'}}{'tx_l1_bps'}) {
-		#$metric{'value'} = $last_trial{'stats'}{$$dev_pair{'tx'}}{'tx_l1_bps'} / 1000000;
-		#$metric{'description'} = "The number of layer-2 trasmitted 10^9 bits per second";
-		#push(@tx_L2_Gbps, \%metric);
-	#}

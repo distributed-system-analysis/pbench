@@ -15,9 +15,35 @@ deploy-pbench-backup-dir = %(default-user)s@%(deploy-backup-host)s:/pbench-local
 [pbench-server]
 # we now index status into ES, but in some cases we might still want to use mail.
 use-mail-for-status = yes
-roles = pbench-results, pbench-backup
+roles = pbench-prep, pbench-results, pbench-backup
+dispatch-states = TO-UNPACK, TO-INDEX
+
+###########################################################################
+# crontab roles
+[pbench-results]
+host = %(default-host)s
+mailfrom = %(default-user)s@%(host)s
+tasks = pbench-prep, pbench-dispatch, pbench-unpack-tarballs, pbench-move-unpacked, pbench-edit-prefixes, pbench-index, pbench-sync-satellites
+
+[pbench-sync-satellites]
+host = %(default-host)s
+satellites = satellite-one, satellite-two
+tasks = pbench-sync
+
+# template values for this satellite
+[satellite-one]
+satellite-host = satellite-one.example.com
+satellite-prefix = ONE
+satellite-lock = pbench-sync-satellite-ONE.lock
+satellite-archive = /pbench/archive/fs-version-001
+
+[satellite-two]
+satellite-host = satellite-two.example.com
+satellite-prefix = TWO
+satellite-lock = pbench-sync-satellite-TWO.lock
+satellite-archive = /pbench/archive/fs-version-001
 
 # the rest will come from the default config file.
 [config]
 paths = /opt/pbench-server/lib/config
-files = pbench-server-default.cfg
+files = pbench-server-default.cfg.example

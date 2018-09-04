@@ -1,13 +1,13 @@
 +++ Running pbench-unpack-tarballs
---- Finished pbench-unpack-tarballs (status=1}
+--- Finished pbench-unpack-tarballs (status=1)
 +++ Running pbench-copy-sosreports
---- Finished pbench-copy-sosreports (status=1}
+--- Finished pbench-copy-sosreports (status=1)
 +++ Running pbench-index
---- Finished pbench-index (status=0}
+--- Finished pbench-index (status=0)
 +++ Running pbench-clean-up-dangling-results-links
---- Finished pbench-clean-up-dangling-results-links (status=1}
+--- Finished pbench-clean-up-dangling-results-links (status=1)
 +++ Running pbench-edit-prefixes
---- Finished pbench-edit-prefixes (status=1}
+--- Finished pbench-edit-prefixes (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
 /var/tmp/pbench-test-server/pbench/archive
@@ -39,4 +39,8 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:pbench-unpack-tarballs: Bad INCOMING=/var/tmp/pbench-test-server/pbench/public_html/incoming
 --- pbench log file contents
 +++ test-execution.log file contents
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/pbench-report-status --name pbench-index --timestamp run-1900-01-01T00:00:00-UTC --type status /var/tmp/pbench-test-server/pbench/tmp/pbench-index.NNNN/pbench-index.run-1900-01-01T00:00:00-UTC.report
 --- test-execution.log file contents
++++ test-report-status.log file contents
+/var/tmp/pbench-test-server/test-report-status.log:pbench-index.run-1900-01-01T00:00:00-UTC(unit-test) - Indexed 0 results
+--- test-report-status.log file contents

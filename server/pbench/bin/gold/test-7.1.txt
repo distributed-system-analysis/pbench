@@ -1,8 +1,10 @@
-+++ Running indexing on /var/tmp/pbench-test-server/test-7.1
-The metadata.log file is curdled in tarball:  /var/tmp/pbench-test-server/test-7.1.tar.xz
---- Finished indexing on /var/tmp/pbench-test-server/test-7.1 (status=7)
++++ Running indexing for test-7.1
+The metadata.log file is curdled in tarball:  /var/tmp/pbench-test-server/pbench/test-7.1.tar.xz
+--- Finished indexing for test-7.1 (status=7)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
+/var/tmp/pbench-test-server/pbench/test-7.1.tar.xz
+/var/tmp/pbench-test-server/pbench/test-7.1.tar.xz.md5
 --- pbench tree state
 +++ pbench log file contents
 --- pbench log file contents

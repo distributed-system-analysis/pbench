@@ -43,7 +43,7 @@ traffic_generator="trex-txrx" # can be either trex-txrx or moongen-txrx
 trex_use_ht="n"
 trex_use_l2="n"
 benchmark_run_dir=""
-traffic_directions="bidirec"
+traffic_directions="bidirectional"
 max_loss_pcts="0.002"
 num_flows="1024"
 num_samples=1
@@ -76,7 +76,6 @@ keep_failed_tool_data="y"
 tar_nonref_data="n"
 orig_cmd="$*"
 tool_group=default
-install_only="n"
 one_shot="n"
 skip_trex_install="n"
 skip_trex_server="n"
@@ -87,6 +86,7 @@ cmd="./binary-search.py"
 passthrough_arguments=""
 packet_protocol="UDP"
 pre_sample_cmd=""
+traffic_profiles=""
 
 function kill_trex() {
 	# kill any existing trex server process
@@ -117,7 +117,7 @@ function convert_number_range() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o c: --longoptions "pre-benchmark-cmd:,skip-trex-install,skip-trex-server,skip-git-pull,traffic-generator:,devices:,active-devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,install,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o c: --longoptions "pre-benchmark-cmd:,skip-trex-install,skip-trex-server,skip-git-pull,traffic-generator:,devices:,active-devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2,traffic-profile:,traffic-profiles:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
@@ -130,7 +130,7 @@ if [ $? -ne 0 ]; then
 	printf -- "-------------------------------\n"
 	printf -- "\n"
 	printf -- "--traffic-generator=str\n"
-	printf -- "  The traffic generation engine to use (trex-txrx or moongen-txrx)\n"
+	printf -- "  The traffic generation engine to use (trex-txrx or trex-txrx-profile or moongen-txrx)\n"
 	printf -- "  Default is $traffic_generator\n"
 	printf -- "\n"
 	printf -- "--devices=str,str\n"
@@ -166,6 +166,12 @@ if [ $? -ne 0 ]; then
 	printf -- "\n"
 	printf -- "      would produce 32 different test permutations\n"
 	printf -- "\n"
+	printf -- "--traffic-profile[s]=FILE[,FILE]\n"
+	printf -- "  A list of traffic profiles to load when --traffic-generator=trex-txrx-profile.  The\n"
+	printf -- "  profile contains a list of streams, each with fine grained options defined on a per\n"
+	printf -- "  stream basis.  See README-trex-txrx-profile.md in the trafficgen distribution for\n"
+	printf -- "  documentation on the file format.\n"
+	printf -- "\n"
 	printf -- "--rate[s]=value[,value]]\n"
 	printf -- "  A list of packet rates, in millions of packets per second (mpps), unless\n"
 	printf -- "  --rate-unit=%% is used, where the rate value is interpreted as a percentage\n"
@@ -182,10 +188,11 @@ if [ $? -ne 0 ]; then
 	printf -- "       --rate=50%% --rate-unit=%% --frame-size=64\n"
 	printf -- "\n"
 	printf -- "--traffic-direction[s]=str[,str]\n"
-	printf -- "  A list of one or more: unidirec, revunidirec, or bidirec (default $traffic_directions)\n"
-	printf -- "  unidirec: packets will Tx out the 1st device and Rx in the 2nd device\n"
-	printf -- "  revunidirec: packets will Tx out the 2nd device and RX in the 1st device\n"
-	printf -- "  biidirec: packets will Tx out the both devices and Rx in both devices\n"
+	printf -- "  A list of one or more: unidirectional, revunidirectional, or bidirectional\n"
+	printf -- "  (default $traffic_directions)\n"
+	printf -- "  unidirectional: packets will Tx out the 1st device and Rx in the 2nd device\n"
+	printf -- "  revunidirectional: packets will Tx out the 2nd device and RX in the 1st device\n"
+	printf -- "  bidirectional: packets will Tx out the both devices and Rx in both devices\n"
 	printf -- "\n"
 	printf -- "--max-loss-pct[s]=fl,[fl]\n"
 	printf -- "  A list of maximum allowed percentage of dropped frames, used for binary search\n"
@@ -345,11 +352,6 @@ eval set -- "$opts"
 debug_log "[$script_name]processing options"
 while true; do
 	case "$1" in
-		--install)
-		shift
-		install_only="y"
-		exit
-		;;
 		--tool-label-pattern)
 		shift
 		if [ -n "$1" ]; then
@@ -544,6 +546,13 @@ while true; do
 		shift
 		skip_git_pull="y"
 		;;
+		--traffic-profile|--traffic-profiles)
+		shift
+		if [ -n "$1" ]; then
+			traffic_profiles="$1"
+			shift
+		fi
+		;;
 		--)
 		shift
 		while true; do
@@ -569,15 +578,29 @@ if [ -z "${active_devices}" ]; then
 	active_devices=${devices}
 fi
 
+
 # add test options to $config, so this test result directory is easily identifiable
-config="${config}_tg[`echo $traffic_generator | sed -e 's/-txrx//'`]r[$rates]fs[$frame_sizes]nf[$num_flows]fm[`echo $flow_mods | sed -e 's/src-/s/g' -e 's/dst-/d/g' -e 's/ip/i/g' -e 's/mac/m/g' -e 's/port/p/g'`]td[`echo $traffic_directions | sed -e 's/direc//g'`]ml[$max_loss_pcts]"
+if [ $traffic_generator == "trex-txrx-profile" -a "${traffic_profiles}" != "" ]; then
+	traffic_profiles_list=""
+	for traffic_profile in `echo $traffic_profiles | sed -e s/,/" "/g`; do
+		traffic_profile=$(basename ${traffic_profile})
+		if [ -n "${traffic_profiles_list}" ]; then
+			traffic_profiles_list+=","
+		fi
+		traffic_profiles_list+="${traffic_profile}"
+	done
+
+	config="${config}_tg[`echo ${traffic_generator} | sed -e 's/-txrx//'`]pf[${traffic_profiles_list}]ml[${max_loss_pcts}]"
+else
+	config="${config}_tg[`echo $traffic_generator | sed -e 's/-txrx//'`]r[$rates]fs[$frame_sizes]nf[$num_flows]fm[`echo $flow_mods | sed -e 's/src-/s/g' -e 's/dst-/d/g' -e 's/ip/i/g' -e 's/mac/m/g' -e 's/port/p/g'`]td[`echo $traffic_directions | sed -e 's/directional//g'`]ml[$max_loss_pcts]"
+fi
 if [ "$one_shot" == "y" ]; then
 	config="${config}tt[os]"
 else
 	config="${config}tt[bs]"
 fi
 
-if [ "$traffic_generator" == "trex-txrx" -o "$traffic_generator" == "moongen-txrx" ]; then
+if [ "$traffic_generator" == "trex-txrx" -o "$traffic_generator" == "moongen-txrx" -o "$traffic_generator" == "trex-txrx-profile" ]; then
 	cmd="$cmd --traffic-generator=$traffic_generator --rate-tolerance=$rate_tolerance_pct"
 else
 	warn_log "The traffic engine is not valid: $traffic_generator"
@@ -592,12 +615,17 @@ for num_flow in `echo $num_flows | sed -e 's/,/ /g'`; do
 done
 
 not_flow_mods="$all_possible_flow_mods"
+profile_flow_mods=""
 if ! echo "$flow_mods" | grep -e "^none$" -e ",none$" -e "^none," -e ",none,"; then
 	for flow_mod in `echo $flow_mods | sed -e 's/,/ /g'`; do
 		found_flow_mod=0
 		for this_flow_mod in `echo $all_possible_flow_mods | sed -e 's/,/ /g'`; do
 			if [ $flow_mod = $this_flow_mod ]; then
-				cmd="$cmd --use-${flow_mod}-flows=1"
+				if [ "$traffic_generator" == "trex-txrx-profile" ]; then
+					profile_flow_mods="${profile_flow_mods} --use-${flow_mod}-flows"
+				else
+					cmd="$cmd --use-${flow_mod}-flows=1"
+				fi
 				found_flow_mod=1
 				not_flow_mods=`echo $not_flow_mods | sed -e s/^$flow_mod,// -e s/,$flow_mod,/,/ -e s/,$flow_mod//`
 			fi
@@ -608,145 +636,157 @@ if ! echo "$flow_mods" | grep -e "^none$" -e ",none$" -e "^none," -e ",none,"; t
 		fi
 	done
 fi
-# ensure the other flows are forced off (avoiding any defaults from binary-search.py)
-for flow_mod in `echo $not_flow_mods | sed -e 's/,/ /g'`; do
-	if [ "${flow_mod}" == "none" ]; then
-		continue
-	else
-		cmd="$cmd --use-${flow_mod}-flows=0"
-	fi
-done
+if [ "$traffic_generator" != "trex-txrx-profile" ]; then
+	# ensure the other flows are forced off (avoiding any defaults from binary-search.py)
+	for flow_mod in `echo $not_flow_mods | sed -e 's/,/ /g'`; do
+		if [ "${flow_mod}" == "none" ]; then
+			continue
+		else
+			cmd="$cmd --use-${flow_mod}-flows=0"
+		fi
+	done
+fi
 
 if [ $one_shot == "y" ]; then
 	cmd="$cmd --one-shot=1"
 fi
 
-# Before running any tests, the following must be satisfied:
-# -IOMMU must be enabled
-if cat /proc/cmdline | grep -q "intel_iommu=on"; then
-	echo "found IOMMU option, continuing"
-else
-	warn_log "could not find IOMMU option, intel_iommu=on, in /proc/cmdline, exiting"
-	exit 1
-fi
-# -dpdk-tools package must be installed
-if check_install_rpm dpdk-tools; then
-	echo "found dpdk-tools, continuing"
-else
-	warn_log "could not find dpdk-tools, exiting"
-	exit 1
-fi
-# -PCI devices bound to vfio-pci
-if [ -z "$devices" ]; then
-	warn_log "no devices were provided (--devices), exiting"
-	exit 1
-fi
-for module in vfio vfio_pci; do
-	if [ ! -e /sys/module/$module ]; then
-		echo "attempting to load $module"
-		modprobe $module
-		if [ ! -e /sys/module/$module ]; then
-			error_log "could not load $module module, exiting"
-			exit 1
-		fi
-	fi
-done
-total_devices=$(echo ${devices} | sed -e "s/,/ /g" | wc -w)
-if [ $(echo "${total_devices} % 2" | bc) != 0 ]; then
-	error_log "devices must be supplied in quantities of 2, exiting"
-	exit 1
-else
-	total_device_pairs=$(echo "${total_devices} / 2" | bc)
-	if [ $traffic_generator == "trex-txrx" ]; then
-		device_pair_index=0
-		cmd+=" --device-pairs="
-		for device in $(seq 1 2 ${total_devices}); do
-			device_a=$(( device - 1))
-			device_b=${device}
-			cmd+="${device_a}:${device_b}"
-			(( device_pair_index++ ))
-			if [ ${device_pair_index} -lt ${total_device_pairs} ]; then
-				cmd+=","
-			fi
-		done
+if [ "${postprocess_only}" == "n" ]; then
+	# Before running any tests, the following must be satisfied:
+	# -IOMMU must be enabled
+	if cat /proc/cmdline | grep -q "intel_iommu=on"; then
+		echo "found IOMMU option, continuing"
 	else
-		if [ "${total_device_pairs}" -gt 1 ]; then
-			error_log "only the trex-txrx traffic generator supports more than 1 pair of devices, exiting"
-			exit 1
-		fi
-	fi
-fi
-total_active_devices=$(echo ${active_devices} | sed -e "s/,/ /g" | wc -w)
-if [ $(echo "${total_active_devices} % 2" | bc) -ne 0 ]; then
-	error_log "active devices must be supplied in quantities of 2, exiting"
-	exit 1
-else
-	if [ $traffic_generator != "trex-txrx" -a "${devices}" != "${active_devices}" ]; then
-		error_log "only the trex-txrx traffic generator supports --devices != --active-devices, exiting"
+		warn_log "could not find IOMMU option, intel_iommu=on, in /proc/cmdline, exiting"
 		exit 1
-	else
-		if [ $traffic_generator == "trex-txrx" ]; then
-			active_device_pair_index=0
-			cmd+=" --active-device-pairs="
-			active_device_state=0
-			active_devices_processed=0
-			for active_device in `echo $active_devices | sed -e s/,/" "/g`; do
-				device_index=0
-				active_device_index=-1
-				for device in `echo $devices | sed -e s/,/" "/g`; do
-					if [ "${device}" == "${active_device}" ]; then
-						active_device_index=${device_index}
-					fi
-					(( device_index++ ))
-				done
-				(( active_devices_processed++ ))
-				if [ ${active_device_index} -ne -1 ]; then
-					if [ ${active_device_state} -eq 0 ]; then
-						cmd+="${active_device_index}:"
-						(( active_device_state++ ))
-					elif [ ${active_device_state} -eq 1 ]; then
-						cmd+="${active_device_index}"
-						active_device_state=0
-						if [ ${active_devices_processed} -lt ${total_active_devices} ]; then
-							cmd+=","
-						fi
-					fi
-				else
-					error_log "couldn't find an active device [${active_device}] in the list of devices [${devices}], exiting"
-					exit 1
-				fi
-			done
-		fi
 	fi
-fi
-for dev in `echo $devices | sed -e s/,/" "/g`; do
-	echo "configuring device $dev"
-	if /bin/ls /sys/module/vfio_pci/drivers/pci\:vfio-pci/ | grep -q "$dev"; then
-		echo "device $dev already bound to vfio-pci"
+	# -dpdk-tools package must be installed
+	if check_install_rpm dpdk-tools; then
+		echo "found dpdk-tools, continuing"
 	else
-		if [ -e /sys/bus/pci/devices/$dev/driver ]; then
-			if dpdk-devbind -u $dev; then
-				dpdk-devbind -b vfio-pci $dev
-			else
-				log_warn "could not unbind device, exiting"
+		warn_log "could not find dpdk-tools, exiting"
+		exit 1
+	fi
+	# -PCI devices bound to vfio-pci
+	if [ -z "$devices" ]; then
+		warn_log "no devices were provided (--devices), exiting"
+		exit 1
+	fi
+	for module in vfio vfio_pci; do
+		if [ ! -e /sys/module/$module ]; then
+			echo "attempting to load $module"
+			modprobe $module
+			if [ ! -e /sys/module/$module ]; then
+				error_log "could not load $module module, exiting"
 				exit 1
 			fi
+		fi
+	done
+	total_devices=$(echo ${devices} | sed -e "s/,/ /g" | wc -w)
+	if [ $(echo "${total_devices} % 2" | bc) != 0 ]; then
+		error_log "devices must be supplied in quantities of 2, exiting"
+		exit 1
+	else
+		total_device_pairs=$(echo "${total_devices} / 2" | bc)
+		if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
+			device_pair_index=0
+			cmd+=" --device-pairs="
+			for device in $(seq 1 2 ${total_devices}); do
+				device_a=$(( device - 1))
+				device_b=${device}
+				cmd+="${device_a}:${device_b}"
+				(( device_pair_index++ ))
+				if [ ${device_pair_index} -lt ${total_device_pairs} ]; then
+					cmd+=","
+				fi
+			done
 		else
-			dpdk-devbind -b vfio-pci $dev
+			if [ "${total_device_pairs}" -gt 1 ]; then
+				error_log "only the trex-txrx* traffic generators support more than 1 pair of devices, exiting"
+				exit 1
+			fi
 		fi
 	fi
-done
-for dev in `echo $devices | sed -e s/,/" "/g`; do
-	if /bin/ls /sys/module/vfio_pci/drivers/pci\:vfio-pci/ | grep -q "$dev"; then
-		echo "device $dev bound to vfio-pci"
+	total_active_devices=$(echo ${active_devices} | sed -e "s/,/ /g" | wc -w)
+	if [ $(echo "${total_active_devices} % 2" | bc) -ne 0 ]; then
+		error_log "active devices must be supplied in quantities of 2, exiting"
+		exit 1
 	else
-		echo "device $dev not bound to vfio-pci, exiting"
+		if $(echo $traffic_generator | grep -q "^trex-txrx") && [ "${devices}" != "${active_devices}" ]; then
+			error_log "only the trex-txrx* traffic generators support --devices != --active-devices, exiting"
+			exit 1
+		else
+			if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
+				active_device_pair_index=0
+				cmd+=" --active-device-pairs="
+				active_device_state=0
+				active_devices_processed=0
+				for active_device in `echo $active_devices | sed -e s/,/" "/g`; do
+					device_index=0
+					active_device_index=-1
+					for device in `echo $devices | sed -e s/,/" "/g`; do
+						if [ "${device}" == "${active_device}" ]; then
+							active_device_index=${device_index}
+						fi
+						(( device_index++ ))
+					done
+					(( active_devices_processed++ ))
+					if [ ${active_device_index} -ne -1 ]; then
+						if [ ${active_device_state} -eq 0 ]; then
+							cmd+="${active_device_index}:"
+							(( active_device_state++ ))
+						elif [ ${active_device_state} -eq 1 ]; then
+							cmd+="${active_device_index}"
+							active_device_state=0
+							if [ ${active_devices_processed} -lt ${total_active_devices} ]; then
+								cmd+=","
+							fi
+						fi
+					else
+						error_log "couldn't find an active device [${active_device}] in the list of devices [${devices}], exiting"
+						exit 1
+					fi
+				done
+			fi
+		fi
 	fi
-done
+	for dev in `echo $devices | sed -e s/,/" "/g`; do
+		echo "configuring device $dev"
+		if /bin/ls /sys/module/vfio_pci/drivers/pci\:vfio-pci/ | grep -q "$dev"; then
+			echo "device $dev already bound to vfio-pci"
+		else
+			if [ -e /sys/bus/pci/devices/$dev/driver ]; then
+				if dpdk-devbind -u $dev; then
+					dpdk-devbind -b vfio-pci $dev
+				else
+					log_warn "could not unbind device, exiting"
+					exit 1
+				fi
+			else
+				dpdk-devbind -b vfio-pci $dev
+			fi
+		fi
+	done
+	for dev in `echo $devices | sed -e s/,/" "/g`; do
+		if /bin/ls /sys/module/vfio_pci/drivers/pci\:vfio-pci/ | grep -q "$dev"; then
+			echo "device $dev bound to vfio-pci"
+		else
+			echo "device $dev not bound to vfio-pci, exiting"
+		fi
+	done
 
-if [ -d $trafficgen_dir ]; then
-	if [ $skip_git_pull == "n" ]; then
-		if pushd $trafficgen_dir >/dev/null && git pull && git checkout master; then
+	if [ -d $trafficgen_dir ]; then
+		if [ $skip_git_pull == "n" ]; then
+			if pushd $trafficgen_dir >/dev/null && git pull && git checkout master; then
+				echo "lua-trafficgen is up to date"
+				popd >/dev/null
+			else
+				warn_log "could not get latest lua-trafficgen"
+				exit 1
+			fi
+		fi
+	else
+		if pushd /opt >/dev/null && git clone https://github.com/atheurer/lua-trafficgen.git; then
 			echo "lua-trafficgen is up to date"
 			popd >/dev/null
 		else
@@ -754,46 +794,38 @@ if [ -d $trafficgen_dir ]; then
 			exit 1
 		fi
 	fi
-else
-	if pushd /opt >/dev/null && git clone https://github.com/atheurer/lua-trafficgen.git; then
-		echo "lua-trafficgen is up to date"
-		popd >/dev/null
-	else
-		warn_log "could not get latest lua-trafficgen"
-		exit 1
-	fi
-fi
 
-# Moongen is built under the lua-trafficgen repo
-if [ $traffic_generator == "moongen-txrx" ]; then
-	if ! [ -x $trafficgen_dir/MoonGen/build/MoonGen ]; then
-		pushd >/dev/null $trafficgen_dir
-		echo "building MoonGen"
-		if ./setup.sh; then
-			echo "MoonGen build complete"
-		else
-			warn_log "could not build MoonGen"
-			exit 1
+	# Moongen is built under the lua-trafficgen repo
+	if [ $traffic_generator == "moongen-txrx" ]; then
+		if ! [ -x $trafficgen_dir/MoonGen/build/MoonGen ]; then
+			pushd >/dev/null $trafficgen_dir
+			echo "building MoonGen"
+			if ./setup.sh; then
+				echo "MoonGen build complete"
+			else
+				warn_log "could not build MoonGen"
+				exit 1
+			fi
 		fi
 	fi
-fi
 	
-if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
-	kill_trex
+	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
+		if [ $skip_trex_server == "n" ]; then
+			kill_trex
 
-	trex_base_dir="/opt/trex"
-	trex_dir="${trex_base_dir}/current"
-	if [ "${skip_trex_install}" == "n" ]; then
-		if ! ${trafficgen_dir}/install-trex.sh --tmp-dir=${pbench_tmp} --base-dir=${trex_base_dir}; then
-			exit 1
+			trex_base_dir="/opt/trex"
+			trex_dir="${trex_base_dir}/current"
+			if [ "${skip_trex_install}" == "n" ]; then
+				if ! ${trafficgen_dir}/install-trex.sh --tmp-dir=${pbench_tmp} --base-dir=${trex_base_dir}; then
+					exit 1
+				fi
+			fi
+
+			if ! ${trafficgen_dir}/launch-trex.sh --tmp-dir=${pbench_tmp} --trex-dir=${trex_dir} --use-ht=${trex_use_ht} --use-l2=${trex_use_l2} --devices=${devices}; then
+				exit 1
+			fi
 		fi
 	fi
-
-	if ! ${trafficgen_dir}/launch-trex.sh --tmp-dir=${pbench_tmp} --trex-dir=${trex_dir} --use-ht=${trex_use_ht} --use-l2=${trex_use_l2} --devices=${devices}; then
-		exit 1
-	fi
-
-	popd >/dev/null
 fi
 
 if [[ -z "$benchmark_run_dir" ]]; then
@@ -814,7 +846,15 @@ mkdir -p $benchmark_run_dir/.running
 echo "$script_name $pbench_cmd" >$benchmark_run_dir/$script_name.cmd
 chmod +x $benchmark_run_dir/$script_name.cmd
 
-function record_iteration {
+if [ "${postprocess_only}" == "n" ]; then
+	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
+		if [ $skip_trex_server == "n" ]; then
+			cp ${pbench_tmp}/trex_cfg.yaml ${benchmark_run_dir}
+		fi
+	fi
+fi
+
+function record_default_iteration {
 	local count=$1
 	local direction=$2
 	local frame_size=$3
@@ -832,74 +872,267 @@ function record_iteration {
 	echo $iteration | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
 }
 
-total_iterations=0
-for traffic_direction in `echo $traffic_directions | sed -e s/,/" "/g`; do
-	for max_loss_pct in `echo $max_loss_pcts | sed -e s/,/" "/g`; do
-		for frame_size in `echo $frame_sizes | sed -e s/,/" "/g`; do
-			for num_flow in `echo $num_flows | sed -e s/,/" "/g`; do
-				((total_iterations++))
-			done
-		done
-	done
-done
-echo "Total number of benchmark iterations: $total_iterations"
+function record_profile_iteration {
+	local count=$1
+	local profile=$2
+	local loss=$3
+	local iteration=$4
+
+	mdlog=${benchmark_run_dir}/metadata.log
+	echo ${iteration} >> ${benchmark_iterations}
+	echo ${count} | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_number
+	echo ${profile} | pbench-add-metalog-option ${mdlog} iterations/${iteration} profile
+	echo ${loss} | pbench-add-metalog-option ${mdlog} iterations/${iteration} max_loss_pct
+	echo ${iteration} | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
+}
+
 count=1
 mkdir -p $benchmark_run_dir/.running
 export benchmark_name config
 #pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 
-rc=0
-for rate in `echo $rates | sed -e s/,/" "/g`; do
-	if [ $rc -ne 0 ]; then
-		break
-	fi
+total_iterations=0
+if [ $traffic_generator == "trex-txrx-profile" -a "${traffic_profiles}" != "" ]; then
+	for traffic_profile in `echo $traffic_profiles | sed -e s/,/" "/g`; do
+		for max_loss_pct in `echo $max_loss_pcts | sed -e s/,/" "/g`; do
+			((total_iterations++))
+		done
+	done
+else
 	for traffic_direction in `echo $traffic_directions | sed -e s/,/" "/g`; do
+		for frame_size in `echo $frame_sizes | sed -e s/,/" "/g`; do
+			for num_flow in `echo $num_flows | sed -e s/,/" "/g`; do
+				for max_loss_pct in `echo $max_loss_pcts | sed -e s/,/" "/g`; do
+					((total_iterations++))
+				done
+			done
+		done
+	done
+fi
+echo "Total number of benchmark iterations: $total_iterations"
+
+pre_loop_cmd=${cmd}
+
+function inner_most_loop() {
+	local loop_type=$1
+
+	for max_loss_pct in `echo $max_loss_pcts | sed -e s/,/" "/g`; do
 		if [ $rc -ne 0 ]; then
 			break
 		fi
-		for max_loss_pct in `echo $max_loss_pcts | sed -e s/,/" "/g`; do
+
+		# reset the command to run
+		cmd=${pre_loop_cmd}
+
+		# if any of the runtimes are provided by the user, then use those
+		unset iteration_sniff_runtime
+		unset iteration_search_runtime
+		unset iteration_validation_runtime
+		if [ ! -z "$sniff_runtime" ]; then
+			iteration_sniff_runtime=$sniff_runtime
+		fi
+		if [ ! -z "$search_runtime" ]; then
+			iteration_search_runtime=$search_runtime
+		fi
+		if [ ! -z "$validation_runtime" ]; then
+			iteration_validation_runtime=$validation_runtime
+		fi
+		# for any runtimes not provided by user, assign a default value
+		# there are different defaults for 0-loss and non-zero-loss
+		if [ -z "$iteration_sniff_runtime" ]; then
+			if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
+				iteration_sniff_runtime=$df_zl_sniff_runtime
+			else
+				iteration_sniff_runtime=$df_sniff_runtime
+			fi
+		fi
+		if [ -z "$iteration_search_runtime" ]; then
+			if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
+				iteration_search_runtime=$df_zl_search_runtime
+			else
+				iteration_search_runtime=$df_search_runtime
+			fi
+		fi
+		if [ -z "$iteration_validation_runtime" ]; then
+			if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
+				iteration_validation_runtime=$df_zl_validation_runtime
+			else
+				iteration_validation_runtime=$df_validation_runtime
+			fi
+		fi
+		cmd="$cmd --sniff-runtime=$iteration_sniff_runtime"
+		cmd="$cmd --search-runtime=$iteration_search_runtime"
+		cmd="$cmd --validation-runtime=$iteration_validation_runtime"
+
+		if [ $count -ge $start_iteration_num ]; then
+			fs_unit=""
+			if [ "${loop_type}" == "default" ]; then
+				if [ "${frame_size}" -eq "${frame_size}" ] 2>/dev/null; then
+					fs_unit="B"
+				fi
+				iteration="${count}-${traffic_direction}-${frame_size}${fs_unit}-${num_flow}flows-${max_loss_pct}pct_drop"
+				record_default_iteration "${count}" "${traffic_direction}" "${frame_size}${fs_unit}" "${num_flow}flows" "${max_loss_pct}pct_drop" "$iteration"
+			elif [ "${loop_type}" == "profile" ]; then
+				tmp_traffic_profile=$(basename ${traffic_profile})
+				iteration="${count}-${tmp_traffic_profile}-${max_loss_pct}pct_drop"
+				record_profile_iteration "${count}" "${tmp_traffic_profile}" "${max_loss_pct}pct_drop" "${iteration}"
+			fi
+			iteration_dir="$benchmark_run_dir/$iteration"
+			mkdir -p $iteration_dir
+			benchmark_cmd_file="$iteration_dir/$benchmark_name.cmd"
+			result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
+			failures=0
+			echo "Starting iteration[$iteration] ($count of $total_iterations)"
+			log "Starting iteration[$iteration] ($count of $total_iterations)"
+
+			iteration_options=""
+			if [ $traffic_generator != "trex-txrx-profile" ]; then
+				if [ $rate == "none" ]; then
+					if [ $traffic_generator == "trex-txrx" ]; then
+						iteration_options="$iteration_options --rate-unit=% --rate=100"
+					else
+						# don't specify a rate and let binary-search.py + whatever traffic-generator figure it out
+						iteration_options="$iteration_options"
+					fi
+				else
+					iteration_options="$iteration_options --rate-unit=$rate_unit --rate=$rate"
+				fi
+			else
+				if [ "${traffic_profiles}" == "" -o "${rates}" == "none" ]; then
+					iteration_options="${iteration_options} --rate-unit=% --rate=100"
+				else
+					iteration_options="${iteration_options} --rate-unit=% --rate=${rates}"
+				fi
+			fi
+			iteration_options="$iteration_options --max-loss-pct=$max_loss_pct"
+			if [ $traffic_generator == "trex-txrx-profile" ]; then
+				if [ "${traffic_profiles}" == "" ]; then
+					profile_builder_cmd_file="${iteration_dir}/profile-builder-cmd"
+
+					echo "pushd $trafficgen_dir >/dev/null" >${profile_builder_cmd_file}
+					echo "./profile-builder.py --frame-size=${frame_size} --num-flows=${num_flow} --rate=${rate} ${profile_flow_mods} --traffic-direction=${traffic_direction} --measure-latency" >>${profile_builder_cmd_file}
+					echo "cmd_rc=\$?" >>${profile_builder_cmd_file}
+					echo "popd >/dev/null" >>${profile_builder_cmd_file}
+					echo "exit" >>${profile_builder_cmd_file}
+					chmod +x ${profile_builder_cmd_file}
+
+					traffic_profile_file="${iteration_dir}/traffic-profile.json"
+
+					${profile_builder_cmd_file} > ${traffic_profile_file} 2>&1
+				else
+					cp ${traffic_profile} ${iteration_dir}/
+					traffic_profile_file="${iteration_dir}/`basename ${traffic_profile}`"
+				fi
+				iteration_options="${iteration_options} --traffic-profile=${traffic_profile_file}"
+			else
+				iteration_options="${iteration_options} --traffic-direction=${traffic_direction}"
+				iteration_options="$iteration_options --frame-size=$frame_size"
+				iteration_options="$iteration_options --num-flows=$num_flow"
+			fi
+
+			# save benchmark command in file for debugging or running manually
+			echo "pushd >/dev/null $trafficgen_dir" >$benchmark_cmd_file
+			echo "$cmd $iteration_options $passthrough_arguments \$@" >>$benchmark_cmd_file
+			echo "cmd_rc=\$?" >>$benchmark_cmd_file
+			echo "popd >/dev/null" >>$benchmark_cmd_file
+			echo "exit \$cmd_rc" >>$benchmark_cmd_file
+			chmod +x $benchmark_cmd_file
+			while [[ $(echo "if (${result_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; do
+				if [[ $failures -gt 0 ]]; then
+					echo "Restarting iteration[$iteration] ($count of $total_iterations)"
+					log "Restarting iteration[$iteration] ($count of $total_iterations)"
+				fi
+				# each attempt at a test config requires multiple samples to get stddev
+				for sample in `seq 1 $num_samples`; do
+					if [ $rc -ne 0 ]; then
+						break
+					fi
+					benchmark_results_dir="$iteration_dir/sample$sample"
+					if [ "$postprocess_only" != "y" ]; then
+						mkdir -p $benchmark_results_dir
+						echo "test sample $sample of $num_samples"
+						log "test sample $sample of $num_samples "
+						pre_benchmark_cmd_log=$benchmark_results_dir/pre-benchmark-cmd-log.txt
+						result_file=$benchmark_results_dir/result.txt
+						if [ "$pre_benchmark_cmd" != "" ]; then
+							PBENCH_ITERATION=$iteration PBENCH_SAMPLE=$sample $pre_benchmark_cmd 2>&1 | tee -i $pre_benchmark_cmd_log
+						fi
+						pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+						$benchmark_cmd_file --output-dir=$benchmark_results_dir 2>&1 | tee -i $result_file
+						rc=$?
+						pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+						pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+						echo "exit code: $rc"
+						if [ $rc -ne 0 ]; then
+							error_log "iteration $iteration sample $sample returned non-zero exit code"
+						fi
+					else
+						if [[ ! -d $benchmark_results_dir ]]; then
+							error_log "Results directory $benchmark_results_dir does not exist, skipping post-processing"
+							continue
+						fi
+						echo "Not going to run $benchmark_name.  Only postprocesing existing data"
+						log "Not going to run $benchmnark_name.  Only postprocesing existing data"
+					fi
+					if [ $rc -eq 0 ]; then
+						trafficgen_version="unknown"
+						if [ -d ${trafficgen_dir} ]; then
+							trafficgen_version=$(pushd ${trafficgen_dir} >/dev/null; git log --max-count=1 --pretty=%h; popd >/dev/null)
+						fi
+						echo "$script_path/postprocess/$benchmark_name-postprocess $benchmark_results_dir $iteration $max_loss_pct $trafficgen_version $tool_label_pattern $tool_group" >"$benchmark_results_dir/$benchmark_name-postprocess.cmd"
+						chmod +x "$benchmark_results_dir/$benchmark_name-postprocess.cmd"
+						$benchmark_results_dir/$benchmark_name-postprocess.cmd || rc=1
+					fi
+				done
+				if [ $rc -eq 0 ]; then
+					echo "$script_path/postprocess/process-iteration-samples $iteration_dir Mframes_sec $maxstddevpct $failures $max_failures $tar_nonref_data $keep_failed_tool_data" >"$iteration_dir/process-iteration-samples.cmd"
+					chmod +x "$iteration_dir/process-iteration-samples.cmd"
+					$iteration_dir/process-iteration-samples.cmd
+					fail=$?
+					if [ $fail -eq 1 ]; then
+						error_log "This test iteration failed"
+						((failures++))
+					fi
+					if [ $fail -eq 0 -o $failures -ge $max_failures ]; then
+						debug_log "Moving to the next iteration"
+						break
+					fi
+				else
+					error_log "Aborting benchmark"
+					break
+				fi
+			done # break out of this loop only if the $result_stddevpct is lower than $maxstddevpct
+			if [ $rc -eq 0 ]; then
+				echo "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
+				log "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
+			fi
+		else
+			echo "Skipping iteration $iteration ($count of $total_iterations)"
+			log "Skipping iteration $iteration ($count of $total_iterations)"
+		fi
+		let count=$count+1 # now we can move to the next iteration
+	done
+}
+
+rc=0
+total_iterations=0
+if [ $traffic_generator == "trex-txrx-profile" -a "${traffic_profiles}" != "" ]; then
+	for traffic_profile in `echo $traffic_profiles | sed -e s/,/" "/g`; do
+		if [ $rc -ne 0 ]; then
+			break
+		fi
+
+		inner_most_loop "profile"
+	done
+else
+	for rate in `echo $rates | sed -e s/,/" "/g`; do
+		if [ $rc -ne 0 ]; then
+			break
+		fi
+		for traffic_direction in `echo $traffic_directions | sed -e s/,/" "/g`; do
 			if [ $rc -ne 0 ]; then
 				break
 			fi
-			# if any of the runtimes are provided by the user, then use those
-			unset iteration_sniff_runtime
-			unset iteration_search_runtime
-			unset iteration_validation_runtime
-			if [ ! -z "$sniff_runtime" ]; then
-				iteration_sniff_runtime=$sniff_runtime
-			fi
-			if [ ! -z "$search_runtime" ]; then
-				iteration_search_runtime=$search_runtime
-			fi
-			if [ ! -z "$validation_runtime" ]; then
-				iteration_validation_runtime=$validation_runtime
-			fi
-			# for any runtimes not provided by user, assign a default value
-			# there are different defaults for 0-loss and non-zero-loss
-			if [ -z "$iteration_sniff_runtime" ]; then
-				if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
-					iteration_sniff_runtime=$df_zl_sniff_runtime
-				else
-					iteration_sniff_runtime=$df_sniff_runtime
-				fi
-			fi
-			if [ -z "$iteration_search_runtime" ]; then
-				if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
-					iteration_search_runtime=$df_zl_search_runtime
-				else
-					iteration_search_runtime=$df_search_runtime
-				fi
-			fi
-			if [ -z "$iteration_validation_runtime" ]; then
-				if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
-					iteration_validation_runtime=$df_zl_validation_runtime
-				else
-					iteration_validation_runtime=$df_validation_runtime
-				fi
-			fi
-			cmd="$cmd --sniff-runtime=$iteration_sniff_runtime"
-			cmd="$cmd --search-runtime=$iteration_search_runtime"
-			cmd="$cmd --validation-runtime=$iteration_validation_runtime"
 			for frame_size in `echo $frame_sizes | sed -e s/,/" "/g`; do
 				if [ $rc -ne 0 ]; then
 					break
@@ -908,134 +1141,29 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 					if [ $rc -ne 0 ]; then
 						break
 					fi
-					if [ $count -ge $start_iteration_num ]; then
-						iteration_options=""
-						if [ $rate == "none" ]; then
-							if [ $traffic_generator == "trex-txrx" ]; then
-								iteration_options="$iteration_options --rate-unit=% --rate=100"
-							else
-								# don't specify a rate and let binary-search.py + whatever traffic-generator figure it out
-								iteration_options="$iteration_options"
-							fi
-						else
-							iteration_options="$iteration_options --rate-unit=$rate_unit --rate=$rate"
-						fi
-						fs_unit=""
-						if [ "${frame_size}" -eq "${frame_size}" ] 2>/dev/null; then
-							fs_unit="B"
-						fi
-						iteration="${count}-${traffic_direction}-${frame_size}${fs_unit}-${num_flow}flows-${max_loss_pct}pct_drop"
-                                                record_iteration "${count}" "${traffic_direction}" "${frame_size}${fs_unit}" "${num_flow}flows" "${max_loss_pct}pct_drop" "$iteration"
-						iteration_dir="$benchmark_run_dir/$iteration"
-						mkdir -p $iteration_dir
-						benchmark_cmd_file="$iteration_dir/$benchmark_name.cmd"
-						result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
-						failures=0
-						echo "Starting iteration[$iteration] ($count of $total_iterations)"
-						log "Starting iteration[$iteration] ($count of $total_iterations)"
-						# Add any benchmark-iteration-specific options
-						if [  $traffic_direction == "unidirec" ]; then
-							iteration_options="$iteration_options --run-bidirec=0 --run-revunidirec=0"
-						elif [ $traffic_direction == "revunidirec" ]; then
-							iteration_options="$iteration_options --run-bidirec=0 --run-revunidirec=1"
-						else
-							iteration_options="$iteration_options --run-bidirec=1 --run-revunidirec=0"
-						fi
-						iteration_options="$iteration_options --max-loss-pct=$max_loss_pct"
-						iteration_options="$iteration_options --frame-size=$frame_size"
-						iteration_options="$iteration_options --num-flows=$num_flow"
-						# save benchmark command in file for debugging or running manually
-						echo "pushd >/dev/null $trafficgen_dir" >$benchmark_cmd_file
-						echo "$cmd $iteration_options $passthrough_arguments \$@" >>$benchmark_cmd_file
-						echo "cmd_rc=\$?" >>$benchmark_cmd_file
-						echo "popd >/dev/null" >>$benchmark_cmd_file
-						echo "exit \$cmd_rc" >>$benchmark_cmd_file
-						chmod +x $benchmark_cmd_file
-						while [[ $(echo "if (${result_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; do
-							if [[ $failures -gt 0 ]]; then
-								echo "Restarting iteration[$iteration] ($count of $total_iterations)"
-								log "Restarting iteration[$iteration] ($count of $total_iterations)"
-							fi
-							# each attempt at a test config requires multiple samples to get stddev
-							for sample in `seq 1 $num_samples`; do
-								if [ $rc -ne 0 ]; then
-									break
-								fi
-								benchmark_results_dir="$iteration_dir/sample$sample"
-								if [ "$postprocess_only" != "y" ]; then
-									mkdir -p $benchmark_results_dir
-									echo "test sample $sample of $num_samples"
-									log "test sample $sample of $num_samples "
-									pre_benchmark_cmd_log=$benchmark_results_dir/pre-benchmark-cmd-log.txt
-									result_file=$benchmark_results_dir/result.txt
-									if [ "$pre_benchmark_cmd" != "" ]; then
-										PBENCH_ITERATION=$iteration PBENCH_SAMPLE=$sample $pre_benchmark_cmd 2>&1 | tee -i $pre_benchmark_cmd_log
-									fi
-									pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-									$benchmark_cmd_file --output-dir=$benchmark_results_dir 2>&1 | tee -i $result_file
-									rc=$?
-									pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-									pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-									echo "exit code: $rc"
-									if [ $rc -ne 0 ]; then
-										error_log "iteration $iteration sample $sample returned non-zero exit code"
-									fi
-								else
-									if [[ ! -d $benchmark_results_dir ]]; then
-										error_log "Results directory $benchmark_results_dir does not exist, skipping post-processing"
-										continue
-									fi
-									echo "Not going to run $benchmark_name.  Only postprocesing existing data"
-									log "Not going to run $benchmnark_name.  Only postprocesing existing data"
-								fi
-								if [ $rc -eq 0 ]; then
-									echo "$script_path/postprocess/$benchmark_name-postprocess $benchmark_results_dir $iteration $max_loss_pct $tool_label_pattern $tool_group" >"$benchmark_results_dir/$benchmark_name-postprocess.cmd"
-									chmod +x "$benchmark_results_dir/$benchmark_name-postprocess.cmd"
-									$benchmark_results_dir/$benchmark_name-postprocess.cmd || rc=1
-								fi
-							done
-							if [ $rc -eq 0 ]; then
-								echo "$script_path/postprocess/process-iteration-samples $iteration_dir Mframes_sec $maxstddevpct $failures $max_failures $tar_nonref_data $keep_failed_tool_data" >"$iteration_dir/process-iteration-samples.cmd"
-								chmod +x "$iteration_dir/process-iteration-samples.cmd"
-								$iteration_dir/process-iteration-samples.cmd
-								fail=$?
-								if [ $fail -eq 1 ]; then
-									error_log "This test iteration failed"
-									((failures++))
-								fi
-								if [ $fail -eq 0 -o $failures -ge $max_failures ]; then
-									debug_log "Moving to the next iteration"
-									break
-								fi
-							else
-								error_log "Aborting benchmark"
-								break
-							fi
-						done # break out of this loop only if the $result_stddevpct is lower than $maxstddevpct
-						if [ $rc -eq 0 ]; then
-							echo "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
-							log "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
-						fi
-					else
-						echo "Skipping iteration $iteration ($count of $total_iterations)"
-						log "Skipping iteration $iteration ($count of $total_iterations)"
-					fi
-					let count=$count+1 # now we can move to the next iteration
+
+					inner_most_loop "default"
 				done
 			done
 		done
 	done
-done
+fi
 if [ $rc -eq 0 ]; then
 	echo "$script_path/postprocess/generate-benchmark-summary $benchmark_name $orig_cmd $benchmark_run_dir" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
 	$script_path/postprocess/generate-benchmark-summary "$benchmark_name" "$orig_cmd" "$benchmark_run_dir"
 	#pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 fi
-if [ $traffic_generator == "trex-txrx" -a $skip_trex_server == "n" ]; then
-	kill_trex
 
-	if [ "${trex_use_l2}" == "y" ]; then
-		mv -v /etc/trex_cfg.yaml.pbench-backup /etc/trex_cfg.yaml
+if [ "${postprocess_only}" == "n" ]; then
+	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
+		if [ $skip_trex_server == "n" ]; then
+			kill_trex
+
+			if [ "${trex_use_l2}" == "y" ]; then
+				mv -v /etc/trex_cfg.yaml.pbench-backup /etc/trex_cfg.yaml
+			fi
+		fi
 	fi
 fi
+
 rmdir $benchmark_run_dir/.running

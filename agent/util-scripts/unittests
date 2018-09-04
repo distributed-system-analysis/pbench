@@ -1,4 +1,6 @@
 #!/bin/bash
+export LANG=C
+export LC_ALL=C
 _tdir=$(dirname $(readlink -f $0))
 
 _testroot=/var/tmp/pbench-test-utils
@@ -61,7 +63,7 @@ res=0
 
 function _run {
     local sts
-    
+
     tname=$1
     shift
     tscrpt=$1
@@ -115,7 +117,9 @@ function _verify_output {
     tname=$2
     tscrpt=$3
     expected_status=${4:-0}
-    diff -cw $_tdir/gold/${tscrpt}/${tname}.txt $_testout
+    # fix up any pids that have snuck into the output.
+    sed 's;tmp/\([a-z-]*\).[0-9][0-9]*;tmp/\1.NNNNN;' $_testout |
+        diff -cw $_tdir/gold/${tscrpt}/${tname}.txt -
     if [[ $? -gt 0 ]]; then
         echo "FAIL - $tname"
         mv $_testout $_testroot/${tname}_output.txt
@@ -197,6 +201,8 @@ declare -A tools=(
     [test-28]="pbench-collect-sysinfo"
     [test-29]="pbench-collect-sysinfo"
     [test-30]="pbench-collect-sysinfo"
+    [test-31]="pbench-copy-results"
+    [test-32]="pbench-copy-results"
 )
 declare -A options=(
     [test-00]="--name=mpstat --group=default -- --interval=10"
@@ -229,6 +235,8 @@ declare -A options=(
     [test-28]="--check --sysinfo=block,libvirt,kernel_config,sos,topology"
     [test-29]="--check --sysinfo=block,sos,bad,topology"
     [test-30]="--check --sysinfo=libvirt,default,kernel_config,all,topology,none"
+    [test-31]="--prefix=foo/bar --user=ndk"
+    [test-32]="--help"
 )
 
 declare -A expected_status=(
@@ -238,6 +246,10 @@ declare -A expected_status=(
     [test-12]=1
     [test-13]=2
     [test-29]=1
+)
+
+declare -A post_hooks=(
+    [test-31]='(echo "+++ metadata.log file contents"; cat $_testdir/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32/metadata.log; echo "--- metadata.log file contents") >> $_testout'
 )
 
 tests="$*"
@@ -251,13 +263,14 @@ for tst in $tests; do
     tool=${tools[$tst]}
     opts=${options[$tst]}
     status=${expected_status[$tst]}
-
+    post_hook=${post_hooks[$tst]}
 
     _setup_state $tst $tool
-    _run $tst $tool $opts
+    USER=nobody _run $tst $tool $opts
     res=$?
     _save_tree
     _dump_logs
+    eval "$post_hook"
     _verify_output $res $tst $tool $status
     res=$?
     let errs=$errs+$res

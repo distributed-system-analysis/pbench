@@ -1,6 +1,7 @@
 #! /bin/bash
 
 prog=$(basename $0)
+dir=$(dirname $0)
 
 function usage() {
     echo "Usage: $prog --name <name> --timestamp <ts> --type status|error <file-to-index>"
@@ -76,34 +77,21 @@ datestamp=${timestamp%-*}
 index=$(getconf.py index_prefix Settings)."$name"."$datestamp"
 md5=$(md5sum $file | cut -d' ' -f1)
 
-# Translate newlines to spaces and translate tildes which are used as
-# sed delimiters below to double underscores - otherwise the sed below
-# gets very confused.  It would be ideal if we could send the textfile
-# as an attachment. Recent ES versions have a plugin for that, but the
-# production ES is old and does not support it. We'll revisit this
-# when we update ES.
-text=$(cat $file | sed 's/~/__/g' | tr '\n' ' ')
-
 tmp=/tmp/$prog.$$
 
 trap "rm -rf $tmp" EXIT QUIT INT
 
-echo '
-{
-    "@timestamp": %timestamp%,
-    "name": %name%,
-    "doctype": %type%,
-    "text": %text%
-}' |
-sed 's/%timestamp%/"'$timestamp'"/
-     s/%name%/"'$name'"/
-     s/%type%/"'$doctype'"/
-     s~%text%~"'"$text"'"~' > $tmp
+mkdir $tmp
 
-curl -XPOST -H 'Content-Type: application/json' "http://$server/$index/$doctype/$md5" --data @"${tmp}" >> $LOGSDIR/$name/$name.log 2>&1
+$dir/pbench-gen-json-payload $timestamp $name $doctype $file > ${tmp}/payload
+
+curl -XPOST -H 'Content-Type: application/json' "http://$server/$index/$doctype/$md5" --data @"${tmp}/payload" >> ${tmp}/log 2>&1
 status=$?
 
-echo >> $LOGSDIR/$name/$name.log
+echo >> ${tmp}/log
+
+if [ -f "$LOGSDIR/$name/$name.log" ]; then
+    cat ${tmp}/log >> $LOGSDIR/$name/$name.log
+fi
 
 exit $status
-

@@ -8,7 +8,6 @@ Running user-benchmark-script with-duration
     "this":"that"
 }+++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
-/var/tmp/pbench-test-bench/pbench/pbench.log
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/reference-result
@@ -16,6 +15,7 @@ Running user-benchmark-script with-duration
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/metadata.log
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary-debug.json
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json
+/var/tmp/pbench-test-bench/pbench/pbench.log
 /var/tmp/pbench-test-bench/pbench/samples
 /var/tmp/pbench-test-bench/pbench/tmp
 /var/tmp/pbench-test-bench/pbench/tmp/pbench-user-benchmark__1900.01.01T00.00.00.iterations

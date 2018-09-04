@@ -1,5 +1,5 @@
 +++ Running pbench-verify-backup-tarballs
---- Finished pbench-verify-backup-tarballs (status=0}
+--- Finished pbench-verify-backup-tarballs (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
 /var/tmp/pbench-test-server/pbench/archive
@@ -13,13 +13,24 @@
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz.md5
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
+/var/tmp/pbench-test-server/pbench/logs
+/var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs
+/var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.error
+/var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 /var/tmp/pbench-test-server/pbench/public_html
 /var/tmp/pbench-test-server/pbench/public_html/incoming
 /var/tmp/pbench-test-server/pbench/public_html/results
 /var/tmp/pbench-test-server/pbench/tmp
 --- pbench tree state
 +++ pbench log file contents
+/var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:start-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:end-1900-01-01T00:00:00-UTC
 --- pbench log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-agent/unittest-scripts/pbench-report-status --name pbench-verify-backup-tarballs --timestamp run-1900-01-01T00:00:00-UTC --type status /var/tmp/pbench-test-server/pbench/tmp/pbench-verify-backup-tarballs/index_mail_contents
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/pbench-report-status --name pbench-verify-backup-tarballs --timestamp run-1900-01-01T00:00:00-UTC --type status /var/tmp/pbench-test-server/pbench/tmp/pbench-verify-backup-tarballs/index_mail_contents
 --- test-execution.log file contents
++++ test-report-status.log file contents
+/var/tmp/pbench-test-server/test-report-status.log:pbench-verify-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)
+/var/tmp/pbench-test-server/test-report-status.log:* Files that exist only in primary directory - extra files in this list are probably OK: they just have not been backed up yet.
+/var/tmp/pbench-test-server/test-report-status.log:4fe570aea2be3dab96b328da5a8cfcc9  ./controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
+--- test-report-status.log file contents

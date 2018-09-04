@@ -42,11 +42,10 @@ else
 fi
 
 ARCHIVE=${TOP}/archive/fs-version-001
-INOTIFY_STATE_DIR=${ARCHIVE}/inotify_state
 INCOMING=${TOP}/public_html/incoming
 # this is where the symlink forest is going to go
 RESULTS=${TOP}/public_html/results
-
+USERS=${TOP}/public_html/users
 
 if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
     function timestamp {
@@ -125,27 +124,29 @@ function log_finish {
     exec 4>&-    # Close error file
 }
 
-# The inotify script runs the server scripts like dispatch 
-# and unpack asynchronously (more will be added in future), 
-# results in multiple instances of those scripts running in 
-# parallel. If every instance tries to write in the same file 
-# then it will be chaos and make things difficult to debug. 
-# In that case, this function will acquire a lock on the main
-# log file and allow every instance to append the log saved in 
-# the /tmp directory (with different PID) to the main log file.
+# Function used by the shims to quarantine problematic tarballs.  It
+# is assumed that the function is called within a log_init/log_finish
+# context.  Errors here are fatal but we log an error message to help
+# diagnose problems.
+function quarantine () {
+    dest=$1
+    shift
+    files="$@"
 
-function log_append {
-    #log_append $TMP/$(basename $0).$$ $LOGSDIR/$(basename $0)
-    TMP_DIR=$1
-    LOG_DIR=$2
-    mkdir -p $LOG_DIR
-    if [[ $? -ne 0 || ! -d "$LOG_DIR" ]]; then
-        doexit "Unable to find/create logging directory, $LOG_DIR"
+    mkdir -p $dest
+    sts=$?
+    if [ $sts -ne 0 ] ;then
+        # log error
+        echo "$TS: quarantine $dest $files: \"mkdir -p $dest\" failed with status $sts" >&4
+        log_finish
+        exit 101
     fi
-
-    log_file=$LOG_DIR/$(basename $0).log
-    error_file=$LOG_DIR/$(basename $0).error
-
-    flock -n $log_file cat $TMP_DIR/$(basename $0).log >> $log_file
-    flock -n $error_file cat $TMP_DIR/$(basename $0).error >> $error_file
+    mv $files $dest
+    sts=$?
+    if [ $sts -ne 0 ] ;then
+        # log error
+        echo "$TS: quarantine $dest $files: \"mv $files $dest\" failed with status $sts" >&4
+        log_finish
+        exit 102
+    fi
 }

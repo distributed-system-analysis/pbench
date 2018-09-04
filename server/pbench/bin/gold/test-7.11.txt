@@ -1,16 +1,25 @@
-+++ Running indexing on /var/tmp/pbench-test-server/test-7.11
-len(actions) = 22
++++ Running indexing for test-7.11
+Template:  pbench-unittests.run
+Template:  pbench-unittests.tool-data-iostat
+Template:  pbench-unittests.tool-data-pidstat
+	done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 3, retries: 0)
+Index:  pbench-unittests.result-data.2018-02-01 3
+Index:  pbench-unittests.run.2018-02 28
+Index:  pbench-unittests.tool-data-iostat.2018-02-01 15
+Index:  pbench-unittests.tool-data-mpstat.2018-02-01 10
+Index:  pbench-unittests.tool-data-proc-vmstat.2018-02-01 6
+len(actions) = 49
 [
     {
         "_id": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-        "_index": "pbench.run.2018-02",
+        "_index": "pbench-unittests.run.2018-02",
         "_op_type": "create",
         "_source": {
             "@metadata": {
                 "file-date": "2018-02-06",
-                "file-name": "/var/tmp/pbench-test-server/fio_rw_2018.02.01T22.40.57.tar.xz",
+                "file-name": "/var/tmp/pbench-test-server/pbench/fio_rw_2018.02.01T22.40.57.tar.xz",
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.1.0.0",
+                "generated-by-version": "0.2.0.0",
                 "md5": "492a697c9dc7d73d1bd92c98d3fa8b2a",
                 "pbench-agent-version": "0.47-91gb666083"
             },
@@ -104,7 +113,7 @@ len(actions) = 22
     },
     {
         "_id": "2f653f8fba9770895d1bf58e50e792a0",
-        "_index": "pbench.run.2018-02",
+        "_index": "pbench-unittests.run.2018-02",
         "_op_type": "create",
         "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
         "_source": {
@@ -152,7 +161,7 @@ len(actions) = 22
     },
     {
         "_id": "cdc766a729150688a971f347886adfd4",
-        "_index": "pbench.run.2018-02",
+        "_index": "pbench-unittests.run.2018-02",
         "_op_type": "create",
         "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
         "_source": {
@@ -163,7 +172,7 @@ len(actions) = 22
     },
     {
         "_id": "18a63a7443bcac503814b66250548165",
-        "_index": "pbench.run.2018-02",
+        "_index": "pbench-unittests.run.2018-02",
         "_op_type": "create",
         "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
         "_source": {
@@ -173,7 +182,328 @@ len(actions) = 22
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_index": "pbench.result-data.2018-02-01",
+        "_id": "9de1e933d83f29360c2903e5ab7b3bbf",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/sysinfo/beg/dhcp31-44/",
+            "files": [
+                {
+                    "mode": "0o775",
+                    "name": "block-params.log",
+                    "size": 4661
+                },
+                {
+                    "mode": "0o775",
+                    "name": "config-4.13.9-300.fc27.x86_64",
+                    "size": 190476
+                },
+                {
+                    "mode": "0o775",
+                    "name": "security-mitigation-data.txt",
+                    "size": 0
+                },
+                {
+                    "mode": "0o775",
+                    "name": "sosreport-dhcp31-44.perf.lab.eng.bos.redhat.com-pbench-20180201224057.tar.xz",
+                    "size": 1007264
+                },
+                {
+                    "mode": "0o775",
+                    "name": "sosreport-dhcp31-44.perf.lab.eng.bos.redhat.com-pbench-20180201224057.tar.xz.md5",
+                    "size": 33
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "7d7aed309e6b96668e9b83b9ded12832",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/sysinfo/end/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "44edff26b32fbaf0688107114aed9b9f",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/sysinfo/end/dhcp31-44/",
+            "files": [
+                {
+                    "mode": "0o775",
+                    "name": "block-params.log",
+                    "size": 4661
+                },
+                {
+                    "mode": "0o775",
+                    "name": "config-4.13.9-300.fc27.x86_64",
+                    "size": 190476
+                },
+                {
+                    "mode": "0o775",
+                    "name": "security-mitigation-data.txt",
+                    "size": 0
+                },
+                {
+                    "mode": "0o775",
+                    "name": "sosreport-dhcp31-44.perf.lab.eng.bos.redhat.com-pbench-20180201224119.tar.xz",
+                    "size": 1007992
+                },
+                {
+                    "mode": "0o775",
+                    "name": "sosreport-dhcp31-44.perf.lab.eng.bos.redhat.com-pbench-20180201224119.tar.xz.md5",
+                    "size": 33
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "df39338592ad200e5197fbeb1ab68256",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/1-rw-4KiB/",
+            "files": [
+                {
+                    "mode": "0o755",
+                    "name": "process-iteration-samples.cmd",
+                    "size": 168
+                },
+                {
+                    "mode": "0o644",
+                    "name": "result.json",
+                    "size": 30267
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "a0701f0ec16172b16b10b9a93de916fe",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/1-rw-4KiB/sample1/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "fio.job",
+                    "size": 284
+                },
+                {
+                    "mode": "0o755",
+                    "name": "fio.cmd",
+                    "size": 116
+                },
+                {
+                    "mode": "0o644",
+                    "name": "fio-result.txt",
+                    "size": 7988
+                },
+                {
+                    "mode": "0o755",
+                    "name": "fio-postprocess.cmd",
+                    "size": 146
+                },
+                {
+                    "mode": "0o644",
+                    "name": "fio-average.txt",
+                    "size": 552
+                },
+                {
+                    "mode": "0o644",
+                    "name": "fio.html",
+                    "size": 1207
+                },
+                {
+                    "mode": "0o644",
+                    "name": "result.json",
+                    "size": 24084
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "6a3632aeb1fa00ea342ff5a4c923388c",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/1-rw-4KiB/sample1/clients/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "4c283b696fafcb4e47fbe6d22d7bb8a0",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/1-rw-4KiB/sample1/clients/localhost/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "fio_bw.1.log",
+                    "size": 380
+                },
+                {
+                    "mode": "0o644",
+                    "name": "fio_clat.1.log",
+                    "size": 424
+                },
+                {
+                    "mode": "0o644",
+                    "name": "fio_clat_hist.1.log",
+                    "size": 0
+                },
+                {
+                    "mode": "0o644",
+                    "name": "fio_iops.1.log",
+                    "size": 362
+                },
+                {
+                    "mode": "0o644",
+                    "name": "fio_lat.1.log",
+                    "size": 424
+                },
+                {
+                    "mode": "0o644",
+                    "name": "fio_slat.1.log",
+                    "size": 351
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "fefed367788b933cf6503f93deb56422",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/1-rw-4KiB/sample1/tools-default/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "5497dcdb6023b0839153c73f1f4a3386",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/1-rw-4KiB/sample1/tools-default/dhcp31-44/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "b8343687d158aaff3c77da9a17cdb0fa",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/",
+            "files": [
+                {
+                    "mode": "0o755",
+                    "name": "iostat.cmd",
+                    "size": 47
+                },
+                {
+                    "mode": "0o644",
+                    "name": "iostat-stdout.txt",
+                    "size": 3198
+                },
+                {
+                    "mode": "0o644",
+                    "name": "iostat-stderr.txt",
+                    "size": 0
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk-average.txt",
+                    "size": 1341
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk.html",
+                    "size": 2058
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "b97f4ce5aca91eb574272a516a2a7c7d",
+        "_index": "pbench-unittests.run.2018-02",
+        "_op_type": "create",
+        "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+        "_source": {
+            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "directory": "/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/csv/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "name": "disk_IOPS.csv",
+                    "size": 362
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_Queue_Size.csv",
+                    "size": 186
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_Request_Merges_per_sec.csv",
+                    "size": 323
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_Request_Size_in_512_byte_sectors.csv",
+                    "size": 206
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_Throughput_MB_per_sec.csv",
+                    "size": 358
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_Utilization_percent.csv",
+                    "size": 196
+                },
+                {
+                    "mode": "0o644",
+                    "name": "disk_Wait_Time_msec.csv",
+                    "size": 322
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "434134358e6fc19f4f441bfeaab0bdd3",
+        "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -1028,7 +1358,8 @@ len(actions) = 22
         "_type": "pbench-result-data"
     },
     {
-        "_index": "pbench.result-data.2018-02-01",
+        "_id": "9f0b9c6b6686267cd54d656409ec9214",
+        "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -1948,7 +2279,8 @@ len(actions) = 22
         "_type": "pbench-result-data"
     },
     {
-        "_index": "pbench.result-data.2018-02-01",
+        "_id": "2afa79302c95bcff98e1586affb80cf5",
+        "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -2874,7 +3206,8 @@ len(actions) = 22
         "_type": "pbench-result-data"
     },
     {
-        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_id": "1a591d45650fdca86b32ff858def62d8",
+        "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -2916,7 +3249,8 @@ len(actions) = 22
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_id": "b52a8671097e7cd9ad57ffdf88017e92",
+        "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -2958,7 +3292,8 @@ len(actions) = 22
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_id": "b2846ec5dc69106b739791cb1a040845",
+        "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -3000,7 +3335,8 @@ len(actions) = 22
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_id": "68f7f789dd1d8b08b3205737312ef24a",
+        "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -3042,7 +3378,8 @@ len(actions) = 22
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_id": "c77dfa771a9d5aa7e2897c8fbe919056",
+        "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -3084,7 +3421,8 @@ len(actions) = 22
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_id": "c36a54fc5f505fce5f9d8594df31d056",
+        "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -3126,7 +3464,8 @@ len(actions) = 22
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_id": "bbb4781707acbce83c5de2086c20d55d",
+        "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -3168,7 +3507,8 @@ len(actions) = 22
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_id": "e66887f5d41c67e06b98a6dca5a11b11",
+        "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -3210,7 +3550,8 @@ len(actions) = 22
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_id": "5823cb854d7bb647515e4ab5d036d6a9",
+        "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -3252,7 +3593,8 @@ len(actions) = 22
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_id": "8b8c84b7e183f65d33af72407fc82f60",
+        "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -3294,7 +3636,8 @@ len(actions) = 22
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_id": "529c52c7a51d7b965e327a5d23bc333e",
+        "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -3336,7 +3679,8 @@ len(actions) = 22
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_id": "5dced12944f56c1d610ab9232ca53c7a",
+        "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -3378,7 +3722,8 @@ len(actions) = 22
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_id": "8cc7b57a42d83e3376c2645870304456",
+        "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -3420,7 +3765,8 @@ len(actions) = 22
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_id": "3ed92e654e944ef6e6fba87e94c45ad2",
+        "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -3462,7 +3808,8 @@ len(actions) = 22
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_index": "pbench.tool-data-iostat.2018-02-01",
+        "_id": "fa9235d3f7036b0c541fb84667343f6a",
+        "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -3502,11 +3849,1257 @@ len(actions) = 22
             }
         },
         "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "7124805b76e65080cf485a4725408a5d",
+        "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:16.000000",
+            "mpstat": {
+                "cpu": {
+                    "guest": "0.00",
+                    "id": "cpu0",
+                    "idle": "0.00",
+                    "iowait": "79.47",
+                    "irq": "1.32",
+                    "nice": "0.00",
+                    "softirq": "0.00",
+                    "steal": "0.00",
+                    "sys": "13.25",
+                    "usr": "5.96"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-mpstat"
+    },
+    {
+        "_id": "99438def96f9ff46cbc69ca380a0afc3",
+        "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:16.000000",
+            "mpstat": {
+                "cpu": {
+                    "guest": "0.00",
+                    "id": "cpu0",
+                    "idle": "0.00",
+                    "iowait": "79.47",
+                    "irq": "1.32",
+                    "nice": "0.00",
+                    "softirq": "0.00",
+                    "steal": "0.00",
+                    "sys": "13.25",
+                    "usr": "5.96"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-mpstat"
+    },
+    {
+        "_id": "3401580daf0fa79df2a99932192d7fdf",
+        "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:16.000000",
+            "mpstat": {
+                "cpu": {
+                    "guest": "0.00",
+                    "id": "cpu0",
+                    "idle": "0.00",
+                    "iowait": "79.47",
+                    "irq": "1.32",
+                    "nice": "0.00",
+                    "softirq": "0.00",
+                    "steal": "0.00",
+                    "sys": "13.25",
+                    "usr": "5.96"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-mpstat"
+    },
+    {
+        "_id": "2ca5ea66adabe98ee4c6abc4b0beb4da",
+        "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:16.000000",
+            "mpstat": {
+                "cpu": {
+                    "guest": "0.00",
+                    "id": "cpu0",
+                    "idle": "0.00",
+                    "iowait": "79.47",
+                    "irq": "1.32",
+                    "nice": "0.00",
+                    "softirq": "0.00",
+                    "steal": "0.00",
+                    "sys": "13.25",
+                    "usr": "5.96"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-mpstat"
+    },
+    {
+        "_id": "c846baf1036ccb804b0c01401a9e0725",
+        "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:16.000000",
+            "mpstat": {
+                "cpu": {
+                    "guest": "0.00",
+                    "id": "cpu0",
+                    "idle": "0.00",
+                    "iowait": "79.47",
+                    "irq": "1.32",
+                    "nice": "0.00",
+                    "softirq": "0.00",
+                    "steal": "0.00",
+                    "sys": "13.25",
+                    "usr": "5.96"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-mpstat"
+    },
+    {
+        "_id": "f381e78e0ce4c08eaf6ddd0ceeed711c",
+        "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:16.000000",
+            "mpstat": {
+                "cpu": {
+                    "guest": "0.00",
+                    "id": "cpuall",
+                    "idle": "0.00",
+                    "iowait": "79.47",
+                    "irq": "1.32",
+                    "nice": "0.00",
+                    "softirq": "0.00",
+                    "steal": "0.00",
+                    "sys": "13.25",
+                    "usr": "5.96"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-mpstat"
+    },
+    {
+        "_id": "a85388f59825dfe588d85b67d4692786",
+        "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:16.000000",
+            "mpstat": {
+                "cpu": {
+                    "guest": "0.00",
+                    "id": "cpuall",
+                    "idle": "0.00",
+                    "iowait": "79.47",
+                    "irq": "1.32",
+                    "nice": "0.00",
+                    "softirq": "0.00",
+                    "steal": "0.00",
+                    "sys": "13.25",
+                    "usr": "5.96"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-mpstat"
+    },
+    {
+        "_id": "7d927e289dfb8c87dcab8ae48568be4e",
+        "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:16.000000",
+            "mpstat": {
+                "cpu": {
+                    "guest": "0.00",
+                    "id": "cpuall",
+                    "idle": "0.00",
+                    "iowait": "79.47",
+                    "irq": "1.32",
+                    "nice": "0.00",
+                    "softirq": "0.00",
+                    "steal": "0.00",
+                    "sys": "13.25",
+                    "usr": "5.96"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-mpstat"
+    },
+    {
+        "_id": "907356a0133327f2fb2efbb4c7647fd7",
+        "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:16.000000",
+            "mpstat": {
+                "cpu": {
+                    "guest": "0.00",
+                    "id": "cpuall",
+                    "idle": "0.00",
+                    "iowait": "79.47",
+                    "irq": "1.32",
+                    "nice": "0.00",
+                    "softirq": "0.00",
+                    "steal": "0.00",
+                    "sys": "13.25",
+                    "usr": "5.96"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-mpstat"
+    },
+    {
+        "_id": "50d6c87e8a8c559c4c1d0b59e6dfdcc9",
+        "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:16.000000",
+            "mpstat": {
+                "cpu": {
+                    "guest": "0.00",
+                    "id": "cpuall",
+                    "idle": "0.00",
+                    "iowait": "79.47",
+                    "irq": "1.32",
+                    "nice": "0.00",
+                    "softirq": "0.00",
+                    "steal": "0.00",
+                    "sys": "13.25",
+                    "usr": "5.96"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-mpstat"
+    },
+    {
+        "_id": "860f46682e30e6ef9760268c7ad5496b",
+        "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:01.322294",
+            "proc-vmstat": {
+                "vmstat": {
+                    "allocstall_dma": "0",
+                    "allocstall_dma32": "0",
+                    "allocstall_movable": "0",
+                    "allocstall_normal": "0",
+                    "balloon_deflate": "0",
+                    "balloon_inflate": "0",
+                    "balloon_migrate": "0",
+                    "compact_daemon_free_scanned": "0",
+                    "compact_daemon_migrate_scanned": "0",
+                    "compact_daemon_wake": "0",
+                    "compact_fail": "0",
+                    "compact_free_scanned": "0",
+                    "compact_isolated": "0",
+                    "compact_migrate_scanned": "0",
+                    "compact_stall": "0",
+                    "compact_success": "0",
+                    "drop_pagecache": "0",
+                    "drop_slab": "0",
+                    "htlb_buddy_alloc_fail": "0",
+                    "htlb_buddy_alloc_success": "0",
+                    "kswapd_high_wmark_hit_quickly": "0",
+                    "kswapd_inodesteal": "0",
+                    "kswapd_low_wmark_hit_quickly": "0",
+                    "nr_active_anon": "27857",
+                    "nr_active_file": "78380",
+                    "nr_anon_pages": "27788",
+                    "nr_anon_transparent_hugepages": "0",
+                    "nr_bounce": "0",
+                    "nr_dirtied": "3732779",
+                    "nr_dirty": "3472",
+                    "nr_dirty_background_threshold": "187692",
+                    "nr_dirty_threshold": "375843",
+                    "nr_file_pages": "1016155",
+                    "nr_free_cma": "0",
+                    "nr_free_pages": "900016",
+                    "nr_inactive_anon": "2153",
+                    "nr_inactive_file": "935537",
+                    "nr_isolated_anon": "0",
+                    "nr_isolated_file": "0",
+                    "nr_kernel_stack": "5968",
+                    "nr_mapped": "62092",
+                    "nr_mlock": "0",
+                    "nr_page_table_pages": "3391",
+                    "nr_shmem": "2227",
+                    "nr_shmem_hugepages": "0",
+                    "nr_shmem_pmdmapped": "0",
+                    "nr_slab_reclaimable": "54015",
+                    "nr_slab_unreclaimable": "21338",
+                    "nr_unevictable": "0",
+                    "nr_unstable": "0",
+                    "nr_vmscan_immediate_reclaim": "0",
+                    "nr_vmscan_write": "0",
+                    "nr_writeback": "0",
+                    "nr_writeback_temp": "0",
+                    "nr_written": "3648988",
+                    "nr_zone_active_anon": "27857",
+                    "nr_zone_active_file": "78380",
+                    "nr_zone_inactive_anon": "2153",
+                    "nr_zone_inactive_file": "935537",
+                    "nr_zone_unevictable": "0",
+                    "nr_zone_write_pending": "3477",
+                    "nr_zspages": "0",
+                    "numa_foreign": "0",
+                    "numa_hint_faults": "0",
+                    "numa_hint_faults_local": "0",
+                    "numa_hit": "107269402",
+                    "numa_huge_pte_updates": "0",
+                    "numa_interleave": "15336",
+                    "numa_local": "107269402",
+                    "numa_miss": "0",
+                    "numa_other": "0",
+                    "numa_pages_migrated": "0",
+                    "numa_pte_updates": "0",
+                    "oom_kill": "0",
+                    "pageoutrun": "0",
+                    "pgactivate": "881637",
+                    "pgalloc_dma": "1",
+                    "pgalloc_dma32": "326450",
+                    "pgalloc_movable": "0",
+                    "pgalloc_normal": "112097796",
+                    "pgdeactivate": "0",
+                    "pgfault": "126758405",
+                    "pgfree": "113324504",
+                    "pginodesteal": "0",
+                    "pglazyfree": "0",
+                    "pglazyfreed": "0",
+                    "pgmajfault": "1335",
+                    "pgmigrate_fail": "0",
+                    "pgmigrate_success": "0",
+                    "pgpgin": "2836226",
+                    "pgpgout": "15353828",
+                    "pgrefill": "0",
+                    "pgrotated": "0",
+                    "pgscan_direct": "0",
+                    "pgscan_direct_throttle": "0",
+                    "pgscan_kswapd": "0",
+                    "pgskip_dma": "0",
+                    "pgskip_dma32": "0",
+                    "pgskip_movable": "0",
+                    "pgskip_normal": "0",
+                    "pgsteal_direct": "0",
+                    "pgsteal_kswapd": "0",
+                    "pswpin": "0",
+                    "pswpout": "0",
+                    "slabs_scanned": "0",
+                    "thp_collapse_alloc": "0",
+                    "thp_collapse_alloc_failed": "0",
+                    "thp_deferred_split_page": "0",
+                    "thp_fault_alloc": "0",
+                    "thp_fault_fallback": "0",
+                    "thp_file_alloc": "0",
+                    "thp_file_mapped": "0",
+                    "thp_split_page": "0",
+                    "thp_split_page_failed": "0",
+                    "thp_split_pmd": "0",
+                    "thp_split_pud": "0",
+                    "thp_zero_page_alloc": "0",
+                    "thp_zero_page_alloc_failed": "0",
+                    "unevictable_pgs_cleared": "0",
+                    "unevictable_pgs_culled": "8624",
+                    "unevictable_pgs_mlocked": "11005",
+                    "unevictable_pgs_munlocked": "11005",
+                    "unevictable_pgs_rescued": "7005",
+                    "unevictable_pgs_scanned": "0",
+                    "unevictable_pgs_stranded": "0",
+                    "workingset_activate": "0",
+                    "workingset_nodereclaim": "0",
+                    "workingset_refault": "0",
+                    "zone_reclaim_failed": "0"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-proc-vmstat"
+    },
+    {
+        "_id": "e75430590f444b7d630f8a983b57a451",
+        "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:04.331455",
+            "proc-vmstat": {
+                "vmstat": {
+                    "allocstall_dma": "0",
+                    "allocstall_dma32": "0",
+                    "allocstall_movable": "0",
+                    "allocstall_normal": "0",
+                    "balloon_deflate": "0",
+                    "balloon_inflate": "0",
+                    "balloon_migrate": "0",
+                    "compact_daemon_free_scanned": "0",
+                    "compact_daemon_migrate_scanned": "0",
+                    "compact_daemon_wake": "0",
+                    "compact_fail": "0",
+                    "compact_free_scanned": "0",
+                    "compact_isolated": "0",
+                    "compact_migrate_scanned": "0",
+                    "compact_stall": "0",
+                    "compact_success": "0",
+                    "drop_pagecache": "0",
+                    "drop_slab": "0",
+                    "htlb_buddy_alloc_fail": "0",
+                    "htlb_buddy_alloc_success": "0",
+                    "kswapd_high_wmark_hit_quickly": "0",
+                    "kswapd_inodesteal": "0",
+                    "kswapd_low_wmark_hit_quickly": "0",
+                    "nr_active_anon": "26845",
+                    "nr_active_file": "78396",
+                    "nr_anon_pages": "26775",
+                    "nr_anon_transparent_hugepages": "0",
+                    "nr_bounce": "0",
+                    "nr_dirtied": "3951281",
+                    "nr_dirty": "218213",
+                    "nr_dirty_background_threshold": "182998",
+                    "nr_dirty_threshold": "366444",
+                    "nr_file_pages": "572416",
+                    "nr_free_cma": "0",
+                    "nr_free_pages": "1359226",
+                    "nr_inactive_anon": "64634",
+                    "nr_inactive_file": "429304",
+                    "nr_isolated_anon": "0",
+                    "nr_isolated_file": "0",
+                    "nr_kernel_stack": "5968",
+                    "nr_mapped": "124650",
+                    "nr_mlock": "0",
+                    "nr_page_table_pages": "3498",
+                    "nr_shmem": "64712",
+                    "nr_shmem_hugepages": "0",
+                    "nr_shmem_pmdmapped": "0",
+                    "nr_slab_reclaimable": "39500",
+                    "nr_slab_unreclaimable": "21267",
+                    "nr_unevictable": "0",
+                    "nr_unstable": "0",
+                    "nr_vmscan_immediate_reclaim": "0",
+                    "nr_vmscan_write": "0",
+                    "nr_writeback": "3",
+                    "nr_writeback_temp": "0",
+                    "nr_written": "3652761",
+                    "nr_zone_active_anon": "26845",
+                    "nr_zone_active_file": "78396",
+                    "nr_zone_inactive_anon": "64634",
+                    "nr_zone_inactive_file": "429304",
+                    "nr_zone_unevictable": "0",
+                    "nr_zone_write_pending": "218206",
+                    "nr_zspages": "0",
+                    "numa_foreign": "0",
+                    "numa_hint_faults": "0",
+                    "numa_hint_faults_local": "0",
+                    "numa_hit": "107618523",
+                    "numa_huge_pte_updates": "0",
+                    "numa_interleave": "15336",
+                    "numa_local": "107618523",
+                    "numa_miss": "0",
+                    "numa_other": "0",
+                    "numa_pages_migrated": "0",
+                    "numa_pte_updates": "0",
+                    "oom_kill": "0",
+                    "pageoutrun": "0",
+                    "pgactivate": "881650",
+                    "pgalloc_dma": "1",
+                    "pgalloc_dma32": "326450",
+                    "pgalloc_movable": "0",
+                    "pgalloc_normal": "112447389",
+                    "pgdeactivate": "0",
+                    "pgfault": "126897331",
+                    "pgfree": "114133346",
+                    "pginodesteal": "0",
+                    "pglazyfree": "0",
+                    "pglazyfreed": "0",
+                    "pgmajfault": "1335",
+                    "pgmigrate_fail": "0",
+                    "pgmigrate_success": "0",
+                    "pgpgin": "3545362",
+                    "pgpgout": "15368973",
+                    "pgrefill": "0",
+                    "pgrotated": "0",
+                    "pgscan_direct": "0",
+                    "pgscan_direct_throttle": "0",
+                    "pgscan_kswapd": "0",
+                    "pgskip_dma": "0",
+                    "pgskip_dma32": "0",
+                    "pgskip_movable": "0",
+                    "pgskip_normal": "0",
+                    "pgsteal_direct": "0",
+                    "pgsteal_kswapd": "0",
+                    "pswpin": "0",
+                    "pswpout": "0",
+                    "slabs_scanned": "0",
+                    "thp_collapse_alloc": "0",
+                    "thp_collapse_alloc_failed": "0",
+                    "thp_deferred_split_page": "0",
+                    "thp_fault_alloc": "0",
+                    "thp_fault_fallback": "0",
+                    "thp_file_alloc": "0",
+                    "thp_file_mapped": "0",
+                    "thp_split_page": "0",
+                    "thp_split_page_failed": "0",
+                    "thp_split_pmd": "0",
+                    "thp_split_pud": "0",
+                    "thp_zero_page_alloc": "0",
+                    "thp_zero_page_alloc_failed": "0",
+                    "unevictable_pgs_cleared": "0",
+                    "unevictable_pgs_culled": "8624",
+                    "unevictable_pgs_mlocked": "11005",
+                    "unevictable_pgs_munlocked": "11005",
+                    "unevictable_pgs_rescued": "7005",
+                    "unevictable_pgs_scanned": "0",
+                    "unevictable_pgs_stranded": "0",
+                    "workingset_activate": "0",
+                    "workingset_nodereclaim": "0",
+                    "workingset_refault": "0",
+                    "zone_reclaim_failed": "0"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-proc-vmstat"
+    },
+    {
+        "_id": "fe7c91264d36bb1b3a83d50688b8a68d",
+        "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:07.333773",
+            "proc-vmstat": {
+                "vmstat": {
+                    "allocstall_dma": "0",
+                    "allocstall_dma32": "0",
+                    "allocstall_movable": "0",
+                    "allocstall_normal": "0",
+                    "balloon_deflate": "0",
+                    "balloon_inflate": "0",
+                    "balloon_migrate": "0",
+                    "compact_daemon_free_scanned": "0",
+                    "compact_daemon_migrate_scanned": "0",
+                    "compact_daemon_wake": "0",
+                    "compact_fail": "0",
+                    "compact_free_scanned": "0",
+                    "compact_isolated": "0",
+                    "compact_migrate_scanned": "0",
+                    "compact_stall": "0",
+                    "compact_success": "0",
+                    "drop_pagecache": "0",
+                    "drop_slab": "0",
+                    "htlb_buddy_alloc_fail": "0",
+                    "htlb_buddy_alloc_success": "0",
+                    "kswapd_high_wmark_hit_quickly": "0",
+                    "kswapd_inodesteal": "0",
+                    "kswapd_low_wmark_hit_quickly": "0",
+                    "nr_active_anon": "26847",
+                    "nr_active_file": "78396",
+                    "nr_anon_pages": "26777",
+                    "nr_anon_transparent_hugepages": "0",
+                    "nr_bounce": "0",
+                    "nr_dirtied": "4101152",
+                    "nr_dirty": "172636",
+                    "nr_dirty_background_threshold": "182579",
+                    "nr_dirty_threshold": "365604",
+                    "nr_file_pages": "722762",
+                    "nr_free_cma": "0",
+                    "nr_free_pages": "1204680",
+                    "nr_inactive_anon": "64634",
+                    "nr_inactive_file": "579649",
+                    "nr_isolated_anon": "0",
+                    "nr_isolated_file": "0",
+                    "nr_kernel_stack": "5952",
+                    "nr_mapped": "124715",
+                    "nr_mlock": "0",
+                    "nr_page_table_pages": "3498",
+                    "nr_shmem": "64712",
+                    "nr_shmem_hugepages": "0",
+                    "nr_shmem_pmdmapped": "0",
+                    "nr_slab_reclaimable": "43679",
+                    "nr_slab_unreclaimable": "21282",
+                    "nr_unevictable": "0",
+                    "nr_unstable": "0",
+                    "nr_vmscan_immediate_reclaim": "0",
+                    "nr_vmscan_write": "0",
+                    "nr_writeback": "15104",
+                    "nr_writeback_temp": "0",
+                    "nr_written": "3833091",
+                    "nr_zone_active_anon": "26847",
+                    "nr_zone_active_file": "78396",
+                    "nr_zone_inactive_anon": "64634",
+                    "nr_zone_inactive_file": "579649",
+                    "nr_zone_unevictable": "0",
+                    "nr_zone_write_pending": "187746",
+                    "nr_zspages": "0",
+                    "numa_foreign": "0",
+                    "numa_hint_faults": "0",
+                    "numa_hint_faults_local": "0",
+                    "numa_hit": "107773456",
+                    "numa_huge_pte_updates": "0",
+                    "numa_interleave": "15336",
+                    "numa_local": "107773456",
+                    "numa_miss": "0",
+                    "numa_other": "0",
+                    "numa_pages_migrated": "0",
+                    "numa_pte_updates": "0",
+                    "oom_kill": "0",
+                    "pageoutrun": "0",
+                    "pgactivate": "881650",
+                    "pgalloc_dma": "1",
+                    "pgalloc_dma32": "326450",
+                    "pgalloc_movable": "0",
+                    "pgalloc_normal": "112602621",
+                    "pgdeactivate": "0",
+                    "pgfault": "126898144",
+                    "pgfree": "114134038",
+                    "pginodesteal": "0",
+                    "pglazyfree": "0",
+                    "pglazyfreed": "0",
+                    "pgmajfault": "1335",
+                    "pgmigrate_fail": "0",
+                    "pgmigrate_success": "0",
+                    "pgpgin": "3913158",
+                    "pgpgout": "16151349",
+                    "pgrefill": "0",
+                    "pgrotated": "0",
+                    "pgscan_direct": "0",
+                    "pgscan_direct_throttle": "0",
+                    "pgscan_kswapd": "0",
+                    "pgskip_dma": "0",
+                    "pgskip_dma32": "0",
+                    "pgskip_movable": "0",
+                    "pgskip_normal": "0",
+                    "pgsteal_direct": "0",
+                    "pgsteal_kswapd": "0",
+                    "pswpin": "0",
+                    "pswpout": "0",
+                    "slabs_scanned": "0",
+                    "thp_collapse_alloc": "0",
+                    "thp_collapse_alloc_failed": "0",
+                    "thp_deferred_split_page": "0",
+                    "thp_fault_alloc": "0",
+                    "thp_fault_fallback": "0",
+                    "thp_file_alloc": "0",
+                    "thp_file_mapped": "0",
+                    "thp_split_page": "0",
+                    "thp_split_page_failed": "0",
+                    "thp_split_pmd": "0",
+                    "thp_split_pud": "0",
+                    "thp_zero_page_alloc": "0",
+                    "thp_zero_page_alloc_failed": "0",
+                    "unevictable_pgs_cleared": "0",
+                    "unevictable_pgs_culled": "8624",
+                    "unevictable_pgs_mlocked": "11005",
+                    "unevictable_pgs_munlocked": "11005",
+                    "unevictable_pgs_rescued": "7005",
+                    "unevictable_pgs_scanned": "0",
+                    "unevictable_pgs_stranded": "0",
+                    "workingset_activate": "0",
+                    "workingset_nodereclaim": "0",
+                    "workingset_refault": "0",
+                    "zone_reclaim_failed": "0"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-proc-vmstat"
+    },
+    {
+        "_id": "0854392324f32213a57871f6d1fbf6ef",
+        "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:10.335414",
+            "proc-vmstat": {
+                "vmstat": {
+                    "allocstall_dma": "0",
+                    "allocstall_dma32": "0",
+                    "allocstall_movable": "0",
+                    "allocstall_normal": "0",
+                    "balloon_deflate": "0",
+                    "balloon_inflate": "0",
+                    "balloon_migrate": "0",
+                    "compact_daemon_free_scanned": "0",
+                    "compact_daemon_migrate_scanned": "0",
+                    "compact_daemon_wake": "0",
+                    "compact_fail": "0",
+                    "compact_free_scanned": "0",
+                    "compact_isolated": "0",
+                    "compact_migrate_scanned": "0",
+                    "compact_stall": "0",
+                    "compact_success": "0",
+                    "drop_pagecache": "0",
+                    "drop_slab": "0",
+                    "htlb_buddy_alloc_fail": "0",
+                    "htlb_buddy_alloc_success": "0",
+                    "kswapd_high_wmark_hit_quickly": "0",
+                    "kswapd_inodesteal": "0",
+                    "kswapd_low_wmark_hit_quickly": "0",
+                    "nr_active_anon": "26854",
+                    "nr_active_file": "78396",
+                    "nr_anon_pages": "26784",
+                    "nr_anon_transparent_hugepages": "0",
+                    "nr_bounce": "0",
+                    "nr_dirtied": "4209926",
+                    "nr_dirty": "101430",
+                    "nr_dirty_background_threshold": "182279",
+                    "nr_dirty_threshold": "365004",
+                    "nr_file_pages": "831632",
+                    "nr_free_cma": "0",
+                    "nr_free_pages": "1092816",
+                    "nr_inactive_anon": "64634",
+                    "nr_inactive_file": "688511",
+                    "nr_isolated_anon": "0",
+                    "nr_isolated_file": "0",
+                    "nr_kernel_stack": "5952",
+                    "nr_mapped": "124715",
+                    "nr_mlock": "0",
+                    "nr_page_table_pages": "3499",
+                    "nr_shmem": "64712",
+                    "nr_shmem_hugepages": "0",
+                    "nr_shmem_pmdmapped": "0",
+                    "nr_slab_reclaimable": "46678",
+                    "nr_slab_unreclaimable": "21281",
+                    "nr_unevictable": "0",
+                    "nr_unstable": "0",
+                    "nr_vmscan_immediate_reclaim": "0",
+                    "nr_vmscan_write": "0",
+                    "nr_writeback": "22015",
+                    "nr_writeback_temp": "0",
+                    "nr_written": "4006160",
+                    "nr_zone_active_anon": "26854",
+                    "nr_zone_active_file": "78396",
+                    "nr_zone_inactive_anon": "64634",
+                    "nr_zone_inactive_file": "688511",
+                    "nr_zone_unevictable": "0",
+                    "nr_zone_write_pending": "123451",
+                    "nr_zspages": "0",
+                    "numa_foreign": "0",
+                    "numa_hint_faults": "0",
+                    "numa_hint_faults_local": "0",
+                    "numa_hit": "107885812",
+                    "numa_huge_pte_updates": "0",
+                    "numa_interleave": "15336",
+                    "numa_local": "107885812",
+                    "numa_miss": "0",
+                    "numa_other": "0",
+                    "numa_pages_migrated": "0",
+                    "numa_pte_updates": "0",
+                    "oom_kill": "0",
+                    "pageoutrun": "0",
+                    "pgactivate": "881650",
+                    "pgalloc_dma": "1",
+                    "pgalloc_dma32": "326450",
+                    "pgalloc_movable": "0",
+                    "pgalloc_normal": "112715191",
+                    "pgdeactivate": "0",
+                    "pgfault": "126898896",
+                    "pgfree": "114134738",
+                    "pginodesteal": "0",
+                    "pglazyfree": "0",
+                    "pglazyfreed": "0",
+                    "pgmajfault": "1335",
+                    "pgmigrate_fail": "0",
+                    "pgmigrate_success": "0",
+                    "pgpgin": "4348614",
+                    "pgpgout": "16871273",
+                    "pgrefill": "0",
+                    "pgrotated": "0",
+                    "pgscan_direct": "0",
+                    "pgscan_direct_throttle": "0",
+                    "pgscan_kswapd": "0",
+                    "pgskip_dma": "0",
+                    "pgskip_dma32": "0",
+                    "pgskip_movable": "0",
+                    "pgskip_normal": "0",
+                    "pgsteal_direct": "0",
+                    "pgsteal_kswapd": "0",
+                    "pswpin": "0",
+                    "pswpout": "0",
+                    "slabs_scanned": "0",
+                    "thp_collapse_alloc": "0",
+                    "thp_collapse_alloc_failed": "0",
+                    "thp_deferred_split_page": "0",
+                    "thp_fault_alloc": "0",
+                    "thp_fault_fallback": "0",
+                    "thp_file_alloc": "0",
+                    "thp_file_mapped": "0",
+                    "thp_split_page": "0",
+                    "thp_split_page_failed": "0",
+                    "thp_split_pmd": "0",
+                    "thp_split_pud": "0",
+                    "thp_zero_page_alloc": "0",
+                    "thp_zero_page_alloc_failed": "0",
+                    "unevictable_pgs_cleared": "0",
+                    "unevictable_pgs_culled": "8624",
+                    "unevictable_pgs_mlocked": "11005",
+                    "unevictable_pgs_munlocked": "11005",
+                    "unevictable_pgs_rescued": "7005",
+                    "unevictable_pgs_scanned": "0",
+                    "unevictable_pgs_stranded": "0",
+                    "workingset_activate": "0",
+                    "workingset_nodereclaim": "0",
+                    "workingset_refault": "0",
+                    "zone_reclaim_failed": "0"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-proc-vmstat"
+    },
+    {
+        "_id": "f9f67a2439b828e8733a4c88aa14e3de",
+        "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:13.337584",
+            "proc-vmstat": {
+                "vmstat": {
+                    "allocstall_dma": "0",
+                    "allocstall_dma32": "0",
+                    "allocstall_movable": "0",
+                    "allocstall_normal": "0",
+                    "balloon_deflate": "0",
+                    "balloon_inflate": "0",
+                    "balloon_migrate": "0",
+                    "compact_daemon_free_scanned": "0",
+                    "compact_daemon_migrate_scanned": "0",
+                    "compact_daemon_wake": "0",
+                    "compact_fail": "0",
+                    "compact_free_scanned": "0",
+                    "compact_isolated": "0",
+                    "compact_migrate_scanned": "0",
+                    "compact_stall": "0",
+                    "compact_success": "0",
+                    "drop_pagecache": "0",
+                    "drop_slab": "0",
+                    "htlb_buddy_alloc_fail": "0",
+                    "htlb_buddy_alloc_success": "0",
+                    "kswapd_high_wmark_hit_quickly": "0",
+                    "kswapd_inodesteal": "0",
+                    "kswapd_low_wmark_hit_quickly": "0",
+                    "nr_active_anon": "26854",
+                    "nr_active_file": "78396",
+                    "nr_anon_pages": "26784",
+                    "nr_anon_transparent_hugepages": "0",
+                    "nr_bounce": "0",
+                    "nr_dirtied": "4360002",
+                    "nr_dirty": "118914",
+                    "nr_dirty_background_threshold": "181867",
+                    "nr_dirty_threshold": "364179",
+                    "nr_file_pages": "981593",
+                    "nr_free_cma": "0",
+                    "nr_free_pages": "938718",
+                    "nr_inactive_anon": "64634",
+                    "nr_inactive_file": "838482",
+                    "nr_isolated_anon": "0",
+                    "nr_isolated_file": "0",
+                    "nr_kernel_stack": "5952",
+                    "nr_mapped": "124715",
+                    "nr_mlock": "0",
+                    "nr_page_table_pages": "3499",
+                    "nr_shmem": "64712",
+                    "nr_shmem_hugepages": "0",
+                    "nr_shmem_pmdmapped": "0",
+                    "nr_slab_reclaimable": "50865",
+                    "nr_slab_unreclaimable": "21217",
+                    "nr_unevictable": "0",
+                    "nr_unstable": "0",
+                    "nr_vmscan_immediate_reclaim": "0",
+                    "nr_vmscan_write": "0",
+                    "nr_writeback": "0",
+                    "nr_writeback_temp": "0",
+                    "nr_written": "4160784",
+                    "nr_zone_active_anon": "26854",
+                    "nr_zone_active_file": "78396",
+                    "nr_zone_inactive_anon": "64634",
+                    "nr_zone_inactive_file": "838482",
+                    "nr_zone_unevictable": "0",
+                    "nr_zone_write_pending": "118904",
+                    "nr_zspages": "0",
+                    "numa_foreign": "0",
+                    "numa_hint_faults": "0",
+                    "numa_hint_faults_local": "0",
+                    "numa_hit": "108040357",
+                    "numa_huge_pte_updates": "0",
+                    "numa_interleave": "15336",
+                    "numa_local": "108040357",
+                    "numa_miss": "0",
+                    "numa_other": "0",
+                    "numa_pages_migrated": "0",
+                    "numa_pte_updates": "0",
+                    "oom_kill": "0",
+                    "pageoutrun": "0",
+                    "pgactivate": "881650",
+                    "pgalloc_dma": "1",
+                    "pgalloc_dma32": "326450",
+                    "pgalloc_movable": "0",
+                    "pgalloc_normal": "112869981",
+                    "pgdeactivate": "0",
+                    "pgfault": "126899637",
+                    "pgfree": "114135447",
+                    "pginodesteal": "0",
+                    "pglazyfree": "0",
+                    "pglazyfreed": "0",
+                    "pgmajfault": "1335",
+                    "pgmigrate_fail": "0",
+                    "pgmigrate_success": "0",
+                    "pgpgin": "4948422",
+                    "pgpgout": "17401705",
+                    "pgrefill": "0",
+                    "pgrotated": "0",
+                    "pgscan_direct": "0",
+                    "pgscan_direct_throttle": "0",
+                    "pgscan_kswapd": "0",
+                    "pgskip_dma": "0",
+                    "pgskip_dma32": "0",
+                    "pgskip_movable": "0",
+                    "pgskip_normal": "0",
+                    "pgsteal_direct": "0",
+                    "pgsteal_kswapd": "0",
+                    "pswpin": "0",
+                    "pswpout": "0",
+                    "slabs_scanned": "0",
+                    "thp_collapse_alloc": "0",
+                    "thp_collapse_alloc_failed": "0",
+                    "thp_deferred_split_page": "0",
+                    "thp_fault_alloc": "0",
+                    "thp_fault_fallback": "0",
+                    "thp_file_alloc": "0",
+                    "thp_file_mapped": "0",
+                    "thp_split_page": "0",
+                    "thp_split_page_failed": "0",
+                    "thp_split_pmd": "0",
+                    "thp_split_pud": "0",
+                    "thp_zero_page_alloc": "0",
+                    "thp_zero_page_alloc_failed": "0",
+                    "unevictable_pgs_cleared": "0",
+                    "unevictable_pgs_culled": "8624",
+                    "unevictable_pgs_mlocked": "11005",
+                    "unevictable_pgs_munlocked": "11005",
+                    "unevictable_pgs_rescued": "7005",
+                    "unevictable_pgs_scanned": "0",
+                    "unevictable_pgs_stranded": "0",
+                    "workingset_activate": "0",
+                    "workingset_nodereclaim": "0",
+                    "workingset_refault": "0",
+                    "zone_reclaim_failed": "0"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-proc-vmstat"
+    },
+    {
+        "_id": "cebcef68af35994a0b0c380fdc642f52",
+        "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-01",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "experiment": "fio_rw_2018.02.01T22.40.57",
+                "host": "dhcp31-44",
+                "iteration": "rw-4KiB",
+                "iterseqno": "1",
+                "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
+                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "sample": "sample1",
+                "toolgroup": "default"
+            },
+            "@timestamp": "2018-02-01T22:41:16.339268",
+            "proc-vmstat": {
+                "vmstat": {
+                    "allocstall_dma": "0",
+                    "allocstall_dma32": "0",
+                    "allocstall_movable": "0",
+                    "allocstall_normal": "0",
+                    "balloon_deflate": "0",
+                    "balloon_inflate": "0",
+                    "balloon_migrate": "0",
+                    "compact_daemon_free_scanned": "0",
+                    "compact_daemon_migrate_scanned": "0",
+                    "compact_daemon_wake": "0",
+                    "compact_fail": "0",
+                    "compact_free_scanned": "0",
+                    "compact_isolated": "0",
+                    "compact_migrate_scanned": "0",
+                    "compact_stall": "0",
+                    "compact_success": "0",
+                    "drop_pagecache": "0",
+                    "drop_slab": "0",
+                    "htlb_buddy_alloc_fail": "0",
+                    "htlb_buddy_alloc_success": "0",
+                    "kswapd_high_wmark_hit_quickly": "0",
+                    "kswapd_inodesteal": "0",
+                    "kswapd_low_wmark_hit_quickly": "0",
+                    "nr_active_anon": "26855",
+                    "nr_active_file": "78396",
+                    "nr_anon_pages": "26785",
+                    "nr_anon_transparent_hugepages": "0",
+                    "nr_bounce": "0",
+                    "nr_dirtied": "4481064",
+                    "nr_dirty": "76125",
+                    "nr_dirty_background_threshold": "181524",
+                    "nr_dirty_threshold": "363492",
+                    "nr_file_pages": "1103517",
+                    "nr_free_cma": "0",
+                    "nr_free_pages": "813354",
+                    "nr_inactive_anon": "64634",
+                    "nr_inactive_file": "960410",
+                    "nr_isolated_anon": "0",
+                    "nr_isolated_file": "0",
+                    "nr_kernel_stack": "5952",
+                    "nr_mapped": "124715",
+                    "nr_mlock": "0",
+                    "nr_page_table_pages": "3497",
+                    "nr_shmem": "64712",
+                    "nr_shmem_hugepages": "0",
+                    "nr_shmem_pmdmapped": "0",
+                    "nr_slab_reclaimable": "54248",
+                    "nr_slab_unreclaimable": "21272",
+                    "nr_unevictable": "0",
+                    "nr_unstable": "0",
+                    "nr_vmscan_immediate_reclaim": "0",
+                    "nr_vmscan_write": "0",
+                    "nr_writeback": "28672",
+                    "nr_writeback_temp": "0",
+                    "nr_written": "4295952",
+                    "nr_zone_active_anon": "26855",
+                    "nr_zone_active_file": "78396",
+                    "nr_zone_inactive_anon": "64634",
+                    "nr_zone_inactive_file": "960410",
+                    "nr_zone_unevictable": "0",
+                    "nr_zone_write_pending": "104797",
+                    "nr_zspages": "0",
+                    "numa_foreign": "0",
+                    "numa_hint_faults": "0",
+                    "numa_hint_faults_local": "0",
+                    "numa_hit": "108166105",
+                    "numa_huge_pte_updates": "0",
+                    "numa_interleave": "15336",
+                    "numa_local": "108166105",
+                    "numa_miss": "0",
+                    "numa_other": "0",
+                    "numa_pages_migrated": "0",
+                    "numa_pte_updates": "0",
+                    "oom_kill": "0",
+                    "pageoutrun": "0",
+                    "pgactivate": "881650",
+                    "pgalloc_dma": "1",
+                    "pgalloc_dma32": "326450",
+                    "pgalloc_movable": "0",
+                    "pgalloc_normal": "112996031",
+                    "pgdeactivate": "0",
+                    "pgfault": "126900376",
+                    "pgfree": "114136126",
+                    "pginodesteal": "0",
+                    "pglazyfree": "0",
+                    "pglazyfreed": "0",
+                    "pgmajfault": "1335",
+                    "pgmigrate_fail": "0",
+                    "pgmigrate_success": "0",
+                    "pgpgin": "5436102",
+                    "pgpgout": "18057065",
+                    "pgrefill": "0",
+                    "pgrotated": "0",
+                    "pgscan_direct": "0",
+                    "pgscan_direct_throttle": "0",
+                    "pgscan_kswapd": "0",
+                    "pgskip_dma": "0",
+                    "pgskip_dma32": "0",
+                    "pgskip_movable": "0",
+                    "pgskip_normal": "0",
+                    "pgsteal_direct": "0",
+                    "pgsteal_kswapd": "0",
+                    "pswpin": "0",
+                    "pswpout": "0",
+                    "slabs_scanned": "0",
+                    "thp_collapse_alloc": "0",
+                    "thp_collapse_alloc_failed": "0",
+                    "thp_deferred_split_page": "0",
+                    "thp_fault_alloc": "0",
+                    "thp_fault_fallback": "0",
+                    "thp_file_alloc": "0",
+                    "thp_file_mapped": "0",
+                    "thp_split_page": "0",
+                    "thp_split_page_failed": "0",
+                    "thp_split_pmd": "0",
+                    "thp_split_pud": "0",
+                    "thp_zero_page_alloc": "0",
+                    "thp_zero_page_alloc_failed": "0",
+                    "unevictable_pgs_cleared": "0",
+                    "unevictable_pgs_culled": "8624",
+                    "unevictable_pgs_mlocked": "11005",
+                    "unevictable_pgs_munlocked": "11005",
+                    "unevictable_pgs_rescued": "7005",
+                    "unevictable_pgs_scanned": "0",
+                    "unevictable_pgs_stranded": "0",
+                    "workingset_activate": "0",
+                    "workingset_nodereclaim": "0",
+                    "workingset_refault": "0",
+                    "zone_reclaim_failed": "0"
+                }
+            }
+        },
+        "_type": "pbench-tool-data-proc-vmstat"
     }
 ]
---- Finished indexing on /var/tmp/pbench-test-server/test-7.11 (status=0)
+	done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 62, duplicates: 0, failures: 0, retries: 0)
+--- Finished indexing for test-7.11 (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
+/var/tmp/pbench-test-server/pbench/errors-json-unittests.json
+/var/tmp/pbench-test-server/pbench/fio_rw_2018.02.01T22.40.57.tar.xz
+/var/tmp/pbench-test-server/pbench/fio_rw_2018.02.01T22.40.57.tar.xz.md5
 --- pbench tree state
 +++ pbench log file contents
 --- pbench log file contents

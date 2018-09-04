@@ -130,10 +130,10 @@ fio-postprocess: could not find any result files to process, exiting
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo/hist/p99.log
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo/hist/results.html
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo/hist/samples.log
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio.cmd
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio.job
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio-postprocess.cmd
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio-result.txt
+/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio.cmd
+/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio.job
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1
@@ -162,10 +162,10 @@ fio-postprocess: could not find any result files to process, exiting
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo/hist/p99.log
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo/hist/results.html
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo/hist/samples.log
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio.cmd
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio.job
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio-postprocess.cmd
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio-result.txt
+/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio.cmd
+/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio.job
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1
@@ -194,10 +194,10 @@ fio-postprocess: could not find any result files to process, exiting
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo/hist/p99.log
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo/hist/results.html
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo/hist/samples.log
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio.cmd
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio.job
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio-postprocess.cmd
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio-result.txt
+/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio.cmd
+/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio.job
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/generate-benchmark-summary.cmd
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/metadata.log
 /var/tmp/pbench-test-bench/pbench/pbench.log
@@ -255,6 +255,7 @@ fio-postprocess: could not find any result files to process, exiting
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-throughput-4KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-throughput-64KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-throughput-1024KiB --dir=/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /opt/pbench-agent/bench-scripts/pbench-fio --remote-only --install
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar firewall-cmd --add-port=8765/tcp >/dev/null
@@ -264,10 +265,10 @@ fio-postprocess: could not find any result files to process, exiting
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar /opt/pbench-agent/bench-scripts/pbench-fio --remote-only --install
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no bar pushd /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /opt/pbench-agent/bench-scripts/pbench-fio --remote-only --install
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo firewall-cmd --add-port=8765/tcp >/dev/null
@@ -277,7 +278,6 @@ fio-postprocess: could not find any result files to process, exiting
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo mkdir -p /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo /opt/pbench-agent/bench-scripts/pbench-fio --remote-only --install
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no foo pushd /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'

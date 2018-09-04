@@ -1,16 +1,21 @@
-+++ Running indexing on /var/tmp/pbench-test-server/test-7.6
-len(actions) = 4
++++ Running indexing for test-7.6
+Template:  pbench-unittests.run
+Template:  pbench-unittests.tool-data-iostat
+Template:  pbench-unittests.tool-data-pidstat
+	done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 3, retries: 0)
+Index:  pbench-unittests.run.2015-09 5
+len(actions) = 5
 [
     {
         "_id": "c71b2c9c961ebd55f61273a6a020bdc6",
-        "_index": "pbench.run.2015-09",
+        "_index": "pbench-unittests.run.2015-09",
         "_op_type": "create",
         "_source": {
             "@metadata": {
                 "file-date": "2015-09-28",
-                "file-name": "/var/tmp/pbench-test-server/test-7.6.tar.xz",
+                "file-name": "/var/tmp/pbench-test-server/pbench/test-7.6.tar.xz",
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.1.0.0",
+                "generated-by-version": "0.2.0.0",
                 "md5": "c71b2c9c961ebd55f61273a6a020bdc6",
                 "pbench-agent-version": "plugins:"
             },
@@ -56,7 +61,7 @@ len(actions) = 4
     },
     {
         "_id": "7712c09ac5c74d34c6702a72a99630f4",
-        "_index": "pbench.run.2015-09",
+        "_index": "pbench-unittests.run.2015-09",
         "_op_type": "create",
         "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
         "_source": {
@@ -74,7 +79,7 @@ len(actions) = 4
     },
     {
         "_id": "56c6c2799acd10775b0afbb9d25f0f8b",
-        "_index": "pbench.run.2015-09",
+        "_index": "pbench-unittests.run.2015-09",
         "_op_type": "create",
         "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
         "_source": {
@@ -85,7 +90,7 @@ len(actions) = 4
     },
     {
         "_id": "52d58c324725aec09cfabc732be41d5e",
-        "_index": "pbench.run.2015-09",
+        "_index": "pbench-unittests.run.2015-09",
         "_op_type": "create",
         "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
         "_source": {
@@ -93,11 +98,38 @@ len(actions) = 4
             "directory": "/sysinfo/foo/"
         },
         "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "69b96118335d82179c2ae07b8fc89c4a",
+        "_index": "pbench-unittests.run.2015-09",
+        "_op_type": "create",
+        "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
+        "_source": {
+            "@timestamp": "2015-09-21T19:31:12.673292621",
+            "directory": "/sysinfo/foo/end/",
+            "files": [
+                {
+                    "mode": "0o664",
+                    "name": "sosreport.tar.xz",
+                    "size": 880
+                },
+                {
+                    "mode": "0o664",
+                    "name": "sosreport.tar.xz.md5",
+                    "size": 51
+                }
+            ]
+        },
+        "_type": "pbench-run-toc-entry"
     }
 ]
---- Finished indexing on /var/tmp/pbench-test-server/test-7.6 (status=0)
+	done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 5, duplicates: 0, failures: 0, retries: 0)
+--- Finished indexing for test-7.6 (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
+/var/tmp/pbench-test-server/pbench/errors-json-unittests.json
+/var/tmp/pbench-test-server/pbench/test-7.6.tar.xz
+/var/tmp/pbench-test-server/pbench/test-7.6.tar.xz.md5
 --- pbench tree state
 +++ pbench log file contents
 --- pbench log file contents

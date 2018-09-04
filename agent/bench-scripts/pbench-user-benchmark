@@ -122,6 +122,7 @@ benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 
 # we'll record the iterations in this file
 benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
+> ${benchmark_iterations}
 mdlog=${benchmark_run_dir}/metadata.log
 
 # make the run dir available to the user script
@@ -168,7 +169,6 @@ pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_r
 
 echo "Running $benchmark_bin"
 log "[$script_name] Running $benchmark_bin"
-echo $iteration >> $benchmark_iterations
 
 SECONDS=0
 $benchmark_bin 2>&1 | tee $benchmark_results_dir/result.txt
