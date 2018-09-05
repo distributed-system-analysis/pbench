@@ -1,0 +1,23 @@
+
+<html>
+<head>
+<title>Latency</title>
+<link rel="stylesheet" href="/static/css/v0.3/jschart.css"/>
+</head>
+<body>
+<script src="/static/js/v0.3/d3.min.js" charset="utf-8"></script>
+<script src="/static/js/v0.3/d3-queue.min.js" charset="utf-8"></script>
+<script src="/static/js/v0.3/jschart.js" charset="utf-8"></script>
+<script src="/static/js/v0.3/saveSvgAsPng.js" charset="utf-8"></script>
+<div id='jschart_latency'>
+  <script>
+    create_jschart(0, "xy", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
+        { plotfiles: [ "avg.log", "median.log", "p90.log", "p95.log",
+                       "p99.log", "min.log", "max.log" ],
+          sort_datasets: false, x_log_scale: false
+        });
+  </script>
+</div>
+<script>finish_page()</script>
+</body>
+</html>
