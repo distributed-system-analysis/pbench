@@ -3,7 +3,10 @@
 unset PATH
 unset CONFIG
 
-PATH=/usr/bin:/bin
+# Set an initial standard path.  getconf.py gets installed in /usr/bin
+# by the RPM, but it gets installed in /usr/local/bin by `pip install'
+# under Travis CI, so we need both.
+export PATH=/usr/local/bin:/usr/bin:/bin
 
 export LANG=C
 export LC_ALL=C
@@ -38,10 +41,8 @@ export _PBENCH_SERVER_TEST=1
 _testopt=$_testroot/opt/pbench-server
 
 # All the "real" scripts are found at $_tdir, the mock scripts are found in
-# $_testopt/unittest-scripts. $_tconfigtoolsbin is not defined - should it? It should presumably
-# be the place where getconf.py is, but that's assumed to be installed already
-# in /usr/bin.
-export PATH=$_testopt/unittest-scripts:$_tconfigtoolsbin:$_tdir:/usr/bin
+# $_testopt/unittest-scripts.
+export PATH=$_testopt/unittest-scripts:$_testopt/bin:$PATH
 export CONFIG=$_testopt/config/pbench-server.cfg
 # used by pbench-report-status
 export IDXCONFIG=$_testopt/config/pbench-index.cfg
@@ -52,7 +53,7 @@ function _run {
     tname=$1
     shift
     echo "+++ Running $tname" >> $_testout
-    $_tdir/$tname $@ >> $_testout 2>&1
+    $tname $@ >> $_testout 2>&1
     echo "--- Finished $tname (status=$?)" >> $_testout
 }
 
@@ -154,6 +155,12 @@ function _setup_state {
     mkdir -p $_testopt/unittest-scripts/
     let res=res+$?
     cp $_tdir/test-bin/* $_testopt/unittest-scripts/
+    let res=res+$?
+    mkdir -p $_testopt/bin
+    let res=res+$?
+    cp $_tdir/{index-pbench,job_pool.sh,unittests,pbench*} $_testopt/bin
+    let res=res+$?
+    cp -r $_tdir/../lib $_testopt
     let res=res+$?
     mkdir -p $(dirname $CONFIG)
     let res=res+$?

@@ -39,8 +39,18 @@ export LOGSDIR=$(getconf.py pbench-logs-dir pbench-files)
 if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
     # the real thing
     BINDIR=$(getconf.py script-dir pbench-server)
+    LIBDIR=$(getconf.py deploy-lib-dir pbench-server)
+
+    if [[ -z "$BINDIR" ]]; then
+        echo "$PROG: ERROR: BINDIR not defined" > /dev/stdout
+        exit 3
+    fi
+    if [[ -z "$LIBDIR" ]]; then
+        echo "$PROG: ERROR: LIBDIR not defined" > /dev/stdout
+        exit 3
+    fi
     # this is used by pbench-report-status
-    export IDXCONFIG=$(getconf.py deploy-lib-dir pbench-server)/config/pbench-index.cfg
+    export IDXCONFIG=$LIBDIR/config/pbench-index.cfg
 
     function timestamp {
         echo "$(date +'%Y-%m-%dT%H:%M:%S-%Z')"
@@ -51,8 +61,7 @@ if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
     }
 
 else
-    # running unit tests
-    BINDIR=.
+    # unit test regime
     # IDXCONFIG (used by pbench-report-status) is exported by the unittests script in this case.
 
     function timestamp {
