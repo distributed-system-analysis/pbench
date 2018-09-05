@@ -22,7 +22,7 @@ use lib "$_test_alt_tools_lib";
 use lib "$_test_alt_bench_lib";
 no lib ".";
 use GenData qw(gen_data);
-use BenchPostprocess qw(value_exists trim_series get_label create_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash);
+use BenchPostprocess qw(value_exists trim_series get_label create_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash get_json);
 use File::Basename;
 use Data::Dumper;
 use List::Util('sum');
@@ -95,15 +95,6 @@ my @iops_sec;	# each array element contains a hash with:
 	    	# role: <client or server>
 	    	# timeseries: a hash of timstamp:value key-pair
 
-my %benchmark_parameters_dataset = ( 	get_label('benchmark_name_label') => $benchmark_name,
-					get_label('benchmark_version_label') => $benchmark_version,
-					#get_label('test_type_label') => $test_type,
-					#get_label('block_size_kbytes_label') => int $block_size_kbytes,
-					#get_label('clients_label') => $clients,
-					get_label('primary_metric_label') => $primary_metric,
-					get_label('uid_label') => create_uid('benchmark_name_label', 'controller_host_label')  );
-
-push(@benchmark, \%benchmark_parameters_dataset);
 
 # Get the tool data
 # Define a set of tool directories which we want to use to report CPU and efficiency metrics
@@ -146,6 +137,59 @@ foreach $this_tool_dir (sort keys %tool_ids) {
 if ( @cpu_busy ) {
 	$resource{'cpu_busy'} = \@cpu_busy;
 }
+
+# get the fio benchmark parameters from the fio-result.txt (which is mostly json data)
+my %benchmark_params;
+my $fio_results_path = $dir . "/fio-result.txt";
+die "$script: $fio_results_path does not exist!\n" if ! -f $fio_results_path;
+die "$script: $fio_results_path is empty!\n" if -z $fio_results_path;
+my $fio_results_scalar = get_json($fio_results_path);
+if ($fio_results_scalar == 0) {
+	die "$script: Failed to read valid JSON from $fio_results_path!\n";
+}
+my %fio_results = %$fio_results_scalar;
+my $job_num = 1;
+my $num_jobs = 1;
+for my $param (keys (%{ $fio_results{"global options"} })) {
+	if (not $param =~/^write_\w+_log$/) {
+		$benchmark_params{$param} = $fio_results{'global options'}{$param};
+	}
+}
+if ($fio_results{"client_stats"}) {
+	for my $client (@{ $fio_results{"client_stats"} }) {
+		for my $param (keys $$client{"job options"} ) {
+			if (not $param =~/^write_\w+_log$/) {
+				$benchmark_params{$param} = $$client{"job options"}{$param};
+			}
+		}
+	}
+} elsif ($fio_results{"jobs"}) {
+	for my $job (@{ $fio_results{"jobs"} }) {
+		for my $param (keys (%{ $$job{"job options"} })) {
+			if (not $param =~/^write_\w+_log$/) {
+				if ($param =~/^numjobs$/) {
+					$num_jobs = $benchmark_params{$param};
+				} elsif ($param =~/^filename$/) {
+					if ($num_jobs % 4 == 0) {
+						if ($benchmark_params{$param}) {
+							$benchmark_params{$param} = $benchmark_params{$param} . "," . $$job{"job options"}{$param};
+						} else {
+							$benchmark_params{$param} = $$job{"job options"}{$param};
+						}
+					}
+				} else {
+					$benchmark_params{$param} = $$job{"job options"}{$param};
+				}
+			}
+		}
+		$job_num++;
+	}
+	$benchmark_params{"total_jobs"} = $job_num - 1;
+}
+$benchmark_params{get_label('benchmark_name_label')} = $benchmark_name;
+$benchmark_params{get_label('primary_metric_label')} = $primary_metric;
+$benchmark_params{get_label('uid_label')} = create_uid('benchmark_name_label', 'controller_host_label');
+push(@benchmark, \%benchmark_params);
 
 # Load the data from fio output and create throughput & latency metrics.
 # There can be several result files, for each client involved in this test
