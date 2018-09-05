@@ -1,5 +1,8 @@
 #! /bin/bash
 
+# force UTC everywhere
+export TZ=UTC
+
 function doexit {
     echo "$PROG: $1" >&2
     exit 1
