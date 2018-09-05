@@ -53,7 +53,7 @@ sub get_label {
 			'max_stddevpct_label' => 'max_stddevpct',
 			'max_failures_label' => 'max_failures',
 			'skip_aggregate_label' => 'skip_aggregate',
-	                'rw_label' => 'read(0) or write(1)' );
+			'rw_label' => 'read(0) or write(1)' );
 	if ( $labels{$key} ) {
 		return $labels{$key}
 	} else {
@@ -99,7 +99,7 @@ sub get_json {
 			}
 		}
 		close JSON;
-                if ($json_text eq "") {
+		if ($json_text eq "") {
 			print "Empty contents for \'$filename\'\n";
 		} else {
 			$perl_scalar = from_json($json_text);
