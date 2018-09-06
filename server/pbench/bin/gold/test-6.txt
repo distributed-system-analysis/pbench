@@ -39,7 +39,7 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:
 --- pbench log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/rsync -va --stats --exclude=TODO --exclude=TO-UNPACK --exclude=TO-COPY-SOS --exclude=TO-SYNC --exclude=SYNCED --exclude=TO-LINK --exclude=TO-INDEX --exclude=TO-BACKUP --exclude=INDEXED --exclude=WONT-INDEX --exclude=DONE --exclude=BAD-MD5 --exclude=SATELLITE-MD5-PASSED --exclude=SATELLITE-MD5-FAILED --exclude=TO-DELETE --exclude=SATELLITE-DONE --exclude=TO-UNPACK --exclude=UNPACKED --exclude=MOVED-UNPACKED /var/tmp/pbench-test-server/pbench/archive/fs-version-001/ /var/tmp/pbench-test-server/pbench/archive.backup
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/rsync -va --stats --exclude=TODO --exclude=BAD-MD5 --exclude=TO-UNPACK --exclude=UNPACKED --exclude=MOVED-UNPACKED --exclude=TO-SYNC --exclude=SYNCED --exclude=TO-LINK --exclude=TO-INDEX --exclude=INDEXED --exclude=WONT-INDEX --exclude=TO-COPY-SOS --exclude=COPIED-SOS --exclude=TO-BACKUP --exclude=SATELLITE-MD5-PASSED --exclude=SATELLITE-MD5-FAILED --exclude=TO-DELETE --exclude=SATELLITE-DONE /var/tmp/pbench-test-server/pbench/archive/fs-version-001/ /var/tmp/pbench-test-server/pbench/archive.backup
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
 /var/tmp/pbench-test-server/test-curl-payload.log:{
