@@ -14,13 +14,12 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # 4) post-process the data
 
 # Defaults
-tool=pprof
+tool="pprof"
 tool_bin=${GOROOT:-/usr}/bin/go
-tool_package=golang
-group=default
-mode=""
+tool_package="golang"
+group="default"
+mode="none"
 iteration="1"
-options="none"
 interval=60
 
 opts=$(getopt -o d --longoptions "dir:,group:,iteration:,osecomponent:,interval:,inventory:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
@@ -54,17 +53,17 @@ while true ; do
     -g|--group)
         shift;
         if [ -n "$1" ]; then
-                group="$1"
-                shift
+            group="$1"
+            shift
         fi
-      ;;
-     -i|--iteration)
+    ;;
+    -i|--iteration)
         shift;
         if [ -n "$1" ]; then
-           iteration="$1"
-           shift
+            iteration="$1"
+            shift
         fi
-      ;;
+    ;;
     --osecomponent)
         shift; 
         if [ -n "$1" ]; then 
@@ -100,75 +99,99 @@ done
 
 ## check if the inventory variable is set correctly
 if [[ ! -s "$inventory" ]] || [[ ! -f "$inventory" ]]; then
-    echo "Please check if the inventory file exists, is not empty and the inventory variable is not set to a directory"
+    echo "ERROR: Please check if the inventory file exists, is not empty and the inventory variable is not set to a directory"
     exit 1
 fi
-
-tool_cmd="$tool_bin $record_opts"
-tool_dir="$dir/tools-$group"
-tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
-export PPROF_TMPDIR=$tool_output_dir
 declare -a hosts=($(cat $inventory | sed -n '/^\[pprof\]/,/^$/p' | awk 'length {if (NR!=1) {print}}'))
 declare -a masters=($(cat $inventory | sed -n '/^\[masters\]/,/^$/p' | awk 'length {if (NR!=1) {print}}'))
 
-collect_data() {
-    get_masters &
-    get_hosts
-} 
+tool_cmd="$tool_bin $record_opts"
+tool_dir="$dir/tools-$group"
+if [[ ! -d $tool_dir ]]; then
+    echo "ERROR: Please check to be sure \"--dir=$dir\" and \"--group=$group\" are correct since the directory \"$tool_dir\" does not exist."
+    exit 1
+fi
+tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
+export PPROF_TMPDIR=$tool_output_dir
+
+_pprof_heap() {
+    datestamp=$1
+    server=$2
+    target=$3
+    suffix=$4
+    oc get --raw /debug/pprof/heap --server ${server} > ${pbench_tmp}/${target}${suffix}_heap && go tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${target}/${datestamp}${suffix}_heap.txt ${pbench_tmp}/${target}${suffix}_heap
+}
+
+_pprof_profile() {
+    datestamp=$1
+    server=$2
+    target=$3
+    suffix=$4
+    oc get --raw /debug/pprof/profile?seconds=${interval} --server ${server} > ${pbench_tmp}/${target}${suffix}_profile && go tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${target}/${datestamp}${suffix}_profile.txt ${pbench_tmp}/${target}${suffix}_profile
+}
 
 get_masters() {
     declare -A master_pids
-    while true; do
-        # Calculate the absolute time of the interval
-        current_epoch=$(date +%s.%N)
-        target_epoch=$(( $current_epoch + $interval ))
-        for master in "${masters[@]}"; do
-            oc get --raw /debug/pprof/profile?seconds=${interval} --server https://${master}:8443 > ${pbench_tmp}/${master}_api_profile && ${tool_bin} tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${master}/$(date +%Y-%m-%d:%H:%M:%S)_api_profile.txt ${pbench_tmp}/${master}_api_profile &
-            master_pids[${master}_api]=$!
-            oc get --raw /debug/pprof/heap --server https://${master}:8443 > ${pbench_tmp}/${master}_api_heap && ${tool_bin} tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${master}/$(date +%Y-%m-%d:%H:%M:%S)_api_heap.txt ${pbench_tmp}/${master}_api_heap &
-            master_pids[${master}_api_heap]=$!
-            oc get --raw /debug/pprof/profile?seconds=${interval} --server https://${master}:8444 > ${pbench_tmp}/${master}_controller_profile && ${tool_bin} tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${master}/$(date +%Y-%m-%d:%H:%M:%S)_controller_profile.txt ${pbench_tmp}/${master}_controller_profile &
-            master_pids[${master}_controller]=$!
-            oc get --raw /debug/pprof/heap --server https://${master}:8444 > ${pbench_tmp}/${master}_controller_heap && ${tool_bin} tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${master}/$(date +%Y-%m-%d:%H:%M:%S)_controller_heap.txt ${pbench_tmp}/${master}_controller_heap &
-            master_pids[${master}_controller_heap]=$!
-        done
-        for pid in ${master_pids[*]}; do
-            wait ${pid}
-        done
-        # Now that all the commands have completed for the interval,
-        # recalculate the remaining time of the interval to sleep
-        # for the rest of the interval in case the commands above
-        # run short of the specified interval.
-        current_epoch=$(date +%s.%N)
-        sleep_seconds=$(( $target_epoch - $current_epoch ))
-        sleep $sleep_seconds
+    datestamp=$(date +%Y%m%d%H%M%S)
+    for master in "${masters[@]}"; do
+        _pprof_profile ${datestamp} https://${master}:8443 ${master} "_api" &
+        master_pids[${master}_api]=$!
+        _pprof_heap    ${datestamp} https://${master}:8443 ${master} "_api" &
+        master_pids[${master}_api_heap]=$!
+        _pprof_profile ${datestamp} https://${master}:8444 ${master} "_controller" &
+        master_pids[${master}_controller]=$!
+        _pprof_heap    ${datestamp} https://${master}:8444 ${master} "_controller" &
+        master_pids[${master}_controller_heap]=$!
+    done
+    for pid in ${master_pids[*]}; do
+        wait ${pid}
     done
 }
 
 get_hosts() {
     declare -A node_pids
-    while true; do
-        # Calculate the absolute time of the interval
-        current_epoch=$(date +%s.%N)
-        target_epoch=$(( $current_epoch + $interval ))
-        for host in "${hosts[@]}"; do
-            oc get --raw /debug/pprof/profile?seconds=${interval} --server https://${host}:10250 > ${pbench_tmp}/${host}_profile && ${tool_bin} tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${host}/$(date +%Y-%m-%d:%H:%M:%S)_profile.txt ${pbench_tmp}/${host}_profile &
-            node_pids[${host}]=$!
-            oc get --raw /debug/pprof/heap --server https://${host}:10250 > ${pbench_tmp}/${host}_heap && ${tool_bin} tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${host}/$(date +%Y-%m-%d:%H:%M:%S)_heap.txt ${pbench_tmp}/${host}_heap &
-            node_pids[${host}_heap]=$!
-        done
-        for pid in ${node_pids[*]}; do
-            wait ${pid}
-        done
-        # Now that all the commands have completed for the interval,
-        # recalculate the remaining time of the interval to sleep
-        # for the rest of the interval in case the commands above
-        # run short of the specified interval.
-        current_epoch=$(date +%s.%N)
-        sleep_seconds=$(( $target_epoch - $current_epoch ))
-        sleep $sleep_seconds
+    datestamp=$(date +%Y%m%d%H%M%S)
+    for host in "${hosts[@]}"; do
+        _pprof_profile ${datestamp} https://${host}:10250 ${host} "" &
+        node_pids[${host}]=$!
+        _pprof_heap    ${datestamp} https://${host}:10250 ${host} "" &
+        node_pids[${host}_heap]=$!
+    done
+    for pid in ${node_pids[*]}; do
+        wait ${pid}
     done
 }
+
+loop() {
+    # Loop infinitely executing the given "operation" once every
+    # interval.
+    operation=$1
+    current_epoch=$(date +%s.%N)
+    target_epoch=$current_epoch
+    while true; do
+        # Calculate the absolute time of the interval
+        target_epoch=$(echo ${target_epoch}+${interval} | bc -l)
+
+        $operation
+
+        # Now that the command has completed for the interval,
+        # recalculate the remaining time in the interval to sleep
+        # in case the command above runs short.
+        current_epoch=$(date +%s.%N)
+        sleep_seconds=$(echo "if (${target_epoch} > ${current_epoch}) ${target_epoch}-${current_epoch} else 0" | bc -l)
+        sleep ${sleep_seconds}
+    done
+}
+
+collect_data() {
+    # Fork one process to fetch all the data from masters (APIs and
+    # Controllers).
+    loop get_masters &
+    # The main process will fetch from all the nodes.
+    loop get_hosts
+    # NOTE: this will never exit, and is expected to be killed by the
+    # "stop" operation below.
+} 
 
 case "$mode" in 
     install)
@@ -184,13 +207,13 @@ case "$mode" in
         collect_data
     ;; 
     stop)
-        # killing pprof processes at end on of itteration 
-        for pprof_process in $(ps aux | grep pbench-tool-$tool | grep -v grep | awk '{print $2}'); do kill -9 $pprof_process; done
-        rm /tmp/*_profile && rm /tmp/*_heap
+        # killing pprof processes at end on of iteration 
+        for pprof_process in $(ps aux | grep [p]bench-tool-$tool | awk '{print $2}'); do kill -9 $pprof_process; done
+        rm ${pbench_tmp}/*_profile && rm ${pbench_tmp}/*_heap
     ;; 
     postprocess)
-        printf "This script does not do any postprocessing\n"
-        printf "Data already collected\n" 
-        ls -l ${tool_output_dir}
+        printf "This script does not do any postprocessing.\n"
+        printf "Data already collected.\n" 
+        find ${tool_output_dir} -ls
     ;; 
 esac 
