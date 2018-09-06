@@ -119,6 +119,9 @@ collect_data() {
 get_masters() {
     declare -A master_pids
     while true; do
+        # Calculate the absolute time of the interval
+        current_epoch=$(date +%s.%N)
+        target_epoch=$(( $current_epoch + $interval ))
         for master in "${masters[@]}"; do
             oc get --raw /debug/pprof/profile?seconds=${interval} --server https://${master}:8443 > ${pbench_tmp}/${master}_api_profile && ${tool_bin} tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${master}/$(date +%Y-%m-%d:%H:%M:%S)_api_profile.txt ${pbench_tmp}/${master}_api_profile &
             master_pids[${master}_api]=$!
@@ -132,12 +135,22 @@ get_masters() {
         for pid in ${master_pids[*]}; do
             wait ${pid}
         done
+        # Now that all the commands have completed for the interval,
+        # recalculate the remaining time of the interval to sleep
+        # for the rest of the interval in case the commands above
+        # run short of the specified interval.
+        current_epoch=$(date +%s.%N)
+        sleep_seconds=$(( $target_epoch - $current_epoch ))
+        sleep $sleep_seconds
     done
 }
 
 get_hosts() {
     declare -A node_pids
     while true; do
+        # Calculate the absolute time of the interval
+        current_epoch=$(date +%s.%N)
+        target_epoch=$(( $current_epoch + $interval ))
         for host in "${hosts[@]}"; do
             oc get --raw /debug/pprof/profile?seconds=${interval} --server https://${host}:10250 > ${pbench_tmp}/${host}_profile && ${tool_bin} tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${host}/$(date +%Y-%m-%d:%H:%M:%S)_profile.txt ${pbench_tmp}/${host}_profile &
             node_pids[${host}]=$!
@@ -147,6 +160,13 @@ get_hosts() {
         for pid in ${node_pids[*]}; do
             wait ${pid}
         done
+        # Now that all the commands have completed for the interval,
+        # recalculate the remaining time of the interval to sleep
+        # for the rest of the interval in case the commands above
+        # run short of the specified interval.
+        current_epoch=$(date +%s.%N)
+        sleep_seconds=$(( $target_epoch - $current_epoch ))
+        sleep $sleep_seconds
     done
 }
 
