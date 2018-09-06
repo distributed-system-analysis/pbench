@@ -1,5 +1,5 @@
 +++ Running test-24 pbench-collect-sysinfo --options
-default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 --- Finished test-24 pbench-collect-sysinfo (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench

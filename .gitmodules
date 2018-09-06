@@ -1,0 +1,3 @@
+[submodule "agent/stockpile"]
+	path = agent/stockpile
+	url = https://github.com/redhat-performance/stockpile

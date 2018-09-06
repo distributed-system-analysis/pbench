@@ -266,10 +266,19 @@ function verify_common_bench_script_options {
 
 # generate inventory file with controller and remotes
 function generate_inventory {
-    echo "[controller]"
-    echo $HOSTNAME
-    echo "[remote]"
-    ls $tools_group_dir | awk -F@ '/^remote/ {print $2};'
+	local component=$1
+	if [[ $component == "stockpile" ]]; then
+		echo "[stockpile]"
+		echo $HOSTNAME
+		echo "[all]"
+		echo $HOSTNAME
+		ls $tools_group_dir | awk -F@ '/^remote/ {print $2};'
+	else
+		echo "[controller]"
+		echo $HOSTNAME
+		echo "[remote]"
+		ls $tools_group_dir | awk -F@ '/^remote/ {print $2};'
+	fi
 }
 
 if [[ "${_PBENCH_BENCH_TESTS}" == 1 ]] ;then

@@ -48,7 +48,7 @@ function collect_mitigation_data {
 	# check the generic vulnerabilities files first
 	if [ -d  /sys/devices/system/cpu/vulnerabilities ] ;then
 		grep -Hs . /sys/devices/system/cpu/vulnerabilities/* >> $dir/security-mitigation-data.txt
-	fi 
+	fi
 	# then check the RHEL-specific flag settings files - only
 	# applicable on x86_64
 	if [ -d /sys/kernel/debug/x86 ] ;then
@@ -142,6 +142,42 @@ function collect_ara_data {
 	fi
 }
 
+function collect_stockpile_data {
+	# parse config
+	stockpile_path=$(getconf.py stockpile_path stockpile)
+	stockpile_user=$(getconf.py stockpile_user stockpile)
+	stockpile_local_remote_user=$(getconf.py local_remote_user stockpile)
+	stockpile_host_remote_user=$(getconf.py host_remote_user stockpile)
+	stockpile_output_path=$(getconf.py stockpile_output_path stockpile)
+	stockpile_log=$(getconf.py stockpile_log stockpile)
+
+	if [[ -z "$stockpile_path" ]]; then
+		stockpile_path=$(getconf.py pbench_install_dir pbench-agent)
+	fi
+
+	# set stockpile log file and output paths
+	if [[ -z "$stockpile_log" ]]; then
+                stockpile_log=$dir/stockpile.log
+        fi
+	if [[ -z "$stockpile_output_path" ]]; then
+        	stockpile_output_path=$dir/stockpile.json
+	fi
+
+	# generate inventory and run stockpile
+	generate_inventory stockpile > $INVENTORY
+	debug_log "[$script_name]Collecting stockpile data"
+	stockpile_opts="stockpile_user=$stockpile_user local_remote_user=$stockpile_local_remote_user host_remote_user=$stockpile_host_remote_user stockpile_output_path=$stockpile_output_path"
+	stockpile_playbook="$stockpile_path/stockpile/stockpile.yml"
+	echo "ansible-playbook -vv --extra-vars '"$stockpile_opts"' -i $INVENTORY $stockpile_playbook" > ${benchmark_run_dir}/stockpile.cmd
+	chmod +x ${benchmark_run_dir}/stockpile.cmd
+	debug_log "Running stockpile with options: $stockpile_opts"
+	${benchmark_run_dir}/stockpile.cmd 2>&1 >$stockpile_log
+	if [[ $? != 0 ]]; then
+        	error_log "[$script_name] Stockpile run failed"
+		exit 1
+	fi
+}
+
 for item in ${sysinfo//,/ };do
 	debug_log "[$script_name]: collecting $item"
 	if [[ "$item" == "kernel_config" ]]; then
@@ -158,6 +194,8 @@ for item in ${sysinfo//,/ };do
 		collect_block &
 	elif [[ "$item" == "ara" ]]; then
 		collect_ara_data &> $pbench_log
+	elif [[ "$item" == "stockpile" ]]; then
+		collect_stockpile_data &
 	else
 		error_log "[$script_name]bad sysinfo value"
 	fi
