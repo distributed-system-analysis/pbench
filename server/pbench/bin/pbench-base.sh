@@ -89,9 +89,17 @@ fi
 export mail_recipients=$(getconf.py mailto pbench-server)
 
 # make all the state directories for the pipeline and any others needed
-LINKDIRS="TODO TO-UNPACK TO-COPY-SOS TO-SYNC SYNCED TO-LINK TO-INDEX TO-BACKUP \
-	INDEXED WONT-INDEX DONE BAD-MD5 SATELLITE-MD5-PASSED SATELLITE-MD5-FAILED \
-	TO-DELETE SATELLITE-DONE TO-UNPACK UNPACKED MOVED-UNPACKED"
+# every related state directories are paired together with their
+# final state at the end
+LINKDIRS="TODO BAD-MD5 \
+    TO-UNPACK UNPACKED MOVED-UNPACKED  \
+    TO-SYNC SYNCED \
+    TO-LINK \
+    TO-INDEX INDEXED WONT-INDEX \
+    TO-COPY-SOS COPIED-SOS \
+    TO-BACKUP \
+    SATELLITE-MD5-PASSED SATELLITE-MD5-FAILED \
+    TO-DELETE SATELLITE-DONE"
 
 # list of the state directories which will be excluded during rsync
 EXCLUDE_DIRS="$LINKDIRS WONT-INDEX*"
