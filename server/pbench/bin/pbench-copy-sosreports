@@ -62,11 +62,11 @@ test -d $INCOMING || doexit "Bad INCOMING=$INCOMING"
 # make sure only one copy is running.
 # Use 'flock -n $LOCKFILE /home/pbench/bin/pbench-unpack-tarballs' in the
 # crontab to ensure that only one copy is running. The script itself
-# does not use any locking. 
+# does not use any locking.
 
 # the link source and destination for this script
 linksrc=TO-COPY-SOS
-linkdest=TO-INDEX
+linkdest=COPIED-SOS
 
 if [ "$SOSREPORTDEST" == "" ]; then
     _sosrpt_user=$(getconf.py user sosreports)
@@ -100,7 +100,7 @@ for result in $list ;do
         nerrs=$nerrs+1
         continue
     fi
-       
+
     resultname=$(basename $result)
     resultname=${resultname%.tar.xz}
     hostname=$(basename $(dirname $link))
@@ -166,7 +166,7 @@ for result in $list ;do
         fi
         popd > /dev/null
     fi
-    
+
     # move the link to $linkdest directory
     mv $result $(echo $result | sed "s/$linksrc/$linkdest/")
     sts=$?
