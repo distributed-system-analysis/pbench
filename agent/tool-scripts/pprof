@@ -100,8 +100,8 @@ done
 
 ## check if the inventory variable is set correctly
 if [[ ! -s "$inventory" ]] || [[ ! -f "$inventory" ]]; then
-	echo "Please check if the inventory file exists, is not empty and the inventory variable is not set to a directory"
-	exit 1
+    echo "Please check if the inventory file exists, is not empty and the inventory variable is not set to a directory"
+    exit 1
 fi
 
 tool_cmd="$tool_bin $record_opts"
@@ -129,7 +129,7 @@ get_masters() {
             oc get --raw /debug/pprof/heap --server https://${master}:8444 > ${pbench_tmp}/${master}_controller_heap && ${tool_bin} tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${master}/$(date +%Y-%m-%d:%H:%M:%S)_controller_heap.txt ${pbench_tmp}/${master}_controller_heap &
             master_pids[${master}_controller_heap]=$!
         done
-	for pid in ${master_pids[*]}; do
+        for pid in ${master_pids[*]}; do
             wait ${pid}
         done
     done
@@ -144,7 +144,7 @@ get_hosts() {
             oc get --raw /debug/pprof/heap --server https://${host}:10250 > ${pbench_tmp}/${host}_heap && ${tool_bin} tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${host}/$(date +%Y-%m-%d:%H:%M:%S)_heap.txt ${pbench_tmp}/${host}_heap &
             node_pids[${host}_heap]=$!
         done
-	for pid in ${node_pids[*]}; do
+        for pid in ${node_pids[*]}; do
             wait ${pid}
         done
     done
@@ -155,12 +155,12 @@ case "$mode" in
         check_install_rpm $tool_package 
     ;; 
     start)
-    	for master in "${masters[@]}"; do
-    	    mkdir -p ${tool_output_dir}/${master}
-    	done
-    	for host in "${hosts[@]}"; do
-    	    mkdir -p ${tool_output_dir}/${host}
-    	done
+        for master in "${masters[@]}"; do
+            mkdir -p ${tool_output_dir}/${master}
+        done
+        for host in "${hosts[@]}"; do
+            mkdir -p ${tool_output_dir}/${host}
+        done
         collect_data
     ;; 
     stop)
