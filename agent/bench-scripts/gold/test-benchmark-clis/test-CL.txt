@@ -10,7 +10,7 @@ Bench Script: pbench-cyclictest --help
 		-s --stress                                   run stress process on the same cpu as --cpu
 		--tool-group=str
 		--sysinfo=str,                                str= comma separated values of sysinfo to be collected
-		                                                   available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                                   available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-cyclictest --tool-group=bad --sysinfo=bad
 ------------
@@ -26,7 +26,7 @@ Bench Script: pbench-cyclictest --tool-group=bad --sysinfo=bad
 		-s --stress                                   run stress process on the same cpu as --cpu
 		--tool-group=str
 		--sysinfo=str,                                str= comma separated values of sysinfo to be collected
-		                                                   available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                                   available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-cyclictest --bad-to-the-bone 
 ------------
@@ -42,7 +42,7 @@ pbench-cyclictest --bad-to-the-bone
 		-s --stress                                   run stress process on the same cpu as --cpu
 		--tool-group=str
 		--sysinfo=str,                                str= comma separated values of sysinfo to be collected
-		                                                   available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                                   available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-dbench --help 
 ------------
@@ -77,7 +77,7 @@ Bench Script: pbench-dbench --help
 		                                        part of the label, just use --tool-label-pattern= to tell this script
 		                                        the prefix pattern to use for CPU information.
 		             --sysinfo=str,             str= comma separated values of sysinfo to be collected
-		                                             available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                             available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-dbench --tool-group=bad --sysinfo=bad
 ------------
@@ -116,7 +116,7 @@ Bench Script: pbench-dbench --tool-group=bad --sysinfo=bad
 		                                        part of the label, just use --tool-label-pattern= to tell this script
 		                                        the prefix pattern to use for CPU information.
 		             --sysinfo=str,             str= comma separated values of sysinfo to be collected
-		                                             available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                             available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-dbench --bad-to-the-bone 
 ------------
@@ -155,7 +155,7 @@ pbench-dbench --bad-to-the-bone
 		                                        part of the label, just use --tool-label-pattern= to tell this script
 		                                        the prefix pattern to use for CPU information.
 		             --sysinfo=str,             str= comma separated values of sysinfo to be collected
-		                                             available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                             available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-fio --help 
 ------------
@@ -241,7 +241,7 @@ The following options are available:
 		set the histogram logging interval in seconds (default 10)
 
 	--sysinfo=str            str= comma separated values of sysinfo to be collected
-		available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-fio --tool-group=bad --sysinfo=bad
 ------------
@@ -331,7 +331,7 @@ The following options are available:
 		set the histogram logging interval in seconds (default 10)
 
 	--sysinfo=str            str= comma separated values of sysinfo to be collected
-		available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-fio --bad-to-the-bone 
 ------------
@@ -421,7 +421,7 @@ The following options are available:
 		set the histogram logging interval in seconds (default 10)
 
 	--sysinfo=str            str= comma separated values of sysinfo to be collected
-		available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-iozone --help 
 ------------
@@ -438,7 +438,7 @@ Bench Script: pbench-iozone --help
 			number of iozone runs - default is 10 runs
 		--tool-group=str
 		--sysinfo=str, str= comma separated values of sysinfo to be collected
-		                    available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                    available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-iozone --tool-group=bad --sysinfo=bad
 ------------
@@ -459,7 +459,7 @@ Bench Script: pbench-iozone --tool-group=bad --sysinfo=bad
 			number of iozone runs - default is 10 runs
 		--tool-group=str
 		--sysinfo=str, str= comma separated values of sysinfo to be collected
-		                    available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                    available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-iozone --bad-to-the-bone 
 ------------
@@ -480,7 +480,7 @@ pbench-iozone --bad-to-the-bone
 			number of iozone runs - default is 10 runs
 		--tool-group=str
 		--sysinfo=str, str= comma separated values of sysinfo to be collected
-		                    available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                    available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-linpack --help 
 ------------
@@ -490,7 +490,7 @@ Bench Script: pbench-linpack --help
 	       --threads=int[,int]  number of threads to use (default is num_cpus)
 	       --tool-group=str
 	       --sysinfo=str,       str= comma separated values of sysinfo to be collected
-	                                available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+	                                available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-linpack --tool-group=bad --sysinfo=bad
 ------------
@@ -504,7 +504,7 @@ Bench Script: pbench-linpack --tool-group=bad --sysinfo=bad
 	       --threads=int[,int]  number of threads to use (default is num_cpus)
 	       --tool-group=str
 	       --sysinfo=str,       str= comma separated values of sysinfo to be collected
-	                                available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+	                                available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-linpack --bad-to-the-bone 
 ------------
@@ -518,7 +518,7 @@ pbench-linpack --bad-to-the-bone
 	       --threads=int[,int]  number of threads to use (default is num_cpus)
 	       --tool-group=str
 	       --sysinfo=str,       str= comma separated values of sysinfo to be collected
-	                                available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+	                                available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-migrate --help 
 ------------
@@ -542,7 +542,7 @@ Bench Script: pbench-migrate --help
 		                                        0 = 1 migration, just to dest-host (no round-trip migration, VM ends up on dest-host).
 		                                        1 = 2 migrations, 2 = 4 migrations, etc.  VM ends up on src-host
 		--sysinfo=str,                          str= comma separated values of sysinfo to be collected
-		                                             available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                             available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-migrate --tool-group=bad --sysinfo=bad
 ------------
@@ -570,7 +570,7 @@ Bench Script: pbench-migrate --tool-group=bad --sysinfo=bad
 		                                        0 = 1 migration, just to dest-host (no round-trip migration, VM ends up on dest-host).
 		                                        1 = 2 migrations, 2 = 4 migrations, etc.  VM ends up on src-host
 		--sysinfo=str,                          str= comma separated values of sysinfo to be collected
-		                                             available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                             available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-migrate --bad-to-the-bone 
 ------------
@@ -598,7 +598,7 @@ pbench-migrate --bad-to-the-bone
 		                                        0 = 1 migration, just to dest-host (no round-trip migration, VM ends up on dest-host).
 		                                        1 = 2 migrations, 2 = 4 migrations, etc.  VM ends up on src-host
 		--sysinfo=str,                          str= comma separated values of sysinfo to be collected
-		                                             available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                             available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-moongen --help 
 ------------
@@ -646,7 +646,7 @@ Bench Script: pbench-moongen --help
 		             --queues-per-task=int      how many tasks queues to bind to each task (default 3)
 		             --dst-macs=mac[,mac]       list of destination mac addresses, each mac in the list corresponds to a port from the port list
 		             --sysinfo=str,             str= comma separated values of system information to be collected
-		                                              available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                              available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-moongen --tool-group=bad --sysinfo=bad
 ------------
@@ -698,7 +698,7 @@ Bench Script: pbench-moongen --tool-group=bad --sysinfo=bad
 		             --queues-per-task=int      how many tasks queues to bind to each task (default 3)
 		             --dst-macs=mac[,mac]       list of destination mac addresses, each mac in the list corresponds to a port from the port list
 		             --sysinfo=str,             str= comma separated values of system information to be collected
-		                                              available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                              available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-moongen --bad-to-the-bone 
 ------------
@@ -750,7 +750,7 @@ pbench-moongen --bad-to-the-bone
 		             --queues-per-task=int      how many tasks queues to bind to each task (default 3)
 		             --dst-macs=mac[,mac]       list of destination mac addresses, each mac in the list corresponds to a port from the port list
 		             --sysinfo=str,             str= comma separated values of system information to be collected
-		                                              available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                              available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-netperf --help 
 ------------
@@ -787,7 +787,7 @@ Bench Script: pbench-netperf --help
 		             --server-label=str             provide the pbench netperf-server tool label and postprocessing will
 		                                            compute a netperf-server result/CPU metric
 		             --sysinfo=str,                 str= comma separated values of sysinfo to be collected
-		                                                 available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                                 available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-netperf --tool-group=bad --sysinfo=bad
 ------------
@@ -828,7 +828,7 @@ Bench Script: pbench-netperf --tool-group=bad --sysinfo=bad
 		             --server-label=str             provide the pbench netperf-server tool label and postprocessing will
 		                                            compute a netperf-server result/CPU metric
 		             --sysinfo=str,                 str= comma separated values of sysinfo to be collected
-		                                                 available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                                 available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-netperf --bad-to-the-bone 
 ------------
@@ -869,7 +869,7 @@ pbench-netperf --bad-to-the-bone
 		             --server-label=str             provide the pbench netperf-server tool label and postprocessing will
 		                                            compute a netperf-server result/CPU metric
 		             --sysinfo=str,                 str= comma separated values of sysinfo to be collected
-		                                                 available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                                 available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-specjbb2005 --help 
 ------------
@@ -887,7 +887,7 @@ Bench Script: pbench-specjbb2005 --help
 		-d str --dir=<str>               directory to run the test
 		       --tool-group=<str>        tool group to use during test
 		       --sysinfo=<str,>          comma separated values of sysinfo to be collected
-		                                      available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                      available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 		       --specjbb2005-dir=<str>   the location of the install directory for SPECjbb2005
 		                                      (default is /usr/local/share/specjbb2005)
 
@@ -911,7 +911,7 @@ Bench Script: pbench-specjbb2005 --tool-group=bad --sysinfo=bad
 		-d str --dir=<str>               directory to run the test
 		       --tool-group=<str>        tool group to use during test
 		       --sysinfo=<str,>          comma separated values of sysinfo to be collected
-		                                      available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                      available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 		       --specjbb2005-dir=<str>   the location of the install directory for SPECjbb2005
 		                                      (default is /usr/local/share/specjbb2005)
 
@@ -935,7 +935,7 @@ pbench-specjbb2005 --bad-to-the-bone
 		-d str --dir=<str>               directory to run the test
 		       --tool-group=<str>        tool group to use during test
 		       --sysinfo=<str,>          comma separated values of sysinfo to be collected
-		                                      available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                      available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 		       --specjbb2005-dir=<str>   the location of the install directory for SPECjbb2005
 		                                      (default is /usr/local/share/specjbb2005)
 
@@ -1169,7 +1169,7 @@ options common in most pbench benchmark scripts
 
 --sysinfo=str,
   comma separated values of sysinfo to be collected, default="none"
-    available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+    available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 --tool-period=str
   str = [binary-search|repeat-final-validation]
@@ -1410,7 +1410,7 @@ options common in most pbench benchmark scripts
 
 --sysinfo=str,
   comma separated values of sysinfo to be collected, default="none"
-    available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+    available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 --tool-period=str
   str = [binary-search|repeat-final-validation]
@@ -1651,7 +1651,7 @@ options common in most pbench benchmark scripts
 
 --sysinfo=str,
   comma separated values of sysinfo to be collected, default="none"
-    available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+    available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 --tool-period=str
   str = [binary-search|repeat-final-validation]
@@ -1703,7 +1703,7 @@ Bench Script: pbench-uperf --help
 				   part of the label, just use --tool-label-pattern= to tell this script
 				   the prefix pattern to use for CPU information.
 	--sysinfo=str,             str= comma separated values of sysinfo to be collected
-	                                available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+	                                available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-uperf --tool-group=bad --sysinfo=bad
 ------------
@@ -1754,7 +1754,7 @@ Bench Script: pbench-uperf --tool-group=bad --sysinfo=bad
 				   part of the label, just use --tool-label-pattern= to tell this script
 				   the prefix pattern to use for CPU information.
 	--sysinfo=str,             str= comma separated values of sysinfo to be collected
-	                                available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+	                                available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-uperf --bad-to-the-bone 
 ------------
@@ -1805,7 +1805,7 @@ pbench-uperf --bad-to-the-bone
 				   part of the label, just use --tool-label-pattern= to tell this script
 				   the prefix pattern to use for CPU information.
 	--sysinfo=str,             str= comma separated values of sysinfo to be collected
-	                                available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+	                                available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 
 Bench Script: pbench-user-benchmark --help 
 ------------
@@ -1816,7 +1816,7 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 		-C str --config=str            name of the test config
 		       --tool-group=str
 		       --sysinfo=str,          str = comma separated values of system information to be collected
-		                                     available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                     available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 		       --pbench-pre=str        path to the script which will be executed before tools are started
 		       --pbench-post=str       path to the script which will be executed after tools are stopped and postprocessing is complete
 		       --use-tool-triggers     use tool triggers instead of normal start/stop around script
@@ -1835,7 +1835,7 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 		-C str --config=str            name of the test config
 		       --tool-group=str
 		       --sysinfo=str,          str = comma separated values of system information to be collected
-		                                     available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                     available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 		       --pbench-pre=str        path to the script which will be executed before tools are started
 		       --pbench-post=str       path to the script which will be executed after tools are stopped and postprocessing is complete
 		       --use-tool-triggers     use tool triggers instead of normal start/stop around script
@@ -1854,7 +1854,7 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 		-C str --config=str            name of the test config
 		       --tool-group=str
 		       --sysinfo=str,          str = comma separated values of system information to be collected
-		                                     available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+		                                     available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile
 		       --pbench-pre=str        path to the script which will be executed before tools are started
 		       --pbench-post=str       path to the script which will be executed after tools are stopped and postprocessing is complete
 		       --use-tool-triggers     use tool triggers instead of normal start/stop around script
