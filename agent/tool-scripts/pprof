@@ -119,7 +119,7 @@ _pprof_heap() {
     server=$2
     target=$3
     suffix=$4
-    oc get --raw /debug/pprof/heap --server ${server} > ${pbench_tmp}/${target}${suffix}_heap && go tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${target}/${datestamp}${suffix}_heap.txt ${pbench_tmp}/${target}${suffix}_heap
+    oc get --raw /debug/pprof/heap --server ${server} > ${pbench_tmp}/${target}${suffix}_heap && ${tool_bin} tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${target}/${datestamp}${suffix}_heap.txt ${pbench_tmp}/${target}${suffix}_heap
 }
 
 _pprof_profile() {
@@ -127,7 +127,7 @@ _pprof_profile() {
     server=$2
     target=$3
     suffix=$4
-    oc get --raw /debug/pprof/profile?seconds=${interval} --server ${server} > ${pbench_tmp}/${target}${suffix}_profile && go tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${target}/${datestamp}${suffix}_profile.txt ${pbench_tmp}/${target}${suffix}_profile
+    oc get --raw /debug/pprof/profile?seconds=${interval} --server ${server} > ${pbench_tmp}/${target}${suffix}_profile && ${tool_bin} tool ${tool} -text -seconds=${interval} -output ${PPROF_TMPDIR}/${target}/${datestamp}${suffix}_profile.txt ${pbench_tmp}/${target}${suffix}_profile
 }
 
 get_masters() {
