@@ -1,0 +1,91 @@
+#!/usr/bin/perl
+#
+# Author: Andrew Theurer
+#
+# This is a wrapper script that will run a benchmark for the user by doing the following:
+# - validating the benchmark exists
+# - validating the benchmark parameters and pbench parameters (via pbench-gen-iterations)
+# - constructing a list of benchmark-iterations (via pbench-gen-iterations)
+# - executing those iterations, with N sample-executions per iteration (via pbench-run-iteration)
+# - run any post-processing for those executions
+# - bundle all the data in a JSON document
+
+use strict;
+use warnings;
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+my $_test_alt_bench_lib;
+BEGIN {
+	my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+		$_test_alt_tools_lib = "$_pbench_tspp_dir";
+	}
+	my $_pbench_bspp_dir = $ENV{'pbench_bspp_dir'};
+	$_test_alt_bench_lib=$ENV{_TEST_ALTERNATE_BENCH_LIBRARY};
+	if (not defined $_test_alt_bench_lib or not -d $_test_alt_bench_lib) {
+		$_test_alt_bench_lib = "$_pbench_bspp_dir";
+	}
+}
+use lib "$_test_alt_tools_lib";
+use lib "$_test_alt_bench_lib";
+no lib ".";
+
+use JSON;
+use File::Basename;
+use Data::Dumper;
+use BenchPostprocess qw(get_json get_benchmark_names);
+
+my $pbench_config_dir = $ENV{"pbench_install_dir"} . "/config/";
+my $num_samples = 1; 
+
+# the only required argument is the benchmark name; verify it now
+if (scalar @ARGV == 0) {
+	print "You must supply at least a benchmark name:\n";
+	get_benchmark_names($pbench_config_dir);
+	exit;
+}
+my $benchmark = shift(@ARGV);
+if ($benchmark eq "list") {
+	get_benchmark_names($pbench_config_dir);
+	exit;
+}
+# the only other argument this script cares about is the optional --samples
+if (my @sample_opts = grep(/--samples=\d+/, @ARGV)) {
+	for my $sample_opt (@sample_opts) {
+		$sample_opt =~ s/--samples=//;
+		$num_samples = $sample_opt;
+		#printf "num_samples: %d\n", $num_samples;
+	}
+}
+
+# pass the rest of the args to pbench-gen-iterations and store the iterations in an array
+my $gen_iterations_cmd = "/root/pbench-gen-iterations " . $benchmark . " " . join(" ", @ARGV);
+my @iterations = split(/\n/, `$gen_iterations_cmd`);
+if ($? == 0) {
+	printf "got %d iterations\n", scalar @iterations;
+	} else {
+	printf "Calling pbench-gen-iterations failed.  Exiting\n";
+	printf "From pbench-gen-iterations: %s\n", @iterations;
+	exit 1;
+	}
+
+# now run the iterations
+for my $iteration (@iterations) {
+	for (my $s=0; $s<$num_samples; $s++) {
+		my $benchmark_cmd = "/root/pbench-run-benchmark-sample " . $iteration;
+		printf "benchmrk cmd: [%s]\n", $benchmark_cmd;
+		my $benchmark_sample_output = `$benchmark_cmd`;
+		my $exit_code = $?;
+		printf "pbench-run-benchmark-sample output:\n%s\n\n", $benchmark_sample_output;
+		# todo: bail if non-zero exit code
+		printf "exit code: %d\n", $exit_code;
+	}
+	#todo: get stdddev and repeat iteration if too high
+}
+
+
+
+
+
