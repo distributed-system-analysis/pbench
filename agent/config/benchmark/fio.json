@@ -1,0 +1,131 @@
+// Benchmark configuration data for fio
+{
+"clients" : { // if the benchmark uses --clients parameter, then this "clients" section must be filled out
+	//"packages" : [
+		//{
+		//"name" : "pbench-fio",
+		//"version" : "3.7"
+		//}
+		  //], // array of records with name and version for each package (RPM) that must be checked and installed before client is considered ready
+	"pre" : "/path/to/script", // script to run on client before test (but after copy-to files), the benchmark parameters are passed to this, and this script must exit "0" to continue
+	"post" : "/path/to/script", // script to run on client after test (but before copy-from files), the benchmark parameters are passed to this, and this script, and this script must exit "0" to continue
+	"files" : { 
+		"copy-to" : [ "/path" ] // list of files to copy to the client (placed under $pbench_bench) before the test
+		//"copy-from" : { [] } // list of files to copy from the client (relative to $pbench_bench) after the test (placed under $pbench_bench/$client_name/)
+		},
+	"cmdline" : { // the cmdline is what's executed to run on the client, and by default it's the benchmark name followed by the benchmark parameters
+		"path" : "/", // prepend this path to the cmdline
+		"regex" : "/abc/" // before executing the cmdline, apply this regex
+		}
+	},
+"parameters" : { 
+	"defaults": { // when calling pbench-run-benchmark, if one uses "--defaults=<name>", a matching name will cause their respective parameters listed here to be used
+		      // if not "--defaults=<name> is used, the entry "default" will be used
+		"default" : "--rw=read --numjobs=1, --filename=/tmp/fio-tst --filesize=1G --runtime=30s --jobfile=fio.job",
+		"ceph-osp" : "--rw=read,randr,write,randw --bs=1m --ioengine=sync --numjobs=1 --runtime=30s --jobfile=fio.job",
+		"mandatory" : "--write_bw_log=fio --write_iops_log=fio --write_lat_log=fio --log_avg_msec=1000 --log_unix_epoch=1 --output-format=json --output=fio_result.json" //these will alwyas be included and cannot be overrided by the user
+		},
+	"specs" : {
+		// The following infomation is to aid pbench in parsing benchmark-specific paramters.
+		// Paramaters which have the same restrictions and transform for the
+		// parameter's value are grouped together.
+		//
+		// For example, a group, "size_KBMG" describes values which are sizes, like 4k or 16M.
+		// This is a common value type used in fio for several parameters.  Since the input
+		// value can use different units, the value is converted (transformed) to a common unit.
+		"size_KBMG" : //this is a grouping of values used in the params below
+			{
+        		"description" : "bytes in units of k/K (1024), m/M (1024^2) or g/G (1024^3): 4k 16M 1g", //this describes the value, not the parameter
+        		"arguments" : [ "bs", "filesize", "io_size", "mem" ], //users wanting defintions of these should look to the the benchmark-proper docs
+        		"value_regex" : "[0-9]+[kbmgKBMG]", //this is a perl regex which the value must pass
+        		"value_transforms" : [ "s/([0-9]+)[gG]/($1*1024).\"M\"/e", "s/([0-9]+)[mM]/($1*1024).\"K\"/e" ] //once a value is passed by regex, it can be tranformed with perl s// regex
+			},
+		"size_KBMG_range" :
+        		{
+        		"description" : "a range (x-y) of bytes in units of k/K (1024), m/M (1024^2) or g/G (1024^3): 4k-8k 16k-2m 24m-1G",
+        		"arguments" : [ "bsrange", "bssplit" ],
+        		"value_regex" : "[0-9]+[kbmgKBMG]\\-[0-9]+[kbmgKBMG]",
+        		"value_transforms" : [ "s/([0-9]+)[gG]/($1*1024).\"M\"/eg", "s/([0-9]+)[mM]/($1*1024).\"K\"/eg" ]
+			},
+		"generic_string" :
+        		{
+        		"description" : "all types of strings",
+        		"arguments" : [ "output-format", "output", "buffer_pattern", "cgroup", "clocksource", "continue_on_error", "cpus_allowed_policy",
+                         		"cpus_allowed", "directory", "exec_postrun", "exec_prerun", "filename", "ignore_error", "ioscheduler", "jobfile" ],
+        		"value_regex" : ".+"
+			},
+		"rw_types" : 
+        		{
+        		"description" : "all possible testtypes",
+        		"arguments" : [ "rw" ],
+        		"value_regex" : "|^(|rand)(read|write|trim)$|^readwrite$|^randrw$|^trimwrite$"
+			},
+		"ioengine_types" : 
+        		{
+        		"description" : "all possible ioengine types",
+        		"arguments" : [ "ioengine" ],
+        		"value_regex" : "^(|p|pv|v)sync$|^pvsync2$|^posixaio$|^mmap$|^^(|net)splice$|^sg$|^null$|^net$|^cpuio$|^rdma$|^e4defrag$|^falloc$|^filecreate$|^external$|^libaio$"
+			},
+		"log_types" : 
+        		{
+        		"description" : "all possible log types",
+        		"arguments" : [ "write_bw_log", "write_hist_log", "write_iolog", "write_iops_log", "write_lat_log" ],
+        		"value_regex" : "^fio$"
+			},
+		"io_submit_modes" :
+        		{
+        		"description" : "How IO submissions and completions are done",
+        		"arguments" : [ "io_submit_mode" ],
+        		"value_regex" : "^inline$|^offload$"
+        		},
+		"time_smh" :
+        		{
+        		"description" : "time in seconds, minutes, or hours: 10s 2m 1h",
+        		"arguments" : [ "runtime", "steadystate_duration", "steadystate_ramp_time", "steadystate" ],
+        		"value_regex" : "^[0-9]+[smh]$"
+        		},
+		"boolean" :
+        		{
+        		"description" : "1 for true and 0 for false",
+        		"arguments" : [ "allow_file_create", "allow_mounted_write", "allrandrepeat", "atomic", "block_error_percentiles",
+                         		"buffered", "cgroup_nodelete", "clat_percentiles", "create_fsync", "create_only", "create_on_open",
+                         		"create_serialize", "direct", "disable_bw_measurement", "disable_clat", "disable_lat", "disable_slat",
+                         		"disk_util", "do_verify", "end_fsync", "error_dump", "experimental_verify", "file_append",
+                         		"fill_device", "fsync_on_close", "gtod_reduce", "invalidate", "lat_percentiles", "log_max_value",
+			 		"log_offset", "log_store_compressed", "log_unix_epoch", "overwrite", "per_job_logs", "pre_read",
+                         		"randrepeat", "rate_ignore_thinktime", "replay_no_stall", "scramble_buffers", "serialize_overlap",
+                         		"stats", "sync", "trim_verify_zero", "unified_rw_reporting", "unique_filename", "unlink_each_loop",
+                         		"unlink", "verify_dump", "erify_fatal", "verify_state_load", "verify_state_save" ],
+        		"value_regex" : "[0,1]"
+        		},
+		"integer" :
+        		{
+        		"description" : "a whole number",
+        		"arguments" : [ "ba", "buffer_compress_chunk", "buffer_compress_percentage", "bwavgtime", "cgroup_weight", "cpumask",
+                         		"dedupe_percentage", "fdatasync", "flow_id", "flow_sleep", "flow", "flow_watermark", "fsync", "gia",
+                         		"gtod_cpu", "hugepage-size", "iodepth_batch_complete_max", "iodepth_batch_complete_min", "iodepth_batch",
+                         		"iodepth_low", "iodepth", "iopsavgtime", "kb_base", "log_avg_msec", "log_compression", "log_hist_coarseness",
+                         		"log_hist_msec", "loops", "nice", "nrfiles", "numjobs", "offset_align", "openfiles", "percentage_random",
+                         		"prioclass", "prio", "rate_cycle", "rate_iops_min", "rate_iops", "rate_min", "rate", "replay_align",
+                         		"replay_scale", "replay_time_scale", "rwmixread", "rwmixwrite", "significant_figures", "thinktime_blocks",
+                         		"thinktime_spin", "thinktime", "trim_backlog_batch", "trim_percentage", "uid", "unit_base", "verify_async",
+                         		"verify_backlog_batch", "verify_interval", "verify_offset", "write_barrier" ],
+        		"value_regex" : "[0,1]"
+        		}
+		}
+	}
+}
+// the "servers" section below is not used for fio but here as a reference
+//"servers" : { // if the benchmark uses --servers parameter, then this "servers" section must be filled out
+	//"packages" : [ "pbench-fio" ], // list (array) of strings which are package (RPM) names that must be checked and installed before server is considered ready
+	//"pre" : "/path/to/script", // script to run on client before test (but after copy-to files), must exit "0" to continue
+	//"post" : "/path/to/script", // script to run on client after test (but before copy-from files), must exit "0" to continue
+	//"files" : {
+		//"copy-to" : {}, // list of files to copy to client before test
+		//"copy-from" : {} // list of file to copy from client after test
+		//},
+	//"cmdline" : { // the cmdline is what's executed to run on the client, and the benchmark name plus the benchmark parameters are used here
+		//"path" : {}, // prepend this path to the cmdline
+		//"value_regex" : {}, // before executing the cmdline, apply this regex
+		//}
+	//},

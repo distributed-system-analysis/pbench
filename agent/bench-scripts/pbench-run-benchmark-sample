@@ -1,0 +1,58 @@
+#!/usr/bin/perl
+#
+# Author: Andrew Theurer
+#
+# This script:
+# - executes a single sample of a benchmark 
+# - runs any postprocessing to get all data in JSON
+#
+# There are 2 ways to run a benchmark:
+# 1) using built-in functions in this script
+# 2) using external script specifically for that benchmark
+#
+# Benchmarks executions handled by this script
+# benefit from sharing other functions, like methods
+# to copy files to/from client/servers
+
+use strict;
+use warnings;
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+my $_test_alt_bench_lib;
+BEGIN {
+	my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+		$_test_alt_tools_lib = "$_pbench_tspp_dir";
+	}
+	my $_pbench_bspp_dir = $ENV{'pbench_bspp_dir'};
+	$_test_alt_bench_lib=$ENV{_TEST_ALTERNATE_BENCH_LIBRARY};
+	if (not defined $_test_alt_bench_lib or not -d $_test_alt_bench_lib) {
+		$_test_alt_bench_lib = "$_pbench_bspp_dir";
+	}
+}
+use lib "$_test_alt_tools_lib";
+use lib "$_test_alt_bench_lib";
+no lib ".";
+
+use JSON;
+use File::Basename;
+use Data::Dumper;
+use BenchPostprocess qw(get_json get_benchmark_names);
+
+my $pbench_config_dir = $ENV{"pbench_install_dir"} . "/config/";
+
+# the only required argument is the benchmark name; verify it now
+if (scalar @ARGV == 0) {
+	print "You must supply at least a benchmark name:\n";
+	get_benchmark_names($pbench_config_dir);
+	exit;
+}
+my $benchmark = shift(@ARGV);
+if ($benchmark eq "list") {
+	get_benchmark_names($pbench_config_dir);
+	exit;
+}
+
+printf "running pbench-run-benchmark-sample [%s]\n", join(' ', @ARGV);
