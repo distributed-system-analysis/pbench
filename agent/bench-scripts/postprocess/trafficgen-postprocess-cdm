@@ -1,0 +1,195 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use File::Basename;
+my $pbench_run_path;
+my $pbench_lib_path;
+BEGIN {
+	$pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
+	chomp $pbench_lib_path;
+	$pbench_lib_path .= "/lib";
+}
+use lib "$pbench_lib_path";
+use JSON;
+use Data::Dumper;
+use PbenchCDM qw(create_metric_sample_doc create_bench_iter_sample_period_doc);
+use PbenchBase qw(get_json_file put_json_file remove_element);
+
+printf "\@ARGV: %s\n", join(" ", @ARGV);
+
+my $script_name = basename($0);
+my $rundir = shift(@ARGV);
+my $base_bench_dir = shift(@ARGV);
+
+my @trial_metrics = (
+    { 'key' => 'result',
+      'class' => 'pass/fail',
+      'type' => 'trial-result',
+      'name_format' => '' }
+
+    );
+
+my @trial_stats_metrics = (
+    { 'key' => 'global',
+      'field' => 'runtime',
+      'class' => 'count',
+      'type' => 'trial-runtime-in-seconds',
+      'name_format' => '' }
+
+    );
+
+my @trial_stats_device_metrics = (
+    { 'key' => 'rx',
+      'field' => 'rx_latency_maximum',
+      'class' => 'count',
+      'type' => 'maximum-rx-packet-roundtrip-latency-in-microseconds',
+      'name_format' => '_%port_pair%_%rx_port%' },
+
+    { 'key' => 'rx',
+      'field' => 'rx_latency_average',
+      'class' => 'count',
+      'type' => 'average-rx-packet-roundtrip-latency-in-microseconds',
+      'name_format' => '_%port_pair%_%rx_port%' },
+
+    { 'key' => 'tx',
+      'field' => 'tx_l2_bps',
+      'class' => 'throughput',
+      'type' => 'average-l2-tx-throughput-in-bps',
+      'name_format' => '_%port_pair%_%tx_port%' },
+    
+    { 'key' => 'tx',
+      'field' => 'tx_l1_bps',
+      'class' => 'throughput',
+      'type' => 'average-l1-tx-throughput-in-bps',
+      'name_format' => '_%port_pair%_%tx_port%' },
+
+    { 'key' => 'rx',
+      'field' => 'rx_l2_bps',
+      'class' => 'throughput',
+      'type' => 'average-l2-rx-throughput-in-bps',
+      'name_format' => '_%port_pair%_%rx_port%' },
+    
+    { 'key' => 'rx',
+      'field' => 'rx_l1_bps',
+      'class' => 'throughput',
+      'type' => 'average-l1-rx-throughput-in-bps',
+      'name_format' => '_%port_pair%_%rx_port%' },
+
+    { 'key' => 'rx',
+      'field' => 'rx_pps',
+      'class' => 'throughput',
+      'type' => 'average-rx-packet-throughput-in-pps',
+      'name_format' => '_%port_pair%_%rx_port%' },
+
+    { 'key' => 'tx',
+      'field' => 'tx_pps',
+      'class' => 'throughput',
+      'type' => 'average-tx-packet-throughput-in-pps',
+      'name_format' => '_%port_pair%_%tx_port%' },
+
+    { 'key' => 'rx',
+      'field' => 'rx_lost_pps',
+      'class' => 'throughput',
+      'type' => 'average-lost-rx-packet-throughput-in-pps',
+      'name_format' => '_%port_pair%_%rx_port%' },
+
+    );
+
+
+# retrieve CDM sample information
+my $json_ref = get_json_file("sample.json");
+my %bench_iter_sample = %$json_ref;
+my $sample_id = $bench_iter_sample{'sample'}{'id'};
+my $run_id = $bench_iter_sample{'run'}{'id'};
+$bench_iter_sample{'iteration'}{'primary_metric'} = "pps";
+$bench_iter_sample{'iteration'}{'primary_period'} = "measurement";
+put_json_file(\%bench_iter_sample, $base_bench_dir . "/es/bench/sample-" . $bench_iter_sample{'sample'}{'id'} . ".json");
+
+opendir(my $clients_dh, "clients") || die "$script_name: could not open directory clients: $!\n";
+my @client_hostname_dirs = grep(!/^\./, (sort readdir($clients_dh)));
+closedir $clients_dh;
+for my $client_hostname (@client_hostname_dirs) {
+	mkdir("../../es/metrics");
+	mkdir("../../es/metrics/" . $client_hostname);
+
+	my $bs_json_ref = get_json_file("clients/" . $client_hostname . "/binary-search.json");
+
+	#print Dumper $bs_json_ref;
+
+	my $prev_period_id;
+	for (my $index=0; $index<scalar(@{ $$bs_json_ref{'trials'} }); $index++) {
+	    my %trial = %{ $$bs_json_ref{'trials'}[$index] };
+
+	    # convert timestamps from seconds to milliseconds
+	    $trial{'stats'}{'trial_start'} *= 1000;
+	    $trial{'stats'}{'trial_stop'} *= 1000;
+
+	    printf "TRIAL COUNTER: %d\n", $trial{'trial'};
+	    print Dumper \%trial;
+
+	    my $period_name = "trial-" . $trial{'trial'};
+	    if ($index == (scalar(@{ $$bs_json_ref{'trials'} }) - 1)) {
+		$period_name = "measurement";
+	    }
+
+	    my %bench_iter_sample_period = create_bench_iter_sample_period_doc(\%bench_iter_sample, $period_name, $prev_period_id);
+	    $prev_period_id = $bench_iter_sample_period{'period'}{'id'};
+
+	    foreach my $dev_pair ( @{ $trial{'trial_params'}{'test_dev_pairs'} } ) {
+		for my $trial_metric ( @trial_metrics ) {
+		    my %metric_sample = create_metric_sample_doc(\%bench_iter_sample_period,
+								 $$trial_metric{'class'},
+								 $$trial_metric{'type'},
+								 $client_hostname,
+								 "trafficgen",
+								 "%source%_%hostname%_%type%" . $$trial_metric{'name_format'},
+								 $trial{$$trial_metric{'key'}},
+								 $trial{'stats'}{'trial_stop'});
+		    $metric_sample{'metric'}{'begin'} = $trial{'stats'}{'trial_start'};
+
+		    put_json_file(\%metric_sample, "../../es/metrics/" . $client_hostname . "/metric-" .
+				  $metric_sample{'metric'}{'id'} . ".json");
+		}
+
+		for my $trial_stats_metric ( @trial_stats_metrics ) {
+		    my %metric_sample = create_metric_sample_doc(\%bench_iter_sample_period,
+								 $$trial_stats_metric{'class'},
+								 $$trial_stats_metric{'type'},
+								 $client_hostname,
+								 "trafficgen",
+								 "%source%_%hostname%_%type%" . $$trial_stats_metric{'name_format'},
+								 $trial{'stats'}{$$trial_stats_metric{'key'}}{$$trial_stats_metric{'field'}},
+								 $trial{'stats'}{'trial_stop'});
+		    $metric_sample{'metric'}{'begin'} = $trial{'stats'}{'trial_start'};
+
+		    put_json_file(\%metric_sample, "../../es/metrics/" . $client_hostname . "/metric-" .
+				  $metric_sample{'metric'}{'id'} . ".json");
+		}
+
+		for my $trial_stats_device_metric ( @trial_stats_device_metrics ) {
+		    my %metric_sample = create_metric_sample_doc(\%bench_iter_sample_period,
+								 $$trial_stats_device_metric{'class'},
+								 $$trial_stats_device_metric{'type'},
+								 $client_hostname,
+								 "trafficgen",
+								 "%source%_%hostname%_%type%" . $$trial_stats_device_metric{'name_format'},
+								 $trial{'stats'}{$$dev_pair{$$trial_stats_device_metric{'key'}}}{$$trial_stats_device_metric{'field'}},
+								 $trial{'stats'}{'trial_stop'});
+		    $metric_sample{'metric'}{'begin'} = $trial{'stats'}{'trial_start'};
+
+		    $metric_sample{'metric'}{'tx_port'} = $$dev_pair{'tx'};
+		    $metric_sample{'metric'}{'rx_port'} = $$dev_pair{'rx'};
+		    $metric_sample{'metric'}{'port_pair'} = $$dev_pair{'dev_pair'};
+
+		    put_json_file(\%metric_sample, "../../es/metrics/" . $client_hostname . "/metric-" .
+				  $metric_sample{'metric'}{'id'} . ".json");
+		}
+	    }
+
+	    $bench_iter_sample_period{'period'}{'begin'} = $trial{'stats'}{'trial_start'};
+	    $bench_iter_sample_period{'period'}{'end'} = $trial{'stats'}{'trial_stop'};
+	    my $period_file = $base_bench_dir . "/es/bench/period-" . $bench_iter_sample_period{'period'}{'id'} . ".json";
+	    put_json_file(\%bench_iter_sample_period, $period_file);
+	}
+}

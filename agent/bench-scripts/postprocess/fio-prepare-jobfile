@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Just copy/rename the jobfile specified in the params to the default location
+
+/bin/rm -f /var/lib/pbench-agent/tmp/fio.job
+jobfile_path="/opt/pbench-agent/bench-scripts/contrib/fio.job"
+while [ ! -z $1 ]; do
+	arg=`echo $1 | awk -F= '{print $1}'`
+	echo "arg: $arg"
+	if [ "$arg" == "--jobfile" ]; then
+		echo "found"
+		jobfile_path="`echo $1 | awk -F= '{print $2}'`"
+		echo "jobfile_path: [$jobfile_path]"
+		if [ ! -e $jobfile_path ]; then
+			echo "could not find [$jobfile_path]"
+			cat $jobfile_path
+			exit 1
+		fi
+		break
+	fi
+	shift
+done
+# The target filename must be "fio.job"
+/bin/cp "$jobfile_path" /var/lib/pbench-agent/tmp/fio.job  #todo: use pbench var
