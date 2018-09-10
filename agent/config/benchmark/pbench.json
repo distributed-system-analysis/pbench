@@ -1,0 +1,31 @@
+// The following infomation is to aid pbench in parsing pbench-universal paramters
+// when calling a benchmark.  These are not the benchmark-specific options, but
+// the pbench options for running a set of benchmark iterations & samples..
+//
+{
+"controller" : {
+  "parameters" : {
+    "specs" : {
+    		"positive_integers" : {
+        		"description" : "whole number >0, no + sign",
+        		"arguments" : [ "samples" ],
+        		"value_regex" : "^[0-9]+$" },
+    		"positive_floating_point" : {
+        		"description" : "floating point number >0, no + sign",
+        		"arguments" : [ "min_stddev_pct" ],
+        		"value_regex" : "(^[0-9]+)\\.*[0-9]*$)|(^\\.[0-9]+)$" },
+    		"boolean" : {
+        		"description" : "1 for true and 0 for false",
+        		"arguments" : [ "postprocess-only" ],
+        		"value_regex" : "^[01]$" },
+    		"comma-separated list, no spaces" : {
+        		"description" : "list of words",
+        		"arguments" : [ "clients" , "servers" ],
+        		"value_regex" : "^(\\S+)(,\\S+)*$" }
+		},
+	"defaults" : {
+		"fio" : "--maxstddevpct=3 --samples=3 --clients=localhost",
+		"uperf" : "--maxstddevpct=10 --samples=5 --clients=localhost --servers=localhost" }
+	}
+}
+}

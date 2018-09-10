@@ -56,7 +56,7 @@ my $iteration_number_field = 'iteration_number';
 # build an array from all of the iterations 
 foreach $dir (sort @dirs) {
 	$iteration_dir = $benchmark_run_dir . "/" . $dir;
-	if ((-d $iteration_dir) && ($dir =~ /(\d+)-(.+)/)) {
+	if ((-d $iteration_dir) && (($dir =~ /(\d+)-(.+)/) or ($dir =~ /^iteration(\d+)(.*)/))) {
 		$iter_num = $1;
 		$iter_name = $2;
 		my $length;
