@@ -25,7 +25,7 @@
 +++ pbench log file contents
 /var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:start-1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:end-1900-01-01T00:00:00-UTC
-/var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-verify-backup-tarballs.1900-01-01/status/bc68e1740ba3d47d99dc176d616ae751 --data @/tmp/pbench-report-status.NNNN/payload
+/var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-verify-backup-tarballs.1900-01/status/bc68e1740ba3d47d99dc176d616ae751 --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:
 --- pbench log file contents
 +++ test-execution.log file contents

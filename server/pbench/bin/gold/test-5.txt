@@ -40,7 +40,7 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-edit-prefixes/pbench-edit-prefixes.log:run-1900-01-01T00:00:00-UTC: Processed 0 edit-prefix requests
 /var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 0 (skipped 0) results, 0 errors
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01-01/status/86b27ea1db1e4119089cb4dff57df63e --data @/tmp/pbench-report-status.NNNN/payload
+/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01/status/86b27ea1db1e4119089cb4dff57df63e --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:run-1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:run-1900-01-01T00:00:00-UTC: Processed 0 tarballs

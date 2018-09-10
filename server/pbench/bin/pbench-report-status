@@ -93,8 +93,8 @@ fi
 
 # Snip off the trailing "-<TZ>" - assumes that <TZ> does not contain a "-"
 datestamp="${timestamp%-*}"
-# Snip off the time part of the timestamp
-datestamp=${datestamp%T*}
+# Snip off the time part of the timestamp to get YYYY-MM
+datestamp=${datestamp%-*}
 
 index=$(getconf.py --config $IDXCONFIG index_prefix Settings)."$name"."$datestamp"
 if [[ -z "$index" ]] ;then

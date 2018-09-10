@@ -35,7 +35,7 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:sent # bytes  received # bytes  #.### bytes/sec
 /var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:total size is #  speedup is #.##
 /var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:end-1900-01-01T00:00:00-UTC
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-backup-tarballs.1900-01-01/status/1b4a7f832b334077febeee542c0ac95e --data @/tmp/pbench-report-status.NNNN/payload
+/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-backup-tarballs.1900-01/status/1b4a7f832b334077febeee542c0ac95e --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:
 --- pbench log file contents
 +++ test-execution.log file contents

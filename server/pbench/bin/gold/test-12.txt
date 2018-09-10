@@ -34,7 +34,7 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:run-1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz: OK
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:run-1900-01-01T00:00:00-UTC: Processed 1 entries, 1 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.
-/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-server-prep-shim-001.1900-01-01/status/227ffae433a2b2eec2b38ec93d84f5a2 --data @/tmp/pbench-report-status.NNNN/payload
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-server-prep-shim-001.1900-01/status/227ffae433a2b2eec2b38ec93d84f5a2 --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:
 --- pbench log file contents
 +++ test-execution.log file contents
