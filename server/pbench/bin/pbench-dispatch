@@ -180,14 +180,11 @@ log_finish
 
 if [[ $nerrs -gt 0 ]]; then
     subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
-    # don't send mail when running unittests
-    if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
-        cat << EOF > $index_content
+    cat << EOF > $index_content
 $subj
 Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates
 EOF
-        pbench-report-status --name $PROG --timestamp $TS --type status $index_content
-    fi
+    pbench-report-status --name $PROG --timestamp $TS --type status $index_content
 fi
 
 exit 0

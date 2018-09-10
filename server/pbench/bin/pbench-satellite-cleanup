@@ -148,16 +148,13 @@ nerrs=$ntberrs+$nmd5errs+$nstateerrs+$nincomingerrs+$nresultserrs+$nprefixerrs
 
 if [[ $nerrs -gt 0 ]]; then
     subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs total errors"
-    # don't send mail when running unittests
-    if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
-        cat << EOF > $index_content
+    cat << EOF > $index_content
 $subj
 Total $ntb tarballs cleaned up, with $ntberrs tarball removal errors, $nmd5errs md5 file remove errors, $nstateerrs state change errors, $nincomingerrs incoming removal errors, $nresultserrs result removal errors and $nprefixerrs prefix removal errors.
 
 EOF
-        cat $mail_content >> $index_content
-        pbench-report-status --name $PROG --timestamp $TS --type status $index_content
-    fi
+    cat $mail_content >> $index_content
+    pbench-report-status --name $PROG --timestamp $TS --type status $index_content
 fi
 
 exit 0
