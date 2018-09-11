@@ -566,6 +566,14 @@ my %graph;
 create_graph_hash(\%graph, \%workload);
 my %graph_threshold;
 my %graph_type;
+foreach my $key (keys %{$graph{'trafficgen'}}) {
+	if ($key =~ m/^Stream PPS - Port/) {
+		$graph_type{'trafficgen'}{$key} = "stackedAreaChart";
+		$graph_threshold{'trafficgen'}{$key} = 0.0001;
+	} elsif ($key =~ m/^Stream PPS - PGID/) {
+		$graph_threshold{'trafficgen'}{$key} = 0.0001;
+	}
+}
 gen_data(\%graph, \%graph_type, \%graph_threshold, $dir, 1);
 
 $json_text   = to_json( \%workload, { ascii => 1, pretty => 1 } );
