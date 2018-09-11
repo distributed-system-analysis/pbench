@@ -104,7 +104,8 @@ fi
 
 md5=$(md5sum $file | cut -d' ' -f1)
 
-$dir/pbench-gen-json-payload $timestamp $name $doctype $file > ${tmp}/payload
+# drop the -UTC spec from the timestamp: the ES date parser does not like it
+$dir/pbench-gen-json-payload ${timestamp%-*} $name $doctype $file > ${tmp}/payload
 
 curl -XPOST -H 'Content-Type: application/json' "http://$server/$index/$doctype/$md5" --data @"${tmp}/payload" >> ${tmp}/log 2>&1
 status=$?
