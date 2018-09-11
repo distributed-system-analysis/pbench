@@ -1,4 +1,13 @@
 #!/bin/bash
+
+unset PATH
+unset CONFIG
+
+# Set an initial standard path.  getconf.py gets installed in /usr/bin
+# by the RPM, but it gets installed in /usr/local/bin by `pip install'
+# under Travis CI, so we need both.
+export PATH=/usr/local/bin:/usr/bin:/bin
+
 export LANG=C
 export LC_ALL=C
 
@@ -20,7 +29,7 @@ fi
 
 _testout=$_testroot/output.txt
 export _testlog=$_testroot/test-execution.log
-export _testreportstatus=$_testroot/test-report-status.log
+export _testcurlpayload=$_testroot/test-curl-payload.log
 _testdir=$_testroot/pbench
 _testdir_local=$_testroot/pbench-local
 _testtmp=$_testroot/tmp
@@ -30,8 +39,13 @@ export _PBENCH_SERVER_TEST=1
 
 # execution environment
 _testopt=$_testroot/opt/pbench-server
-export PATH=$_testopt/unittest-scripts:$_tconfigtoolsbin:$PATH
+
+# All the "real" scripts are found at $_tdir, the mock scripts are found in
+# $_testopt/unittest-scripts.
+export PATH=$_testopt/unittest-scripts:$_testopt/bin:$PATH
 export CONFIG=$_testopt/config/pbench-server.cfg
+# used by pbench-report-status
+export IDXCONFIG=$_testopt/config/pbench-index.cfg
 export TMPDIR=$_testtmp
 export TZ="UTC"
 
@@ -39,7 +53,7 @@ function _run {
     tname=$1
     shift
     echo "+++ Running $tname" >> $_testout
-    $_tdir/$tname $@ >> $_testout 2>&1
+    $tname $@ >> $_testout 2>&1
     echo "--- Finished $tname (status=$?)" >> $_testout
 }
 
@@ -112,13 +126,13 @@ function _dump_logs {
     echo "--- test-execution.log file contents" >> $_testout
     rm -f $_testroot/test-execution.log
 
-    if [ -s $_testroot/test-report-status.log ]; then
-        echo "+++ test-report-status.log file contents" >> $_testout
-        grep -HvF "\-\-should-n0t-ex1st--" $_testroot/test-report-status.log 2>/dev/null |
+    if [ -s $_testcurlpayload ]; then
+        echo "+++ test-curl-payload.log file contents" >> $_testout
+        grep -HvF "\-\-should-n0t-ex1st--" $_testcurlpayload 2>/dev/null |
              sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' >> $_testout>> $_testout 2>&1
-        echo "--- test-report-status.log file contents" >> $_testout
+        echo "--- test-curl-payload.log file contents" >> $_testout
     fi
-    rm -f $_testroot/test-report-status.log
+    rm -f $_testcurlpayload
 }
 
 function _verify_output {
@@ -141,6 +155,12 @@ function _setup_state {
     mkdir -p $_testopt/unittest-scripts/
     let res=res+$?
     cp $_tdir/test-bin/* $_testopt/unittest-scripts/
+    let res=res+$?
+    mkdir -p $_testopt/bin
+    let res=res+$?
+    cp $_tdir/{index-pbench,job_pool.sh,unittests,pbench*} $_testopt/bin
+    let res=res+$?
+    cp -r $_tdir/../lib $_testopt
     let res=res+$?
     mkdir -p $(dirname $CONFIG)
     let res=res+$?
@@ -273,6 +293,7 @@ declare -A cmds=(
     # shim - failure md5
     [test-14]="_run pbench-server-prep-shim-001"
     [test-15]="_run pbench-server-prep-shim-002"
+
 )
 
 tests=$*

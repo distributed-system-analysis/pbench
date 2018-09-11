@@ -27,18 +27,16 @@
 +++ pbench log file contents
 /var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:start-1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:end-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-verify-backup-tarballs.1900-01/status/a12fb01c9d2bd40fcc0b4f288a0434ed --data @/tmp/pbench-report-status.NNNN/payload
+/var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:
 --- pbench log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/pbench-report-status --name pbench-verify-backup-tarballs --timestamp run-1900-01-01T00:00:00-UTC --type status /var/tmp/pbench-test-server/pbench/tmp/pbench-verify-backup-tarballs/index_mail_contents
 --- test-execution.log file contents
-+++ test-report-status.log file contents
-/var/tmp/pbench-test-server/test-report-status.log:pbench-verify-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)
-/var/tmp/pbench-test-server/test-report-status.log:* In /var/tmp/pbench-test-server/pbench/archive/fs-version-001: the calculated MD5 of the following entries failed to match the stored MD5
-/var/tmp/pbench-test-server/test-report-status.log:md5sum: WARNING: 1 computed checksum did NOT match
-/var/tmp/pbench-test-server/test-report-status.log:/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: FAILED
-/var/tmp/pbench-test-server/test-report-status.log:
-/var/tmp/pbench-test-server/test-report-status.log:* Files that exist only in primary directory - extra files in this list are probably OK: they just have not been backed up yet.
-/var/tmp/pbench-test-server/test-report-status.log:5fe570aea2be3dab96b328da5a8cfcc9  ./controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
-/var/tmp/pbench-test-server/test-report-status.log:* Files that exist only in backup directory - this should only happen if a backup or primary tar ball becomes corrupted.
-/var/tmp/pbench-test-server/test-report-status.log:4fe570aea2be3dab96b328da5a8cfcc9  ./controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
---- test-report-status.log file contents
++++ test-curl-payload.log file contents
+/var/tmp/pbench-test-server/test-curl-payload.log:{
+/var/tmp/pbench-test-server/test-curl-payload.log:    "text": "pbench-verify-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n* In /var/tmp/pbench-test-server/pbench/archive/fs-version-001: the calculated MD5 of the following entries failed to match the stored MD5\nmd5sum: WARNING: 1 computed checksum did NOT match\n/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: FAILED\n\n* Files that exist only in primary directory - extra files in this list are probably OK: they just have not been backed up yet.\n5fe570aea2be3dab96b328da5a8cfcc9  ./controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz\n* Files that exist only in backup directory - this should only happen if a backup or primary tar ball becomes corrupted.\n4fe570aea2be3dab96b328da5a8cfcc9  ./controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz\n", 
+/var/tmp/pbench-test-server/test-curl-payload.log:    "@timestamp": "1900-01-01T00:00:00-UTC", 
+/var/tmp/pbench-test-server/test-curl-payload.log:    "name": "pbench-verify-backup-tarballs", 
+/var/tmp/pbench-test-server/test-curl-payload.log:    "doctype": "status"
+/var/tmp/pbench-test-server/test-curl-payload.log:}
+--- test-curl-payload.log file contents

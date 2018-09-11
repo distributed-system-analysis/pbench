@@ -192,14 +192,11 @@ if [[ $ntotal -gt 0 || $nerrs -gt 0 ]]; then
     else
         subj="$PROG.$TS($PBENCH_ENV)"
     fi
-    # don't send mail when running unittests
-    if [[ "$_PBENCH_SERVER_TEST" != 1 ]] ;then
-        cat << EOF > $index_content
+    cat << EOF > $index_content
 $subj
 Processed $ntotal sosreports for $nresults results directories with $nerrs errors
 EOF
-        pbench-report-status --name $PROG --timestamp $TS --type status $index_content
-    fi
+    pbench-report-status --name $PROG --timestamp $TS --type status $index_content
 fi
 
 exit 0

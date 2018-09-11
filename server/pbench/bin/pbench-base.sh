@@ -39,9 +39,39 @@ export LOGSDIR=$(getconf.py pbench-logs-dir pbench-files)
 if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
     # the real thing
     BINDIR=$(getconf.py script-dir pbench-server)
+    LIBDIR=$(getconf.py deploy-lib-dir pbench-server)
+
+    if [[ -z "$BINDIR" ]]; then
+        echo "$PROG: ERROR: BINDIR not defined" > /dev/stdout
+        exit 3
+    fi
+    if [[ -z "$LIBDIR" ]]; then
+        echo "$PROG: ERROR: LIBDIR not defined" > /dev/stdout
+        exit 3
+    fi
+    # this is used by pbench-report-status
+    export IDXCONFIG=$LIBDIR/config/pbench-index.cfg
+
+    function timestamp {
+        echo "$(date +'%Y-%m-%dT%H:%M:%S-%Z')"
+    }
+
+    function timestamp-seconds-since-epoch {
+        echo "$(date +'%s')"
+    }
+
 else
-    # running unit tests
-    BINDIR=.
+    # unit test regime
+    # IDXCONFIG (used by pbench-report-status) is exported by the unittests script in this case.
+
+    function timestamp {
+        echo "1900-01-01T00:00:00-UTC"
+    }
+
+    function timestamp-seconds-since-epoch {
+        # 2001/01/01T00:00:00
+        echo "978282000"
+    }
 fi
 
 ARCHIVE=${TOP}/archive/fs-version-001
@@ -49,23 +79,6 @@ INCOMING=${TOP}/public_html/incoming
 # this is where the symlink forest is going to go
 RESULTS=${TOP}/public_html/results
 USERS=${TOP}/public_html/users
-
-if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
-    function timestamp {
-        echo "$(date +'%Y-%m-%dT%H:%M:%S-%Z')"
-    }
-    function timestamp-seconds-since-epoch {
-        echo "$(date +'%s')"
-    }
-else
-    function timestamp {
-        echo "1900-01-01T00:00:00-UTC"
-    }
-    function timestamp-seconds-since-epoch {
-        # 2001/01/01T00:00:00
-        echo "978282000"
-    }
-fi
 
 # Convenient task run identifier.
 if [ "$TS" = "" ]; then

@@ -21,8 +21,11 @@ while true; do
             shift 2
             ;;
         -t|--timestamp)
+            # timestamp is of the form run-<yyyy>-<mm>-<dd>T<HH>:<MM>:<SS>-<TZ>
+            # It is the value of the variable TS created by pbench-base.sh.
+
+            # Snip off the initial "run-"
             timestamp="${2#run-}"
-            timestamp="${timestamp%-UTC}"
             shift 2
             ;;
         -T|--type)
@@ -65,23 +68,41 @@ fi
 # in that case and we'll fall back to mail.
 report_using_mail=$(getconf.py use-mail-for-status pbench-server)
 if [ ! -z "$report_using_mail" -a "$report_using_mail" != "no" ] ;then
-    mailx -s "$name status report" $mail_recipients < $file
+    mailx -s "$name status report at $timestamp" $mail_recipients < $file
     status=$?
     exit $status
 fi
 
-CONFIG=/opt/pbench-server/lib/config/pbench-index.cfg
-
-server=$(getconf.py server Server)
-datestamp=${timestamp%-*}
-index=$(getconf.py index_prefix Settings)."$name"."$datestamp"
-md5=$(md5sum $file | cut -d' ' -f1)
-
 tmp=/tmp/$prog.$$
 
-trap "rm -rf $tmp" EXIT QUIT INT
+trap "
+# append ${tmp}/log to the caller's log file
+if [ -f "$LOGSDIR/$name/$name.log" ]; then
+    cat ${tmp}/log >> $LOGSDIR/$name/$name.log
+fi;
+
+rm -rf $tmp" EXIT QUIT INT
 
 mkdir $tmp
+
+server=$(getconf.py --config $IDXCONFIG server Server)
+if [[ -z "$server" ]] ;then
+    echo "$prog: no server defined in [Server] section of $IDXCONFIG" >> ${tmp}/log
+    exit 2
+fi
+
+# Snip off the trailing "-<TZ>" - assumes that <TZ> does not contain a "-"
+datestamp="${timestamp%-*}"
+# Snip off the time part of the timestamp to get YYYY-MM
+datestamp=${datestamp%-*}
+
+index=$(getconf.py --config $IDXCONFIG index_prefix Settings)."$name"."$datestamp"
+if [[ -z "$index" ]] ;then
+    echo "$prog: no index_prefix defined in [Settings] section of $IDXCONFIG" >> ${tmp}/log
+    exit 3
+fi
+
+md5=$(md5sum $file | cut -d' ' -f1)
 
 $dir/pbench-gen-json-payload $timestamp $name $doctype $file > ${tmp}/payload
 
@@ -89,9 +110,5 @@ curl -XPOST -H 'Content-Type: application/json' "http://$server/$index/$doctype/
 status=$?
 
 echo >> ${tmp}/log
-
-if [ -f "$LOGSDIR/$name/$name.log" ]; then
-    cat ${tmp}/log >> $LOGSDIR/$name/$name.log
-fi
 
 exit $status

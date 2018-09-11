@@ -44,26 +44,17 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:sent # bytes  received # bytes  #.### bytes/sec
 /var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:total size is #  speedup is #.##
 /var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:end-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-backup-tarballs.1900-01/status/8512d281191523f7cedd16c5da494ff5 --data @/tmp/pbench-report-status.NNNN/payload
+/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:
 --- pbench log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/rsync -va --stats --exclude=TODO --exclude=TO-UNPACK --exclude=TO-COPY-SOS --exclude=TO-SYNC --exclude=SYNCED --exclude=TO-LINK --exclude=TO-INDEX --exclude=TO-BACKUP --exclude=INDEXED --exclude=WONT-INDEX --exclude=DONE --exclude=BAD-MD5 --exclude=SATELLITE-MD5-PASSED --exclude=SATELLITE-MD5-FAILED --exclude=TO-DELETE --exclude=SATELLITE-DONE --exclude=TO-UNPACK --exclude=UNPACKED --exclude=MOVED-UNPACKED /var/tmp/pbench-test-server/pbench/archive/fs-version-001/ /var/tmp/pbench-test-server/pbench/archive.backup
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/pbench-report-status --name pbench-backup-tarballs --timestamp run-1900-01-01T00:00:00-UTC --type status /var/tmp/pbench-test-server/pbench/tmp/pbench-backup-tarballs.NNNN/index_mail_contents
 --- test-execution.log file contents
-+++ test-report-status.log file contents
-/var/tmp/pbench-test-server/test-report-status.log:pbench-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)
-/var/tmp/pbench-test-server/test-report-status.log:
-/var/tmp/pbench-test-server/test-report-status.log:Number of files: 6
-/var/tmp/pbench-test-server/test-report-status.log:Number of files transferred: 0
-/var/tmp/pbench-test-server/test-report-status.log:Total file size: # bytes
-/var/tmp/pbench-test-server/test-report-status.log:Total transferred file size: # bytes
-/var/tmp/pbench-test-server/test-report-status.log:Literal data: # bytes
-/var/tmp/pbench-test-server/test-report-status.log:Matched data: # bytes
-/var/tmp/pbench-test-server/test-report-status.log:File list size: #
-/var/tmp/pbench-test-server/test-report-status.log:File list generation time: #.### seconds
-/var/tmp/pbench-test-server/test-report-status.log:File list transfer time: #.### seconds
-/var/tmp/pbench-test-server/test-report-status.log:Total bytes sent: #
-/var/tmp/pbench-test-server/test-report-status.log:Total bytes received: #
-/var/tmp/pbench-test-server/test-report-status.log:
-/var/tmp/pbench-test-server/test-report-status.log:sent # bytes  received # bytes  #.### bytes/sec
-/var/tmp/pbench-test-server/test-report-status.log:total size is #  speedup is #.##
---- test-report-status.log file contents
++++ test-curl-payload.log file contents
+/var/tmp/pbench-test-server/test-curl-payload.log:{
+/var/tmp/pbench-test-server/test-curl-payload.log:    "text": "pbench-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n\nNumber of files: 6\nNumber of files transferred: 0\nTotal file size: # bytes\nTotal transferred file size: # bytes\nLiteral data: # bytes\nMatched data: # bytes\nFile list size: #\nFile list generation time: #.### seconds\nFile list transfer time: #.### seconds\nTotal bytes sent: #\nTotal bytes received: #\n\nsent # bytes  received # bytes  #.### bytes/sec\ntotal size is #  speedup is #.##\n", 
+/var/tmp/pbench-test-server/test-curl-payload.log:    "@timestamp": "1900-01-01T00:00:00-UTC", 
+/var/tmp/pbench-test-server/test-curl-payload.log:    "name": "pbench-backup-tarballs", 
+/var/tmp/pbench-test-server/test-curl-payload.log:    "doctype": "status"
+/var/tmp/pbench-test-server/test-curl-payload.log:}
+--- test-curl-payload.log file contents
