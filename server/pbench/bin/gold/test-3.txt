@@ -45,7 +45,7 @@
 +++ test-curl-payload.log file contents
 /var/tmp/pbench-test-server/test-curl-payload.log:{
 /var/tmp/pbench-test-server/test-curl-payload.log:    "text": "pbench-index.run-1900-01-01T00:00:00-UTC(unit-test) - Indexed 0 results\n", 
-/var/tmp/pbench-test-server/test-curl-payload.log:    "@timestamp": "1900-01-01T00:00:00-UTC", 
+/var/tmp/pbench-test-server/test-curl-payload.log:    "@timestamp": "1900-01-01T00:00:00", 
 /var/tmp/pbench-test-server/test-curl-payload.log:    "name": "pbench-index", 
 /var/tmp/pbench-test-server/test-curl-payload.log:    "doctype": "status"
 /var/tmp/pbench-test-server/test-curl-payload.log:}

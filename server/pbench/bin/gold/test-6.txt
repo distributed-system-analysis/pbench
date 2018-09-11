@@ -44,7 +44,7 @@
 +++ test-curl-payload.log file contents
 /var/tmp/pbench-test-server/test-curl-payload.log:{
 /var/tmp/pbench-test-server/test-curl-payload.log:    "text": "pbench-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n\nNumber of files: 1\nNumber of files transferred: 0\nTotal file size: # bytes\nTotal transferred file size: # bytes\nLiteral data: # bytes\nMatched data: # bytes\nFile list size: #\nFile list generation time: #.### seconds\nFile list transfer time: #.### seconds\nTotal bytes sent: #\nTotal bytes received: #\n\nsent # bytes  received # bytes  #.### bytes/sec\ntotal size is #  speedup is #.##\n", 
-/var/tmp/pbench-test-server/test-curl-payload.log:    "@timestamp": "1900-01-01T00:00:00-UTC", 
+/var/tmp/pbench-test-server/test-curl-payload.log:    "@timestamp": "1900-01-01T00:00:00", 
 /var/tmp/pbench-test-server/test-curl-payload.log:    "name": "pbench-backup-tarballs", 
 /var/tmp/pbench-test-server/test-curl-payload.log:    "doctype": "status"
 /var/tmp/pbench-test-server/test-curl-payload.log:}

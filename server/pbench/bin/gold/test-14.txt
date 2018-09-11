@@ -40,7 +40,7 @@
 +++ test-curl-payload.log file contents
 /var/tmp/pbench-test-server/test-curl-payload.log:{
 /var/tmp/pbench-test-server/test-curl-payload.log:    "text": "run-1900-01-01T00:00:00-UTC: Processed 1 entries, 0 tarballs successful, 1 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n", 
-/var/tmp/pbench-test-server/test-curl-payload.log:    "@timestamp": "1900-01-01T00:00:00-UTC", 
+/var/tmp/pbench-test-server/test-curl-payload.log:    "@timestamp": "1900-01-01T00:00:00", 
 /var/tmp/pbench-test-server/test-curl-payload.log:    "name": "pbench-server-prep-shim-001", 
 /var/tmp/pbench-test-server/test-curl-payload.log:    "doctype": "status"
 /var/tmp/pbench-test-server/test-curl-payload.log:}
