@@ -305,6 +305,26 @@ if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'}
 		  'metric_class' => 'latency', 'desc' => 'Minimum time in microseconds between packet transmission and reception',
 		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
 
+		{ 'category' => 'pgids', 'js_label' => 'Stream Latency Errors - PGID ', 'field' => 'duplicate', 'metric_label' => '', 'group' => 'latency',
+		  'metric_class' => 'latency', 'desc' => 'Number of duplicate packets detected',
+		  'divisor' => int 1, 'cumulative' => 1, 'last' => 0 },
+
+		{ 'category' => 'pgids', 'js_label' => 'Stream Latency Errors - PGID ', 'field' => 'dropped', 'metric_label' => '', 'group' => 'latency',
+		  'metric_class' => 'latency', 'desc' => 'Number of dropped packets detected',
+		  'divisor' => int 1, 'cumulative' => 1, 'last' => 0 },
+
+		{ 'category' => 'pgids', 'js_label' => 'Stream Latency Errors - PGID ', 'field' => 'out_of_order', 'metric_label' => '', 'group' => 'latency',
+		  'metric_class' => 'latency', 'desc' => 'Number of packets received in the wrong order (by sequence number)',
+		  'divisor' => int 1, 'cumulative' => 1, 'last' => 0 },
+
+		{ 'category' => 'pgids', 'js_label' => 'Stream Latency Errors - PGID ', 'field' => 'seq_too_high', 'metric_label' => '', 'group' => 'latency',
+		  'metric_class' => 'latency', 'desc' => 'Number of packets received before they were expected (by sequence number)',
+		  'divisor' => int 1, 'cumulative' => 1, 'last' => 0 },
+
+		{ 'category' => 'pgids', 'js_label' => 'Stream Latency Errors - PGID ', 'field' => 'seq_too_low', 'metric_label' => '', 'group' => 'latency',
+		  'metric_class' => 'latency', 'desc' => 'Number of packets received after they were expected (by sequence number)',
+		  'divisor' => int 1, 'cumulative' => 1, 'last' => 0 },
+
 	    );
 
 	my %trex_ports;
