@@ -1,0 +1,47 @@
+// The following infomation is to aid pbench in parsing benchmark-specific paramters.
+// Paramaters which have the same restrictions and transform for the
+// parameter's value are grouped together.
+//
+// For example, a group, "size_KBMG" describes values which are sizes, like 4k or 16M.
+// This is a common value type used in fio for several parameters.  Since the input
+// value can use different units, the value is converted (transformed) to a common unit.
+
+{ 
+    "test_types" :
+        {
+        "description" : "uperf test types",
+        "parameters" : [ "test-types" ],
+        "regex" : "^stream$|^maerts$|^bidirec$|^rr$"
+	},
+    "protocol_types" :
+        {
+        "description" : "networking protocols",
+        "parameters" : [ "protocol" ],
+        "regex" : "^tcp$|^udp$"
+	},
+    "time_smh" :
+        {
+        "description" : "time in seconds, minutes, or hours: 10s 2m 1h",
+        "parameters" : [ "runtime" ],
+        "regex" : "^[0-9]+[smh]{0,1}$",
+        "value_transforms" : [ "s/^([0-9]+)[hH]$/($1*60).\"m\"/e", "s/^([0-9]+)[mM]$/($1*60)/e", "s/^([0-9]+)[sS]$/$1/" ] //once a value is passed by regex, it can be tranformed with perl s// regex
+        },
+    "size_km" : //this is a grouping of values used in the params below
+        {
+        "description" : "bytes with no unit (64, 256) or in units of k/K (1k, 2K) or m/M (1M)", //this describes the value, not the parameter
+        "parameters" : [ "message-size" ], //users wanting defintions of these should look to the the benchmark-proper docs
+        "regex" : "^[0-9]+[kKmM]{0,1}$", //this is a perl regex
+        "value_transforms" : [ "s/^([0-9]+)[mM]$/($1*1024).\"K\"/e", "s/^([0-9]+)[kK]$/($1*1024)/e" ] //once a value is passed by regex, it can be tranformed with perl s// regex
+	},
+    "integer" :
+        {
+        "description" : "a whole number",
+        "parameters" : [ "instances" ],
+        "regex" : "^[0-9]+$"
+        }
+}
+{
+"default" : "--message-size=64,16384 --runtime=60 --test-types=stream,maerts --instances=1,8 --protocol=tcp",
+"stream" : "--message-size=64,16384 --runtime=60 --test-types=stream,maerts --instances=1,8 --protocol=tcp",
+"rr" : "--message-size=64 --runtime=60 --test-types=rr --instances=1,64 --protocol=udp"
+}

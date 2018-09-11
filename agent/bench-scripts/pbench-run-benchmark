@@ -37,18 +37,18 @@ use File::Basename;
 use Data::Dumper;
 use BenchPostprocess qw(get_json get_benchmark_names);
 
-my $pbench_config_dir = $ENV{"pbench_install_dir"} . "/config/";
+my $pbench_bench_config_dir = $ENV{"pbench_install_dir"} . "/config/benchmark/";
 my $num_samples = 1; 
 
 # the only required argument is the benchmark name; verify it now
 if (scalar @ARGV == 0) {
 	print "You must supply at least a benchmark name:\n";
-	get_benchmark_names($pbench_config_dir);
+	get_benchmark_names($pbench_bench_config_dir);
 	exit;
 }
 my $benchmark = shift(@ARGV);
 if ($benchmark eq "list") {
-	get_benchmark_names($pbench_config_dir);
+	get_benchmark_names($pbench_bench_config_dir);
 	exit;
 }
 # the only other argument this script cares about is the optional --samples
@@ -61,7 +61,7 @@ if (my @sample_opts = grep(/--samples=\d+/, @ARGV)) {
 }
 
 # pass the rest of the args to pbench-gen-iterations and store the iterations in an array
-my $gen_iterations_cmd = "/root/pbench-gen-iterations " . $benchmark . " " . join(" ", @ARGV);
+my $gen_iterations_cmd = "pbench-gen-iterations " . $benchmark . " " . join(" ", @ARGV);
 my @iterations = split(/\n/, `$gen_iterations_cmd`);
 if ($? == 0) {
 	printf "got %d iterations\n", scalar @iterations;
@@ -74,7 +74,7 @@ if ($? == 0) {
 # now run the iterations
 for my $iteration (@iterations) {
 	for (my $s=0; $s<$num_samples; $s++) {
-		my $benchmark_cmd = "/root/pbench-run-benchmark-sample " . $iteration;
+		my $benchmark_cmd = "pbench-run-benchmark-sample " . $iteration;
 		printf "benchmrk cmd: [%s]\n", $benchmark_cmd;
 		my $benchmark_sample_output = `$benchmark_cmd`;
 		my $exit_code = $?;
