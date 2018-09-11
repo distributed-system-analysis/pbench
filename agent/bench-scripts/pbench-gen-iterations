@@ -102,23 +102,40 @@ use File::Basename;
 use Data::Dumper;
 use PbenchBase qw(get_json get_benchmark_names);
 
-my $pbench_config_dir = $ENV{"pbench_install_dir"} . "/config/";
+my $pbench_bench_config_dir = $ENV{"pbench_install_dir"} . "/config/benchmark/";
 
 # load a benchmark json file which tells us how to run a benchmark
 sub load_benchmark_specs {
 	my $benchmark_name = shift;
-	my $benchmark_spec_file = $pbench_config_dir . "benchmark/" .  $benchmark_name . ".json";
+	my $benchmark_spec_file = $pbench_bench_config_dir . $benchmark_name . ".json";
 	my $json_ref = get_json($benchmark_spec_file);
 	return %$json_ref
 }
-# return an array of valid args
+# return an array of all the valid arguments for a specific benchmark
 sub get_benchmark_args {
-	my $spec_ref = shift;
+	my $spec_ref = shift; # our benchmark spec
 	my @args;
 	for my $regex_type (keys %{ $$spec_ref{"parameters"}{"specs"} } ) {
 		@args = (@args,  @{ $$spec_ref{"parameters"}{"specs"}{$regex_type}{"arguments"} });
 	}
 	return @args
+}
+# return a string of the default parameters for a specific benchmark and a specific default_name
+sub get_benchmark_defaults {
+	my $spec_ref = shift; # our benchmark spec
+	my $default_name = shift;
+	if ($default_name eq "list") {
+		print "defaults available:\n";
+		for my $d (grep(!/^mandatory$/, keys $$spec_ref{"parameters"}{"defaults"})) {
+			printf("%s: %s\n", $d, $$spec_ref{"parameters"}{"defaults"}{$d});
+		}
+		exit;
+	}
+	if ($$spec_ref{"parameters"}{"defaults"}{$default_name}) {
+		return $$spec_ref{"parameters"}{"defaults"}{$default_name};
+	} else {
+		die "That default does not exist";
+	}
 }
 # ensure a parameter's argument can be found and the parameter's values passes the regex requirement
 sub process_param {
@@ -180,20 +197,27 @@ sub build_iteration_cmds {
 # check for required options for pbench-gen-iterations
 if (scalar @ARGV == 0) {
 	print "You must supply at least a benchmark name:\n";
-	get_benchmark_names($pbench_config_dir);
+	get_benchmark_names($pbench_bench_config_dir);
 	exit;
 }
 my $benchmark = shift(@ARGV);
 if ($benchmark eq "list") {
-	get_benchmark_names($pbench_config_dir);
+	get_benchmark_names($pbench_bench_config_dir);
 	exit;
 }
 
-my %bench_specs = load_benchmark_specs("pbench");
-my %pbench_specs = load_benchmark_specs($benchmark);
+# go through the @ARGS and either:
+# -swap out "--defaults" with a list of default params
+# -validate and transform a "arg=val" parameter
+my %pbench_specs = load_benchmark_specs("pbench");
+my %bench_specs = load_benchmark_specs($benchmark);
+my @params = @ARGV;
 my @processed_params; # parameters that will have been validated and transformed
-while ( scalar @ARGV > 0 ) {
-	my $param = shift @ARGV;
+if (!grep(/^--defaults=(.+)$/, @params)) { # if the user did not specify a set of defaults, use the "default" set
+	push(@params, "--defaults=default");
+}
+while ( scalar @params > 0 ) {
+	my $param = shift @params;
 	if ($param eq "--help") {
 		print "These are the valid universal arguments:\n";
 		for my $p (get_benchmark_args(\%pbench_specs)) {
@@ -204,7 +228,7 @@ while ( scalar @ARGV > 0 ) {
 			printf("    --%s\n", $p);
 		}
 	} elsif ($param =~ /^--defaults=(.+)$/) { # expanded to all of the parameters found for that default
-		@processed_params = ( @processed_params, load_default_parameters($benchmark, $1) );
+		push(@params, split(/\s+/, get_benchmark_defaults(\%bench_specs, $1)));
 	} elsif ($param =~ /^--(.+)=(.+)$/) { # we now have a parameter, a "--argument=value" that we can process
 		for my $spec_src (\%pbench_specs, \%bench_specs) {
 			my $p;
@@ -218,6 +242,7 @@ while ( scalar @ARGV > 0 ) {
 		exit 1;
 	}
 }
+
+# now we can generate all of the iterations
 my @iteration_cmds = build_iteration_cmds("", @processed_params);
-print "\n\n iteration-cmds\n";
-print Dumper @iteration_cmds;
+print join("\n", @iteration_cmds);

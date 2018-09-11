@@ -1,0 +1,36 @@
+#!/usr/bin/perl
+#
+
+use strict;
+use warnings;
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+my $_test_alt_bench_lib;
+BEGIN {
+	my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+		$_test_alt_tools_lib = "$_pbench_tspp_dir";
+	}
+	my $_pbench_bspp_dir = $ENV{'pbench_bspp_dir'};
+	$_test_alt_bench_lib=$ENV{_TEST_ALTERNATE_BENCH_LIBRARY};
+	if (not defined $_test_alt_bench_lib or not -d $_test_alt_bench_lib) {
+		$_test_alt_bench_lib = "$_pbench_bspp_dir";
+	}
+}
+use lib "$_test_alt_tools_lib";
+use lib "$_test_alt_bench_lib";
+no lib ".";
+
+use JSON;
+use File::Basename;
+use Data::Dumper;
+use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts);
+
+my $pbench_bench_config_dir = $ENV{"pbench_install_dir"} . "/config/benchmark/";
+
+my @hosts = @ARGV;
+my @files = ("/tmp/foo", "/tmp/bar");
+my $output = copy_files_to_hosts(\@hosts, \@files, "/tmp2");
+print "output is:\n$output\n";

@@ -21,7 +21,7 @@
 "parameters" : { 
 	"defaults": { // when calling pbench-run-benchmark, if one uses "--defaults=<name>", a matching name will cause their respective parameters listed here to be used
 		      // if not "--defaults=<name> is used, the entry "default" will be used
-		"default" : "--rw=read --numjobs=1, --filename=/tmp/fio-tst --filesize=1G --runtime=30s --jobfile=fio.job",
+		"default" : "--rw=read --filename=/tmp/fio-tst --filesize=256M --runtime=30s --jobfile=fio.job",
 		"ceph-osp" : "--rw=read,randr,write,randw --bs=1m --ioengine=sync --numjobs=1 --runtime=30s --jobfile=fio.job",
 		"mandatory" : "--write_bw_log=fio --write_iops_log=fio --write_lat_log=fio --log_avg_msec=1000 --log_unix_epoch=1 --output-format=json --output=fio_result.json" //these will alwyas be included and cannot be overrided by the user
 		},
