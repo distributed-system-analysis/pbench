@@ -160,34 +160,36 @@ sub process_param {
 						$processed_values .= "," . $value;
 					}
 				} else {
-					printf "The value, %s, for parameter %s is not valid\n", $value, $argument;
 					die;
 				}
 			}
-			last;
+			return ($argument, $processed_values);
 		}
 	}
-	if ($processed_values ne "") {
-		return "--" . $argument . "=" . $processed_values;
-	}
+	return;
 }
 # generate an array of all benchmark iteration cmds
 sub build_iteration_cmds {
 	my $cmdline = shift;
-	my @params = @_;
+	my $multiplex_params_ref = shift; # the parameters which each value creates a new iteration
+	my $simplex_params_ref = shift; # the parameters which each value does not create a new iteration
+	my %multiplex_params = %$multiplex_params_ref;
+	my %simplex_params = %$simplex_params_ref;
 	my @cmds;
 
-	if (@params) {
-		my $param = shift(@params);
-		if ($param =~ /^--(.+)=(.+)$/) {
-			my $arg = $1;
-			my $values = $2;
-			for my $value (split(/,/, $values)) {
-				push(@cmds, build_iteration_cmds($cmdline . " --" . $arg . "=" . $value . " ", @params));
-			}
-			return @cmds;
+	if (scalar %multiplex_params) {
+		my @args = (keys %multiplex_params);
+		my $arg = shift(@args);
+		my $values = $multiplex_params{$arg};
+		delete $multiplex_params{$arg};
+		for my $value (split(/,/, $values)) {
+			push(@cmds, build_iteration_cmds($cmdline . " --" . $arg . "=" . $value . " ", \%multiplex_params, \%simplex_params));
 		}
+		return @cmds;
 	} else {
+		for my $arg (keys %simplex_params) {
+			$cmdline .= " --" . $arg . "=" . $simplex_params{$arg};
+		}
 		return ($cmdline);
 	}	
 }
@@ -212,9 +214,10 @@ if ($benchmark eq "list") {
 my %pbench_specs = load_benchmark_specs("pbench");
 my %bench_specs = load_benchmark_specs($benchmark);
 my @params = @ARGV;
-my @processed_params; # parameters that will have been validated and transformed
+my %processed_bench_params; # benchmark-specific parameters that will have been validated and transformed
+my %processed_pbench_params; # universal parameters that will have been validated and transformed
 if (!grep(/^--defaults=(.+)$/, @params)) { # if the user did not specify a set of defaults, use the "default" set
-	push(@params, "--defaults=default");
+	unshift(@params, "--defaults=default");
 }
 while ( scalar @params > 0 ) {
 	my $param = shift @params;
@@ -228,21 +231,21 @@ while ( scalar @params > 0 ) {
 			printf("    --%s\n", $p);
 		}
 	} elsif ($param =~ /^--defaults=(.+)$/) { # expanded to all of the parameters found for that default
-		push(@params, split(/\s+/, get_benchmark_defaults(\%bench_specs, $1)));
+		@params = (split(/\s+/, get_benchmark_defaults(\%bench_specs, $1)), @params);
 	} elsif ($param =~ /^--(.+)=(.+)$/) { # we now have a parameter, a "--argument=value" that we can process
-		for my $spec_src (\%pbench_specs, \%bench_specs) {
-			my $p;
-			if ($p = process_param($1, $2, $spec_src)) {
-				@processed_params = ( @processed_params, $p );
-				last;
-			}
+		my @p;
+		if (@p = process_param($1, $2, \%pbench_specs)) {
+			$processed_pbench_params{$p[0]} = $p[1];
+		} elsif (@p = process_param($1, $2, \%bench_specs)) {
+			$processed_bench_params{$p[0]} = $p[1];
 		}
 	} else {
 		printf "The format of \'%s\' is not valid\n", $param;
 		exit 1;
 	}
 }
-
 # now we can generate all of the iterations
-my @iteration_cmds = build_iteration_cmds("", @processed_params);
-print join("\n", @iteration_cmds);
+my @iteration_cmds = build_iteration_cmds("", \%processed_bench_params, \%processed_pbench_params);
+for my $cmd (@iteration_cmds) {
+	print "$cmd\n";
+}
