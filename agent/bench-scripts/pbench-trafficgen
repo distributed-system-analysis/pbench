@@ -712,7 +712,7 @@ if [ "${postprocess_only}" == "n" ]; then
 		error_log "active devices must be supplied in quantities of 2, exiting"
 		exit 1
 	else
-		if $(echo $traffic_generator | grep -q "^trex-txrx") && [ "${devices}" != "${active_devices}" ]; then
+		if $(echo $traffic_generator | grep -eq "^trex-txrx") && [ "${devices}" != "${active_devices}" ]; then
 			error_log "only the trex-txrx* traffic generators support --devices != --active-devices, exiting"
 			exit 1
 		else
