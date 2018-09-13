@@ -138,6 +138,8 @@ sub get_benchmark_defaults {
 	}
 }
 # ensure a parameter's argument can be found and the parameter's values passes the regex requirement
+# return nothing if the tests fail
+# return the argument and values in an array it they pass
 sub process_param {
 	my $argument = shift;
 	my $values = shift;
@@ -160,7 +162,8 @@ sub process_param {
 						$processed_values .= "," . $value;
 					}
 				} else {
-					die;
+					printf "the value, \'%s\' for value, \'%s\' is not valid\n", $value, $argument;
+					return;
 				}
 			}
 			return ($argument, $processed_values);
@@ -216,9 +219,15 @@ my %bench_specs = load_benchmark_specs($benchmark);
 my @params = @ARGV;
 my %processed_bench_params; # benchmark-specific parameters that will have been validated and transformed
 my %processed_pbench_params; # universal parameters that will have been validated and transformed
-if (!grep(/^--defaults=(.+)$/, @params)) { # if the user did not specify a set of defaults, use the "default" set
+# if the user did not specify a set of defaults, use the "default" set and make sure these
+# get processed before any other params
+if (!grep(/^--defaults=(.+)$/, @params)) { 
 	unshift(@params, "--defaults=default");
 }
+# add the "mandatory" default set and make sure these
+# get processed after any other params
+push(@params, "--defaults=mandatory");
+# now process all of the parameters
 while ( scalar @params > 0 ) {
 	my $param = shift @params;
 	if ($param eq "--help") {
@@ -238,6 +247,9 @@ while ( scalar @params > 0 ) {
 			$processed_pbench_params{$p[0]} = $p[1];
 		} elsif (@p = process_param($1, $2, \%bench_specs)) {
 			$processed_bench_params{$p[0]} = $p[1];
+		} else {
+			printf "the parameter %s did not fit the requirements of pbench or the benchmark\n", $param;
+			exit 1;
 		}
 	} else {
 		printf "The format of \'%s\' is not valid\n", $param;
