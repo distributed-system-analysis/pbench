@@ -56,7 +56,6 @@ if (my @sample_opts = grep(/--samples=\d+/, @ARGV)) {
 	for my $sample_opt (@sample_opts) {
 		$sample_opt =~ s/--samples=//;
 		$num_samples = $sample_opt;
-		#printf "num_samples: %d\n", $num_samples;
 	}
 }
 
@@ -74,8 +73,8 @@ if ($? == 0) {
 # now run the iterations
 for my $iteration (@iterations) {
 	for (my $s=0; $s<$num_samples; $s++) {
-		my $benchmark_cmd = "pbench-run-benchmark-sample " . $iteration;
-		printf "benchmrk cmd: [%s]\n", $benchmark_cmd;
+		my $benchmark_cmd = "pbench-run-benchmark-sample " . $benchmark . " " . $iteration;
+		printf "benchmark cmd: [%s]\n", $benchmark_cmd;
 		my $benchmark_sample_output = `$benchmark_cmd`;
 		my $exit_code = $?;
 		printf "pbench-run-benchmark-sample output:\n%s\n\n", $benchmark_sample_output;
