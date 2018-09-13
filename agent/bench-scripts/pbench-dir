@@ -1,0 +1,25 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use File::Basename;
+my $pbench_lib_path;
+my $script_path;
+my $script_name;
+BEGIN {
+        $script_path = dirname($0);
+        $script_name = basename($0);
+        $pbench_lib_path = $script_path . "/postprocess";
+}
+
+use lib "$pbench_lib_path";
+use JSON;
+use Data::Dumper;
+use PbenchBase qw(get_json get_benchmark_names);
+use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts create_dir_hosts);
+my $pbench_bench_config_dir = $script_path;
+$pbench_bench_config_dir =~ s/bench-scripts$/config\/benchmark\//;
+
+
+my @hosts = @ARGV;
+my $result = create_dir_hosts(\@hosts, "/tmp/blah");
+print "create_dir_hosts result: $result\n";

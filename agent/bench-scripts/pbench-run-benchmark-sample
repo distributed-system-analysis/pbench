@@ -16,33 +16,25 @@
 
 use strict;
 use warnings;
-
-# Check for an alternate tools library path for testing
-my $_test_alt_tools_lib;
-my $_test_alt_bench_lib;
-BEGIN {
-	my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
-	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
-	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
-		$_test_alt_tools_lib = "$_pbench_tspp_dir";
-	}
-	my $_pbench_bspp_dir = $ENV{'pbench_bspp_dir'};
-	$_test_alt_bench_lib=$ENV{_TEST_ALTERNATE_BENCH_LIBRARY};
-	if (not defined $_test_alt_bench_lib or not -d $_test_alt_bench_lib) {
-		$_test_alt_bench_lib = "$_pbench_bspp_dir";
-	}
-}
-use lib "$_test_alt_tools_lib";
-use lib "$_test_alt_bench_lib";
-no lib ".";
-
-use JSON;
 use File::Basename;
+my $pbench_lib_path;
+my $script_path;
+my $script_name;
+BEGIN {
+	$script_path = dirname($0);
+	$script_name = basename($0);
+	$pbench_lib_path = $script_path . "/postprocess";
+}
+
+use lib "$pbench_lib_path";
+use JSON;
+use File::Temp;
 use Data::Dumper;
 use PbenchBase qw(get_json get_benchmark_names get_clients);
-use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts);
+use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts create_dir_hosts sync_dir_from_hosts);
+my $pbench_bench_config_dir = $script_path;
+$pbench_bench_config_dir =~ s/bench-scripts$/config\/benchmark\//;
 
-my $pbench_bench_config_dir = $ENV{"pbench_install_dir"} . "/config/benchmark/";
 # load a benchmark json file which tells us how to run a benchmark
 sub load_benchmark_specs {
 	my $benchmark_name = shift;
@@ -50,7 +42,6 @@ sub load_benchmark_specs {
 	my $json_ref = get_json($benchmark_spec_file);
 	return %$json_ref
 }
-
 
 
 
@@ -67,6 +58,8 @@ if ($benchmark eq "list") {
 	get_benchmark_names($pbench_bench_config_dir);
 	exit;
 }
+my $rundir = mkdtemp("/var/lib/pbench-agent/pbenchXXXX");
+printf "rundir[%s]\n", $rundir;
 
 my %bench_specs = load_benchmark_specs($benchmark);
 my @clients = get_clients(@ARGV);
@@ -74,13 +67,21 @@ my %remote_hosts = ( "clients" => \@clients );
 # pre-benchmark-execution
 # - verify access to clients and servers
 # - verify required software on clients and server
+# - create rundir on clients and servers
 # - copy files to clients and servers
 for my $host_type (keys %remote_hosts) {
 	if (scalar @{ $remote_hosts{$host_type} }) {
 		if ($bench_specs{$host_type} and $bench_specs{$host_type}{"files"} and ${bench_specs}{$host_type}{"files"}{"copy-to"}) {
+			my $result;
+			my $rc;
 			my @files = @{ ${bench_specs}{$host_type}{"files"}{"copy-to"} };
-			print "about to copy files to $host_type @{ $remote_hosts{$host_type} }\n";
-			my $result = copy_files_to_hosts(\@{ $remote_hosts{$host_type} }, \@files, "/root/");
+			#print "about to copy files to $host_type @{ $remote_hosts{$host_type} }\n";
+			$result = create_dir_hosts(\@{ $remote_hosts{$host_type} }, $rundir);
+			$rc = $?;
+			if ($rc > 0) {die "return code was: $rc";}
+			$result = copy_files_to_hosts(\@{ $remote_hosts{$host_type} }, \@files, $rundir);
+			$rc = $?;
+			if ($rc > 0) {die "return code was: $rc";}
 		}
 	}
 }
@@ -98,54 +99,21 @@ for my $host_type ("servers", "clients") { # the servers then clients order is i
 				# todo: first test the $transform regex separately for [perl syntax] errors with eval before doing below
 				$new_cmdline = eval "\$_='$new_cmdline'; $transform; return scalar \$_";
 			}
-			printf "new %s cmdline: %s\n", $host_type, $new_cmdline;
-			my $result = ssh_hosts(\@{ $remote_hosts{$host_type} }, $new_cmdline);
-			print "ssh_hosts result: $result\n";
+			#printf "new %s cmdline: %s\n", $host_type, $new_cmdline;
+			my $result = ssh_hosts(\@{ $remote_hosts{$host_type} }, $new_cmdline, $rundir);
+			#print "ssh_hosts result: $result\n";
 		}
 	}
 }
-
 # post-benhcmark-execution
 # - copy files back to controller
-for my $host_type (keys %remote_hosts) {
-	if (scalar @{ $remote_hosts{$host_type} }) {
-		if ($bench_specs{$host_type} and $bench_specs{$host_type}{"files"} and ${bench_specs}{$host_type}{"files"}{"copy-from"}) {
-			my @files = @{ ${bench_specs}{$host_type}{"files"}{"copy-from"} };
-			print "about to copy files from $host_type @{ $remote_hosts{$host_type} }\n";
-			my $result = copy_files_from_hosts(\@{ $remote_hosts{$host_type} }, \@files, "/root/");
-			print "copy_from_hosts result: $result\n";
-		}
+for my $host_type ("servers", "clients") {
+	if ($remote_hosts{$host_type} and scalar @{ $remote_hosts{$host_type} }) {
+		#print "about to copy files from $host_type @{ $remote_hosts{$host_type} }\n";
+		mkdir($rundir . "/clients");
+		my $sync_result = sync_dir_from_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "/", $rundir . "/clients"); # adding the "/" ensures the base dir name is not copied
+		print "sync_dir_from_hosts result: $sync_result\n";
+		#my $remove_result = remove_files_from_hosts(\@{ $remote_hosts{$host_type} }, \@files, $rundir);
+		#print "delete_from_hosts result: $remove_result\n";
 	}
 }
-
-
-
-		#if ($bench_specs{"clients"}{"cmdline"}) {
-			#my $client_cmdline = $cmdline;
-			#printf "original client cmdline: %s\n", $client_cmdline;
-			#if  (${bench_specs}{"clients"}{"cmdline"}{"regex"}) {
-				#for my $transform (@{ $bench_specs{"clients"}{"cmdline"} and ${bench_specs}{"clients"}{"cmdline"}{"regex"} }) {
-					## in order to apply the 's/x/y/' regex from the file, some eval trickery is necessary
-					## todo: first test the $transform regex separately for [perl syntax] errors with eval before doing below
-					#$client_cmdline = eval "\$_='$client_cmdline'; $transform; return scalar \$_";
-				#}
-				#printf "new client cmdline: %s\n", $client_cmdline;
-				#my $result = ssh_hosts(\@clients, $client_cmdline);
-				#print "ssh_hosts result: $result\n";
-			#}
-		#} else {
-			#print "The benchmark specs did not include any client cmdline information\n";
-		#}
-	#} else {
-		#die "This benchmark requires --clients but no such option was included in the parameters";
-	#}
-#} else {
-	#print "the benchmark spec did not include clients\n";
-#}
-
-# -execute pre-benchmark script
-# -execute benchmark
-
-# -execute post-benchmark script
-# -copy files back
-# -postprocess data

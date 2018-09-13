@@ -12,32 +12,22 @@
 
 use strict;
 use warnings;
-
-# Check for an alternate tools library path for testing
-my $_test_alt_tools_lib;
-my $_test_alt_bench_lib;
-BEGIN {
-	my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
-	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
-	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
-		$_test_alt_tools_lib = "$_pbench_tspp_dir";
-	}
-	my $_pbench_bspp_dir = $ENV{'pbench_bspp_dir'};
-	$_test_alt_bench_lib=$ENV{_TEST_ALTERNATE_BENCH_LIBRARY};
-	if (not defined $_test_alt_bench_lib or not -d $_test_alt_bench_lib) {
-		$_test_alt_bench_lib = "$_pbench_bspp_dir";
-	}
-}
-use lib "$_test_alt_tools_lib";
-use lib "$_test_alt_bench_lib";
-no lib ".";
-
-use JSON;
 use File::Basename;
-use Data::Dumper;
-use BenchPostprocess qw(get_json get_benchmark_names);
+my $pbench_lib_path;
+my $script_path;
+my $script_name;
+BEGIN {
+	$script_path = dirname($0);
+	$script_name = basename($0);
+	$pbench_lib_path = $script_path . "/postprocess";
+}
 
-my $pbench_bench_config_dir = $ENV{"pbench_install_dir"} . "/config/benchmark/";
+use lib "$pbench_lib_path";
+use JSON;
+use Data::Dumper;
+use PbenchBase qw(get_json get_benchmark_names);
+my $pbench_bench_config_dir = $script_path;
+$pbench_bench_config_dir =~ s/bench-scripts$/config\/benchmark\//;
 my $num_samples = 1; 
 
 # the only required argument is the benchmark name; verify it now
