@@ -10,8 +10,8 @@
 	"pre" : "/path/to/script", // script to run on client before test (but after copy-to files), the benchmark parameters are passed to this, and this script must exit "0" to continue
 	"post" : "/path/to/script", // script to run on client after test (but before copy-from files), the benchmark parameters are passed to this, and this script, and this script must exit "0" to continue
 	"files" : { 
-		"copy-to" : [ "/opt/pbench-agent/bench-scripts/templates/fio.job" ], // list of files to copy to the client (placed under $pbench_bench) before the test
-		"copy-from" :  [ "fio_iops.1.log", "fio-result.json" ]  // list of files to copy from the client (relative to $pbench_bench) after the test (placed under $pbench_bench/$client_name/)
+		"copy-to" : [ "/opt/pbench-agent/bench-scripts/templates/fio.job" ] // list of files to copy to the client (placed under $pbench_bench) before the test
+		//"copy-from" is not included here because we always copy all files in the directory (recursively) where the benchmark was executed.
 		},
 	"cmdline" : { // the cmdline is what's executed to run on the client, and by default it's the benchmark name followed by the benchmark parameters
 		//"path" : "", // prepend this path to the cmdline
