@@ -10,20 +10,21 @@
 	"pre" : "/path/to/script", // script to run on client before test (but after copy-to files), the benchmark parameters are passed to this, and this script must exit "0" to continue
 	"post" : "/path/to/script", // script to run on client after test (but before copy-from files), the benchmark parameters are passed to this, and this script, and this script must exit "0" to continue
 	"files" : { 
-		"copy-to" : [ "/path" ] // list of files to copy to the client (placed under $pbench_bench) before the test
-		//"copy-from" : { [] } // list of files to copy from the client (relative to $pbench_bench) after the test (placed under $pbench_bench/$client_name/)
+		"copy-to" : [ "/opt/pbench-agent/bench-scripts/templates/fio.job" ], // list of files to copy to the client (placed under $pbench_bench) before the test
+		"copy-from" :  [ "fio_iops.1.log", "fio-result.json" ]  // list of files to copy from the client (relative to $pbench_bench) after the test (placed under $pbench_bench/$client_name/)
 		},
 	"cmdline" : { // the cmdline is what's executed to run on the client, and by default it's the benchmark name followed by the benchmark parameters
-		"path" : "/", // prepend this path to the cmdline
-		"regex" : "/abc/" // before executing the cmdline, apply this regex
+		//"path" : "", // prepend this path to the cmdline
+		"regex" : [ "s/--clients=.+//", // remove the --clients option, as we do not use it in our run of fio
+		"s/\\s--jobfile=(\\S+)(.*)/\\2\\1/" ] // remove "--jobfile" and place the job file name at the end of the cmdline
 		}
 	},
 "parameters" : { 
 	"defaults": { // when calling pbench-run-benchmark, if one uses "--defaults=<name>", a matching name will cause their respective parameters listed here to be used
 		      // if not "--defaults=<name> is used, the entry "default" will be used
-		"default" : "--rw=read --filename=/tmp/fio-tst --filesize=256M --runtime=30s --jobfile=fio.job",
+		"default" : "--rw=read,randread --filename=/tmp/fio-tst --filesize=256M --runtime=30s --jobfile=fio.job --bs=16k",
 		"ceph-osp" : "--rw=read,randr,write,randw --bs=1m --ioengine=sync --numjobs=1 --runtime=30s --jobfile=fio.job",
-		"mandatory" : "--write_bw_log=fio --write_iops_log=fio --write_lat_log=fio --log_avg_msec=1000 --log_unix_epoch=1 --output-format=json --output=fio_result.json" //these will alwyas be included and cannot be overrided by the user
+		"mandatory" : "--time_based=1 --write_bw_log=fio --write_iops_log=fio --write_lat_log=fio --log_avg_msec=1000 --log_unix_epoch=1 --output-format=json --output=fio-result.json" //these will alwyas be included and cannot be overrided by the user
 		},
 	"specs" : {
 		// The following infomation is to aid pbench in parsing benchmark-specific paramters.
@@ -95,7 +96,7 @@
 			 		"log_offset", "log_store_compressed", "log_unix_epoch", "overwrite", "per_job_logs", "pre_read",
                          		"randrepeat", "rate_ignore_thinktime", "replay_no_stall", "scramble_buffers", "serialize_overlap",
                          		"stats", "sync", "trim_verify_zero", "unified_rw_reporting", "unique_filename", "unlink_each_loop",
-                         		"unlink", "verify_dump", "erify_fatal", "verify_state_load", "verify_state_save" ],
+                         		"unlink", "verify_dump", "erify_fatal", "verify_state_load", "verify_state_save", "time_based" ],
         		"value_regex" : "[0,1]"
         		},
 		"integer" :

@@ -39,20 +39,113 @@ no lib ".";
 use JSON;
 use File::Basename;
 use Data::Dumper;
-use BenchPostprocess qw(get_json get_benchmark_names);
+use PbenchBase qw(get_json get_benchmark_names get_clients);
+use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts);
 
-my $pbench_config_dir = $ENV{"pbench_install_dir"} . "/config/";
+my $pbench_bench_config_dir = $ENV{"pbench_install_dir"} . "/config/benchmark/";
+# load a benchmark json file which tells us how to run a benchmark
+sub load_benchmark_specs {
+	my $benchmark_name = shift;
+	my $benchmark_spec_file = $pbench_bench_config_dir . $benchmark_name . ".json";
+	my $json_ref = get_json($benchmark_spec_file);
+	return %$json_ref
+}
+
+
+
+
+# main program starts here
 
 # the only required argument is the benchmark name; verify it now
 if (scalar @ARGV == 0) {
 	print "You must supply at least a benchmark name:\n";
-	get_benchmark_names($pbench_config_dir);
+	get_benchmark_names($pbench_bench_config_dir);
 	exit;
 }
 my $benchmark = shift(@ARGV);
 if ($benchmark eq "list") {
-	get_benchmark_names($pbench_config_dir);
+	get_benchmark_names($pbench_bench_config_dir);
 	exit;
 }
 
-printf "running pbench-run-benchmark-sample [%s]\n", join(' ', @ARGV);
+my %bench_specs = load_benchmark_specs($benchmark);
+my @clients = get_clients(@ARGV);
+my %remote_hosts = ( "clients" => \@clients );
+# pre-benchmark-execution
+# - verify access to clients and servers
+# - verify required software on clients and server
+# - copy files to clients and servers
+for my $host_type (keys %remote_hosts) {
+	if (scalar @{ $remote_hosts{$host_type} }) {
+		if ($bench_specs{$host_type} and $bench_specs{$host_type}{"files"} and ${bench_specs}{$host_type}{"files"}{"copy-to"}) {
+			my @files = @{ ${bench_specs}{$host_type}{"files"}{"copy-to"} };
+			print "about to copy files to $host_type @{ $remote_hosts{$host_type} }\n";
+			my $result = copy_files_to_hosts(\@{ $remote_hosts{$host_type} }, \@files, "/root/");
+		}
+	}
+}
+# - execute pre-benchmark scripts on clients and servers
+		
+# benchmark-execution
+# - execute servers then clients, both with their cmdline regex'd if required
+my $cmdline = $benchmark . " " . join(" ", @ARGV);
+for my $host_type ("servers", "clients") { # the servers then clients order is important here because we want servers to be set up before clients run
+	if ($remote_hosts{$host_type} and scalar @{ $remote_hosts{$host_type} }) {
+		if ($bench_specs{$host_type} and $bench_specs{$host_type}{"cmdline"} and ${bench_specs}{$host_type}{"cmdline"}{"regex"}) {
+			my $new_cmdline = $cmdline;
+			for my $transform (@{ $bench_specs{$host_type}{"cmdline"}{"regex"} }) {
+				# in order to apply the 's/x/y/' regex from the file, some eval trickery is necessary
+				# todo: first test the $transform regex separately for [perl syntax] errors with eval before doing below
+				$new_cmdline = eval "\$_='$new_cmdline'; $transform; return scalar \$_";
+			}
+			printf "new %s cmdline: %s\n", $host_type, $new_cmdline;
+			my $result = ssh_hosts(\@{ $remote_hosts{$host_type} }, $new_cmdline);
+			print "ssh_hosts result: $result\n";
+		}
+	}
+}
+
+# post-benhcmark-execution
+# - copy files back to controller
+for my $host_type (keys %remote_hosts) {
+	if (scalar @{ $remote_hosts{$host_type} }) {
+		if ($bench_specs{$host_type} and $bench_specs{$host_type}{"files"} and ${bench_specs}{$host_type}{"files"}{"copy-from"}) {
+			my @files = @{ ${bench_specs}{$host_type}{"files"}{"copy-from"} };
+			print "about to copy files from $host_type @{ $remote_hosts{$host_type} }\n";
+			my $result = copy_files_from_hosts(\@{ $remote_hosts{$host_type} }, \@files, "/root/");
+			print "copy_from_hosts result: $result\n";
+		}
+	}
+}
+
+
+
+		#if ($bench_specs{"clients"}{"cmdline"}) {
+			#my $client_cmdline = $cmdline;
+			#printf "original client cmdline: %s\n", $client_cmdline;
+			#if  (${bench_specs}{"clients"}{"cmdline"}{"regex"}) {
+				#for my $transform (@{ $bench_specs{"clients"}{"cmdline"} and ${bench_specs}{"clients"}{"cmdline"}{"regex"} }) {
+					## in order to apply the 's/x/y/' regex from the file, some eval trickery is necessary
+					## todo: first test the $transform regex separately for [perl syntax] errors with eval before doing below
+					#$client_cmdline = eval "\$_='$client_cmdline'; $transform; return scalar \$_";
+				#}
+				#printf "new client cmdline: %s\n", $client_cmdline;
+				#my $result = ssh_hosts(\@clients, $client_cmdline);
+				#print "ssh_hosts result: $result\n";
+			#}
+		#} else {
+			#print "The benchmark specs did not include any client cmdline information\n";
+		#}
+	#} else {
+		#die "This benchmark requires --clients but no such option was included in the parameters";
+	#}
+#} else {
+	#print "the benchmark spec did not include clients\n";
+#}
+
+# -execute pre-benchmark script
+# -execute benchmark
+
+# -execute post-benchmark script
+# -copy files back
+# -postprocess data

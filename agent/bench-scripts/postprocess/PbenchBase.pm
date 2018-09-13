@@ -11,7 +11,7 @@ use Exporter qw(import);
 use List::Util qw(max);
 use JSON;
 
-our @EXPORT_OK = qw(get_json get_benchmark_names);
+our @EXPORT_OK = qw(get_json get_benchmark_names get_clients);
 my $script = "PbenchBase.pm";
 my $sub;
 
@@ -39,7 +39,8 @@ sub get_json {
 	my $perl_scalar = from_json($json_text);
 	return $perl_scalar;
 }
-
+# find all the benchmarks in the pbench configuraton data
+# todo: return as an array instead of printing
 sub get_benchmark_names {
 	$sub = "get_benchmark_names()";
 	my $dir = shift;
@@ -50,6 +51,16 @@ sub get_benchmark_names {
 			printf "%s\n", $1;
 		}
 	}
+}
+# scan the cmdline and return an array of client hostnames in --clients= if present
+sub get_clients {
+	my @clients;
+	for my $param (@_) {
+		if ($param =~ /\-\-clients\=(.+)/) {
+			@clients = split(/,/, $1);
+		}
+	}
+	return @clients;
 }
 
 1;
