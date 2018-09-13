@@ -59,7 +59,7 @@ sub ssh_hosts {
 	my $cmd = shift;
 	my $inv_file = build_inventory($hosts_ref);
 	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
-			$ansible_base_cmdline . " -i " .  $inv_file . " all -a " . $cmd;
+			$ansible_base_cmdline . " -i " .  $inv_file . " all -a \"" . $cmd . "\"";
 	print "ansible cmdline:\n$full_cmd\n";
 	my $output = `$full_cmd`;
 	unlink $inv_file;
