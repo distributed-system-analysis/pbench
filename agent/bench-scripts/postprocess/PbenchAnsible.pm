@@ -12,7 +12,7 @@ use List::Util qw(max);
 use Data::Dumper;
 use JSON;
 
-our @EXPORT_OK = qw(ssh_hosts ping_hosts copy_files_to_hosts);
+our @EXPORT_OK = qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts);
 
 my $script = "PbenchAnsible.pm";
 my $sub;
@@ -73,6 +73,26 @@ sub copy_files_to_hosts { # copies local files to hosts with a new, common desti
 	my @tasks;
 	for my $src_file (@$src_files_ref) {
 		my %task = ( name => "copy files to hosts", copy => "src=" . $src_file . " dest=" . $dst_path . "/" . basename($src_file) );
+		push(@tasks, \%task);
+	}
+	my %play = ( hosts => "all", tasks => \@tasks );;
+	my @playbook = (\%play);;
+	my $playbook_file = build_playbook(\@playbook);
+	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
+			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
+	print "ansible cmdline:\n$full_cmd\n";
+	my $output = `$full_cmd`;
+	unlink $inv_file, $playbook_file;
+	return $output;
+}
+sub copy_files_from_hosts { # copies local files to hosts with a new, common destination path
+	my $hosts_ref = shift; # array-reference to host list to copy from 
+	my $src_files_ref = shift; # array-refernce to file list to fetch
+	my $src_path = shift; # a single src path where all files in list can be found
+	my $inv_file = build_inventory($hosts_ref);
+	my @tasks;
+	for my $src_file (@$src_files_ref) {
+		my %task = ( "name" => "copy files from hosts", "fetch" => "src=" . $src_path . "/" . $src_file . " dest=" . "/tmp/{{ inventory_hostname }}" );
 		push(@tasks, \%task);
 	}
 	my %play = ( hosts => "all", tasks => \@tasks );;
