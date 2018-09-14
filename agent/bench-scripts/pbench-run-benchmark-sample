@@ -31,7 +31,7 @@ use JSON;
 use File::Temp;
 use Data::Dumper;
 use PbenchBase qw(get_json get_benchmark_names get_clients);
-use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts create_dir_hosts sync_dir_from_hosts);
+use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts);
 my $pbench_bench_config_dir = $script_path;
 $pbench_bench_config_dir =~ s/bench-scripts$/config\/benchmark\//;
 
@@ -48,17 +48,18 @@ sub load_benchmark_specs {
 # main program starts here
 
 # the only required argument is the benchmark name; verify it now
-if (scalar @ARGV == 0) {
-	print "You must supply at least a benchmark name:\n";
+if (scalar @ARGV < 2) {
+	print "You must supply at least a benchmark name and a results directory:\n";
 	get_benchmark_names($pbench_bench_config_dir);
 	exit;
 }
 my $benchmark = shift(@ARGV);
+my $rundir = shift(@ARGV);
 if ($benchmark eq "list") {
 	get_benchmark_names($pbench_bench_config_dir);
 	exit;
 }
-my $rundir = mkdtemp("/var/lib/pbench-agent/pbenchXXXX");
+mkdir($rundir);
 printf "rundir[%s]\n", $rundir;
 
 my %bench_specs = load_benchmark_specs($benchmark);
@@ -76,10 +77,10 @@ for my $host_type (keys %remote_hosts) {
 			my $rc;
 			my @files = @{ ${bench_specs}{$host_type}{"files"}{"copy-to"} };
 			#print "about to copy files to $host_type @{ $remote_hosts{$host_type} }\n";
-			$result = create_dir_hosts(\@{ $remote_hosts{$host_type} }, $rundir);
+			$result = create_dir_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type);
 			$rc = $?;
 			if ($rc > 0) {die "return code was: $rc";}
-			$result = copy_files_to_hosts(\@{ $remote_hosts{$host_type} }, \@files, $rundir);
+			$result = copy_files_to_hosts(\@{ $remote_hosts{$host_type} }, \@files, $rundir . "-" . $host_type);
 			$rc = $?;
 			if ($rc > 0) {die "return code was: $rc";}
 		}
@@ -100,7 +101,7 @@ for my $host_type ("servers", "clients") { # the servers then clients order is i
 				$new_cmdline = eval "\$_='$new_cmdline'; $transform; return scalar \$_";
 			}
 			#printf "new %s cmdline: %s\n", $host_type, $new_cmdline;
-			my $result = ssh_hosts(\@{ $remote_hosts{$host_type} }, $new_cmdline, $rundir);
+			my $result = ssh_hosts(\@{ $remote_hosts{$host_type} }, $new_cmdline, $rundir . "-" . $host_type);
 			#print "ssh_hosts result: $result\n";
 		}
 	}
@@ -111,9 +112,15 @@ for my $host_type ("servers", "clients") {
 	if ($remote_hosts{$host_type} and scalar @{ $remote_hosts{$host_type} }) {
 		#print "about to copy files from $host_type @{ $remote_hosts{$host_type} }\n";
 		mkdir($rundir . "/clients");
-		my $sync_result = sync_dir_from_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "/", $rundir . "/clients"); # adding the "/" ensures the base dir name is not copied
+		my $sync_result = sync_dir_from_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type . "/", $rundir . "/clients"); # adding the "/" ensures the base dir name is not copied
 		print "sync_dir_from_hosts result: $sync_result\n";
-		#my $remove_result = remove_files_from_hosts(\@{ $remote_hosts{$host_type} }, \@files, $rundir);
-		#print "delete_from_hosts result: $remove_result\n";
+		my $remove_result = remove_dir_from_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type);
+		print "delete_from_hosts result: $remove_result\n";
 	}
+}
+# - post-process the result data
+if ($bench_specs{"postprocess"} and $bench_specs{"postprocess"}{"command"}) {
+	my $postprocess_cmd = ". /opt/pbench-agent/base; cd " . $rundir . "; " . $bench_specs{"postprocess"}{"command"};
+	printf "postprocess_cmd[%s]\n", $postprocess_cmd;
+	my $postprocess_output = `$postprocess_cmd`;
 }
