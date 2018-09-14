@@ -11,10 +11,33 @@ use Exporter qw(import);
 use List::Util qw(max);
 use JSON;
 
-our @EXPORT_OK = qw(get_json get_benchmark_names get_clients);
+our @EXPORT_OK = qw(get_json get_benchmark_names get_clients get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params);
 my $script = "PbenchBase.pm";
 my $sub;
 
+sub get_pbench_run_dir {
+	my $dir = `getconf.py pbench_run pbench-agent`; # typically /var/lib/pbench-agent
+	chomp $dir;
+	return $dir;
+}
+sub get_pbench_install_dir {
+	return `getconf.py install-dir pbench-agent`; # typically /var/lib/pbench-agent
+}
+sub get_pbench_config_dir {
+	return get_pbench_install_dir() . "/config";
+}
+sub get_pbench_bench_config_dir {
+	return get_pbench_install_dir() . "/config/bench";
+}
+sub get_params { # this simply takes @ARGV-like array and returns a hash with key=argument and value=value
+	my %params;
+	for my $param (@_) {
+		if ($param =~ /--(\S+)=(\S+)/) {
+			$params{$1} = $2;
+		}
+	}
+	return %params;
+}
 # read a json file and put in hash
 # the return value is a reference
 sub get_json {
@@ -61,6 +84,19 @@ sub get_clients {
 		}
 	}
 	return @clients;
+}
+sub get_pbench_datetime { #our common date & time forma
+	my $datetime = `date --utc +"%Y.%m.%dT%H.%M.%S"`;
+	chomp $datetime;
+	return $datetime;
+}
+# get a new benchmark directory -needed if you are going to run a benchmark
+sub get_benchmark_results_dir {
+	my $benchmark = shift;
+	my $config = shift;
+	my $basedir = get_pbench_run_dir();
+	my $datetime = get_pbench_datetime();
+	my $benchdir = $basedir . "/" . $benchmark . "_" . $config . "_" . $datetime;
 }
 
 1;
