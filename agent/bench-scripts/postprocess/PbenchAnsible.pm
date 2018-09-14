@@ -12,7 +12,7 @@ use List::Util qw(max);
 use Data::Dumper;
 use JSON;
 
-our @EXPORT_OK = qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts create_dir_hosts sync_dir_from_hosts);
+our @EXPORT_OK = qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts);
 
 my $script = "PbenchAnsible.pm";
 my $sub;
@@ -147,6 +147,23 @@ sub remove_files_from_hosts { # copies files from remote hosts to a local path w
 		my %task = ( "name" => "remove files from hosts", "file" => "path=" . $src_path . "/" . $src_file . " state=absent" );
 		push(@tasks, \%task);
 	}
+	my %play = ( hosts => "all", tasks => \@tasks );;
+	my @playbook = (\%play);;
+	my $playbook_file = build_playbook(\@playbook);
+	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
+			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
+	print "ansible cmdline:\n$full_cmd\n";
+	my $output = `$full_cmd`;
+	unlink $inv_file, $playbook_file;
+	return $output;
+}
+sub remove_dir_from_hosts { # copies files from remote hosts to a local path which includes $hostbname directory
+	my $hosts_ref = shift; # array-reference to host list to copy from 
+	my $dir = shift; # the directory to delete
+	my $inv_file = build_inventory($hosts_ref);
+	my @tasks;
+	my %task = ( "name" => "remove dir from hosts", "file" => "path=" . $dir . " state=absent" );
+	push(@tasks, \%task);
 	my %play = ( hosts => "all", tasks => \@tasks );;
 	my @playbook = (\%play);;
 	my $playbook_file = build_playbook(\@playbook);
