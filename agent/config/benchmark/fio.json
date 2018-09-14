@@ -19,6 +19,9 @@
 		"s/\\s--jobfile=(\\S+)(.*)/\\2\\1/" ] // remove "--jobfile" and place the job file name at the end of the cmdline
 		}
 	},
+"postprocess" : {
+	"command" : "/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess-cdm"
+	},
 "parameters" : { 
 	"defaults": { // when calling pbench-run-benchmark, if one uses "--defaults=<name>", a matching name will cause their respective parameters listed here to be used
 		      // if not "--defaults=<name> is used, the entry "default" will be used
