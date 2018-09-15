@@ -27,12 +27,12 @@ use lib "$pbench_lib_path";
 use JSON;
 use Data::Dumper;
 use PbenchCDM qw(create_run_doc);
-use PbenchBase qw(get_json get_benchmark_names get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params);
+use PbenchBase qw(get_json get_benchmark_names get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params);
 
 # defaults
 my $num_samples = 1; 
 
-# the only required argument is the benchmark name; verify it now
+# the only required [positional] argument is the benchmark name; verify it now
 if (scalar @ARGV == 0) {
 	print "You must supply at least a benchmark name:\n";
 	get_benchmark_names(get_pbench_bench_config_dir);
@@ -43,34 +43,33 @@ if ($benchmark eq "list") {
 	get_benchmark_names(get_pbench_bench_config_dir);
 	exit;
 }
-print "ARGS:\n";
-print Dumper @ARGV;
-my %params = get_params(\@ARGV);
-print "params:\n";
-print Dumper \%params;
-
-# the only other argument this script cares about is the optional --samples
+# the rest of the parameters are --arg=val, most of which we just pass to other scripts,
+# but we need to know a few of them now
+my %params = get_params(@ARGV);
 if ($params{"samples"}) {
 	$num_samples = $params{"samples"};
 }
-
 if ((!$ENV{"USER_NAME"}) and (!$params{"user-name"})) {
 	print "\n\n***** Please export USER_NAME=\"<your first and last name>\" (or --user-name=) so it is included in the run data *****\n\n";
-	sleep(2);
+	sleep(1);
 }
 if ((!$ENV{"USER_EMAIL"}) and (!$params{"user-email"})) {
 	print "\n\n***** Please export USER_EMAIL=\"<your email address\" (or --user-email=) so it is included in the run data *****\n\n";
-	sleep(2);
+	sleep(1);
 }
+if (!$params{"config"}) {
+	print "\n\n***** Please use --config=key1:value2,key2:value2...keyN:valueN to describe your test configuration, environment, and/or purpose so it is included in the run data *****\n\n";
+	sleep(1);
+}
+my $config = $params{"config"};
+remove_params(\@ARGV, qw(samples config user-name user-email));
 
-my $config = "mytest";
-my $bench_dir = get_benchmark_results_dir($benchmark, $config);
-printf "bench_dir[%s]\n", $bench_dir;
+my $base_bench_dir = get_benchmark_results_dir($benchmark, $config);
+printf "base_bench_dir[%s]\n", $base_bench_dir;
 
 my %run_doc = create_run_doc($benchmark, $config);
 print "run_doc:\n";
 print Dumper \%run_doc;
-exit;
 
 # pass the rest of the args to pbench-gen-iterations and store the iterations in an array
 my $gen_iterations_cmd = "pbench-gen-iterations " . $benchmark . " " . join(" ", @ARGV);
@@ -84,9 +83,19 @@ if ($? == 0) {
 	}
 
 # now run the iterations
-for my $iteration (@iterations) {
-	for (my $s=0; $s<$num_samples; $s++) {
-		my $benchmark_cmd = "pbench-run-benchmark-sample " . $benchmark . " " . $bench_dir . " " . $iteration;
+mkdir($base_bench_dir);
+open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
+my $iteration_id = 0;
+for my $iteration_params (@iterations) {
+	printf $fh "%d %s\n", $iteration_id, $iteration_params;
+	for (my $sample_id=0; $sample_id<$num_samples; $sample_id++) {
+		my $iteration_dir = $base_bench_dir . "/iteration" . $iteration_id;
+		print "iteration_dir[$iteration_dir]\n";
+		mkdir($iteration_dir);
+		my $iteration_sample_dir = $iteration_dir . "/sample" . $sample_id;
+		print "iteration_sample_dir[$iteration_sample_dir]\n";
+		mkdir($iteration_sample_dir);
+		my $benchmark_cmd = "pbench-run-benchmark-sample " . $benchmark . " " . $iteration_sample_dir . " " . $iteration_params;
 		printf "benchmark cmd: [%s]\n", $benchmark_cmd;
 		my $benchmark_sample_output = `$benchmark_cmd`;
 		my $exit_code = $?;
@@ -95,4 +104,6 @@ for my $iteration (@iterations) {
 		printf "exit code: %d\n", $exit_code;
 	}
 	#todo: get stdddev and repeat iteration if too high
+	$iteration_id++;
 }
+close $fh;

@@ -11,7 +11,7 @@ use Exporter qw(import);
 use List::Util qw(max);
 use JSON;
 
-our @EXPORT_OK = qw(get_json get_benchmark_names get_clients get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params);
+our @EXPORT_OK = qw(get_json get_benchmark_names get_clients get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params);
 my $script = "PbenchBase.pm";
 my $sub;
 
@@ -37,6 +37,21 @@ sub get_params { # this simply takes @ARGV-like array and returns a hash with ke
 		}
 	}
 	return %params;
+}
+sub remove_params { # remove any parameters with "arg"
+	my $argv_ref = shift;
+	my @args = @_;
+	for my $arg (@args) {
+		my $index = 0;
+		for my $param (@{ $argv_ref }) {
+			if ($param =~ /--(\S+)=(\S+)/) {
+				if ($1 eq $arg) {
+					splice(@{ $argv_ref }, $index, 1);
+				}
+			}
+			$index++;
+		}
+	}
 }
 # read a json file and put in hash
 # the return value is a reference
