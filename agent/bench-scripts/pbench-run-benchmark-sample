@@ -76,11 +76,10 @@ for my $host_type (keys %remote_hosts) {
 			my $result;
 			my $rc;
 			my @files = @{ ${bench_specs}{$host_type}{"files"}{"copy-to"} };
-			#print "about to copy files to $host_type @{ $remote_hosts{$host_type} }\n";
-			$result = create_dir_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type);
+			$result = create_dir_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type, $rundir);
 			$rc = $?;
 			if ($rc > 0) {die "return code was: $rc";}
-			$result = copy_files_to_hosts(\@{ $remote_hosts{$host_type} }, \@files, $rundir . "-" . $host_type);
+			$result = copy_files_to_hosts(\@{ $remote_hosts{$host_type} }, \@files, $rundir . "-" . $host_type, $rundir);
 			$rc = $?;
 			if ($rc > 0) {die "return code was: $rc";}
 		}
@@ -100,9 +99,7 @@ for my $host_type ("servers", "clients") { # the servers then clients order is i
 				# todo: first test the $transform regex separately for [perl syntax] errors with eval before doing below
 				$new_cmdline = eval "\$_='$new_cmdline'; $transform; return scalar \$_";
 			}
-			#printf "new %s cmdline: %s\n", $host_type, $new_cmdline;
-			my $result = ssh_hosts(\@{ $remote_hosts{$host_type} }, $new_cmdline, $rundir . "-" . $host_type);
-			#print "ssh_hosts result: $result\n";
+			my $result = ssh_hosts(\@{ $remote_hosts{$host_type} }, $new_cmdline, $rundir . "-" . $host_type, $rundir);
 		}
 	}
 }
@@ -110,17 +107,13 @@ for my $host_type ("servers", "clients") { # the servers then clients order is i
 # - copy files back to controller
 for my $host_type ("servers", "clients") {
 	if ($remote_hosts{$host_type} and scalar @{ $remote_hosts{$host_type} }) {
-		#print "about to copy files from $host_type @{ $remote_hosts{$host_type} }\n";
 		mkdir($rundir . "/clients");
-		my $sync_result = sync_dir_from_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type . "/", $rundir . "/clients"); # adding the "/" ensures the base dir name is not copied
-		print "sync_dir_from_hosts result: $sync_result\n";
-		my $remove_result = remove_dir_from_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type);
-		print "delete_from_hosts result: $remove_result\n";
+		my $sync_result = sync_dir_from_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type . "/", $rundir . "/clients", $rundir); # adding the "/" ensures the base dir name is not copied
+		my $remove_result = remove_dir_from_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type, $rundir);
 	}
 }
 # - post-process the result data
 if ($bench_specs{"postprocess"} and $bench_specs{"postprocess"}{"command"}) {
 	my $postprocess_cmd = ". /opt/pbench-agent/base; cd " . $rundir . "; " . $bench_specs{"postprocess"}{"command"};
-	printf "postprocess_cmd[%s]\n", $postprocess_cmd;
 	my $postprocess_output = `$postprocess_cmd`;
 }
