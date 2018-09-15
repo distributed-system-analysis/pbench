@@ -66,6 +66,17 @@ sub build_playbook {
 	close $fh;
 	return $file;
 }
+sub run_playbook {
+	my $playbook_ref = shift;
+	my $inv_file = shift;
+	my $logdir = shift;
+	my $playbook_file = build_playbook($playbook_ref, $logdir);
+	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
+			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
+	my $output = `$full_cmd`;
+	log_ansible($logdir, $full_cmd, $output);
+	return $output;
+}
 sub ping_hosts {
 	my $hosts_ref = shift;
 	my $basedir = shift; # we create a new dir under this and log all Ansible files and output
@@ -128,12 +139,7 @@ sub copy_files_to_hosts { # copies local files to hosts with a new, common desti
 	}
 	my %play = ( hosts => "all", tasks => \@tasks );;
 	my @playbook = (\%play);
-	my $playbook_file = build_playbook(\@playbook, $logdir);
-	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
-			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
-	my $output = `$full_cmd`;
-	log_ansible($logdir, $full_cmd, $output);
-	return $output;
+	return run_playbook(\@playbook, $inv_file, $logdir);
 }
 sub copy_files_from_hosts { # copies files from remote hosts to a local path which includes $hostbname directory
 	my $hosts_ref = shift; # array-reference to host list to copy from 
@@ -155,12 +161,7 @@ sub copy_files_from_hosts { # copies files from remote hosts to a local path whi
 	}
 	my %play = ( hosts => "all", tasks => \@tasks );;
 	my @playbook = (\%play);;
-	my $playbook_file = build_playbook(\@playbook, $logdir);
-	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
-			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
-	my $output = `$full_cmd`;
-	log_ansible($logdir, $full_cmd, $output);
-	return $output;
+	return run_playbook(\@playbook, $inv_file, $logdir);
 }
 sub sync_dir_from_hosts { # copies files from remote hosts to a local path which includes $hostbname directory
 	my $hosts_ref = shift; # array-reference to host list to copy from 
@@ -175,12 +176,7 @@ sub sync_dir_from_hosts { # copies files from remote hosts to a local path which
 	push(@tasks, \%task);
 	my %play = ( hosts => "all", tasks => \@tasks );;
 	my @playbook = (\%play);
-	my $playbook_file = build_playbook(\@playbook, $logdir);
-	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
-			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
-	my $output = `$full_cmd`;
-	log_ansible($logdir, $full_cmd, $output);
-	return $output;
+	return run_playbook(\@playbook, $inv_file, $logdir);
 }
 sub remove_files_from_hosts { # copies files from remote hosts to a local path which includes $hostbname directory
 	my $hosts_ref = shift; # array-reference to host list to copy from 
@@ -195,13 +191,8 @@ sub remove_files_from_hosts { # copies files from remote hosts to a local path w
 		push(@tasks, \%task);
 	}
 	my %play = ( hosts => "all", tasks => \@tasks );;
-	my @playbook = (\%play);;
-	my $playbook_file = build_playbook(\@playbook, $logdir);
-	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
-			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
-	my $output = `$full_cmd`;
-	log_ansible($logdir, $full_cmd, $output);
-	return $output;
+	my @playbook = (\%play);
+	return run_playbook(\@playbook, $inv_file, $logdir);
 }
 sub remove_dir_from_hosts { # copies files from remote hosts to a local path which includes $hostbname directory
 	my $hosts_ref = shift; # array-reference to host list to copy from 
@@ -214,11 +205,6 @@ sub remove_dir_from_hosts { # copies files from remote hosts to a local path whi
 	push(@tasks, \%task);
 	my %play = ( hosts => "all", tasks => \@tasks );;
 	my @playbook = (\%play);;
-	my $playbook_file = build_playbook(\@playbook, $logdir);
-	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
-			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
-	my $output = `$full_cmd`;
-	log_ansible($logdir, $full_cmd, $output);
-	return $output;
+	return run_playbook(\@playbook, $inv_file, $logdir);
 }
 1;
