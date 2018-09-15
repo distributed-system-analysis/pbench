@@ -22,12 +22,34 @@ my $inventory_opt = " --inventory /var/lib/pbench-agent/ansible-hosts";
 my $ansible_base_cmdline = $ansible_bin;
 my $ansible_playbook_cmdline = $ansible_playbook_bin;
 
+sub get_ansible_logdir {
+	my $basedir = shift;
+	my $action = shift;
+	my $logdir = $basedir . "/ansible-log/";
+	mkdir($logdir);
+	$logdir = $logdir . time . "-" . $action;
+	mkdir($logdir);
+	return $logdir;
+}
+sub log_ansible {
+	my $logdir = shift;
+	my $cmd = shift;
+	my $output = shift;
+	mkdir($logdir);
+	my $fh;
+	open($fh, ">" . $logdir . "/command.txt") or die "Could not open $logdir/command.txt";
+	print $fh $cmd;
+	close $fh;
+	open($fh, ">" . $logdir . "/output.json") or die "Could not open $logdir/output.json";
+	print $fh $output;
+	close $fh;
+}
 sub build_inventory {
 	my $hosts_ref = shift;
+	my $logdir = shift;
+	my $file = $logdir . "/hosts";
 	my $fh;
-	my $file = `mktemp`;
-	chomp $file;
-	open($fh, ">", $file) or die "Could not create the inventory file";
+	open($fh, ">", $file) or die "Could not create the inventory file $file";
 	for my $h (@$hosts_ref) {
 		print $fh "$h\n";
 	}
@@ -36,60 +58,81 @@ sub build_inventory {
 }
 sub build_playbook {
 	my $playbook_ref = shift;
+	my $logdir = shift;
 	my $fh;
-	my $file = `mktemp`;
-	chomp $file;
-	open($fh, ">", $file) or die "Could not create the playbook file";
+	my $file = $logdir . "/playbook.json";
+	open($fh, ">", $file) or die "Could not create the playbook file $file";
 	printf $fh "%s", to_json( $playbook_ref, { ascii => 1, pretty => 1, canonical => 1 } );
 	close $fh;
 	return $file;
 }
 sub ping_hosts {
 	my $hosts_ref = shift;
-	my $inv_file = build_inventory($hosts_ref);
+	my $basedir = shift; # we create a new dir under this and log all Ansible files and output
+	my $logdir = get_ansible_logdir($basedir, "ping_hosts");
+	my $inv_file = build_inventory($hosts_ref, $logdir);
 	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
 			$ansible_base_cmdline . " -i " .  $inv_file . " all -m ping";
-	print "ansible cmdline:\n$full_cmd\n";
 	my $output = `$full_cmd`;
-	unlink $inv_file;
+	log_ansible($logdir, $full_cmd, $output);
+	return $output;
+}
+sub create_dir_hosts { #creates a directory on remote hosts
+	my $hosts_ref = shift; # array-reference to host list to copy from 
+	my $dir = shift; # the directory to create
+	my $basedir = shift;
+	my $logdir = get_ansible_logdir($basedir, "create_dir_hosts");
+	my $inv_file = build_inventory($hosts_ref, $logdir);
+	my @tasks;
+	my %task = ( "name" => "create dir on hosts", "file" => "path=" . $dir . " state=directory" );
+	push(@tasks, \%task);
+	my %play = ( hosts => "all", tasks => \@tasks );;
+	my @playbook = (\%play);;
+	my $playbook_file = build_playbook(\@playbook, $logdir);
+	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
+			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
+	my $output = `$full_cmd`;
+	log_ansible($logdir, $full_cmd, $output);
 	return $output;
 }
 sub ssh_hosts {
 	my $hosts_ref = shift; # array-reference to host list
 	my $cmd = shift; # array-refernce to file list
-	my $dir = shift; # directory to run command
-	my $inv_file = build_inventory($hosts_ref);
+	my $chdir = shift; # directory to run command
+	my $basedir = shift;
+	my $logdir = get_ansible_logdir($basedir, "ssh_hosts");
+	my $inv_file = build_inventory($hosts_ref, $logdir);
 	my @tasks;
-	my %task = ( name => "run cmd on hosts", command => $cmd . " chdir=" . $dir);
+	my %task = ( name => "run cmd on hosts", command => $cmd . " chdir=" . $chdir);
 	push(@tasks, \%task);
 	my %play = ( hosts => "all", tasks => \@tasks );;
 	my @playbook = (\%play);;
-	my $playbook_file = build_playbook(\@playbook);
+	my $playbook_file = build_playbook(\@playbook, $logdir);
 	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
 			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
-	print "ansible cmdline:\n$full_cmd\n";
 	my $output = `$full_cmd`;
-	unlink $inv_file, $playbook_file;
+	log_ansible($logdir, $full_cmd, $output);
 	return $output;
 }
 sub copy_files_to_hosts { # copies local files to hosts with a new, common destination path
 	my $hosts_ref = shift; # array-reference to host list
 	my $src_files_ref = shift; # array-refernce to file list
 	my $dst_path = shift; # a single destination path
-	my $inv_file = build_inventory($hosts_ref);
+	my $basedir = shift;
+	my $logdir = get_ansible_logdir($basedir, "copy_files_to_hosts");
+	my $inv_file = build_inventory($hosts_ref, $logdir);
 	my @tasks;
 	for my $src_file (@$src_files_ref) {
 		my %task = ( name => "copy files to hosts", copy => "src=" . $src_file . " dest=" . $dst_path . "/" . basename($src_file) );
 		push(@tasks, \%task);
 	}
 	my %play = ( hosts => "all", tasks => \@tasks );;
-	my @playbook = (\%play);;
-	my $playbook_file = build_playbook(\@playbook);
+	my @playbook = (\%play);
+	my $playbook_file = build_playbook(\@playbook, $logdir);
 	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
 			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
-	print "ansible cmdline:\n$full_cmd\n";
 	my $output = `$full_cmd`;
-	unlink $inv_file, $playbook_file;
+	log_ansible($logdir, $full_cmd, $output);
 	return $output;
 }
 sub copy_files_from_hosts { # copies files from remote hosts to a local path which includes $hostbname directory
@@ -97,10 +140,12 @@ sub copy_files_from_hosts { # copies files from remote hosts to a local path whi
 	my $src_files_ref = shift; # array-refernce to file list to fetch
 	my $src_path = shift; # a single src path where all files in list can be found
 	my $dst_path = shift;
+	my $basedir = shift;
 	if (!$dst_path) {
 		$dst_path="/tmp/";
 	}
-	my $inv_file = build_inventory($hosts_ref);
+	my $logdir = get_ansible_logdir($basedir, "copy_files_from_hosts");
+	my $inv_file = build_inventory($hosts_ref, $logdir);
 	my @tasks;
 	for my $src_file (@$src_files_ref) {
 		my %task = ( "name" => "copy files from hosts", "fetch" => "flat=yes " . "src=" .
@@ -110,38 +155,40 @@ sub copy_files_from_hosts { # copies files from remote hosts to a local path whi
 	}
 	my %play = ( hosts => "all", tasks => \@tasks );;
 	my @playbook = (\%play);;
-	my $playbook_file = build_playbook(\@playbook);
+	my $playbook_file = build_playbook(\@playbook, $logdir);
 	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
 			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
-	print "ansible cmdline:\n$full_cmd\n";
 	my $output = `$full_cmd`;
-	unlink $inv_file, $playbook_file;
+	log_ansible($logdir, $full_cmd, $output);
 	return $output;
 }
 sub sync_dir_from_hosts { # copies files from remote hosts to a local path which includes $hostbname directory
 	my $hosts_ref = shift; # array-reference to host list to copy from 
 	my $src_dir = shift; # the dir to sync from on the hosts
 	my $dst_dir = shift; # a single dst dir where all the remote host dirs will be sync'd to, first with a dir=hostname
-	my $inv_file = build_inventory($hosts_ref);
+	my $basedir = shift;
+	my $logdir = get_ansible_logdir($basedir, "sync_dir_from_hosts");
+	my $inv_file = build_inventory($hosts_ref, $logdir);
 	my @tasks;
 	my %task = ( "name" => "sync dirs from hosts", "synchronize" => "mode=pull src=" . $src_dir . " dest=" . $dst_dir .
 		     "/{{ inventory_hostname }}/");
 	push(@tasks, \%task);
 	my %play = ( hosts => "all", tasks => \@tasks );;
-	my @playbook = (\%play);;
-	my $playbook_file = build_playbook(\@playbook);
+	my @playbook = (\%play);
+	my $playbook_file = build_playbook(\@playbook, $logdir);
 	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
 			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
-	print "ansible cmdline:\n$full_cmd\n";
 	my $output = `$full_cmd`;
-	unlink $inv_file, $playbook_file;
+	log_ansible($logdir, $full_cmd, $output);
 	return $output;
 }
 sub remove_files_from_hosts { # copies files from remote hosts to a local path which includes $hostbname directory
 	my $hosts_ref = shift; # array-reference to host list to copy from 
 	my $src_files_ref = shift; # array-refernce to file list to fetch
 	my $src_path = shift; # a single src path where all files in list can be found
-	my $inv_file = build_inventory($hosts_ref);
+	my $basedir = shift;
+	my $logdir = get_ansible_logdir($basedir, "remove_files_from_hosts");
+	my $inv_file = build_inventory($hosts_ref, $logdir);
 	my @tasks;
 	for my $src_file (@$src_files_ref) {
 		my %task = ( "name" => "remove files from hosts", "file" => "path=" . $src_path . "/" . $src_file . " state=absent" );
@@ -149,46 +196,29 @@ sub remove_files_from_hosts { # copies files from remote hosts to a local path w
 	}
 	my %play = ( hosts => "all", tasks => \@tasks );;
 	my @playbook = (\%play);;
-	my $playbook_file = build_playbook(\@playbook);
+	my $playbook_file = build_playbook(\@playbook, $logdir);
 	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
 			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
-	print "ansible cmdline:\n$full_cmd\n";
 	my $output = `$full_cmd`;
-	unlink $inv_file, $playbook_file;
+	log_ansible($logdir, $full_cmd, $output);
 	return $output;
 }
 sub remove_dir_from_hosts { # copies files from remote hosts to a local path which includes $hostbname directory
 	my $hosts_ref = shift; # array-reference to host list to copy from 
 	my $dir = shift; # the directory to delete
-	my $inv_file = build_inventory($hosts_ref);
+	my $basedir = shift;
+	my $logdir = get_ansible_logdir($basedir, "remove_dir_from_hosts");
+	my $inv_file = build_inventory($hosts_ref, $logdir);
 	my @tasks;
 	my %task = ( "name" => "remove dir from hosts", "file" => "path=" . $dir . " state=absent" );
 	push(@tasks, \%task);
 	my %play = ( hosts => "all", tasks => \@tasks );;
 	my @playbook = (\%play);;
-	my $playbook_file = build_playbook(\@playbook);
+	my $playbook_file = build_playbook(\@playbook, $logdir);
 	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
 			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
-	print "ansible cmdline:\n$full_cmd\n";
 	my $output = `$full_cmd`;
-	unlink $inv_file, $playbook_file;
-	return $output;
-}
-sub create_dir_hosts { #creates a directory on remote hosts
-	my $hosts_ref = shift; # array-reference to host list to copy from 
-	my $dir = shift; # the directory to create
-	my $inv_file = build_inventory($hosts_ref);
-	my @tasks;
-	my %task = ( "name" => "create dir on hosts", "file" => "path=" . $dir . " state=directory" );
-	push(@tasks, \%task);
-	my %play = ( hosts => "all", tasks => \@tasks );;
-	my @playbook = (\%play);;
-	my $playbook_file = build_playbook(\@playbook);
-	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
-			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
-	print "ansible cmdline:\n$full_cmd\n";
-	my $output = `$full_cmd`;
-	unlink $inv_file, $playbook_file;
+	log_ansible($logdir, $full_cmd, $output);
 	return $output;
 }
 1;
