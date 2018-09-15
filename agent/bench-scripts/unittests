@@ -221,6 +221,7 @@ declare -A post=(
     [test-10]="cat $_testdir/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json >> $_testout"
     [test-11]="cat $_testdir/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json >> $_testout"
     [test-12]="cat $_testdir/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json >> $_testout"
+    [test-22]="cat $_testdir/result.json >> $_testout"
 )
 
 

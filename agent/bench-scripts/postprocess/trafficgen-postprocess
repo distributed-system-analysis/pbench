@@ -285,11 +285,11 @@ if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'}
 		  'metric_class' => 'resource', 'desc' => 'The RX port utilization',
 		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
 
-		{ 'category' => 'pgids', 'js_label' => 'Stream PPS - PGID ', 'field' => '', 'metric_label' => 'rx', 'group' => 'rx_pps',
+		{ 'category' => 'pgids', 'js_label' => 'Stream PPS - ', 'field' => '', 'metric_label' => 'rx', 'group' => 'rx_pps',
 		  'metric_class' => 'throughput', 'desc' => 'The number of bits received per second',
 		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
 
-		{ 'category' => 'pgids', 'js_label' => 'Stream PPS - PGID ', 'field' => '', 'metric_label' => 'tx', 'group' => 'tx_pps',
+		{ 'category' => 'pgids', 'js_label' => 'Stream PPS - ', 'field' => '', 'metric_label' => 'tx', 'group' => 'tx_pps',
 		  'metric_class' => 'throughput', 'desc' => 'The number of bits transmitted per second',
 		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
 
@@ -304,6 +304,26 @@ if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'}
 		{ 'category' => 'pgids', 'js_label' => 'Stream Latency - PGID ', 'field' => 'total_min', 'metric_label' => '', 'group' => 'latency',
 		  'metric_class' => 'latency', 'desc' => 'Minimum time in microseconds between packet transmission and reception',
 		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
+
+		{ 'category' => 'pgids', 'js_label' => 'Stream Latency Errors - PGID ', 'field' => 'duplicate', 'metric_label' => '', 'group' => 'latency',
+		  'metric_class' => 'latency', 'desc' => 'Number of duplicate packets detected',
+		  'divisor' => int 1, 'cumulative' => 1, 'last' => 0 },
+
+		{ 'category' => 'pgids', 'js_label' => 'Stream Latency Errors - PGID ', 'field' => 'dropped', 'metric_label' => '', 'group' => 'latency',
+		  'metric_class' => 'latency', 'desc' => 'Number of dropped packets detected',
+		  'divisor' => int 1, 'cumulative' => 1, 'last' => 0 },
+
+		{ 'category' => 'pgids', 'js_label' => 'Stream Latency Errors - PGID ', 'field' => 'out_of_order', 'metric_label' => '', 'group' => 'latency',
+		  'metric_class' => 'latency', 'desc' => 'Number of packets received in the wrong order (by sequence number)',
+		  'divisor' => int 1, 'cumulative' => 1, 'last' => 0 },
+
+		{ 'category' => 'pgids', 'js_label' => 'Stream Latency Errors - PGID ', 'field' => 'seq_too_high', 'metric_label' => '', 'group' => 'latency',
+		  'metric_class' => 'latency', 'desc' => 'Number of packets received before they were expected (by sequence number)',
+		  'divisor' => int 1, 'cumulative' => 1, 'last' => 0 },
+
+		{ 'category' => 'pgids', 'js_label' => 'Stream Latency Errors - PGID ', 'field' => 'seq_too_low', 'metric_label' => '', 'group' => 'latency',
+		  'metric_class' => 'latency', 'desc' => 'Number of packets received after they were expected (by sequence number)',
+		  'divisor' => int 1, 'cumulative' => 1, 'last' => 0 },
 
 	    );
 
@@ -483,11 +503,14 @@ if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'}
 									  get_label('uid_label') => "category:%category%-pgid:%pgid%-group:%group%-port:%port%" );
 
 							if ($$profiler_metric{'metric_class'} eq 'throughput') {
-								push(@{ $throughput{$$profiler_metric{'js_label'} . $pgid}}, \%this_dataset);
+								push(@{ $throughput{$$profiler_metric{'js_label'} . 'PGID ' . $pgid}}, \%this_dataset);
+								push(@{ $throughput{$$profiler_metric{'js_label'} . 'Port ' . $port . ' ' . uc($$profiler_metric{'metric_label'})}}, \%this_dataset);
 							} elsif ($$profiler_metric{'metric_class'} eq 'resource') {
-								push(@{ $resource{$$profiler_metric{'js_label'} . $pgid}}, \%this_dataset);
+								push(@{ $resource{$$profiler_metric{'js_label'} . 'PGID ' . $pgid}}, \%this_dataset);
+								push(@{ $resource{$$profiler_metric{'js_label'} . 'Port ' . $port . ' ' . uc($$profiler_metric{'metric_label'})}}, \%this_dataset);
 							} elsif ($$profiler_metric{'metric_class'} eq 'latency') {
-								push(@{ $latency{$$profiler_metric{'js_label'} . $pgid}}, \%this_dataset);
+								push(@{ $latency{$$profiler_metric{'js_label'} . 'PGID ' . $pgid}}, \%this_dataset);
+								push(@{ $latency{$$profiler_metric{'js_label'} . 'Port ' . $port . ' ' . uc($$profiler_metric{'metric_label'})}}, \%this_dataset);
 							}
 						}
 					}
@@ -543,6 +566,14 @@ my %graph;
 create_graph_hash(\%graph, \%workload);
 my %graph_threshold;
 my %graph_type;
+foreach my $key (keys %{$graph{'trafficgen'}}) {
+	if ($key =~ m/^Stream PPS - Port/) {
+		$graph_type{'trafficgen'}{$key} = "stackedAreaChart";
+		$graph_threshold{'trafficgen'}{$key} = 0.0001;
+	} elsif ($key =~ m/^Stream PPS - PGID/) {
+		$graph_threshold{'trafficgen'}{$key} = 0.0001;
+	}
+}
 gen_data(\%graph, \%graph_type, \%graph_threshold, $dir, 1);
 
 $json_text   = to_json( \%workload, { ascii => 1, pretty => 1 } );
