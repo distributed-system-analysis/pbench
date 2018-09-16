@@ -22,7 +22,7 @@ my $inventory_opt = " --inventory /var/lib/pbench-agent/ansible-hosts";
 my $ansible_base_cmdline = $ansible_bin;
 my $ansible_playbook_cmdline = $ansible_playbook_bin;
 
-sub get_ansible_logdir {
+sub get_ansible_logdir { # create a directory to store ansible files
 	my $basedir = shift;
 	my $action = shift;
 	my $logdir = $basedir . "/ansible-log/";
@@ -31,7 +31,7 @@ sub get_ansible_logdir {
 	mkdir($logdir);
 	return $logdir;
 }
-sub log_ansible {
+sub log_ansible { # log the comand line and its output
 	my $logdir = shift;
 	my $cmd = shift;
 	my $output = shift;
@@ -44,7 +44,7 @@ sub log_ansible {
 	print $fh $output;
 	close $fh;
 }
-sub build_inventory {
+sub build_inventory { # create an inventory file with hosts
 	my $hosts_ref = shift;
 	my $logdir = shift;
 	my $file = $logdir . "/hosts";
@@ -56,7 +56,7 @@ sub build_inventory {
 	close $fh;
 	return $file;
 }
-sub build_playbook {
+sub build_playbook { # create the playbok file
 	my $playbook_ref = shift;
 	my $logdir = shift;
 	my $fh;
@@ -66,7 +66,7 @@ sub build_playbook {
 	close $fh;
 	return $file;
 }
-sub run_playbook {
+sub run_playbook { # execute a playbook
 	my $playbook_ref = shift;
 	my $inv_file = shift;
 	my $logdir = shift;
@@ -77,7 +77,7 @@ sub run_playbook {
 	log_ansible($logdir, $full_cmd, $output);
 	return $output;
 }
-sub ping_hosts {
+sub ping_hosts { # check for connectivity with ping
 	my $hosts_ref = shift;
 	my $basedir = shift; # we create a new dir under this and log all Ansible files and output
 	my $logdir = get_ansible_logdir($basedir, "ping_hosts");
@@ -88,7 +88,7 @@ sub ping_hosts {
 	log_ansible($logdir, $full_cmd, $output);
 	return $output;
 }
-sub create_dir_hosts { #creates a directory on remote hosts
+sub create_dir_hosts { # creates a directory on remote hosts
 	my $hosts_ref = shift; # array-reference to host list to copy from 
 	my $dir = shift; # the directory to create
 	my $basedir = shift;
@@ -106,7 +106,7 @@ sub create_dir_hosts { #creates a directory on remote hosts
 	log_ansible($logdir, $full_cmd, $output);
 	return $output;
 }
-sub ssh_hosts {
+sub ssh_hosts { # run a command on remote hosts
 	my $hosts_ref = shift; # array-reference to host list
 	my $cmd = shift; # array-refernce to file list
 	my $chdir = shift; # directory to run command
