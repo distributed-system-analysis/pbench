@@ -25,13 +25,12 @@ BEGIN {
 	$script_name = basename($0);
 	$pbench_lib_path = $script_path . "/postprocess";
 }
-
 use lib "$pbench_lib_path";
 use JSON;
 use File::Temp;
 use Data::Dumper;
 use PbenchBase qw(get_json get_benchmark_names get_clients);
-use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts);
+use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success);
 my $pbench_bench_config_dir = $script_path;
 $pbench_bench_config_dir =~ s/bench-scripts$/config\/benchmark\//;
 
@@ -77,11 +76,7 @@ for my $host_type (keys %remote_hosts) {
 			my $rc;
 			my @files = @{ ${bench_specs}{$host_type}{"files"}{"copy-to"} };
 			$result = create_dir_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type, $rundir);
-			$rc = $?;
-			if ($rc > 0) {die "return code was: $rc";}
 			$result = copy_files_to_hosts(\@{ $remote_hosts{$host_type} }, \@files, $rundir . "-" . $host_type, $rundir);
-			$rc = $?;
-			if ($rc > 0) {die "return code was: $rc";}
 		}
 	}
 }

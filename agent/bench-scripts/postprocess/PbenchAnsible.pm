@@ -6,13 +6,21 @@ package PbenchAnsible;
 use strict;
 use warnings;
 use File::Basename;
+my $pbench_lib_path;
+my $script_path;
+my $script_name;
+BEGIN {
+        $script_path = dirname($0);
+        $script_name = basename($0);
+        $pbench_lib_path = $script_path . "/postprocess";
+}
+use lib "$pbench_lib_path";
 use Cwd 'abs_path';
 use Exporter qw(import);
 use List::Util qw(max);
 use Data::Dumper;
 use JSON;
-
-our @EXPORT_OK = qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts);
+our @EXPORT_OK = qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success);
 
 my $script = "PbenchAnsible.pm";
 my $sub;
@@ -22,6 +30,19 @@ my $inventory_opt = " --inventory /var/lib/pbench-agent/ansible-hosts";
 my $ansible_base_cmdline = $ansible_bin;
 my $ansible_playbook_cmdline = $ansible_playbook_bin;
 
+sub verify_success {
+	my $text_data = shift;
+	my $data_ref = from_json($text_data);
+	my %stats = %{ $$data_ref{"stats"}};
+	for my $host (keys %stats) {
+		if ($stats{$host}{"failures"} > 0 or $stats{$host}{"unreachable"} > 0) {
+ 			print "host $host failed";
+			exit 1;
+		}
+	}
+	print Dumper $$data_ref{"stats"};
+	return 1;
+}
 sub get_ansible_logdir { # create a directory to store ansible files
 	my $basedir = shift;
 	my $action = shift;
@@ -75,6 +96,9 @@ sub run_playbook { # execute a playbook
 			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
 	my $output = `$full_cmd`;
 	log_ansible($logdir, $full_cmd, $output);
+	if (verify_success($output)) {
+		return $output;
+	}	
 	return $output;
 }
 sub ping_hosts { # check for connectivity with ping
