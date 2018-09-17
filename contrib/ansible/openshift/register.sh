@@ -69,6 +69,7 @@ while read -u 11 line;do
   pbench-register-tool --label=$label --name=pidstat --remote $remote
   pbench-register-tool --label=$label --name=disk --remote $remote
   pbench-register-tool --label=$label --name=perf --remote $remote
+  pbench-register-tool --label=$label --name=mpstat --remote $remote
   if [ "$group"  == "master" ]; then
     pbench-register-tool --label=$label --name=oc --remote $remote
     pbench-register-tool --label=$label --name=haproxy-ocp --remote $remote -- --interval=$ose_master_interval --counters-clear-all
