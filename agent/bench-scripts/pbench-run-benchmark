@@ -26,7 +26,7 @@ BEGIN {
 use lib "$pbench_lib_path";
 use JSON;
 use Data::Dumper;
-use PbenchCDM qw(create_run_doc);
+use PbenchCDM qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc);
 use PbenchBase qw(get_json get_benchmark_names get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params);
 
 # defaults
@@ -68,9 +68,30 @@ my $base_bench_dir = get_benchmark_results_dir($benchmark, $config);
 printf "base_bench_dir[%s]\n", $base_bench_dir;
 
 my %run_doc = create_run_doc($benchmark, $config);
-print "run_doc:\n";
-print Dumper \%run_doc;
+my %config_osrelease_doc = create_config_osrelease_doc;
+my %config_cpuinfo_doc = create_config_cpuinfo_doc;
+my %config_netdevs_doc = create_config_netdevs_doc;
+my %config_netdev_ethtool_docs;
+for my $netdev (split(/,/, $config_netdevs_doc{"netdevs_list"})) {
+	my %config_ethtool_doc = create_config_ethtool_doc($netdev, $config_netdevs_doc{"doc_id"});
+	printf "getting ethtool info for %s\n", $netdev;
+	$config_netdev_ethtool_docs{$netdev} = \%config_ethtool_doc;
+}
+$run_doc{"run_benchmark_params"} = join(" ", @ARGV);
+$run_doc{"run_benchmark_hosts_clients"} = $params{"clients"};
+$run_doc{"run_benchmark_hosts_servers"} = $params{"servers"};
+($run_doc{"run_benchmark_hosts"} = $params{"clients"}) =~ s/,$//;
 
+#print "run_doc:\n";
+#print Dumper \%run_doc;
+#print "config_osrelease_doc\n";
+#print Dumper \%config_osrelease_doc;
+#print "config_cpuinfo_doc:\n";
+#print Dumper \%config_cpuinfo_doc;
+#print "config_netdevs_doc:\n";
+#print Dumper \%config_netdevs_doc;
+#print "config_ethtool_doc:\n";
+print Dumper \%config_netdev_ethtool_docs;
 # pass the rest of the args to pbench-gen-iterations and store the iterations in an array
 my $gen_iterations_cmd = "pbench-gen-iterations " . $benchmark . " " . join(" ", @ARGV);
 my @iterations = split(/\n/, `$gen_iterations_cmd`);
