@@ -55,13 +55,15 @@ esac
 . $dir/pbench-base.sh
 ###########################################################################
 
+log_init $(basename $0) $LOGSDIR/$(basename $0)
+
 # check that all the directories exist
 test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
 
 # make sure only one copy is running.
 # Use 'flock -n $LOCKFILE /home/pbench/bin/pbench-index' in the
 # crontab to ensure that only one copy is running. The script itself
-# does not use any locking. 
+# does not use any locking.
 
 # the link source and destination for this script
 linksrc=TO-INDEX
@@ -74,8 +76,6 @@ linkerrdest=WONT-INDEX
 TMPDIR=$TMP/pbench-index.$$
 # index-pbench need to get at it
 export TMPDIR
-
-log_init $(basename $0) $LOGSDIR/$(basename $0)
 
 echo "$TS: starting at $(timestamp)"
 
@@ -108,7 +108,7 @@ while read size result ;do
         echo $result >> $erred
         continue
     fi
-       
+
     resultname=$(basename $result)
     resultname=${resultname%.tar.xz}
     hostname=$(basename $(dirname $link))
@@ -161,7 +161,7 @@ while read size result ;do
         cat $errors_json >> $errors_json.report
         pbench-report-status --name $PROG.errors --timestamp $TS --type status $errors_json.report
     fi
-    
+
     if [ $status -ne 0 ] ;then
         # Distinguish failure cases, so we can retry the indexing easily if possible.
         # Different WONT-INDEX directories for different failures:
@@ -179,7 +179,7 @@ while read size result ;do
         fi
         continue
     fi
-    
+
     # move the link to $linkdest directory
     # echo mv $result $(echo $result | sed "s/$linksrc/$linkdest/")
     mv $result $(echo $result | sed "s/$linksrc/$linkdest/")
