@@ -33,38 +33,37 @@ if (scalar @ARGV == 0) {
 }
 my $run_id = shift(@ARGV);
 my $base_bench_dir = shift(@ARGV);
+mkdir($base_bench_dir);
 my $hostname = get_hostname;
 my $es_dir = $base_bench_dir . "/es";
 mkdir($es_dir);
 my $es_config_dir = $es_dir . "/config";
 mkdir($es_config_dir);
-my $es_config_host_dir = $es_config_dir . "/" . $hostname;
-mkdir($es_config_host_dir);
 
 my %config_base_doc = create_config_base_doc;
 $config_base_doc{"run_id"} = $run_id;
 my %config_doc; # all config_source types use this
-my %config_osrelease_doc = create_config_osrelease_doc;
-put_json_file(\%config_osrelease_doc, $es_config_host_dir . "/osrelease.json");
+my %config_osrelease_doc = create_config_osrelease_doc($run_id);
+put_json_file(\%config_osrelease_doc, $es_config_dir . "/osrelease.json");
 $config_base_doc{"config_source_names"} = "," . "osrelease";
 $config_base_doc{"config_source_doc_ids"} = "," . $config_osrelease_doc{"doc_id"};
-my %config_cpuinfo_doc = create_config_cpuinfo_doc;
-put_json_file(\%config_cpuinfo_doc, $es_config_host_dir . "/cpuinfo.json");
+my %config_cpuinfo_doc = create_config_cpuinfo_doc($run_id);
+put_json_file(\%config_cpuinfo_doc, $es_config_dir . "/cpuinfo.json");
 $config_base_doc{"config_source_names"} .= "," . "cpuinfo";
 $config_base_doc{"config_source_doc_ids"} .= "," . $config_cpuinfo_doc{"doc_id"};
-my %config_netdevs_doc = create_config_netdevs_doc;
-put_json_file(\%config_netdevs_doc, $es_config_host_dir . "/netdevs.json");
+my %config_netdevs_doc = create_config_netdevs_doc($run_id);
+put_json_file(\%config_netdevs_doc, $es_config_dir . "/netdevs.json");
 $config_base_doc{"config_source_names"} .= "," . "netdevs";
 $config_base_doc{"config_source_doc_ids"} .= "," . $config_netdevs_doc{"doc_id"};
 for my $netdev (split(/,/, $config_netdevs_doc{"netdevs"})) {
-	my %config_ethtool_doc = create_config_ethtool_doc($netdev, $config_netdevs_doc{"doc_id"});
+	my %config_ethtool_doc = create_config_ethtool_doc($netdev, $config_netdevs_doc{"doc_id"}, $run_id);
 	$config_netdevs_doc{"ethtool_doc_ids"} .= "," . $config_ethtool_doc{"doc_id"};
 	#$config_ethtool_doc{$netdev} = \%config_ethtool_doc;
-	put_json_file(\%config_ethtool_doc, $es_config_host_dir . "/config_netdevs_ethtool_" . $netdev . ".json");
+	put_json_file(\%config_ethtool_doc, $es_config_dir . "/config_netdevs_ethtool_" . $netdev . ".json");
 }
 $config_netdevs_doc{"ethtool_doc_ids"} =~ s/^,//;
-put_json_file(\%config_netdevs_doc, $es_config_host_dir . "/netdevs.json");
+put_json_file(\%config_netdevs_doc, $es_config_dir . "/netdevs.json");
 $config_base_doc{"config_source_names"} =~ s/^,//;
 $config_base_doc{"config_source_doc_ids"} =~ s/^,//;
-put_json_file(\%config_base_doc, $es_config_host_dir . "/base.json");
+put_json_file(\%config_base_doc, $es_config_dir . "/base.json");
 exit;

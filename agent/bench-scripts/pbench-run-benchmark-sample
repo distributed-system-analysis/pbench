@@ -29,7 +29,7 @@ use lib "$pbench_lib_path";
 use JSON;
 use File::Temp;
 use Data::Dumper;
-use PbenchBase qw(get_json get_benchmark_names get_clients);
+use PbenchBase qw(get_json_file get_benchmark_names get_clients);
 use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success);
 my $pbench_bench_config_dir = $script_path;
 $pbench_bench_config_dir =~ s/bench-scripts$/config\/benchmark\//;
@@ -38,7 +38,7 @@ $pbench_bench_config_dir =~ s/bench-scripts$/config\/benchmark\//;
 sub load_benchmark_specs {
 	my $benchmark_name = shift;
 	my $benchmark_spec_file = $pbench_bench_config_dir . $benchmark_name . ".json";
-	my $json_ref = get_json($benchmark_spec_file);
+	my $json_ref = get_json_file($benchmark_spec_file);
 	return %$json_ref
 }
 

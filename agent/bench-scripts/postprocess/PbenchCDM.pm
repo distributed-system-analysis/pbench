@@ -10,8 +10,9 @@ use Cwd 'abs_path';
 use Exporter qw(import);
 use List::Util qw(max);
 use JSON;
+use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success);
 
-our @EXPORT_OK = qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc);
+our @EXPORT_OK = qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc get_hostname);
 my $script = "PbenchCDM.pm";
 my $sub;
 my @common_run_fields = qw(run_id run_user_name run_user_email run_controller_hostname run_benchmark_name
@@ -63,37 +64,52 @@ sub create_run_doc {
 		"doc_ver" => 1, # common-data-model version number
 		"doc_create_time" => "" ,# the epoch time when creatd *in-elastic*, not here
 		# the run-specific fields
-		"run_id" => get_uuid, # unique identifier for this run
 		"user_config" => $config, # user provided shortlist of var:val with "," separator (no spaces)
 		"user_name" => get_user_name, # user's real name
 		"user_email" => get_user_email, #user's email address
 		"run_hostname" => get_hostname, # hostname of this controller system
 		"benchmark_name" => $benchmark, #the benchmark used in this run
-		"benchmark_ver" => "", #benchmark version, like "3.7" for fio
+		"benchmark_ver" => "", # benchmark version, like "3.7" for fio
 		"benchmark_params" => "", # the full list of parameters when calling the benchmark
-		"benchmark_hosts" => "", # any/all hosts involved in the benchmark
+		"benchmark_hosts_all" => "", # any/all hosts involved in the benchmark (not just clients and servers)
 		"benchmark_hosts_clients" => "", # client hosts involved in the benchmark
 		"benchmark_hosts_servers" => "", # server hosts involved in the benchmark
 		"benchmark_num_iterations" => "",
-		"benchmark_iteration_list" => "", # a list of every iteration, where each iteration is all of the parameters (arg=val)
+		"benchmark_iterations" => "", # a list of every iteration, where each iteration is all of the parameters (arg=val)
 		# links to config docs
-		"config_hostnames" => "ordered list of hostnames where configuration docs are generated from", # 
-		"config_collectors" => "ordered list (matching order of config_hostnames) of config-collectors where configuration docs are generated from", # 
-		"config_doc_ids" => "ordered list of document IDss where configuration docs are generated from", # 
+		"config_hostnames" => "", # ordered list of hostnames where a config base document was created for that host
+		"config_doc_ids" => "", # ordered list (matching order of hostnames in config_hostnames) of config base document IDs
 		# links to tools
-		"tool_hostnames" => "ordered list of hostnames where tools are registred", # 
-		"tool_names" => "ordered list (matching order of tool_hostnames) of registered tool names" # 
+		"tool_hostnames" => "", # ordered list of hostnames where tools are registred
+		"tool_names" => "" # ordered list (matching order of tool_hostnames) of registered tool names
 	       );
+}
+# this is the top-level config doc for a host
+sub create_config_base_doc {
+	my $run_id = shift;
+	my %config_base_doc = (
+		# every document needs these three:
+		"doc_id" => get_uuid, # uniqie identifier for all documents
+		"doc_ver" => 1, # common-data-model version number
+		"doc_create_time" => "" ,# the epoch time when creatd *in-elastic*, not here
+		# always link back to run document
+		"run_id" => $run_id,
+		# always include the hostname
+		"hostname" => get_hostname # hostname where info came from
+		"config_source_names" => "", # orderd list of config sources, like osrelease, cpuinfo, or netdevs
+		"config_source_doc_ids" => "", # orderd list of config document IDs, matching order of config_sources_list
+		);
 }
 # this is a 1-doc config source
 sub create_config_osrelease_doc { # /etc/os-release
+	my $run_id = shift;
 	my %config_osrelease_doc = (
 		# every document needs these three:
 		"doc_id" => get_uuid, # uniqie identifier for all documents
 		"doc_ver" => 1, # common-data-model version number
 		"doc_create_time" => "" ,# the epoch time when creatd *in-elastic*, not here
 		# always link back to run
-		"run_id" => "",
+		"run_id" => $run_id,
 		# always include the hostname
 		"hostname" => get_hostname # hostname where info came from
 		);
@@ -107,7 +123,17 @@ sub create_config_osrelease_doc { # /etc/os-release
 }
 # this is a 1-doc config source
 sub create_config_cpuinfo_doc { # /bin/lscpu: cpu model, speed, flags, etc
-	my %config_cpuinfo_doc;
+	my $run_id = shift;
+	my %config_cpuinfo_doc = (
+		# every document needs these three:
+		"doc_id" => get_uuid, # uniqie identifier for all documents
+		"doc_ver" => 1, # common-data-model version number
+		"doc_create_time" => "" ,# the epoch time when creatd *in-elastic*, not here
+		# always link back to run
+		"run_id" => $run_id,
+		# always include the hostname
+		"hostname" => get_hostname # hostname where info came from
+		);
 	my @output = split(/\n/, `lscpu`);
 	for my $line (@output) {
 		(my $field, my $value) = split(/:/, $line);
@@ -120,34 +146,37 @@ sub create_config_cpuinfo_doc { # /bin/lscpu: cpu model, speed, flags, etc
 }
 # this is a multi-doc config source
 sub create_config_netdevs_doc {
+	my $run_id = shift;
 	my %config_netdevs_doc = (
 		# every document needs these three:
 		"doc_id" => get_uuid, # uniqie identifier for all documents
 		"doc_ver" => 1, # common-data-model version number
 		"doc_create_time" => "" ,# the epoch time when creatd *in-elastic*, not here
 		# always link back to run
-		"run_id" => "",
+		"run_id" => $run_id,
 		# always include the hostname
-		"hostname" => get_hostname # hostname where info came from
+		"hostname" => get_hostname, # hostname where info came from
+		"ethtool_doc_ids" => "" # an ordered list (matching order of "netdevs") of the ethtool document IDs
 		);
-	($config_netdevs_doc{"netdevs_list"} = `/bin/ls /sys/class/net`) =~ s/\s+/,/g;
+	($config_netdevs_doc{"netdevs"} = `/bin/ls /sys/class/net`) =~ s/\s+/,/g;
 	return %config_netdevs_doc;
 }
 # this document is per-netdev, and it linked to the config_netdevs_doc collected on the same host
 sub create_config_ethtool_doc {
 	my $netdev = shift;
 	my $netdev_doc_id = shift;
+	my $run_id = shift;
 	my %config_ethtool_doc = (
 		# every document needs these three:
 		"doc_id" => get_uuid, # uniqie identifier for all documents
 		"doc_ver" => 1, # common-data-model version number
 		"doc_create_time" => "" ,# the epoch time when creatd *in-elastic*, not here
 		# always link back to run
-		"run_id" => "",
+		"run_id" => $run_id,
 		# always include the hostname
 		"hostname" => get_hostname, # hostname where info came from
 		# include the netdevs doc ID
-		"netdevs_id" => $netdev_doc_id
+		"netdev_id" => $netdev_doc_id
 		);
 	for my $opt qw(-a -c -g -i -k ) {
 		my $ethtool_cmd = "/usr/sbin/ethtool " . $opt . " " . $netdev;
