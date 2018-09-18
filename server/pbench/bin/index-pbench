@@ -13,7 +13,8 @@ import hashlib, json, glob, csv, tarfile, logging
 from urllib3 import Timeout
 from datetime import datetime, timedelta
 from collections import Counter
-from optparse import OptionParser, make_option
+from argparse import ArgumentParser
+
 try:
     from configparser import SafeConfigParser, Error as ConfigParserError, NoSectionError, NoOptionError
 except ImportError:
@@ -2073,25 +2074,22 @@ def main(options, args):
 
 ###########################################################################
 # Options handling
-
-prog_options = [
-    make_option("-C", "--config", dest="cfg_name", help="Specify config file"),
-    make_option("-E", "--indexing-errors", dest="indexing_errors", help="Name of a file to write JSON documents that fail to index"),
-    make_option("-D", "--temp-directory", dest="tmpdir", help="Temporary directory to use while indexing"),
-    make_option("-M", "--metadata", dest="metadata_string", help="Specify additional metadata (e.g. for browbeat) as a JSON document string"),
-    # options for debuggging and unit testing
-    make_option("-U", "--unittest", action="store_true", dest="debug_unittest", help="Run in unittest mode"),
-    make_option("-T", "--time-ops", action="store_true", dest="debug_time_operations", help="Time action making routines"),
-]
-
 if __name__ == '__main__':
-    parser = OptionParser("Usage: index-pbench [--config <path-to-config-file>] [--metadata \"<JSON doc>\"] [--working-directory <dir>] <path-to-tarball>")
-    for o in prog_options:
-        parser.add_option(o)
+    parser = ArgumentParser("Usage: index-pbench [--config <path-to-config-file>] [--metadata \"<JSON doc>\"] [--working-directory <dir>] <path-to-tarball>")
+    parser.add_argument("-C", "--config", dest="cfg_name", help="Specify config file")
+    parser.add_argument("-E", "--indexing-errors", dest="indexing_errors", help="Name of a file to write JSON documents that fail to index")
+    parser.add_argument("-D", "--temp-directory", dest="tmpdir", help="Temporary directory to use while indexing")
+    parser.add_argument("-M", "--metadata", dest="metadata_string", help="Specify additional metadata (e.g. for browbeat) as a JSON document string")
+    # options for debuggging and unit testing
+    parser.add_argument("-U", "--unittest", action="store_true", dest="debug_unittest", help="Run in unittest mode")
+    parser.add_argument("-T", "--time-ops", action="store_true", dest="debug_time_operations", help="Time action making routines")
+    # argparse also handles the cli argument passed to the script, therefore this parser has been added
+    parser.add_argument("path_to_tarball_file",nargs=1,help="specify the path to the tar.gz file")
     parser.set_defaults(cfg_name = os.environ.get("ES_CONFIG_PATH"))
     parser.set_defaults(tmpdir = os.environ.get("TMPDIR"))
-
-    (options, args) = parser.parse_args()
-
+    parsed = parser.parse_args()
+    args = parsed.path_to_tarball_file
+    del parsed.path_to_tarball_file
+    options = parsed
     status = main(options, args)
     sys.exit(status)
