@@ -26,8 +26,9 @@ BEGIN {
 use lib "$pbench_lib_path";
 use JSON;
 use Data::Dumper;
-use PbenchCDM qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc);
-use PbenchBase qw(get_json get_benchmark_names get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params);
+use PbenchCDM qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc get_hostname);
+use PbenchBase qw(get_json_file put_json_file get_benchmark_names get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params);
+use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success);
 
 # defaults
 my $num_samples = 1; 
@@ -65,33 +66,44 @@ my $config = $params{"config"};
 remove_params(\@ARGV, qw(samples config user-name user-email));
 
 my $base_bench_dir = get_benchmark_results_dir($benchmark, $config);
+mkdir($base_bench_dir);
 printf "base_bench_dir[%s]\n", $base_bench_dir;
+my $es_dir = $base_bench_dir . "/es";
+mkdir($es_dir);
+my $es_run_dir = $es_dir . "/run";
+mkdir($es_run_dir);
+my $es_config_dir = $es_dir . "/config";
+mkdir($es_config_dir);
+my $es_bench_dir = $es_dir . "/bench";
+mkdir($es_bench_dir);
+my $es_metrics_dir = $es_dir . "/metrics";
+mkdir($es_metrics_dir);
+
 
 my %run_doc = create_run_doc($benchmark, $config);
-my %config_osrelease_doc = create_config_osrelease_doc;
-my %config_cpuinfo_doc = create_config_cpuinfo_doc;
-my %config_netdevs_doc = create_config_netdevs_doc;
-my %config_netdev_ethtool_docs;
-for my $netdev (split(/,/, $config_netdevs_doc{"netdevs_list"})) {
-	my %config_ethtool_doc = create_config_ethtool_doc($netdev, $config_netdevs_doc{"doc_id"});
-	printf "getting ethtool info for %s\n", $netdev;
-	$config_netdev_ethtool_docs{$netdev} = \%config_ethtool_doc;
-}
-$run_doc{"run_benchmark_params"} = join(" ", @ARGV);
-$run_doc{"run_benchmark_hosts_clients"} = $params{"clients"};
-$run_doc{"run_benchmark_hosts_servers"} = $params{"servers"};
-($run_doc{"run_benchmark_hosts"} = $params{"clients"}) =~ s/,$//;
+$run_doc{"benchmark_params"} = join(" ", @ARGV);
+$run_doc{"benchmark_hosts_clients"} = $params{"clients"};
+$run_doc{"benchmark_hosts_servers"} = $params{"servers"};
 
-#print "run_doc:\n";
-#print Dumper \%run_doc;
-#print "config_osrelease_doc\n";
-#print Dumper \%config_osrelease_doc;
-#print "config_cpuinfo_doc:\n";
-#print Dumper \%config_cpuinfo_doc;
-#print "config_netdevs_doc:\n";
-#print Dumper \%config_netdevs_doc;
-#print "config_ethtool_doc:\n";
-print Dumper \%config_netdev_ethtool_docs;
+my %config_base_doc = create_config_base_doc;
+$config_base_doc{"run_id"} = $run_doc{"doc_id"};
+$run_doc{"config_hostnames"} = $params{"clients"};
+#$run_doc{"config_doc_ids"} = $config_base_doc{"doc_id"};
+put_json_file(\%run_doc, $es_run_dir . "/run.json");
+#put_json_file(\%config_base_doc, $es_config_dir . "/base.json");
+my @config_hosts = split(/,/, $params{"clients"});
+print "config_hosts: @config_hosts\n";
+my $remote_collection_dir = $base_bench_dir . "-config";
+create_dir_hosts(\@config_hosts, $remote_collection_dir, $base_bench_dir);
+my $output = ssh_hosts(\@config_hosts, "/opt/pbench-agent/bench-scripts/pbench-get-config " . $run_doc{"doc_id"} . " " . $remote_collection_dir, $remote_collection_dir, $remote_collection_dir);
+print $output;
+#verify_success($output);
+sync_dir_from_hosts(\@config_hosts, $remote_collection_dir . "/es/config/", $es_config_dir);
+	
+print "run_doc:\n";
+print Dumper \%run_doc;
+exit;
+
 # pass the rest of the args to pbench-gen-iterations and store the iterations in an array
 my $gen_iterations_cmd = "pbench-gen-iterations " . $benchmark . " " . join(" ", @ARGV);
 my @iterations = split(/\n/, `$gen_iterations_cmd`);
@@ -102,6 +114,7 @@ if ($? == 0) {
 	printf "From pbench-gen-iterations: %s\n", @iterations;
 	exit 1;
 	}
+
 
 # now run the iterations
 mkdir($base_bench_dir);

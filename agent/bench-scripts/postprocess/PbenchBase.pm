@@ -11,7 +11,7 @@ use Exporter qw(import);
 use List::Util qw(max);
 use JSON;
 
-our @EXPORT_OK = qw(get_json get_benchmark_names get_clients get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params);
+our @EXPORT_OK = qw(get_json_file put_json_file get_benchmark_names get_clients get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params);
 my $script = "PbenchBase.pm";
 my $sub;
 
@@ -55,7 +55,7 @@ sub remove_params { # remove any parameters with "arg"
 }
 # read a json file and put in hash
 # the return value is a reference
-sub get_json {
+sub get_json_file {
 	$sub = "get_json()";
 	my $filename = shift;
 	open(JSON, $filename) || die("$script $sub: could not open file $filename\n");
@@ -76,6 +76,14 @@ sub get_json {
 	close JSON;
 	my $perl_scalar = from_json($json_text);
 	return $perl_scalar;
+}
+sub put_json_file {
+	my $doc_ref = shift;
+	my $filename = shift;
+	my $json_text  = to_json($doc_ref, { ascii => 1, pretty => 1, canonical => 1 } );
+	open(my $fh, ">" . $filename) || die "$script: could not open file $filename: $!\n";
+	print $fh $json_text;
+	close($fh);
 }
 # find all the benchmarks in the pbench configuraton data
 # todo: return as an array instead of printing
