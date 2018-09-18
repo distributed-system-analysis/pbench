@@ -14,6 +14,8 @@ from urllib3 import Timeout
 from datetime import datetime, timedelta
 from collections import Counter
 from optparse import OptionParser, make_option
+from argparse import ArgumentParser
+
 try:
     from configparser import SafeConfigParser, Error as ConfigParserError, NoSectionError, NoOptionError
 except ImportError:
@@ -210,7 +212,7 @@ def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config, dbg=0):
         beg, end, retries = es_put_template(es, name=run_template_name, body=run_template_body)
         successes = 1
         # Pbench Tool Data templates
-        for name, body in sorted(tool_templates):
+        for name, body in tool_templates:
             tool_template_name = '%s.tool-data-%s' % (INDEX_PREFIX,name)
             _, end, retry_count = es_put_template(es, name=tool_template_name, body=body)
             retries += retry_count
@@ -541,42 +543,9 @@ _known_handlers = {
      },
     'sar': None,
     'turbostat': None,
-    'mpstat': {
-        '@prospectus': {
-            # For mpstat .csv files, we want to individually index each row of
-            # a file as its own JSON document.
-            'handling': 'csv',
-            'method': 'individual'
-        },
-        'patterns': [
-            {
-                # The mpstat tool produces csv files with names based on cpu
-                # cores. The number of cpu cores can be different on each
-                # computer, so map a regular expression for each file type.
-                'pattern': re.compile(r'(?P<id>cpu.+)_cpu\w+\.csv'),
-                'class': 'mpstat',
-                'metric': 'cpu',
-                'display': 'CPU',
-                'units': 'percent_cpu'
-            }
-        ]
-    },
+    'mpstat': None,
     'perf': None,
-    'proc-vmstat': {
-        # The proc-vmstat tool writes the timestamp and key value pairs to
-        # the stdout text file which is not json or csv.
-        '@prospectus': {
-            'handling': 'stdout',
-            'method': 'periodic_timestamp_key_value'
-        },
-        'patterns': [
-            {
-                'pattern': re.compile(r'proc-vmstat-stdout\.txt'),
-                'class': 'vmstat',
-                'metric': 'metric'
-            }
-        ]
-    }
+    'proc-vmstat': None
 }
 
 # If we need to deal with old .csv file names, place an alias here to map to
@@ -913,104 +882,7 @@ class ToolData(object):
     def _make_source_individual(self):
         """Read .csv files individually, emitting records for each row and
         column coordinate."""
-        for csv in self.files:
-            assert csv['header'][0] == 'timestamp_ms'
-            header = csv['header']
-            handler_rec = csv['handler_rec']
-            klass = handler_rec['class']
-            metric = handler_rec['metric']
-            reader = csv['reader']
-            ts = None
-
-            # Some individual handlers have the id in the filename pattern.
-            if 'pattern' in handler_rec:
-                # Does the pattern match the basename?
-                match = handler_rec['pattern'].match(csv['basename'])
-                if match:
-                    try:
-                        datum = _dict_const()
-                        datum[klass] = _dict_const()
-                        # This handler has the id in the filename pattern.
-                        datum[klass][metric] = _dict_const([('id', match.group('id'))])
-                        for row in reader:
-                            for idx,val in enumerate(row):
-                                # The timestamp column is index zero.
-                                if idx == 0:
-                                    time_val = float(val)/1000
-                                    utc = datetime.utcfromtimestamp(time_val)
-                                    # Convert the current timestamp to a formatted string.
-                                    ts = utc.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
-                                    datum['@timestamp'] = ts
-                                    datum['@metadata'] = self.run_metadata
-                                else:
-                                    column = header[idx]
-                                    datum[klass][metric][column] = val
-
-                            source_id = _make_source_id(datum)
-                            yield datum, source_id
-                    except IndexError:
-                        # This handler does not have an id, skip this file.
-                        break
-        return
-
-    def _make_source_stdout(self):
-        """
-        Read the given set of files one at a time, emitting a record
-        for each set of key/value pairs associated with a timestamp.
-
-        The format for files considered by this method are as follows:
-
-         * each line of the file contains an ascii-numeric key and a
-           numeric (integer or floating point) value separated by a ':'
-         * the keyword, `timestamp`, is recognized to be the
-           timestamp value to be associated with all following
-           key/value pairs until the next `timestamp` keyword
-           is encountered
-         * all key/value pairs are treated as fields of one JSON
-           document with the associated timestamp to be indexed
-
-        An example file format:
-
-        timestamp: 12345.00
-        key0: 100.0
-        key1: 100.1
-        ...
-        keyN: 100.N
-        timestamp: 12345.01
-        key0: 100.0
-        key1: 100.1
-        ...
-        keyN: 100.N
-        timestamp: ...
-        """
-        for output_file in self.files:
-            basename = output_file['basename']
-            handler = output_file['handler']
-            klass = handler['class']
-            path = os.path.join(self.ptb.extracted_root, output_file['path'])
-            with open(path, 'r') as file_object:
-                record = None
-                for line in file_object:
-                    if line.startswith('timestamp:'):
-                        # timestamp delimits records, yield last record.
-                        if record:
-                            source_id = _make_source_id(record)
-                            yield record, source_id
-                        # Get the second column, the timestamp value.
-                        ts = float(line.split(':')[1])
-                        utc = datetime.utcfromtimestamp(ts)
-                        tstamp = utc.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
-                        record = _dict_const()
-                        record['@timestamp'] = tstamp
-                        record['@metadata'] = self.run_metadata
-                        record[self.toolname] = _dict_const()
-                        record[self.toolname][klass] = _dict_const()
-                    else:
-                        key, value = line.strip().split(' ')
-                        record[self.toolname][klass][key] = value
-                if record:
-                    source_id = _make_source_id(record)
-                    yield record, source_id
+        pass
 
     def _make_source_json(self):
         for df in self.files:
@@ -1076,8 +948,6 @@ class ToolData(object):
             gen = self._make_source_individual()
         elif self.handler['@prospectus']['method'] == 'json':
             gen = self._make_source_json()
-        elif self.handler['@prospectus']['method'] == 'periodic_timestamp_key_value':
-            gen = self._make_source_stdout()
         else:
             raise Exception("Logic bomb!")
         return gen
@@ -1143,30 +1013,6 @@ class ToolData(object):
         return datafiles
 
     @staticmethod
-    def get_stdout_files(handler, iteration, sample, host, tool, toolgroup, ptb):
-        """
-        Fetch the stdout file for this tool returning a list of dicts
-        containing metadata.
-        """
-        stdout_file = "{0}-stdout.txt".format(tool)
-        path = os.path.join(iteration, sample, "tools-{0}".format(toolgroup), host, tool, stdout_file)
-        paths = [x for x in ptb.tb.getnames() if x.find(path) >= 0 and ptb.tb.getmember(x).isfile()]
-        datafiles = []
-        for p in paths:
-            fname = os.path.basename(p)
-            handler_rec = None
-            for rec in handler['patterns']:
-                if rec['pattern'].match(fname):
-                    handler_rec = rec
-                    break
-
-            if handler_rec is not None:
-                datafile = _dict_const(path=p, basename=stdout_file, handler=handler_rec)
-                datafiles.append(datafile)
-
-        return datafiles
-
-    @staticmethod
     def get_files(handler, iteration, sample, host, tool, toolgroup, ptb):
         if handler is None:
             datafiles = []
@@ -1174,8 +1020,6 @@ class ToolData(object):
             datafiles = ToolData.get_csv_files(handler, iteration, sample, host, tool, toolgroup, ptb)
         elif handler['@prospectus']['handling'] == 'json':
             datafiles = ToolData.get_json_files(handler, iteration, sample, host, tool, toolgroup, ptb)
-        elif handler['@prospectus']['handling'] == 'stdout':
-            datafiles = ToolData.get_stdout_files(handler, iteration, sample, host, tool, toolgroup, ptb)
         else:
             raise Exception("Logic bomb! %s" % (handler['@prospectus']['handling']))
         return datafiles
@@ -2074,24 +1918,27 @@ def main(options, args):
 ###########################################################################
 # Options handling
 
-prog_options = [
-    make_option("-C", "--config", dest="cfg_name", help="Specify config file"),
-    make_option("-E", "--indexing-errors", dest="indexing_errors", help="Name of a file to write JSON documents that fail to index"),
-    make_option("-D", "--temp-directory", dest="tmpdir", help="Temporary directory to use while indexing"),
-    make_option("-M", "--metadata", dest="metadata_string", help="Specify additional metadata (e.g. for browbeat) as a JSON document string"),
-    # options for debuggging and unit testing
-    make_option("-U", "--unittest", action="store_true", dest="debug_unittest", help="Run in unittest mode"),
-    make_option("-T", "--time-ops", action="store_true", dest="debug_time_operations", help="Time action making routines"),
-]
+
 
 if __name__ == '__main__':
-    parser = OptionParser("Usage: index-pbench [--config <path-to-config-file>] [--metadata \"<JSON doc>\"] [--working-directory <dir>] <path-to-tarball>")
-    for o in prog_options:
-        parser.add_option(o)
+    parser = ArgumentParser("Usage: index-pbench [--config <path-to-config-file>] [--metadata \"<JSON doc>\"] [--working-directory <dir>] <path-to-tarball>")
+    parser.add_argument("-C", "--config", dest="cfg_name", help="Specify config file")
+    parser.add_argument("-E", "--indexing-errors", dest="indexing_errors", help="Name of a file to write JSON documents that fail to index")
+    parser.add_argument("-D", "--temp-directory", dest="tmpdir", help="Temporary directory to use while indexing")
+    parser.add_argument("-M", "--metadata", dest="metadata_string", help="Specify additional metadata (e.g. for browbeat) as a JSON document string")
+    # options for debuggging and unit testing
+    parser.add_argument("-U", "--unittest", action="store_true", dest="debug_unittest", help="Run in unittest mode")
+    parser.add_argument("-T", "--time-ops", action="store_true", dest="debug_time_operations", help="Time action making routines")
+    # argparse also handles the cli argument passed to the script, therefore this parser has been added
+    parser.add_argument("path_to_tarball_file",nargs=1,help="specify the path to the tar.gz file")
     parser.set_defaults(cfg_name = os.environ.get("ES_CONFIG_PATH"))
     parser.set_defaults(tmpdir = os.environ.get("TMPDIR"))
-
-    (options, args) = parser.parse_args()
+    parsed = parser.parse_args()
+    #parse_args returns a namespace object. Therefore this is a minimal serialisation that has been added to process namespaces to normal dictionary
+    parsed = vars(parsed)
+    #argparse also handles the cli argument. Therefore the dictionary already had that element. To make the output argparse similar to optparse this element has been popped
+    args = parsed.pop("path_to_tarball_file")
+    options = parsed
 
     status = main(options, args)
     sys.exit(status)
