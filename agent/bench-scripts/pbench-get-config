@@ -1,0 +1,70 @@
+#!/usr/bin/perl
+#
+# Author: Andrew Theurer
+#
+# Use this script to collect Linux configuration information about things
+# like os-release, network adapters, and cpus and put that info in json
+# docs which can be imported into elasticsearch
+
+use strict;
+use warnings;
+use File::Basename;
+my $pbench_lib_path;
+my $script_path;
+my $script_name;
+my $pbench_run_path;
+BEGIN {
+	$script_path = dirname($0);
+	$script_name = basename($0);
+	$pbench_lib_path = $script_path . "/postprocess";
+}
+
+use lib "$pbench_lib_path";
+use JSON;
+use Data::Dumper;
+use PbenchCDM qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc get_hostname);
+use PbenchBase qw(get_json_file put_json_file get_benchmark_names get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params);
+
+
+# the only required [positional] argument is the run_id
+if (scalar @ARGV == 0) {
+	print "You must supply at least a run_id:\n";
+	exit;
+}
+my $run_id = shift(@ARGV);
+my $base_bench_dir = shift(@ARGV);
+my $hostname = get_hostname;
+my $es_dir = $base_bench_dir . "/es";
+mkdir($es_dir);
+my $es_config_dir = $es_dir . "/config";
+mkdir($es_config_dir);
+my $es_config_host_dir = $es_config_dir . "/" . $hostname;
+mkdir($es_config_host_dir);
+
+my %config_base_doc = create_config_base_doc;
+$config_base_doc{"run_id"} = $run_id;
+my %config_doc; # all config_source types use this
+my %config_osrelease_doc = create_config_osrelease_doc;
+put_json_file(\%config_osrelease_doc, $es_config_host_dir . "/osrelease.json");
+$config_base_doc{"config_source_names"} = "," . "osrelease";
+$config_base_doc{"config_source_doc_ids"} = "," . $config_osrelease_doc{"doc_id"};
+my %config_cpuinfo_doc = create_config_cpuinfo_doc;
+put_json_file(\%config_cpuinfo_doc, $es_config_host_dir . "/cpuinfo.json");
+$config_base_doc{"config_source_names"} .= "," . "cpuinfo";
+$config_base_doc{"config_source_doc_ids"} .= "," . $config_cpuinfo_doc{"doc_id"};
+my %config_netdevs_doc = create_config_netdevs_doc;
+put_json_file(\%config_netdevs_doc, $es_config_host_dir . "/netdevs.json");
+$config_base_doc{"config_source_names"} .= "," . "netdevs";
+$config_base_doc{"config_source_doc_ids"} .= "," . $config_netdevs_doc{"doc_id"};
+for my $netdev (split(/,/, $config_netdevs_doc{"netdevs"})) {
+	my %config_ethtool_doc = create_config_ethtool_doc($netdev, $config_netdevs_doc{"doc_id"});
+	$config_netdevs_doc{"ethtool_doc_ids"} .= "," . $config_ethtool_doc{"doc_id"};
+	#$config_ethtool_doc{$netdev} = \%config_ethtool_doc;
+	put_json_file(\%config_ethtool_doc, $es_config_host_dir . "/config_netdevs_ethtool_" . $netdev . ".json");
+}
+$config_netdevs_doc{"ethtool_doc_ids"} =~ s/^,//;
+put_json_file(\%config_netdevs_doc, $es_config_host_dir . "/netdevs.json");
+$config_base_doc{"config_source_names"} =~ s/^,//;
+$config_base_doc{"config_source_doc_ids"} =~ s/^,//;
+put_json_file(\%config_base_doc, $es_config_host_dir . "/base.json");
+exit;
