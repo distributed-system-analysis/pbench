@@ -57,16 +57,15 @@ sub get_hostname {
 }
 sub create_run_doc {
 	my $benchmark = shift;
-	my $config = shift;
 	return (
 		# fields every single doc needs
 		"doc_id" => get_uuid, # uniqie identifier for all documents
 		"doc_ver" => 1, # common-data-model version number
 		"doc_create_time" => "" ,# the epoch time when creatd *in-elastic*, not here
 		# the run-specific fields
-		"user_config" => $config, # user provided shortlist of var:val with "," separator (no spaces)
-		"user_name" => get_user_name, # user's real name
-		"user_email" => get_user_email, #user's email address
+		"user_config" => "", # user provided shortlist of var:val with "," separator (no spaces)
+		"user_name" => "", # user's real name
+		"user_email" => "", #user's email address
 		"run_hostname" => get_hostname, # hostname of this controller system
 		"benchmark_name" => $benchmark, #the benchmark used in this run
 		"benchmark_ver" => "", # benchmark version, like "3.7" for fio

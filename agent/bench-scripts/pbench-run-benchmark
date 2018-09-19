@@ -44,6 +44,7 @@ if ($benchmark eq "list") {
 	get_benchmark_names(get_pbench_bench_config_dir);
 	exit;
 }
+my %run_doc = create_run_doc($benchmark);
 # the rest of the parameters are --arg=val, most of which we just pass to other scripts,
 # but we need to know a few of them now
 my %params = get_params(@ARGV);
@@ -53,19 +54,27 @@ if ($params{"samples"}) {
 if ((!$ENV{"USER_NAME"}) and (!$params{"user-name"})) {
 	print "\n\n***** Please export USER_NAME=\"<your first and last name>\" (or --user-name=) so it is included in the run data *****\n\n";
 	sleep(1);
+} else {
+	$run_doc{"user_name"} = $params{"user-name"};
 }
 if ((!$ENV{"USER_EMAIL"}) and (!$params{"user-email"})) {
 	print "\n\n***** Please export USER_EMAIL=\"<your email address\" (or --user-email=) so it is included in the run data *****\n\n";
 	sleep(1);
+} else {
+	$run_doc{"user_email"} = $params{"user-email"};
 }
+my $user_config;
 if (!$params{"config"}) {
+	$user_config = "";
 	print "\n\n***** Please use --config=key1:value2,key2:value2...keyN:valueN to describe your test configuration, environment, and/or purpose so it is included in the run data *****\n\n";
 	sleep(1);
+} else {
+	$user_config = $params{"config"};
+	$run_doc{"user_config"} = $params{"config"};
 }
-my $config = $params{"config"};
-remove_params(\@ARGV, qw(samples config user-name user-email));
+remove_params(\@ARGV, qw(samples config user-name user-email)); # we don't want these params passed on to other utils
 
-my $base_bench_dir = get_benchmark_results_dir($benchmark, $config);
+my $base_bench_dir = get_benchmark_results_dir($benchmark, $user_config);
 mkdir($base_bench_dir);
 my $es_dir = $base_bench_dir . "/es";
 mkdir($es_dir);
@@ -79,7 +88,6 @@ my $es_metrics_dir = $es_dir . "/metrics";
 mkdir($es_metrics_dir);
 
 
-my %run_doc = create_run_doc($benchmark, $config);
 $run_doc{"benchmark_params"} = join(" ", @ARGV);
 $run_doc{"benchmark_hosts_clients"} = $params{"clients"};
 $run_doc{"benchmark_hosts_servers"} = $params{"servers"};
