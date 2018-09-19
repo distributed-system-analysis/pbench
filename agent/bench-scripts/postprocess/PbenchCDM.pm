@@ -178,7 +178,7 @@ sub create_config_ethtool_doc {
 		# include the netdevs doc ID
 		"netdev_id" => $netdev_doc_id
 		);
-	for my $opt qw(-a -c -g -i -k ) {
+	for my $opt (qw(-a -c -g -i -k )) {
 		my $ethtool_cmd = "/usr/sbin/ethtool " . $opt . " " . $netdev;
 		printf "ethtool_cmd[$ethtool_cmd]\n";
 		my @output = split(/\n/, `$ethtool_cmd`);

@@ -40,7 +40,6 @@ sub verify_success {
 			exit 1;
 		}
 	}
-	print Dumper $$data_ref{"stats"};
 	return 1;
 }
 sub get_ansible_logdir { # create a directory to store ansible files
