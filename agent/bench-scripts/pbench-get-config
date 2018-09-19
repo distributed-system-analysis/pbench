@@ -59,7 +59,7 @@ for my $netdev (split(/,/, $config_netdevs_doc{"netdevs"})) {
 	my %config_ethtool_doc = create_config_ethtool_doc($netdev, $config_netdevs_doc{"doc_id"}, $run_id);
 	$config_netdevs_doc{"ethtool_doc_ids"} .= "," . $config_ethtool_doc{"doc_id"};
 	#$config_ethtool_doc{$netdev} = \%config_ethtool_doc;
-	put_json_file(\%config_ethtool_doc, $es_config_dir . "/config_netdevs_ethtool_" . $netdev . ".json");
+	put_json_file(\%config_ethtool_doc, $es_config_dir . "/ethtool_" . $netdev . ".json");
 }
 $config_netdevs_doc{"ethtool_doc_ids"} =~ s/^,//;
 put_json_file(\%config_netdevs_doc, $es_config_dir . "/netdevs.json");
