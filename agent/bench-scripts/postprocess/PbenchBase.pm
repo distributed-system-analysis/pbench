@@ -32,7 +32,7 @@ sub get_pbench_bench_config_dir {
 sub get_params { # this simply takes @ARGV-like array and returns a hash with key=argument and value=value
 	my %params;
 	for my $param (@_) {
-		if ($param =~ /--(\S+)=(\S+)/) {
+		if ($param =~ /--(\S+)=(.+)/) {
 			$params{$1} = $2;
 		}
 	}
