@@ -47,20 +47,19 @@ sub load_benchmark_specs {
 # main program starts here
 
 # the only required argument is the benchmark name; verify it now
-if (scalar @ARGV < 2) {
-	print "You must supply at least a benchmark name and a results directory:\n";
+if (scalar @ARGV < 3) {
+	print "You must supply at least a benchmark name, results directory, and the base benchmark directory:\n";
 	get_benchmark_names($pbench_bench_config_dir);
 	exit;
 }
 my $benchmark = shift(@ARGV);
 my $rundir = shift(@ARGV);
+my $base_bench_dir = shift(@ARGV);
 if ($benchmark eq "list") {
 	get_benchmark_names($pbench_bench_config_dir);
 	exit;
 }
 mkdir($rundir);
-printf "rundir[%s]\n", $rundir;
-
 my %bench_specs = load_benchmark_specs($benchmark);
 my @clients = get_clients(@ARGV);
 my %remote_hosts = ( "clients" => \@clients );
@@ -75,8 +74,8 @@ for my $host_type (keys %remote_hosts) {
 			my $result;
 			my $rc;
 			my @files = @{ ${bench_specs}{$host_type}{"files"}{"copy-to"} };
-			$result = create_dir_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type, $rundir);
-			$result = copy_files_to_hosts(\@{ $remote_hosts{$host_type} }, \@files, $rundir . "-" . $host_type, $rundir);
+			$result = create_dir_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type, $base_bench_dir);
+			$result = copy_files_to_hosts(\@{ $remote_hosts{$host_type} }, \@files, $rundir . "-" . $host_type, $base_bench_dir);
 		}
 	}
 }
@@ -94,7 +93,7 @@ for my $host_type ("servers", "clients") { # the servers then clients order is i
 				# todo: first test the $transform regex separately for [perl syntax] errors with eval before doing below
 				$new_cmdline = eval "\$_='$new_cmdline'; $transform; return scalar \$_";
 			}
-			my $result = ssh_hosts(\@{ $remote_hosts{$host_type} }, $new_cmdline, $rundir . "-" . $host_type, $rundir);
+			my $result = ssh_hosts(\@{ $remote_hosts{$host_type} }, $new_cmdline, $rundir . "-" . $host_type, $base_bench_dir);
 		}
 	}
 }
@@ -103,8 +102,8 @@ for my $host_type ("servers", "clients") { # the servers then clients order is i
 for my $host_type ("servers", "clients") {
 	if ($remote_hosts{$host_type} and scalar @{ $remote_hosts{$host_type} }) {
 		mkdir($rundir . "/clients");
-		my $sync_result = sync_dir_from_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type . "/", $rundir . "/clients", $rundir); # adding the "/" ensures the base dir name is not copied
-		my $remove_result = remove_dir_from_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type, $rundir);
+		my $sync_result = sync_dir_from_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type . "/", $rundir . "/clients", $base_bench_dir); # adding the "/" ensures the base dir name is not copied
+		my $remove_result = remove_dir_from_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type, $base_bench_dir);
 	}
 }
 # - post-process the result data
