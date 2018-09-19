@@ -67,7 +67,6 @@ remove_params(\@ARGV, qw(samples config user-name user-email));
 
 my $base_bench_dir = get_benchmark_results_dir($benchmark, $config);
 mkdir($base_bench_dir);
-printf "base_bench_dir[%s]\n", $base_bench_dir;
 my $es_dir = $base_bench_dir . "/es";
 mkdir($es_dir);
 my $es_run_dir = $es_dir . "/run";
@@ -84,26 +83,15 @@ my %run_doc = create_run_doc($benchmark, $config);
 $run_doc{"benchmark_params"} = join(" ", @ARGV);
 $run_doc{"benchmark_hosts_clients"} = $params{"clients"};
 $run_doc{"benchmark_hosts_servers"} = $params{"servers"};
-
-my %config_base_doc = create_config_base_doc;
-$config_base_doc{"run_id"} = $run_doc{"doc_id"};
 $run_doc{"config_hostnames"} = $params{"clients"};
-#$run_doc{"config_doc_ids"} = $config_base_doc{"doc_id"};
 put_json_file(\%run_doc, $es_run_dir . "/run.json");
-#put_json_file(\%config_base_doc, $es_config_dir . "/base.json");
-my @config_hosts = split(/,/, $params{"clients"});
-print "config_hosts: @config_hosts\n";
-my $remote_collection_dir = $base_bench_dir . "-config";
+my @config_hosts = split(/,/, $params{"clients"});  # todo: use "config_hostnames_all" when working properly
+my $remote_collection_dir = $base_bench_dir . "-config"; # we use a slightly different dir than default in case one of the hosts is also the controller
 create_dir_hosts(\@config_hosts, $remote_collection_dir, $base_bench_dir);
-my $output = ssh_hosts(\@config_hosts, "/opt/pbench-agent/bench-scripts/pbench-get-config " . $run_doc{"doc_id"} . " " . $remote_collection_dir, $remote_collection_dir, $remote_collection_dir);
-print $output;
-#verify_success($output);
-sync_dir_from_hosts(\@config_hosts, $remote_collection_dir . "/es/config/", $es_config_dir);
+my $output = ssh_hosts(\@config_hosts, "/opt/pbench-agent/bench-scripts/pbench-get-config " . $run_doc{"doc_id"} . " " . $remote_collection_dir, $remote_collection_dir, $base_bench_dir);
+sync_dir_from_hosts(\@config_hosts, $remote_collection_dir . "/es/config/", $es_config_dir, $base_bench_dir);
+remove_dir_from_hosts(\@config_hosts, $remote_collection_dir, $base_bench_dir);
 	
-print "run_doc:\n";
-print Dumper \%run_doc;
-exit;
-
 # pass the rest of the args to pbench-gen-iterations and store the iterations in an array
 my $gen_iterations_cmd = "pbench-gen-iterations " . $benchmark . " " . join(" ", @ARGV);
 my @iterations = split(/\n/, `$gen_iterations_cmd`);
@@ -115,7 +103,6 @@ if ($? == 0) {
 	exit 1;
 	}
 
-
 # now run the iterations
 mkdir($base_bench_dir);
 open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
@@ -124,16 +111,12 @@ for my $iteration_params (@iterations) {
 	printf $fh "%d %s\n", $iteration_id, $iteration_params;
 	for (my $sample_id=0; $sample_id<$num_samples; $sample_id++) {
 		my $iteration_dir = $base_bench_dir . "/iteration" . $iteration_id;
-		print "iteration_dir[$iteration_dir]\n";
 		mkdir($iteration_dir);
 		my $iteration_sample_dir = $iteration_dir . "/sample" . $sample_id;
-		print "iteration_sample_dir[$iteration_sample_dir]\n";
 		mkdir($iteration_sample_dir);
-		my $benchmark_cmd = "pbench-run-benchmark-sample " . $benchmark . " " . $iteration_sample_dir . " " . $iteration_params;
-		printf "benchmark cmd: [%s]\n", $benchmark_cmd;
+		my $benchmark_cmd = "pbench-run-benchmark-sample " . $benchmark . " " . $iteration_sample_dir . " " . $base_bench_dir . " " . $iteration_params;
 		my $benchmark_sample_output = `$benchmark_cmd`;
 		my $exit_code = $?;
-		printf "pbench-run-benchmark-sample output:\n%s\n\n", $benchmark_sample_output;
 		# todo: bail if non-zero exit code
 		printf "exit code: %d\n", $exit_code;
 	}
