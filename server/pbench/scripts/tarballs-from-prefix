@@ -1,0 +1,40 @@
+#! /bin/bash
+
+# we asssume that these scripts are installed in /opt/pbench-server/scripts
+# on the server.
+
+###########################################################################
+# load common things
+opts=$SHELLOPTS
+case $opts in
+    *xtrace*)
+        dir=$(dirname $(which $0))/../bin
+        PROG=$(basename $(which $0))
+        ;;
+    *)
+        dir=$(dirname $0)/../bin
+        PROG=$(basename $0)
+        ;;
+esac
+
+# TOP, ARCHIVE, INCOMING, RESULTS, USERS are all defined by the base file
+. $dir/pbench-base.sh
+###########################################################################
+ 
+controller=$1
+if [ -z "$controller" ] ;then
+   exit 1
+fi
+shift
+prefix=$1
+
+cd $ARCHIVE/$controller || exit 1
+
+# find all the prefix files that contain the given prefix
+# and return the list (slightly munged)
+
+grep -H $prefix .prefix/prefix.* |
+    sed 's/^.prefix\/prefix.//
+         s/:.*/.tar.xz/'
+
+exit 0

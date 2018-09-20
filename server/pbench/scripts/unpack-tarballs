@@ -1,0 +1,92 @@
+#! /bin/bash
+
+# we asssume that these scripts are installed in /opt/pbench-server/scripts
+# on the server.
+
+###########################################################################
+# load common things
+opts=$SHELLOPTS
+case $opts in
+    *xtrace*)
+        dir=$(dirname $(which $0))/../bin
+        PROG=$(basename $(which $0))
+        ;;
+    *)
+        dir=$(dirname $0)/../bin
+        PROG=$(basename $0)
+        ;;
+esac
+
+# TOP, ARCHIVE, INCOMING, RESULTS, USERS are all defined by the base file
+. $dir/pbench-base.sh
+###########################################################################
+ 
+controller=$1
+if [ -z "$controller" ] ;then
+   exit 1
+fi
+shift
+tarballs="$@"
+
+cd $ARCHIVE/$controller || exit 1
+
+incoming=$INCOMING/$controller
+
+linksrc=MOVE_UNPACKED
+linkdest=TO-UNPACK
+
+tblist=/tmp/unpack-tarballs.$$
+
+trap "rm -f $tblist" EXIT QUIT INT
+
+> $tblist
+if [ -z "$tarballs" ] ;then
+    ls *.tar.xz > $tblist
+else
+    for tb in $tarballs ;do
+        echo $tb >> $tblist
+    done
+fi
+
+while read tb ;do
+    # tb is a simple name: foo.tar.xz, not a path.
+    resultname=${tb%.tar.xz}
+
+    if [ ! -f "$resultname.tar.xz.md5" ] ;then
+        echo "MD5 file does not exist: $resultname"
+        continue
+    fi
+
+    md5sum --check $resultname.tar.xz.md5 > /dev/null
+    sts=$?
+    if [ "$sts" != "0" ] ;then
+        echo "MD5 check failed: $resultname"
+        continue
+    fi
+
+    resultdir=$incoming/$resultname
+    if [ -d "$resultdir" ] ;then
+        # unpacked already
+        echo "skipping $resultdir: unpacked already"
+        continue
+    elif [ -L "$resultdir" ] ;then
+        tmpdir=$(readlink -f "$resultdir")
+        if [ -d "$tmpdir" ] ;then
+            echo "skipping $resultdir: it is a link to $tmpdir"
+            continue
+        fi
+    fi
+
+    # Let it be processed by pbench-unpack-tarballs
+
+    # Check that the prefix file is named properly
+    # and rename it if necessary (like shim-001 does).
+    if [ -f ".prefix/prefix.$resultname" ] ;then
+        mv .prefix/prefix.$resultname .prefix/$resultname.prefix
+        # pbench-unpack-tarballs will deal with the prefix now.
+    fi
+    mv $linksrc/$tb $linkdest
+
+done < $tblist
+
+exit 0
