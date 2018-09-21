@@ -31,6 +31,7 @@
 /var/tmp/pbench-test-server/pbench/public_html
 /var/tmp/pbench-test-server/pbench/public_html/incoming
 /var/tmp/pbench-test-server/pbench/public_html/results
+/var/tmp/pbench-test-server/pbench/public_html/users
 /var/tmp/pbench-test-server/pbench/tmp
 --- pbench tree state
 +++ pbench log file contents
