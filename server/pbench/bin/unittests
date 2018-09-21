@@ -304,6 +304,10 @@ declare -A cmds=(
     [test-14]="_run pbench-server-prep-shim-001"
     [test-15]="_run pbench-server-prep-shim-002"
 
+    # pbench-unpack-tarballs not unpacking locally
+    [test-16]="_run pbench-unpack-tarballs ${_testdir}/public_html/incoming"
+    # pbench-unpack-tarballs unpacking locally
+    [test-17]="_run pbench-unpack-tarballs ${_testdir}/tmp"
 )
 
 tests=$*
