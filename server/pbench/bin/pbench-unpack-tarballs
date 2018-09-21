@@ -163,10 +163,10 @@ while read size result ;do
     fi
 
     # chmod directories to at least 555
-    find . -type d -print0 | xargs -0 chmod ugo+rx
+    find ${resultname} -type d -print0 | xargs -0 chmod ugo+rx
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: 'chmod ugo+rx' of subdirs failed: code $status" | tee -a $mail_content >&4
+        echo "$TS: 'chmod ugo+rx' of subdirs failed for $result: code $status" | tee -a $mail_content >&4
         nerrs=$nerrs+1
         rm -rf $resultname
         popd > /dev/null 2>&1
@@ -174,10 +174,10 @@ while read size result ;do
     fi
 
     # chmod files to at least 444
-    chmod -R ugo+r .
+    chmod -R ugo+r ${resultname}
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: 'chmod -R ugo+r .' failed: code $status" | tee -a $mail_content >&4
+        echo "$TS: 'chmod -R ugo+r .' failed for $result: code $status" | tee -a $mail_content >&4
         nerrs=$nerrs+1
         rm -rf $resultname
         popd > /dev/null 2>&1
