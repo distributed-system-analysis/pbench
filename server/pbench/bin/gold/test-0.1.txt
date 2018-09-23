@@ -16,6 +16,9 @@ pbench-clean-up-dangling-results-links: Bad LOGSDIR=/var/tmp/pbench-test-server/
 +++ Running pbench-edit-prefixes
 pbench-edit-prefixes: Bad LOGSDIR=/var/tmp/pbench-test-server/pbench/logs
 --- Finished pbench-edit-prefixes (status=1)
++++ Running unit test audit
+pbench-audit-archive: Bad LOGSDIR=/var/tmp/pbench-test-server/pbench/logs
+--- Finished unit test audit (status=1)
 +++ var/www/html tree state
 /var/tmp/pbench-test-server/var-www-html
 /var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned

@@ -1,5 +1,7 @@
 +++ Running pbench-sync-satellite
 --- Finished pbench-sync-satellite (status=0)
++++ Running unit test audit
+--- Finished unit test audit (status=2)
 +++ var/www/html tree state
 /var/tmp/pbench-test-server/var-www-html
 /var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned
@@ -30,6 +32,9 @@
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
 /var/tmp/pbench-test-server/pbench/logs
 /var/tmp/pbench-test-server/pbench/logs/change-state.TEST2.log
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.error
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC
@@ -61,6 +66,8 @@
 /var/tmp/pbench-test-server/pbench-local/quarantine/md5-002
 --- pbench-local tree state
 +++ pbench log file contents
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/897d86470f84c04f5f871d687c4c3140 --data @/tmp/pbench-report-status.NNNN/payload
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24821] receiving file list
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24823] .d..t...... ./
 /var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24823] >f fio__2016-08-16_22:03:11.tar.xz
@@ -82,5 +89,13 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: Total 0 files processed, with 0 md5 failures and 0 errors
 --- pbench log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ssh foo2.bar.com /opt/pbench-server/bin/pbench-sync-package-tarballs
+/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ssh foo2.bar.com /opt/pbench-server/bin/pbench-sync-package-tarballs
 --- test-execution.log file contents
++++ test-curl-payload.log file contents
+{
+    "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nController: TEST2::controller\n\t* No state directories found in this controller directory.\n\n\nController: controller\n\t* No state directories found in this controller directory.\n\n\nend-1900-01-01T00:00:00-UTC\n", 
+    "@timestamp": "1900-01-01T00:00:00", 
+    "name": "pbench-audit-archive", 
+    "doctype": "status"
+}
+--- test-curl-payload.log file contents

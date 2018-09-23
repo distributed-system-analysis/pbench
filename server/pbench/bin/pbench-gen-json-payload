@@ -14,5 +14,6 @@ doc = {
 }
 
 json.dump(doc, sys.stdout, indent=4)
+sys.stdout.write('\n')
 
 sys.exit(0)

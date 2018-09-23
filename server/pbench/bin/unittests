@@ -113,8 +113,7 @@ function _save_tree {
     # Save state of the tree
     if [ -d ${_testhtml} ] ;then
         echo "+++ var/www/html tree state" >> $_testout
-        find ${_testhtml} | sort |
-            sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*$;tmp/pbench-\1.NNNN;' >> $_testout
+        find ${_testhtml} | sort >> $_testout
         echo "--- var/www/html tree state" >> $_testout
     fi
     echo "+++ pbench tree state" >> $_testout
@@ -131,6 +130,12 @@ function _save_tree {
     fi
 }
 
+function _audit_archive {
+    echo "+++ Running unit test audit" >> $_testout
+    pbench-audit-archive >> $_testout 2>&1
+    echo "--- Finished unit test audit (status=$?)" >> $_testout
+}
+
 function _dump_logs {
     # Dump the state of any generated script logs
     echo "+++ pbench log file contents" >> $_testout
@@ -144,15 +149,13 @@ function _dump_logs {
 
     if [ -s $_testlog ]; then
         echo "+++ $(basename $_testlog) file contents" >> $_testout
-        grep -HvF "\-\-should-n0t-ex1st--" $_testlog 2>/dev/null |
-             sed 's;tmp/pbench-\([-a-zA-Z0-9]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' >> $_testout 2>&1
+        sed 's;tmp/pbench-\([-a-zA-Z0-9]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' $_testlog >> $_testout 2>&1
         echo "--- $(basename $_testlog) file contents" >> $_testout
     fi
 
     if [ -s $_testcurlpayload ]; then
         echo "+++ $(basename $_testcurlpayload) file contents" >> $_testout
-        grep -HvF "\-\-should-n0t-ex1st--" $_testcurlpayload 2>/dev/null |
-             sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' >> $_testout 2>&1
+        sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' $_testcurlpayload >> $_testout 2>&1
         echo "--- $(basename $_testcurlpayload) file contents" >> $_testout
     fi
 }
@@ -417,6 +420,8 @@ declare -A cmds=(
     [test-18]="_run pbench-move-unpacked ${_testdir}/public_html/incoming"
     # pbench-move-unpacked should work as expected using a temporary directory
     [test-19]="_run pbench-move-unpacked ${_testdir_local}/public_html/incoming"
+
+    [test-20]="_run echo audit archive hierarchy"
 )
 
 tests=$*
@@ -430,7 +435,7 @@ for test in $tests ;do
     cmd=${cmds[$test]}
     # echo ${test}: ${cmd}
     ${cmd}
-    _save_tree; _dump_logs
+    _audit_archive; _save_tree; _dump_logs
     _verify_output $res ${test}
     res=$?
     if [[ $res != 0 ]] ;then
