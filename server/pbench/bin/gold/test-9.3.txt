@@ -1,5 +1,7 @@
 +++ Running pbench-verify-backup-tarballs
 --- Finished pbench-verify-backup-tarballs (status=0)
++++ Running unit test audit
+--- Finished unit test audit (status=1)
 +++ var/www/html tree state
 /var/tmp/pbench-test-server/var-www-html
 /var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned
@@ -22,6 +24,9 @@
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz.md5
 /var/tmp/pbench-test-server/pbench/logs
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.error
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log
 /var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs
 /var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.error
 /var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
@@ -46,16 +51,24 @@
 /var/tmp/pbench-test-server/pbench-local/quarantine/md5-002
 --- pbench-local tree state
 +++ pbench log file contents
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/220da1f3bf4d0b3f092de018ea819ba1 --data @/tmp/pbench-report-status.NNNN/payload
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
 /var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:start-1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:end-1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-verify-backup-tarballs.1900-01/status/7ad54e6fe0b19de067e49da1f2a69c2a --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:
 --- pbench log file contents
 +++ test-curl-payload.log file contents
-/var/tmp/pbench-test-server/test-curl-payload.log:{
-/var/tmp/pbench-test-server/test-curl-payload.log:    "text": "pbench-verify-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n* Files that exist only in backup directory - this should only happen if a backup or primary tar ball becomes corrupted.\n4fe570aea2be3dab96b328da5a8cfcc9  ./controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz\n", 
-/var/tmp/pbench-test-server/test-curl-payload.log:    "@timestamp": "1900-01-01T00:00:00", 
-/var/tmp/pbench-test-server/test-curl-payload.log:    "name": "pbench-verify-backup-tarballs", 
-/var/tmp/pbench-test-server/test-curl-payload.log:    "doctype": "status"
-/var/tmp/pbench-test-server/test-curl-payload.log:}
+{
+    "text": "pbench-verify-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n* Files that exist only in backup directory - this should only happen if a backup or primary tar ball becomes corrupted.\n4fe570aea2be3dab96b328da5a8cfcc9  ./controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz\n", 
+    "@timestamp": "1900-01-01T00:00:00", 
+    "name": "pbench-verify-backup-tarballs", 
+    "doctype": "status"
+}
+{
+    "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nController: controller\n\t* No state directories found in this controller directory.\n\n\nend-1900-01-01T00:00:00-UTC\n", 
+    "@timestamp": "1900-01-01T00:00:00", 
+    "name": "pbench-audit-archive", 
+    "doctype": "status"
+}
 --- test-curl-payload.log file contents

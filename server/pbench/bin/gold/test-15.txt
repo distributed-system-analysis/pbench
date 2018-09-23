@@ -1,5 +1,7 @@
 +++ Running pbench-server-prep-shim-002
 --- Finished pbench-server-prep-shim-002 (status=0)
++++ Running unit test audit
+--- Finished unit test audit (status=0)
 +++ var/www/html tree state
 /var/tmp/pbench-test-server/var-www-html
 /var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned
@@ -15,6 +17,9 @@
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001
 /var/tmp/pbench-test-server/pbench/archive/quarantine
 /var/tmp/pbench-test-server/pbench/logs
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.error
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
@@ -44,6 +49,8 @@
 /var/tmp/pbench-test-server/pbench-local/quarantine/md5-002/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz.md5
 --- pbench-local tree state
 +++ pbench log file contents
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/d5ee68b33a845dac49792935d85c10ce --data @/tmp/pbench-report-status.NNNN/payload
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error:run-1900-01-01T00:00:00-UTC: Quarantined: /var/tmp/pbench-test-server/pbench-local/fs-version-002/pbench-move-results-receive/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz failed MD5 check
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:run-1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz: FAILED
@@ -53,10 +60,16 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:
 --- pbench log file contents
 +++ test-curl-payload.log file contents
-/var/tmp/pbench-test-server/test-curl-payload.log:{
-/var/tmp/pbench-test-server/test-curl-payload.log:    "text": "run-1900-01-01T00:00:00-UTC: Processed 1 entries, 0 tarballs successful, 1 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n", 
-/var/tmp/pbench-test-server/test-curl-payload.log:    "@timestamp": "1900-01-01T00:00:00", 
-/var/tmp/pbench-test-server/test-curl-payload.log:    "name": "pbench-server-prep-shim-002", 
-/var/tmp/pbench-test-server/test-curl-payload.log:    "doctype": "status"
-/var/tmp/pbench-test-server/test-curl-payload.log:}
+{
+    "text": "run-1900-01-01T00:00:00-UTC: Processed 1 entries, 0 tarballs successful, 1 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n", 
+    "@timestamp": "1900-01-01T00:00:00", 
+    "name": "pbench-server-prep-shim-002", 
+    "doctype": "status"
+}
+{
+    "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nend-1900-01-01T00:00:00-UTC\n", 
+    "@timestamp": "1900-01-01T00:00:00", 
+    "name": "pbench-audit-archive", 
+    "doctype": "status"
+}
 --- test-curl-payload.log file contents

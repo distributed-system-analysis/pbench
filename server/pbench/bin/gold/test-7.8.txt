@@ -47949,6 +47949,8 @@ len(actions) = 75
 ]
 	done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 11907, duplicates: 0, failures: 0, retries: 0)
 --- Finished indexing for test-7.8 (status=0)
++++ Running unit test audit
+--- Finished unit test audit (status=0)
 +++ var/www/html tree state
 /var/tmp/pbench-test-server/var-www-html
 /var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned
@@ -47963,6 +47965,9 @@ len(actions) = 75
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001
 /var/tmp/pbench-test-server/pbench/errors-json-unittests.json
 /var/tmp/pbench-test-server/pbench/logs
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.error
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log
 /var/tmp/pbench-test-server/pbench/public_html
 /var/tmp/pbench-test-server/pbench/public_html/incoming
 /var/tmp/pbench-test-server/pbench/public_html/results
@@ -47986,4 +47991,14 @@ len(actions) = 75
 /var/tmp/pbench-test-server/pbench-local/quarantine/md5-002
 --- pbench-local tree state
 +++ pbench log file contents
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/d5ee68b33a845dac49792935d85c10ce --data @/tmp/pbench-report-status.NNNN/payload
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
 --- pbench log file contents
++++ test-curl-payload.log file contents
+{
+    "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nend-1900-01-01T00:00:00-UTC\n", 
+    "@timestamp": "1900-01-01T00:00:00", 
+    "name": "pbench-audit-archive", 
+    "doctype": "status"
+}
+--- test-curl-payload.log file contents

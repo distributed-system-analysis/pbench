@@ -1,0 +1,200 @@
+#! /bin/bash
+
+# Audit the fs-version-001 archive directory structure.
+
+# No changes are made here!
+
+# Algorithm:
+#   For each controller do:
+#     Verify all sub-directories of a given controller are one
+#       of the expected state directories
+#     Verify all files are *.tar.xz[.md5]
+#       flagging *.tar.xz.prefix or prefix.*.tar.xz in the
+#       controller directory
+#     Verify all prefix files in .prefix directories are *.prefix
+
+# load common things
+opts=$SHELLOPTS
+case $opts in
+    *xtrace*)
+        dir=$(dirname $(which $0))
+        PROG=$(basename $(which $0))
+        ;;
+    *)
+        dir=$(dirname $0)
+        PROG=$(basename $0)
+        ;;
+esac
+
+# TOP, ARCHIVE, TMP, defined in pbench-base.sh
+. $dir/pbench-base.sh
+
+test -d $ARCHIVE || doexit "Bad archive: $ARCHIVE"
+test -d $LOGSDIR || doexit "Bad logs directory: $LOGSDIR"
+
+# work files
+workdir=$TMP/$PROG.work.$$
+report=$workdir/report
+index_content=$workdir/index_content
+badcontrollers=$workdir/badcontrollers
+controllers=$workdir/controllers
+nonprefixes=$workdir/nonprefixes
+wrongprefixes=$workdir/wrongprefixes
+unexpectedsymlinks=$workdir/unexpectedsymlinks
+unexpectedfiles=$workdir/unexpectedfiles
+directories=$workdir/directories
+tarballs=$workdir/tarballs
+linkdirs=$workdir/linkdirs
+
+# make sure the directory exists
+mkdir -p $workdir
+
+trap "rm -rf $workdir" EXIT INT QUIT
+
+for ldir in $LINKDIRS; do printf "\t  ${ldir}\n"; done | sort > ${linkdirs}
+
+function verify_subdirs {
+    controller=${1}
+ 
+    let cnt=0
+
+    find ${controller} -maxdepth 1 -type d ! -name . ! -name $(basename ${controller}) ! -name .prefix -printf "\t  %f\n" | sort > ${directories} 2>&1
+    if [ -s ${directories} ]; then
+        grep -v WONT-INDEX ${directories} > ${directories}.linkdirs
+        comm -13 ${linkdirs} ${directories}.linkdirs > ${directories}.unexpected
+        if [ -s ${directories}.unexpected ]; then
+            printf "\t* Unexpected state directories found in this controller directory:\n"
+            printf "\t  ++++++++++\n"
+            cat ${directories}.unexpected
+            printf "\t  ----------\n"
+            let cnt=cnt+1
+        fi
+    else
+        printf "\t* No state directories found in this controller directory.\n"
+        let cnt=cnt+1
+    fi
+    rm -f ${directories} ${directories}.linkdirs ${directories}.unexpected
+}
+
+function verify_tarball_names {
+    controller=${1}
+
+    let cnt=0
+
+    find ${controller} -maxdepth 1 -type l -printf "\t  %f -> %l\n" | sort > ${unexpectedsymlinks} 2>&1
+    if [ -s ${unexpectedsymlinks} ]; then
+        printf "\t* Unexpected symlinks in controller directory:\n"
+        printf "\t  ++++++++++\n"
+        cat ${unexpectedsymlinks}
+        printf "\t  ----------\n"
+        let cnt=cnt+1
+    fi
+    rm -f ${unexpectedsymlinks}
+
+    find ${controller} -maxdepth 1 -type f ! -name '*.tar.xz.md5' ! -name '*.tar.xz' -printf "\t  %f\n" | sort > ${unexpectedfiles} 2>&1
+    if [ -s ${unexpectedfiles} ]; then
+        printf "\t* Unexpected files in controller directory:\n"
+        printf "\t  ++++++++++\n"
+        cat ${unexpectedfiles}
+        printf "\t  ----------\n"
+        let cnt=cnt+1
+    fi
+    rm -f ${unexpectedfiles}
+
+    find ${controller} -maxdepth 1 -type f \( -name '*.tar.xz.md5' -o -name '*.tar.xz' \) > ${tarballs} 2>&1
+    if [ ! -s ${tarballs} ]; then
+        printf "\t* No tar ball files found in this controller directory.\n"
+        let cnt=cnt+1
+    fi
+    rm -f ${tarballs}
+
+    return $cnt
+}
+
+function verify_prefixes {
+    controller=${1}
+
+    if [ ! -e ${controller}/.prefix ]; then
+        return 0
+    fi
+    if [ ! -d ${controller}/.prefix ]; then
+        printf "\t* Prefix directory, .prefix, is not a directory\n"
+        return 1
+    fi
+
+    let cnt=0
+
+    find ${controller}/.prefix -maxdepth 1 ! -name 'prefix.*' ! -name '*.prefix' -printf "\t  %f\n" | sort > ${nonprefixes} 2>&1
+    if [ -s ${nonprefixes} ]; then
+        printf "\t* Unexpected file system objects in .prefix directory:\n"
+        printf "\t  ++++++++++\n"
+        cat ${nonprefixes}
+        printf "\t  ----------\n"
+        let cnt=cnt+1
+    fi
+    rm -f ${nonprefixes}
+
+    find ${controller}/.prefix -maxdepth 1 -name 'prefix.*' -printf "\t  %f\n" | sort > ${wrongprefixes} 2>&1
+    if [ -s ${wrongprefixes} ]; then
+        printf "\t* Wrong prefix file names found in /.prefix directory:\n"
+        printf "\t  ++++++++++\n"
+        cat ${wrongprefixes}
+        printf "\t  ----------\n"
+        let cnt=cnt+1
+    fi
+    rm -f ${wrongprefixes}
+
+    return $cnt
+}
+
+log_init $(basename $0) $LOGSDIR/$(basename $0)
+
+# Initialize index mail content
+> $index_content
+
+# Construct the report file
+printf "\nstart-$(timestamp): archive hierarchy: $ARCHIVE\n" | tee > $report
+
+let ret=0
+
+# Find all the non-directory files at the same level of the controller
+# directories and report them, keeping them in sorted order by name.
+find $ARCHIVE -maxdepth 1 ! -type d  -printf "\t%M %s %t %f\n" | sort -k 8 > $badcontrollers
+if [ -s $badcontrollers ]; then
+    printf "\n\nBad Controllers:\n" >> $report
+    cat $badcontrollers >> $report
+    let ret=ret+1
+fi
+
+# Find all the normal controller directories, ignoring the "." (current)
+# directory (if the $ARCHIVE directory resolves to "."), and ignoring the
+# $ARCHIVE directory itself, while keeping them all in sorted order.
+find $ARCHIVE -maxdepth 1 -type d ! -name . ! -name $(basename $ARCHIVE) | sort > $controllers
+while read controller ;do
+    lclreport="${workdir}/$(basename ${controller})"
+    > $lclreport
+    verify_subdirs $controller >> $lclreport
+    verify_tarball_names $controller >> $lclreport
+    verify_prefixes $controller >> $lclreport
+    if [ -s $lclreport ]; then
+        printf "\n\nController: $(basename ${controller})\n" >> $report
+        cat $lclreport >> $report
+        let ret=ret+1
+    fi
+    rm $lclreport
+done < $controllers
+
+printf "\n\nend-$(timestamp)\n" | tee >> $report
+
+log_finish
+
+# send it
+subj="$PROG.$TS($PBENCH_ENV)"
+cat << EOF > $index_content
+$subj
+EOF
+
+cat $report >> $index_content
+pbench-report-status --name $PROG --timestamp $TS --type status $index_content
+
+exit $ret

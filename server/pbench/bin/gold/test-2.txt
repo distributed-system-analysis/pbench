@@ -10,6 +10,9 @@
 --- Finished pbench-clean-up-dangling-results-links (status=1)
 +++ Running pbench-edit-prefixes
 --- Finished pbench-edit-prefixes (status=1)
++++ Running unit test audit
+pbench-audit-archive: Bad archive: /var/tmp/pbench-test-server/pbench/archive/fs-version-001
+--- Finished unit test audit (status=1)
 +++ var/www/html tree state
 /var/tmp/pbench-test-server/var-www-html
 /var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned

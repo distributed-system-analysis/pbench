@@ -21,6 +21,8 @@ pbench-unittests.tool-data-turbostat.YYYY-MM-DD
 Daily tool data for all tools land in indices named by tool; e.g. prefix.tool-data-iostat.YYYY-MM-DD 
 
 --- Finished indexing for test-7.0 (status=0)
++++ Running unit test audit
+--- Finished unit test audit (status=0)
 +++ var/www/html tree state
 /var/tmp/pbench-test-server/var-www-html
 /var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned
@@ -34,6 +36,9 @@ Daily tool data for all tools land in indices named by tool; e.g. prefix.tool-da
 /var/tmp/pbench-test-server/pbench/archive
 /var/tmp/pbench-test-server/pbench/archive/fs-version-001
 /var/tmp/pbench-test-server/pbench/logs
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.error
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log
 /var/tmp/pbench-test-server/pbench/public_html
 /var/tmp/pbench-test-server/pbench/public_html/incoming
 /var/tmp/pbench-test-server/pbench/public_html/results
@@ -55,4 +60,14 @@ Daily tool data for all tools land in indices named by tool; e.g. prefix.tool-da
 /var/tmp/pbench-test-server/pbench-local/quarantine/md5-002
 --- pbench-local tree state
 +++ pbench log file contents
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/d5ee68b33a845dac49792935d85c10ce --data @/tmp/pbench-report-status.NNNN/payload
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
 --- pbench log file contents
++++ test-curl-payload.log file contents
+{
+    "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nend-1900-01-01T00:00:00-UTC\n", 
+    "@timestamp": "1900-01-01T00:00:00", 
+    "name": "pbench-audit-archive", 
+    "doctype": "status"
+}
+--- test-curl-payload.log file contents
