@@ -329,6 +329,7 @@ if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'}
 
 	my %trex_ports;
 	my %trex_pgids;
+	my $tsdelta_present = 0;
 
 	foreach my $timestamp_ms (sort (keys %{ $last_trial{'profiler-data'} } ) ) {
 		foreach my $port (keys %{ $last_trial{'profiler-data'}{$timestamp_ms}{'ports'} }) {
@@ -339,6 +340,33 @@ if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'}
 			$trex_pgids{$pgid} = 1;
 		}
 
+		if (exists($last_trial{'profiler-data'}{$timestamp_ms}{'tsdelta'})) {
+			$tsdelta_present = 1;
+		}
+	}
+
+	if ($tsdelta_present) {
+		my @samples;
+
+		foreach my $timestamp_ms (sort (keys %{ $last_trial{'profiler-data'} } ) ) {
+			my $value = $last_trial{'profiler-data'}{$timestamp_ms}{'tsdelta'};
+
+			my %sample = ( get_label('date_label') => int $timestamp_ms,
+				       get_label('value_label') => $value );
+			push(@samples, \%sample);
+		}
+
+		if (@samples) {
+			my %this_dataset;
+			my $mean = get_mean(\@samples);
+			%this_dataset = ( get_label('skip_aggregate_label') => 1,
+					  get_label('value_label') => $mean,
+					  get_label('timeseries_label') => \@samples,
+					  get_label('description_label') => "Time (in milliseconds) to collect a profiler data sample",
+					  get_label('uid_label') => 'tsdelta' );
+
+			push(@{ $latency{"Profiler data sample collection latency"}}, \%this_dataset);
+		}
 	}
 
 	for my $profiler_metric ( @profiler_metrics ) {
