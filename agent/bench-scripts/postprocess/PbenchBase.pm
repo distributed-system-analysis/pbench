@@ -90,13 +90,16 @@ sub put_json_file {
 sub get_benchmark_names {
 	$sub = "get_benchmark_names()";
 	my $dir = shift;
+	my @benchmarks;
 	opendir(my $dh, $dir) || die("$script $sub: Could not open directory $dir: $!\n");
 	my @entries = readdir($dh);
 	for my $entry (grep(!/pbench/, @entries)) {
 		if ($entry =~ /^(\w+)\.json$/) {
-			printf "%s\n", $1;
+			#printf "%s\n", $1;
+			push(@benchmarks, $1);
 		}
 	}
+	return @benchmarks;
 }
 # scan the cmdline and return an array of client hostnames in --clients= if present
 sub get_clients {
