@@ -35,7 +35,8 @@ cd $ARCHIVE/$controller || exit 1
 # assume that the prefix files follow the current convention
 # (<resultname>.prefix) rather than the old one (prefix.<resultname>).
 
-grep -H $prefix .prefix/*.prefix |
+# match the prefix exactly
+grep -H "^${prefix}$" .prefix/*.prefix |
     sed 's/^.prefix\///
          s/\.prefix:.*/.tar.xz/'
 
