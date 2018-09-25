@@ -74,7 +74,13 @@ while read tb ;do
         if [ -d "$tmpdir" ] ;then
             echo "skipping $resultdir: it is a link to $tmpdir"
             continue
+        else
+            echo "Cannot happen: $resultdir points to $tmpdir which is not a directory."
+            continue
         fi
+    else
+        echo "Cannot happen: $resultdir is neither a directory, nor a link."
+        continue
     fi
 
     # Let it be processed by pbench-unpack-tarballs
