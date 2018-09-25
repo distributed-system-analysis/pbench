@@ -58,8 +58,9 @@ function _run {
 }
 
 function _run_index {
+    args="${@}"
     echo "+++ Running indexing for $test" >> $_testout
-    cmd="PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_testopt}/config/pbench-index.cfg -E $_testdir/errors-json-unittests.json $(readlink -f $_testdir/*.tar.xz)"
+    cmd="PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_testopt}/config/pbench-index.cfg -E $_testdir/errors-json-unittests.json ${args} $(readlink -f $_testdir/*.tar.xz)"
     if which python3 > /dev/null 2>&1 ;then
 	eval $cmd >> $_testout 2>&1
     elif which scl > /dev/null 2>&1 ;then
@@ -203,10 +204,12 @@ function _setup_state {
 	exit 1
     fi
     _state_tb=$_tdir/state/${1}.tar.xz
-    (cd $_testroot; tar xpf $_state_tb)
-    if [[ $? -gt 0 ]]; then
-        echo "ERROR: unable to create pbench hierarchy for state $1" >&2
-        exit 1
+    if [ -e ${_state_tb} ]; then
+        (cd $_testroot; tar xpf $_state_tb)
+        if [[ $? -gt 0 ]]; then
+            echo "ERROR: unable to create pbench hierarchy for state $1" >&2
+            exit 1
+        fi
     fi
 }
 
@@ -263,6 +266,7 @@ declare -A cmds=(
     [test-6.6]="_run pbench-backup-tarballs"
 
     # indexing tests
+    [test-7.0]="_run_index -I"
     [test-7.1]="_run_index"
     [test-7.2]="_run_index"
     [test-7.3]="_run_index"
