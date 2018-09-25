@@ -30,11 +30,13 @@ prefix=$1
 
 cd $ARCHIVE/$controller || exit 1
 
-# find all the prefix files that contain the given prefix
-# and return the list (slightly munged)
+# find all the prefix files that contain the given prefix and return
+# the list (slightly munged to contain just the result name) - we
+# assume that the prefix files follow the current convention
+# (<resultname>.prefix) rather than the old one (prefix.<resultname>).
 
-grep -H $prefix .prefix/prefix.* |
-    sed 's/^.prefix\/prefix.//
-         s/:.*/.tar.xz/'
+grep -H $prefix .prefix/*.prefix |
+    sed 's/^.prefix\///
+         s/\.prefix:.*/.tar.xz/'
 
 exit 0

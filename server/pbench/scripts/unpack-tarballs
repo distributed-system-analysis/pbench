@@ -32,7 +32,7 @@ cd $ARCHIVE/$controller || exit 1
 
 incoming=$INCOMING/$controller
 
-linksrc=MOVE_UNPACKED
+linksrc=MOVE-UNPACKED
 linkdest=TO-UNPACK
 
 tblist=/tmp/unpack-tarballs.$$
@@ -78,14 +78,7 @@ while read tb ;do
     fi
 
     # Let it be processed by pbench-unpack-tarballs
-
-    # Check that the prefix file is named properly
-    # and rename it if necessary (like shim-001 does).
-    if [ -f ".prefix/prefix.$resultname" ] ;then
-        mv .prefix/prefix.$resultname .prefix/$resultname.prefix
-        # pbench-unpack-tarballs will deal with the prefix now.
-    fi
-    mv $linksrc/$tb $linkdest
+    mv $linksrc/$tb $linkdest/
 
 done < $tblist
 
