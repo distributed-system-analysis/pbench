@@ -12,7 +12,7 @@ use List::Util qw(max);
 use JSON;
 use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success);
 
-our @EXPORT_OK = qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc get_hostname);
+our @EXPORT_OK = qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc get_hostname get_uuid create_bench_iter_sample_doc);
 my $script = "PbenchCDM.pm";
 my $sub;
 my @common_run_fields = qw(run_id run_user_name run_user_email run_controller_hostname run_benchmark_name
@@ -68,7 +68,6 @@ sub create_run_doc {
 		"user_email" => "", #user's email address
 		"run_hostname" => get_hostname, # hostname of this controller system
 		"benchmark_name" => $benchmark, #the benchmark used in this run
-		"benchmark_ver" => "", # benchmark version, like "3.7" for fio
 		"benchmark_params" => "", # the full list of parameters when calling the benchmark
 		"benchmark_hosts_all" => "", # any/all hosts involved in the benchmark (not just clients and servers)
 		"benchmark_hosts_clients" => "", # client hosts involved in the benchmark
@@ -81,6 +80,20 @@ sub create_run_doc {
 		# links to tools
 		"tool_hostnames" => "", # ordered list of hostnames where tools are registred
 		"tool_names" => "" # ordered list (matching order of tool_hostnames) of registered tool names
+	       );
+}
+sub create_bench_iter_sample_doc { # document describing the benchmark iteraton sample
+	my $benchmark = shift;
+	return (
+		# fields every single doc needs
+		"doc_id" => get_uuid, # uniqie identifier for all documents
+		"doc_ver" => 1, # common-data-model version number
+		"doc_create_time" => "" ,# the epoch time when creatd *in-elastic*, not here
+		"run_id" => "", # pointer to run document
+		"benchmark_name" => $benchmark, #the benchmark used in this run
+		"benchmark_params" => "", # the full list of parameters when calling the benchmark
+		"benchmark_hosts_clients" => "", # client hosts involved in the benchmark
+		"benchmark_hosts_servers" => "" # server hosts involved in the benchmark
 	       );
 }
 # this is the top-level config doc for a host
