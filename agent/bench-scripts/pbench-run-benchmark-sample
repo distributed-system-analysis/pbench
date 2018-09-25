@@ -29,8 +29,9 @@ use lib "$pbench_lib_path";
 use JSON;
 use File::Temp;
 use Data::Dumper;
-use PbenchBase qw(get_json_file get_benchmark_names get_clients);
+use PbenchBase qw(get_json_file put_json_file get_benchmark_names get_clients get_params);
 use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success);
+use PbenchCDM qw (create_bench_iter_sample_doc);
 my $pbench_bench_config_dir = $script_path;
 $pbench_bench_config_dir =~ s/bench-scripts$/config\/benchmark\//;
 
@@ -47,19 +48,30 @@ sub load_benchmark_specs {
 # main program starts here
 
 # the only required argument is the benchmark name; verify it now
-if (scalar @ARGV < 3) {
+if (scalar @ARGV < 4) {
 	print "You must supply at least a benchmark name, results directory, and the base benchmark directory:\n";
-	get_benchmark_names($pbench_bench_config_dir);
+	printf "%s\n", join(" ", get_benchmark_names($pbench_bench_config_dir));
 	exit;
 }
+my $run_id = shift(@ARGV);
+printf "run_id[$run_id]\n";
 my $benchmark = shift(@ARGV);
+if (!grep(/^$benchmark$/, get_benchmark_names($pbench_bench_config_dir))) {
+	die "$benchmark is not a valid benchmark";
+}
 my $rundir = shift(@ARGV);
 my $base_bench_dir = shift(@ARGV);
-if ($benchmark eq "list") {
-	get_benchmark_names($pbench_bench_config_dir);
-	exit;
+if (! -d $base_bench_dir) {
+	die "The base bench  directory must already exist";
 }
 mkdir($rundir);
+my %params = get_params(@ARGV);
+my %bench_iter_sample_doc = create_bench_iter_sample_doc;
+$bench_iter_sample_doc{"run_id"} = $run_id;
+$bench_iter_sample_doc{"benchmark_name"} = $benchmark;
+$bench_iter_sample_doc{"benchmark_params"} = join(" ", @ARGV);;
+$bench_iter_sample_doc{"benchmark_hosts_clients"} = $params{"clients"};
+$bench_iter_sample_doc{"benchmark_hosts_servers"} = $params{"servers"};
 my %bench_specs = load_benchmark_specs($benchmark);
 my @clients = get_clients(@ARGV);
 my %remote_hosts = ( "clients" => \@clients );
@@ -108,8 +120,13 @@ for my $host_type ("servers", "clients") {
 }
 # - post-process the result data
 if ($bench_specs{"postprocess"} and $bench_specs{"postprocess"}{"command"}) {
+	put_json_file(\%bench_iter_sample_doc, $rundir . "/bench-iter-sample.json"); # post-processing to finish this document
 	my $postprocess_cmd = ". /opt/pbench-agent/base; cd " . $rundir . "; " . $bench_specs{"postprocess"}{"command"} . " " . join(" ", @ARGV); # all options get passed to postprocess in case they are needed
 	my $postprocess_output = `$postprocess_cmd`;
 	open(my $fh, ">" . $rundir . "/postprocess-output.txt");
 	print $fh "$postprocess_output";
+} else {
+	# If there is no post-processor for the benchmark (there really should be!) then this script will write the bench_iter_saple CDM doc (although not really complete)
+	put_json_file(\%bench_iter_sample_doc, $base_bench_dir . "/es/bench/bench-iter-sample-" . $bench_iter_sample_doc{"doc_id"} . ".json");
 }
+
