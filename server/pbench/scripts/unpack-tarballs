@@ -84,7 +84,12 @@ while read tb ;do
     fi
 
     # Let it be processed by pbench-unpack-tarballs
-    mv $linksrc/$tb $linkdest/
+    if [ -L "$linksrc/$tb" ] ;then
+        mv $linksrc/$tb $linkdest/
+    else
+        echo "Link does not exist: $linksrc/$tb - creating a new link in $linkdest/"
+        ln -s $PWD/$tb $linkdest/
+    fi
 
 done < $tblist
 
