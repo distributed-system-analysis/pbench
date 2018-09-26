@@ -64,14 +64,17 @@ while read -u 11 line;do
   group=$(echo $line | awk -F' ' '{print $2}')
   label=$(echo $line | awk -F' ' '{print $4}')
   ## register tools
-  pbench-register-tool --label=$label --name=sar --remote $remote
-  pbench-register-tool --label=$label --name=iostat --remote $remote
-  pbench-register-tool --label=$label --name=pidstat --remote $remote
-  pbench-register-tool --label=$label --name=disk --remote $remote
-  pbench-register-tool --label=$label --name=perf --remote $remote
-  pbench-register-tool --label=$label --name=mpstat --remote $remote
+  pbench-register-tool --label=$label --name=sar --remote $remote -- --interval=$default_tools_interval
+  pbench-register-tool --label=$label --name=iostat --remote $remote -- --interval=$default_tools_interval
+  pbench-register-tool --label=$label --name=pidstat --remote $remote -- --interval=$default_tools_interval
+  pbench-register-tool --label=$label --name=disk --remote $remote -- --interval=$default_tools_interval
+
+  pbench-register-tool --label=$label --name=perf --remote $remote -- --interval=$default_tools_interval
+
+  pbench-register-tool --label=$label --name=mpstat --remote $remote -- --interval=$default_tools_interval
+
   if [ "$group"  == "master" ]; then
-    pbench-register-tool --label=$label --name=oc --remote $remote
+    pbench-register-tool --label=$label --name=oc --remote $remote -- --interval=$default_tools_interval
     pbench-register-tool --label=$label --name=haproxy-ocp --remote $remote -- --interval=$ose_master_interval --counters-clear-all
     # register the tool only when the status is unregistered, this ensures the tool is running on just one master to avoid duplication of data
     if [[ "$prometheus_metrics_status" == "unregistered" ]]; then
