@@ -26,7 +26,7 @@ BEGIN {
 use lib "$pbench_lib_path";
 use JSON;
 use Data::Dumper;
-use PbenchCDM qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc get_hostname get_uuid);
+use PbenchCDM qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc get_hostname get_uuid create_bench_iter_doc);
 use PbenchBase qw(get_json_file put_json_file get_benchmark_names get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params);
 use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success);
 
@@ -115,6 +115,8 @@ mkdir($base_bench_dir);
 open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
 my $iteration_id = 0;
 for my $iteration_params (@iterations) {
+	my %iter_doc = create_bench_iter_doc($benchmark, $run_doc{"doc_id"}, $iteration_params, $run_doc{"benchmark_hosts_clients"}, $run_doc{"benchmark_hosts_servers"}); 
+	put_json_file(\%iter_doc, $es_bench_dir . "/iteration-" . $iter_doc{"doc_id"} . ".json");
 	printf $fh "%d %s\n", $iteration_id, $iteration_params;
 	for (my $sample_id=0; $sample_id<$num_samples; $sample_id++) {
 		my $iteration_dir = $base_bench_dir . "/iteration" . $iteration_id;
