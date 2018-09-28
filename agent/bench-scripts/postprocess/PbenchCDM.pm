@@ -12,7 +12,7 @@ use List::Util qw(max);
 use JSON;
 use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success);
 
-our @EXPORT_OK = qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc get_hostname get_uuid create_bench_iter_sample_doc);
+our @EXPORT_OK = qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc get_hostname get_uuid create_bench_iter_sample_doc create_metric_sample_doc create_metric_sample_doc create_bench_iter_sample_period create_bench_iter_doc);
 my $script = "PbenchCDM.pm";
 my $sub;
 my @common_run_fields = qw(run_id run_user_name run_user_email run_controller_hostname run_benchmark_name
@@ -82,6 +82,24 @@ sub create_run_doc {
 		"tool_names" => "" # ordered list (matching order of tool_hostnames) of registered tool names
 	       );
 }
+sub create_bench_iter_doc { # document describing the benchmark iteraton sample
+	my $benchmark = shift;
+	my $run_id = shift;
+	my $bench_params = shift;
+	my $bench_hosts_clients = shift;
+	my $bench_hosts_servers = shift;
+	return (
+		# fields every single doc needs
+		"doc_id" => get_uuid, # uniqie identifier for all documents
+		"doc_ver" => 1, # common-data-model version number
+		"doc_create_time" => "" ,# the epoch time when creatd *in-elastic*, not here
+		"run_id" => $run_id, # pointer to run document
+		"benchmark_name" => $benchmark, #the benchmark used in this run
+		"benchmark_params" => $bench_params, # the full list of parameters when calling the benchmark
+		"benchmark_hosts_clients" => $bench_hosts_clients, # client hosts involved in the benchmark
+		"benchmark_hosts_servers" => $bench_hosts_servers # server hosts involved in the benchmark
+	       );
+}
 sub create_bench_iter_sample_doc { # document describing the benchmark iteraton sample
 	my $benchmark = shift;
 	return (
@@ -95,6 +113,79 @@ sub create_bench_iter_sample_doc { # document describing the benchmark iteraton 
 		"benchmark_hosts_clients" => "", # client hosts involved in the benchmark
 		"benchmark_hosts_servers" => "" # server hosts involved in the benchmark
 	       );
+}
+sub create_bench_iter_sample_period {
+	my $run_id = shift; # pointer to run document
+	my $iteration_id = shift; # pointer to iteration document
+	my $sample_id = shift; # pointer to sample document
+	my $measurment_period_type = shift;
+	return (
+		# fields every single doc needs
+		"doc_id" => get_uuid, # uniqie identifier for all documents
+		"doc_ver" => 1, # common-data-model version number
+		"doc_create_time" => "" ,# the epoch time when creatd *in-elastic*, not here
+		"run_id" => $run_id, # pointer to run document
+		"iteration_id" => $iteration_id, # pointer to the bencmark-iteration doc
+		"sample_id" => $sample_id # pointer to benchmark-iteration-sample doc
+	);
+}
+sub create_metric_sample_doc { # document describing the benchmark iteraton sample
+	# These are the required fields for any metric-instance-sample.  There are potentially
+	# more fields, but not all metrics use all the same options fields.  However, the ones
+	# below must all be used, and so creating a new doc requires that these fields be
+	# defined.
+	my $run_id = shift; # pointer to run document
+	my $iteration_id = shift; # pointer to benchmark-iteration document
+	my $sample_id = shift; # pointer to benchmark-iteration-sample document
+	my $period_id = shift; # pointer to time period in benchmark sample (or nothing if not associated with specific period)
+	my $class = shift; # "throughput" (work over time, like Gbps or interrupts/sec) or "count" (quantity, percent, sum, elapsed time, value, etc)
+	my $type = shift; # A generic name for this metric, like "gigabits-per-second", does not include specifics like "/dev/sda" or "cpu1"
+	my $hostname = shift; # the hostname where this metric comes from
+	my $source = shift; # a benchmark or tool where this metric comes from, like "iostat" or "fio"
+	# The instance_name_format tells us how the name for this metric-instance is assembled.
+	# The instance name is assembled from other fields in this document
+	# the format is described by joining strings and field names (which are identified by % before and after), like:
+	#     network-L2-%type%-%hostname%,
+	#         where type=Gbps and hostname=perf1,
+	#         so this resolves to:
+	#     network-L2-Gbps-perf1
+	# or: %source%-%bin%-%pid%/%tid%-%hostname%-percent-cpu-usage,
+	#         where source=pidstat, bin=qemu pid=1094 tid=1095 hostname=perf1
+	#         so this resolves to: 
+	#     pidstat-qemu-1094/1095-perf1-percent-cpu-usage
+	# It is vitally important that the metric-instance name use enough fields
+	# so that the resulting name is different from any other metric-instance.
+	# For example, you want to ensure that the pidstat data from host perf1
+	# does not have the exact same metric-instance name as pidstat data from
+	# host perf2, and so including %hostname% in a metric-instance name
+	# format is almost always required.  However, there are potneitally many
+	# more fields required, and this code can't possibly know all situations
+	# so it is up to the caller of this function to understand that scenario
+	# and provide an adequtate instance name format.
+	my $instance_name_format = shift;
+	my $value = shift; # the value of the metric
+	my $timestamp = shift; # the epochtime
+	return (
+		# fields every single doc needs
+		"doc_id" => get_uuid, # uniqie identifier for all documents
+		"doc_ver" => 1, # common-data-model version number
+		"doc_create_time" => "" ,# the epoch time when creatd *in-elastic*, not here
+		"run_id" => $run_id, # pointer to run document
+		"sample_id" => $sample_id,
+		"period_id" => $period_id,
+		"class" => $class,
+		"type" => $type,
+		"hostname" => $hostname,
+		"source" => $source,
+		"name_format" => $instance_name_format,
+		"value" => $value,
+		"timestamp" => $timestamp
+	       );
+	# Optional fields will be validated with a different function, like at the
+	# time the document is written to a file.  A list of optional fields needs
+	# to be maintained.  ES docs typically cannot have more than 1000 fields,
+	# which for metrics, should be fine, but we should track these so we don't
+	# introduce unknown fields into ES.
 }
 # this is the top-level config doc for a host
 sub create_config_base_doc {
