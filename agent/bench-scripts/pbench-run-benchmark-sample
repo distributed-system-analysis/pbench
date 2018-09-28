@@ -47,6 +47,7 @@ sub load_benchmark_specs {
 
 # main program starts here
 
+print Dumper \@ARGV;
 # the only required argument is the benchmark name; verify it now
 if (scalar @ARGV < 4) {
 	print "You must supply at least a benchmark name, results directory, and the base benchmark directory:\n";
@@ -92,6 +93,9 @@ for my $host_type (keys %remote_hosts) {
 	}
 }
 # - execute pre-benchmark scripts on clients and servers
+#
+# start the tools
+system("pbench-start-tools --iteration=0 --group=default --dir=" . $rundir);
 		
 # benchmark-execution
 # - execute servers then clients, both with their cmdline regex'd if required
@@ -109,6 +113,11 @@ for my $host_type ("servers", "clients") { # the servers then clients order is i
 		}
 	}
 }
+
+# stop & post-process the tools
+system("pbench-stop-tools --iteration=0 --group=default --dir=" . $rundir);
+system("pbench-postprocess-tools --iteration=0 --group=default --dir=" . $rundir);
+
 # post-benhcmark-execution
 # - copy files back to controller
 for my $host_type ("servers", "clients") {
