@@ -2,15 +2,11 @@
 # -*- mode: shell-script -*-
 
 prog=$(basename $0)
-usage="$prog <config file path> <test-path>"
+usage="$prog <config file path>"
 
 case $# in
     1)
         configfile=$1
-        ;;
-    2)
-        configfile=$1
-        testdir=$2
         ;;
     *)
         echo $usage
@@ -28,12 +24,6 @@ config_files=$(ls $configdir)
 # copy the configuration file to the standard place
 dest=$(getconf.py --config $configfile install-dir pbench-server)
 dest=$dest/lib/config
-
-# for unit testing
-if [ ! -z "$testdir" ] ;then
-    mkdir -p ${testdir}${dest}
-    dest=${testdir}${dest}
-fi
 
 for x in $config_files ;do
     #echo "cp $configdir/$x $dest"

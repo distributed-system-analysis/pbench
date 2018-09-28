@@ -6,15 +6,9 @@ prog=$(basename $0)
 # machine. After creating the crontab, it does *not* activate it: that
 # is a separate manual step.
 
-usage="Usage: $prog <crontab-path> [<test-dir-prefix>]"
+usage="Usage: $prog <crontab-path>"
 
 crontabpath=$1
-# testdir is only used for unit tests
-testdir=$2
-
-if [ ! -z "$testdir" ] ;then
-    crontabpath=${testdir}${crontabpath}
-fi
 
 # crontab
 mkdir -p $crontabpath
@@ -122,9 +116,7 @@ for role in $roles ;do
     # installed, otherwise this role is irrelevant for this host
     # and we skip it.
     if [ "$host" != "$hostname" -a "$realhost" != "$hostname" ] ;then
-        if [ "${_PBENCH_SERVER_TEST}" != "1" ] ;then 
-            continue
-        fi
+        continue
     fi
     case $role in
         pbench-sync-satellites)
@@ -155,9 +147,6 @@ chmod 644 $crontab
 
 # create the lock directory that the cron entries will use
 lockdir=$(getconf.py deploy-lock-dir pbench-server)
-if [ ! -z "$testdir" ] ;then
-    lockdir=${testdir}${lockdir}
-fi
 mkdir -p ${lockdir}
 chmod 755 ${lockdir}
 

@@ -1,5 +1,13 @@
 +++ Running pbench-move-unpacked
 --- Finished pbench-move-unpacked (status=0)
++++ var/www/html tree state
+/var/tmp/pbench-test-server/var-www-html
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+--- var/www/html tree state
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
 /var/tmp/pbench-test-server/pbench/archive
@@ -132,10 +140,21 @@
 --- pbench tree state
 +++ pbench-local tree state
 /var/tmp/pbench-test-server/pbench-local
+/var/tmp/pbench-test-server/pbench-local/fs-version-001
+/var/tmp/pbench-test-server/pbench-local/fs-version-001/pbench-move-results-receive
+/var/tmp/pbench-test-server/pbench-local/fs-version-002
+/var/tmp/pbench-test-server/pbench-local/fs-version-002/pbench-move-results-receive
 /var/tmp/pbench-test-server/pbench-local/public_html
 /var/tmp/pbench-test-server/pbench-local/public_html/incoming
 /var/tmp/pbench-test-server/pbench-local/public_html/incoming/controller00
 /var/tmp/pbench-test-server/pbench-local/public_html/incoming/controller01
+/var/tmp/pbench-test-server/pbench-local/quarantine
+/var/tmp/pbench-test-server/pbench-local/quarantine/duplicates-001
+/var/tmp/pbench-test-server/pbench-local/quarantine/duplicates-002
+/var/tmp/pbench-test-server/pbench-local/quarantine/errors-001
+/var/tmp/pbench-test-server/pbench-local/quarantine/errors-002
+/var/tmp/pbench-test-server/pbench-local/quarantine/md5-001
+/var/tmp/pbench-test-server/pbench-local/quarantine/md5-002
 --- pbench-local tree state
 +++ pbench log file contents
 /var/tmp/pbench-test-server/pbench/logs/pbench-move-unpacked/pbench-move-unpacked.error:run-1900-01-01T00:00:00-UTC: Incoming result, /var/tmp/pbench-test-server/pbench/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00/, already exists as a directory, skipping /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller02/UNPACKED/benchmark-result-small_1900-01-01T00:00:00.tar.xz
@@ -148,8 +167,6 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-move-unpacked/pbench-move-unpacked.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-move-unpacked.1900-01/status/2674b387afce7521b6bf50a09ffc2a77 --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-move-unpacked/pbench-move-unpacked.log:
 --- pbench log file contents
-+++ test-execution.log file contents
---- test-execution.log file contents
 +++ test-curl-payload.log file contents
 /var/tmp/pbench-test-server/test-curl-payload.log:{
 /var/tmp/pbench-test-server/test-curl-payload.log:    "text": "pbench-move-unpacked.run-1900-01-01T00:00:00-UTC(unit-test) - 4 tar balls\nProcessed 4 result tar balls\n\nrun-1900-01-01T00:00:00-UTC: Incoming result, /var/tmp/pbench-test-server/pbench/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00/, already exists as a directory, skipping /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller02/UNPACKED/benchmark-result-small_1900-01-01T00:00:00.tar.xz\n", 

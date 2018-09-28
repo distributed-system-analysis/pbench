@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Move the archive tree to the side
+mv pbench/archive pbench/not-the-archive
+exit $?

@@ -2,8 +2,6 @@
 # do all the setup
 
 config=$1
-# testdir is only used for unit tests
-testdir=$2
 
 # we *must* have a config file at this point
 if [ ! -f $config ] ;then
@@ -16,19 +14,19 @@ crontabdir=$(getconf.py crontabdir pbench-server)
 crontabdir=${crontabdir:-/opt/pbench-server/lib/crontab}
 
 typeset -i nerrs=0
-pbench-server-activate-create-crontab $crontabdir $testdir
+pbench-server-activate-create-crontab $crontabdir
 sts=$?
 if [ "$sts" != "0" ] ;then
     nerrs=$nerrs+1
 fi
 
-pbench-server-activate-setup-results-host-info $testdir
+pbench-server-activate-setup-results-host-info
 sts=$?
 if [ "$sts" != "0" ] ;then
     nerrs=$nerrs+1
 fi
 
-pbench-server-activate-create-results-dir-structure $testdir
+pbench-server-activate-create-results-dir-structure
 sts=$?
 if [ "$sts" != "0" ] ;then
     nerrs=$nerrs+1

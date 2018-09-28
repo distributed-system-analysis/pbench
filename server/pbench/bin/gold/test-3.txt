@@ -7,9 +7,17 @@
 +++ Running pbench-index
 --- Finished pbench-index (status=0)
 +++ Running pbench-clean-up-dangling-results-links
---- Finished pbench-clean-up-dangling-results-links (status=1)
+--- Finished pbench-clean-up-dangling-results-links (status=0)
 +++ Running pbench-edit-prefixes
 --- Finished pbench-edit-prefixes (status=1)
++++ var/www/html tree state
+/var/tmp/pbench-test-server/var-www-html
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+--- var/www/html tree state
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
 /var/tmp/pbench-test-server/pbench/archive
@@ -33,10 +41,27 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+/var/tmp/pbench-test-server/pbench/public_html
+/var/tmp/pbench-test-server/pbench/public_html/no-incoming
+/var/tmp/pbench-test-server/pbench/public_html/results
+/var/tmp/pbench-test-server/pbench/public_html/users
 /var/tmp/pbench-test-server/pbench/tmp
 --- pbench tree state
++++ pbench-local tree state
+/var/tmp/pbench-test-server/pbench-local
+/var/tmp/pbench-test-server/pbench-local/fs-version-001
+/var/tmp/pbench-test-server/pbench-local/fs-version-001/pbench-move-results-receive
+/var/tmp/pbench-test-server/pbench-local/fs-version-002
+/var/tmp/pbench-test-server/pbench-local/fs-version-002/pbench-move-results-receive
+/var/tmp/pbench-test-server/pbench-local/quarantine
+/var/tmp/pbench-test-server/pbench-local/quarantine/duplicates-001
+/var/tmp/pbench-test-server/pbench-local/quarantine/duplicates-002
+/var/tmp/pbench-test-server/pbench-local/quarantine/errors-001
+/var/tmp/pbench-test-server/pbench-local/quarantine/errors-002
+/var/tmp/pbench-test-server/pbench-local/quarantine/md5-001
+/var/tmp/pbench-test-server/pbench-local/quarantine/md5-002
+--- pbench-local tree state
 +++ pbench log file contents
-/var/tmp/pbench-test-server/pbench/logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log:pbench-clean-up-dangling-results-links: Bad RESULTS=/var/tmp/pbench-test-server/pbench/public_html/results
 /var/tmp/pbench-test-server/pbench/logs/pbench-copy-sosreports/pbench-copy-sosreports.log:pbench-copy-sosreports: Bad INCOMING=/var/tmp/pbench-test-server/pbench/public_html/incoming
 /var/tmp/pbench-test-server/pbench/logs/pbench-edit-prefixes/pbench-edit-prefixes.log:pbench-edit-prefixes: Bad INCOMING=/var/tmp/pbench-test-server/pbench/public_html/incoming
 /var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
@@ -46,8 +71,6 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-move-unpacked/pbench-move-unpacked.log:pbench-move-unpacked: Bad INCOMING=/var/tmp/pbench-test-server/pbench/public_html/incoming
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:pbench-unpack-tarballs: Bad INCOMING=/var/tmp/pbench-test-server/pbench/public_html/incoming
 --- pbench log file contents
-+++ test-execution.log file contents
---- test-execution.log file contents
 +++ test-curl-payload.log file contents
 /var/tmp/pbench-test-server/test-curl-payload.log:{
 /var/tmp/pbench-test-server/test-curl-payload.log:    "text": "pbench-index.run-1900-01-01T00:00:00-UTC(unit-test) - Indexed 0 results\n", 

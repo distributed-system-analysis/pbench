@@ -1,25 +1,43 @@
 +++ Running pbench-server-prep-shim-002
 --- Finished pbench-server-prep-shim-002 (status=0)
++++ var/www/html tree state
+/var/tmp/pbench-test-server/var-www-html
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+--- var/www/html tree state
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
 /var/tmp/pbench-test-server/pbench/archive
 /var/tmp/pbench-test-server/pbench/archive/duplicates
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 /var/tmp/pbench-test-server/pbench/archive/quarantine
 /var/tmp/pbench-test-server/pbench/logs
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 /var/tmp/pbench-test-server/pbench/mv
+/var/tmp/pbench-test-server/pbench/public_html
+/var/tmp/pbench-test-server/pbench/public_html/incoming
+/var/tmp/pbench-test-server/pbench/public_html/results
+/var/tmp/pbench-test-server/pbench/public_html/users
 /var/tmp/pbench-test-server/pbench/tmp
 --- pbench tree state
 +++ pbench-local tree state
 /var/tmp/pbench-test-server/pbench-local
+/var/tmp/pbench-test-server/pbench-local/fs-version-001
+/var/tmp/pbench-test-server/pbench-local/fs-version-001/pbench-move-results-receive
 /var/tmp/pbench-test-server/pbench-local/fs-version-002
 /var/tmp/pbench-test-server/pbench-local/fs-version-002/pbench-move-results-receive
 /var/tmp/pbench-test-server/pbench-local/fs-version-002/pbench-move-results-receive/Controller
 /var/tmp/pbench-test-server/pbench-local/quarantine
+/var/tmp/pbench-test-server/pbench-local/quarantine/duplicates-001
 /var/tmp/pbench-test-server/pbench-local/quarantine/duplicates-002
+/var/tmp/pbench-test-server/pbench-local/quarantine/errors-001
 /var/tmp/pbench-test-server/pbench-local/quarantine/errors-002
+/var/tmp/pbench-test-server/pbench-local/quarantine/md5-001
 /var/tmp/pbench-test-server/pbench-local/quarantine/md5-002
 /var/tmp/pbench-test-server/pbench-local/quarantine/md5-002/Controller
 /var/tmp/pbench-test-server/pbench-local/quarantine/md5-002/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz
@@ -34,8 +52,6 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-server-prep-shim-002.1900-01/status/f47e3f5ba67fec6d0308126e7b074ed5 --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:
 --- pbench log file contents
-+++ test-execution.log file contents
---- test-execution.log file contents
 +++ test-curl-payload.log file contents
 /var/tmp/pbench-test-server/test-curl-payload.log:{
 /var/tmp/pbench-test-server/test-curl-payload.log:    "text": "run-1900-01-01T00:00:00-UTC: Processed 1 entries, 0 tarballs successful, 1 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n", 
