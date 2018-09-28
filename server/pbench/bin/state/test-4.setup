@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Move the results tree to the side
+mv pbench/public_html/results pbench/public_html/no-results
+exit $?

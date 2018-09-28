@@ -28,11 +28,15 @@ if [[ $? -gt 0 ]]; then
 fi
 
 _testout=$_testroot/output.txt
+_testactout=$_testroot/actoutput.txt
+_testactlog=$_testroot/test-activation-execution.log
 export _testlog=$_testroot/test-execution.log
 export _testcurlpayload=$_testroot/test-curl-payload.log
 _testdir=$_testroot/pbench
 _testdir_local=$_testroot/pbench-local
 _testtmp=$_testroot/tmp
+_testcfg=$_testroot/cfg
+_testhtml=$_testroot/var-www-html
 
 # Fixed timestamp output
 export _PBENCH_SERVER_TEST=1
@@ -40,12 +44,6 @@ export _PBENCH_SERVER_TEST=1
 # execution environment
 _testopt=$_testroot/opt/pbench-server
 
-# All the "real" scripts are found at $_tdir, the mock scripts are found in
-# $_testopt/unittest-scripts.
-export PATH=$_testopt/unittest-scripts:$_testopt/bin:$PATH
-export CONFIG=$_testopt/config/pbench-server.cfg
-# used by pbench-report-status
-export IDXCONFIG=$_testopt/config/pbench-index.cfg
 export TMPDIR=$_testtmp
 export TZ="UTC"
 
@@ -60,7 +58,7 @@ function _run {
 function _run_index {
     args="${@}"
     echo "+++ Running indexing for $test" >> $_testout
-    cmd="PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_testopt}/config/pbench-index.cfg -E $_testdir/errors-json-unittests.json ${args} $(readlink -f $_testdir/*.tar.xz)"
+    cmd="PYTHONPATH=${_tlib}:$PYTHONPATH $_tdir/index-pbench -U -C ${_testopt}/lib/config/pbench-index.cfg -E $_testdir/errors-json-unittests.json ${args} $(readlink -f $_testdir/*.tar.xz)"
     if which python3 > /dev/null 2>&1 ;then
 	eval $cmd >> $_testout 2>&1
     elif which scl > /dev/null 2>&1 ;then
@@ -74,25 +72,23 @@ function _run_index {
 }
 
 function _run_activate {
-    echo "+++ Running activate for $test" >> $_testout
-    oconfig=$CONFIG
-    unset CONFIG
-    # The activate invocations are supposed to work without CONFIG being set, so they
-    # do *not* use the global CONFIG file that the rest of the tests use.
-    # The tarball for the test installs the config file in the "pbench-server-internal" hierarchy.
-    # This script copies it to its "final" resting place.
-    pbench-server-config-activate ${_testdir}/pbench-server-internal/pbench/lib/config/pbench-server.cfg ${_testdir} >> $_testout
+    # Testing the server activate script, which is used for every other
+    # unit test as well is just a matter of emitting the resulting
+    # crontab along side the rest of the environment state provided by
+    # the unit test framework.
+    echo "+++ Verifying server activation" >> $_testout
+    cat $_testactout >> $_testout
+    echo "++++ ${_testopt}/lib/crontab/crontab" >> $_testout
+    cat ${_testopt}/lib/crontab/crontab >> $_testout
     rc=$?
-    if [ $rc != 0 ] ;then
-        return 1
+    echo "---- ${_testopt}/lib/crontab/crontab" >> $_testout
+    if [ -s $_testactlog ]; then
+        echo "++++ $(basename $_testactlog) file contents" >> $_testout
+        grep -HvF "\-\-should-n0t-ex1st--" $_testactlog 2>/dev/null |
+             sed 's;tmp/pbench-\([-a-zA-Z0-9]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' >> $_testout 2>&1
+        echo "---- $(basename $_testactlog) file contents" >> $_testout
     fi
-    # This script uses the copied config file to do the rest.
-    pbench-server-activate ${_testdir}/opt/pbench-server/lib/config/pbench-server.cfg ${_testdir} >> $_testout
-    echo "--- Finished activate for $test (status=$?)" >> $_testout
-    echo "+++ ${_testdir}/opt/pbench-server/lib/crontab/crontab" >> $_testout
-    cat ${_testdir}/opt/pbench-server/lib/crontab/crontab >> $_testout
-    export CONFIG=$oconfig
-    echo "--- ${_testdir}/opt/pbench-server/lib/crontab/crontab" >> $_testout
+    echo "--- Finished verifying server activation (status=$rc)" >> $_testout
 }
 
 function _run_allscripts {
@@ -115,6 +111,12 @@ function _run_allscripts {
 
 function _save_tree {
     # Save state of the tree
+    if [ -d ${_testhtml} ] ;then
+        echo "+++ var/www/html tree state" >> $_testout
+        find ${_testhtml} | sort |
+            sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*$;tmp/pbench-\1.NNNN;' >> $_testout
+        echo "--- var/www/html tree state" >> $_testout
+    fi
     echo "+++ pbench tree state" >> $_testout
     find $_testdir | sort |
         sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*$;tmp/pbench-\1.NNNN;' >> $_testout
@@ -138,19 +140,19 @@ function _dump_logs {
     fi
     echo "--- pbench log file contents" >> $_testout
 
-    echo "+++ test-execution.log file contents" >> $_testout
-    grep -HvF "\-\-should-n0t-ex1st--" $_testroot/test-execution.log 2>/dev/null |
-         sed 's;tmp/pbench-\([-a-zA-Z0-9]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' >> $_testout>> $_testout 2>&1
-    echo "--- test-execution.log file contents" >> $_testout
-    rm -f $_testroot/test-execution.log
+    if [ -s $_testlog ]; then
+        echo "+++ $(basename $_testlog) file contents" >> $_testout
+        grep -HvF "\-\-should-n0t-ex1st--" $_testlog 2>/dev/null |
+             sed 's;tmp/pbench-\([-a-zA-Z0-9]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' >> $_testout 2>&1
+        echo "--- $(basename $_testlog) file contents" >> $_testout
+    fi
 
     if [ -s $_testcurlpayload ]; then
-        echo "+++ test-curl-payload.log file contents" >> $_testout
+        echo "+++ $(basename $_testcurlpayload) file contents" >> $_testout
         grep -HvF "\-\-should-n0t-ex1st--" $_testcurlpayload 2>/dev/null |
-             sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' >> $_testout>> $_testout 2>&1
-        echo "--- test-curl-payload.log file contents" >> $_testout
+             sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' >> $_testout 2>&1
+        echo "--- $(basename $_testcurlpayload) file contents" >> $_testout
     fi
-    rm -f $_testcurlpayload
 }
 
 function _verify_output {
@@ -180,11 +182,14 @@ function _setup_state {
     let res=res+$?
     cp -r $_tdir/../lib $_testopt
     let res=res+$?
-    mkdir -p $(dirname $CONFIG)
+    mkdir -p $_testcfg
     let res=res+$?
-    cp $_tdir/state/config/pbench-server.cfg $_tdir/state/config/pbench-index.cfg $(dirname $CONFIG)/
+    cp ${_tdir}/state/config/pbench-server.cfg $_testcfg/
     let res=res+$?
-
+    cp ${_tdir}/state/config/pbench-index.cfg $_testcfg/
+    let res=res+$?
+    mkdir -p $_testhtml
+    let res=res+$?
     if [ $res -ne 0 ]; then
 	echo "ERROR: failed to properly setup the test environment root, \"$_testroot\"" >&2
 	exit $res
@@ -203,6 +208,49 @@ function _setup_state {
 	echo "ERROR: test tmp directory does not exist, \"$_testtmp\"" >&2
 	exit 1
     fi
+
+    # All the "real" scripts are found at $_testopt/bin, the mock scripts
+    # are found in $_testopt/unittest-scripts.
+    _orig_PATH=$PATH
+    export PATH=$_testopt/unittest-scripts:$_testopt/bin:$PATH
+
+    # Expected location of the final configuration files
+    export CONFIG=$_testopt/lib/config/pbench-server.cfg
+    # used by pbench-report-status
+    export IDXCONFIG=$_testopt/lib/config/pbench-index.cfg
+
+    # The activate invocations are supposed to work without CONFIG being set,
+    # so they do *not* use the global CONFIG file that the rest of the tests
+    # use.  We copy the server and index configuration files to a special
+    # directory outside of the source tree to isolate any possible changes to
+    # the original source.  The activate script copies it to its "final"
+    # resting place.
+    $_testopt/bin/pbench-server-config-activate ${_testcfg}/pbench-server.cfg >> $_testactout
+    rc=$?
+    if [ $rc == 0 ] ;then
+        # This script uses the copied config file to do the rest.
+        $_testopt/bin/pbench-server-activate ${CONFIG} >> $_testactout
+        rc=$?
+    fi
+
+    # Up until this point, the activate scripts have been running using the
+    # mock scripts, which record their output and execution in $_testlog.
+    # But we don't want to have every unit test inherit activation log
+    # output unconditionally.  So we move the logs to a special activation
+    # log file to make sure we keep it around if we need it when debugging
+    # or if a unit test might require it.
+    mv $_testlog $_testactlog
+
+    if [ $rc -ne 0 ]; then
+        # Now check that we actually failed to activate the server AFTER we
+        # have moved the log file to the expected activation log execution.
+        # Note that we are NOT checking if the mv failed, but if the above
+        # activation script(s) failed.
+        echo "ERROR: failed to properly activate the server test environment root, \"$_testroot\"" >&2
+        exit $rc
+    fi
+
+    # Add files for a given test
     _state_tb=$_tdir/state/${1}.tar.xz
     if [ -e ${_state_tb} ]; then
         (cd $_testroot; tar xpf $_state_tb)
@@ -211,9 +259,27 @@ function _setup_state {
             exit 1
         fi
     fi
+
+    # Run per-test state setup
+    _state_setup=$_tdir/state/${1}.setup
+    if [ -f ${_state_setup} ]; then
+        (cd $_testroot; $_state_setup)
+        if [[ $? -gt 0 ]]; then
+            echo "ERROR: unable to run per-test state setup for $1" >&2
+            exit 1
+        fi
+    fi
 }
 
 function _reset_state {
+    export PATH=${_orig_PATH}
+    unset CONFIG
+    unset IDXCONFIG
+
+    rm -f $_testactout
+    rm -f $_testlog
+    rm -f $_testactlog
+    rm -f $_testcurlpayload
     rm -rf $_testdir
     if [[ -d $_testdir ]]; then
         echo "ERROR: unable to remove pbench hierarchy" >&2
@@ -227,6 +293,16 @@ function _reset_state {
     rm -rf $_testtmp
     if [[ -d $_testtmp ]]; then
         echo "ERROR: unable to remove tmp hierarchy" >&2
+        exit 1
+    fi
+    rm -rf $_testcfg
+    if [[ -d $_testcfg ]]; then
+        echo "ERROR: unable to remove cfg hierarchy" >&2
+        exit 1
+    fi
+    rm -rf $_testhtml
+    if [[ -d $_testhtml ]]; then
+        echo "ERROR: unable to remove var-www-html hierarchy" >&2
         exit 1
     fi
     rm -rf $_testroot/opt

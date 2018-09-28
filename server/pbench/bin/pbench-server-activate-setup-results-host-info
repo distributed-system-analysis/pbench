@@ -13,10 +13,7 @@ prog=$(basename $0)
 #
 # It assumes that the config file is already installed.
 
-usage="Usage: $prog [<test-dir-prefix>]"
-
-# testdir is only used for unittests
-testdir=$1
+usage="Usage: $prog"
 
 if [ ! -f $CONFIG ]
 then
@@ -40,10 +37,6 @@ if [ -z "$documentroot" ] ;then
         exit 4
 fi
 
-if [ ! -z "$testdir" ] ;then
-    documentroot=${testdir}${documentroot}
-    mkdir -p ${documentroot}
-fi
 cd $documentroot || exit 1
 
 # the directory and filename are specified in the agent config file as

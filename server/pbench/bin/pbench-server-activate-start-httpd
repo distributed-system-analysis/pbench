@@ -1,6 +1,7 @@
 #! /bin/bash
 
-# This script will need mods for non-systemd, non-apache environments.
+# This script will need mods for non-systemd, non-apache,
+# and non-firewalld environments.
 
 pbench_dir=$(getconf.py pbench-top-dir pbench-files)
 docroot=$(getconf.py documentroot apache)
@@ -8,13 +9,9 @@ docroot=$(getconf.py documentroot apache)
 systemctl enable httpd.service
 systemctl start httpd.service
 
-# firewall-cmd requires root privileges
-# so we don't do this during unit tests.
-if [ "${_PBENCH_SERVER_TEST}" != 1 ] ;then
-    # open up the port permanently
-    firewall-cmd --add-service=http
-    firewall-cmd --permanent --add-service=http
-fi
+# open up the port permanently
+firewall-cmd --add-service=http
+firewall-cmd --permanent --add-service=http
 
 # it's OK if this fails
 ln -s \
@@ -24,4 +21,3 @@ ln -s \
    $docroot 2>/dev/null
 
 exit 0
-

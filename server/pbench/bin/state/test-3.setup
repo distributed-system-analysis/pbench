@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Move the incoming tree to the side
+mv pbench/public_html/incoming pbench/public_html/no-incoming
+exit $?

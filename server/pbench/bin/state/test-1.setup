@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Move the tmp tree to the side
+mv pbench/tmp pbench/bad-tmp
+exit $?

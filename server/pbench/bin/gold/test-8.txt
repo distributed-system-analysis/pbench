@@ -1,62 +1,68 @@
-+++ Running activate for test-8
-chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/config
-chown pbench.pbench /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/crontab/crontab
-chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/locks
-chown pbench.pbench /var/tmp/pbench-test-server/pbench/pbench /var/tmp/pbench-test-server/pbench/pbench/archive/fs-version-001 /var/tmp/pbench-test-server/pbench/pbench/public_html /var/tmp/pbench-test-server/pbench/pbench/public_html/incoming /var/tmp/pbench-test-server/pbench/pbench/public_html/results /var/tmp/pbench-test-server/pbench/pbench/public_html/users
-chown pbench.pbench /var/tmp/pbench-test-server/pbench/pbench /var/tmp/pbench-test-server/pbench/pbench/archive/fs-version-001/* /var/tmp/pbench-test-server/pbench/pbench/public_html/incoming/* /var/tmp/pbench-test-server/pbench/pbench/public_html/results/*
++++ Verifying server activation
+chown -R pbench.pbench /var/tmp/pbench-test-server/opt/pbench-server/lib/config
+chown pbench.pbench /var/tmp/pbench-test-server/opt/pbench-server/lib/crontab/crontab
+chown -R pbench.pbench /var/tmp/pbench-test-server/opt/pbench-server/lib/locks
+chown pbench.pbench /var/tmp/pbench-test-server/pbench /var/tmp/pbench-test-server/pbench/archive/fs-version-001 /var/tmp/pbench-test-server/pbench/public_html /var/tmp/pbench-test-server/pbench/public_html/incoming /var/tmp/pbench-test-server/pbench/public_html/results /var/tmp/pbench-test-server/pbench/public_html/users
+chown pbench.pbench /var/tmp/pbench-test-server/pbench /var/tmp/pbench-test-server/pbench/archive/fs-version-001/* /var/tmp/pbench-test-server/pbench/public_html/incoming/* /var/tmp/pbench-test-server/pbench/public_html/results/*
 chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/logs
 chown -R pbench.pbench /var/tmp/pbench-test-server/pbench/tmp
-chown -R pbench.pbench
---- Finished activate for test-8 (status=0)
-+++ /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/crontab/crontab
-PATH=/opt/pbench-server/bin:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts:/var/tmp/pbench-test-server/opt/pbench-server/bin:/usr/local/bin:/usr/bin:/bin
-CONFIG=/var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/config/pbench-server.cfg
+chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-local/fs-version-001/pbench-move-results-receive
+chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-local/fs-version-002/pbench-move-results-receive
+chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-local/quarantine
+++++ /var/tmp/pbench-test-server/opt/pbench-server/lib/crontab/crontab
+PATH=/var/tmp/pbench-test-server/opt/pbench-server/bin:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts:/var/tmp/pbench-test-server/opt/pbench-server/bin:/usr/local/bin:/usr/bin:/bin
+CONFIG=/var/tmp/pbench-test-server/opt/pbench-server/lib/config/pbench-server.cfg
 MAILTO=admins@example.com
 MAILFROM=pbench@pbench.example.com
-* * * * *  flock -n /opt/pbench-server/lib/locks/pbench-unpack-tarballs.lock /opt/pbench-server/bin/pbench-unpack-tarballs
-41 * * * *  flock -n /opt/pbench-server/lib/locks/pbench-copy-sosreports.lock /opt/pbench-server/bin/pbench-copy-sosreports
-* * * * *  flock -n /opt/pbench-server/lib/locks/pbench-edit-prefixes.lock /opt/pbench-server/bin/pbench-edit-prefixes
-26 * * * *  flock -n /opt/pbench-server/lib/locks/pbench-index.lock /opt/pbench-server/bin/pbench-index
-41 4 * * *  flock -n /opt/pbench-server/lib/locks/pbench-backup-tarballs.lock /opt/pbench-server/bin/pbench-backup-tarballs
-59 4 * * 0  flock -n /opt/pbench-server/lib/locks/pbench-verify-backup-tarballs.lock /opt/pbench-server/bin/pbench-verify-backup-tarballs /var/tmp/pbench-test-server/pbench/archive.backup
-51 23 * * *  flock -n /opt/pbench-server/lib/locks/pbench-rsync-satellite.lock.$PREFIX /opt/pbench-server/bin/pbench-rsync-satellite $PREFIX $SATELLITE_HOST $SATELLITE_ARCHIVE
-51 1 * * 0  flock -n /opt/pbench-server/lib/locks/pbench-age-out-satellite.lock.$PREFIX /opt/pbench-server/bin/pbench-age-out-satellite $PREFIX $SATELLITE_HOST $SATELLITE_ARCHIVE
---- /var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/crontab/crontab
+* * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server/lib/locks/pbench-unpack-tarballs.lock /var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-unpack-tarballs
+41 * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server/lib/locks/pbench-copy-sosreports.lock /var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-copy-sosreports
+* * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server/lib/locks/pbench-edit-prefixes.lock /var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-edit-prefixes
+26 * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server/lib/locks/pbench-index.lock /var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-index
+41 4 * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server/lib/locks/pbench-backup-tarballs.lock /var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-backup-tarballs
+59 4 * * 0  flock -n /var/tmp/pbench-test-server/opt/pbench-server/lib/locks/pbench-verify-backup-tarballs.lock /var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-verify-backup-tarballs /var/tmp/pbench-test-server/pbench/archive.backup
+---- /var/tmp/pbench-test-server/opt/pbench-server/lib/crontab/crontab
+++++ test-activation-execution.log file contents
+/var/tmp/pbench-test-server/test-activation-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -sf pbench-results-host-info.URL001.active pbench-results-host-info.URL001
+/var/tmp/pbench-test-server/test-activation-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -sf pbench-results-host-info.URL002.active pbench-results-host-info.URL002
+/var/tmp/pbench-test-server/test-activation-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/systemctl enable httpd.service
+/var/tmp/pbench-test-server/test-activation-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/systemctl start httpd.service
+/var/tmp/pbench-test-server/test-activation-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/firewall-cmd --add-service=http
+/var/tmp/pbench-test-server/test-activation-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/firewall-cmd --permanent --add-service=http
+/var/tmp/pbench-test-server/test-activation-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -s /var/tmp/pbench-test-server/pbench/public_html/incoming /var/tmp/pbench-test-server/pbench/public_html/results /var/tmp/pbench-test-server/pbench/public_html/users /var/tmp/pbench-test-server/var-www-html
+---- test-activation-execution.log file contents
+--- Finished verifying server activation (status=0)
++++ var/www/html tree state
+/var/tmp/pbench-test-server/var-www-html
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+--- var/www/html tree state
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
+/var/tmp/pbench-test-server/pbench/archive
+/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 /var/tmp/pbench-test-server/pbench/logs
-/var/tmp/pbench-test-server/pbench/opt
-/var/tmp/pbench-test-server/pbench/opt/pbench-server
-/var/tmp/pbench-test-server/pbench/opt/pbench-server/lib
-/var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/config
-/var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/config/pbench-index.cfg
-/var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/config/pbench-server.cfg
-/var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/crontab
-/var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/crontab/crontab
-/var/tmp/pbench-test-server/pbench/opt/pbench-server/lib/locks
-/var/tmp/pbench-test-server/pbench/pbench
-/var/tmp/pbench-test-server/pbench/pbench-server-internal
-/var/tmp/pbench-test-server/pbench/pbench-server-internal/pbench
-/var/tmp/pbench-test-server/pbench/pbench-server-internal/pbench/lib
-/var/tmp/pbench-test-server/pbench/pbench-server-internal/pbench/lib/config
-/var/tmp/pbench-test-server/pbench/pbench-server-internal/pbench/lib/config/pbench-index.cfg
-/var/tmp/pbench-test-server/pbench/pbench-server-internal/pbench/lib/config/pbench-server.cfg
-/var/tmp/pbench-test-server/pbench/pbench/archive
-/var/tmp/pbench-test-server/pbench/pbench/archive/fs-version-001
-/var/tmp/pbench-test-server/pbench/pbench/public_html
-/var/tmp/pbench-test-server/pbench/pbench/public_html/incoming
-/var/tmp/pbench-test-server/pbench/pbench/public_html/results
-/var/tmp/pbench-test-server/pbench/pbench/public_html/users
+/var/tmp/pbench-test-server/pbench/public_html
+/var/tmp/pbench-test-server/pbench/public_html/incoming
+/var/tmp/pbench-test-server/pbench/public_html/results
+/var/tmp/pbench-test-server/pbench/public_html/users
 /var/tmp/pbench-test-server/pbench/tmp
-/var/tmp/pbench-test-server/pbench/var
-/var/tmp/pbench-test-server/pbench/var/www
-/var/tmp/pbench-test-server/pbench/var/www/html
-/var/tmp/pbench-test-server/pbench/var/www/html/pbench-results-host-info.versioned
 --- pbench tree state
++++ pbench-local tree state
+/var/tmp/pbench-test-server/pbench-local
+/var/tmp/pbench-test-server/pbench-local/fs-version-001
+/var/tmp/pbench-test-server/pbench-local/fs-version-001/pbench-move-results-receive
+/var/tmp/pbench-test-server/pbench-local/fs-version-002
+/var/tmp/pbench-test-server/pbench-local/fs-version-002/pbench-move-results-receive
+/var/tmp/pbench-test-server/pbench-local/quarantine
+/var/tmp/pbench-test-server/pbench-local/quarantine/duplicates-001
+/var/tmp/pbench-test-server/pbench-local/quarantine/duplicates-002
+/var/tmp/pbench-test-server/pbench-local/quarantine/errors-001
+/var/tmp/pbench-test-server/pbench-local/quarantine/errors-002
+/var/tmp/pbench-test-server/pbench-local/quarantine/md5-001
+/var/tmp/pbench-test-server/pbench-local/quarantine/md5-002
+--- pbench-local tree state
 +++ pbench log file contents
 --- pbench log file contents
-+++ test-execution.log file contents
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/systemctl enable httpd.service
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/systemctl start httpd.service
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -s /pbench/public_html/incoming /pbench/public_html/results /pbench/public_html/users /var/www/html
---- test-execution.log file contents

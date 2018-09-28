@@ -1,5 +1,13 @@
 +++ Running pbench-unpack-tarballs
 --- Finished pbench-unpack-tarballs (status=0)
++++ var/www/html tree state
+/var/tmp/pbench-test-server/var-www-html
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+--- var/www/html tree state
 +++ pbench tree state
 /var/tmp/pbench-test-server/pbench
 /var/tmp/pbench-test-server/pbench/archive
@@ -141,6 +149,20 @@
 /var/tmp/pbench-test-server/pbench/public_html/users/user01/controller01/prefix01
 /var/tmp/pbench-test-server/pbench/tmp
 --- pbench tree state
++++ pbench-local tree state
+/var/tmp/pbench-test-server/pbench-local
+/var/tmp/pbench-test-server/pbench-local/fs-version-001
+/var/tmp/pbench-test-server/pbench-local/fs-version-001/pbench-move-results-receive
+/var/tmp/pbench-test-server/pbench-local/fs-version-002
+/var/tmp/pbench-test-server/pbench-local/fs-version-002/pbench-move-results-receive
+/var/tmp/pbench-test-server/pbench-local/quarantine
+/var/tmp/pbench-test-server/pbench-local/quarantine/duplicates-001
+/var/tmp/pbench-test-server/pbench-local/quarantine/duplicates-002
+/var/tmp/pbench-test-server/pbench-local/quarantine/errors-001
+/var/tmp/pbench-test-server/pbench-local/quarantine/errors-002
+/var/tmp/pbench-test-server/pbench-local/quarantine/md5-001
+/var/tmp/pbench-test-server/pbench-local/quarantine/md5-002
+--- pbench-local tree state
 +++ pbench log file contents
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error:run-1900-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz does not exist
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:run-1900-01-01T00:00:00-UTC

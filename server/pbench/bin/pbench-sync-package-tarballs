@@ -36,13 +36,8 @@ files=$(if cd $remotearchive;then find . -path '*/TO-SYNC/*.tar.xz' -printf '%P\
 if [ "${_PBENCH_SERVER_TEST}" = "1" ] ;then
     # make the names reproducible for unit tests
     tmp=$TMP/$PROG.XXXXX
-    status=status.XXXXX
-    # don't submit any tarballs for further processing
-    dryrun=--dry-run
 else
     tmp=$TMP/$PROG.$$
-    status=status.$$
-    dryrun=
 fi
 
 index_content=$tmp/index_mail_contents

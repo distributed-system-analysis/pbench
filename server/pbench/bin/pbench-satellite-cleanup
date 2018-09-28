@@ -24,13 +24,8 @@ files=$(cd $remotearchive; find . -path '*/TO-DELETE/*.tar.xz' -printf '%P\n')
 if [ "${_PBENCH_SERVER_TEST}" = "1" ] ;then
     # make the names reproducible for unit tests
     tmp=$TMP/$PROG.XXXXX
-    status=status.XXXXX
-    # don't submit any tarballs for further processing
-    dryrun=--dry-run
 else
     tmp=$TMP/$PROG.$$
-    status=status.$$
-    dryrun=
 fi
 
 trap "rm -rf $tmp" EXIT
