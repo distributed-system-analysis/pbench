@@ -247,7 +247,7 @@ declare -A cmds=(
     [test-4]="_run_allscripts"
     # check that it runs if everything is there
     [test-5]="_run_allscripts"
-    [test-5.1]="_run_allscripts ${_testdir}/tmp"
+    [test-5.1]="_run_allscripts ${_testdir_local}/public_html/incoming"
 
     # backup tests
     # check for normal operation
@@ -319,12 +319,12 @@ declare -A cmds=(
     # pbench-unpack-tarballs unpacking to the incoming directory
     [test-16]="_run pbench-unpack-tarballs ${_testdir}/public_html/incoming"
     # pbench-unpack-tarballs unpacking to a temporary directory
-    [test-17]="_run pbench-unpack-tarballs ${_testdir}/tmp"
+    [test-17]="_run pbench-unpack-tarballs ${_testdir_local}/public_html/incoming"
 
-    # pbench-move-unpacked should work as expected using a temporary directory
-    [test-18]="_run pbench-move-unpacked ${_testdir}/tmp"
     # pbench-move-unpacked should do nothing when incoming directory is target
-    [test-19]="_run pbench-move-unpacked ${_testdir}/public_html/incoming"
+    [test-18]="_run pbench-move-unpacked ${_testdir}/public_html/incoming"
+    # pbench-move-unpacked should work as expected using a temporary directory
+    [test-19]="_run pbench-move-unpacked ${_testdir_local}/public_html/incoming"
 )
 
 tests=$*
