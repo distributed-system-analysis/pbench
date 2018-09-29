@@ -39,6 +39,13 @@
 /var/tmp/pbench-test-server/pbench/public_html/users
 /var/tmp/pbench-test-server/pbench/tmp
 --- pbench tree state
++++ pbench-local tree state
+/var/tmp/pbench-test-server/pbench-local
+/var/tmp/pbench-test-server/pbench-local/public_html
+/var/tmp/pbench-test-server/pbench-local/public_html/incoming
+/var/tmp/pbench-test-server/pbench-local/public_html/results
+/var/tmp/pbench-test-server/pbench-local/public_html/users
+--- pbench-local tree state
 +++ pbench log file contents
 /var/tmp/pbench-test-server/pbench/logs/pbench-copy-sosreports/pbench-copy-sosreports.log:run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-copy-sosreports/pbench-copy-sosreports.log:run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, processed 0 sosreports for 0 results directories with 0 errors

@@ -133,28 +133,33 @@
 /var/tmp/pbench-test-server/pbench/public_html/users/user01/controller01
 /var/tmp/pbench-test-server/pbench/public_html/users/user01/controller01/prefix01
 /var/tmp/pbench-test-server/pbench/tmp
-/var/tmp/pbench-test-server/pbench/tmp/controller00
-/var/tmp/pbench-test-server/pbench/tmp/controller00/benchmark-result-large_1900-01-01T00:00:00
-/var/tmp/pbench-test-server/pbench/tmp/controller00/benchmark-result-large_1900-01-01T00:00:00/lines.100.txt
-/var/tmp/pbench-test-server/pbench/tmp/controller01
-/var/tmp/pbench-test-server/pbench/tmp/controller01/benchmark-result-medium_1900-01-01T00:00:00
-/var/tmp/pbench-test-server/pbench/tmp/controller01/benchmark-result-medium_1900-01-01T00:00:00/lines.50.txt
-/var/tmp/pbench-test-server/pbench/tmp/controller01/benchmark-result-medium_1900-01-01T00:00:00/metadata.log
-/var/tmp/pbench-test-server/pbench/tmp/controller02
-/var/tmp/pbench-test-server/pbench/tmp/controller02/benchmark-result-small_1900-01-01T00:00:00
-/var/tmp/pbench-test-server/pbench/tmp/controller02/benchmark-result-small_1900-01-01T00:00:00/lines.10.txt
 --- pbench tree state
++++ pbench-local tree state
+/var/tmp/pbench-test-server/pbench-local
+/var/tmp/pbench-test-server/pbench-local/public_html
+/var/tmp/pbench-test-server/pbench-local/public_html/incoming
+/var/tmp/pbench-test-server/pbench-local/public_html/incoming/controller00
+/var/tmp/pbench-test-server/pbench-local/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00
+/var/tmp/pbench-test-server/pbench-local/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00/lines.100.txt
+/var/tmp/pbench-test-server/pbench-local/public_html/incoming/controller01
+/var/tmp/pbench-test-server/pbench-local/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00
+/var/tmp/pbench-test-server/pbench-local/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00/lines.50.txt
+/var/tmp/pbench-test-server/pbench-local/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00/metadata.log
+/var/tmp/pbench-test-server/pbench-local/public_html/incoming/controller02
+/var/tmp/pbench-test-server/pbench-local/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00
+/var/tmp/pbench-test-server/pbench-local/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00/lines.10.txt
+--- pbench-local tree state
 +++ pbench log file contents
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error:run-1900-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz does not exist
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:run-1900-01-01T00:00:00-UTC
-/var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:ln -s /var/tmp/pbench-test-server/pbench/tmp/controller02/benchmark-result-small_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00
+/var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:ln -s /var/tmp/pbench-test-server/pbench-local/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:ln -s /var/tmp/pbench-test-server/pbench/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/results/controller02/prefix02/benchmark-result-small_1900-01-01T00:00:00
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:run-1900-01-01T00:00:00-UTC: controller02/benchmark-result-small_1900-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 848
-/var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:ln -s /var/tmp/pbench-test-server/pbench/tmp/controller01/benchmark-result-medium_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00
+/var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:ln -s /var/tmp/pbench-test-server/pbench-local/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:ln -s /var/tmp/pbench-test-server/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/results/controller01/prefix01/benchmark-result-medium_1900-01-01T00:00:00
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:ln -s /var/tmp/pbench-test-server/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/users/user01/controller01/prefix01/benchmark-result-medium_1900-01-01T00:00:00
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:run-1900-01-01T00:00:00-UTC: controller01/benchmark-result-medium_1900-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 3180
-/var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:ln -s /var/tmp/pbench-test-server/pbench/tmp/controller00/benchmark-result-large_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00
+/var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:ln -s /var/tmp/pbench-test-server/pbench-local/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:ln -s /var/tmp/pbench-test-server/pbench/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/results/controller00/benchmark-result-large_1900-01-01T00:00:00
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:run-1900-01-01T00:00:00-UTC: controller00/benchmark-result-large_1900-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 5920
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:run-1900-01-01T00:00:00-UTC: Processed 3 tarballs
@@ -162,12 +167,12 @@
 /var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:
 --- pbench log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -s /var/tmp/pbench-test-server/pbench/tmp/controller02/benchmark-result-small_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -s /var/tmp/pbench-test-server/pbench-local/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -s /var/tmp/pbench-test-server/pbench/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/results/controller02/prefix02/benchmark-result-small_1900-01-01T00:00:00
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -s /var/tmp/pbench-test-server/pbench/tmp/controller01/benchmark-result-medium_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -s /var/tmp/pbench-test-server/pbench-local/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -s /var/tmp/pbench-test-server/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/results/controller01/prefix01/benchmark-result-medium_1900-01-01T00:00:00
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -s /var/tmp/pbench-test-server/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/users/user01/controller01/prefix01/benchmark-result-medium_1900-01-01T00:00:00
-/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -s /var/tmp/pbench-test-server/pbench/tmp/controller00/benchmark-result-large_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00
+/var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -s /var/tmp/pbench-test-server/pbench-local/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00
 /var/tmp/pbench-test-server/test-execution.log:/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ln -s /var/tmp/pbench-test-server/pbench/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/results/controller00/benchmark-result-large_1900-01-01T00:00:00
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
