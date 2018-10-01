@@ -1966,7 +1966,9 @@ _index_patterns = {
 }
 
 def dump_idx_patterns(prefix, patterns, tools):
-    for idx in patterns:
+    pattern_names = [idx for idx in patterns]
+    pattern_names.sort()
+    for idx in pattern_names:
         if idx != "tool-data":
             print(patterns[idx]['template'].format(prefix=prefix, year="YYYY", month="MM", day="DD"))
             print(patterns[idx]['desc'], '\n')
