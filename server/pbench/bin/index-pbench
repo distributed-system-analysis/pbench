@@ -1971,7 +1971,9 @@ def dump_idx_patterns(prefix, patterns, tools):
             print(patterns[idx]['template'].format(prefix=prefix, year="YYYY", month="MM", day="DD"))
             print(patterns[idx]['desc'], '\n')
         else:
-            for tool in tools:
+            tool_names = [tool for tool in tools]
+            tool_names.sort()
+            for tool in tool_names:
                 print(patterns[idx]['template'].format(prefix=prefix, tool=tool, year="YYYY", month="MM", day="DD"))
             print(patterns[idx]['desc'], '\n')
 
