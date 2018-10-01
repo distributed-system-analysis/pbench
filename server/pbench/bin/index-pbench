@@ -2160,6 +2160,9 @@ if __name__ == '__main__':
         args = None
     else:
         args = parsed.path_to_tarball_file
+        if not args:
+            parser.print_help(file=sys.stderr)
+            sys.exit(11)
         del parsed.path_to_tarball_file
 
     options = parsed
