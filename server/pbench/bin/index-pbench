@@ -1296,8 +1296,7 @@ def mk_tool_data(ptb, opctx):
                             toolsgroup, opctx)
     return
 
-def mk_tool_data_actions(ptb, options, INDEX_PREFIX, opctx):
-    index_name_template = "%s.tool-data-%%s" % INDEX_PREFIX
+def mk_tool_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
     for td in mk_tool_data(ptb, opctx):
         # Each ToolData object, td, that is returned here represents how
         # data collected for that tool across all hosts is to be returned.
@@ -1306,14 +1305,18 @@ def mk_tool_data_actions(ptb, options, INDEX_PREFIX, opctx):
         # the option of constructing that data as best fits its tool data.
         # The tool data for each tool is kept in its own index to allow
         # for different curation policies for each tool.
-        index_name_template_for_tool = (index_name_template % td.toolname) + '.'
         asource = td.make_source()
         if not asource:
             continue
         for source, source_id in asource:
+            year, month, day = source['@timestamp'].split('T', 1)[0].split('-')[0:3]
             action = _dict_const(
                 _op_type=_op_type,
-                _index=index_name_template_for_tool + source['@timestamp'].split('T', 1)[0],
+                _index= idx_patterns["tool-data"]["template"].format(prefix=idx_prefix,
+                                                                     tool=td.toolname,
+                                                                     year=year,
+                                                                     month=month,
+                                                                     day=day),
                 _type="pbench-tool-data-%s" % td.toolname,
                 _id=source_id,
                 _source=source
@@ -1321,8 +1324,8 @@ def mk_tool_data_actions(ptb, options, INDEX_PREFIX, opctx):
             yield action
     return
 
-def mk_result_data_actions(ptb, options, INDEX_PREFIX, opctx):
-    index_name_template = "%s.result-data." % INDEX_PREFIX
+def mk_result_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
+
     experiment = ptb.mdconf.get("pbench", "name")
     rd = ResultData(ptb, experiment, opctx)
     if not rd:
@@ -1331,9 +1334,13 @@ def mk_result_data_actions(ptb, options, INDEX_PREFIX, opctx):
     if not sources:
         return
     for source, source_id in sources:
+        year, month, day = source['@timestamp'].split('T', 1)[0].split('-')[0:3]
         action = _dict_const(
             _op_type=_op_type,
-            _index=index_name_template + source['@timestamp'].split('T', 1)[0],
+            _index= idx_patterns["result-data"]["template"].format(prefix=idx_prefix,
+                                                                   year=year,
+                                                                   month=month,
+                                                                   day=day),
             _type="pbench-result-data",
             _id=source_id,
             _source=source
@@ -1393,11 +1400,13 @@ def get_md5sum_of_dir(dir, parentid):
                 h.update(repr(f[k]).encode('utf-8'))
     return h.hexdigest()
 
-def mk_toc_actions(ptb, options, INDEX_PREFIX, opctx):
+def mk_toc_actions(ptb, options, idx_prefix, idx_patterns, opctx):
     """Construct Table-of-Contents actions.
 
     These are indexed into the run index along side the runs."""
-    index_name_template = "%s.run.%%d-%%02d" % INDEX_PREFIX
+    idx_name = idx_patterns["toc-data"]["template"].format(prefix=idx_prefix,
+                                                           year='{:04d}'.format(int(ptb.date[0])),
+                                                           month='{:02d}'.format(int(ptb.date[1])))
     tstamp = ptb.start_run.replace('_', 'T')
     prefix, dirs = mk_toc(ptb.tb, ptb.md5sum, options)
     assert(prefix == ptb.dirname)
@@ -1406,7 +1415,7 @@ def mk_toc_actions(ptb, options, INDEX_PREFIX, opctx):
         action = _dict_const(
             _id=get_md5sum_of_dir(d, ptb.md5sum),
             _op_type=_op_type,
-            _index=index_name_template % (int(ptb.date[0]), int(ptb.date[1])),
+            _index=idx_name,
             _type="pbench-run-toc-entry",
             _source=d,
             _parent=ptb.md5sum
@@ -1781,7 +1790,7 @@ def mk_metadata(fname, tb, mdconf, md5sum):
     ])
     return mddict
 
-def mk_run_action(ptb, options, INDEX_PREFIX, opctx):
+def mk_run_action(ptb, options, idx_prefix, idx_patterns, opctx):
     """Extract metadata from the named tarball and create an indexing
        action out of them.
 
@@ -1810,10 +1819,12 @@ def mk_run_action(ptb, options, INDEX_PREFIX, opctx):
     source['host_tools_info'] = mk_tool_info(sos_d, ptb.mdconf)
 
     # make a simple action for indexing
-    index_name_template = "%s.run.%%d-%%02d" % INDEX_PREFIX
+    idx_name = idx_patterns["run-data"]["template"].format(prefix=idx_prefix,
+                                                           year='{:04d}'.format(int(ptb.date[0])),
+                                                           month='{:02d}'.format(int(ptb.date[1])))
     action = _dict_const(
         _op_type=_op_type,
-        _index=index_name_template % (int(ptb.date[0]), int(ptb.date[1])),
+        _index=idx_name,
         _type="pbench-run",
         _id=ptb.md5sum,
         _source=source,
@@ -1821,7 +1832,7 @@ def mk_run_action(ptb, options, INDEX_PREFIX, opctx):
     if debug_time_operations: ts("Done!", newline=True)
     return action
 
-def make_all_actions(ptb, options, INDEX_PREFIX, INDEX_VERSION, opctx):
+def make_all_actions(ptb, options, idx_prefix, idx_patterns, opctx):
     """Driver for generating all actions on source documents for indexing
     into Elasticsearch. This generator drives the generation of the run
     source document, the table-of-contents tar ball documents, and finally
@@ -1829,15 +1840,15 @@ def make_all_actions(ptb, options, INDEX_PREFIX, INDEX_VERSION, opctx):
     """
     debug_time_operations = options.debug_time_operations
     if debug_time_operations: ts("mk_run_action")
-    yield mk_run_action(ptb, options, INDEX_PREFIX, opctx)
+    yield mk_run_action(ptb, options, idx_prefix, idx_patterns, opctx)
     if debug_time_operations: ts("mk_toc_actions")
-    for action in mk_toc_actions(ptb, options, INDEX_PREFIX, opctx):
+    for action in mk_toc_actions(ptb, options, idx_prefix, idx_patterns, opctx):
         yield action
     if debug_time_operations: ts("mk_result_data_actions")
-    for action in mk_result_data_actions(ptb, options, INDEX_PREFIX, opctx):
+    for action in mk_result_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
         yield action
     if debug_time_operations: ts("mk_tool_data_actions")
-    for action in mk_tool_data_actions(ptb, options, INDEX_PREFIX, opctx):
+    for action in mk_tool_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
         yield action
     if debug_time_operations: ts("", newline=True)
     return
@@ -1935,6 +1946,39 @@ def get_es_hosts(config):
 # main: create index from template if necessary, prepare the action and ship
 # it to ES for indexing.
 
+_index_patterns = {
+    'tool-data': {
+        'template': "{prefix}.tool-data-{tool}.{year}-{month}-{day}",
+        'desc': "Daily tool data for all tools land in indices named by tool; e.g. prefix.tool-data-iostat.YYYY-MM-DD"
+    },
+    'result-data': {
+        'template': "{prefix}.result-data.{year}-{month}-{day}",
+        'desc': "Daily result data (any data generated by the benchmark) for all pbench result tar balls; e.g prefix.result-data.YYYY-MM-DD"
+    },
+    'toc-data': {
+        'template': "{prefix}.run.{year}-{month}",
+        'desc': "Monthly table of contents metadata for index tar balls; contains directories, file names, and their size, permissions, etc.; e.g. prefix.run.YYYY-MM"
+    },
+    'run-data': {
+        'template': "{prefix}.run.{year}-{month}",
+        'desc': "Monthly pbench run metadata for index tar balls; contains directories, file names, and their size, permissions, etc.; e.g. prefix.run.YYYY-MM"
+    }
+}
+
+def dump_idx_patterns(prefix, patterns, tools):
+    pattern_names = [idx for idx in patterns]
+    pattern_names.sort()
+    for idx in pattern_names:
+        if idx != "tool-data":
+            print(patterns[idx]['template'].format(prefix=prefix, year="YYYY", month="MM", day="DD"))
+            print(patterns[idx]['desc'], '\n')
+        else:
+            tool_names = [tool for tool in tools]
+            tool_names.sort()
+            for tool in tool_names:
+                print(patterns[idx]['template'].format(prefix=prefix, tool=tool, year="YYYY", month="MM", day="DD"))
+            print(patterns[idx]['desc'], '\n')
+
 def main(options, args):
     # ^$!@!#%# compatibility
     # FileNotFoundError is python 3.3 and the travis-ci hosts still (2015-10-01) run
@@ -1956,6 +2000,10 @@ def main(options, args):
         except Exception as e:
             raise ConfigFileError(e)
 
+        if options.dump_index_patterns:
+            dump_idx_patterns(INDEX_PREFIX, _index_patterns, _known_handlers)
+            return 0
+
         if not options.tmpdir:
             raise Exception("No temporary directory specified")
 
@@ -1975,7 +2023,7 @@ def main(options, args):
         # dictionary is passed along to each generator so that it can add its
         # context for error handling to the list.
         actions = make_all_actions(
-                ptb, options, INDEX_PREFIX, INDEX_VERSION, opctx)
+                ptb, options, INDEX_PREFIX, _index_patterns, opctx)
 
         # Create the various index templates
         if options.debug_time_operations: ts("es_template")
@@ -2075,21 +2123,52 @@ def main(options, args):
 ###########################################################################
 # Options handling
 if __name__ == '__main__':
-    parser = ArgumentParser("Usage: index-pbench [--config <path-to-config-file>] [--metadata \"<JSON doc>\"] [--working-directory <dir>] <path-to-tarball>")
-    parser.add_argument("-C", "--config", dest="cfg_name", help="Specify config file")
-    parser.add_argument("-E", "--indexing-errors", dest="indexing_errors", help="Name of a file to write JSON documents that fail to index")
-    parser.add_argument("-D", "--temp-directory", dest="tmpdir", help="Temporary directory to use while indexing")
-    parser.add_argument("-M", "--metadata", dest="metadata_string", help="Specify additional metadata (e.g. for browbeat) as a JSON document string")
+    parser = ArgumentParser(
+        """Usage: index-pbench [--config <path-to-config-file>] [--metadata "<JSON doc>"]"""
+        """ [--working-directory <dir>] <path-to-tarball>""")
+    parser.add_argument(
+        "-C", "--config", dest="cfg_name",
+        help="Specify config file")
+    parser.add_argument(
+        "-E", "--indexing-errors", dest="indexing_errors",
+        help="Name of a file to write JSON documents that fail to index")
+    parser.add_argument(
+        "-D", "--temp-directory", dest="tmpdir",
+        help="Temporary directory to use while indexing")
+    parser.add_argument(
+        "-I", "--dump-index-patterns", action="store_true", dest="dump_index_patterns",
+        help="Emit a list of index patterns used")
+    parser.add_argument(
+        "-M", "--metadata", dest="metadata_string",
+        help="Specify additional metadata (e.g. for browbeat) as a JSON document string")
     # options for debuggging and unit testing
-    parser.add_argument("-U", "--unittest", action="store_true", dest="debug_unittest", help="Run in unittest mode")
-    parser.add_argument("-T", "--time-ops", action="store_true", dest="debug_time_operations", help="Time action making routines")
+    parser.add_argument(
+        "-U", "--unittest", action="store_true", dest="debug_unittest",
+        help="Run in unittest mode")
+    parser.add_argument(
+        "-T", "--time-ops", action="store_true", dest="debug_time_operations",
+        help="Time action making routines")
     # argparse also handles the cli argument passed to the script, therefore this parser has been added
-    parser.add_argument("path_to_tarball_file",nargs=1,help="specify the path to the tar.gz file")
+    parser.add_argument(
+        "path_to_tarball_file", nargs='*',
+        help="specify the path to the tar.gz file")
     parser.set_defaults(cfg_name = os.environ.get("ES_CONFIG_PATH"))
     parser.set_defaults(tmpdir = os.environ.get("TMPDIR"))
     parsed = parser.parse_args()
-    args = parsed.path_to_tarball_file
-    del parsed.path_to_tarball_file
+
+    if parsed.dump_index_patterns:
+        if parsed.path_to_tarball_file:
+            print("-I given: ignoring positional argument {}".format(parsed.path_to_tarball_file),
+                  file=sys.stderr)
+            del parsed.path_to_tarball_file
+        args = None
+    else:
+        args = parsed.path_to_tarball_file
+        if not args:
+            parser.print_help(file=sys.stderr)
+            sys.exit(11)
+        del parsed.path_to_tarball_file
+
     options = parsed
     status = main(options, args)
     sys.exit(status)
