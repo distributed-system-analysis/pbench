@@ -11,7 +11,7 @@ use Exporter qw(import);
 use List::Util qw(max);
 use JSON;
 
-our @EXPORT_OK = qw(get_json_file put_json_file get_benchmark_names get_clients get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params);
+our @EXPORT_OK = qw(get_json_file put_json_file get_benchmark_names get_clients get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params remove_element);
 my $script = "PbenchBase.pm";
 my $sub;
 
@@ -37,6 +37,18 @@ sub get_params { # this simply takes @ARGV-like array and returns a hash with ke
 		}
 	}
 	return %params;
+}
+sub remove_element { # remove first occurrance of value in array
+	my $argv_ref = shift; # array to remove element from
+	my $val = shift; # the value to search for and remove
+	my $index = 0;
+	for my $array_val (@{ $argv_ref }) {
+		if ($array_val eq $val) {
+			splice(@{ $argv_ref }, $index, 1);
+			last;
+		}
+		$index++;
+	}
 }
 sub remove_params { # remove any parameters with "arg"
 	my $argv_ref = shift;
