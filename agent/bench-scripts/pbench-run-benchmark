@@ -14,15 +14,11 @@ use strict;
 use warnings;
 use File::Basename;
 my $pbench_lib_path;
-my $script_path;
-my $script_name;
-my $pbench_run_path;
 BEGIN {
-	$script_path = dirname($0);
-	$script_name = basename($0);
-	$pbench_lib_path = $script_path . "/postprocess";
+	$pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
+	chomp $pbench_lib_path;
+	$pbench_lib_path .= "/lib";
 }
-
 use lib "$pbench_lib_path";
 use JSON;
 use Data::Dumper;
@@ -96,7 +92,9 @@ my @config_hosts = split(/,/, $params{"clients"});  # todo: use "config_hostname
 my $remote_collection_dir = $base_bench_dir . "-config"; # we use a slightly different dir than default in case one of the hosts is also the controller
 create_dir_hosts(\@config_hosts, $remote_collection_dir, $base_bench_dir);
 my $output = ssh_hosts(\@config_hosts, "/opt/pbench-agent/bench-scripts/pbench-get-config " . $run_doc{"doc_id"} . " " . $remote_collection_dir, $remote_collection_dir, $base_bench_dir);
+print "before sync dir from hosts\n";
 sync_dir_from_hosts(\@config_hosts, $remote_collection_dir . "/es/config/", $es_config_dir, $base_bench_dir);
+print "after sync dir from hosts\n";
 remove_dir_from_hosts(\@config_hosts, $remote_collection_dir, $base_bench_dir);
 	
 # pass the rest of the args to pbench-gen-iterations and store the iterations in an array

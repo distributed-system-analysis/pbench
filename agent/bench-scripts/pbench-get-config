@@ -10,15 +10,11 @@ use strict;
 use warnings;
 use File::Basename;
 my $pbench_lib_path;
-my $script_path;
-my $script_name;
-my $pbench_run_path;
 BEGIN {
-	$script_path = dirname($0);
-	$script_name = basename($0);
-	$pbench_lib_path = $script_path . "/postprocess";
+	$pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
+	chomp $pbench_lib_path;
+	$pbench_lib_path .= "/lib";
 }
-
 use lib "$pbench_lib_path";
 use JSON;
 use Data::Dumper;

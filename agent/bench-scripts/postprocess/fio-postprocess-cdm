@@ -3,16 +3,13 @@
 use strict;
 use warnings;
 use File::Basename;
-my $pbench_lib_path;
-my $script_path;
-my $script_name;
 my $pbench_run_path;
+my $pbench_lib_path;
 BEGIN {
-	$script_path = dirname($0);
-	$script_name = basename($0);
-	$pbench_lib_path = $script_path;
+	$pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
+	chomp $pbench_lib_path;
+	$pbench_lib_path .= "/lib";
 }
-
 use lib "$pbench_lib_path";
 use JSON;
 use Data::Dumper;
@@ -28,7 +25,7 @@ printf "\@ARGV: %s\n", join(" ", @ARGV);
 # todo:
 # - for each metric, create CDM doc(s), one per timeseries-sample
 #
-
+my $script_name = basename($0);
 my $json_ref = get_json_file("bench-iter-sample.json");
 my %bench_iter_sample = %$json_ref; # this is the CDM doc for this benchmark-iteration-sample
 my $sample_id = $bench_iter_sample{"doc_id"}; # needs to be included in all metric-sample docs
