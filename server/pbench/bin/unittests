@@ -98,15 +98,23 @@ function _run_allscripts {
         arg0="${1}"
     fi
 
-    # _run pbench-backup-tarballs
-    # These next four are related and would flow in this order
+    # These three pull in new tar balls from move-results and remote
+    # satellite pbench servers feeding them into the dispatch loop.
+    _run pbench-server-prep-shim-001
+    _run pbench-server-prep-shim-002
+    _run pbench-sync-satellite UT remote.example.com /pbench/archive/fs-version-001
+    # These next five are related and would flow in this order
+    _run pbench-dispatch
     _run pbench-unpack-tarballs $arg0
     _run pbench-move-unpacked $arg0
     _run pbench-copy-sosreports
     _run pbench-index
-    # These two are independent
+    # These four are independent, running periodically to accomplish
+    # their specific tasks.
     _run pbench-clean-up-dangling-results-links
     _run pbench-edit-prefixes
+    _run pbench-backup-tarballs
+    _run pbench-verify-backup-tarballs
 }
 
 function _local_find {
@@ -433,6 +441,8 @@ declare -A cmds=(
     [test-19]="_run pbench-move-unpacked ${_testdir_local}/public_html/incoming"
 
     [test-20]="_run echo audit archive hierarchy"
+
+    [test-21]="_run pbench-dispatch"
 )
 
 tests=$*

@@ -37,7 +37,7 @@ drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/TEST
 drwxrwxr-x          - logs/pbench-sync-satellite/TEST/run-1900-01-01T00:00:00-UTC
 -rw-rw-r--          0 logs/pbench-sync-satellite/pbench-sync-satellite.error
--rw-rw-r--        354 logs/pbench-sync-satellite/pbench-sync-satellite.log
+-rw-rw-r--        255 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
@@ -60,8 +60,6 @@ drwxrwxr-x          - quarantine/md5-002
 +++ pbench log file contents
 /var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/220da1f3bf4d0b3f092de018ea819ba1 --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
-/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:tar: This does not look like a tar archive
-/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:tar: Exiting with failure status due to previous errors
 /var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: start - 1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: end - 1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: duration (secs): 0

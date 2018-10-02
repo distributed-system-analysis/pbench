@@ -39,6 +39,9 @@ esac
 # TOP, ARCHIVE, BDIR, TMP, LOGSDIR defined in pbench-base.sh
 . $dir/pbench-base.sh
 
+test -d $ARCHIVE || doexit "Bad archive: $ARCHIVE"
+test -d $BDIR || doexit "Bad backup directory: $BDIR"
+
 primary=$ARCHIVE
 backup=$BDIR
 
