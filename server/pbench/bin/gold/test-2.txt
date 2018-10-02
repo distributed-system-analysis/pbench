@@ -1,3 +1,13 @@
++++ Running pbench-server-prep-shim-001
+--- Finished pbench-server-prep-shim-001 (status=0)
++++ Running pbench-server-prep-shim-002
+--- Finished pbench-server-prep-shim-002 (status=0)
++++ Running pbench-sync-satellite
+pbench-sync-satellite: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
+--- Finished pbench-sync-satellite (status=1)
++++ Running pbench-dispatch
+pbench-dispatch: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
+--- Finished pbench-dispatch (status=1)
 +++ Running pbench-unpack-tarballs
 pbench-unpack-tarballs: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-unpack-tarballs (status=1)
@@ -16,6 +26,11 @@ pbench-clean-up-dangling-results-links: Bad ARCHIVE=/var/tmp/pbench-test-server/
 +++ Running pbench-edit-prefixes
 pbench-edit-prefixes: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-edit-prefixes (status=1)
++++ Running pbench-backup-tarballs
+--- Finished pbench-backup-tarballs (status=1)
++++ Running pbench-verify-backup-tarballs
+pbench-verify-backup-tarballs: Bad archive: /var/tmp/pbench-test-server/pbench/archive/fs-version-001
+--- Finished pbench-verify-backup-tarballs (status=1)
 +++ Running unit test audit
 pbench-audit-archive: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished unit test audit (status=1)
@@ -33,6 +48,15 @@ lrwxrwxrwx         52 users -> /var/tmp/pbench-test-server/pbench/public_html/us
 --- var/www/html tree state
 +++ pbench tree state (/var/tmp/pbench-test-server/pbench)
 drwxrwxr-x          - logs
+drwxrwxr-x          - logs/pbench-backup-tarballs
+-rw-rw-r--        141 logs/pbench-backup-tarballs/pbench-backup-tarballs.error
+-rw-rw-r--         30 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
+drwxrwxr-x          - logs/pbench-server-prep-shim-001
+-rw-rw-r--          0 logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.error
+-rw-rw-r--        390 logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log
+drwxrwxr-x          - logs/pbench-server-prep-shim-002
+-rw-rw-r--          0 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
+-rw-rw-r--        390 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 drwxrwxr-x          - no-archive
 drwxrwxr-x          - no-archive/fs-version-001
 drwxrwxr-x          - public_html
@@ -55,4 +79,28 @@ drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
 --- pbench-local tree state
 +++ pbench log file contents
+/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.error:pbench-backup-tarballs: The ARCHIVE directory does not resolve to a real location, /var/tmp/pbench-test-server/pbench/archive/fs-version-001
+/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:start-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:run-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:run-1900-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-server-prep-shim-001.1900-01/status/641b5b1d8f3408a5a1d0712f45559071 --data @/tmp/pbench-report-status.NNNN/payload
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:run-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:run-1900-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-server-prep-shim-002.1900-01/status/641b5b1d8f3408a5a1d0712f45559071 --data @/tmp/pbench-report-status.NNNN/payload
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:
 --- pbench log file contents
++++ test-curl-payload.log file contents
+{
+    "text": "run-1900-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n", 
+    "@timestamp": "1900-01-01T00:00:00", 
+    "name": "pbench-server-prep-shim-001", 
+    "doctype": "status"
+}
+{
+    "text": "run-1900-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n", 
+    "@timestamp": "1900-01-01T00:00:00", 
+    "name": "pbench-server-prep-shim-002", 
+    "doctype": "status"
+}
+--- test-curl-payload.log file contents

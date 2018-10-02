@@ -1,3 +1,15 @@
++++ Running pbench-server-prep-shim-001
+pbench-server-prep-shim-001: Bad TOP=/var/tmp/pbench-test-server/pbench
+--- Finished pbench-server-prep-shim-001 (status=1)
++++ Running pbench-server-prep-shim-002
+pbench-server-prep-shim-002: Bad TOP=/var/tmp/pbench-test-server/pbench
+--- Finished pbench-server-prep-shim-002 (status=1)
++++ Running pbench-sync-satellite
+pbench-sync-satellite: Bad TOP=/var/tmp/pbench-test-server/pbench
+--- Finished pbench-sync-satellite (status=1)
++++ Running pbench-dispatch
+pbench-dispatch: Bad TOP=/var/tmp/pbench-test-server/pbench
+--- Finished pbench-dispatch (status=1)
 +++ Running pbench-unpack-tarballs
 pbench-unpack-tarballs: Bad TOP=/var/tmp/pbench-test-server/pbench
 --- Finished pbench-unpack-tarballs (status=1)
@@ -16,6 +28,12 @@ pbench-clean-up-dangling-results-links: Bad TOP=/var/tmp/pbench-test-server/pben
 +++ Running pbench-edit-prefixes
 pbench-edit-prefixes: Bad TOP=/var/tmp/pbench-test-server/pbench
 --- Finished pbench-edit-prefixes (status=1)
++++ Running pbench-backup-tarballs
+pbench-backup-tarballs: Bad TOP=/var/tmp/pbench-test-server/pbench
+--- Finished pbench-backup-tarballs (status=1)
++++ Running pbench-verify-backup-tarballs
+pbench-verify-backup-tarballs: Bad TOP=/var/tmp/pbench-test-server/pbench
+--- Finished pbench-verify-backup-tarballs (status=1)
 +++ Running unit test audit
 pbench-audit-archive: Bad TOP=/var/tmp/pbench-test-server/pbench
 --- Finished unit test audit (status=1)

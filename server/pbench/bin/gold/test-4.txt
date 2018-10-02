@@ -1,3 +1,11 @@
++++ Running pbench-server-prep-shim-001
+--- Finished pbench-server-prep-shim-001 (status=0)
++++ Running pbench-server-prep-shim-002
+--- Finished pbench-server-prep-shim-002 (status=0)
++++ Running pbench-sync-satellite
+--- Finished pbench-sync-satellite (status=0)
++++ Running pbench-dispatch
+--- Finished pbench-dispatch (status=0)
 +++ Running pbench-unpack-tarballs
 pbench-unpack-tarballs: Bad RESULTS=/var/tmp/pbench-test-server/pbench/public_html/results
 --- Finished pbench-unpack-tarballs (status=1)
@@ -14,6 +22,11 @@ pbench-clean-up-dangling-results-links: Bad RESULTS=/var/tmp/pbench-test-server/
 +++ Running pbench-edit-prefixes
 pbench-edit-prefixes: Bad RESULTS=/var/tmp/pbench-test-server/pbench/public_html/results
 --- Finished pbench-edit-prefixes (status=1)
++++ Running pbench-backup-tarballs
+--- Finished pbench-backup-tarballs (status=1)
++++ Running pbench-verify-backup-tarballs
+pbench-verify-backup-tarballs: Bad backup directory: /var/tmp/pbench-test-server/pbench/archive.backup
+--- Finished pbench-verify-backup-tarballs (status=1)
 +++ Running unit test audit
 --- Finished unit test audit (status=0)
 +++ var/www/html tree state (/var/tmp/pbench-test-server/var-www-html)
@@ -32,15 +45,33 @@ lrwxrwxrwx         52 users -> /var/tmp/pbench-test-server/pbench/public_html/us
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - logs
+-rw-rw-r--          0 logs/change-state.UT.log
 drwxrwxr-x          - logs/pbench-audit-archive
 -rw-rw-r--          0 logs/pbench-audit-archive/pbench-audit-archive.error
 -rw-rw-r--        218 logs/pbench-audit-archive/pbench-audit-archive.log
+drwxrwxr-x          - logs/pbench-backup-tarballs
+-rw-rw-r--        134 logs/pbench-backup-tarballs/pbench-backup-tarballs.error
+-rw-rw-r--         30 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
 drwxrwxr-x          - logs/pbench-copy-sosreports
 -rw-rw-r--          0 logs/pbench-copy-sosreports/pbench-copy-sosreports.error
 -rw-rw-r--        192 logs/pbench-copy-sosreports/pbench-copy-sosreports.log
+drwxrwxr-x          - logs/pbench-dispatch
+-rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.error
+-rw-rw-r--         78 logs/pbench-dispatch/pbench-dispatch.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
 -rw-rw-r--        379 logs/pbench-index/pbench-index.log
+drwxrwxr-x          - logs/pbench-server-prep-shim-001
+-rw-rw-r--          0 logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.error
+-rw-rw-r--        390 logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log
+drwxrwxr-x          - logs/pbench-server-prep-shim-002
+-rw-rw-r--          0 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
+-rw-rw-r--        390 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
+drwxrwxr-x          - logs/pbench-sync-satellite
+drwxrwxr-x          - logs/pbench-sync-satellite/UT
+drwxrwxr-x          - logs/pbench-sync-satellite/UT/run-1900-01-01T00:00:00-UTC
+-rw-rw-r--          0 logs/pbench-sync-satellite/pbench-sync-satellite.error
+-rw-rw-r--        255 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/no-results
@@ -63,14 +94,45 @@ drwxrwxr-x          - quarantine/md5-002
 +++ pbench log file contents
 /var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/d5ee68b33a845dac49792935d85c10ce --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
+/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.error:pbench-backup-tarballs: Specified backup directory does not resolve to a directory, /var/tmp/pbench-test-server/pbench/archive.backup
+/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:start-1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-copy-sosreports/pbench-copy-sosreports.log:run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-copy-sosreports/pbench-copy-sosreports.log:run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, processed 0 sosreports for 0 results directories with 0 errors
+/var/tmp/pbench-test-server/pbench/logs/pbench-dispatch/pbench-dispatch.log:run-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-dispatch/pbench-dispatch.log:run-1900-01-01T00:00:00-UTC: Processed 0 tarballs
 /var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 0 (skipped 0) results, 0 errors
 /var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01/status/86b27ea1db1e4119089cb4dff57df63e --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:run-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:run-1900-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-server-prep-shim-001.1900-01/status/641b5b1d8f3408a5a1d0712f45559071 --data @/tmp/pbench-report-status.NNNN/payload
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:run-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:run-1900-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-server-prep-shim-002.1900-01/status/641b5b1d8f3408a5a1d0712f45559071 --data @/tmp/pbench-report-status.NNNN/payload
+/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:
+/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: start - 1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: end - 1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: duration (secs): 0
+/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: Total 0 files processed, with 0 md5 failures and 0 errors
 --- pbench log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ssh remote.example.com /opt/pbench-server/bin/pbench-sync-package-tarballs
+--- test-execution.log file contents
 +++ test-curl-payload.log file contents
+{
+    "text": "run-1900-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n", 
+    "@timestamp": "1900-01-01T00:00:00", 
+    "name": "pbench-server-prep-shim-001", 
+    "doctype": "status"
+}
+{
+    "text": "run-1900-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n", 
+    "@timestamp": "1900-01-01T00:00:00", 
+    "name": "pbench-server-prep-shim-002", 
+    "doctype": "status"
+}
 {
     "text": "pbench-index.run-1900-01-01T00:00:00-UTC(unit-test) - Indexed 0 results\n", 
     "@timestamp": "1900-01-01T00:00:00", 

@@ -106,10 +106,14 @@ if [[ $rc != 0 ]] ;then
     exit 2
 fi
 
-# unpack the tarball into tmp directory
-tar -xf $tmp/satellite.$prefix.tar -C $unpack
-files=$(find $unpack -path '*.tar.xz' -printf '%P\n')
-hosts="$(for host in $files;do echo ${host%%/*};done | sort -u )"
+if [ -s $tmp/satellite.$prefix.tar ]; then
+    # unpack the tarball into tmp directory
+    tar -xf $tmp/satellite.$prefix.tar -C $unpack
+    files=$(find $unpack -path '*.tar.xz' -printf '%P\n')
+    hosts="$(for host in $files;do echo ${host%%/*};done | sort -u )"
+else
+    hosts=""
+fi
 
 # initialize change state log and mail content
 > $LOGSDIR/change-state.$prefix.log
