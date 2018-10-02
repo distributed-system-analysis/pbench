@@ -21,13 +21,15 @@ sub get_pbench_run_dir {
 	return $dir;
 }
 sub get_pbench_install_dir {
-	return `getconf.py install-dir pbench-agent`; # typically /var/lib/pbench-agent
+	my $dir = `getconf.py install-dir pbench-agent`; # typically /var/lib/pbench-agent
+	chomp $dir;
+	return $dir;
 }
 sub get_pbench_config_dir {
 	return get_pbench_install_dir() . "/config";
 }
 sub get_pbench_bench_config_dir {
-	return get_pbench_install_dir() . "/config/bench";
+	return get_pbench_install_dir() . "/config/benchmark";
 }
 sub get_params { # this simply takes @ARGV-like array and returns a hash with key=argument and value=value
 	my %params;

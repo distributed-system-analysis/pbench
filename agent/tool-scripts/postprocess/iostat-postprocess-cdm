@@ -1,0 +1,98 @@
+#!/usr/bin/perl
+
+# Author: Andrew Theurer
+#
+# usage: iostat-postprocess-cdm <tool_data_dir> <es_dir>
+# tool_data_dir = directory where iostat-stdout.txt file resides
+# es_dir = base directory for Elasticsearch documents
+#
+# The purpose of this script is to
+# -create json docs suitable for importing into Elasticsearch
+#  -one document per data-point (a specific metric at a specific time)
+#  -documents written to $es_dir/metrics/$hostname/
+
+use strict;
+use warnings;
+use File::Basename;
+my $pbench_lib_path;
+my $script_path;
+my $script_name;
+my $pbench_run_path;
+BEGIN {
+	$script_path = dirname($0);
+	$script_name = basename($0);
+	$pbench_lib_path = $script_path;
+}
+
+use lib "$pbench_lib_path";
+use JSON;
+use Data::Dumper;
+use PbenchCDM qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc get_hostname create_metric_sample_doc create_bench_iter_sample_period);
+use PbenchBase qw(get_json_file put_json_file get_benchmark_names get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params remove_element);
+
+my $dir = shift;
+my $es_dir = shift;
+my $run_id = shift;
+my $json_ref = get_json_file($es_dir . "/run.json");
+my %run_doc = %$json_ref; # this is the CDM doc for the run
+my $run_id = $run_doc{"doc_id"}; # needs to be included in all metric-sample docs
+
+# read the iostat.txt
+open(IOSTAT_TXT, "$dir/iostat-stdout.txt") || die "could not find $dir/iostat-stdout.txt\n";
+while (my $line = <IOSTAT_TXT>) {
+	my $timestamp_ms;
+	chomp $line;
+	# Each sample should start with a time stamp (the -t in iostat).
+	# When we find this, update our timestamp for the hash.
+	if ( $line =~ /^\d\d\/\d\d\/\d\d(\d\d)?\s\d\d:\d\d:\d\d(\s[AP]M)?/ ) {
+		$timestamp_ms=`date --date="$line" +%s.%N` * 1000;
+	}
+	#Device:         rrqm/s   wrqm/s     r/s     w/s    rMB/s    wMB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
+	#sda               0.00     0.00 22116.00    4.00    86.39     0.07     8.00    32.03    1.43    1.43    4.92   0.05 100.00
+	#dm-0              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
+	#dm-1              0.00     0.00    0.00    4.33     0.00     0.10    47.38     0.35    4.54    0.00    4.54  76.08  32.97
+	#dm-2              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
+	#dm-3              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
+	#                         rrqm/s      wrqm/s       r/s          w/s          rMB/s        wMD/s        avgrqsz      avgqsz       await        r_await      w_await      svctm        util
+	if ( $line =~ /(\S+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)(.*)/ ) {
+		my $dev = $1;
+		my %sample;
+		$sample{"throughput"}{"blockdev_read_request_merges_sec"} = $2;
+		$sample{"throughput"}{"blockdev_write_request_merges_sec"} = $3;
+		$sample{"throughput"}{"blockdev_read_iops"} = $4;
+		$sample{"throughput"}{"blockdev_write_iops"} = $5;
+		$sample{"throughput"}{"blockdev_read_KB_sec"} = $6;
+		$sample{"throughput"}{"blockdev_write_KB_sec"} = $7;
+		$sample{"count"}{"blockdev_request_size_KB"} = $8;
+		$sample{"count"}{"blockdev_queue_size"} = $9;
+		$sample{"count"}{"blockdev_read_wait_msec"} = $10;
+		$sample{"count"}{"blockdev_write_wait_msec"} = $11;
+		$sample{"count"}{"blockdev_write_wait_msec"} = $12;
+		$sample{"count"}{"blockdev_io_utilization_percent"} = $14;
+		for my $metric_class (keys %sample) {
+			for my $metric_type (keys %{ $sample{$metric_class} }) {
+				my %metric_sample = create_metric_sample_doc(
+					$run_id,
+					"",		# benchmark-iteration doc id
+					"",		# benchmark-iteration-sample doc id
+					"",		# benchmark-period doc id
+					$metric_class,	# metric-class
+					$metric_type,	# metric-type
+					$hostname,# hostname
+					"iostat",		# the source
+					# the metric-instance name format
+					"%source%-%type%-%device%-%hostname%",
+					$sample{$metric_class}{$metric_type},	# the value of the metric
+					$timestamp_ms	# the timestamp
+					);
+				$metric_sample{"device"} = $dev;
+				put_json_file(\%metric_sample, "../../es/metrics/" .
+						$client_hostname .
+						"/metric-sample-" .
+						$metric_sample{"doc_id"} .
+						".json");
+			}
+		}
+	}
+}
+close(IOSTAT_TXT);

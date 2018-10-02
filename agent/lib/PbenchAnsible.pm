@@ -32,12 +32,13 @@ my $ansible_playbook_cmdline = $ansible_playbook_bin;
 
 sub verify_success {
 	my $text_data = shift;
+	$text_data =~ s/^[^\{]*//; # remove any junk before actual json
 	my $data_ref = from_json($text_data);
 	my %stats = %{ $$data_ref{"stats"}};
 	for my $host (keys %stats) {
 		if ($stats{$host}{"failures"} > 0 or $stats{$host}{"unreachable"} > 0) {
  			print "host $host failed";
-			exit 1;
+			return 0;
 		}
 	}
 	return 1;
@@ -97,8 +98,11 @@ sub run_playbook { # execute a playbook
 	log_ansible($logdir, $full_cmd, $output);
 	if (verify_success($output)) {
 		return $output;
-	}	
-	return $output;
+	} else {
+		print "Execution of this Ansible playbook failed\n";
+		printf "playbook file: %s\n", $playbook_file;
+		exit 1;
+	}
 }
 sub ping_hosts { # check for connectivity with ping
 	my $hosts_ref = shift;
@@ -109,7 +113,13 @@ sub ping_hosts { # check for connectivity with ping
 			$ansible_base_cmdline . " -i " .  $inv_file . " all -m ping";
 	my $output = `$full_cmd`;
 	log_ansible($logdir, $full_cmd, $output);
-	return $output;
+	if (verify_success($output)) {
+		return $output;
+	} else {
+		print "Execution of this Ansible playbook failed\n";
+		printf "Ansible log dir: %s\n", $logdir;
+		exit 1;
+	}
 }
 sub create_dir_hosts { # creates a directory on remote hosts
 	my $hosts_ref = shift; # array-reference to host list to copy from 
@@ -122,12 +132,7 @@ sub create_dir_hosts { # creates a directory on remote hosts
 	push(@tasks, \%task);
 	my %play = ( hosts => "all", tasks => \@tasks );;
 	my @playbook = (\%play);;
-	my $playbook_file = build_playbook(\@playbook, $logdir);
-	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
-			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
-	my $output = `$full_cmd`;
-	log_ansible($logdir, $full_cmd, $output);
-	return $output;
+	return run_playbook(\@playbook, $inv_file, $logdir);
 }
 sub ssh_hosts { # run a command on remote hosts
 	my $hosts_ref = shift; # array-reference to host list
@@ -141,12 +146,7 @@ sub ssh_hosts { # run a command on remote hosts
 	push(@tasks, \%task);
 	my %play = ( hosts => "all", tasks => \@tasks );;
 	my @playbook = (\%play);;
-	my $playbook_file = build_playbook(\@playbook, $logdir);
-	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
-			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
-	my $output = `$full_cmd`;
-	log_ansible($logdir, $full_cmd, $output);
-	return $output;
+	return run_playbook(\@playbook, $inv_file, $logdir);
 }
 sub copy_files_to_hosts { # copies local files to hosts with a new, common destination path
 	my $hosts_ref = shift; # array-reference to host list
