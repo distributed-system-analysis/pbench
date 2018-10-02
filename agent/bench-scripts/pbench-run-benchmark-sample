@@ -46,13 +46,15 @@ sub load_benchmark_specs {
 
 print Dumper \@ARGV;
 # the only required argument is the benchmark name; verify it now
-if (scalar @ARGV < 4) {
-	print "You must supply at least a benchmark name, results directory, and the base benchmark directory:\n";
+if (scalar @ARGV < 5) {
+	print "You must supply at least the run_id, iteration_id, the benchmark name, results directory, and the base benchmark directory (in that order):\n";
 	printf "%s\n", join(" ", get_benchmark_names($pbench_bench_config_dir));
 	exit;
 }
 my $run_id = shift(@ARGV);
 printf "run_id[$run_id]\n";
+my $iter_id = shift(@ARGV);
+printf "iter_id[$iter_id]\n";
 my $benchmark = shift(@ARGV);
 if (!grep(/^$benchmark$/, get_benchmark_names($pbench_bench_config_dir))) {
 	die "$benchmark is not a valid benchmark";
@@ -66,6 +68,7 @@ mkdir($rundir);
 my %params = get_params(@ARGV);
 my %bench_iter_sample_doc = create_bench_iter_sample_doc;
 $bench_iter_sample_doc{"run_id"} = $run_id;
+$bench_iter_sample_doc{"iteration_id"} = $iter_id;
 $bench_iter_sample_doc{"benchmark_name"} = $benchmark;
 $bench_iter_sample_doc{"benchmark_params"} = join(" ", @ARGV);;
 $bench_iter_sample_doc{"benchmark_hosts_clients"} = $params{"clients"};
@@ -113,7 +116,7 @@ for my $host_type ("servers", "clients") { # the servers then clients order is i
 
 # stop & post-process the tools
 system("pbench-stop-tools --iteration=0 --group=default --dir=" . $rundir);
-system("pbench-postprocess-tools --iteration=0 --group=default --dir=" . $rundir);
+#system("pbench-postprocess-tools --iteration=0 --group=default --dir=" . $rundir);
 
 # post-benhcmark-execution
 # - copy files back to controller
@@ -127,7 +130,7 @@ for my $host_type ("servers", "clients") {
 # - post-process the result data
 if ($bench_specs{"postprocess"} and $bench_specs{"postprocess"}{"command"}) {
 	put_json_file(\%bench_iter_sample_doc, $rundir . "/bench-iter-sample.json"); # post-processing to finish this document
-	my $postprocess_cmd = ". /opt/pbench-agent/base; cd " . $rundir . "; " . $bench_specs{"postprocess"}{"command"} . " " . join(" ", @ARGV); # all options get passed to postprocess in case they are needed
+	my $postprocess_cmd = ". /opt/pbench-agent/base; cd " . $rundir . "; " . $bench_specs{"postprocess"}{"command"} . " " . $rundir . " " . $base_bench_dir . " " . join(" ", @ARGV); # all options get passed to postprocess in case they are needed
 	my $postprocess_output = `$postprocess_cmd`;
 	open(my $fh, ">" . $rundir . "/postprocess-output.txt");
 	print $fh "$postprocess_output";

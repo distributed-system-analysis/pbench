@@ -121,7 +121,7 @@ for my $iteration_params (@iterations) {
 		mkdir($iteration_dir);
 		my $iteration_sample_dir = $iteration_dir . "/sample" . $sample_id;
 		mkdir($iteration_sample_dir);
-		my $benchmark_cmd = "pbench-run-benchmark-sample " . $run_doc{"doc_id"} . " " . $benchmark . " " . $iteration_sample_dir . " " . $base_bench_dir . " " . $iteration_params;
+		my $benchmark_cmd = "pbench-run-benchmark-sample " . $run_doc{"doc_id"} . " " . $iter_doc{"doc_id"} . " " . $benchmark . " " . $iteration_sample_dir . " " . $base_bench_dir . " " . $iteration_params;
 		my $benchmark_sample_output = `$benchmark_cmd`;
 		my $exit_code = $?;
 		print "output:\n$benchmark_sample_output";
