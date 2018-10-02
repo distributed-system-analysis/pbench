@@ -26,6 +26,8 @@ printf "\@ARGV: %s\n", join(" ", @ARGV);
 # - for each metric, create CDM doc(s), one per timeseries-sample
 #
 my $script_name = basename($0);
+my $rundir = shift(@ARGV);
+my $base_bench_dir = shift(@ARGV);
 my $json_ref = get_json_file("bench-iter-sample.json");
 my %bench_iter_sample = %$json_ref; # this is the CDM doc for this benchmark-iteration-sample
 my $sample_id = $bench_iter_sample{"doc_id"}; # needs to be included in all metric-sample docs
@@ -33,9 +35,10 @@ my $run_id = $bench_iter_sample{"run_id"}; # needs to be included in all metric-
 # create [at least one] benchmark period: a window of time during this benchmark, this one marked as "measurement",
 # to indicate this period as the one the the UI/query tool computes a summary metric 
 my %bench_iter_sample_period = create_bench_iter_sample_period($run_id, $sample_id, "measurement");
+put_json_file(\%bench_iter_sample_period, $base_bench_dir . "/es/bench/bench-iter-sample-period" . $bench_iter_sample_period{"doc_id"} . ".json");
 # the primary metric needs to match exactly one metric-type that gets created from the benchmark data
 $bench_iter_sample{"primary_metric"} = "iops";
-
+put_json_file(\%bench_iter_sample, $base_bench_dir . "/es/bench/bench-iter-sample-" . $bench_iter_sample{"doc_id"} . ".json");
 
 # under ./clients/<hostname>, process the fio result files
 opendir(my $clients_dh, "clients") || die "$script_name: could not open directory clients: $!\n";
@@ -70,7 +73,7 @@ for my $client_hostname (@client_hostname_dirs) {
 									$run_id,
 									"",		# benchmark-iteration doc id
 									$sample_id,	# benchmark-iteration-sample doc id
-									"",		# benchmark-period doc id
+									$bench_iter_sample_period{"doc_id"},	# benchmark-period doc id
 									"throughput",	# metric-class
 									$metric_type,	# metric-type
 									$client_hostname,# hostname
