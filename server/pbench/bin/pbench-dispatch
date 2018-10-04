@@ -4,17 +4,16 @@
 # This script is the first part of the pipeline that processes pbench
 # results tarballs.
 
-# First stage:  pbench-dispatch looks in all the TODO
-#               directories, checks MD5 sums and
-#               creates symlinks in all the state directories for
-#               the particular environment where this server runs
-#               (e.g. for the production environment, links are created
-#               in the TO-UNPACK, TO-INDEX, TO-COPY-SOS and TO-BACKUP
-#               directories; for a satellite, it will only create links
-#               in the TO-UNPACK and TO-SYNC directories). Then the
-#               symlink in TODO is deleted: we don't want to deal with
-#               this tarball again; but if there are errors, we may
-#               keep it in TODO and try again, if the error is recoverable.
+# First stage:  pbench-dispatch looks in all the TODO directories,
+#               checks MD5 sums and creates symlinks in all the state
+#               directories for the particular environment where this
+#               server runs (e.g. for the production environment, links
+#               are created in the TO-UNPACK, TO-INDEX, TO-COPY-SOS and
+#               TO-BACKUP directories; for a satellite, it will only
+#               create links in the TO-UNPACK and TO-SYNC directories).
+#               Then the symlink in TODO is deleted: we don't want to
+#               deal with this tarball again; but if there are recover-
+#               able errors, we may keep it in TODO and try again later.
 #               Any errors are reported for possible action by an admin.
 #
 
@@ -22,13 +21,11 @@
 # - this script runs as a cron job
 # - tarballs and md5 sums are uploaded by pbench-move/copy-results to
 #   $ARCHIVE/$(hostname -s) area.
-# - pbench-move/copy-results also makes a symlink to each tarball it uploads
-#   in $ARCHIVE/TODO, thereby telling this script to process the tarball.
-
-# This script loops over the contents of $archive/<hostname>/TODO, verifies the md5
-# sum of each tarball, and if correct, it dispatches the tarball for further
-# processing.
-
+# FIXME: the above should be to the reception area ...
+# - pbench-move/copy-results also makes a symlink to each tarball it
+#   uploads in $ARCHIVE/TODO, thereby telling this script to process
+#   the tarball.
+# FIXME: the pbench shims do that now ...
 
 ###########################################################################
 # load common things
@@ -58,10 +55,10 @@ mkdir -p $tmp || doexit "Failed to create $tmp"
 
 log_init $PROG
 
-# make sure only one copy is running.
-# Use 'flock -n $LOCKFILE /path/to/pbench-dispatch' in the
-# crontab to ensure that only one copy is running. The script itself
-# does not use any locking.
+# WARNING: it is up to the caller to make sure only one copy is running.
+# Use 'flock -n $LOCKFILE /path/to/pbench-dispatch' in the crontab to
+# ensure that only one copy is running. The script itself does not use
+# any locking.
 
 typeset -i ntb=0
 typeset -i ntotal=0
@@ -72,12 +69,14 @@ typeset -i ndups=0
 linksrc=TODO
 linkdestlist=$(getconf.py -l dispatch-states pbench-server)
 
+mail_content=$tmp/mail_content.log
 index_content=$tmp/index_mail_contents
 
 # Initialize index mail content
 > $index_content
+> $mail_content
 
-if [[ -z "$linkdestlist" ]]; then
+if [ -z "$linkdestlist" ]; then
     echo "$TS: config file error: either no dispach-states defined or a typo" >&4
     subj="$PROG.$TS($PBENCH_ENV) - Config file error"
     cat << EOF > $index_content
@@ -87,97 +86,117 @@ EOF
     pbench-report-status --name $PROG --timestamp $TS --type error $index_content
     log_finish
     exit 1
-else
-    echo $TS
-
-    # get the list of files we'll be operating on - sort them by size
-    list=$tmp/list
-    find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' 2>/dev/null | grep -v DUPLICATE > $list
-
-    while read result ;do
-        ntotal=$ntotal+1
-
-        link=$(readlink -e $result)
-        if [ ! -f "$link" ] ;then
-            echo "$TS: $result->$link does not exist" >&4
-            nerrs=$nerrs+1
-            continue
-        fi
-
-        resultname=$(basename $result)
-        resultname=${resultname%.tar.xz}
-        hostname=$(basename $(dirname $link))
-
-        # echo $link
-        # echo $resultname
-        # echo $hostname
-        # continue
-
-        # make sure that all the relevant state directories exist
-        mk_dirs $hostname
-        # ... and a couple of other necessities.
-        if [[ $? -ne 0 ]] ;then
-            echo "$TS: Creation of $hostname processing directories failed: code $status" >&4
-            nerrs=$nerrs+1
-            continue
-        fi
-
-        mkdir -p $TMP/$PROG/$hostname
-        status=$?
-        if [[ $status -ne 0 ]] ;then
-            echo "$TS: mkdir -p $TMP/$PROG/$hostname failed: code $status" >&4
-            nerrs=$nerrs+1
-            continue
-        fi
-
-        # XXXX - for now, if it's a duplicate name, just punt and avoid producing the error - the full
-        # solution will involve renaming the unpacked directory appropriately.
-        if [ ${resultname%%.*} == "DUPLICATE__NAME" ] ;then
-            ndups=$ndups+1
-            continue
-        fi
-
-        # check the md5 sum
-        md5=$(cat $link.md5 2> /dev/null | cut -d' ' -f1)
-        md5tar=$(md5sum $link 2> /dev/null | cut -d' ' -f1)
-        if [ "$md5" != "$md5tar" ] ;then
-            echo "$TS: MD5 check failed on $link" >&4
-            # move the link so that the script does not report the error continuously
-            mv $result $(echo $result | sed 's/TODO/BAD-MD5/')
-            nerrs=$nerrs+1
-            continue
-        fi
-
-        # create a link in each state dir - if any fail, we should delete them all? No, that
-        # would be racy.
-        for state in $linkdestlist ;do
-            ln -sf $link $(echo $result | sed "s/$linksrc/$state/")
-            status=$?
-            if [[ $status -ne 0 ]] ;then
-               echo "$TS: Cannot create $result link from $linksrc to $state: code $status" >&4
-               nerrs=$nerrs+1
-               continue
-            fi
-        done
-        # this needs checking
-        rm $result
-
-        # log the success
-        echo "$TS: $hostname/$resultname: success"
-        ntb=$ntb+1
-    done < $list
 fi
+
+echo $TS
+
+# Find all the links in all the $ARCHIVE/<controller>/$linksrc
+# directories, emitting a list of their full paths with the size
+# in bytes of the file the link points to, and then sort them so
+# that we process the smallest tar balls first.
+list=$tmp/list
+> ${list}.unsorted
+# First we find all the $linksrc directories
+for linksrc_dir in $(find $ARCHIVE/ -maxdepth 2 -type d -name $linksrc); do
+    # Find all the links in a given $linksrc directory that are
+    # links to actual files (bad links are not emitted!).
+    find -L $linksrc_dir -type f -name '*.tar.xz' -printf "%p\n" 2>/dev/null >> ${list}.unsorted
+    # Find all the links in the same $linksrc directory that don't
+    # link to anything so that we can count them as errors below.
+    find -L $linksrc_dir -type l -name '*.tar.xz' -printf "%p\n" 2>/dev/null >> ${list}.unsorted
+done
+# Simple alphabetical sort
+sort ${list}.unsorted > ${list}
+rm -f ${list}.unsorted
+
+while read result ;do
+    let ntotal+=1
+
+    link=$(readlink -e $result)
+    if [ -z "$link" ] ;then
+        echo "$TS: symlink target for $result does not exist" | tee -a $mail_content >&4
+        let nerrs+=1
+        # FIXME: quarantine $result
+        continue
+    fi
+
+    resultname=$(basename $result)
+    resultname=${resultname%.tar.xz}
+
+    # XXXX - for now, if it's a duplicate name, just punt and avoid
+    # producing the error
+    if [ ${resultname%%.*} == "DUPLICATE__NAME" ] ;then
+        let ndups+=1
+        # FIXME: quarantine $result
+        continue
+    fi
+
+    basedir=$(dirname $link)
+    hostname=$(basename $basedir)
+
+    # make sure that all the relevant state directories exist
+    mk_dirs $hostname
+    # ... and a couple of other necessities.
+    if [ $? -ne 0 ] ;then
+        echo "$TS: Creation of $hostname processing directories failed for $result: code $status" | tee -a $mail_content >&4
+        let nerrs+=1
+        # FIXME: quarantine $result
+        continue
+    fi
+
+    pushd ${basedir} > /dev/null 2>&4
+    md5sum --check ${resultname}.tar.xz.md5
+    sts=$?
+    popd >/dev/null 2>&4
+    if [ $sts -ne 0 ] ;then
+        echo "$TS: MD5 check of ${link} failed for ${result}" | tee -a $mail_content >&4
+        mv $result $(echo $result | sed "s/$linksrc/BAD-MD5/")
+        let nerrs+=1
+        continue
+    fi
+
+    # create a link in each state dir - if any fail, we should delete them all? No, that
+    # would be racy.
+    let toterr=0
+    for state in $linkdestlist ;do
+        ln -sf $link ${basedir}/${state}/
+        status=$?
+        if [ $status -ne 0 ] ;then
+            echo "$TS: Cannot create $result link from $linksrc to $state: code $status" | tee -a $mail_content >&4
+            let nerrs+=1
+        fi
+        let toterr+=status
+    done
+    if [ $toterr -eq 0 ]; then
+        rm -f $result
+        status=$?
+        if [ $status -ne 0 ] ;then
+            echo "$TS: Cannot remove $result link: code $status" | tee -a $mail_content >&4
+            let nerrs+=1
+        else
+            # log the success
+            echo "$TS: $hostname/$resultname: success"
+            let ntb+=1
+        fi
+    else
+        # FIXME: quarantine $result
+        # Errors already accounted for above
+        :
+    fi
+done < $list
 
 echo "$TS: Processed $ntb tarballs"
 
 log_finish
 
-if [[ $nerrs -gt 0 ]]; then
+if [ $nerrs -gt 0 ]; then
     subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
     cat << EOF > $index_content
 $subj
 Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates
+
 EOF
+    cat $mail_content >> $index_content
     pbench-report-status --name $PROG --timestamp $TS --type status $index_content
 fi
 
