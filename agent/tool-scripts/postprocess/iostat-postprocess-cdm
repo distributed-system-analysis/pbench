@@ -15,15 +15,11 @@ use strict;
 use warnings;
 use File::Basename;
 my $pbench_lib_path;
-my $script_path;
-my $script_name;
-my $pbench_run_path;
 BEGIN {
-	$script_path = dirname($0);
-	$script_name = basename($0);
-	$pbench_lib_path = $script_path;
+	$pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
+	chomp $pbench_lib_path;
+	$pbench_lib_path .= "/lib";
 }
-
 use lib "$pbench_lib_path";
 use JSON;
 use Data::Dumper;
@@ -32,20 +28,21 @@ use PbenchBase qw(get_json_file put_json_file get_benchmark_names get_pbench_run
 
 my $dir = shift;
 my $es_dir = shift;
-my $run_id = shift;
-my $json_ref = get_json_file($es_dir . "/run.json");
+my $json_ref = get_json_file($es_dir . "/run/run.json");
 my %run_doc = %$json_ref; # this is the CDM doc for the run
 my $run_id = $run_doc{"doc_id"}; # needs to be included in all metric-sample docs
+my $hostname = get_hostname;
 
 # read the iostat.txt
+my $timestamp_ms;
 open(IOSTAT_TXT, "$dir/iostat-stdout.txt") || die "could not find $dir/iostat-stdout.txt\n";
 while (my $line = <IOSTAT_TXT>) {
-	my $timestamp_ms;
 	chomp $line;
 	# Each sample should start with a time stamp (the -t in iostat).
 	# When we find this, update our timestamp for the hash.
 	if ( $line =~ /^\d\d\/\d\d\/\d\d(\d\d)?\s\d\d:\d\d:\d\d(\s[AP]M)?/ ) {
 		$timestamp_ms=`date --date="$line" +%s.%N` * 1000;
+		printf "got timestamp[%s]\n", $timestamp_ms;
 	}
 	#Device:         rrqm/s   wrqm/s     r/s     w/s    rMB/s    wMB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
 	#sda               0.00     0.00 22116.00    4.00    86.39     0.07     8.00    32.03    1.43    1.43    4.92   0.05 100.00
@@ -86,8 +83,8 @@ while (my $line = <IOSTAT_TXT>) {
 					$timestamp_ms	# the timestamp
 					);
 				$metric_sample{"device"} = $dev;
-				put_json_file(\%metric_sample, "../../es/metrics/" .
-						$client_hostname .
+				put_json_file(\%metric_sample, $es_dir . "/metrics/" .
+						$hostname .
 						"/metric-sample-" .
 						$metric_sample{"doc_id"} .
 						".json");

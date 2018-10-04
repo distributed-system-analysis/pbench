@@ -40,9 +40,11 @@ if ($benchmark eq "list") {
 	get_benchmark_names(get_pbench_bench_config_dir);
 	exit;
 }
-my %run_doc = create_run_doc($benchmark);
 # the rest of the parameters are --arg=val, most of which we just pass to other scripts,
 # but we need to know a few of them now
+my $user_name;
+my $user_email;
+my $user_desc;
 my %params = get_params(@ARGV);
 if ($params{"samples"}) {
 	$num_samples = $params{"samples"};
@@ -51,26 +53,29 @@ if ((!$ENV{"USER_NAME"}) and (!$params{"user-name"})) {
 	print "\n\n***** Please export USER_NAME=\"<your first and last name>\" (or --user-name=) so it is included in the run data *****\n\n";
 	sleep(1);
 } else {
-	$run_doc{"user_name"} = $params{"user-name"};
+	$user_name = $params{"user-name"};
 }
 if ((!$ENV{"USER_EMAIL"}) and (!$params{"user-email"})) {
 	print "\n\n***** Please export USER_EMAIL=\"<your email address\" (or --user-email=) so it is included in the run data *****\n\n";
 	sleep(1);
 } else {
-	$run_doc{"user_email"} = $params{"user-email"};
+	$user_email = $params{"user-email"};
 }
-my $user_config;
-if (!$params{"config"}) {
-	$user_config = "";
-	print "\n\n***** Please use --config=key1:value2,key2:value2...keyN:valueN to describe your test configuration, environment, and/or purpose so it is included in the run data *****\n\n";
+if (!$params{"desc"}) {
+	$user_desc = "";
+	print "\n\n***** Please use --desc=key1:value2,key2:value2...keyN:valueN to describe your test configuration, environment, and/or purpose so it is included in the run data *****\n\n";
 	sleep(1);
 } else {
-	$user_config = $params{"config"};
-	$run_doc{"user_config"} = $params{"config"};
+	$user_desc = $params{"desc"};
 }
-remove_params(\@ARGV, qw(samples config user-name user-email)); # we don't want these params passed on to other utils
+remove_params(\@ARGV, qw(samples desc user-name user-email)); # we don't want these params passed on to other utils
+my %run_doc = create_run_doc($benchmark, join(" ", @ARGV), $params{"clients"}, $params{"servers"},
+				$user_desc, $user_name, $user_email,
+				"", #todo: include tool hostnames
+				""); #todo: include tool names
 
-my $base_bench_dir = get_benchmark_results_dir($benchmark, $user_config);
+
+my $base_bench_dir = get_benchmark_results_dir($benchmark, $user_desc);
 mkdir($base_bench_dir);
 my $es_dir = $base_bench_dir . "/es";
 mkdir($es_dir);
@@ -83,18 +88,11 @@ mkdir($es_bench_dir);
 my $es_metrics_dir = $es_dir . "/metrics";
 mkdir($es_metrics_dir);
 
-
-$run_doc{"benchmark_params"} = join(" ", @ARGV);
-$run_doc{"benchmark_hosts_clients"} = $params{"clients"};
-$run_doc{"benchmark_hosts_servers"} = $params{"servers"};
-$run_doc{"config_hostnames"} = $params{"clients"};
 my @config_hosts = split(/,/, $params{"clients"});  # todo: use "config_hostnames_all" when working properly
 my $remote_collection_dir = $base_bench_dir . "-config"; # we use a slightly different dir than default in case one of the hosts is also the controller
 create_dir_hosts(\@config_hosts, $remote_collection_dir, $base_bench_dir);
-my $output = ssh_hosts(\@config_hosts, "/opt/pbench-agent/bench-scripts/pbench-get-config " . $run_doc{"doc_id"} . " " . $remote_collection_dir, $remote_collection_dir, $base_bench_dir);
-print "before sync dir from hosts\n";
-sync_dir_from_hosts(\@config_hosts, $remote_collection_dir . "/es/config/", $es_config_dir, $base_bench_dir);
-print "after sync dir from hosts\n";
+#my $output = ssh_hosts(\@config_hosts, "/opt/pbench-agent/bench-scripts/pbench-get-config " . $run_doc{"doc_id"} . " " . $remote_collection_dir, $remote_collection_dir, $base_bench_dir);
+#sync_dir_from_hosts(\@config_hosts, $remote_collection_dir . "/es/config/", $es_config_dir, $base_bench_dir);
 remove_dir_from_hosts(\@config_hosts, $remote_collection_dir, $base_bench_dir);
 	
 # pass the rest of the args to pbench-gen-iterations and store the iterations in an array
@@ -113,7 +111,7 @@ mkdir($base_bench_dir);
 open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
 my $iteration_id = 0;
 for my $iteration_params (@iterations) {
-	my %iter_doc = create_bench_iter_doc($benchmark, $run_doc{"doc_id"}, $iteration_params, $run_doc{"benchmark_hosts_clients"}, $run_doc{"benchmark_hosts_servers"}); 
+	my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,); 
 	put_json_file(\%iter_doc, $es_bench_dir . "/iteration-" . $iter_doc{"doc_id"} . ".json");
 	printf $fh "%d %s\n", $iteration_id, $iteration_params;
 	for (my $sample_id=0; $sample_id<$num_samples; $sample_id++) {
@@ -121,7 +119,7 @@ for my $iteration_params (@iterations) {
 		mkdir($iteration_dir);
 		my $iteration_sample_dir = $iteration_dir . "/sample" . $sample_id;
 		mkdir($iteration_sample_dir);
-		my $benchmark_cmd = "pbench-run-benchmark-sample " . $run_doc{"doc_id"} . " " . $iter_doc{"doc_id"} . " " . $benchmark . " " . $iteration_sample_dir . " " . $base_bench_dir . " " . $iteration_params;
+		my $benchmark_cmd = "pbench-run-benchmark-sample " . $es_bench_dir . "/iteration-" . $iter_doc{"doc_id"} . ".json " . $iteration_sample_dir . " " . $base_bench_dir;
 		my $benchmark_sample_output = `$benchmark_cmd`;
 		my $exit_code = $?;
 		print "output:\n$benchmark_sample_output";
