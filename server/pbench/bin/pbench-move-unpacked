@@ -149,7 +149,7 @@ function process_tarball {
 	return 1
     fi
 
-    let start_time=$(date +%s)
+    let start_time=$(timestamp-seconds-since-epoch)
 
     # log the beginning process of tarball
     echo "Starting: $TS: $hostname/$resultname: size (bytes): $size"
@@ -208,7 +208,7 @@ function process_tarball {
         rm $RESULTS/$hostname/$prefix$resultname
         return 1
     fi
-    let end_time=$(date +%s)
+    let end_time=$(timestamp-seconds-since-epoch)
     let duration=end_time-start_time
     # log the success
     echo "$TS: $hostname/$resultname: success - elapsed time (secs): $duration - size (bytes): $size"
