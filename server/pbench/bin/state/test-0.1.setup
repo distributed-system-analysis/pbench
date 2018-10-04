@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Move the logs tree to the side
+mv pbench/logs pbench/bad-logs
+exit $?

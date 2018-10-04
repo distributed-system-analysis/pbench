@@ -118,8 +118,10 @@ function _save_tree {
         echo "--- var/www/html tree state" >> $_testout
     fi
     echo "+++ pbench tree state" >> $_testout
-    find $_testdir | sort |
-        sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*$;tmp/pbench-\1.NNNN;' >> $_testout
+    if [ -d ${_testdir} ] ;then
+        find $_testdir | sort |
+            sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*$;tmp/pbench-\1.NNNN;' >> $_testout
+    fi
     echo "--- pbench tree state" >> $_testout
     if [ -d ${_testdir_local} ] ;then
         echo "+++ pbench-local tree state" >> $_testout
@@ -272,6 +274,16 @@ function _setup_state {
 }
 
 function _reset_state {
+    # Run per-test state reset
+    _state_reset=$_tdir/state/${1}.reset
+    if [ -f ${_state_reset} ]; then
+        (cd $_testroot; $_state_reset)
+        if [[ $? -gt 0 ]]; then
+            echo "ERROR: unable to run per-test state reset for $1" >&2
+            exit 1
+        fi
+    fi
+
     export PATH=${_orig_PATH}
     unset CONFIG
     unset IDXCONFIG
@@ -313,6 +325,10 @@ function _reset_state {
 }
 
 declare -A cmds=(
+    # check for no TOP directory
+    [test-0]="_run_allscripts"
+    # check for no LOGSDIR directory
+    [test-0.1]="_run_allscripts"
     # check for no TMP directory
     [test-1]="_run_allscripts"
     # check for no ARCHIVE directory
@@ -421,6 +437,6 @@ for test in $tests ;do
         let failures=failures+1
     fi
 
-    _reset_state
+    _reset_state ${test}
 done
 exit $failures
