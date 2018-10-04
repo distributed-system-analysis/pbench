@@ -27,14 +27,20 @@ else
     exit 2
 fi
 
-TMP=$(getconf.py pbench-tmp-dir pbench-files)
-PBENCH_ENV=$(getconf.py pbench-environment results)
+# Required
+TOP=$(getconf.py pbench-top-dir pbench-files)
+test -d $TOP || doexit "Bad TOP=$TOP"
 
+# Required
+TMP=$(getconf.py pbench-tmp-dir pbench-files)
 test -d $TMP || doexit "Bad TMP=$TMP"
 
-TOP=$(getconf.py pbench-top-dir pbench-files)
-BDIR=$(getconf.py pbench-backup-dir pbench-files)
 export LOGSDIR=$(getconf.py pbench-logs-dir pbench-files)
+test -d $LOGSDIR || doexit "Bad LOGSDIR=$LOGSDIR"
+
+# Optional
+BDIR=$(getconf.py pbench-backup-dir pbench-files)
+PBENCH_ENV=$(getconf.py pbench-environment results)
 
 if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
     # the real thing

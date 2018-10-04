@@ -1,0 +1,44 @@
++++ Running pbench-unpack-tarballs
+pbench-unpack-tarballs: Bad TOP=/var/tmp/pbench-test-server/pbench
+--- Finished pbench-unpack-tarballs (status=1)
++++ Running pbench-move-unpacked
+pbench-move-unpacked: Bad TOP=/var/tmp/pbench-test-server/pbench
+--- Finished pbench-move-unpacked (status=1)
++++ Running pbench-copy-sosreports
+pbench-copy-sosreports: Bad TOP=/var/tmp/pbench-test-server/pbench
+--- Finished pbench-copy-sosreports (status=1)
++++ Running pbench-index
+pbench-index: Bad TOP=/var/tmp/pbench-test-server/pbench
+--- Finished pbench-index (status=1)
++++ Running pbench-clean-up-dangling-results-links
+pbench-clean-up-dangling-results-links: Bad TOP=/var/tmp/pbench-test-server/pbench
+--- Finished pbench-clean-up-dangling-results-links (status=1)
++++ Running pbench-edit-prefixes
+pbench-edit-prefixes: Bad TOP=/var/tmp/pbench-test-server/pbench
+--- Finished pbench-edit-prefixes (status=1)
++++ var/www/html tree state
+/var/tmp/pbench-test-server/var-www-html
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+--- var/www/html tree state
++++ pbench tree state
+--- pbench tree state
++++ pbench-local tree state
+/var/tmp/pbench-test-server/pbench-local
+/var/tmp/pbench-test-server/pbench-local/fs-version-001
+/var/tmp/pbench-test-server/pbench-local/fs-version-001/pbench-move-results-receive
+/var/tmp/pbench-test-server/pbench-local/fs-version-002
+/var/tmp/pbench-test-server/pbench-local/fs-version-002/pbench-move-results-receive
+/var/tmp/pbench-test-server/pbench-local/quarantine
+/var/tmp/pbench-test-server/pbench-local/quarantine/duplicates-001
+/var/tmp/pbench-test-server/pbench-local/quarantine/duplicates-002
+/var/tmp/pbench-test-server/pbench-local/quarantine/errors-001
+/var/tmp/pbench-test-server/pbench-local/quarantine/errors-002
+/var/tmp/pbench-test-server/pbench-local/quarantine/md5-001
+/var/tmp/pbench-test-server/pbench-local/quarantine/md5-002
+--- pbench-local tree state
++++ pbench log file contents
+--- pbench log file contents

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Move the pbench tree to the side
+mv pbench pbench-bad
+exit $?
