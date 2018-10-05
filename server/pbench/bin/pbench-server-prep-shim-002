@@ -41,7 +41,7 @@ fi
 
 qdir=$(getconf.py quarantine-dir pbench-server)
 if [[ "$qdir" == "" ]] ;then
-    echo "Failed: \"getconf.py quarantine-dir pbench-server\", status $sts" $errlog
+    echo "Failed: \"getconf.py quarantine-dir pbench-server\", status $sts" >> $errlog
     exit 2
 fi
 
