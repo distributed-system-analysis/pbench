@@ -150,17 +150,16 @@ while read ck ;do
         continue
     fi
 
-    pushd ${tbdir} >/dev/null 2>&4
+    pushd ${tbdir} > /dev/null 2>&4
     md5sum --check ${resultname}.tar.xz.md5
     sts=$?
+    popd > /dev/null 2>&4
     if [ $sts -ne 0 ] ;then
         echo "$TS: Quarantined: ${tb} failed MD5 check" >&4
         quarantine ${quarantine}/${controller} ${tb} ${tb}.md5
         nquarantined=$nquarantined+1
-        popd >/dev/null 2>&4
         continue
     fi
-    popd > /dev/null 2>&4
 
     if [ -f ${dest}/${resultname}.tar.xz -o -f ${dest}/${resultname}.tar.xz.md5 ] ;then
         echo "$TS: Duplicate: ${tb} duplicate name" >&4
@@ -200,7 +199,7 @@ while read ck ;do
             tee -a $status >&4
     fi
 
-    pushd $dest/TODO > /dev/null >/dev/null 2>&1
+    pushd $dest/TODO > /dev/null 2>&4
     ln -s $dest/$(basename $tb) .
     sts=$?
     if [ $sts -ne 0 ] ;then
@@ -212,7 +211,7 @@ while read ck ;do
         echo "$TS: processed ${tb}" >> $status
         ntbs=$ntbs+1
     fi
-    popd > /dev/null 2>&1
+    popd > /dev/null 2>&4
 done < $list
 
 echo "$TS: Processed $ntotal entries, $ntbs tarballs successful,"\

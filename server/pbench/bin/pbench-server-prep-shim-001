@@ -190,18 +190,16 @@ while read tblink ;do
         ndups=$ndups+1
     fi
 
-    pushd ${tbdir} >/dev/null 2>&1
-    # MD5 check
+    pushd ${tbdir} > /dev/null 2>&4
     md5sum --check $(basename $tb).md5
     sts=$?
+    popd >/dev/null 2>&4
     if [ $sts -ne 0 ] ;then
         echo "$TS: Quarantined: ${tb} failed MD5 check" >&4
         quarantine ${quarantine}/${controller} ${tb} ${tb}.md5 ${prefix}
         nquarantined=${nquarantined}+1
-        popd >/dev/null 2>&4
         continue
     fi
-    popd >/dev/null 2>&1
 
     # make the destination directory and its TODO subdir if necessary.
     mkdir -p ${dest}/TODO ${dest}/.prefix
@@ -260,7 +258,7 @@ while read tblink ;do
         # so we need a better solution
     fi
 
-    pushd $dest/TODO > /dev/null
+    pushd $dest/TODO > /dev/null 2>&4
     ln -s $dest/$(basename $tb) .
     sts=$?
     # if we fail to make the link, we quarantine the (already moved) tarball, md5 and
@@ -277,7 +275,7 @@ while read tblink ;do
         echo "$TS: processed ${tb}" >> $status
         ntbs=$ntbs+1
     fi
-    popd >/dev/null 2>&1
+    popd > /dev/null 2>&4
 done < $list
 
 echo "$TS: Processed $ntotal entries, $ntbs tarballs successful,"\

@@ -80,14 +80,14 @@ for result in $list ;do
     echo $prefix
     cmds=$(cat $prefix)
     echo $cmds
-    pushd $RESULTS/$hostname
+    pushd $RESULTS/$hostname > /dev/null 2>&4
     eval "$cmds"
     status=$?
     if [ $status -ne 0 ] ;then
         echo "$TS: eval $cmds failed - code $status" >&4
         continue
     fi
-    popd
+    popd > /dev/null 2>&4
     
     # remove the link from TO-LINK
     rm $result
