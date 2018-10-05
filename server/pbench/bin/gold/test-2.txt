@@ -17,7 +17,7 @@ pbench-clean-up-dangling-results-links: Bad ARCHIVE=/var/tmp/pbench-test-server/
 pbench-edit-prefixes: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-edit-prefixes (status=1)
 +++ Running unit test audit
-pbench-audit-archive: Bad archive: /var/tmp/pbench-test-server/pbench/archive/fs-version-001
+pbench-audit-archive: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished unit test audit (status=1)
 +++ var/www/html tree state (/var/tmp/pbench-test-server/var-www-html)
 lrwxrwxrwx         55 incoming -> /var/tmp/pbench-test-server/pbench/public_html/incoming
