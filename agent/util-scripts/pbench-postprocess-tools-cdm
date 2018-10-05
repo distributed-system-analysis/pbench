@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# just find tools in $2 and call tool-specific CDM post-processing script
+
+period_doc=$1
+tools_dir=$2;
+
+if [ ! -e $tools_doc ]; then
+	echo "This directory needs to exist $tools_dir"
+	exit 1
+fi
+
+for host in `/bin/ls $tools_dir`; do
+	for tool in `/bin/ls $tools_dir/$host`; do
+		if [ -e /opt/pbench-agent/tool-scripts/postprocess/${tool}-postprocess-cdm ]; then
+			# the script called needs at least the [benchmark-iteration-sample-]period doc, so it knows what to copy other CDM data from
+			echo "/opt/pbench-agent/tool-scripts-postprocess/${tool}-postprocess-cdm $period_doc $tools_dir/$host/$tool $host"
+		fi
+	done
+done
