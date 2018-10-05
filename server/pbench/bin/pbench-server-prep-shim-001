@@ -209,22 +209,33 @@ while read tblink ;do
     popd >/dev/null 2>&1
 
     # make the destination directory and its TODO subdir if necessary.
-    mkdir -p ${dest}/TODO
+    mkdir -p ${dest}/TODO ${dest}/.prefix
     sts=$?
     if [ $sts -ne 0 ] ;then
-        echo "$TS: Error: \"mkdir -p ${dest}\", status $sts" |
+        echo "$TS: Error: \"mkdir -p ${dest}/TODO ${dest}/.prefix\", status $sts" |
             tee -a $status >&4
         quarantine ${errors}/${controller} ${tb} ${tb}.md5 $prefix
         nerrs=$nerrs+1
         continue
     fi
 
-    mv ${tb} ${tb}.md5 ${prefix} $dest
+    # move the prefix file first
+    mv ${prefix} ${dest}/.prefix/
     sts=$?
     if [ $sts -ne 0 ] ;then
-        echo "$TS: Error: \"mv ${tb} ${tb}.md5 ${prefix} $dest\", status $sts" |
+        echo "$TS: Error: \"mv ${prefix} ${dest}/\", status $sts" |
             tee -a $status >&4
-        quarantine ${errors}/${controller} ${tb} ${tb}.md5 $prefix
+        quarantine ${errors}/${controller} ${tb} ${tb}.md5 ${prefix}
+        nerrs=$nerrs+1
+        continue
+    fi
+
+    mv ${tb} ${tb}.md5 ${dest}/
+    sts=$?
+    if [ $sts -ne 0 ] ;then
+        echo "$TS: Error: \"mv ${tb} ${tb}.md5 ${dest}/\", status $sts" |
+            tee -a $status >&4
+        quarantine ${errors}/${controller} ${tb} ${tb}.md5 ${dest}/.prefix/${resultname}.prefix
         nerrs=$nerrs+1
         continue
     fi

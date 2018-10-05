@@ -146,14 +146,6 @@ else
             continue
         fi
 
-        # move any prefix file to the .prefix subdir
-        basedir=$(dirname $link)
-        prefixfile=$basedir/$resultname.prefix
-        if [ -f $prefixfile ] ;then
-            mkdir -p $basedir/.prefix
-            mv $prefixfile $basedir/.prefix
-        fi
-
         # create a link in each state dir - if any fail, we should delete them all? No, that
         # would be racy.
         for state in $linkdestlist ;do

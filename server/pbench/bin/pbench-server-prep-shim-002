@@ -193,7 +193,7 @@ while read ck ;do
     if [ $sts -ne 0 ] ;then
         echo "$TS: Error: \"ln -s $dest/$(basename $tb) .\", status $sts" |
             tee -a $status >&4
-        quarantine ${errors}/${controller} ${dest}/${tb} ${dest}/${tb}.md5 ${prefix}
+        quarantine ${errors}/${controller} ${dest}/${tb} ${dest}/${tb}.md5
         nerrs=$nerrs+1
     else
         echo "$TS: processed ${tb}" >> $status
