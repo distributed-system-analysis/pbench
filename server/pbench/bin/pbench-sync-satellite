@@ -221,7 +221,7 @@ for host in $hosts ;do
             echo "$host/TO-SYNC/$x" >> $LOGSDIR/change_state.$prefix.log
         done
     fi
-    popd > /dev/null
+    popd > /dev/null 2>&4
 done
 
 # change the state of the tarballs on remote

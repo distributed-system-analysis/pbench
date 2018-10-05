@@ -154,7 +154,7 @@ for result in $list ;do
     if [[  $nsr == 0 ]] ;then
         echo "$TS: No sosreports found for $result"
     else
-        pushd $incoming > /dev/null
+        pushd $incoming > /dev/null 2>&4
         cmd="/usr/bin/rsync -av $TMPDIR/ $SOSREPORTDEST"
         echo "$TS: $cmd"
         $cmd
@@ -164,7 +164,7 @@ for result in $list ;do
             nerrs=$nerrs+1
             continue
         fi
-        popd > /dev/null
+        popd > /dev/null 2>&4
     fi
 
     # move the link to $linkdest directory
