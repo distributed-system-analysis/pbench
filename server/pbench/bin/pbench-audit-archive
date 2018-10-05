@@ -29,8 +29,7 @@ esac
 # TOP, ARCHIVE, TMP, defined in pbench-base.sh
 . $dir/pbench-base.sh
 
-test -d $ARCHIVE || doexit "Bad archive: $ARCHIVE"
-test -d $LOGSDIR || doexit "Bad logs directory: $LOGSDIR"
+test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
 
 # work files
 workdir=$TMP/$PROG.work.$$
