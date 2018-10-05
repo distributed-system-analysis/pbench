@@ -105,7 +105,7 @@ list=$tmp/$PROG.list
 # that we process the smallest tar balls first.
 > ${list}.unsorted
 # First we find all the $linksrc directories
-for linksrc_dir in $(find $ARCHIVE/ -maxdepth 2 -name $linksrc); do
+for linksrc_dir in $(find $ARCHIVE/ -maxdepth 2 -type d -name $linksrc); do
     # Find all the links in a given $linksrc directory that are
     # links to actual files (bad links are not emitted!).
     find -L $linksrc_dir -type f -name '*.tar.xz' -printf "%s %p\n" 2>/dev/null >> ${list}.unsorted
