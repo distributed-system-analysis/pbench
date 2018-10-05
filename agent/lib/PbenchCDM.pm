@@ -47,13 +47,11 @@ sub populate_base_fields { # create the fields every doc must have
 sub copy_doc_fields {
 	my $copy_from_ref = shift; # what document we need to copy from
 	my $copy_to_ref = shift; # what new document we're copying to
-	my $replace_doc_id_name_with = shift; # take doc_id from copy-from doc and transform it for copy-to doc
 	for my $field_name (grep(!/doc_id|doc_ver|doc_create_time/, keys %$copy_from_ref)) {
 		$$copy_to_ref{$field_name} = $$copy_from_ref{$field_name};
 	}
-	if ($replace_doc_id_name_with) {
-		$$copy_to_ref{$replace_doc_id_name_with} = $$copy_from_ref{'doc_id'};
-	}
+	# convert doc_id to run_id, iter_id, sample_id, or period_id
+	$$copy_to_ref{$$copy_from_ref{'doc_type'} . "_id"} = $$copy_from_ref{'doc_id'};
 }
 sub create_run_doc {
 	my %doc;
@@ -68,34 +66,39 @@ sub create_run_doc {
 	$doc{'tool_hostnames'} = shift; # ordered list of hostnames where tools are registred
 	$doc{'tool_names'} = shift; # ordered list (matching order of tool_hostnames) of registered tool names
 	$doc{'hostname'} = get_hostname; # hostname of this controller system
+	$doc{'doc_type'} = 'run';
 	return %doc;
 }
 sub create_bench_iter_doc { # document describing the benchmark iteraton sample
 	my %doc;
 	populate_base_fields(\%doc);
-	copy_doc_fields(shift, \%doc, 'run_id'); # get some essential fields from iter-sample, our first arg
+	copy_doc_fields(shift, \%doc); # get some essential fields from iter-sample, our first arg
 	$doc{'bench_params'} = shift; # second arg is benchmark parameters for this iter
+	$doc{'doc_type'} = 'iter';
 	return %doc;
 }
 sub create_bench_iter_sample_doc { # document describing the benchmark iteraton sample
 	my %doc;
 	populate_base_fields(\%doc);
-	copy_doc_fields(shift, \%doc, 'iter_id'); # get some essential fields from iter doc, our first arg
+	copy_doc_fields(shift, \%doc); # get some essential fields from iter doc, our first arg
 	$doc{'sample_num'} = shift; # second arg is sample number (just used to make it obvious which order these occur in)
+	$doc{'doc_type'} = 'sample';
 	return %doc;
 }
 sub create_bench_iter_sample_period_doc { # document describing the benchmark iteraton sample
 	my %doc;
 	populate_base_fields(\%doc);
-	copy_doc_fields(shift, \%doc, 'sample_id'); # get some essential fields from iter-sample doc, our first arg
+	copy_doc_fields(shift, \%doc); # get some essential fields from iter-sample doc, our first arg
 	$doc{'name'} = shift; # second arg is period name
 	$doc{'prev_period_doc_id'} = shift; # third arg is link to prev period in this sample, if any
+	$doc{'doc_type'} = 'period';
 	return %doc;
 }
 sub create_metric_sample_doc { # document describing the benchmark iteraton sample
 	my %doc;
 	populate_base_fields(\%doc);
-	copy_doc_fields(shift, \%doc, 'period_id'); # get some essential fields from iter-sample-period doc, our first arg
+	copy_doc_fields(shift, \%doc); # get some essential fields from a prev doc, our first arg
+	$doc{'doc_type'} = 'metric-sample';
 	# These are the required fields for any metric-instance-sample.  There are potentially
 	# more fields, but not all metrics use all the same options fields.  However, the ones
 	# below must all be used, and so creating a new doc requires that these fields be

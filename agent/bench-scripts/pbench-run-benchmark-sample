@@ -106,7 +106,9 @@ for my $host_type ("servers", "clients") { # the servers then clients order is i
 
 # stop & post-process the tools
 system("pbench-stop-tools --iteration=0 --group=default --dir=" . $rundir);
-#system("pbench-postprocess-tools --iteration=0 --group=default --dir=" . $rundir);
+
+# post-process the tools
+system("pbench-postprocess-tools --iteration=0 --group=default --dir=" . $rundir);
 
 # post-benhcmark-execution
 # - copy files back to controller
@@ -128,4 +130,3 @@ if ($bench_specs{"postprocess"} and $bench_specs{"postprocess"}{"command"}) {
 	# If there is no post-processor for the benchmark (there really should be!) then this script will write the bench_iter_saple CDM doc (although not really complete)
 	put_json_file(\%bench_iter_sample_doc, $base_bench_dir . "/es/bench/iteration-sample-" . $bench_iter_sample_doc{"doc_id"} . ".json");
 }
-

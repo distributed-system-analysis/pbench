@@ -35,7 +35,6 @@ my $run_id = $bench_iter_sample{"run_id"}; # needs to be included in all metric-
 # create [at least one] benchmark period: a window of time during this benchmark, this one marked as "measurement",
 # to indicate this period as the one the the UI/query tool computes a summary metric 
 my %bench_iter_sample_period = create_bench_iter_sample_period_doc(\%bench_iter_sample, "measurement");
-put_json_file(\%bench_iter_sample_period, $base_bench_dir . "/es/bench/iteration-sample-period-" . $bench_iter_sample_period{"doc_id"} . ".json");
 # the primary metric needs to match exactly one metric-type that gets created from the benchmark data
 $bench_iter_sample{"primary_metric"} = "iops";
 $bench_iter_sample{"primary_period"} = "measurement";
@@ -45,6 +44,8 @@ put_json_file(\%bench_iter_sample, $base_bench_dir . "/es/bench/iteration-sample
 opendir(my $clients_dh, "clients") || die "$script_name: could not open directory clients: $!\n";
 my @client_hostname_dirs = grep(!/^\./, (sort readdir($clients_dh)));
 closedir $clients_dh;
+my $period_earliest_timestamp;
+my $period_latest_timestamp;
 for my $client_hostname (@client_hostname_dirs) {
 	mkdir("../../es/metrics");
 	mkdir("../../es/metrics/" . $client_hostname);
@@ -86,6 +87,12 @@ for my $client_hostname (@client_hostname_dirs) {
 										"/sample-" .
 										$metric_sample{"doc_id"} .
 										".json");
+						if (! $period_earliest_timestamp or $period_earliest_timestamp > $timestamp_ms) {
+							$period_earliest_timestamp = $timestamp_ms;
+						}
+						if (! $period_latest_timestamp or $period_latest_timestamp < $timestamp_ms) {
+							$period_latest_timestamp = $timestamp_ms;
+						}
 					}
 				}
 				close($log_fh);
@@ -93,3 +100,6 @@ for my $client_hostname (@client_hostname_dirs) {
 		}
 	}
 }
+$bench_iter_sample_period{'begin'} = $period_earliest_timestamp;
+$bench_iter_sample_period{'end'} = $period_latest_timestamp;
+put_json_file(\%bench_iter_sample_period, $base_bench_dir . "/es/bench/iteration-sample-period-" . $bench_iter_sample_period{"doc_id"} . ".json");
