@@ -178,13 +178,26 @@ while read ck ;do
         continue
     fi
 
-    mv ${tb} ${tb}.md5 $dest
+    cp ${tb} ${tb}.md5 ${dest}/
     sts=$?
     if [ $sts -ne 0 ] ;then
-        echo "$TS: Error: \"mv ${tb} ${tb}.md5 $dest\", status $sts" |
+        echo "$TS: Error: \"cp ${tb} ${tb}.md5 ${dest}/\", status $sts" |
             tee -a $status >&4
+        rm -f ${dest}/${resultname}.tar.xz ${dest}/${resultname}.tar.xz.md5
+        sts=$?
+        if [ $sts -ne 0]; then
+            echo "$TS: Warning: cleanup of copy failure failed itself: \"rm -f ${dest}/${resultname}.tar.xz ${dest}/${resultname}.tar.xz.md5\", status $sts" |
+                tee -a $status >&4
+        fi
         quarantine ${errors}/${controller} ${tb} ${tb}.md5
         nerrs=$nerrs+1
+        continue
+    fi
+    rm -f ${tb} ${tb}.md5
+    sts=$?
+    if [ $sts -ne 0 ] ;then
+        echo "$TS: Warning: cleanup of successful copy operation failed: \"rm -f ${tb} ${tb}.md5\", status $sts" |
+            tee -a $status >&4
     fi
 
     pushd $dest/TODO > /dev/null >/dev/null 2>&1
