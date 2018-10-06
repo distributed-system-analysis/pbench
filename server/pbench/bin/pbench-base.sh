@@ -125,7 +125,7 @@ LINKDIRS="TODO BAD-MD5 \
     TO-DELETE SATELLITE-DONE"
 
 # list of the state directories which will be excluded during rsync
-EXCLUDE_DIRS="$LINKDIRS WONT-INDEX*"
+EXCLUDE_DIRS="$LINKDIRS $(for i in {1..11}; do printf 'WONT-INDEX.%d ' ${i}; done)"
 
 function mk_dirs {
     hostname=$1
@@ -137,11 +137,6 @@ function mk_dirs {
             return 1
         fi
     done
-    # to accommodate different exit codes from index-pbench
-    mkdir -p $ARCHIVE/$hostname/WONT-INDEX.{1..12}
-    if [[ $? -ne 0 ]]; then
-        return 2
-    fi
 }
 
 function log_init {
