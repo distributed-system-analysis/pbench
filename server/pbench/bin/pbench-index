@@ -102,8 +102,8 @@ find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | so
 while read size result ;do
     echo "   $(timestamp): Starting $result (size $size)"
     link=$(readlink -e $result)
-    if [ ! -f $link ] ;then
-        echo "$TS: $link does not exist" >&4
+    if [ ! -f $link  -o ! -f ${link}.md5 ] ;then
+        echo "$TS: $link and/or ${link}.md5 does not exist" >&4
         nerrs=$nerrs+1
         echo $result >> $erred
         continue
@@ -111,56 +111,41 @@ while read size result ;do
 
     resultname=$(basename $result)
     resultname=${resultname%.tar.xz}
-    hostname=$(basename $(dirname $link))
+    controller_path=$(dirname ${link})
+    hostname=$(basename ${controller_path})
 
     # make sure that all the relevant state directories exist
     mk_dirs $hostname
 
-    # index it
-    if [ ! -f $link  -o ! -f $link.md5 ] ;then
-        echo "$TS: $link and/or $link.md5 does not exist" >&4
-        nerrs=$nerrs+1
-        echo $result >> $erred
-        continue
-    fi
-
     # index-pbench depends on a whole hierarchy - this script and
     # index-pbench are in /opt/pbench-server/bin when deployed, but it
     # depends on /opt/pbench-server/lib/config/pbench-index.cfg,
-    # /opt/pbench-server/lib/vos etc. On a devel system, however, they are
-    # under .../pbench/server/pbench in the git clone.
-    # Also, index-pbench requires python3: that's available on Fedora
-    # but, for RHEL7, we need software collections.
-    if [[ "$_PBENCH_SERVER_TEST" == 1 ]] ;then
-        # running unittests: assume that we are in the bin directory
-        PROGLOC=$dir
-        PYTHONPATH=${PROGLOC}/../lib:$PYTHONPATH eval\
-             "python3 ${PROGLOC}/index-pbench -U --config ${PROGLOC}/../lib/config/pbench-index.cfg -E $errors_json $link"
+    # /opt/pbench-server/lib/vos etc.  Also, index-pbench requires
+    # python3: that's available on Fedora but, for RHEL, we need
+    # software collections.
+    PROGLOC=$(getconf.py install-dir pbench-server)
+    if which python3 > /dev/null 2>&1 ;then
+        # we have a python3 here
+        PYTHONPATH=${PROGLOC}/lib:$PYTHONPATH eval\
+                "python3 ${PROGLOC}/bin/index-pbench --config ${PROGLOC}/lib/config/pbench-index.cfg -E $errors_json $link"
+        status=$?
+    elif which scl > /dev/null 2>&1 ;then
+        # we fall back to SCL
+        PYTHONPATH=${PROGLOC}/lib:$PYTHONPATH scl enable rh-python36 \
+                "python ${PROGLOC}/bin/index-pbench --config ${PROGLOC}/lib/config/pbench-index.cfg -E $errors_json $link"
         status=$?
     else
-        PROGLOC=$(getconf.py install-dir pbench-server)
-        if which python3 > /dev/null 2>&1 ;then
-            # we have a python3 here
-            PYTHONPATH=${PROGLOC}/lib:$PYTHONPATH eval\
-                "python3 ${PROGLOC}/bin/index-pbench --config ${PROGLOC}/lib/config/pbench-index.cfg -E $errors_json $link"
-            status=$?
-        elif which scl > /dev/null 2>&1 ;then
-            # we fall back to SCL
-            PYTHONPATH=${PROGLOC}/lib:$PYTHONPATH scl enable rh-python36 \
-                "python ${PROGLOC}/bin/index-pbench --config ${PROGLOC}/lib/config/pbench-index.cfg -E $errors_json $link"
-            status=$?
-        else
-            echo "index-pbench needs python3, either directly or through SCL" >&4
-            # this is fatal
-            log_finish
-            exit 127
-        fi
+        echo "index-pbench needs python3, either directly or through SCL" >&4
+        # this is fatal
+        status=127
     fi
 
     if [ -s $errors_json ]; then
         echo $link > $errors_json.report
         cat $errors_json >> $errors_json.report
         pbench-report-status --name $PROG.errors --timestamp $TS --type status $errors_json.report
+        rm -f $errors_json.report
+        > $errors_json
     fi
 
     if [ $status -ne 0 ] ;then
@@ -168,15 +153,29 @@ while read size result ;do
         # Different WONT-INDEX directories for different failures:
         # The rest are going to end up in WONT-INDEX for later retry.
 
-        if [ $status -eq 11 ]; then
+        if [ $status -eq 1 ]; then
+            echo "$TS: index failures encountered on $result" >&4
+            nerrs=$nerrs+1
+            echo $result >> $erred
+            mkdir -p ${controller_path}/$linkerrdest.$status
+            mv $result ${controller_path}/$linkerrdest.$status/
+        elif [ $status -eq 2 -o $status -eq 3 ]; then
+            echo "$TS: index configuration error $status on $result" >&4
+            nerrs=$nerrs+1
+            echo $result >> $erred
+            mkdir -p ${controller_path}/$linkerrdest.$status
+            mv $result ${controller_path}/$linkerrdest.$status/
+        elif [ $status -ge 4 -a $status -le 11 ]; then
+            # Quietly skip these errors
+            nskip=$nskip+1
+            echo $result >> $skipped
+            mkdir -p ${controller_path}/$linkerrdest.$status
+            mv $result ${controller_path}/$linkerrdest.$status/
+        else
             echo "$TS: index error $status on $result" >&4
             nerrs=$nerrs+1
             echo $result >> $erred
-            mv $result $(echo $result | sed "s/$linksrc/$linkerrdest/")
-        else
-            nskip=$nskip+1
-            echo $result >> $skipped
-            mv $result $(echo $result | sed "s/$linksrc/$linkerrdest.$status/")
+            mv $result ${controller_path}/$linkerrdest/
         fi
         continue
     fi

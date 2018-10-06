@@ -51,7 +51,7 @@ if [[ ! -d "$rlb" ]]; then
 fi
 
 # exclude the subdirs of symlinks
-exclude="--exclude=$(echo $LINKDIRS | sed 's/  */ --exclude=/g')"
+exclude="--exclude=$(echo $EXCLUDE_DIRS | sed 's/  */ --exclude=/g')"
 
 # N.B The trailing slash is important
 rsync -va --stats $exclude $rla/ $rlb | tee -a $stats
