@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Move the local reception directory 001 tree to the side
+mv pbench-local/pbench-move-results-receive/fs-version-001 pbench-local/pbench-move-results-receive/fs-version-001.bad
+exit $?

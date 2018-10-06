@@ -1,0 +1,132 @@
++++ Running pbench-satellite-cleanup
+--- Finished pbench-satellite-cleanup (status=0)
++++ Running unit test audit
+--- Finished unit test audit (status=3)
++++ var/www/html tree state (/var/tmp/pbench-test-server/var-www-html)
+lrwxrwxrwx         55 incoming -> /var/tmp/pbench-test-server/pbench/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
+-rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--         94 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         94 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         54 results -> /var/tmp/pbench-test-server/pbench/public_html/results
+lrwxrwxrwx         53 static -> /var/tmp/pbench-test-server/pbench/public_html/static
+lrwxrwxrwx         52 users -> /var/tmp/pbench-test-server/pbench/public_html/users
+--- var/www/html tree state
++++ results host info (/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench.example.com)
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench.example.com)
+--- results host info
++++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/var-www-html-satellite)
+lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/pbench-satellite/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
+-rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--        104 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--        104 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/pbench-satellite/public_html/results
+lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/pbench-satellite/public_html/static
+lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/pbench-satellite/public_html/users
+--- var/www/html-satellite tree state
++++ results host info (/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench-satellite.example.com)
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench-satellite.example.com)
+--- results host info
++++ pbench tree state (/var/tmp/pbench-test-server/pbench)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - archive/fs-version-001/controller-a
+drwxrwxr-x          - archive/fs-version-001/controller-a/SATELLITE-DONE
+lrwxrwxrwx         41 archive/fs-version-001/controller-a/SATELLITE-DONE/tarball-one_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-one_YYYY-MM-DDTHH-mm-ss.tar.xz
+lrwxrwxrwx         41 archive/fs-version-001/controller-a/SATELLITE-DONE/tarball-two_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-two_YYYY-MM-DDTHH-mm-ss.tar.xz
+drwxrwxr-x          - archive/fs-version-001/controller-a/TO-DELETE
+drwxrwxr-x          - archive/fs-version-001/controller-b
+drwxrwxr-x          - archive/fs-version-001/controller-b/SATELLITE-DONE
+lrwxrwxrwx         41 archive/fs-version-001/controller-b/SATELLITE-DONE/tarball-fou_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-fou_YYYY-MM-DDTHH-mm-ss.tar.xz
+lrwxrwxrwx         41 archive/fs-version-001/controller-b/SATELLITE-DONE/tarball-thr_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-thr_YYYY-MM-DDTHH-mm-ss.tar.xz
+drwxrwxr-x          - archive/fs-version-001/controller-b/TO-DELETE
+drwxrwxr-x          - archive/fs-version-001/controller-c
+drwxrwxr-x          - archive/fs-version-001/controller-c/.prefix
+drwxrwxr-x          - archive/fs-version-001/controller-c/SATELLITE-DONE
+lrwxrwxrwx         41 archive/fs-version-001/controller-c/SATELLITE-DONE/tarball-fiv_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-fiv_YYYY-MM-DDTHH-mm-ss.tar.xz
+lrwxrwxrwx         41 archive/fs-version-001/controller-c/SATELLITE-DONE/tarball-six_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-six_YYYY-MM-DDTHH-mm-ss.tar.xz
+drwxrwxr-x          - archive/fs-version-001/controller-c/TO-DELETE
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/incoming/controller-a
+drwxrwxr-x          - public_html/incoming/controller-c
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/results/controller-a
+drwxrwxr-x          - public_html/results/controller-c
+drwxrwxr-x          - public_html/results/controller-c/dirA
+drwxrwxr-x          - public_html/results/controller-c/dirA/dirB
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/users
+--- pbench tree state
++++ pbench-local tree state (/var/tmp/pbench-test-server/pbench-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - logs/pbench-audit-server
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
+-rw-rw-r--          1 logs/pbench-audit-server/pbench-audit-server.log
+drwxrwxr-x          - logs/pbench-satellite-cleanup
+-rw-rw-r--          0 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.error
+-rw-rw-r--        312 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-001
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-001
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-001
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-001
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-local tree state
++++ pbench-satellite tree state (/var/tmp/pbench-test-server/pbench-satellite)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/users
+--- pbench-satellite tree state
++++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/pbench-satellite-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-001
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-001
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-001
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-001
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-satellite-local tree state
++++ pbench log file contents
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-audit-server/pbench-audit-server.log:
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log:run-1900-01-01T00:00:00-UTC: pbench-satellite-cleanup starting
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log:run-1900-01-01T00:00:00-UTC: pbench-satellite-cleanup ends: Total 6 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.
+--- pbench log file contents
++++ test-execution.log file contents
+curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/5410fceac5a16fbd3293a70c3f2e24de --data @/tmp/pbench-report-status.NNNN/payload
+--- test-execution.log file contents
++++ test-curl-payload.log file contents
+{
+    "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nController: controller-a\n\t* No tar ball files found in this controller directory.\n\n\nController: controller-b\n\t* No tar ball files found in this controller directory.\n\n\nController: controller-c\n\t* No tar ball files found in this controller directory.\n\n\nend-1900-01-01T00:00:00-UTC\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-audit-server",
+    "doctype": "status"
+}
+--- test-curl-payload.log file contents

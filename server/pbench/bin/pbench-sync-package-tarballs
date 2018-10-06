@@ -71,7 +71,7 @@ calculate_md5_prefix () {
 
 log_init $PROG
 
-tar_list=$(find . -path '*/TO-SYNC/*.tar.xz' -printf '%P\n' | sed 's/\/TO-SYNC//g')
+tar_list=$(find . -path '*/TO-SYNC/*.tar.xz' -printf '%P\n' | sed 's/\/TO-SYNC//g' | sort)
 calculate_md5_prefix $tar_list > $tmp/files-to-sync
 
 # package everything and use the saved stdout (see log_init)

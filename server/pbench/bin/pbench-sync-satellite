@@ -1,17 +1,20 @@
 #! /bin/bash
 
-# pbench-move-results copies tarballs to the server and creates
-# symlinks to them in the controller's TODO directory. That signals
-# pbench-unpack-tarballs to process them.
+# Simulate what pbench-move-results does for tar balls found on a given
+# satellite (remote) pbench server.
+
+# pbench-move-results copies tarballs to the server in the reception
+# areas (fs-version-001 and -002 versions), and then the respective
+# shims set about moving them into place for pbench-dispatch to move
+# through the various processing stages.
 
 # This script simulates what pbench-move-results does with the
 # tarballs that it copies from a satellite server. It runs as a cron
 # job once a minute.
 
 # Assumption: this script is running as user "pbench" on the master
-# server and can ssh as user "pbench" to the satellite server, without
-# a password.
-
+# server and can ssh as user "pbench" to the given satellite server,
+# without a password.
 
 # load common things
 opts=$SHELLOPTS
@@ -26,123 +29,163 @@ case $opts in
         ;;
 esac
 case $# in
-    3)
+    1)
         :
         ;;
     *)
-        echo "Usage: $PROG <prefix> <remotehost> <remotearchive>"
+        echo "Usage: $PROG <satellite-config>"
         exit 1
         ;;
 esac
 
-prefix=$1
-remotehost=$2
-remotearchive=$3
-
-shift 3
+satellite_config=$1
+shift 1
 
 # TOP, TMP, LOGSDIR, ARCHIVE, TS are all defined in pbench-base.sh
 . $dir/pbench-base.sh
 
 test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
 
-tmp=$(get-tempdir-name $PROG)
+remote_prefix=$(getconf.py satellite-prefix ${satellite_config})
+remote_host=$(getconf.py satellite-host ${satellite_config})
 
-# check whether any previous ssh failure; if any try again and if it
-# fails again then exit without going further.
-if [ -s $LOGSDIR/change_state.$prefix.log ] ;then
-    ssh $remotehost "cd $remotearchive; /opt/pbench-server/bin/pbench-satellite-state-change" < $LOGSDIR/change_state.$prefix.log
+tmp=$(get-tempdir-name $PROG)
+unpack=$tmp/unpack.$remote_prefix
+mkdir -p $unpack || doexit "Failed to create $unpack"
+
+# Be sure $logdir is defined before setting up the trap below.
+logdir_for_remote=$LOGSDIR/$PROG/$remote_prefix
+logdir=$logdir_for_remote/$TS
+
+# remove the tmp dir on exit; try to remove an empty $logdir
+# but suppress any complaints (note that $logdir is a timestamped
+# directory for this run.
+trap "rm -rf $tmp; rmdir $logdir 2>/dev/null" EXIT QUIT INT
+
+# The creation of the $logdir hierarchy should happen only after the
+# trap so that if it fails, the $tmp directory will be cleaned up as
+# well.
+mkdir -p $logdir || doexit "Failed to create $logdir"
+
+log_init $PROG
+
+function do_remote_sat_state_change {
+    local status
+    pbench-remote-satellite-state-change ${satellite_config} ${state_change_log} > ${logdir}/mv.log 2>&1
     status=$?
     if [[ $status != 0 ]] ;then
         cat << EOF > $index_content
-FAILED: $PROG: $prefix: ssh to $remotehost failed twice.
+FAILED: $PROG: $remote_prefix: satellite state change failed twice.
 
-Unable to change the state directories of tarballs, in $remotehost, due to ssh failure.
+Unable to change the state directories of tarballs, in $remote_host, due to ssh failure.
 EOF
         pbench-report-status --name $PROG --timestamp $TS --type error $index_content
-        exit 1
     else
-        rm $LOGSDIR/change_state.$prefix.log
+        rm ${state_change_log}
         status=$?
         if [[ $status != 0 ]]; then
             cat << EOF > $index_content
-$PROG: $prefix: Failed to remove $LOGSDIR/change_state.$prefix.log
+$PROG ($remote_prefix): Failed to remove local "${state_change_log}"
 
-ssh to the $remotehost sucessfull for changing the state of tarballs,
-but failed to remove local $LOGSDIR/change_state.$prefix.log
+ssh to the $remote_host was sucessfull for changing the state of tarballs,
+but failed to remove local "${state_change_log}".
 EOF
             pbench-report-status --name $PROG --timestamp $TS --type error $index_content
-            exit 1
         fi
     fi
+    return $status
+}
+
+# accumulate errors in a file for mailing at end
+mail_content=$tmp/mail.log
+> $mail_content
+index_content=$tmp/index_mail_contents
+> $index_content
+
+let start_time=$(timestamp-seconds-since-epoch)
+echo "$TS: start - $(timestamp)" | tee -a $mail_content
+
+# NOTE: the log file for tracking which tarballs have to be updated on
+# the remote satellite server is shared between runs, so it is not in
+# the timestamped log directory for a given satellite.
+state_change_log=$logdir_for_remote/change_state.log
+
+# check whether any previous ssh failure; if any try again here before
+# we try to process any new tar balls on the satellite server.  If it
+# fails again then exit without going further.
+if [ -s ${state_change_log} ] ;then
+    echo "$PROG: completing previous satellite state changes ... (${state_change_log})" | tee -a $mail_content >&4
+    do_remote_sat_state_change
+    status=$?
+    if [[ $status != 0 ]]; then
+        echo "$PROG: unable to complete previous satellite state changes (${state_change_log})" >&4
+        log_finish
+        exit 1
+    fi
+    echo "$PROG: completed previous satellite state changes" | tee -a $mail_content >&4
+else
+    # initialize state change log
+    > ${state_change_log}
 fi
 
 typeset -i nprocessed=0
 typeset -i nfailed_md5=0
 typeset -i nerrs=0
 
-# remove the tmp dir on exit; try to remove an empty $logdir
-# but suppress any complaints.
-trap "rm -rf $tmp; rmdir $logdir 2>/dev/null" EXIT QUIT INT
-
-unpack=$tmp/unpack.$prefix
-mkdir -p $unpack || doexit "Failed to create $unpack"
-
-# accumulate errors in a file for mailing at end
-mail_content=$tmp/mail.log
-index_content=$tmp/index_mail_contents
-
-logdir=$LOGSDIR/$PROG/$prefix/$TS
-mkdir -p $logdir || "Failed to create $logdir"
-
-log_init $PROG
-
-# get the tarball from remote
-ssh $remotehost "/opt/pbench-server/bin/pbench-sync-package-tarballs" > $tmp/satellite.$prefix.tar
+# Fetch all the tarballs from remote host's archive
+pbench-remote-sync-package-tarballs ${satellite_config} ${tmp}/satellite.${remote_prefix}.tar
 rc=$?
 if [[ $rc != 0 ]] ;then
-    echo "$PROG: ssh $remotehost /opt/pbench-server/bin/pbench-sync-package-tarballs: failed." >&4
+    echo "$PROG: pbench-remote-sync-package-tarballs: failed." >&4
     log_finish
     exit 2
 fi
 
-if [ -s $tmp/satellite.$prefix.tar ]; then
+if [ -s $tmp/satellite.$remote_prefix.tar ]; then
+    echo "$TS: remote tarballs fetched, unpacking ... - $(timestamp)" | tee -a $mail_content
+
     # unpack the tarball into tmp directory
-    tar -xf $tmp/satellite.$prefix.tar -C $unpack
+    tar -xf $tmp/satellite.$remote_prefix.tar -C $unpack
     files=$(find $unpack -path '*.tar.xz' -printf '%P\n')
     hosts="$(for host in $files;do echo ${host%%/*};done | sort -u )"
+
+    echo "$TS: remote tarballs unpacked - $(timestamp)" | tee -a $mail_content
 else
     hosts=""
 fi
 
-# initialize change state log and mail content
-> $LOGSDIR/change-state.$prefix.log
-> $mail_content
-> $index_content
-
-let start_time=$(timestamp-seconds-since-epoch)
-echo "$TS: start - $(timestamp)"
+let unpack_start_time=$(timestamp-seconds-since-epoch)
 
 for host in $hosts ;do
     typeset -i processed=0
     typeset -i failed_md5=0
-    localdir=$ARCHIVE/$prefix::$host
+    localdir=$ARCHIVE/$remote_prefix::$host
 
-    pushd $localdir >/dev/null
+    pushd $localdir > /dev/null 2>&1
     rc=$?
     if [ $rc -ne 0 ]; then
         mkdir -p $localdir
         rc=$?
         if [ $rc -ne 0 ]; then
-            echo "$PROG: failed to create remote controller in archive, $localdir" >&4
+            nerrs=$nerrs+1
+            echo "$PROG: failed to create remote controller in archive, $localdir" | tee -a $mail_content >&4
             continue
+        else
+            pushd $localdir > /dev/null
+            rc=$?
+            if [ $rc -ne 0 ]; then
+                nerrs=$nerrs+1
+                echo "$PROG: failed to pushd to remote controller in archive, $localdir" | tee -a $mail_content >&4
+                continue
+            fi
         fi
     fi
 
     mkdir -p $logdir/$host
     rc=$?
     if [ $rc -ne 0 ]; then
-        echo "$PROG: failed to create $logdir/$host" >&4
+        nerrs=$nerrs+1
+        echo "$PROG: failed to create $logdir/$host" | tee -a $mail_content >&4
         continue
     fi
 
@@ -161,7 +204,7 @@ for host in $hosts ;do
     fi
 
     # make the state dirs: TODO, TO-INDEX, TO-COPY-SOS etc.
-    mk_dirs $prefix::$host
+    mk_dirs $remote_prefix::$host
 
     # check md5s and move md5s to its appropriate state directories according to pass or fail
     md5_list="$flist"
@@ -176,25 +219,25 @@ for host in $hosts ;do
             status=$?
             if [[ $status != 0 ]] ;then
                 nerrs=$nerrs+1
-                echo "Failed to create the symlink for md5 check passed tarballs: ln -sf \
-                $PWD/$x SATELLITE-MD5-PASSED/$x" | tee -a $mail_content >&4
+                echo "Failed to create the symlink for md5 check passed tarballs: ln -sf $PWD/$x SATELLITE-MD5-PASSED/$x" |
+                    tee -a $mail_content >&4
                 continue
             fi
         done
     fi
-    grep 'FAIL' $logdir/$host/md5-checks.log > $logdir/$host/fail-checks.log
+    grep 'FAILED' $logdir/$host/md5-checks.log > $logdir/$host/fail-checks.log
     cat $logdir/$host/fail-checks.log >> $mail_content
     failed_md5=$(wc -l < $logdir/$host/fail-checks.log)
     nfailed_md5=$((nfailed_md5 + failed_md5))
     if [ -s $logdir/$host/fail-checks.log ] ;then
-        md5_fail=$(cat $logdir/$host/fail-checks.log | sed -n 's/: FAIL//p')
+        md5_fail=$(cat $logdir/$host/fail-checks.log | sed -n 's/: FAILED//p')
         for x in $md5_fail; do
             ln -sf $PWD/$x SATELLITE-MD5-FAILED/$x
             status=$?
             if [[ $status != 0 ]] ;then
                 nerrs=$nerrs+1
-                echo "Failed to create the symlink for md5 check failed tarballs: ln -sf \
-                $PWD/$x SATELLITE-MD5-FAILED/$x" | tee -a $mail_content >&4
+                echo "Failed to create the symlink for md5 check failed tarballs: ln -sf $PWD/$x SATELLITE-MD5-FAILED/$x" |
+                    tee -a $mail_content >&4
                 continue
             fi
         done
@@ -206,8 +249,8 @@ for host in $hosts ;do
             status=$?
             if [[ $status != 0 ]] ;then
                 nerrs=$nerrs+1
-                echo "Failed to create the symlink for TODO state directory: ln -sf \
-                $PWD/$x TODO/$x" | tee -a $mail_content >&4
+                echo "Failed to create the symlink for TODO state directory: ln -sf $PWD/$x TODO/$x" |
+                    tee -a $mail_content >&4
                 continue
             fi
         done
@@ -216,53 +259,38 @@ for host in $hosts ;do
     if [ -s $logdir/$host/ok-checks.log ] ;then
         state_list=$(cat $logdir/$host/ok-checks.log | sed -n 's/: OK//p')
         for x in $state_list; do
-            echo "$host/TO-SYNC/$x" >> $LOGSDIR/change_state.$prefix.log
+            echo "$host/TO-SYNC/$x" >> ${state_change_log}
         done
     fi
     popd > /dev/null 2>&4
 done
 
 # change the state of the tarballs on remote
-if [ -s $LOGSDIR/change_state.$prefix.log ] ;then
-    ssh $remotehost "cd $remotearchive; /opt/pbench-server/bin/pbench-satellite-state-change" < $LOGSDIR/change_state.$prefix.log > $logdir/mv.log 2>&1
+if [ -s ${state_change_log} ] ;then
+    echo "$PROG: completing satellite state changes ... (${state_change_log})" | tee -a $mail_content >&4
+    do_remote_sat_state_change
     status=$?
-    if [[ $status != 0 ]] ;then
-        echo "FAILED: ssh $remotehost; cd $remotearchive; /opt/pbench-server/bin/pbench-satellite-state-change < $LOGSDIR/change_state.$prefix.log" >&4
-        cat << EOF > $index_content
-FAILED: $PROG: $prefix: ssh $remotehost; cd $remotearchive; /opt/pbench-server/bin/pbench-satellite-state-change
-
-Unable to change the state directories of tarballs, in $remotehost, due to ssh failure
-EOF
-        pbench-report-status --name $PROG --timestamp $TS --type error $index_content
+    if [[ $status != 0 ]]; then
+        echo "$PROG: unable to complete satellite state changes (${state_change_log})" | tee -a $mail_content >&4
     else
-        rm $LOGSDIR/change_state.$prefix.log
-        status=$?
-        if [[ $status != 0 ]]; then
-            echo "Failed to remove $LOGSDIR/change_state.$prefix.log" >&4
-            cat << EOF > $index_content
-$PROG: $prefix: Failed to remove $LOGSDIR/change_state.$prefix.log
-
-ssh to the $remotehost sucessfull for changing the state of tarballs, but failed to remove $LOGSDIR/change_state.$prefix.log
-EOF
-            pbench-report-status --name $PROG --timestamp $TS --type error $index_content
-        fi
+        echo "$PROG: completed satellite state changes" | tee -a $mail_content >&4
     fi
 fi
 
-#  if there are errors, mail the report
-if [ "$nerrs" -gt 0 ]  ;then
+let end_time=$(timestamp-seconds-since-epoch)
+let duration=end_time-start_time
+echo "$TS: end - $(timestamp)" | tee -a $mail_content
+echo "$TS: duration (secs): $duration" | tee -a $mail_content
+echo "$TS: Total $nprocessed files processed, with $nfailed_md5 md5 failures and $nerrs errors" | tee -a $mail_content
+
+# if we processed any files, or there were errors, mail the report
+if [ "$nprocessed" -gt 0 -o "$nfailed_md5" -gt 0 -o "$nerrs" -gt 0 ]  ;then
     cat << EOF > $index_content
-$PROG: $prefix: $nprocessed files processed, with $nfailed_md5 md5 failures and $nerrs errors
+$PROG: $remote_prefix: $nprocessed files processed, with $nfailed_md5 md5 failures, and $nerrs errors
 
 EOF
     cat $mail_content >> $index_content
     pbench-report-status --name $PROG --timestamp $TS --type status $index_content
 fi
-
-let end_time=$(timestamp-seconds-since-epoch)
-let duration=end_time-start_time
-echo "$TS: end - $(timestamp)"
-echo "$TS: duration (secs): $duration"
-echo "$TS: Total $nprocessed files processed, with $nfailed_md5 md5 failures and $nerrs errors"
 
 exit 0

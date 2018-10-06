@@ -2,8 +2,9 @@
 
 echo "${0##*/} $*" >> $_testlog
 
-# pretend that we get something back in this case
-if [ "$1" = "foo2.bar.com" ] ;then
-    echo controller
+remote_host=$1
+shift 1
+if [ "${remote_host}" = "pbench-satellite.example.com" ] ;then
+    $*
 fi
 exit 0

@@ -1,8 +1,0 @@
-#! /bin/bash
-
-pbench_install_dir=$(getconf.py install-dir pbench-server)
-docroot=$(getconf.py documentroot apache)
-
-ln -s /opt/pbench-web-server/html/static $docroot
-
-exit 0

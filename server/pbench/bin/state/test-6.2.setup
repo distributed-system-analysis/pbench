@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Remove the fs-version-001 directory and replace with a file
+# to cause the backup source to be an invalid archive.
+rmdir pbench/archive/fs-version-001 || exit $?
+touch pbench/archive/fs-version-001
+exit $?

@@ -1,59 +1,112 @@
 +++ Running pbench-sync-satellite
 --- Finished pbench-sync-satellite (status=0)
 +++ Running unit test audit
---- Finished unit test audit (status=2)
+--- Finished unit test audit (status=0)
 +++ var/www/html tree state (/var/tmp/pbench-test-server/var-www-html)
 lrwxrwxrwx         55 incoming -> /var/tmp/pbench-test-server/pbench/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
 -rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
--rw-rw-r--         87 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+-rw-rw-r--         94 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
 -rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
--rw-rw-r--         87 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+-rw-rw-r--         94 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
 lrwxrwxrwx         54 results -> /var/tmp/pbench-test-server/pbench/public_html/results
+lrwxrwxrwx         53 static -> /var/tmp/pbench-test-server/pbench/public_html/static
 lrwxrwxrwx         52 users -> /var/tmp/pbench-test-server/pbench/public_html/users
 --- var/www/html tree state
++++ results host info (/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench.example.com)
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench.example.com)
+--- results host info
++++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/var-www-html-satellite)
+lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/pbench-satellite/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
+-rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--        104 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--        104 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/pbench-satellite/public_html/results
+lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/pbench-satellite/public_html/static
+lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/pbench-satellite/public_html/users
+--- var/www/html-satellite tree state
++++ results host info (/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench-satellite.example.com)
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench-satellite.example.com)
+--- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/pbench)
 drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - archive/fs-version-001/ONE::controller
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/BAD-MD5
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/COPIED-SOS
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/INDEXED
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/MOVED-UNPACKED
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/SATELLITE-DONE
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/SATELLITE-MD5-FAILED
+lrwxrwxrwx        125 archive/fs-version-001/ONE::controller/SATELLITE-MD5-FAILED/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz -> /var/tmp/pbench-test-server/pbench/archive/fs-version-001/ONE::controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/SATELLITE-MD5-PASSED
+lrwxrwxrwx        105 archive/fs-version-001/ONE::controller/SATELLITE-MD5-PASSED/fio__2016-08-16_22:03:11.tar.xz -> /var/tmp/pbench-test-server/pbench/archive/fs-version-001/ONE::controller/fio__2016-08-16_22:03:11.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/SYNCED
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-BACKUP
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-COPY-SOS
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-DELETE
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-SYNC
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-UNPACK
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/TODO
+lrwxrwxrwx        105 archive/fs-version-001/ONE::controller/TODO/fio__2016-08-16_22:03:11.tar.xz -> /var/tmp/pbench-test-server/pbench/archive/fs-version-001/ONE::controller/fio__2016-08-16_22:03:11.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/UNPACKED
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/WONT-INDEX
+-rw-r--r--    1558168 archive/fs-version-001/ONE::controller/fio__2016-08-16_22:03:11.tar.xz
+-rw-r--r--         66 archive/fs-version-001/ONE::controller/fio__2016-08-16_22:03:11.tar.xz.md5
+-rw-r--r--       7028 archive/fs-version-001/ONE::controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
+-rw-r--r--         86 archive/fs-version-001/ONE::controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
+drwxrwxr-x          - archive/fs-version-001/controller
+drwxrwxr-x          - archive/fs-version-001/controller/TODO
+lrwxrwxrwx         34 archive/fs-version-001/controller/TODO/fio__2016-08-16_22:03:11.tar.xz -> ../fio__2016-08-16_22:03:11.tar.xz
+lrwxrwxrwx         54 archive/fs-version-001/controller/TODO/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz -> ../pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
+-rw-r--r--    1558168 archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz
+-rw-r--r--         66 archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz.md5
+-rw-r--r--       7028 archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
+-rw-r--r--         86 archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/users
+--- pbench tree state
++++ pbench-local tree state (/var/tmp/pbench-test-server/pbench-local)
 drwxrwxr-x          - archive.backup
 drwxrwxr-x          - archive.backup/controller
 -rw-r--r--    1558168 archive.backup/controller/fio__2016-08-16_22:03:11.tar.xz
 -rw-r--r--         66 archive.backup/controller/fio__2016-08-16_22:03:11.tar.xz.md5
 -rw-r--r--       7028 archive.backup/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
 -rw-r--r--         86 archive.backup/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
-drwxrwxr-x          - archive/fs-version-001
-drwxrwxr-x          - archive/fs-version-001/TEST2::controller
--rw-r--r--    1558168 archive/fs-version-001/TEST2::controller/fio__2016-08-16_22:03:11.tar.xz
--rw-r--r--         66 archive/fs-version-001/TEST2::controller/fio__2016-08-16_22:03:11.tar.xz.md5
--rw-r--r--       7028 archive/fs-version-001/TEST2::controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
--rw-r--r--         86 archive/fs-version-001/TEST2::controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
-drwxrwxr-x          - archive/fs-version-001/controller
--rw-r--r--    1558168 archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz
--rw-r--r--         66 archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz.md5
--rw-r--r--       7028 archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
--rw-r--r--         86 archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
 drwxrwxr-x          - logs
--rw-rw-r--          0 logs/change-state.TEST2.log
-drwxrwxr-x          - logs/pbench-audit-archive
--rw-rw-r--          0 logs/pbench-audit-archive/pbench-audit-archive.error
--rw-rw-r--          1 logs/pbench-audit-archive/pbench-audit-archive.log
+drwxrwxr-x          - logs/pbench-audit-server
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
+-rw-rw-r--          1 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-sync-satellite
-drwxrwxr-x          - logs/pbench-sync-satellite/TEST2
-drwxrwxr-x          - logs/pbench-sync-satellite/TEST2/run-1900-01-01T00:00:00-UTC
--rw-rw-r--          0 logs/pbench-sync-satellite/pbench-sync-satellite.error
--rw-rw-r--        354 logs/pbench-sync-satellite/pbench-sync-satellite.log
-drwxrwxr-x          - public_html
-drwxrwxr-x          - public_html/incoming
-drwxrwxr-x          - public_html/results
-drwxrwxr-x          - public_html/users
-drwxrwxr-x          - tmp
---- pbench tree state
-+++ pbench-local tree state (/var/tmp/pbench-test-server/pbench-local)
-drwxrwxr-x          - fs-version-001
-drwxrwxr-x          - fs-version-001/pbench-move-results-receive
-drwxrwxr-x          - fs-version-002
-drwxrwxr-x          - fs-version-002/pbench-move-results-receive
+drwxrwxr-x          - logs/pbench-sync-satellite/ONE
+drwxrwxr-x          - logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC
+drwxrwxr-x          - logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC/controller
+-rw-rw-r--         60 logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC/controller/fail-checks.log
+-rw-rw-r--         96 logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC/controller/md5-checks.log
+-rw-rw-r--         36 logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC/controller/ok-checks.log
+-rw-rw-r--          0 logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC/mv.log
+-rw-rw-r--        210 logs/pbench-sync-satellite/pbench-sync-satellite.error
+-rw-rw-r--        573 logs/pbench-sync-satellite/pbench-sync-satellite.log
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-001
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-001
 drwxrwxr-x          - quarantine/duplicates-002
@@ -61,25 +114,78 @@ drwxrwxr-x          - quarantine/errors-001
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
 --- pbench-local tree state
++++ pbench-satellite tree state (/var/tmp/pbench-test-server/pbench-satellite)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - archive/fs-version-001/controller
+drwxrwxr-x          - archive/fs-version-001/controller/TO-DELETE
+lrwxrwxrwx         34 archive/fs-version-001/controller/TO-DELETE/fio__2016-08-16_22:03:11.tar.xz -> ../fio__2016-08-16_22:03:11.tar.xz
+drwxrwxr-x          - archive/fs-version-001/controller/TO-SYNC
+lrwxrwxrwx         54 archive/fs-version-001/controller/TO-SYNC/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz -> ../pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
+-rw-r--r--    1558168 archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz
+-rw-r--r--         66 archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz.md5
+-rw-r--r--       7028 archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
+-rw-r--r--         86 archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/users
+--- pbench-satellite tree state
++++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/pbench-satellite-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - logs/pbench-sync-package-tarballs
+-rw-rw-r--          0 logs/pbench-sync-package-tarballs/pbench-sync-package-tarballs.error
+-rw-rw-r--          0 logs/pbench-sync-package-tarballs/pbench-sync-package-tarballs.log
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-001
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-001
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-001
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-001
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-satellite-local tree state
 +++ pbench log file contents
-/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
-/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:tar: This does not look like a tar archive
-/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:tar: Exiting with failure status due to previous errors
-/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: start - 1900-01-01T00:00:00-UTC
-/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: end - 1900-01-01T00:00:00-UTC
-/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: duration (secs): 0
-/var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: Total 0 files processed, with 0 md5 failures and 0 errors
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-audit-server/pbench-audit-server.log:
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC/controller/fail-checks.log:pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: FAILED
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC/controller/md5-checks.log:fio__2016-08-16_22:03:11.tar.xz: OK
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC/controller/md5-checks.log:pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: FAILED
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC/controller/ok-checks.log:fio__2016-08-16_22:03:11.tar.xz: OK
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/pbench-sync-satellite.error:pbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/pbench-sync-satellite.error:pbench-sync-satellite: completed satellite state changes
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: start - 1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: remote tarballs fetched, unpacking ... - 1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: remote tarballs unpacked - 1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/pbench-sync-satellite.log:fio__2016-08-16_22:03:11.tar.xz.md5 pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/pbench-sync-satellite.log:md5sum: WARNING: 1 computed checksum did NOT match
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: end - 1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: duration (secs): 0
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: Total 2 files processed, with 1 md5 failures and 0 errors
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/pbench-sync-satellite.log:
 --- pbench log file contents
 +++ test-execution.log file contents
-ssh foo2.bar.com /opt/pbench-server/bin/pbench-sync-package-tarballs
-curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/897d86470f84c04f5f871d687c4c3140 --data @/tmp/pbench-report-status.NNNN/payload
+ssh pbench-satellite.example.com /var/tmp/pbench-test-server/opt/pbench-server-satellite/bin/pbench-sync-package-tarballs
+ssh pbench-satellite.example.com /var/tmp/pbench-test-server/opt/pbench-server-satellite/bin/pbench-satellite-state-change /var/tmp/pbench-test-server/pbench-satellite/archive/fs-version-001
+curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-sync-satellite.1900-01/status/766937892e72c0bf09548673949f34fc --data @/tmp/pbench-report-status.NNNN/payload
+curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/8c40f0bc61a9fe48e778edfd8fe9eb57 --data @/tmp/pbench-report-status.NNNN/payload
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
 {
-    "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nController: TEST2::controller\n\t* No state directories found in this controller directory.\n\n\nController: controller\n\t* No state directories found in this controller directory.\n\n\nend-1900-01-01T00:00:00-UTC\n", 
-    "@timestamp": "1900-01-01T00:00:00", 
-    "name": "pbench-audit-archive", 
+    "text": "pbench-sync-satellite: ONE: 2 files processed, with 1 md5 failures, and 0 errors\n\nrun-1900-01-01T00:00:00-UTC: start - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: remote tarballs fetched, unpacking ... - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: remote tarballs unpacked - 1900-01-01T00:00:00-UTC\npbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: FAILED\npbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)\npbench-sync-satellite: completed satellite state changes\nrun-1900-01-01T00:00:00-UTC: end - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: duration (secs): 0\nrun-1900-01-01T00:00:00-UTC: Total 2 files processed, with 1 md5 failures and 0 errors\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-sync-satellite",
+    "doctype": "status"
+}
+{
+    "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nend-1900-01-01T00:00:00-UTC\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-audit-server",
     "doctype": "status"
 }
 --- test-curl-payload.log file contents

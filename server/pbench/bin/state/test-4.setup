@@ -1,5 +1,8 @@
 #!/bin/bash
 
+mkdir pbench-local/archive.backup || exit $?
+
 # Move the results tree to the side
-mv pbench/public_html/results pbench/public_html/no-results
+mv pbench/public_html/results pbench/public_html/no-results || exit $?
+mv pbench-satellite/public_html/results pbench-satellite/public_html/no-results
 exit $?

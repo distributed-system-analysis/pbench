@@ -59,7 +59,7 @@ function verify_subdirs {
 
     find ${controller} -maxdepth 1 -type d ! -name . ! -name $(basename ${controller}) ! -name .prefix -printf "\t  %f\n" | sort > ${directories} 2>&1
     if [ -s ${directories} ]; then
-        grep -v WONT-INDEX ${directories} > ${directories}.linkdirs
+        grep -vE "(_QUARANTINED|WONT-INDEX)" ${directories} > ${directories}.linkdirs
         comm -13 ${linkdirs} ${directories}.linkdirs > ${directories}.unexpected
         if [ -s ${directories}.unexpected ]; then
             printf "\t* Unexpected state directories found in this controller directory:\n"

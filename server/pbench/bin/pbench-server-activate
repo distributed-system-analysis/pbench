@@ -10,7 +10,7 @@ if [ ! -f $config ] ;then
 fi
 
 export CONFIG=$config
-crontabdir=$(getconf.py crontabdir pbench-server)
+crontabdir=$(getconf.py crontab-dir pbench-server)
 crontabdir=${crontabdir:-/opt/pbench-server/lib/crontab}
 
 typeset -i nerrs=0

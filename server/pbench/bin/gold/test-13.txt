@@ -1,5 +1,5 @@
 +++ Running pbench-server-prep-shim-002
---- Finished pbench-server-prep-shim-002 (status=0)
+--- Finished pbench-server-prep-shim-002 (status=2)
 +++ Running unit test audit
 --- Finished unit test audit (status=0)
 +++ var/www/html tree state (/var/tmp/pbench-test-server/var-www-html)
@@ -7,42 +7,81 @@ lrwxrwxrwx         55 incoming -> /var/tmp/pbench-test-server/pbench/public_html
 drwxrwxr-x          - pbench-results-host-info.versioned
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
 -rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
--rw-rw-r--         87 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+-rw-rw-r--         94 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
 -rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
--rw-rw-r--         87 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+-rw-rw-r--         94 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
 lrwxrwxrwx         54 results -> /var/tmp/pbench-test-server/pbench/public_html/results
+lrwxrwxrwx         53 static -> /var/tmp/pbench-test-server/pbench/public_html/static
 lrwxrwxrwx         52 users -> /var/tmp/pbench-test-server/pbench/public_html/users
 --- var/www/html tree state
++++ results host info (/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench.example.com)
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench.example.com)
+--- results host info
++++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/var-www-html-satellite)
+lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/pbench-satellite/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
+-rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--        104 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--        104 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/pbench-satellite/public_html/results
+lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/pbench-satellite/public_html/static
+lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/pbench-satellite/public_html/users
+--- var/www/html-satellite tree state
++++ results host info (/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench-satellite.example.com)
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench-satellite.example.com)
+--- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/pbench)
 drwxrwxr-x          - archive
-drwxrwxr-x          - archive/duplicates
 drwxrwxr-x          - archive/fs-version-001
-drwxrwxr-x          - archive/fs-version-001/Controller
-drwxrwxr-x          - archive/fs-version-001/Controller/TODO
-lrwxrwxrwx        128 archive/fs-version-001/Controller/TODO/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz -> /var/tmp/pbench-test-server/pbench/archive/fs-version-001/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz
--rw-rw-r--    2129128 archive/fs-version-001/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz
--rw-rw-r--         94 archive/fs-version-001/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz.md5
-drwxrwxr-x          - archive/quarantine
-drwxrwxr-x          - logs
-drwxrwxr-x          - logs/pbench-audit-archive
--rw-rw-r--          0 logs/pbench-audit-archive/pbench-audit-archive.error
--rw-rw-r--          1 logs/pbench-audit-archive/pbench-audit-archive.log
-drwxrwxr-x          - logs/pbench-server-prep-shim-002
--rw-rw-r--          0 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
--rw-rw-r--        230 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/users
-drwxrwxr-x          - tmp
 --- pbench tree state
 +++ pbench-local tree state (/var/tmp/pbench-test-server/pbench-local)
-drwxrwxr-x          - fs-version-001
-drwxrwxr-x          - fs-version-001/pbench-move-results-receive
-drwxrwxr-x          - fs-version-002
-drwxrwxr-x          - fs-version-002/pbench-move-results-receive
-drwxrwxr-x          - fs-version-002/pbench-move-results-receive/Controller
+drwxrwxr-x          - logs
+drwxrwxr-x          - logs/pbench-audit-server
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
+-rw-rw-r--          1 logs/pbench-audit-server/pbench-audit-server.log
+drwxrwxr-x          - logs/pbench-server-prep-shim-002
+-rw-rw-r--         98 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-001
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine.bad
+drwxrwxr-x          - quarantine.bad/duplicates-001
+drwxrwxr-x          - quarantine.bad/duplicates-002
+drwxrwxr-x          - quarantine.bad/errors-001
+drwxrwxr-x          - quarantine.bad/errors-002
+drwxrwxr-x          - quarantine.bad/md5-001
+drwxrwxr-x          - quarantine.bad/md5-002
+drwxrwxr-x          - tmp
+--- pbench-local tree state
++++ pbench-satellite tree state (/var/tmp/pbench-test-server/pbench-satellite)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/users
+--- pbench-satellite tree state
++++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/pbench-satellite-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-001
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-001
 drwxrwxr-x          - quarantine/duplicates-002
@@ -50,29 +89,20 @@ drwxrwxr-x          - quarantine/errors-001
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
---- pbench-local tree state
+drwxrwxr-x          - tmp
+--- pbench-satellite-local tree state
 +++ pbench log file contents
-/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
-/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:run-1900-01-01T00:00:00-UTC
-/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz: OK
-/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:run-1900-01-01T00:00:00-UTC: Processed 1 entries, 1 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.
-/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-audit-server/pbench-audit-server.log:
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error:Failed: /var/tmp/pbench-test-server/pbench-local/quarantine does not exist, or is not a directory
 --- pbench log file contents
 +++ test-execution.log file contents
-curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-server-prep-shim-002.1900-01/status/6c47622853ffc8d0ca9cddbc1238f35a --data @/tmp/pbench-report-status.NNNN/payload
-curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/d5ee68b33a845dac49792935d85c10ce --data @/tmp/pbench-report-status.NNNN/payload
+curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/8c40f0bc61a9fe48e778edfd8fe9eb57 --data @/tmp/pbench-report-status.NNNN/payload
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
 {
-    "text": "run-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/pbench-local/fs-version-002/pbench-move-results-receive/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz\nrun-1900-01-01T00:00:00-UTC: Processed 1 entries, 1 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n", 
-    "@timestamp": "1900-01-01T00:00:00", 
-    "name": "pbench-server-prep-shim-002", 
-    "doctype": "status"
-}
-{
-    "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nend-1900-01-01T00:00:00-UTC\n", 
-    "@timestamp": "1900-01-01T00:00:00", 
-    "name": "pbench-audit-archive", 
+    "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nend-1900-01-01T00:00:00-UTC\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-audit-server",
     "doctype": "status"
 }
 --- test-curl-payload.log file contents

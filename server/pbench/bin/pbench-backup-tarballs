@@ -53,12 +53,13 @@ fi
 # exclude the subdirs of symlinks
 exclude="--exclude=$(echo $EXCLUDE_DIRS | sed 's/  */ --exclude=/g')"
 
-# N.B The trailing slash is important
-rsync -va --stats $exclude $rla/ $rlb | tee -a $stats
-
-rsync_sts=$?
-if [[ $rsync_sts -ne 0 ]]; then
-    echo "$PROG: rsync failed with code: $rsync_sts, $BDIR"
+if [ -z "$(find $rla -maxdepth 0 -type d -empty 2>/dev/null)" ] ;then
+    # N.B The trailing slash is important
+    rsync -va --stats $exclude $rla/ $rlb | tee -a $stats
+    rsync_sts=$?
+    if [[ $rsync_sts -ne 0 ]]; then
+        echo "$PROG: rsync failed with code: $rsync_sts, $BDIR"
+    fi
 fi
 
 echo "end-$(timestamp)"
@@ -71,7 +72,9 @@ cat << EOF > $index_content
 $PROG.$TS($PBENCH_ENV)
 EOF
 
-tail -n 20 $stats | sed -n '/^$/,$p' >> $index_content
+if [ -e $stats ] ;then
+    tail -n 20 $stats | sed -n '/^$/,$p' >> $index_content
+fi
 
 pbench-report-status --name $PROG --timestamp $TS --type status $index_content
 

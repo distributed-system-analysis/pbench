@@ -60,11 +60,6 @@ log_init $PROG
 # ensure that only one copy is running. The script itself does not use
 # any locking.
 
-typeset -i ntb=0
-typeset -i ntotal=0
-typeset -i nerrs=0
-typeset -i ndups=0
-
 # the link source and destination for this script
 linksrc=TODO
 linkdestlist=$(getconf.py -l dispatch-states pbench-server)
@@ -109,48 +104,79 @@ done
 sort ${list}.unsorted > ${list}
 rm -f ${list}.unsorted
 
-while read result ;do
+typeset -i ntb=0
+typeset -i ntotal=0
+typeset -i nerrs=0
+typeset -i ndups=0
+typeset -i npartialsucc=0
+
+while read tarball ;do
     let ntotal+=1
 
-    link=$(readlink -e $result)
+    linksrc_path=$(dirname $tarball)
+    tb_linksrc=$(basename $linksrc_path)
+    if [ "$linksrc" != "$tb_linksrc" ]; then
+        # All is NOT well: we expect $linksrc as the parent directory name
+        # of the symlink tarball name.
+        echo "$TS: FATAL - unexpected \$linksrc for $tarball" | tee -a $mail_content >&4
+        log_finish
+        exit 57
+    fi
+
+    controller_path=$(dirname $linksrc_path)
+    controller=$(basename $controller_path)
+    if [ "$ARCHIVE" != "$(dirname $controller_path)" ]; then
+        # The controller's parent is not $ARCHIVE!
+        echo "$TS: FATAL - unexpected archive directory for $tarball" | tee -a $mail_content >&4
+        log_finish
+        exit 57
+    fi
+
+    link=$(readlink -e $tarball)
     if [ -z "$link" ] ;then
-        echo "$TS: symlink target for $result does not exist" | tee -a $mail_content >&4
+        echo "$TS: symlink target for $tarball does not exist" | tee -a $mail_content >&4
         let nerrs+=1
-        # FIXME: quarantine $result
+        quarantine ${controller_path}/_QUARANTINED/BAD-LINK ${tarball}
         continue
     fi
 
-    resultname=$(basename $result)
+    resultname=$(basename $tarball)
     resultname=${resultname%.tar.xz}
 
     # XXXX - for now, if it's a duplicate name, just punt and avoid
     # producing the error
     if [ ${resultname%%.*} == "DUPLICATE__NAME" ] ;then
         let ndups+=1
-        # FIXME: quarantine $result
+        quarantine ${controller_path}/_QUARANTINED/DUPLICATES ${link} ${link}.md5 ${controller_path}/.prefix/${resultname}.prefix
+        rm -f ${tarball}
+        status=$?
+        if [ $status -ne 0 ] ;then
+            echo "$TS: Cannot remove $tarball link: code $status" | tee -a $mail_content >&4
+        fi
         continue
     fi
-
-    basedir=$(dirname $link)
-    hostname=$(basename $basedir)
 
     # make sure that all the relevant state directories exist
-    mk_dirs $hostname
-    # ... and a couple of other necessities.
-    if [ $? -ne 0 ] ;then
-        echo "$TS: Creation of $hostname processing directories failed for $result: code $status" | tee -a $mail_content >&4
+    mk_dirs $controller
+    status=$?
+    if [ $status -ne 0 ] ;then
+        echo "$TS: Creation of $controller processing directories failed for $tarball: code $status" | tee -a $mail_content >&4
         let nerrs+=1
-        # FIXME: quarantine $result
         continue
     fi
 
-    pushd ${basedir} > /dev/null 2>&4
+    pushd ${controller_path} > /dev/null 2>&4
     md5sum --check ${resultname}.tar.xz.md5
     sts=$?
     popd >/dev/null 2>&4
     if [ $sts -ne 0 ] ;then
-        echo "$TS: MD5 check of ${link} failed for ${result}" | tee -a $mail_content >&4
-        mv $result $(echo $result | sed "s/$linksrc/BAD-MD5/")
+        echo "$TS: MD5 check of ${link} failed for ${tarball}" | tee -a $mail_content >&4
+        quarantine ${controller_path}/_QUARANTINED/BAD-MD5 ${link} ${link}.md5 ${controller_path}/.prefix/${resultname}.prefix
+        rm -f ${tarball}
+        status=$?
+        if [ $status -ne 0 ] ;then
+            echo "$TS: Cannot remove $tarball link: code $status" | tee -a $mail_content >&4
+        fi
         let nerrs+=1
         continue
     fi
@@ -158,34 +184,51 @@ while read result ;do
     # create a link in each state dir - if any fail, we should delete them all? No, that
     # would be racy.
     let toterr=0
+    let totsuc=0
     for state in $linkdestlist ;do
-        ln -sf $link ${basedir}/${state}/
+        ln -sf $link ${controller_path}/${state}/
         status=$?
-        if [ $status -ne 0 ] ;then
-            echo "$TS: Cannot create $result link from $linksrc to $state: code $status" | tee -a $mail_content >&4
-            let nerrs+=1
-        fi
-        let toterr+=status
-    done
-    if [ $toterr -eq 0 ]; then
-        rm -f $result
-        status=$?
-        if [ $status -ne 0 ] ;then
-            echo "$TS: Cannot remove $result link: code $status" | tee -a $mail_content >&4
-            let nerrs+=1
+        if [ $status -eq 0 ] ;then
+            let totsuc+=1
         else
-            # log the success
-            echo "$TS: $hostname/$resultname: success"
-            let ntb+=1
+            echo "$TS: Cannot create $tarball link from $linksrc to $state: code $status" | tee -a $mail_content >&4
+            let toterr+=1
         fi
-    else
-        # FIXME: quarantine $result
-        # Errors already accounted for above
-        :
+    done
+    if [ $toterr -gt 0 ]; then
+        # Count N link creations as one error since it is for hanlding of a
+        # single tarball.
+        let nerrs+=1
+    fi
+    if [ $totsuc -gt 0 ]; then
+        # We had at least one successful link state creation above.  So
+        # it is safe to remove the original link, as we'll use the logs
+        # to track down how to recover. 
+        rm -f $tarball
+        status=$?
+        if [ $status -ne 0 ] ;then
+            echo "$TS: Cannot remove $tarball link: code $status" | tee -a $mail_content >&4
+            if [ $toterr -eq 0 ]; then
+                # We had other errors already counted against the total
+                # so don't bother counting this error
+                let nerrs+=1
+            fi
+        fi
+        let ntb+=1
+        if [ $toterr -gt 0 ]; then
+            # We have had some errors while processing this tar ball, so
+            # count this as a partial success.
+            echo "$TS: $controller/$resultname: success (partial)"
+            let npartialsucc+=1
+        else
+            echo "$TS: $controller/$resultname: success"
+        fi
     fi
 done < $list
 
-echo "$TS: Processed $ntb tarballs"
+summary_text="Processed $ntotal result tar balls, $ntb successfully ($npartialsucc partial), with $nerrs errors, and $ndups duplicates"
+
+echo "$TS: $summary_text"
 
 log_finish
 
@@ -193,7 +236,7 @@ if [ $nerrs -gt 0 ]; then
     subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
     cat << EOF > $index_content
 $subj
-Processed $ntotal result tar balls, $ntb successfully, with $nerrs errors and $ndups duplicates
+$summary_text
 
 EOF
     cat $mail_content >> $index_content
