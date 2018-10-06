@@ -1,0 +1,4 @@
+#!/bin/bash
+
+mkdir pbench-local/archive.backup
+exit $?

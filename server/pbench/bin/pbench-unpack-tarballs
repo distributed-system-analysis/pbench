@@ -51,10 +51,6 @@ case $opts in
         ;;
 esac
 
-# Optional argument for the unpack path to use that could be different
-# than the incoming directory.
-UNPACK_PATH=$1
-
 # TOP, ARCHIVE, INCOMING, RESULTS, USERS are all defined by the base file
 . $dir/pbench-base.sh
 ###########################################################################
@@ -64,11 +60,9 @@ test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
 test -d $INCOMING || doexit "Bad INCOMING=$INCOMING"
 test -d $RESULTS || doexit "Bad RESULTS=$RESULTS"
 test -d $USERS || doexit "Bad USERS=$USERS"
-if [ -z "$UNPACK_PATH" ]; then
-    UNPACK_PATH="$INCOMING"
-else
-    test -d $UNPACK_PATH || doexit "Bad UNPACK_PATH=$UNPACK_PATH"
-fi
+
+UNPACK_PATH=$(getconf.py pbench-unpack-dir pbench-server)
+test -d $UNPACK_PATH || doexit "Bad UNPACK_PATH=$UNPACK_PATH"
 
 # make sure only one copy is running.
 # Use 'flock -n $LOCKFILE /home/pbench/bin/pbench-unpack-tarballs' in the
@@ -77,7 +71,7 @@ fi
 
 # the link source and destination for this script
 linksrc=TO-UNPACK
-if [ "$INCOMING" = "$UNPACK_PATH" ]; then
+if [ "$(readlink -e $INCOMING)" = "$(readlink -e $UNPACK_PATH)" ]; then
     linkdest=MOVED-UNPACKED
 else
     linkdest=UNPACKED
@@ -110,7 +104,7 @@ for linksrc_dir in $(find $ARCHIVE/ -maxdepth 2 -type d -name $linksrc); do
     # links to actual files (bad links are not emitted!).
     find -L $linksrc_dir -type f -name '*.tar.xz' -printf "%s %p\n" 2>/dev/null >> ${list}.unsorted
     # Find all the links in the same $linksrc directory that don't
-    # link to anything so that we can count them as errors below. 
+    # link to anything so that we can count them as errors below.
     find -L $linksrc_dir -type l -name '*.tar.xz' -printf "%s %p\n" 2>/dev/null >> ${list}.unsorted
 done
 sort -n ${list}.unsorted > ${list}

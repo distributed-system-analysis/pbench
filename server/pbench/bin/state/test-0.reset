@@ -1,5 +1,6 @@
 #!/bin/bash
 
 # Move the pbench tree back
-mv pbench-bad pbench
+mv pbench-bad pbench || exit $?
+mv pbench-satellite-bad pbench-satellite
 exit $?

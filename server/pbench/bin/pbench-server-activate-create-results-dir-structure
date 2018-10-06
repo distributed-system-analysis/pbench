@@ -4,53 +4,109 @@ prog=$(basename $0)
 usage="Usage: $prog"
 
 if [ ! -f $CONFIG ] ;then
-    echo "$CONFIG does not exist"
+    echo "$prog: $CONFIG does not exist" >&2
     exit 2
 fi
 
-pbench_dir=$(getconf.py deploy-pbench-dir results)
+pbench_dir=$(getconf.py pbench-top-dir pbench-server)
 if [ -z "$pbench_dir" ] ;then
-    echo "deploy-pbench_dir is undefined in section \"results\" of config file."
+    echo "$prog: \"pbench-top-dir\" is undefined in section \"pbench-server\" of config file." >&2
     exit 3
 fi
 
-archive_dir=$(getconf.py deploy-archive-dir results)
+archive_dir=$(getconf.py pbench-archive-dir pbench-server)
 if [ -z "$archive_dir" ] ;then
-    echo "deploy-archive_dir is undefined in section \"results\" of config file."
+    echo "$prog: \"pbench-archive-dir\" is undefined in section \"pbench-server\" of config file." >&2
     exit 4
 fi
 
-user=$(getconf.py default-user results)
-if [ -z "$user" ] ;then
-    echo "default-user is undefined in section \"results\" of config file."
+pbench_html_dir=$(getconf.py pbench-html-dir pbench-server)
+if [ -z "$pbench_html_dir" ] ;then
+    echo "$prog: \"pbench-html-dir\" is undefined in section \"pbench-server\" of config file." >&2
     exit 5
 fi
 
-group=$(getconf.py default-group results)
-if [ -z "${group}" ] ;then
-    echo "default-group is undefined in section \"results\" of config file."
-    exit 5
+pbench_incoming_dir=$(getconf.py pbench-incoming-dir pbench-server)
+if [ -z "$pbench_incoming_dir" ] ;then
+    echo "$prog: \"pbench-incoming-dir\" is undefined in section \"pbench-server\" of config file." >&2
+    exit 6
 fi
+
+pbench_results_dir=$(getconf.py pbench-results-dir pbench-server)
+if [ -z "$pbench_results_dir" ] ;then
+    echo "$prog: \"pbench-results-dir\" is undefined in section \"pbench-server\" of config file." >&2
+    exit 7
+fi
+
+pbench_users_dir=$(getconf.py pbench-users-dir pbench-server)
+if [ -z "$pbench_users_dir" ] ;then
+    echo "$prog: \"pbench-users-dir\" is undefined in section \"pbench-server\" of config file." >&2
+    exit 8
+fi
+
+pbench_static_dir=$(getconf.py pbench-static-dir pbench-server)
+if [ -z "$pbench_static_dir" ] ;then
+    echo "$prog: \"pbench-static-dir\" is undefined in section \"pbench-server\" of config file." >&2
+    exit 9
+fi
+
+logsdir=$(getconf.py pbench-logs-dir pbench-server)
+if [ -z "$logsdir" ] ;then
+    echo "$prog: \"pbench-logs-dir\" is undefined in section \"pbench-server\" of config file." >&2
+    exit 10
+fi
+
+tmpdir=$(getconf.py pbench-tmp-dir pbench-server)
+if [ -z "$tmpdir" ] ;then
+    echo "$prog: \"pbench-tmp-dir\" is undefined in section \"pbench-server\" of config file." >&2
+    exit 11
+fi
+
+qdir=$(getconf.py pbench-quarantine-dir pbench-server)
+if [ -z "$qdir" ] ;then
+    echo "$prog: \"pbench-quarantine-dir\" is undefined in section \"pbench-server\" of config file." >&2
+    exit 12
+fi
+
+user=$(getconf.py user pbench-server)
+if [ -z "$user" ] ;then
+    echo "$prog: \"user\" is undefined in section \"pbench-server\" of config file." >&2
+    exit 13
+fi
+
+group=$(getconf.py group pbench-server)
+if [ -z "$group" ] ;then
+    echo "$prog: \"group\" is undefined in section \"pbench-server\" of config file." >&2
+    exit 14
+fi
+
+receive_versions=$(getconf.py pbench-move-results-receive-versions pbench-server)
+if [ -z "$receive_versions" ] ;then
+    echo "$prog: \"pbench-move-results-receive-versions\" is undefined in section \"pbench-server\" of config file." >&2
+    exit 15
+fi
+
+typeset -i nerrs=0
 
 # it's OK if the directories exist already.
 mkdir -p ${archive_dir}
-mkdir -p ${pbench_dir}/public_html/incoming
-mkdir -p ${pbench_dir}/public_html/results
-mkdir -p ${pbench_dir}/public_html/users
+mkdir -p ${pbench_incoming_dir}
+mkdir -p ${pbench_results_dir}
+mkdir -p ${pbench_users_dir}
+mkdir -p ${pbench_static_dir}
 
-chown ${user}.${group} ${pbench_dir} \
-      ${archive_dir} ${pbench_dir}/public_html \
-      ${pbench_dir}/public_html/incoming ${pbench_dir}/public_html/results \
-      ${pbench_dir}/public_html/users
-
+chown ${user}.${group} ${pbench_dir} ${archive_dir} ${pbench_html_dir} \
+        ${pbench_incoming_dir} ${pbench_results_dir} ${pbench_users_dir} \
+        ${pbench_static_dir}
 sts=$?
 if [ "$sts" != "0" ] ;then
     nerrs=$nerrs+1
 fi
 
 # it's OK if this fails: the directories may be empty
-chown ${user}.${group} ${pbench_dir} \
-      ${archive_dir}/* ${pbench_dir}/public_html/incoming/* ${pbench_dir}/public_html/results/* 2>/dev/null
+chown ${user}.${group} ${pbench_dir} ${archive_dir}/* \
+        ${pbench_incoming_dir}/* ${pbench_results_dir}/* \
+        ${pbench_users_dir}/* ${pbench_static_dir}/* 2>/dev/null
 
 if which selinuxenabled > /dev/null 2>&1 && selinuxenabled ;then
     # cannot yum install here because this script is executed as a postinstall action
@@ -61,33 +117,62 @@ if which selinuxenabled > /dev/null 2>&1 && selinuxenabled ;then
 
     # we assume that semanage and restorecon are available.
     # fix up the public_html subdirs for selinux
-    semanage fcontext -a -t httpd_sys_content_t ${pbench_dir}/public_html/incoming
-    semanage fcontext -a -t httpd_sys_content_t ${pbench_dir}/public_html/results
-    semanage fcontext -a -t httpd_sys_content_t ${pbench_dir}/public_html/users
-    restorecon -v ${pbench_dir}/public_html \
-                  ${pbench_dir}/public_html/incoming \
-                  ${pbench_dir}/public_html/results \
-                  ${pbench_dir}/public_html/users
+    semanage fcontext -a -t httpd_sys_content_t ${pbench_incoming_dir}
+    semanage fcontext -a -t httpd_sys_content_t ${pbench_results_dir}
+    semanage fcontext -a -t httpd_sys_content_t ${pbench_users_dir}
+    semanage fcontext -a -t httpd_sys_content_t ${pbench_static_dir}
+    restorecon -v ${pbench_html_dir} \
+                  ${pbench_incoming_dir} ${pbench_results_dir} \
+                  ${pbench_users_dir} ${pbench_static_dir}
 fi
 
 # create the logs directory
-logsdir=$(getconf.py deploy-pbench-logs-dir results)
 mkdir -p ${logsdir} && chown -R ${user}.${group} ${logsdir}
+sts=$?
+if [ "$sts" != "0" ] ;then
+    nerrs=$nerrs+1
+fi
 
 # create the tmp directory
-tmpdir=$(getconf.py deploy-pbench-tmp-dir results)
 mkdir -p ${tmpdir} && chown -R ${user}.${group} ${tmpdir}
+sts=$?
+if [ "$sts" != "0" ] ;then
+    nerrs=$nerrs+1
+fi
 
 # create the reception directories for the shims
-for version in $(getconf.py versions results) ;do
-    shimdir=$(getconf.py deploy-pbench-receive-dir-$version results)
-    mkdir -p ${shimdir} && chown -R ${user}.${group} ${shimdir}
+for version in $receive_versions ;do
+    shimdir=$(getconf.py pbench-receive-dir-$version pbench-server)
+    if [ -z "${shimdir}" ]; then
+        echo "$prog: WARNING \"pbench-receive-dir-$version\" is undefined in section \"pbench-server\" of config file." >&2
+        nerrs=$nerrs+1
+    else
+        mkdir -p ${shimdir} && chown -R ${user}.${group} ${shimdir}
+        sts=$?
+        if [ "$sts" != "0" ] ;then
+            nerrs=$nerrs+1
+        fi
+    fi
 done
 
-qdir=$(getconf.py quarantine-dir pbench-server)
-for version in $(getconf.py versions results) ;do
-    mkdir -p ${qdir}/md5-${version} ${qdir}/duplicates-${version} ${qdir}/errors-${version} 
+for version in $receive_versions ;do
+    mkdir -p ${qdir}/md5-${version} ${qdir}/duplicates-${version} ${qdir}/errors-${version}
+    sts=$?
+    if [ "$sts" != "0" ] ;then
+        nerrs=$nerrs+1
+    fi
 done
+
 chown -R ${user}.${group} ${qdir}
+sts=$?
+if [ "$sts" != "0" ] ;then
+    nerrs=$nerrs+1
+fi
 
-exit 0
+if [ $nerrs -gt 0 ]; then
+    echo "$prog: $nerrs error(s) enountered during results structure activation." >&2
+    exit_code=1
+else
+    exit_code=0
+fi
+exit $exit_code

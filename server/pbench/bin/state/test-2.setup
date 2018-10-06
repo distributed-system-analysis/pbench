@@ -1,5 +1,6 @@
 #!/bin/bash
 
 # Move the archive tree to the side
-mv pbench/archive pbench/no-archive
+mv pbench/archive pbench/no-archive || exit $?
+mv pbench-satellite/archive pbench-satellite/no-archive
 exit $?

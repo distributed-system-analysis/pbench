@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Usage: pbench-verify-backup-tarballs <primary> <backup> <pbench> [ <pbench-local> ]
+# Usage: pbench-verify-backup-tarballs
 
 # Method: in each directory, concatenate all the .md5 files and
 # pass them to md5sum for verification (eliminate DUPLICATEs for now: they
@@ -56,7 +56,7 @@ report=$TMP/$PROG/report.$$
 index_content=$TMP/$PROG/index_mail_contents
 
 # make sure the directory exists
-mkdir -p $TMP/$PROG
+mkdir -p $TMP/$PROG || doexit "Failed to create $TMP/$PROG"
 
 trap "rm -f $controllers.[pb] $files.[pb] $allmd5s.[pb] $list.[pb] $out.[pb] $list.[pb].failed $only.[pb] $report $index_content; rmdir $TMP/$PROG" EXIT INT QUIT
 
@@ -77,7 +77,7 @@ function checkmd5 {
         if [ -s $allmd5s.$1 ] ;then
             cat $allmd5s.$1 | sed -r 's;(^[0-9a-f]+)  (.+);\1  '$d/'\2;' >> $list.$1
             md5sum --check --warn $allmd5s.$1 | sed 's;^;'$d/';'
-        fi 
+        fi
         popd > /dev/null 2>&4
     done < $controllers.$1
 }

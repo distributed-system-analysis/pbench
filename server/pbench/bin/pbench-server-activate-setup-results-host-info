@@ -33,8 +33,8 @@ if [ -z "$documentroot" ] ;then
 fi
 
 if [ -z "$documentroot" ] ;then
-        echo "No documentroot for apache can be determined"
-        exit 4
+    echo "No documentroot for apache can be determined"
+    exit 4
 fi
 
 cd $documentroot || exit 1
@@ -56,19 +56,19 @@ path=$(echo $results_host_info_url | sed 's/http:\/\///' | sed 's/[^/]*\///')
 mkdir -p $(dirname $path)
 cd $(dirname $path) >/dev/null 2>&1 || exit 6
 user=$(getconf.py user pbench-server)
-host=$(getconf.py default-host pbench-server)
+host=$(getconf.py host pbench-server)
 
-versions=$(getconf.py versions results)
+versions=$(getconf.py pbench-move-results-receive-versions pbench-server)
 for version in $versions ;do
     prefix=$(basename $path)${version}
-    receive_dir=$(getconf.py receive-dir-${version} pbench-server)
+    receive_dir=$(getconf.py pbench-receive-dir-${version} pbench-server)
     results_host_info=$user@$host:${receive_dir}
     echo $results_host_info > $prefix.active
 
     # create the maintenance file as well
     # the format is *fixed*: see the pbench-agent move-results script for details
     # IOW, do *NOT* change anything here
-    mailaddr=$(getconf.py mailto results)
+    mailaddr=$(getconf.py admin-email pbench-server)
     msg="MESSAGE===System Under Maintenance - please retry at a later time ($mailaddr)"
 
     echo $msg > $prefix.maint

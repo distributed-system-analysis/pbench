@@ -17,8 +17,7 @@ crontab=$crontabpath/crontab
 
 > $crontab
 
-if [ ! -f "$CONFIG" ]
-then
+if [ ! -f "$CONFIG" ] ;then
     echo "Config file $CONFIG does not exist"
     exit 2
 fi
@@ -31,6 +30,10 @@ fi
 
 # what roles does this server play?
 roles=$(getconf.py -l roles pbench-server)
+if [ -z "$roles" ] ;then
+    echo "No 'roles' setting in [pbench-server] section of config file $CONFIG"
+    exit 3
+fi
 
 # the hostname of the host we are installing in.
 hostname=$(hostname -f)
@@ -50,19 +53,16 @@ function crontab_header() {
     echo "PATH=$bindir:$PATH" >> $crontab
     echo "CONFIG=$CONFIG" >> $crontab
 
-    mailfrom=$(getconf.py mailfrom pbench-server)
-    if [ -z "$mailfrom" ] ;then
-        echo "No mailfrom specified in [pbench-server] section of the config file"
-    fi
     mailto=$(getconf.py mailto pbench-server)
     if [ -z "$mailto" ] ;then
-        echo "No mailto specified in [pbench-server] section of the config file"
+        echo "No 'mailto' specified in [pbench-server] section of the config file $CONFIG"
+    else
+        echo "MAILTO=$mailto" >> $crontab
     fi
-
-    if [[ ! -z "$mailto" ]] ;then
-            echo "MAILTO=$mailto" >> $crontab
-    fi
-    if [[ ! -z "$mailfrom" ]] ;then
+    mailfrom=$(getconf.py mailfrom pbench-server)
+    if [ -z "$mailfrom" ] ;then
+        echo "No 'mailfrom' specified in [pbench-server] section of the config file $CONFIG"
+    else
         echo "MAILFROM=$mailfrom" >> $crontab
     fi
 }
@@ -71,10 +71,18 @@ function crontab_normal() {
     local role=$1
 
     tasks=$(getconf.py -l tasks $role)
-    for task in $tasks ;do
-        crontabline=$(getconf.py crontab $task)
-        echo "$crontabline" >> $crontab
-    done
+    if [ -z "$tasks" ] ;then
+        echo "No 'tasks' specified in [$role] section of the config file $CONFIG"
+    else
+        for task in $tasks ;do
+            crontabline=$(getconf.py crontab $task)
+            if [ -z "$tasks" ] ;then
+                echo "No 'crontab' specified in [$task] section of the config file $CONFIG"
+            else
+                echo "$crontabline" >> $crontab
+            fi
+        done
+    fi
 }
 
 # This function expands a crontab template from a task in the config file
@@ -102,7 +110,13 @@ function crontab_with_substitutions() {
     local task=$2
 
     crontabline=$(getconf.py crontab $task)
-    echo "$crontabline" | sed "$(getconf.py -a $section | grep = | awk -F' = ' '{gsub(/-/, "_", $1); printf "s;$%s;%s;g\n", toupper($1) , $2;}')"  >> $crontab
+    if [ -z "$crontabline" ] ;then
+        echo "No 'crontab' specified in [$task] section of the config file $CONFIG"
+    else
+        echo "$crontabline" |
+                sed "s;\$SATELLITE_CONFIG;$section;g" |
+                sed "$(getconf.py -a $section | grep = | awk -F' = ' '{gsub(/-/, "_", $1); printf "s;$%s;%s;g\n", toupper($1) , $2;}')" >> $crontab
+    fi
 }
 
 # produce the header
@@ -146,19 +160,19 @@ done
 chmod 644 $crontab
 
 # create the lock directory that the cron entries will use
-lockdir=$(getconf.py deploy-lock-dir pbench-server)
+lockdir=$(getconf.py lock-dir pbench-server)
 mkdir -p ${lockdir}
 chmod 755 ${lockdir}
 
-user=$(getconf.py default-user results)
+user=$(getconf.py user pbench-server)
 if [ -z "$user" ] ;then
-    echo "default-user is undefined in section \"results\" of config file."
+    echo "user is undefined in section \"pbench-server\" of config file."
     exit 5
 fi
 
-group=$(getconf.py default-group results)
+group=$(getconf.py group pbench-server)
 if [ -z "$group" ] ;then
-    echo "default-group is undefined in section \"results\" of config file."
+    echo "group is undefined in section \"pbench-server\" of config file."
     exit 5
 fi
 

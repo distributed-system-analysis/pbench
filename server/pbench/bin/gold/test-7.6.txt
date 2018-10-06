@@ -7,13 +7,39 @@ lrwxrwxrwx         55 incoming -> /var/tmp/pbench-test-server/pbench/public_html
 drwxrwxr-x          - pbench-results-host-info.versioned
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
 -rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
--rw-rw-r--         87 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+-rw-rw-r--         94 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
 -rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
--rw-rw-r--         87 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+-rw-rw-r--         94 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
 lrwxrwxrwx         54 results -> /var/tmp/pbench-test-server/pbench/public_html/results
+lrwxrwxrwx         53 static -> /var/tmp/pbench-test-server/pbench/public_html/static
 lrwxrwxrwx         52 users -> /var/tmp/pbench-test-server/pbench/public_html/users
 --- var/www/html tree state
++++ results host info (/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench.example.com)
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench.example.com)
+--- results host info
++++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/var-www-html-satellite)
+lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/pbench-satellite/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
+-rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--        104 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--        104 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/pbench-satellite/public_html/results
+lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/pbench-satellite/public_html/static
+lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/pbench-satellite/public_html/users
+--- var/www/html-satellite tree state
++++ results host info (/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench-satellite.example.com)
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench-satellite.example.com)
+--- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/pbench)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
@@ -39,24 +65,23 @@ drwxrwxr-x          - archive/fs-version-001/controller/UNPACKED
 drwxrwxr-x          - archive/fs-version-001/controller/WONT-INDEX
 -rw-rw-r--       1476 archive/fs-version-001/controller/test-7.6.tar.xz
 -rw-rw-r--         50 archive/fs-version-001/controller/test-7.6.tar.xz.md5
-drwxrwxr-x          - logs
-drwxrwxr-x          - logs/pbench-audit-archive
--rw-rw-r--          0 logs/pbench-audit-archive/pbench-audit-archive.error
--rw-rw-r--          1 logs/pbench-audit-archive/pbench-audit-archive.log
-drwxrwxr-x          - logs/pbench-index
--rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--       5128 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/users
-drwxrwxr-x          - tmp
 --- pbench tree state
 +++ pbench-local tree state (/var/tmp/pbench-test-server/pbench-local)
-drwxrwxr-x          - fs-version-001
-drwxrwxr-x          - fs-version-001/pbench-move-results-receive
-drwxrwxr-x          - fs-version-002
-drwxrwxr-x          - fs-version-002/pbench-move-results-receive
+drwxrwxr-x          - logs
+drwxrwxr-x          - logs/pbench-audit-server
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
+-rw-rw-r--          1 logs/pbench-audit-server/pbench-audit-server.log
+drwxrwxr-x          - logs/pbench-index
+-rw-rw-r--          0 logs/pbench-index/pbench-index.error
+-rw-rw-r--       5128 logs/pbench-index/pbench-index.log
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-001
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-001
 drwxrwxr-x          - quarantine/duplicates-002
@@ -64,156 +89,180 @@ drwxrwxr-x          - quarantine/errors-001
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
 --- pbench-local tree state
++++ pbench-satellite tree state (/var/tmp/pbench-test-server/pbench-satellite)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/users
+--- pbench-satellite tree state
++++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/pbench-satellite-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-001
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-001
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-001
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-001
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-satellite-local tree state
 +++ pbench log file contents
-/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:   1900-01-01T00:00:00-UTC: Starting /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/TO-INDEX/test-7.6.tar.xz (size 1476)
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:Template:  pbench-unittests.run
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:Template:  pbench-unittests.tool-data-iostat
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:Template:  pbench-unittests.tool-data-pidstat
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:	done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 3, retries: 0)
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:Index:  pbench-unittests.run.2015-09 5
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:len(actions) = 5
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:[
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:    {
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_id": "c71b2c9c961ebd55f61273a6a020bdc6",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_index": "pbench-unittests.run.2015-09",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_op_type": "create",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_source": {
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            "@metadata": {
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                "file-date": "2015-09-28",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                "file-name": "/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/test-7.6.tar.xz",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                "generated-by": "index-pbench",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                "generated-by-version": "0.2.0.0",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                "md5": "c71b2c9c961ebd55f61273a6a020bdc6",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                "pbench-agent-version": "plugins:"
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            },
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            "@timestamp": "2015-09-21T19:31:12.673292621",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            "host_tools_info": [
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                {
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                    "hostname": "alphaville",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                    "hostname-f": null,
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                    "tools": {
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                        "iostat": "--interval=\"10\"",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                        "mpstat": "--interval=\"10\"",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                        "perf": "--record-opts=\"record -a --freq=100\"",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                        "pidstat": "--interval=\"10\"",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                        "proc-interrupts": "--interval=\"10\"",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                        "proc-vmstat": "--interval=\"10\"",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                        "sar": "--interval=\"10\"",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                        "turbostat": "--interval=\"10\""
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                    }
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                }
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            ],
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            "run": {
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                "config": "",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                "controller": "alphaville.usersys.redhat.com",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                "date": "2015-09-21T19:31:08",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                "end_run": "2015-09-21T19:32:12.673292621",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                "id": "c71b2c9c961ebd55f61273a6a020bdc6",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                "name": "testdir",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                "script": "",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                "start_run": "2015-09-21T19:31:12.673292621",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                "tarball-dirname": "test-7.6",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                "tarball-toc-prefix": "test-7.6"
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            },
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            "sosreports": [
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                {
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                    "hostname-f": "localhos",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                    "hostname-s": "localhos",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                    "md5": "ed66db45311691ba31f2eb99008589cb  sosreport.tar.xz",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                    "name": "test-7.6/sysinfo/foo/end/sosreport.tar.xz"
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                }
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            ]
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        },
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_type": "pbench-run"
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:    },
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:    {
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_id": "7712c09ac5c74d34c6702a72a99630f4",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_index": "pbench-unittests.run.2015-09",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_op_type": "create",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_source": {
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            "@timestamp": "2015-09-21T19:31:12.673292621",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            "directory": "/",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            "files": [
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                {
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                    "mode": "0o664",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                    "name": "metadata.log",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                    "size": 484
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                }
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            ]
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        },
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_type": "pbench-run-toc-entry"
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:    },
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:    {
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_id": "56c6c2799acd10775b0afbb9d25f0f8b",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_index": "pbench-unittests.run.2015-09",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_op_type": "create",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_source": {
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            "@timestamp": "2015-09-21T19:31:12.673292621",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            "directory": "/sysinfo/"
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        },
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_type": "pbench-run-toc-entry"
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:    },
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:    {
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_id": "52d58c324725aec09cfabc732be41d5e",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_index": "pbench-unittests.run.2015-09",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_op_type": "create",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_source": {
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            "@timestamp": "2015-09-21T19:31:12.673292621",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            "directory": "/sysinfo/foo/"
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        },
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_type": "pbench-run-toc-entry"
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:    },
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:    {
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_id": "69b96118335d82179c2ae07b8fc89c4a",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_index": "pbench-unittests.run.2015-09",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_op_type": "create",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_source": {
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            "@timestamp": "2015-09-21T19:31:12.673292621",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            "directory": "/sysinfo/foo/end/",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            "files": [
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                {
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                    "mode": "0o664",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                    "name": "sosreport.tar.xz",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                    "size": 880
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                },
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                {
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                    "mode": "0o664",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                    "name": "sosreport.tar.xz.md5",
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                    "size": 51
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:                }
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:            ]
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        },
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:        "_type": "pbench-run-toc-entry"
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:    }
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:]
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:	done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 5, duplicates: 0, failures: 0, retries: 0)
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: controller/test-7.6: success
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:   1900-01-01T00:00:00-UTC: Finished /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/TO-INDEX/test-7.6.tar.xz (size 1476)
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 1 (skipped 0) results, 0 errors
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-audit-server/pbench-audit-server.log:
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:   1900-01-01T00:00:00-UTC: Starting /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/TO-INDEX/test-7.6.tar.xz (size 1476)
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:Template:  pbench-unittests.run
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:Template:  pbench-unittests.tool-data-iostat
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:Template:  pbench-unittests.tool-data-pidstat
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:	done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 3, retries: 0)
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:Index:  pbench-unittests.run.2015-09 5
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:len(actions) = 5
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:[
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:    {
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_id": "c71b2c9c961ebd55f61273a6a020bdc6",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_index": "pbench-unittests.run.2015-09",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_op_type": "create",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_source": {
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            "@metadata": {
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                "file-date": "2015-09-28",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                "file-name": "/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/test-7.6.tar.xz",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                "generated-by": "index-pbench",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                "generated-by-version": "0.2.0.0",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                "md5": "c71b2c9c961ebd55f61273a6a020bdc6",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                "pbench-agent-version": "plugins:"
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            },
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            "@timestamp": "2015-09-21T19:31:12.673292621",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            "host_tools_info": [
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                {
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                    "hostname": "alphaville",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                    "hostname-f": null,
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                    "tools": {
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                        "iostat": "--interval=\"10\"",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                        "mpstat": "--interval=\"10\"",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                        "perf": "--record-opts=\"record -a --freq=100\"",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                        "pidstat": "--interval=\"10\"",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                        "proc-interrupts": "--interval=\"10\"",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                        "proc-vmstat": "--interval=\"10\"",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                        "sar": "--interval=\"10\"",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                        "turbostat": "--interval=\"10\""
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                    }
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                }
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            ],
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            "run": {
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                "config": "",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                "controller": "alphaville.usersys.redhat.com",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                "date": "2015-09-21T19:31:08",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                "end_run": "2015-09-21T19:32:12.673292621",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                "id": "c71b2c9c961ebd55f61273a6a020bdc6",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                "name": "testdir",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                "script": "",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                "start_run": "2015-09-21T19:31:12.673292621",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                "tarball-dirname": "test-7.6",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                "tarball-toc-prefix": "test-7.6"
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            },
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            "sosreports": [
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                {
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                    "hostname-f": "localhos",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                    "hostname-s": "localhos",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                    "md5": "ed66db45311691ba31f2eb99008589cb  sosreport.tar.xz",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                    "name": "test-7.6/sysinfo/foo/end/sosreport.tar.xz"
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                }
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            ]
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        },
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_type": "pbench-run"
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:    },
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:    {
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_id": "7712c09ac5c74d34c6702a72a99630f4",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_index": "pbench-unittests.run.2015-09",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_op_type": "create",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_source": {
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            "@timestamp": "2015-09-21T19:31:12.673292621",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            "directory": "/",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            "files": [
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                {
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                    "mode": "0o664",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                    "name": "metadata.log",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                    "size": 484
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                }
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            ]
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        },
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_type": "pbench-run-toc-entry"
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:    },
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:    {
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_id": "56c6c2799acd10775b0afbb9d25f0f8b",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_index": "pbench-unittests.run.2015-09",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_op_type": "create",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_source": {
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            "@timestamp": "2015-09-21T19:31:12.673292621",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            "directory": "/sysinfo/"
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        },
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_type": "pbench-run-toc-entry"
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:    },
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:    {
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_id": "52d58c324725aec09cfabc732be41d5e",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_index": "pbench-unittests.run.2015-09",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_op_type": "create",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_source": {
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            "@timestamp": "2015-09-21T19:31:12.673292621",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            "directory": "/sysinfo/foo/"
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        },
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_type": "pbench-run-toc-entry"
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:    },
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:    {
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_id": "69b96118335d82179c2ae07b8fc89c4a",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_index": "pbench-unittests.run.2015-09",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_op_type": "create",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_source": {
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            "@timestamp": "2015-09-21T19:31:12.673292621",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            "directory": "/sysinfo/foo/end/",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            "files": [
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                {
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                    "mode": "0o664",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                    "name": "sosreport.tar.xz",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                    "size": 880
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                },
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                {
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                    "mode": "0o664",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                    "name": "sosreport.tar.xz.md5",
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                    "size": 51
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:                }
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:            ]
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        },
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:        "_type": "pbench-run-toc-entry"
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:    }
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:]
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:	done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 5, duplicates: 0, failures: 0, retries: 0)
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: controller/test-7.6: success
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:   1900-01-01T00:00:00-UTC: Finished /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/TO-INDEX/test-7.6.tar.xz (size 1476)
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 1 (skipped 0) results, 0 errors
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:
 --- pbench log file contents
 +++ test-execution.log file contents
 curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01/status/5c5d10a40c3549f79cdc7a22c5cd9a13 --data @/tmp/pbench-report-status.NNNN/payload
-curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/d5ee68b33a845dac49792935d85c10ce --data @/tmp/pbench-report-status.NNNN/payload
+curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/8c40f0bc61a9fe48e778edfd8fe9eb57 --data @/tmp/pbench-report-status.NNNN/payload
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
 {
-    "text": "pbench-index.run-1900-01-01T00:00:00-UTC(unit-test) - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/TO-INDEX/test-7.6.tar.xz\n", 
-    "@timestamp": "1900-01-01T00:00:00", 
-    "name": "pbench-index", 
+    "text": "pbench-index.run-1900-01-01T00:00:00-UTC(unit-test) - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/TO-INDEX/test-7.6.tar.xz\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-index",
     "doctype": "status"
 }
 {
-    "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nend-1900-01-01T00:00:00-UTC\n", 
-    "@timestamp": "1900-01-01T00:00:00", 
-    "name": "pbench-audit-archive", 
+    "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nend-1900-01-01T00:00:00-UTC\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-audit-server",
     "doctype": "status"
 }
 --- test-curl-payload.log file contents

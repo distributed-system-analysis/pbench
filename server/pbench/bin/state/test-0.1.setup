@@ -1,5 +1,6 @@
 #!/bin/bash
 
 # Move the logs tree to the side
-mv pbench/logs pbench/bad-logs
+mv pbench-local/logs pbench-local/bad-logs || exit $?
+mv pbench-satellite-local/logs pbench-satellite-local/bad-logs
 exit $?

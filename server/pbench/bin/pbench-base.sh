@@ -36,30 +36,30 @@ else
 fi
 
 # Required
-TOP=$(getconf.py pbench-top-dir pbench-files)
+TOP=$(getconf.py pbench-top-dir pbench-server)
 test -d $TOP || doexit "Bad TOP=$TOP"
 
 # Required
-TMP=$(getconf.py pbench-tmp-dir pbench-files)
+TMP=$(getconf.py pbench-tmp-dir pbench-server)
 test -d $TMP || doexit "Bad TMP=$TMP"
 
-export LOGSDIR=$(getconf.py pbench-logs-dir pbench-files)
+# Required
+export LOGSDIR=$(getconf.py pbench-logs-dir pbench-server)
 test -d $LOGSDIR || doexit "Bad LOGSDIR=$LOGSDIR"
 
 # Optional
-BDIR=$(getconf.py pbench-backup-dir pbench-files)
-PBENCH_ENV=$(getconf.py pbench-environment results)
+BDIR=$(getconf.py pbench-backup-dir pbench-server)
+PBENCH_ENV=$(getconf.py environment pbench-server)
 
 if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
     # the real thing
 
     BINDIR=$(getconf.py script-dir pbench-server)
-    LIBDIR=$(getconf.py deploy-lib-dir pbench-server)
-
     if [[ -z "$BINDIR" ]]; then
         echo "$PROG: ERROR: BINDIR not defined" > /dev/stdout
         exit 3
     fi
+    LIBDIR=$(getconf.py lib-dir pbench-server)
     if [[ -z "$LIBDIR" ]]; then
         echo "$PROG: ERROR: LIBDIR not defined" > /dev/stdout
         exit 3
@@ -107,11 +107,11 @@ else
     # ensure everything gets mocked out properly.
 fi
 
-ARCHIVE=${TOP}/archive/fs-version-001
-INCOMING=${TOP}/public_html/incoming
+ARCHIVE=$(getconf.py pbench-archive-dir pbench-server)
+INCOMING=$(getconf.py pbench-incoming-dir pbench-server)
 # this is where the symlink forest is going to go
-RESULTS=${TOP}/public_html/results
-USERS=${TOP}/public_html/users
+RESULTS=$(getconf.py pbench-results-dir pbench-server)
+USERS=$(getconf.py pbench-users-dir pbench-server)
 
 # Convenient task run identifier.
 if [ "$TS" = "" ]; then
@@ -135,7 +135,7 @@ LINKDIRS="TODO BAD-MD5 \
     TO-DELETE SATELLITE-DONE"
 
 # list of the state directories which will be excluded during rsync
-EXCLUDE_DIRS="$LINKDIRS $(for i in {1..11}; do printf 'WONT-INDEX.%d ' ${i}; done)"
+EXCLUDE_DIRS="_QUARANTINED $LINKDIRS $(for i in {1..11}; do printf 'WONT-INDEX.%d ' ${i}; done)"
 
 function mk_dirs {
     hostname=$1

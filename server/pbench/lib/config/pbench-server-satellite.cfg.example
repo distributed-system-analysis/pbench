@@ -1,0 +1,29 @@
+# This file describes the elements of deploying the pbench background tools.
+[DEFAULT]
+# cvalues here override those in pbench-server-default.cfg.
+# An installation will want to override at least the following:
+mailto = admins@example.com
+default-host = pbench-satellite.example.com
+
+###########################################################################
+## Deployment section
+###########################################################################
+[pbench-server]
+# For a satellite we override the default roles to only "prep" and "results"
+roles = pbench-prep, pbench-results
+
+###########################################################################
+# crontab roles
+#
+# For a satellite server we typically don't need to index results or handle
+# sosreports, so we override the tasks to drop those two.
+[pbench-results]
+host = %(default-host)s
+mailfrom = %(default-user)s@%(host)s
+tasks = pbench-dispatch, pbench-unpack-tarballs, pbench-move-unpacked, pbench-edit-prefixes
+
+###########################################################################
+# The rest will come from the default config file.
+[config]
+path = /opt/pbench-server/lib/config
+files = pbench-server-default.cfg.example

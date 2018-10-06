@@ -1,0 +1,5 @@
+#!/bin/bash
+
+mkdir pbench-local/archive.backup || exit $?
+mkdir pbench-local/incoming
+exit $?

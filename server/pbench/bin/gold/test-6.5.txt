@@ -7,45 +7,70 @@ lrwxrwxrwx         55 incoming -> /var/tmp/pbench-test-server/pbench/public_html
 drwxrwxr-x          - pbench-results-host-info.versioned
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
 -rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
--rw-rw-r--         87 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+-rw-rw-r--         94 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
 -rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
--rw-rw-r--         87 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+-rw-rw-r--         94 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
 lrwxrwxrwx         54 results -> /var/tmp/pbench-test-server/pbench/public_html/results
+lrwxrwxrwx         53 static -> /var/tmp/pbench-test-server/pbench/public_html/static
 lrwxrwxrwx         52 users -> /var/tmp/pbench-test-server/pbench/public_html/users
 --- var/www/html tree state
++++ results host info (/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench.example.com)
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench.example.com)
+--- results host info
++++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/var-www-html-satellite)
+lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/pbench-satellite/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
+-rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--        104 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--        104 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/pbench-satellite/public_html/results
+lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/pbench-satellite/public_html/static
+lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/pbench-satellite/public_html/users
+--- var/www/html-satellite tree state
++++ results host info (/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench-satellite.example.com)
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench-satellite.example.com)
+--- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/pbench)
 drwxrwxr-x          - archive
-drwxrwxr-x          - archive.backup
-drwxrwxr-x          - archive.backup/foo
--rw-r--r--    3242068 archive.backup/foo/fio__2016-08-18_15:47:09.tar.xz
--rw-r--r--         66 archive.backup/foo/fio__2016-08-18_15:47:09.tar.xz.md5
--rw-r--r--    1610896 archive.backup/foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz
--rw-r--r--         84 archive.backup/foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/foo
 -rw-r--r--    3242068 archive/fs-version-001/foo/fio__2016-08-18_15:47:09.tar.xz
 -rw-r--r--         66 archive/fs-version-001/foo/fio__2016-08-18_15:47:09.tar.xz.md5
 -rw-r--r--    1610896 archive/fs-version-001/foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz
 -rw-r--r--         84 archive/fs-version-001/foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz.md5
-drwxrwxr-x          - logs
-drwxrwxr-x          - logs/pbench-audit-archive
--rw-rw-r--          0 logs/pbench-audit-archive/pbench-audit-archive.error
--rw-rw-r--          1 logs/pbench-audit-archive/pbench-audit-archive.log
-drwxrwxr-x          - logs/pbench-backup-tarballs
--rw-rw-r--          0 logs/pbench-backup-tarballs/pbench-backup-tarballs.error
--rw-rw-r--        666 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/users
-drwxrwxr-x          - tmp
 --- pbench tree state
 +++ pbench-local tree state (/var/tmp/pbench-test-server/pbench-local)
-drwxrwxr-x          - fs-version-001
-drwxrwxr-x          - fs-version-001/pbench-move-results-receive
-drwxrwxr-x          - fs-version-002
-drwxrwxr-x          - fs-version-002/pbench-move-results-receive
+drwxrwxr-x          - archive.backup
+drwxrwxr-x          - archive.backup/foo
+-rw-r--r--    3242068 archive.backup/foo/fio__2016-08-18_15:47:09.tar.xz
+-rw-r--r--         66 archive.backup/foo/fio__2016-08-18_15:47:09.tar.xz.md5
+-rw-r--r--    1610896 archive.backup/foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz
+-rw-r--r--         84 archive.backup/foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz.md5
+drwxrwxr-x          - logs
+drwxrwxr-x          - logs/pbench-audit-server
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
+-rw-rw-r--          1 logs/pbench-audit-server/pbench-audit-server.log
+drwxrwxr-x          - logs/pbench-backup-tarballs
+-rw-rw-r--          0 logs/pbench-backup-tarballs/pbench-backup-tarballs.error
+-rw-rw-r--        666 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-001
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-001
 drwxrwxr-x          - quarantine/duplicates-002
@@ -53,51 +78,75 @@ drwxrwxr-x          - quarantine/errors-001
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
 --- pbench-local tree state
++++ pbench-satellite tree state (/var/tmp/pbench-test-server/pbench-satellite)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/users
+--- pbench-satellite tree state
++++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/pbench-satellite-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-001
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-001
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-001
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-001
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-satellite-local tree state
 +++ pbench log file contents
-/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:start-1900-01-01T00:00:00-UTC
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:sending incremental file list
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:./
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:foo/
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:foo/fio__2016-08-18_15:47:09.tar.xz
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:foo/fio__2016-08-18_15:47:09.tar.xz.md5
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz.md5
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Number of files: 6
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Number of files transferred: 4
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Total file size: # bytes
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Total transferred file size: # bytes
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Literal data: # bytes
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Matched data: # bytes
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:File list size: #
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:File list generation time: #.### seconds
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:File list transfer time: #.### seconds
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Total bytes sent: #
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Total bytes received: #
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:sent # bytes  received # bytes  #.### bytes/sec
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:total size is #  speedup is #.##
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:end-1900-01-01T00:00:00-UTC
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-audit-server/pbench-audit-server.log:
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:start-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:sending incremental file list
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:./
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:foo/
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:foo/fio__2016-08-18_15:47:09.tar.xz
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:foo/fio__2016-08-18_15:47:09.tar.xz.md5
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz.md5
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Number of files: 6
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Number of files transferred: 4
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Total file size: # bytes
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Total transferred file size: # bytes
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Literal data: # bytes
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Matched data: # bytes
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:File list size: #
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:File list generation time: #.### seconds
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:File list transfer time: #.### seconds
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Total bytes sent: #
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:Total bytes received: #
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:sent # bytes  received # bytes  #.### bytes/sec
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:total size is #  speedup is #.##
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:end-1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench-local/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:
 --- pbench log file contents
 +++ test-execution.log file contents
-rsync -va --stats --exclude=TODO --exclude=BAD-MD5 --exclude=TO-UNPACK --exclude=UNPACKED --exclude=MOVED-UNPACKED --exclude=TO-SYNC --exclude=SYNCED --exclude=TO-LINK --exclude=TO-INDEX --exclude=INDEXED --exclude=WONT-INDEX --exclude=TO-COPY-SOS --exclude=COPIED-SOS --exclude=TO-BACKUP --exclude=SATELLITE-MD5-PASSED --exclude=SATELLITE-MD5-FAILED --exclude=TO-DELETE --exclude=SATELLITE-DONE --exclude=WONT-INDEX.1 --exclude=WONT-INDEX.2 --exclude=WONT-INDEX.3 --exclude=WONT-INDEX.4 --exclude=WONT-INDEX.5 --exclude=WONT-INDEX.6 --exclude=WONT-INDEX.7 --exclude=WONT-INDEX.8 --exclude=WONT-INDEX.9 --exclude=WONT-INDEX.10 --exclude=WONT-INDEX.11 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/ /var/tmp/pbench-test-server/pbench/archive.backup
+rsync -va --stats --exclude=_QUARANTINED --exclude=TODO --exclude=BAD-MD5 --exclude=TO-UNPACK --exclude=UNPACKED --exclude=MOVED-UNPACKED --exclude=TO-SYNC --exclude=SYNCED --exclude=TO-LINK --exclude=TO-INDEX --exclude=INDEXED --exclude=WONT-INDEX --exclude=TO-COPY-SOS --exclude=COPIED-SOS --exclude=TO-BACKUP --exclude=SATELLITE-MD5-PASSED --exclude=SATELLITE-MD5-FAILED --exclude=TO-DELETE --exclude=SATELLITE-DONE --exclude=WONT-INDEX.1 --exclude=WONT-INDEX.2 --exclude=WONT-INDEX.3 --exclude=WONT-INDEX.4 --exclude=WONT-INDEX.5 --exclude=WONT-INDEX.6 --exclude=WONT-INDEX.7 --exclude=WONT-INDEX.8 --exclude=WONT-INDEX.9 --exclude=WONT-INDEX.10 --exclude=WONT-INDEX.11 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/ /var/tmp/pbench-test-server/pbench-local/archive.backup
 curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-backup-tarballs.1900-01/status/27b8e62c6561a397654aa78def20b36a --data @/tmp/pbench-report-status.NNNN/payload
-curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/4e6a327801a9294313dd343fa3f0f8e7 --data @/tmp/pbench-report-status.NNNN/payload
+curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/6f0d5674e8cc08ca77081f1b6fba6f4c --data @/tmp/pbench-report-status.NNNN/payload
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
 {
-    "text": "pbench-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n\nNumber of files: 6\nNumber of files transferred: 4\nTotal file size: # bytes\nTotal transferred file size: # bytes\nLiteral data: # bytes\nMatched data: # bytes\nFile list size: #\nFile list generation time: #.### seconds\nFile list transfer time: #.### seconds\nTotal bytes sent: #\nTotal bytes received: #\n\nsent # bytes  received # bytes  #.### bytes/sec\ntotal size is #  speedup is #.##\n", 
-    "@timestamp": "1900-01-01T00:00:00", 
-    "name": "pbench-backup-tarballs", 
+    "text": "pbench-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n\nNumber of files: 6\nNumber of files transferred: 4\nTotal file size: # bytes\nTotal transferred file size: # bytes\nLiteral data: # bytes\nMatched data: # bytes\nFile list size: #\nFile list generation time: #.### seconds\nFile list transfer time: #.### seconds\nTotal bytes sent: #\nTotal bytes received: #\n\nsent # bytes  received # bytes  #.### bytes/sec\ntotal size is #  speedup is #.##\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-backup-tarballs",
     "doctype": "status"
 }
 {
-    "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nController: foo\n\t* No state directories found in this controller directory.\n\n\nend-1900-01-01T00:00:00-UTC\n", 
-    "@timestamp": "1900-01-01T00:00:00", 
-    "name": "pbench-audit-archive", 
+    "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nController: foo\n\t* No state directories found in this controller directory.\n\n\nend-1900-01-01T00:00:00-UTC\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-audit-server",
     "doctype": "status"
 }
 --- test-curl-payload.log file contents

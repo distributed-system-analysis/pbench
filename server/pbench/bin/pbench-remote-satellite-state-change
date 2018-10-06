@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# We use this script instead of invoking ssh directly in order to
+# facilitate easier unit testing where this script is replaced
+# with one that simulates the ssh invocation.
+
+opts=$SHELLOPTS
+case $opts in
+    *xtrace*)
+        dir=$(dirname $(which $0))
+        PROG=$(basename $(which $0))
+        ;;
+    *)
+        dir=$(dirname $0)
+        PROG=$(basename $0)
+        ;;
+esac
+case $# in
+    2)
+        :
+        ;;
+    *)
+        echo "Usage: $PROG <satellite-config> <input-change-log>"
+        exit 1
+        ;;
+esac
+
+satellite_config=$1
+input_change_log=$2
+shift 2
+
+remote_host=$(getconf.py satellite-host $satellite_config)
+if [ -z "${remote_host}" ]; then
+    echo "$PROG: missing \"satellite-host\" configuration for \"${satellite_config}\"" >&2
+    exit 1
+fi
+remote_opt=$(getconf.py satellite-opt $satellite_config)
+if [ -z "${remote_opt}" ]; then
+    echo "$PROG: missing \"satellite-opt\" configuration for \"${satellite_config}\"" >&2
+    exit 1
+fi
+remote_archive=$(getconf.py satellite-archive $satellite_config)
+if [ -z "${remote_opt}" ]; then
+    echo "$PROG: missing \"satellite-archive\" configuration for \"${satellite_config}\"" >&2
+    exit 1
+fi
+
+ssh $remote_host "${remote_opt}/bin/pbench-satellite-state-change ${remote_archive}" < ${input_change_log}
