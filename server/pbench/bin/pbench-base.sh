@@ -184,20 +184,25 @@ function quarantine () {
     shift
     files="$@"
 
-    mkdir -p $dest
+    mkdir -p $dest > /dev/null 2>&1
     sts=$?
     if [ $sts -ne 0 ] ;then
         # log error
-        echo "$TS: quarantine $dest $files: \"mkdir -p $dest\" failed with status $sts" >&4
+        echo "$TS: quarantine $dest $files: \"mkdir -p $dest/\" failed with status $sts" >&4
         log_finish
         exit 101
     fi
-    mv $files $dest
-    sts=$?
-    if [ $sts -ne 0 ] ;then
-        # log error
-        echo "$TS: quarantine $dest $files: \"mv $files $dest\" failed with status $sts" >&4
-        log_finish
-        exit 102
-    fi
+    for afile in ${files} ;do
+        if [ ! -e $afile -a ! -L $afile ] ;then
+            continue
+        fi
+        mv $afile $dest/ > /dev/null 2>&1
+        sts=$?
+        if [ $sts -ne 0 ] ;then
+            # log error
+            echo "$TS: quarantine $dest $files: \"mv $afile $dest/\" failed with status $sts" >&4
+            log_finish
+            exit 102
+        fi
+    done
 }
