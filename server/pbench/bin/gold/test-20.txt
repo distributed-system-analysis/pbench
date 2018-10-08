@@ -3,125 +3,127 @@ audit archive hierarchy
 --- Finished echo (status=0)
 +++ Running unit test audit
 --- Finished unit test audit (status=6)
-+++ var/www/html tree state
-/var/tmp/pbench-test-server/var-www-html
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
++++ var/www/html tree state (/var/tmp/pbench-test-server/var-www-html)
+lrwxrwxrwx         55 incoming -> /var/tmp/pbench-test-server/pbench/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
+-rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--         87 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         87 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         54 results -> /var/tmp/pbench-test-server/pbench/public_html/results
+lrwxrwxrwx         52 users -> /var/tmp/pbench-test-server/pbench/public_html/users
 --- var/www/html tree state
-+++ pbench tree state
-/var/tmp/pbench-test-server/pbench
-/var/tmp/pbench-test-server/pbench/archive
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/a-wayward-file.txt
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.empty
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.unexp_state_dirs
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.unexp_state_dirs/TO-INDEX
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.unexp_state_dirs/TO-UNPACK
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.unexp_state_dirs/an-unexpected
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.unexp_state_dirs/unexpected
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.0
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.1
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.10
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.11
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.12
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.13
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.14
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.15
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.16
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.17
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.18
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.19
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.2
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.20
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.21
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.22
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.23
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.24
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.25
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.26
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.27
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.28
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.29
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.3
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.30
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.4
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.5
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.6
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.7
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.8
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller.wont_index/WONT-INDEX.9
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller00
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller00/.prefix
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller00/UNPACKED
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller00/UNPACKED/benchmark-result-large_1900-01-01T00:00:00.tar.xz
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller00/an-unexpected-symlink
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller00/benchmark-result-large_1900-01-01T00:00:00.tar.xz
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller00/benchmark-result-large_1900-01-01T00:00:00.tar.xz.md5
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller00/unexpected-file
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller00/unexpected-symlink
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller01
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller01/.prefix
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller01/.prefix/a-unexpected
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller01/.prefix/benchmark-result-medium_1900-01-01T00:00:00.tar.xz.prefix
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller01/.prefix/prefix.DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller01/.prefix/prefix.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller01/.prefix/unexpected
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz.md5
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller01/UNPACKED
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller01/UNPACKED/DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller01/UNPACKED/benchmark-result-medium_1900-01-01T00:00:00.tar.xz
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller01/benchmark-result-medium_1900-01-01T00:00:00.tar.xz
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller01/benchmark-result-medium_1900-01-01T00:00:00.tar.xz.md5
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller02
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller02/.prefix
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller02/.prefix/benchmark-result-small_1900-01-01T00:00:00.prefix
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller02/TO-UNPACK
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller02/UNPACKED
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller02/UNPACKED/benchmark-result-small_1900-01-01T00:00:00.tar.xz
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller02/benchmark-result-small_1900-01-01T00:00:00.tar.xz
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller02/benchmark-result-small_1900-01-01T00:00:00.tar.xz.md5
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001/wayward-file.txt
-/var/tmp/pbench-test-server/pbench/logs
-/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive
-/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.error
-/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log
-/var/tmp/pbench-test-server/pbench/public_html
-/var/tmp/pbench-test-server/pbench/public_html/incoming
-/var/tmp/pbench-test-server/pbench/public_html/incoming/controller00
-/var/tmp/pbench-test-server/pbench/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00
-/var/tmp/pbench-test-server/pbench/public_html/incoming/controller01
-/var/tmp/pbench-test-server/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00
-/var/tmp/pbench-test-server/pbench/public_html/incoming/controller02
-/var/tmp/pbench-test-server/pbench/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00
-/var/tmp/pbench-test-server/pbench/public_html/results
-/var/tmp/pbench-test-server/pbench/public_html/users
-/var/tmp/pbench-test-server/pbench/tmp
-/var/tmp/pbench-test-server/pbench/tmp/controller00
-/var/tmp/pbench-test-server/pbench/tmp/controller00/benchmark-result-large_1900-01-01T00:00:00
-/var/tmp/pbench-test-server/pbench/tmp/controller00/benchmark-result-large_1900-01-01T00:00:00/lines.100.txt
-/var/tmp/pbench-test-server/pbench/tmp/controller01
-/var/tmp/pbench-test-server/pbench/tmp/controller01/benchmark-result-medium_1900-01-01T00:00:00
-/var/tmp/pbench-test-server/pbench/tmp/controller01/benchmark-result-medium_1900-01-01T00:00:00/lines.50.txt
-/var/tmp/pbench-test-server/pbench/tmp/controller01/benchmark-result-medium_1900-01-01T00:00:00/metadata.log
++++ pbench tree state (/var/tmp/pbench-test-server/pbench)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+-rw-rw-r--          0 archive/fs-version-001/a-wayward-file.txt
+drwxrwxr-x          - archive/fs-version-001/controller.empty
+drwxrwxr-x          - archive/fs-version-001/controller.unexp_state_dirs
+drwxrwxr-x          - archive/fs-version-001/controller.unexp_state_dirs/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/controller.unexp_state_dirs/TO-UNPACK
+drwxrwxr-x          - archive/fs-version-001/controller.unexp_state_dirs/an-unexpected
+drwxrwxr-x          - archive/fs-version-001/controller.unexp_state_dirs/unexpected
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.0
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.1
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.10
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.11
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.12
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.13
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.14
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.15
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.16
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.17
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.18
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.19
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.2
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.20
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.21
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.22
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.23
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.24
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.25
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.26
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.27
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.28
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.29
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.3
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.30
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.4
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.5
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.6
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.7
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.8
+drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.9
+drwxrwxr-x          - archive/fs-version-001/controller00
+-rw-rw-r--          0 archive/fs-version-001/controller00/.prefix
+drwxrwxr-x          - archive/fs-version-001/controller00/UNPACKED
+lrwxrwxrwx         52 archive/fs-version-001/controller00/UNPACKED/benchmark-result-large_1900-01-01T00:00:00.tar.xz -> ../benchmark-result-large_1900-01-01T00:00:00.tar.xz
+lrwxrwxrwx          9 archive/fs-version-001/controller00/an-unexpected-symlink -> /dev/null
+-rw-rw-r--       5920 archive/fs-version-001/controller00/benchmark-result-large_1900-01-01T00:00:00.tar.xz
+-rw-rw-r--         84 archive/fs-version-001/controller00/benchmark-result-large_1900-01-01T00:00:00.tar.xz.md5
+-rw-rw-r--          0 archive/fs-version-001/controller00/unexpected-file
+lrwxrwxrwx          9 archive/fs-version-001/controller00/unexpected-symlink -> /dev/null
+drwxrwxr-x          - archive/fs-version-001/controller01
+drwxrwxr-x          - archive/fs-version-001/controller01/.prefix
+-rw-rw-r--          0 archive/fs-version-001/controller01/.prefix/a-unexpected
+-rw-rw-r--         12 archive/fs-version-001/controller01/.prefix/benchmark-result-medium_1900-01-01T00:00:00.tar.xz.prefix
+-rw-rw-r--         13 archive/fs-version-001/controller01/.prefix/prefix.DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
+-rw-rw-r--          0 archive/fs-version-001/controller01/.prefix/prefix.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
+-rw-rw-r--          0 archive/fs-version-001/controller01/.prefix/unexpected
+-rw-rw-r--       3120 archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
+-rw-rw-r--         85 archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz.md5
+drwxrwxr-x          - archive/fs-version-001/controller01/UNPACKED
+lrwxrwxrwx         71 archive/fs-version-001/controller01/UNPACKED/DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz -> ../DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
+lrwxrwxrwx         53 archive/fs-version-001/controller01/UNPACKED/benchmark-result-medium_1900-01-01T00:00:00.tar.xz -> ../benchmark-result-medium_1900-01-01T00:00:00.tar.xz
+-rw-rw-r--       3180 archive/fs-version-001/controller01/benchmark-result-medium_1900-01-01T00:00:00.tar.xz
+-rw-rw-r--         85 archive/fs-version-001/controller01/benchmark-result-medium_1900-01-01T00:00:00.tar.xz.md5
+drwxrwxr-x          - archive/fs-version-001/controller02
+drwxrwxr-x          - archive/fs-version-001/controller02/.prefix
+-rw-rw-r--          9 archive/fs-version-001/controller02/.prefix/benchmark-result-small_1900-01-01T00:00:00.prefix
+drwxrwxr-x          - archive/fs-version-001/controller02/TO-UNPACK
+drwxrwxr-x          - archive/fs-version-001/controller02/UNPACKED
+lrwxrwxrwx         52 archive/fs-version-001/controller02/UNPACKED/benchmark-result-small_1900-01-01T00:00:00.tar.xz -> ../benchmark-result-small_1900-01-01T00:00:00.tar.xz
+-rw-rw-r--        848 archive/fs-version-001/controller02/benchmark-result-small_1900-01-01T00:00:00.tar.xz
+-rw-rw-r--         84 archive/fs-version-001/controller02/benchmark-result-small_1900-01-01T00:00:00.tar.xz.md5
+-rw-rw-r--          0 archive/fs-version-001/wayward-file.txt
+drwxrwxr-x          - logs
+drwxrwxr-x          - logs/pbench-audit-archive
+-rw-rw-r--          0 logs/pbench-audit-archive/pbench-audit-archive.error
+-rw-rw-r--        218 logs/pbench-audit-archive/pbench-audit-archive.log
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/incoming/controller00
+lrwxrwxrwx         68 public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00 -> ../../../tmp/controller00/benchmark-result-large_1900-01-01T00:00:00
+drwxrwxr-x          - public_html/incoming/controller01
+lrwxrwxrwx         69 public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00 -> ../../../tmp/controller01/benchmark-result-medium_1900-01-01T00:00:00
+drwxrwxr-x          - public_html/incoming/controller02
+drwxrwxr-x          - public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/users
+drwxrwxr-x          - tmp
+drwxrwxr-x          - tmp/controller00
+drwxrwxr-x          - tmp/controller00/benchmark-result-large_1900-01-01T00:00:00
+-rw-rw-r--       7300 tmp/controller00/benchmark-result-large_1900-01-01T00:00:00/lines.100.txt
+drwxrwxr-x          - tmp/controller01
+drwxrwxr-x          - tmp/controller01/benchmark-result-medium_1900-01-01T00:00:00
+-rw-rw-r--       3650 tmp/controller01/benchmark-result-medium_1900-01-01T00:00:00/lines.50.txt
+-rw-rw-r--         38 tmp/controller01/benchmark-result-medium_1900-01-01T00:00:00/metadata.log
 --- pbench tree state
-+++ pbench-local tree state
-/var/tmp/pbench-test-server/pbench-local
-/var/tmp/pbench-test-server/pbench-local/fs-version-001
-/var/tmp/pbench-test-server/pbench-local/fs-version-001/pbench-move-results-receive
-/var/tmp/pbench-test-server/pbench-local/fs-version-002
-/var/tmp/pbench-test-server/pbench-local/fs-version-002/pbench-move-results-receive
-/var/tmp/pbench-test-server/pbench-local/quarantine
-/var/tmp/pbench-test-server/pbench-local/quarantine/duplicates-001
-/var/tmp/pbench-test-server/pbench-local/quarantine/duplicates-002
-/var/tmp/pbench-test-server/pbench-local/quarantine/errors-001
-/var/tmp/pbench-test-server/pbench-local/quarantine/errors-002
-/var/tmp/pbench-test-server/pbench-local/quarantine/md5-001
-/var/tmp/pbench-test-server/pbench-local/quarantine/md5-002
++++ pbench-local tree state (/var/tmp/pbench-test-server/pbench-local)
+drwxrwxr-x          - fs-version-001
+drwxrwxr-x          - fs-version-001/pbench-move-results-receive
+drwxrwxr-x          - fs-version-002
+drwxrwxr-x          - fs-version-002/pbench-move-results-receive
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-001
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-001
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-001
+drwxrwxr-x          - quarantine/md5-002
 --- pbench-local tree state
 +++ pbench log file contents
 /var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/270b662e76be70e22735b042fc336b60 --data @/tmp/pbench-report-status.NNNN/payload
