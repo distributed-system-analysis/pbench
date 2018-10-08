@@ -159,7 +159,7 @@ let ret=0
 
 # Find all the non-directory files at the same level of the controller
 # directories and report them, keeping them in sorted order by name.
-find $ARCHIVE -maxdepth 1 ! -type d  -printf "\t%M %s %t %f\n" | sort -k 8 > $badcontrollers
+find $ARCHIVE -maxdepth 1 ! -type d  -printf "\t%M %10s %t %f\n" | sort -k 8 > $badcontrollers
 if [ -s $badcontrollers ]; then
     printf "\n\nBad Controllers:\n" >> $report
     cat $badcontrollers >> $report
