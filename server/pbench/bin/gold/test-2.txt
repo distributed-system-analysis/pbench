@@ -1,14 +1,20 @@
 +++ Running pbench-unpack-tarballs
+pbench-unpack-tarballs: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-unpack-tarballs (status=1)
 +++ Running pbench-move-unpacked
+pbench-move-unpacked: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-move-unpacked (status=1)
 +++ Running pbench-copy-sosreports
+pbench-copy-sosreports: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-copy-sosreports (status=1)
 +++ Running pbench-index
+pbench-index: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-index (status=1)
 +++ Running pbench-clean-up-dangling-results-links
+pbench-clean-up-dangling-results-links: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-clean-up-dangling-results-links (status=1)
 +++ Running pbench-edit-prefixes
+pbench-edit-prefixes: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-edit-prefixes (status=1)
 +++ Running unit test audit
 pbench-audit-archive: Bad archive: /var/tmp/pbench-test-server/pbench/archive/fs-version-001
@@ -27,24 +33,6 @@ lrwxrwxrwx         52 users -> /var/tmp/pbench-test-server/pbench/public_html/us
 --- var/www/html tree state
 +++ pbench tree state (/var/tmp/pbench-test-server/pbench)
 drwxrwxr-x          - logs
-drwxrwxr-x          - logs/pbench-clean-up-dangling-results-links
--rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
--rw-rw-r--        110 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
-drwxrwxr-x          - logs/pbench-copy-sosreports
--rw-rw-r--          0 logs/pbench-copy-sosreports/pbench-copy-sosreports.error
--rw-rw-r--         94 logs/pbench-copy-sosreports/pbench-copy-sosreports.log
-drwxrwxr-x          - logs/pbench-edit-prefixes
--rw-rw-r--          0 logs/pbench-edit-prefixes/pbench-edit-prefixes.error
--rw-rw-r--         92 logs/pbench-edit-prefixes/pbench-edit-prefixes.log
-drwxrwxr-x          - logs/pbench-index
--rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--         84 logs/pbench-index/pbench-index.log
-drwxrwxr-x          - logs/pbench-move-unpacked
--rw-rw-r--          0 logs/pbench-move-unpacked/pbench-move-unpacked.error
--rw-rw-r--         92 logs/pbench-move-unpacked/pbench-move-unpacked.log
-drwxrwxr-x          - logs/pbench-unpack-tarballs
--rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
--rw-rw-r--         94 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - no-archive
 drwxrwxr-x          - no-archive/fs-version-001
 drwxrwxr-x          - public_html
@@ -67,10 +55,4 @@ drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
 --- pbench-local tree state
 +++ pbench log file contents
-/var/tmp/pbench-test-server/pbench/logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log:pbench-clean-up-dangling-results-links: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
-/var/tmp/pbench-test-server/pbench/logs/pbench-copy-sosreports/pbench-copy-sosreports.log:pbench-copy-sosreports: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
-/var/tmp/pbench-test-server/pbench/logs/pbench-edit-prefixes/pbench-edit-prefixes.log:pbench-edit-prefixes: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
-/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:pbench-index: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
-/var/tmp/pbench-test-server/pbench/logs/pbench-move-unpacked/pbench-move-unpacked.log:pbench-move-unpacked: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
-/var/tmp/pbench-test-server/pbench/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:pbench-unpack-tarballs: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- pbench log file contents

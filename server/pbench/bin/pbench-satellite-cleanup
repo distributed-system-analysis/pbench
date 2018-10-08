@@ -30,9 +30,9 @@ fi
 
 trap "rm -rf $tmp" EXIT
 
-mkdir -p "$tmp"
+mkdir -p "$tmp" || doexit "Failed to create $tmp"
 
-log_init $(basename $0) $LOGSDIR/$(basename $0)
+log_init $PROG
 
 echo $TS: $PROG starting
 
@@ -56,7 +56,7 @@ index_content=$tmp/index_mail_contents
 > $index_content
 
 for host in $hosts; do
-    pushd $remotearchive/$host >/dev/null || exit 2
+    pushd $remotearchive/$host >/dev/null || log_exit "Failed to pushd to $remotearchive/$host"
     for x in $tarballs; do
         ntb=$ntb+1
         # remove tar file
@@ -138,6 +138,8 @@ done
 echo "$TS: $PROG ends: Total $ntb tarballs cleaned up, with $ntberrs tarball removal errors, $nmd5errs md5 file \
 remove errors, $nstateerrs state change errors, $nincomingerrs incoming removal errors, $nresultserrs \
 result removal errors and $nprefixerrs prefix removal errors."
+
+log_finish
 
 nerrs=$ntberrs+$nmd5errs+$nstateerrs+$nincomingerrs+$nresultserrs+$nprefixerrs
 

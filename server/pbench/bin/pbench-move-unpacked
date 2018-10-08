@@ -25,8 +25,6 @@ UNPACK_PATH=$1
 . $dir/job_pool.sh
 ###########################################################################
 
-log_init $(basename $0) $LOGSDIR/$(basename $0)
-
 # check that all the directories exist
 test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
 test -d $INCOMING || doexit "Bad INCOMING=$INCOMING"
@@ -35,7 +33,6 @@ test -d $UNPACK_PATH || doexit "Bad UNPACK_PATH=$UNPACK_PATH"
 
 if [ "$UNPACK_PATH" = "$INCOMING" ]; then
     echo "$TS: the unpack path, $UNPACK_PATH, is the same as the incoming path, $INCOMING; nothing to do"
-    log_finish
     exit 0
 fi
 
@@ -48,11 +45,14 @@ fi
 linksrc=UNPACKED
 linkdest=MOVED-UNPACKED
 
-echo $TS
 tmp=$TMP/$PROG.$$
 trap 'rm -rf $tmp' EXIT INT QUIT
 
-mkdir -p $tmp
+mkdir -p $tmp || doexit "Failed to create $tmp"
+
+log_init $PROG
+
+echo $TS
 
 # Accumulate errors and logs in files for reporting at the end.
 mail_content=$tmp/mail_content.log

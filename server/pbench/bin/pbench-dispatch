@@ -47,11 +47,16 @@ esac
 . $dir/pbench-base.sh
 ###########################################################################
 
-log_init $(basename $0) $LOGSDIR/$(basename $0)
-
 # check that all the directories exist
 test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
 test -d $UNPACK_DIR || doexit "Bad UNPACK=$UNPACK_DIR"
+
+tmp=$TMP/$PROG.$$
+
+trap 'rm -rf $tmp' EXIT INT QUIT
+mkdir -p $tmp || doexit "Failed to create $tmp"
+
+log_init $PROG
 
 # make sure only one copy is running.
 # Use 'flock -n $LOCKFILE /path/to/pbench-dispatch' in the
@@ -67,10 +72,6 @@ typeset -i ndups=0
 linksrc=TODO
 linkdestlist=$(getconf.py -l dispatch-states pbench-server)
 
-tmp=$TMP/$PROG.$$
-
-trap 'rm -rf $tmp' EXIT INT QUIT
-mkdir -p $tmp
 index_content=$tmp/index_mail_contents
 
 # Initialize index mail content
@@ -84,6 +85,7 @@ $subj
 config file error: either no dispach-states defined or a typo
 EOF
     pbench-report-status --name $PROG --timestamp $TS --type error $index_content
+    log_finish
     exit 1
 else
     echo $TS

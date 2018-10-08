@@ -59,8 +59,6 @@ UNPACK_PATH=$1
 . $dir/pbench-base.sh
 ###########################################################################
 
-log_init $(basename $0) $LOGSDIR/$(basename $0)
-
 # check that all the directories exist
 test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
 test -d $INCOMING || doexit "Bad INCOMING=$INCOMING"
@@ -85,11 +83,14 @@ else
     linkdest=UNPACKED
 fi
 
-echo $TS
 tmp=$TMP/$PROG.$$
 trap 'rm -rf $tmp' EXIT INT QUIT
 
-mkdir -p $tmp
+mkdir -p $tmp || doexit "Failed to create $tmp"
+
+log_init $PROG
+
+echo $TS
 
 # Accumulate errors and logs in files for reporting at the end.
 mail_content=$tmp/mail_content.log

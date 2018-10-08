@@ -79,7 +79,7 @@ function checkmd5 {
     done < $controllers.$1
 }
 
-log_init $(basename $0) $LOGSDIR/$(basename $0)
+log_init $PROG
 
 echo "start-$(timestamp)"
 

@@ -53,11 +53,15 @@ esac
 . $dir/pbench-base.sh
 ###########################################################################
 
-log_init $PROG $LOGSDIR/$(basename $0)
-
 # check that all the directories exist
 test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
 test -d $INCOMING || doexit "Bad INCOMING=$INCOMING"
+
+TMPDIR=$TMP/$PROG.$$
+trap "rm -rf $TMPDIR" EXIT INT QUIT
+mkdir -p $TMPDIR || doexit "Failed to create $TMPDIR"
+
+log_init $PROG
 
 # make sure only one copy is running.
 # Use 'flock -n $LOCKFILE /home/pbench/bin/pbench-unpack-tarballs' in the
@@ -83,10 +87,6 @@ list=$(ls $ARCHIVE/*/$linksrc/*.tar.xz 2>/dev/null)
 typeset -i nresults=0
 typeset -i ntotal=0
 typeset -i nerrs=0
-
-TMPDIR=$TMP/pbench-copy-sosreports.$$
-trap "rm -rf $TMPDIR" EXIT INT QUIT
-mkdir -p $TMPDIR || exit 1
 
 index_content=$TMPDIR/index_mail_contents
 
