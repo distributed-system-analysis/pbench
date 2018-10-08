@@ -147,7 +147,7 @@ function verify_prefixes {
     return $cnt
 }
 
-log_init $(basename $0) $LOGSDIR/$(basename $0)
+log_init $PROG
 
 # Initialize index mail content
 > $index_content

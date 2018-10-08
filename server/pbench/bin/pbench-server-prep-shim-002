@@ -80,7 +80,7 @@ if [ $sts != 0 ]; then
     exit 3
 fi
 
-log_init $(basename $0) $LOGSDIR/$(basename $0)
+log_init $PROG
 
 tmp=$TMP/$PROG.$$
 

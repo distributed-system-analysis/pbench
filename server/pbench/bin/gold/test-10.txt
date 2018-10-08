@@ -35,6 +35,7 @@ drwxrwxr-x          - logs/pbench-audit-archive
 -rw-rw-r--        218 logs/pbench-audit-archive/pbench-audit-archive.log
 drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/TEST
+drwxrwxr-x          - logs/pbench-sync-satellite/TEST/run-1900-01-01T00:00:00-UTC
 -rw-rw-r--          0 logs/pbench-sync-satellite/pbench-sync-satellite.error
 -rw-rw-r--        354 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - public_html

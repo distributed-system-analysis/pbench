@@ -55,10 +55,10 @@ esac
 . $dir/pbench-base.sh
 ###########################################################################
 
-log_init $(basename $0) $LOGSDIR/$(basename $0)
-
 # check that all the directories exist
 test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
+
+log_init $PROG
 
 # make sure only one copy is running.
 # Use 'flock -n $LOCKFILE /home/pbench/bin/pbench-index' in the
@@ -152,6 +152,7 @@ while read size result ;do
         else
             echo "index-pbench needs python3, either directly or through SCL" >&4
             # this is fatal
+            log_finish
             exit 127
         fi
     fi

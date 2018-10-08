@@ -27,7 +27,7 @@ index_content=$tmp/index_mail_contents
 
 trap "rm -rf $tmp" EXIT INT QUIT
 
-log_init $(basename $0) $LOGSDIR/$(basename $0)
+log_init $PROG
 
 # Initialize index mail content
 > $index_content
@@ -36,22 +36,18 @@ echo "start-$(timestamp)"
 
 rla=$(readlink -f $ARCHIVE)
 if [[ $? -ne 0 ]]; then
-    echo "$PROG: The ARCHIVE directory does not resolve to a real location, $ARCHIVE"
-    log_finish; exit 1
+    log_exit "The ARCHIVE directory does not resolve to a real location, $ARCHIVE"
 fi
 if [[ ! -d "$rla" ]]; then
-    echo "$PROG: The ARCHIVE directory does not resolve to a directory, $ARCHIVE"
-    log_finish; exit 1
+    log_exit "The ARCHIVE directory does not resolve to a directory, $ARCHIVE"
 fi
 
 rlb=$(readlink -f $BDIR)
 if [[ $? -ne 0 ]]; then
-    echo "$PROG: Specified backup directory does not resolve to a real location, $BDIR"
-    log_finish; exit 1
+    log_exit "Specified backup directory does not resolve to a real location, $BDIR"
 fi
 if [[ ! -d "$rlb" ]]; then
-    echo "$PROG: Specified backup directory does not resolve to a directory, $BDIR"
-    log_finish; exit 1
+    log_exit "Specified backup directory does not resolve to a directory, $BDIR"
 fi
 
 # exclude the subdirs of symlinks

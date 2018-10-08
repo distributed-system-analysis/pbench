@@ -3,6 +3,15 @@
 # force UTC everywhere
 export TZ=UTC
 
+if [ -z "$PROG" ]; then
+    echo "$(basename $0): ERROR: \$PROG environment variable does not exist." > /dev/stdout
+    exit 2
+fi
+if [ -z "$dir" ]; then
+    echo "$(basename $0): ERROR: \$dir environment variable does not exist." > /dev/stdout
+    exit 2
+fi
+
 function doexit {
     echo "$PROG: $1" >&2
     exit 1
@@ -23,8 +32,7 @@ function doexit {
 if which getconf.py > /dev/null 2>&1 ;then
     :
 else
-    echo "$PROG: ERROR: The configtools package must be installed." > /dev/stdout
-    exit 2
+    doexit "ERROR: The configtools package must be installed."
 fi
 
 # Required
@@ -44,6 +52,7 @@ PBENCH_ENV=$(getconf.py pbench-environment results)
 
 if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
     # the real thing
+
     BINDIR=$(getconf.py script-dir pbench-server)
     LIBDIR=$(getconf.py deploy-lib-dir pbench-server)
 
@@ -66,9 +75,14 @@ if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
         echo "$(date +'%s')"
     }
 
+    # Ensure the path where pbench-base.sh was found is in the PATH environment
+    # variable.
+    export PATH=${dir}/${PATH}
 else
     # unit test regime
-    # IDXCONFIG (used by pbench-report-status) is exported by the unittests script in this case.
+
+    # IDXCONFIG (used by pbench-report-status) is exported by the unittests
+    # script in this case.
 
     function timestamp {
         echo "1900-01-01T00:00:00-UTC"
@@ -78,6 +92,9 @@ else
         # 2001/01/01T00:00:00
         echo "978282000"
     }
+
+    # For PATH the unit test environment takes care of the proper setup to
+    # ensure everything gets mocked out properly.
 fi
 
 ARCHIVE=${TOP}/archive/fs-version-001
@@ -128,16 +145,14 @@ function mk_dirs {
 }
 
 function log_init {
-    #LOG_DIR=$LOGSDIR/$(basename $0)
-    #TMP_DIR=$TMP/$(basename $0).$$
-    LOG_DIR=$2
+    LOG_DIR=$LOGSDIR/${1}
     mkdir -p $LOG_DIR
     if [[ $? -ne 0 || ! -d "$LOG_DIR" ]]; then
         doexit "Unable to find/create logging directory, $LOG_DIR"
     fi
 
-    log_file=$LOG_DIR/$1.log
-    error_file=$LOG_DIR/$1.error
+    log_file=$LOG_DIR/${1}.log
+    error_file=$LOG_DIR/${1}.error
 
     exec 100>&1  # Save stdout on FD 100
     exec 200>&2  # Save stderr on FD 200
@@ -152,6 +167,12 @@ function log_finish {
     exec 2>&200  # Restore stderr
     exec 100>&-  # Close log file
     exec 4>&-    # Close error file
+}
+
+function log_exit {
+    echo "$PROG: $1" >&4
+    log_finish
+    exit 1
 }
 
 # Function used by the shims to quarantine problematic tarballs.  It

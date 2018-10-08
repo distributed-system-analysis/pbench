@@ -46,6 +46,7 @@ drwxrwxr-x          - logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-
 -rw-rw-r--         12 logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/pbench-rsync-satellite.wq.trimmed
 drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/TEST2
+drwxrwxr-x          - logs/pbench-sync-satellite/TEST2/run-1900-01-01T00:00:00-UTC
 -rw-rw-r--          0 logs/pbench-sync-satellite/pbench-sync-satellite.error
 -rw-rw-r--        354 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - public_html

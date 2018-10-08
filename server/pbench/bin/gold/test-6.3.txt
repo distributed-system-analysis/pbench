@@ -23,8 +23,8 @@ drwxrwxr-x          - logs/pbench-audit-archive
 -rw-rw-r--          0 logs/pbench-audit-archive/pbench-audit-archive.error
 -rw-rw-r--        218 logs/pbench-audit-archive/pbench-audit-archive.log
 drwxrwxr-x          - logs/pbench-backup-tarballs
--rw-rw-r--          0 logs/pbench-backup-tarballs/pbench-backup-tarballs.error
--rw-rw-r--        164 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
+-rw-rw-r--        134 logs/pbench-backup-tarballs/pbench-backup-tarballs.error
+-rw-rw-r--         30 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
@@ -47,8 +47,8 @@ drwxrwxr-x          - quarantine/md5-002
 +++ pbench log file contents
 /var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/d5ee68b33a845dac49792935d85c10ce --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
+/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.error:pbench-backup-tarballs: Specified backup directory does not resolve to a directory, /var/tmp/pbench-test-server/pbench/archive.backup
 /var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:start-1900-01-01T00:00:00-UTC
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:pbench-backup-tarballs: Specified backup directory does not resolve to a directory, /var/tmp/pbench-test-server/pbench/archive.backup
 --- pbench log file contents
 +++ test-curl-payload.log file contents
 {

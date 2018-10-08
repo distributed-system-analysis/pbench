@@ -18,8 +18,8 @@ lrwxrwxrwx         52 users -> /var/tmp/pbench-test-server/pbench/public_html/us
 +++ pbench tree state (/var/tmp/pbench-test-server/pbench)
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-backup-tarballs
--rw-rw-r--          0 logs/pbench-backup-tarballs/pbench-backup-tarballs.error
--rw-rw-r--        171 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
+-rw-rw-r--        141 logs/pbench-backup-tarballs/pbench-backup-tarballs.error
+-rw-rw-r--         30 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
 drwxrwxr-x          - not-the-archive
 drwxrwxr-x          - not-the-archive/fs-version-001
 drwxrwxr-x          - public_html
@@ -42,6 +42,6 @@ drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
 --- pbench-local tree state
 +++ pbench log file contents
+/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.error:pbench-backup-tarballs: The ARCHIVE directory does not resolve to a real location, /var/tmp/pbench-test-server/pbench/archive/fs-version-001
 /var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:start-1900-01-01T00:00:00-UTC
-/var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:pbench-backup-tarballs: The ARCHIVE directory does not resolve to a real location, /var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- pbench log file contents
