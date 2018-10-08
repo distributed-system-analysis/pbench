@@ -102,4 +102,9 @@ for my $client_hostname (@client_hostname_dirs) {
 }
 $bench_iter_sample_period{'begin'} = $period_earliest_timestamp;
 $bench_iter_sample_period{'end'} = $period_latest_timestamp;
-put_json_file(\%bench_iter_sample_period, $base_bench_dir . "/es/bench/iteration-sample-period-" . $bench_iter_sample_period{"doc_id"} . ".json");
+my $period_file = $base_bench_dir . "/es/bench/iteration-sample-period-" . $bench_iter_sample_period{"doc_id"} . ".json";
+put_json_file(\%bench_iter_sample_period, $period_file);
+my $tools_cdm_pp_cmd = "pbench-postprocess-tools-cdm " . $period_file . " " . $base_bench_dir . "/es  " . $rundir . "/tools-default/";
+printf "tools_cdm_pp cmd\n%s\n\n", $tools_cdm_pp_cmd;
+my $tools_cdm_pp_output = `$tools_cdm_pp_cmd`;
+printf "tools_cdm_pp output\n%s\n\n", $tools_cdm_pp_output;
