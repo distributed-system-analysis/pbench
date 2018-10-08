@@ -46,13 +46,7 @@ shift 3
 
 test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
 
-# check if we are running under the unit test regime
-if [ "${_PBENCH_SERVER_TEST}" = "1" ] ;then
-    # make the names reproducible for unit tests
-    tmp=$TMP/$PROG.XXXXX
-else
-    tmp=$TMP/$PROG.$$
-fi
+tmp=$(get-tempdir-name $PROG)
 
 # check whether any previous ssh failure; if any try again and if it
 # fails again then exit without going further.

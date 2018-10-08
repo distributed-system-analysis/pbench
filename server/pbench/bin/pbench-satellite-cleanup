@@ -20,13 +20,7 @@ remotearchive=$ARCHIVE
 
 files=$(cd $remotearchive; find . -path '*/TO-DELETE/*.tar.xz' -printf '%P\n')
 
-# check if we are running under the unit test regime
-if [ "${_PBENCH_SERVER_TEST}" = "1" ] ;then
-    # make the names reproducible for unit tests
-    tmp=$TMP/$PROG.XXXXX
-else
-    tmp=$TMP/$PROG.$$
-fi
+tmp=$(get-tempdir-name $PROG)
 
 trap "rm -rf $tmp" EXIT
 

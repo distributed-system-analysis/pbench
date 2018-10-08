@@ -75,6 +75,11 @@ if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
         echo "$(date +'%s')"
     }
 
+    function get-tempdir-name {
+        # make the names reproducible for unit tests
+        echo "$TMP/${1}.$$"
+    }
+
     # Ensure the path where pbench-base.sh was found is in the PATH environment
     # variable.
     export PATH=${dir}/${PATH}
@@ -91,6 +96,11 @@ else
     function timestamp-seconds-since-epoch {
         # 2001/01/01T00:00:00
         echo "978282000"
+    }
+
+    function get-tempdir-name {
+        # make the names reproducible for unit tests
+        echo "$TMP/${1}.XXXXX"
     }
 
     # For PATH the unit test environment takes care of the proper setup to
