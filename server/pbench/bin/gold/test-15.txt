@@ -2,51 +2,53 @@
 --- Finished pbench-server-prep-shim-002 (status=0)
 +++ Running unit test audit
 --- Finished unit test audit (status=0)
-+++ var/www/html tree state
-/var/tmp/pbench-test-server/var-www-html
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
++++ var/www/html tree state (/var/tmp/pbench-test-server/var-www-html)
+lrwxrwxrwx         55 incoming -> /var/tmp/pbench-test-server/pbench/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
+-rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--         87 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         87 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         54 results -> /var/tmp/pbench-test-server/pbench/public_html/results
+lrwxrwxrwx         52 users -> /var/tmp/pbench-test-server/pbench/public_html/users
 --- var/www/html tree state
-+++ pbench tree state
-/var/tmp/pbench-test-server/pbench
-/var/tmp/pbench-test-server/pbench/archive
-/var/tmp/pbench-test-server/pbench/archive/duplicates
-/var/tmp/pbench-test-server/pbench/archive/fs-version-001
-/var/tmp/pbench-test-server/pbench/archive/quarantine
-/var/tmp/pbench-test-server/pbench/logs
-/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive
-/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.error
-/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log
-/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002
-/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
-/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
-/var/tmp/pbench-test-server/pbench/mv
-/var/tmp/pbench-test-server/pbench/public_html
-/var/tmp/pbench-test-server/pbench/public_html/incoming
-/var/tmp/pbench-test-server/pbench/public_html/results
-/var/tmp/pbench-test-server/pbench/public_html/users
-/var/tmp/pbench-test-server/pbench/tmp
++++ pbench tree state (/var/tmp/pbench-test-server/pbench)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/duplicates
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - archive/quarantine
+drwxrwxr-x          - logs
+drwxrwxr-x          - logs/pbench-audit-archive
+-rw-rw-r--          0 logs/pbench-audit-archive/pbench-audit-archive.error
+-rw-rw-r--        218 logs/pbench-audit-archive/pbench-audit-archive.log
+drwxrwxr-x          - logs/pbench-server-prep-shim-002
+-rw-rw-r--        214 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
+-rw-rw-r--        509 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
+drwxrwxr-x          - mv
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/users
+drwxrwxr-x          - tmp
 --- pbench tree state
-+++ pbench-local tree state
-/var/tmp/pbench-test-server/pbench-local
-/var/tmp/pbench-test-server/pbench-local/fs-version-001
-/var/tmp/pbench-test-server/pbench-local/fs-version-001/pbench-move-results-receive
-/var/tmp/pbench-test-server/pbench-local/fs-version-002
-/var/tmp/pbench-test-server/pbench-local/fs-version-002/pbench-move-results-receive
-/var/tmp/pbench-test-server/pbench-local/fs-version-002/pbench-move-results-receive/Controller
-/var/tmp/pbench-test-server/pbench-local/quarantine
-/var/tmp/pbench-test-server/pbench-local/quarantine/duplicates-001
-/var/tmp/pbench-test-server/pbench-local/quarantine/duplicates-002
-/var/tmp/pbench-test-server/pbench-local/quarantine/errors-001
-/var/tmp/pbench-test-server/pbench-local/quarantine/errors-002
-/var/tmp/pbench-test-server/pbench-local/quarantine/md5-001
-/var/tmp/pbench-test-server/pbench-local/quarantine/md5-002
-/var/tmp/pbench-test-server/pbench-local/quarantine/md5-002/Controller
-/var/tmp/pbench-test-server/pbench-local/quarantine/md5-002/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz
-/var/tmp/pbench-test-server/pbench-local/quarantine/md5-002/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz.md5
++++ pbench-local tree state (/var/tmp/pbench-test-server/pbench-local)
+drwxrwxr-x          - fs-version-001
+drwxrwxr-x          - fs-version-001/pbench-move-results-receive
+drwxrwxr-x          - fs-version-002
+drwxrwxr-x          - fs-version-002/pbench-move-results-receive
+drwxrwxr-x          - fs-version-002/pbench-move-results-receive/Controller
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-001
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-001
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-001
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - quarantine/md5-002/Controller
+-rw-rw-r--    2129128 quarantine/md5-002/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz
+-rw-rw-r--         94 quarantine/md5-002/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz.md5
 --- pbench-local tree state
 +++ pbench log file contents
 /var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/d5ee68b33a845dac49792935d85c10ce --data @/tmp/pbench-report-status.NNNN/payload

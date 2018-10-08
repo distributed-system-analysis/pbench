@@ -109,23 +109,34 @@ function _run_allscripts {
     _run pbench-edit-prefixes
 }
 
+function _local_find {
+    # We create our own local find command so that we don't emit the size
+    # information for directories.  This is due to the fact that on different
+    # file systems empty directories, or directories with small numbers of
+    # files, can be handled differently.  E.g. on Ext4 directories have a
+    # minimum size of 4096, while on XFS only after a certain size do they
+    # grow to multiples of 4096 [1].  We only care about the sizes of files and
+    # links in our tests.
+    #
+    # [1] https://superuser.com/questions/585844/why-directories-size-are-different-in-ls-l-output-on-xfs-file-system
+    find ${1} ! -name $(basename ${1}) -type d -printf '%M          - %P\n' , \( ! -type d ! -type l -printf '%M %10s %P\n' \) , -type l -printf '%M %10s %P -> %l\n' | sort -k 3
+}
+
 function _save_tree {
     # Save state of the tree
     if [ -d ${_testhtml} ] ;then
-        echo "+++ var/www/html tree state" >> $_testout
-        find ${_testhtml} | sort >> $_testout
+        echo "+++ var/www/html tree state (${_testhtml})" >> $_testout
+        _local_find ${_testhtml} >> $_testout
         echo "--- var/www/html tree state" >> $_testout
     fi
-    echo "+++ pbench tree state" >> $_testout
+    echo "+++ pbench tree state (${_testdir})" >> $_testout
     if [ -d ${_testdir} ] ;then
-        find $_testdir | sort |
-            sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*$;tmp/pbench-\1.NNNN;' >> $_testout
+        _local_find ${_testdir} | sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*$;tmp/pbench-\1.NNNN;' >> $_testout
     fi
     echo "--- pbench tree state" >> $_testout
     if [ -d ${_testdir_local} ] ;then
-        echo "+++ pbench-local tree state" >> $_testout
-        find ${_testdir_local} | sort |
-            sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*$;tmp/pbench-\1.NNNN;' >> $_testout
+        echo "+++ pbench-local tree state (${_testdir_local})" >> $_testout
+        _local_find ${_testdir_local} | sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*$;tmp/pbench-\1.NNNN;' >> $_testout
         echo "--- pbench-local tree state" >> $_testout
     fi
 }
