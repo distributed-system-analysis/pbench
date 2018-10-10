@@ -22,9 +22,9 @@ BEGIN {
 use lib "$pbench_lib_path";
 use JSON;
 use Data::Dumper;
-use PbenchCDM qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc get_hostname get_uuid create_bench_iter_doc);
-use PbenchBase qw(get_json_file put_json_file get_benchmark_names get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params);
-use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success);
+use PbenchCDM qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc get_uuid create_bench_iter_doc create_config_doc);
+use PbenchBase qw(get_json_file put_json_file get_benchmark_names get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params get_hostname);
+use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success stockpile_hosts);
 
 # defaults
 my $num_samples = 1; 
@@ -74,60 +74,75 @@ my %run_doc = create_run_doc($benchmark, join(" ", @ARGV), $params{"clients"}, $
 				"", #todo: include tool hostnames
 				""); #todo: include tool names
 
-
 my $base_bench_dir = get_benchmark_results_dir($benchmark, $user_desc);
 mkdir($base_bench_dir);
 my $es_dir = $base_bench_dir . "/es";
 mkdir($es_dir);
-my $es_run_dir = $es_dir . "/run";
-mkdir($es_run_dir);
-my $es_config_dir = $es_dir . "/config";
-mkdir($es_config_dir);
-my $es_bench_dir = $es_dir . "/bench";
-mkdir($es_bench_dir);
-my $es_metrics_dir = $es_dir . "/metrics";
-mkdir($es_metrics_dir);
+for my $es_subdir (qw(run bench config metrics)) {
+	mkdir($es_dir . "/" . $es_subdir);
+}
 
-my @config_hosts = split(/,/, $params{"clients"});  # todo: use "config_hostnames_all" when working properly
-my $remote_collection_dir = $base_bench_dir . "-config"; # we use a slightly different dir than default in case one of the hosts is also the controller
-create_dir_hosts(\@config_hosts, $remote_collection_dir, $base_bench_dir);
-#my $output = ssh_hosts(\@config_hosts, "/opt/pbench-agent/bench-scripts/pbench-get-config " . $run_doc{"doc_id"} . " " . $remote_collection_dir, $remote_collection_dir, $base_bench_dir);
-#sync_dir_from_hosts(\@config_hosts, $remote_collection_dir . "/es/config/", $es_config_dir, $base_bench_dir);
-remove_dir_from_hosts(\@config_hosts, $remote_collection_dir, $base_bench_dir);
+# use stockpile to collect configuration information
+my @config_hosts = split(/,/, $params{"clients"});
+print "Collecting confguration information with stockpile\n";
+stockpile_hosts(\@config_hosts, $base_bench_dir, "stockpile_output_path=". $base_bench_dir . "/stockpile.json");
 	
 # pass the rest of the args to pbench-gen-iterations and store the iterations in an array
+print "Generating all benchmark iterations\n";
 my $gen_iterations_cmd = "pbench-gen-iterations " . $benchmark . " " . join(" ", @ARGV);
 my @iterations = split(/\n/, `$gen_iterations_cmd`);
-if ($? == 0) {
-	printf "got %d iterations\n", scalar @iterations;
-	} else {
+if ($? != 0) {
 	printf "Calling pbench-gen-iterations failed.  Exiting\n";
 	printf "From pbench-gen-iterations: %s\n", @iterations;
 	exit 1;
-	}
+}
 
 # now run the iterations
+printf "iteration count: %d\n", scalar @iterations;
 mkdir($base_bench_dir);
 open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
 my $iteration_id = 0;
 for my $iteration_params (@iterations) {
 	my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,); 
-	put_json_file(\%iter_doc, $es_bench_dir . "/iteration-" . $iter_doc{"doc_id"} . ".json");
+	put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{"doc_id"} . ".json");
 	printf $fh "%d %s\n", $iteration_id, $iteration_params;
+	printf "iteration_ID: %d iteration_params: %s\n", $iteration_id, $iteration_params;
 	for (my $sample_id=0; $sample_id<$num_samples; $sample_id++) {
+		printf "sample_ID: %d\n", $sample_id;
 		my $iteration_dir = $base_bench_dir . "/iteration" . $iteration_id;
 		mkdir($iteration_dir);
 		my $iteration_sample_dir = $iteration_dir . "/sample" . $sample_id;
 		mkdir($iteration_sample_dir);
-		my $benchmark_cmd = "pbench-run-benchmark-sample " . $es_bench_dir . "/iteration-" . $iter_doc{"doc_id"} . ".json " . $iteration_sample_dir . " " . $base_bench_dir;
+		my $benchmark_cmd = "pbench-run-benchmark-sample " . $es_dir . "/bench/iteration-" . $iter_doc{"doc_id"} . ".json " . $iteration_sample_dir . " " . $base_bench_dir;
 		my $benchmark_sample_output = `$benchmark_cmd`;
 		my $exit_code = $?;
 		print "output:\n$benchmark_sample_output";
-		# todo: bail if non-zero exit code
-		printf "exit code: %d\n", $exit_code;
+		if ($exit_code != 0) {
+			printf "Stopping because of iteration-sample exit code: %d\n", $exit_code;
+			exit 1;
+		}
 	}
-	#todo: get stdddev and repeat iteration if too high
 	$iteration_id++;
 }
 close $fh;
-put_json_file(\%run_doc, $es_run_dir . "/run.json");
+put_json_file(\%run_doc, $es_dir . "/run/run.json");
+
+# convert the stockpile data with scribe, then create CDM docs in ./es/config
+system('scl enable rh-python36 \'python3 -m venv /var/lib/pbench-agent/tmp/scribe && cd ' . $base_bench_dir . ' && scribe -t stockpile -ip ./stockpile.json >scribe.json\'');
+open(my $scribe_fh, "<" . $base_bench_dir . "/scribe.json") || die "Could not open " . $base_bench_dir . "/scribe.json";
+my $json_text = "";
+# The scribe output is not correct json format. Instead of 1 json document, there are actually multiple documents, but no seperator between them or organized in an array
+while (<$scribe_fh>) {
+	$json_text .= $_;
+	if (/^\}/) { # assume this is the end of a json doc
+		my %config_doc = create_config_doc(\%run_doc, from_json($json_text));
+		if ($config_doc{'module'}) {
+			put_json_file(\%config_doc, $es_dir . "/config/" . $config_doc{'module'} . "-" . $config_doc{"doc_id"} . ".json");
+		} else {
+			printf "Error: config doc is missng \"module\" field:\n";
+			print Dumper \%config_doc;
+		}
+		$json_text = "";
+	}
+}
+close($scribe_fh);

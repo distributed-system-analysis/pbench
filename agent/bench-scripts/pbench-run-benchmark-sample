@@ -53,10 +53,10 @@ if (! -d $base_bench_dir) {
 mkdir($rundir);
 my $json_ref = get_json_file($iter_doc_filename);
 my %bench_iter = %$json_ref; # this is the CDM doc for this benchmark-iteration
-print Dumper \%bench_iter;
+#print Dumper \%bench_iter;
 my %params = get_params(split(/,/, $bench_iter{'bench_params'}));
 my %bench_iter_sample_doc = create_bench_iter_sample_doc(\%bench_iter);;
-printf "bench_name[%s]\n", $bench_iter{'bench_name'};
+#printf "bench_name[%s]\n", $bench_iter{'bench_name'};
 my %bench_specs = load_benchmark_specs($bench_iter{'bench_name'});
 my @clients = split(/,/, $bench_iter{'bench_hosts_clients'});
 if (scalar @clients < 1) {
@@ -98,7 +98,7 @@ for my $host_type ("servers", "clients") { # the servers then clients order is i
 				# todo: first test the $transform regex separately for [perl syntax] errors with eval before doing below
 				$new_cmdline = eval "\$_='$new_cmdline'; $transform; return scalar \$_";
 			}
-			printf "new_cmdline[%s]\n", $new_cmdline;
+			#printf "new_cmdline[%s]\n", $new_cmdline;
 			my $result = ssh_hosts(\@{ $remote_hosts{$host_type} }, $new_cmdline, $rundir . "-" . $host_type, $base_bench_dir);
 		}
 	}
@@ -125,7 +125,7 @@ if ($bench_specs{"postprocess"} and $bench_specs{"postprocess"}{"command"}) {
 	my $postprocess_cmd = ". /opt/pbench-agent/base; cd " . $rundir . "; " . $bench_specs{"postprocess"}{"command"} . " " . $rundir . " " . $base_bench_dir . " " . join(" ", @ARGV); # all options get passed to postprocess in case they are needed
 	my $postprocess_output = `$postprocess_cmd`;
 	open(my $fh, ">" . $rundir . "/postprocess-output.txt");
-	print $fh "$postprocess_output";
+	#print $fh "$postprocess_output";
 } else {
 	# If there is no post-processor for the benchmark (there really should be!) then this script will write the bench_iter_saple CDM doc (although not really complete)
 	put_json_file(\%bench_iter_sample_doc, $base_bench_dir . "/es/bench/iteration-sample-" . $bench_iter_sample_doc{"doc_id"} . ".json");
