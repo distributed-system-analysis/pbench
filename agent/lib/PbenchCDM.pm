@@ -11,8 +11,9 @@ use Exporter qw(import);
 use List::Util qw(max);
 use JSON;
 use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success);
+use PbenchBase qw(get_hostname);
 
-our @EXPORT_OK = qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc get_hostname get_uuid create_bench_iter_sample_doc create_metric_sample_doc create_metric_sample_doc create_bench_iter_sample_period_doc create_bench_iter_doc);
+our @EXPORT_OK = qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc get_uuid create_bench_iter_sample_doc create_metric_sample_doc create_metric_sample_doc create_bench_iter_sample_period_doc create_bench_iter_doc create_config_doc);
 my $script = "PbenchCDM.pm";
 my $sub;
 my @common_run_fields = qw(run_id run_user_name run_user_email run_controller_hostname run_benchmark_name
@@ -33,11 +34,6 @@ sub get_user_email { # looks for USER_NAME in %ENV
 	if ($ENV{"USER_EMAIL"}) {
 		return $ENV{"USER_EMAIL"};
 	}
-}
-sub get_hostname {
-	my $hostname = `hostname -s`;
-	chomp $hostname;
-	return $hostname;
 }
 sub populate_base_fields { # create the fields every doc must have
 	my $doc_ref = shift;
@@ -67,6 +63,14 @@ sub create_run_doc {
 	$doc{'tool_names'} = shift; # ordered list (matching order of tool_hostnames) of registered tool names
 	$doc{'hostname'} = get_hostname; # hostname of this controller system
 	$doc{'doc_type'} = 'run';
+	return %doc;
+}
+sub create_config_doc { # document describing a configuration source
+	my $copy_from_ref = shift; # first arg is a reference to a doc (like the run doc) we copy info from
+	my $config_ref = shift; # second arg is hash reference to any other keys/values to include in this doc
+	my %doc = %$config_ref;
+	populate_base_fields(\%doc);
+	copy_doc_fields($copy_from_ref, \%doc); # get some essential fields from another doc (like run)
 	return %doc;
 }
 sub create_bench_iter_doc { # document describing the benchmark iteraton sample

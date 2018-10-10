@@ -20,7 +20,8 @@ use Exporter qw(import);
 use List::Util qw(max);
 use Data::Dumper;
 use JSON;
-our @EXPORT_OK = qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success);
+use PbenchBase qw(get_hostname);
+our @EXPORT_OK = qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success stockpile_hosts);
 
 my $script = "PbenchAnsible.pm";
 my $sub;
@@ -77,6 +78,21 @@ sub build_inventory { # create an inventory file with hosts
 	close $fh;
 	return $file;
 }
+sub build_stockpile_inventory { # create an inventory file with hosts
+	my $hosts_ref = shift;
+	my $logdir = shift;
+	my $file = $logdir . "/hosts";
+	my $fh;
+	open($fh, ">", $file) or die "Could not create the inventory file $file";
+	print $fh "[all]\n";
+	for my $h (@$hosts_ref) {
+		print $fh "$h\n";
+	}
+	print $fh "[stockpile]\n";
+	printf $fh "%s\n", get_hostname;
+	close $fh;
+	return $file;
+}
 sub build_playbook { # create the playbok file
 	my $playbook_ref = shift;
 	my $logdir = shift;
@@ -91,12 +107,17 @@ sub run_playbook { # execute a playbook
 	my $playbook_ref = shift;
 	my $inv_file = shift;
 	my $logdir = shift;
+	my $extra_vars = shift;
+	my $extra_vars_opt = "";
+	if ($extra_vars) {
+		$extra_vars_opt = " --extra-vars " . $extra_vars . " ";
+	}
 	my $playbook_file = build_playbook($playbook_ref, $logdir);
 	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
-			$ansible_playbook_cmdline . " -i " .  $inv_file . " " . $playbook_file;
+			$ansible_playbook_cmdline . $extra_vars_opt . " -i " .  $inv_file . " " . $playbook_file;
 	my $output = `$full_cmd`;
 	log_ansible($logdir, $full_cmd, $output);
-	if (verify_success($output)) {
+	if ($? == 0 and verify_success($output)) {
 		return $output;
 	} else {
 		print "Execution of this Ansible playbook failed\n";
@@ -120,6 +141,23 @@ sub ping_hosts { # check for connectivity with ping
 		printf "Ansible log dir: %s\n", $logdir;
 		exit 1;
 	}
+}
+sub stockpile_hosts { # run stockpile against these hosts
+	my $hosts_ref = shift; # array-reference to host list, with the first host being the 'stockpile' host
+	my $basedir = shift;
+	my $extra_vars = shift;
+	my $logdir = get_ansible_logdir($basedir, "stockpile_hosts");
+	system('cp -a /tmp/stockpile/* ' . $logdir);
+	my $inv_file = build_stockpile_inventory($hosts_ref, $logdir);
+	my %play;
+	my @playbook;
+	my @roles1 = qw(yum_repos);
+	my %play1 = ( "hosts" => "all", "remote_user" => "root", "become" => JSON::true, "roles" => \@roles1);
+	push(@playbook, \%play1);
+	my @roles2 = qw(dump-facts);
+	my %play2 = ( "hosts" => "stockpile", "gather_facts" => JSON::false, "remote_user" => "root", "roles" => \@roles2);
+	push(@playbook, \%play2);
+	return run_playbook(\@playbook, $inv_file, $logdir, $extra_vars);
 }
 sub create_dir_hosts { # creates a directory on remote hosts
 	my $hosts_ref = shift; # array-reference to host list to copy from 

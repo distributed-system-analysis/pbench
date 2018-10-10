@@ -11,10 +11,15 @@ use Exporter qw(import);
 use List::Util qw(max);
 use JSON;
 
-our @EXPORT_OK = qw(get_json_file put_json_file get_benchmark_names get_clients get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params remove_element);
+our @EXPORT_OK = qw(get_json_file put_json_file get_benchmark_names get_clients get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params remove_element get_hostname);
 my $script = "PbenchBase.pm";
 my $sub;
 
+sub get_hostname {
+	my $hostname = `hostname -s`;
+	chomp $hostname;
+	return $hostname;
+}
 sub get_pbench_run_dir {
 	my $dir = `getconf.py pbench_run pbench-agent`; # typically /var/lib/pbench-agent
 	chomp $dir;
