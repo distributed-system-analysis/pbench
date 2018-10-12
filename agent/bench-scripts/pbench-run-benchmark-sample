@@ -25,7 +25,7 @@ use File::Temp;
 use Data::Dumper;
 use PbenchBase qw(get_json_file put_json_file get_benchmark_names get_clients get_params get_pbench_bench_config_dir);
 use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success);
-use PbenchCDM qw (create_bench_iter_sample_doc);
+use PbenchCDM qw(create_bench_iter_sample_doc);
 my $pbench_bench_config_dir = get_pbench_bench_config_dir; 
 
 # load a benchmark json file which tells us how to run a benchmark
@@ -39,7 +39,6 @@ sub load_benchmark_specs {
 
 # main program starts here
 
-# the only required argument is the benchmark name; verify it now
 if (scalar @ARGV < 3) {
 	print "You must supply at least the /path/to/iteration-doc.json, results directory, and the base benchmark directory (in that order):\n";
 	exit;
@@ -53,14 +52,14 @@ if (! -d $base_bench_dir) {
 mkdir($rundir);
 my $json_ref = get_json_file($iter_doc_filename);
 my %bench_iter = %$json_ref; # this is the CDM doc for this benchmark-iteration
-#print Dumper \%bench_iter;
-my %params = get_params(split(/,/, $bench_iter{'bench_params'}));
+#my %params = get_params(split(/,/, $bench_iter{'iter_params'}));
+#print "params:\n";
+#print Dumper \%params;
 my %bench_iter_sample_doc = create_bench_iter_sample_doc(\%bench_iter);;
-#printf "bench_name[%s]\n", $bench_iter{'bench_name'};
-my %bench_specs = load_benchmark_specs($bench_iter{'bench_name'});
-my @clients = split(/,/, $bench_iter{'bench_hosts_clients'});
+my %bench_specs = load_benchmark_specs($bench_iter{'run_bench_name'});
+my @clients = split(/,/, $bench_iter{'run_bench_clients'});
 if (scalar @clients < 1) {
-	die "Could not find any hosts assigned to \"bench_hosts_clients\" in $iter_doc_filename";
+	die "Could not find any hosts assigned to \"run_bench_clients\" in $iter_doc_filename";
 }
 #my @servers = split(/,/, $bench_iter{'bench_hosts_servers'});
 my %remote_hosts = ( "clients" => \@clients );
@@ -88,7 +87,7 @@ system("pbench-start-tools --iteration=0 --group=default --dir=" . $rundir);
 		
 # benchmark-execution
 # - execute servers then clients, both with their cmdline regex'd if required
-my $cmdline = $bench_iter{'bench_name'} . " " . $bench_iter{'bench_params'};
+my $cmdline = $bench_iter{'run_bench_name'} . " " . $bench_iter{'iter_params'};
 for my $host_type ("servers", "clients") { # the servers then clients order is important here because we want servers to be set up before clients run
 	if ($remote_hosts{$host_type} and scalar @{ $remote_hosts{$host_type} }) {
 		if ($bench_specs{$host_type} and $bench_specs{$host_type}{"cmdline"} and ${bench_specs}{$host_type}{"cmdline"}{"regex"}) {
@@ -98,7 +97,7 @@ for my $host_type ("servers", "clients") { # the servers then clients order is i
 				# todo: first test the $transform regex separately for [perl syntax] errors with eval before doing below
 				$new_cmdline = eval "\$_='$new_cmdline'; $transform; return scalar \$_";
 			}
-			#printf "new_cmdline[%s]\n", $new_cmdline;
+			printf "new_cmdline[%s]\n", $new_cmdline;
 			my $result = ssh_hosts(\@{ $remote_hosts{$host_type} }, $new_cmdline, $rundir . "-" . $host_type, $base_bench_dir);
 		}
 	}
@@ -121,7 +120,7 @@ for my $host_type ("servers", "clients") {
 }
 # - post-process the result data
 if ($bench_specs{"postprocess"} and $bench_specs{"postprocess"}{"command"}) {
-	put_json_file(\%bench_iter_sample_doc, $rundir . "/iteration-sample.json"); # post-processing to finish this document
+	put_json_file(\%bench_iter_sample_doc, $rundir . "/iteration_sample" . ".json"); # post-processing to finish this document
 	my $postprocess_cmd = ". /opt/pbench-agent/base; cd " . $rundir . "; " . $bench_specs{"postprocess"}{"command"} . " " . $rundir . " " . $base_bench_dir . " " . join(" ", @ARGV); # all options get passed to postprocess in case they are needed
 	my $postprocess_output = `$postprocess_cmd`;
 	open(my $fh, ">" . $rundir . "/postprocess-output.txt");

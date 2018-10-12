@@ -1,0 +1,62 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use File::Basename;
+use File::Find;
+my $pbench_run_path;
+my $pbench_lib_path;
+BEGIN {
+	$pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
+	chomp $pbench_lib_path;
+	$pbench_lib_path .= "/lib";
+}
+use lib "$pbench_lib_path";
+use JSON;
+use Data::Dumper;
+use PbenchCDM qw(create_metric_sample_doc create_bench_iter_sample_period_doc);
+use PbenchBase qw(get_json_file put_json_file remove_element);
+
+
+sub process_dir {
+	my $dir = shift;
+	my $index = shift;
+	my $host = shift;
+	printf "processs_dir(%s, %s)\n", $dir, $index;
+	opendir(my $dh, $dir) || die "process_dir(): could not open directory: $!\n";
+	for my $entry (grep(!/^\./, readdir($dh))) {
+		if (-d $dir . "/" . $entry) {
+			#printf "found dir %s\n", $entry;
+			process_dir($dir . "/" . $entry, $index, $host);
+		} else {
+			#if ($entry =~ /9873ac5f-5527-47d5-9a0c-[a-z0-9]{12}/
+			if ($entry =~ /(.+)-([a-x0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})\.json$/) {
+				my $doc_type = $1;
+				my $curl_cmd = sprintf "curl -X POST \"%s/%s\" -H \'Content-Type: application/json\' -d@%s\n", $host, $doc_type . "/" . $doc_type, $dir . "/" . $entry;
+				system($curl_cmd);
+				if ($? > 0) {
+					exit;
+				}
+			} else {
+				printf "file %s did not match the name format\n", $entry;
+			}
+		}
+	}
+	closedir $dh;
+}
+
+printf "\@ARGV: %s\n", join(" ", @ARGV);
+
+my $script_name = basename($0);
+my $es_dir = shift(@ARGV);
+my $es_host = shift(@ARGV);
+#my $json_ref = get_json_file("iteration-sample.json");
+
+# under $es_dir, process the CDM files
+opendir(my $es_dh, $es_dir) || die "$script_name: could not open directory clients: $!\n";
+my @es_dirs = grep(!/^\./, (sort readdir($es_dh)));
+closedir $es_dh;
+
+for my $index (@es_dirs) {
+	process_dir($es_dir . "/" . $index, $index, $es_host);
+}

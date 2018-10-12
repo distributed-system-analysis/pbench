@@ -81,7 +81,7 @@ while (my $line = <IOSTAT_TXT>) {
 				$metric_sample{"device"} = $dev;
 				put_json_file(\%metric_sample, $es_dir . "/metrics/" .
 						$hostname .
-						"/metric-sample-" .
+						"/metric-" .
 						$metric_sample{"doc_id"} .
 						".json");
 			}

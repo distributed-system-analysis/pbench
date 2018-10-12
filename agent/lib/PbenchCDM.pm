@@ -52,17 +52,18 @@ sub copy_doc_fields {
 sub create_run_doc {
 	my %doc;
 	populate_base_fields(\%doc);
-	$doc{'bench_name'} = shift;
-	$doc{'bench_params'} = shift; # the full list of parameters when calling the benchmark
-	$doc{'bench_hosts_clients'} = shift; # client hosts involved in the benchmark
-	$doc{'bench_hosts_servers'} = shift; # server hosts involved in the benchmark
-	$doc{'user_desc'} = shift; # user provided shortlist of var:val with "," separator (no spaces)
-	$doc{'user_name'} = shift; # user's real name
-	$doc{'user_email'} = shift; #user's email address
-	$doc{'tool_hostnames'} = shift; # ordered list of hostnames where tools are registred
-	$doc{'tool_names'} = shift; # ordered list (matching order of tool_hostnames) of registered tool names
-	$doc{'hostname'} = get_hostname; # hostname of this controller system
+	$doc{'run_bench_name'} = shift;
+	$doc{'run_bench_params'} = shift; # the full list of parameters when calling the benchmark
+	$doc{'run_bench_clients'} = shift; # client hosts involved in the benchmark
+	$doc{'run_bench_servers'} = shift; # server hosts involved in the benchmark
+	$doc{'run_user_desc'} = shift; # user provided shortlist of var:val with "," separator (no spaces)
+	$doc{'run_user_name'} = shift; # user's real name
+	$doc{'run_user_email'} = shift; #user's email address
+	$doc{'run_tool_hosts'} = shift; # ordered list of hostnames where tools are registred
+	$doc{'run_tool_names'} = shift; # ordered list (matching order of tool_hostnames) of registered tool names
+	$doc{'run_host'} = get_hostname; # hostname of this controller system
 	$doc{'doc_type'} = 'run';
+	$doc{'run_id'} = $doc{'doc_id'};
 	return %doc;
 }
 sub create_config_doc { # document describing a configuration source
@@ -77,7 +78,7 @@ sub create_bench_iter_doc { # document describing the benchmark iteraton sample
 	my %doc;
 	populate_base_fields(\%doc);
 	copy_doc_fields(shift, \%doc); # get some essential fields from iter-sample, our first arg
-	$doc{'bench_params'} = shift; # second arg is benchmark parameters for this iter
+	$doc{'iter_params'} = shift; # second arg is benchmark parameters for this iter
 	$doc{'doc_type'} = 'iter';
 	return %doc;
 }
@@ -93,8 +94,8 @@ sub create_bench_iter_sample_period_doc { # document describing the benchmark it
 	my %doc;
 	populate_base_fields(\%doc);
 	copy_doc_fields(shift, \%doc); # get some essential fields from iter-sample doc, our first arg
-	$doc{'name'} = shift; # second arg is period name
-	$doc{'prev_period_doc_id'} = shift; # third arg is link to prev period in this sample, if any
+	$doc{'period_name'} = shift; # second arg is period name
+	$doc{'period_prev_doc_id'} = shift; # third arg is link to prev period in this sample, if any
 	$doc{'doc_type'} = 'period';
 	return %doc;
 }
@@ -107,10 +108,10 @@ sub create_metric_sample_doc { # document describing the benchmark iteraton samp
 	# more fields, but not all metrics use all the same options fields.  However, the ones
 	# below must all be used, and so creating a new doc requires that these fields be
 	# defined.
-	$doc{'class'} = shift; # "throughput" (work over time, like Gbps or interrupts/sec) or "count" (quantity, percent, sum, elapsed time, value, etc)
-	$doc{'type'} = shift; # A generic name for this metric, like "gigabits-per-second", does not include specifics like "/dev/sda" or "cpu1"
-	$doc{'hostname'} = shift; # the hostname where this metric comes from
-	$doc{'source'} = shift; # a benchmark or tool where this metric comes from, like "iostat" or "fio"
+	$doc{'metric_class'} = shift; # "throughput" (work over time, like Gbps or interrupts/sec) or "count" (quantity, percent, sum, elapsed time, value, etc)
+	$doc{'metric_type'} = shift; # A generic name for this metric, like "gigabits-per-second", does not include specifics like "/dev/sda" or "cpu1"
+	$doc{'metric_hostname'} = shift; # the hostname where this metric comes from
+	$doc{'metric_source'} = shift; # a benchmark or tool where this metric comes from, like "iostat" or "fio"
 	# The instance_name_format tells us how the name for this metric-instance is assembled.
 	# The instance name is assembled from other fields in this document
 	# the format is described by joining strings and field names (which are identified by % before and after), like:
@@ -131,9 +132,9 @@ sub create_metric_sample_doc { # document describing the benchmark iteraton samp
 	# more fields required, and this code can't possibly know all situations
 	# so it is up to the caller of this function to understand that scenario
 	# and provide an adequtate instance name format.
-	$doc{'name_format'} = shift;
-	$doc{'value'} = shift; # the value of the metric
-	$doc{'timestamp'} = shift; # the epochtime
+	$doc{'metric_name_format'} = shift;
+	$doc{'metric_value'} = shift; # the value of the metric
+	$doc{'metric_timestamp'} = shift; # the epochtime
 	# Optional fields will be validated with a different function, likely at the
 	# time the document is written to a file.  A list of optional fields needs
 	# to be maintained.  ES docs typically cannot have more than 1000 fields,
