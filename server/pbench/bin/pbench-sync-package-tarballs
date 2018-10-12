@@ -121,7 +121,7 @@ $PROG: Processed $nprocessed result tar balls, with $nerrs errors
 
 EOF
     cat $tmp/mail.log >> $index_content
-    pbench-report-status --name $PROG --timestamp $TS --type status $index_content
+    $dir/pbench-report-status --name $PROG --timestamp $TS --type status $index_content
 fi
 
 exit 0
