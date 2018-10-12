@@ -104,6 +104,7 @@ open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
 my $iteration_id = 0;
 for my $iteration_params (@iterations) {
 	my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,); 
+	print "iteration params: $iteration_params\n";
 	put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{"doc_id"} . ".json");
 	printf $fh "%d %s\n", $iteration_id, $iteration_params;
 	printf "iteration_ID: %d iteration_params: %s\n", $iteration_id, $iteration_params;
@@ -125,7 +126,7 @@ for my $iteration_params (@iterations) {
 	$iteration_id++;
 }
 close $fh;
-put_json_file(\%run_doc, $es_dir . "/run/run.json");
+put_json_file(\%run_doc, $es_dir . "/run/run-" . $run_doc{'doc_id'} . ".json");
 
 # convert the stockpile data with scribe, then create CDM docs in ./es/config
 system('scl enable rh-python36 \'python3 -m venv /var/lib/pbench-agent/tmp/scribe && cd ' . $base_bench_dir . ' && scribe -t stockpile -ip ./stockpile.json >scribe.json\'');
