@@ -38,12 +38,6 @@ drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-archive
 -rw-rw-r--          0 logs/pbench-audit-archive/pbench-audit-archive.error
 -rw-rw-r--        218 logs/pbench-audit-archive/pbench-audit-archive.log
-drwxrwxr-x          - logs/pbench-rsync-satellite
-drwxrwxr-x          - logs/pbench-rsync-satellite/TEST2
-drwxrwxr-x          - logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC
-drwxrwxr-x          - logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller
--rw-rw-r--        553 logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log
--rw-rw-r--         12 logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/pbench-rsync-satellite.wq.trimmed
 drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/TEST2
 drwxrwxr-x          - logs/pbench-sync-satellite/TEST2/run-1900-01-01T00:00:00-UTC
@@ -71,19 +65,6 @@ drwxrwxr-x          - quarantine/md5-002
 +++ pbench log file contents
 /var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/897d86470f84c04f5f871d687c4c3140 --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
-/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24821] receiving file list
-/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24823] .d..t...... ./
-/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24823] >f fio__2016-08-16_22:03:11.tar.xz
-/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24823] >f fio__2016-08-16_22:03:11.tar.xz.md5
-/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24823] >f pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
-/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24823] >f pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
-/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24823] sent 201 bytes  received 1,154,874 bytes  770,050.00 bytes/sec
-/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:2017/05/19 15:34:16 [24823] total size is 1,154,332  speedup is 1.00
-/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:
-/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/controller/rsync.log:
-/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/pbench-rsync-satellite.wq.trimmed:foo
-/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/pbench-rsync-satellite.wq.trimmed:bar
-/var/tmp/pbench-test-server/pbench/logs/pbench-rsync-satellite/TEST2/run-1900-01-01T00:00:00-UTC/pbench-rsync-satellite.wq.trimmed:baz
 /var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:tar: This does not look like a tar archive
 /var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:tar: Exiting with failure status due to previous errors
 /var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: start - 1900-01-01T00:00:00-UTC
