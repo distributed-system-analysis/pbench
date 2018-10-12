@@ -57,13 +57,6 @@ mkdir -p "$tmp"
 > $index_content
 
 log_init $(basename $0) $LOGSDIR/$(basename $0)
-logdir=$LOGSDIR/$(basename $0)/$prefix/$TS
-mkdir -p "$logdir"
-rc=$?
-if [[ $rc != 0 ]] ;then
-    echo "$TS: Failed: mkdir -p $logdir" >&4
-    exit 2
-fi
 
 calculate_prefixname () {
     local prefix
