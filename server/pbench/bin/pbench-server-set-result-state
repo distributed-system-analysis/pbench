@@ -27,17 +27,4 @@ mkdir -p $results_full_path/TODO
 cd $results_full_path/TODO
 ln -s $results_full_path/$tarball .
 
-# we will get rid of this after a full release cycle,
-# thereby allowing the following code to run. See
-# issue #786.
 exit 0
-
-# add entry to watched file for inotify service
-mkdir -p ${INOTIFY_STATE_DIR}
-watched_file=${INOTIFY_STATE_DIR}/TO-DISPATCH-LIST
-flock -x ${watched_file} echo \"$results_full_path/TODO/$tarball\" >> ${watched_file}
-
-exit 0
-
-
-

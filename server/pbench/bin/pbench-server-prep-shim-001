@@ -9,11 +9,6 @@
 # up and get the ball rolling. IOW, it does impedance matching between
 # version 001 clients and the server scripts.
 
-# There is an enormous amount of code duplication between this script
-# and the version 002 script. TBD: refactor (but maybe wait and do it
-# for the inotify versions - the crontab version has a very limited life
-# span at this point).
-
 ###########################################################################
 # load common things
 opts=$SHELLOPTS
