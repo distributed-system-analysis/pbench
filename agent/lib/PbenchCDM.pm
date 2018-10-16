@@ -11,7 +11,7 @@ use Exporter qw(import);
 use List::Util qw(max);
 use JSON;
 use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success);
-use PbenchBase qw(get_hostname);
+use PbenchBase qw(get_hostname get_pbench_datetime);
 
 our @EXPORT_OK = qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc get_uuid create_bench_iter_sample_doc create_metric_sample_doc create_metric_sample_doc create_bench_iter_sample_period_doc create_bench_iter_doc create_config_doc);
 my $script = "PbenchCDM.pm";
@@ -52,18 +52,23 @@ sub copy_doc_fields {
 sub create_run_doc {
 	my %doc;
 	populate_base_fields(\%doc);
-	$doc{'run_bench_name'} = shift;
+	$doc{'run_bench_name'} = shift; # the name of the actual benchmark used, like fio ir uperf
 	$doc{'run_bench_params'} = shift; # the full list of parameters when calling the benchmark
 	$doc{'run_bench_clients'} = shift; # client hosts involved in the benchmark
 	$doc{'run_bench_servers'} = shift; # server hosts involved in the benchmark
 	$doc{'run_user_desc'} = shift; # user provided shortlist of var:val with "," separator (no spaces)
 	$doc{'run_user_name'} = shift; # user's real name
 	$doc{'run_user_email'} = shift; #user's email address
-	$doc{'run_tool_hosts'} = shift; # ordered list of hostnames where tools are registred
-	$doc{'run_tool_names'} = shift; # ordered list (matching order of tool_hostnames) of registered tool names
+	$doc{'run_harness_name'} = shift; #harness name like pbench, browbeat, cbt
+	$doc{'run_tool_names'} = shift; # list tool names like sar, mpstat
 	$doc{'run_host'} = get_hostname; # hostname of this controller system
+	$doc{'run_ignore'} = JSON::false; # set to true later if run should be ingnored in queries
+	$doc{'run_archive'} = JSON::false; # set to true later if you wish to archive (and remove) run from ES
+	$doc{'run_datetime'} = get_pbench_datetime;
 	$doc{'doc_type'} = 'run';
 	$doc{'run_id'} = $doc{'doc_id'};
+	# other fields not required at time of doc creation:
+	# 'run_notes' : <text> 
 	return %doc;
 }
 sub create_config_doc { # document describing a configuration source
