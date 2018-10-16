@@ -72,7 +72,7 @@ if (!$params{"desc"}) {
 remove_params(\@ARGV, qw(samples desc user-name user-email)); # we don't want these params passed on to other utils
 my %run_doc = create_run_doc($benchmark, join(" ", @ARGV), $params{"clients"}, $params{"servers"},
 				$user_desc, $user_name, $user_email,
-				"", #todo: include tool hostnames
+				"pbench",
 				""); #todo: include tool names
 
 my $base_bench_dir = get_benchmark_results_dir($benchmark, $user_desc);

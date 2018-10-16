@@ -11,7 +11,7 @@ use Exporter qw(import);
 use List::Util qw(max);
 use JSON;
 
-our @EXPORT_OK = qw(get_json_file put_json_file get_benchmark_names get_clients get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params remove_element get_hostname);
+our @EXPORT_OK = qw(get_json_file put_json_file get_benchmark_names get_clients get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params remove_element get_hostname get_pbench_datetime);
 my $script = "PbenchBase.pm";
 my $sub;
 
