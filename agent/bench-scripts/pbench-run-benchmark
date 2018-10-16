@@ -45,6 +45,7 @@ if ($benchmark eq "list") {
 my $user_name;
 my $user_email;
 my $user_desc;
+my @iterations;
 my %params = get_params(@ARGV);
 if ($params{"samples"}) {
 	$num_samples = $params{"samples"};
@@ -90,11 +91,13 @@ stockpile_hosts(\@config_hosts, $base_bench_dir, "stockpile_output_path=". $base
 # pass the rest of the args to pbench-gen-iterations and store the iterations in an array
 print "Generating all benchmark iterations\n";
 my $gen_iterations_cmd = "pbench-gen-iterations " . $benchmark . " " . join(" ", @ARGV);
-my @iterations = split(/\n/, `$gen_iterations_cmd`);
+my $output = `$gen_iterations_cmd`;
 if ($? != 0) {
+	printf "%s\n", $output;
 	printf "Calling pbench-gen-iterations failed.  Exiting\n";
-	printf "From pbench-gen-iterations: %s\n", @iterations;
 	exit 1;
+} else {
+	@iterations = split(/\n/, $output);
 }
 
 # now run the iterations
@@ -104,7 +107,7 @@ open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
 my $iteration_id = 0;
 for my $iteration_params (@iterations) {
 	my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,); 
-	print "iteration params: $iteration_params\n";
+	#print "iteration params: $iteration_params\n";
 	put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{"doc_id"} . ".json");
 	printf $fh "%d %s\n", $iteration_id, $iteration_params;
 	printf "iteration_ID: %d iteration_params: %s\n", $iteration_id, $iteration_params;
