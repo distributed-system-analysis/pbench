@@ -3,8 +3,9 @@
 // the pbench options for running a set of benchmark iterations & samples..
 //
 {
-"parameters" : {
-	"specs" : { 
+"controller" : {
+  "parameters" : {
+    "specs" : {
     		"positive_integers" : {
         		"description" : "whole number >0, no + sign",
         		"arguments" : [ "samples" ],
@@ -26,4 +27,5 @@
 		"fio" : "--maxstddevpct=3 --samples=3 --clients=localhost",
 		"uperf" : "--maxstddevpct=10 --samples=5 --clients=localhost --servers=localhost" }
 	}
+}
 }

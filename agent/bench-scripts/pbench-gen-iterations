@@ -13,7 +13,7 @@
 #                         --$arg=$valueA[,valueB,...valueN] <--optional, 1 or more
 #
 #   $benchmark_name can be any file found where $benchmark_name is used in
-#   $config/${benchmark_name}-parameter-specs.json
+#   $config/${benchmark_name}.json
 #
 #   Or a user can get the supported benchmark by runing:
 #
@@ -37,8 +37,8 @@
 #
 #   $parameter is either a pbench universal parameter (like --samples) or a
 #   benchmark-native parameter (like --ioengine=sync for fio).  The list of valid 
-#   parameters can be found in $config/pbench-parameter-specs.json for universal perameters and
-#   $config/${benchmark}-parameter-specs.json for benchmark-native parameters.
+#   parameters can be found in $config/pbench-parameter.json for universal perameters and
+#   $config/${benchmark}-parameter.json for benchmark-native parameters.
 #                         
 #   Note that a parameter may have mulitple values, and this script will generate a benchmark
 #   iteration for each value.  For example, if the user runs:
@@ -91,34 +91,34 @@ use PbenchBase qw(get_json_file get_benchmark_names get_pbench_bench_config_dir)
 my $pbench_bench_config_dir = get_pbench_bench_config_dir;
 
 # load a benchmark json file which tells us how to run a benchmark
-sub load_benchmark_specs {
+sub load_benchmark_config {
 	my $benchmark_name = shift;
-	my $benchmark_spec_file = $pbench_bench_config_dir . "/" . $benchmark_name . ".json";
-	my $json_ref = get_json_file($benchmark_spec_file);
+	my $benchmark_config_file = $pbench_bench_config_dir . "/" . $benchmark_name . ".json";
+	my $json_ref = get_json_file($benchmark_config_file);
 	return %$json_ref
 }
 # return an array of all the valid arguments for a specific benchmark
 sub get_benchmark_args {
-	my $spec_ref = shift; # our benchmark spec
+	my $config_ref = shift; # our benchmark config
 	my @args;
-	for my $regex_type (keys %{ $$spec_ref{"parameters"}{"specs"} } ) {
-		@args = (@args,  @{ $$spec_ref{"parameters"}{"specs"}{$regex_type}{"arguments"} });
+	for my $regex_type (keys %{ $$config_ref{"controller"}{"parameters"}{"specs"} } ) {
+		@args = (@args,  @{ $$config_ref{"controller"}{"parameters"}{"specs"}{$regex_type}{"arguments"} });
 	}
 	return @args
 }
-# return a string of the default parameters for a specific benchmark and a specific default_name
+# return a string of the default parameters for a specific benchmark and default_name
 sub get_benchmark_defaults {
-	my $spec_ref = shift; # our benchmark spec
+	my $config_ref = shift; # our benchmark config
 	my $default_name = shift;
 	if ($default_name eq "list") {
 		print "defaults available:\n";
-		for my $d (grep(!/^mandatory$/, keys $$spec_ref{"parameters"}{"defaults"})) {
-			printf("%s: %s\n", $d, $$spec_ref{"parameters"}{"defaults"}{$d});
+		for my $d (grep(!/^mandatory$/, keys $$config_ref{"controller"}{"parameters"}{"defaults"})) {
+			printf("%s: %s\n", $d, $$config_ref{"controller"}{"parameters"}{"defaults"}{$d});
 		}
 		exit;
 	}
-	if ($$spec_ref{"parameters"}{"defaults"}{$default_name}) {
-		return $$spec_ref{"parameters"}{"defaults"}{$default_name};
+	if ($$config_ref{"controller"}{"parameters"}{"defaults"}{$default_name}) {
+		return @{ $$config_ref{"controller"}{"parameters"}{"defaults"}{$default_name} };
 	} else {
 		die "That default does not exist";
 	}
@@ -129,14 +129,16 @@ sub get_benchmark_defaults {
 sub process_param {
 	my $argument = shift;
 	my $values = shift;
-	my $spec_ref = shift;
+	my $param_ref = shift;
 	my $processed_values = "";
-	for my $regex_types (keys $$spec_ref{"parameters"}{"specs"}) {
-		if (grep(/^$argument$/, @{ $$spec_ref{"parameters"}{"specs"}{$regex_types}{"arguments"} })) {
+	#print "param_ref\n";
+	#print Dumper $param_ref;
+	for my $regex_types (keys $$param_ref{"specs"}) {
+		if (grep(/^$argument$/, @{ $$param_ref{"specs"}{$regex_types}{"arguments"} })) {
 			for my $value (split(/,/, $values)) { # users can provide multiple values for an option
-				if ($value =~ /$$spec_ref{"parameters"}{"specs"}{$regex_types}{"value_regex"}/) {
-					if ($$spec_ref{"parameters"}{"specs"}{$regex_types}{"value_transforms"}) {
-						for my $transform (@{ $$spec_ref{"parameters"}{"specs"}{$regex_types}{"value_transforms"} }) {
+				if ($value =~ /$$param_ref{"specs"}{$regex_types}{"value_regex"}/) {
+					if ($$param_ref{"specs"}{$regex_types}{"value_transforms"}) {
+						for my $transform (@{ $$param_ref{"specs"}{$regex_types}{"value_transforms"} }) {
 							# in order to apply the 's/x/y/' regex from the file, some eval trickery is necessary
 							# todo: first test the $transform regex separately for [perl syntax] errors with eval before doing below
 							$value = eval "\$_='$value'; $transform; return scalar \$_";
@@ -200,8 +202,28 @@ if ($benchmark eq "list") {
 # go through the @ARGS and either:
 # -swap out "--defaults" with a list of default params
 # -validate and transform a "arg=val" parameter
-my %pbench_specs = load_benchmark_specs("pbench");
-my %bench_specs = load_benchmark_specs($benchmark);
+
+# This is what we need to validate against
+my %pbench_config = load_benchmark_config("pbench");
+my %bench_config = load_benchmark_config($benchmark);
+#print Dumper \%bench_config;
+# ensure we have some basic info from the benchmark configuration
+if (! $bench_config{"controller"} ) {
+	print "There is no 'contoller' section in the benchmark config\n";
+	exit 1;
+}
+if (! $bench_config{"controller"}{"parameters"} ) {
+	print "There is no 'controller->parameters' section in the benchmark config\n";
+	exit 1;
+}
+if (! $bench_config{"controller"}{"parameters"}{"defaults"} ) {
+	print "There is no 'controller->parameters->defaults' section in the benchmark config\n";
+	exit 1;
+}
+if (! $bench_config{"controller"}{"parameters"}{"specs"} ) {
+	print "There is no 'controller->parameters->specs' section in the benchmark config\n";
+	exit 1;
+}
 my @params = @ARGV;
 my %processed_bench_params; # benchmark-specific parameters that will have been validated and transformed
 my %processed_pbench_params; # universal parameters that will have been validated and transformed
@@ -218,20 +240,21 @@ while ( scalar @params > 0 ) {
 	my $param = shift @params;
 	if ($param eq "--help") {
 		print "These are the valid universal arguments:\n";
-		for my $p (get_benchmark_args(\%pbench_specs)) {
+		for my $p (get_benchmark_args(\%pbench_config)) {
 			printf("    --%s\n", $p);
 		}
 		print "These are the valid $benchmark arguments:\n";
-		for my $p (get_benchmark_args(\%bench_specs)) {
+		for my $p (get_benchmark_args(\%bench_config)) {
 			printf("    --%s\n", $p);
 		}
 	} elsif ($param =~ /^--defaults=(.+)$/) { # expanded to all of the parameters found for that default
-		@params = (split(/\s+/, get_benchmark_defaults(\%bench_specs, $1)), @params);
+		@params = (get_benchmark_defaults(\%bench_config, $1), @params);
+		#print Dumper \@params;
 	} elsif ($param =~ /^--(.+)=(.+)$/) { # we now have a parameter, a "--argument=value" that we can process
 		my @p;
-		if (@p = process_param($1, $2, \%pbench_specs)) {
+		if (@p = process_param($1, $2, $pbench_config{"controller"}{"parameters"})) {
 			$processed_pbench_params{$p[0]} = $p[1];
-		} elsif (@p = process_param($1, $2, \%bench_specs)) {
+		} elsif (@p = process_param($1, $2, $bench_config{"controller"}{"parameters"})) {
 			$processed_bench_params{$p[0]} = $p[1];
 		} else {
 			printf "the parameter %s did not fit the requirements of pbench or the benchmark\n", $param;
