@@ -1,3 +1,4 @@
 doc/*.html
 __pycache__
 *.swp
+unittests.log
