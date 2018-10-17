@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# A simple script to create a fake pbench tar ball.
+
+# It takes one argument which is a string to add to the name
+# of the tar ball.
+
+# It generates a tarball-*.tar.xz and tarball-*.tar.xz.md5.
+
+tbname="tarball-${1}_YYYY-MM-DDTHH-mm-ss"
+mkdir ${tbname}
+touch ${tbname}/empty
+tar Jcf ${tbname}.tar.xz ${tbname}
+rm -rf ${tbname}
+md5sum ${tbname}.tar.xz > ${tbname}.tar.xz.md5
