@@ -18,7 +18,7 @@ host_path = http://%(pbench_result_redirector)s/pbench-archive-host
 ssh_opts = -o StrictHostKeyChecking=no
 scp_opts = -o StrictHostKeyChecking=no
 webserver = %(pbench_web_server)s
-host_info_url = http://%(webserver)s/pbench-results-host-info.versioned/pbench-results-host-info.URL001
+host_info_url = http://%(webserver)s/pbench-results-host-info.versioned/pbench-results-host-info.URL002
 dir = /pbench/public_html/incoming
 
 [pbench/tools]
