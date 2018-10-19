@@ -37,17 +37,18 @@ sub get_user_email { # looks for USER_NAME in %ENV
 }
 sub populate_base_fields { # create the fields every doc must have
 	my $doc_ref = shift;
-	$$doc_ref{'doc_id'} = get_uuid;
+	#$$doc_ref{'doc_id'} = get_uuid;
 	$$doc_ref{'ver'} = 1;
 }
 sub copy_doc_fields {
 	my $copy_from_ref = shift; # what document we need to copy from
 	my $copy_to_ref = shift; # what new document we're copying to
-	for my $field_name (grep(!/doc_id|doc_ver|doc_create_time/, keys %$copy_from_ref)) {
+	#for my $field_name (grep(!/doc_id|doc_ver|doc_create_time/, keys %$copy_from_ref)) {
+	for my $field_name (grep(!/^doc_/, keys %$copy_from_ref)) {
 		$$copy_to_ref{$field_name} = $$copy_from_ref{$field_name};
 	}
 	# convert doc_id to run_id, iter_id, sample_id, or period_id
-	$$copy_to_ref{$$copy_from_ref{'doc_type'} . "_id"} = $$copy_from_ref{'doc_id'};
+	#$$copy_to_ref{$$copy_from_ref{'doc_type'} . "_id"} = $$copy_from_ref{'doc_id'};
 }
 sub create_run_doc {
 	my %doc;
@@ -66,7 +67,7 @@ sub create_run_doc {
 	$doc{'run_archive'} = JSON::false; # set to true later if you wish to archive (and remove) run from ES
 	$doc{'run_datetime'} = get_pbench_datetime;
 	$doc{'doc_type'} = 'run';
-	$doc{'run_id'} = $doc{'doc_id'};
+	$doc{'run_id'} = get_uuid; #$doc{'doc_id'};
 	# other fields not required at time of doc creation:
 	# 'run_notes' : <text> 
 	return %doc;
@@ -74,16 +75,24 @@ sub create_run_doc {
 sub create_config_doc { # document describing a configuration source
 	my $copy_from_ref = shift; # first arg is a reference to a doc (like the run doc) we copy info from
 	my $config_ref = shift; # second arg is hash reference to any other keys/values to include in this doc
-	my %doc = %$config_ref;
+	my $doc_type = "config_" . $$config_ref{'module'};
+	my %doc;
 	populate_base_fields(\%doc);
 	copy_doc_fields($copy_from_ref, \%doc); # get some essential fields from another doc (like run)
+	$doc{'doc_type'} = $doc_type;
+	$doc{$doc_type . '_id'} = get_uuid;
+	for my $key (keys %$config_ref) {
+		#$doc{$doc_type . "_" . $key} = $$config_ref{$key};
+		$doc{$key} = $$config_ref{$key};
+	}
 	return %doc;
 }
 sub create_bench_iter_doc { # document describing the benchmark iteraton sample
 	my %doc;
 	populate_base_fields(\%doc);
 	copy_doc_fields(shift, \%doc); # get some essential fields from iter-sample, our first arg
-	$doc{'iter_params'} = shift; # second arg is benchmark parameters for this iter
+	$doc{'iteration_params'} = shift; # second arg is benchmark parameters for this iter
+	$doc{'iteration_id'} = get_uuid;
 	$doc{'doc_type'} = 'iter';
 	return %doc;
 }
@@ -92,6 +101,7 @@ sub create_bench_iter_sample_doc { # document describing the benchmark iteraton 
 	populate_base_fields(\%doc);
 	copy_doc_fields(shift, \%doc); # get some essential fields from iter doc, our first arg
 	$doc{'sample_num'} = shift; # second arg is sample number (just used to make it obvious which order these occur in)
+	$doc{'sample_id'} = get_uuid;
 	$doc{'doc_type'} = 'sample';
 	return %doc;
 }
@@ -100,7 +110,8 @@ sub create_bench_iter_sample_period_doc { # document describing the benchmark it
 	populate_base_fields(\%doc);
 	copy_doc_fields(shift, \%doc); # get some essential fields from iter-sample doc, our first arg
 	$doc{'period_name'} = shift; # second arg is period name
-	$doc{'period_prev_doc_id'} = shift; # third arg is link to prev period in this sample, if any
+	$doc{'period_prev_id'} = shift; # third arg is link to prev period in this sample, if any
+	$doc{'period_id'} = get_uuid;
 	$doc{'doc_type'} = 'period';
 	return %doc;
 }
@@ -108,7 +119,7 @@ sub create_metric_sample_doc { # document describing the benchmark iteraton samp
 	my %doc;
 	populate_base_fields(\%doc);
 	copy_doc_fields(shift, \%doc); # get some essential fields from a prev doc, our first arg
-	$doc{'doc_type'} = 'metric-sample';
+	$doc{'doc_type'} = 'metric';
 	# These are the required fields for any metric-instance-sample.  There are potentially
 	# more fields, but not all metrics use all the same options fields.  However, the ones
 	# below must all be used, and so creating a new doc requires that these fields be
@@ -140,6 +151,7 @@ sub create_metric_sample_doc { # document describing the benchmark iteraton samp
 	$doc{'metric_name_format'} = shift;
 	$doc{'metric_value'} = shift; # the value of the metric
 	$doc{'metric_timestamp'} = shift; # the epochtime
+	$doc{'metric_id'} = get_uuid;
 	# Optional fields will be validated with a different function, likely at the
 	# time the document is written to a file.  A list of optional fields needs
 	# to be maintained.  ES docs typically cannot have more than 1000 fields,

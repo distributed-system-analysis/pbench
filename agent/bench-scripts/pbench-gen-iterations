@@ -131,8 +131,6 @@ sub process_param {
 	my $values = shift;
 	my $param_ref = shift;
 	my $processed_values = "";
-	#print "param_ref\n";
-	#print Dumper $param_ref;
 	for my $regex_types (keys $$param_ref{"specs"}) {
 		if (grep(/^$argument$/, @{ $$param_ref{"specs"}{$regex_types}{"arguments"} })) {
 			for my $value (split(/,/, $values)) { # users can provide multiple values for an option
@@ -206,7 +204,6 @@ if ($benchmark eq "list") {
 # This is what we need to validate against
 my %pbench_config = load_benchmark_config("pbench");
 my %bench_config = load_benchmark_config($benchmark);
-#print Dumper \%bench_config;
 # ensure we have some basic info from the benchmark configuration
 if (! $bench_config{"controller"} ) {
 	print "There is no 'contoller' section in the benchmark config\n";
@@ -249,7 +246,6 @@ while ( scalar @params > 0 ) {
 		}
 	} elsif ($param =~ /^--defaults=(.+)$/) { # expanded to all of the parameters found for that default
 		@params = (get_benchmark_defaults(\%bench_config, $1), @params);
-		#print Dumper \@params;
 	} elsif ($param =~ /^--(.+)=(.+)$/) { # we now have a parameter, a "--argument=value" that we can process
 		my @p;
 		if (@p = process_param($1, $2, $pbench_config{"controller"}{"parameters"})) {

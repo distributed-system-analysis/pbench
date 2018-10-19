@@ -45,6 +45,7 @@ if ($benchmark eq "list") {
 my $user_name;
 my $user_email;
 my $user_desc;
+my $tool_group = "default";
 my @iterations;
 my %params = get_params(@ARGV);
 if ($params{"samples"}) {
@@ -69,7 +70,11 @@ if (!$params{"desc"}) {
 } else {
 	$user_desc = $params{"desc"};
 }
-remove_params(\@ARGV, qw(samples desc user-name user-email)); # we don't want these params passed on to other utils
+if ($params{"tool-group"}) {
+	$tool_group = $params{"tool-group"};
+}
+
+remove_params(\@ARGV, qw(tool-group samples desc user-name user-email)); # we don't want these params passed on to other utils
 my %run_doc = create_run_doc($benchmark, join(" ", @ARGV), $params{"clients"}, $params{"servers"},
 				$user_desc, $user_name, $user_email,
 				"pbench",
@@ -101,14 +106,13 @@ if ($? != 0) {
 }
 
 # now run the iterations
-printf "iteration count: %d\n", scalar @iterations;
+printf "iterations: %d\n", scalar @iterations;
 mkdir($base_bench_dir);
 open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
 my $iteration_id = 0;
 for my $iteration_params (@iterations) {
 	my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,); 
-	#print "iteration params: $iteration_params\n";
-	put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{"doc_id"} . ".json");
+	put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{"iteration_id"} . ".json");
 	printf $fh "%d %s\n", $iteration_id, $iteration_params;
 	printf "iteration_ID: %d iteration_params: %s\n", $iteration_id, $iteration_params;
 	for (my $sample_id=0; $sample_id<$num_samples; $sample_id++) {
@@ -117,19 +121,19 @@ for my $iteration_params (@iterations) {
 		mkdir($iteration_dir);
 		my $iteration_sample_dir = $iteration_dir . "/sample" . $sample_id;
 		mkdir($iteration_sample_dir);
-		my $benchmark_cmd = "pbench-run-benchmark-sample " . $es_dir . "/bench/iteration-" . $iter_doc{"doc_id"} . ".json " . $iteration_sample_dir . " " . $base_bench_dir;
+		my $benchmark_cmd = "pbench-run-benchmark-sample " . $es_dir . "/bench/iteration-" . $iter_doc{"iteration_id"} . ".json " . $iteration_sample_dir . " " . $base_bench_dir . " " . $tool_group;
 		my $benchmark_sample_output = `$benchmark_cmd`;
 		my $exit_code = $?;
-		print "output:\n$benchmark_sample_output";
 		if ($exit_code != 0) {
 			printf "Stopping because of iteration-sample exit code: %d\n", $exit_code;
+			print "output:\n$benchmark_sample_output";
 			exit 1;
 		}
 	}
 	$iteration_id++;
 }
 close $fh;
-put_json_file(\%run_doc, $es_dir . "/run/run-" . $run_doc{'doc_id'} . ".json");
+put_json_file(\%run_doc, $es_dir . "/run/run-" . $run_doc{'run_id'} . ".json");
 
 # convert the stockpile data with scribe, then create CDM docs in ./es/config
 system('scl enable rh-python36 \'python3 -m venv /var/lib/pbench-agent/tmp/scribe && cd ' . $base_bench_dir . ' && scribe -t stockpile -ip ./stockpile.json >scribe.json\'');
@@ -140,10 +144,14 @@ while (<$scribe_fh>) {
 	$json_text .= $_;
 	if (/^\}/) { # assume this is the end of a json doc
 		my %config_doc = create_config_doc(\%run_doc, from_json($json_text));
-		if ($config_doc{'module'}) {
-			put_json_file(\%config_doc, $es_dir . "/config/" . $config_doc{'module'} . "-" . $config_doc{"doc_id"} . ".json");
+		if ($config_doc{'doc_type'}) {
+			if ($config_doc{$config_doc{'doc_type'} . "_id"}) {
+				put_json_file(\%config_doc, $es_dir . "/config/" . $config_doc{'doc_type'} . "-" . $config_doc{$config_doc{'doc_type'} . "_id"} . ".json");
+			} else {
+				printf "Error: config doc is missng \"%s_id\"\n", $config_doc{'doc_type'};
+			}
 		} else {
-			printf "Error: config doc is missng \"module\" field:\n";
+			printf "Error: config doc is missng \"%s\"\n", "doc_type";
 			print Dumper \%config_doc;
 		}
 		$json_text = "";
