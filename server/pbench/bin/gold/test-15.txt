@@ -22,10 +22,10 @@ drwxrwxr-x          - archive/quarantine
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-archive
 -rw-rw-r--          0 logs/pbench-audit-archive/pbench-audit-archive.error
--rw-rw-r--        218 logs/pbench-audit-archive/pbench-audit-archive.log
+-rw-rw-r--          1 logs/pbench-audit-archive/pbench-audit-archive.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-002
 -rw-rw-r--        214 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
--rw-rw-r--        509 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
+-rw-rw-r--        285 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 drwxrwxr-x          - mv
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
@@ -51,16 +51,18 @@ drwxrwxr-x          - quarantine/md5-002/Controller
 -rw-rw-r--         94 quarantine/md5-002/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz.md5
 --- pbench-local tree state
 +++ pbench log file contents
-/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/d5ee68b33a845dac49792935d85c10ce --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error:run-1900-01-01T00:00:00-UTC: Quarantined: /var/tmp/pbench-test-server/pbench-local/fs-version-002/pbench-move-results-receive/Controller/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz failed MD5 check
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:run-1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz: FAILED
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:md5sum: WARNING: 1 computed checksum did NOT match
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:run-1900-01-01T00:00:00-UTC: Processed 1 entries, 0 tarballs successful, 1 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.
-/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-server-prep-shim-002.1900-01/status/f47e3f5ba67fec6d0308126e7b074ed5 --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:
 --- pbench log file contents
++++ test-execution.log file contents
+curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-server-prep-shim-002.1900-01/status/f47e3f5ba67fec6d0308126e7b074ed5 --data @/tmp/pbench-report-status.NNNN/payload
+curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/d5ee68b33a845dac49792935d85c10ce --data @/tmp/pbench-report-status.NNNN/payload
+--- test-execution.log file contents
 +++ test-curl-payload.log file contents
 {
     "text": "run-1900-01-01T00:00:00-UTC: Processed 1 entries, 0 tarballs successful, 1 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n", 

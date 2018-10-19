@@ -1,8 +1,9 @@
 #! /bin/bash
 
-echo "$0 $*" >> $_testlog
+echo "${0##*/} $*" >> $_testlog
 
 # pretend that we get something back in this case
 if [ "$1" = "foo2.bar.com" ] ;then
     echo controller
 fi
+exit 0

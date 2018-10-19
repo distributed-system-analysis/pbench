@@ -7,9 +7,10 @@ stderr=$tmp/rsync.$$.err
 
 trap "rm -f $stdout $stderr" EXIT INT QUIT
 
-echo "$0 $*" >> $_testlog
+echo "${0##*/} $*" >> $_testlog
 
 /usr/bin/rsync $* > $stdout 2> $stderr
 
 sed -E -f $dir/rsync.sed $stdout
 cat $stderr
+exit 0

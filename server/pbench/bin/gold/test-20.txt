@@ -92,7 +92,7 @@ lrwxrwxrwx         52 archive/fs-version-001/controller02/UNPACKED/benchmark-res
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-archive
 -rw-rw-r--          0 logs/pbench-audit-archive/pbench-audit-archive.error
--rw-rw-r--        218 logs/pbench-audit-archive/pbench-audit-archive.log
+-rw-rw-r--          1 logs/pbench-audit-archive/pbench-audit-archive.log
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/incoming/controller00
@@ -126,9 +126,11 @@ drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
 --- pbench-local tree state
 +++ pbench log file contents
-/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/270b662e76be70e22735b042fc336b60 --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
 --- pbench log file contents
++++ test-execution.log file contents
+curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/270b662e76be70e22735b042fc336b60 --data @/tmp/pbench-report-status.NNNN/payload
+--- test-execution.log file contents
 +++ test-curl-payload.log file contents
 {
     "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nBad Controllers:\n\t-rw-rw-r--          0 Mon Sep 24 17:18:42.0000000000 2018 a-wayward-file.txt\n\t-rw-rw-r--          0 Mon Sep 24 14:38:32.0000000000 2018 wayward-file.txt\n\n\nController: controller.empty\n\t* No state directories found in this controller directory.\n\t* No tar ball files found in this controller directory.\n\n\nController: controller.unexp_state_dirs\n\t* Unexpected state directories found in this controller directory:\n\t  ++++++++++\n\t  an-unexpected\n\t  unexpected\n\t  ----------\n\t* No tar ball files found in this controller directory.\n\n\nController: controller.wont_index\n\t* No tar ball files found in this controller directory.\n\n\nController: controller00\n\t* Unexpected symlinks in controller directory:\n\t  ++++++++++\n\t  an-unexpected-symlink -> /dev/null\n\t  unexpected-symlink -> /dev/null\n\t  ----------\n\t* Unexpected files in controller directory:\n\t  ++++++++++\n\t  .prefix\n\t  unexpected-file\n\t  ----------\n\t* Prefix directory, .prefix, is not a directory\n\n\nController: controller01\n\t* Unexpected file system objects in .prefix directory:\n\t  ++++++++++\n\t  a-unexpected\n\t  unexpected\n\t  ----------\n\t* Wrong prefix file names found in /.prefix directory:\n\t  ++++++++++\n\t  prefix.DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz\n\t  prefix.benchmark-result-medium_1900-01-01T00:00:00.tar.xz\n\t  ----------\n\n\nend-1900-01-01T00:00:00-UTC\n", 
