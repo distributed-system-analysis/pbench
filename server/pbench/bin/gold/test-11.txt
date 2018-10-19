@@ -37,7 +37,7 @@ drwxrwxr-x          - logs
 -rw-rw-r--          0 logs/change-state.TEST2.log
 drwxrwxr-x          - logs/pbench-audit-archive
 -rw-rw-r--          0 logs/pbench-audit-archive/pbench-audit-archive.error
--rw-rw-r--        218 logs/pbench-audit-archive/pbench-audit-archive.log
+-rw-rw-r--          1 logs/pbench-audit-archive/pbench-audit-archive.log
 drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/TEST2
 drwxrwxr-x          - logs/pbench-sync-satellite/TEST2/run-1900-01-01T00:00:00-UTC
@@ -63,7 +63,6 @@ drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
 --- pbench-local tree state
 +++ pbench log file contents
-/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/897d86470f84c04f5f871d687c4c3140 --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
 /var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:tar: This does not look like a tar archive
 /var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:tar: Exiting with failure status due to previous errors
@@ -73,7 +72,8 @@ drwxrwxr-x          - quarantine/md5-002
 /var/tmp/pbench-test-server/pbench/logs/pbench-sync-satellite/pbench-sync-satellite.log:run-1900-01-01T00:00:00-UTC: Total 0 files processed, with 0 md5 failures and 0 errors
 --- pbench log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-server/opt/pbench-server/unittest-scripts/ssh foo2.bar.com /opt/pbench-server/bin/pbench-sync-package-tarballs
+ssh foo2.bar.com /opt/pbench-server/bin/pbench-sync-package-tarballs
+curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/897d86470f84c04f5f871d687c4c3140 --data @/tmp/pbench-report-status.NNNN/payload
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
 {

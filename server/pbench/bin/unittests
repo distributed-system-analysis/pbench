@@ -84,8 +84,7 @@ function _run_activate {
     echo "---- ${_testopt}/lib/crontab/crontab" >> $_testout
     if [ -s $_testactlog ]; then
         echo "++++ $(basename $_testactlog) file contents" >> $_testout
-        grep -HvF "\-\-should-n0t-ex1st--" $_testactlog 2>/dev/null |
-             sed 's;tmp/pbench-\([-a-zA-Z0-9]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' >> $_testout 2>&1
+        cat $_testactlog >> $_testout 2>&1
         echo "---- $(basename $_testactlog) file contents" >> $_testout
     fi
     echo "--- Finished verifying server activation (status=$rc)" >> $_testout

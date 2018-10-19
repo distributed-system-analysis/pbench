@@ -2974,7 +2974,7 @@ drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-archive
 -rw-rw-r--          0 logs/pbench-audit-archive/pbench-audit-archive.error
--rw-rw-r--        218 logs/pbench-audit-archive/pbench-audit-archive.log
+-rw-rw-r--          1 logs/pbench-audit-archive/pbench-audit-archive.log
 -rw-r--r--    5264916 pbench-user-benchmark__2018.02.05T20.35.36.tar.xz
 -rw-r--r--         84 pbench-user-benchmark__2018.02.05T20.35.36.tar.xz.md5
 drwxrwxr-x          - public_html
@@ -2997,9 +2997,11 @@ drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
 --- pbench-local tree state
 +++ pbench log file contents
-/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/d5ee68b33a845dac49792935d85c10ce --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
 --- pbench log file contents
++++ test-execution.log file contents
+curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/d5ee68b33a845dac49792935d85c10ce --data @/tmp/pbench-report-status.NNNN/payload
+--- test-execution.log file contents
 +++ test-curl-payload.log file contents
 {
     "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nend-1900-01-01T00:00:00-UTC\n", 

@@ -53,10 +53,10 @@ drwxrwxr-x          - logs/pbench-backup-tarballs
 -rw-rw-r--         30 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-001
 -rw-rw-r--          0 logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.error
--rw-rw-r--        390 logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log
+-rw-rw-r--        166 logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-002
 -rw-rw-r--          0 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
--rw-rw-r--        390 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
+-rw-rw-r--        166 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 drwxrwxr-x          - no-archive
 drwxrwxr-x          - no-archive/fs-version-001
 drwxrwxr-x          - public_html
@@ -83,13 +83,15 @@ drwxrwxr-x          - quarantine/md5-002
 /var/tmp/pbench-test-server/pbench/logs/pbench-backup-tarballs/pbench-backup-tarballs.log:start-1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:run-1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:run-1900-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.
-/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-server-prep-shim-001.1900-01/status/641b5b1d8f3408a5a1d0712f45559071 --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log:
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:run-1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:run-1900-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.
-/var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-server-prep-shim-002.1900-01/status/641b5b1d8f3408a5a1d0712f45559071 --data @/tmp/pbench-report-status.NNNN/payload
 /var/tmp/pbench-test-server/pbench/logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log:
 --- pbench log file contents
++++ test-execution.log file contents
+curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-server-prep-shim-001.1900-01/status/641b5b1d8f3408a5a1d0712f45559071 --data @/tmp/pbench-report-status.NNNN/payload
+curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-server-prep-shim-002.1900-01/status/641b5b1d8f3408a5a1d0712f45559071 --data @/tmp/pbench-report-status.NNNN/payload
+--- test-execution.log file contents
 +++ test-curl-payload.log file contents
 {
     "text": "run-1900-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n", 
