@@ -28,17 +28,17 @@ printf "\@ARGV: %s\n", join(" ", @ARGV);
 my $script_name = basename($0);
 my $rundir = shift(@ARGV);
 my $base_bench_dir = shift(@ARGV);
-my $json_ref = get_json_file("iteration_sample.json");
+my $json_ref = get_json_file("sample.json");
 my %bench_iter_sample = %$json_ref; # this is the CDM doc for this benchmark-iteration-sample
-my $sample_id = $bench_iter_sample{"doc_id"}; # needs to be included in all metric-sample docs
+my $sample_id = $bench_iter_sample{"sample_id"}; # needs to be included in all metric-sample docs
 my $run_id = $bench_iter_sample{"run_id"}; # needs to be included in all metric-sample docs
 # create [at least one] benchmark period: a window of time during this benchmark, this one marked as "measurement",
 # to indicate this period as the one the the UI/query tool computes a summary metric 
 my %bench_iter_sample_period = create_bench_iter_sample_period_doc(\%bench_iter_sample, "measurement");
 # the primary metric needs to match exactly one metric-type that gets created from the benchmark data
-$bench_iter_sample{"primary_metric"} = "iops";
-$bench_iter_sample{"primary_period"} = "measurement";
-put_json_file(\%bench_iter_sample, $base_bench_dir . "/es/bench/iteration_sample-" . $bench_iter_sample{"doc_id"} . ".json");
+$bench_iter_sample{"iteration_primary_metric"} = "iops";
+$bench_iter_sample{"iteration_primary_period"} = "measurement";
+put_json_file(\%bench_iter_sample, $base_bench_dir . "/es/bench/sample-" . $bench_iter_sample{"sample_id"} . ".json");
 
 # under ./clients/<hostname>, process the fio result files
 opendir(my $clients_dh, "clients") || die "$script_name: could not open directory clients: $!\n";
@@ -78,14 +78,14 @@ for my $client_hostname (@client_hostname_dirs) {
 									$client_hostname,# hostname
 									"fio",		# the source
 									# the metric-instance name format
-									"%source%-%type%-%client_hostname%",
+									"%source%-%type%-%hostname%",
 									$value,		# the value of the metric
 									$timestamp_ms	# the timestamp
 									);
 						put_json_file(\%metric_sample, "../../es/metrics/" .
 										$client_hostname .
 										"/metric-" .
-										$metric_sample{"doc_id"} .
+										$metric_sample{"metric_id"} .
 										".json");
 						if (! $period_earliest_timestamp or $period_earliest_timestamp > $timestamp_ms) {
 							$period_earliest_timestamp = $timestamp_ms;
@@ -102,9 +102,9 @@ for my $client_hostname (@client_hostname_dirs) {
 }
 $bench_iter_sample_period{'begin'} = $period_earliest_timestamp;
 $bench_iter_sample_period{'end'} = $period_latest_timestamp;
-my $period_file = $base_bench_dir . "/es/bench/iteration_sample_period-" . $bench_iter_sample_period{"doc_id"} . ".json";
+my $period_file = $base_bench_dir . "/es/bench/period-" . $bench_iter_sample_period{"sample_id"} . ".json";
 put_json_file(\%bench_iter_sample_period, $period_file);
-my $tools_cdm_pp_cmd = "pbench-postprocess-tools-cdm " . $period_file . " " . $base_bench_dir . "/es  " . $rundir . "/tools-default/";
+my $tools_cdm_pp_cmd = "pbench-postprocess-tools-cdm " . $period_file . " " . $base_bench_dir . "/es  " . $rundir;
 printf "tools_cdm_pp cmd\n%s\n\n", $tools_cdm_pp_cmd;
 my $tools_cdm_pp_output = `$tools_cdm_pp_cmd`;
 printf "tools_cdm_pp output\n%s\n\n", $tools_cdm_pp_output;

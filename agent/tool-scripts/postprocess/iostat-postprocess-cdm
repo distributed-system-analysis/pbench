@@ -82,7 +82,7 @@ while (my $line = <IOSTAT_TXT>) {
 				put_json_file(\%metric_sample, $es_dir . "/metrics/" .
 						$hostname .
 						"/metric-" .
-						$metric_sample{"doc_id"} .
+						$metric_sample{"metric_id"} .
 						".json");
 			}
 		}

@@ -151,7 +151,7 @@ sub stockpile_hosts { # run stockpile against these hosts
 	my $inv_file = build_stockpile_inventory($hosts_ref, $logdir);
 	my %play;
 	my @playbook;
-	my @roles1 = qw(yum_repos);
+	my @roles1 = qw(cpu_vulnerabilities yum_repos);
 	my %play1 = ( "hosts" => "all", "remote_user" => "root", "become" => JSON::true, "roles" => \@roles1);
 	push(@playbook, \%play1);
 	my @roles2 = qw(dump-facts);

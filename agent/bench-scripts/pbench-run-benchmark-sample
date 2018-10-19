@@ -39,23 +39,27 @@ sub load_benchmark_config {
 
 # main program starts here
 
-if (scalar @ARGV < 3) {
-	print "You must supply at least the /path/to/iteration-doc.json, results directory, and the base benchmark directory (in that order):\n";
+if (scalar @ARGV < 4) {
+	print "You must supply at least the /path/to/iteration-doc.json, results directory, the base benchmark directory, and the tool group name (in that order):\n";
 	exit;
 }
 my $iter_doc_filename = shift(@ARGV);
 my $rundir = shift(@ARGV);
 my $base_bench_dir = shift(@ARGV);
+my $tool_group = shift(@ARGV);
 if (! -d $base_bench_dir) {
 	die "The base bench directory $base_bench_dir must already exist";
+}
+my $sample_num = 0;
+if ($rundir =~ /.+([0-9])+$/) {
+	$sample_num = $1;
 }
 mkdir($rundir);
 my $json_ref = get_json_file($iter_doc_filename);
 my %bench_iter = %$json_ref; # this is the CDM doc for this benchmark-iteration
 my %bench_iter_sample_doc = create_bench_iter_sample_doc(\%bench_iter);;
+$bench_iter_sample_doc{'sample_num'} = $sample_num;
 my %bench_specs = load_benchmark_config($bench_iter{'run_bench_name'});
-print "run_bench_clients:\n";
-print Dumper $bench_iter{'run_bench_clients'};
 my $host_type;
 my %remote_hosts; # build a hash of clients and servers which will be used in almost all the steps bewlow
 for $host_type ("client", "server") {
@@ -89,14 +93,14 @@ for my $host_type (keys %remote_hosts) {
 # - execute pre-benchmark scripts on clients and servers
 #
 # start the tools
-system("pbench-start-tools --iteration=0 --group=default --dir=" . $rundir);
+system("pbench-start-tools --iteration=0 --group=" . $tool_group . " --dir=" . $rundir);
 		
 # benchmark-execution
 for $host_type (reverse sort keys %remote_hosts) { # reverse sort ensures "server" is first
 	if ($remote_hosts{$host_type} and scalar @{ $remote_hosts{$host_type} }) {
 		my $cmdline;
 		if ($bench_specs{$host_type}{"bin"}) {
-			$cmdline = $bench_specs{$host_type}{"bin"} . " " . $bench_iter{'iter_params'};
+			$cmdline = $bench_specs{$host_type}{"bin"} . " " . $bench_iter{'iteration_params'};
 		} else {
 			print "%s->bin does not exist, exiting\n", $host_type;
 			exit 1;
@@ -114,10 +118,10 @@ for $host_type (reverse sort keys %remote_hosts) { # reverse sort ensures "serve
 }
 
 # stop & post-process the tools
-system("pbench-stop-tools --iteration=0 --group=default --dir=" . $rundir);
+system("pbench-stop-tools --iteration=0 --group=" . $tool_group . " --dir=" . $rundir);
 
 # post-process the tools
-system("pbench-postprocess-tools --iteration=0 --group=default --dir=" . $rundir);
+system("pbench-postprocess-tools --iteration=0 --group=" . $tool_group . " --dir=" . $rundir);
 
 # post-benhcmark-execution
 # - copy files back to controller
@@ -130,12 +134,12 @@ for $host_type (keys %remote_hosts) {
 }
 # - post-process the result data on the controller
 if ($bench_specs{"controller"}{"post-script"} and $bench_specs{"controller"}{"post-script"} ne "") {
-	put_json_file(\%bench_iter_sample_doc, $rundir . "/iteration_sample" . ".json"); # post-processing to finish this document
+	put_json_file(\%bench_iter_sample_doc, $rundir . "/sample" . ".json"); # post-processing to finish this document
 	my $postprocess_cmd = ". /opt/pbench-agent/base; cd " . $rundir . "; " . $bench_specs{"controller"}{"post-script"} . " " . $rundir . " " . $base_bench_dir . " " . join(" ", @ARGV); # all options get passed to postprocess in case they are needed
 	my $postprocess_output = `$postprocess_cmd`;
 	open(my $fh, ">" . $rundir . "/postprocess-output.txt");
 } else {
 	# If there is no post-processor for the benchmark (there really should be!) then this script will write the bench_iter_saple CDM doc (although not really complete)
-	put_json_file(\%bench_iter_sample_doc, $base_bench_dir . "/es/bench/iteration-sample-" . $bench_iter_sample_doc{"doc_id"} . ".json");
+	put_json_file(\%bench_iter_sample_doc, $base_bench_dir . "/es/bench/sample-" . $bench_iter_sample_doc{"sample_id"} . ".json");
 	print "warning: there is no post-script for this benchmark\n";
 }
