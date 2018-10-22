@@ -358,11 +358,12 @@ while (my $line = <TXT>) {
 	}
 
 	#       emc hits:0
-	if ( $line =~ /\s*emc\shits:\s*(\d+)/ and $stats_mode eq "dpdk" ) {
+	#       smc hits:0
+	if ( $line =~ /\s*([es]mc)\shits:\s*(\d+)/ and $stats_mode eq "dpdk" ) {
 		if (exists $pmd_mappings{$pmd_thread_id}) {
-			$rate{"openvswitch"}{"PMDthread-emc-hits"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $1;
+			$rate{"openvswitch"}{"PMDthread-" . $1 . "-hits"}{$pmd_thread_id . $pmd_mappings{$pmd_thread_id}}{$timestamp_ms} = $2;
 		} else {
-			printf "warning: a emc hits stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n";
+			printf("warning: a %s hits stat for $pmd_thread_id was found, but there was no record of this PMD thread in pmd-rxq-mapping.txt\n", $1);
 		}
 		next;
 	}

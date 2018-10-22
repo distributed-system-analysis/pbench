@@ -11,8 +11,9 @@ use File::Basename;
 use Cwd 'abs_path';
 use Exporter qw(import);
 use List::Util qw(max);
+use JSON;
 
-our @EXPORT_OK = qw(value_exists trim_series get_label create_uid get_length get_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash);
+our @EXPORT_OK = qw(value_exists trim_series get_label create_uid get_length get_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash get_json);
 
 my $script = "BenchPostprocess";
 
@@ -52,7 +53,7 @@ sub get_label {
 			'max_stddevpct_label' => 'max_stddevpct',
 			'max_failures_label' => 'max_failures',
 			'skip_aggregate_label' => 'skip_aggregate',
-	                'rw_label' => 'read(0) or write(1)' );
+			'rw_label' => 'read(0) or write(1)' );
 	if ( $labels{$key} ) {
 		return $labels{$key}
 	} else {
@@ -75,6 +76,38 @@ sub create_uid {
 sub get_length {
 	my $text = shift;
 	return scalar split("", $text)
+}
+
+# read a json file and put in hash
+# the return value is a reference
+sub get_json {
+	my $perl_scalar = 0;
+	my $filename = shift;
+	if (open(JSON, "<:encoding(UTF-8)", $filename)) {
+		my $json_text = "";
+		my $junk_mode = 1;
+		while ( <JSON> ) {
+			if ($junk_mode) {
+				if ( /(.*)(\{.*)/ ) { # ignore any junk before the "{"
+					$junk_mode = 0;
+					my $junk = $1;
+					my $not_junk = $2;
+					$json_text = $json_text . $not_junk;
+				}
+			} else {
+				$json_text = $json_text . $_;
+			}
+		}
+		close JSON;
+		if ($json_text eq "") {
+			print "Empty contents for \'$filename\'\n";
+		} else {
+			$perl_scalar = from_json($json_text);
+		}
+	} else {
+		print "Could not open \'$filename\'\n";
+	}
+	return $perl_scalar;
 }
 
 sub get_uid {

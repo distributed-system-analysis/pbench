@@ -22,7 +22,7 @@ use lib "$_test_alt_tools_lib";
 use lib "$_test_alt_bench_lib";
 no lib ".";
 use GenData qw(gen_data);
-use BenchPostprocess qw(value_exists trim_series get_label create_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash);
+use BenchPostprocess qw(value_exists trim_series get_label create_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash get_json);
 use File::Basename;
 use Data::Dumper;
 use List::Util('sum');
@@ -95,15 +95,6 @@ my @iops_sec;	# each array element contains a hash with:
 	    	# role: <client or server>
 	    	# timeseries: a hash of timstamp:value key-pair
 
-my %benchmark_parameters_dataset = ( 	get_label('benchmark_name_label') => $benchmark_name,
-					get_label('benchmark_version_label') => $benchmark_version,
-					#get_label('test_type_label') => $test_type,
-					#get_label('block_size_kbytes_label') => int $block_size_kbytes,
-					#get_label('clients_label') => $clients,
-					get_label('primary_metric_label') => $primary_metric,
-					get_label('uid_label') => create_uid('benchmark_name_label', 'controller_host_label')  );
-
-push(@benchmark, \%benchmark_parameters_dataset);
 
 # Get the tool data
 # Define a set of tool directories which we want to use to report CPU and efficiency metrics
@@ -121,7 +112,7 @@ if (opendir($dh, $tool_group_dir)) {
 			$tool_ids{$this_tool_dir} = $tool_dir_id;
 		}
 	}
-        closedir  $dh;
+	closedir  $dh;
 } else {
 	print "$script: could not find any directories in $tool_group_dir which matched $tool_label_pattern\n";
 }
@@ -146,6 +137,85 @@ foreach $this_tool_dir (sort keys %tool_ids) {
 if ( @cpu_busy ) {
 	$resource{'cpu_busy'} = \@cpu_busy;
 }
+
+# get the fio benchmark parameters from the fio-result.txt (which is mostly json data)
+my %benchmark_params;
+my $fio_results_path = $dir . "/fio-result.txt";
+die "$script: $fio_results_path does not exist!\n" if ! -f $fio_results_path;
+die "$script: $fio_results_path is empty!\n" if -z $fio_results_path;
+my $fio_results_scalar = get_json($fio_results_path);
+if ($fio_results_scalar == 0) {
+	die "$script: Failed to read valid JSON from $fio_results_path!\n";
+}
+my %fio_results = %$fio_results_scalar;
+my $job_num = 1;
+my $num_jobs = 1;
+
+# There are two areas to get benchmark parameters for fio:
+# -global options: these are the options usually populated in the top of a fio-job file,
+#  or given on cmdline
+# -per-job options: there are the options usually populated in the per-job section
+#  of a fio-job file
+
+for my $param (keys (%{ $fio_results{"global options"} })) {
+	if (not $param =~/^write_\w+_log$/) {
+		$benchmark_params{$param} = $fio_results{'global options'}{$param};
+	}
+}
+
+# Because we have to deal with two different modes in which fio may be run,
+# (with or without "--clients"), the job-specific options might be in two
+# different locations within the fio-provided json.  Once we find the right
+# location, we save this reference for processing.  Although there are two
+# possible locations for the job options, the format is the same, so we can
+# process them with the same code.
+my $jobs_stats;
+if ($fio_results{"client_stats"}) { # when using --clients
+	$jobs_stats = \$fio_results{"client_stats"};
+}
+if ($fio_results{"jobs"}) {
+	$jobs_stats = \$fio_results{"jobs"}; # when not using --clients
+}
+
+# The remaining benchmark parameters, if any, come from the fio-job-specific options.
+# The values for these parameters are concatenated with commas into a single value and assigned
+# to a single benchmark parameter.  For example, "rw=read,read" for 2 jobs.
+my $total_jobs=0;
+if (defined $jobs_stats) {
+	# first, we build a set of all per-job options we can find across all jobs
+	my %all_job_params;
+	for my $job (@{ $$jobs_stats }) {
+		if (defined $$job{"job options"}) {
+			for my $job_param (keys $$job{"job options"} ) {
+				$all_job_params{$job_param} = "";
+			}
+		}
+	}
+	# now we can search all jobs for all params, and if some are not present, insert ",," in our
+	# ordered list of per-job parameters
+	for my $job (@{ $$jobs_stats }) {
+		if (defined $$job{"job options"}) {
+			for my $job_param (keys %all_job_params) {
+				my $value;
+				if (not defined $$job{"job options"}{$job_param}) {
+					$value = "";
+				} else {
+					$value = $$job{"job options"}{$job_param};
+				}
+				if (not defined $benchmark_params{$job_param}) {
+					$benchmark_params{$job_param} = $value;
+				} else  {
+					$benchmark_params{$job_param} = $benchmark_params{$job_param} . "," . $value;
+				}
+			}
+		}
+	}
+}
+
+$benchmark_params{get_label('benchmark_name_label')} = $benchmark_name;
+$benchmark_params{get_label('primary_metric_label')} = $primary_metric;
+$benchmark_params{get_label('uid_label')} = create_uid('benchmark_name_label', 'controller_host_label');
+push(@benchmark, \%benchmark_params);
 
 # Load the data from fio output and create throughput & latency metrics.
 # There can be several result files, for each client involved in this test
@@ -206,13 +276,13 @@ foreach $client_hostname_dir (@client_hostname_dirs) {
 					#my $timestamp_ms = $1 + $date_base;
 					my $timestamp_ms = $1;
 					my $value = $2;
-                                        my $rwtype = $3;
+					my $rwtype = $3;
 					my %sample = (get_label('date_label') => int $timestamp_ms, get_label('value_label') => int $value, get_label('rw_label') => int $rwtype);
-                                        my $index = value_exists(get_label('date_label'), $timestamp_ms, \@samples);
-                                        # duplicate timestamp *AND* duplicate rwtype
+					my $index = value_exists(get_label('date_label'), $timestamp_ms, \@samples);
+					# duplicate timestamp *AND* duplicate rwtype
 					if ($index >= 0 && $samples[$index]{get_label('rw_label')} == $rwtype) {
 						printf "warning: timestamp already exists with this RW type, skipping this sample (file = %s timestamp = %d, value = %d, rwtype = %d)\n",
-                                                    "$dir/clients/$client_hostname_dir/$log_file", $timestamp_ms, $value, $rwtype;
+						    "$dir/clients/$client_hostname_dir/$log_file", $timestamp_ms, $value, $rwtype;
 					} else {
 						push(@samples, \%sample);
 					}
