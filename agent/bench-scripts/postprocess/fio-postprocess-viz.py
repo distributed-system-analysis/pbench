@@ -1,6 +1,8 @@
 #!/usr/bin/env python2
-import os
-join = os.path.join
+from __future__ import print_function
+
+import sys
+from os.path import join
 try:
     from configparser import SafeConfigParser
 except ImportError:
@@ -21,7 +23,7 @@ html = \
 <div id='jschart_latency'>
   <script>
     create_jschart(0, "%s", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
-        { plotfiles: [ "avg.log", "median.log", "p90.log", "p95.log",
+        { plotfiles: [ "median.log", "p90.log", "p95.log",
                        "p99.log", "min.log", "max.log" ],
           sort_datasets: false, x_log_scale: false
         });
@@ -32,21 +34,26 @@ html = \
 </html>
 """
 
-columns = ["samples", "min", "avg", "median", "p90", "p95", "p99", "max"]
+columns = ["samples", "min", "median", "p90", "p95", "p99", "max"]
 
 def main(ctx):
 
-  out_files = [open(join(ctx.DIR, "%s.log" % c), 'w') for c in columns]
-  for i in range(len(columns)):
-    out_files[i].write("#LABEL:%s\n" % columns[i])
-
   with open(join(ctx.DIR, 'hist.csv'), 'r') as csv:
-    csv.readline()
+    line = csv.readline()
+    while line and not line.__contains__('min, median'):
+        line = csv.readline()
+    if not line:
+        print('ERROR: hit end of file without seeing header', file=sys.stderr)
+        sys.exit(1)
+    out_files = [open(join(ctx.DIR, "%s.log" % c), 'w') for c in columns]
+    for i in range(len(columns)):
+      out_files[i].write("#LABEL:%s\n" % columns[i])
     for line in csv:
       vs = line.split(', ')
       for i in range(len(columns)):
         out_files[i].write("%d %s\n" % (int(vs[0]), vs[i+1].rstrip()))
-
+    for i in range(len(columns)):
+      out_files[i].close()
   chart_type = "xy"
   cp = SafeConfigParser(allow_no_value=True)
   cp.read(ctx.job_file)
