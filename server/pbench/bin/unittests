@@ -381,7 +381,14 @@ declare -A cmds=(
     # indexing tests
     [test-7.0]="_run_index -I"
     [test-7.1]="_run_index"
-    [test-7.2]="_run_index"
+
+    # 7.2.X: UnsupportedTarballFormat exceptions:
+    # missing metadata.log
+    [test-7.2.0]="_run_index"
+
+    # badly formed tarball: ./<resultdir> prefix instead of <resultdir>
+    [test-7.2.1]="_run_index"
+
     [test-7.3]="_run_index"
     [test-7.4]="_run_index"
     [test-7.5]="_run_index"
@@ -400,6 +407,16 @@ declare -A cmds=(
     [test-7.13]="_run_index"
     # The mpstat results data is in 7.14.
     [test-7.14]="_run_index"
+
+    # truncated uperf results data so we can do
+    # a complete comparison of input to output.
+    # uperf throughput (Gb_sec) results
+    [test-7.15]="_run_index"
+
+    # truncated uperf results data so we can do
+    # a complete comparison of input to output.
+    # uperf latency and throughput (usec and trans_sec) results
+    [test-7.16]="_run_index"
 
     # activation test
     [test-8]="_run_activate"

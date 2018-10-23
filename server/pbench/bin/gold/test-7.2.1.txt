@@ -1,0 +1,59 @@
++++ Running indexing for test-7.2.1
+Unsupported Tarball Format:  /var/tmp/pbench-test-server/pbench/uperf__2016-10-06_16:34:03.tar.xz - tarball member dir prefix should be "uperf__2016-10-06_16:34:03", but is "." instead.
+--- Finished indexing for test-7.2.1 (status=4)
++++ Running unit test audit
+--- Finished unit test audit (status=0)
++++ var/www/html tree state (/var/tmp/pbench-test-server/var-www-html)
+lrwxrwxrwx         55 incoming -> /var/tmp/pbench-test-server/pbench/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
+-rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--         87 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         87 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         54 results -> /var/tmp/pbench-test-server/pbench/public_html/results
+lrwxrwxrwx         52 users -> /var/tmp/pbench-test-server/pbench/public_html/users
+--- var/www/html tree state
++++ pbench tree state (/var/tmp/pbench-test-server/pbench)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - logs
+drwxrwxr-x          - logs/pbench-audit-archive
+-rw-rw-r--          0 logs/pbench-audit-archive/pbench-audit-archive.error
+-rw-rw-r--          1 logs/pbench-audit-archive/pbench-audit-archive.log
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/users
+drwxrwxr-x          - tmp
+-rw-rw-r--    5809020 uperf__2016-10-06_16:34:03.tar.xz
+-rw-r--r--         68 uperf__2016-10-06_16:34:03.tar.xz.md5
+--- pbench tree state
++++ pbench-local tree state (/var/tmp/pbench-test-server/pbench-local)
+drwxrwxr-x          - fs-version-001
+drwxrwxr-x          - fs-version-001/pbench-move-results-receive
+drwxrwxr-x          - fs-version-002
+drwxrwxr-x          - fs-version-002/pbench-move-results-receive
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-001
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-001
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-001
+drwxrwxr-x          - quarantine/md5-002
+--- pbench-local tree state
++++ pbench log file contents
+/var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
+--- pbench log file contents
++++ test-execution.log file contents
+curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/d5ee68b33a845dac49792935d85c10ce --data @/tmp/pbench-report-status.NNNN/payload
+--- test-execution.log file contents
++++ test-curl-payload.log file contents
+{
+    "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nend-1900-01-01T00:00:00-UTC\n", 
+    "@timestamp": "1900-01-01T00:00:00", 
+    "name": "pbench-audit-archive", 
+    "doctype": "status"
+}
+--- test-curl-payload.log file contents

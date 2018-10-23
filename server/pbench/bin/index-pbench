@@ -75,6 +75,8 @@ class UnsupportedTarballFormat(Exception):
 class SosreportHostname(Exception):
     pass
 
+class BadResultData(Exception):
+    pass
 
 _ts_start = None
 def ts(msg, newline=False):
@@ -225,6 +227,32 @@ def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config, dbg=0):
         sys.stdout.flush()
 
 
+
+###########################################################################
+# Pbench Data abstract class - ToolData and ResultData inherit from it.
+
+class PbenchData(object):
+
+    def __init__(self, ptb):
+
+        self.start_run_ts, self.end_run_ts = ptb.gen_run_timestamps()
+        self.ptb = ptb
+        self.counters = Counter()
+
+    def convert_timestamp(self, orig_ts):
+        # Convert the given timestamp, assumed to be a float in
+        # milliseconds since the epoch *and* in UTC, to the expected
+        # string timestamp format.
+        ts_float = float(orig_ts)/1000
+        ts = datetime.utcfromtimestamp(ts_float)
+        if self.start_run_ts is not None and ts < self.start_run_ts:
+            self.counters['result_ts_before_start_run_ts'] += 1
+        if self.end_run_ts is not None and ts > self.end_run_ts:
+            self.counters['result_ts_after_end_run_ts'] += 1
+        return ts.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+
+
+
 ###########################################################################
 # Benchmark result data: json files only
 #
@@ -234,7 +262,7 @@ def convert_to_float(d):
     if type(d) == type({}) and len(d) != 0:
         for k1 in d:
             convert_to_float(d[k1])
-    elif type(d) == type([]) and len(d) != 0:
+    elif (type(d) == type([]) or type(d) == type(())) and len(d) != 0:
         # for {date, value} timeseries, convert the value but leave the date alone
         if type(d[0]) == type({}) and set(d[0].keys()).issuperset(set(['date', 'value'])):
             for i in range(0, len(d)):
@@ -245,16 +273,16 @@ def convert_to_float(d):
     else:
         pass
 
+class ResultData(PbenchData):
 
-class ResultData(object):
     def __init__(self, ptb, experiment, opctx):
+        super().__init__(ptb)
+
         self.run_metadata = _dict_const([
             ("runtstamp", ptb.start_run),
             ("runid", ptb.md5sum),
             ("experiment", experiment)
         ])
-        self.ptb = ptb
-        self.counters = Counter()
         opctx.append(_dict_const(object="ResultData", counters=self.counters))
         self.json_files = None
         try:
@@ -264,21 +292,28 @@ class ResultData(object):
 
     def _make_source_json(self):
         for df in self.json_files:
-            try:
-                # Read it once to generate the source_id
-                with open(os.path.join(self.ptb.extracted_root, df['path']), "rb") as fp:
-                    hash_md5 = hashlib.md5()
-                    for chunk in iter(lambda: fp.read(4096), b""):
-                        hash_md5.update(chunk)
-                    source_id = hash_md5.hexdigest()
-            except Exception as e:
-                print("result-data-indexing: encountered unreadable JSON file,"
-                        " %s: %r" % (df['path'], e))
-                self.counters['unreadable_json_file'] += 1
+            iteration = None
+            sample = None
+
+            dirbasename = os.path.basename(os.path.dirname(df['path']))
+            if dirbasename.startswith('sample'):
+                # sample result.json
+                src_type = 'sample'
+                sample = dirbasename
+                iteration = os.path.basename(os.path.dirname(os.path.dirname(df['path'])))
+                iter_number, iter_name = iteration.split('-', 1)[0:2]
+            elif dirbasename != self.run_metadata['experiment']:
+                # iteration result.json
+                src_type = 'iteration'
+                iteration = os.path.basename(os.path.dirname(df['path']))
+                iter_number, iter_name = iteration.split('-', 1)[0:2]
+            else:
+                # experiment result.json - we don't handle it yet.
+                src_type = 'experiment'
                 continue
 
             try:
-                # Read it a second time to interpret it as a JSON document.
+                # Read the file and interpret it as a JSON document.
                 with open(os.path.join(self.ptb.extracted_root, df['path'])) as fp:
                     results = json.load(fp)
             except Exception as e:
@@ -287,20 +322,54 @@ class ResultData(object):
                 self.counters['not_valid_json_file'] += 1
                 continue
 
-            convert_to_float(results)
+            # There should always be a 'parameters' block.
+            # There is no reason for this to be an array, but it is: we
+            # just pick the 0^th (and only element) as the metadata for
+            # the document.
+            try:
+                md = results['parameters']['benchmark'][0]
+                if sample:
+                    md.update({"iteration_name": iter_name,
+                               "iteration_number": iter_number,
+                               "sample": sample})
+                elif iteration:
+                    md.update({"iteration_name": iter_name,
+                               "iteration_number": iter_number})
+                else:
+                    pass
 
-            source = _dict_const()
-            source['results'] = results
-            source['@metadata'] = self.run_metadata
-            ts_str = self.run_metadata['runtstamp']
-            source['@timestamp'] = ts_str
+                benchmark = md['benchmark_name']
+                # for each file, generate a sequence of documents and yield each one
+                for ts, src, source_id in ResultData.gen_sources(results, benchmark, src_type):
+                    # each generated result is a document, accompanied by a timestamp
+                    # and some metadata.
+                    source = _dict_const()
+                    # make a shallow copy of the run metadata dict here
+                    # so that the update will only change the copy, not
+                    # the original
+                    source['@metadata'] = self.run_metadata.copy()
+                    source['@metadata'].update(md)
 
-            yield source, source_id
+                    # XXX ASSUMPTION: the timestamps we get from the result data are
+                    # "milliseconds since epoch" and they are are *assumed* to be UTC.
+                    source['@timestamp'] = ts
+                    source['results'] = src
+
+                    yield source, source_id
+            except Exception as e:
+                print("result-data-indexing: bad result data in JSON file,"
+                        " %s: %r" % (df['path'], e))
+                self.counters['bad_result_data_in_json_file'] += 1
+                continue
+
         return
 
     def make_source(self):
-        """Simple jump method to pick the write source generator based on the
-        handler's prospectus."""
+        """
+        If we ever decide we need to process anything other than JSON files, this
+        is going to become a jump method, similar to ToolData.make_source().
+        ATM, we only handle JSON files.
+        """
         if not self.json_files:
             # If we do not have any json files for this experiment, ignore it.
             return None
@@ -321,6 +390,155 @@ class ResultData(object):
             datafiles.append(datafile)
         return datafiles
 
+    @staticmethod
+    def expand_template(templ, d):
+        import re
+
+        # match %...% patterns non-greedily.
+        e = re.compile("%\w*?%")
+        s = templ
+        for m in re.findall(e, s):
+            # m[1:-1] strips the initial and final % signs from the match.
+            s = re.sub(e, d[m[1:-1]], s)
+        return s
+
+    @staticmethod
+    def make_datum_wrapper(mtype, units, templ):
+        # make a shallow copy
+        d = templ.copy()
+        del d['timeseries']
+        # rename the "value" field to 'aggr_value'
+        d['aggr_value'] = d['value']
+        del d['value']
+        # construct the uid from the template and the values in d
+        # and replace the template with the result
+        d['uid'] = ResultData.expand_template(d['uid'], d)
+
+        d['measurement_type'] = mtype
+        d['measurement_units'] = units
+
+        return d
+
+    @staticmethod
+    def gen_sources(results, benchmark, src_type):
+        # sample results is a dict with either two or three
+        # (top-level) entries: latency results have three entries:
+        # parameters.benchmark, latency.usec, throughput.trans_sec.
+        # throughput results have two entries: parameters.benchmark,
+        # throughput.Gb_sec.  All entries are lists, but
+        # paremeters.benchmark is a one-element list, whereas the
+        # other lists may have multiple elements, one for a cumulative
+        # entry ("all" clients/servers) and one for each pair of
+        # client/server in the experiment (at least for uperf - fio is
+        # TBD).
+
+        # iteration results is a dict with either two or three
+        # (top-level) entries: latency results have three entries:
+        # parameters.benchmark, latency.usec, throughput.trans_sec.
+        # throughput results have two entries: parameters.benchmark,
+        # throughput.Gb_sec.  All entries are lists, but
+        # paremeters.benchmark is a one-element list, whereas the
+        # other lists may have multiple elements, one for a cumulative
+        # entry ("all" clients/servers) and one for each pair of
+        # client/server in the experiment (at least for uperf - fio is
+        # TBD).
+
+        # Up to this point, iteration results are identical in
+        # structure to sample results, but at this level they diverge:
+        # sample data contain a timeseries list for the sample,
+        # whereas iteration data contain a samples list: each element
+        # of the list contains a timeseries list and a "value"
+        # which is the aggregation of the results in the timeseries
+        # (generally, the mean). At the iteration level, the mean is
+        # called "mean", rather than "value", but apart from that,
+        # iteration data and sample data are very similar.
+
+        if 'latency' in results:
+            # Latency results include a latency['usec'] list (or
+            # latency['clat'|'slat'|???] in the fio case) *and* a
+            # throughput['trans_sec'] list (or throughput['iops_sec']
+            # in the fio case). Each list has elements for "all" and
+            # for each client/server pair (or client?) used in the test.
+            if benchmark == "uperf":
+                latency_sublist = ['usec']
+            elif benchmark == "fio":
+                latency_sublist = ['clat', 'lat', 'slat']
+            else:
+                raise BadResultData
+
+            for sublist in latency_sublist:
+                if src_type != 'sample':
+                    return
+                latency_list = results['latency'][sublist]
+                for idx, latency_el in enumerate(latency_list):
+                    datum_wrapper = ResultData.make_datum_wrapper('latency', sublist, latency_el)
+                    tseries = latency_el['timeseries']
+                    for res in tseries:
+                        datum = datum_wrapper
+                        datum.update({"value": res['value']})
+                        src_id = _make_source_id(datum)
+                        yield res['date'], datum, src_id
+
+        if 'throughput' in results:
+            # Throughput results include a trans_sec, Gb_sec or
+            # iops_sec list only, depending on the benchmark (uperf or
+            # fio) and the kind of iteration: latency measurements
+            # include a trans_sec throughput sublist, but throughput
+            # measurements include a GB_sec sublist (for uperf) or
+            # an iops_sec sublist (for fio).
+
+            if benchmark == "uperf":
+                if 'trans_sec' in results['throughput']:
+                    throughput_sublist = ['trans_sec']
+                elif 'Gb_sec' in results['throughput']:
+                    throughput_sublist = ['Gb_sec']
+                else:
+                    raise BadResultData
+            elif benchmark == "fio":
+                throughput_sublist = ['iops_sec']
+            else:
+                raise BadResultData
+
+            for sublist in throughput_sublist:
+                if src_type != 'sample':
+                    return
+                throughput_list = results['throughput'][sublist]
+                for idx, xput_el in enumerate(throughput_list):
+                    datum_wrapper = ResultData.make_datum_wrapper('throughput', sublist, xput_el)
+                    tseries = xput_el['timeseries']
+                    for res in tseries:
+                        datum = datum_wrapper
+                        datum.update({"value": res['value']})
+                        src_id = _make_source_id(datum)
+                        yield res['date'], datum, src_id
+
+        return
+
+def mk_result_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
+
+    experiment = ptb.mdconf.get("pbench", "name")
+    rd = ResultData(ptb, experiment, opctx)
+    if not rd:
+        return
+    # sources is a generator
+    sources = rd.make_source()
+    if not sources:
+        return
+    for source, source_id in sources:
+        tstamp = rd.convert_timestamp(source['@timestamp'])
+        year, month, day = tstamp.split('T', 1)[0].split('-')[0:3]
+        action = _dict_const(
+            _op_type=_op_type,
+            _index= idx_patterns["result-data"]["template"].format(prefix=idx_prefix,
+                                                                   year=year,
+                                                                   month=month,
+                                                                   day=day),
+            _type="pbench-result-data",
+            _id=source_id,
+            _source=source
+        )
+        yield action
+    return
 
 ###########################################################################
 # Tool data routines
@@ -591,31 +809,17 @@ _aliases = {
 }
 
 
-class ToolData(object):
+class ToolData(PbenchData):
     def __init__(self, ptb, experiment, iteration, sample, host, tool,
                 toolgroup, opctx):
-        self.ptb = ptb
+        super().__init__(ptb)
         self.toolname = tool
-        self.counters = Counter()
         opctx.append(_dict_const(object="ToolData-%s" % (tool), counters=self.counters))
         try:
             (iterseqno, itername) = iteration.split('-', 1)
         except ValueError:
             iterseqno = itername = iteration
-        try:
-            self.start_run_ts = datetime.strptime(ptb.start_run, "%Y-%m-%dT%H:%M:%S.%f")
-        except ValueError:
-            try:
-                self.start_run_ts = datetime.strptime(ptb.start_run, "%Y-%m-%dT%H:%M:%S")
-            except ValueError:
-                self.start_run_ts = None
-        try:
-            self.end_run_ts = datetime.strptime(ptb.end_run, "%Y-%m-%dT%H:%M:%S.%f")
-        except ValueError:
-            try:
-                self.end_run_ts = datetime.strptime(ptb.end_run, "%Y-%m-%dT%H:%M:%S")
-            except ValueError:
-                self.end_run_ts = None
+
         self.run_metadata = _dict_const(
             runtstamp=ptb.start_run,
             runid=ptb.md5sum,
@@ -652,17 +856,6 @@ class ToolData(object):
             # about them.
             self.files = ToolData.get_files(
                     self.handler, iteration, sample, hostpath, tool, toolgroup, ptb)
-
-    def convert_timestamp(self, orig_ts):
-        # Convert the given string timestamp, assumed to be a float in
-        # milliseconds since the epoch, to the expected string timestamp format.
-        ts_float = float(orig_ts)/1000
-        ts = datetime.utcfromtimestamp(ts_float)
-        if self.start_run_ts is not None and ts < self.start_run_ts:
-            self.counters['tool_ts_before_start_run_ts'] += 1
-        if self.end_run_ts is not None and ts > self.end_run_ts:
-            self.counters['tool_ts_after_end_run_ts'] += 1
-        return ts.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
 
     def _make_source_unified(self):
         """Create one JSON document per identifier, per timestamp from
@@ -1066,7 +1259,7 @@ class ToolData(object):
         return
 
     def make_source(self):
-        """Simple jump method to pick the write source generator based on the
+        """Simple jump method to pick the correct source generator based on the
         handler's prospectus."""
         if not self.files:
             # If we do not have any data files for this tool, ignore it.
@@ -1324,30 +1517,6 @@ def mk_tool_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
             yield action
     return
 
-def mk_result_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
-
-    experiment = ptb.mdconf.get("pbench", "name")
-    rd = ResultData(ptb, experiment, opctx)
-    if not rd:
-        return
-    sources = rd.make_source()
-    if not sources:
-        return
-    for source, source_id in sources:
-        year, month, day = source['@timestamp'].split('T', 1)[0].split('-')[0:3]
-        action = _dict_const(
-            _op_type=_op_type,
-            _index= idx_patterns["result-data"]["template"].format(prefix=idx_prefix,
-                                                                   year=year,
-                                                                   month=month,
-                                                                   day=day),
-            _type="pbench-result-data",
-            _id=source_id,
-            _source=source
-        )
-        yield action
-    return
-
 ###########################################################################
 # Build tar ball table-of-contents (toc) source documents.
 
@@ -1467,11 +1636,9 @@ def mk_tool_info(sos_d, mdconf):
     """Return a dict containing tool info (local and remote)"""
     try:
         tools_array = []
-        # from pprint import pprint; pprint(mdconf.get("tools", "hosts"))
 
         labels = _dict_const()
         for host in mdconf.get("tools", "hosts").split():
-            # from pprint import pprint; pprint(host)
             tools_info = _dict_const()
             # XXX - we should have an FQDN for the host but
             # sometimes we have only an IP address.
@@ -1764,7 +1931,7 @@ def mk_run_metadata(mdconf, md5sum, dirname):
         d['tarball-toc-prefix'] = dirname
         del d['rpm-version']
     except KeyError as e:
-        print("Tarball: %s - %s is missing in metadata.log\n" % (dirname, e), file=sys.stdout)
+        print("Tarball: %s - %s is missing in metadata.log." % (dirname, e), file=sys.stdout)
         d = _dict_const()
     return d
 
@@ -1871,7 +2038,11 @@ class PbenchTarBall(object):
         if sampled_prefix != self.dirname:
             # All members of the tarball should have self.dirname as its
             # prefix.
-            raise UnsupportedTarballFormat(self.tbname)
+            raise UnsupportedTarballFormat(
+                "{} - tarball member dir prefix should be \"{}\", but is \"{}\" instead.".format(
+                    self.tbname,
+                    self.dirname,
+                    sampled_prefix))
 
         # Verify we have a metadata.log file in the tar ball before we
         # start extracting.
@@ -1879,14 +2050,18 @@ class PbenchTarBall(object):
         try:
             self.tb.getmember(member_name)
         except KeyError:
-            raise UnsupportedTarballFormat(self.tbname)
+            raise UnsupportedTarballFormat(
+                "{} - tarball is missing \"{}\".".format(self.tbname, member_name))
 
         # The caller of index-pbench is expected to clean up the temporary
         # directory.
         self.tb.extractall(path=tmpdir)
         self.extracted_root = tmpdir
         if not os.path.isdir(os.path.join(self.extracted_root, self.dirname)):
-            raise UnsupportedTarballFormat(self.tbname)
+            raise UnsupportedTarballFormat(
+                "{} - extracted tarball but can't get to the directory \"{}\".".format(
+                    self.tbname,
+                    os.path.join(self.extracted_root, self.dirname)))
         try:
             self.mdconf = PbenchTarBall.get_mdconfig(
                     os.path.join(self.extracted_root, member_name))
@@ -1904,6 +2079,24 @@ class PbenchTarBall(object):
             raise BadDate(self.tbname)
         # Open the MD5 file of the tarball and read the MD5 sum from it.
         self.md5sum = open("%s.md5" % (self.tbname)).read().split()[0]
+
+    def gen_run_timestamps(self):
+        try:
+            start_run_ts = datetime.strptime(self.start_run, "%Y-%m-%dT%H:%M:%S.%f")
+        except ValueError:
+            try:
+                start_run_ts = datetime.strptime(self.start_run, "%Y-%m-%dT%H:%M:%S")
+            except ValueError:
+                start_run_ts = None
+        try:
+            end_run_ts = datetime.strptime(self.end_run, "%Y-%m-%dT%H:%M:%S.%f")
+        except ValueError:
+            try:
+                end_run_ts = datetime.strptime(self.end_run, "%Y-%m-%dT%H:%M:%S")
+            except ValueError:
+                end_run_ts = None
+
+        return start_run_ts, end_run_ts
 
     @staticmethod
     def get_mdconfig(mdf):
@@ -2053,7 +2246,7 @@ def main(options, args):
         res = 3
 
     except UnsupportedTarballFormat as e:
-        print("Unsupported Tarball Format - no metadata.log: ", e, file=sys.stderr)
+        print("Unsupported Tarball Format: ", e, file=sys.stderr)
         res = 4
 
     except BadDate as e:
