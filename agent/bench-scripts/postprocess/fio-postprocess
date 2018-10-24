@@ -186,7 +186,7 @@ if (defined $jobs_stats) {
 	my %all_job_params;
 	for my $job (@{ $$jobs_stats }) {
 		if (defined $$job{"job options"}) {
-			for my $job_param (keys $$job{"job options"} ) {
+			for my $job_param (keys (%{ $$job{"job options"} }) ) {
 				$all_job_params{$job_param} = "";
 			}
 		}
