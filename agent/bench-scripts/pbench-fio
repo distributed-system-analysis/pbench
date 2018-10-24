@@ -595,7 +595,9 @@ function fio_run_job() {
 			if [ ! -z $numjobs ]; then 
 				let max_jobs=$numjobs
 			else
-				let max_jobs=$max_jobs+1
+			       for t in `echo $targets | sed -e s/,/" "/g` ; do 
+				       let max_jobs=$max_jobs+1
+			       done
 			fi 
 		done
 		client_opts="$client_opts --max-jobs=$max_jobs"
