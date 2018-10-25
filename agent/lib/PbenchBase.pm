@@ -114,7 +114,6 @@ sub get_benchmark_names {
 	my @entries = readdir($dh);
 	for my $entry (grep(!/pbench/, @entries)) {
 		if ($entry =~ /^(\w+)\.json$/) {
-			#printf "%s\n", $1;
 			push(@benchmarks, $1);
 		}
 	}

@@ -32,12 +32,14 @@ my $num_samples = 1;
 # the only required [positional] argument is the benchmark name; verify it now
 if (scalar @ARGV == 0) {
 	print "You must supply at least a benchmark name:\n";
-	get_benchmark_names(get_pbench_bench_config_dir);
+	my @benchmarks = get_benchmark_names(get_pbench_bench_config_dir);
+	printf "%s\n",  join(" ", @benchmarks);
 	exit;
 }
 my $benchmark = shift(@ARGV);
 if ($benchmark eq "list") {
-	get_benchmark_names(get_pbench_bench_config_dir);
+	my @benchmarks = get_benchmark_names(get_pbench_bench_config_dir);
+	printf "%s\n",  join(" ", @benchmarks);
 	exit;
 }
 # the rest of the parameters are --arg=val, most of which we just pass to other scripts,
