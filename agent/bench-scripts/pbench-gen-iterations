@@ -188,12 +188,14 @@ sub build_iteration_cmds {
 # check for required options for pbench-gen-iterations
 if (scalar @ARGV == 0) {
 	print "You must supply at least a benchmark name:\n";
-	get_benchmark_names($pbench_bench_config_dir);
+	my @benchmarks = get_benchmark_names($pbench_bench_config_dir);
+	printf "%s\n",  join(" ", @benchmarks);
 	exit;
 }
 my $benchmark = shift(@ARGV);
 if ($benchmark eq "list") {
-	get_benchmark_names($pbench_bench_config_dir);
+	my @benchmarks = get_benchmark_names($pbench_bench_config_dir);
+	printf "%s\n",  join(" ", @benchmarks);
 	exit;
 }
 
