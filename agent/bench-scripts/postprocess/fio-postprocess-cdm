@@ -30,15 +30,15 @@ my $rundir = shift(@ARGV);
 my $base_bench_dir = shift(@ARGV);
 my $json_ref = get_json_file("sample.json");
 my %bench_iter_sample = %$json_ref; # this is the CDM doc for this benchmark-iteration-sample
-my $sample_id = $bench_iter_sample{"sample_id"}; # needs to be included in all metric-sample docs
-my $run_id = $bench_iter_sample{"run_id"}; # needs to be included in all metric-sample docs
+my $sample_id = $bench_iter_sample{'sample'}{'id'}; # needs to be included in all metric-sample docs
+my $run_id = $bench_iter_sample{'run'}{'id'}; # needs to be included in all metric-sample docs
 # create [at least one] benchmark period: a window of time during this benchmark, this one marked as "measurement",
 # to indicate this period as the one the the UI/query tool computes a summary metric 
 my %bench_iter_sample_period = create_bench_iter_sample_period_doc(\%bench_iter_sample, "measurement");
 # the primary metric needs to match exactly one metric-type that gets created from the benchmark data
-$bench_iter_sample{"iteration_primary_metric"} = "iops";
-$bench_iter_sample{"iteration_primary_period"} = "measurement";
-put_json_file(\%bench_iter_sample, $base_bench_dir . "/es/bench/sample-" . $bench_iter_sample{"sample_id"} . ".json");
+$bench_iter_sample{'iteration'}{'primary_metric'} = "iops";
+$bench_iter_sample{'iteration'}{'primary_period'} = "measurement";
+put_json_file(\%bench_iter_sample, $base_bench_dir . "/es/bench/sample-" . $bench_iter_sample{'sample'}{'id'} . ".json");
 
 # under ./clients/<hostname>, process the fio result files
 opendir(my $clients_dh, "clients") || die "$script_name: could not open directory clients: $!\n";
@@ -65,34 +65,39 @@ for my $client_hostname (@client_hostname_dirs) {
 				remove_element(\@log_metric_types, $metric_type);
 				open(my $log_fh, "clients/$client_hostname/$log_file") || die "$script_name: could not open file clients/$client_hostname/$log_file $!\n";
 				while (<$log_fh>) {
+					my $last_timestamp_ms;
 					my $line = "$_";
 					chomp($line);
 					if ( $line =~  /(\d+),\s+(\d+),\s+(\d+),\s+(\d+)/ ) {
 						my $timestamp_ms = $1;
 						my $value = $2;
                                         	my $rwtype = $3; #todo: generate per-rwtype metrics
-						my %metric_sample = create_metric_sample_doc(
-									\%bench_iter_sample_period,
-									"throughput",	# metric-class
-									$metric_type,	# metric-type
-									$client_hostname,# hostname
-									"fio",		# the source
-									# the metric-instance name format
-									"%source%-%type%-%hostname%",
-									$value,		# the value of the metric
-									$timestamp_ms	# the timestamp
-									);
-						put_json_file(\%metric_sample, "../../es/metrics/" .
-										$client_hostname .
-										"/metric-" .
-										$metric_sample{"metric_id"} .
-										".json");
+						if ($last_timestamp_ms) {
+							my %metric_sample = create_metric_sample_doc(
+								\%bench_iter_sample_period,
+								"throughput",	# metric-class
+								$metric_type,	# metric-type
+								$client_hostname,# hostname
+								"fio",		# the source
+								# the metric-instance name format
+								"%source%-%type%-%hostname%",
+								$value,		# the value of the metric
+								$timestamp_ms	# the timestamp
+								);
+							$metric_sample{'metric'}{'begin'} = $last_timestamp_ms;
+							put_json_file(\%metric_sample, "../../es/metrics/" .
+								$client_hostname .
+								"/metric-" .
+								$metric_sample{'metric'}{'id'} .
+								".json");
+						}
 						if (! $period_earliest_timestamp or $period_earliest_timestamp > $timestamp_ms) {
 							$period_earliest_timestamp = $timestamp_ms;
 						}
 						if (! $period_latest_timestamp or $period_latest_timestamp < $timestamp_ms) {
 							$period_latest_timestamp = $timestamp_ms;
 						}
+						$last_timestamp_ms = $timestamp_ms;
 					}
 				}
 				close($log_fh);
@@ -100,9 +105,9 @@ for my $client_hostname (@client_hostname_dirs) {
 		}
 	}
 }
-$bench_iter_sample_period{'begin'} = $period_earliest_timestamp;
-$bench_iter_sample_period{'end'} = $period_latest_timestamp;
-my $period_file = $base_bench_dir . "/es/bench/period-" . $bench_iter_sample_period{"sample_id"} . ".json";
+$bench_iter_sample_period{'period'}{'begin'} = $period_earliest_timestamp;
+$bench_iter_sample_period{'period'}{'end'} = $period_latest_timestamp;
+my $period_file = $base_bench_dir . "/es/bench/period-" . $bench_iter_sample_period{'period'}{'id'} . ".json";
 put_json_file(\%bench_iter_sample_period, $period_file);
 my $tools_cdm_pp_cmd = "pbench-postprocess-tools-cdm " . $period_file . " " . $base_bench_dir . "/es  " . $rundir;
 printf "tools_cdm_pp cmd\n%s\n\n", $tools_cdm_pp_cmd;

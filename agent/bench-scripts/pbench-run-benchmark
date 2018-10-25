@@ -87,7 +87,10 @@ mkdir($es_dir);
 for my $es_subdir (qw(run bench config metrics)) {
 	mkdir($es_dir . "/" . $es_subdir);
 }
-
+if (! $params{'clients'}) {
+	print "You must specify at least 1 client with --clients\n";
+	exit 1;
+}
 # use stockpile to collect configuration information
 my @config_hosts = split(/,/, $params{"clients"});
 print "Collecting confguration information with stockpile\n";
@@ -112,7 +115,7 @@ open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
 my $iteration_id = 0;
 for my $iteration_params (@iterations) {
 	my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,); 
-	put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{"iteration_id"} . ".json");
+	put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{'iteration'}{'id'} . ".json");
 	printf $fh "%d %s\n", $iteration_id, $iteration_params;
 	printf "iteration_ID: %d iteration_params: %s\n", $iteration_id, $iteration_params;
 	for (my $sample_id=0; $sample_id<$num_samples; $sample_id++) {
@@ -121,7 +124,7 @@ for my $iteration_params (@iterations) {
 		mkdir($iteration_dir);
 		my $iteration_sample_dir = $iteration_dir . "/sample" . $sample_id;
 		mkdir($iteration_sample_dir);
-		my $benchmark_cmd = "pbench-run-benchmark-sample " . $es_dir . "/bench/iteration-" . $iter_doc{"iteration_id"} . ".json " . $iteration_sample_dir . " " . $base_bench_dir . " " . $tool_group;
+		my $benchmark_cmd = "pbench-run-benchmark-sample " . $es_dir . "/bench/iteration-" . $iter_doc{'iteration'}{'id'} . ".json " . $iteration_sample_dir . " " . $base_bench_dir . " " . $tool_group;
 		my $benchmark_sample_output = `$benchmark_cmd`;
 		my $exit_code = $?;
 		if ($exit_code != 0) {
@@ -133,7 +136,9 @@ for my $iteration_params (@iterations) {
 	$iteration_id++;
 }
 close $fh;
-put_json_file(\%run_doc, $es_dir . "/run/run-" . $run_doc{'run_id'} . ".json");
+#$run_doc{'doc'}{'type'} = "run";
+$run_doc{'run'}{'end'} = time * 1000;
+put_json_file(\%run_doc, $es_dir . "/run/run-" . $run_doc{'run'}{'id'} . ".json");
 
 # convert the stockpile data with scribe, then create CDM docs in ./es/config
 system('scl enable rh-python36 \'python3 -m venv /var/lib/pbench-agent/tmp/scribe && cd ' . $base_bench_dir . ' && scribe -t stockpile -ip ./stockpile.json >scribe.json\'');
@@ -144,15 +149,15 @@ while (<$scribe_fh>) {
 	$json_text .= $_;
 	if (/^\}/) { # assume this is the end of a json doc
 		my %config_doc = create_config_doc(\%run_doc, from_json($json_text));
-		if ($config_doc{'doc_type'}) {
-			if ($config_doc{$config_doc{'doc_type'} . "_id"}) {
-				put_json_file(\%config_doc, $es_dir . "/config/" . $config_doc{'doc_type'} . "-" . $config_doc{$config_doc{'doc_type'} . "_id"} . ".json");
+		if ($config_doc{'cdm'}{'doctype'} =~ /^config_(.+)/) {
+			my $config_subname = $1;
+			if ($config_doc{'config'}{'id'}) {
+				put_json_file(\%config_doc, $es_dir . "/config/" . $config_doc{'cdm'}{'doctype'} . "-" . $config_doc{'config'}{'id'} . ".json");
 			} else {
-				printf "Error: config doc is missng \"%s_id\"\n", $config_doc{'doc_type'};
+				printf "Error: config doc's config.%s not found\n", $config_subname;
 			}
 		} else {
-			printf "Error: config doc is missng \"%s\"\n", "doc_type";
-			print Dumper \%config_doc;
+			printf "Error: config doc's cdm.doctype does not start with \"config_\"\n";
 		}
 		$json_text = "";
 	}
