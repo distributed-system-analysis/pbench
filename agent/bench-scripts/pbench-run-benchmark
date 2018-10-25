@@ -93,8 +93,10 @@ if (! $params{'clients'}) {
 }
 # use stockpile to collect configuration information
 my @config_hosts = split(/,/, $params{"clients"});
-print "Collecting confguration information with stockpile\n";
-stockpile_hosts(\@config_hosts, $base_bench_dir, "stockpile_output_path=". $base_bench_dir . "/stockpile.json");
+if (-e "/tmp/stockpile") {
+	print "Collecting confguration information with stockpile\n";
+	stockpile_hosts(\@config_hosts, $base_bench_dir, "stockpile_output_path=". $base_bench_dir . "/stockpile.json");
+}
 	
 # pass the rest of the args to pbench-gen-iterations and store the iterations in an array
 print "Generating all benchmark iterations\n";
@@ -141,25 +143,27 @@ $run_doc{'run'}{'end'} = time * 1000;
 put_json_file(\%run_doc, $es_dir . "/run/run-" . $run_doc{'run'}{'id'} . ".json");
 
 # convert the stockpile data with scribe, then create CDM docs in ./es/config
-system('scl enable rh-python36 \'python3 -m venv /var/lib/pbench-agent/tmp/scribe && cd ' . $base_bench_dir . ' && scribe -t stockpile -ip ./stockpile.json >scribe.json\'');
-open(my $scribe_fh, "<" . $base_bench_dir . "/scribe.json") || die "Could not open " . $base_bench_dir . "/scribe.json";
-my $json_text = "";
-# The scribe output is not correct json format. Instead of 1 json document, there are actually multiple documents, but no seperator between them or organized in an array
-while (<$scribe_fh>) {
-	$json_text .= $_;
-	if (/^\}/) { # assume this is the end of a json doc
-		my %config_doc = create_config_doc(\%run_doc, from_json($json_text));
-		if ($config_doc{'cdm'}{'doctype'} =~ /^config_(.+)/) {
-			my $config_subname = $1;
-			if ($config_doc{'config'}{'id'}) {
-				put_json_file(\%config_doc, $es_dir . "/config/" . $config_doc{'cdm'}{'doctype'} . "-" . $config_doc{'config'}{'id'} . ".json");
+if (-e $base_bench_dir . "/stockpile.json") {
+	system('scl enable rh-python36 \'python3 -m venv /var/lib/pbench-agent/tmp/scribe && cd ' . $base_bench_dir . ' && scribe -t stockpile -ip ./stockpile.json >scribe.json\'');
+	open(my $scribe_fh, "<" . $base_bench_dir . "/scribe.json") || die "Could not open " . $base_bench_dir . "/scribe.json";
+	my $json_text = "";
+	# The scribe output is not correct json format. Instead of 1 json document, there are actually multiple documents, but no seperator between them or organized in an array
+	while (<$scribe_fh>) {
+		$json_text .= $_;
+		if (/^\}/) { # assume this is the end of a json doc
+			my %config_doc = create_config_doc(\%run_doc, from_json($json_text));
+			if ($config_doc{'cdm'}{'doctype'} =~ /^config_(.+)/) {
+				my $config_subname = $1;
+				if ($config_doc{'config'}{'id'}) {
+					put_json_file(\%config_doc, $es_dir . "/config/" . $config_doc{'cdm'}{'doctype'} . "-" . $config_doc{'config'}{'id'} . ".json");
+				} else {
+					printf "Error: config doc's config.%s not found\n", $config_subname;
+				}
 			} else {
-				printf "Error: config doc's config.%s not found\n", $config_subname;
-			}
-		} else {
-			printf "Error: config doc's cdm.doctype does not start with \"config_\"\n";
+				printf "Error: config doc's cdm.doctype does not start with \"config_\"\n";
+					}
+			$json_text = "";
 		}
-		$json_text = "";
 	}
+	close($scribe_fh);
 }
-close($scribe_fh);
