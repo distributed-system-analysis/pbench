@@ -35,12 +35,16 @@ my %period_doc = %$json_ref; # this is the CDM doc for the run
 
 # there should be a directory for each host that have tools
 my $timestamp_ms;
+my $last_timestamp_ms;
 open(IOSTAT_TXT, $tool_dir . "/iostat-stdout.txt") || die "could not find iostat-stdout.txt";
 while (my $line = <IOSTAT_TXT>) {
 	chomp $line;
 	# Each sample should start with a time stamp (the -t in iostat).
 	# When we find this, update our timestamp for the hash.
 	if ( $line =~ /^\d\d\/\d\d\/\d\d(\d\d)?\s\d\d:\d\d:\d\d(\s[AP]M)?/ ) {
+		if ($timestamp_ms) {
+			$last_timestamp_ms = $timestamp_ms;
+		}
 		$timestamp_ms=`date --date="$line" +%s.%N` * 1000;
 	}
 	#Device:         rrqm/s   wrqm/s     r/s     w/s    rMB/s    wMB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
@@ -50,7 +54,7 @@ while (my $line = <IOSTAT_TXT>) {
 	#dm-2              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
 	#dm-3              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
 	#                         rrqm/s      wrqm/s       r/s          w/s          rMB/s        wMD/s        avgrqsz      avgqsz       await        r_await      w_await      svctm        util
-	if ( $line =~ /(\S+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)(.*)/ ) {
+	if ( $line =~ /(\S+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)(.*)/ and $last_timestamp_ms) {
 		my $dev = $1;
 		my %sample;
 		$sample{"throughput"}{"blockdev_read_request_merges_sec"} = $2;
@@ -78,11 +82,12 @@ while (my $line = <IOSTAT_TXT>) {
 					$sample{$metric_class}{$metric_type},	# the value of the metric
 					$timestamp_ms	# the timestamp
 					);
-				$metric_sample{"device"} = $dev;
+				$metric_sample{"metric"}{"device"} = $dev;
+				$metric_sample{"metric"}{"begin"} = $last_timestamp_ms - 1;
 				put_json_file(\%metric_sample, $es_dir . "/metrics/" .
 						$hostname .
 						"/metric-" .
-						$metric_sample{"metric_id"} .
+						$metric_sample{'metric'}{'id'} .
 						".json");
 			}
 		}

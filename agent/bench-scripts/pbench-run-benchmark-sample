@@ -58,14 +58,13 @@ mkdir($rundir);
 my $json_ref = get_json_file($iter_doc_filename);
 my %bench_iter = %$json_ref; # this is the CDM doc for this benchmark-iteration
 my %bench_iter_sample_doc = create_bench_iter_sample_doc(\%bench_iter);;
-$bench_iter_sample_doc{'sample_num'} = $sample_num;
-my %bench_specs = load_benchmark_config($bench_iter{'run_bench_name'});
+$bench_iter_sample_doc{'sample'}{'num'} = $sample_num;
+my %bench_specs = load_benchmark_config($bench_iter{'run'}{'bench'}{'name'});
 my $host_type;
 my %remote_hosts; # build a hash of clients and servers which will be used in almost all the steps bewlow
 for $host_type ("client", "server") {
-	my $doc_field_name = 'run_bench_' . $host_type . 's';
-	if ($bench_iter{$doc_field_name}) {
-		my @hosts = split(/,/, $bench_iter{$doc_field_name});
+	if ($bench_iter{'run'}{'bench'}{$host_type . 's'}) {
+		my @hosts = split(/,/, $bench_iter{'run'}{'bench'}{$host_type . 's'});
 		$remote_hosts{$host_type} = \@hosts;
 	}
 }
@@ -100,7 +99,7 @@ for $host_type (reverse sort keys %remote_hosts) { # reverse sort ensures "serve
 	if ($remote_hosts{$host_type} and scalar @{ $remote_hosts{$host_type} }) {
 		my $cmdline;
 		if ($bench_specs{$host_type}{"bin"}) {
-			$cmdline = $bench_specs{$host_type}{"bin"} . " " . $bench_iter{'iteration_params'};
+			$cmdline = $bench_specs{$host_type}{"bin"} . " " . $bench_iter{'iteration'}{'params'};
 		} else {
 			print "%s->bin does not exist, exiting\n", $host_type;
 			exit 1;
@@ -140,6 +139,6 @@ if ($bench_specs{"controller"}{"post-script"} and $bench_specs{"controller"}{"po
 	open(my $fh, ">" . $rundir . "/postprocess-output.txt");
 } else {
 	# If there is no post-processor for the benchmark (there really should be!) then this script will write the bench_iter_saple CDM doc (although not really complete)
-	put_json_file(\%bench_iter_sample_doc, $base_bench_dir . "/es/bench/sample-" . $bench_iter_sample_doc{"sample_id"} . ".json");
+	put_json_file(\%bench_iter_sample_doc, $base_bench_dir . "/es/bench/sample-" . $bench_iter_sample_doc{'sample'}{'id'} . ".json");
 	print "warning: there is no post-script for this benchmark\n";
 }
