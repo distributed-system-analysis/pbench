@@ -133,7 +133,15 @@ sub process_param {
 	my $processed_values = "";
 	for my $regex_types (keys $$param_ref{"specs"}) {
 		if (grep(/^$argument$/, @{ $$param_ref{"specs"}{$regex_types}{"arguments"} })) {
+			my %past_values;
 			for my $value (split(/,/, $values)) { # users can provide multiple values for an option
+				if (exists $past_values{$value}) {
+				    #printf "the value, \'%s\', for argument, \'%s\', was already used, skipping\n", $value, $argument;
+				    next;
+				} else {
+				    $past_values{$value} = 1;
+				}
+
 				if ($value =~ /$$param_ref{"specs"}{$regex_types}{"value_regex"}/) {
 					if ($$param_ref{"specs"}{$regex_types}{"value_transforms"}) {
 						for my $transform (@{ $$param_ref{"specs"}{$regex_types}{"value_transforms"} }) {
