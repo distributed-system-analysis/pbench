@@ -101,7 +101,7 @@ for $host_type (reverse sort keys %remote_hosts) { # reverse sort ensures "serve
 		if ($bench_specs{$host_type}{"bin"}) {
 			$cmdline = $bench_specs{$host_type}{"bin"} . " " . $bench_iter{'iteration'}{'params'};
 		} else {
-			print "%s->bin does not exist, exiting\n", $host_type;
+			printf "%s->bin does not exist, exiting\n", $host_type;
 			exit 1;
 		}
 		if ($bench_specs{$host_type} and $bench_specs{$host_type}{"param_regex"}) {
