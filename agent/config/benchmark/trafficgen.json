@@ -1,0 +1,129 @@
+{
+    "controller": {
+	"pre-script": "",
+	"post-script": "",
+	"parameters": {
+	    "defaults": {
+		"default": [],
+		"mandatory": []
+	    },
+	    "specs": {
+		"integer": {
+		    "description": "Numeric whole number values",
+		    "arguments": [ "frame-size",
+				   "num-flows",
+				   "validation-runtime",
+				   "search-runtime",
+				   "sniff-runtime",
+				   "latency-rate",
+				   "trial-gap",
+				   "max-retries",
+				   "teaching-warmup-packet-rate",
+				   "teaching-measurement-packet-rate",
+				   "teaching-warmup-packets-per-flow"
+				 ],
+		    "value_regex": "[0-9]+"
+		},
+		"float": {
+		    "description": "Numeric positive real number values",
+		    "arguments": [ "rate",
+				   "min-rate",
+				   "rate-tolerance",
+				   "runtime-tolerance",
+				   "search-granularity",
+				   "max-loss-pct",
+				   "teaching-measurement-interval",
+				   "random-seed",
+				   "trex-profiler-interval"
+				 ],
+		    "value_regex": "[0-9]*.[0-9]*"
+		},
+		"boolean_like": {
+		    "description": "Boolean like variables that should be set to either 0 or 1",
+		    "arguments": [ "use-src-ip-flows",
+				   "use-dst-ip-flows",
+				   "use-src-mac-flows",
+				   "use-dst-mac-flows",
+				   "use-src-port-flows",
+				   "use-dst-port-flows",
+				   "use-protocol-flows",
+				   "use-encap-src-ip-flows",
+				   "use-encap-dst-ip-flows",
+				   "use-encap-src-mac-flows",
+				   "use-encap-dst-mac-flows",
+				   "one-shot",
+				   "measure-latency"
+				 ],
+		    "value_regex": "[0,1]"
+		},
+		"yes_no": {
+		    "description": "Boolean like variables that should be set to either 'y' (yes) or 'n' (no)",
+		    "arguments": [ "use-ht",
+				   "use-l2",
+				   "use-vlan"
+				 ],
+		    "value_regex": "[y,n]"
+		},
+		"key_only": {
+		    "description": "Options that are --key only and not --key=value",
+		    "arguments": [ "use-device-stats",
+				   "enable-segment-monitor",
+				   "disable-flow-cache",
+				   "send-teaching-warmup",
+				   "send-teaching-measurement",
+				   "disable-trex-profiler"
+				 ],
+		    "value_regex": "[ON,OFF]"
+		},
+		"generic_string": {
+		    "description": "all types of strings",
+		    "arguments": [ "tmp-dir",
+				   "trex-dir",
+				   "devices",
+				   "yaml-file",
+				   "output-dir",
+				   "traffic-direction",
+				   "rate-unit",
+				   "packet-protocol",
+				   "duplicate-packet-failure",
+				   "rate-tolerance-failure",
+				   "negative-packet-loss",
+				   "src-ports",
+				   "dst-ports",
+				   "dst-macs",
+				   "src-macs",
+				   "encap-dst-macs'",
+				   "encap-src-macs",
+				   "dst-ips",
+				   "src-ips",
+				   "vxlan-ids",
+				   "vlan-ids",
+				   "encap-dst-ips",
+				   "encap-src-ips",
+				   "traffic-generator",
+				   "loss-granularity",
+				   "stream-mode",
+				   "device-pairs",
+				   "active-device-pairs",
+				   "teaching-warmup-packet-type",
+				   "teaching-measurement-packet-type",
+				   "traffic-profile",
+				   "pre-trial-cmd"
+				 ],
+		    "value_regex": ".+"
+		}
+	    }
+	}
+    },
+    "client": {
+	"packages": [],
+	"pre-script": "",
+	"post-script": "",
+	"copy-to": [],
+	"bin": "/usr/bin/echo",
+	"param_regex": [ "s/--clients=.+//",
+			 "s/(\\s--.+)=ON/$1/g",
+			 "s/\\s--.+=OFF//g"
+		       ]
+    }
+}
