@@ -113,7 +113,7 @@ sub run_playbook { # execute a playbook
 		$extra_vars_opt = " --extra-vars " . $extra_vars . " ";
 	}
 	my $playbook_file = build_playbook($playbook_ref, $logdir);
-	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
+	my $full_cmd = "ANSIBLE_CONFIG=" . $script_path . "/../config/ansible.cfg " .
 			$ansible_playbook_cmdline . $extra_vars_opt . " -i " .  $inv_file . " " . $playbook_file;
 	my $output = `$full_cmd`;
 	log_ansible($logdir, $full_cmd, $output);
@@ -130,7 +130,7 @@ sub ping_hosts { # check for connectivity with ping
 	my $basedir = shift; # we create a new dir under this and log all Ansible files and output
 	my $logdir = get_ansible_logdir($basedir, "ping_hosts");
 	my $inv_file = build_inventory($hosts_ref, $logdir);
-	my $full_cmd = "ANSIBLE_CONFIG=/var/lib/pbench-agent/ansible.cfg " .
+	my $full_cmd = "ANSIBLE_CONFIG=" . $script_path . "/../config/ansible.cfg " .
 			$ansible_base_cmdline . " -i " .  $inv_file . " all -m ping";
 	my $output = `$full_cmd`;
 	log_ansible($logdir, $full_cmd, $output);
