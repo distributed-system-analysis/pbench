@@ -62,7 +62,7 @@ while true; do
 		;;
                 --type)
                 shift;
-		if [[ -z `echo "$1" | tr -d "[:alnum:]_-"` ]] && [[ "$1" =~ ^[a-zA-Z] ]]; then 
+		if [[ -z `echo "$1" | tr -d "[:alnum:]_-"` ]] && [[ "$1" =~ ^[a-zA-Z] ]]; then
 			type="$1"
 			shift
 		else

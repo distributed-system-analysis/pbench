@@ -19,7 +19,7 @@ class CompareIterations extends React.Component {
     iterations: PropTypes.array,
     configCategories: PropTypes.array,
     configData: PropTypes.array,
-    results: PropTypes.array, 
+    results: PropTypes.array,
     controller: PropTypes.controller
   };
 
@@ -110,7 +110,7 @@ class CompareIterations extends React.Component {
     var primaryMetricIterations = [];
     primaryMetricIterations = _.mapValues(_.groupBy(iterations, 'primary_metric'),
                             clist => clist.map(iteration => _.omit(iteration, 'primary_metric')));
-    var clusteredIterations = [];                     
+    var clusteredIterations = [];
     for (var cluster in primaryMetricIterations) {
       clusteredIterations = [];
       if (typeof config == "object" && config.length > 0) {
@@ -124,9 +124,9 @@ class CompareIterations extends React.Component {
       } else {
         clusteredIterations = _.mapValues(_.groupBy(primaryMetricIterations[cluster], config),
                               clist => clist.map(iteration => _.omit(iteration, config)));
-      } 
+      }
       primaryMetricIterations[cluster] = clusteredIterations;
-    }                 
+    }
     this.setState({primaryMetricIterations: primaryMetricIterations});
     this.retrieveTimeseriesData(primaryMetricIterations);
     this.parseGraphData(primaryMetricIterations);
@@ -227,7 +227,7 @@ class CompareIterations extends React.Component {
       __html: '<iframe style="overflow: hidden; overflow-y: hidden; height: 650px; border: none; margin: 0; padding: 0; scrolling: none" src=' + datastore.pbench_server + '/results/' + controllerName + '/' + resultName + '/' + iterationNumber + '-' + iterationName + '/' + 'sample' + closestSample + '/uperf.html" width="100%" height="1000"></iframe>'
     }
   }
-  
+
   showIterationModal = (record) => {
     console.log(record);
     this.setState({selectedSample: record});
@@ -291,7 +291,7 @@ class CompareIterations extends React.Component {
         <div>
           <DescriptionList size="small" col="1" gutter={16}>
             <Description term="Controller">{<Tag>{controller}</Tag>}</Description>
-            <Description term="Results">{results.map((result) => 
+            <Description term="Results">{results.map((result) =>
                   <Tag>{result.result}</Tag>
                 )}
             </Description>
@@ -370,7 +370,7 @@ class CompareIterations extends React.Component {
             <div dangerouslySetInnerHTML={this.iframe(selectedSample.controller_name, selectedSample.result_name, selectedSample.iteration_number, selectedSample.iteration_name, selectedSample.closest_sample)}>
             </div>
           </Modal>
-          <div>   
+          <div>
             <PageHeader
               title="Run Comparison Details"
               content={description}
@@ -488,7 +488,7 @@ class CompareIterations extends React.Component {
                   <div style={{margin: 16, height: 1000}}>
                     {Object.keys(timeseriesData).length > 0 & Object.keys(timeseriesDropdown).length > 0 ?
                       <div style={{marginBottom: 32}}>
-                        {Object.keys(tableData).map((table) => 
+                        {Object.keys(tableData).map((table) =>
                             <div>
                               <div style={{display: 'flex', flexDirection: 'row'}}>
                                 <h4 style={{marginLeft: 16, marginTop: 8}}>{table}</h4>
@@ -517,7 +517,7 @@ class CompareIterations extends React.Component {
           </Card>
           <br></br>
           <Card title="Cluster Tables">
-            {Object.keys(tableData).map((table) => 
+            {Object.keys(tableData).map((table) =>
               <Table
                bordered
                id={table}

@@ -11,7 +11,7 @@ case $1 in
     turbostat)
         # test-05
         # multiple pids to trigger the warning
-        # 123463 is unkillable 
+        # 123463 is unkillable
         echo 123463 123464 123465 123466 123467
         ;;
     kvmstat)

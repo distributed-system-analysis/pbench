@@ -42,10 +42,10 @@ spec:
           hostPath:
             path: /root/.ssh
         - name: admin-keys
-          hostPath: 
+          hostPath:
             path: /etc/origin/master
         - name: certs
           hostPath:
             path: /etc/pki
-      nodeSelector: 
+      nodeSelector:
         type: pbench

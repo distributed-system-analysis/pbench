@@ -620,10 +620,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:21:36          7   1146.74
 
 23:21:33        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:21:36          3      8087       7dc       200                                                                        
+23:21:36          3      8087       7dc       200
 23:21:36          3       46d      c52b       196                Logitech                                    USB Receiver
-23:21:36          2      8087      8000         0                                                                        
-23:21:36          1      8087      8008         0                                                                        
+23:21:36          2      8087      8000         0
+23:21:36          1      8087      8008         0
 23:21:36          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:21:36          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:21:36          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -1253,10 +1253,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:21:39          7   2762.94
 
 23:21:36        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:21:39          3      8087       7dc       200                                                                        
+23:21:39          3      8087       7dc       200
 23:21:39          3       46d      c52b       196                Logitech                                    USB Receiver
-23:21:39          2      8087      8000         0                                                                        
-23:21:39          1      8087      8008         0                                                                        
+23:21:39          2      8087      8000         0
+23:21:39          1      8087      8008         0
 23:21:39          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:21:39          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:21:39          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -1886,10 +1886,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:21:42          7   1308.25
 
 23:21:39        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:21:42          3      8087       7dc       200                                                                        
+23:21:42          3      8087       7dc       200
 23:21:42          3       46d      c52b       196                Logitech                                    USB Receiver
-23:21:42          2      8087      8000         0                                                                        
-23:21:42          1      8087      8008         0                                                                        
+23:21:42          2      8087      8000         0
+23:21:42          1      8087      8008         0
 23:21:42          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:21:42          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:21:42          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -2519,10 +2519,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:21:45          7   1750.25
 
 23:21:42        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:21:45          3      8087       7dc       200                                                                        
+23:21:45          3      8087       7dc       200
 23:21:45          3       46d      c52b       196                Logitech                                    USB Receiver
-23:21:45          2      8087      8000         0                                                                        
-23:21:45          1      8087      8008         0                                                                        
+23:21:45          2      8087      8000         0
+23:21:45          1      8087      8008         0
 23:21:45          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:21:45          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:21:45          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -3152,10 +3152,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:21:48          7   1130.71
 
 23:21:45        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:21:48          3      8087       7dc       200                                                                        
+23:21:48          3      8087       7dc       200
 23:21:48          3       46d      c52b       196                Logitech                                    USB Receiver
-23:21:48          2      8087      8000         0                                                                        
-23:21:48          1      8087      8008         0                                                                        
+23:21:48          2      8087      8000         0
+23:21:48          1      8087      8008         0
 23:21:48          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:21:48          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:21:48          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -3785,10 +3785,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:21:51          7   1097.74
 
 23:21:48        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:21:51          3      8087       7dc       200                                                                        
+23:21:51          3      8087       7dc       200
 23:21:51          3       46d      c52b       196                Logitech                                    USB Receiver
-23:21:51          2      8087      8000         0                                                                        
-23:21:51          1      8087      8008         0                                                                        
+23:21:51          2      8087      8000         0
+23:21:51          1      8087      8008         0
 23:21:51          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:21:51          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:21:51          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -4418,10 +4418,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:21:54          7   1197.57
 
 23:21:51        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:21:54          3      8087       7dc       200                                                                        
+23:21:54          3      8087       7dc       200
 23:21:54          3       46d      c52b       196                Logitech                                    USB Receiver
-23:21:54          2      8087      8000         0                                                                        
-23:21:54          1      8087      8008         0                                                                        
+23:21:54          2      8087      8000         0
+23:21:54          1      8087      8008         0
 23:21:54          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:21:54          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:21:54          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -5051,10 +5051,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:21:57          7   1496.80
 
 23:21:54        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:21:57          3      8087       7dc       200                                                                        
+23:21:57          3      8087       7dc       200
 23:21:57          3       46d      c52b       196                Logitech                                    USB Receiver
-23:21:57          2      8087      8000         0                                                                        
-23:21:57          1      8087      8008         0                                                                        
+23:21:57          2      8087      8000         0
+23:21:57          1      8087      8008         0
 23:21:57          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:21:57          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:21:57          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -5684,10 +5684,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:22:00          7   3542.91
 
 23:21:57        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:22:00          3      8087       7dc       200                                                                        
+23:22:00          3      8087       7dc       200
 23:22:00          3       46d      c52b       196                Logitech                                    USB Receiver
-23:22:00          2      8087      8000         0                                                                        
-23:22:00          1      8087      8008         0                                                                        
+23:22:00          2      8087      8000         0
+23:22:00          1      8087      8008         0
 23:22:00          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:22:00          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:22:00          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -6317,10 +6317,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:22:03          7   3470.17
 
 23:22:00        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:22:03          3      8087       7dc       200                                                                        
+23:22:03          3      8087       7dc       200
 23:22:03          3       46d      c52b       196                Logitech                                    USB Receiver
-23:22:03          2      8087      8000         0                                                                        
-23:22:03          1      8087      8008         0                                                                        
+23:22:03          2      8087      8000         0
+23:22:03          1      8087      8008         0
 23:22:03          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:22:03          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:22:03          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -6950,10 +6950,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:22:06          7   1507.60
 
 23:22:03        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:22:06          3      8087       7dc       200                                                                        
+23:22:06          3      8087       7dc       200
 23:22:06          3       46d      c52b       196                Logitech                                    USB Receiver
-23:22:06          2      8087      8000         0                                                                        
-23:22:06          1      8087      8008         0                                                                        
+23:22:06          2      8087      8000         0
+23:22:06          1      8087      8008         0
 23:22:06          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:22:06          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:22:06          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -7583,10 +7583,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:22:09          7    807.07
 
 23:22:06        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:22:09          3      8087       7dc       200                                                                        
+23:22:09          3      8087       7dc       200
 23:22:09          3       46d      c52b       196                Logitech                                    USB Receiver
-23:22:09          2      8087      8000         0                                                                        
-23:22:09          1      8087      8008         0                                                                        
+23:22:09          2      8087      8000         0
+23:22:09          1      8087      8008         0
 23:22:09          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:22:09          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:22:09          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -8216,10 +8216,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:22:12          7   1298.70
 
 23:22:09        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:22:12          3      8087       7dc       200                                                                        
+23:22:12          3      8087       7dc       200
 23:22:12          3       46d      c52b       196                Logitech                                    USB Receiver
-23:22:12          2      8087      8000         0                                                                        
-23:22:12          1      8087      8008         0                                                                        
+23:22:12          2      8087      8000         0
+23:22:12          1      8087      8008         0
 23:22:12          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:22:12          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:22:12          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -8849,10 +8849,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:22:15          7   1303.14
 
 23:22:12        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:22:15          3      8087       7dc       200                                                                        
+23:22:15          3      8087       7dc       200
 23:22:15          3       46d      c52b       196                Logitech                                    USB Receiver
-23:22:15          2      8087      8000         0                                                                        
-23:22:15          1      8087      8008         0                                                                        
+23:22:15          2      8087      8000         0
+23:22:15          1      8087      8008         0
 23:22:15          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:22:15          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:22:15          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -9482,10 +9482,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:22:18          7   1052.84
 
 23:22:15        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:22:18          3      8087       7dc       200                                                                        
+23:22:18          3      8087       7dc       200
 23:22:18          3       46d      c52b       196                Logitech                                    USB Receiver
-23:22:18          2      8087      8000         0                                                                        
-23:22:18          1      8087      8008         0                                                                        
+23:22:18          2      8087      8000         0
+23:22:18          1      8087      8008         0
 23:22:18          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:22:18          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:22:18          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -10115,10 +10115,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:22:21          7   1912.21
 
 23:22:18        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:22:21          3      8087       7dc       200                                                                        
+23:22:21          3      8087       7dc       200
 23:22:21          3       46d      c52b       196                Logitech                                    USB Receiver
-23:22:21          2      8087      8000         0                                                                        
-23:22:21          1      8087      8008         0                                                                        
+23:22:21          2      8087      8000         0
+23:22:21          1      8087      8008         0
 23:22:21          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:22:21          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:22:21          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -10748,10 +10748,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:22:24          7   1147.11
 
 23:22:21        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:22:24          3      8087       7dc       200                                                                        
+23:22:24          3      8087       7dc       200
 23:22:24          3       46d      c52b       196                Logitech                                    USB Receiver
-23:22:24          2      8087      8000         0                                                                        
-23:22:24          1      8087      8008         0                                                                        
+23:22:24          2      8087      8000         0
+23:22:24          1      8087      8008         0
 23:22:24          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:22:24          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:22:24          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -11381,10 +11381,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:22:27          7    931.69
 
 23:22:24        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:22:27          3      8087       7dc       200                                                                        
+23:22:27          3      8087       7dc       200
 23:22:27          3       46d      c52b       196                Logitech                                    USB Receiver
-23:22:27          2      8087      8000         0                                                                        
-23:22:27          1      8087      8008         0                                                                        
+23:22:27          2      8087      8000         0
+23:22:27          1      8087      8008         0
 23:22:27          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:22:27          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:22:27          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -12014,10 +12014,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:22:30          7   1101.64
 
 23:22:27        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:22:30          3      8087       7dc       200                                                                        
+23:22:30          3      8087       7dc       200
 23:22:30          3       46d      c52b       196                Logitech                                    USB Receiver
-23:22:30          2      8087      8000         0                                                                        
-23:22:30          1      8087      8008         0                                                                        
+23:22:30          2      8087      8000         0
+23:22:30          1      8087      8008         0
 23:22:30          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:22:30          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:22:30          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -12647,10 +12647,10 @@ Linux 4.16.5-200.fc27.x86_64 (alphaville.usersys.redhat.com) 	05/22/18 	_x86_64_
 23:22:33          7   3526.80
 
 23:22:30        BUS  idvendor    idprod  maxpower                manufact                                         product
-23:22:33          3      8087       7dc       200                                                                        
+23:22:33          3      8087       7dc       200
 23:22:33          3       46d      c52b       196                Logitech                                    USB Receiver
-23:22:33          2      8087      8000         0                                                                        
-23:22:33          1      8087      8008         0                                                                        
+23:22:33          2      8087      8000         0
+23:22:33          1      8087      8008         0
 23:22:33          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 23:22:33          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 23:22:33          3      1050        10        60                  Yubico                               Yubico Yubikey II

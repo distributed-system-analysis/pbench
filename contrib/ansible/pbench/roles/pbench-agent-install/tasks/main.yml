@@ -1,8 +1,8 @@
---- 
+---
 - name: check if pbench-agent is installed
   shell: rpm -q pbench-agent
   register: pbench_status
-  
+
 - block:
    - name: install pbench-agent RPM itself via dnf
      dnf: name={{ item }} state=latest

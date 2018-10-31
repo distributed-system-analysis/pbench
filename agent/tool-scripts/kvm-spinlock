@@ -312,7 +312,7 @@ case "$mode" in
 		else
 			mount -t debugfs none /sys/kernel/debug
 		fi
-		# no version is provided here because we rely on a 
+		# no version is provided here because we rely on a
 		# distribution provided package and we take whatever we can get
 		check_install_rpm trace-cmd
 		rc=$?

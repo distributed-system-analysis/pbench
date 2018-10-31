@@ -43,7 +43,7 @@ use JSON;
 #
 my %workload;   # root hash for all data, contains hash refs to
 		# %paramters, %throughput, %latency, %resource, %efficiency
-		
+
 my %parameters;	# a hash of parameter-type:parameter-value that was
 		# $parameters{benchmark[0].rate}
 my @benchmark;	# each array element contains a hash with:
@@ -76,7 +76,7 @@ my %latency;    # a hash of latency-type:array-of-latency-values,
 	    	# port_id:
 	    	# role:
 	    	# description:
-my @usec_avg;   # 
+my @usec_avg;   #
 my @usec_min;
 my @usec_max;
 
@@ -97,7 +97,7 @@ my @tx_L1_Gbps; # each array element contains a hash with:
 	    	# port_id:
 	    	# role: packet-generator
 	    	# the number value for 10^9 bits per second for physical Ethernet (layer 1, including CRC and padding)
-	    	
+
 my @rx_L2_Gbps; #
 my @tx_L2_Gbps; # each array element contains a hash with:
 	    	# hostname:
@@ -222,7 +222,7 @@ if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'}
 		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
 
 		{ 'category' => 'global', 'js_label' => 'Global PPS', 'field' => 'pps', 'metric_label' => 'tx', 'group' => 'tx',
-		  'metric_class' => 'throughput', 'desc' => 'The number of packets (Ethernet frames) transmitted per second', 
+		  'metric_class' => 'throughput', 'desc' => 'The number of packets (Ethernet frames) transmitted per second',
 		  'divisor' => int 1, 'cumulative' => 0, 'last' => 0 },
 
 		{ 'category' => 'global', 'js_label' => 'Global BPS', 'field' => 'bps', 'metric_label' => 'rx', 'group' => 'rx',

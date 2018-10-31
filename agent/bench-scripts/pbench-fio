@@ -16,7 +16,7 @@ export benchmark_run_dir=""
 # allow unit tests to override
 if [[ -z "$benchmark_bin" ]]; then
 	benchmark_bin=/usr/local/bin/$benchmark
-fi	
+fi
 ver=$(getconf.py version pbench-fio)
 if [ -z "$ver" ] ;then
 	echo "pbench-fio: package version is missing in config file" > /dev/tty
@@ -354,17 +354,17 @@ function fio_process_options() {
 			;;
 			--directory)
 			shift;
-			if [ -n "$1" ]; then 
+			if [ -n "$1" ]; then
 				directory="$1"
 				shift;
 			fi
-			;; 
+			;;
 			--numjobs)
 			shift;
 			if [ -n "$1" ]; then
 				numjobs="$1"
 				shift;
-			fi 
+			fi
 			;;
 			--job-file)
 			shift;
@@ -463,7 +463,7 @@ function fio_install() {
 			debug_log "[$script_name]$benchmark_rpm $ver installation failed, exiting"
 			exit 1
 		fi
-                
+
 	fi
 	if [ ! -z "$clients" ] ; then
 		debug_log "verifying clients have fio installed"
@@ -573,10 +573,10 @@ function fio_run_job() {
 		mkdir -p $benchmark_results_dir/clients/localhost
 	fi
 
-	# certain test preparation steps such as cache dropping 
+	# certain test preparation steps such as cache dropping
 	# can be a bit hard on the system, give it a few
 	# seconds before actually starting test
-	# by putting this before pbench-start-tools, 
+	# by putting this before pbench-start-tools,
 
 	if [ -n "$pre_iteration_script" ] ; then
 		printf "running pre-iteration-script command: $pre_iteration_script\n"
@@ -592,17 +592,17 @@ function fio_run_job() {
 		local max_jobs=0
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			client_opts="$client_opts --client=$client"
-			if [ ! -z $numjobs ]; then 
+			if [ ! -z $numjobs ]; then
 				let max_jobs=$numjobs
 			else
-			       for t in `echo $targets | sed -e s/,/" "/g` ; do 
+			       for t in `echo $targets | sed -e s/,/" "/g` ; do
 				       let max_jobs=$max_jobs+1
 			       done
-			fi 
+			fi
 		done
 		client_opts="$client_opts --max-jobs=$max_jobs"
 	fi
-	
+
 	# create a command file and keep it with the results for debugging later, or user can run outside of pbench
 	echo "$bench_cmd $client_opts $bench_opts" >$benchmark_results_dir/fio.cmd
 	chmod +x $benchmark_results_dir/fio.cmd
@@ -738,7 +738,7 @@ function fio_run_benchmark() {
 							rc=$?
 							# if for any reason the benchmark postprocessing script fails, consider this a failure to get a sample
 							if [ $rc -ne 0 ]; then
-								debug_log "failed: $script_path/postprocess/$benchmark-postprocess $benchmark_results_dir $iteration $tool_group" 
+								debug_log "failed: $script_path/postprocess/$benchmark-postprocess $benchmark_results_dir $iteration $tool_group"
 								sample_failed=1
 							fi
 							if [ $sample_failed -eq 1 ]; then

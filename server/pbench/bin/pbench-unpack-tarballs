@@ -110,7 +110,7 @@ for linksrc_dir in $(find $ARCHIVE/ -maxdepth 2 -type d -name $linksrc); do
     # links to actual files (bad links are not emitted!).
     find -L $linksrc_dir -type f -name '*.tar.xz' -printf "%s %p\n" 2>/dev/null >> ${list}.unsorted
     # Find all the links in the same $linksrc directory that don't
-    # link to anything so that we can count them as errors below. 
+    # link to anything so that we can count them as errors below.
     find -L $linksrc_dir -type l -name '*.tar.xz' -printf "%s %p\n" 2>/dev/null >> ${list}.unsorted
 done
 sort -n ${list}.unsorted > ${list}

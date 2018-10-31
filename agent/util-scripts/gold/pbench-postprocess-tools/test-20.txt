@@ -25,7 +25,7 @@ bar
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-postprocess-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/iostat --postprocess --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/tmp --interval=10
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] postprocessing iostat
 /var/tmp/pbench-test-utils/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]foo does not exist in /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]completed: 
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]completed:
 --- pbench.log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/tools-default/iostat

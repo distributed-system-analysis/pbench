@@ -11,7 +11,7 @@ RUN rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.
     curl -L https://github.com/openshift/origin/releases/download/v1.2.1/openshift-origin-client-tools-v1.2.1-5e723f6-linux-64bit.tar.gz | tar -zx && \
     mv openshift*/oc /usr/local/bin && \
     rm -rf openshift-origin-client-tools-* && \
-    mkdir -p /root/.ssh && \ 
+    mkdir -p /root/.ssh && \
     pip install requests && \
     yum clean all && \
     sed -i "s/#Port 22/Port 2022/" /etc/ssh/sshd_config && \

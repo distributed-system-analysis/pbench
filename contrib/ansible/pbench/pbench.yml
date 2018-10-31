@@ -31,7 +31,7 @@
       when: (register_controller_tools | default(False) | bool) and (tools != "default")
     - name: register tools on remote
       shell: pbench-register-tool --name="{{ item.0 }}" --remote="{{ item.1 }}"
-      with_together: 
+      with_together:
         - "{{ tools }}"
         - "{{ groups['remote'] }}"
       when: (register_remote_tools | default(False) | bool) and (tools != "default")

@@ -3,7 +3,7 @@
 
 # This test simulates what happens when a single VM does a multi-threaded random write to a single disk when that VM was configured with "io=threads".
 # Fio is used to have several threads write to a single file with pvsync (instead of something like aio call).
-# This test is run on a filesystem built on /dev/ram0, using ext4, xfs, and btrfs  
+# This test is run on a filesystem built on /dev/ram0, using ext4, xfs, and btrfs
 
 dev=/dev/ram0
 rmmod brd

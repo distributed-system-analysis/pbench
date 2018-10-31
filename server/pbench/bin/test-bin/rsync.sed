@@ -21,6 +21,6 @@ s/(total size is) [0-9,]+  (speedup is) [0-9,]+\.[0-9]+/\1 #  \2 #.##/
 s/(Number of) (regular )?(files transferred: [0-9,]+)/\1 \3/
 # Number of created files: 0
 # Number of deleted files: 0
-/Number of (created|deleted) files: /d 
+/Number of (created|deleted) files: /d
 #  Number of files: 0 (dir: 1, reg: 3)
 s/(Number of files:) ([0-9,]+)( .+)?/\1 \2/

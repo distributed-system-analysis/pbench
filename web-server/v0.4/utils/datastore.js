@@ -1,4 +1,4 @@
-export default { 
+export default {
     run_indices: ".run.*",
     prefix: "dsa.pbench",
     elasticsearch: "//elasticsearch.example.com:9280/",

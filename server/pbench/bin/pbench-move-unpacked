@@ -1,7 +1,7 @@
 #! /bin/bash
 # -*- mode: shell-script -*-
 
-# This script will run only on production environment as unpacking to incoming 
+# This script will run only on production environment as unpacking to incoming
 # is relatively slower than unpacking tarballs in a tmp directory and then
 # move it to incoming.
 
@@ -130,7 +130,7 @@ function process_tarball {
     fi
     mkdir -p $INCOMING/$hostname
     if [[ $? -ne 0 ]] ;then
-        echo "$TS: Creation of $INCOMING/$hostname failed for $result: code $status" | tee -a $mail_content >&4 
+        echo "$TS: Creation of $INCOMING/$hostname failed for $result: code $status" | tee -a $mail_content >&4
         # FIXME: quarantine $result
         return 1
     fi
@@ -144,7 +144,7 @@ function process_tarball {
         return 1
     else
 	# impossible!
-	echo "$TS: Cannot happen - $incoming is not a symlink or does not exist!" | tee -a $mail_content >&4 
+	echo "$TS: Cannot happen - $incoming is not a symlink or does not exist!" | tee -a $mail_content >&4
         # FIXME: quarantine $result
 	return 1
     fi
@@ -158,7 +158,7 @@ function process_tarball {
     cp -a $UNPACK_PATH/$hostname/$resultname ${incoming}.copy
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: Cannot copy $UNPACK_PATH/$hostname/$resultname to ${incoming}.copy: code $status" | tee -a $mail_content >&4 
+        echo "$TS: Cannot copy $UNPACK_PATH/$hostname/$resultname to ${incoming}.copy: code $status" | tee -a $mail_content >&4
         rm -rf ${incoming}.copy
         return 1
     fi
@@ -169,7 +169,7 @@ function process_tarball {
     if [[ $status -ne 0 ]] ;then
         # move failed, $incoming.copy still exists, remove it
         rm -rf ${incoming}.copy
-        echo "$TS: Cannot rename $incoming to ${incoming}.link: code $status" | tee -a $mail_content >&4 
+        echo "$TS: Cannot rename $incoming to ${incoming}.link: code $status" | tee -a $mail_content >&4
         return 1
     fi
 
@@ -182,21 +182,21 @@ function process_tarball {
         # move failed, $incoming.copy still exists, remove it
         rm -rf ${incoming}.copy
         mv -f ${incoming}.link ${incoming}
-        echo "$TS: Cannot rename $incoming.copy to $incoming: code $status" | tee -a $mail_content >&4 
+        echo "$TS: Cannot rename $incoming.copy to $incoming: code $status" | tee -a $mail_content >&4
         return 1
     fi
 
     rm -f ${incoming}.link
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: WARNING, could not remove ${incoming}.link: code $status" | tee -a $mail_content >&4 
+        echo "$TS: WARNING, could not remove ${incoming}.link: code $status" | tee -a $mail_content >&4
     fi
 
     # remove the unpacked tarballs from UNPACK_PATH directory
     rm -R $UNPACK_PATH/$hostname/$resultname
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: Cannot remove $UNPACK_PATH/$hostname/$resultname: code $status" | tee -a $mail_content >&4 
+        echo "$TS: Cannot remove $UNPACK_PATH/$hostname/$resultname: code $status" | tee -a $mail_content >&4
 	return 1
     fi
 
@@ -204,7 +204,7 @@ function process_tarball {
     mv $ARCHIVE/$hostname/$linksrc/$resultname.tar.xz $ARCHIVE/$hostname/$linkdest/$resultname.tar.xz
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: Cannot move $ARCHIVE/$hostname/$resultname from $linksrc to $linkdest: code $status" | tee -a $mail_content >&4 
+        echo "$TS: Cannot move $ARCHIVE/$hostname/$resultname from $linksrc to $linkdest: code $status" | tee -a $mail_content >&4
         rm $RESULTS/$hostname/$prefix$resultname
         return 1
     fi

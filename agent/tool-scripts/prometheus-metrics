@@ -167,7 +167,7 @@ case "$mode" in
 	start)
 	mkdir -p $tool_output_dir/json
 	while read -u 9 file; do
-		# If the port, cert or key is not set while registering the tool, read the input file for host, port, cert and key if any. 
+		# If the port, cert or key is not set while registering the tool, read the input file for host, port, cert and key if any.
 		# In case the file doesn't have certs, port and they are not defined while registering the tool, the default values are set.
 		# host port=<port> cert=<cert> key=<key>
 		host=$(echo $file | awk -F " " '{ print $1 }')

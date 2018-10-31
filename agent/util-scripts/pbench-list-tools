@@ -112,7 +112,7 @@ if [ -d "$pbench_run" ]; then
 				printf "%s: %s\n" "$group" "$tools"
 			fi
 		done
-	else 
+	else
 		# list the groups which include this tool
 		for group in `/bin/ls tools-* 2>/dev/null | sed -e s/^tools-//g`; do
 			if /bin/ls tools-$group | grep -q "^$name"; then

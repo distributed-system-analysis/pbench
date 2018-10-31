@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # This script is designed to start & stop pbench tools while monitoring the output of a benchmark.
-# For many of the benchmarks we use, we simply start the tools before the benchmark, then run 
+# For many of the benchmarks we use, we simply start the tools before the benchmark, then run
 # the benchmark, then stop the tools.  For some benchmarks, this is not optimal, because the
 # benchmark must do work before or after the measurement period, and tool's average results are then
 # not quite accurate.  There are also other benchmarks which have multiple measurment periods,

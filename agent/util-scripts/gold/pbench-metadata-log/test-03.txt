@@ -41,13 +41,13 @@ kvmhost
 /var/tmp/pbench-test-utils/pbench/tmp/metadata.log:
 [pbench]
 name: tmp
-script: 
-config: 
+script:
+config:
 date: 1900-01-01T00:00:00
-rpm-version: 
+rpm-version:
 
 [tools]
-hosts: testhost dhcp31-174 perf104 
+hosts: testhost dhcp31-174 perf104
 group: default
 
 [tools/testhost]

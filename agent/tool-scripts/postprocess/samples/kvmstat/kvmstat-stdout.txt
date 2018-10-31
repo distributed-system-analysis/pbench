@@ -44,7 +44,7 @@
                  0      kvm:kvm_async_pf_doublefault                                    [100.00%]
                  0      kvm:kvm_async_pf_not_present                                    [100.00%]
                  0      kvm:kvm_async_pf_ready                                       [100.00%]
-                 0      kvm:kvm_async_pf_completed                                   
+                 0      kvm:kvm_async_pf_completed
 
       10.001351327 seconds time elapsed
 
@@ -95,7 +95,7 @@ time: 1422304335.975540160
                  0      kvm:kvm_async_pf_doublefault                                    [100.00%]
                  0      kvm:kvm_async_pf_not_present                                    [100.00%]
                  0      kvm:kvm_async_pf_ready                                       [100.00%]
-                 0      kvm:kvm_async_pf_completed                                   
+                 0      kvm:kvm_async_pf_completed
 
       10.001166329 seconds time elapsed
 
@@ -146,7 +146,7 @@ time: 1422304346.774973447
                  0      kvm:kvm_async_pf_doublefault                                    [100.00%]
                  0      kvm:kvm_async_pf_not_present                                    [100.00%]
                  0      kvm:kvm_async_pf_ready                                       [100.00%]
-                 0      kvm:kvm_async_pf_completed                                   
+                 0      kvm:kvm_async_pf_completed
 
       10.001229703 seconds time elapsed
 
@@ -197,7 +197,7 @@ time: 1422304357.502363476
                  0      kvm:kvm_async_pf_doublefault                                    [100.00%]
                  0      kvm:kvm_async_pf_not_present                                    [100.00%]
                  0      kvm:kvm_async_pf_ready                                       [100.00%]
-                 0      kvm:kvm_async_pf_completed                                   
+                 0      kvm:kvm_async_pf_completed
 
       10.001220401 seconds time elapsed
 
@@ -248,7 +248,7 @@ time: 1422304368.151138524
                  0      kvm:kvm_async_pf_doublefault                                    [100.00%]
                  0      kvm:kvm_async_pf_not_present                                    [100.00%]
                  0      kvm:kvm_async_pf_ready                                       [100.00%]
-                 0      kvm:kvm_async_pf_completed                                   
+                 0      kvm:kvm_async_pf_completed
 
       10.001438648 seconds time elapsed
 

@@ -94,15 +94,15 @@ curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
 {
-    "text": "run-1900-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n", 
-    "@timestamp": "1900-01-01T00:00:00", 
-    "name": "pbench-server-prep-shim-001", 
+    "text": "run-1900-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-server-prep-shim-001",
     "doctype": "status"
 }
 {
-    "text": "run-1900-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n", 
-    "@timestamp": "1900-01-01T00:00:00", 
-    "name": "pbench-server-prep-shim-002", 
+    "text": "run-1900-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-server-prep-shim-002",
     "doctype": "status"
 }
 --- test-curl-payload.log file contents

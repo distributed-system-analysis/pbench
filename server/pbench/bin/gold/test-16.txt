@@ -158,15 +158,15 @@ curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
 {
-    "text": "pbench-unpack-tarballs.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 1 errors\nProcessed 5 result tar balls, 3 successfully, 0 warnings, 1 errors, and 1 duplicates\n\nrun-1900-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz does not exist\n", 
-    "@timestamp": "1900-01-01T00:00:00", 
-    "name": "pbench-unpack-tarballs", 
+    "text": "pbench-unpack-tarballs.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 1 errors\nProcessed 5 result tar balls, 3 successfully, 0 warnings, 1 errors, and 1 duplicates\n\nrun-1900-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz does not exist\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-unpack-tarballs",
     "doctype": "status"
 }
 {
-    "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nend-1900-01-01T00:00:00-UTC\n", 
-    "@timestamp": "1900-01-01T00:00:00", 
-    "name": "pbench-audit-archive", 
+    "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nend-1900-01-01T00:00:00-UTC\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-audit-archive",
     "doctype": "status"
 }
 --- test-curl-payload.log file contents

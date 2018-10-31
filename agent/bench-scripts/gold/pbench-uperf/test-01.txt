@@ -79,14 +79,14 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking for uperf on server s2
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking for uperf on server s3
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration  (1 of 2)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 2 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 2
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[c1]node[1]protocol[tcp]test[rr]instances[1]size[64] <-> server[s1]node[0]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] ssh -o StrictHostKeyChecking=no c1 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c1-server::s1:20010--client_start.sh
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[c2]protocol[tcp]test[rr]instances[1]size[64] <-> server[s2]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] ssh -o StrictHostKeyChecking=no c2 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c2-server::s2:20020--client_start.sh
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[c3]node[3]protocol[tcp]test[rr]instances[1]size[64] <-> server[s3]node[2]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] ssh -o StrictHostKeyChecking=no c3 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c3-server::s3:20030--client_start.sh
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 2 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 2
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[c1]node[1]protocol[tcp]test[rr]instances[1]size[64] <-> server[s1]node[0]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] ssh -o StrictHostKeyChecking=no c1 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c1-server::s1:20010--client_start.sh
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[c2]protocol[tcp]test[rr]instances[1]size[64] <-> server[s2]
@@ -95,14 +95,14 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] ssh -o StrictHostKeyChecking=no c3 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c3-server::s3:20030--client_start.sh
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 1-tcp_rr-64B-1i complete (1 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration 1-tcp_rr-64B-1i (2 of 2)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 2 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 2
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[c1]node[1]protocol[tcp]test[stream]instances[1]size[64] <-> server[s1]node[0]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] ssh -o StrictHostKeyChecking=no c1 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c1-server::s1:20010--client_start.sh
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[c2]protocol[tcp]test[stream]instances[1]size[64] <-> server[s2]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] ssh -o StrictHostKeyChecking=no c2 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c2-server::s2:20020--client_start.sh
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[c3]node[3]protocol[tcp]test[stream]instances[1]size[64] <-> server[s3]node[2]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] ssh -o StrictHostKeyChecking=no c3 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c3-server::s3:20030--client_start.sh
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 2 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 2
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[c1]node[1]protocol[tcp]test[stream]instances[1]size[64] <-> server[s1]node[0]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] ssh -o StrictHostKeyChecking=no c1 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c1-server::s1:20010--client_start.sh
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[c2]protocol[tcp]test[stream]instances[1]size[64] <-> server[s2]

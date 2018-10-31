@@ -1,5 +1,5 @@
 timestamp: 1497462674.662923996
-           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7
   0:         39          0          0          0          0          0          0          0  IR-IO-APIC   2-edge      timer
   1:        256          1          0         10          0          0          1          1  IR-IO-APIC   1-edge      i8042
   8:          0          0          0          1          0          0          0          0  IR-IO-APIC   8-edge      rtc0
@@ -13,7 +13,7 @@ timestamp: 1497462674.662923996
  27:    1191937     262718     103151      97444      83447      76584      85083      49472  IR-PCI-MSI 512000-edge      ahci[0000:00:1f.2]
  28:    3458548    3576181    1217251    1306486     844674     741907     634379     456170  IR-PCI-MSI 327680-edge      xhci_hcd
  29:         15          4         13         44         13          0          0          0  IR-PCI-MSI 49152-edge      snd_hda_intel:card0
- 30:        153        102         48         49         22         24         40         22  IR-PCI-MSI 524288-edge    
+ 30:        153        102         48         49         22         24         40         22  IR-PCI-MSI 524288-edge
  31:     504662      35567      30712      21638      20508      14371      18024      10792  IR-PCI-MSI 32768-edge      i915
  32:         23          1          0          0          0          0          1          1  IR-PCI-MSI 360448-edge      mei_me
  33:      16019        408        258        494        165        395        202        183  IR-PCI-MSI 1572864-edge      iwlwifi
@@ -38,7 +38,7 @@ MIS:          0
 PIN:          0          0          0          0          0          0          0          0   Posted-interrupt notification event
 PIW:          0          0          0          0          0          0          0          0   Posted-interrupt wakeup event
 timestamp: 1497462677.665585004
-           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7
   0:         39          0          0          0          0          0          0          0  IR-IO-APIC   2-edge      timer
   1:        256          1          0         10          0          0          1          1  IR-IO-APIC   1-edge      i8042
   8:          0          0          0          1          0          0          0          0  IR-IO-APIC   8-edge      rtc0
@@ -52,7 +52,7 @@ timestamp: 1497462677.665585004
  27:    1191945     262718     103151      97444      83447      76584      85083      49472  IR-PCI-MSI 512000-edge      ahci[0000:00:1f.2]
  28:    3458548    3576181    1217251    1306486     844674     741907     634379     456170  IR-PCI-MSI 327680-edge      xhci_hcd
  29:         15          4         13         44         13          0          0          0  IR-PCI-MSI 49152-edge      snd_hda_intel:card0
- 30:        153        102         48         49         22         24         40         22  IR-PCI-MSI 524288-edge    
+ 30:        153        102         48         49         22         24         40         22  IR-PCI-MSI 524288-edge
  31:     504670      35567      30712      21638      20508      14371      18024      10792  IR-PCI-MSI 32768-edge      i915
  32:         23          1          0          0          0          0          1          1  IR-PCI-MSI 360448-edge      mei_me
  33:      16021        408        258        494        165        395        202        183  IR-PCI-MSI 1572864-edge      iwlwifi
@@ -77,7 +77,7 @@ MIS:          0
 PIN:          0          0          0          0          0          0          0          0   Posted-interrupt notification event
 PIW:          0          0          0          0          0          0          0          0   Posted-interrupt wakeup event
 timestamp: 1497462680.667886121
-           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7
   0:         39          0          0          0          0          0          0          0  IR-IO-APIC   2-edge      timer
   1:        256          1          0         10          0          0          1          1  IR-IO-APIC   1-edge      i8042
   8:          0          0          0          1          0          0          0          0  IR-IO-APIC   8-edge      rtc0
@@ -91,7 +91,7 @@ timestamp: 1497462680.667886121
  27:    1191952     262718     103151      97444      83447      76584      85083      49472  IR-PCI-MSI 512000-edge      ahci[0000:00:1f.2]
  28:    3458548    3576181    1217251    1306486     844674     741907     634379     456170  IR-PCI-MSI 327680-edge      xhci_hcd
  29:         15          4         13         44         13          0          0          0  IR-PCI-MSI 49152-edge      snd_hda_intel:card0
- 30:        153        102         48         49         22         24         40         22  IR-PCI-MSI 524288-edge    
+ 30:        153        102         48         49         22         24         40         22  IR-PCI-MSI 524288-edge
  31:     504675      35567      30712      21638      20508      14371      18024      10792  IR-PCI-MSI 32768-edge      i915
  32:         23          1          0          0          0          0          1          1  IR-PCI-MSI 360448-edge      mei_me
  33:      16021        408        258        494        165        395        202        183  IR-PCI-MSI 1572864-edge      iwlwifi
@@ -116,7 +116,7 @@ MIS:          0
 PIN:          0          0          0          0          0          0          0          0   Posted-interrupt notification event
 PIW:          0          0          0          0          0          0          0          0   Posted-interrupt wakeup event
 timestamp: 1497462683.670225269
-           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7
   0:         39          0          0          0          0          0          0          0  IR-IO-APIC   2-edge      timer
   1:        256          1          0         10          0          0          1          1  IR-IO-APIC   1-edge      i8042
   8:          0          0          0          1          0          0          0          0  IR-IO-APIC   8-edge      rtc0
@@ -130,7 +130,7 @@ timestamp: 1497462683.670225269
  27:    1191979     262718     103151      97444      83447      76584      85083      49472  IR-PCI-MSI 512000-edge      ahci[0000:00:1f.2]
  28:    3458548    3576181    1217251    1306486     844674     741907     634379     456170  IR-PCI-MSI 327680-edge      xhci_hcd
  29:         15          4         13         44         13          0          0          0  IR-PCI-MSI 49152-edge      snd_hda_intel:card0
- 30:        153        102         48         49         22         24         40         22  IR-PCI-MSI 524288-edge    
+ 30:        153        102         48         49         22         24         40         22  IR-PCI-MSI 524288-edge
  31:     504675      35567      30712      21638      20508      14371      18024      10792  IR-PCI-MSI 32768-edge      i915
  32:         23          1          0          0          0          0          1          1  IR-PCI-MSI 360448-edge      mei_me
  33:      16021        408        258        494        165        395        202        183  IR-PCI-MSI 1572864-edge      iwlwifi
@@ -155,7 +155,7 @@ MIS:          0
 PIN:          0          0          0          0          0          0          0          0   Posted-interrupt notification event
 PIW:          0          0          0          0          0          0          0          0   Posted-interrupt wakeup event
 timestamp: 1497462686.672332156
-           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7
   0:         39          0          0          0          0          0          0          0  IR-IO-APIC   2-edge      timer
   1:        256          1          0         10          0          0          1          1  IR-IO-APIC   1-edge      i8042
   8:          0          0          0          1          0          0          0          0  IR-IO-APIC   8-edge      rtc0
@@ -169,7 +169,7 @@ timestamp: 1497462686.672332156
  27:    1191983     262718     103151      97444      83447      76584      85083      49472  IR-PCI-MSI 512000-edge      ahci[0000:00:1f.2]
  28:    3458548    3576181    1217251    1306486     844674     741907     634379     456170  IR-PCI-MSI 327680-edge      xhci_hcd
  29:         15          4         13         44         13          0          0          0  IR-PCI-MSI 49152-edge      snd_hda_intel:card0
- 30:        153        102         48         49         22         24         40         22  IR-PCI-MSI 524288-edge    
+ 30:        153        102         48         49         22         24         40         22  IR-PCI-MSI 524288-edge
  31:     504675      35567      30712      21638      20508      14371      18024      10792  IR-PCI-MSI 32768-edge      i915
  32:         23          1          0          0          0          0          1          1  IR-PCI-MSI 360448-edge      mei_me
  33:      16021        408        258        494        165        395        202        183  IR-PCI-MSI 1572864-edge      iwlwifi
@@ -194,7 +194,7 @@ MIS:          0
 PIN:          0          0          0          0          0          0          0          0   Posted-interrupt notification event
 PIW:          0          0          0          0          0          0          0          0   Posted-interrupt wakeup event
 timestamp: 1497462689.674288043
-           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7
   0:         39          0          0          0          0          0          0          0  IR-IO-APIC   2-edge      timer
   1:        256          1          0         10          0          0          1          1  IR-IO-APIC   1-edge      i8042
   8:          0          0          0          1          0          0          0          0  IR-IO-APIC   8-edge      rtc0
@@ -208,7 +208,7 @@ timestamp: 1497462689.674288043
  27:    1192012     262718     103151      97444      83447      76584      85083      49472  IR-PCI-MSI 512000-edge      ahci[0000:00:1f.2]
  28:    3458548    3576181    1217251    1306486     844674     741907     634379     456170  IR-PCI-MSI 327680-edge      xhci_hcd
  29:         15          4         13         44         13          0          0          0  IR-PCI-MSI 49152-edge      snd_hda_intel:card0
- 30:        153        102         48         49         22         24         40         22  IR-PCI-MSI 524288-edge    
+ 30:        153        102         48         49         22         24         40         22  IR-PCI-MSI 524288-edge
  31:     504675      35567      30712      21638      20508      14371      18024      10792  IR-PCI-MSI 32768-edge      i915
  32:         23          1          0          0          0          0          1          1  IR-PCI-MSI 360448-edge      mei_me
  33:      16021        408        258        494        165        395        202        183  IR-PCI-MSI 1572864-edge      iwlwifi

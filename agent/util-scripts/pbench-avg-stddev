@@ -15,11 +15,11 @@ if ($count == 1) {
 		$sum += $val;
 	}
 	$avg = $sum / $count;
-	
+
 	$index = 1;
 	foreach $val (@ARGV) {
 		$sqdiff = ($avg - $val)**2;
-	
+
 		# keep track of the value which has the least difference from the average
 		if (!defined $closest_index) {
 			$mindiff = $sqdiff;

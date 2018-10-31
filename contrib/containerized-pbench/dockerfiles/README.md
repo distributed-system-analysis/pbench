@@ -10,5 +10,5 @@ $ docker build -t <tag> agent
 
 ### pbench-controller
 ```
-$ docker build -t <tag> controller 
+$ docker build -t <tag> controller
 ```

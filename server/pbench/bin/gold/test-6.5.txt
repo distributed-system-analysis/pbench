@@ -89,15 +89,15 @@ curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
 {
-    "text": "pbench-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n\nNumber of files: 6\nNumber of files transferred: 4\nTotal file size: # bytes\nTotal transferred file size: # bytes\nLiteral data: # bytes\nMatched data: # bytes\nFile list size: #\nFile list generation time: #.### seconds\nFile list transfer time: #.### seconds\nTotal bytes sent: #\nTotal bytes received: #\n\nsent # bytes  received # bytes  #.### bytes/sec\ntotal size is #  speedup is #.##\n", 
-    "@timestamp": "1900-01-01T00:00:00", 
-    "name": "pbench-backup-tarballs", 
+    "text": "pbench-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n\nNumber of files: 6\nNumber of files transferred: 4\nTotal file size: # bytes\nTotal transferred file size: # bytes\nLiteral data: # bytes\nMatched data: # bytes\nFile list size: #\nFile list generation time: #.### seconds\nFile list transfer time: #.### seconds\nTotal bytes sent: #\nTotal bytes received: #\n\nsent # bytes  received # bytes  #.### bytes/sec\ntotal size is #  speedup is #.##\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-backup-tarballs",
     "doctype": "status"
 }
 {
-    "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nController: foo\n\t* No state directories found in this controller directory.\n\n\nend-1900-01-01T00:00:00-UTC\n", 
-    "@timestamp": "1900-01-01T00:00:00", 
-    "name": "pbench-audit-archive", 
+    "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nController: foo\n\t* No state directories found in this controller directory.\n\n\nend-1900-01-01T00:00:00-UTC\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-audit-archive",
     "doctype": "status"
 }
 --- test-curl-payload.log file contents

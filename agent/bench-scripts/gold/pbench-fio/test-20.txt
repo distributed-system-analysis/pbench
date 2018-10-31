@@ -14,7 +14,7 @@ pbench-fio
 --- pbench tree state
 +++ pbench.log file contents
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio 3.3 is installed
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio_device_check() /dev/foo,/dev/bar 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio_device_check() /dev/foo,/dev/bar
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] At least one client did not have block device /dev/foo, exiting
 --- pbench.log file contents
 +++ test-execution.log file contents

@@ -24,9 +24,9 @@ interval=60
 
 opts=$(getopt -o d --longoptions "dir:,group:,iteration:,osecomponent:,interval:,inventory:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
 
-eval set -- "$opts"; 
-while true ; do 
-    case "$1" in 
+eval set -- "$opts";
+while true ; do
+    case "$1" in
     --install)
         mode="install"
         shift;
@@ -65,19 +65,19 @@ while true ; do
         fi
     ;;
     --osecomponent)
-        shift; 
-        if [ -n "$1" ]; then 
+        shift;
+        if [ -n "$1" ]; then
             osecomponent="$1"
             shift;
         fi
     ;;
     --interval)
         shift;
-        if [ -n "$1" ]; then 
+        if [ -n "$1" ]; then
             interval="$1"
             shift;
         fi
-    ;; 
+    ;;
     --inventory)
         shift;
         if [ -n "$1" ]; then
@@ -93,9 +93,9 @@ while true ; do
         echo "what's this? [$1]"
         shift;
         break;
-    ;; 
+    ;;
 esac
-done 
+done
 
 ## check if the inventory variable is set correctly
 if [[ ! -s "$inventory" ]] || [[ ! -f "$inventory" ]]; then
@@ -191,12 +191,12 @@ collect_data() {
     loop get_hosts
     # NOTE: this will never exit, and is expected to be killed by the
     # "stop" operation below.
-} 
+}
 
-case "$mode" in 
+case "$mode" in
     install)
-        check_install_rpm $tool_package 
-    ;; 
+        check_install_rpm $tool_package
+    ;;
     start)
         for master in "${masters[@]}"; do
             mkdir -p ${tool_output_dir}/${master}
@@ -205,15 +205,15 @@ case "$mode" in
             mkdir -p ${tool_output_dir}/${host}
         done
         collect_data
-    ;; 
+    ;;
     stop)
-        # killing pprof processes at end on of iteration 
+        # killing pprof processes at end on of iteration
         for pprof_process in $(ps aux | grep [p]bench-tool-$tool | awk '{print $2}'); do kill -9 $pprof_process; done
         rm ${pbench_tmp}/*_profile && rm ${pbench_tmp}/*_heap
-    ;; 
+    ;;
     postprocess)
         printf "This script does not do any postprocessing.\n"
-        printf "Data already collected.\n" 
+        printf "Data already collected.\n"
         find ${tool_output_dir} -ls
-    ;; 
-esac 
+    ;;
+esac

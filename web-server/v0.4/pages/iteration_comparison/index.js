@@ -10,7 +10,7 @@ class IterationComparisonPage extends React.Component {
 
   render() {
     let location = history.getCurrentLocation();
-    
+
     var primaryMetricPos = location.state.configCategories.indexOf('primary_metric');
     location.state.configCategories.splice(primaryMetricPos, 1);
 

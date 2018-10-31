@@ -100,7 +100,7 @@ class MockStreamingBulk(object):
         assert es == None
         for action in actions:
             self.duplicates_tracker[action['_id']] += 1
-            dcnt = self.duplicates_tracker[action['_id']] 
+            dcnt = self.duplicates_tracker[action['_id']]
             if dcnt == 2:
                 self.dupes_by_index_tracker[action['_index']] += 1
             self.index_tracker[action['_index']] += 1
@@ -115,7 +115,7 @@ class MockStreamingBulk(object):
             else:
                 # For now, all other docs are considered successful
                 resp[action['_op_type']]['status'] = 200
-                ok = True 
+                ok = True
             yield ok, resp
 
     def report(self):

@@ -619,10 +619,10 @@ Linux 4.10.16-100.fc24.x86_64 (alphaville.usersys.redhat.com) 	06/14/17 	_x86_64
 
 13:51:14        BUS  idvendor    idprod  maxpower                manufact                                         product
 13:51:17          3       46d      c52b       196                Logitech                                    USB Receiver
-13:51:17          2      8087      8000         0                                                                        
-13:51:17          4      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock   
-13:51:17          1      8087      8008         0                                                                        
-13:51:17          3      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock   
+13:51:17          2      8087      8000         0
+13:51:17          4      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock
+13:51:17          1      8087      8008         0
+13:51:17          3      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock
 13:51:17          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 13:51:17          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 13:51:17          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -1252,10 +1252,10 @@ Linux 4.10.16-100.fc24.x86_64 (alphaville.usersys.redhat.com) 	06/14/17 	_x86_64
 
 13:51:17        BUS  idvendor    idprod  maxpower                manufact                                         product
 13:51:20          3       46d      c52b       196                Logitech                                    USB Receiver
-13:51:20          2      8087      8000         0                                                                        
-13:51:20          4      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock   
-13:51:20          1      8087      8008         0                                                                        
-13:51:20          3      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock   
+13:51:20          2      8087      8000         0
+13:51:20          4      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock
+13:51:20          1      8087      8008         0
+13:51:20          3      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock
 13:51:20          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 13:51:20          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 13:51:20          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -1885,10 +1885,10 @@ Linux 4.10.16-100.fc24.x86_64 (alphaville.usersys.redhat.com) 	06/14/17 	_x86_64
 
 13:51:20        BUS  idvendor    idprod  maxpower                manufact                                         product
 13:51:23          3       46d      c52b       196                Logitech                                    USB Receiver
-13:51:23          2      8087      8000         0                                                                        
-13:51:23          4      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock   
-13:51:23          1      8087      8008         0                                                                        
-13:51:23          3      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock   
+13:51:23          2      8087      8000         0
+13:51:23          4      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock
+13:51:23          1      8087      8008         0
+13:51:23          3      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock
 13:51:23          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 13:51:23          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 13:51:23          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -2518,10 +2518,10 @@ Linux 4.10.16-100.fc24.x86_64 (alphaville.usersys.redhat.com) 	06/14/17 	_x86_64
 
 13:51:23        BUS  idvendor    idprod  maxpower                manufact                                         product
 13:51:26          3       46d      c52b       196                Logitech                                    USB Receiver
-13:51:26          2      8087      8000         0                                                                        
-13:51:26          4      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock   
-13:51:26          1      8087      8008         0                                                                        
-13:51:26          3      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock   
+13:51:26          2      8087      8000         0
+13:51:26          4      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock
+13:51:26          1      8087      8008         0
+13:51:26          3      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock
 13:51:26          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 13:51:26          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 13:51:26          3      1050        10        60                  Yubico                               Yubico Yubikey II
@@ -3151,10 +3151,10 @@ Linux 4.10.16-100.fc24.x86_64 (alphaville.usersys.redhat.com) 	06/14/17 	_x86_64
 
 13:51:26        BUS  idvendor    idprod  maxpower                manufact                                         product
 13:51:29          3       46d      c52b       196                Logitech                                    USB Receiver
-13:51:29          2      8087      8000         0                                                                        
-13:51:29          4      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock   
-13:51:29          1      8087      8008         0                                                                        
-13:51:29          3      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock   
+13:51:29          2      8087      8000         0
+13:51:29          4      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock
+13:51:29          1      8087      8008         0
+13:51:29          3      17ef      1010         0   LENOVO                                        Lenovo ThinkPad Dock
 13:51:29          3       4f2      b39a      1000          SunplusIT INC.                               Integrated Camera
 13:51:29          3       58f      9540       100                 Generic                            EMV Smartcard Reader
 13:51:29          3      1050        10        60                  Yubico                               Yubico Yubikey II

@@ -106,37 +106,37 @@ Iteration 2-48thread complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking for dbench on client 127.0.0.1
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking for dbench on client 127.0.0.1
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration  (1 of 2)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 5 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 5
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[1-127.0.0.1]node[0]threads[24]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[2-127.0.0.1]node[1]threads[24]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 5 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 5
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[1-127.0.0.1]node[0]threads[24]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[2-127.0.0.1]node[1]threads[24]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 3 of 5 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 3 of 5
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[1-127.0.0.1]node[0]threads[24]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[2-127.0.0.1]node[1]threads[24]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 4 of 5 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 4 of 5
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[1-127.0.0.1]node[0]threads[24]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[2-127.0.0.1]node[1]threads[24]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 5 of 5 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 5 of 5
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[1-127.0.0.1]node[0]threads[24]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[2-127.0.0.1]node[1]threads[24]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] '######'
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 1-24thread complete (1 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration 1-24thread (2 of 2)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 5 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 5
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[1-127.0.0.1]node[0]threads[48]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[2-127.0.0.1]node[1]threads[48]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 5 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 5
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[1-127.0.0.1]node[0]threads[48]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[2-127.0.0.1]node[1]threads[48]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 3 of 5 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 3 of 5
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[1-127.0.0.1]node[0]threads[48]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[2-127.0.0.1]node[1]threads[48]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 4 of 5 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 4 of 5
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[1-127.0.0.1]node[0]threads[48]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[2-127.0.0.1]node[1]threads[48]
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 5 of 5 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 5 of 5
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[1-127.0.0.1]node[0]threads[48]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[2-127.0.0.1]node[1]threads[48]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] '######'

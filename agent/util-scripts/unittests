@@ -87,7 +87,7 @@ function _save_tree {
         done
         popd >/dev/null
     elif [ -f $_testdir/tools.default ]; then
-        echo $_testdir/tools.default: 
+        echo $_testdir/tools.default:
         cat $_testdir/tools.default
     fi >> $_testout
     for x in $(find $_testdir/tmp -type f) ;do

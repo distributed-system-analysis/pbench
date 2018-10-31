@@ -47,7 +47,7 @@ register_all_nodes=False
 ```
 
 Note: glusterfs group represents cns nodes.
-By default, tools registration is done on only two of the nodes, infra nodes. Setting the register_all_nodes to True will register tools on all of the nodes. 
+By default, tools registration is done on only two of the nodes, infra nodes. Setting the register_all_nodes to True will register tools on all of the nodes.
 Inventory file is copied on to the masters and pbench-controller. It will be available at /root/inv.
 
 By default we register only the masters for pprof, in order to monitor other nodes they need to be added to the [pprof] group.

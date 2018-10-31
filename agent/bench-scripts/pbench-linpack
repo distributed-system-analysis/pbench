@@ -52,7 +52,7 @@ function usage {
 	printf -- "\t\t--threads=int[,int]                         number of threads to use (default is num_cpus)\n"
 	printf -- "\t\t--tool-group=str\n"
 	printf -- "\t\t--sysinfo=str,                              str= comma seperated values of sysinfo to be collected\n"
-	printf -- "\t\t 
+	printf -- "\t\t
 }
 
 if [ $? -ne 0 ]; then

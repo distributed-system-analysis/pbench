@@ -64,7 +64,7 @@ if ($test_type =~ /rr/) {
 }
 # %workload
 #		   {Throughput|Latency|Resource|Efficiency}
-#		   {Throughput}[Gb_sec, 
+#		   {Throughput}[Gb_sec,
 
 my %workload;  # root hash for all data, contains hash refs to
 		# %throughput, %latency, %resource, %efficiency
@@ -286,7 +286,7 @@ if ( %parameters ) {
 
 calc_aggregate_metrics(\%workload);
 calc_efficiency_metrics(\%workload);
-		
+
 # pbnch graphing uses a specific hash heirarchy, where the dimentions of the hash are:
 # {html-file}{html-graph}{graph-series}{timeseries-data}
 # for example, an html page which has all of the Gb_sec metrics graphed may look like:
@@ -297,8 +297,8 @@ calc_efficiency_metrics(\%workload);
 #                                                   {client:host1-to-server-host3}{$timestamp_ms}
 #
 # So, for uperf, we need to take parts of the data in %workload and transform it in to a new hash
-# The %workload hash has much more information about the workload than needed for graphing, 
-# and the timestamp data is stored in a different way.  So, we just need to do a minor 
+# The %workload hash has much more information about the workload than needed for graphing,
+# and the timestamp data is stored in a different way.  So, we just need to do a minor
 # conversion, provided by BenchPostprocess.pm
 
 my %uperf_graph;

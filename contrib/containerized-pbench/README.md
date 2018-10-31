@@ -11,12 +11,12 @@ $ docker tag ravielluri/image:agent pbench-agent:latest
 ```
 
 ### Label the nodes with a type=pbench label
-```   
+```
 $ oc label node <node> type=pbench
 ```
 
 ### Create a pbench namespace
-```   
+```
 $ oc create -f pbench/contrib/containerized-pbench/openshift-templates/pbench-namespace.yml
 ```
 
@@ -49,8 +49,8 @@ Host *
         StrictHostKeyChecking no
         PasswordAuthentication no
         UserKnownHostsFile ~/.ssh/known_hosts
-        IdentityFile ~/.ssh/id_rsa_perf  
-      
+        IdentityFile ~/.ssh/id_rsa_perf
+
 Host *pbench-server
         User root
         Port 22
@@ -66,7 +66,7 @@ Make sure you have the inventory used to install openshift and it should look li
 [pbench-controller]
 
 [masters]
-    
+
 [nodes]
 
 [etcd]
@@ -83,11 +83,11 @@ register_all_nodes=False
 
 Set register_all_nodes to true if the tools needs to be registered on all the nodes, if not set to true, it registers pbench tools on just two of the nodes.
 
-NOTE: 
+NOTE:
 - Make sure all the variables are defined under [group:vars], all the stuff under [groups] are assumed to be the node ip’s.
 
 - In HA environment, we will have an lb which is not an openshift node. This means that there won’t be a pbench-agent pod running on the lb, pbench-ansible will fail registering tools as it won’t find a pbench-agent pod. So, we need to make a copy of the original inventory and get rid of the lb node from the inventory which is being mounted into the container.
-  
+
 - We need to make sure we stick to either ip’s or hostnames in both inventory and openshift for certificates to be valid.
 
 ## Run benchmarks

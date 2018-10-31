@@ -26,7 +26,7 @@ fi
 
 if [[ "${clear_results}" == "true" ]] || [[ "${clear_results}" == "True" ]]; then
        pbench-clear-results
-fi       
+fi
 
 # Run the benchmark
 ${benchmark}

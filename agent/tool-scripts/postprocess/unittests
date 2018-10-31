@@ -154,7 +154,7 @@ function testprometheus-metrics {
     cp -r samples/$1/* /tmp/GenData/$1
     _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./prometheus-metrics-postprocess /tmp/GenData/$1/metrics-stdout /tmp/GenData/$1/json/metrics.json 2> /tmp/GenData/$1/stderr
 
-    diff -cr gold/$1/stderr /tmp/GenData/$1/stderr &&  diff -cr gold/$1/json/ /tmp/GenData/$1/json/ 
+    diff -cr gold/$1/stderr /tmp/GenData/$1/stderr &&  diff -cr gold/$1/json/ /tmp/GenData/$1/json/
     return $?
 }
 

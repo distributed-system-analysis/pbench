@@ -1,5 +1,5 @@
 +++ Running test-31 pbench-copy-results
-tar --create --force-local "pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32" | xz -T0 > "/var/tmp/pbench-test-utils/pbench/tmp/pbench-copy-results.NNNNN/testhost/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz" 
+tar --create --force-local "pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32" | xz -T0 > "/var/tmp/pbench-test-utils/pbench/tmp/pbench-copy-results.NNNNN/testhost/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz"
 --- Finished test-31 pbench-copy-results (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench

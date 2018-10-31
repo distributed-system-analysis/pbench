@@ -59,7 +59,7 @@ for host in $hosts; do
         fi
         rc=$?
         if [ $rc != 0 ]; then
-            echo $TS: Failed to remove: $remotearchive/$host/$x | tee -a $mail_content >&4 
+            echo $TS: Failed to remove: $remotearchive/$host/$x | tee -a $mail_content >&4
             ntberrs=$ntberrs+1
             # if we fail to remove the tarball, we'll just continue the loop
             # but we'll send mail with the failure. Hopefully, the next time around
@@ -78,7 +78,7 @@ for host in $hosts; do
         fi
         rc=$?
         if [ $rc != 0 ]; then
-            echo $TS: Failed to remove: $remotearchive/$host/$x.md5 | tee -a $mail_content >&4 
+            echo $TS: Failed to remove: $remotearchive/$host/$x.md5 | tee -a $mail_content >&4
             nmd5errs=$nmd5errs+1
         fi
         # change the state to SATELLITE-DONE
@@ -86,7 +86,7 @@ for host in $hosts; do
             mv TO-DELETE/$x SATELLITE-DONE
         fi
         if [ $rc != 0 ]; then
-            echo $TS: Failed to move: $remotearchive/$host/TO-DELETE/$x to SATELLITE-DONE | tee -a $mail_content >&4 
+            echo $TS: Failed to move: $remotearchive/$host/TO-DELETE/$x to SATELLITE-DONE | tee -a $mail_content >&4
             nstateerrs=$nstateerrs+1
         fi
         # remove from incoming
@@ -95,7 +95,7 @@ for host in $hosts; do
         fi
         rc=$?
         if [ $rc != 0 ]; then
-            echo $TS: Failed to remove the tarball from Incoming directory: $INCOMING/$host/${x%%.tar.xz} | tee -a $mail_content >&4 
+            echo $TS: Failed to remove the tarball from Incoming directory: $INCOMING/$host/${x%%.tar.xz} | tee -a $mail_content >&4
             nincomingerrs=$nincomingerrs+1
         fi
         #remove the results
@@ -111,7 +111,7 @@ for host in $hosts; do
             rm $sym_link
             rc=$?
             if [ $rc != 0 ]; then
-                echo $TS: Failed to remove: $sym_link | tee -a $mail_content >&4 
+                echo $TS: Failed to remove: $sym_link | tee -a $mail_content >&4
                 nresultserrs=$nresultserrs+1
             fi
         fi
@@ -122,7 +122,7 @@ for host in $hosts; do
         fi
         rc=$?
         if [ $rc != 0 ]; then
-            echo $TS: Failed to remove: $prefix | tee -a $mail_content >&4 
+            echo $TS: Failed to remove: $prefix | tee -a $mail_content >&4
             nprefixerrs=$nprefixerrs+1
         fi
     done

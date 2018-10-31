@@ -63,10 +63,10 @@ export default class Summary extends React.Component {
     history.push({
       pathname: '/dashboard/results/' + this.props.controller.slice(0, this.props.controller.indexOf(".")) + '/' + this.props.result + '/'+ params[1].iteration_number + '-' + params[1].iteration_name + '/sample' + params[0],
       state: {
-        controllerName: params[1].controller_name, 
-        resultName: params[1].result_name, 
+        controllerName: params[1].controller_name,
+        resultName: params[1].result_name,
         iterationNumber: params[1].iteration_number,
-        iterationName: params[1].iteration_name, 
+        iterationName: params[1].iteration_name,
         closestSample: params[1].closest_sample
       }
     })

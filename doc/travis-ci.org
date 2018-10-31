@@ -45,7 +45,7 @@ That causes travis-ci to run the same unit tests four times, once for
 each version of perl, but that accommodates all the perl versions running
 on RHEL6/7 or recent Fedora versions.
 
-* Python dependencies 
+* Python dependencies
 The indexing tests run the index-pbench script which requires python
 >= 3.3.  The main reason for that is that the tarfile.py module does
 not handle xz-compressed tarballs before that version. There is also

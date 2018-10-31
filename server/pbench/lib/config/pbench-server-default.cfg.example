@@ -127,7 +127,7 @@ crontab = * * * * *  flock -n %(deploy-lock-dir)s/pbench-move-unpacked.lock %(de
 crontab = 41 * * * *  flock -n %(deploy-lock-dir)s/pbench-copy-sosreports.lock %(deploy-script-dir)s/pbench-copy-sosreports
 
 [pbench-edit-prefixes]
-crontab = * * * * *  flock -n %(deploy-lock-dir)s/pbench-edit-prefixes.lock %(deploy-script-dir)s/pbench-edit-prefixes 
+crontab = * * * * *  flock -n %(deploy-lock-dir)s/pbench-edit-prefixes.lock %(deploy-script-dir)s/pbench-edit-prefixes
 
 [pbench-index]
 crontab = * * * * *  flock -n %(deploy-lock-dir)s/pbench-index.lock %(deploy-script-dir)s/pbench-index

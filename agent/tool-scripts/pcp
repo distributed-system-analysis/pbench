@@ -41,7 +41,7 @@ function start_pmcd {
 	fi
 	if pgrep pmcd; then
 		debug_log "$script_name: service pmcd started"
-		return 0 
+		return 0
 	else
 		error_log "$script_name: could not start pmcd service"
 		return 1
@@ -156,7 +156,7 @@ case "$mode" in
 		# pmlogger config is kept with tool data for debug purposes
 		/bin/cp "$pmlogger_conf" "$tool_output_dir"
 		debug_log "$script_name: running $tool_cmd"
-		. $tool_cmd_file 
+		. $tool_cmd_file
 		popd >/dev/null
 		wait
 	else

@@ -64,7 +64,7 @@ class ResultListView extends React.Component {
     let data = localStorage.getItem(controller);
 
     if (!data) {
-      axios.post(datastore.elasticsearch + datastore.prefix + datastore.run_indices, 
+      axios.post(datastore.elasticsearch + datastore.prefix + datastore.run_indices,
       {
           "fields": [
             "run.controller",

@@ -1218,8 +1218,8 @@ Linux 3.10.0-234.el7.x86_64 (a.foo.example.com) 	04/01/2015 	_x86_64_	(16 CPU)
 07:50:09 AM      15   2000.03
 
 07:50:06 AM     BUS  idvendor    idprod  maxpower                manufact                                         product
-07:50:09 AM       1      8087        24         0                                                                        
-07:50:09 AM       2      8087        24         0                                                                        
+07:50:09 AM       1      8087        24         0
+07:50:09 AM       2      8087        24         0
 07:50:09 AM       1       624       248       200         no manufacturer                                  Gadget USB HUB
 07:50:09 AM       1       624       249         0                 Avocent                         Keyboard/Mouse Function
 

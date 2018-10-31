@@ -24,7 +24,7 @@ sysinfo_opts_default_comma_separated=$(IFS=,; echo "${sysinfo_opts_default[*]}")
 sysinfo_opts_available_comma_separated=$(IFS=,; echo "${sysinfo_opts_available[*]}")
 check=false
 
-# Display sysinfo options 
+# Display sysinfo options
 function display_sysinfo_opts {
 	printf "default, none, all"
 	for item in ${sysinfo_opts_available[*]}; do printf ", %s" $item ; done
@@ -106,7 +106,7 @@ fi
 
 # check if the input sysinfo parameter passed by the user is a valid option or not
 if $check; then
-	debug_log "[$script_name]: sysinfo option is set to $sysinfo" 
+	debug_log "[$script_name]: sysinfo option is set to $sysinfo"
 	if [ "$sysinfo" == "all" ] || [ "$sysinfo" == "default" ] || [ "$sysinfo" == "none" ]; then
 		:
 	else

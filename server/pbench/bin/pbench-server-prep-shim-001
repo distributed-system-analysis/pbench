@@ -152,7 +152,7 @@ while read tblink ;do
         if [ $sts -ne 0 ] ;then
             # If the mv fails, we still want to do the rest of the pipeline,
             # although we might have to fix up the results/controlle/prefix link
-            # manually. 
+            # manually.
             echo "$TS: Failed: mv ${tbdir}/prefix.${resultname} ${tbdir}/${resultname}.prefix - ignoring" >&4
         fi
     fi

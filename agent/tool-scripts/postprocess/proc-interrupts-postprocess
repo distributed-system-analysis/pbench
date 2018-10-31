@@ -50,7 +50,7 @@ open(INTERRUPTS_TXT, "$dir/proc-interrupts-stdout.txt") || die "could not find $
 while (my $line = <INTERRUPTS_TXT>) {
 	chomp $line;
 	# timestamp: 1394048617.043209234
-	#            CPU0       CPU1       CPU2       CPU3       
+	#            CPU0       CPU1       CPU2       CPU3
 	#   0:         25          0          0          0   IO-APIC-edge      timer
 	#   1:         10          0          0          0   IO-APIC-edge      i8042
 	# NMI:          0          0          0          0   Non-maskable interrupts

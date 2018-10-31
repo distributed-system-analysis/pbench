@@ -16,7 +16,7 @@ class Timeseries extends React.Component {
 
     data.sort((a, b) => a.x - b.x);
 
-    var sortingQueue = []; 
+    var sortingQueue = [];
     var fields = [];
     Object.keys(titleMap).map(iteration => {
         fields.push(titleMap[iteration]);

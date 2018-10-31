@@ -3,13 +3,13 @@
 
 # store the sibling cpu threads as a list, indexed by (socket_id,core_id)
 opendir(my $dh, "/sys/devices/system/cpu") || die "can't opendir $some_dir: $!";
-while (readdir($dh)) { 
+while (readdir($dh)) {
 	if ( $_ =~ /^cpu(\d+)/ ) {
 		$cpuid = $1;
 		$socket_id=`cat /sys/devices/system/cpu/cpu$cpuid/topology/physical_package_id`;
 		$core_id=`cat /sys/devices/system/cpu/cpu$cpuid/topology/core_id`;
 		$cpu_threads{$socket_id}{$core_id} .= "$cpuid ";
-		
+
 	}
 }
 

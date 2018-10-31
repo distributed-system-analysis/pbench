@@ -16,7 +16,7 @@ use warnings;
 #
 my %workload;   # root hash for all data, contains hash refs to
 		# %paramters, %throughput, %latency, %resource, %efficiency
-		
+
 my %parameters;	# a hash of parameter-type:parameter-value that was
 		# $parameters{benchmark[0].rate}
 my @benchmark;	# each array element contains a hash with:
@@ -52,7 +52,7 @@ my %latency;    # a hash of latency-type:array-of-latency-values,
 my @usec_avg;
 my @usec_min;
 my @usec_max;
-my @usec_95th;	
+my @usec_95th;
 my @usec_99th;
 my @usec_99_99th;
 
@@ -189,7 +189,7 @@ while ( <TXT> ) {
 				my $value = $1/1000;
 				my $count = $2;
 				for (my $i = 0; $i < $count; $i++) {
-					push(@values, $value); 
+					push(@values, $value);
 				}
 			}
 		}
@@ -253,7 +253,7 @@ while ( <TXT> ) {
 				   'acceptable_loss_pct' => "$acceptable_loss_pct",
 				   'port_list' => "$port_list" } );
 	}
-	
+
 	# [PARAMETERS] startRate: 4.000000 frameSize: 64 runBidirec: false latencyRunTime: 15 ports: 1,2
 	if (/^\[PARAMETERS\]\s+startRate:\s+(\d+[\.\d+]*)\snrFlows:\s+(\d+)\s+frameSize:\s+(\d+)\s+runBidirec:\s+(\w+)\s+latencyRunTime:\s+(\d+)\s+ports:\s+(\d,\d[,\d,\d]*)/) {
 		my $start_rate = $1;

@@ -4,7 +4,7 @@
 # 1) run user-provided scripts to start/stop/postprocess a custom tool
 # or
 # 2) capture contents of a file at specified interval
-# 
+#
 # If you use scripts, they must already be in installed
 # if you opt to capture a file, please make sure the file is not enormous
 

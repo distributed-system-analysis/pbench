@@ -36,10 +36,10 @@ while read -u 9 line;do
   remote_name=$(echo $line | awk -F' ' '{print $1}')
   group_name=$(echo $line | awk -F' ' '{print $2}')
   index_value=$(echo $line | awk -F' ' '{print $3}')
-  index_value=$(( index_value + 1 )) 
+  index_value=$(( index_value + 1 ))
   # Modify the label to include group and index number to make it unique
   label_name="$label_prefix""$group_name"_"$index_value"
-  remote[${#remote[@]}]=$remote_name 
+  remote[${#remote[@]}]=$remote_name
   group[${#group[@]}]=$group_name
   index[${#index[@]}]=$index_value
   label[${#label[@]}]=$label_name
@@ -87,10 +87,10 @@ done 11< $hosts
 ## delete host files
 /bin/rm $file
 if [ $? -ne 0 ]; then
-  warn_log "cannot delete input file" 
+  warn_log "cannot delete input file"
 fi
 /bin/rm $hosts
 if [ $? -ne 0 ]; then
-  warn_log "cannot delete hosts file" 
+  warn_log "cannot delete hosts file"
 fi
 exit 0

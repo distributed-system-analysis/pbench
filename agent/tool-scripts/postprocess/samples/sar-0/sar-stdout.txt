@@ -883,13 +883,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:48:52 PM       7   2008.23
 
 05:48:49 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:48:52 PM       1      8087        24         0                                                                        
-05:48:52 PM       2      8087        24         0                                                                        
+05:48:52 PM       1      8087        24         0
+05:48:52 PM       2      8087        24         0
 05:48:52 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:48:52 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:48:52 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:48:52 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:48:52 PM       2      17ef      100a         4                                                                        
+05:48:52 PM       2      17ef      100a         4
 
 05:48:49 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:48:52 PM     15774     34494     68.62     73.74   2482082    794718     24.25 /dev/mapper/fedora-root
@@ -1779,13 +1779,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:48:55 PM       7   3542.80
 
 05:48:52 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:48:55 PM       1      8087        24         0                                                                        
-05:48:55 PM       2      8087        24         0                                                                        
+05:48:55 PM       1      8087        24         0
+05:48:55 PM       2      8087        24         0
 05:48:55 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:48:55 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:48:55 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:48:55 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:48:55 PM       2      17ef      100a         4                                                                        
+05:48:55 PM       2      17ef      100a         4
 
 05:48:52 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:48:55 PM     15774     34494     68.62     73.74   2482082    794718     24.25 /dev/mapper/fedora-root
@@ -2675,13 +2675,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:48:58 PM       7   3526.87
 
 05:48:55 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:48:58 PM       1      8087        24         0                                                                        
-05:48:58 PM       2      8087        24         0                                                                        
+05:48:58 PM       1      8087        24         0
+05:48:58 PM       2      8087        24         0
 05:48:58 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:48:58 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:48:58 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:48:58 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:48:58 PM       2      17ef      100a         4                                                                        
+05:48:58 PM       2      17ef      100a         4
 
 05:48:55 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:48:58 PM     15774     34495     68.62     73.74   2482082    794718     24.25 /dev/mapper/fedora-root
@@ -3571,13 +3571,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:01 PM       7   3520.33
 
 05:48:58 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:49:01 PM       1      8087        24         0                                                                        
-05:49:01 PM       2      8087        24         0                                                                        
+05:49:01 PM       1      8087        24         0
+05:49:01 PM       2      8087        24         0
 05:49:01 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:49:01 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:49:01 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:49:01 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:49:01 PM       2      17ef      100a         4                                                                        
+05:49:01 PM       2      17ef      100a         4
 
 05:48:58 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:49:01 PM     15774     34495     68.62     73.75   2482082    794718     24.25 /dev/mapper/fedora-root
@@ -4467,13 +4467,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:04 PM       7   3509.78
 
 05:49:01 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:49:04 PM       1      8087        24         0                                                                        
-05:49:04 PM       2      8087        24         0                                                                        
+05:49:04 PM       1      8087        24         0
+05:49:04 PM       2      8087        24         0
 05:49:04 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:49:04 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:49:04 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:49:04 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:49:04 PM       2      17ef      100a         4                                                                        
+05:49:04 PM       2      17ef      100a         4
 
 05:49:01 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:49:04 PM     15774     34495     68.62     73.75   2482082    794718     24.25 /dev/mapper/fedora-root
@@ -5363,13 +5363,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:07 PM       7   3516.32
 
 05:49:04 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:49:07 PM       1      8087        24         0                                                                        
-05:49:07 PM       2      8087        24         0                                                                        
+05:49:07 PM       1      8087        24         0
+05:49:07 PM       2      8087        24         0
 05:49:07 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:49:07 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:49:07 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:49:07 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:49:07 PM       2      17ef      100a         4                                                                        
+05:49:07 PM       2      17ef      100a         4
 
 05:49:04 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:49:07 PM     15774     34495     68.62     73.75   2482082    794718     24.25 /dev/mapper/fedora-root
@@ -6259,13 +6259,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:10 PM       7   3528.24
 
 05:49:07 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:49:10 PM       1      8087        24         0                                                                        
-05:49:10 PM       2      8087        24         0                                                                        
+05:49:10 PM       1      8087        24         0
+05:49:10 PM       2      8087        24         0
 05:49:10 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:49:10 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:49:10 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:49:10 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:49:10 PM       2      17ef      100a         4                                                                        
+05:49:10 PM       2      17ef      100a         4
 
 05:49:07 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:49:10 PM     15774     34495     68.62     73.75   2482082    794718     24.25 /dev/mapper/fedora-root
@@ -7155,13 +7155,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:13 PM       7   3502.08
 
 05:49:10 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:49:13 PM       1      8087        24         0                                                                        
-05:49:13 PM       2      8087        24         0                                                                        
+05:49:13 PM       1      8087        24         0
+05:49:13 PM       2      8087        24         0
 05:49:13 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:49:13 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:49:13 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:49:13 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:49:13 PM       2      17ef      100a         4                                                                        
+05:49:13 PM       2      17ef      100a         4
 
 05:49:10 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:49:13 PM     15773     34495     68.62     73.75   2482082    794718     24.25 /dev/mapper/fedora-root
@@ -8051,13 +8051,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:16 PM       7   3505.57
 
 05:49:13 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:49:16 PM       1      8087        24         0                                                                        
-05:49:16 PM       2      8087        24         0                                                                        
+05:49:16 PM       1      8087        24         0
+05:49:16 PM       2      8087        24         0
 05:49:16 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:49:16 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:49:16 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:49:16 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:49:16 PM       2      17ef      100a         4                                                                        
+05:49:16 PM       2      17ef      100a         4
 
 05:49:13 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:49:16 PM     15773     34495     68.62     73.75   2482082    794718     24.25 /dev/mapper/fedora-root
@@ -8947,13 +8947,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:19 PM       7   3504.19
 
 05:49:16 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:49:19 PM       1      8087        24         0                                                                        
-05:49:19 PM       2      8087        24         0                                                                        
+05:49:19 PM       1      8087        24         0
+05:49:19 PM       2      8087        24         0
 05:49:19 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:49:19 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:49:19 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:49:19 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:49:19 PM       2      17ef      100a         4                                                                        
+05:49:19 PM       2      17ef      100a         4
 
 05:49:16 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:49:19 PM     15773     34495     68.62     73.75   2482082    794718     24.25 /dev/mapper/fedora-root
@@ -9843,13 +9843,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:22 PM       7   3509.68
 
 05:49:19 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:49:22 PM       1      8087        24         0                                                                        
-05:49:22 PM       2      8087        24         0                                                                        
+05:49:22 PM       1      8087        24         0
+05:49:22 PM       2      8087        24         0
 05:49:22 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:49:22 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:49:22 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:49:22 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:49:22 PM       2      17ef      100a         4                                                                        
+05:49:22 PM       2      17ef      100a         4
 
 05:49:19 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:49:22 PM     15773     34496     68.62     73.75   2482082    794718     24.25 /dev/mapper/fedora-root
@@ -10739,13 +10739,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:25 PM       7   3501.98
 
 05:49:22 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:49:25 PM       1      8087        24         0                                                                        
-05:49:25 PM       2      8087        24         0                                                                        
+05:49:25 PM       1      8087        24         0
+05:49:25 PM       2      8087        24         0
 05:49:25 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:49:25 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:49:25 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:49:25 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:49:25 PM       2      17ef      100a         4                                                                        
+05:49:25 PM       2      17ef      100a         4
 
 05:49:22 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:49:25 PM     15773     34496     68.62     73.75   2482082    794718     24.25 /dev/mapper/fedora-root
@@ -11635,13 +11635,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:28 PM       7   3504.51
 
 05:49:25 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:49:28 PM       1      8087        24         0                                                                        
-05:49:28 PM       2      8087        24         0                                                                        
+05:49:28 PM       1      8087        24         0
+05:49:28 PM       2      8087        24         0
 05:49:28 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:49:28 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:49:28 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:49:28 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:49:28 PM       2      17ef      100a         4                                                                        
+05:49:28 PM       2      17ef      100a         4
 
 05:49:25 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:49:28 PM     15773     34496     68.62     73.75   2482082    794718     24.25 /dev/mapper/fedora-root
@@ -12531,13 +12531,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:31 PM       7   3537.00
 
 05:49:28 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:49:31 PM       1      8087        24         0                                                                        
-05:49:31 PM       2      8087        24         0                                                                        
+05:49:31 PM       1      8087        24         0
+05:49:31 PM       2      8087        24         0
 05:49:31 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:49:31 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:49:31 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:49:31 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:49:31 PM       2      17ef      100a         4                                                                        
+05:49:31 PM       2      17ef      100a         4
 
 05:49:28 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:49:31 PM     15773     34496     68.62     73.75   2482088    794712     24.25 /dev/mapper/fedora-root
@@ -13427,13 +13427,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:34 PM       7   3500.71
 
 05:49:31 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:49:34 PM       1      8087        24         0                                                                        
-05:49:34 PM       2      8087        24         0                                                                        
+05:49:34 PM       1      8087        24         0
+05:49:34 PM       2      8087        24         0
 05:49:34 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:49:34 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:49:34 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:49:34 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:49:34 PM       2      17ef      100a         4                                                                        
+05:49:34 PM       2      17ef      100a         4
 
 05:49:31 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:49:34 PM     15773     34496     68.62     73.75   2482088    794712     24.25 /dev/mapper/fedora-root
@@ -14323,13 +14323,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:37 PM       7   3535.41
 
 05:49:34 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:49:37 PM       1      8087        24         0                                                                        
-05:49:37 PM       2      8087        24         0                                                                        
+05:49:37 PM       1      8087        24         0
+05:49:37 PM       2      8087        24         0
 05:49:37 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:49:37 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:49:37 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:49:37 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:49:37 PM       2      17ef      100a         4                                                                        
+05:49:37 PM       2      17ef      100a         4
 
 05:49:34 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:49:37 PM     15772     34496     68.62     73.75   2482088    794712     24.25 /dev/mapper/fedora-root
@@ -15219,13 +15219,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:40 PM       7   3524.97
 
 05:49:37 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:49:40 PM       1      8087        24         0                                                                        
-05:49:40 PM       2      8087        24         0                                                                        
+05:49:40 PM       1      8087        24         0
+05:49:40 PM       2      8087        24         0
 05:49:40 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:49:40 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:49:40 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:49:40 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:49:40 PM       2      17ef      100a         4                                                                        
+05:49:40 PM       2      17ef      100a         4
 
 05:49:37 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:49:40 PM     15772     34496     68.62     73.75   2482088    794712     24.25 /dev/mapper/fedora-root
@@ -16115,13 +16115,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:43 PM       7   3556.19
 
 05:49:40 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:49:43 PM       1      8087        24         0                                                                        
-05:49:43 PM       2      8087        24         0                                                                        
+05:49:43 PM       1      8087        24         0
+05:49:43 PM       2      8087        24         0
 05:49:43 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:49:43 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:49:43 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:49:43 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:49:43 PM       2      17ef      100a         4                                                                        
+05:49:43 PM       2      17ef      100a         4
 
 05:49:40 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:49:43 PM     15772     34496     68.62     73.75   2482088    794712     24.25 /dev/mapper/fedora-root
@@ -17011,13 +17011,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:46 PM       7   3527.29
 
 05:49:43 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:49:46 PM       1      8087        24         0                                                                        
-05:49:46 PM       2      8087        24         0                                                                        
+05:49:46 PM       1      8087        24         0
+05:49:46 PM       2      8087        24         0
 05:49:46 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:49:46 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:49:46 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:49:46 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:49:46 PM       2      17ef      100a         4                                                                        
+05:49:46 PM       2      17ef      100a         4
 
 05:49:43 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:49:46 PM     15772     34497     68.62     73.75   2482088    794712     24.25 /dev/mapper/fedora-root
@@ -17907,13 +17907,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:49 PM       7   3513.16
 
 05:49:46 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:49:49 PM       1      8087        24         0                                                                        
-05:49:49 PM       2      8087        24         0                                                                        
+05:49:49 PM       1      8087        24         0
+05:49:49 PM       2      8087        24         0
 05:49:49 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:49:49 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:49:49 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:49:49 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:49:49 PM       2      17ef      100a         4                                                                        
+05:49:49 PM       2      17ef      100a         4
 
 05:49:46 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:49:49 PM     15772     34497     68.62     73.75   2482088    794712     24.25 /dev/mapper/fedora-root
@@ -18803,13 +18803,13 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:52 PM       7   3561.89
 
 05:49:49 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-05:49:52 PM       1      8087        24         0                                                                        
-05:49:52 PM       2      8087        24         0                                                                        
+05:49:52 PM       1      8087        24         0
+05:49:52 PM       2      8087        24         0
 05:49:52 PM       3      1050        10        60                  Yubico                               Yubico Yubikey II
 05:49:52 PM       1       46d      c52b       196                Logitech                                    USB Receiver
 05:49:52 PM       1       a5c      21e6         0           Broadcom Corp                                      BCM20702A0
 05:49:52 PM       1       4f2      b2eb       400   Chicony Electronics C                               Integrated Camera
-05:49:52 PM       2      17ef      100a         4                                                                        
+05:49:52 PM       2      17ef      100a         4
 
 05:49:49 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
 05:49:52 PM     15772     34497     68.63     73.75   2482088    794712     24.25 /dev/mapper/fedora-root

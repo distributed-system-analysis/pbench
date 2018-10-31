@@ -27,7 +27,7 @@ The following options are available:
 		one or more block sizes in KiB (default is 4,64,1024)
 
 	-s int[,int] --file-size=str[,str] (default is )
-		file sizes in MiB: 
+		file sizes in MiB:
 
 	-d str[,str] --targets=str[,str]
 		one or more directories or block devices (default is /tmp/fio)

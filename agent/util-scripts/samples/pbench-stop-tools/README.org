@@ -45,7 +45,7 @@ Currently, iostat/sar do not go through safe_kill: they call kill directly
 and do not check the result. Assuming no problems are found with safe_kill,
 every tool is going to use it.
 
-* Test cases 
+* Test cases
 - test-05: turbostat
 - test-06: kvmstat
 - test-07: kvmtrace

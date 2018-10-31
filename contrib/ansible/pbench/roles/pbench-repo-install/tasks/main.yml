@@ -1,8 +1,8 @@
 ---
 # Install pbench.repo
-- name: ensure we have the pbench.repo file properly in place for fedora 
+- name: ensure we have the pbench.repo file properly in place for fedora
   template: src=etc/yum.repos.d/fedora-pbench.repo.j2 dest=/etc/yum.repos.d/pbench.repo owner=root group=root mode=0644
-  when: ansible_distribution == "Fedora" 
+  when: ansible_distribution == "Fedora"
 - name: ensure we have the pbench.repo file properly in place for redhat
   template: src=etc/yum.repos.d/redhat-pbench.repo.j2 dest=/etc/yum.repos.d/pbench.repo owner=root group=root mode=0644
-  when: ansible_distribution == "CentOS" or ansible_distribution == "Redhat" 
+  when: ansible_distribution == "CentOS" or ansible_distribution == "Redhat"

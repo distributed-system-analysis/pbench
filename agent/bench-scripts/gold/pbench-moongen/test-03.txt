@@ -85,27 +85,27 @@ Iteration 4-throughput-unidirec-1024B-1024flows-1pct_drop complete (4 of 4), wit
 +++ pbench.log file contents
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-moongen]processing options
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration[1-throughput-unidirec-64B-1024flows-0pct_drop] (1 of 4)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 3 
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 3 
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 3 of 3 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 3
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 3
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 3 of 3
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] Moving to the next iteration
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 1-throughput-unidirec-64B-1024flows-0pct_drop complete (1 of 4), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration[2-throughput-unidirec-1024B-1024flows-0pct_drop] (2 of 4)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 3 
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 3 
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 3 of 3 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 3
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 3
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 3 of 3
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] Moving to the next iteration
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 2-throughput-unidirec-1024B-1024flows-0pct_drop complete (2 of 4), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration[3-throughput-unidirec-64B-1024flows-1pct_drop] (3 of 4)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 3 
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 3 
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 3 of 3 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 3
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 3
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 3 of 3
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] Moving to the next iteration
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 3-throughput-unidirec-64B-1024flows-1pct_drop complete (3 of 4), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration[4-throughput-unidirec-1024B-1024flows-1pct_drop] (4 of 4)
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 3 
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 3 
-/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 3 of 3 
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 3
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 3
+/var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 3 of 3
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] Moving to the next iteration
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 4-throughput-unidirec-1024B-1024flows-1pct_drop complete (4 of 4), with 1 pass and 0 failures
 --- pbench.log file contents

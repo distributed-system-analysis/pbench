@@ -79,25 +79,25 @@ Strand Details
 timestamp_ms:1459956754790.0005 name:Thr0 nr_bytes:3802736640 nr_ops:59417763
 
 
-Txn                Count         avg         cpu         max         min 
+Txn                Count         avg         cpu         max         min
 -------------------------------------------------------------------------------
-Txn0                   1      2.48ms      0.00ns      2.48ms      2.48ms 
-Txn1             3713611     16.14us      0.00ns     17.55ms    780.00ns 
-Txn2                   1      9.17us      0.00ns      9.17us      9.17us 
+Txn0                   1      2.48ms      0.00ns      2.48ms      2.48ms
+Txn1             3713611     16.14us      0.00ns     17.55ms    780.00ns
+Txn2                   1      9.17us      0.00ns      9.17us      9.17us
 
 
-Flowop             Count         avg         cpu         max         min 
+Flowop             Count         avg         cpu         max         min
 -------------------------------------------------------------------------------
-connect                1      2.48ms      0.00ns      2.48ms      2.48ms 
-write           59417760      1.00us      0.00ns     17.55ms      4.97us 
-disconnect             1      6.78us      0.00ns      6.78us      6.78us 
+connect                1      2.48ms      0.00ns      2.48ms      2.48ms
+write           59417760      1.00us      0.00ns     17.55ms      4.97us
+disconnect             1      6.78us      0.00ns      6.78us      6.78us
 
 
 Netstat statistics for this run
 -------------------------------------------------------------------------------
 Nic       opkts/s     ipkts/s      obits/s      ibits/s
-lo              0           0    592.66b/s    592.66b/s 
-em1         77849       15583   945.35Mb/s     8.73Mb/s 
+lo              0           0    592.66b/s    592.66b/s
+em1         77849       15583   945.35Mb/s     8.73Mb/s
 -------------------------------------------------------------------------------
 
 Run Statistics

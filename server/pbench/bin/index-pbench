@@ -2164,13 +2164,13 @@ def dump_idx_patterns(prefix, patterns, tools):
     for idx in pattern_names:
         if idx != "tool-data":
             print(patterns[idx]['template'].format(prefix=prefix, year="YYYY", month="MM", day="DD"))
-            print(patterns[idx]['desc'], '\n')
+            print("{}\n".format(patterns[idx]['desc']))
         else:
             tool_names = [tool for tool in tools]
             tool_names.sort()
             for tool in tool_names:
                 print(patterns[idx]['template'].format(prefix=prefix, tool=tool, year="YYYY", month="MM", day="DD"))
-            print(patterns[idx]['desc'], '\n')
+            print("{}\n".format(patterns[idx]['desc']))
 
 def main(options, args):
     # ^$!@!#%# compatibility

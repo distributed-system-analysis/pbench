@@ -53,7 +53,7 @@ app.controller('MainCtrl', function($scope,$http) {
         /*$http.get('cpu_all_cpu_busy.json').success(function(data) {
            $scope.data = data;
         });*/
-    
+
         $scope.data = constructChart("lineWithFocusChart", 0, "cpu_all_cpu_busy");
 
         function _process_csv_data(csv_data, threshold) {

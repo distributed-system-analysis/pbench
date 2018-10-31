@@ -1,5 +1,5 @@
 +++ Running test-23 pbench-collect-sysinfo
-Usage: pbench-collect-sysinfo [options] beg|end 
+Usage: pbench-collect-sysinfo [options] beg|end
 
 Options specified can be one of:
 	-d str --dir=str,     str = a directory where the pbench-collect-sysinfo

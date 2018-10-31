@@ -54,7 +54,7 @@ for ldir in $LINKDIRS; do printf "\t  ${ldir}\n"; done | sort > ${linkdirs}
 
 function verify_subdirs {
     controller=${1}
- 
+
     let cnt=0
 
     find ${controller} -maxdepth 1 -type d ! -name . ! -name $(basename ${controller}) ! -name .prefix -printf "\t  %f\n" | sort > ${directories} 2>&1

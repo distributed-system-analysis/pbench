@@ -3,7 +3,7 @@
 # Author: Andrew Theurer
 # This script will process csv result files from each benchmark iteration, generating
 # a summary of all iterations in txt, csv, html, and json.
-# 
+#
 # usage:
 # $script <benchmark-name> <original_command> <benchmark-results-directory>
 
@@ -53,7 +53,7 @@ my @iterations;
 my $iteration_data_field = 'iteration_data';
 my $iteration_name_field = 'iteration_name';
 my $iteration_number_field = 'iteration_number';
-# build an array from all of the iterations 
+# build an array from all of the iterations
 foreach $dir (sort @dirs) {
 	$iteration_dir = $benchmark_run_dir . "/" . $dir;
 	if ((-d $iteration_dir) && ($dir =~ /(\d+)-(.+)/)) {
@@ -143,7 +143,7 @@ for ($i = 0; $i < scalar @iterations; $i++) {
 							}
 							$iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j]{$metric_label} = sprintf("%s", $iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j]{$metric_label});
 							$length = get_length($iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j]{$metric_label}) + $padding;
-							
+
 							# Note that for spacing, index 0 is reserved for the header spacing [that spans across all metric elements of this type], and so spacing for metric elements start with index "1"
 							if ( ! defined $spacing{$metric_type}{$metric_name}[$j+1]{$metric_label} || $length > $spacing{$metric_type}{$metric_name}[$j+1]{$metric_label} ) {
 								$spacing{$metric_type}{$metric_name}[$j+1]{$metric_label} = $length;
@@ -157,7 +157,7 @@ for ($i = 0; $i < scalar @iterations; $i++) {
 						# this_metric_type_name specing is calculated by summing metric label lengths
 						$spacing{$metric_type}{$metric_name}[$j+1]{'header'} += $spacing{$metric_type}{$metric_name}[$j+1]{$metric_label};
 					}
-				
+
 				} # loop $metric_label = mean, stddevpct, closest_sample
 				$spacing{$metric_type}{$metric_name}[$j+1]{'uid'} = get_length(get_uid($iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j]{'uid'}, \%{ $iterations[$i]{$iteration_data_field}{$metric_type}{$metric_name}[$j] }));
 			} # $j = elements of a metric_type (Gb_sec[0..N]
@@ -249,8 +249,8 @@ printf TXT "%$spacing{iter_num}s%$spacing{iter_name}s", "", "";
 printf HTML "<tr><td>%s</td><td>%s</td>", "", "";
 foreach $metric_type (reverse sort keys %spacing) {
 	if ( grep(/^$metric_type$/, @all_metric_types) ) {
-		#my $colspan = scalar (keys %{ $spacing{$metric_type} }) - 1; 
-		my $colspan = 0; 
+		#my $colspan = scalar (keys %{ $spacing{$metric_type} }) - 1;
+		my $colspan = 0;
 		foreach $metric_name (sort keys %{ $spacing{$metric_type} } ) {
 			if ( $metric_name eq 'header' ) {
 				next;
@@ -342,8 +342,8 @@ foreach $metric_type (reverse sort keys %spacing) {
 }
 printf TXT "\n";
 printf CSV "\n";
-	
-# print a horizontal separator 
+
+# print a horizontal separator
 printf TXT "%$spacing{iter_num}s%$spacing{iter_name}s", "", "";
 #printf HTML "%$spacing{iter_num}s%$spacing{iter_name}s", "", "";
 foreach $metric_type (reverse sort keys %spacing) {

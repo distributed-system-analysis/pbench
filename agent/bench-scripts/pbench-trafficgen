@@ -5,7 +5,7 @@
 #
 # This is a script to run a network traffic generator like MoonGen or TRex.
 # It is intended to test a network function, like a bridge or router.
-# 
+#
 # Hardware prerequisites:
 # - A Linux host with 1 to 2 network adapters.  These adapters must be either Intel XL710 or Intel 82599
 #   Ideally this host should have x86-64 processors (current or previous generation) 1GB HW pages, and PCI-E v2 or v3
@@ -808,7 +808,7 @@ if [ "${postprocess_only}" == "n" ]; then
 			fi
 		fi
 	fi
-	
+
 	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
 		if [ $skip_trex_server == "n" ]; then
 			kill_trex

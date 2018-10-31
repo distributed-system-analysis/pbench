@@ -86,7 +86,7 @@ done
 
 qdir=$(getconf.py quarantine-dir pbench-server)
 for version in $(getconf.py versions results) ;do
-    mkdir -p ${qdir}/md5-${version} ${qdir}/duplicates-${version} ${qdir}/errors-${version} 
+    mkdir -p ${qdir}/md5-${version} ${qdir}/duplicates-${version} ${qdir}/errors-${version}
 done
 chown -R ${user}.${group} ${qdir}
 

@@ -21,7 +21,7 @@ class ControllerListView extends React.Component {
   componentDidMount() {
     this.setState({loading: true});
     let data = localStorage.getItem('controllers');
-    
+
     if (!data) {
       axios.post(datastore.elasticsearch + datastore.prefix + datastore.run_indices,
       {
@@ -110,7 +110,7 @@ class ControllerListView extends React.Component {
       }, {
         title: 'Last Modified',
         dataIndex: 'last_modified_string',
-        key: 'last_modified_string', 
+        key: 'last_modified_string',
         sorter: (a, b) => a.last_modified_value - b.last_modified_value
       }, {
         title: 'Results',

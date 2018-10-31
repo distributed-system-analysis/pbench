@@ -9,31 +9,31 @@ This page describes how to use pbench-fio to do storage performance testing.  It
 * measure [latency percentile change over time](#measuring-latency-percentiles)
 * example from [OpenStack Cinder testing](#example-of-openstack-cinder-volumes)
 
-Before we go into the [syntax details](#syntax) of pbench-fio parameters, 
-which are different in some cases than the fio input parameters, 
+Before we go into the [syntax details](#syntax) of pbench-fio parameters,
+which are different in some cases than the fio input parameters,
 we describe why pbench-fio exists, and how to make use of it.
 
 # overview of usage opportunities and constraints
 
-pbench-fio was created to automate sets of fio tests, 
-including calculations of statistics for throughputs and latency.  
+pbench-fio was created to automate sets of fio tests,
+including calculations of statistics for throughputs and latency.
 The fio benchmark itself does not do this.
 
-pbench-fio also was created with distributed storage performance testing in mind -- 
-it uses the **fio --client** option to allow fio to start up a storage performance test 
+pbench-fio also was created with distributed storage performance testing in mind --
+it uses the **fio --client** option to allow fio to start up a storage performance test
 on a set of hosts simultaneously and collect all the results to a central location.
 
-pbench-fio supports ingestion of these results into a repository, 
+pbench-fio supports ingestion of these results into a repository,
 such as elastic search, through JSON-formatted results that are easily parsed.
-Traditional fio output is very difficult to parse correctly 
+Traditional fio output is very difficult to parse correctly
 and the resulting parser is hard to understand and likely to break as fio evolves over time.
 
 pbench-fio also provides additional postprocessing for the new fio latency histogram logs.   This feature lets you graph latency percentiles cluster-wide as a function of time.  These graphs are really important when you are running very long tests and want to look at variations in latency caused by operational events such as node, disk or network failure/replacement.
 
 # difference between sequential and random workload parameters
 
-Ideally we would like to feed fio one set of test parameters 
-and have it churn through all the multiple iterations of each data point, 
+Ideally we would like to feed fio one set of test parameters
+and have it churn through all the multiple iterations of each data point,
 collecting and analyzing all the results for us.  That is the dream ;-)
 
 However, here is why this is difficult or even impossible to do:
@@ -41,57 +41,57 @@ However, here is why this is difficult or even impossible to do:
 * applications often do sequential I/O in buffered mode
 * applications often do random I/O in unbuffered mode
 
-Unfortunately there is no one set of pbench-fio input parameters 
+Unfortunately there is no one set of pbench-fio input parameters
 that lets you run both sequential and random tests with the same set of parameters, so far.
 
 ## sequential workloads
 
-Applications typically do unbuffered I/O, 
-with write aggregation and read prefetching done at client, using a single thread per file.  
-Examples of this are software builds, and image/audio/video processing.  
-If you do unbuffered (i.e. O_DIRECT) writes/reads to a sequential file, 
-throughput will be extremely slow for small transfer sizes, 
+Applications typically do unbuffered I/O,
+with write aggregation and read prefetching done at client, using a single thread per file.
+Examples of this are software builds, and image/audio/video processing.
+If you do unbuffered (i.e. O_DIRECT) writes/reads to a sequential file,
+throughput will be extremely slow for small transfer sizes,
 but will not be representative of typical application performance.
 
 ## random workloads
 
-High-performance applications sometimes do random I/O in O_DIRECT/O_SYNC mode 
-(each write has to make it to storage before being acknowledged), 
-using asynchronous I/O such as libaio library provides 
-to maintain multiple in-flight I/O requests from a single thread.  
+High-performance applications sometimes do random I/O in O_DIRECT/O_SYNC mode
+(each write has to make it to storage before being acknowledged),
+using asynchronous I/O such as libaio library provides
+to maintain multiple in-flight I/O requests from a single thread.
 They do this for several reasons:
 
 * avoid prefetching data that will never be used by the application
 * avoid network overhead of small writes from the client to the server process
 
-If you do buffered random writes, for example, 
-you will queue up a ton of requests but they will not actually get written to disk immediately.  
+If you do buffered random writes, for example,
+you will queue up a ton of requests but they will not actually get written to disk immediately.
 This situation can result in artificially high IOPS numbers
-which do not reflect steady-state performance of an application in this environment.  
+which do not reflect steady-state performance of an application in this environment.
 There are a couple of ways to solve this problem:
 
 1. run a test that is so large that the amount of buffered data is an insignificant percentage of the total data accessed.
 2. run a write test that includes time required to fsync the file descriptors to flush all outstanding writes to block devices.
 
-Both of these options have issues.  
-Option 1 increases test time significantly 
-depending on the potential amount of buffering taking place in the system. 
-Option 2 has the disadvantages that short tests may spend excessive time 
-in the fsync call and not in the actual write-related system calls, 
+Both of these options have issues.
+Option 1 increases test time significantly
+depending on the potential amount of buffering taking place in the system.
+Option 2 has the disadvantages that short tests may spend excessive time
+in the fsync call and not in the actual write-related system calls,
 and queue depth is not controlled.
 
-Contrast this with use of **O_DIRECT** or **O_SYNC** reads and writes.  
-Here the situation is reversed - we can run a test that uses only a small 
-fraction of the total data set and get representative numbers.  
-For example, we could use **fallocate()** system call to quickly create files 
-that span the entire block device, 
-and then randomly read/write only an insignificant fraction of the entire set of files, 
-yet still get representative throughput and latency numbers.  
-The same is true for using fio for random I/O on block devices.  
+Contrast this with use of **O_DIRECT** or **O_SYNC** reads and writes.
+Here the situation is reversed - we can run a test that uses only a small
+fraction of the total data set and get representative numbers.
+For example, we could use **fallocate()** system call to quickly create files
+that span the entire block device,
+and then randomly read/write only an insignificant fraction of the entire set of files,
+yet still get representative throughput and latency numbers.
+The same is true for using fio for random I/O on block devices.
 
 # data persistence
 
-Performance of writes is usually only interesting if we know that the writes are persistent (will be visible after a client or server abrupt reset (i.e. crash or power-cycle).  Otherwise you may be just writing to RAM.  For sequential writes, this can be accomplished with the fio jobfile parameter **fsync_on_close=1** . For random writes, this can be accomplished with the parameter **--sync=1** .  Technically O_DIRECT open flag does not guarantee persistence of writes, and only specifies that writes bypass buffer cache.  For example, it is possible to do an O_DIRECT write and have it not be persistent if it reaches block device hardware but was never actually written to persistent storage there, and yes this can happen.  O_SYNC means that the driver both issues the write and blocks until the write is guaranteed to persist.  
+Performance of writes is usually only interesting if we know that the writes are persistent (will be visible after a client or server abrupt reset (i.e. crash or power-cycle).  Otherwise you may be just writing to RAM.  For sequential writes, this can be accomplished with the fio jobfile parameter **fsync_on_close=1** . For random writes, this can be accomplished with the parameter **--sync=1** .  Technically O_DIRECT open flag does not guarantee persistence of writes, and only specifies that writes bypass buffer cache.  For example, it is possible to do an O_DIRECT write and have it not be persistent if it reaches block device hardware but was never actually written to persistent storage there, and yes this can happen.  O_SYNC means that the driver both issues the write and blocks until the write is guaranteed to persist.
 
 Obviously O_SYNC can be a performance killer because the application has to wait for the device to respond with status showing that the write is now persistent.  So for random workloads it is possible to use asynchronous I/O to get many requests of this type to be submitted simultaneously - now the device can maintain an internal queue of active requests and the host can keep the device busy and also schedule I/O more efficiently using the Linux I/O scheduler (typically the **deadline** scheduler).
 
@@ -105,7 +105,7 @@ If you are pushing limits of scalability with very large host counts, you have s
 
 ## ARP cache increase
 
-The default Linux parameters are sometimes too low for tests involving large numbers of VMs or containers, resulting in failure to cache IP addresses of all workload generates in the Linux ARP cache.  This can result in disconnected VMs.  To increase ARP cache size, see [this article](http://www.serveradminblog.com/2011/02/neighbour-table-overflow-sysctl-conf-tunning/) .  
+The default Linux parameters are sometimes too low for tests involving large numbers of VMs or containers, resulting in failure to cache IP addresses of all workload generates in the Linux ARP cache.  This can result in disconnected VMs.  To increase ARP cache size, see [this article](http://www.serveradminblog.com/2011/02/neighbour-table-overflow-sysctl-conf-tunning/) .
 
 ## pdsh and ansible fanout
 
@@ -117,7 +117,7 @@ ssh by default will not handle more than about 10 simultaneous ssh sessions star
 
 ## fio startdelay parameter
 
-It takes a while for fio to initiate workload on the entire set of hosts (much faster than ssh though).  We don't want the system getting busy while threads are being started!  Using the fio **startdelay=K** parameter (where K is number of seconds to wait before starting fio job) in your job file can allow the test driver to start fio workload generator processes without having them make the system busy right away, maximizing the chance of having all threads/processes start at approximately the same time.  
+It takes a while for fio to initiate workload on the entire set of hosts (much faster than ssh though).  We don't want the system getting busy while threads are being started!  Using the fio **startdelay=K** parameter (where K is number of seconds to wait before starting fio job) in your job file can allow the test driver to start fio workload generator processes without having them make the system busy right away, maximizing the chance of having all threads/processes start at approximately the same time.
 
 ** fio ramp_time parameter
 
@@ -125,18 +125,18 @@ When cache has been dropped in a large cluster, the metadata kept in hosts' Linu
 
 FIXME: I'm guessing this has to be used with iops_rate=N parameter since otherwise fio would not know how to grow the IOPS rate.
 
-# cache dropping 
+# cache dropping
 
-In order to get reproducible, accurate results in a short amount of test time, you do not want to have client or server caching read data.  Why?  When doing performance tests, we want tests to cover a wide range of data points in a short time duration, but in real life, the cluster is run for months or even years without interruption, on amounts of data that are far greater than what we can access during the short performance test.  In order for our performance tests to match the steady-state throughput obtainable by the real users, we need to eliminate caching effects so that data is traversing the entire data path between block devices and application (Note: there are cases where it's ok to test the cache performance, as long as that is your intent!).  
+In order to get reproducible, accurate results in a short amount of test time, you do not want to have client or server caching read data.  Why?  When doing performance tests, we want tests to cover a wide range of data points in a short time duration, but in real life, the cluster is run for months or even years without interruption, on amounts of data that are far greater than what we can access during the short performance test.  In order for our performance tests to match the steady-state throughput obtainable by the real users, we need to eliminate caching effects so that data is traversing the entire data path between block devices and application (Note: there are cases where it's ok to test the cache performance, as long as that is your intent!).
 
 To eliminate caching effects with pbench-fio, a new **--pre-iteration-script** option has been added.  This command is run by the test driver before each data point.  For example,  you could use the syntax **--pre-iteration-script=drop-cache.sh** , where this script looks like this:
 
     pdsh -S -w ^vms.list 'sync ; echo 3 > /proc/sys/vm/drop_caches'
     pdsh -S -w ^ceph-osd-nodes.list 'sync ; echo 3 > /proc/sys/vm/drop_caches'
 
-This command should empty out the Linux buffer cache both on the guests and on the Ceph OSD hosts so that no data or metadata is cached there.  
+This command should empty out the Linux buffer cache both on the guests and on the Ceph OSD hosts so that no data or metadata is cached there.
 
-The RBD cache is not cleared by this procedure, but the RBD cache is relatively small, 32 MB/guest, and so the significance of any caching there is not that great, particularly for workloads where you are using O_DIRECT and thereby bypassing the RBD cache.  To really flush the RBD cache, you would be forced to detach each inder volume and then re-attach it to its guest.  
+The RBD cache is not cleared by this procedure, but the RBD cache is relatively small, 32 MB/guest, and so the significance of any caching there is not that great, particularly for workloads where you are using O_DIRECT and thereby bypassing the RBD cache.  To really flush the RBD cache, you would be forced to detach each inder volume and then re-attach it to its guest.
 
 For FUSE filesystems such as Gluster or Cephfs, the above procedure would not be sufficient in some cases and you might have to unmount and remount the filesystem, which is not a very time-consuming procedure.
 
@@ -172,11 +172,11 @@ make sure it's not already mounted
 For OpenStack, it's a good idea to preallocate RBD images so that you get consistent performance results.  To do this, you can dd to /dev/vdb like this (it could take a while):
 
     testdriver# mypdsh -f 128 'dd if=/dev/zero of=/dev/vdb bs=4096k conv=fsync'
-    
+
 Now format the filesystems for each cinder volume and mount them:
 
     testdriver# mypdsh -f 128 'mkfs -t xfs /dev/vdb && mkdir -p /mnt/fio && mount -t xfs -o noatime /dev/vdb /mnt/fio && mkdir /mnt/fio/files'
-           
+
 Then you construct a fio job file for your initial sequential tests, and this will also create the files for the subsequent tests.  certain parameters have to be specified with the string `$@` because pbench-fio wants to fill them in.   It might look something like this:
 
     [global]
@@ -202,11 +202,11 @@ Then you construct a fio job file for your initial sequential tests, and this wi
     fsync_on_close=1
     # what's this?
     per_job_logs=1
-    
+
     [sequential]
     rw=$@
     bs=$@
-    # do not lay out the file before the write test, 
+    # do not lay out the file before the write test,
     # create it as part of the write test
     create_on_open=1
     # do not create just one file at a time
@@ -227,7 +227,7 @@ For random writes, the job file is a little more complicated.  Again the `[globa
     [random]
     rw=$@
     bs=$@
-    # specify use of libaio 
+    # specify use of libaio
     # to allow a single thread to launch multiple parallel I/O requests
     ioengine=libaio
     # how many parallel I/O requests should be attempted
@@ -255,13 +255,13 @@ For syntax details, use the command
 
 Note that not all fio parameters are specified by pbench-fio.  See [here](https://github.com/axboe/fio/blob/master/HOWTO)  for a page describing fio parameters in its github repo.  Parameters are part of pbench-fio command in order to allow pbench-fio to iterate over a broad range of tests in a single command.
 
-This section stresses important parameters that are often used.  Where there is both a short-form (single-dash single-character) and a long-form (double-dash verbose) syntax for an option, we refer to it using the long-form syntax here.  
+This section stresses important parameters that are often used.  Where there is both a short-form (single-dash single-character) and a long-form (double-dash verbose) syntax for an option, we refer to it using the long-form syntax here.
 
 A CSV list is a comma-separated list of values with no embedded spaces.
 
 Parameter data value other than these types are strings which are specified below.
 * int - integer
-* uint - non-negative integer 
+* uint - non-negative integer
 * bool - boolean, in fio this is either 0 (false) or 1 (true)
 
 Here are the pbench-fio parameters:

@@ -6,7 +6,7 @@
 #
 # It is recommended that you run this script from a host which is not one of the kvm hosts
 # migrating to/from (although it is not required).  This script will use ssh to intitiate the
-# live migrations, so ssh keys must be set up between the host running this script and the 
+# live migrations, so ssh keys must be set up between the host running this script and the
 # KVM hosts.
 #
 # This is an odd "benchmark" as the workload is a KVM live-migration
@@ -275,7 +275,7 @@ function do_migrate() {
 			echo
 		fi
 	fi
-	
+
 	# make sure dest_host has exact VM config as src_host
 	if [ "$use_libvirt" == "y" ]; then
 		echo creating VM on destination host using libvirt
@@ -296,7 +296,7 @@ function do_migrate() {
 			ssh $dest_host $qemu_cmd -incoming tcp:[::]:49152 || exit
 		fi
 	fi
-	
+
 	# migrate
 	echo sleeping for $seconds_before_migrate seconds before starting migration | tee -a $benchmark_results_dir/result.txt
 	sleep $seconds_before_migrate

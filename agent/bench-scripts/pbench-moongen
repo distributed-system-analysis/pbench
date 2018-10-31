@@ -391,7 +391,7 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 					if [ $count -ge $start_iteration_num ]; then
 						if [ "$test_type" == "latency" ]; then
 							iteration="${count}-${test_type}-${traffic_direction}-${frame_size}B-${nr_flow}flows-${rate}Mpps"
-						else 
+						else
 							iteration="${count}-${test_type}-${traffic_direction}-${frame_size}B-${nr_flow}flows-${max_drop_pct}pct_drop"
 						fi
                                                 echo $iteration >> $benchmark_iterations

@@ -66,15 +66,15 @@ curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
 {
-    "text": "pbench-verify-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n", 
-    "@timestamp": "1900-01-01T00:00:00", 
-    "name": "pbench-verify-backup-tarballs", 
+    "text": "pbench-verify-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-verify-backup-tarballs",
     "doctype": "status"
 }
 {
-    "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nController: controller\n\t* No state directories found in this controller directory.\n\n\nend-1900-01-01T00:00:00-UTC\n", 
-    "@timestamp": "1900-01-01T00:00:00", 
-    "name": "pbench-audit-archive", 
+    "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nController: controller\n\t* No state directories found in this controller directory.\n\n\nend-1900-01-01T00:00:00-UTC\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-audit-archive",
     "doctype": "status"
 }
 --- test-curl-payload.log file contents

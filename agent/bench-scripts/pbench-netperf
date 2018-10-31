@@ -133,7 +133,7 @@ function print_header {
 		printf "%28s%${spacing}s%${spacing}s%${spacing}s%${spacing}s%${spacing}s%${spacing}s\n" "iteration" "trans/sec" "latency_usec" "trans/sec/serverCPU" "trans/sec/clientCPU" "serverCPU" "clientCPU" >>$benchmark_summary_txt_file
 		printf "%28s,%${spacing}s,%${spacing}s,%${spacing}s,%${spacing}s,%${spacing}s,%${spacing}s\n" "iteration" "trans/sec,stddev%" "latency_usec,stddev%" "trans/sec/serverCPU,stddev%" "trans/sec/clientCPU,stddev%" "serverCPU,stddev%" "clientCPU,stddev%" >>$benchmark_summary_csv_file
 		printf "%28s %s %s %${spacing}s%${spacing}s%${spacing}s%${spacing}s%${spacing}s%${spacing}s\n" "iteration" "       " "     " "trans/sec" "latency_usec" "trans/sec/serverCPU" "trans/sec/clientCPU" "serverCPU" "clientCPU" >>$benchmark_summary_html_file
-	else 
+	else
 		printf "%28s%${spacing}s%${spacing}s%${spacing}s%${spacing}s%${spacing}s\n" "iteration" "Gbps" "Gbps/serverCPU" "Gbps/clientCPU" "serverCPU" "clientCPU" >>$benchmark_summary_txt_file
 		printf "%28s,%${spacing}s,%${spacing}s,%${spacing}s,%${spacing}s,%${spacing}s\n" "iteration" "Gbps,stddev%" "Gbps/serverCPU,stddev%" "Gbps/clientCPU,stddev%" "serverCPU,stddev%" "clientCPU,stddev%" >>$benchmark_summary_csv_file
 		printf "%28s %s %s %${spacing}s%${spacing}s%${spacing}s%${spacing}s%${spacing}s\n" "iteration" "       " "     " "Gbps" "Gbps/serverCPU" "Gbps/clientCPU" "serverCPU" "clientCPU" >>$benchmark_summary_html_file
@@ -452,7 +452,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 					failures=0
 					while [[ $(echo "if (${result_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; do
 						mkdir -p $iteration_dir
-						for server in `echo $servers | sed -e s/","/" "/g`; do	
+						for server in `echo $servers | sed -e s/","/" "/g`; do
 							xml_file="$benchmark_run_dir/$iteration/netperf-config-$server.xml"
 							gen_xml $test_type $message_size $protocol $instance $server >$xml_file
 						done
@@ -476,7 +476,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								# prepare test files and dirs if using remote clients
 								if [ ! -z "$clients" ]; then
 									i=1
-									for server in `echo $servers | sed -e s/","/" "/g`; do	
+									for server in `echo $servers | sed -e s/","/" "/g`; do
 										client=`echo $clients | cut -d, -f$i`
 										xml_file="$benchmark_run_dir/$iteration/netperf-config-$server.xml"
 										ssh $ssh_opts $client mkdir -p $benchmark_results_dir
@@ -489,7 +489,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 								# start a local netperf client process for each host found in the $servers list
 								if [ -z "$clients" ]; then
-									for server in `echo $servers | sed -e s/","/" "/g`; do	
+									for server in `echo $servers | sed -e s/","/" "/g`; do
 										if [ "$log_response_times" == "y" ]; then
 											resp_opt=" -X $benchmark_results_dir/response-times-$server.txt"
 										fi
@@ -501,7 +501,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									wait
 								else # using remote clients
 									i=1
-									for server in `echo $servers | sed -e s/","/" "/g`; do	
+									for server in `echo $servers | sed -e s/","/" "/g`; do
 										client=`echo $clients | cut -d, -f$i`
 										if [ "$log_response_times" == "y" ]; then
 											resp_opt=" -X $benchmark_results_dir/response-times-$server.txt"
@@ -583,7 +583,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									/bin/rm -rf $benchmark_run_dir/$iteration/sample$sample/tools-* $benchmark_run_dir/$iteration/sample$sample/response-times.txt
 								fi
 							fi
-						done		
+						done
 						# if we did not achieve the stddevpct, then move this result out of the way and try again
 						fail=0
 						if [[ $(echo "if (${tput_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; then

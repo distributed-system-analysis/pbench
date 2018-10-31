@@ -91,25 +91,25 @@ timestamp_ms:1459958379861.2290 name:Thr0 nr_bytes:425983987 nr_ops:26016
 timestamp_ms:1459958379861.2290 name:Thr0 nr_bytes:425983987 nr_ops:26016
 
 
-Txn                Count         avg         cpu         max         min 
+Txn                Count         avg         cpu         max         min
 -------------------------------------------------------------------------------
-Txn0                   8    640.22ms      0.00ns       5.05s     10.56ms 
-Txn1               14260     33.69ms      0.00ns     83.59ms     20.35us 
-Txn2                   8      8.21us      0.00ns     12.48us      5.87us 
+Txn0                   8    640.22ms      0.00ns       5.05s     10.56ms
+Txn1               14260     33.69ms      0.00ns     83.59ms     20.35us
+Txn2                   8      8.21us      0.00ns     12.48us      5.87us
 
 
-Flowop             Count         avg         cpu         max         min 
+Flowop             Count         avg         cpu         max         min
 -------------------------------------------------------------------------------
-connect                8    640.22ms      0.00ns       5.05s     10.56ms 
-write             228106      2.11ms      0.00ns     83.59ms     20.29us 
-disconnect             8      7.96us      0.00ns     12.14us      5.67us 
+connect                8    640.22ms      0.00ns       5.05s     10.56ms
+write             228106      2.11ms      0.00ns     83.59ms     20.29us
+disconnect             8      7.96us      0.00ns     12.14us      5.67us
 
 
 Netstat statistics for this run
 -------------------------------------------------------------------------------
 Nic       opkts/s     ipkts/s      obits/s      ibits/s
-lo              1           1     1.14Kb/s     1.14Kb/s 
-em1         72283       15037   877.77Mb/s     8.43Mb/s 
+lo              1           1     1.14Kb/s     1.14Kb/s
+em1         72283       15037   877.77Mb/s     8.43Mb/s
 -------------------------------------------------------------------------------
 
 Run Statistics

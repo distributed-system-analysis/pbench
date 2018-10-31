@@ -7,8 +7,8 @@ This will ease installation, using pbench.
 
 ## Run
 
-Running the below command will install pbench, on the hosts mentioned under [controller] and [remote] groups in the inventory file and registers default tool-set. 
-There's also an option to define the list of tools to be registered in the vars.yml file. 
+Running the below command will install pbench, on the hosts mentioned under [controller] and [remote] groups in the inventory file and registers default tool-set.
+There's also an option to define the list of tools to be registered in the vars.yml file.
 ```
 $ ansible-playbook -i inventory pbench.yml
 ```
@@ -18,7 +18,7 @@ $ ansible-playbook -i inventory pbench.yml
 ### Tools to register
 Define the tools in the vars.yml file as a list like
 ```
-[tools]=[ sar, iostat, disk ] 
+[tools]=[ sar, iostat, disk ]
 ```
 
 ### Running Benchmarks

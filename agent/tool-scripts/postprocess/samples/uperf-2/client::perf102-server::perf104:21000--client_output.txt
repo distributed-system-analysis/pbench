@@ -79,26 +79,26 @@ Strand Details
 timestamp_ms:1459956017406.9797 name:Thr0 nr_bytes:4626595840 nr_ops:282388
 
 
-Txn                Count         avg         cpu         max         min 
+Txn                Count         avg         cpu         max         min
 -------------------------------------------------------------------------------
-Txn0                   1     12.72ms      0.00ns     12.72ms     12.72ms 
-Txn1              141193    425.29us      0.00ns      1.52ms    394.38us 
-Txn2                   1      8.17us      0.00ns      8.17us      8.17us 
+Txn0                   1     12.72ms      0.00ns     12.72ms     12.72ms
+Txn1              141193    425.29us      0.00ns      1.52ms    394.38us
+Txn2                   1      8.17us      0.00ns      8.17us      8.17us
 
 
-Flowop             Count         avg         cpu         max         min 
+Flowop             Count         avg         cpu         max         min
 -------------------------------------------------------------------------------
-connect                1     12.72ms      0.00ns     12.72ms     12.72ms 
-write             141193      3.17us      0.00ns     34.58us      2.70us 
-read              141192    421.96us      0.00ns      1.52ms    389.72us 
-disconnect             1      7.88us      0.00ns      7.88us      7.88us 
+connect                1     12.72ms      0.00ns     12.72ms     12.72ms
+write             141193      3.17us      0.00ns     34.58us      2.70us
+read              141192    421.96us      0.00ns      1.52ms    389.72us
+disconnect             1      7.88us      0.00ns      7.88us      7.88us
 
 
 Netstat statistics for this run
 -------------------------------------------------------------------------------
 Nic       opkts/s     ipkts/s      obits/s      ibits/s
-lo              0           0    627.55b/s    627.55b/s 
-em1         67305       67312   625.79Mb/s   625.80Mb/s 
+lo              0           0    627.55b/s    627.55b/s
+em1         67305       67312   625.79Mb/s   625.80Mb/s
 -------------------------------------------------------------------------------
 
 Run Statistics

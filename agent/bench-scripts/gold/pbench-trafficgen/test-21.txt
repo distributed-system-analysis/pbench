@@ -28,15 +28,15 @@ trafficgen general test options
 --sniff-runtime=int
   Measurement period in seconds for a "sniff" trial, right before the search trial
   if the sniff test fails, the search trial is skipped and moves on to the next trial
-  Default is 
+  Default is
 
 --search-runtime=int
   Measurement period in seconds when searching for max throughput
-  Default is 
+  Default is
 
 --validation-runtime=int
   Measurement period in seconds when running final validation or a latency test
-  Default is 
+  Default is
 
 
       The follwoing options can take 1 or more values and will control how many

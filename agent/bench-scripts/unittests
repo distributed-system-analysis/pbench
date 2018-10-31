@@ -107,14 +107,14 @@ function _verify_output {
     tscrpt=$3
     expected_status=${4:-0}
     # fix up stupidities in python exception output: lib64->lib, line numbers->XXX
-    # fix up Ubuntu stupidities: 
+    # fix up Ubuntu stupidities:
     # backtick to single quote
     # UTF-8 left single quote to ASCII apostrophe
     # UTF-8 right single quote to ASCII apostrophe
     sed 's/lib64/lib/g
          s/, line [1-9][0-9]*, in/, line XXX, in/g' $_testout |
          tr '\140' '\047' |
-         sed 's/\xe2\x80\x98/\x27/' | 
+         sed 's/\xe2\x80\x98/\x27/' |
          sed 's/\xe2\x80\x99/\x27/' > $_testout.1
     diff -cw $_tdir/gold/${tscrpt}/${tname}.txt $_testout.1
     if [[ $? -gt 0 ]]; then

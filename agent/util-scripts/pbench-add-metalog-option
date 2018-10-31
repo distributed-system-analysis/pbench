@@ -28,7 +28,7 @@ def main(lfile, section, option):
         config.add_section(section)
         config.set(section, option, ', '.join(sin.split()))
     config.write(open(lfile, "w"))
-   
+
 if __name__ == '__main__':
    lfile = sys.argv[1]
    section = sys.argv[2]

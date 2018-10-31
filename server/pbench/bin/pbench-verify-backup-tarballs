@@ -77,7 +77,7 @@ function checkmd5 {
         if [ -s $allmd5s.$1 ] ;then
             cat $allmd5s.$1 | sed -r 's;(^[0-9a-f]+)  (.+);\1  '$d/'\2;' >> $list.$1
             md5sum --check --warn $allmd5s.$1 | sed 's;^;'$d/';'
-        fi 
+        fi
         popd > /dev/null 2>&4
     done < $controllers.$1
 }

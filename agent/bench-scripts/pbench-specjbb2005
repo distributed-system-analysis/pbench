@@ -231,7 +231,7 @@ else
 	cp /usr/local/share/specjbb2005/results/SPECjbbMultiJVM.001/* $benchmark_results_dir
 fi
 
-	
+
 pushd $benchmark_results_dir
 mv index.html SPECjbb.html
 

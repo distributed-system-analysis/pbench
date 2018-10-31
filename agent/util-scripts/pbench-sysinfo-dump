@@ -44,7 +44,7 @@ function collect_mitigation_data {
 	# check the generic vulnerabilities files first
 	if [ -d  /sys/devices/system/cpu/vulnerabilities ] ;then
 		grep -Hs . /sys/devices/system/cpu/vulnerabilities/* >> $dir/security-mitigation-data.txt
-	fi 
+	fi
 	# then check the RHEL-specific flag settings files - only
 	# applicable on x86_64
 	if [ -d /sys/kernel/debug/x86 ] ;then

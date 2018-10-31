@@ -1,17 +1,17 @@
 #!/bin/bash
 # -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
 
-# pbench-iozone 0.01 initial version 
+# pbench-iozone 0.01 initial version
 # TODO
 # 1) write results in pbench standard file names and formats
 # 2) add support to run mulitple samples and get stddev
 # 3) add support for multiple local or remote copies of benchmark running concurrently
 # 4) add support for binding copies of benchmark to numa nodes
 
-# script to run the iozone benchmark test 
+# script to run the iozone benchmark test
 
-# usage ./pbench-iozone --config="string" --targets=/location/file --number_of_runs --file_sizes=1,2,3 --record_sizes=1,2,4 
-# file_sizes are in GB, record sizes are in MB 
+# usage ./pbench-iozone --config="string" --targets=/location/file --number_of_runs --file_sizes=1,2,3 --record_sizes=1,2,4
+# file_sizes are in GB, record sizes are in MB
 
 script_path=`dirname $0`
 script_name=`basename $0`
@@ -50,7 +50,7 @@ ver=3.430
 # 11=pwritev/re-pwritev
 # 12=preadv/re-preadv
 
-# Check "iozone -h" for full help 
+# Check "iozone -h" for full help
 
 supported_test_types="0,1,2,3,4,5,6,7,8,10,11,12"
 config=""
@@ -59,7 +59,7 @@ file_sizes="1,2"
 record_sizes="1,2"
 
 number_of_runs=10
-iteration=1 
+iteration=1
 tool_group=default
 sysinfo="default"
 
@@ -112,15 +112,15 @@ while true; do
                 ;;
 		-d|--targets)
 		shift;
-		if [ -n "$1" ]; then 
+		if [ -n "$1" ]; then
 			targets="$1"
 			shift;
 		fi
-		;;	
+		;;
 
 		-s|--file_sizes)
 		shift
-		if [ -n "$1" ]; then 
+		if [ -n "$1" ]; then
 			file_sizes="$1"
 			shift;
 		fi
@@ -138,11 +138,11 @@ while true; do
 			sysinfo="$1"
 			shift;
 		fi
-		;;	
+		;;
 
 		-n|--number_of_runs)
 		shift
-		if [ -n "$1" ]; then 
+		if [ -n "$1" ]; then
 			number_of_runs="$1"
 			shift;
 		fi
@@ -155,7 +155,7 @@ while true; do
 
 		--tool-group)
 		shift
-		if [ -n "$1" ]; then 
+		if [ -n "$1" ]; then
 			tool_group="$1"
 			shift;
 		fi
@@ -204,12 +204,12 @@ pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_r
 # not 100% sure what is best run logic here, either to permute record sizes or over file sizes...
 
 for file_size in $(echo $file_sizes | sed -e s/,/" "/g); do
-	for record_size in $(echo $record_sizes | sed -e s/,/" "/g); do 
+	for record_size in $(echo $record_sizes | sed -e s/,/" "/g); do
 		for run in $(seq 1 ${number_of_runs}); do
-			$benchmark_bin -i0 -i1 -i2 -i3 -i4 -i5 -i6 -i7 -i8 -i9 -i10 -i11 -i12  -c -e -f $targets -s ${file_size}g -r ${record_size}m >> $benchmark_results_dir/$(hostname)_$run.iozone          
+			$benchmark_bin -i0 -i1 -i2 -i3 -i4 -i5 -i6 -i7 -i8 -i9 -i10 -i11 -i12  -c -e -f $targets -s ${file_size}g -r ${record_size}m >> $benchmark_results_dir/$(hostname)_$run.iozone
 		done
 	done
-done 
+done
 
 pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
