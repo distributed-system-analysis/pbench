@@ -434,10 +434,11 @@ declare -A cmds=(
     [test-4]="_run_allscripts"
     # check that all scripts run normally if everything is there
     [test-5]="_run_allscripts"
-    # check that all scripts run normally if everything is there,
-    # uses local dir
+    # check that all scripts run normally if everything is there, using a
+    # separate unpack directory from the incoming directory
     [test-5.1]="_run_allscripts"
-    # check that all scripts process tar balls
+    # check that all scripts process tar balls, using a separate unpack
+    # directory from the incoming directory
     [test-5.2]="_run_allscripts"
 
     # backup tests
