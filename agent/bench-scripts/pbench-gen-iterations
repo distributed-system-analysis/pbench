@@ -78,6 +78,7 @@
 use strict;
 use warnings;
 use File::Basename;
+use Text::ParseWords;
 my $pbench_lib_path;
 BEGIN {
 	$pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
@@ -134,9 +135,8 @@ sub process_param {
 	for my $regex_types (keys $$param_ref{"specs"}) {
 		if (grep(/^$argument$/, @{ $$param_ref{"specs"}{$regex_types}{"arguments"} })) {
 			my %past_values;
-			for my $value (split(/,/, $values)) { # users can provide multiple values for an option
+			for my $value (quotewords(',', 0, $values)) { # users can provide multiple values for an option
 				if (exists $past_values{$value}) {
-				    #printf "the value, \'%s\', for argument, \'%s\', was already used, skipping\n", $value, $argument;
 				    next;
 				} else {
 				    $past_values{$value} = 1;
@@ -150,10 +150,12 @@ sub process_param {
 							$value = eval "\$_='$value'; $transform; return scalar \$_";
 						}
 					}
+					# Because these will get processed again by build_iteration_cmds,
+					# quotes are wrapped on all values, since quotes may have been stripped earlier.
 					if ($processed_values eq "") {
-						$processed_values = $value;
+						$processed_values = '"' . $value . '"';
 					} else {
-						$processed_values .= "," . $value;
+						$processed_values .= ',"' . $value . '"';
 					}
 				} else {
 					printf "the value, \'%s\' for value, \'%s\' is not valid\n", $value, $argument;
@@ -179,7 +181,7 @@ sub build_iteration_cmds {
 		my $arg = shift(@args);
 		my $values = $multiplex_params{$arg};
 		delete $multiplex_params{$arg};
-		for my $value (split(/,/, $values)) {
+		for my $value (quotewords(',', 0, $values)) {
 			push(@cmds, build_iteration_cmds($cmdline . " --" . $arg . "=" . $value . " ", \%multiplex_params, \%simplex_params));
 		}
 		return @cmds;
