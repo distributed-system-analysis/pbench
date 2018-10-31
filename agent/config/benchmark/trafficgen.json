@@ -120,7 +120,7 @@
 	"pre-script": "",
 	"post-script": "",
 	"copy-to": [],
-	"bin": "/usr/bin/echo",
+	"bin": "/opt/trafficgen/pbench-run.py",
 	"param_regex": [ "s/--clients=.+//",
 			 "s/(\\s--.+)=ON/$1/g",
 			 "s/\\s--.+=OFF//g"
