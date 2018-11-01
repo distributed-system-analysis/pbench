@@ -127,12 +127,12 @@ while read size result ;do
     if which python3 > /dev/null 2>&1 ;then
         # we have a python3 here
         PYTHONPATH=${PROGLOC}/lib:$PYTHONPATH eval\
-                "python3 ${PROGLOC}/bin/index-pbench --config ${PROGLOC}/lib/config/pbench-index.cfg -E $errors_json $link"
+                "python3 ${PROGLOC}/bin/index-pbench --config ${PROGLOC}/lib/config/pbench-index.cfg -E $errors_json ${@} $link"
         status=$?
     elif which scl > /dev/null 2>&1 ;then
         # we fall back to SCL
         PYTHONPATH=${PROGLOC}/lib:$PYTHONPATH scl enable rh-python36 \
-                "python ${PROGLOC}/bin/index-pbench --config ${PROGLOC}/lib/config/pbench-index.cfg -E $errors_json $link"
+                "python ${PROGLOC}/bin/index-pbench --config ${PROGLOC}/lib/config/pbench-index.cfg -E $errors_json ${@} $link"
         status=$?
     else
         echo "index-pbench needs python3, either directly or through SCL" >&4

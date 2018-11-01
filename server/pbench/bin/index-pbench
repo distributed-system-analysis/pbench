@@ -2200,7 +2200,14 @@ def main(options, args):
         if not options.tmpdir:
             raise Exception("No temporary directory specified")
 
-        if options.debug_unittest:
+        try:
+            debug_unittest = config.get('Settings', 'debug_unittest')
+        except Exception as e:
+            debug_unittest = False
+        else:
+            debug_unittest = bool(debug_unittest)
+
+        if debug_unittest:
             es = None
             import collections
             global _dict_const
@@ -2334,10 +2341,6 @@ if __name__ == '__main__':
     parser.add_argument(
         "-M", "--metadata", dest="metadata_string",
         help="Specify additional metadata (e.g. for browbeat) as a JSON document string")
-    # options for debuggging and unit testing
-    parser.add_argument(
-        "-U", "--unittest", action="store_true", dest="debug_unittest",
-        help="Run in unittest mode")
     parser.add_argument(
         "-T", "--time-ops", action="store_true", dest="debug_time_operations",
         help="Time action making routines")
