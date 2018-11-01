@@ -1,6 +1,5 @@
-+++ Running indexing for test-7.1
-The metadata.log file is curdled in tarball:  /var/tmp/pbench-test-server/pbench/test-7.1.tar.xz
---- Finished indexing for test-7.1 (status=7)
++++ Running pbench-index
+--- Finished pbench-index (status=0)
 +++ Running unit test audit
 --- Finished unit test audit (status=0)
 +++ var/www/html tree state (/var/tmp/pbench-test-server/var-www-html)
@@ -18,16 +17,40 @@ lrwxrwxrwx         52 users -> /var/tmp/pbench-test-server/pbench/public_html/us
 +++ pbench tree state (/var/tmp/pbench-test-server/pbench)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - archive/fs-version-001/controller
+drwxrwxr-x          - archive/fs-version-001/controller/BAD-MD5
+drwxrwxr-x          - archive/fs-version-001/controller/COPIED-SOS
+drwxrwxr-x          - archive/fs-version-001/controller/INDEXED
+drwxrwxr-x          - archive/fs-version-001/controller/MOVED-UNPACKED
+drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-DONE
+drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-MD5-FAILED
+drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-MD5-PASSED
+drwxrwxr-x          - archive/fs-version-001/controller/SYNCED
+drwxrwxr-x          - archive/fs-version-001/controller/TO-BACKUP
+drwxrwxr-x          - archive/fs-version-001/controller/TO-COPY-SOS
+drwxrwxr-x          - archive/fs-version-001/controller/TO-DELETE
+drwxrwxr-x          - archive/fs-version-001/controller/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/controller/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/controller/TO-SYNC
+drwxrwxr-x          - archive/fs-version-001/controller/TO-UNPACK
+drwxrwxr-x          - archive/fs-version-001/controller/TODO
+drwxrwxr-x          - archive/fs-version-001/controller/UNPACKED
+drwxrwxr-x          - archive/fs-version-001/controller/WONT-INDEX
+drwxrwxr-x          - archive/fs-version-001/controller/WONT-INDEX.7
+lrwxrwxrwx         18 archive/fs-version-001/controller/WONT-INDEX.7/test-7.1.tar.xz -> ../test-7.1.tar.xz
+-rw-rw-r--       1232 archive/fs-version-001/controller/test-7.1.tar.xz
+-rw-rw-r--         50 archive/fs-version-001/controller/test-7.1.tar.xz.md5
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-archive
 -rw-rw-r--          0 logs/pbench-audit-archive/pbench-audit-archive.error
 -rw-rw-r--          1 logs/pbench-audit-archive/pbench-audit-archive.log
+drwxrwxr-x          - logs/pbench-index
+-rw-rw-r--          0 logs/pbench-index/pbench-index.error
+-rw-rw-r--        444 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
 drwxrwxr-x          - public_html/users
--rw-rw-r--       1232 test-7.1.tar.xz
--rw-rw-r--         50 test-7.1.tar.xz.md5
 drwxrwxr-x          - tmp
 --- pbench tree state
 +++ pbench-local tree state (/var/tmp/pbench-test-server/pbench-local)
@@ -45,11 +68,23 @@ drwxrwxr-x          - quarantine/md5-002
 --- pbench-local tree state
 +++ pbench log file contents
 /var/tmp/pbench-test-server/pbench/logs/pbench-audit-archive/pbench-audit-archive.log:
+/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
+/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:   1900-01-01T00:00:00-UTC: Starting /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/TO-INDEX/test-7.1.tar.xz (size 1232)
+/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:The metadata.log file is curdled in tarball:  /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/test-7.1.tar.xz
+/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 0 (skipped 1) results, 0 errors
+/var/tmp/pbench-test-server/pbench/logs/pbench-index/pbench-index.log:
 --- pbench log file contents
 +++ test-execution.log file contents
+curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01/status/8220fa5df08bba5543a3464403823d59 --data @/tmp/pbench-report-status.NNNN/payload
 curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-archive.1900-01/status/d5ee68b33a845dac49792935d85c10ce --data @/tmp/pbench-report-status.NNNN/payload
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
+{
+    "text": "pbench-index.run-1900-01-01T00:00:00-UTC - Indexed 0 results, skipped 1 results\n\nSkipped Results\n===============\n/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/TO-INDEX/test-7.1.tar.xz\n", 
+    "@timestamp": "1900-01-01T00:00:00", 
+    "name": "pbench-index", 
+    "doctype": "status"
+}
 {
     "text": "pbench-audit-archive.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nend-1900-01-01T00:00:00-UTC\n", 
     "@timestamp": "1900-01-01T00:00:00", 
