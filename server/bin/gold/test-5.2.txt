@@ -152,14 +152,14 @@ Index:  pbench-unittests-server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "363f7568cf307a2e22279ff55c0512f3",
+        "_id": "b3cac4fb23c25b49be3978d95c2c0a89",
         "_index": "pbench-unittests-server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
             "doctype": "status",
             "name": "pbench-backup-tarballs",
-            "text": "pbench-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n\nNumber of files: 29\nNumber of files transferred: 19\nTotal file size: # bytes\nTotal transferred file size: # bytes\nLiteral data: # bytes\nMatched data: # bytes\nFile list size: #\nFile list generation time: #.### seconds\nFile list transfer time: #.### seconds\nTotal bytes sent: #\nTotal bytes received: #\n\nsent # bytes  received # bytes  #.### bytes/sec\ntotal size is #  speedup is #.##\n"
+            "text": "pbench-backup-tarballs.py.1900-01-01T00:00:00-UTC(unit-test)\nTotal processed: 8, Local backup successes: 8, Local backup failures: 0, S3 upload successes: 8, SE upload too large: 0, S3 upload failures: 0, Quarantined: 0\n"
         },
         "_type": "pbench-server-reports"
     }
@@ -171,14 +171,14 @@ Index:  pbench-unittests-server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "972b4821af35d0f21ffa2f8425218a54",
+        "_id": "7f89d9b20d621a1416994659d2993892",
         "_index": "pbench-unittests-server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
             "doctype": "status",
             "name": "pbench-verify-backup-tarballs",
-            "text": "pbench-verify-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n"
+            "text": "pbench-verify-backup-tarballs.py.run-1900-01-01T00:00:00-UTC(unit-test)\nMD5 values don't match for: ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz\nMD5 values don't match for: ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz\nMD5 values don't match for: ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz\nMD5 values don't match for: controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-d-duplicate/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz\n"
         },
         "_type": "pbench-server-reports"
     }
@@ -247,6 +247,8 @@ lrwxrwxrwx         71 users -> /var/tmp/pbench-test-server/test-5.2/pbench-satel
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA
+drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/BACKED-UP
+lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerA/BACKED-UP/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/COPIED-SOS
 lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerA/COPIED-SOS/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz
@@ -259,7 +261,7 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/SATELLITE-MD5-PASS
 lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerA/SATELLITE-MD5-PASSED/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/SYNCED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-BACKUP
-lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerA/TO-BACKUP/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-COPY-SOS
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-INDEX
@@ -274,6 +276,8 @@ lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerA/WONT-INDEX.4/tarba
 -rw-rw-r--        224 archive/fs-version-001/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz
 -rw-rw-r--         77 archive/fs-version-001/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB
+drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/BACKED-UP
+lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerB/BACKED-UP/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/COPIED-SOS
 lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerB/COPIED-SOS/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz
@@ -286,7 +290,7 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/SATELLITE-MD5-PASS
 lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerB/SATELLITE-MD5-PASSED/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/SYNCED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-BACKUP
-lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerB/TO-BACKUP/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-COPY-SOS
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-INDEX
@@ -303,6 +307,8 @@ lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerB/WONT-INDEX.4/tarba
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/.prefix
 -rw-rw-r--         16 archive/fs-version-001/ONE::controllerC/.prefix/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.prefix
+drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/BACKED-UP
+lrwxrwxrwx        133 archive/fs-version-001/ONE::controllerC/BACKED-UP/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/COPIED-SOS
 lrwxrwxrwx        133 archive/fs-version-001/ONE::controllerC/COPIED-SOS/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz
@@ -315,7 +321,7 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/SATELLITE-MD5-PASS
 lrwxrwxrwx        133 archive/fs-version-001/ONE::controllerC/SATELLITE-MD5-PASSED/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/SYNCED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-BACKUP
-lrwxrwxrwx        133 archive/fs-version-001/ONE::controllerC/TO-BACKUP/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-COPY-SOS
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-INDEX
@@ -333,6 +339,10 @@ drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/.prefix
 -rw-rw-r--         12 archive/fs-version-001/controller-b-with-prefixes/.prefix/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.prefix
 -rw-rw-r--         12 archive/fs-version-001/controller-b-with-prefixes/.prefix/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.prefix
+drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/BACKED-UP
+lrwxrwxrwx        130 archive/fs-version-001/controller-b-with-prefixes/BACKED-UP/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz
+lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/BACKED-UP/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz
+lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/BACKED-UP/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/COPIED-SOS
 lrwxrwxrwx        130 archive/fs-version-001/controller-b-with-prefixes/COPIED-SOS/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz
@@ -348,9 +358,7 @@ drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/SATELLIT
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/SYNCED
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-BACKUP
-lrwxrwxrwx        130 archive/fs-version-001/controller-b-with-prefixes/TO-BACKUP/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz
-lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/TO-BACKUP/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz
-lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/TO-BACKUP/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz
+drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-COPY-SOS
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-INDEX
@@ -371,6 +379,8 @@ lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/WONT-IND
 -rw-rw-r--        224 archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz
 -rw-rw-r--         82 archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate
+drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/BACKED-UP
+lrwxrwxrwx         47 archive/fs-version-001/controller-d-duplicate/BACKED-UP/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz -> ../tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/COPIED-SOS
 lrwxrwxrwx         47 archive/fs-version-001/controller-d-duplicate/COPIED-SOS/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz -> ../tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz
@@ -383,7 +393,6 @@ drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/SATELLITE-MD
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/SYNCED
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/TO-BACKUP
-lrwxrwxrwx         47 archive/fs-version-001/controller-d-duplicate/TO-BACKUP/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz -> ../tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/TO-COPY-SOS
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/TO-INDEX
@@ -402,6 +411,8 @@ drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/_QUARANTINED
 -rw-rw-r--        204 archive/fs-version-001/controller-d-duplicate/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz
 -rw-rw-r--         79 archive/fs-version-001/controller-d-duplicate/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal
+drwxrwxr-x          - archive/fs-version-001/controller-g-normal/BACKED-UP
+lrwxrwxrwx        128 archive/fs-version-001/controller-g-normal/BACKED-UP/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/COPIED-SOS
 lrwxrwxrwx        128 archive/fs-version-001/controller-g-normal/COPIED-SOS/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz
@@ -413,7 +424,7 @@ drwxrwxr-x          - archive/fs-version-001/controller-g-normal/SATELLITE-MD5-F
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/SYNCED
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-BACKUP
-lrwxrwxrwx        128 archive/fs-version-001/controller-g-normal/TO-BACKUP/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz
+drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-COPY-SOS
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-INDEX
@@ -428,6 +439,7 @@ lrwxrwxrwx        128 archive/fs-version-001/controller-g-normal/WONT-INDEX.4/ta
 -rw-rw-r--        216 archive/fs-version-001/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz
 -rw-rw-r--         76 archive/fs-version-001/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5
+drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/BACKED-UP
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/INDEXED
@@ -437,6 +449,7 @@ drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/SATELLITE-MD5-
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/SYNCED
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-BACKUP
+drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-COPY-SOS
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-INDEX
@@ -519,14 +532,9 @@ drwxrwxr-x          - archive.backup/ONE::controllerB
 -rw-rw-r--        220 archive.backup/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz
 -rw-rw-r--         77 archive.backup/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
 drwxrwxr-x          - archive.backup/ONE::controllerC
-drwxrwxr-x          - archive.backup/ONE::controllerC/.prefix
--rw-rw-r--         16 archive.backup/ONE::controllerC/.prefix/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.prefix
 -rw-rw-r--        228 archive.backup/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz
 -rw-rw-r--         84 archive.backup/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
 drwxrwxr-x          - archive.backup/controller-b-with-prefixes
-drwxrwxr-x          - archive.backup/controller-b-with-prefixes/.prefix
--rw-rw-r--         12 archive.backup/controller-b-with-prefixes/.prefix/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.prefix
--rw-rw-r--         12 archive.backup/controller-b-with-prefixes/.prefix/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.prefix
 -rw-rw-r--        212 archive.backup/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz
 -rw-rw-r--         71 archive.backup/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
 -rw-rw-r--        224 archive.backup/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz
@@ -539,7 +547,6 @@ drwxrwxr-x          - archive.backup/controller-d-duplicate
 drwxrwxr-x          - archive.backup/controller-g-normal
 -rw-rw-r--        216 archive.backup/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz
 -rw-rw-r--         76 archive.backup/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
-drwxrwxr-x          - archive.backup/controller-h-bad-md5
 drwxrwxr-x          - incoming
 drwxrwxr-x          - incoming/ONE::controllerA
 drwxrwxr-x          - incoming/ONE::controllerB
@@ -551,8 +558,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--        325 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-backup-tarballs
--rw-rw-r--          0 logs/pbench-backup-tarballs/pbench-backup-tarballs.error
--rw-rw-r--       2020 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
+-rw-rw-r--       3881 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
 drwxrwxr-x          - logs/pbench-clean-up-dangling-results-links
 -rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
 -rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
@@ -571,7 +577,7 @@ drwxrwxr-x          - logs/pbench-move-unpacked
 -rw-rw-r--          0 logs/pbench-move-unpacked/pbench-move-unpacked.error
 -rw-rw-r--       1894 logs/pbench-move-unpacked/pbench-move-unpacked.log
 drwxrwxr-x          - logs/pbench-report-status
--rw-rw-r--       3720 logs/pbench-report-status/pbench-report-status.log
+-rw-rw-r--       2976 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-001
 -rw-rw-r--        852 logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.error
 -rw-rw-r--        500 logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log
@@ -600,8 +606,7 @@ drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
 -rw-rw-r--       4624 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - logs/pbench-verify-backup-tarballs
--rw-rw-r--          0 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.error
--rw-rw-r--         58 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
+-rw-rw-r--        652 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001/controller-a-bad-link
@@ -641,6 +646,22 @@ drwxrwxr-x          - quarantine/md5-002
 drwxrwxr-x          - quarantine/md5-002/controller-f-bad-md5
 -rw-rw-r--        220 quarantine/md5-002/controller-f-bad-md5/tarball-bad-md5-1_YYYY.MM.DDTHH.MM.SS.tar.xz
 -rw-rw-r--         79 quarantine/md5-002/controller-f-bad-md5/tarball-bad-md5-1_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
+drwxrwxr-x          - s3-backup
+drwxrwxr-x          - s3-backup/testbucket
+drwxrwxr-x          - s3-backup/testbucket/ONE::controllerA
+-rw-rw-r--          0 s3-backup/testbucket/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz
+drwxrwxr-x          - s3-backup/testbucket/ONE::controllerB
+-rw-rw-r--          0 s3-backup/testbucket/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz
+drwxrwxr-x          - s3-backup/testbucket/ONE::controllerC
+-rw-rw-r--          0 s3-backup/testbucket/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz
+drwxrwxr-x          - s3-backup/testbucket/controller-b-with-prefixes
+-rw-rw-r--          0 s3-backup/testbucket/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz
+-rw-rw-r--          0 s3-backup/testbucket/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz
+-rw-rw-r--          0 s3-backup/testbucket/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz
+drwxrwxr-x          - s3-backup/testbucket/controller-d-duplicate
+-rw-rw-r--          0 s3-backup/testbucket/controller-d-duplicate/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz
+drwxrwxr-x          - s3-backup/testbucket/controller-g-normal
+-rw-rw-r--          0 s3-backup/testbucket/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz
 drwxrwxr-x          - tmp
 --- pbench-local tree state
 +++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-5.2/pbench-satellite)
@@ -720,56 +741,28 @@ Controller: controller-h-bad-md5
 
 end-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001
 ----- pbench-audit-server/pbench-audit-server.log
-+++++ pbench-backup-tarballs/pbench-backup-tarballs.error
------ pbench-backup-tarballs/pbench-backup-tarballs.error
 +++++ pbench-backup-tarballs/pbench-backup-tarballs.log
-start-1900-01-01T00:00:00-UTC
-sending incremental file list
-./
-ONE::controllerA/
-ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz
-ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
-ONE::controllerB/
-ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz
-ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
-ONE::controllerC/
-ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz
-ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
-ONE::controllerC/.prefix/
-ONE::controllerC/.prefix/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.prefix
-controller-b-with-prefixes/
-controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz
-controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
-controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz
-controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
-controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz
-controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
-controller-b-with-prefixes/.prefix/
-controller-b-with-prefixes/.prefix/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.prefix
-controller-b-with-prefixes/.prefix/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.prefix
-controller-d-duplicate/
-controller-d-duplicate/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz
-controller-d-duplicate/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
-controller-g-normal/
-controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz
-controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
-controller-h-bad-md5/
-
-Number of files: 29
-Number of files transferred: 19
-Total file size: # bytes
-Total transferred file size: # bytes
-Literal data: # bytes
-Matched data: # bytes
-File list size: #
-File list generation time: #.### seconds
-File list transfer time: #.### seconds
-Total bytes sent: #
-Total bytes received: #
-
-sent # bytes  received # bytes  #.### bytes/sec
-total size is #  speedup is #.##
-end-1900-01-01T00:00:00-UTC
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- start-1900-01-01T00:00:00-UTC
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Locally backed-up sucessfully: ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- Upload to s3 succeeded: ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Locally backed-up sucessfully: ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- Upload to s3 succeeded: ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Locally backed-up sucessfully: ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- Upload to s3 succeeded: ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Locally backed-up sucessfully: controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- Upload to s3 succeeded: controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Locally backed-up sucessfully: controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- Upload to s3 succeeded: controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Locally backed-up sucessfully: controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- Upload to s3 succeeded: controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Locally backed-up sucessfully: controller-d-duplicate/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- Upload to s3 succeeded: controller-d-duplicate/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Locally backed-up sucessfully: controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- Upload to s3 succeeded: controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- Total processed: 8, Local backup successes: 8, Local backup failures: 0, S3 upload successes: 8, SE upload too large: 0, S3 upload failures: 0, Quarantined: 0
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- end-1900-01-01T00:00:00-UTC
 ----- pbench-backup-tarballs/pbench-backup-tarballs.log
 +++++ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
 ----- pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
@@ -874,10 +867,6 @@ run-1900-01-01T00:00:00-UTC: ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDT
 run-1900-01-01T00:00:00-UTC: Processed 7 tar balls
 ----- pbench-move-unpacked/pbench-move-unpacked.log
 +++++ pbench-report-status/pbench-report-status.log
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
@@ -1007,11 +996,11 @@ ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::cont
 run-1900-01-01T00:00:00-UTC: ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 228
 run-1900-01-01T00:00:00-UTC: Processed 7 tarballs
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
-+++++ pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.error
------ pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.error
 +++++ pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
-start-1900-01-01T00:00:00-UTC
-end-1900-01-01T00:00:00-UTC
+1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- start-run-1900-01-01T00:00:00-UTC
+1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- end-1900-01-01T00:00:00-UTC
 ----- pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
@@ -1033,5 +1022,4 @@ run-1900-01-01T00:00:00-UTC: pbench-satellite-cleanup ends: Total 3 tarballs cle
 +++ test-execution.log file contents
 ssh pbench-satellite.example.com /var/tmp/pbench-test-server/test-5.2/opt/pbench-server-satellite/bin/pbench-sync-package-tarballs
 ssh pbench-satellite.example.com /var/tmp/pbench-test-server/test-5.2/opt/pbench-server-satellite/bin/pbench-satellite-state-change /var/tmp/pbench-test-server/test-5.2/pbench-satellite/archive/fs-version-001
-rsync -va --stats --exclude=_QUARANTINED --exclude=TODO --exclude=BAD-MD5 --exclude=TO-UNPACK --exclude=UNPACKED --exclude=MOVED-UNPACKED --exclude=TO-SYNC --exclude=SYNCED --exclude=TO-LINK --exclude=TO-INDEX --exclude=INDEXED --exclude=WONT-INDEX --exclude=TO-COPY-SOS --exclude=COPIED-SOS --exclude=TO-BACKUP --exclude=SATELLITE-MD5-PASSED --exclude=SATELLITE-MD5-FAILED --exclude=TO-DELETE --exclude=SATELLITE-DONE --exclude=WONT-INDEX.1 --exclude=WONT-INDEX.2 --exclude=WONT-INDEX.3 --exclude=WONT-INDEX.4 --exclude=WONT-INDEX.5 --exclude=WONT-INDEX.6 --exclude=WONT-INDEX.7 --exclude=WONT-INDEX.8 --exclude=WONT-INDEX.9 --exclude=WONT-INDEX.10 --exclude=WONT-INDEX.11 /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ /var/tmp/pbench-test-server/test-5.2/pbench-local/archive.backup
 --- test-execution.log file contents

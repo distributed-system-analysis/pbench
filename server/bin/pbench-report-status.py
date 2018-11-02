@@ -31,8 +31,8 @@ parser.add_argument(
     help="The file containing the report to index")
 parsed = parser.parse_args()
 
-from pbench import report_status, PbenchConfig, BadConfig, get_es, \
-        get_pbench_logger, PbenchTemplates
+from pbench import init_report_template, report_status, PbenchConfig, \
+    BadConfig, get_es, get_pbench_logger, PbenchTemplates
 
 try:
     config = PbenchConfig(parsed.cfg_name)
@@ -41,17 +41,7 @@ except BadConfig as e:
     sys.exit(1)
 
 logger = get_pbench_logger(_prog, config)
-try:
-    es = get_es(config, logger)
-    idx_prefix = config.get('Indexing', 'index_prefix')
-except Exception:
-    # If we don't have an Elasticsearch configuration just pass None
-    es = None
-    idx_prefix = None
-else:
-    _dir = os.path.dirname(os.path.abspath(sys.argv[0]))
-    templates = PbenchTemplates(_dir, idx_prefix, logger)
-    templates.update_templates(es, 'server-reports')
+es, idx_prefix = init_report_template(config, logger)
 status = report_status(es, logger, config.LOGSDIR, idx_prefix,
         parsed.name, parsed.timestamp, parsed.doctype,
         parsed.file_to_index[0])

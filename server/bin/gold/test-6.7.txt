@@ -1,0 +1,195 @@
++++ Running pbench-backup-tarballs
+Template:  pbench-unittests.v1.server-reports
+Index:  pbench-unittests-server-reports.1900-01 1
+len(actions) = 1
+[
+    {
+        "_id": "25bd224981bfac672ea047bd975e3fef",
+        "_index": "pbench-unittests-server-reports.1900-01",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "1900-01-01T00:00:00",
+            "doctype": "status",
+            "name": "pbench-backup-tarballs",
+            "text": "pbench-backup-tarballs.py.1900-01-01T00:00:00-UTC(unit-test)\nTotal processed: 2, Local backup successes: 0, Local backup failures: 0, S3 upload successes: 0, SE upload too large: 0, S3 upload failures: 0, Quarantined: 2\n"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-backup-tarballs (status=0)
++++ Running unit test audit
+Template:  pbench-unittests.v1.server-reports
+Index:  pbench-unittests-server-reports.1900-01 1
+len(actions) = 1
+[
+    {
+        "_id": "c035b87db9c8fe6cfc65f199b59fb9e7",
+        "_index": "pbench-unittests-server-reports.1900-01",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "1900-01-01T00:00:00",
+            "doctype": "status",
+            "name": "pbench-audit-server",
+            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished unit test audit (status=0)
++++ var/www/html tree state (/var/tmp/pbench-test-server/test-6.7/var-www-html)
+lrwxrwxrwx         64 incoming -> /var/tmp/pbench-test-server/test-6.7/pbench/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
+-rw-rw-r--        119 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        119 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         63 results -> /var/tmp/pbench-test-server/test-6.7/pbench/public_html/results
+lrwxrwxrwx         62 static -> /var/tmp/pbench-test-server/test-6.7/pbench/public_html/static
+lrwxrwxrwx         61 users -> /var/tmp/pbench-test-server/test-6.7/pbench/public_html/users
+--- var/www/html tree state
++++ results host info (/var/tmp/pbench-test-server/test-6.7/var-www-html/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-6.7/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-6.7/pbench-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/test-6.7/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+/var/tmp/pbench-test-server/test-6.7/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-6.7/pbench-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-6.7/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+--- results host info
++++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-6.7/var-www-html-satellite)
+lrwxrwxrwx         74 incoming -> /var/tmp/pbench-test-server/test-6.7/pbench-satellite/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
+-rw-rw-r--        139 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        139 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         73 results -> /var/tmp/pbench-test-server/test-6.7/pbench-satellite/public_html/results
+lrwxrwxrwx         72 static -> /var/tmp/pbench-test-server/test-6.7/pbench-satellite/public_html/static
+lrwxrwxrwx         71 users -> /var/tmp/pbench-test-server/test-6.7/pbench-satellite/public_html/users
+--- var/www/html-satellite tree state
++++ results host info (/var/tmp/pbench-test-server/test-6.7/var-www-html-satellite/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-6.7/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-6.7/pbench-satellite-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/test-6.7/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+/var/tmp/pbench-test-server/test-6.7/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-6.7/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-6.7/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+--- results host info
++++ pbench tree state (/var/tmp/pbench-test-server/test-6.7/pbench)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - archive/fs-version-001/foo
+drwxrwxr-x          - archive/fs-version-001/foo/TO-BACKUP
+-rw-r--r--    3242068 archive/fs-version-001/foo/fio__2016-08-18_15:47:09.tar.xz
+-rw-r--r--    1610896 archive/fs-version-001/foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/static/css
+drwxrwxr-x          - public_html/static/css/v0.2
+drwxrwxr-x          - public_html/static/css/v0.2/css
+-rw-rw-r--        308 public_html/static/css/v0.2/css/pbench_utils.css
+drwxrwxr-x          - public_html/static/css/v0.3
+drwxrwxr-x          - public_html/static/css/v0.3/css
+-rw-rw-r--      11798 public_html/static/css/v0.3/css/LICENSE.TXT
+-rw-rw-r--       3663 public_html/static/css/v0.3/css/jschart.css
+drwxrwxr-x          - public_html/static/js
+drwxrwxr-x          - public_html/static/js/v0.2
+drwxrwxr-x          - public_html/static/js/v0.2/js
+-rw-rw-r--       9415 public_html/static/js/v0.2/js/app.js
+-rw-rw-r--       5556 public_html/static/js/v0.2/js/pbench_utils.js
+drwxrwxr-x          - public_html/static/js/v0.3
+drwxrwxr-x          - public_html/static/js/v0.3/js
+-rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
+-rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
+drwxrwxr-x          - public_html/users
+--- pbench tree state
++++ pbench-local tree state (/var/tmp/pbench-test-server/test-6.7/pbench-local)
+drwxrwxr-x          - archive.backup
+drwxrwxr-x          - logs
+drwxrwxr-x          - logs/pbench-audit-server
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
+drwxrwxr-x          - logs/pbench-backup-tarballs
+-rw-rw-r--       1627 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
+drwxrwxr-x          - logs/pbench-report-status
+-rw-rw-r--        372 logs/pbench-report-status/pbench-report-status.log
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-001
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-001
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-001
+drwxrwxr-x          - quarantine/errors-002
+lrwxrwxrwx         34 quarantine/fio__2016-08-18_15:47:09.tar.xz -> ../fio__2016-08-18_15:47:09.tar.xz
+drwxrwxr-x          - quarantine/md5-001
+drwxrwxr-x          - quarantine/md5-002
+lrwxrwxrwx         52 quarantine/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz -> ../pbench-user-benchmark__2016-08-24_21:32:01.tar.xz
+drwxrwxr-x          - s3-backup
+drwxrwxr-x          - s3-backup/testbucket
+drwxrwxr-x          - tmp
+--- pbench-local tree state
++++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-6.7/pbench-satellite)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/static/css
+drwxrwxr-x          - public_html/static/css/v0.2
+drwxrwxr-x          - public_html/static/css/v0.2/css
+-rw-rw-r--        308 public_html/static/css/v0.2/css/pbench_utils.css
+drwxrwxr-x          - public_html/static/css/v0.3
+drwxrwxr-x          - public_html/static/css/v0.3/css
+-rw-rw-r--      11798 public_html/static/css/v0.3/css/LICENSE.TXT
+-rw-rw-r--       3663 public_html/static/css/v0.3/css/jschart.css
+drwxrwxr-x          - public_html/static/js
+drwxrwxr-x          - public_html/static/js/v0.2
+drwxrwxr-x          - public_html/static/js/v0.2/js
+-rw-rw-r--       9415 public_html/static/js/v0.2/js/app.js
+-rw-rw-r--       5556 public_html/static/js/v0.2/js/pbench_utils.js
+drwxrwxr-x          - public_html/static/js/v0.3
+drwxrwxr-x          - public_html/static/js/v0.3/js
+-rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
+-rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
+drwxrwxr-x          - public_html/users
+--- pbench-satellite tree state
++++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-6.7/pbench-satellite-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-001
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-001
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-001
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-001
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-satellite-local tree state
++++ pbench log file contents
+++++ pbench-local/logs
++++++ pbench-audit-server/pbench-audit-server.error
+----- pbench-audit-server/pbench-audit-server.error
++++++ pbench-audit-server/pbench-audit-server.log
+----- pbench-audit-server/pbench-audit-server.log
++++++ pbench-backup-tarballs/pbench-backup-tarballs.log
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- start-1900-01-01T00:00:00-UTC
+1970-01-01T00:00:00.000000 ERROR pbench-backup-tarballs.pbench-backup-tarballs backup_data -- Quarantine: /var/tmp/pbench-test-server/test-6.7/pbench/archive/fs-version-001/foo/TO-BACKUP/fio__2016-08-18_15:47:09.tar.xz, /var/tmp/pbench-test-server/test-6.7/pbench/archive/fs-version-001/foo/fio__2016-08-18_15:47:09.tar.xz.md5 does not exist or it is not a regular file
+1970-01-01T00:00:00.000000 ERROR pbench-backup-tarballs.pbench-backup-tarballs backup_data -- Quarantine: /var/tmp/pbench-test-server/test-6.7/pbench/archive/fs-version-001/foo/TO-BACKUP/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz, /var/tmp/pbench-test-server/test-6.7/pbench/archive/fs-version-001/foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz.md5 does not exist or it is not a regular file
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- Total processed: 2, Local backup successes: 0, Local backup failures: 0, S3 upload successes: 0, SE upload too large: 0, S3 upload failures: 0, Quarantined: 2
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- end-1900-01-01T00:00:00-UTC
+----- pbench-backup-tarballs/pbench-backup-tarballs.log
++++++ pbench-report-status/pbench-report-status.log
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-report-status/pbench-report-status.log
+---- pbench-local/logs
+++++ pbench-satellite-local/logs
+---- pbench-satellite-local/logs
+--- pbench log file contents

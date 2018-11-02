@@ -1,5 +1,22 @@
 +++ Running pbench-backup-tarballs
---- Finished pbench-backup-tarballs (status=1)
+Template:  pbench-unittests.v1.server-reports
+Index:  pbench-unittests-server-reports.1900-01 1
+len(actions) = 1
+[
+    {
+        "_id": "04e15d14ddb5b3f0553636a2b76ecbe2",
+        "_index": "pbench-unittests-server-reports.1900-01",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "1900-01-01T00:00:00",
+            "doctype": "status",
+            "name": "pbench-backup-tarballs",
+            "text": "pbench-backup-tarballs.py.1900-01-01T00:00:00-UTC(unit-test)\nTotal processed: 0, Local backup successes: 0, Local backup failures: 0, S3 upload successes: 0, SE upload too large: 0, S3 upload failures: 0, Quarantined: 0\n"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-backup-tarballs (status=0)
 +++ Running unit test audit
 Template:  pbench-unittests.v1.server-reports
 Index:  pbench-unittests-server-reports.1900-01 1
@@ -84,13 +101,13 @@ drwxrwxr-x          - public_html/static/js/v0.3/js
 drwxrwxr-x          - public_html/users
 --- pbench tree state
 +++ pbench-local tree state (/var/tmp/pbench-test-server/test-6.3/pbench-local)
+drwxrwxr-x          - archive.backup
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-backup-tarballs
--rw-rw-r--        217 logs/pbench-backup-tarballs/pbench-backup-tarballs.error
--rw-rw-r--         30 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
+-rw-rw-r--        851 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
 drwxrwxr-x          - logs/pbench-report-status
 -rw-rw-r--        372 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - pbench-move-results-receive
@@ -103,6 +120,8 @@ drwxrwxr-x          - quarantine/errors-001
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - s3-backup
+drwxrwxr-x          - s3-backup/testbucket
 drwxrwxr-x          - tmp
 --- pbench-local tree state
 +++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-6.3/pbench-satellite)
@@ -151,11 +170,12 @@ drwxrwxr-x          - tmp
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
 ----- pbench-audit-server/pbench-audit-server.log
-+++++ pbench-backup-tarballs/pbench-backup-tarballs.error
-pbench-backup-tarballs: Specified backup directory, /var/tmp/pbench-test-server/test-6.3/pbench-local/archive.backup, does not resolve (/var/tmp/pbench-test-server/test-6.3/pbench-local/archive.backup) to a directory
------ pbench-backup-tarballs/pbench-backup-tarballs.error
 +++++ pbench-backup-tarballs/pbench-backup-tarballs.log
-start-1900-01-01T00:00:00-UTC
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- start-1900-01-01T00:00:00-UTC
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- Total processed: 0, Local backup successes: 0, Local backup failures: 0, S3 upload successes: 0, SE upload too large: 0, S3 upload failures: 0, Quarantined: 0
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- end-1900-01-01T00:00:00-UTC
 ----- pbench-backup-tarballs/pbench-backup-tarballs.log
 +++++ pbench-report-status/pbench-report-status.log
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)

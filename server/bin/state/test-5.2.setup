@@ -1,0 +1,4 @@
+#!/bin/bash
+
+mkdir -p pbench-local/s3-backup/testbucket || exit $?
+exit $?

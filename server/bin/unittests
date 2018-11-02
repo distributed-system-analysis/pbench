@@ -542,6 +542,26 @@ declare -A cmds=(
     [test-6.5]="_run pbench-backup-tarballs"
     # real dest directory, no files needing backup - corrupted archive should not be copied
     [test-6.6]="_run pbench-backup-tarballs"
+    # all files needing backup - md5 file missing should fail
+    [test-6.7]="_run pbench-backup-tarballs"
+    # check for no bucket
+    [test-6.8]="_run pbench-backup-tarballs"
+    # Upload fail since s3 already have the result with different md5sum
+    [test-6.9]="_run pbench-backup-tarballs"
+    # Upload successful since s3 already have the result with same md5sum
+    [test-6.10]="_run pbench-backup-tarballs"
+    # Upload successfull
+    [test-6.11]="_run pbench-backup-tarballs"
+    # move to TO-BACKUP-LARGE since tar size is more than 5 GB
+    [test-6.12]="_run pbench-backup-tarballs"
+    # Upload fail since md5 corrupt
+    # TBD: right now, it is quite complicated to test this from the unit
+    # test. Because in the initial check we evaluate whether the md5sum
+    # of a tarball is matching with its md5 file or not. To test this
+    # case, we need to inject the change in the md5 sum of the tarball
+    # after it passes the initial check: only then can we check for a
+    # failure because of a mismatched md5 sum when we try to upload to
+    # the (mock) s3 service.
 
     # indexing tests are all test-7.*
 
@@ -607,6 +627,10 @@ declare -A cmds=(
     [test-9.4]="_run pbench-verify-backup-tarballs"
     # bad md5 in backup
     [test-9.5]="_run pbench-verify-backup-tarballs"
+    # more tarballs in s3
+    [test-9.6]="_run pbench-verify-backup-tarballs"
+    # check for Continuation Token
+    [test-9.7]="_run pbench-verify-backup-tarballs"
 
     # trivial results: no mail
     [test-10]="_run pbench-sync-satellite satellite-one"
