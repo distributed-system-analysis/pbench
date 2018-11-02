@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+# -*- mode: perl; indent-tabs-mode: t; perl-indent-level: 4 -*-
+# vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
 #
 # Author: Andrew Theurer
 #
@@ -8,8 +10,8 @@
 #
 # usage:
 #
-#   pbench-gen-iterations $benchmark_name                         <--required exactly once
-#                         --defaults=$defaults_name                <--optional, 1 or more
+#   pbench-gen-iterations $benchmark_name                   <--required exactly once
+#                         --defaults=$defaults_name         <--optional, 1 or more
 #                         --$arg=$valueA[,valueB,...valueN] <--optional, 1 or more
 #
 #   $benchmark_name can be any file found where $benchmark_name is used in
@@ -18,27 +20,27 @@
 #   Or a user can get the supported benchmark by runing:
 #
 #   #pbench-gen-iterations list
-#   	fio
-#   	uperf
+#   fio
+#   uperf
 #
 #   $defaults_name can be:
-#   	any field-name contained in $config/${benchmark}-parameter-defaults.json, for example,
-#   	for fio--parameter-defaults.json:
-#   	{
-#   	"default" : "--rw=read,randr --bs=4k,64k --ioengine=sync --numjobs=1, --filename=/tmp/fio-tst",
-#   	"ceph-osp" : "--rw=read,randr,write,randw --bs=1m --ioengine=sync --numjobs=1"
-#   	}
+#   any field-name contained in $config/benchmark/$benchmark.json, for example,
+#   for fio.json:
+#   {
+#   "default" : "--rw=read,randr --bs=4k,64k --ioengine=sync --numjobs=1, --filename=/tmp/fio-tst",
+#   "ceph-osp" : "--rw=read,randr,write,randw --bs=1m --ioengine=sync --numjobs=1"
+#   }
 #
 #   Or a user can ge a list of defaults by running:
 #
 #   #pbench-gen-iterations fio --defaults=list
-#	ceph-osp            |  --rw=read,randr,write,randw --bs=1m --ioengine=sync --numjobs=1
-#	default             |  --rw=read,randr --bs=4k,64k --ioengine=sync --numjobs=1, --filename=/tmp/fio-tst
+#   ceph-osp  |  --rw=read,randr,write,randw --bs=1m --ioengine=sync --numjobs=1
+#   default   |  --rw=read,randr --bs=4k,64k --ioengine=sync --numjobs=1, --filename=/tmp/fio-tst
 #
 #   $parameter is either a pbench universal parameter (like --samples) or a
 #   benchmark-native parameter (like --ioengine=sync for fio).  The list of valid 
-#   parameters can be found in $config/pbench-parameter.json for universal perameters and
-#   $config/${benchmark}-parameter.json for benchmark-native parameters.
+#   parameters can be found in $config/benchmark/pbench.json for universal perameters and
+#   $config/benchmark/$benchmark.json for benchmark-native parameters.
 #                         
 #   Note that a parameter may have mulitple values, and this script will generate a benchmark
 #   iteration for each value.  For example, if the user runs:
@@ -47,18 +49,18 @@
 #
 #   pbench-gen-iterations will generate 4 different iterations:
 #
-#	pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=4K --rw=read
-#	pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=4K --rw=write
-#	pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=1024K --rw=read
-#	pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=1024K --rw=write
+#   pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=4K --rw=read
+#   pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=4K --rw=write
+#   pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=1024K --rw=read
+#   pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=1024K --rw=write
 #
 #   Where did the --ioengine=sync --filename=/tmp/fio-tst come from?  The defaults
 #   defined for fio ("default" in $config/fio-parameter-defaults.json):
 #
-#	{
-#	"default" : "--rw=read,randr --bs=4k,64k --ioengine=sync --numjobs=1, --filename=/tmp/fio-tst",
-#	"ceph-osp" : "--rw=read,randr,write,randw --bs=1m --ioengine=sync --numjobs=1"
-#	}
+#   {
+#   "default" : "--rw=read,randr --bs=4k,64k --ioengine=sync --numjobs=1, --filename=/tmp/fio-tst",
+#   "ceph-osp" : "--rw=read,randr,write,randw --bs=1m --ioengine=sync --numjobs=1"
+#   }
 #
 #   Since the user provided new values for --bs and --rw, those defaults were replaced with the 
 #   user's values.
@@ -68,12 +70,13 @@
 #   can ovverite a parameter.  For example:
 #
 #   #pbench-gen-iterations fio --rw=read,write --bs=4k,1M --defaults=default
-#	pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=4k --rw=read
-#	pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=4k --rw=randr
-#	pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=64k --rw=read
-#	pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=64k --rw=randr	
+#   pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=4k --rw=read
+#   pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=4k --rw=randr
+#   pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=64k --rw=read
+#   pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=64k --rw=randr  
 #
-#   Since --defaults=default was used after --bs and --rw, those parameters were overritten.  This is by design.
+#   Since --defaults=default was used after --bs and --rw, those parameters were overritten.
+#   This is by design.
 
 use strict;
 use warnings;
@@ -81,193 +84,212 @@ use File::Basename;
 use Text::ParseWords;
 my $pbench_lib_path;
 BEGIN {
-	$pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
-	chomp $pbench_lib_path;
-	$pbench_lib_path .= "/lib";
+    $pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
+    chomp $pbench_lib_path;
+    $pbench_lib_path .= "/lib";
 }
 use lib "$pbench_lib_path";
 use JSON;
 use Data::Dumper;
-use PbenchBase qw(get_json_file get_benchmark_names get_pbench_bench_config_dir load_benchmark_config);
+use PbenchBase qw(get_json_file get_benchmark_names
+                  get_pbench_bench_config_dir load_benchmark_config);
 my $pbench_bench_config_dir = get_pbench_bench_config_dir;
 
-# return an array of all the valid arguments for a specific benchmark
+# Return an array of all the valid arguments for a specific benchmark
 sub get_benchmark_args {
-	my $config_ref = shift; # our benchmark config
-	my @args;
-	for my $regex_type (keys %{ $$config_ref{"controller"}{"parameters"}{"specs"} } ) {
-		@args = (@args,  @{ $$config_ref{"controller"}{"parameters"}{"specs"}{$regex_type}{"arguments"} });
-	}
-	return @args
+    my $config_ref = shift; # our benchmark config
+    my @args;
+    for my $r (keys %{ $$config_ref{"controller"}{"parameters"}{"specs"} } ) {
+        @args = (@args, @{ $$config_ref{"controller"}{"parameters"}{"specs"}{$r}{"arguments"} });
+    }
+    return @args
 }
-# return a string of the default parameters for a specific benchmark and default_name
+
+# Return a string of the default parameters for a specific benchmark and default_name
 sub get_benchmark_defaults {
-	my $config_ref = shift; # our benchmark config
-	my $default_name = shift;
-	if ($default_name eq "list") {
-		print "defaults available:\n";
-		for my $d (grep(!/^mandatory$/, keys $$config_ref{"controller"}{"parameters"}{"defaults"})) {
-			printf("%s: %s\n", $d, $$config_ref{"controller"}{"parameters"}{"defaults"}{$d});
-		}
-		exit;
-	}
-	if ($$config_ref{"controller"}{"parameters"}{"defaults"}{$default_name}) {
-		return @{ $$config_ref{"controller"}{"parameters"}{"defaults"}{$default_name} };
-	} else {
-		die "That default does not exist";
-	}
+    my $config_ref = shift; # our benchmark config
+    my $default_name = shift;
+    if ($default_name eq "list") {
+        print "defaults available:\n";
+        for my $d (grep(!/^mandatory$/, keys $$config_ref{"controller"}{"parameters"}{"defaults"})) {
+            printf("%s: %s\n", $d, $$config_ref{"controller"}{"parameters"}{"defaults"}{$d});
+        }
+        exit;
+    }
+    if ($$config_ref{"controller"}{"parameters"}{"defaults"}{$default_name}) {
+        return @{ $$config_ref{"controller"}{"parameters"}{"defaults"}{$default_name} };
+    } else {
+        die "That default does not exist";
+    }
 }
-# ensure a parameter's argument can be found and the parameter's values passes the regex requirement
-# return nothing if the tests fail
-# return the argument and values in an array it they pass
+
+# Ensure a parameter's argument can be found and the parameter's values passes the regex requirement
+# - return nothing if the tests fail
+# - return the argument and values in an array it they pass
 sub process_param {
-	my $argument = shift;
-	my $values = shift;
-	my $param_ref = shift;
-	my $processed_values = "";
-	for my $regex_types (keys $$param_ref{"specs"}) {
-		if (grep(/^$argument$/, @{ $$param_ref{"specs"}{$regex_types}{"arguments"} })) {
-			my %past_values;
-			for my $value (quotewords(',', 0, $values)) { # users can provide multiple values for an option
-				if (exists $past_values{$value}) {
-				    next;
-				} else {
-				    $past_values{$value} = 1;
-				}
+    my $argument = shift;
+    my $values = shift;
+    my $param_ref = shift;
+    my $processed_values = "";
+    for my $r (keys $$param_ref{"specs"}) {
+        if (grep(/^$argument$/, @{ $$param_ref{"specs"}{$r}{"arguments"} })) {
+            my %past_values;
+            # Users can provide multiple values
+            # Using quotewords allows commas inside pair of quotes to be part of the value
+            for my $value (quotewords(',', 0, $values)) {
+                if (exists $past_values{$value}) {
+                    next;
+                } else {
+                    $past_values{$value} = 1;
+                }
 
-				if ($value =~ /$$param_ref{"specs"}{$regex_types}{"value_regex"}/) {
-					if ($$param_ref{"specs"}{$regex_types}{"value_transforms"}) {
-						for my $transform (@{ $$param_ref{"specs"}{$regex_types}{"value_transforms"} }) {
-							# in order to apply the 's/x/y/' regex from the file, some eval trickery is necessary
-							# todo: first test the $transform regex separately for [perl syntax] errors with eval before doing below
-							$value = eval "\$_='$value'; $transform; return scalar \$_";
-						}
-					}
-					# Because these will get processed again by build_iteration_cmds,
-					# quotes are wrapped on all values, since quotes may have been stripped earlier.
-					if ($processed_values eq "") {
-						$processed_values = '"' . $value . '"';
-					} else {
-						$processed_values .= ',"' . $value . '"';
-					}
-				} else {
-					printf "the value, \'%s\' for value, \'%s\' is not valid\n", $value, $argument;
-					return;
-				}
-			}
-			return ($argument, $processed_values);
-		}
-	}
-	return;
+                if ($value =~ /$$param_ref{"specs"}{$r}{"value_regex"}/) {
+                    if ($$param_ref{"specs"}{$r}{"value_transforms"}) {
+                        for my $transform (@{ $$param_ref{"specs"}{$r}{"value_transforms"} }) {
+                            # In order to apply the 's/x/y/' regex from the file, some eval trickery
+                            # is necessary
+                            #
+                            # Todo: first test the $transform regex separately for [perl syntax]
+                            # errors with eval before doing below
+                            $value = eval "\$_='$value'; $transform; return scalar \$_";
+                        }
+                    }
+                    # Because these will get processed again by build_iteration_cmds,
+                    # quotes are wrapped on all values, since quotes may have been stripped earlier.
+                    if ($processed_values eq "") {
+                        $processed_values = '"' . $value . '"';
+                    } else {
+                        $processed_values .= ',"' . $value . '"';
+                    }
+                } else {
+                    printf "the value, \'%s\' for value, \'%s\' is not valid\n", $value, $argument;
+                    return;
+                }
+            }
+            return ($argument, $processed_values);
+        }
+    }
+    return;
 }
-# generate an array of all benchmark iteration cmds
+
+# Recursively generate an array of all benchmark iteration cmds
 sub build_iteration_cmds {
-	my $cmdline = shift;
-	my $multiplex_params_ref = shift; # the parameters which each value creates a new iteration
-	my $simplex_params_ref = shift; # the parameters which each value does not create a new iteration
-	my %multiplex_params = %$multiplex_params_ref;
-	my %simplex_params = %$simplex_params_ref;
-	my @cmds;
+    my $cmdline = shift;
+    my $multiplex_params_ref = shift; # The parameters which each value creates a new iteration
+    my $simplex_params_ref = shift; # The parameters which each value does not create a new iteration
+    my %multiplex_params = %$multiplex_params_ref;
+    my %simplex_params = %$simplex_params_ref;
+    my @cmds;
 
-	if (scalar %multiplex_params) {
-		my @args = (keys %multiplex_params);
-		my $arg = shift(@args);
-		my $values = $multiplex_params{$arg};
-		delete $multiplex_params{$arg};
-		for my $value (quotewords(',', 0, $values)) {
-			push(@cmds, build_iteration_cmds($cmdline . " --" . $arg . "=" . $value . " ", \%multiplex_params, \%simplex_params));
-		}
-		return @cmds;
-	} else {
-		for my $arg (keys %simplex_params) {
-			$cmdline .= " --" . $arg . "=" . $simplex_params{$arg};
-		}
-		return ($cmdline);
-	}	
+    if (scalar %multiplex_params) {
+        my @args = (keys %multiplex_params);
+        my $arg = shift(@args);
+        my $values = $multiplex_params{$arg};
+        delete $multiplex_params{$arg};
+        # As in process_param, quotewords() allows a comma to be within a single value
+        # as long as it is wraped in quotes
+        for my $value (quotewords(',', 0, $values)) {
+            push(@cmds, build_iteration_cmds($cmdline . " --" . $arg . "=" . $value . " ",
+                 \%multiplex_params, \%simplex_params));
+        }
+        return @cmds;
+    } else {
+        for my $arg (keys %simplex_params) {
+            $cmdline .= " --" . $arg . "=" . $simplex_params{$arg};
+        }
+        return ($cmdline);
+    }   
 }
 
-# main program starts here #
+# Main program starts here
 
-# check for required options for pbench-gen-iterations
+# Check for required options for pbench-gen-iterations
 if (scalar @ARGV == 0) {
-	print "You must supply at least a benchmark name:\n";
-	my @benchmarks = get_benchmark_names($pbench_bench_config_dir);
-	printf "%s\n",  join(" ", @benchmarks);
-	exit;
+    print "You must supply at least a benchmark name:\n";
+    my @benchmarks = get_benchmark_names($pbench_bench_config_dir);
+    printf "%s\n",  join(" ", @benchmarks);
+    exit;
 }
 my $benchmark = shift(@ARGV);
 if ($benchmark eq "list") {
-	my @benchmarks = get_benchmark_names($pbench_bench_config_dir);
-	printf "%s\n",  join(" ", @benchmarks);
-	exit;
+    my @benchmarks = get_benchmark_names($pbench_bench_config_dir);
+    printf "%s\n",  join(" ", @benchmarks);
+    exit;
 }
 
-# go through the @ARGS and either:
-# -swap out "--defaults" with a list of default params
-# -validate and transform a "arg=val" parameter
+# Go through the @ARGS and either:
+# - swap out "--defaults" with a list of default params
+# - validate and transform a "--arg=val[,val]" parameter
+#   - the arg needs to be a real option for the native benchmark
+#   - each of the val[,val] must pass the format requirements and also might
+#     get transformed
 
 # This is what we need to validate against
 my %pbench_config = load_benchmark_config($pbench_bench_config_dir, "pbench");
 my %bench_config = load_benchmark_config($pbench_bench_config_dir, $benchmark);
-# ensure we have some basic info from the benchmark configuration
+# Ensure we have some basic info from the benchmark configuration
 if (! $bench_config{"controller"} ) {
-	print "There is no 'contoller' section in the benchmark config\n";
-	exit 1;
+    print "There is no 'contoller' section in the benchmark config\n";
+    exit 1;
 }
 if (! $bench_config{"controller"}{"parameters"} ) {
-	print "There is no 'controller->parameters' section in the benchmark config\n";
-	exit 1;
+    print "There is no 'controller->parameters' section in the benchmark config\n";
+    exit 1;
 }
 if (! $bench_config{"controller"}{"parameters"}{"defaults"} ) {
-	print "There is no 'controller->parameters->defaults' section in the benchmark config\n";
-	exit 1;
+    print "There is no 'controller->parameters->defaults' section in the benchmark config\n";
+    exit 1;
 }
 if (! $bench_config{"controller"}{"parameters"}{"specs"} ) {
-	print "There is no 'controller->parameters->specs' section in the benchmark config\n";
-	exit 1;
+    print "There is no 'controller->parameters->specs' section in the benchmark config\n";
+    exit 1;
 }
+
 my @params = @ARGV;
-my %processed_bench_params; # benchmark-specific parameters that will have been validated and transformed
-my %processed_pbench_params; # universal parameters that will have been validated and transformed
-# if the user did not specify a set of defaults, use the "default" set and make sure these
+my %processed_bench_params; # Benchmark-specific parameters that will have been validated/transformed
+my %processed_pbench_params; # Universal parameters that will have been validated/transformed
+# If the user did not specify a set of defaults, use the "default" set and make sure these
 # get processed before any other params
 if (!grep(/^--defaults=(.+)$/, @params)) { 
-	unshift(@params, "--defaults=default");
+    unshift(@params, "--defaults=default");
 }
-# add the "mandatory" default set and make sure these
-# get processed after any other params
+# Add the "mandatory" default set and make sure these  get processed after any other params
 push(@params, "--defaults=mandatory");
-# now process all of the parameters
+# Now process all of the parameters
 while ( scalar @params > 0 ) {
-	my $param = shift @params;
-	if ($param eq "--help") {
-		print "These are the valid universal arguments:\n";
-		for my $p (get_benchmark_args(\%pbench_config)) {
-			printf("    --%s\n", $p);
-		}
-		print "These are the valid $benchmark arguments:\n";
-		for my $p (get_benchmark_args(\%bench_config)) {
-			printf("    --%s\n", $p);
-		}
-	} elsif ($param =~ /^--defaults=(.+)$/) { # expanded to all of the parameters found for that default
-		@params = (get_benchmark_defaults(\%bench_config, $1), @params);
-	} elsif ($param =~ /^--(.+)=(.+)$/) { # we now have a parameter, a "--argument=value" that we can process
-		my @p;
-		if (@p = process_param($1, $2, $pbench_config{"controller"}{"parameters"})) {
-			$processed_pbench_params{$p[0]} = $p[1];
-		} elsif (@p = process_param($1, $2, $bench_config{"controller"}{"parameters"})) {
-			$processed_bench_params{$p[0]} = $p[1];
-		} else {
-			printf "the parameter %s did not fit the requirements of pbench or the benchmark\n", $param;
-			exit 1;
-		}
-	} else {
-		printf "The format of \'%s\' is not valid\n", $param;
-		exit 1;
-	}
+    my $param = shift @params;
+    if ($param eq "--help") {
+        print "These are the valid universal arguments:\n";
+        for my $p (get_benchmark_args(\%pbench_config)) {
+            printf("    --%s\n", $p);
+        }
+        print "These are the valid $benchmark arguments:\n";
+        for my $p (get_benchmark_args(\%bench_config)) {
+            printf("    --%s\n", $p);
+        }
+    } elsif ($param =~ /^--defaults=(.+)$/) { # Expanded to all of the parameters
+                                              # found for that default
+        @params = (get_benchmark_defaults(\%bench_config, $1), @params);
+    } elsif ($param =~ /^--(.+)=(.+)$/) { # We now have a parameter, a "--argument=value"
+                                          # that we can process
+        my @p;
+        if (@p = process_param($1, $2, $pbench_config{"controller"}{"parameters"})) {
+            $processed_pbench_params{$p[0]} = $p[1];
+        } elsif (@p = process_param($1, $2, $bench_config{"controller"}{"parameters"})) {
+            $processed_bench_params{$p[0]} = $p[1];
+        } else {
+            printf "The parameter %s did not fit the requirements of pbench or the benchmark\n",
+                   $param;
+            exit 1;
+        }
+    } else {
+        printf "The format of \'%s\' is not valid\n", $param;
+        exit 1;
+    }
 }
-# now we can generate all of the iterations
+
+# Generate and print all of the iterations
 my @iteration_cmds = build_iteration_cmds("", \%processed_bench_params, \%processed_pbench_params);
 for my $cmd (@iteration_cmds) {
-	print "$cmd\n";
+    print "$cmd\n";
 }
