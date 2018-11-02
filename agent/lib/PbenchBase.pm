@@ -11,7 +11,7 @@ use Exporter qw(import);
 use List::Util qw(max);
 use JSON;
 
-our @EXPORT_OK = qw(get_json_file put_json_file get_benchmark_names get_clients get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params remove_element get_hostname get_pbench_datetime);
+our @EXPORT_OK = qw(get_json_file put_json_file get_benchmark_names get_clients get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params remove_element get_hostname get_pbench_datetime load_benchmark_config);
 my $script = "PbenchBase.pm";
 my $sub;
 
@@ -143,4 +143,12 @@ sub get_benchmark_results_dir {
 	my $benchdir = $basedir . "/" . $benchmark . "_" . $config . "_" . $datetime;
 }
 
+# load a benchmark json file which tells us how to run a benchmark
+sub load_benchmark_config {
+	my $pbench_bench_config_dir = shift;
+	my $benchmark_name = shift;
+	my $benchmark_spec_file = $pbench_bench_config_dir . "/" .  $benchmark_name . ".json";
+	my $json_ref = get_json_file($benchmark_spec_file);
+	return %$json_ref
+}
 1;

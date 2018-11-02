@@ -103,6 +103,8 @@ if (-e "/tmp/stockpile") {
 # pass the rest of the args to pbench-gen-iterations and store the iterations in an array
 print "Generating all benchmark iterations\n";
 my $gen_iterations_cmd = "pbench-gen-iterations " . $benchmark . " " . join(" ", @ARGV);
+#escape any quotes so they don't get lost before calling pbench-gen-iterations
+$gen_iterations_cmd =~ s/\"/\\\"/g;
 my $output = `$gen_iterations_cmd`;
 if ($? != 0) {
 	printf "%s\n", $output;
