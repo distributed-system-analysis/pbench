@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+# -*- mode: perl; indent-tabs-mode: t; perl-indent-level: 4 -*-
+# vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
 #
 # Author: Andrew Theurer
 #
@@ -15,159 +17,168 @@ use warnings;
 use File::Basename;
 my $pbench_lib_path;
 BEGIN {
-	$pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
-	chomp $pbench_lib_path;
-	$pbench_lib_path .= "/lib";
+    $pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
+    chomp $pbench_lib_path;
+    $pbench_lib_path .= "/lib";
 }
 use lib "$pbench_lib_path";
 use JSON;
 use Data::Dumper;
-use PbenchCDM qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc get_uuid create_bench_iter_doc create_config_doc);
-use PbenchBase qw(get_json_file put_json_file get_benchmark_names get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params get_hostname);
-use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success stockpile_hosts);
+use PbenchCDM        qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc
+                        create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc
+                        get_uuid create_bench_iter_doc create_config_doc);
+use PbenchBase       qw(get_json_file put_json_file get_benchmark_names get_pbench_run_dir
+                        get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir
+                        get_benchmark_results_dir get_params remove_params get_hostname);
+use PbenchAnsible    qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts
+                        remove_files_from_hosts remove_dir_from_hosts create_dir_hosts
+                        sync_dir_from_hosts verify_success stockpile_hosts);
 
-# defaults
-my $num_samples = 1; 
+my %defaults = ( "num_samples" => 1,
+                 "tool_group" => "default" );
 
-# the only required [positional] argument is the benchmark name; verify it now
+# The only required [positional] argument is the benchmark name; verify it now
 if (scalar @ARGV == 0) {
-	print "You must supply at least a benchmark name:\n";
-	my @benchmarks = get_benchmark_names(get_pbench_bench_config_dir);
-	printf "%s\n",  join(" ", @benchmarks);
-	exit;
+    print "You must supply at least a benchmark name:\n";
+    my @benchmarks = get_benchmark_names(get_pbench_bench_config_dir);
+    printf "%s\n",  join(" ", @benchmarks);
+    exit;
 }
 my $benchmark = shift(@ARGV);
 if ($benchmark eq "list") {
-	my @benchmarks = get_benchmark_names(get_pbench_bench_config_dir);
-	printf "%s\n",  join(" ", @benchmarks);
-	exit;
+    my @benchmarks = get_benchmark_names(get_pbench_bench_config_dir);
+    printf "%s\n",  join(" ", @benchmarks);
+    exit;
 }
-# the rest of the parameters are --arg=val, most of which we just pass to other scripts,
-# but we need to know a few of them now
-my $user_name;
-my $user_email;
-my $user_desc;
-my $tool_group = "default";
-my @iterations;
+
+# The rest of the parameters are --arg=val, most of which we just pass to other scripts,
 my %params = get_params(@ARGV);
-if ($params{"samples"}) {
-	$num_samples = $params{"samples"};
-}
-if ((!$ENV{"USER_NAME"}) and (!$params{"user-name"})) {
-	print "\n\n***** Please export USER_NAME=\"<your first and last name>\" (or --user-name=) so it is included in the run data *****\n\n";
-	sleep(1);
-} else {
-	$user_name = $params{"user-name"};
-}
-if ((!$ENV{"USER_EMAIL"}) and (!$params{"user-email"})) {
-	print "\n\n***** Please export USER_EMAIL=\"<your email address\" (or --user-email=) so it is included in the run data *****\n\n";
-	sleep(1);
-} else {
-	$user_email = $params{"user-email"};
-}
-if (!$params{"desc"}) {
-	$user_desc = "";
-	print "\n\n***** Please use --desc=key1:value2,key2:value2...keyN:valueN to describe your test configuration, environment, and/or purpose so it is included in the run data *****\n\n";
-	sleep(1);
-} else {
-	$user_desc = $params{"desc"};
-}
-if ($params{"tool-group"}) {
-	$tool_group = $params{"tool-group"};
+
+# Every benchmark must have at least 1 client, even if the client is the same host as the controller
+if (! $params{'clients'}) {
+    print "You must specify at least 1 client with --clients\n";
+    exit 1;
 }
 
-remove_params(\@ARGV, qw(tool-group samples desc user-name user-email)); # we don't want these params passed on to other utils
+# Warn if a few optional but highly recommended params are missing (can also be defined with env vars)
+for my $param (qw(user-name user-email user-desc)) {
+    my $env_var = uc $param;
+    $env_var =~ s/-/_/g;
+    if (!$params{$param}) { # if --arg_name was used, $ARG_NAME will not be used
+        if (!$ENV{$env_var}) {
+            printf "\n***** it is highly recommended you do one of the following:\n" .
+                   "- export this variable before calling this script %s\n" .
+                   "- use this parameter when calling this script: --%s\n\n", $env_var, $param;
+            $params{$param} = "";
+        } else {
+            $params{$param} = $ENV{$env_var};
+        }
+    }
+}
+
+# Apply the defaults
+for my $def (keys %defaults) {
+    if (!$params{$def}) {
+        $params{$def} = $defaults{$def};
+    }
+}
+
+# We don't want these params passed on to other utils
+remove_params(\@ARGV, qw(tool-group samples desc user-name user-email)); 
 my %run_doc = create_run_doc($benchmark, join(" ", @ARGV), $params{"clients"}, $params{"servers"},
-				$user_desc, $user_name, $user_email,
-				"pbench",
-				""); #todo: include tool names
+                $params{"user-desc"}, $params{"user-name"}, $params{"user-email"},
+                "pbench", ""); #todo: include tool names
 
-my $base_bench_dir = get_benchmark_results_dir($benchmark, $user_desc);
+# Prepare all the dirs for the run
+my $base_bench_dir = get_benchmark_results_dir($benchmark, $params{"user-desc"});
 mkdir($base_bench_dir);
 my $es_dir = $base_bench_dir . "/es";
 mkdir($es_dir);
 for my $es_subdir (qw(run bench config metrics)) {
-	mkdir($es_dir . "/" . $es_subdir);
+    mkdir($es_dir . "/" . $es_subdir);
 }
-if (! $params{'clients'}) {
-	print "You must specify at least 1 client with --clients\n";
-	exit 1;
-}
-# use stockpile to collect configuration information
+
+# Use stockpile to collect configuration information
 my @config_hosts = split(/,/, $params{"clients"});
 if (-e "/tmp/stockpile") {
-	print "Collecting confguration information with stockpile\n";
-	stockpile_hosts(\@config_hosts, $base_bench_dir, "stockpile_output_path=". $base_bench_dir . "/stockpile.json");
+    print "Collecting confguration information with stockpile\n";
+    stockpile_hosts(\@config_hosts, $base_bench_dir,"stockpile_output_path=".
+                    $base_bench_dir . "/stockpile.json");
 }
-	
-# pass the rest of the args to pbench-gen-iterations and store the iterations in an array
+    
+# Pass the rest of the args to pbench-gen-iterations and store the iterations in an array
+my @iterations;
 print "Generating all benchmark iterations\n";
 my $gen_iterations_cmd = "pbench-gen-iterations " . $benchmark . " " . join(" ", @ARGV);
-#escape any quotes so they don't get lost before calling pbench-gen-iterations
+# Escape any quotes so they don't get lost before calling pbench-gen-iterations
 $gen_iterations_cmd =~ s/\"/\\\"/g;
 my $output = `$gen_iterations_cmd`;
 if ($? != 0) {
-	printf "%s\n", $output;
-	printf "Calling pbench-gen-iterations failed.  Exiting\n";
-	exit 1;
+    printf "%s\nCalling pbench-gen-iterations failed, exiting\n", $output;
+    exit 1;
 } else {
-	@iterations = split(/\n/, $output);
+    @iterations = split(/\n/, $output);
 }
 
-# now run the iterations
+# Now run the iterations
 printf "iterations: %d\n", scalar @iterations;
 mkdir($base_bench_dir);
 open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
 my $iteration_id = 0;
 for my $iteration_params (@iterations) {
-	my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,); 
-	put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{'iteration'}{'id'} . ".json");
-	printf $fh "%d %s\n", $iteration_id, $iteration_params;
-	printf "iteration_ID: %d iteration_params: %s\n", $iteration_id, $iteration_params;
-	for (my $sample_id=0; $sample_id<$num_samples; $sample_id++) {
-		printf "sample_ID: %d\n", $sample_id;
-		my $iteration_dir = $base_bench_dir . "/iteration" . $iteration_id;
-		mkdir($iteration_dir);
-		my $iteration_sample_dir = $iteration_dir . "/sample" . $sample_id;
-		mkdir($iteration_sample_dir);
-		my $benchmark_cmd = "pbench-run-benchmark-sample " . $es_dir . "/bench/iteration-" . $iter_doc{'iteration'}{'id'} . ".json " . $iteration_sample_dir . " " . $base_bench_dir . " " . $tool_group;
-		my $benchmark_sample_output = `$benchmark_cmd`;
-		my $exit_code = $?;
-		if ($exit_code != 0) {
-			printf "Stopping because of iteration-sample exit code: %d\n", $exit_code;
-			print "output:\n$benchmark_sample_output";
-			exit 1;
-		}
-	}
-	$iteration_id++;
+    my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,); 
+    put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{'iteration'}{'id'} . ".json");
+    printf $fh "%d %s\n", $iteration_id, $iteration_params;
+    printf "iteration_ID: %d iteration_params: %s\n", $iteration_id, $iteration_params;
+    for (my $sample_id=0; $sample_id<$params{"num_samples"}; $sample_id++) {
+        printf "sample_ID: %d\n", $sample_id;
+        my $iteration_dir = $base_bench_dir . "/iteration" . $iteration_id;
+        mkdir($iteration_dir);
+        my $iteration_sample_dir = $iteration_dir . "/sample" . $sample_id;
+        mkdir($iteration_sample_dir);
+        my $benchmark_cmd = "pbench-run-benchmark-sample " . $es_dir . "/bench/iteration-" .
+                            $iter_doc{'iteration'}{'id'} . ".json " . $iteration_sample_dir .
+                            " " . $base_bench_dir . " " . $params{"tool_group"};
+        my $benchmark_sample_output = `$benchmark_cmd`;
+        my $exit_code = $?;
+        if ($exit_code != 0) {
+            printf "Stopping because of iteration-sample exit code: %d\n", $exit_code;
+            print "output:\n$benchmark_sample_output";
+            exit 1;
+        }
+    }
+    $iteration_id++;
 }
 close $fh;
-#$run_doc{'doc'}{'type'} = "run";
-$run_doc{'run'}{'end'} = time * 1000;
+$run_doc{'run'}{'end'} = time * 1000; # time in milliseconds
 put_json_file(\%run_doc, $es_dir . "/run/run-" . $run_doc{'run'}{'id'} . ".json");
 
-# convert the stockpile data with scribe, then create CDM docs in ./es/config
+# Convert the stockpile data with scribe, then create CDM docs in ./es/config
 if (-e $base_bench_dir . "/stockpile.json") {
-	system('scl enable rh-python36 \'python3 -m venv /var/lib/pbench-agent/tmp/scribe && cd ' . $base_bench_dir . ' && scribe -t stockpile -ip ./stockpile.json >scribe.json\'');
-	open(my $scribe_fh, "<" . $base_bench_dir . "/scribe.json") || die "Could not open " . $base_bench_dir . "/scribe.json";
-	my $json_text = "";
-	# The scribe output is not correct json format. Instead of 1 json document, there are actually multiple documents, but no seperator between them or organized in an array
-	while (<$scribe_fh>) {
-		$json_text .= $_;
-		if (/^\}/) { # assume this is the end of a json doc
-			my %config_doc = create_config_doc(\%run_doc, from_json($json_text));
-			if ($config_doc{'cdm'}{'doctype'} =~ /^config_(.+)/) {
-				my $config_subname = $1;
-				if ($config_doc{'config'}{'id'}) {
-					put_json_file(\%config_doc, $es_dir . "/config/" . $config_doc{'cdm'}{'doctype'} . "-" . $config_doc{'config'}{'id'} . ".json");
-				} else {
-					printf "Error: config doc's config.%s not found\n", $config_subname;
-				}
-			} else {
-				printf "Error: config doc's cdm.doctype does not start with \"config_\"\n";
-					}
-			$json_text = "";
-		}
-	}
-	close($scribe_fh);
+    system('scl enable rh-python36 \'python3 -m venv /var/lib/pbench-agent/tmp/scribe && cd ' .
+           $base_bench_dir . ' && scribe -t stockpile -ip ./stockpile.json >scribe.json\'');
+    open(my $scribe_fh, "<" . $base_bench_dir . "/scribe.json") || die "Could not open " .
+         $base_bench_dir . "/scribe.json";
+    my $json_text = "";
+    # Instead of 1 json document, there are actually multiple documents, but no seperator
+    # between them or organized in an array
+    while (<$scribe_fh>) {
+        $json_text .= $_;
+        if (/^\}/) { # Assume this is the end of a json doc
+            my %config_doc = create_config_doc(\%run_doc, from_json($json_text));
+            if ($config_doc{'cdm'}{'doctype'} =~ /^config_(.+)/) {
+                my $config_subname = $1;
+                if ($config_doc{'config'}{'id'}) {
+                    put_json_file(\%config_doc, $es_dir . "/config/" . $config_doc{'cdm'}{'doctype'} .
+                                  "-" . $config_doc{'config'}{'id'} . ".json");
+                } else {
+                    printf "Error: config doc's config.%s not found\n", $config_subname;
+                }
+            } else {
+                printf "Error: config doc's cdm.doctype does not start with \"config_\"\n";
+                    }
+            $json_text = "";
+        }
+    }
+    close($scribe_fh);
 }
