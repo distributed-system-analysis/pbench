@@ -88,16 +88,9 @@ BEGIN {
 use lib "$pbench_lib_path";
 use JSON;
 use Data::Dumper;
-use PbenchBase qw(get_json_file get_benchmark_names get_pbench_bench_config_dir);
+use PbenchBase qw(get_json_file get_benchmark_names get_pbench_bench_config_dir load_benchmark_config);
 my $pbench_bench_config_dir = get_pbench_bench_config_dir;
 
-# load a benchmark json file which tells us how to run a benchmark
-sub load_benchmark_config {
-	my $benchmark_name = shift;
-	my $benchmark_config_file = $pbench_bench_config_dir . "/" . $benchmark_name . ".json";
-	my $json_ref = get_json_file($benchmark_config_file);
-	return %$json_ref
-}
 # return an array of all the valid arguments for a specific benchmark
 sub get_benchmark_args {
 	my $config_ref = shift; # our benchmark config
@@ -214,8 +207,8 @@ if ($benchmark eq "list") {
 # -validate and transform a "arg=val" parameter
 
 # This is what we need to validate against
-my %pbench_config = load_benchmark_config("pbench");
-my %bench_config = load_benchmark_config($benchmark);
+my %pbench_config = load_benchmark_config($pbench_bench_config_dir, "pbench");
+my %bench_config = load_benchmark_config($pbench_bench_config_dir, $benchmark);
 # ensure we have some basic info from the benchmark configuration
 if (! $bench_config{"controller"} ) {
 	print "There is no 'contoller' section in the benchmark config\n";

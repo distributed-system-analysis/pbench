@@ -1,144 +1,166 @@
 #!/usr/bin/perl
+# -*- mode: perl; indent-tabs-mode: t; perl-indent-level: 4 -*-
+# vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
 #
 # Author: Andrew Theurer
 #
 # This script:
+# - is normally called from pbench-run-benchmark
 # - executes a single sample of a benchmark 
-# - runs any postprocessing to get all data in JSON
-#
-# Benchmarks executions handled by this script
-# benefit from sharing other functions, like methods
-# to copy files to/from client/servers
+# - runs any postprocessing to get all data in CDM
 
 use strict;
 use warnings;
 use File::Basename;
 my $pbench_lib_path;
 BEGIN {
-	$pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
-	chomp $pbench_lib_path;
-	$pbench_lib_path .= "/lib";
+    $pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
+    chomp $pbench_lib_path;
+    $pbench_lib_path .= "/lib";
 }
 use lib "$pbench_lib_path";
 use JSON;
 use File::Temp;
 use Data::Dumper;
-use PbenchBase qw(get_json_file put_json_file get_benchmark_names get_clients get_params get_pbench_bench_config_dir);
-use PbenchAnsible qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success);
-use PbenchCDM qw(create_bench_iter_sample_doc);
+use PbenchBase       qw(get_json_file put_json_file get_benchmark_names get_clients
+                        get_params get_pbench_bench_config_dir load_benchmark_config);
+use PbenchAnsible    qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts
+                        remove_files_from_hosts remove_dir_from_hosts create_dir_hosts
+                        sync_dir_from_hosts verify_success);
+use PbenchCDM        qw(create_bench_iter_sample_doc);
+
 my $pbench_bench_config_dir = get_pbench_bench_config_dir; 
-
-# load a benchmark json file which tells us how to run a benchmark
-sub load_benchmark_config {
-	my $benchmark_name = shift;
-	my $benchmark_spec_file = $pbench_bench_config_dir . "/" . $benchmark_name . ".json";
-	my $json_ref = get_json_file($benchmark_spec_file);
-	return %$json_ref
-}
-
 
 # main program starts here
 
 if (scalar @ARGV < 4) {
-	print "You must supply at least the /path/to/iteration-doc.json, results directory, the base benchmark directory, and the tool group name (in that order):\n";
-	exit;
+    print "You must supply at least the /path/to/iteration-doc.json, results directory, " .
+          "base benchmark directory, and the tool group name (in that order):\n";
+    exit;
 }
 my $iter_doc_filename = shift(@ARGV);
-my $rundir = shift(@ARGV);
-my $base_bench_dir = shift(@ARGV);
+my $sample_dir = shift(@ARGV); # dir for *this* iteration-sample execution
+my $base_dir = shift(@ARGV); # dir for all of the pbench run
 my $tool_group = shift(@ARGV);
-if (! -d $base_bench_dir) {
-	die "The base bench directory $base_bench_dir must already exist";
+if (! -d $base_dir) {
+    die "The base bench directory $base_dir must already exist";
 }
-my $sample_num = 0;
-if ($rundir =~ /.+([0-9])+$/) {
-	$sample_num = $1;
-}
-mkdir($rundir);
+mkdir($sample_dir);
 my $json_ref = get_json_file($iter_doc_filename);
-my %bench_iter = %$json_ref; # this is the CDM doc for this benchmark-iteration
-my %bench_iter_sample_doc = create_bench_iter_sample_doc(\%bench_iter);;
-$bench_iter_sample_doc{'sample'}{'num'} = $sample_num;
-my %bench_specs = load_benchmark_config($bench_iter{'run'}{'bench'}{'name'});
-my $host_type;
-my %remote_hosts; # build a hash of clients and servers which will be used in almost all the steps bewlow
-for $host_type ("client", "server") {
-	if ($bench_iter{'run'}{'bench'}{$host_type . 's'}) {
-		my @hosts = split(/,/, $bench_iter{'run'}{'bench'}{$host_type . 's'});
-		$remote_hosts{$host_type} = \@hosts;
-	}
+my %iteration = %$json_ref; # this is the CDM doc for this benchmark-iteration
+my %sample = create_bench_iter_sample_doc(\%iteration);
+my %specs = load_benchmark_config($pbench_bench_config_dir, $iteration{'run'}{'bench'}{'name'});
+
+my $sample_num = 0;
+if ($sample_dir =~ /.+([0-9])+$/) {
+    $sample_num = $1;
 }
-if (! $remote_hosts{"client"}) {
-	print "There are no clients, exiting\n";
-	exit 1;
+$sample{'sample'}{'num'} = $sample_num;
+
+# build a hash of clients and servers to be used in almost all the steps bewlow
+my %hosts;
+for my $type ("client", "server") {
+    if ($iteration{'run'}{'bench'}{$type . 's'}) {
+        my @hosts = split(/,/, $iteration{'run'}{'bench'}{$type . 's'});
+        $hosts{$type} = \@hosts;
+    }
 }
-# pre-benchmark-execution
-# - verify access to clients and servers
-# - verify required software on clients and server
-# - create rundir on clients and servers
+
+# all benchmarks must use --clients with at least 1 host
+if (! $hosts{"client"}) {
+    print "There are no clients, exiting\n";
+    exit 1;
+}
+
+# pre-benchmark-execution:
+# - verify access to clients and servers (todo)
+# - verify required software on clients and server (todo)
+# - create sample_dir on clients and servers
 # - copy files to clients and servers
-for my $host_type (keys %remote_hosts) {
-	if (scalar @{ $remote_hosts{$host_type} }) {
-		if ($bench_specs{$host_type} and ${bench_specs}{$host_type}{"copy-to"}) {
-			my $result;
-			my $rc;
-			my @files = @{ ${bench_specs}{$host_type}{"copy-to"} };
-			# the end of the dir name gets "-client" or "-server" just in case this host is also a controller or both client and server
-			$result = create_dir_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type, $base_bench_dir);
-			$result = copy_files_to_hosts(\@{ $remote_hosts{$host_type} }, \@files, $rundir . "-" . $host_type, $base_bench_dir);
-		}
-	}
+for my $type (keys %hosts) {
+    if (scalar @{ $hosts{$type} }) {
+        if ($specs{$type} and ${specs}{$type}{"copy-to"}) {
+            my $result;
+            my $rc;
+            my @files = @{ ${specs}{$type}{"copy-to"} };
+            # the end of the dir name gets "-client" or "-server" just in case this host is
+            # also a controller or both client and server
+            $result = create_dir_hosts(\@{ $hosts{$type} }, $sample_dir . "-" .  $type,
+                                       $base_dir);
+            $result = copy_files_to_hosts(\@{ $hosts{$type} }, \@files, $sample_dir . "-" .
+                                          $type, $base_dir);
+        }
+    }
 }
-# - execute pre-benchmark scripts on clients and servers
-#
-# start the tools
-system("pbench-start-tools --iteration=0 --group=" . $tool_group . " --dir=" . $rundir);
-		
-# benchmark-execution
-for $host_type (reverse sort keys %remote_hosts) { # reverse sort ensures "server" is first
-	if ($remote_hosts{$host_type} and scalar @{ $remote_hosts{$host_type} }) {
-		my $cmdline;
-		if ($bench_specs{$host_type}{"bin"}) {
-			$cmdline = $bench_specs{$host_type}{"bin"} . " " . $bench_iter{'iteration'}{'params'};
-		} else {
-			printf "%s->bin does not exist, exiting\n", $host_type;
-			exit 1;
-		}
-		if ($bench_specs{$host_type} and $bench_specs{$host_type}{"param_regex"}) {
-			my $new_cmdline = $cmdline;
-			for my $transform (@{ $bench_specs{$host_type}{"param_regex"} }) {
-				# in order to apply the 's/x/y/' regex from the file, some eval trickery is necessary
-				# todo: first test the $transform regex separately for [perl syntax] errors with eval before doing below
-				$new_cmdline = eval "\$_='$new_cmdline'; $transform; return scalar \$_";
-			}
-			my $result = ssh_hosts(\@{ $remote_hosts{$host_type} }, $new_cmdline, $rundir . "-" . $host_type, $base_bench_dir);
-		}
-	}
+# - execute pre-benchmark scripts on clients and servers (todo)
+
+# start the tools:
+system("pbench-start-tools --iteration=0 --group=" . $tool_group . " --dir=" . $sample_dir);
+        
+# benchmark-execution:
+for my $type (reverse sort keys %hosts) { # reverse so "server" is first
+    if ($hosts{$type} and scalar @{ $hosts{$type} }) {
+        my $cmd;
+        if ($specs{$type}{"bin"}) {
+            $cmd = $specs{$type}{"bin"} . " " .  $iteration{'iteration'}{'params'};
+        } else {
+            printf "%s->bin does not exist, exiting\n", $type;
+            exit 1;
+        }
+        if ($specs{$type} and $specs{$type}{"param_regex"}) {
+            for my $r (@{ $specs{$type}{"param_regex"} }) {
+                # to apply the 's/x/y/' regex from the file, some eval trickery is necessary
+                # todo: first test the $r regex separately for [perl syntax] errors with eval
+                # before doing below
+                $cmd = eval "\$_='$cmd'; $r; return scalar \$_";
+            }
+            my $result = ssh_hosts(\@{ $hosts{$type} }, $cmd, $sample_dir . "-" . $type, $base_dir);
+        }
+    }
 }
 
-# stop & post-process the tools
-system("pbench-stop-tools --iteration=0 --group=" . $tool_group . " --dir=" . $rundir);
+# stop & post-process the tools:
+system("pbench-stop-tools --iteration=0 --group=" . $tool_group . " --dir=" . $sample_dir);
 
-# post-process the tools
-system("pbench-postprocess-tools --iteration=0 --group=" . $tool_group . " --dir=" . $rundir);
+# post-process the tools:
+system("pbench-postprocess-tools --iteration=0 --group=" . $tool_group . " --dir=" . $sample_dir);
 
-# post-benhcmark-execution
+# post-benhcmark-execution:
 # - copy files back to controller
-for $host_type (keys %remote_hosts) {
-	if ($remote_hosts{$host_type} and scalar @{ $remote_hosts{$host_type} }) {
-		mkdir($rundir . "/" . $host_type . "s");
-		my $sync_result = sync_dir_from_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type . "/", $rundir . "/" . $host_type . "s", $base_bench_dir); # adding the "/" ensures the base dir name is not copied
-		my $remove_result = remove_dir_from_hosts(\@{ $remote_hosts{$host_type} }, $rundir . "-" . $host_type, $base_bench_dir);
-	}
+for my $type (keys %hosts) {
+    if ($hosts{$type} and scalar @{ $hosts{$type} }) {
+        mkdir($sample_dir . "/" . $type . "s");
+        my $sync_result = sync_dir_from_hosts(\@{ $hosts{$type} },
+                                              $sample_dir . "-" . $type . "/", #copy-from
+                                              $sample_dir . "/" . $type . "s", #copy-to
+                                              $base_dir);
+                                              # adding the "/" ensures the base dir
+                                              # name is not copied
+        my $remove_result = remove_dir_from_hosts(\@{ $hosts{$type} },
+                                                  $sample_dir . "-" . $type,
+                                                  $base_dir);
+    }
 }
+# - post-process on the client/server, if applicable (todo)
 # - post-process the result data on the controller
-if ($bench_specs{"controller"}{"post-script"} and $bench_specs{"controller"}{"post-script"} ne "") {
-	put_json_file(\%bench_iter_sample_doc, $rundir . "/sample" . ".json"); # post-processing to finish this document
-	my $postprocess_cmd = ". /opt/pbench-agent/base; cd " . $rundir . "; " . $bench_specs{"controller"}{"post-script"} . " " . $rundir . " " . $base_bench_dir . " " . join(" ", @ARGV); # all options get passed to postprocess in case they are needed
-	my $postprocess_output = `$postprocess_cmd`;
-	open(my $fh, ">" . $rundir . "/postprocess-output.txt");
+if ($specs{"controller"}{"post-script"} and $specs{"controller"}{"post-script"} ne "") {
+    # A couple of things about the benchmark post-procesing script:
+    # (1) It is responsible for completing and writing the sample document and creating all period
+    # and metric documents.  It requires a partially completed sample document, that is done below,
+    # to the $sample_dir (./iterationX/sampleY).
+    # (2) Because tool data goes into metric documents, and metric documents generally should be
+    # inherting data from a period document, and those period documents get created by the
+    # benchmark post-processing script, it is up to that benchmark post-processing script to call
+    # pbench-postprocess-tools-cdm and passing the period doc as one of the paramters.
+    put_json_file(\%sample, $sample_dir . "/sample" . ".json");
+    my $postprocess_cmd = ". /opt/pbench-agent/base; cd " . $sample_dir . "; " .
+                          $specs{"controller"}{"post-script"} . " " . $sample_dir . " " .
+                          $base_dir . " " . join(" ", @ARGV); # all params get passed to postprocess
+    my $postprocess_output = `$postprocess_cmd`;
+    open(my $fh, ">" . $sample_dir . "/postprocess-output.txt");
 } else {
-	# If there is no post-processor for the benchmark (there really should be!) then this script will write the bench_iter_saple CDM doc (although not really complete)
-	put_json_file(\%bench_iter_sample_doc, $base_bench_dir . "/es/bench/sample-" . $bench_iter_sample_doc{'sample'}{'id'} . ".json");
-	print "warning: there is no post-script for this benchmark\n";
+    # If there is no post-processor for the benchmark (there really should be!) then this
+    # script will write the saple CDM doc.  This document is not really complete.
+    put_json_file(\%sample, $base_dir . "/es/bench/sample-" . $sample{'sample'}{'id'} . ".json");
+    print "warning: there is no post-script for this benchmark\n";
 }
