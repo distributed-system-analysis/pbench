@@ -1,7 +1,7 @@
 {
     "controller": {
 	"pre-script": "",
-	"post-script": "",
+	"post-script": "/opt/pbench-agent/bench-scripts/postprocess/trafficgen-postprocess-cdm",
 	"parameters": {
 	    "defaults": {
 		"default": [],
