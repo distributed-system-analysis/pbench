@@ -1,5 +1,6 @@
 #!/usr/bin/perl
-# -*- mode: perl; indent-tabs-mode: t; perl-indent-level: 8 -*-
+# -*- mode: perl; indent-tabs-mode: t; perl-indent-level: 4 -*-
+# vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
 # Author: Andrew Theurer
 
 package PbenchBase;
@@ -11,7 +12,10 @@ use Exporter qw(import);
 use List::Util qw(max);
 use JSON;
 
-our @EXPORT_OK = qw(get_json_file put_json_file get_benchmark_names get_clients get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params remove_element get_hostname get_pbench_datetime load_benchmark_config);
+our @EXPORT_OK = qw(get_json_file put_json_file get_benchmark_names get_clients get_pbench_run_dir
+		            get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir
+                    get_benchmark_results_dir get_params remove_params remove_element get_hostname
+                    get_pbench_datetime load_benchmark_config);
 my $script = "PbenchBase.pm";
 my $sub;
 
@@ -20,23 +24,29 @@ sub get_hostname {
 	chomp $hostname;
 	return $hostname;
 }
+
 sub get_pbench_run_dir {
 	my $dir = `getconf.py pbench_run pbench-agent`; # typically /var/lib/pbench-agent
 	chomp $dir;
 	return $dir;
 }
+
 sub get_pbench_install_dir {
 	my $dir = `getconf.py install-dir pbench-agent`; # typically /var/lib/pbench-agent
 	chomp $dir;
 	return $dir;
 }
+
 sub get_pbench_config_dir {
 	return get_pbench_install_dir() . "/config";
 }
+
 sub get_pbench_bench_config_dir {
 	return get_pbench_install_dir() . "/config/benchmark";
 }
-sub get_params { # this simply takes @ARGV-like array and returns a hash with key=argument and value=value
+
+# Process @ARGV-like array and return a hash with key=argument and value=value
+sub get_params {
 	my %params;
 	for my $param (@_) {
 		if ($param =~ /--(\S+)=(.+)/) {
@@ -45,6 +55,7 @@ sub get_params { # this simply takes @ARGV-like array and returns a hash with ke
 	}
 	return %params;
 }
+
 sub remove_element { # remove first occurrance of value in array
 	my $argv_ref = shift; # array to remove element from
 	my $val = shift; # the value to search for and remove
@@ -57,6 +68,7 @@ sub remove_element { # remove first occurrance of value in array
 		$index++;
 	}
 }
+
 sub remove_params { # remove any parameters with "arg"
 	my $argv_ref = shift;
 	my @args = @_;
@@ -72,8 +84,8 @@ sub remove_params { # remove any parameters with "arg"
 		}
 	}
 }
-# read a json file and put in hash
-# the return value is a reference
+
+# Read a json file and put in hash the return value is a reference
 sub get_json_file {
 	$sub = "get_json()";
 	my $filename = shift;
@@ -82,7 +94,7 @@ sub get_json_file {
 	my $junk_mode = 1;
 	while ( <JSON> ) {
 		if ($junk_mode) {
-			if ( /(.*)(\{.*)/ ) { # ignore any junk before the "{"
+			if ( /(.*)(\{.*)/ ) { # Ignore any junk before the "{"
 				$junk_mode = 0;
 				my $junk = $1;
 				my $not_junk = $2;
@@ -96,6 +108,7 @@ sub get_json_file {
 	my $perl_scalar = from_json($json_text);
 	return $perl_scalar;
 }
+
 sub put_json_file {
 	my $doc_ref = shift;
 	my $filename = shift;
@@ -104,13 +117,13 @@ sub put_json_file {
 	print $fh $json_text;
 	close($fh);
 }
-# find all the benchmarks in the pbench configuraton data
+
+# Find all the benchmarks in the pbench configuraton data
 # todo: return as an array instead of printing
 sub get_benchmark_names {
-	$sub = "get_benchmark_names()";
 	my $dir = shift;
 	my @benchmarks;
-	opendir(my $dh, $dir) || die("$script $sub: Could not open directory $dir: $!\n");
+	opendir(my $dh, $dir) || die("Could not open directory $dir: $!\n");
 	my @entries = readdir($dh);
 	for my $entry (grep(!/pbench/, @entries)) {
 		if ($entry =~ /^(\w+)\.json$/) {
@@ -119,7 +132,8 @@ sub get_benchmark_names {
 	}
 	return @benchmarks;
 }
-# scan the cmdline and return an array of client hostnames in --clients= if present
+
+# Scan the cmdline and return an array of client hostnames in --clients= if present
 sub get_clients {
 	my @clients;
 	for my $param (@_) {
@@ -129,12 +143,14 @@ sub get_clients {
 	}
 	return @clients;
 }
+
 sub get_pbench_datetime { #our common date & time forma
 	my $datetime = `date --utc +"%Y.%m.%dT%H.%M.%S"`;
 	chomp $datetime;
 	return $datetime;
 }
-# get a new benchmark directory -needed if you are going to run a benchmark
+
+# Get a new benchmark directory -needed if you are going to run a benchmark
 sub get_benchmark_results_dir {
 	my $benchmark = shift;
 	my $config = shift;
@@ -143,7 +159,7 @@ sub get_benchmark_results_dir {
 	my $benchdir = $basedir . "/" . $benchmark . "_" . $config . "_" . $datetime;
 }
 
-# load a benchmark json file which tells us how to run a benchmark
+# Load a benchmark json file which tells us how to run a benchmark
 sub load_benchmark_config {
 	my $pbench_bench_config_dir = shift;
 	my $benchmark_name = shift;
