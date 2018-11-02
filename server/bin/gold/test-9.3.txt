@@ -4,14 +4,14 @@ Index:  pbench-unittests-server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "82e61b53fc59d5694e7af0bc86cbebd0",
+        "_id": "7f66731b6847036f53c300b2833a67f4",
         "_index": "pbench-unittests-server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
             "doctype": "status",
             "name": "pbench-verify-backup-tarballs",
-            "text": "pbench-verify-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n* Files that exist only in backup directory - this should only happen if a backup or primary tar ball becomes corrupted.\n4fe570aea2be3dab96b328da5a8cfcc9  ./controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz\n"
+            "text": "pbench-verify-backup-tarballs.py.run-1900-01-01T00:00:00-UTC(unit-test)\ncontroller/fio__2016-08-16_22:03:11.tar.xz: present in BACKUP but not in ARCHIVE\ncontroller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: present in ARCHIVE but not in S3\n"
         },
         "_type": "pbench-server-reports"
     }
@@ -78,8 +78,8 @@ lrwxrwxrwx         71 users -> /var/tmp/pbench-test-server/test-9.3/pbench-satel
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/controller
--rw-r--r--    1558168 archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz
--rw-r--r--         66 archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz.md5
+-rw-r--r--       7028 archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
+-rw-r--r--         86 archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
@@ -115,10 +115,9 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--        318 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-report-status
--rw-rw-r--        744 logs/pbench-report-status/pbench-report-status.log
+-rw-rw-r--        372 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - logs/pbench-verify-backup-tarballs
--rw-rw-r--          0 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.error
--rw-rw-r--         58 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
+-rw-rw-r--        652 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -129,6 +128,10 @@ drwxrwxr-x          - quarantine/errors-001
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - s3-backup
+drwxrwxr-x          - s3-backup/testbucket
+-rw-r--r--       7028 s3-backup/testbucket/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
+-rw-r--r--         86 s3-backup/testbucket/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
 drwxrwxr-x          - tmp
 --- pbench-local tree state
 +++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-9.3/pbench-satellite)
@@ -187,14 +190,12 @@ end-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test
 +++++ pbench-report-status/pbench-report-status.log
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-report-status/pbench-report-status.log
-+++++ pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.error
------ pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.error
 +++++ pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
-start-1900-01-01T00:00:00-UTC
-end-1900-01-01T00:00:00-UTC
+1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- start-run-1900-01-01T00:00:00-UTC
+1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- end-1900-01-01T00:00:00-UTC
 ----- pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs

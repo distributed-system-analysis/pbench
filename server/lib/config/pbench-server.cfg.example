@@ -19,6 +19,13 @@ index_prefix = pbench
 index_version = 1
 bulk_action_count = 2000
 
+
+[pbench-server-backup]
+endpoint_url = <the URL of the S3 object store to be used>
+access_key_id = <the S3 object store access key ID provided by an administrator>
+secret_access_key = <the S3 object store secret access key provided by an administrator>
+bucket_name = <the name of an S3 bucket which will contain all of the tar ball objects after they are backed up>
+
 ###########################################################################
 # crontab roles
 #

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 mkdir pbench-local/archive.backup || exit $?
+mkdir -p pbench-local/s3-backup/testbucket || exit $?
 
 # Move the incoming tree to the side
 mv pbench-satellite/public_html/incoming pbench-satellite/public_html/no-incoming || $?

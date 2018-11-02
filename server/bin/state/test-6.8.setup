@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Move the archive tree to the side
+mkdir -p pbench-local/s3-backup/testbucket
+mv pbench-local/s3-backup pbench-local/no-s3-backup || exit $?
+exit $?

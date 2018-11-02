@@ -8,6 +8,7 @@ import sys, os, time, json, errno, logging, math, configtools, glob, shutil, \
 from datetime import datetime
 from random import SystemRandom
 from collections import Counter, deque
+from functools import partial
 from configparser import ConfigParser, NoSectionError, NoOptionError
 from urllib3 import Timeout, exceptions as ul_excs
 try:
@@ -232,7 +233,7 @@ class PbenchConfig(object):
                 " TO-LINK" \
                 " TO-INDEX INDEXED WONT-INDEX" \
                 " TO-COPY-SOS COPIED-SOS" \
-                " TO-BACKUP" \
+                " TO-BACKUP TO-BACKUP-LARGE BACKED-UP" \
                 " SATELLITE-MD5-PASSED SATELLITE-MD5-FAILED" \
                 " TO-DELETE SATELLITE-DONE"
         # List of the state directories which will be excluded during rsync.
@@ -262,6 +263,52 @@ def _gen_json_payload(file_to_index, timestamp, name, doctype):
     the_bytes = json.dumps(source, sort_keys=True).encode('utf-8')
     source_id = hashlib.md5(the_bytes).hexdigest()
     return source, source_id, the_bytes.decode('utf-8'), len(the_bytes)
+
+
+def md5sum(filename):
+    """
+    Return the MD5 check-sum of a given file.
+    We don't want to read the entire file into memory.
+    """
+    with open(filename, mode='rb') as f:
+        d = hashlib.md5()
+        for buf in iter(partial(f.read, 128), b''):
+            d.update(buf)
+    return d.hexdigest()
+
+
+def _rename_tb_link(tb, dest, logger):
+    try:
+        os.mkdir(dest)
+    except FileExistsError:
+        # directory already exists, ignore
+        pass
+    except Exception:
+        logger.exception(
+            "os.mkdir: Unable to create tar ball destination directory: {}".format(dest))
+        raise
+    tbname = os.path.basename(tb)
+    tbnewname = os.path.join(dest, tbname)
+    try:
+        os.rename(tb, tbnewname)
+    except Exception:
+        logger.exception(
+            "os.rename: Unable to move tar ball link {} to destination directory: {}".format(tb, dest))
+        raise
+
+def init_report_template(config, logger):
+    try:
+        es = get_es(config, logger)
+        idx_prefix = config.get('Indexing', 'index_prefix')
+    except Exception:
+        # If we don't have an Elasticsearch configuration just pass None
+        es = None
+        idx_prefix = None
+    else:
+        _dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+        templates = PbenchTemplates(_dir, idx_prefix, logger)
+        templates.update_templates(es, 'server-reports')
+    return (es, idx_prefix)
 
 def report_status(es, logger, LOGSDIR, idx_prefix, name, timestamp, doctype, file_to_index):
     try:

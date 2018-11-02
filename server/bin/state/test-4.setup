@@ -1,6 +1,7 @@
 #!/bin/bash
 
 mkdir pbench-local/archive.backup || exit $?
+mkdir -p pbench-local/s3-backup/testbucket || exit $?
 
 # Move the users tree to the side
 mv pbench/public_html/users pbench/public_html/no-users || exit $?

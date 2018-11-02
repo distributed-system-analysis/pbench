@@ -20,7 +20,7 @@ install:
   - sudo apt-get install python3.6 --force-yes -y
   - sudo wget -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py
   - sudo python3.6 /tmp/get-pip.py
-  - sudo pip install 'configtools<0.4.0' elasticsearch
+  - sudo pip install 'configtools<0.4.0' elasticsearch sh boto3
   - sudo ln -sf python3.6 /usr/bin/python3
   - sudo apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg
   - sudo echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
