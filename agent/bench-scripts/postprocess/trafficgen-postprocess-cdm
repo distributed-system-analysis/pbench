@@ -23,74 +23,76 @@ my $rundir = shift(@ARGV);
 my $base_bench_dir = shift(@ARGV);
 
 my @trial_metrics = (
+    { 'key' => 'result',
+      'class' => 'pass/fail',
+      'type' => 'trial-result',
+      'name_format' => '' }
+
+    );
+
+my @trial_stats_metrics = (
     { 'key' => 'global',
       'field' => 'runtime',
       'class' => 'count',
       'type' => 'trial-runtime-in-seconds',
-      'name_format' => '-%port_pair%' },
+      'name_format' => '' }
 
-    { 'key' => 'port-index',
-      'port-index-type' => 'rx',
+    );
+
+my @trial_stats_device_metrics = (
+    { 'key' => 'rx',
       'field' => 'rx_latency_maximum',
       'class' => 'count',
       'type' => 'maximum-rx-packet-roundtrip-latency-in-microseconds',
-      'name_format' => '-%port_pair%-%rx_port%' },
+      'name_format' => '_%port_pair%_%rx_port%' },
 
-    { 'key' => 'port-index',
-      'port-index-type' => 'rx',
+    { 'key' => 'rx',
       'field' => 'rx_latency_average',
       'class' => 'count',
       'type' => 'average-rx-packet-roundtrip-latency-in-microseconds',
-      'name_format' => '-%port_pair%-%rx_port%' },
+      'name_format' => '_%port_pair%_%rx_port%' },
 
-    { 'key' => 'port-index',
-      'port-index-type' => 'tx',
+    { 'key' => 'tx',
       'field' => 'tx_l2_bps',
       'class' => 'throughput',
       'type' => 'average-l2-tx-throughput-in-bps',
-      'name_format' => '-%port_pair%-%tx_port%' },
+      'name_format' => '_%port_pair%_%tx_port%' },
     
-    { 'key' => 'port-index',
-      'port-index-type' => 'tx',
+    { 'key' => 'tx',
       'field' => 'tx_l1_bps',
       'class' => 'throughput',
       'type' => 'average-l1-tx-throughput-in-bps',
-      'name_format' => '-%port_pair%-%tx_port%' },
+      'name_format' => '_%port_pair%_%tx_port%' },
 
-    { 'key' => 'port-index',
-      'port-index-type' => 'rx',
+    { 'key' => 'rx',
       'field' => 'rx_l2_bps',
       'class' => 'throughput',
       'type' => 'average-l2-rx-throughput-in-bps',
-      'name_format' => '-%port_pair%-%rx_port%' },
+      'name_format' => '_%port_pair%_%rx_port%' },
     
-    { 'key' => 'port-index',
-      'port-index-type' => 'rx',
+    { 'key' => 'rx',
       'field' => 'rx_l1_bps',
       'class' => 'throughput',
       'type' => 'average-l1-rx-throughput-in-bps',
-      'name_format' => '-%port_pair%-%rx_port%' },
+      'name_format' => '_%port_pair%_%rx_port%' },
 
-    { 'key' => 'port-index',
-      'port-index-type' => 'rx',
+    { 'key' => 'rx',
       'field' => 'rx_pps',
       'class' => 'throughput',
       'type' => 'average-rx-packet-throughput-in-pps',
-      'name_format' => '-%port_pair%-%rx_port%' },
+      'name_format' => '_%port_pair%_%rx_port%' },
 
-    { 'key' => 'port-index',
-      'port-index-type' => 'tx',
+    { 'key' => 'tx',
       'field' => 'tx_pps',
       'class' => 'throughput',
       'type' => 'average-tx-packet-throughput-in-pps',
-      'name_format' => '-%port_pair%-%tx_port%' },
+      'name_format' => '_%port_pair%_%tx_port%' },
 
-    { 'key' => 'port-index',
-      'port-index-type' => 'rx',
+    { 'key' => 'rx',
       'field' => 'rx_lost_pps',
       'class' => 'throughput',
       'type' => 'average-lost-rx-packet-throughput-in-pps',
-      'name_format' => '-%port_pair%-%rx_port%' },
+      'name_format' => '_%port_pair%_%rx_port%' },
 
     );
 
@@ -118,11 +120,12 @@ for my $client_hostname (@client_hostname_dirs) {
 	my $prev_period_id;
 	for (my $index=0; $index<scalar(@{ $$bs_json_ref{'trials'} }); $index++) {
 	    my %trial = %{ $$bs_json_ref{'trials'}[$index] };
+
+	    # convert timestamps from seconds to milliseconds
 	    $trial{'stats'}{'trial_start'} *= 1000;
 	    $trial{'stats'}{'trial_stop'} *= 1000;
 
 	    printf "TRIAL COUNTER: %d\n", $trial{'trial'};
-
 	    print Dumper \%trial;
 
 	    my $period_name = "trial-" . $trial{'trial'};
@@ -135,27 +138,43 @@ for my $client_hostname (@client_hostname_dirs) {
 
 	    foreach my $dev_pair ( @{ $trial{'trial_params'}{'test_dev_pairs'} } ) {
 		for my $trial_metric ( @trial_metrics ) {
-		    if ($$trial_metric{'key'} eq 'port-index') {
-			if (exists $$trial_metric{'port-index-type'}) {
-			    if ($$trial_metric{'port-index-type'} eq 'tx') {
-				$$trial_metric{'key'} = $$dev_pair{'tx'};
-			    } elsif ($$trial_metric{'port-index-type'} eq 'rx') {
-				$$trial_metric{'key'} = $$dev_pair{'rx'};
-			    } else {
-				next;
-			    }
-			} else {
-			    next;
-			}
-		    }
-
 		    my %metric_sample = create_metric_sample_doc(\%bench_iter_sample_period,
 								 $$trial_metric{'class'},
 								 $$trial_metric{'type'},
 								 $client_hostname,
 								 "trafficgen",
-								 "%source%-%hostname%-%type%" . $$trial_metric{'name_format'},
-								 $trial{'stats'}{$$trial_metric{'key'}}{$$trial_metric{'field'}},
+								 "%source%_%hostname%_%type%" . $$trial_metric{'name_format'},
+								 $trial{$$trial_metric{'key'}},
+								 $trial{'stats'}{'trial_stop'});
+		    $metric_sample{'metric'}{'begin'} = $trial{'stats'}{'trial_start'};
+
+		    put_json_file(\%metric_sample, "../../es/metrics/" . $client_hostname . "/metric-" .
+				  $metric_sample{'metric'}{'id'} . ".json");
+		}
+
+		for my $trial_stats_metric ( @trial_stats_metrics ) {
+		    my %metric_sample = create_metric_sample_doc(\%bench_iter_sample_period,
+								 $$trial_stats_metric{'class'},
+								 $$trial_stats_metric{'type'},
+								 $client_hostname,
+								 "trafficgen",
+								 "%source%_%hostname%_%type%" . $$trial_stats_metric{'name_format'},
+								 $trial{'stats'}{$$trial_stats_metric{'key'}}{$$trial_stats_metric{'field'}},
+								 $trial{'stats'}{'trial_stop'});
+		    $metric_sample{'metric'}{'begin'} = $trial{'stats'}{'trial_start'};
+
+		    put_json_file(\%metric_sample, "../../es/metrics/" . $client_hostname . "/metric-" .
+				  $metric_sample{'metric'}{'id'} . ".json");
+		}
+
+		for my $trial_stats_device_metric ( @trial_stats_device_metrics ) {
+		    my %metric_sample = create_metric_sample_doc(\%bench_iter_sample_period,
+								 $$trial_stats_device_metric{'class'},
+								 $$trial_stats_device_metric{'type'},
+								 $client_hostname,
+								 "trafficgen",
+								 "%source%_%hostname%_%type%" . $$trial_stats_device_metric{'name_format'},
+								 $trial{'stats'}{$$dev_pair{$$trial_stats_device_metric{'key'}}}{$$trial_stats_device_metric{'field'}},
 								 $trial{'stats'}{'trial_stop'});
 		    $metric_sample{'metric'}{'begin'} = $trial{'stats'}{'trial_start'};
 
