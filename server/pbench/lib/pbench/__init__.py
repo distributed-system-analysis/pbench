@@ -19,6 +19,7 @@ def tstos(ts=None):
 
 _r = SystemRandom()
 _MAX_SLEEP_TIME = 120
+_MAX_ERRMSG_LENGTH = 16384
 
 def calc_backoff_sleep(backoff):
     global _r
@@ -227,8 +228,12 @@ def es_index(es, actions, errorsfp, dbg=0):
             status = resp['status']
         except KeyError as e:
             assert not ok
-            # resp is not of expected form
-            print(resp)
+            # resp is not of expected form.
+            # set it to the complete payload, so that
+            # it can be reported below.
+            resp = resp_payload
+            # Limit the length of the error message.
+            print("es_index: ERROR %r" % (e), file=sys.stderr)
             status = 999
         else:
             assert action['_id'] == resp['_id']
@@ -248,8 +253,9 @@ def es_index(es, actions, errorsfp, dbg=0):
                 errorsfp.flush()
                 failures += 1
             else:
-                # Retry all other errors
-                print(resp)
+                # Retry all other errors.
+                # Limit the length of the error message.
+                print("es_index: WARNING - retrying action \n%s" % (json.dumps(resp, indent=4)[:_MAX_ERRMSG_LENGTH]), file=sys.stderr)
                 actions_retry_deque.append((retry_count + 1, action))
 
     end = _do_ts()
