@@ -2,7 +2,8 @@
 
 # This script collects tarballs in TO-SYNC state and packages
 # them up as a single tarball on its standard output.
-# WARNING; Do not put anything in here that will pollute the
+
+# *WARNING*: Do not put anything in here that will pollute the
 # standard output!
 
 # load common things
@@ -57,14 +58,14 @@ calculate_md5_prefix () {
                 echo "$tar"
                 echo "$tar.md5"
             else
-                echo Failed: "$remotearchive/$tar" exist but "$remotearchive/$tar.md5" not exist >> $tmp/mail.log
+                echo Failed: "$remotearchive/$tar" exist but "$remotearchive/$tar.md5" not exist >&4
             fi
             prefix=$(calculate_prefixname $tar)
             if [ -s $remotearchive/$prefix ]; then
                 echo "$prefix"
             fi
         else
-            echo Failed: "$remotearchive/$tar" not exist >> $tmp/mail.log
+            echo Failed: "$remotearchive/$tar" not exist >&4
         fi
     done
 }
@@ -83,24 +84,9 @@ if [[ $status != 0 ]] ;then
     exit 2
 fi
 
-typeset -i nerrs=0
-typeset -i nprocessed=0
-
-nprocessed=$(wc -l < $tmp/files-to-sync)
-if [ -s $tmp/mail.log ]; then
-    nerrs=$(wc -l < $tmp/mail.log)
-fi
-
-# if there are errors, send mail
-if [ "$nerrs" -gt 0 ]  ;then
-    index_content=$tmp/index_mail_contents
-    cat << EOF > $index_content
-$PROG: Processed $nprocessed result tar balls, with $nerrs errors
-
-EOF
-    cat $tmp/mail.log >> $index_content
-    pbench-report-status --name $PROG --timestamp $TS --type status $index_content
-fi
-
 log_finish
+
+# do not report anything here: pbench-sync-satellite on the master
+# will do all the reporting necessary.
+
 exit 0

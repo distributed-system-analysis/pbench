@@ -232,15 +232,13 @@ echo "$TS: $summary_text"
 
 log_finish
 
-if [ $nerrs -gt 0 ]; then
-    subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
-    cat << EOF > $index_content
+subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
+cat << EOF > $index_content
 $subj
 $summary_text
 
 EOF
-    cat $mail_content >> $index_content
-    pbench-report-status --name $PROG --timestamp $TS --type status $index_content
-fi
+cat $mail_content >> $index_content
+pbench-report-status --name $PROG --timestamp $TS --type status $index_content
 
 exit 0

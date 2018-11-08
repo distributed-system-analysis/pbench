@@ -119,9 +119,16 @@ drwxrwxr-x          - tmp
 /var/tmp/pbench-test-server/pbench-local/logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log:run-1900-01-01T00:00:00-UTC: pbench-satellite-cleanup ends: Total 6 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.
 --- pbench log file contents
 +++ test-execution.log file contents
+curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-satellite-cleanup.1900-01/status/2e17f1381c38036b7b8355938bfaa31b --data @/tmp/pbench-report-status.NNNN/payload
 curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/5410fceac5a16fbd3293a70c3f2e24de --data @/tmp/pbench-report-status.NNNN/payload
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
+{
+    "text": "pbench-satellite-cleanup.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 total errors\nTotal 6 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.\n\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-satellite-cleanup",
+    "doctype": "status"
+}
 {
     "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nController: controller-a\n\t* No tar ball files found in this controller directory.\n\n\nController: controller-b\n\t* No tar ball files found in this controller directory.\n\n\nController: controller-c\n\t* No tar ball files found in this controller directory.\n\n\nend-1900-01-01T00:00:00-UTC\n",
     "@timestamp": "1900-01-01T00:00:00",

@@ -678,12 +678,19 @@ curl --silent --show-error -XPOST -H Content-Type: application/json --output /tm
 curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-server-prep-shim-002.1900-01/status/31a988210798171c675680f455a7020e --data @/tmp/pbench-report-status.NNNN/payload
 ssh pbench-satellite.example.com /var/tmp/pbench-test-server/opt/pbench-server-satellite/bin/pbench-sync-package-tarballs
 ssh pbench-satellite.example.com /var/tmp/pbench-test-server/opt/pbench-server-satellite/bin/pbench-satellite-state-change /var/tmp/pbench-test-server/pbench-satellite/archive/fs-version-001
-curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-sync-satellite.1900-01/status/691ed5441ce78950c1270e1461d40ed0 --data @/tmp/pbench-report-status.NNNN/payload
+curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-sync-satellite.1900-01/status/98be1841881bfe9128ccb0380c2bf90c --data @/tmp/pbench-report-status.NNNN/payload
 curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-dispatch.1900-01/status/052e5a7ec7cd89ea0dd298b637586d86 --data @/tmp/pbench-report-status.NNNN/payload
+curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-unpack-tarballs.1900-01/status/33ff70f662b4b3e6c48bdd4681ac15c3 --data @/tmp/pbench-report-status.NNNN/payload
+curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-move-unpacked.1900-01/status/02e8c29ae57509b77842f7d16ed4255f --data @/tmp/pbench-report-status.NNNN/payload
+curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-copy-sosreports.1900-01/status/a24fe3401f2818f9832408314d0bf64f --data @/tmp/pbench-report-status.NNNN/payload
 curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01/status/401168a2eb31ecd1cb880c5a42be9c7c --data @/tmp/pbench-report-status.NNNN/payload
 rsync -va --stats --exclude=_QUARANTINED --exclude=TODO --exclude=BAD-MD5 --exclude=TO-UNPACK --exclude=UNPACKED --exclude=MOVED-UNPACKED --exclude=TO-SYNC --exclude=SYNCED --exclude=TO-LINK --exclude=TO-INDEX --exclude=INDEXED --exclude=WONT-INDEX --exclude=TO-COPY-SOS --exclude=COPIED-SOS --exclude=TO-BACKUP --exclude=SATELLITE-MD5-PASSED --exclude=SATELLITE-MD5-FAILED --exclude=TO-DELETE --exclude=SATELLITE-DONE --exclude=WONT-INDEX.1 --exclude=WONT-INDEX.2 --exclude=WONT-INDEX.3 --exclude=WONT-INDEX.4 --exclude=WONT-INDEX.5 --exclude=WONT-INDEX.6 --exclude=WONT-INDEX.7 --exclude=WONT-INDEX.8 --exclude=WONT-INDEX.9 --exclude=WONT-INDEX.10 --exclude=WONT-INDEX.11 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/ /var/tmp/pbench-test-server/pbench-local/archive.backup
 curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-backup-tarballs.1900-01/status/7266455a55c9f5f6e48fd95a50e64590 --data @/tmp/pbench-report-status.NNNN/payload
 curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-verify-backup-tarballs.1900-01/status/0e73d0d7e1287b71e63271d2b4d8efa2 --data @/tmp/pbench-report-status.NNNN/payload
+mailx -s pbench-satellite-cleanup status report at 1900-01-01T00:00:00-UTC admins@example.com
+pbench-satellite-cleanup.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 total errors
+Total 3 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.
+
 curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/12faf2466a4e3ccbafb1b0299ac10d78 --data @/tmp/pbench-report-status.NNNN/payload
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
@@ -700,7 +707,7 @@ curl --silent --show-error -XPOST -H Content-Type: application/json --output /tm
     "doctype": "status"
 }
 {
-    "text": "pbench-sync-satellite: ONE: 3 files processed, with 0 md5 failures, and 0 errors\n\nrun-1900-01-01T00:00:00-UTC: start - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: remote tarballs fetched, unpacking ... - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: remote tarballs unpacked - 1900-01-01T00:00:00-UTC\npbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)\npbench-sync-satellite: completed satellite state changes\nrun-1900-01-01T00:00:00-UTC: end - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: duration (secs): 0\nrun-1900-01-01T00:00:00-UTC: Total 3 files processed, with 0 md5 failures and 0 errors\n",
+    "text": "pbench-sync-satellite.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nRemote ONE: processed 3 files, with 0 md5 failures and 0 errors.\n\nrun-1900-01-01T00:00:00-UTC: start - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: remote tarballs fetched, unpacking ... - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: remote tarballs unpacked - 1900-01-01T00:00:00-UTC\npbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)\npbench-sync-satellite: completed satellite state changes\nrun-1900-01-01T00:00:00-UTC: end - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: duration (secs): 0\nrun-1900-01-01T00:00:00-UTC: Total 3 files processed, with 0 md5 failures and 0 errors\n",
     "@timestamp": "1900-01-01T00:00:00",
     "name": "pbench-sync-satellite",
     "doctype": "status"
@@ -709,6 +716,24 @@ curl --silent --show-error -XPOST -H Content-Type: application/json --output /tm
     "text": "pbench-dispatch.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 2 errors\nProcessed 10 result tar balls, 7 successfully (0 partial), with 2 errors, and 1 duplicates\n\nrun-1900-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller-d-duplicate/TODO/tarball-that-does-not-exist_YYYY.MM.DDTHH.MM.SS.tar.xz does not exist\nrun-1900-01-01T00:00:00-UTC: MD5 check of /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller-h-bad-md5/tarball-bad-md5_YYYY.MM.DDTHH.MM.SS.tar.xz failed for /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller-h-bad-md5/TODO/tarball-bad-md5_YYYY.MM.DDTHH.MM.SS.tar.xz\n",
     "@timestamp": "1900-01-01T00:00:00",
     "name": "pbench-dispatch",
+    "doctype": "status"
+}
+{
+    "text": "pbench-unpack-tarballs.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 7 result tar balls, 7 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-unpack-tarballs",
+    "doctype": "status"
+}
+{
+    "text": "pbench-move-unpacked.run-1900-01-01T00:00:00-UTC(unit-test) - 7 tar balls\nProcessed 7 result tar balls\n\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-move-unpacked",
+    "doctype": "status"
+}
+{
+    "text": "pbench-copy-sosreports.run-1900-01-01T00:00:00-UTC(unit-test)\nProcessed 0 sosreports for 7 results directories with 0 errors\n",
+    "@timestamp": "1900-01-01T00:00:00",
+    "name": "pbench-copy-sosreports",
     "doctype": "status"
 }
 {
