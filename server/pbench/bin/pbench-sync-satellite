@@ -283,14 +283,13 @@ echo "$TS: end - $(timestamp)" | tee -a $mail_content
 echo "$TS: duration (secs): $duration" | tee -a $mail_content
 echo "$TS: Total $nprocessed files processed, with $nfailed_md5 md5 failures and $nerrs errors" | tee -a $mail_content
 
-# if we processed any files, or there were errors, mail the report
-if [ "$nprocessed" -gt 0 -o "$nfailed_md5" -gt 0 -o "$nerrs" -gt 0 ]  ;then
-    cat << EOF > $index_content
-$PROG: $remote_prefix: $nprocessed files processed, with $nfailed_md5 md5 failures, and $nerrs errors
+subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
+cat << EOF > $index_content
+$subj
+Remote $remote_prefix: processed $nprocessed files, with $nfailed_md5 md5 failures and $nerrs errors.
 
 EOF
-    cat $mail_content >> $index_content
-    pbench-report-status --name $PROG --timestamp $TS --type status $index_content
-fi
+cat $mail_content >> $index_content
+pbench-report-status --name $PROG --timestamp $TS --type status $index_content
 
 exit 0

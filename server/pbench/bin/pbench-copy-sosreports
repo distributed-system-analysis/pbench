@@ -186,17 +186,15 @@ echo "$TS: ending at $(timestamp), processed $ntotal sosreports for $nresults re
 
 log_finish
 
-if [[ $ntotal -gt 0 || $nerrs -gt 0 ]]; then
-    if [[ $nerrs -gt 0 ]]; then
-        subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
-    else
-        subj="$PROG.$TS($PBENCH_ENV)"
-    fi
-    cat << EOF > $index_content
+if [[ $nerrs -gt 0 ]]; then
+    subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
+else
+    subj="$PROG.$TS($PBENCH_ENV)"
+fi
+cat << EOF > $index_content
 $subj
 Processed $ntotal sosreports for $nresults results directories with $nerrs errors
 EOF
-    pbench-report-status --name $PROG --timestamp $TS --type status $index_content
-fi
+pbench-report-status --name $PROG --timestamp $TS --type status $index_content
 
 exit 0

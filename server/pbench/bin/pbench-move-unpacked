@@ -243,15 +243,13 @@ echo "$TS: Processed $ntb tar balls"
 
 log_finish
 
-if [[ -s $mail_content ]]; then
-    subj="$PROG.$TS($PBENCH_ENV) - $ntb tar balls"
-    cat << EOF > $index_content
+subj="$PROG.$TS($PBENCH_ENV) - $ntb tar balls"
+cat << EOF > $index_content
 $subj
 Processed $ntb result tar balls
 
 EOF
-    cat $mail_content >> $index_content
-    pbench-report-status --name $PROG --timestamp $TS --type status $index_content
-fi
+cat $mail_content >> $index_content
+pbench-report-status --name $PROG --timestamp $TS --type status $index_content
 
 exit 0

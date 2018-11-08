@@ -162,15 +162,13 @@ log_finish
 
 nerrs=$ntberrs+$nmd5errs+$nstateerrs+$nincomingerrs+$nresultserrs+$nprefixerrs
 
-if [[ $nerrs -gt 0 ]]; then
-    subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs total errors"
-    cat << EOF > $index_content
+subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs total errors"
+cat << EOF > $index_content
 $subj
 $summary
 
 EOF
-    cat $mail_content >> $index_content
-    pbench-report-status --name $PROG --timestamp $TS --type status $index_content
-fi
+cat $mail_content >> $index_content
+pbench-report-status --name $PROG --timestamp $TS --type status $index_content
 
 exit 0
