@@ -107,9 +107,16 @@ md5=$(md5sum $file | cut -d' ' -f1)
 # drop the -UTC spec from the timestamp: the ES date parser does not like it
 $dir/pbench-gen-json-payload ${timestamp%-*} $name $doctype $file > ${tmp}/payload
 
-curl -XPOST -H 'Content-Type: application/json' "http://$server/$index/$doctype/$md5" --data @"${tmp}/payload" >> ${tmp}/log 2>&1
+>${tmp}/http_code
+>${tmp}/response_body
+curl --silent --show-error -XPOST -H 'Content-Type: application/json' --output ${tmp}/response_body --write-out "%{http_code}" "http://$server/$index/$doctype/$md5" --data @"${tmp}/payload" > ${tmp}/http_code 2>> ${tmp}/log
 status=$?
-
-echo >> ${tmp}/log
+if [ ${status} -ne 0 -o "$(cat ${tmp}/http_code)" != "201" ]; then
+    echo "${prog}: curl failed (exit code: \"${status}\", HTTP code: \"$(cat ${tmp}/http_code 2> /dev/null)\")" >> ${tmp}/log
+    if [ -s ${tmp}/response_body ]; then
+        echo "Response body:" >> ${tmp}/log
+        cat ${tmp}/response_body >> ${tmp}/log 2> /dev/null && echo >> ${tmp}/log
+    fi
+fi
 
 exit $status
