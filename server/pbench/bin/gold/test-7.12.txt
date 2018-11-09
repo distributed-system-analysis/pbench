@@ -75,10 +75,10 @@ drwxrwxr-x          - public_html/users
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--          1 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--     112852 logs/pbench-index/pbench-index.log
+-rw-rw-r--     112851 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -115,7 +115,6 @@ drwxrwxr-x          - quarantine/md5-002
 drwxrwxr-x          - tmp
 --- pbench-satellite-local tree state
 +++ pbench log file contents
-/var/tmp/pbench-test-server/pbench-local/logs/pbench-audit-server/pbench-audit-server.log:
 /var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:   1900-01-01T00:00:00-UTC: Starting /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/TO-INDEX/pbench-user-benchmark__2018.02.05T20.35.36.tar.xz (size 5264916)
 /var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:Template:  pbench-unittests.run
@@ -3074,11 +3073,10 @@ drwxrwxr-x          - tmp
 /var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: controller/pbench-user-benchmark__2018.02.05T20.35.36: success
 /var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:   1900-01-01T00:00:00-UTC: Finished /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/TO-INDEX/pbench-user-benchmark__2018.02.05T20.35.36.tar.xz (size 5264916)
 /var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 1 (skipped 0) results, 0 errors
-/var/tmp/pbench-test-server/pbench-local/logs/pbench-index/pbench-index.log:
 --- pbench log file contents
 +++ test-execution.log file contents
-curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01/status/7e2f75305c0ff1d821a23da416cf82a3 --data @/tmp/pbench-report-status.NNNN/payload
-curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/8c40f0bc61a9fe48e778edfd8fe9eb57 --data @/tmp/pbench-report-status.NNNN/payload
+curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01/status/7e2f75305c0ff1d821a23da416cf82a3 --data @/tmp/pbench-report-status.NNNN/payload
+curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/8c40f0bc61a9fe48e778edfd8fe9eb57 --data @/tmp/pbench-report-status.NNNN/payload
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
 {

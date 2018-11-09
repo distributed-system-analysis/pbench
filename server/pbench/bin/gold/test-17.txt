@@ -154,10 +154,10 @@ drwxrwxr-x          - incoming/controller02/benchmark-result-small_1900-01-01T00
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--          1 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--        194 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
--rw-rw-r--       2125 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+-rw-rw-r--       2124 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -195,7 +195,6 @@ drwxrwxr-x          - quarantine/md5-002
 drwxrwxr-x          - tmp
 --- pbench-satellite-local tree state
 +++ pbench log file contents
-/var/tmp/pbench-test-server/pbench-local/logs/pbench-audit-server/pbench-audit-server.log:
 /var/tmp/pbench-test-server/pbench-local/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error:run-1900-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz does not exist
 /var/tmp/pbench-test-server/pbench-local/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:run-1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench-local/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:ln -s /var/tmp/pbench-test-server/pbench-local/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00
@@ -209,11 +208,10 @@ drwxrwxr-x          - tmp
 /var/tmp/pbench-test-server/pbench-local/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:ln -s /var/tmp/pbench-test-server/pbench/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/results/controller00/benchmark-result-large_1900-01-01T00:00:00
 /var/tmp/pbench-test-server/pbench-local/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:run-1900-01-01T00:00:00-UTC: controller00/benchmark-result-large_1900-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 5920
 /var/tmp/pbench-test-server/pbench-local/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:run-1900-01-01T00:00:00-UTC: Processed 3 tarballs
-/var/tmp/pbench-test-server/pbench-local/logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log:
 --- pbench log file contents
 +++ test-execution.log file contents
-curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-unpack-tarballs.1900-01/status/65acd420d4a5bac8c4df9eee8d85dc4c --data @/tmp/pbench-report-status.NNNN/payload
-curl -XPOST -H Content-Type: application/json http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/8c40f0bc61a9fe48e778edfd8fe9eb57 --data @/tmp/pbench-report-status.NNNN/payload
+curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-unpack-tarballs.1900-01/status/65acd420d4a5bac8c4df9eee8d85dc4c --data @/tmp/pbench-report-status.NNNN/payload
+curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/8c40f0bc61a9fe48e778edfd8fe9eb57 --data @/tmp/pbench-report-status.NNNN/payload
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
 {
