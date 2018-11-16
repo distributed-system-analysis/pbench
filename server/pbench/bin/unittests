@@ -555,8 +555,17 @@ fi
 
 let failures=0
 for test in $tests ;do
-    _setup_state ${test}
     cmd=${cmds[$test]}
+    if [ -z "$cmd" ]; then
+        cmd=${cmds[test-$test]}
+        if [ -z "$cmd" ]; then
+            printf "Unknown test: \"${test}\"\n"
+            continue
+        else
+            test="test-${test}"
+        fi
+    fi
+    _setup_state ${test}
     # echo ${test}: ${cmd}
     ${cmd}
     _audit_server; _save_tree; _dump_logs
