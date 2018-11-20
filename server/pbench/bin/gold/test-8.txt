@@ -39,7 +39,7 @@ hostname -f
 chown pbench.pbench /var/tmp/pbench-test-server/opt/pbench-server/lib/crontab/crontab
 chown -R pbench.pbench /var/tmp/pbench-test-server/opt/pbench-server/lib/locks
 chown pbench.pbench /var/tmp/pbench-test-server/pbench /var/tmp/pbench-test-server/pbench/archive/fs-version-001 /var/tmp/pbench-test-server/pbench/public_html /var/tmp/pbench-test-server/pbench/public_html/incoming /var/tmp/pbench-test-server/pbench/public_html/results /var/tmp/pbench-test-server/pbench/public_html/users /var/tmp/pbench-test-server/pbench/public_html/static
-chown pbench.pbench /var/tmp/pbench-test-server/pbench /var/tmp/pbench-test-server/pbench/archive/fs-version-001/* /var/tmp/pbench-test-server/pbench/public_html/incoming/* /var/tmp/pbench-test-server/pbench/public_html/results/* /var/tmp/pbench-test-server/pbench/public_html/users/* /var/tmp/pbench-test-server/pbench/public_html/static/*
+chown pbench.pbench /var/tmp/pbench-test-server/pbench/archive/fs-version-001/* /var/tmp/pbench-test-server/pbench/public_html/incoming/* /var/tmp/pbench-test-server/pbench/public_html/results/* /var/tmp/pbench-test-server/pbench/public_html/users/* /var/tmp/pbench-test-server/pbench/public_html/static/*
 chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-local/logs
 chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-local/tmp
 chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-001
@@ -54,7 +54,7 @@ hostname -f
 chown pbench.pbench /var/tmp/pbench-test-server/opt/pbench-server-satellite/lib/crontab/crontab
 chown -R pbench.pbench /var/tmp/pbench-test-server/opt/pbench-server-satellite/lib/locks
 chown pbench.pbench /var/tmp/pbench-test-server/pbench-satellite /var/tmp/pbench-test-server/pbench-satellite/archive/fs-version-001 /var/tmp/pbench-test-server/pbench-satellite/public_html /var/tmp/pbench-test-server/pbench-satellite/public_html/incoming /var/tmp/pbench-test-server/pbench-satellite/public_html/results /var/tmp/pbench-test-server/pbench-satellite/public_html/users /var/tmp/pbench-test-server/pbench-satellite/public_html/static
-chown pbench.pbench /var/tmp/pbench-test-server/pbench-satellite /var/tmp/pbench-test-server/pbench-satellite/archive/fs-version-001/* /var/tmp/pbench-test-server/pbench-satellite/public_html/incoming/* /var/tmp/pbench-test-server/pbench-satellite/public_html/results/* /var/tmp/pbench-test-server/pbench-satellite/public_html/users/* /var/tmp/pbench-test-server/pbench-satellite/public_html/static/*
+chown pbench.pbench /var/tmp/pbench-test-server/pbench-satellite/archive/fs-version-001/* /var/tmp/pbench-test-server/pbench-satellite/public_html/incoming/* /var/tmp/pbench-test-server/pbench-satellite/public_html/results/* /var/tmp/pbench-test-server/pbench-satellite/public_html/users/* /var/tmp/pbench-test-server/pbench-satellite/public_html/static/*
 chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-satellite-local/logs
 chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-satellite-local/tmp
 chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-001
