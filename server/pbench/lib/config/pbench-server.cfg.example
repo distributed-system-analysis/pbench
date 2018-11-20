@@ -2,8 +2,8 @@
 [DEFAULT]
 # The values here override those in pbench-server-default.cfg.
 # An installation will want to override at least the following:
-mailto = admins@example.com
 default-host = pbench.example.com
+install-dir = /opt/pbench-server
 
 [pbench-server]
 # Backup dir may be remote
@@ -45,5 +45,5 @@ satellite-opt = /opt/pbench-server
 ###########################################################################
 # The rest will come from the default config file.
 [config]
-path = /opt/pbench-server/lib/config
+path = %(install-dir)s/lib/config
 files = pbench-server-default.cfg

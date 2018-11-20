@@ -32,38 +32,38 @@ lrwxrwxrwx         55 incoming -> /var/tmp/pbench-test-server/pbench/public_html
 drwxrwxr-x          - pbench-results-host-info.versioned
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
 -rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
--rw-rw-r--         94 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
 -rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
--rw-rw-r--         94 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
 lrwxrwxrwx         54 results -> /var/tmp/pbench-test-server/pbench/public_html/results
 lrwxrwxrwx         53 static -> /var/tmp/pbench-test-server/pbench/public_html/static
 lrwxrwxrwx         52 users -> /var/tmp/pbench-test-server/pbench/public_html/users
 --- var/www/html tree state
 +++ results host info (/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned)
 /var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-001
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench.example.com)
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 /var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench.example.com)
+/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
 +++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/var-www-html-satellite)
 lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/pbench-satellite/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
 -rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
--rw-rw-r--        104 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
 -rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
--rw-rw-r--        104 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
 lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/pbench-satellite/public_html/results
 lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/pbench-satellite/public_html/static
 lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/pbench-satellite/public_html/users
 --- var/www/html-satellite tree state
 +++ results host info (/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned)
 /var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-001
-/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench-satellite.example.com)
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 /var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (pbench@pbench-satellite.example.com)
+/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/pbench)
 drwxrwxr-x          - archive
@@ -195,7 +195,7 @@ curl --silent --show-error -XPOST -H Content-Type: application/json --output /tm
 curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01/status/86b27ea1db1e4119089cb4dff57df63e --data @/tmp/pbench-report-status.NNNN/payload
 curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-backup-tarballs.1900-01/status/7d6887afb204f5478265e4a1cbc79843 --data @/tmp/pbench-report-status.NNNN/payload
 curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-verify-backup-tarballs.1900-01/status/063a00d3d48a0102b6c83a95630e13ed --data @/tmp/pbench-report-status.NNNN/payload
-mailx -s pbench-satellite-cleanup status report at 1900-01-01T00:00:00-UTC admins@example.com
+mailx -s pbench-satellite-cleanup status report at 1900-01-01T00:00:00-UTC unit-test-user@example.com
 pbench-satellite-cleanup.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 total errors
 Total 0 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.
 
