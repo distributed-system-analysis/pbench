@@ -104,7 +104,7 @@ if [ "$sts" != "0" ] ;then
 fi
 
 # it's OK if this fails: the directories may be empty
-chown ${user}.${group} ${pbench_dir} ${archive_dir}/* \
+chown ${user}.${group} ${archive_dir}/* \
         ${pbench_incoming_dir}/* ${pbench_results_dir}/* \
         ${pbench_users_dir}/* ${pbench_static_dir}/* 2>/dev/null
 
