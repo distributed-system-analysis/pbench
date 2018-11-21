@@ -48,7 +48,6 @@ export LOGSDIR=$(getconf.py pbench-logs-dir pbench-server)
 test -d $LOGSDIR || doexit "Bad LOGSDIR=$LOGSDIR"
 
 # Optional
-BDIR=$(getconf.py pbench-backup-dir pbench-server)
 PBENCH_ENV=$(getconf.py environment pbench-server)
 
 if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
