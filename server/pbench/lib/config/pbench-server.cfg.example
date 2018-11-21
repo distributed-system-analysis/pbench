@@ -6,9 +6,10 @@ default-host = pbench.example.com
 install-dir = /opt/pbench-server
 
 [pbench-server]
-# Backup dir may be remote
-backup-host = pbench-backup.example.com
-pbench-backup-dir = %(user)s@%(backup-host)s:/srv/pbench.archive.backup
+pbench-top-dir = /srv/pbench
+pbench-local-dir = /srv/pbench-local
+# Backup dir may be remote NFS mounted
+pbench-backup-dir = /mnt/pbench.archive.backup
 
 ###########################################################################
 # crontab roles
@@ -31,14 +32,14 @@ tasks = pbench-sync
 [satellite-one]
 satellite-host = satellite-one.example.com
 satellite-prefix = ONE
-satellite-lock = pbench-sync-satellite-ONE.lock
+satellite-lock = pbench-sync-satellite-%(satellite-prefix)s.lock
 satellite-archive = /pbench/archive/fs-version-001
 satellite-opt = /opt/pbench-server
 
 [satellite-two]
 satellite-host = satellite-two.example.com
 satellite-prefix = TWO
-satellite-lock = pbench-sync-satellite-TWO.lock
+satellite-lock = pbench-sync-satellite-%(satellite-prefix)s.lock
 satellite-archive = /pbench/archive/fs-version-001
 satellite-opt = /opt/pbench-server
 

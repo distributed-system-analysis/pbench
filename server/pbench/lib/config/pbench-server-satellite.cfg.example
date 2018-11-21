@@ -9,6 +9,7 @@ install-dir = /opt/pbench-server
 ## Deployment section
 ###########################################################################
 [pbench-server]
+pbench-top-dir = /srv/pbench
 # For a satellite we override the default roles to only "prep" and "results"
 roles = pbench-prep, pbench-results
 

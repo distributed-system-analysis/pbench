@@ -16,7 +16,7 @@ case $opts in
         ;;
 esac
 
-# TOP, ARCHIVE, BDIR are defined by the base file
+# ARCHIVE and PBENCH_ENV are defined by the base file
 . $dir/pbench-base.sh
 
 tmp=$TMP/${PROG}.$$
@@ -42,12 +42,14 @@ if [[ ! -d "$rla" ]]; then
     log_exit "The ARCHIVE directory does not resolve to a directory, $ARCHIVE"
 fi
 
-rlb=$(readlink -f $BDIR)
+backup=$(getconf.py pbench-backup-dir pbench-server)
+test ! -z $backup || log_exit "Unspecified backup directory, no pbench-backup-dir config in pbench-server section"
+rlb=$(readlink -f $backup)
 if [[ $? -ne 0 ]]; then
-    log_exit "Specified backup directory does not resolve to a real location, $BDIR"
+    log_exit "Specified backup directory does not resolve to a real location, $backup"
 fi
 if [[ ! -d "$rlb" ]]; then
-    log_exit "Specified backup directory does not resolve to a directory, $BDIR"
+    log_exit "Specified backup directory, $backup, does not resolve ($rlb) to a directory"
 fi
 
 # exclude the subdirs of symlinks
@@ -58,7 +60,7 @@ if [ -z "$(find $rla -maxdepth 0 -type d -empty 2>/dev/null)" ] ;then
     rsync -va --stats $exclude $rla/ $rlb | tee -a $stats
     rsync_sts=$?
     if [[ $rsync_sts -ne 0 ]]; then
-        echo "$PROG: rsync failed with code: $rsync_sts, $BDIR"
+        echo "$PROG: rsync failed with code: $rsync_sts, $rlb"
     fi
 fi
 

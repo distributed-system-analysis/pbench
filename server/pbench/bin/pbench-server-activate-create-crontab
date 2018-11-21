@@ -96,10 +96,11 @@ function crontab_normal() {
 # and the [satellite-testing] section looks like this:
 #
 # [satellite-testing]
-# satellite-host = dhcp31-38.perf.lab.eng.bos.redhat.com
+# satellite-host = dhcp31-38.example.com
 # satellite-prefix = TESTING
-# satellite-lock = pbench-sync-satellite-dhcp31-38.lock
+# satellite-lock = pbench-sync-satellite-%(satellite-prefix)s.lock
 # satellite-archive = /pbench/archive/fs-version-001
+# satellite-opt = /opt/pbench-server
 #
 # the (admittedly obscure) last line substitutes for $SATELLITE_HOST the
 # value of satellite-host in the section and similarly for all the other

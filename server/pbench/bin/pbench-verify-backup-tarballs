@@ -36,14 +36,15 @@ case $opts in
         ;;
 esac
 
-# TOP, ARCHIVE, BDIR, TMP, LOGSDIR defined in pbench-base.sh
+# TOP, ARCHIVE, TMP, LOGSDIR, and PBENCH_ENV are defined in pbench-base.sh
 . $dir/pbench-base.sh
 
 test -d $ARCHIVE || doexit "Bad archive: $ARCHIVE"
-test -d $BDIR || doexit "Bad backup directory: $BDIR"
-
 primary=$ARCHIVE
-backup=$BDIR
+
+backup=$(getconf.py pbench-backup-dir pbench-server)
+test ! -z $backup || doexit "Unspecified backup directory, no pbench-backup-dir config in pbench-server section"
+test -d $backup || doexit "Bad backup directory: $backup"
 
 # work files
 controllers=$TMP/$PROG/controllers.$$
