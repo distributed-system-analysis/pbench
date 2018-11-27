@@ -1,4 +1,4 @@
-# Created 2018-09-12 Wed 22:19
+# Created 2018-11-27 Tue 16:57
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -15,6 +15,108 @@
 #+subtitle: 
 #+infojs_opt: 
 #+latex_header: 
+
+* Version 0.54
+
+** Installation                                                    :external:
+
+There are no installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.54-1g4802e4ba
+of the pbench-agent RPM installed.
+
+** agent
+
+*** fio
+- pbench-fio latency data processing has been streamlined and speeded up.
+  It also does not have the dependency on pandas any longer (yay!)
+- The required upstream fio version has been bumped up to 3.12.
+  The pbench-fio RPM on COPR has been rebuilt accordingly (but note that
+  the Fedora 29 build fails: this is under investigation. All the other
+  builds succeeded).
+- Various bugs in fio postprocessing have been fixed.
+
+
+*** trafficgen
+- Updates
+- added tsdelta postprocessing
+
+
+*** Known problems and backward incompatibilities
+
+See the [[https://github.com/distributed-system-analysis/pbench/issues][issues on Github]].
+
+** server
+TBD - we are not going to update the servers with the new bits yet. We'll update these notes and send out an
+update when we are ready.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.54
+:END:
+
+There are no changes but a 0.54-1g4802e4ba RPM has been built on COPR (just to make sure it still builds correctly.)
+
+** Changelog
+This is the list of visible commits since v0.53:
+
+- 4802e4ba Version bump to 0.54
+- 582d9493 Require pbench-top|backup-dir in pbench-server.cfg
+- d8c68782 Fix default install and mail configs
+- 5b0c992a Remove extra pbench_dir from chown
+- cb091114 Limit the length of ES error messages
+- 8bf479b2 Always call pbench-report-status.
+- 821dd29c Quiet curl output to reduce log file noise
+- 7206eaf3 Add full test of all scripts with tar balls
+- 890653dc Use pbench-index instead of index-pbench
+- 0d628bfa Index uperf result data properly.
+- cb2346fa Update list of perl versions we test against
+- 06c0cb14 support multiple targets while using remote clients
+- 5b5e89aa Straighten out mock test command environment
+- 8f59b193 Only look for linksrc state directories
+- d2d286bb Refactor pbench-dispatch to streamline
+- 508546b6 Add remaining server cron scripts to unit tests
+- 0fc2f327 Fix server unit test 11 to remove rsync references
+- ec476b4f Hide remaining unit test checks from scripts
+- e3c22874 Fix pbench-server-prep-shim-002 error handling
+- 1bbfd78a Ensure backup tarballs doesn't include state dirs
+- 4eb3f4f4 No longer need to check for LOGSDIR in audit-archive
+- d65ea1a5 Consistently handle pushd/popd error output
+- 6f38fd6a Fix quarantine to ignore arguments that don't exist
+- 19f0ca0b Ensure PATH has the pbench server bin dir in it
+- 79558266 Clean up set-result-state script
+- f20f4367 A simple script to create a fake tar ball
+- fb13cd77 Ignore unittests.log files
+- 353d96fd fio-postprocess: fix Perl syntax bug
+- 289d7a2a Fix failing tests from PR #958
+- 3b676881 Fio histo log pctiles (#958)
+- 50dc1e45 Fix the agent conf files
+- 8b508f64 openvswitch-postprocess: add support for SMC hit data
+- b8c17fa6 fio-postprocess: a few comment fixes
+- e2717ec6 fio-postprocess: more fixup to process fio options
+- 977cc073 PDash V1
+- 4b249cef Restore normal ln behavior for unit tests
+- 21cda507 pbench-audit-archive: line up sizes in find output
+- 174f0095 Copy two files instead of move two files
+- 9d838e9c Fix shim 001 to move prefix file to .prefix
+- 78955ec4 Initial framework for auditing the archives
+- 823cdae9 trafficgen-postprocess: add tsdelta processing
+- eae9ba17 Require TOP & LOGSDIR in addition to TMP
+- 642165d7 pbench-move-unpacked: calc epic properly
+- a65d61ba Use server-activate for setting up unit tests
+- 2dfc63de Rework unittests to use _testdir_local
+- a5a66639 Add ability of index-pbench to emit index patterns
+- 1143b53f Rework pbench-move-unpacked to not use prefix
+- 433cb785 pbench-ansible: allow users to set the tools interval
+- fa60b2f1 Improve unpack tar balls error handling
+- 2360b67c Fix bugs, clean up crontab output, enhance unit tests
+- 5fe7284e index-pbench: validated optparse from argparse
+- 231b8565 Update unit test
+- 3f2414ad pbench-index: Fix the inconsistent reporting of archive
+- 42b3ea35 Register mpstat for openshift
+- bcc9a339 Trafficgen updates
+
 
 * Version 0.53
 
