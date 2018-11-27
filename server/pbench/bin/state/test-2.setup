@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# Move the archive tree to the side
-mv pbench/archive pbench/no-archive || exit $?
-mv pbench-satellite/archive pbench-satellite/no-archive
+mkdir pbench-local/archive.backup || exit $?
+
+# Move the incoming tree to the side
+mv pbench-satellite/public_html/incoming pbench-satellite/public_html/no-incoming || $?
+mv pbench/public_html/incoming pbench/public_html/no-incoming
 exit $?
