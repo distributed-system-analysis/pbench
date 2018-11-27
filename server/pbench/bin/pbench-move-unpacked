@@ -18,7 +18,7 @@ case $opts in
         ;;
 esac
 
-# TOP, ARCHIVE, INCOMING, RESULTS are all defined by the base file
+# TOP, ARCHIVE, INCOMING, are all defined by the base file
 . $dir/pbench-base.sh
 . $dir/job_pool.sh
 ###########################################################################
@@ -26,7 +26,6 @@ esac
 # check that all the directories exist
 test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
 test -d $INCOMING || doexit "Bad INCOMING=$INCOMING"
-test -d $RESULTS || doexit "Bad RESULTS=$RESULTS"
 
 UNPACK_PATH=$(getconf.py pbench-unpack-dir pbench-server)
 test -d $UNPACK_PATH || doexit "Bad UNPACK_PATH=$UNPACK_PATH"
@@ -205,7 +204,6 @@ function process_tarball {
     status=$?
     if [[ $status -ne 0 ]] ;then
         echo "$TS: Cannot move $ARCHIVE/$hostname/$resultname from $linksrc to $linkdest: code $status" | tee -a $mail_content >&4
-        rm $RESULTS/$hostname/$prefix$resultname
         return 1
     fi
     let end_time=$(timestamp-seconds-since-epoch)

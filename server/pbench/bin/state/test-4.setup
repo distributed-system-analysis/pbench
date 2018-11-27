@@ -2,7 +2,7 @@
 
 mkdir pbench-local/archive.backup || exit $?
 
-# Move the results tree to the side
-mv pbench/public_html/results pbench/public_html/no-results || exit $?
-mv pbench-satellite/public_html/results pbench-satellite/public_html/no-results
+# Move the users tree to the side
+mv pbench/public_html/users pbench/public_html/no-users || exit $?
+mv pbench-satellite/public_html/users pbench-satellite/public_html/no-users
 exit $?

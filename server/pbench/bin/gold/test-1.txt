@@ -1,44 +1,43 @@
 +++ Running pbench-server-prep-shim-001
-pbench-server-prep-shim-001: Bad TMP=/var/tmp/pbench-test-server/pbench-local/tmp
+pbench-server-prep-shim-001: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-server-prep-shim-001 (status=1)
 +++ Running pbench-server-prep-shim-002
-pbench-server-prep-shim-002: Bad TMP=/var/tmp/pbench-test-server/pbench-local/tmp
+pbench-server-prep-shim-002: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-server-prep-shim-002 (status=1)
 +++ Running pbench-sync-satellite
-pbench-sync-satellite: Bad TMP=/var/tmp/pbench-test-server/pbench-local/tmp
+pbench-sync-satellite: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-sync-satellite (status=1)
 +++ Running pbench-dispatch
-pbench-dispatch: Bad TMP=/var/tmp/pbench-test-server/pbench-local/tmp
+pbench-dispatch: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-dispatch (status=1)
 +++ Running pbench-unpack-tarballs
-pbench-unpack-tarballs: Bad TMP=/var/tmp/pbench-test-server/pbench-local/tmp
+pbench-unpack-tarballs: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-unpack-tarballs (status=1)
 +++ Running pbench-move-unpacked
-pbench-move-unpacked: Bad TMP=/var/tmp/pbench-test-server/pbench-local/tmp
+pbench-move-unpacked: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-move-unpacked (status=1)
 +++ Running pbench-copy-sosreports
-pbench-copy-sosreports: Bad TMP=/var/tmp/pbench-test-server/pbench-local/tmp
+pbench-copy-sosreports: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-copy-sosreports (status=1)
 +++ Running pbench-index
-pbench-index: Bad TMP=/var/tmp/pbench-test-server/pbench-local/tmp
+pbench-index: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-index (status=1)
 +++ Running pbench-clean-up-dangling-results-links
-pbench-clean-up-dangling-results-links: Bad TMP=/var/tmp/pbench-test-server/pbench-local/tmp
+pbench-clean-up-dangling-results-links: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-clean-up-dangling-results-links (status=1)
 +++ Running pbench-edit-prefixes
-pbench-edit-prefixes: Bad TMP=/var/tmp/pbench-test-server/pbench-local/tmp
+pbench-edit-prefixes: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-edit-prefixes (status=1)
 +++ Running pbench-backup-tarballs
-pbench-backup-tarballs: Bad TMP=/var/tmp/pbench-test-server/pbench-local/tmp
 --- Finished pbench-backup-tarballs (status=1)
 +++ Running pbench-verify-backup-tarballs
-pbench-verify-backup-tarballs: Bad TMP=/var/tmp/pbench-test-server/pbench-local/tmp
+pbench-verify-backup-tarballs: Bad archive: /var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished pbench-verify-backup-tarballs (status=1)
 +++ Running pbench-satellite-cleanup
-pbench-satellite-cleanup: Bad TMP=/var/tmp/pbench-test-server/pbench-satellite-local/tmp
+pbench-satellite-cleanup: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench-satellite/archive/fs-version-001
 --- Finished pbench-satellite-cleanup (status=1)
 +++ Running unit test audit
-pbench-audit-server: Bad TMP=/var/tmp/pbench-test-server/pbench-local/tmp
+pbench-audit-server: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
 --- Finished unit test audit (status=1)
 +++ var/www/html tree state (/var/tmp/pbench-test-server/var-www-html)
 lrwxrwxrwx         55 incoming -> /var/tmp/pbench-test-server/pbench/public_html/incoming
@@ -79,8 +78,8 @@ lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/pbench-satellite/publ
 /var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/pbench)
-drwxrwxr-x          - archive
-drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - no-archive
+drwxrwxr-x          - no-archive/fs-version-001
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
@@ -88,8 +87,10 @@ drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/users
 --- pbench tree state
 +++ pbench-local tree state (/var/tmp/pbench-test-server/pbench-local)
-drwxrwxr-x          - bad-tmp
 drwxrwxr-x          - logs
+drwxrwxr-x          - logs/pbench-backup-tarballs
+-rw-rw-r--        141 logs/pbench-backup-tarballs/pbench-backup-tarballs.error
+-rw-rw-r--         30 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -100,10 +101,11 @@ drwxrwxr-x          - quarantine/errors-001
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
 --- pbench-local tree state
 +++ pbench-satellite tree state (/var/tmp/pbench-test-server/pbench-satellite)
-drwxrwxr-x          - archive
-drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - no-archive
+drwxrwxr-x          - no-archive/fs-version-001
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
@@ -111,7 +113,6 @@ drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/users
 --- pbench-satellite tree state
 +++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/pbench-satellite-local)
-drwxrwxr-x          - bad-tmp
 drwxrwxr-x          - logs
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
@@ -123,6 +124,17 @@ drwxrwxr-x          - quarantine/errors-001
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
 --- pbench-satellite-local tree state
 +++ pbench log file contents
+++++ pbench-local/logs
++++++ pbench-backup-tarballs/pbench-backup-tarballs.error
+pbench-backup-tarballs: The ARCHIVE directory does not resolve to a real location, /var/tmp/pbench-test-server/pbench/archive/fs-version-001
+----- pbench-backup-tarballs/pbench-backup-tarballs.error
++++++ pbench-backup-tarballs/pbench-backup-tarballs.log
+start-1900-01-01T00:00:00-UTC
+----- pbench-backup-tarballs/pbench-backup-tarballs.log
+---- pbench-local/logs
+++++ pbench-satellite-local/logs
+---- pbench-satellite-local/logs
 --- pbench log file contents

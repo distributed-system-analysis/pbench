@@ -166,10 +166,14 @@ function _dump_logs {
     echo "+++ pbench log file contents" >> $_testout
     for dir in ${_testdir} ${_testdir_local} ${_testdir_sat} ${_testdir_sat_local} ;do
         if [ -d ${dir}/logs ] ;then
-            find ${dir}/logs -type f | sort | \
+            echo "++++ $(basename ${dir})/logs" >> $_testout
+            find ${dir}/logs -type f -printf "%P\n" | sort | \
                 while read fname; do
-                    grep -HvF "\-\-should-n0t-ex1st--" $fname >> $_testout 2>&1
+                    echo "+++++ ${fname}" >> $_testout
+                    cat ${dir}/logs/${fname} >> $_testout 2>&1
+                    echo "----- ${fname}" >> $_testout
                 done
+            echo "---- $(basename ${dir})/logs" >> $_testout
         fi
     done
     echo "--- pbench log file contents" >> $_testout
@@ -419,12 +423,14 @@ declare -A cmds=(
     # check for no LOGSDIR directory
     [test-0.1]="_run_allscripts"
     # check for no TMP directory
-    [test-1]="_run_allscripts"
+    [test-0.2]="_run_allscripts"
     # check for no ARCHIVE directory
-    [test-2]="_run_allscripts"
+    [test-1]="_run_allscripts"
     # check for no INCOMING directory
-    [test-3]="_run_allscripts"
+    [test-2]="_run_allscripts"
     # check for no RESULTS directory
+    [test-3]="_run_allscripts"
+    # check for no USERS directory
     [test-4]="_run_allscripts"
     # check that all scripts run normally if everything is there
     [test-5]="_run_allscripts"
