@@ -40,7 +40,7 @@ The following options are available:
 	--iodepth=<int>		Set the iodepth config variable in the fio job file
 
 	-c str[,str] --clients=str[,str]      str= one or more remote systems to run fio
-	                         If no clients are specified, fio is run locally
+		If no clients are specified, fio is run locally
 
 	--client-file=str        str= file (with absolute path) which contains 1 client per line
 
@@ -55,9 +55,6 @@ The following options are available:
 
 	--run-dir=<path>
 		provide the path of an existig result (typically somewhere in /var/tmp/pbench-test-bench/pbench
-
-	--directory=<path>
-		provide the path to an existing directory where fio operations will be performed
 
 	--numjobs=<int>
 		number of jobs to run, if not given then fio default of numjobs=1 will be used
