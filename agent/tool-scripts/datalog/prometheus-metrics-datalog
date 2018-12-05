@@ -1,34 +1,71 @@
 #!/usr/bin/env python2
 
 import time
-import sys, json
-import os,subprocess,warnings,logging
+import sys, json, math
+import os, subprocess, warnings, logging
 
 interval = int(sys.argv[2])
 host = sys.argv[1]
 tool_log = sys.argv[3]
 port = int(sys.argv[4])
 cert = sys.argv[5]
-key = sys.argv[6]
+selfsigned = sys.argv[6]
+key = sys.argv[7]
+
+if (cert == "None") or (key == "None"):
+    command = "prom2json http://%s:%d/metrics" % (host, port)
+else:
+    command = "prom2json %s --cert=%s --key=%s https://%s:%d/metrics" % (
+            "--accept-invalid-cert" if selfsigned == "true" else "", cert, key, host, port)
+
+# Initial timestamp and next interval calcultion
+time_stamp = int(time.time())
+next_start = time_stamp + interval
+intervals = 0
+total_duration = 0
+drifted = 0
+
 while True:
-    time_stamp = int(time.time())
-    next_start = time_stamp + interval
-    if (cert == "None") or (key == "None"):
-        command = "prom2json http://%s:%d/metrics" % (host, port)
-    else:
-        command = "prom2json --cert=%s --key=%s https://%s:%d/metrics" % (cert, key, host, port)
     command_out = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     prom2json_out = command_out.communicate()[0]
-    metrics_list = json.loads(prom2json_out)
-    if type(metrics_list) is list:
-        for item in metrics_list:
-            del item['help']
-            item["@timestamp"] = time_stamp
-            print json.dumps(item)
-        endtime = time.time()
-        if endtime > next_start:
-            logging.warn("[%d] [prometheus-metrics] please change the interval to atleast %d seconds\n" %(time_stamp, endtime - next_start))
-        if endtime < next_start:
-            time.sleep(next_start - endtime)
+
+    # Record how long prom2json took for use when we run beyond the
+    # given interval.
+    end_cmd_time_stamp = int(time.time())
+
+    try:
+        metrics_list = json.loads(prom2json_out)
+    except Exception as e:
+        logging.warn("[prometheus-metrics-datalog] json.loads(prom2json_out) failed with %r" % e)
     else:
-        logging.warn("json.load(prom2json_out) did not return a list")
+        if type(metrics_list) is list:
+            for item in metrics_list:
+                del item['help']
+                item["@timestamp"] = time_stamp
+                print json.dumps(item)
+        else:
+            logging.warn("[prometheus-metrics-datalog] json.load(prom2json_out) did not return a list")
+
+    # Record how long all the work took during this interval.
+    endtime = time.time()
+
+    intervals += 1
+    duration = endtime - time_stamp
+    total_duration += duration
+    avg_duration = total_duration / intervals
+
+    if endtime < next_start:
+        # Sleep for the remainder of the interval
+        time.sleep(next_start - endtime)
+    elif endtime > next_start:
+        drifted += 1
+        logging.warn("[prometheus-metrics-datalog] interval exceeded now %d times: [interval: %d, start: %d, duration: %d, prom2json: %d]; please consider changing the interval to at least %d seconds\n" % (
+                drifted, interval, time_stamp, duration,
+                end_cmd_time_stamp - time_stamp, int(math.ceil(avg_duration * 1.5))))
+        # The current time, endtime, is now the end of this interval.
+        next_start = endtime
+
+    # The next interval is calculated from the end of the previous
+    # interval.
+    time_stamp = next_start
+    next_start = time_stamp + interval
