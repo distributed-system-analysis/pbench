@@ -84,7 +84,7 @@ for my $def (keys %defaults) {
 }
 
 # We don't want these params passed on to other utils
-remove_params(\@ARGV, qw(tool-group samples desc user-name user-email)); 
+remove_params(\@ARGV, qw(tool-group samples user-desc user-name user-email)); 
 my %run_doc = create_run_doc($benchmark, join(" ", @ARGV), $params{"clients"}, $params{"servers"},
                 $params{"user-desc"}, $params{"user-name"}, $params{"user-email"},
                 "pbench", ""); #todo: include tool names
