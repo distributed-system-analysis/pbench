@@ -8,7 +8,7 @@
   "controller" : {
     // This script is run before any client/server execution.  This may be used to 
     // prepare certain files on the controller for the benchmark.
-    "pre-script" : "",
+    "pre-script" : "/opt/pbench-agent/bench-scripts/postprocess/fio-prepare-jobfile",
     // This script is run after data is copied from clients [and servers if applicable].
     // This script must translate the result data into metrics consumable by ES.
     "post-script" : "/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess-cdm",
@@ -23,12 +23,12 @@
         // When calling pbench-run-benchmark, if one uses "--defaults=<name>", a matching
         // name will cause their respective parameters listed here to be used.
         // If not "--defaults=<name> is used, the entry "default" will be used
-        "default" : [ "--rw=read,randread", "--filename=/tmp/fio-tst", "--filesize=256M",
-          "--runtime=30s", "--jobfile=fio.job", "--bs=16k"
+        "basic" : [ "--rw=read,randread", "--filename=/tmp/fio-tst", "--filesize=256M",
+          "--runtime=30s", "--bs=16k"
           ],
         // This one is completely made-up and may bear no relevance to actual ceph use-case
         "ceph-osp" : [ "--rw=read,randr,write,randw", "--bs=1m", "--ioengine=sync",
-          "--numjobs=1", "--runtime=30s", "--jobfile=fio.job"
+          "--numjobs=1", "--runtime=30s" 
           ],
         // The "mandatory" entry will alwyas be included and cannot be overrided by the user.
         // These are considered mandatory because the post-processing relies on the data
@@ -157,14 +157,16 @@
     // Similar ro the pre-script, this will execute after the test.
     "post-script" : " ",
     // A list of files to copy to the client (under $pbench_bench) before the test
-    "copy-to" : [ "/opt/pbench-agent/bench-scripts/templates/fio.job" ],
+    "copy-to" : [ "/var/lib/pbench-agent/tmp/fio.job" ], //todo: allow vars
     // The benchmark binary to execute on the client
     "bin" : "fio",
     // When the benchmark binary is executed on the client, all of the parameters
     // included in the benchmark-iteration are passed along.  In order to make changes
     // to those parameters, Apply a regex to the paramaters before executing.
+      // ##"s/\\s--jobfile=(\\S+)(.*)/$2$1/" // Strip --jobfile and put filename at end
     "param_regex" : [ "s/--clients=.+//", // Remove entire --clients=hostanmes param
-      "s/\\s--jobfile=(\\S+)(.*)/$2$1/" // Strip --jobfile and put filename at end
+      "s/\\s--jobfile=(\\S+)//", // Strip --jobfile
+      "s/(.*)/$1fio.job/" // put job filename at end
       ]
   }
     // There can be a "server" section, just like a "client" section, but fio
