@@ -110,9 +110,10 @@ sub get_benchmark_defaults {
     my $config_ref = shift; # our benchmark config
     my $default_name = shift;
     if ($default_name eq "list") {
-        print "defaults available:\n";
+        print "# defaults available:\n";
         for my $d (grep(!/^mandatory$/, keys $$config_ref{"controller"}{"parameters"}{"defaults"})) {
-            printf("%s: %s\n", $d, $$config_ref{"controller"}{"parameters"}{"defaults"}{$d});
+            my @p = @{ $$config_ref{"controller"}{"parameters"}{"defaults"}{$d} };
+            printf("# %s: %s\n", $d, join(" ", @p));
         }
         exit;
     }

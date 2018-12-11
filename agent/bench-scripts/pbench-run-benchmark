@@ -117,7 +117,9 @@ if ($? != 0) {
     printf "%s\nCalling pbench-gen-iterations failed, exiting\n", $output;
     exit 1;
 } else {
-    @iterations = split(/\n/, $output);
+    @iterations = grep(!/^#/, split(/\n/, $output));
+    # print any non-iterations, for example, if --defaults=list was used, it will be here
+    printf "%s\n", join("\n", grep(/^#/, split(/\n/, $output)));
 }
 
 # Now run the iterations
