@@ -20,10 +20,14 @@ our @EXPORT_OK = qw(create_run_doc create_config_osrelease_doc create_config_cpu
                     create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc
                     get_uuid create_bench_iter_sample_doc create_metric_sample_doc
                     create_metric_sample_doc create_bench_iter_sample_period_doc
-                    create_bench_iter_doc create_config_doc);
+                    create_bench_iter_doc create_config_doc get_cdm_ver);
 
 my $script = "PbenchCDM.pm";
 my $sub;
+
+sub get_cdm_ver {
+    return 'v3dev';
+}
 
 sub get_uuid {
     my $uuid = `uuidgen`;
