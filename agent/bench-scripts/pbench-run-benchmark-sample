@@ -75,6 +75,15 @@ if (! $hosts{"client"}) {
 # pre-benchmark-execution:
 # - verify access to clients and servers (todo)
 # - verify required software on clients and server (todo)
+# - run pre-script in controller
+if ($specs{"controller"}{"pre-script"} and $specs{"controller"}{"pre-script"} ne "") {
+    # pre-script gets same params as benchmark.
+    my $preprocess_cmd = $specs{"controller"}{"pre-script"} . " " . $iteration{'iteration'}{'params'};
+    print "preprocess_cmd: [$preprocess_cmd]\n";
+    my $preprocess_output = `$preprocess_cmd`;
+    print "rc: $?\n";
+    open(my $fh, ">" . $sample_dir . "/preprocess-output.txt");
+}
 # - create sample_dir on clients and servers
 # - copy files to clients and servers
 for my $type (keys %hosts) {
