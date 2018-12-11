@@ -245,16 +245,23 @@ if (! $bench_config{"controller"}{"parameters"}{"specs"} ) {
     exit 1;
 }
 
-my @params = @ARGV;
+my @iteration_cmds;
+my @params;
 my %processed_bench_params; # Benchmark-specific parameters that will have been validated/transformed
 my %processed_pbench_params; # Universal parameters that will have been validated/transformed
-# If the user did not specify a set of defaults, use the "default" set and make sure these
-# get processed before any other params
-if (!grep(/^--defaults=(.+)$/, @params)) { 
-    unshift(@params, "--defaults=default");
+# Add a final params termination (--) if one is not present
+if ($ARGV[-1] ne "--") {
+	push(@ARGV, "--");
 }
-# Add the "mandatory" default set and make sure these  get processed after any other params
-push(@params, "--defaults=mandatory");
+# Copy to new array while inserting the madatory defaults for set of parameters
+for my $param (@ARGV) {
+    if ($param eq "--") {
+        push(@params, "--defaults=mandatory");
+        push(@params, "--");
+    } else {
+        push(@params, $param);
+    }
+}
 # Now process all of the parameters
 while ( scalar @params > 0 ) {
     my $param = shift @params;
@@ -282,14 +289,20 @@ while ( scalar @params > 0 ) {
                    $param;
             exit 1;
         }
+    # A "--" terminates a set of options that generate a combination of iterations. One can provide
+    # mulitple sets of parameters to generate multiple iterations.  For example, for fio, this
+    # allows the user to have some iterations with --rw=read using --bs=64k,256 and --rw=randread
+    # using bs=4k, all within the same pbench run.
+    } elsif ($param eq "--") {
+        @iteration_cmds = (@iteration_cmds, build_iteration_cmds("", \%processed_bench_params, \%processed_pbench_params));
+        %processed_bench_params = ();
     } else {
         printf "The format of \'%s\' is not valid\n", $param;
         exit 1;
     }
 }
 
-# Generate and print all of the iterations
-my @iteration_cmds = build_iteration_cmds("", \%processed_bench_params, \%processed_pbench_params);
+# Print all of the iterations
 for my $cmd (@iteration_cmds) {
     print "$cmd\n";
 }
