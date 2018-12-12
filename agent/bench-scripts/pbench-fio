@@ -463,7 +463,6 @@ function fio_install() {
 			debug_log "[$script_name]$benchmark_rpm $ver installation failed, exiting"
 			exit 1
 		fi
-                
 	fi
 	if [ ! -z "$clients" ] ; then
 		debug_log "verifying clients have fio installed"

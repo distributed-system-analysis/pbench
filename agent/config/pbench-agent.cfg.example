@@ -33,14 +33,6 @@ interval = 30
 # take care of installing the right package, depending
 # on the distro.
 
-# If you are copying this example file to create the "real"
-# pbench-agent.cfg file, you need to uncomment one of the
-# following pandas-package lines.
-# RHEL has python-pandas
-# pandas-package = python-pandas
-# Fedora has python2-pandas and python3-pandas
-# pandas-package = python2-pandas
-
 [config]
 path = %(pbench_install_dir)s/config
 files = pbench-agent.cfg

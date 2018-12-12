@@ -25,7 +25,6 @@ interval = 3
 interval = 30
 
 [packages]
-pandas-package = depends
 
 [pbench-fio]
 version = 3.3
