@@ -648,6 +648,7 @@ class RunComparison extends ReactJS.Component {
               columns={columns}
               dataSource={tableData[table]}
               expandedRowRender={expandedRowRender}
+              pagination={{ pageSize: 20 }}
             />
           ))}
         </Card>

@@ -646,6 +646,7 @@ class Summary extends ReactJS.Component {
               columns={responseDataCopy.columns}
               dataSource={responseDataCopy.iterations}
               bordered
+              pagination={{ pageSize: 20 }}
             />
           </Card>
         ),

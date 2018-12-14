@@ -229,6 +229,7 @@ export default class Results extends Component {
             dataSource={resultSearch.length > 0 ? resultSearch : results}
             onRowClick={this.retrieveResults.bind(this)}
             loading={loading}
+            pagination={{ pageSize: 20 }}
             bordered
           />
         </Card>

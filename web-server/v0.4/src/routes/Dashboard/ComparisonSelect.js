@@ -358,6 +358,7 @@ class ComparisonSelect extends ReactJS.Component {
                   rowSelection={rowSelection}
                   columns={response.columns}
                   dataSource={response.iterations}
+                  pagination={{ pageSize: 20 }}
                   bordered
                 />
               </Card>

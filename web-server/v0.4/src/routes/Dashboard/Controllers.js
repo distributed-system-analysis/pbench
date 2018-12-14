@@ -184,6 +184,7 @@ export default class Controllers extends Component {
             loading={loadingControllers || loadingConfig || loadingIndices}
             showSizeChanger={true}
             showTotal={true}
+            pagination={{ pageSize: 20 }}
             bordered
           />
         </Card>
