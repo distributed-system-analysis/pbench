@@ -1,5 +1,6 @@
 import { PureComponent } from 'react';
 import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import { Icon, Divider, Tooltip, DatePicker, Button, notification, Spin } from 'antd';
 import Debounce from 'lodash-decorators/debounce';
@@ -91,7 +92,7 @@ class GlobalHeader extends PureComponent {
   }
 
   render() {
-    const { collapsed, isMobile, logo, indices, startMonth, endMonth, location } = this.props;
+    const { collapsed, isMobile, logo, indices, startMonth, endMonth, location, dispatch } = this.props;
     console.log('header rendered');
 
     return (
@@ -143,6 +144,19 @@ class GlobalHeader extends PureComponent {
           )}
         </div>
         <div className={styles.right}>
+          <Tooltip title="Search" onClick={() => {
+              dispatch (
+                routerRedux.push({
+                  pathname: '/search',
+                })
+              )
+              }}>
+            <a
+              className={styles.action}
+            >
+              <Icon type="search" />
+            </a>
+          </Tooltip>
           <Tooltip title="Help">
             <a
               target="_blank"
