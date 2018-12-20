@@ -1,0 +1,6 @@
+#! /bin/bash
+
+echo "${0##*/} $*" >> ${_testlog}
+cat >> ${_testloggerpayload}
+printf "\n" >> ${_testloggerpayload}
+exit 0

@@ -32,6 +32,7 @@ _testactout=$_testroot/actoutput.txt
 _testactlog=$_testroot/test-activation-execution.log
 export _testlog=$_testroot/test-execution.log
 export _testcurlpayload=$_testroot/test-curl-payload.log
+export _testloggerpayload=$_testroot/test-logger-payload.log
 _testdir=$_testroot/pbench
 _testdir_local=$_testroot/pbench-local
 _testdir_sat=$_testroot/pbench-satellite
@@ -104,7 +105,7 @@ function _run_allscripts {
     _run pbench-backup-tarballs
     _run pbench-verify-backup-tarballs
     # Invoke pbench-satellite-cleanup in the context of the satellite
-    PATH=${_testopt_sat}/unittest-scripts:${_testopt_sat}/bin:${_orig_PATH} CONFIG=${SATCONFIG} _run pbench-satellite-cleanup
+    PATH=${_testopt_sat}/unittest-scripts:${_testopt_sat}/bin:${_orig_PATH} CONFIG=${SATCONFIG} IDXCONFIG=${SATIDXCONFIG} _run pbench-satellite-cleanup
 }
 
 function _local_find {
@@ -190,6 +191,12 @@ function _dump_logs {
         sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' $_testcurlpayload >> $_testout 2>&1
         echo "--- $(basename $_testcurlpayload) file contents" >> $_testout
     fi
+
+    if [ -s $_testloggerpayload ]; then
+        echo "+++ $(basename $_testloggerpayload) file contents" >> $_testout
+        sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' $_testloggerpayload >> $_testout 2>&1
+        echo "--- $(basename $_testloggerpayload) file contents" >> $_testout
+    fi
 }
 
 function _verify_output {
@@ -266,6 +273,7 @@ function _setup_state {
     export SATCONFIG=$_testopt_sat/lib/config/pbench-server.cfg
     # used by pbench-report-status
     export IDXCONFIG=$_testopt/lib/config/pbench-index.cfg
+    export IDXSATCONFIG=$_testopt_sat/lib/config/pbench-index.cfg
 
     # The activate invocations are supposed to work without CONFIG being set,
     # so they do *not* use the global CONFIG file that the rest of the tests
@@ -368,6 +376,7 @@ function _reset_state {
     rm -f $_testlog
     rm -f $_testactlog
     rm -f $_testcurlpayload
+    rm -f $_testloggerpayload
     rm -rf $_testdir
     if [[ -d $_testdir ]]; then
         echo "ERROR: unable to remove pbench hierarchy" >&2
@@ -534,6 +543,9 @@ declare -A cmds=(
 
     # Actually exercises satellite code
     [test-22]="_run pbench-satellite-cleanup"
+
+    # Uses pbench-dispatch to test report status via syslog
+    [test-23]="_run pbench-dispatch"
 )
 
 tests=$*

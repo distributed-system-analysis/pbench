@@ -59,18 +59,7 @@ fi
 
 if [ -z "$file" ] ;then
     usage
-    exit 1
-fi
-
-# Some servers might no have an accessible ES instance.
-# The config file will contain
-#   use-mail-for-status = yes
-# in that case and we'll fall back to mail.
-report_using_mail=$(getconf.py use-mail-for-status pbench-server)
-if [ ! -z "$report_using_mail" -a "$report_using_mail" != "no" ] ;then
-    mailx -s "$name status report at $timestamp" $mail_recipients < $file
-    status=$?
-    exit $status
+    exit 4
 fi
 
 tmp=/tmp/$prog.$$
@@ -86,36 +75,52 @@ rm -rf $tmp" EXIT QUIT INT
 mkdir $tmp
 
 server=$(getconf.py --config $IDXCONFIG server Server)
-if [[ -z "$server" ]] ;then
-    echo "$prog: no server defined in [Server] section of $IDXCONFIG" >> ${tmp}/log
-    exit 2
-fi
+index_prefix=$(getconf.py --config $IDXCONFIG index_prefix Settings)
+if [ -z "$server" -o -z "$index_prefix" ] ;then
+    # We don't have an Elasticsearch configuration, use syslog.
+    if [ -z "$server" ] ;then
+        echo "$prog: no server defined in [Server] section of $IDXCONFIG" >> ${tmp}/log
+    fi
+    if [ -z "$index_prefix" ] ;then
+        echo "$prog: no index_prefix defined in [Settings] section of $IDXCONFIG" >> ${tmp}/log
+    fi
 
-# Snip off the trailing "-<TZ>" - assumes that <TZ> does not contain a "-"
-datestamp="${timestamp%-*}"
-# Snip off the time part of the timestamp to get YYYY-MM
-datestamp=${datestamp%-*}
+    # Prepend the proper sequence to allow rsyslog to recognize JSON and process it
+    printf "@cee:" > ${tmp}/payload
+    # Generate the payload without pretty JSON format so it fits in a single line.
+    $dir/pbench-gen-json-payload ${timestamp%-*} $name $doctype $file "false" >> ${tmp}/payload
 
-index=$(getconf.py --config $IDXCONFIG index_prefix Settings)."$name"."$datestamp"
-if [[ -z "$index" ]] ;then
-    echo "$prog: no index_prefix defined in [Settings] section of $IDXCONFIG" >> ${tmp}/log
-    exit 3
-fi
+    size=$(stat --printf="%s" "${tmp}/payload")
+    if [ $size -gt 4096 ]; then
+        xz -9 -c ${tmp}/payload > $LOGSDIR/$name/${prog}-payload.${timestamp%-*}.xz
+    else
+        cat ${tmp}/payload | logger --size 4096 --tag $name --priority daemon.info
+    fi
+else
+    # We have an Elasticsearch configuration.
 
-# drop the -UTC spec from the timestamp: the ES date parser does not like it
-$dir/pbench-gen-json-payload ${timestamp%-*} $name $doctype $file > ${tmp}/payload
+    # Snip off the trailing "-<TZ>" - assumes that <TZ> does not contain a "-"
+    datestamp="${timestamp%-*}"
+    # Snip off the time part of the timestamp to get YYYY-MM
+    datestamp=${datestamp%-*}
 
-md5=$(md5sum ${tmp}/payload | cut -d' ' -f1)
+    # drop the -UTC spec from the timestamp: the ES date parser does not like it
+    $dir/pbench-gen-json-payload ${timestamp%-*} $name $doctype $file > ${tmp}/payload
 
->${tmp}/http_code
->${tmp}/response_body
-curl --silent --show-error -XPOST -H 'Content-Type: application/json' --output ${tmp}/response_body --write-out "%{http_code}" "http://$server/$index/$doctype/$md5" --data @"${tmp}/payload" > ${tmp}/http_code 2>> ${tmp}/log
-status=$?
-if [ ${status} -ne 0 -o "$(cat ${tmp}/http_code)" != "201" ]; then
-    echo "${prog}: curl failed (exit code: \"${status}\", HTTP code: \"$(cat ${tmp}/http_code 2> /dev/null)\")" >> ${tmp}/log
-    if [ -s ${tmp}/response_body ]; then
-        echo "Response body:" >> ${tmp}/log
-        cat ${tmp}/response_body >> ${tmp}/log 2> /dev/null && echo >> ${tmp}/log
+    md5=$(md5sum ${tmp}/payload | cut -d' ' -f1)
+
+    # Construct the actual index name to use.
+    index="$index_prefix"."$name"."$datestamp"
+    >${tmp}/http_code
+    >${tmp}/response_body
+    curl --silent --show-error -XPOST -H 'Content-Type: application/json' --output ${tmp}/response_body --write-out "%{http_code}" "http://$server/$index/$doctype/$md5" --data @"${tmp}/payload" > ${tmp}/http_code 2>> ${tmp}/log
+    status=$?
+    if [ ${status} -ne 0 -o "$(cat ${tmp}/http_code)" != "201" ]; then
+        echo "${prog}: curl failed (exit code: \"${status}\", HTTP code: \"$(cat ${tmp}/http_code 2> /dev/null)\")" >> ${tmp}/log
+        if [ -s ${tmp}/response_body ]; then
+            echo "Response body:" >> ${tmp}/log
+            cat ${tmp}/response_body >> ${tmp}/log 2> /dev/null && echo >> ${tmp}/log
+        fi
     fi
 fi
 
