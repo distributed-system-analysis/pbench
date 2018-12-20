@@ -475,7 +475,7 @@ drwxrwxr-x          - public_html/users
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-satellite-cleanup
 -rw-rw-r--          0 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.error
--rw-rw-r--        312 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log
+-rw-rw-r--        448 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log
 drwxrwxr-x          - logs/pbench-sync-package-tarballs
 -rw-rw-r--          0 logs/pbench-sync-package-tarballs/pbench-sync-package-tarballs.error
 -rw-rw-r--          0 logs/pbench-sync-package-tarballs/pbench-sync-package-tarballs.log
@@ -672,6 +672,8 @@ drwxrwxr-x          - tmp
 /var/tmp/pbench-test-server/pbench-local/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:end-1900-01-01T00:00:00-UTC
 /var/tmp/pbench-test-server/pbench-satellite-local/logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log:run-1900-01-01T00:00:00-UTC: pbench-satellite-cleanup starting
 /var/tmp/pbench-test-server/pbench-satellite-local/logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log:run-1900-01-01T00:00:00-UTC: pbench-satellite-cleanup ends: Total 3 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.
+/var/tmp/pbench-test-server/pbench-satellite-local/logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log:pbench-report-status: no server defined in [Server] section of 
+/var/tmp/pbench-test-server/pbench-satellite-local/logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log:pbench-report-status: no index_prefix defined in [Settings] section of 
 --- pbench log file contents
 +++ test-execution.log file contents
 curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-server-prep-shim-001.1900-01/status/c6f066eb1dbf29768499e011afeb7e3d --data @/tmp/pbench-report-status.NNNN/payload
@@ -687,10 +689,7 @@ curl --silent --show-error -XPOST -H Content-Type: application/json --output /tm
 rsync -va --stats --exclude=_QUARANTINED --exclude=TODO --exclude=BAD-MD5 --exclude=TO-UNPACK --exclude=UNPACKED --exclude=MOVED-UNPACKED --exclude=TO-SYNC --exclude=SYNCED --exclude=TO-LINK --exclude=TO-INDEX --exclude=INDEXED --exclude=WONT-INDEX --exclude=TO-COPY-SOS --exclude=COPIED-SOS --exclude=TO-BACKUP --exclude=SATELLITE-MD5-PASSED --exclude=SATELLITE-MD5-FAILED --exclude=TO-DELETE --exclude=SATELLITE-DONE --exclude=WONT-INDEX.1 --exclude=WONT-INDEX.2 --exclude=WONT-INDEX.3 --exclude=WONT-INDEX.4 --exclude=WONT-INDEX.5 --exclude=WONT-INDEX.6 --exclude=WONT-INDEX.7 --exclude=WONT-INDEX.8 --exclude=WONT-INDEX.9 --exclude=WONT-INDEX.10 --exclude=WONT-INDEX.11 /var/tmp/pbench-test-server/pbench/archive/fs-version-001/ /var/tmp/pbench-test-server/pbench-local/archive.backup
 curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-backup-tarballs.1900-01/status/40b7bdb1cbda5718bb67593915871326 --data @/tmp/pbench-report-status.NNNN/payload
 curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-verify-backup-tarballs.1900-01/status/1c085633b6383895b876bbedd5ed4261 --data @/tmp/pbench-report-status.NNNN/payload
-mailx -s pbench-satellite-cleanup status report at 1900-01-01T00:00:00-UTC unit-test-user@example.com
-pbench-satellite-cleanup.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 total errors
-Total 3 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.
-
+logger --size 4096 --tag pbench-satellite-cleanup --priority daemon.info
 curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/0beaf440d952d397c40a933fa9c32a5e --data @/tmp/pbench-report-status.NNNN/payload
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
@@ -761,3 +760,6 @@ curl --silent --show-error -XPOST -H Content-Type: application/json --output /tm
     "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nController: controller-h-bad-md5\n\t* No tar ball files found in this controller directory.\n\n\nend-1900-01-01T00:00:00-UTC\n"
 }
 --- test-curl-payload.log file contents
++++ test-logger-payload.log file contents
+@cee:{"@timestamp": "1900-01-01T00:00:00", "doctype": "status", "name": "pbench-satellite-cleanup", "text": "pbench-satellite-cleanup.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 total errors\nTotal 3 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.\n\n"}
+--- test-logger-payload.log file contents

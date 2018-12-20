@@ -1,5 +1,0 @@
-#!/bin/bash
-
-echo "${0##*/} $*" >> $_testlog
-cat >> $_testlog
-exit 0
