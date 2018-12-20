@@ -108,20 +108,20 @@ drwxrwxr-x          - tmp
 /var/tmp/pbench-test-server/pbench-local/logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log:end-1900-01-01T00:00:00-UTC
 --- pbench log file contents
 +++ test-execution.log file contents
-curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-verify-backup-tarballs.1900-01/status/0ddb2bce5d7723eb4bdbafae0b8ae0b2 --data @/tmp/pbench-report-status.NNNN/payload
-curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/2516423d024eea25ec92d3eb82986f8f --data @/tmp/pbench-report-status.NNNN/payload
+curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-verify-backup-tarballs.1900-01/status/e382f1a8fcf879dd8b35c44df3d6e104 --data @/tmp/pbench-report-status.NNNN/payload
+curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/8fc5b573febd74053272b7d25eb9e5fd --data @/tmp/pbench-report-status.NNNN/payload
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
 {
-    "text": "pbench-verify-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n* In /var/tmp/pbench-test-server/pbench-local/archive.backup: the calculated MD5 of the following entries failed to match the stored MD5\nmd5sum: WARNING: 1 computed checksum did NOT match\n/var/tmp/pbench-test-server/pbench-local/archive.backup/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: FAILED\n\n* Files that exist only in primary directory - extra files in this list are probably OK: they just have not been backed up yet.\n4fe570aea2be3dab96b328da5a8cfcc9  ./controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz\n* Files that exist only in backup directory - this should only happen if a backup or primary tar ball becomes corrupted.\n3fe570aea2be3dab96b328da5a8cfcc9  ./controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz\n",
     "@timestamp": "1900-01-01T00:00:00",
+    "doctype": "status",
     "name": "pbench-verify-backup-tarballs",
-    "doctype": "status"
+    "text": "pbench-verify-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n* In /var/tmp/pbench-test-server/pbench-local/archive.backup: the calculated MD5 of the following entries failed to match the stored MD5\nmd5sum: WARNING: 1 computed checksum did NOT match\n/var/tmp/pbench-test-server/pbench-local/archive.backup/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: FAILED\n\n* Files that exist only in primary directory - extra files in this list are probably OK: they just have not been backed up yet.\n4fe570aea2be3dab96b328da5a8cfcc9  ./controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz\n* Files that exist only in backup directory - this should only happen if a backup or primary tar ball becomes corrupted.\n3fe570aea2be3dab96b328da5a8cfcc9  ./controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz\n"
 }
 {
-    "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nController: controller\n\t* No state directories found in this controller directory.\n\n\nend-1900-01-01T00:00:00-UTC\n",
     "@timestamp": "1900-01-01T00:00:00",
+    "doctype": "status",
     "name": "pbench-audit-server",
-    "doctype": "status"
+    "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nController: controller\n\t* No state directories found in this controller directory.\n\n\nend-1900-01-01T00:00:00-UTC\n"
 }
 --- test-curl-payload.log file contents
