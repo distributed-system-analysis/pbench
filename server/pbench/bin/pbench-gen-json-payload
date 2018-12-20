@@ -13,7 +13,7 @@ doc = {
     "text": text
 }
 
-json.dump(doc, sys.stdout, indent=4, separators=(',', ': '))
+json.dump(doc, sys.stdout, sort_keys=True, indent=4, separators=(',', ': '))
 sys.stdout.write('\n')
 
 sys.exit(0)
