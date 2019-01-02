@@ -42,7 +42,7 @@ sub gen_data {
 	my %counts;
 	my $filename;
 	my $timestamp_ms;
-	
+
 	# Generate the CSV file, and don't filter out anything based on a
 	# threshold, and generate the averages for each series.
 	my $csv;
@@ -61,7 +61,7 @@ sub gen_data {
 			#printf "\tchart = $chart\n";
 
 			$filename = $csv . "/" . $htmlpage. "_" .$chart . ".csv";
-			open(TOOL_CSV, ">$filename") || die "$script: could not open $filename\n";
+			open(TOOL_CSV, ">>$filename") || die "$script: could not open $filename\n";
 
 			# first check whether the timestamps in the different series agree: if so,
 			# we'll generate a normal (type-1) csv file:  each row will have the form
@@ -135,7 +135,7 @@ sub gen_data {
 							if ( not defined $stats{$htmlpage}{$chart}{$series_key}{$timestamp_ms} ) {
 								die "$script: timestamp $timestamp_ms missing for ($htmlpage, $chart, $series_key)";
 							}
-							$value = $stats{$htmlpage}{$chart}{$series_key}{$timestamp_ms}; 
+							$value = $stats{$htmlpage}{$chart}{$series_key}{$timestamp_ms};
 							$totals{$chart}{$series_key} += $value;
 							if ($value > $maxval{$htmlpage}{$chart}{$series_key}) {
 								$maxval{$htmlpage}{$chart}{$series_key} = $value;
@@ -175,7 +175,7 @@ sub gen_data {
 					for $series_key (@series_keys) {
 						# this should not happen any more, but paranoid checking doesn't hurt.
 						if ( defined $stats{$htmlpage}{$chart}{$series_key}{$timestamp_ms} ) {
-							$value = $stats{$htmlpage}{$chart}{$series_key}{$timestamp_ms}; 
+							$value = $stats{$htmlpage}{$chart}{$series_key}{$timestamp_ms};
 							$totals{$chart}{$series_key} += $value;
 							if ($value > $maxval{$htmlpage}{$chart}{$series_key}) {
 								$maxval{$htmlpage}{$chart}{$series_key} = $value;

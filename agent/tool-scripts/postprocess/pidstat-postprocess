@@ -40,6 +40,8 @@ my $line;
 my $line2;
 my $tid;
 my @stats;
+my $lines_limit = 10000;
+my $lines_scanned = 0;
 
 my @virsh_list;
 my @virsh_vcpus;
@@ -69,6 +71,17 @@ if ( (($? >> 8) == 0) && (! -e "/usr/bin/vdsClient") && (-e "/usr/bin/virsh") ) 
 		}
 	}
 }
+
+$graph_type{cpu_usage}{percent_cpu} = "stackedAreaChart";
+$graph_threshold{cpu_usage}{percent_cpu} = 1;
+$graph_threshold{file_io}{io_reads_KB_sec} = 50;
+$graph_threshold{file_io}{io_writes_KB_sec} = 50;
+$graph_threshold{memory_faults}{minor_faults_sec} = 150;
+$graph_threshold{memory_faults}{major_faults_sec} = 150;
+$graph_threshold{context_switches}{voluntary_switches_sec} = 100;
+$graph_threshold{context_switches}{nonvoluntary_switches_sec} = 100;
+$graph_threshold{memory_usage}{virtual_size} = 100;
+$graph_threshold{memory_usage}{resident_set_size} = 100;
 
 # read the pidstat.txt and collect stats for all non dm-* devices
 open(PIDSTAT_TXT, "$dir/pidstat-stdout.txt") || die "could not find $dir/pidstat-stdout.txt\n";
@@ -149,35 +162,35 @@ while ($line = <PIDSTAT_TXT>) {
 		$pidstat{memory_usage}{virtual_size}{$pid}{$timestamp_ms} = $vsz;
 		$pidstat{memory_usage}{resident_set_size}{$pid}{$timestamp_ms} = $rss;
 		$timestamps{$timestamp_ms}++;
+
+                # parse data every 10,000 lines.
+                if ($lines_scanned % $lines_limit == 0) {
+                  # TODO: this code shold be multithreaded in order to speed up the process.
+                
+                  # fill in any missing data with zeros
+                  my $htmlpage;
+                  my $graph;
+                  my $pid;
+                  my $timestamp_ms;
+                  foreach  $htmlpage ( keys %pidstat ) {
+                  	foreach  $graph ( keys %{ $pidstat{$htmlpage} } ) {
+                  		foreach $pid ( keys %{ $pidstat{$htmlpage}{$graph} } ) {
+                  			foreach $timestamp_ms ( sort {$a <=> $b} (keys %timestamps ) ) {
+                  				if (! defined($pidstat{$htmlpage}{$graph}{$pid}{$timestamp_ms})) {
+                  					$pidstat{$htmlpage}{$graph}{$pid}{$timestamp_ms} = 0;
+                  				}
+                  			}
+                  		}
+                  	}
+                  }
+                
+                  # dump data into csv.
+                  gen_data(\%pidstat, \%graph_type, \%graph_threshold, $dir);
+                
+                  # reset pidstat in order to reduce memory.
+                  %pidstat = ();
+                }
+		$lines_scanned += 1; # count lines.
 	}
 }
 close(PIDSTAT_TXT);
-
-# fill in any missing data with zeros
-my $htmlpage;
-my $graph;
-my $pid;
-my $timestamp_ms;
-foreach  $htmlpage ( keys %pidstat ) {
-	foreach  $graph ( keys %{ $pidstat{$htmlpage} } ) {
-		foreach $pid ( keys %{ $pidstat{$htmlpage}{$graph} } ) {
-			foreach $timestamp_ms ( sort {$a <=> $b} (keys %timestamps ) ) {
-				if (! defined($pidstat{$htmlpage}{$graph}{$pid}{$timestamp_ms})) {
-					$pidstat{$htmlpage}{$graph}{$pid}{$timestamp_ms} = 0;
-				}
-			}
-		}
-	}
-}
-
-$graph_type{cpu_usage}{percent_cpu} = "stackedAreaChart";
-$graph_threshold{cpu_usage}{percent_cpu} = 1;
-$graph_threshold{file_io}{io_reads_KB_sec} = 50;
-$graph_threshold{file_io}{io_writes_KB_sec} = 50;
-$graph_threshold{memory_faults}{minor_faults_sec} = 150;
-$graph_threshold{memory_faults}{major_faults_sec} = 150;
-$graph_threshold{context_switches}{voluntary_switches_sec} = 100;
-$graph_threshold{context_switches}{nonvoluntary_switches_sec} = 100;
-$graph_threshold{memory_usage}{virtual_size} = 100;
-$graph_threshold{memory_usage}{resident_set_size} = 100;
-gen_data(\%pidstat, \%graph_type, \%graph_threshold, $dir);
