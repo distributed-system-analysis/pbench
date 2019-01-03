@@ -66,23 +66,31 @@ tmp=/tmp/$prog.$$
 
 trap "
 # append ${tmp}/log to the caller's log file
-if [ -f "$LOGSDIR/$name/$name.log" ]; then
+if [ -f "$LOGSDIR/$name/$name.log" -a -s "${tmp}/log" ]; then
     cat ${tmp}/log >> $LOGSDIR/$name/$name.log
 fi;
 
 rm -rf $tmp" EXIT QUIT INT
 
 mkdir $tmp
+>${tmp}/log
 
-server=$(getconf.py --config $IDXCONFIG server Server)
-index_prefix=$(getconf.py --config $IDXCONFIG index_prefix Settings)
+if [ ! -z "$IDXCONFIG" ]; then
+    server=$(getconf.py --config $IDXCONFIG server Server)
+    index_prefix=$(getconf.py --config $IDXCONFIG index_prefix Settings)
+else
+    server=""
+    index_prefix=""
+fi
 if [ -z "$server" -o -z "$index_prefix" ] ;then
     # We don't have an Elasticsearch configuration, use syslog.
-    if [ -z "$server" ] ;then
-        echo "$prog: no server defined in [Server] section of $IDXCONFIG" >> ${tmp}/log
-    fi
-    if [ -z "$index_prefix" ] ;then
-        echo "$prog: no index_prefix defined in [Settings] section of $IDXCONFIG" >> ${tmp}/log
+    if [ ! -z "$IDXCONFIG" ]; then
+        if [ -z "$server" ] ;then
+            echo "$prog: no server defined in [Server] section of $IDXCONFIG" >> ${tmp}/log
+        fi
+        if [ -z "$index_prefix" ] ;then
+            echo "$prog: no index_prefix defined in [Settings] section of $IDXCONFIG" >> ${tmp}/log
+        fi
     fi
 
     # Prepend the proper sequence to allow rsyslog to recognize JSON and process it
