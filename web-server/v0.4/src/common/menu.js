@@ -4,13 +4,12 @@ const menuData = [
   {
     name: 'Dashboard',
     icon: 'dashboard',
-    path: 'dashboard',
-    children: [
-      {
-        name: 'Controllers',
-        path: 'controllers',
-      }
-    ]
+    path: 'dashboard/controllers',
+  },
+  {
+    name: 'Search',
+    icon: 'search',
+    path: 'search'
   }
 ];
 

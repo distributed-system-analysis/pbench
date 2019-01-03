@@ -100,7 +100,7 @@ export const getRouterData = app => {
       ),
     },
     '/search': {
-      component: dynamicWrapper(app, [], () => import('../routes/List/List')),
+      component: dynamicWrapper(app, ['search', 'global', 'dashboard'], () => import('../routes/Search/SearchList')),
     },
     '/exception/403': {
       component: dynamicWrapper(app, [], () => import('../routes/Exception/403')),
