@@ -2,13 +2,17 @@
 
 # Author: Andrew Theurer
 #
-# usage: iostat-postprocess <dir>  dir = directory where iostat.txt can be found
+# usage: iostat-postprocess <dir>
+#   dir = directory where iostat.txt can be found
 # iostat.txt must be generated from "iostat -t -y -x -m <interval>"
 #
 # The purpose of this script is to
 # -output the chart data in JSON format (iostat.js)
 # -output html file (iostat.html) with embedded javascript, using d3.js libraries
 # The result should be several iostat graphs
+
+# FIXME: This post-processing script does NOT need to be run on the host the
+# data was collected from and is a candidate to be run server side.
 
 use strict;
 use warnings;
@@ -67,10 +71,11 @@ while (my $line = <IOSTAT_TXT>) {
 		# data is stored this way:
 		# $sar{htmlpage}{graph}{series}{sample}
 
-		# Each data series is for one device (sda).  One some graphs, read and write
-		# series are included in to one graph (instead of having one read-ops chart
-		# and another write-ops chart), so each series needs "-read" or
-		# "-write" appended to keep them distinct.
+		# Each data series is for one device (sda).  On some graphs,
+		# read and write series are displayed in the same graph
+		# (instead of having one read-ops chart and another write-ops
+		# chart), so each series needs "-read" or "-write" appended to
+		# keep them distinct.
 
 		$iostat{disk}{"Utilization_percent"}{$dev}{$timestamp_ms} = $util;
 		$iostat{disk}{"Throughput_MB_per_sec"}{$dev . "-read"}{$timestamp_ms} = $rtput;

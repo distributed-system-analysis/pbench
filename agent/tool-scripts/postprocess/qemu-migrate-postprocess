@@ -2,8 +2,11 @@
 
 # Author: Andrew Theurer
 #
-# usage: qemu-migrate-postprocess 
+# usage: qemu-migrate-postprocess
 #
+
+# FIXME: This post-processing script does NOT need to be run on the host the
+# data was collected from and is a candidate to be run server side.
 
 use strict;
 use warnings;
@@ -51,7 +54,7 @@ open(TXT, "$dir/$file") || die "could not find $dir/$file\n";
 while (my $line = <TXT>) {
 	chomp $line;
 	#timestamp: 1407853973.548374311
-	#Job type:         Unbounded   
+	#Job type:         Unbounded
 	#Time elapsed:     6599         ms
 	#Data processed:   3.635 GiB
 	#Data remaining:   1.309 MiB
@@ -59,15 +62,15 @@ while (my $line = <TXT>) {
 	#Memory processed: 3.635 GiB
 	#Memory remaining: 1.309 MiB
 	#Memory total:     10.126 GiB
-	#Constant pages:   3542877     
-	#Normal pages:     950539      
+	#Constant pages:   3542877
+	#Normal pages:     950539
 	#Normal data:      3.626 GiB
 	#Expected downtime: 2328         ms
 	#
 
 	#QEMU 2.1.50 monitor - type 'help' for more information
 	#
-	#capabilities: xbzrle: off rdma-pin-all: off auto-converge: off zero-blocks: off x-postcopy-ram: off 
+	#capabilities: xbzrle: off rdma-pin-all: off auto-converge: off zero-blocks: off x-postcopy-ram: off
 	#Migration status: active
 	#total time: 762 milliseconds
 	#expected downtime: 30000 milliseconds
@@ -149,9 +152,6 @@ while (my $line = <TXT>) {
 }
 close(TXT);
 
-
 my %graph_type;
 my %graph_threshold;
 gen_data(\%stats, \%graph_type, \%graph_threshold, $dir);
-
-

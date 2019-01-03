@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+# FIXME: This post-processing script does NOT need to be run on the host the
+# data was collected from and is a candidate to be run server side.
+
 use strict;
 use warnings;
 

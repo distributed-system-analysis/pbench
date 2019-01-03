@@ -12,6 +12,9 @@
 # The purpose of this script is to
 # -provide a list of functions that the guest was executing when a vm_exit happened
 
+# FIXME: This post-processing script does NOT need to be run on the host the
+# data was collected from and is a candidate to be run server side.
+
 use strict;
 use warnings;
 use bigint;
@@ -105,7 +108,7 @@ while ($line = <KVMTRACE_EXIT_REASONS>) {
 }
 close(KVMTRACE_EXIT_REASONS);
 
-open(KALLSYMS, "$dir/kallsyms-guest.txt") || die "Could not open $dir/kallsyms-guest.txt"; 
+open(KALLSYMS, "$dir/kallsyms-guest.txt") || die "Could not open $dir/kallsyms-guest.txt";
 my $sym_addr;
 my $sym;
 my $last_sym;
@@ -135,9 +138,9 @@ close(KALLSYMS);
 	# print "addr: $exit_addr  reason: $exit_reason_by_addr{$exit_addr} count: $nr_exits_by_addr{$exit_addr}\n";
 # }
 # print "\n";
-	
 
-open(KVMTRACE_EXIT_SOURCES, ">$dir/kvmtrace-exit-sources.txt") || die "Could not open $dir/kvmtrace-exit-sources.txt"; 
+
+open(KVMTRACE_EXIT_SOURCES, ">$dir/kvmtrace-exit-sources.txt") || die "Could not open $dir/kvmtrace-exit-sources.txt";
 printf KVMTRACE_EXIT_SOURCES "%-20s %-17s %-30s %s\n", "exit_reason", "guest_address", "symbol", "nr_exits";
 printf KVMTRACE_EXIT_SOURCES "%20s %17s %30s %s\n", "--------------------", "-----------------", "------------------------------", "------------";
 for $exit_addr (sort { $nr_exits_by_addr{$b} <=> $nr_exits_by_addr{$a} } keys(%nr_exits_by_addr)) {

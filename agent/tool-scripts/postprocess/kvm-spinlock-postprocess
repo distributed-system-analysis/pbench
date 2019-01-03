@@ -8,6 +8,9 @@
 # -output the chart data in JSON format (kvm-spinlock.js)
 # -output html file (kvm-spinlock.html) with embedded javascript, using d3.js libraries
 
+# FIXME: This post-processing script does NOT need to be run on the host the
+# data was collected from and is a candidate to be run server side.
+
 use strict;
 use warnings;
 

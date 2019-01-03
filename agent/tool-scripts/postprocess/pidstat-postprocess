@@ -10,6 +10,9 @@
 # -output html file (pidstat.html) with embedded javascript, using d3.js libraries
 # The result should be several pidstat graphs
 
+# FIXME: This tool requires being run "ON THE SAME HOST AS THE ORIGINAL TOOL"
+# in order to capture mapping of CPU ID to package ID.
+
 use strict;
 use warnings;
 

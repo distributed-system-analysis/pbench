@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# FIXME: This tool requires being run "ON THE SAME HOST AS THE ORIGINAL TOOL"
+# in order to capture mapping of CPU ID to package ID.
+
 dir=$1
 interval=$2
 

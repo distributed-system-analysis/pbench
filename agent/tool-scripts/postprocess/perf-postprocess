@@ -4,8 +4,11 @@
 #
 # usage: proc-sched_debug-postprocess <dir>  dir = directory where proc-sched_debug.txt can be found
 #
-# The purpose of this script is to look through /proc/sched_debug data to identify potential 
+# The purpose of this script is to look through /proc/sched_debug data to identify potential
 # Linux CPU scheduler problems
+
+# FIXME: This post-processing script does NOT need to be run on the host the
+# data was collected from and is a candidate to be run server side.
 
 use strict;
 use warnings;
@@ -26,9 +29,9 @@ my $line;
 open(TXT, "$dir/$file") || die "could not find $dir/$file\n";
 while (my $line = <TXT>) {
 	chomp $line;
-	#    32.95%        928412         qemu-kvm  [kernel.kallsyms]             [k] _raw_spin_lock                                   
-	#     5.50%        242887         qemu-kvm  [kernel.kallsyms]             [k] kvm_vcpu_on_spin                                 
-	#     3.66%        261976         qemu-kvm  [kernel.kallsyms]             [k] update_cfs_rq_blocked_load   
+	#    32.95%        928412         qemu-kvm  [kernel.kallsyms]             [k] _raw_spin_lock
+	#     5.50%        242887         qemu-kvm  [kernel.kallsyms]             [k] kvm_vcpu_on_spin
+	#     3.66%        261976         qemu-kvm  [kernel.kallsyms]             [k] update_cfs_rq_blocked_load
 
 	if ($line =~ /^\s*(\d+\.\d+)%\s+(\d+)\s+(\S+)\s+\[(\S+)\]\s+\[(\S+)\]\s+(\S+)/) {
 		$pct = $1;

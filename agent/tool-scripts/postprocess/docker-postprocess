@@ -2,12 +2,16 @@
 
 # Author: Andrew Theurer
 #
-# usage: <tool>-postprocess <dir>  dir = directory where tool txt file can be found
+# usage: <tool>-postprocess <dir>
+#   dir = directory where tool txt file can be found
 #
 # The purpose of this script is to
 # -output the chart data in JSON format (docker.js)
 # -output html file(s) with embedded javascript, using d3.js libraries
 # The result should be one or more graphs
+#
+# FIXME: This post-processing script does NOT need to be run on the host the
+# data was collected from and is a candidate to be run server side.
 
 use strict;
 use warnings;
@@ -33,6 +37,7 @@ my $timestamp_ms;
 # read the test file
 my $input_file_name = $dir . "/" . $tool . "-stdout.txt";
 open(TOOL_TXT, $input_file_name) || die "could not find $input_file_name\n";
+# FIXME - What is this for?
 my $mode="search";
 while (my $line = <TOOL_TXT>) {
 	chomp $line;
@@ -46,10 +51,13 @@ while (my $line = <TOOL_TXT>) {
 	# now find the data we are interested in
 	if ( $line =~ /^(\d+)/ ) {
 		my $total_containers = $1;
-		# data is stored this way:
-		# $stats{htmlpage}{graph}{series}{sample}
-		# if you are -not- using a subdirectory to store these files, the "{htmlpage}" should at least have the tool name in it
-		# if you are using a subdirectory, the subdirectory name is the name of the tool, so the htmlpage does not necessarily need the tool name in it
+		# Data is stored this way:
+		#   $stats{htmlpage}{graph}{series}{sample}
+		# If you are -not- using a subdirectory to store these files,
+                # the "{htmlpage}" should at least have the tool name in it.
+		# If you are using a subdirectory, the subdirectory name is
+                # the name of the tool, so the htmlpage does not necessarily
+                # need the tool name in it.
 		$stats{docker}{containers}{total_containers}{$timestamp_ms} = $total_containers;
 	}
 }

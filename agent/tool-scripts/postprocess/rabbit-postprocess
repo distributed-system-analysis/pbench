@@ -9,6 +9,9 @@
 # -output html file(s) with embedded javascript, using d3.js libraries
 # The result should be one or more graphs
 
+# FIXME: This post-processing script does NOT need to be run on the host the
+# data was collected from and is a candidate to be run server side.
+
 use strict;
 use warnings;
 

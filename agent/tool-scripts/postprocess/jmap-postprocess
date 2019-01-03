@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# FIXME: This post-processing script does NOT need to be run on the host the
+# data was collected from and is a candidate to be run server side.
+
 dir=$1
 
 # create csv dir

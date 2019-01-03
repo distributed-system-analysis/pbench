@@ -4,8 +4,11 @@
 #
 # usage: proc-sched_debug-postprocess <dir>  dir = directory where proc-sched_debug.txt can be found
 #
-# The purpose of this script is to look through /proc/sched_debug data to identify potential 
+# The purpose of this script is to look through /proc/sched_debug data to identify potential
 # Linux CPU scheduler problems
+
+# FIXME: This post-processing script does NOT need to be run on the host the
+# data was collected from and is a candidate to be run server side.
 
 use strict;
 use warnings;
