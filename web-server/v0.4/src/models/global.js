@@ -4,7 +4,7 @@ export default {
   namespace: 'global',
 
   state: {
-    collapsed: true,
+    collapsed: false,
     datastoreConfig: {},
   },
 
