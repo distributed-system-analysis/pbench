@@ -1,28 +1,9 @@
-import moment from 'moment';
-import axios from 'axios';
-
-function parseMonths(datastoreConfig, startMonth, endMonth) {
-  let months = '/';
-
-  if (endMonth.isBefore(moment().endOf('month'))) {
-    months = months.concat(
-      ',' + datastoreConfig.run_index + datastoreConfig.prefix + endMonth.format('YYYY-MM') + ','
-    );
-  }
-  while (startMonth.isBefore(endMonth) && startMonth.isBefore(moment().endOf('month'))) {
-    months = months.concat(
-      ',' + datastoreConfig.run_index + datastoreConfig.prefix + startMonth.format('YYYY-MM') + ','
-    );
-    startMonth.add(1, 'month');
-  }
-
-  return months;
-}
+import request from '../utils/request';
 
 export async function queryIndexMapping(params) {
-  const { datastoreConfig, startMonth, endMonth } = params;
+  const { datastoreConfig, indices } = params;
 
-  const endpoint = datastoreConfig.elasticsearch + '/_cluster/state/metadata/' + datastoreConfig.prefix + datastoreConfig.run_index + startMonth.format('YYYY-MM') + '?human';
+  const endpoint = datastoreConfig.elasticsearch + '/' + datastoreConfig.prefix + datastoreConfig.run_index + indices[0] + '/_mappings';
 
   return request(endpoint, {
     method: 'GET'
@@ -30,9 +11,18 @@ export async function queryIndexMapping(params) {
 }
 
 export async function searchQuery(params) {
-  const { datastoreConfig, startMonth, endMonth, query } = params;
+  const { datastoreConfig, selectedFields, selectedIndices, startMonth, endMonth, query } = params;
 
-  const endpoint = datastoreConfig.elasticsearch + parseMonths(datastoreConfig, startMonth, endMonth) + '/_search';
+  const endpoint = datastoreConfig.elasticsearch + '/' + datastoreConfig.prefix + datastoreConfig.run_index + selectedIndices.join() + '/_search';
+  let searchQuery = "_type:pbench-run AND (";
+
+  selectedFields.map((field, i) => {
+    if (i < selectedFields.length - 1) {
+      searchQuery = searchQuery.concat(field + ":*" + query + "* OR ");
+    } else {
+      searchQuery = searchQuery.concat(field + ":*" + query + "*)");
+    }
+  });
 
   return request(endpoint, {
     method: 'POST',
@@ -40,7 +30,7 @@ export async function searchQuery(params) {
       query: {
           query_string: {
               analyze_wildcard: true,
-              query: query
+              query: searchQuery
           }
       }
     }
