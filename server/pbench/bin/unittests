@@ -1,12 +1,6 @@
 #!/bin/bash
 
-unset PATH
 unset CONFIG
-
-# Set an initial standard path.  getconf.py gets installed in /usr/bin
-# by the RPM, but it gets installed in /usr/local/bin by `pip install'
-# under Travis CI, so we need both.
-export PATH=/usr/local/bin:/usr/bin:/bin
 
 export LANG=C
 export LC_ALL=C
