@@ -14,11 +14,7 @@ from urllib3 import Timeout
 from datetime import datetime, timedelta
 from collections import Counter
 from argparse import ArgumentParser
-
-try:
-    from configparser import SafeConfigParser, Error as ConfigParserError, NoSectionError, NoOptionError
-except ImportError:
-    from ConfigParser import SafeConfigParser, Error as ConfigParserError, NoSectionError, NoOptionError
+from configparser import ConfigParser, Error as ConfigParserError, NoSectionError, NoOptionError
 try:
     from elasticsearch1 import VERSION as es_VERSION, Elasticsearch
 except ImportError:
@@ -2104,7 +2100,7 @@ class PbenchTarBall(object):
 
         metadata.log is in the format expected by configparser,
         so we just get and return a configparser object."""
-        mdfconfig = SafeConfigParser()
+        mdfconfig = ConfigParser()
         mdfconfig.read(mdf)
 
         # FIXME: verify start_run and end_run dictionary items are present
@@ -2180,7 +2176,7 @@ def main(options, args):
     opctx = []
 
     try:
-        config=SafeConfigParser()
+        config=ConfigParser()
 
         cfg_name = options.cfg_name
         if not cfg_name:
