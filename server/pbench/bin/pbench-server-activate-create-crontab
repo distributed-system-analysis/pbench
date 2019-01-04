@@ -50,7 +50,6 @@ realhost=$(getconf.py realhost pbench-server)
 function crontab_header() {
     local mailfrom mailto
 
-    echo "PATH=$bindir:$PATH" >> $crontab
     echo "CONFIG=$CONFIG" >> $crontab
 
     mailto=$(getconf.py mailto pbench-server)

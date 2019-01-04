@@ -10,6 +10,14 @@ fi
 if [ -z "$dir" ]; then
     echo "$(basename $0): ERROR: \$dir environment variable does not exist." > /dev/stdout
     exit 2
+else
+    # Ensure the configuration file in play is self-consistent with the
+    # location from which this script is being invoked.
+    BINDIR=$(getconf.py script-dir pbench-server)
+    if [ "$BINDIR" != "$dir" ]; then
+        echo "$PROG: ERROR: BINDIR (\"$BINDIR\") not defined as \"$dir\"" > /dev/stdout
+        exit 3
+    fi
 fi
 
 function doexit {
@@ -50,14 +58,15 @@ test -d $LOGSDIR || doexit "Bad LOGSDIR=$LOGSDIR"
 # Optional
 PBENCH_ENV=$(getconf.py environment pbench-server)
 
+# Ensure the path where pbench-base.sh was found is in the PATH environment
+# variable.
+if [[ ! ":$PATH:" =~ ":${dir}:" ]]; then
+   PATH=${dir}${PATH:+:}$PATH; export PATH
+fi
+
 if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
     # the real thing
 
-    BINDIR=$(getconf.py script-dir pbench-server)
-    if [[ -z "$BINDIR" ]]; then
-        echo "$PROG: ERROR: BINDIR not defined" > /dev/stdout
-        exit 3
-    fi
     LIBDIR=$(getconf.py lib-dir pbench-server)
     if [[ -z "$LIBDIR" ]]; then
         echo "$PROG: ERROR: LIBDIR not defined" > /dev/stdout
@@ -78,10 +87,6 @@ if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
         # make the names reproducible for unit tests
         echo "$TMP/${1}.$$"
     }
-
-    # Ensure the path where pbench-base.sh was found is in the PATH environment
-    # variable.
-    export PATH=${dir}/${PATH}
 else
     # unit test regime
 
@@ -101,9 +106,6 @@ else
         # make the names reproducible for unit tests
         echo "$TMP/${1}.XXXXX"
     }
-
-    # For PATH the unit test environment takes care of the proper setup to
-    # ensure everything gets mocked out properly.
 fi
 
 ARCHIVE=$(getconf.py pbench-archive-dir pbench-server)
