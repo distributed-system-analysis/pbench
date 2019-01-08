@@ -1,60 +1,18 @@
 import request from '../utils/request';
-import moment from 'moment';
 import axios from 'axios';
 
-function parseMonths(datastoreConfig, startMonth, endMonth) {
-  let months = '/';
-
-  if (endMonth.isBefore(moment().endOf('month'))) {
-    months = months.concat(
-      ',' + datastoreConfig.prefix + datastoreConfig.run_index + endMonth.format('YYYY-MM') + ','
-    );
-  }
-  while (startMonth.isBefore(endMonth) && startMonth.isBefore(moment().endOf('month'))) {
-    months = months.concat(
-      ',' + datastoreConfig.prefix + datastoreConfig.run_index + startMonth.format('YYYY-MM') + ','
-    );
-    startMonth.add(1, 'month');
-  }
-
-  return months;
-}
-
-export async function queryMonthIndices(params) {
+export async function queryControllers(params) {
   const { datastoreConfig } = params;
 
-  const endpoint = 
-    datastoreConfig.elasticsearch + '/_cat/indices?format=json&pretty=true';
-
-  return request(endpoint, {
-    method: 'GET'
-  })
-}
-
-export async function queryControllers(params) {
-  const { datastoreConfig, startMonth, endMonth } = params;
-
-  const endpoint =
-    datastoreConfig.elasticsearch + parseMonths(datastoreConfig, startMonth, endMonth) + '/_search';
+  const endpoint = datastoreConfig.elasticsearch + '/' + datastoreConfig.run_index + '/_search';
 
   return request(endpoint, {
     method: 'POST',
     body: {
       aggs: {
-        controllers: {
+        run_hosts: {
           terms: {
-            field: 'controller',
-            size: 0,
-            order: {
-              runs: 'desc',
-            },
-          },
-          aggs: {
-            runs: {
-              min: {
-                field: 'run.start_run',
-              },
-            },
+            field: 'run.host',
           },
         },
       },
@@ -63,28 +21,22 @@ export async function queryControllers(params) {
 }
 
 export async function queryResults(params) {
-  const { datastoreConfig, startMonth, endMonth, controller } = params;
+  const { datastoreConfig, controller } = params;
 
   const endpoint =
-    datastoreConfig.elasticsearch + parseMonths(datastoreConfig, startMonth, endMonth) + '/_search';
+    datastoreConfig.elasticsearch + '/' + datastoreConfig.run_index +  '/_search';
 
   return request(endpoint, {
     method: 'POST',
     body: {
-      fields: ['run.controller', 'run.start_run', 'run.end_run', 'run.name', 'run.config'],
-      sort: {
-        'run.end_run': {
-          order: 'desc',
-          ignore_unmapped: true,
-        },
-      },
-      query: {
-        term: {
-          'run.controller': controller,
-        },
-      },
-      size: 5000,
-    },
+      "query" : {
+        "bool": {
+          "filter": [
+            { "term":  { "run.host": controller }}
+          ]
+        }
+      }, "_source": [ "run.id", "run.bench" ]
+    }
   });
 }
 

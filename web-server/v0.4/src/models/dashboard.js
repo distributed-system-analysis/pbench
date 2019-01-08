@@ -30,42 +30,21 @@ export default {
   },
 
   effects: {
-    *fetchMonthIndices({ payload }, { call, put }) {
-      let response = yield call(queryMonthIndices, payload);
-
-      let indices = [];
-      response.map(index => {
-        if (index.index.includes("dsa.pbench.run")) {
-          indices.push(index.index.split('.').pop());
-        }
-      });
-
-      indices.sort((a, b) => {
-        return parseInt(b.replace('-', '')) - parseInt(a.replace('-', ''));
-      });
-
-      yield put({ 
-        type: 'getMonthIndices',
-        payload: indices
-      });
-    },
-    *fetchControllers({ payload }, { call, put }) {
+    *fetchHosts({ payload }, { call, put }) {
       let response = yield call(queryControllers, payload);
 
-      let controllers = [];
-      response.aggregations.controllers.buckets.map(controller => {
-        controllers.push({
-          key: controller.key,
-          controller: controller.key,
-          results: controller.doc_count,
-          last_modified_value: controller.runs.value,
-          last_modified_string: controller.runs.value_as_string,
+      let hosts = [];
+      response.aggregations.run_hosts.buckets.map(host => {
+        hosts.push({
+          key: host.key,
+          controller: host.key,
+          results: host.doc_countå,
         });
       });
 
       yield put({
         type: 'getControllers',
-        payload: controllers,
+        payload: hosts,
       });
     },
     *fetchResults({ payload }, { call, put }) {
@@ -74,12 +53,9 @@ export default {
       let results = [];
       response.hits.hits.map(result => {
         results.push({
-          key: result.fields['run.name'][0],
-          result: result.fields['run.name'][0],
-          config: result.fields['run.config'][0],
-          startRunUnixTimestamp: Date.parse(result.fields['run.start_run'][0]),
-          startRun: result.fields['run.start_run'][0],
-          endRun: result.fields['run.end_run'][0],
+          key: result._source.run.id,
+          result: result._source.run.id,
+          config: Object.values(result._source.run.bench).join(" "), 
         });
       });
 
@@ -144,8 +120,8 @@ export default {
     getMonthIndices(state, { payload }) {
       return {
         ...state,
-        indices: payload
-      }
+        indices: payload,
+      };
     },
     getControllers(state, { payload }) {
       return {

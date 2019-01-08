@@ -1,18 +1,13 @@
-import ReactJS, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import moment from 'moment';
 import { Card, Table, Input, Button, Icon } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
 @connect(({ global, dashboard, loading }) => ({
   controllers: dashboard.controllers,
-  startMonth: dashboard.startMonth,
-  endMonth: dashboard.endMonth,
-  indices: dashboard.indices,
   datastoreConfig: global.datastoreConfig,
-  loadingControllers: loading.effects['dashboard/fetchControllers'],
-  loadingIndices: loading.effects['dashboard/fetchMonthIndices'],
+  loadingControllers: loading.effects['dashboard/fetchHosts'],
   loadingConfig: loading.effects['global/fetchDatastoreConfig']
 }))
 export default class Controllers extends Component {
@@ -36,41 +31,16 @@ export default class Controllers extends Component {
     dispatch({
       type: 'global/fetchDatastoreConfig'
     }).then(() => {
-      this.fetchMonthIndices();
+      this.fetchHosts();
     })
   };
 
-  fetchMonthIndices = () => {
+  fetchHosts = () => {
     const { dispatch, datastoreConfig } = this.props;
 
     dispatch({
-      type: 'dashboard/fetchMonthIndices',
-      payload: { datastoreConfig: datastoreConfig }
-    }).then(() => {
-      this.setDefaultMonth();
-    });
-  }
-
-  setDefaultMonth = () => {
-    const { dispatch, indices } = this.props;
-
-    dispatch({
-      type: 'dashboard/modifyControllerStartMonth',
-      payload: moment(indices[0]).toString(),
-    });
-    dispatch({
-      type: 'dashboard/modifyControllerEndMonth',
-      payload: moment(indices[0]).toString(),
-    });
-    this.fetchControllers();
-  };
-
-  fetchControllers = () => {
-    const { dispatch, datastoreConfig, startMonth, endMonth } = this.props;
-
-    dispatch({
-      type: 'dashboard/fetchControllers',
-      payload: { datastoreConfig: datastoreConfig, startMonth: moment(startMonth), endMonth: moment(endMonth) },
+      type: 'dashboard/fetchHosts',
+      payload: { datastoreConfig: datastoreConfig },
     });
   };
 
