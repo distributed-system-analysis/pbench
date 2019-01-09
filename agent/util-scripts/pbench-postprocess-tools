@@ -39,7 +39,7 @@ if [ $? -ne 0 ]; then
 	printf -- "\t-d str --dir=str, str = a directory where the $script_name\n"
 	printf -- "\t                        will store and process data\n"
 	printf "\n"
-	printf -- "\t-i str --iteration=num, num = a number representing the\n"
+	printf -- "\t-i num --iteration=num, num = a number representing the\n"
 	printf -- "\t                              iteration data was collected for\n"
 	exit 1
 fi
@@ -77,13 +77,7 @@ done
 typeset -i nerrs=0
 iteration_num=`echo $iteration | awk -F- '{print $1}'`
 # this tool group's directory which stores options, etc.
-if [ -d "$pbench_run/tools-$group" ]; then
-	tool_group_dir="$pbench_run/tools-$group"
-else
-	# if there were no tools registered for the group, use the 
-	# tools registered in the default group
-	tool_group_dir="$pbench_run/tools-default"
-fi
+tool_group_dir="$pbench_run/tools-$group"
 if [ ! -d "$tool_group_dir" ]; then
 	error_log "[$script_name] failed to find tools group directory, \"$tool_group_dir\""
 	exit 1
@@ -138,22 +132,19 @@ for this_tool_file in `/bin/ls $tool_group_dir`; do
 	if [ "$this_tool_file" == "label" ]; then
 		continue;
 	fi
-	remote=""
 	if echo $this_tool_file | grep -q "^remote"; then
-		remote=`echo $this_tool_file | cut -d\@ -f2`
+		remote_hostname=`echo $this_tool_file | cut -d\@ -f2`
 		name=`echo $this_tool_file | cut -d\@ -f1`
 		# tool options are stored on the remote host's tool file, so no need to pass it here
-		debug_log "[$script_name]running this tool on $remote: ssh $ssh_opts -n $remote pbench-$action-tools --iteration=$iteration --group=$group --dir=$dir"
-		ssh $ssh_opts -n $remote pbench-$action-tools --iteration=$iteration --group=$group --dir=$dir &
+		debug_log "[$script_name]running this tool on $remote_hostname: ssh $ssh_opts -n $remote_hostname pbench-$action-tools --iteration=$iteration --group=$group --dir=$dir"
+		ssh $ssh_opts -n $remote_hostname pbench-$action-tools --iteration=$iteration --group=$group --dir=$dir &
 		pids="$pids $!"
 	elif [ -d $tool_group_dir/$this_tool_file ] ;then
 		# skip spurious subdirectory of $tool_group_dir
 		warn_log "[$script_name]$this_tool_file is a directory in $tool_group_dir; that should not happen. Please consider deleting it."
-		continue
 	elif [ ! -e "$pbench_bin/tool-scripts/$this_tool_file" ] ;then
 		# skip spurious file - not a tool.
 		warn_log "[$script_name]$this_tool_file does not exist in $pbench_bin/tool-scripts; spurious file perhaps? Please consider deleting it."
-		continue
 	else
 		# tool is local
 		# assemble the tool options in to an array
@@ -174,23 +165,24 @@ for this_tool_file in `/bin/ls $tool_group_dir`; do
 			if [ $rc -ne 0 ]; then
 				error_log "screen command failed: screen -dmS $scren_name $pbench_bin/tool-scripts/$name --$action --iteration=$iteration --group=$group --dir=$dir ${tool_opts[@]}"
 			fi
-		else
-			if [ "$action" == "kill" ]; then
-				screens_to_kill=`screen -ls | grep "$screen_name" | awk '{print $1}'`
-				pids_to_kill=`echo $screens_to_kill | awk -F. '{print $1}'`
-				if [ ! -z "$pids_to_kill" ] ;then
-					echo -n "killing the following screen sessions for $name: "
-					echo "$screens_to_kill"
-					kill $pids_to_kill
-				fi
-			else
-				$pbench_bin/tool-scripts/$name --$action --iteration=$iteration --group=$group --dir=$dir "${tool_opts[@]}" &
-				pids="$pids $!"
+		elif [ "$action" == "kill" ]; then
+			screens_to_kill=`screen -ls | grep "$screen_name" | awk '{print $1}'`
+			pids_to_kill=`echo $screens_to_kill | awk -F. '{print $1}'`
+			if [ ! -z "$pids_to_kill" ] ;then
+				echo -n "killing the following screen sessions for $name: "
+				echo "$screens_to_kill"
+				kill $pids_to_kill
 			fi
+		else
+			# $action == ( "stop" | "postprocess" )
+			$pbench_bin/tool-scripts/$name --$action --iteration=$iteration --group=$group --dir=$dir "${tool_opts[@]}" &
+			pids="$pids $!"
 		fi
-		
 	fi
 done
+
+# At this point, all remote tool actions are taking place in parallel,
+# and all *local* tool actions are taking place in parallel.
 for p in $pids ;do
 	wait $p
 	rc=$?
@@ -198,6 +190,7 @@ for p in $pids ;do
 		nerrs=$nerrs+1
 	fi
 done
+
 if [ "$action" == "postprocess" ]; then
 	# phase 2: now that the local results are ready, move them
 	# down to $tool_output_dir/[$label:]$hostname.
@@ -245,5 +238,6 @@ if [ "$action" == "postprocess" ]; then
 		fi
 	done
 fi
+
 debug_log "[$script_name]completed: $@"
 exit $nerrs
