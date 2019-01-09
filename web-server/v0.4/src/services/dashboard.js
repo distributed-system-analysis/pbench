@@ -9,13 +9,13 @@ export async function queryControllers(params) {
   return request(endpoint, {
     method: 'POST',
     body: {
-      aggs: {
-        run_hosts: {
-          terms: {
-            field: 'run.host',
-          },
-        },
-      },
+      "aggs": {
+        "run_hosts": {
+          "terms": {
+            "field": "run.host"
+          }
+        }
+      }
     },
   });
 }
@@ -40,54 +40,26 @@ export async function queryResults(params) {
   });
 }
 
-export async function queryResult(params) {
-  const { datastoreConfig, startMonth, endMonth, result } = params;
-
-  const endpoint =
-    datastoreConfig.elasticsearch +
-    parseMonths(datastoreConfig, startMonth, endMonth) +
-    '/_search?source=';
-
-  return request(endpoint, {
-    method: 'POST',
-    body: {
-      query: {
-        match: {
-          'run.name': result,
-        },
-      },
-      sort: '_index',
-    },
-  });
-}
-
 export async function queryIterations(params) {
   const { datastoreConfig, selectedResults } = params;
+
+  const endpoint =
+    datastoreConfig.elasticsearch + '/' + datastoreConfig.run_index +  '/_search';
 
   let iterationRequests = [];
   if (typeof params.selectedResults != undefined) {
     selectedResults.map(result => {
-      if (result.controller.includes('.')) {
-        axios.get(
-          datastoreConfig.production +
-            '/results/' +
-            encodeURI(result.controller.slice(0, result.controller.indexOf('.'))) +
-            '/' +
-            encodeURI(result.result) +
-            '/result.json'
-        );
-      }
       iterationRequests.push(
-        axios.get(
-          datastoreConfig.production +
-            '/results/' +
-            encodeURI(result.controller.slice(0, result.controller.indexOf('.'))) +
-            '/' +
-            encodeURI(result.result) +
-            '/result.json'
-        )
-      );
-    });
+        axios.post(endpoint, {
+          "query" : {
+              "bool": {
+                "filter": [
+                  { "term":  { "run.id": result.result }}
+                ]
+              }
+            }        
+        }))
+    })
 
     return Promise.all(iterationRequests)
       .then(response => {
@@ -95,8 +67,8 @@ export async function queryIterations(params) {
         response.map((iteration, index) => {
           iterations.push({
             iterationData: iteration.data,
-            controllerName: iteration.config.url.split('/')[4],
-            resultName: iteration.config.url.split('/')[5],
+            controllerName: JSON.parse(iteration.config.data).query.bool.filter[0].term["run.id"],
+            resultName: JSON.parse(iteration.config.data).query.bool.filter[0].term["run.id"],
             tableId: index,
           });
         });

@@ -1,8 +1,6 @@
 import {
-  queryMonthIndices,
   queryControllers,
   queryResults,
-  queryResult,
   queryIterations,
 } from '../services/dashboard';
 
@@ -64,14 +62,6 @@ export default {
         payload: results,
       });
     },
-    *fetchResult({ payload }, { call, put }) {
-      let response = yield call(queryResult, payload);
-
-      yield put({
-        type: 'getResult',
-        payload: [response.hits.hits[0]],
-      });
-    },
     *fetchIterations({ payload }, { call, put }) {
       let response = yield call(queryIterations, payload);
 
@@ -79,8 +69,8 @@ export default {
       response.map((iteration, index) => {
         iterations.push({
           iterationData: iteration.data,
-          controllerName: iteration.config.url.split('/')[4],
-          resultName: iteration.config.url.split('/')[5],
+          controllerName: JSON.parse(iteration.config.data).query.bool.filter[0].term["run.id"],
+          resultName: JSON.parse(iteration.config.data).query.bool.filter[0].term["run.id"],
           tableId: index,
         });
       });
