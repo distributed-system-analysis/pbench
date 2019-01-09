@@ -1,15 +1,12 @@
-import ReactJS, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import moment from 'moment';
 import { Tag, Card, Table, Input, Button } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
 @connect(({ global, dashboard, loading }) => ({
   results: dashboard.results,
   selectedController: dashboard.selectedController,
-  startMonth: dashboard.startMonth,
-  endMonth: dashboard.endMonth,
   datastoreConfig: global.datastoreConfig,
   loading: loading.effects['dashboard/fetchResults'],
 }))
@@ -29,14 +26,12 @@ export default class Results extends Component {
   }
 
   componentDidMount() {
-    const { dispatch, datastoreConfig, startMonth, endMonth, selectedController } = this.props;
+    const { dispatch, datastoreConfig, selectedController } = this.props;
 
     dispatch({
       type: 'dashboard/fetchResults',
       payload: {
         datastoreConfig: datastoreConfig,
-        startMonth: moment(startMonth),
-        endMonth: moment(endMonth),
         controller: selectedController,
       },
     });
@@ -120,7 +115,7 @@ export default class Results extends Component {
     });
   };
 
-  compareResults = params => {
+  compareResults = () => {
     const { dispatch } = this.props;
 
     dispatch(

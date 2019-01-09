@@ -1,12 +1,12 @@
 import { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Icon, Divider, Tooltip, notification } from 'antd';
+import { Icon, Divider, Tooltip } from 'antd';
 import Debounce from 'lodash-decorators/debounce';
 import { Link } from 'dva/router';
 import styles from './index.less';
 
-@connect(({ global, routing }) => ({
+@connect(({ routing }) => ({
   location: routing.location.pathname,
 }))
 class GlobalHeader extends PureComponent {
@@ -19,13 +19,6 @@ class GlobalHeader extends PureComponent {
     onCollapse(!collapsed);
     this.triggerResizeEvent();
   };
-
-  openErrorNotification = (month) => {
-    notification.error({
-      message: 'Index Unavailable',
-      description: month + ' does not contain any documents. Please select a different month.',
-    });
-  }
 
   /* eslint-disable*/
   @Debounce(600)

@@ -102,7 +102,7 @@ export default class Controllers extends Component {
 
   render() {
     const { controllerSearch, searchText } = this.state;
-    const { controllers, loadingControllers, loadingConfig, loadingIndices } = this.props;
+    const { controllers, loadingControllers, loadingConfig } = this.props;
     const suffix = searchText ? <Icon type="close-circle" onClick={this.emitEmpty} /> : null;
     const columns = [
       {
@@ -151,7 +151,7 @@ export default class Controllers extends Component {
             dataSource={controllerSearch.length > 0 ? controllerSearch : controllers}
             defaultPageSize={20}
             onRowClick={this.retrieveResults.bind(this)}
-            loading={loadingControllers || loadingConfig || loadingIndices}
+            loading={loadingControllers || loadingConfig}
             showSizeChanger={true}
             showTotal={true}
             pagination={{ pageSize: 20 }}
