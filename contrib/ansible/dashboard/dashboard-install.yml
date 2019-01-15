@@ -1,0 +1,6 @@
+---
+- name: install dashboard dependencies
+  hosts: servers
+  remote_user: root
+  roles:
+  - dashboard-dev-setup

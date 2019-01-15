@@ -1,0 +1,8 @@
+---
+- name: move dashboard to remote host webserver 
+  copy:
+    src: dist/
+    dest: /var/www/html/dashboard
+
+- name: initialize dashboard config file
+  template: src=config.json.j2 dest=/var/www/html/dashboard/config.json mode=0644

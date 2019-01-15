@@ -1,0 +1,22 @@
+[servers:children]
+ui-server
+user-server
+
+[servers:vars]
+results_url="http://{{ inventory_hostname }}"
+run_index="run.example"
+
+[ui-server]
+ui-server.example.com
+
+[ui-server:vars]
+elasticsearch_url="http://elasticsearch.example.com"
+results_url="http://{{ inventory_hostname }}"
+prefix="ui-server.example."
+
+[user-server]
+user-server.example.com
+
+[user-server:vars]
+elasticsearch_url="http://elasticsearch.example.com"
+prefix="user-server.example."
