@@ -1,0 +1,6 @@
+---
+- name: deploy dashboard to remote hosts
+  hosts: servers
+  remote_user: root
+  roles:
+  - dashboard-deploy
