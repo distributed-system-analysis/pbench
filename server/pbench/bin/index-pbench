@@ -23,7 +23,7 @@ except ImportError:
 from pbench import tstos, es_index, es_put_template
 
 
-_VERSION_ = "0.4.0.0"
+_VERSION_ = "0.5.0.0"
 _NAME_    = "index-pbench"
 _DEBUG    = 0
 
@@ -226,15 +226,16 @@ def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config, dbg=0):
         sys.stdout.flush()
 
 
-
 ###########################################################################
 # Pbench Data abstract class - ToolData and ResultData inherit from it.
 
 class PbenchData(object):
 
     def __init__(self, ptb):
-
-        self.start_run_ts, self.end_run_ts = ptb.gen_run_timestamps()
+        self.year, self.month, self.day = (
+                "{:04d}".format(ptb.start_run_ts.year),
+                "{:02d}".format(ptb.start_run_ts.month),
+                "{:02d}".format(ptb.start_run_ts.day))
         self.ptb = ptb
         self.counters = Counter()
 
@@ -244,12 +245,43 @@ class PbenchData(object):
         # string timestamp format.
         ts_float = float(orig_ts)/1000
         ts = datetime.utcfromtimestamp(ts_float)
-        if self.start_run_ts is not None and ts < self.start_run_ts:
-            self.counters['result_ts_before_start_run_ts'] += 1
-        if self.end_run_ts is not None and ts > self.end_run_ts:
-            self.counters['result_ts_after_end_run_ts'] += 1
+        if self.ptb.start_run_ts is not None and ts < self.ptb.start_run_ts:
+            # The calculated timestamp, `ts`, is earlier that the timestamp of
+            # the start of the pbench run itself, `start_run_ts`.  That can
+            # occur because of at least 3 different situations: 1. the
+            # recorded start run timestamp, `start_run_ts`, is not correct;
+            # 2. the `ts` is a valid absolute timestamp that was incorrectly
+            # recorded; 3. the `ts` is a valid _relative_ timestamp, measured
+            # from the beginning of some unknown time `T0`.
+            #
+            # Since we do not have enough information at this point to correct
+            # or detect the 1st or 2nd situation, we make an attempt to detect
+            # and correct the 3rd situation.
+            #
+            # For the 3rd situation, we make an attempt to treat the original
+            # timestamp as if it is relative to the start of the run, and
+            # calculate a _new_ absolute timestamp from that point.  If that
+            # new absolute timestamp is before the end of the run as well, we
+            # just use the new absolute timestamp instead of the relative
+            # timestamp.  If the new absolute timestamp is beyond the end of
+            # the run, it is likely that the timestamp is not relative so we
+            # use it as is.
+            d = timedelta(0, 0, orig_ts * 1000)
+            newts = self.ptb.start_run_ts + d
+            if newts > self.ptb.end_run_ts:
+                self.counters['ts_before_start_run_ts'] += 1
+            else:
+                ts = newts
+        if self.ptb.end_run_ts is not None and ts > self.ptb.end_run_ts:
+            self.counters['ts_after_end_run_ts'] += 1
         return ts.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
 
+    def generate_index_name(self, template, prefix, source, tool=None):
+        """Return a fully formed index name given its template, prefix, source
+        data (for an @timestamp field) and an optional tool name."""
+        year, month, day = source['@timestamp'].split('T', 1)[0].split('-')[0:3]
+        assert (self.year, self.month, self.day) <= (year, month, day)
+        return template.format(prefix=prefix, tool=tool, year=year, month=month, day=day)
 
 
 ###########################################################################
@@ -352,7 +384,8 @@ class ResultData(PbenchData):
 
                     # XXX ASSUMPTION: the timestamps we get from the result data are
                     # "milliseconds since epoch" and they are are *assumed* to be UTC.
-                    source['@timestamp'] = ts
+                    source['@timestamp'] = self.convert_timestamp(ts)
+                    source['timestamp_original'] = ts
                     source['results'] = src
 
                     yield source, source_id
@@ -489,7 +522,6 @@ class ResultData(PbenchData):
         return
 
 def mk_result_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
-
     experiment = ptb.mdconf.get("pbench", "name")
     rd = ResultData(ptb, experiment, opctx)
     if not rd:
@@ -498,15 +530,12 @@ def mk_result_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
     sources = rd.make_source()
     if not sources:
         return
+    template = idx_patterns["result-data"]["template"]
     for source, source_id in sources:
-        tstamp = rd.convert_timestamp(source['@timestamp'])
-        year, month, day = tstamp.split('T', 1)[0].split('-')[0:3]
+        idx_name = rd.generate_index_name(template, idx_prefix, source)
         action = _dict_const(
             _op_type=_op_type,
-            _index= idx_patterns["result-data"]["template"].format(prefix=idx_prefix,
-                                                                   year=year,
-                                                                   month=month,
-                                                                   day=day),
+            _index=idx_name,
             _type="pbench-result-data",
             _id=source_id,
             _source=source
@@ -1039,7 +1068,8 @@ class ToolData(PbenchData):
                     # Since they are all the same, we use the first to
                     # generate the real timestamp.
                     ('@timestamp', ts_str),
-                    ('@metadata', self.run_metadata)
+                    ('@metadata', self.run_metadata),
+                    ('timestamp_original', first)
                 ])
                 datum[identifier][self.toolname] = _dict_const()
                 try:
@@ -1464,6 +1494,7 @@ def mk_tool_data(ptb, opctx):
     return
 
 def mk_tool_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
+    template = idx_patterns["tool-data"]["template"]
     for td in mk_tool_data(ptb, opctx):
         # Each ToolData object, td, that is returned here represents how
         # data collected for that tool across all hosts is to be returned.
@@ -1476,14 +1507,11 @@ def mk_tool_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
         if not asource:
             continue
         for source, source_id in asource:
-            year, month, day = source['@timestamp'].split('T', 1)[0].split('-')[0:3]
+            idx_name = td.generate_index_name(template, idx_prefix, source,
+                    tool=td.toolname)
             action = _dict_const(
                 _op_type=_op_type,
-                _index= idx_patterns["tool-data"]["template"].format(prefix=idx_prefix,
-                                                                     tool=td.toolname,
-                                                                     year=year,
-                                                                     month=month,
-                                                                     day=day),
+                _index=idx_name,
                 _type="pbench-tool-data-%s" % td.toolname,
                 _id=source_id,
                 _source=source
@@ -1547,10 +1575,15 @@ def mk_toc_actions(ptb, options, idx_prefix, idx_patterns, opctx):
     """Construct Table-of-Contents actions.
 
     These are indexed into the run index along side the runs."""
-    idx_name = idx_patterns["toc-data"]["template"].format(prefix=idx_prefix,
-                                                           year='{:04d}'.format(int(ptb.date[0])),
-                                                           month='{:02d}'.format(int(ptb.date[1])))
     tstamp = ptb.start_run.replace('_', 'T')
+    # Since the timestamp for every TOC record will be the same, we generate
+    # the index name once here using a fake source document on the call to
+    # generate_index_name().
+    pd = PbenchData(ptb)
+    idx_name = pd.generate_index_name(
+            idx_patterns["toc-data"]["template"],
+            idx_prefix,
+            { "@timestamp": tstamp })
     prefix, dirs = mk_toc(ptb.tb, ptb.md5sum, options)
     assert(prefix == ptb.dirname)
     for dname,d in dirs.items():
@@ -1848,65 +1881,26 @@ def mk_pbench_metadata(mdconf):
         d['pbench-rpm-version'] = "Unknown"
     return d
 
-def _to_utc(l, u):
-    """l is a timestamp in local time and u is one in UTC. These are
-    supposed to be close, so we calculate an offset rounded to a
-    half-hour and add it to the local date. We then convert back to an
-    ISO format date.
-    """
-    lts = datetime.strptime(l, "%Y-%m-%dT%H:%M:%S")
-    uts = datetime.strptime(u[:u.rfind('.')], "%Y-%m-%dT%H:%M:%S")
-
-    offset = lts - uts
-    res = round(float(offset.seconds) / 60 / 60 + offset.days * 24, 1)
-    return (lts - timedelta(0, int(res*60*60), 0)).isoformat()
-
-def fix_date_format(ts):
-    """ts is a string representing a timestamp with possible formatting
-    problems:
-
-        - it might have an underscore instead of a T separating the
-          date from the time - ES does not like that.
-
-        - the date part might also be of the form YYYYMMDD instead of
-          the approved format YYYY-MM-DD.
-
-    This function fixes up those problems and returns the possibly
-    modified string.
-    """
-    rts = ts.replace('_', 'T')
-    ns = rts[rts.rfind('.'):]
-    rts = rts[:rts.rfind('.')]
-    try:
-        val = datetime.strptime(rts, "%Y-%m-%dT%H:%M:%S")
-        return rts + ns
-    except ValueError as e:
-        val = datetime.strptime(rts, "%Y%m%dT%H:%M:%S")
-        return datetime.strftime(val, "%Y-%m-%dT%H:%M:%S") + ns
-    except Exception as e:
-        # on any other exception, we give up
-        return "1900-01-01T00:00:00"
-
-def mk_run_metadata(mdconf, md5sum, dirname):
+def mk_run_metadata(ptb):
     d = _dict_const()
     try:
-        d.update(mdconf.items('run'))
-        d.update(mdconf.items('pbench'))
-        # Fix up old format dates so ES won't barf on them.
-        d['start_run'] = fix_date_format(d['start_run'])
-        d['end_run'] = fix_date_format(d['end_run'])
-        # Convert the date to UTC: date and start-run are supposed to be close
-        # (except that date may be in local time and start-run is UTC).
-        d['date'] = _to_utc(fix_date_format(d['date']), d['start_run'])
-        # the run id here is the md5sum that's the _id of the main document.
-        # it's what ties all of the relevant documents together.
-        d['id'] = md5sum
-        d['tarball-dirname'] = dirname
-        d['tarball-toc-prefix'] = dirname
+        d.update(ptb.mdconf.items('run'))
+        d.update(ptb.mdconf.items('pbench'))
+        # Remove from run metadata as this is kept in @metadata
         del d['rpm-version']
     except KeyError as e:
-        print("Tarball: %s - %s is missing in metadata.log." % (dirname, e), file=sys.stdout)
+        print("Tarball: %s - %s is missing in metadata.log." % (ptb.dirname, e), file=sys.stdout)
         d = _dict_const()
+    # Update the start and end run times using the already updated
+    # values in the tar ball object.
+    d['start_run'] = ptb.start_run
+    d['end_run'] = ptb.end_run
+    d['date'] = ptb.date
+    # the run id here is the md5sum that's the _id of the main document.
+    # it's what ties all of the relevant documents together.
+    d['id'] = ptb.md5sum
+    d['tarball-dirname'] = ptb.dirname
+    d['tarball-toc-prefix'] = ptb.dirname
     return d
 
 def mk_user_specified_metadata(options):
@@ -1942,7 +1936,7 @@ def mk_run_action(ptb, options, idx_prefix, idx_patterns, opctx):
        the tarball: its name, size, md5, mtime.
        Metadata about the run are *data* to be indexed.
     """
-    source = _dict_const([('@timestamp', ptb.start_run.replace('_', 'T'))])
+    source = _dict_const([('@timestamp', ptb.start_run)])
 
     # debug: -T options will cause each call below to be timed
     # and the elapsed interval printed.
@@ -1955,16 +1949,16 @@ def mk_run_action(ptb, options, idx_prefix, idx_patterns, opctx):
     #if debug_time_operations: ts("mk_pbench_metadata")
     #source['pbench'] = mk_pbench_metadata(mdconf)
     if debug_time_operations: ts("mk_run_metadata")
-    source['run'] = mk_run_metadata(ptb.mdconf, ptb.md5sum, ptb.dirname)
+    source['run'] = mk_run_metadata(ptb)
     if debug_time_operations: ts("mk_sosreports")
     source['sosreports'] = sos_d = mk_sosreports(ptb.tb)
     if debug_time_operations: ts("mk_tool_info")
     source['host_tools_info'] = mk_tool_info(sos_d, ptb.mdconf)
 
     # make a simple action for indexing
-    idx_name = idx_patterns["run-data"]["template"].format(prefix=idx_prefix,
-                                                           year='{:04d}'.format(int(ptb.date[0])),
-                                                           month='{:02d}'.format(int(ptb.date[1])))
+    pd = PbenchData(ptb)
+    idx_name = pd.generate_index_name(idx_patterns["run-data"]["template"],
+            idx_prefix, source)
     action = _dict_const(
         _op_type=_op_type,
         _index=idx_name,
@@ -2046,33 +2040,73 @@ class PbenchTarBall(object):
         # We get the start date out of the metadata log.
         try:
             # N.B. the start_run timestamp is in UTC.
-            self.start_run = fix_date_format(self.mdconf.get('run', 'start_run'))
-            split_date_str = self.start_run.split('T')
-            # List of constituent date components, year [0], month [1], day [2]
-            self.date = [ int(x) for x in split_date_str[0].split("-") ]
-            self.end_run = fix_date_format(self.mdconf.get('run', 'end_run'))
+            self.start_run, self.start_run_ts, self.end_run, self.end_run_ts, self.date, self.date_ts = self.gen_run_timestamp_info()
         except Exception:
             raise BadDate(self.tbname)
         # Open the MD5 file of the tarball and read the MD5 sum from it.
         self.md5sum = open("%s.md5" % (self.tbname)).read().split()[0]
 
-    def gen_run_timestamps(self):
-        try:
-            start_run_ts = datetime.strptime(self.start_run, "%Y-%m-%dT%H:%M:%S.%f")
-        except ValueError:
-            try:
-                start_run_ts = datetime.strptime(self.start_run, "%Y-%m-%dT%H:%M:%S")
-            except ValueError:
-                start_run_ts = None
-        try:
-            end_run_ts = datetime.strptime(self.end_run, "%Y-%m-%dT%H:%M:%S.%f")
-        except ValueError:
-            try:
-                end_run_ts = datetime.strptime(self.end_run, "%Y-%m-%dT%H:%M:%S")
-            except ValueError:
-                end_run_ts = None
+    def gen_run_timestamp_info(self):
+        """Generate the start and end run timestamps from the values in
+        the tar ball's configuration file.
 
-        return start_run_ts, end_run_ts
+        The goal is to provide self.start_run and self.end_run fields
+        containing strings of the form, "YYYY-mm-ddTHH:MM:SS.ssssss", and
+        then self.start_run_ts and self.end_run_ts with datetime objects
+        derived from those strings.
+
+        This is offered as a service once here when processing a tar ball
+        so that any code needing the start or end of a run has a timestamp
+        in a form they can use that is consistent with all the other uses. 
+        """
+        # Fetch the original values from the metadata.log file.
+        start_run_orig = self.mdconf.get('run', 'start_run')
+        end_run_orig = self.mdconf.get('run', 'end_run')
+        date_orig = self.mdconf.get('pbench', 'date')
+        # We'll accept dates that match any of the following:
+        #  * 2019-01-10_12:12:12
+        #  * 2019-01-10T12:12:12
+        #  * 20190110_12:12:12
+        #  * 20190110T12:12:12
+        #  * 2019-01-10_12:12:12.123456[789]
+        #  * 2019-01-10T12:12:12.123456[789]
+        #  * 20190110_12:12:12.123456[789]
+        #  * 20190110T12:12:12.123456[789]
+        # However, we reduce the combinations by immediately replacing the
+        # "_" version with a "T", and ensure we only keep microseconds of
+        # resolution, dropping any extra nanoseconds because that level of
+        # precision is ignored and causes problems during date/time string
+        # conversions (e.g. Elasticsearch ignores it, and python std lib
+        # does not offer a way to handle nanoseconds).
+        formats = [ "%Y-%m-%dT%H:%M:%S.%f", "%Y%m%dT%H:%M:%S.%f", "%Y-%m-%dT%H:%M:%S", "%Y%m%dT%H:%M:%S" ]
+        def convert_to_dt(dt_str):
+            rts = dt_str.replace('_', 'T')
+            us_offset = rts.rfind('.')
+            us = rts[us_offset:][:7]
+            rts = rts[:us_offset] + us
+            for f in formats:
+                try:
+                    dt = datetime.strptime(rts, f)
+                except ValueError:
+                    continue
+                else:
+                    return dt, dt.isoformat()
+            else:
+                raise BadDate(self.tbname)
+        start_run_ts, start_run = convert_to_dt(start_run_orig)
+        end_run_ts, end_run = convert_to_dt(end_run_orig)
+        date_ts, date = convert_to_dt(date_orig)
+        # At this point, date is a local time value, while start_ and end_run
+        # are UTC.  We figure out what the UTC offset is by comparing date to
+        # the start run value, and adjusting it accordingly.  Since these are
+        # supposed to be close, we calculate an offset rounded to a half-hour
+        # and add it to the local date. We then convert back to an ISO format
+        # date.
+        offset = date_ts - start_run_ts
+        res = round(float(offset.seconds) / 60 / 60 + offset.days * 24, 1)
+        date_ts -= timedelta(0, int(res*60*60), 0)
+        date = date_ts.isoformat()
+        return start_run, start_run_ts, end_run, end_run_ts, date, date_ts
 
     @staticmethod
     def get_mdconfig(mdf):
