@@ -548,10 +548,21 @@ declare -A cmds=(
     # Uses pbench-dispatch to test report status via syslog
     [test-23]="_run pbench-dispatch"
 )
+all_tests_sorted=$(for x in ${!cmds[@]} ;do echo $x ;done | sed 's/\./-/' | sort -n -t '-' -k 3 | sort -n -t '-' -k 2 --stable | sed 's/\(.*-[0-9]\)-\([0-9]\)/\1.\2/')
 
-tests=$*
-if [ -z "$tests" ] ;then
-    tests=$(for x in ${!cmds[@]} ;do echo $x ;done | sed 's/\./-/' | sort -n -t '-' -k 3 | sort -n -t '-' -k 2 --stable | sed 's/\(.*-[0-9]\)-\([0-9]\)/\1.\2/')
+test_args=$*
+if [ -z "$test_args" ] ;then
+    # No tests given, run them all in sorted order
+    tests=$all_tests_sorted
+else
+    tests=""
+    for test_arg in $test_args ;do
+        for test_name in $all_tests_sorted; do
+            if [[ "$test_name" =~ "$test_arg" ]]; then
+                tests="$tests $test_name"
+            fi
+        done
+    done
 fi
 
 let failures=0
