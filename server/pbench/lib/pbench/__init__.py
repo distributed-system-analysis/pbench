@@ -225,13 +225,22 @@ def es_index(es, actions, errorsfp, dbg=0):
         retry_count, action = actions_deque.popleft()
         try:
             resp = resp_payload[_op_type]
+        except KeyError as e:
+            assert not ok
+            assert e.args == _op_type
+            # For whatever reason, some errors are always returned using
+            # the "index" operation type instead of _op_type (e.g. "create"
+            # op type still comes back as an "index" response).
+            try:
+                resp = resp_payload['index']
+            except KeyError:
+                # resp is not of expected form; set it to the complete
+                # payload, so that it can be reported properly below.
+                resp = resp_payload
+        try:
             status = resp['status']
         except KeyError as e:
             assert not ok
-            # resp is not of expected form.
-            # set it to the complete payload, so that
-            # it can be reported below.
-            resp = resp_payload
             # Limit the length of the error message.
             print("es_index: ERROR %r" % (e), file=sys.stderr)
             status = 999
@@ -253,10 +262,21 @@ def es_index(es, actions, errorsfp, dbg=0):
                 errorsfp.flush()
                 failures += 1
             else:
-                # Retry all other errors.
-                # Limit the length of the error message.
-                print("es_index: WARNING - retrying action \n%s" % (json.dumps(resp, indent=4)[:_MAX_ERRMSG_LENGTH]), file=sys.stderr)
-                actions_retry_deque.append((retry_count + 1, action))
+                try:
+                    error = resp['error']
+                except KeyError:
+                    error = ""
+                if status == 403 and error.startswith("IndexClosedException"):
+                    # Don't retry closed index exceptions
+                    jsonstr = json.dumps({ "action": action, "ok": ok, "resp": resp, "retry_count": retry_count, "timestamp": tstos(_do_ts()) }, indent=4, sort_keys=True)
+                    print(jsonstr, file=errorsfp)
+                    errorsfp.flush()
+                    failures += 1
+                else:
+                    # Retry all other errors.
+                    # Limit the length of the error message.
+                    print("es_index: WARNING - retrying action \n%s" % (json.dumps(resp, indent=4)[:_MAX_ERRMSG_LENGTH]), file=sys.stderr)
+                    actions_retry_deque.append((retry_count + 1, action))
 
     end = _do_ts()
 
