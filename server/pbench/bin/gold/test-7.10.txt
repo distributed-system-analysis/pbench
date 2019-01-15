@@ -78,7 +78,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--     213096 logs/pbench-index/pbench-index.log
+-rw-rw-r--     215310 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -147,11 +147,11 @@ len(actions) = 90
                 "file-name": "/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/uperf_uperftest_2018.02.02T20.58.00.tar.xz",
                 "file-size": 2359300,
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.4.0.0",
+                "generated-by-version": "0.5.0.0",
                 "md5": "22d20eec2affff06976f4abb374b4e13",
                 "pbench-agent-version": "0.47-91gb666083"
             },
-            "@timestamp": "2018-02-02T20:58:04.723258607",
+            "@timestamp": "2018-02-02T20:58:04.723258",
             "host_tools_info": [
                 {
                     "hostname": "dhcp31-44",
@@ -173,12 +173,12 @@ len(actions) = 90
                 "config": "uperftest",
                 "controller": "dhcp31-44.perf.lab.eng.bos.redhat.com",
                 "date": "2018-02-02T20:58:00",
-                "end_run": "2018-02-02T21:00:19.492517511",
+                "end_run": "2018-02-02T21:00:19.492517",
                 "id": "22d20eec2affff06976f4abb374b4e13",
                 "iterations": "1-tcp_rr-64B-8i, 2-tcp_rr-1024B-8i",
                 "name": "uperf_uperftest_2018.02.02T20.58.00",
                 "script": "uperf",
-                "start_run": "2018-02-02T20:58:04.723258607",
+                "start_run": "2018-02-02T20:58:04.723258",
                 "tarball-dirname": "uperf_uperftest_2018.02.02T20.58.00",
                 "tarball-toc-prefix": "uperf_uperftest_2018.02.02T20.58.00"
             },
@@ -245,7 +245,7 @@ len(actions) = 90
         "_op_type": "create",
         "_parent": "22d20eec2affff06976f4abb374b4e13",
         "_source": {
-            "@timestamp": "2018-02-02T20:58:04.723258607",
+            "@timestamp": "2018-02-02T20:58:04.723258",
             "directory": "/",
             "files": [
                 {
@@ -298,7 +298,7 @@ len(actions) = 90
         "_op_type": "create",
         "_parent": "22d20eec2affff06976f4abb374b4e13",
         "_source": {
-            "@timestamp": "2018-02-02T20:58:04.723258607",
+            "@timestamp": "2018-02-02T20:58:04.723258",
             "directory": "/sysinfo/"
         },
         "_type": "pbench-run-toc-entry"
@@ -309,7 +309,7 @@ len(actions) = 90
         "_op_type": "create",
         "_parent": "22d20eec2affff06976f4abb374b4e13",
         "_source": {
-            "@timestamp": "2018-02-02T20:58:04.723258607",
+            "@timestamp": "2018-02-02T20:58:04.723258",
             "directory": "/sysinfo/beg/"
         },
         "_type": "pbench-run-toc-entry"
@@ -320,7 +320,7 @@ len(actions) = 90
         "_op_type": "create",
         "_parent": "22d20eec2affff06976f4abb374b4e13",
         "_source": {
-            "@timestamp": "2018-02-02T20:58:04.723258607",
+            "@timestamp": "2018-02-02T20:58:04.723258",
             "directory": "/sysinfo/beg/dhcp31-44/",
             "files": [
                 {
@@ -358,7 +358,7 @@ len(actions) = 90
         "_op_type": "create",
         "_parent": "22d20eec2affff06976f4abb374b4e13",
         "_source": {
-            "@timestamp": "2018-02-02T20:58:04.723258607",
+            "@timestamp": "2018-02-02T20:58:04.723258",
             "directory": "/sysinfo/end/"
         },
         "_type": "pbench-run-toc-entry"
@@ -369,7 +369,7 @@ len(actions) = 90
         "_op_type": "create",
         "_parent": "22d20eec2affff06976f4abb374b4e13",
         "_source": {
-            "@timestamp": "2018-02-02T20:58:04.723258607",
+            "@timestamp": "2018-02-02T20:58:04.723258",
             "directory": "/sysinfo/end/dhcp31-44/",
             "files": [
                 {
@@ -407,7 +407,7 @@ len(actions) = 90
         "_op_type": "create",
         "_parent": "22d20eec2affff06976f4abb374b4e13",
         "_source": {
-            "@timestamp": "2018-02-02T20:58:04.723258607",
+            "@timestamp": "2018-02-02T20:58:04.723258",
             "directory": "/1-tcp_rr-64B-8i/",
             "files": [
                 {
@@ -445,7 +445,7 @@ len(actions) = 90
         "_op_type": "create",
         "_parent": "22d20eec2affff06976f4abb374b4e13",
         "_source": {
-            "@timestamp": "2018-02-02T20:58:04.723258607",
+            "@timestamp": "2018-02-02T20:58:04.723258",
             "directory": "/1-tcp_rr-64B-8i/sample1/",
             "files": [
                 {
@@ -483,7 +483,7 @@ len(actions) = 90
         "_op_type": "create",
         "_parent": "22d20eec2affff06976f4abb374b4e13",
         "_source": {
-            "@timestamp": "2018-02-02T20:58:04.723258607",
+            "@timestamp": "2018-02-02T20:58:04.723258",
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/"
         },
         "_type": "pbench-run-toc-entry"
@@ -494,7 +494,7 @@ len(actions) = 90
         "_op_type": "create",
         "_parent": "22d20eec2affff06976f4abb374b4e13",
         "_source": {
-            "@timestamp": "2018-02-02T20:58:04.723258607",
+            "@timestamp": "2018-02-02T20:58:04.723258",
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/"
         },
         "_type": "pbench-run-toc-entry"
@@ -505,7 +505,7 @@ len(actions) = 90
         "_op_type": "create",
         "_parent": "22d20eec2affff06976f4abb374b4e13",
         "_source": {
-            "@timestamp": "2018-02-02T20:58:04.723258607",
+            "@timestamp": "2018-02-02T20:58:04.723258",
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/iostat/",
             "files": [
                 {
@@ -543,7 +543,7 @@ len(actions) = 90
         "_op_type": "create",
         "_parent": "22d20eec2affff06976f4abb374b4e13",
         "_source": {
-            "@timestamp": "2018-02-02T20:58:04.723258607",
+            "@timestamp": "2018-02-02T20:58:04.723258",
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/iostat/csv/",
             "files": [
                 {
@@ -591,7 +591,7 @@ len(actions) = 90
         "_op_type": "create",
         "_parent": "22d20eec2affff06976f4abb374b4e13",
         "_source": {
-            "@timestamp": "2018-02-02T20:58:04.723258607",
+            "@timestamp": "2018-02-02T20:58:04.723258",
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/mpstat/",
             "files": [
                 {
@@ -639,7 +639,7 @@ len(actions) = 90
         "_op_type": "create",
         "_parent": "22d20eec2affff06976f4abb374b4e13",
         "_source": {
-            "@timestamp": "2018-02-02T20:58:04.723258607",
+            "@timestamp": "2018-02-02T20:58:04.723258",
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/mpstat/csv/",
             "files": [
                 {
@@ -673,14 +673,14 @@ len(actions) = 90
                 "primary_metric": "trans_sec",
                 "protocol": "tcp",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
                 "uid": "benchmark_name:uperf-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 1517605093411,
+            "@timestamp": "2018-02-02T20:58:13.411000",
             "results": {
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
@@ -693,7 +693,8 @@ len(actions) = 90
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
-            }
+            },
+            "timestamp_original": 1517605093411
         },
         "_type": "pbench-result-data"
     },
@@ -714,14 +715,14 @@ len(actions) = 90
                 "primary_metric": "trans_sec",
                 "protocol": "tcp",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
                 "uid": "benchmark_name:uperf-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 1517605094412,
+            "@timestamp": "2018-02-02T20:58:14.412000",
             "results": {
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
@@ -734,7 +735,8 @@ len(actions) = 90
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
-            }
+            },
+            "timestamp_original": 1517605094412
         },
         "_type": "pbench-result-data"
     },
@@ -755,14 +757,14 @@ len(actions) = 90
                 "primary_metric": "trans_sec",
                 "protocol": "tcp",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
                 "uid": "benchmark_name:uperf-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 1517605095413,
+            "@timestamp": "2018-02-02T20:58:15.413000",
             "results": {
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
@@ -775,7 +777,8 @@ len(actions) = 90
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
-            }
+            },
+            "timestamp_original": 1517605095413
         },
         "_type": "pbench-result-data"
     },
@@ -796,14 +799,14 @@ len(actions) = 90
                 "primary_metric": "trans_sec",
                 "protocol": "tcp",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
                 "uid": "benchmark_name:uperf-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 1517605096414,
+            "@timestamp": "2018-02-02T20:58:16.414000",
             "results": {
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
@@ -816,7 +819,8 @@ len(actions) = 90
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
-            }
+            },
+            "timestamp_original": 1517605096414
         },
         "_type": "pbench-result-data"
     },
@@ -837,14 +841,14 @@ len(actions) = 90
                 "primary_metric": "trans_sec",
                 "protocol": "tcp",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
                 "uid": "benchmark_name:uperf-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 1517605097416,
+            "@timestamp": "2018-02-02T20:58:17.416000",
             "results": {
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
@@ -857,7 +861,8 @@ len(actions) = 90
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
-            }
+            },
+            "timestamp_original": 1517605097416
         },
         "_type": "pbench-result-data"
     },
@@ -878,14 +883,14 @@ len(actions) = 90
                 "primary_metric": "trans_sec",
                 "protocol": "tcp",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
                 "uid": "benchmark_name:uperf-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 1517605098417,
+            "@timestamp": "2018-02-02T20:58:18.417000",
             "results": {
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
@@ -898,7 +903,8 @@ len(actions) = 90
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
-            }
+            },
+            "timestamp_original": 1517605098417
         },
         "_type": "pbench-result-data"
     },
@@ -919,14 +925,14 @@ len(actions) = 90
                 "primary_metric": "trans_sec",
                 "protocol": "tcp",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
                 "uid": "benchmark_name:uperf-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 1517605099417,
+            "@timestamp": "2018-02-02T20:58:19.417000",
             "results": {
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
@@ -939,7 +945,8 @@ len(actions) = 90
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
-            }
+            },
+            "timestamp_original": 1517605099417
         },
         "_type": "pbench-result-data"
     },
@@ -960,14 +967,14 @@ len(actions) = 90
                 "primary_metric": "trans_sec",
                 "protocol": "tcp",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
                 "uid": "benchmark_name:uperf-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 1517605100418,
+            "@timestamp": "2018-02-02T20:58:20.418000",
             "results": {
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
@@ -980,7 +987,8 @@ len(actions) = 90
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
-            }
+            },
+            "timestamp_original": 1517605100418
         },
         "_type": "pbench-result-data"
     },
@@ -1001,14 +1009,14 @@ len(actions) = 90
                 "primary_metric": "trans_sec",
                 "protocol": "tcp",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
                 "uid": "benchmark_name:uperf-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 1517605101419,
+            "@timestamp": "2018-02-02T20:58:21.419000",
             "results": {
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
@@ -1021,7 +1029,8 @@ len(actions) = 90
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
-            }
+            },
+            "timestamp_original": 1517605101419
         },
         "_type": "pbench-result-data"
     },
@@ -1042,14 +1051,14 @@ len(actions) = 90
                 "primary_metric": "trans_sec",
                 "protocol": "tcp",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
                 "uid": "benchmark_name:uperf-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 1517605102420,
+            "@timestamp": "2018-02-02T20:58:22.420000",
             "results": {
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
@@ -1062,7 +1071,8 @@ len(actions) = 90
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
-            }
+            },
+            "timestamp_original": 1517605102420
         },
         "_type": "pbench-result-data"
     },
@@ -1083,14 +1093,14 @@ len(actions) = 90
                 "primary_metric": "trans_sec",
                 "protocol": "tcp",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
                 "uid": "benchmark_name:uperf-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 1517605103421,
+            "@timestamp": "2018-02-02T20:58:23.421000",
             "results": {
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
@@ -1103,7 +1113,8 @@ len(actions) = 90
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
-            }
+            },
+            "timestamp_original": 1517605103421
         },
         "_type": "pbench-result-data"
     },
@@ -1124,14 +1135,14 @@ len(actions) = 90
                 "primary_metric": "trans_sec",
                 "protocol": "tcp",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
                 "uid": "benchmark_name:uperf-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 1517605104422,
+            "@timestamp": "2018-02-02T20:58:24.422000",
             "results": {
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
@@ -1144,7 +1155,8 @@ len(actions) = 90
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
-            }
+            },
+            "timestamp_original": 1517605104422
         },
         "_type": "pbench-result-data"
     },
@@ -1165,14 +1177,14 @@ len(actions) = 90
                 "primary_metric": "trans_sec",
                 "protocol": "tcp",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
                 "uid": "benchmark_name:uperf-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 1517605105423,
+            "@timestamp": "2018-02-02T20:58:25.423000",
             "results": {
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
@@ -1185,7 +1197,8 @@ len(actions) = 90
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
-            }
+            },
+            "timestamp_original": 1517605105423
         },
         "_type": "pbench-result-data"
     },
@@ -1206,14 +1219,14 @@ len(actions) = 90
                 "primary_metric": "trans_sec",
                 "protocol": "tcp",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
                 "uid": "benchmark_name:uperf-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 1517605106425,
+            "@timestamp": "2018-02-02T20:58:26.425000",
             "results": {
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
@@ -1226,7 +1239,8 @@ len(actions) = 90
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
-            }
+            },
+            "timestamp_original": 1517605106425
         },
         "_type": "pbench-result-data"
     },
@@ -1247,14 +1261,14 @@ len(actions) = 90
                 "primary_metric": "trans_sec",
                 "protocol": "tcp",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
                 "uid": "benchmark_name:uperf-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 1517605107425,
+            "@timestamp": "2018-02-02T20:58:27.425000",
             "results": {
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
@@ -1267,12 +1281,13 @@ len(actions) = 90
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
-            }
+            },
+            "timestamp_original": 1517605107425
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "850266940e920e25e3bd6c5293aad0d9",
+        "_id": "ee57c396f7b4c353a2738f62b850c202",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1282,7 +1297,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1310,12 +1325,13 @@ len(actions) = 90
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517605090000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "8956b5bbcead79c53c5965acf817f7a4",
+        "_id": "5611cf87aa2ef0f8462558829e591acc",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1325,7 +1341,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1353,12 +1369,13 @@ len(actions) = 90
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517605090000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "69a74ef46eddcaad8b063a3b0e927a36",
+        "_id": "a0385516097fc28e2bd9301a6f563e76",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1368,7 +1385,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1396,12 +1413,13 @@ len(actions) = 90
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517605090000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "c6b9e9a81d43b9ceacb7de9e3a26ef06",
+        "_id": "200ede1f9512d56c3e00b4c96fc04885",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1411,7 +1429,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1439,12 +1457,13 @@ len(actions) = 90
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517605093000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "b848fc952d0d4f7448142c525d6ea989",
+        "_id": "098158dd453b79ece0d120e2c9bf89e5",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1454,7 +1473,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1482,12 +1501,13 @@ len(actions) = 90
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517605093000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "22d06eec771528e90f5724323f9066ad",
+        "_id": "cefd519a4b2d8691c198ae504b802060",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1497,7 +1517,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1525,12 +1545,13 @@ len(actions) = 90
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517605093000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "951eaf9993e459a6f9bedfacdc81317a",
+        "_id": "a76b5ee31d54332fb3b1f1674def28c2",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1540,7 +1561,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1568,12 +1589,13 @@ len(actions) = 90
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517605096000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "5e2da34a725e01d15760bce62b47a47b",
+        "_id": "d14ea000e3fad4dfaee31af2cd77bafb",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1583,7 +1605,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1611,12 +1633,13 @@ len(actions) = 90
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517605096000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "d30bf2d1ec91cf1ee4cae6b245f08cde",
+        "_id": "561b68a7e59611c890a44d5e45e4d84b",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1626,7 +1649,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1654,12 +1677,13 @@ len(actions) = 90
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517605096000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "e78536ea58c7436c7b84802576ff30d9",
+        "_id": "f73ee83dd34ba8ce33011c6159c39422",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1669,7 +1693,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1697,12 +1721,13 @@ len(actions) = 90
                         "write": "0.71"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517605099000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "a10ad6b8d91fdfd07dd17aee5eb00aa4",
+        "_id": "30a7b999b17ebd637ec87366d953581e",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1712,7 +1737,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1740,12 +1765,13 @@ len(actions) = 90
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517605099000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "2a1c1789e3dc31819d101e48fc339bd8",
+        "_id": "69e946030b9f88ecd60a86ae405e719c",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1755,7 +1781,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1783,12 +1809,13 @@ len(actions) = 90
                         "write": "0.62"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517605099000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "69faa6a04c05538c40045215622d736e",
+        "_id": "30e6325c2d1aeae08d9cf603c37025e4",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1798,7 +1825,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1826,12 +1853,13 @@ len(actions) = 90
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517605102000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "c6a1538d322dabe89e31e6164047f91c",
+        "_id": "ecf5ee5cd3a18087da35b1f23399df66",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1841,7 +1869,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1869,12 +1897,13 @@ len(actions) = 90
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517605102000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "1796e05b78aed007ef229963a53b14f6",
+        "_id": "b0b19d95637fe87c3a1a0fe6ad9cdd76",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1884,7 +1913,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1912,12 +1941,13 @@ len(actions) = 90
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517605102000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "e86923aa0471735179dabe2d71d4f7c3",
+        "_id": "ff41cfcbf6df960cd9f9ff6b3db23fce",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1927,7 +1957,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1950,7 +1980,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "47d5eb693402e9191d69c8b4f8a3a427",
+        "_id": "44dc6dbefc87fff070bafcd0372bd3d5",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1960,7 +1990,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1983,7 +2013,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "1b665716d2becdab6ec5617d00fd27da",
+        "_id": "95f2265d58ab54d4068dab0f5e5b2c35",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1993,7 +2023,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2016,7 +2046,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "cbeb92f00db009b42a74218e0106b0c8",
+        "_id": "3246f343a3433400264fd263d9a6ef6b",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2026,7 +2056,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2049,7 +2079,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "b45ce996efaa1fd7cbe757bf585394fe",
+        "_id": "d013469d01cbf2e65747c61a9fb96c20",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2059,7 +2089,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2082,7 +2112,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "4cfa41511943f31dc5b3dd5d467586bb",
+        "_id": "ef38320191a92f6d1f93bd350dc6dd25",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2092,7 +2122,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2115,7 +2145,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "6fa61e02f034afb25361659e4e494327",
+        "_id": "9e06e7c54b04287361405f10bb3e835f",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2125,7 +2155,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2148,7 +2178,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "97750173d22beecbe88039bfa9412f0c",
+        "_id": "a15657185bb0f01633490badb4beac54",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2158,7 +2188,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2181,7 +2211,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "cb4c1ef74b1d891e27d6e02a9ee15af0",
+        "_id": "e9b6586aaab8dd39328fb3d029ccb5d4",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2191,7 +2221,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2214,7 +2244,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "21a64955a4285c01f12bd6091471f6bd",
+        "_id": "24b301b98181d374be7c3b310c16d5cf",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2224,7 +2254,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2247,7 +2277,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "0e6abef957bf826cb21a1deb72c7abac",
+        "_id": "54efc52763503a03498c1009de9b8b70",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2257,7 +2287,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2280,7 +2310,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "70007634fa90c80574d769a1c742413c",
+        "_id": "c1d7d37266e1938a496d4f5f7cd0cd25",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2290,7 +2320,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2313,7 +2343,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "6f03b17d47648caa09c7a1976bf774a1",
+        "_id": "216d0186028aaccb949062c098de714d",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2323,7 +2353,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2346,7 +2376,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "392477340f669ab636eae4ad3141f87c",
+        "_id": "879d8d66ec77fe910f9082f9d22c09ca",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2356,7 +2386,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2379,7 +2409,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "2325dfc7b32255efd2f294130f6e308e",
+        "_id": "ea7842aed31995106fe4d5c48013a761",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2389,7 +2419,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2412,7 +2442,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "965a7e9b7f229d3e8e0b73960b88c3a2",
+        "_id": "00ce7e3320e9b113fb3cdd127dcd76df",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2422,7 +2452,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2442,12 +2472,13 @@ len(actions) = 90
                     "rss": "8504",
                     "vsz": "167264"
                 }
-            }
+            },
+            "timestamp_original": "1517605117000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "f3149bbcf3f3ad12a983651961d7e016",
+        "_id": "674fa7bcc5a45a66ccfc6c62550e2c11",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2457,7 +2488,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2477,12 +2508,13 @@ len(actions) = 90
                     "rss": "8972",
                     "vsz": "168776"
                 }
-            }
+            },
+            "timestamp_original": "1517605117000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "d734f556c04ae40d6867e2f1ddc962ee",
+        "_id": "f353b072553ebe2020b0930016ace92a",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2492,7 +2524,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2512,12 +2544,13 @@ len(actions) = 90
                     "rss": "8916",
                     "vsz": "168776"
                 }
-            }
+            },
+            "timestamp_original": "1517605117000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "fc5b455bb0d3f625c42a983c5872311c",
+        "_id": "106635884cc5507aaf597dc487a8d8e8",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2527,7 +2560,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2547,12 +2580,13 @@ len(actions) = 90
                     "rss": "8964",
                     "vsz": "168776"
                 }
-            }
+            },
+            "timestamp_original": "1517605117000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "40c837d073d0c3b61ca33f3dd5f4af9c",
+        "_id": "bc5e7a1c5b0cdbd02a7fc822cdb395be",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2562,7 +2596,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2582,12 +2616,13 @@ len(actions) = 90
                     "rss": "8936",
                     "vsz": "168776"
                 }
-            }
+            },
+            "timestamp_original": "1517605117000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "937389e6db1f44e27f47474b30c41e16",
+        "_id": "deb05480a5a4f2075ced32cbe25e22f3",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2597,7 +2632,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2617,12 +2652,13 @@ len(actions) = 90
                     "rss": "7812",
                     "vsz": "92204"
                 }
-            }
+            },
+            "timestamp_original": "1517605117000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "1a82d6db45bbb9ad7058549aac0a88d7",
+        "_id": "839288a2ef594527082598f0ed32efcf",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2632,7 +2668,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2652,12 +2688,13 @@ len(actions) = 90
                     "rss": "3196",
                     "vsz": "221656"
                 }
-            }
+            },
+            "timestamp_original": "1517605117000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "9b3136f5c99a38495de90f203f8ac79c",
+        "_id": "e6ee71a71a890b83b0663d1c3592c37b",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2667,7 +2704,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2687,12 +2724,13 @@ len(actions) = 90
                     "rss": "5220",
                     "vsz": "168776"
                 }
-            }
+            },
+            "timestamp_original": "1517605117000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "7386468a37fe09e93d53ea5fc04f1b38",
+        "_id": "833e4e1bf88f0fbdf63aedc9d93e11e5",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2702,7 +2740,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2722,12 +2760,13 @@ len(actions) = 90
                     "rss": "5256",
                     "vsz": "168776"
                 }
-            }
+            },
+            "timestamp_original": "1517605117000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "5ed9f2f0fb39ab7bc7082af3f54ed9f7",
+        "_id": "2076c2001d1562c5f456744c51f1ecd3",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2737,7 +2776,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2757,12 +2796,13 @@ len(actions) = 90
                     "rss": "5172",
                     "vsz": "168776"
                 }
-            }
+            },
+            "timestamp_original": "1517605117000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "a0c9c7d0efc268da0d7380e876df4e24",
+        "_id": "1535ed05d7ced71c3d694cfb6935b8f1",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2772,7 +2812,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2792,12 +2832,13 @@ len(actions) = 90
                     "rss": "5304",
                     "vsz": "168776"
                 }
-            }
+            },
+            "timestamp_original": "1517605117000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "dd187fef9f8a02f17bc515ad87660868",
+        "_id": "b7c7a2f7ac8b0b2520090ec589ea0d8d",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2807,7 +2848,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2827,12 +2868,13 @@ len(actions) = 90
                     "rss": "744",
                     "vsz": "114908"
                 }
-            }
+            },
+            "timestamp_original": "1517605117000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "75305827f3f5f8b07a7b00801d8a75d9",
+        "_id": "7f7f44a210d1433d4333b2d3778a5aa7",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2842,7 +2884,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2862,12 +2904,13 @@ len(actions) = 90
                     "rss": "940",
                     "vsz": "114908"
                 }
-            }
+            },
+            "timestamp_original": "1517605117000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "9009e24e62c8835ce597bd7234f81db6",
+        "_id": "6d12e66df48365476abd1ea0b8916602",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2877,7 +2920,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2897,12 +2940,13 @@ len(actions) = 90
                     "rss": "740",
                     "vsz": "114908"
                 }
-            }
+            },
+            "timestamp_original": "1517605117000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "f763aa7d686fd8510616219a0c7d2268",
+        "_id": "e44567b45f76ed7e07bca16609dbf87d",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2912,7 +2956,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2932,12 +2976,13 @@ len(actions) = 90
                     "rss": "852",
                     "vsz": "114908"
                 }
-            }
+            },
+            "timestamp_original": "1517605117000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "932c07e3cd0cf19e161d602bcdff1d46",
+        "_id": "c00ad7681d50bcf0bd9ba5cfe83c4efe",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -2947,7 +2992,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -3089,7 +3134,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "a519ae4a46e0d8644e3dca81ee88baff",
+        "_id": "a043106a5c95fc9898365f9a094be387",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -3099,7 +3144,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -3241,7 +3286,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "b98155abf013c2f7de10a4d1f259d42c",
+        "_id": "b7d25a6c4c7f1de22c34c626bbb2ea77",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -3251,7 +3296,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -3393,7 +3438,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "7b496e802b1329057740252f47f0e282",
+        "_id": "27a0e8997152a0de639c0b328f365361",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -3403,7 +3448,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -3545,7 +3590,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "ef4656f8c82f03fe35fb2f944fb0a606",
+        "_id": "69e1aff1a3d97bc91ce392b94e6feada",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -3555,7 +3600,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -3697,7 +3742,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "795bedf9ea9ee8684ee4f5404abfebc8",
+        "_id": "4055558ef04c6d261fc31edd88ce239e",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -3707,7 +3752,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -3849,7 +3894,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "41bed786bd8af37eb64aa12f558a7a10",
+        "_id": "f1fa0cf40051e9a112a43b25adaea83d",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -3859,7 +3904,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -4001,7 +4046,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "1d93eab80cab451054d21d5707cb6925",
+        "_id": "1e2ce4f27671b14967f8e16069b506d7",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -4011,7 +4056,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -4153,7 +4198,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "577be1ae9564e11b84d86a9dea3b0ad9",
+        "_id": "e847d9f88586814ab5f641badfc7bce1",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -4163,7 +4208,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -4305,7 +4350,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "a997ad4a6627baa0448a6acbf67296be",
+        "_id": "ebac2f8f711913e667faeb4a24a173ec",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -4315,7 +4360,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -4457,7 +4502,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "ed054f4974ae6ffbae85a35a51779734",
+        "_id": "47b417119d6ba18777147306e02390cb",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -4467,7 +4512,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -4609,7 +4654,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "320b4cd3743f6217458010e90f275139",
+        "_id": "a5453ea72997dd14a38ef83255ab4882",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -4619,7 +4664,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -4761,7 +4806,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "461f3e1a5017e2f6681c6a2c31129f7e",
+        "_id": "076bc907418bc86a3e85a7f128efca04",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -4771,7 +4816,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -4913,7 +4958,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "221b2d2a60a8e0d5a013ebdb0f6804ed",
+        "_id": "a1090ee5b540808c9eda4c5146a26f40",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -4923,7 +4968,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -5065,7 +5110,7 @@ len(actions) = 90
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "5e5be08e35cedf26896eb5be4408dac8",
+        "_id": "09aa4f08882d1eee004090448c1f402f",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -5075,7 +5120,7 @@ len(actions) = 90
                 "iteration": "tcp_rr-64B-8i",
                 "iterseqno": "1",
                 "runid": "22d20eec2affff06976f4abb374b4e13",
-                "runtstamp": "2018-02-02T20:58:04.723258607",
+                "runtstamp": "2018-02-02T20:58:04.723258",
                 "sample": "sample1",
                 "toolgroup": "default"
             },

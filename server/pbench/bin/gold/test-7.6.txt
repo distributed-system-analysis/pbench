@@ -78,7 +78,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--       5171 logs/pbench-index/pbench-index.log
+-rw-rw-r--       5150 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -142,11 +142,11 @@ len(actions) = 5
                 "file-name": "/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/test-7.6.tar.xz",
                 "file-size": 1476,
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.4.0.0",
+                "generated-by-version": "0.5.0.0",
                 "md5": "c71b2c9c961ebd55f61273a6a020bdc6",
                 "pbench-agent-version": "plugins:"
             },
-            "@timestamp": "2015-09-21T19:31:12.673292621",
+            "@timestamp": "2015-09-21T19:31:12.673292",
             "host_tools_info": [
                 {
                     "hostname": "alphaville",
@@ -167,11 +167,11 @@ len(actions) = 5
                 "config": "",
                 "controller": "alphaville.usersys.redhat.com",
                 "date": "2015-09-21T19:31:08",
-                "end_run": "2015-09-21T19:32:12.673292621",
+                "end_run": "2015-09-21T19:32:12.673292",
                 "id": "c71b2c9c961ebd55f61273a6a020bdc6",
                 "name": "testdir",
                 "script": "",
-                "start_run": "2015-09-21T19:31:12.673292621",
+                "start_run": "2015-09-21T19:31:12.673292",
                 "tarball-dirname": "test-7.6",
                 "tarball-toc-prefix": "test-7.6"
             },
@@ -192,7 +192,7 @@ len(actions) = 5
         "_op_type": "create",
         "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
         "_source": {
-            "@timestamp": "2015-09-21T19:31:12.673292621",
+            "@timestamp": "2015-09-21T19:31:12.673292",
             "directory": "/",
             "files": [
                 {
@@ -210,7 +210,7 @@ len(actions) = 5
         "_op_type": "create",
         "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
         "_source": {
-            "@timestamp": "2015-09-21T19:31:12.673292621",
+            "@timestamp": "2015-09-21T19:31:12.673292",
             "directory": "/sysinfo/"
         },
         "_type": "pbench-run-toc-entry"
@@ -221,7 +221,7 @@ len(actions) = 5
         "_op_type": "create",
         "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
         "_source": {
-            "@timestamp": "2015-09-21T19:31:12.673292621",
+            "@timestamp": "2015-09-21T19:31:12.673292",
             "directory": "/sysinfo/foo/"
         },
         "_type": "pbench-run-toc-entry"
@@ -232,7 +232,7 @@ len(actions) = 5
         "_op_type": "create",
         "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
         "_source": {
-            "@timestamp": "2015-09-21T19:31:12.673292621",
+            "@timestamp": "2015-09-21T19:31:12.673292",
             "directory": "/sysinfo/foo/end/",
             "files": [
                 {

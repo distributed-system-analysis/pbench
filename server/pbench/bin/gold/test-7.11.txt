@@ -78,7 +78,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--     116706 logs/pbench-index/pbench-index.log
+-rw-rw-r--     118242 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -129,7 +129,7 @@ Template:  pbench-unittests.run
 Template:  pbench-unittests.tool-data-iostat
 Template:  pbench-unittests.tool-data-pidstat
 	done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 3, retries: 0)
-Index:  pbench-unittests.result-data.1970-01-01 164
+Index:  pbench-unittests.result-data.2018-02-01 164
 Index:  pbench-unittests.run.2018-02 28
 Index:  pbench-unittests.tool-data-iostat.2018-02-01 15
 Index:  pbench-unittests.tool-data-mpstat.2018-02-01 10
@@ -146,11 +146,11 @@ len(actions) = 61
                 "file-name": "/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/fio_rw_2018.02.01T22.40.57.tar.xz",
                 "file-size": 2166628,
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.4.0.0",
+                "generated-by-version": "0.5.0.0",
                 "md5": "492a697c9dc7d73d1bd92c98d3fa8b2a",
                 "pbench-agent-version": "0.47-91gb666083"
             },
-            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "@timestamp": "2018-02-01T22:41:00.276959",
             "host_tools_info": [
                 {
                     "hostname": "dhcp31-44",
@@ -172,12 +172,12 @@ len(actions) = 61
                 "config": "rw",
                 "controller": "dhcp31-44.perf.lab.eng.bos.redhat.com",
                 "date": "2018-02-01T22:40:57",
-                "end_run": "2018-02-01T22:41:18.959014840",
+                "end_run": "2018-02-01T22:41:18.959014",
                 "id": "492a697c9dc7d73d1bd92c98d3fa8b2a",
                 "iterations": "1-rw-4KiB",
                 "name": "fio_rw_2018.02.01T22.40.57",
                 "script": "fio",
-                "start_run": "2018-02-01T22:41:00.276959021",
+                "start_run": "2018-02-01T22:41:00.276959",
                 "tarball-dirname": "fio_rw_2018.02.01T22.40.57",
                 "tarball-toc-prefix": "fio_rw_2018.02.01T22.40.57"
             },
@@ -244,7 +244,7 @@ len(actions) = 61
         "_op_type": "create",
         "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
         "_source": {
-            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "@timestamp": "2018-02-01T22:41:00.276959",
             "directory": "/",
             "files": [
                 {
@@ -292,7 +292,7 @@ len(actions) = 61
         "_op_type": "create",
         "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
         "_source": {
-            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "@timestamp": "2018-02-01T22:41:00.276959",
             "directory": "/sysinfo/"
         },
         "_type": "pbench-run-toc-entry"
@@ -303,7 +303,7 @@ len(actions) = 61
         "_op_type": "create",
         "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
         "_source": {
-            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "@timestamp": "2018-02-01T22:41:00.276959",
             "directory": "/sysinfo/beg/"
         },
         "_type": "pbench-run-toc-entry"
@@ -314,7 +314,7 @@ len(actions) = 61
         "_op_type": "create",
         "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
         "_source": {
-            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "@timestamp": "2018-02-01T22:41:00.276959",
             "directory": "/sysinfo/beg/dhcp31-44/",
             "files": [
                 {
@@ -352,7 +352,7 @@ len(actions) = 61
         "_op_type": "create",
         "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
         "_source": {
-            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "@timestamp": "2018-02-01T22:41:00.276959",
             "directory": "/sysinfo/end/"
         },
         "_type": "pbench-run-toc-entry"
@@ -363,7 +363,7 @@ len(actions) = 61
         "_op_type": "create",
         "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
         "_source": {
-            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "@timestamp": "2018-02-01T22:41:00.276959",
             "directory": "/sysinfo/end/dhcp31-44/",
             "files": [
                 {
@@ -401,7 +401,7 @@ len(actions) = 61
         "_op_type": "create",
         "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
         "_source": {
-            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "@timestamp": "2018-02-01T22:41:00.276959",
             "directory": "/1-rw-4KiB/",
             "files": [
                 {
@@ -424,7 +424,7 @@ len(actions) = 61
         "_op_type": "create",
         "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
         "_source": {
-            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "@timestamp": "2018-02-01T22:41:00.276959",
             "directory": "/1-rw-4KiB/sample1/",
             "files": [
                 {
@@ -472,7 +472,7 @@ len(actions) = 61
         "_op_type": "create",
         "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
         "_source": {
-            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "@timestamp": "2018-02-01T22:41:00.276959",
             "directory": "/1-rw-4KiB/sample1/clients/"
         },
         "_type": "pbench-run-toc-entry"
@@ -483,7 +483,7 @@ len(actions) = 61
         "_op_type": "create",
         "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
         "_source": {
-            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "@timestamp": "2018-02-01T22:41:00.276959",
             "directory": "/1-rw-4KiB/sample1/clients/localhost/",
             "files": [
                 {
@@ -526,7 +526,7 @@ len(actions) = 61
         "_op_type": "create",
         "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
         "_source": {
-            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "@timestamp": "2018-02-01T22:41:00.276959",
             "directory": "/1-rw-4KiB/sample1/tools-default/"
         },
         "_type": "pbench-run-toc-entry"
@@ -537,7 +537,7 @@ len(actions) = 61
         "_op_type": "create",
         "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
         "_source": {
-            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "@timestamp": "2018-02-01T22:41:00.276959",
             "directory": "/1-rw-4KiB/sample1/tools-default/dhcp31-44/"
         },
         "_type": "pbench-run-toc-entry"
@@ -548,7 +548,7 @@ len(actions) = 61
         "_op_type": "create",
         "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
         "_source": {
-            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "@timestamp": "2018-02-01T22:41:00.276959",
             "directory": "/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/",
             "files": [
                 {
@@ -586,7 +586,7 @@ len(actions) = 61
         "_op_type": "create",
         "_parent": "492a697c9dc7d73d1bd92c98d3fa8b2a",
         "_source": {
-            "@timestamp": "2018-02-01T22:41:00.276959021",
+            "@timestamp": "2018-02-01T22:41:00.276959",
             "directory": "/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/csv/",
             "files": [
                 {
@@ -630,7 +630,7 @@ len(actions) = 61
     },
     {
         "_id": "13acc27db6084557e2c8160a84e3d8af",
-        "_index": "pbench-unittests.result-data.1970-01-01",
+        "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -641,12 +641,12 @@ len(actions) = 61
                 "iteration_number": "1",
                 "primary_metric": "iops_sec",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "uid": "benchmark_name:fio-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 1001,
+            "@timestamp": "2018-02-01T22:41:01.277959",
             "results": {
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
@@ -659,13 +659,14 @@ len(actions) = 61
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 1600636
-            }
+            },
+            "timestamp_original": 1001
         },
         "_type": "pbench-result-data"
     },
     {
         "_id": "6938f7cef9a0c5115520dc2d8e6f66fe",
-        "_index": "pbench-unittests.result-data.1970-01-01",
+        "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -676,12 +677,12 @@ len(actions) = 61
                 "iteration_number": "1",
                 "primary_metric": "iops_sec",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "uid": "benchmark_name:fio-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 1001,
+            "@timestamp": "2018-02-01T22:41:01.277959",
             "results": {
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
@@ -694,13 +695,14 @@ len(actions) = 61
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 1600636
-            }
+            },
+            "timestamp_original": 1001
         },
         "_type": "pbench-result-data"
     },
     {
         "_id": "861a2034315cca5b83a5e9489c79246b",
-        "_index": "pbench-unittests.result-data.1970-01-01",
+        "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -711,12 +713,12 @@ len(actions) = 61
                 "iteration_number": "1",
                 "primary_metric": "iops_sec",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "uid": "benchmark_name:fio-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 2000,
+            "@timestamp": "2018-02-01T22:41:02.276959",
             "results": {
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
@@ -729,13 +731,14 @@ len(actions) = 61
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 1600636
-            }
+            },
+            "timestamp_original": 2000
         },
         "_type": "pbench-result-data"
     },
     {
         "_id": "bd6bf8191d11deaf6344aed9d0c88bc4",
-        "_index": "pbench-unittests.result-data.1970-01-01",
+        "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -746,12 +749,12 @@ len(actions) = 61
                 "iteration_number": "1",
                 "primary_metric": "iops_sec",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "uid": "benchmark_name:fio-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 2000,
+            "@timestamp": "2018-02-01T22:41:02.276959",
             "results": {
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
@@ -764,13 +767,14 @@ len(actions) = 61
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 1600636
-            }
+            },
+            "timestamp_original": 2000
         },
         "_type": "pbench-result-data"
     },
     {
         "_id": "3464acbf26fa8b9b2a1af36325fe1ffe",
-        "_index": "pbench-unittests.result-data.1970-01-01",
+        "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -781,12 +785,12 @@ len(actions) = 61
                 "iteration_number": "1",
                 "primary_metric": "iops_sec",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "uid": "benchmark_name:fio-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 3000,
+            "@timestamp": "2018-02-01T22:41:03.276959",
             "results": {
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
@@ -799,13 +803,14 @@ len(actions) = 61
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 1600636
-            }
+            },
+            "timestamp_original": 3000
         },
         "_type": "pbench-result-data"
     },
     {
         "_id": "762966d8ba47d2f8954ec6709d24c814",
-        "_index": "pbench-unittests.result-data.1970-01-01",
+        "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -816,12 +821,12 @@ len(actions) = 61
                 "iteration_number": "1",
                 "primary_metric": "iops_sec",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "uid": "benchmark_name:fio-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 3000,
+            "@timestamp": "2018-02-01T22:41:03.276959",
             "results": {
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
@@ -834,13 +839,14 @@ len(actions) = 61
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 1600636
-            }
+            },
+            "timestamp_original": 3000
         },
         "_type": "pbench-result-data"
     },
     {
         "_id": "41db106d39a3375246590cd07d9f8c0d",
-        "_index": "pbench-unittests.result-data.1970-01-01",
+        "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -851,12 +857,12 @@ len(actions) = 61
                 "iteration_number": "1",
                 "primary_metric": "iops_sec",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "uid": "benchmark_name:fio-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 4000,
+            "@timestamp": "2018-02-01T22:41:04.276959",
             "results": {
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
@@ -869,13 +875,14 @@ len(actions) = 61
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 1600636
-            }
+            },
+            "timestamp_original": 4000
         },
         "_type": "pbench-result-data"
     },
     {
         "_id": "cf5916da24e8ec50d6cdc0d389ded661",
-        "_index": "pbench-unittests.result-data.1970-01-01",
+        "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -886,12 +893,12 @@ len(actions) = 61
                 "iteration_number": "1",
                 "primary_metric": "iops_sec",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "uid": "benchmark_name:fio-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 4000,
+            "@timestamp": "2018-02-01T22:41:04.276959",
             "results": {
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
@@ -904,13 +911,14 @@ len(actions) = 61
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 1600636
-            }
+            },
+            "timestamp_original": 4000
         },
         "_type": "pbench-result-data"
     },
     {
         "_id": "21ca2d5c2a540d3b74a7a56384f67ddb",
-        "_index": "pbench-unittests.result-data.1970-01-01",
+        "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -921,12 +929,12 @@ len(actions) = 61
                 "iteration_number": "1",
                 "primary_metric": "iops_sec",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "uid": "benchmark_name:fio-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 5000,
+            "@timestamp": "2018-02-01T22:41:05.276959",
             "results": {
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
@@ -939,13 +947,14 @@ len(actions) = 61
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 1600636
-            }
+            },
+            "timestamp_original": 5000
         },
         "_type": "pbench-result-data"
     },
     {
         "_id": "ebfaff310f12db369ff7202ecd30f9b7",
-        "_index": "pbench-unittests.result-data.1970-01-01",
+        "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -956,12 +965,12 @@ len(actions) = 61
                 "iteration_number": "1",
                 "primary_metric": "iops_sec",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "uid": "benchmark_name:fio-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 5000,
+            "@timestamp": "2018-02-01T22:41:05.276959",
             "results": {
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
@@ -974,13 +983,14 @@ len(actions) = 61
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 1600636
-            }
+            },
+            "timestamp_original": 5000
         },
         "_type": "pbench-result-data"
     },
     {
         "_id": "dbd4f7e74e47e262f8f83d369fcab4b6",
-        "_index": "pbench-unittests.result-data.1970-01-01",
+        "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -991,12 +1001,12 @@ len(actions) = 61
                 "iteration_number": "1",
                 "primary_metric": "iops_sec",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "uid": "benchmark_name:fio-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 6000,
+            "@timestamp": "2018-02-01T22:41:06.276959",
             "results": {
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
@@ -1009,13 +1019,14 @@ len(actions) = 61
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 1600636
-            }
+            },
+            "timestamp_original": 6000
         },
         "_type": "pbench-result-data"
     },
     {
         "_id": "1ba37e606cfd3b23272304f9a66807f2",
-        "_index": "pbench-unittests.result-data.1970-01-01",
+        "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -1026,12 +1037,12 @@ len(actions) = 61
                 "iteration_number": "1",
                 "primary_metric": "iops_sec",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "uid": "benchmark_name:fio-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 6000,
+            "@timestamp": "2018-02-01T22:41:06.276959",
             "results": {
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
@@ -1044,13 +1055,14 @@ len(actions) = 61
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 1600636
-            }
+            },
+            "timestamp_original": 6000
         },
         "_type": "pbench-result-data"
     },
     {
         "_id": "c75d7db5328f7616ae72cc5171032300",
-        "_index": "pbench-unittests.result-data.1970-01-01",
+        "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -1061,12 +1073,12 @@ len(actions) = 61
                 "iteration_number": "1",
                 "primary_metric": "iops_sec",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "uid": "benchmark_name:fio-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 7000,
+            "@timestamp": "2018-02-01T22:41:07.276959",
             "results": {
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
@@ -1079,13 +1091,14 @@ len(actions) = 61
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 1600636
-            }
+            },
+            "timestamp_original": 7000
         },
         "_type": "pbench-result-data"
     },
     {
         "_id": "8d45ea874baa187f15fe31b5684f4231",
-        "_index": "pbench-unittests.result-data.1970-01-01",
+        "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -1096,12 +1109,12 @@ len(actions) = 61
                 "iteration_number": "1",
                 "primary_metric": "iops_sec",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "uid": "benchmark_name:fio-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 7000,
+            "@timestamp": "2018-02-01T22:41:07.276959",
             "results": {
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
@@ -1114,13 +1127,14 @@ len(actions) = 61
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 1600636
-            }
+            },
+            "timestamp_original": 7000
         },
         "_type": "pbench-result-data"
     },
     {
         "_id": "43fb607f3a25323aed470de9eaf2a917",
-        "_index": "pbench-unittests.result-data.1970-01-01",
+        "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
             "@metadata": {
@@ -1131,12 +1145,12 @@ len(actions) = 61
                 "iteration_number": "1",
                 "primary_metric": "iops_sec",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "uid": "benchmark_name:fio-controller_host:%controller_host%",
                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
-            "@timestamp": 8000,
+            "@timestamp": "2018-02-01T22:41:08.276959",
             "results": {
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
@@ -1149,12 +1163,13 @@ len(actions) = 61
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 1600636
-            }
+            },
+            "timestamp_original": 8000
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "1a591d45650fdca86b32ff858def62d8",
+        "_id": "d33a2e9ef67df08305e5d5cd973b2916",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1164,7 +1179,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1192,12 +1207,13 @@ len(actions) = 61
                         "write": "1.92"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517524863000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "b52a8671097e7cd9ad57ffdf88017e92",
+        "_id": "784004c7c775e66270fd7e50891889cb",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1207,7 +1223,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1235,12 +1251,13 @@ len(actions) = 61
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517524863000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "b2846ec5dc69106b739791cb1a040845",
+        "_id": "81fcdf1548bd827dd56b293d0b2d705b",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1250,7 +1267,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1278,12 +1295,13 @@ len(actions) = 61
                         "write": "1.36"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517524863000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "68f7f789dd1d8b08b3205737312ef24a",
+        "_id": "1101ead2673d3b8f075d3f8d7c35abdb",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1293,7 +1311,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1321,12 +1339,13 @@ len(actions) = 61
                         "write": "3.59"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517524866000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "c77dfa771a9d5aa7e2897c8fbe919056",
+        "_id": "950ca573dd65c1866887bc13d55412b1",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1336,7 +1355,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1364,12 +1383,13 @@ len(actions) = 61
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517524866000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "c36a54fc5f505fce5f9d8594df31d056",
+        "_id": "89146cc1913104db8468e0f8500289f3",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1379,7 +1399,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1407,12 +1427,13 @@ len(actions) = 61
                         "write": "1.79"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517524866000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "bbb4781707acbce83c5de2086c20d55d",
+        "_id": "29a433a4569f8c235ce9879651cf8821",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1422,7 +1443,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1450,12 +1471,13 @@ len(actions) = 61
                         "write": "6.84"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517524869000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "e66887f5d41c67e06b98a6dca5a11b11",
+        "_id": "ed9a813c85679323f3a7f61fa0c1ea8e",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1465,7 +1487,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1493,12 +1515,13 @@ len(actions) = 61
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517524869000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "5823cb854d7bb647515e4ab5d036d6a9",
+        "_id": "d8e24a951f1b005868f2c6a177b3072e",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1508,7 +1531,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1536,12 +1559,13 @@ len(actions) = 61
                         "write": "3.49"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517524869000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "8b8c84b7e183f65d33af72407fc82f60",
+        "_id": "6866c8860845ebf9184415e09ab8c5fe",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1551,7 +1575,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1579,12 +1603,13 @@ len(actions) = 61
                         "write": "6.95"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517524872000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "529c52c7a51d7b965e327a5d23bc333e",
+        "_id": "d49ff9888e4e6e7c031bea7439a0b845",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1594,7 +1619,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1622,12 +1647,13 @@ len(actions) = 61
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517524872000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "5dced12944f56c1d610ab9232ca53c7a",
+        "_id": "2ea5c22c571f8e61520c4f8dbd3a0333",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1637,7 +1663,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1665,12 +1691,13 @@ len(actions) = 61
                         "write": "3.45"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517524872000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "8cc7b57a42d83e3376c2645870304456",
+        "_id": "b01040123af9b5c3f09275533796f98f",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1680,7 +1707,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1708,12 +1735,13 @@ len(actions) = 61
                         "write": "6.91"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517524875000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "3ed92e654e944ef6e6fba87e94c45ad2",
+        "_id": "dda941917bf64cd0787c297bfdde633f",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1723,7 +1751,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1751,12 +1779,13 @@ len(actions) = 61
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517524875000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "fa9235d3f7036b0c541fb84667343f6a",
+        "_id": "e2eb016eff82a80f105effe9b934358c",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1766,7 +1795,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1794,12 +1823,13 @@ len(actions) = 61
                         "write": "3.48"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517524875000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "7124805b76e65080cf485a4725408a5d",
+        "_id": "f06fe0e2d7f5813aae568599e3eb9a0a",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1809,7 +1839,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1832,7 +1862,7 @@ len(actions) = 61
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "99438def96f9ff46cbc69ca380a0afc3",
+        "_id": "28044038c1f9f176ccf5a13351def8e5",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1842,7 +1872,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1865,7 +1895,7 @@ len(actions) = 61
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "3401580daf0fa79df2a99932192d7fdf",
+        "_id": "5891deaecb823fba337fde64938cb2ee",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1875,7 +1905,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1898,7 +1928,7 @@ len(actions) = 61
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "2ca5ea66adabe98ee4c6abc4b0beb4da",
+        "_id": "245a1a6bb07b8611f5fecc8301bd358a",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1908,7 +1938,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1931,7 +1961,7 @@ len(actions) = 61
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "c846baf1036ccb804b0c01401a9e0725",
+        "_id": "9bfef77e759706485c1f299422423065",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1941,7 +1971,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1964,7 +1994,7 @@ len(actions) = 61
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "f381e78e0ce4c08eaf6ddd0ceeed711c",
+        "_id": "fdf3a72f8fbdeac4a7712d2e827a45f0",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1974,7 +2004,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -1997,7 +2027,7 @@ len(actions) = 61
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "a85388f59825dfe588d85b67d4692786",
+        "_id": "f17713a233e48e2918c686b692df067a",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -2007,7 +2037,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2030,7 +2060,7 @@ len(actions) = 61
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "7d927e289dfb8c87dcab8ae48568be4e",
+        "_id": "8417716f537fb6492990baa7cf7bffa6",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -2040,7 +2070,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2063,7 +2093,7 @@ len(actions) = 61
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "907356a0133327f2fb2efbb4c7647fd7",
+        "_id": "a1aeb24ebdb91024299f4f51be1260f6",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -2073,7 +2103,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2096,7 +2126,7 @@ len(actions) = 61
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "50d6c87e8a8c559c4c1d0b59e6dfdcc9",
+        "_id": "ced421be75243b770aa1dd5f3330aba1",
         "_index": "pbench-unittests.tool-data-mpstat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -2106,7 +2136,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2129,7 +2159,7 @@ len(actions) = 61
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "860f46682e30e6ef9760268c7ad5496b",
+        "_id": "ebd0e907e5bbb76a07f0aba179192abb",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -2139,7 +2169,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2281,7 +2311,7 @@ len(actions) = 61
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "e75430590f444b7d630f8a983b57a451",
+        "_id": "09be0dd4c894cc5ac7ebd893e8b4a376",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -2291,7 +2321,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2433,7 +2463,7 @@ len(actions) = 61
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "fe7c91264d36bb1b3a83d50688b8a68d",
+        "_id": "62819d284e8fbb17351fa025682f9941",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -2443,7 +2473,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2585,7 +2615,7 @@ len(actions) = 61
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "0854392324f32213a57871f6d1fbf6ef",
+        "_id": "5d0e1403856ae986fd9c2ea822b30da4",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -2595,7 +2625,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2737,7 +2767,7 @@ len(actions) = 61
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "f9f67a2439b828e8733a4c88aa14e3de",
+        "_id": "640abe8daa001fbc59b731003fe21ba6",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -2747,7 +2777,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },
@@ -2889,7 +2919,7 @@ len(actions) = 61
         "_type": "pbench-tool-data-proc-vmstat"
     },
     {
-        "_id": "cebcef68af35994a0b0c380fdc642f52",
+        "_id": "129a4f69b22d67a39d9d6cca18145f47",
         "_index": "pbench-unittests.tool-data-proc-vmstat.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -2899,7 +2929,7 @@ len(actions) = 61
                 "iteration": "rw-4KiB",
                 "iterseqno": "1",
                 "runid": "492a697c9dc7d73d1bd92c98d3fa8b2a",
-                "runtstamp": "2018-02-01T22:41:00.276959021",
+                "runtstamp": "2018-02-01T22:41:00.276959",
                 "sample": "sample1",
                 "toolgroup": "default"
             },

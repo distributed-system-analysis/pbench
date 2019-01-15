@@ -78,7 +78,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--     112898 logs/pbench-index/pbench-index.log
+-rw-rw-r--     114242 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -147,11 +147,11 @@ len(actions) = 60
                 "file-name": "/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/pbench-user-benchmark__2018.02.05T20.35.36.tar.xz",
                 "file-size": 5264916,
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.4.0.0",
+                "generated-by-version": "0.5.0.0",
                 "md5": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
                 "pbench-agent-version": "0.47-162gb666083"
             },
-            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "@timestamp": "2018-02-05T20:35:36.317245",
             "host_tools_info": [
                 {
                     "hostname": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
@@ -203,12 +203,12 @@ len(actions) = 60
                 "config": "",
                 "controller": "ip-172-31-52-154.us-west-2.compute.internal",
                 "date": "2018-02-05T20:35:36",
-                "end_run": "2018-02-05T20:36:47.602505488",
+                "end_run": "2018-02-05T20:36:47.602505",
                 "id": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
                 "iterations": "1, 1",
                 "name": "pbench-user-benchmark__2018.02.05T20.35.36",
                 "script": "pbench-user-benchmark",
-                "start_run": "2018-02-05T20:35:36.317245145",
+                "start_run": "2018-02-05T20:35:36.317245",
                 "tarball-dirname": "pbench-user-benchmark__2018.02.05T20.35.36",
                 "tarball-toc-prefix": "pbench-user-benchmark__2018.02.05T20.35.36"
             },
@@ -357,7 +357,7 @@ len(actions) = 60
         "_op_type": "create",
         "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
         "_source": {
-            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "@timestamp": "2018-02-05T20:35:36.317245",
             "directory": "/",
             "files": [
                 {
@@ -390,7 +390,7 @@ len(actions) = 60
         "_op_type": "create",
         "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
         "_source": {
-            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "@timestamp": "2018-02-05T20:35:36.317245",
             "directory": "/1/"
         },
         "_type": "pbench-run-toc-entry"
@@ -401,7 +401,7 @@ len(actions) = 60
         "_op_type": "create",
         "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
         "_source": {
-            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "@timestamp": "2018-02-05T20:35:36.317245",
             "directory": "/1/reference-result/",
             "files": [
                 {
@@ -419,7 +419,7 @@ len(actions) = 60
         "_op_type": "create",
         "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
         "_source": {
-            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "@timestamp": "2018-02-05T20:35:36.317245",
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/"
         },
         "_type": "pbench-run-toc-entry"
@@ -430,7 +430,7 @@ len(actions) = 60
         "_op_type": "create",
         "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
         "_source": {
-            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "@timestamp": "2018-02-05T20:35:36.317245",
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/disk/",
             "files": [
                 {
@@ -468,7 +468,7 @@ len(actions) = 60
         "_op_type": "create",
         "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
         "_source": {
-            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "@timestamp": "2018-02-05T20:35:36.317245",
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/disk/csv/",
             "files": [
                 {
@@ -511,7 +511,7 @@ len(actions) = 60
         "_op_type": "create",
         "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
         "_source": {
-            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "@timestamp": "2018-02-05T20:35:36.317245",
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/",
             "files": [
                 {
@@ -1114,7 +1114,7 @@ len(actions) = 60
         "_op_type": "create",
         "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
         "_source": {
-            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "@timestamp": "2018-02-05T20:35:36.317245",
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/logs/"
         },
         "_type": "pbench-run-toc-entry"
@@ -1125,7 +1125,7 @@ len(actions) = 60
         "_op_type": "create",
         "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
         "_source": {
-            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "@timestamp": "2018-02-05T20:35:36.317245",
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/logs/start/",
             "files": [
                 {
@@ -1148,7 +1148,7 @@ len(actions) = 60
         "_op_type": "create",
         "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
         "_source": {
-            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "@timestamp": "2018-02-05T20:35:36.317245",
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/logs/stop/",
             "files": [
                 {
@@ -1171,7 +1171,7 @@ len(actions) = 60
         "_op_type": "create",
         "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
         "_source": {
-            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "@timestamp": "2018-02-05T20:35:36.317245",
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/config/"
         },
         "_type": "pbench-run-toc-entry"
@@ -1182,7 +1182,7 @@ len(actions) = 60
         "_op_type": "create",
         "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
         "_source": {
-            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "@timestamp": "2018-02-05T20:35:36.317245",
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/config/stop/",
             "files": [
                 {
@@ -1205,7 +1205,7 @@ len(actions) = 60
         "_op_type": "create",
         "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
         "_source": {
-            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "@timestamp": "2018-02-05T20:35:36.317245",
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/config/start/",
             "files": [
                 {
@@ -1228,7 +1228,7 @@ len(actions) = 60
         "_op_type": "create",
         "_parent": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
         "_source": {
-            "@timestamp": "2018-02-05T20:35:36.317245145",
+            "@timestamp": "2018-02-05T20:35:36.317245",
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/csv/",
             "files": [
                 {
@@ -1551,7 +1551,7 @@ len(actions) = 60
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "9018d49b51d0a9a127d204cefd0e97aa",
+        "_id": "6eab9716437949395f703e47ce9792bb",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -1561,7 +1561,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -1589,12 +1589,13 @@ len(actions) = 60
                         "write": "3.59"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "decc7ad27138d0c1e06dffe612d2074b",
+        "_id": "6c8933043ddc7e6dadc4220e8a15f1e6",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -1604,7 +1605,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -1632,12 +1633,13 @@ len(actions) = 60
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "017c2b6e05f259195d08f1c115395cd9",
+        "_id": "288e3065d5badc85af3c6c6f69d3b1bb",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -1647,7 +1649,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -1675,12 +1677,13 @@ len(actions) = 60
                         "write": "1.45"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517862959000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "e7fa2098b2fd0e37f72d21c458e551d3",
+        "_id": "d2a0c15799189784dc23183293a50653",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -1690,7 +1693,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -1718,12 +1721,13 @@ len(actions) = 60
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517862959000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "53ded9e1a9f58ce8d2331dc025785ff6",
+        "_id": "077422d295e48e5a8e3d54b7c31375c0",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -1733,7 +1737,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -1761,12 +1765,13 @@ len(actions) = 60
                         "write": "1.02"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517862969000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "b28ed65513529358a6a95b5774358ce4",
+        "_id": "13a52d860cb679e3f2eccb6a20f4dcd9",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -1776,7 +1781,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -1804,12 +1809,13 @@ len(actions) = 60
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517862969000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "17de88b0f0f1c65d0689936069adc6b3",
+        "_id": "cc5f67ffb7e7a3fafd4b1610e164cded",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -1819,7 +1825,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -1847,12 +1853,13 @@ len(actions) = 60
                         "write": "4.49"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517862979000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "82383533de1eb0ed4db7c41a49f3508a",
+        "_id": "ac0a91c2ad3f21a3e73dca8e21639c97",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -1862,7 +1869,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -1890,12 +1897,13 @@ len(actions) = 60
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517862979000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "e01072256ceefd8fc270ad1a0869ad9f",
+        "_id": "09f78d4ab15cf46c0e8c9f368565d29c",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -1905,7 +1913,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -1933,12 +1941,13 @@ len(actions) = 60
                         "write": "5.25"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517862989000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "7b70da12e4dc4b90fed4002aaa8a20e9",
+        "_id": "a91325a5fdbc578362697319ea3d928c",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -1948,7 +1957,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -1976,12 +1985,13 @@ len(actions) = 60
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517862989000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "326d1256997b500c4021b0e802edd901",
+        "_id": "0709131c5c2d6c3db9a572d9b7ca7556",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -1991,7 +2001,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2019,12 +2029,13 @@ len(actions) = 60
                         "write": "1.09"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517862999000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "e2c36c002edd4cb7ed83c5bfeb832273",
+        "_id": "99fce1f069728e9df56868cc65591a92",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2034,7 +2045,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2062,12 +2073,13 @@ len(actions) = 60
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517862999000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "47c62f3d9ace569a9771f2da853889cc",
+        "_id": "7f101a55ad103c9a846497e3320f4757",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2077,7 +2089,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2097,12 +2109,13 @@ len(actions) = 60
                     "rss": "6860",
                     "vsz": "128136"
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "b302e9c239ad0136d282f2190878bc04",
+        "_id": "650ef6a4a487782299c0afd30f7f9d3e",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2112,7 +2125,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2132,12 +2145,13 @@ len(actions) = 60
                     "rss": "2616",
                     "vsz": "54396"
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "e45e9739bcec67140b5e6d3e999877a0",
+        "_id": "a1ee11206ef8064fe42653cc669f0261",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2147,7 +2161,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2167,12 +2181,13 @@ len(actions) = 60
                     "rss": "17740",
                     "vsz": "574100"
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "f0f65b80c3229416461c0486d6a158a3",
+        "_id": "5ef58a0587173f66b67198ea2a34c33e",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2182,7 +2197,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2202,12 +2217,13 @@ len(actions) = 60
                     "rss": "2180",
                     "vsz": "89608"
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "045096629119ae30753e2a50cf94c4ec",
+        "_id": "30adb6be295456de28e0914fed439669",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2217,7 +2233,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2237,12 +2253,13 @@ len(actions) = 60
                     "rss": "4080",
                     "vsz": "89780"
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "8a06b439dfe8cc111d08568809f42766",
+        "_id": "9001d460f068b5ec99d7936b00c9d498",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2252,7 +2269,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2272,12 +2289,13 @@ len(actions) = 60
                     "rss": "411460",
                     "vsz": "1056708"
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "448da8725fab95ef869e893699997cb9",
+        "_id": "0d66e4e5d691b3cf478359a861a8d43e",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2287,7 +2305,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2307,12 +2325,13 @@ len(actions) = 60
                     "rss": "244336",
                     "vsz": "780212"
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "0c9df30a883c99105f8597d0f8aa1ee0",
+        "_id": "67f5b4ba4826caf884b6ca938f7c2016",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2322,7 +2341,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2342,12 +2361,13 @@ len(actions) = 60
                     "rss": "213324",
                     "vsz": "5800332"
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "7acc68594d0ffc7cd27a05718fc20308",
+        "_id": "248f4052f4b4f53f50eb8636542ee188",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2357,7 +2377,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2377,12 +2397,13 @@ len(actions) = 60
                     "rss": "4304",
                     "vsz": "112788"
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "defa945ee8baef6fb8737426527b9ddb",
+        "_id": "3042f8086be4850a663a4e2202e1f454",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2392,7 +2413,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2412,12 +2433,13 @@ len(actions) = 60
                     "rss": "1692",
                     "vsz": "126280"
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "f349d6021590666400d34eae8ffe560d",
+        "_id": "05c838125c0ba775e2b2b288afc2290f",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2427,7 +2449,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2447,12 +2469,13 @@ len(actions) = 60
                     "rss": "864",
                     "vsz": "110088"
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "af0dcb6ed1062e0df26508aae73da059",
+        "_id": "fb3b7f0060a002f728dafebeb44355a7",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2462,7 +2485,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2482,12 +2505,13 @@ len(actions) = 60
                     "rss": "880",
                     "vsz": "110088"
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "74093556a28b9216a2fe7b7953468699",
+        "_id": "946f7cc44aa3d9901c6ff541de2707bf",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2497,7 +2521,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2517,12 +2541,13 @@ len(actions) = 60
                     "rss": "572",
                     "vsz": "107964"
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "232f1c99f0d042ff08b9e36f89072d4b",
+        "_id": "4dea85237ab049f5e43d003bbeb59cd1",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2532,7 +2557,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2552,12 +2577,13 @@ len(actions) = 60
                     "rss": "42368",
                     "vsz": "630848"
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "e1756ae812139d173f38a2575c38b317",
+        "_id": "c0f8ac657865adb2aaeade9c820245e5",
         "_index": "pbench-unittests.tool-data-pidstat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2567,7 +2593,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2587,12 +2613,13 @@ len(actions) = 60
                     "rss": "8368",
                     "vsz": "298268"
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "9a96ea3dd094a566c2363a00d2d3ecba",
+        "_id": "e530127bab319d7f91a2fdde79e7ebfa",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2602,7 +2629,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2614,7 +2641,7 @@ len(actions) = 60
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "d280a1583fddad2d0ef213781766c710",
+        "_id": "b80b93a1b4b33a2668834bfa894790a4",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2624,7 +2651,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2636,7 +2663,7 @@ len(actions) = 60
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "4a4b18177dc43a8e4aca411ffdcf14ef",
+        "_id": "9a388a80601152fe0328e7aff635681f",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2646,7 +2673,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2661,7 +2688,7 @@ len(actions) = 60
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "0a500076143c63e99dd937abaa477257",
+        "_id": "4e603ab46065f86ac4549c37ddfbda7d",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2671,7 +2698,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2686,7 +2713,7 @@ len(actions) = 60
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "c735f889e6dda55f413285a4e5dcb3fd",
+        "_id": "e217df57f93414c79af853ddda213c2b",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2696,7 +2723,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2711,7 +2738,7 @@ len(actions) = 60
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "5c97ce97cb39163b74825f1c558f7114",
+        "_id": "b72403491dd9245bf03104c8e6e8c3e3",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2721,7 +2748,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2733,7 +2760,7 @@ len(actions) = 60
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "495771af79b034c7e25f1c0e6e1d30be",
+        "_id": "78a947cb51775c8b57fa2fca3a7c200b",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2743,7 +2770,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2758,7 +2785,7 @@ len(actions) = 60
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "e985960178b0e0c8f36e7156add14186",
+        "_id": "1f0a9614f7f03bdaa32d093c377c293b",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2768,7 +2795,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2783,7 +2810,7 @@ len(actions) = 60
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "1a138cbf8952472bf98b66c222e43fb4",
+        "_id": "8a70b2f79441fd72410298ee8535a21c",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2793,7 +2820,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2808,7 +2835,7 @@ len(actions) = 60
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "1473e40201a89ba08bb1cbcf1701c4d4",
+        "_id": "b43932247dc5215c5943c9b064fe8049",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2818,7 +2845,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2830,7 +2857,7 @@ len(actions) = 60
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "f7c9a4ab74dfb13406be9f05dd2110cf",
+        "_id": "9b0c1481330fb605d2dc815471adb28d",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2840,7 +2867,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2852,7 +2879,7 @@ len(actions) = 60
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "9eff532221cd4536739fdb4c3cfdd3ff",
+        "_id": "50c24014349f191990aed1cc5666a48f",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2862,7 +2889,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2877,7 +2904,7 @@ len(actions) = 60
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "6bc3733c10add161ca16aa191b6fb2d4",
+        "_id": "c1156c0adbd4b19ff0f3cf8b876c2f4b",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2887,7 +2914,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2902,7 +2929,7 @@ len(actions) = 60
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "a72f35090c679a103bc541d40c24d222",
+        "_id": "ee063c87d1a5d2a294948b44daed5632",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2912,7 +2939,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2927,7 +2954,7 @@ len(actions) = 60
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "76cb872916533445aff29ce4822c31d2",
+        "_id": "77a25d22d9a6d850fc93311da8a1c8e6",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2937,7 +2964,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2949,7 +2976,7 @@ len(actions) = 60
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "bc1fd6b3b34c1d917ce10ac088c223c6",
+        "_id": "cbb741fd08670103291cf22af6778bb2",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2959,7 +2986,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -2987,12 +3014,13 @@ len(actions) = 60
                         "write": "1.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "c836030f491d375db927c6f3131ea269",
+        "_id": "98489c81a89311274d816e36635931dc",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -3002,7 +3030,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -3030,12 +3058,13 @@ len(actions) = 60
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517862949000"
         },
         "_type": "pbench-tool-data-iostat"
     },
     {
-        "_id": "ad7fb3ebb7ee289b685466f42e360fca",
+        "_id": "caea99852ce381978029beea1b2e96cc",
         "_index": "pbench-unittests.tool-data-iostat.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -3045,7 +3074,7 @@ len(actions) = 60
                 "iteration": "1",
                 "iterseqno": "1",
                 "runid": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
-                "runtstamp": "2018-02-05T20:35:36.317245145",
+                "runtstamp": "2018-02-05T20:35:36.317245",
                 "sample": "reference-result",
                 "toolgroup": "default"
             },
@@ -3073,7 +3102,8 @@ len(actions) = 60
                         "write": "0.00"
                     }
                 }
-            }
+            },
+            "timestamp_original": "1517862959000"
         },
         "_type": "pbench-tool-data-iostat"
     }
