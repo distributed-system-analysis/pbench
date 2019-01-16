@@ -23,7 +23,7 @@ except ImportError:
 from pbench import tstos, es_index, es_put_template
 
 
-_VERSION_ = "0.3.0.0"
+_VERSION_ = "0.4.0.0"
 _NAME_    = "index-pbench"
 _DEBUG    = 0
 
@@ -1919,15 +1919,17 @@ def mk_user_specified_metadata(options):
 
 def mk_metadata(fname, tb, mdconf, md5sum):
     """Return a dict with metadata about a tarball"""
-    mtime = datetime.utcfromtimestamp(os.stat(fname)[stat.ST_MTIME])
+    tb_stat = os.stat(fname)
+    mtime = datetime.utcfromtimestamp(tb_stat.st_mtime)
 
     mddict = _dict_const([
+        ('file-date', mtime.isoformat()),
+        ('file-name', fname),
+        ('file-size', tb_stat.st_size),
         ('generated-by', _NAME_),
         ('generated-by-version', _VERSION_),
-        ('pbench-agent-version', mdconf.get("pbench", "rpm-version")),
-        ('file-date', mtime.strftime("%Y-%m-%d")),
-        ('file-name', fname),
-        ('md5', md5sum)
+        ('md5', md5sum),
+        ('pbench-agent-version', mdconf.get("pbench", "rpm-version"))
     ])
     return mddict
 

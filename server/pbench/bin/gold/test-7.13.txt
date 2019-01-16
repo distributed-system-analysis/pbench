@@ -78,7 +78,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--     235706 logs/pbench-index/pbench-index.log
+-rw-rw-r--     235753 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -139,10 +139,11 @@ len(actions) = 30
         "_op_type": "create",
         "_source": {
             "@metadata": {
-                "file-date": "2018-05-22",
+                "file-date": "2018-05-22T20:30:08",
                 "file-name": "/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz",
+                "file-size": 3320548,
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.3.0.0",
+                "generated-by-version": "0.4.0.0",
                 "md5": "aec92de7ef92ede87062d974e00755a6",
                 "pbench-agent-version": "0.49-1g6b67ec6"
             },

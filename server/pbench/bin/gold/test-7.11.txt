@@ -78,7 +78,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--     116659 logs/pbench-index/pbench-index.log
+-rw-rw-r--     116706 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -142,10 +142,11 @@ len(actions) = 61
         "_op_type": "create",
         "_source": {
             "@metadata": {
-                "file-date": "2018-02-06",
+                "file-date": "2018-02-06T17:52:13",
                 "file-name": "/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/fio_rw_2018.02.01T22.40.57.tar.xz",
+                "file-size": 2166628,
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.3.0.0",
+                "generated-by-version": "0.4.0.0",
                 "md5": "492a697c9dc7d73d1bd92c98d3fa8b2a",
                 "pbench-agent-version": "0.47-91gb666083"
             },
