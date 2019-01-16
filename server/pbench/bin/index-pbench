@@ -288,6 +288,33 @@ class PbenchData(object):
 # Benchmark result data: json files only
 #
 
+# Table of data for supported benchmarks and what took look for in the
+# results JSON for "sub-lists" of reported data.
+#
+# Latency results include a latency['usec'] list (or
+# latency['clat'|'slat'|???] in the fio case) *and* a
+# throughput['trans_sec'] list (or throughput['iops_sec']
+# in the fio case). Each list has elements for "all" and
+# for each client/server pair (or client?) used in the test.
+#
+# Throughput results include a trans_sec, Gb_sec or
+# iops_sec list only, depending on the benchmark (uperf or
+# fio) and the kind of iteration: latency measurements
+# include a trans_sec throughput sublist, but throughput
+# measurements include a GB_sec sublist (for uperf) or
+# an iops_sec sublist (for fio).
+_benchmarks = {
+    'uperf': {
+         'latency': ['usec'],
+         'throughput': ['trans_sec', 'Gb_sec']
+    },
+    "fio": {
+        'latency': ['clat', 'lat', 'slat'],
+        'throughput': ['iops_sec']
+    }
+}
+
+
 class ResultData(PbenchData):
 
     def __init__(self, ptb, experiment, opctx):
@@ -370,15 +397,18 @@ class ResultData(PbenchData):
                 self.counters['bad_result_data_in_json_file'] += 1
                 continue
 
+            benchmark = md['benchmark_name']
+            if benchmark not in _benchmarks.keys():
+                continue
+
             md.update({"iteration_name": iter_name,
                        "iteration_number": iter_number,
                        "sample": sample})
             md['uid_tmpl'] = md['uid']
             md['uid'] = ResultData.expand_template(md['uid_tmpl'], md)
 
-            benchmark = md['benchmark_name']
             # for each file, generate a sequence of documents and yield each one
-            for ts, src, source_id in ResultData.gen_sources(results, benchmark):
+            for ts, src, source_id in ResultData.gen_sources(results, _benchmarks[benchmark]):
                 # each generated result is a document, accompanied by a timestamp
                 # and some metadata.
                 source = _dict_const()
@@ -431,7 +461,7 @@ class ResultData(PbenchData):
         return d
 
     @staticmethod
-    def gen_sources(results, benchmark):
+    def gen_sources(results, sublists):
         # sample results is a dict with either two or three
         # (top-level) entries: latency results have three entries:
         # parameters.benchmark, latency.usec, throughput.trans_sec.
@@ -465,20 +495,13 @@ class ResultData(PbenchData):
         # iteration data and sample data are very similar.
 
         if 'latency' in results:
-            # Latency results include a latency['usec'] list (or
-            # latency['clat'|'slat'|???] in the fio case) *and* a
-            # throughput['trans_sec'] list (or throughput['iops_sec']
-            # in the fio case). Each list has elements for "all" and
-            # for each client/server pair (or client?) used in the test.
-            if benchmark == "uperf":
-                latency_sublist = ['usec']
-            elif benchmark == "fio":
-                latency_sublist = ['clat', 'lat', 'slat']
-            else:
-                raise BadResultData
-
+            latency_sublist = sublists['latency']
             for sublist in latency_sublist:
-                latency_list = results['latency'][sublist]
+                try:
+                    latency_list = results['latency'][sublist]
+                except KeyError:
+                    # This sublist does not exist, ignore.
+                    continue
                 for idx, latency_el in enumerate(latency_list):
                     datum_wrapper = ResultData.make_datum_wrapper('latency', sublist, latency_el)
                     tseries = latency_el['timeseries']
@@ -489,27 +512,13 @@ class ResultData(PbenchData):
                         yield res['date'], datum, src_id
 
         if 'throughput' in results:
-            # Throughput results include a trans_sec, Gb_sec or
-            # iops_sec list only, depending on the benchmark (uperf or
-            # fio) and the kind of iteration: latency measurements
-            # include a trans_sec throughput sublist, but throughput
-            # measurements include a GB_sec sublist (for uperf) or
-            # an iops_sec sublist (for fio).
-
-            if benchmark == "uperf":
-                if 'trans_sec' in results['throughput']:
-                    throughput_sublist = ['trans_sec']
-                elif 'Gb_sec' in results['throughput']:
-                    throughput_sublist = ['Gb_sec']
-                else:
-                    raise BadResultData
-            elif benchmark == "fio":
-                throughput_sublist = ['iops_sec']
-            else:
-                raise BadResultData
-
+            throughput_sublist = sublists['throughput']
             for sublist in throughput_sublist:
-                throughput_list = results['throughput'][sublist]
+                try:
+                    throughput_list = results['throughput'][sublist]
+                except KeyError:
+                    # This sublist does not exist, ignore.
+                    continue
                 for idx, xput_el in enumerate(throughput_list):
                     datum_wrapper = ResultData.make_datum_wrapper('throughput', sublist, xput_el)
                     tseries = xput_el['timeseries']
