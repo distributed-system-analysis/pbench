@@ -253,22 +253,6 @@ class PbenchData(object):
 # Benchmark result data: json files only
 #
 
-# convert a 0 value in a timeseries array to a float, else ES barfs.
-def convert_to_float(d):
-    if type(d) == type({}) and len(d) != 0:
-        for k1 in d:
-            convert_to_float(d[k1])
-    elif (type(d) == type([]) or type(d) == type(())) and len(d) != 0:
-        # for {date, value} timeseries, convert the value but leave the date alone
-        if type(d[0]) == type({}) and set(d[0].keys()).issuperset(set(['date', 'value'])):
-            for i in range(0, len(d)):
-                d[i]['value'] = float(d[i]['value'])
-        else:
-            for i in range(0, len(d)):
-                convert_to_float(d[i])
-    else:
-        pass
-
 class ResultData(PbenchData):
 
     def __init__(self, ptb, experiment, opctx):
