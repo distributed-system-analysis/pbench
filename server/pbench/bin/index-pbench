@@ -273,6 +273,32 @@ class ResultData(PbenchData):
         except KeyError:
             self.json_files = None
 
+    @staticmethod
+    def get_json_files(ptb):
+        """
+        Fetch the list of result.json files for this experiment;
+        return a list of dicts containing their metadata.
+        """
+        paths = [x for x in ptb.tb.getnames() if x.find("result.json") >= 0 and ptb.tb.getmember(x).isfile()]
+        datafiles = []
+        for p in paths:
+            fname = os.path.basename(p)
+            datafile = _dict_const(path=p, basename=fname)
+            datafiles.append(datafile)
+        return datafiles
+
+    def make_source(self):
+        """
+        If we ever decide we need to process anything other than JSON files, this
+        is going to become a jump method, similar to ToolData.make_source().
+        ATM, we only handle JSON files.
+        """
+        if not self.json_files:
+            # If we do not have any json files for this experiment, ignore it.
+            return None
+        gen = self._make_source_json()
+        return gen
+
     def _make_source_json(self):
         for df in self.json_files:
             iteration = None
@@ -348,32 +374,6 @@ class ResultData(PbenchData):
                 continue
 
         return
-
-    def make_source(self):
-        """
-        If we ever decide we need to process anything other than JSON files, this
-        is going to become a jump method, similar to ToolData.make_source().
-        ATM, we only handle JSON files.
-        """
-        if not self.json_files:
-            # If we do not have any json files for this experiment, ignore it.
-            return None
-        gen = self._make_source_json()
-        return gen
-
-    @staticmethod
-    def get_json_files(ptb):
-        """
-        Fetch the list of result.json files for this experiment;
-        return a list of dicts containing their metadata.
-        """
-        paths = [x for x in ptb.tb.getnames() if x.find("result.json") >= 0 and ptb.tb.getmember(x).isfile()]
-        datafiles = []
-        for p in paths:
-            fname = os.path.basename(p)
-            datafile = _dict_const(path=p, basename=fname)
-            datafiles.append(datafile)
-        return datafiles
 
     @staticmethod
     def expand_template(templ, d):
