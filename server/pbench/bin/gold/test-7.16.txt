@@ -78,7 +78,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--     205716 logs/pbench-index/pbench-index.log
+-rw-rw-r--     208200 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -146,7 +146,7 @@ len(actions) = 87
                 "file-date": "2018-10-31",
                 "file-name": "/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43.tar.xz",
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.2.0.0",
+                "generated-by-version": "0.3.0.0",
                 "md5": "c544566dd5f89b1887a0a549aee12ea4",
                 "pbench-agent-version": "0.53-2g786732f6"
             },
@@ -630,7 +630,7 @@ len(actions) = 87
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "662b648b284320785bb35108212a128c",
+        "_id": "a25f04ed1b25529258e5b284ad03555c",
         "_index": "pbench-unittests.result-data.2018-10-04",
         "_op_type": "create",
         "_source": {
@@ -650,7 +650,8 @@ len(actions) = 87
                 "sample": "sample1",
                 "servers": "40.40.20.71",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1538656649152,
             "results": {
@@ -663,13 +664,14 @@ len(actions) = 87
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
                 "value": 59.6401334604385
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "8d1a7b77199547b68c6e73c4696b6f2a",
+        "_id": "df699b2b32cdd82bfa780a7696e7a2f5",
         "_index": "pbench-unittests.result-data.2018-10-04",
         "_op_type": "create",
         "_source": {
@@ -689,7 +691,8 @@ len(actions) = 87
                 "sample": "sample1",
                 "servers": "40.40.20.71",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1538656650153,
             "results": {
@@ -702,13 +705,14 @@ len(actions) = 87
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
                 "value": 59.6401334604385
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "1d95eaa100a25443caf45399a7f69f88",
+        "_id": "81305e300d79cd47bf1d5312a262baf5",
         "_index": "pbench-unittests.result-data.2018-10-04",
         "_op_type": "create",
         "_source": {
@@ -728,7 +732,8 @@ len(actions) = 87
                 "sample": "sample1",
                 "servers": "40.40.20.71",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1538656651154,
             "results": {
@@ -741,13 +746,14 @@ len(actions) = 87
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
                 "value": 59.6401334604385
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "1abc6e50bcc80f22b934a2a1a2a6f2be",
+        "_id": "e1741afe10f3b211e77955c22084b2ff",
         "_index": "pbench-unittests.result-data.2018-10-04",
         "_op_type": "create",
         "_source": {
@@ -767,7 +773,8 @@ len(actions) = 87
                 "sample": "sample1",
                 "servers": "40.40.20.71",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1538656649152,
             "results": {
@@ -779,14 +786,15 @@ len(actions) = 87
                 "role": "client",
                 "server_hostname": "40.40.20.71",
                 "server_port": "20010",
-                "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.103-server_port:40.40.20.103",
+                "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
                 "value": 59.6401334604385
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "1aa1ff659922c5042cc0f32415d7df4d",
+        "_id": "7437ed32a80ec9db7f59cf4899d2740b",
         "_index": "pbench-unittests.result-data.2018-10-04",
         "_op_type": "create",
         "_source": {
@@ -806,7 +814,8 @@ len(actions) = 87
                 "sample": "sample1",
                 "servers": "40.40.20.71",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1538656650153,
             "results": {
@@ -818,14 +827,15 @@ len(actions) = 87
                 "role": "client",
                 "server_hostname": "40.40.20.71",
                 "server_port": "20010",
-                "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.103-server_port:40.40.20.103",
+                "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
                 "value": 59.6401334604385
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "c33199952085216485d20fd454038987",
+        "_id": "4cf0ad0c8cea003b32903ac64bd41963",
         "_index": "pbench-unittests.result-data.2018-10-04",
         "_op_type": "create",
         "_source": {
@@ -845,7 +855,8 @@ len(actions) = 87
                 "sample": "sample1",
                 "servers": "40.40.20.71",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1538656651154,
             "results": {
@@ -857,14 +868,15 @@ len(actions) = 87
                 "role": "client",
                 "server_hostname": "40.40.20.71",
                 "server_port": "20010",
-                "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.103-server_port:40.40.20.103",
+                "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
                 "value": 59.6401334604385
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "de3d3129aa4afc282a7fcc19cce0e8e3",
+        "_id": "8e5d59aacefbc82debb565fd6bf7c301",
         "_index": "pbench-unittests.result-data.2018-10-04",
         "_op_type": "create",
         "_source": {
@@ -884,7 +896,8 @@ len(actions) = 87
                 "sample": "sample1",
                 "servers": "40.40.20.71",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1538656649152,
             "results": {
@@ -897,13 +910,14 @@ len(actions) = 87
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
                 "value": 16767.2327672328
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "084001c1592cdb93022b6f6075acea86",
+        "_id": "2fd9c73ca4bcf629e36ede9d757bf193",
         "_index": "pbench-unittests.result-data.2018-10-04",
         "_op_type": "create",
         "_source": {
@@ -923,7 +937,8 @@ len(actions) = 87
                 "sample": "sample1",
                 "servers": "40.40.20.71",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1538656650153,
             "results": {
@@ -936,13 +951,14 @@ len(actions) = 87
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
                 "value": 16767.2327672328
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "dbf62b9391bedd4207dbac6858808556",
+        "_id": "a3547f43a9912f45c6d4d37dca073a1d",
         "_index": "pbench-unittests.result-data.2018-10-04",
         "_op_type": "create",
         "_source": {
@@ -962,7 +978,8 @@ len(actions) = 87
                 "sample": "sample1",
                 "servers": "40.40.20.71",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1538656651154,
             "results": {
@@ -975,13 +992,14 @@ len(actions) = 87
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
                 "value": 16767.2327672328
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "5ab3196d065c062e99c9eb1ff29e9fdb",
+        "_id": "dfbb1eac60cf03a2e053d5dacf48fff5",
         "_index": "pbench-unittests.result-data.2018-10-04",
         "_op_type": "create",
         "_source": {
@@ -1001,7 +1019,8 @@ len(actions) = 87
                 "sample": "sample1",
                 "servers": "40.40.20.71",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1538656649152,
             "results": {
@@ -1013,14 +1032,15 @@ len(actions) = 87
                 "role": "client",
                 "server_hostname": "40.40.20.71",
                 "server_port": "20010",
-                "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.103-server_port:40.40.20.103",
+                "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
                 "value": 16767.2327672328
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "c17046f69200bfb21a1cdbb4489740d5",
+        "_id": "5ae1f2de6888f556a7c8a0e6a5f7a5f1",
         "_index": "pbench-unittests.result-data.2018-10-04",
         "_op_type": "create",
         "_source": {
@@ -1040,7 +1060,8 @@ len(actions) = 87
                 "sample": "sample1",
                 "servers": "40.40.20.71",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1538656650153,
             "results": {
@@ -1052,14 +1073,15 @@ len(actions) = 87
                 "role": "client",
                 "server_hostname": "40.40.20.71",
                 "server_port": "20010",
-                "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.103-server_port:40.40.20.103",
+                "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
                 "value": 16767.2327672328
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "7b48bdd47675c627ce9ab760f2c94129",
+        "_id": "71d8c0bc1d57bace9192364a07d58a4a",
         "_index": "pbench-unittests.result-data.2018-10-04",
         "_op_type": "create",
         "_source": {
@@ -1079,7 +1101,8 @@ len(actions) = 87
                 "sample": "sample1",
                 "servers": "40.40.20.71",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1538656651154,
             "results": {
@@ -1091,7 +1114,8 @@ len(actions) = 87
                 "role": "client",
                 "server_hostname": "40.40.20.71",
                 "server_port": "20010",
-                "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.103-server_port:40.40.20.103",
+                "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
                 "value": 16767.2327672328
             }
         },
