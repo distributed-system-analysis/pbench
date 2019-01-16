@@ -78,7 +78,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--     209494 logs/pbench-index/pbench-index.log
+-rw-rw-r--     213049 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -146,7 +146,7 @@ len(actions) = 90
                 "file-date": "2018-02-06",
                 "file-name": "/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/uperf_uperftest_2018.02.02T20.58.00.tar.xz",
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.2.0.0",
+                "generated-by-version": "0.3.0.0",
                 "md5": "22d20eec2affff06976f4abb374b4e13",
                 "pbench-agent-version": "0.47-91gb666083"
             },
@@ -656,7 +656,7 @@ len(actions) = 90
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "ea2ebded17128d7af42a9a7b511268e5",
+        "_id": "1dadfebdc27d5724c49534c440f8bbc1",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -676,7 +676,8 @@ len(actions) = 90
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1517605093411,
             "results": {
@@ -689,13 +690,14 @@ len(actions) = 90
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "00acfb3ba86892a6cb174e0416bc1d80",
+        "_id": "9a7d138e598118d81aae0c27c3e625cb",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -715,7 +717,8 @@ len(actions) = 90
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1517605094412,
             "results": {
@@ -728,13 +731,14 @@ len(actions) = 90
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "33427e968898890cb647b8fb9a8826a1",
+        "_id": "4bc2260af122a152760f872c3fe6495f",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -754,7 +758,8 @@ len(actions) = 90
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1517605095413,
             "results": {
@@ -767,13 +772,14 @@ len(actions) = 90
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "2854aeda679aaa865db5ea7499e8cb01",
+        "_id": "e0c8becc650d0cd34ca55aa847f9917f",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -793,7 +799,8 @@ len(actions) = 90
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1517605096414,
             "results": {
@@ -806,13 +813,14 @@ len(actions) = 90
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "5b27b667a0b2af9698fab8c589f53431",
+        "_id": "2369284e4577fceaf92461948f48685c",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -832,7 +840,8 @@ len(actions) = 90
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1517605097416,
             "results": {
@@ -845,13 +854,14 @@ len(actions) = 90
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "b1c949477d155008cfbf7c3e6d6d6d57",
+        "_id": "ad6850f6799580ad7d6db971b199a165",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -871,7 +881,8 @@ len(actions) = 90
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1517605098417,
             "results": {
@@ -884,13 +895,14 @@ len(actions) = 90
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "18ac376d27b6272700140bcb30f51704",
+        "_id": "77d34f17d945927850afb1c8086b9ba7",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -910,7 +922,8 @@ len(actions) = 90
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1517605099417,
             "results": {
@@ -923,13 +936,14 @@ len(actions) = 90
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "f12bb62f821384e7c226a9c172ea7bf7",
+        "_id": "7e4cf0425035304818f43763a47ef82b",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -949,7 +963,8 @@ len(actions) = 90
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1517605100418,
             "results": {
@@ -962,13 +977,14 @@ len(actions) = 90
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "8196ba28142368508de4eb06de9ea770",
+        "_id": "b01691baaead6c27e15753bec313b288",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -988,7 +1004,8 @@ len(actions) = 90
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1517605101419,
             "results": {
@@ -1001,13 +1018,14 @@ len(actions) = 90
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "7e11a15d452b184a5c6e006879c76508",
+        "_id": "db20a193e625881e61ebb2a6a1cb664e",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1027,7 +1045,8 @@ len(actions) = 90
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1517605102420,
             "results": {
@@ -1040,13 +1059,14 @@ len(actions) = 90
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "672773ed9da52dd3cb2aec574d704538",
+        "_id": "578daa0c0505cb011aba0e68e8261fdc",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1066,7 +1086,8 @@ len(actions) = 90
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1517605103421,
             "results": {
@@ -1079,13 +1100,14 @@ len(actions) = 90
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "70fc7e3cb6214b07891d2414227f9c49",
+        "_id": "a74b0438dcc2243043b354dbb07c8262",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1105,7 +1127,8 @@ len(actions) = 90
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1517605104422,
             "results": {
@@ -1118,13 +1141,14 @@ len(actions) = 90
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "1f0695a1b59899e420436c75f50c2dcd",
+        "_id": "35189beab70e48fb130b658285a03129",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1144,7 +1168,8 @@ len(actions) = 90
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1517605105423,
             "results": {
@@ -1157,13 +1182,14 @@ len(actions) = 90
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "1d4e1de7badc58f7b21b723cd468e17e",
+        "_id": "bce62c9e2f810981174e40fae90719de",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1183,7 +1209,8 @@ len(actions) = 90
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1517605106425,
             "results": {
@@ -1196,13 +1223,14 @@ len(actions) = 90
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
             }
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "6b36b90bef38c2b04ef569f91c4288a4",
+        "_id": "a64193cd704526208fd2025e8febcbee",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1222,7 +1250,8 @@ len(actions) = 90
                 "sample": "sample1",
                 "servers": "dhcp31-245.perf.lab.eng.bos.redhat.com",
                 "test_type": "rr",
-                "uid": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+                "uid": "benchmark_name:uperf-controller_host:%controller_host%",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
             },
             "@timestamp": 1517605107425,
             "results": {
@@ -1235,6 +1264,7 @@ len(actions) = 90
                 "server_hostname": "all",
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
                 "value": 385.91841160454
             }
         },

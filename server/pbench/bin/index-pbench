@@ -23,7 +23,7 @@ except ImportError:
 from pbench import tstos, es_index, es_put_template
 
 
-_VERSION_ = "0.2.0.0"
+_VERSION_ = "0.3.0.0"
 _NAME_    = "index-pbench"
 _DEBUG    = 0
 
@@ -38,6 +38,9 @@ _read_timeout = 100000*60
 # All indexing uses "create" (instead of "index") to avoid updating
 # existing records, allowing us to detect duplicates.
 _op_type = "create"
+
+# UID keyword pattern
+uid_keyword_pat = re.compile("%\w*?%")
 
 
 class MappingFileError(Exception):
@@ -317,6 +320,8 @@ class ResultData(PbenchData):
                                "iteration_number": iter_number})
                 else:
                     pass
+                md['uid_tmpl'] = md['uid']
+                md['uid'] = ResultData.expand_template(md['uid_tmpl'], md)
 
                 benchmark = md['benchmark_name']
                 # for each file, generate a sequence of documents and yield each one
@@ -372,14 +377,17 @@ class ResultData(PbenchData):
 
     @staticmethod
     def expand_template(templ, d):
-        import re
-
         # match %...% patterns non-greedily.
-        e = re.compile("%\w*?%")
         s = templ
-        for m in re.findall(e, s):
+        for m in re.findall(uid_keyword_pat, s):
             # m[1:-1] strips the initial and final % signs from the match.
-            s = re.sub(e, d[m[1:-1]], s)
+            try:
+                val = d[m[1:-1]]
+            except KeyError:
+                # Keyword not found, ignore
+                pass
+            else:
+                s = re.sub(m, val, s)
         return s
 
     @staticmethod
@@ -392,7 +400,8 @@ class ResultData(PbenchData):
         del d['value']
         # construct the uid from the template and the values in d
         # and replace the template with the result
-        d['uid'] = ResultData.expand_template(d['uid'], d)
+        d['uid_tmpl'] = d['uid']
+        d['uid'] = ResultData.expand_template(d['uid_tmpl'], d)
 
         d['measurement_type'] = mtype
         d['measurement_units'] = units

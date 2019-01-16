@@ -142,7 +142,7 @@ len(actions) = 30
                 "file-date": "2018-05-22",
                 "file-name": "/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz",
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.2.0.0",
+                "generated-by-version": "0.3.0.0",
                 "md5": "aec92de7ef92ede87062d974e00755a6",
                 "pbench-agent-version": "0.49-1g6b67ec6"
             },
