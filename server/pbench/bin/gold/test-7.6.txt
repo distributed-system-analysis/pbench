@@ -142,7 +142,7 @@ len(actions) = 5
                 "file-name": "/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/test-7.6.tar.xz",
                 "file-size": 1476,
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.6.0.0",
+                "generated-by-version": "0.7.0.0",
                 "md5": "c71b2c9c961ebd55f61273a6a020bdc6",
                 "pbench-agent-version": "plugins:"
             },

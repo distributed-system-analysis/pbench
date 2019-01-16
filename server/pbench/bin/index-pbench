@@ -23,7 +23,7 @@ except ImportError:
 from pbench import tstos, es_index, es_put_template
 
 
-_VERSION_ = "0.6.0.0"
+_VERSION_ = "0.7.0.0"
 _NAME_    = "index-pbench"
 _DEBUG    = 0
 
@@ -239,13 +239,17 @@ class PbenchData(object):
         self.ptb = ptb
         self.counters = Counter()
 
-    def convert_timestamp(self, orig_ts):
-        # Convert the given timestamp, assumed to be a float in
-        # milliseconds since the epoch *and* in UTC, to the expected
-        # string timestamp format.
+    def mk_abs_timestamp_millis(self, orig_ts):
+        """Convert the given millis since the epoch relative or absolute
+           timestamp to an absolute ISO string timestamp, converting from
+           relative to absolute if necessary.
+
+           It is assumed the given timestamp is a float in milliseconds since
+           the epoch and is in UTC.
+        """
         ts_float = float(orig_ts)/1000
         ts = datetime.utcfromtimestamp(ts_float)
-        if self.ptb.start_run_ts is not None and ts < self.ptb.start_run_ts:
+        if ts < self.ptb.start_run_ts:
             # The calculated timestamp, `ts`, is earlier that the timestamp of
             # the start of the pbench run itself, `start_run_ts`.  That can
             # occur because of at least 3 different situations: 1. the
@@ -265,20 +269,24 @@ class PbenchData(object):
             # just use the new absolute timestamp instead of the relative
             # timestamp.  If the new absolute timestamp is beyond the end of
             # the run, it is likely that the timestamp is not relative so we
-            # use it as is.
+            # raise an error.
             d = timedelta(0, 0, orig_ts * 1000)
-            newts = self.ptb.start_run_ts + d
-            if newts > self.ptb.end_run_ts:
+            ts = self.ptb.start_run_ts + d
+            if ts > self.ptb.end_run_ts:
                 self.counters['ts_before_start_run_ts'] += 1
-            else:
-                ts = newts
-        if self.ptb.end_run_ts is not None and ts > self.ptb.end_run_ts:
+                raise BadDate()
+        elif ts > self.ptb.end_run_ts:
             self.counters['ts_after_end_run_ts'] += 1
-        return ts.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+            raise BadDate()
+        return ts.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
     def generate_index_name(self, template, prefix, source, tool=None):
         """Return a fully formed index name given its template, prefix, source
         data (for an @timestamp field) and an optional tool name."""
+        try:
+            ts_val = source['@timestamp']
+        except KeyError:
+            raise BadDate("missing @timestamp in a source document: %r" % (source,))
         year, month, day = source['@timestamp'].split('T', 1)[0].split('-')[0:3]
         assert (self.year, self.month, self.day) <= (year, month, day)
         return template.format(prefix=prefix, tool=tool, year=year, month=month, day=day)
@@ -408,7 +416,7 @@ class ResultData(PbenchData):
             md['uid'] = ResultData.expand_template(md['uid_tmpl'], md)
 
             # for each file, generate a sequence of documents and yield each one
-            for orig_ts, ts, src in ResultData.gen_sources(results, _benchmarks[benchmark], self.convert_timestamp):
+            for orig_ts, ts, src in ResultData.gen_sources(results, _benchmarks[benchmark], self.mk_abs_timestamp_millis):
                 # each generated result is a document, accompanied by a timestamp
                 # and some metadata.
                 source = _dict_const()
@@ -518,9 +526,10 @@ class ResultData(PbenchData):
                             del res['date']
                             if prev_ts is not None:
                                 assert prev_ts <= orig_ts, "prev_ts %r > orig_ts %r" % (prev_ts, orig_ts)
+                            ts = cvt_ts(orig_ts)
                             prev_ts = orig_ts
                             res.update(datum)
-                            yield orig_ts, cvt_ts(orig_ts), res
+                            yield orig_ts, ts, res
 
         return
 
@@ -1027,6 +1036,7 @@ class ToolData(PbenchData):
                 # Yield the one dictionary that contains each newly read row
                 # from all the csv files.
                 yield rows
+        prev_ts = None
         for rows in rows_generator():
             # Verify timestamps are all the same for this row.
             tstamp = None
@@ -1065,13 +1075,16 @@ class ToolData(PbenchData):
             # The timestamp is taken from the "first" timestamp, converted
             # to a floating point value in seconds, and then formatted as a
             # string.
-            ts_str = self.convert_timestamp(first)
+            if prev_ts is not None:
+                assert prev_ts <= first, "prev_ts %r > first %r" % (prev_ts, first)
+            ts_val = self.mk_abs_timestamp_millis(first)
+            prev_ts = first
             datum = _dict_const()
             for identifier in identifiers.keys():
                 datum[identifier] = _dict_const([
                     # Since they are all the same, we use the first to
                     # generate the real timestamp.
-                    ('@timestamp', ts_str),
+                    ('@timestamp', ts_val),
                     ('@metadata', self.run_metadata),
                     ('timestamp_original', first)
                 ])
@@ -1134,15 +1147,17 @@ class ToolData(PbenchData):
                         datum[klass] = _dict_const()
                         # This handler has the id in the filename pattern.
                         datum[klass][metric] = _dict_const([('id', match.group('id'))])
+                        prev_ts = None
                         for row in reader:
                             for idx,val in enumerate(row):
                                 # The timestamp column is index zero.
                                 if idx == 0:
-                                    time_val = float(val)/1000
-                                    utc = datetime.utcfromtimestamp(time_val)
-                                    # Convert the current timestamp to a formatted string.
-                                    ts = utc.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
-                                    datum['@timestamp'] = ts
+                                    if prev_ts is not None:
+                                        assert prev_ts <= val, "prev_ts %r > val %r" % (prev_ts, val)
+                                    ts_val = self.mk_abs_timestamp_millis(val)
+                                    prev_ts = val
+                                    datum['@timestamp'] = ts_val
+                                    datum['timestamp_original'] = val
                                     datum['@metadata'] = self.run_metadata
                                 else:
                                     column = header[idx]
@@ -1192,18 +1207,24 @@ class ToolData(PbenchData):
             path = os.path.join(self.ptb.extracted_root, output_file['path'])
             with open(path, 'r') as file_object:
                 record = None
+                prev_ts = None
                 for line in file_object:
                     if line.startswith('timestamp:'):
                         # timestamp delimits records, yield last record.
                         if record:
                             source_id = _make_source_id(record)
                             yield record, source_id
-                        # Get the second column, the timestamp value.
-                        ts = float(line.split(':')[1])
-                        utc = datetime.utcfromtimestamp(ts)
-                        tstamp = utc.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+                        # Get the second column, the timestamp value, which is
+                        # *seconds* since the epoch, and then convert to millis
+                        # since the epoch.
+                        val = float(line.split(':')[1]) * 1000
+                        if prev_ts is not None:
+                            assert prev_ts <= val, "prev_ts %r > val %r" % (prev_ts, val)
+                        ts_val = self.mk_abs_timestamp_millis(val)
+                        prev_ts = val
                         record = _dict_const()
-                        record['@timestamp'] = tstamp
+                        record['@timestamp'] = ts_val
+                        record['timestamp_original'] = val
                         record['@metadata'] = self.run_metadata
                         record[self.toolname] = _dict_const()
                         record[self.toolname][klass] = _dict_const()
@@ -1215,6 +1236,18 @@ class ToolData(PbenchData):
                     yield record, source_id
 
     def _make_source_json(self):
+        """Process JSON files in the form of an outer JSON array of ready to
+           source documents.  It is expected that each source document has an
+           "@timestamp" field as either an ISO format string,
+           "YYYY-mm-ddTHH:MM:SS.ssssss", or as a unix seconds since the epoch
+           floating point timestamp value.
+
+           Any JSON document missing an "@timestamp" field is ignored.  Each
+           JSON document will have its "@timestamp" field validated that it
+           lands within the start/end run time frame.  The source JSON that
+           will be indexed into Elasticsearch will convert the "@timetamp"
+           value to millis since the epoch.
+        """
         for df in self.files:
             try:
                 with open(os.path.join(self.ptb.extracted_root, df['path'])) as fp:
@@ -1226,11 +1259,13 @@ class ToolData(PbenchData):
                 continue
 
             missing_ts = False
+            invalid_ts = False
+            badrange_ts = False
             for source in payload:
                 try:
                     ts_val = source['@timestamp']
                 except KeyError:
-                    # missing timestamps
+                    # Missing timestamps
                     if not missing_ts:
                         # Log the first record with missing timestamps we
                         # encounter for this file, and then count the rest and
@@ -1243,24 +1278,41 @@ class ToolData(PbenchData):
                     self.counters['json_doc_missing_timestamp'] += 1
                     continue
 
-                # further timestamp handling
+                # Further timestamp handling
                 try:
-                    # unix seconds since epoch timestamp
+                    # Unix seconds since epoch timestamp as an absolute time
+                    # value.
                     ts = datetime.utcfromtimestamp(ts_val)
                 except TypeError:
-                    # the timestamp value is not in seconds since the epoch,
+                    # The timestamp value is not in seconds since the epoch,
                     # so assume that source[@timestamp] is already in the
-                    # expected format.
-                    #
-                    # FIXME - Should we validate the expected string format?
-                    self.counters['json_doc_timestamp_not_validated'] += 1
-                else:
-                    ts_str = ts.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
-                    source['@timestamp'] = ts_str
+                    # expected format; validate it.
+                    try:
+                        ts = datetime.strptime(ts_val, "%Y-%m-%dT%H:%M:%S.%f")
+                    except ValueError:
+                        if not invalid_ts:
+                            invalid_ts = True
+                            print("tool-data-indexing: encountered JSON file, %s,"
+                                    " with invalid @timestamp fields ('%r')" % (
+                                        df['path'], ts_val))
+                        self.counters['json_doc_timestamp_not_valid'] += 1
+                        continue
+                if ts < self.ptb.start_run_ts or ts > self.ptb.end_run_ts:
+                    if not badrange_ts:
+                        badrange_ts = True
+                        print("tool-data-indexing: encountered JSON file, %s,"
+                                " with @timestamp fields out side start/end"
+                                " run time range (%r)" % (df['path'], ts_val))
+                    self.counters['json_doc_timestamp_out_of_range'] += 1
+                    continue
 
+                # Convert the validated timestamp into ISO format.
+                source['@timestamp'] = ts.strftime("%Y-%m-%dT%H:%M:%S.%f")
+                source['timestamp_original'] = ts_val
+                # Add the run metadata
                 source['@metadata'] = self.run_metadata
 
-                # any transformations needed should be done here
+                # Any further transformations needed should be done here.
 
                 source_id = _make_source_id(source)
                 yield source, source_id
@@ -1579,7 +1631,7 @@ def mk_toc_actions(ptb, options, idx_prefix, idx_patterns, opctx):
     """Construct Table-of-Contents actions.
 
     These are indexed into the run index along side the runs."""
-    tstamp = ptb.start_run.replace('_', 'T')
+    tstamp = ptb.start_run
     # Since the timestamp for every TOC record will be the same, we generate
     # the index name once here using a fake source document on the call to
     # generate_index_name().
