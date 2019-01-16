@@ -78,7 +78,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--     114242 logs/pbench-index/pbench-index.log
+-rw-rw-r--     114932 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -147,7 +147,7 @@ len(actions) = 60
                 "file-name": "/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/pbench-user-benchmark__2018.02.05T20.35.36.tar.xz",
                 "file-size": 5264916,
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.6.0.0",
+                "generated-by-version": "0.7.0.0",
                 "md5": "6ba5c95c5cad06e6d0bf5af28d8a4d27",
                 "pbench-agent-version": "0.47-162gb666083"
             },
@@ -2619,7 +2619,7 @@ len(actions) = 60
         "_type": "pbench-tool-data-pidstat"
     },
     {
-        "_id": "e530127bab319d7f91a2fdde79e7ebfa",
+        "_id": "3228ac526b0e82c1575cf594d36a788b",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2635,13 +2635,14 @@ len(actions) = 60
             },
             "@timestamp": "2018-02-05T20:35:40.000000",
             "metric": "APIServiceOpenAPIAggregationControllerQueue1_adds",
+            "timestamp_original": 1517862940,
             "type": "COUNTER",
             "value": 0
         },
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "b80b93a1b4b33a2668834bfa894790a4",
+        "_id": "b6e303aa4e08e1fad38ed2d47b72b9ef",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2657,13 +2658,14 @@ len(actions) = 60
             },
             "@timestamp": "2018-02-05T20:35:40.000000",
             "metric": "APIServiceOpenAPIAggregationControllerQueue1_depth",
+            "timestamp_original": 1517862940,
             "type": "GAUGE",
             "value": 0
         },
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "9a388a80601152fe0328e7aff635681f",
+        "_id": "b52712698923997ba07939aae4121cc2",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2682,13 +2684,14 @@ len(actions) = 60
             "metric": "APIServiceOpenAPIAggregationControllerQueue1_queue_latency",
             "quantiles": "0.9",
             "sum": 0,
+            "timestamp_original": 1517862940,
             "type": "SUMMARY",
             "value": 0
         },
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "4e603ab46065f86ac4549c37ddfbda7d",
+        "_id": "01c742fcaaae2901e0497689861ce7a5",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2707,13 +2710,14 @@ len(actions) = 60
             "metric": "APIServiceOpenAPIAggregationControllerQueue1_queue_latency",
             "quantiles": "0.5",
             "sum": 0,
+            "timestamp_original": 1517862940,
             "type": "SUMMARY",
             "value": 0
         },
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "e217df57f93414c79af853ddda213c2b",
+        "_id": "57c0f26faeb974af274cb7dcefd541de",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2732,13 +2736,14 @@ len(actions) = 60
             "metric": "APIServiceOpenAPIAggregationControllerQueue1_queue_latency",
             "quantiles": "0.99",
             "sum": 0,
+            "timestamp_original": 1517862940,
             "type": "SUMMARY",
             "value": 0
         },
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "b72403491dd9245bf03104c8e6e8c3e3",
+        "_id": "d8507ca5c0ebd80862a609dac1e690f4",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2754,13 +2759,14 @@ len(actions) = 60
             },
             "@timestamp": "2018-02-05T20:35:40.000000",
             "metric": "APIServiceOpenAPIAggregationControllerQueue1_retries",
+            "timestamp_original": 1517862940,
             "type": "COUNTER",
             "value": 0
         },
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "78a947cb51775c8b57fa2fca3a7c200b",
+        "_id": "b36c2bfe58a764307cbcb3fc6b7e91d1",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2779,13 +2785,14 @@ len(actions) = 60
             "metric": "APIServiceOpenAPIAggregationControllerQueue1_work_duration",
             "quantiles": "0.9",
             "sum": 0,
+            "timestamp_original": 1517862940,
             "type": "SUMMARY",
             "value": 0
         },
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "1f0a9614f7f03bdaa32d093c377c293b",
+        "_id": "9aacc10a5dc5a1d4b8ec1624cc775651",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2804,13 +2811,14 @@ len(actions) = 60
             "metric": "APIServiceOpenAPIAggregationControllerQueue1_work_duration",
             "quantiles": "0.5",
             "sum": 0,
+            "timestamp_original": 1517862940,
             "type": "SUMMARY",
             "value": 0
         },
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "8a70b2f79441fd72410298ee8535a21c",
+        "_id": "d5dd17a99cd13e25cd1ce4e33f1669e3",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2829,13 +2837,14 @@ len(actions) = 60
             "metric": "APIServiceOpenAPIAggregationControllerQueue1_work_duration",
             "quantiles": "0.99",
             "sum": 0,
+            "timestamp_original": 1517862940,
             "type": "SUMMARY",
             "value": 0
         },
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "b43932247dc5215c5943c9b064fe8049",
+        "_id": "58daed8fb7877ec1457c367ac5cc0a54",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2851,13 +2860,14 @@ len(actions) = 60
             },
             "@timestamp": "2018-02-05T20:35:40.000000",
             "metric": "APIServiceRegistrationController_adds",
+            "timestamp_original": 1517862940,
             "type": "COUNTER",
             "value": 2627
         },
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "9b0c1481330fb605d2dc815471adb28d",
+        "_id": "7bf2173c3806a8aa19d2af94258cf97b",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2873,13 +2883,14 @@ len(actions) = 60
             },
             "@timestamp": "2018-02-05T20:35:40.000000",
             "metric": "APIServiceRegistrationController_depth",
+            "timestamp_original": 1517862940,
             "type": "GAUGE",
             "value": 0
         },
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "50c24014349f191990aed1cc5666a48f",
+        "_id": "db486fb18c6234bce5cb75fb9fcc847e",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2898,13 +2909,14 @@ len(actions) = 60
             "metric": "APIServiceRegistrationController_queue_latency",
             "quantiles": "0.9",
             "sum": 3197200.0,
+            "timestamp_original": 1517862940,
             "type": "SUMMARY",
             "value": 31
         },
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "c1156c0adbd4b19ff0f3cf8b876c2f4b",
+        "_id": "3bc4b599fda64fc1256cb495d52ccdd4",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2923,13 +2935,14 @@ len(actions) = 60
             "metric": "APIServiceRegistrationController_queue_latency",
             "quantiles": "0.5",
             "sum": 3197200.0,
+            "timestamp_original": 1517862940,
             "type": "SUMMARY",
             "value": 16
         },
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "ee063c87d1a5d2a294948b44daed5632",
+        "_id": "0ed3a0fc364acab776f8fb5f1162a48a",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2948,13 +2961,14 @@ len(actions) = 60
             "metric": "APIServiceRegistrationController_queue_latency",
             "quantiles": "0.99",
             "sum": 3197200.0,
+            "timestamp_original": 1517862940,
             "type": "SUMMARY",
             "value": 44
         },
         "_type": "pbench-tool-data-prometheus-metrics"
     },
     {
-        "_id": "77a25d22d9a6d850fc93311da8a1c8e6",
+        "_id": "f16e5655236d9c21ce2b7f1ead641f8c",
         "_index": "pbench-unittests.tool-data-prometheus-metrics.2018-02-05",
         "_op_type": "create",
         "_source": {
@@ -2970,6 +2984,7 @@ len(actions) = 60
             },
             "@timestamp": "2018-02-05T20:35:40.000000",
             "metric": "APIServiceRegistrationController_retries",
+            "timestamp_original": 1517862940,
             "type": "COUNTER",
             "value": 0
         },
