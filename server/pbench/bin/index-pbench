@@ -304,22 +304,17 @@ class ResultData(PbenchData):
             iteration = None
             sample = None
 
-            dirbasename = os.path.basename(os.path.dirname(df['path']))
-            if dirbasename.startswith('sample'):
-                # sample result.json
-                src_type = 'sample'
-                sample = dirbasename
-                iteration = os.path.basename(os.path.dirname(os.path.dirname(df['path'])))
-                iter_number, iter_name = iteration.split('-', 1)[0:2]
-            elif dirbasename != self.run_metadata['experiment']:
-                # iteration result.json
-                src_type = 'iteration'
-                iteration = os.path.basename(os.path.dirname(df['path']))
-                iter_number, iter_name = iteration.split('-', 1)[0:2]
-            else:
+            dirname = os.path.dirname(df['path'])
+            dirbasename = os.path.basename(dirname)
+            if not dirbasename.startswith('sample'):
+                # iteration result.json - we don't handle it yet.
                 # experiment result.json - we don't handle it yet.
-                src_type = 'experiment'
                 continue
+
+            # sample result.json - we ONLY handle this kind.
+            sample = dirbasename
+            iteration = os.path.basename(os.path.dirname(dirname))
+            iter_number, iter_name = iteration.split('-', 1)[0:2]
 
             try:
                 # Read the file and interpret it as a JSON document.
@@ -337,21 +332,15 @@ class ResultData(PbenchData):
             # the document.
             try:
                 md = results['parameters']['benchmark'][0]
-                if sample:
-                    md.update({"iteration_name": iter_name,
-                               "iteration_number": iter_number,
-                               "sample": sample})
-                elif iteration:
-                    md.update({"iteration_name": iter_name,
-                               "iteration_number": iter_number})
-                else:
-                    pass
+                md.update({"iteration_name": iter_name,
+                           "iteration_number": iter_number,
+                           "sample": sample})
                 md['uid_tmpl'] = md['uid']
                 md['uid'] = ResultData.expand_template(md['uid_tmpl'], md)
 
                 benchmark = md['benchmark_name']
                 # for each file, generate a sequence of documents and yield each one
-                for ts, src, source_id in ResultData.gen_sources(results, benchmark, src_type):
+                for ts, src, source_id in ResultData.gen_sources(results, benchmark):
                     # each generated result is a document, accompanied by a timestamp
                     # and some metadata.
                     source = _dict_const()
@@ -409,7 +398,7 @@ class ResultData(PbenchData):
         return d
 
     @staticmethod
-    def gen_sources(results, benchmark, src_type):
+    def gen_sources(results, benchmark):
         # sample results is a dict with either two or three
         # (top-level) entries: latency results have three entries:
         # parameters.benchmark, latency.usec, throughput.trans_sec.
@@ -456,8 +445,6 @@ class ResultData(PbenchData):
                 raise BadResultData
 
             for sublist in latency_sublist:
-                if src_type != 'sample':
-                    return
                 latency_list = results['latency'][sublist]
                 for idx, latency_el in enumerate(latency_list):
                     datum_wrapper = ResultData.make_datum_wrapper('latency', sublist, latency_el)
@@ -489,8 +476,6 @@ class ResultData(PbenchData):
                 raise BadResultData
 
             for sublist in throughput_sublist:
-                if src_type != 'sample':
-                    return
                 throughput_list = results['throughput'][sublist]
                 for idx, xput_el in enumerate(throughput_list):
                     datum_wrapper = ResultData.make_datum_wrapper('throughput', sublist, xput_el)
