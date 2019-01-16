@@ -78,7 +78,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--     211605 logs/pbench-index/pbench-index.log
+-rw-rw-r--     212075 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -135,8 +135,6 @@ Index:  pbench-unittests.tool-data-iostat.2016-10-06 27
 Index:  pbench-unittests.tool-data-mpstat.2016-10-06 117
 Index:  pbench-unittests.tool-data-pidstat.2016-10-06 11685
 Index:  pbench-unittests.tool-data-proc-vmstat.2016-10-06 12
-Duplicates:  1422 Multiple dupes:  620
-Index dupes:  pbench-unittests.result-data.2016-10-06 620
 len(actions) = 87
 [
     {
@@ -149,7 +147,7 @@ len(actions) = 87
                 "file-name": "/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/uperf__2016-10-06_16:34:03.tar.xz",
                 "file-size": 5823584,
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.5.0.0",
+                "generated-by-version": "0.6.0.0",
                 "md5": "c5deab694ef0599c3a2315888f8cb847",
                 "pbench-agent-version": "0.40-2g191b627"
             },
@@ -1413,7 +1411,7 @@ len(actions) = 87
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "ef1f65b9c692758c4129850d16492d09",
+        "_id": "79ac0c570177ee7342569e828f0db288",
         "_index": "pbench-unittests.result-data.2016-10-06",
         "_op_type": "create",
         "_source": {
@@ -1441,6 +1439,7 @@ len(actions) = 87
                 "aggr_value": 13.7512041003199,
                 "client_hostname": "all",
                 "description": "Number of gigabits sent by client for a period of 1 second",
+                "measurement_idx": 0,
                 "measurement_type": "throughput",
                 "measurement_units": "Gb_sec",
                 "role": "aggregate",
@@ -1448,14 +1447,14 @@ len(actions) = 87
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 11.4369158521479
+                "value": 16.7918813986014
             },
             "timestamp_original": 1475771657472
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "a08bd2c3a19ae2aa53a390b1c083799c",
+        "_id": "e5cb66dda9dfcb411da2b35838ecaa50",
         "_index": "pbench-unittests.result-data.2016-10-06",
         "_op_type": "create",
         "_source": {
@@ -1483,6 +1482,7 @@ len(actions) = 87
                 "aggr_value": 13.7512041003199,
                 "client_hostname": "all",
                 "description": "Number of gigabits sent by client for a period of 1 second",
+                "measurement_idx": 0,
                 "measurement_type": "throughput",
                 "measurement_units": "Gb_sec",
                 "role": "aggregate",
@@ -1490,14 +1490,14 @@ len(actions) = 87
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 11.4369158521479
+                "value": 17.4560144495504
             },
             "timestamp_original": 1475771658473
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "8b723aff7a502cb35e551511008bc510",
+        "_id": "9e14fa69c0e2485b449cc28d271c2d52",
         "_index": "pbench-unittests.result-data.2016-10-06",
         "_op_type": "create",
         "_source": {
@@ -1525,6 +1525,7 @@ len(actions) = 87
                 "aggr_value": 13.7512041003199,
                 "client_hostname": "all",
                 "description": "Number of gigabits sent by client for a period of 1 second",
+                "measurement_idx": 0,
                 "measurement_type": "throughput",
                 "measurement_units": "Gb_sec",
                 "role": "aggregate",
@@ -1532,14 +1533,14 @@ len(actions) = 87
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 11.4369158521479
+                "value": 16.3917255224775
             },
             "timestamp_original": 1475771659474
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "35b5b30dc9ab6c548da90a5a232e4a5c",
+        "_id": "4cb3eebd438b22fefe28c1617c3ccf70",
         "_index": "pbench-unittests.result-data.2016-10-06",
         "_op_type": "create",
         "_source": {
@@ -1567,6 +1568,7 @@ len(actions) = 87
                 "aggr_value": 13.7512041003199,
                 "client_hostname": "all",
                 "description": "Number of gigabits sent by client for a period of 1 second",
+                "measurement_idx": 0,
                 "measurement_type": "throughput",
                 "measurement_units": "Gb_sec",
                 "role": "aggregate",
@@ -1574,14 +1576,14 @@ len(actions) = 87
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 11.4369158521479
+                "value": 18.0070144255744
             },
             "timestamp_original": 1475771660475
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "45fe05dab0668567764be2a27529b212",
+        "_id": "3b318ea549369d0aa560f8273a6cbb75",
         "_index": "pbench-unittests.result-data.2016-10-06",
         "_op_type": "create",
         "_source": {
@@ -1609,6 +1611,7 @@ len(actions) = 87
                 "aggr_value": 13.7512041003199,
                 "client_hostname": "all",
                 "description": "Number of gigabits sent by client for a period of 1 second",
+                "measurement_idx": 0,
                 "measurement_type": "throughput",
                 "measurement_units": "Gb_sec",
                 "role": "aggregate",
@@ -1616,14 +1619,14 @@ len(actions) = 87
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 11.4369158521479
+                "value": 16.6012312167832
             },
             "timestamp_original": 1475771661476
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "3d9d27b6ad2ba53bbb5a055b1b9039f4",
+        "_id": "85bc43472f586ca328de754fed66f156",
         "_index": "pbench-unittests.result-data.2016-10-06",
         "_op_type": "create",
         "_source": {
@@ -1651,6 +1654,7 @@ len(actions) = 87
                 "aggr_value": 13.7512041003199,
                 "client_hostname": "all",
                 "description": "Number of gigabits sent by client for a period of 1 second",
+                "measurement_idx": 0,
                 "measurement_type": "throughput",
                 "measurement_units": "Gb_sec",
                 "role": "aggregate",
@@ -1658,14 +1662,14 @@ len(actions) = 87
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 11.4369158521479
+                "value": 15.2786522954092
             },
             "timestamp_original": 1475771662478
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "0fa83d957716971f727efade8274bf0b",
+        "_id": "8c5348c595f163d8754f223fffdf4df2",
         "_index": "pbench-unittests.result-data.2016-10-06",
         "_op_type": "create",
         "_source": {
@@ -1693,6 +1697,7 @@ len(actions) = 87
                 "aggr_value": 13.7512041003199,
                 "client_hostname": "all",
                 "description": "Number of gigabits sent by client for a period of 1 second",
+                "measurement_idx": 0,
                 "measurement_type": "throughput",
                 "measurement_units": "Gb_sec",
                 "role": "aggregate",
@@ -1700,14 +1705,14 @@ len(actions) = 87
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 11.4369158521479
+                "value": 16.2890677322677
             },
             "timestamp_original": 1475771663479
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "20d8aa460445da1d47119818aeeaef93",
+        "_id": "5b8a804b23d814b73432085ad35d80da",
         "_index": "pbench-unittests.result-data.2016-10-06",
         "_op_type": "create",
         "_source": {
@@ -1735,6 +1740,7 @@ len(actions) = 87
                 "aggr_value": 13.7512041003199,
                 "client_hostname": "all",
                 "description": "Number of gigabits sent by client for a period of 1 second",
+                "measurement_idx": 0,
                 "measurement_type": "throughput",
                 "measurement_units": "Gb_sec",
                 "role": "aggregate",
@@ -1742,14 +1748,14 @@ len(actions) = 87
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 11.4369158521479
+                "value": 16.9867216943057
             },
             "timestamp_original": 1475771664480
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "d40d8ecb8ea52a222510fdf503db2afd",
+        "_id": "13b27d3091fc812c36ce1d2b9313c0ee",
         "_index": "pbench-unittests.result-data.2016-10-06",
         "_op_type": "create",
         "_source": {
@@ -1777,6 +1783,7 @@ len(actions) = 87
                 "aggr_value": 13.7512041003199,
                 "client_hostname": "all",
                 "description": "Number of gigabits sent by client for a period of 1 second",
+                "measurement_idx": 0,
                 "measurement_type": "throughput",
                 "measurement_units": "Gb_sec",
                 "role": "aggregate",
@@ -1784,14 +1791,14 @@ len(actions) = 87
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 11.4369158521479
+                "value": 17.0160524915085
             },
             "timestamp_original": 1475771665481
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "c46dcb72ca28f28286018bbb84a1cdbf",
+        "_id": "45ee947c61a87078d77464fb433cbc8e",
         "_index": "pbench-unittests.result-data.2016-10-06",
         "_op_type": "create",
         "_source": {
@@ -1819,6 +1826,7 @@ len(actions) = 87
                 "aggr_value": 13.7512041003199,
                 "client_hostname": "all",
                 "description": "Number of gigabits sent by client for a period of 1 second",
+                "measurement_idx": 0,
                 "measurement_type": "throughput",
                 "measurement_units": "Gb_sec",
                 "role": "aggregate",
@@ -1826,14 +1834,14 @@ len(actions) = 87
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 11.4369158521479
+                "value": 14.7345354805195
             },
             "timestamp_original": 1475771666482
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "3af8a2dbadb1fb9d616249fa8709d4a8",
+        "_id": "c89d3d210c3b62b384c071fe8d86452f",
         "_index": "pbench-unittests.result-data.2016-10-06",
         "_op_type": "create",
         "_source": {
@@ -1861,6 +1869,7 @@ len(actions) = 87
                 "aggr_value": 13.7512041003199,
                 "client_hostname": "all",
                 "description": "Number of gigabits sent by client for a period of 1 second",
+                "measurement_idx": 0,
                 "measurement_type": "throughput",
                 "measurement_units": "Gb_sec",
                 "role": "aggregate",
@@ -1868,14 +1877,14 @@ len(actions) = 87
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 11.4369158521479
+                "value": 13.4691210869131
             },
             "timestamp_original": 1475771667483
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "c47d7907dbb5e1d74a53b639d6fbe5cf",
+        "_id": "e7463a28e87752032cdfcd663d2573cd",
         "_index": "pbench-unittests.result-data.2016-10-06",
         "_op_type": "create",
         "_source": {
@@ -1903,6 +1912,7 @@ len(actions) = 87
                 "aggr_value": 13.7512041003199,
                 "client_hostname": "all",
                 "description": "Number of gigabits sent by client for a period of 1 second",
+                "measurement_idx": 0,
                 "measurement_type": "throughput",
                 "measurement_units": "Gb_sec",
                 "role": "aggregate",
@@ -1910,14 +1920,14 @@ len(actions) = 87
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 11.4369158521479
+                "value": 13.5466381938062
             },
             "timestamp_original": 1475771668484
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "7a1579ec87f56d28899fdf50240a8796",
+        "_id": "c955c7547032c51f12129422e7b63c2c",
         "_index": "pbench-unittests.result-data.2016-10-06",
         "_op_type": "create",
         "_source": {
@@ -1945,6 +1955,7 @@ len(actions) = 87
                 "aggr_value": 13.7512041003199,
                 "client_hostname": "all",
                 "description": "Number of gigabits sent by client for a period of 1 second",
+                "measurement_idx": 0,
                 "measurement_type": "throughput",
                 "measurement_units": "Gb_sec",
                 "role": "aggregate",
@@ -1952,14 +1963,14 @@ len(actions) = 87
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 11.4369158521479
+                "value": 15.635409966034
             },
             "timestamp_original": 1475771669485
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "630338bee4c3942d2149a6a88e5c4fa4",
+        "_id": "1a91a7794cdca8ac0278d902de7533a0",
         "_index": "pbench-unittests.result-data.2016-10-06",
         "_op_type": "create",
         "_source": {
@@ -1987,6 +1998,7 @@ len(actions) = 87
                 "aggr_value": 13.7512041003199,
                 "client_hostname": "all",
                 "description": "Number of gigabits sent by client for a period of 1 second",
+                "measurement_idx": 0,
                 "measurement_type": "throughput",
                 "measurement_units": "Gb_sec",
                 "role": "aggregate",
@@ -1994,14 +2006,14 @@ len(actions) = 87
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 11.4369158521479
+                "value": 13.6723416103896
             },
             "timestamp_original": 1475771670486
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "071f2e16a2120f67147a5a60a19d09ba",
+        "_id": "5401e66b6cb5d62ce35a9dd051239dc4",
         "_index": "pbench-unittests.result-data.2016-10-06",
         "_op_type": "create",
         "_source": {
@@ -2029,6 +2041,7 @@ len(actions) = 87
                 "aggr_value": 13.7512041003199,
                 "client_hostname": "all",
                 "description": "Number of gigabits sent by client for a period of 1 second",
+                "measurement_idx": 0,
                 "measurement_type": "throughput",
                 "measurement_units": "Gb_sec",
                 "role": "aggregate",
@@ -2036,7 +2049,7 @@ len(actions) = 87
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 11.4369158521479
+                "value": 13.4775013146853
             },
             "timestamp_original": 1475771671487
         },
@@ -5382,7 +5395,7 @@ len(actions) = 87
         "_type": "pbench-tool-data-proc-vmstat"
     }
 ]
-	done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 15317, duplicates: 182, failures: 0, retries: 0)
+	done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 15499, duplicates: 0, failures: 0, retries: 0)
 run-1900-01-01T00:00:00-UTC: controller/uperf__2016-10-06_16:34:03: success
    1900-01-01T00:00:00-UTC: Finished /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/TO-INDEX/uperf__2016-10-06_16:34:03.tar.xz (size 5823584)
 run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 1 (skipped 0) results, 0 errors
