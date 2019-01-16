@@ -358,10 +358,10 @@ class ResultData(PbenchData):
                 self.counters['not_valid_json_file'] += 1
                 continue
 
-            # There should always be a 'parameters' block.
-            # There is no reason for this to be an array, but it is: we
-            # just pick the 0^th (and only element) as the metadata for
-            # the document.
+            # There should always be a 'parameters' element with 'benchmark'
+            # array element inside it.  There is no reason for this to be an
+            # array, but it is: we just pick the 0^th (and only element) as
+            # the metadata for all the documents we generate.
             try:
                 md = results['parameters']['benchmark'][0]
                 md.update({"iteration_name": iter_name,
@@ -520,6 +520,7 @@ class ResultData(PbenchData):
                         yield res['date'], datum, src_id
 
         return
+
 
 def mk_result_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
     experiment = ptb.mdconf.get("pbench", "name")
@@ -1024,7 +1025,7 @@ class ToolData(PbenchData):
                 # from all the csv files.
                 yield rows
         for rows in rows_generator():
-            # Verify timestamps are all the same
+            # Verify timestamps are all the same for this row.
             tstamp = None
             first = None
             for fname in rows.keys():
