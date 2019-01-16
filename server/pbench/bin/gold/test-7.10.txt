@@ -78,7 +78,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--     215310 logs/pbench-index/pbench-index.log
+-rw-rw-r--     215894 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -147,7 +147,7 @@ len(actions) = 90
                 "file-name": "/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/uperf_uperftest_2018.02.02T20.58.00.tar.xz",
                 "file-size": 2359300,
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.5.0.0",
+                "generated-by-version": "0.6.0.0",
                 "md5": "22d20eec2affff06976f4abb374b4e13",
                 "pbench-agent-version": "0.47-91gb666083"
             },
@@ -657,7 +657,7 @@ len(actions) = 90
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "1dadfebdc27d5724c49534c440f8bbc1",
+        "_id": "1b7f3c299dd09b4cb5e5f5f423de6597",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -685,6 +685,7 @@ len(actions) = 90
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
                 "description": "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "usec",
                 "role": "aggregate",
@@ -692,14 +693,14 @@ len(actions) = 90
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 385.91841160454
+                "value": 386.225523295071
             },
             "timestamp_original": 1517605093411
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "9a7d138e598118d81aae0c27c3e625cb",
+        "_id": "18b4835454615905801d1f839a8a7ad7",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -727,6 +728,7 @@ len(actions) = 90
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
                 "description": "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "usec",
                 "role": "aggregate",
@@ -734,14 +736,14 @@ len(actions) = 90
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 385.91841160454
+                "value": 380.907080172188
             },
             "timestamp_original": 1517605094412
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "4bc2260af122a152760f872c3fe6495f",
+        "_id": "b8def2089a4d70862c2cb0080a430107",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -769,6 +771,7 @@ len(actions) = 90
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
                 "description": "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "usec",
                 "role": "aggregate",
@@ -776,14 +779,14 @@ len(actions) = 90
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 385.91841160454
+                "value": 375.380865326021
             },
             "timestamp_original": 1517605095413
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "e0c8becc650d0cd34ca55aa847f9917f",
+        "_id": "9d457f8cc4424f7c7e364e54ce47e7c0",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -811,6 +814,7 @@ len(actions) = 90
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
                 "description": "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "usec",
                 "role": "aggregate",
@@ -818,14 +822,14 @@ len(actions) = 90
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 385.91841160454
+                "value": 389.484691520148
             },
             "timestamp_original": 1517605096414
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "2369284e4577fceaf92461948f48685c",
+        "_id": "4de2ab3ad09906c41f29266035a51518",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -853,6 +857,7 @@ len(actions) = 90
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
                 "description": "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "usec",
                 "role": "aggregate",
@@ -860,14 +865,14 @@ len(actions) = 90
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 385.91841160454
+                "value": 390.852796333317
             },
             "timestamp_original": 1517605097416
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "ad6850f6799580ad7d6db971b199a165",
+        "_id": "54b616c2c05923e6fdd26384a8528589",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -895,6 +900,7 @@ len(actions) = 90
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
                 "description": "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "usec",
                 "role": "aggregate",
@@ -902,14 +908,14 @@ len(actions) = 90
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 385.91841160454
+                "value": 410.750923266311
             },
             "timestamp_original": 1517605098417
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "77d34f17d945927850afb1c8086b9ba7",
+        "_id": "762af0ac42ead7e92e9726aa2b3665c6",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -937,6 +943,7 @@ len(actions) = 90
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
                 "description": "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "usec",
                 "role": "aggregate",
@@ -944,14 +951,14 @@ len(actions) = 90
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 385.91841160454
+                "value": 382.921692513881
             },
             "timestamp_original": 1517605099417
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "7e4cf0425035304818f43763a47ef82b",
+        "_id": "6670d0a2e6dc446de77e3b791295e38f",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -979,6 +986,7 @@ len(actions) = 90
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
                 "description": "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "usec",
                 "role": "aggregate",
@@ -986,14 +994,14 @@ len(actions) = 90
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 385.91841160454
+                "value": 407.895071947027
             },
             "timestamp_original": 1517605100418
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "b01691baaead6c27e15753bec313b288",
+        "_id": "5f385b9595cd31c29a0cead0bd879d1b",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1021,6 +1029,7 @@ len(actions) = 90
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
                 "description": "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "usec",
                 "role": "aggregate",
@@ -1028,14 +1037,14 @@ len(actions) = 90
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 385.91841160454
+                "value": 386.887938739522
             },
             "timestamp_original": 1517605101419
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "db20a193e625881e61ebb2a6a1cb664e",
+        "_id": "d2bb7ff4bce325f8a2db04f894c59105",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1063,6 +1072,7 @@ len(actions) = 90
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
                 "description": "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "usec",
                 "role": "aggregate",
@@ -1070,14 +1080,14 @@ len(actions) = 90
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 385.91841160454
+                "value": 411.214953271028
             },
             "timestamp_original": 1517605102420
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "578daa0c0505cb011aba0e68e8261fdc",
+        "_id": "700871eb365c518ce298a8197bd2f9e5",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1105,6 +1115,7 @@ len(actions) = 90
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
                 "description": "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "usec",
                 "role": "aggregate",
@@ -1112,14 +1123,14 @@ len(actions) = 90
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 385.91841160454
+                "value": 417.86683364642
             },
             "timestamp_original": 1517605103421
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "a74b0438dcc2243043b354dbb07c8262",
+        "_id": "61bda1a66ea241e376f0855c09e421bb",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1147,6 +1158,7 @@ len(actions) = 90
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
                 "description": "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "usec",
                 "role": "aggregate",
@@ -1154,14 +1166,14 @@ len(actions) = 90
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 385.91841160454
+                "value": 398.526923459739
             },
             "timestamp_original": 1517605104422
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "35189beab70e48fb130b658285a03129",
+        "_id": "ffbd550b2aefa48472be6f38fdae1039",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1189,6 +1201,7 @@ len(actions) = 90
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
                 "description": "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "usec",
                 "role": "aggregate",
@@ -1196,14 +1209,14 @@ len(actions) = 90
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 385.91841160454
+                "value": 380.744086532747
             },
             "timestamp_original": 1517605105423
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "bce62c9e2f810981174e40fae90719de",
+        "_id": "22a1cc90daf12340545236895cfc8251",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1231,6 +1244,7 @@ len(actions) = 90
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
                 "description": "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "usec",
                 "role": "aggregate",
@@ -1238,14 +1252,14 @@ len(actions) = 90
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 385.91841160454
+                "value": 418.786897236299
             },
             "timestamp_original": 1517605106425
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "a64193cd704526208fd2025e8febcbee",
+        "_id": "346a09d06e94f99d84c2bdebf8b6b723",
         "_index": "pbench-unittests.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
@@ -1273,6 +1287,7 @@ len(actions) = 90
                 "aggr_value": 405.60634258864,
                 "client_hostname": "all",
                 "description": "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "usec",
                 "role": "aggregate",
@@ -1280,7 +1295,7 @@ len(actions) = 90
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 385.91841160454
+                "value": 412.307375148173
             },
             "timestamp_original": 1517605107425
         },

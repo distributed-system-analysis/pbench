@@ -23,7 +23,7 @@ except ImportError:
 from pbench import tstos, es_index, es_put_template
 
 
-_VERSION_ = "0.5.0.0"
+_VERSION_ = "0.6.0.0"
 _NAME_    = "index-pbench"
 _DEBUG    = 0
 
@@ -408,7 +408,7 @@ class ResultData(PbenchData):
             md['uid'] = ResultData.expand_template(md['uid_tmpl'], md)
 
             # for each file, generate a sequence of documents and yield each one
-            for ts, src, source_id in ResultData.gen_sources(results, _benchmarks[benchmark]):
+            for orig_ts, ts, src in ResultData.gen_sources(results, _benchmarks[benchmark], self.convert_timestamp):
                 # each generated result is a document, accompanied by a timestamp
                 # and some metadata.
                 source = _dict_const()
@@ -417,14 +417,14 @@ class ResultData(PbenchData):
                 # the original
                 source['@metadata'] = self.run_metadata.copy()
                 source['@metadata'].update(md)
-
-                # XXX ASSUMPTION: the timestamps we get from the result data are
-                # "milliseconds since epoch" and they are are *assumed* to be UTC.
-                source['@timestamp'] = self.convert_timestamp(ts)
-                source['timestamp_original'] = ts
+                # The source data document lives under "results".
                 source['results'] = src
-
-                yield source, source_id
+                # XXX ASSUMPTION: the timestamps we get from the result
+                # data are "milliseconds since epoch" and they are are
+                # *assumed* to be UTC.
+                source['timestamp_original'] = orig_ts
+                source['@timestamp'] = ts
+                yield source, _make_source_id(source)
         return
 
     @staticmethod
@@ -443,25 +443,28 @@ class ResultData(PbenchData):
         return s
 
     @staticmethod
-    def make_datum_wrapper(mtype, units, templ):
-        # make a shallow copy
-        d = templ.copy()
-        del d['timeseries']
+    def make_datum_wrapper(mtype, units, idx, datum):
+        # Save the timeseries for the caller, then delete it from the datum.
+        tseries = datum['timeseries']
+        del datum['timeseries']
         # rename the "value" field to 'aggr_value'
-        d['aggr_value'] = d['value']
-        del d['value']
-        # construct the uid from the template and the values in d
-        # and replace the template with the result
-        d['uid_tmpl'] = d['uid']
-        d['uid'] = ResultData.expand_template(d['uid_tmpl'], d)
-
-        d['measurement_type'] = mtype
-        d['measurement_units'] = units
-
-        return d
+        datum['aggr_value'] = datum['value']
+        del datum['value']
+        # Add argument values ...
+        datum['measurement_type'] = mtype
+        datum['measurement_units'] = units
+        # The measurement index number is a monotonically increasing value
+        # assigned as each measurement array is encountered in the results
+        # file.
+        datum['measurement_idx'] = idx
+        # construct the uid from the template and the values in datum
+        # and replace the template with the result.
+        datum['uid_tmpl'] = datum['uid']
+        datum['uid'] = ResultData.expand_template(datum['uid_tmpl'], datum)
+        return datum, tseries
 
     @staticmethod
-    def gen_sources(results, sublists):
+    def gen_sources(results, sublists, cvt_ts):
         # sample results is a dict with either two or three
         # (top-level) entries: latency results have three entries:
         # parameters.benchmark, latency.usec, throughput.trans_sec.
@@ -494,39 +497,30 @@ class ResultData(PbenchData):
         # called "mean", rather than "value", but apart from that,
         # iteration data and sample data are very similar.
 
-        if 'latency' in results:
-            latency_sublist = sublists['latency']
-            for sublist in latency_sublist:
-                try:
-                    latency_list = results['latency'][sublist]
-                except KeyError:
-                    # This sublist does not exist, ignore.
-                    continue
-                for idx, latency_el in enumerate(latency_list):
-                    datum_wrapper = ResultData.make_datum_wrapper('latency', sublist, latency_el)
-                    tseries = latency_el['timeseries']
-                    for res in tseries:
-                        datum = datum_wrapper
-                        datum.update({"value": res['value']})
-                        src_id = _make_source_id(datum)
-                        yield res['date'], datum, src_id
-
-        if 'throughput' in results:
-            throughput_sublist = sublists['throughput']
-            for sublist in throughput_sublist:
-                try:
-                    throughput_list = results['throughput'][sublist]
-                except KeyError:
-                    # This sublist does not exist, ignore.
-                    continue
-                for idx, xput_el in enumerate(throughput_list):
-                    datum_wrapper = ResultData.make_datum_wrapper('throughput', sublist, xput_el)
-                    tseries = xput_el['timeseries']
-                    for res in tseries:
-                        datum = datum_wrapper
-                        datum.update({"value": res['value']})
-                        src_id = _make_source_id(datum)
-                        yield res['date'], datum, src_id
+        for result_type in ['latency', 'throughput']:
+            try:
+                result_type_results = results[result_type]
+            except KeyError:
+                # No results to report.
+                pass
+            else:
+                for sublist in sublists[result_type]:
+                    try:
+                        result_type_list = result_type_results[sublist]
+                    except KeyError:
+                        # This sublist does not exist, ignore.
+                        continue
+                    for idx, result_type_el in enumerate(result_type_list):
+                        datum, tseries = ResultData.make_datum_wrapper(result_type, sublist, idx, result_type_el)
+                        prev_ts = None
+                        for res in tseries:
+                            orig_ts = res['date']
+                            del res['date']
+                            if prev_ts is not None:
+                                assert prev_ts <= orig_ts, "prev_ts %r > orig_ts %r" % (prev_ts, orig_ts)
+                            prev_ts = orig_ts
+                            res.update(datum)
+                            yield orig_ts, cvt_ts(orig_ts), res
 
         return
 

@@ -78,7 +78,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--     118242 logs/pbench-index/pbench-index.log
+-rw-rw-r--     118797 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -146,7 +146,7 @@ len(actions) = 61
                 "file-name": "/var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller/fio_rw_2018.02.01T22.40.57.tar.xz",
                 "file-size": 2166628,
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.5.0.0",
+                "generated-by-version": "0.6.0.0",
                 "md5": "492a697c9dc7d73d1bd92c98d3fa8b2a",
                 "pbench-agent-version": "0.47-91gb666083"
             },
@@ -629,7 +629,7 @@ len(actions) = 61
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "13acc27db6084557e2c8160a84e3d8af",
+        "_id": "7600bb34bffc738b957332275003dd91",
         "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -651,6 +651,7 @@ len(actions) = 61
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
                 "description": "Average completion latency per I/O operation",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "clat",
                 "role": "aggregate",
@@ -658,14 +659,14 @@ len(actions) = 61
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 1600636
+                "value": 370598
             },
             "timestamp_original": 1001
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "6938f7cef9a0c5115520dc2d8e6f66fe",
+        "_id": "c02d7f84c2a8f102a26c82bb71163dd6",
         "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -687,6 +688,7 @@ len(actions) = 61
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
                 "description": "Average completion latency per I/O operation",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "clat",
                 "role": "aggregate",
@@ -694,14 +696,14 @@ len(actions) = 61
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 1600636
+                "value": 364650
             },
             "timestamp_original": 1001
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "861a2034315cca5b83a5e9489c79246b",
+        "_id": "d9d22310ae6cea1d8fc579f68c5f570a",
         "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -723,6 +725,7 @@ len(actions) = 61
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
                 "description": "Average completion latency per I/O operation",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "clat",
                 "role": "aggregate",
@@ -730,14 +733,14 @@ len(actions) = 61
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 1600636
+                "value": 307815
             },
             "timestamp_original": 2000
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "bd6bf8191d11deaf6344aed9d0c88bc4",
+        "_id": "79edf56301ba295e911ee07c9ce8885a",
         "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -759,6 +762,7 @@ len(actions) = 61
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
                 "description": "Average completion latency per I/O operation",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "clat",
                 "role": "aggregate",
@@ -766,14 +770,14 @@ len(actions) = 61
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 1600636
+                "value": 311058
             },
             "timestamp_original": 2000
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "3464acbf26fa8b9b2a1af36325fe1ffe",
+        "_id": "73aba0a1a5091bfc11cc1f1139182653",
         "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -795,6 +799,7 @@ len(actions) = 61
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
                 "description": "Average completion latency per I/O operation",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "clat",
                 "role": "aggregate",
@@ -802,14 +807,14 @@ len(actions) = 61
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 1600636
+                "value": 455339
             },
             "timestamp_original": 3000
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "762966d8ba47d2f8954ec6709d24c814",
+        "_id": "0b8dd41b434bfbbe8e478c35d4a51816",
         "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -831,6 +836,7 @@ len(actions) = 61
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
                 "description": "Average completion latency per I/O operation",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "clat",
                 "role": "aggregate",
@@ -838,14 +844,14 @@ len(actions) = 61
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 1600636
+                "value": 458815
             },
             "timestamp_original": 3000
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "41db106d39a3375246590cd07d9f8c0d",
+        "_id": "35dc5eee958f444e10353e0c589cbafb",
         "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -867,6 +873,7 @@ len(actions) = 61
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
                 "description": "Average completion latency per I/O operation",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "clat",
                 "role": "aggregate",
@@ -874,14 +881,14 @@ len(actions) = 61
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 1600636
+                "value": 646305
             },
             "timestamp_original": 4000
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "cf5916da24e8ec50d6cdc0d389ded661",
+        "_id": "0040816768e0ee588ffe6738ac378618",
         "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -903,6 +910,7 @@ len(actions) = 61
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
                 "description": "Average completion latency per I/O operation",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "clat",
                 "role": "aggregate",
@@ -910,14 +918,14 @@ len(actions) = 61
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 1600636
+                "value": 624421
             },
             "timestamp_original": 4000
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "21ca2d5c2a540d3b74a7a56384f67ddb",
+        "_id": "16a33f2b994ebe6acb0ed264f63f2f96",
         "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -939,6 +947,7 @@ len(actions) = 61
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
                 "description": "Average completion latency per I/O operation",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "clat",
                 "role": "aggregate",
@@ -946,14 +955,14 @@ len(actions) = 61
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 1600636
+                "value": 568438
             },
             "timestamp_original": 5000
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "ebfaff310f12db369ff7202ecd30f9b7",
+        "_id": "0f801a520688e14a3769225eb03028f1",
         "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -975,6 +984,7 @@ len(actions) = 61
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
                 "description": "Average completion latency per I/O operation",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "clat",
                 "role": "aggregate",
@@ -982,14 +992,14 @@ len(actions) = 61
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 1600636
+                "value": 582625
             },
             "timestamp_original": 5000
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "dbd4f7e74e47e262f8f83d369fcab4b6",
+        "_id": "e0c1ebc1c1d9072970e2ed284e82dd5d",
         "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1011,6 +1021,7 @@ len(actions) = 61
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
                 "description": "Average completion latency per I/O operation",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "clat",
                 "role": "aggregate",
@@ -1018,14 +1029,14 @@ len(actions) = 61
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 1600636
+                "value": 324455
             },
             "timestamp_original": 6000
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "1ba37e606cfd3b23272304f9a66807f2",
+        "_id": "2f3f059e195a46ca6fd00f7f0dc16790",
         "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1047,6 +1058,7 @@ len(actions) = 61
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
                 "description": "Average completion latency per I/O operation",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "clat",
                 "role": "aggregate",
@@ -1054,14 +1066,14 @@ len(actions) = 61
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 1600636
+                "value": 327295
             },
             "timestamp_original": 6000
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "c75d7db5328f7616ae72cc5171032300",
+        "_id": "1686e18c983f0d8272071d43b798fa72",
         "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1083,6 +1095,7 @@ len(actions) = 61
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
                 "description": "Average completion latency per I/O operation",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "clat",
                 "role": "aggregate",
@@ -1090,14 +1103,14 @@ len(actions) = 61
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 1600636
+                "value": 178255
             },
             "timestamp_original": 7000
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "8d45ea874baa187f15fe31b5684f4231",
+        "_id": "7c87a79ff09811034946a2b49fc1d5e4",
         "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1119,6 +1132,7 @@ len(actions) = 61
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
                 "description": "Average completion latency per I/O operation",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "clat",
                 "role": "aggregate",
@@ -1126,14 +1140,14 @@ len(actions) = 61
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 1600636
+                "value": 180335
             },
             "timestamp_original": 7000
         },
         "_type": "pbench-result-data"
     },
     {
-        "_id": "43fb607f3a25323aed470de9eaf2a917",
+        "_id": "e7e7e22f07b79775d81c06b90cf55d25",
         "_index": "pbench-unittests.result-data.2018-02-01",
         "_op_type": "create",
         "_source": {
@@ -1155,6 +1169,7 @@ len(actions) = 61
                 "aggr_value": 486292.666666667,
                 "client_hostname": "all",
                 "description": "Average completion latency per I/O operation",
+                "measurement_idx": 0,
                 "measurement_type": "latency",
                 "measurement_units": "clat",
                 "role": "aggregate",
@@ -1162,7 +1177,7 @@ len(actions) = 61
                 "server_port": "all",
                 "uid": "client_hostname:all-server_hostname:all-server_port:all-server_port:all",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%-server_port:%server_port%",
-                "value": 1600636
+                "value": 264738
             },
             "timestamp_original": 8000
         },
