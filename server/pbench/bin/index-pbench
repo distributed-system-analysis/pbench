@@ -364,37 +364,37 @@ class ResultData(PbenchData):
             # the metadata for all the documents we generate.
             try:
                 md = results['parameters']['benchmark'][0]
-                md.update({"iteration_name": iter_name,
-                           "iteration_number": iter_number,
-                           "sample": sample})
-                md['uid_tmpl'] = md['uid']
-                md['uid'] = ResultData.expand_template(md['uid_tmpl'], md)
-
-                benchmark = md['benchmark_name']
-                # for each file, generate a sequence of documents and yield each one
-                for ts, src, source_id in ResultData.gen_sources(results, benchmark):
-                    # each generated result is a document, accompanied by a timestamp
-                    # and some metadata.
-                    source = _dict_const()
-                    # make a shallow copy of the run metadata dict here
-                    # so that the update will only change the copy, not
-                    # the original
-                    source['@metadata'] = self.run_metadata.copy()
-                    source['@metadata'].update(md)
-
-                    # XXX ASSUMPTION: the timestamps we get from the result data are
-                    # "milliseconds since epoch" and they are are *assumed* to be UTC.
-                    source['@timestamp'] = self.convert_timestamp(ts)
-                    source['timestamp_original'] = ts
-                    source['results'] = src
-
-                    yield source, source_id
             except Exception as e:
                 print("result-data-indexing: bad result data in JSON file,"
                         " %s: %r" % (df['path'], e))
                 self.counters['bad_result_data_in_json_file'] += 1
                 continue
 
+            md.update({"iteration_name": iter_name,
+                       "iteration_number": iter_number,
+                       "sample": sample})
+            md['uid_tmpl'] = md['uid']
+            md['uid'] = ResultData.expand_template(md['uid_tmpl'], md)
+
+            benchmark = md['benchmark_name']
+            # for each file, generate a sequence of documents and yield each one
+            for ts, src, source_id in ResultData.gen_sources(results, benchmark):
+                # each generated result is a document, accompanied by a timestamp
+                # and some metadata.
+                source = _dict_const()
+                # make a shallow copy of the run metadata dict here
+                # so that the update will only change the copy, not
+                # the original
+                source['@metadata'] = self.run_metadata.copy()
+                source['@metadata'].update(md)
+
+                # XXX ASSUMPTION: the timestamps we get from the result data are
+                # "milliseconds since epoch" and they are are *assumed* to be UTC.
+                source['@timestamp'] = self.convert_timestamp(ts)
+                source['timestamp_original'] = ts
+                source['results'] = src
+
+                yield source, source_id
         return
 
     @staticmethod
