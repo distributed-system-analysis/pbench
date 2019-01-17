@@ -81,11 +81,14 @@ class _MockStreamingBulk(object):
     """
     def __init__(self, max_actions, mpt):
         self.max_actions = max_actions
+        self.mpt = mpt
+        self.reset()
+
+    def reset(self):
         self.actions_l = []
         self.duplicates_tracker = Counter()
         self.index_tracker = Counter()
         self.dupes_by_index_tracker = Counter()
-        self.mpt = mpt
 
     def streaming_bulk(self, es, actions, **kwargs):
         assert isinstance(es, MockElasticsearch), \
@@ -244,3 +247,4 @@ class _MockStreamingBulk(object):
         print("len(actions) = {}".format(len(self.actions_l)))
         print(json.dumps(self.actions_l, indent=4, sort_keys=True))
         sys.stdout.flush()
+        self.reset()

@@ -306,8 +306,30 @@ def report_status(es, logger, LOGSDIR, idx_prefix, name, timestamp, doctype, fil
                 file_to_index)
     return 0
 
+def quarantine(dest, logger, *files):
+    """Quarantine problematic tarballs.
+    Errors here are fatal but we log an error message to help diagnose
+    problems.
+    """
+    try:
+        os.mkdir(dest)
+    except FileExistsError:
+        # directory already exists, ignore
+        pass
+    except Exception:
+        logger.exception("quarantine {} {!r}: \"mkdir -p {}/\" failed", dest, files, dest)
+        sys.exit(101)
 
-def get_es_hosts(config, logger):
+    for afile in files:
+        if not os.path.exists(afile) and not os.path.islink(afile):
+            continue
+        try:
+            shutil.move(afile, os.path.join(dest, os.path.basename(afile)))
+        except Exception:
+            logger.exception("quarantine {} {!r}: \"mv {} {}/\" failed", dest, files, afile, dest)
+            sys.exit(102)
+
+def _get_es_hosts(config, logger):
     """
     Return list of dicts (a single dict for now) -
     that's what ES is expecting.
@@ -333,7 +355,7 @@ def get_es(config, logger):
         debug_unittest = False
     else:
         debug_unittest = bool(debug_unittest)
-    hosts = get_es_hosts(config, logger)
+    hosts = _get_es_hosts(config, logger)
     if debug_unittest:
         if MockElasticsearch is None:
             raise Exception("MockElasticsearch is not available!")

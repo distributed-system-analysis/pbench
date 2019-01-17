@@ -20,8 +20,7 @@ pbench-move-unpacked: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/arch
 pbench-copy-sosreports: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-copy-sosreports (status=1)
 +++ Running pbench-index
-pbench-index: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
---- Finished pbench-index (status=1)
+--- Finished pbench-index (status=3)
 +++ Running pbench-clean-up-dangling-results-links
 pbench-clean-up-dangling-results-links: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-clean-up-dangling-results-links (status=1)
@@ -108,6 +107,8 @@ drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-backup-tarballs
 -rw-rw-r--        148 logs/pbench-backup-tarballs/pbench-backup-tarballs.error
 -rw-rw-r--         30 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
+drwxrwxr-x          - logs/pbench-index
+-rw-rw-r--        158 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -168,6 +169,9 @@ pbench-backup-tarballs: The ARCHIVE directory does not resolve to a real locatio
 +++++ pbench-backup-tarballs/pbench-backup-tarballs.log
 start-1900-01-01T00:00:00-UTC
 ----- pbench-backup-tarballs/pbench-backup-tarballs.log
++++++ pbench-index/pbench-index.log
+1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- pbench-index: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
+----- pbench-index/pbench-index.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs
