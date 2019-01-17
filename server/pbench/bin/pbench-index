@@ -119,7 +119,7 @@ while read size result ;do
 
     # index-pbench depends on a whole hierarchy - this script and
     # index-pbench are in /opt/pbench-server/bin when deployed, but it
-    # depends on /opt/pbench-server/lib/config/pbench-index.cfg,
+    # depends on /opt/pbench-server/lib/config/pbench-server.cfg,
     # /opt/pbench-server/lib/vos etc.  Also, index-pbench requires
     # python3: that's available on Fedora but, for RHEL, we need
     # software collections.
@@ -127,12 +127,12 @@ while read size result ;do
     if which python3 > /dev/null 2>&1 ;then
         # we have a python3 here
         PYTHONPATH=${PROGLOC}/lib:$PYTHONPATH eval\
-                "python3 ${PROGLOC}/bin/index-pbench --config ${PROGLOC}/lib/config/pbench-index.cfg -E $errors_json ${@} $link"
+                "python3 ${PROGLOC}/bin/index-pbench --config ${PROGLOC}/lib/config/pbench-server.cfg -E $errors_json ${@} $link"
         status=$?
     elif which scl > /dev/null 2>&1 ;then
         # we fall back to SCL
         PYTHONPATH=${PROGLOC}/lib:$PYTHONPATH scl enable rh-python36 \
-                "python ${PROGLOC}/bin/index-pbench --config ${PROGLOC}/lib/config/pbench-index.cfg -E $errors_json ${@} $link"
+                "python ${PROGLOC}/bin/index-pbench --config ${PROGLOC}/lib/config/pbench-server.cfg -E $errors_json ${@} $link"
         status=$?
     else
         echo "index-pbench needs python3, either directly or through SCL" >&4

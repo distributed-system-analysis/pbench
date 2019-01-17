@@ -72,8 +72,6 @@ if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
         echo "$PROG: ERROR: LIBDIR not defined" > /dev/stdout
         exit 3
     fi
-    # this is used by pbench-report-status
-    export IDXCONFIG=$LIBDIR/config/pbench-index.cfg
 
     function timestamp {
         echo "$(date +'%Y-%m-%dT%H:%M:%S-%Z')"
@@ -89,9 +87,6 @@ if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
     }
 else
     # unit test regime
-
-    # IDXCONFIG (used by pbench-report-status) is exported by the unittests
-    # script in this case.
 
     function timestamp {
         echo "1900-01-01T00:00:00-UTC"

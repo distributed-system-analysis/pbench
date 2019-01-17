@@ -11,6 +11,18 @@ pbench-local-dir = /srv/pbench-local
 # Backup dir may be remote NFS mounted
 pbench-backup-dir = /mnt/pbench.archive.backup
 
+[Indexing]
+# CHANGE ME!
+# host:port - both must be specified.
+server = elasticsearch.example.com:9280
+index_prefix = pbench
+index_version = 1
+bulk_action_count = 2000
+# Uncomment the settings below if you need to override the Elasticsearch
+# defaults for shards per index or replica count per index.
+#number_of_shards = 1
+#number_of_replicas = 0
+
 ###########################################################################
 # crontab roles
 #
