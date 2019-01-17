@@ -67,23 +67,6 @@ pbench-move-unpacked: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/pub
 pbench-copy-sosreports: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
 --- Finished pbench-copy-sosreports (status=1)
 +++ Running pbench-index
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
-len(actions) = 1
-[
-    {
-        "_id": "ab27148249ed951e4e2e28e6f22f27ff",
-        "_index": "pbench-unittests-server-reports.1900-01",
-        "_op_type": "create",
-        "_source": {
-            "@timestamp": "1900-01-01T00:00:00",
-            "doctype": "status",
-            "name": "pbench-index",
-            "text": "pbench-index.run-1900-01-01T00:00:00-UTC(unit-test) - Indexed 0 results\n"
-        },
-        "_type": "pbench-server-reports"
-    }
-]
 --- Finished pbench-index (status=0)
 +++ Running pbench-clean-up-dangling-results-links
 --- Finished pbench-clean-up-dangling-results-links (status=0)
@@ -211,10 +194,9 @@ drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.error
 -rw-rw-r--        147 logs/pbench-dispatch/pbench-dispatch.log
 drwxrwxr-x          - logs/pbench-index
--rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--        169 logs/pbench-index/pbench-index.log
+-rw-rw-r--        215 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
--rw-rw-r--       2604 logs/pbench-report-status/pbench-report-status.log
+-rw-rw-r--       2232 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-001
 -rw-rw-r--          0 logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.error
 -rw-rw-r--        165 logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log
@@ -302,15 +284,11 @@ end-1900-01-01T00:00:00-UTC
 run-1900-01-01T00:00:00-UTC
 run-1900-01-01T00:00:00-UTC: Processed 0 result tar balls, 0 successfully (0 partial), with 0 errors, and 0 duplicates
 ----- pbench-dispatch/pbench-dispatch.log
-+++++ pbench-index/pbench-index.error
------ pbench-index/pbench-index.error
 +++++ pbench-index/pbench-index.log
-run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
-run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 0 (skipped 0) results, 0 errors
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.1970-01-01T00:00:00: starting
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- No tar balls found that need processing
 ----- pbench-index/pbench-index.log
 +++++ pbench-report-status/pbench-report-status.log
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
