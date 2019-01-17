@@ -3,4 +3,4 @@
   hosts: servers
   remote_user: root
   roles:
-  - dashboard-dev-setup
+  - dashboard-install

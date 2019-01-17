@@ -1,8 +1,18 @@
 ---
+- name: create dashboard directory
+  file:
+    path: /var/www/html/dashboard
+    state: directory
+    owner: pbench
+    group: pbench
+    mode: 0755
+
 - name: move dashboard to remote host webserver 
   copy:
     src: dist/
     dest: /var/www/html/dashboard
+    owner: pbench
+    group: pbench
 
 - name: initialize dashboard config file
-  template: src=config.json.j2 dest=/var/www/html/dashboard/config.json mode=0644
+  template: src=config.json.j2 dest=/var/www/html/dashboard/config.json mode=0644 owner=pbench group=pbench
