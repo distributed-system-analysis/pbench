@@ -99,7 +99,7 @@ function _run_allscripts {
     _run pbench-backup-tarballs
     _run pbench-verify-backup-tarballs
     # Invoke pbench-satellite-cleanup in the context of the satellite
-    PATH=${_testopt_sat}/unittest-scripts:${_testopt_sat}/bin:${_orig_PATH} CONFIG=${SATCONFIG} IDXCONFIG=${SATIDXCONFIG} _run pbench-satellite-cleanup
+    PATH=${_testopt_sat}/unittest-scripts:${_testopt_sat}/bin:${_orig_PATH} CONFIG=${SATCONFIG} _run pbench-satellite-cleanup
 }
 
 function _local_find {
@@ -269,9 +269,6 @@ function _setup_state {
     # Expected location of the final configuration files
     export CONFIG=$_testopt/lib/config/pbench-server.cfg
     export SATCONFIG=$_testopt_sat/lib/config/pbench-server.cfg
-    # used by pbench-report-status
-    export IDXCONFIG=$_testopt/lib/config/pbench-index.cfg
-    export IDXSATCONFIG=$_testopt_sat/lib/config/pbench-index.cfg
 
     # The activate invocations are supposed to work without CONFIG being set,
     # so they do *not* use the global CONFIG file that the rest of the tests
@@ -368,7 +365,6 @@ function _reset_state {
     export PATH=${_orig_PATH}
     unset CONFIG
     unset SATCONFIG
-    unset IDXCONFIG
 
     rm -f $_testactout
     rm -f $_testlog

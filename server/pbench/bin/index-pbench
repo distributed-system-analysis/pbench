@@ -2,7 +2,7 @@
 # -*- mode: python -*-
 
 # prereqs:
-# config file: specified in ES_CONFIG_PATH
+# config file: specified in CONFIG "Indexing" section
 # mapping file:
 
 from __future__ import print_function
@@ -2117,15 +2117,15 @@ def get_es_hosts(config):
     that's what ES is expecting.
     """
     try:
-        URL = config.get('Server', 'server')
+        URL = config.get('Indexing', 'server')
     except NoSectionError:
-        print("Need a [Server] section with host and port defined in %s"
+        print("Need an [Indexing] section with host and port defined in %s"
               " configuration file" % (" ".join(config.__files__)),
                 file=sys.stderr)
         return None
     except NoOptionError:
-        host = config.get('Server', 'host')
-        port = config.get('Server', 'port')
+        host = config.get('Indexing', 'host')
+        port = config.get('Indexing', 'port')
     else:
         host, port = URL.rsplit(':', 1)
     timeoutobj = Timeout(total=1200, connect=10, read=_read_timeout)
@@ -2180,12 +2180,12 @@ def main(options, args):
 
         cfg_name = options.cfg_name
         if not cfg_name:
-            raise ConfigFileNotSpecified("No config file specified: set ES_CONFIG_PATH env variable or use --config <file> on the command line")
+            raise ConfigFileNotSpecified("No config file specified: set CONFIG env variable or use --config <file> on the command line")
 
         try:
             config.read(cfg_name)
-            INDEX_PREFIX = config.get('Settings', 'index_prefix')
-            INDEX_VERSION = config.get('Settings', 'index_version')
+            INDEX_PREFIX = config.get('Indexing', 'index_prefix')
+            INDEX_VERSION = config.get('Indexing', 'index_version')
         except Exception as e:
             raise ConfigFileError(e)
 
@@ -2197,7 +2197,7 @@ def main(options, args):
             raise Exception("No temporary directory specified")
 
         try:
-            debug_unittest = config.get('Settings', 'debug_unittest')
+            debug_unittest = config.get('Indexing', 'debug_unittest')
         except Exception as e:
             debug_unittest = False
         else:
@@ -2344,7 +2344,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "path_to_tarball_file", nargs='*',
         help="specify the path to the tar.gz file")
-    parser.set_defaults(cfg_name = os.environ.get("ES_CONFIG_PATH"))
+    parser.set_defaults(cfg_name = os.environ.get("CONFIG"))
     parser.set_defaults(tmpdir = os.environ.get("TMPDIR"))
     parsed = parser.parse_args()
 

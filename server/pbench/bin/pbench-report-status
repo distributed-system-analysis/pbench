@@ -75,23 +75,10 @@ rm -rf $tmp" EXIT QUIT INT
 mkdir $tmp
 >${tmp}/log
 
-if [ ! -z "$IDXCONFIG" ]; then
-    server=$(getconf.py --config $IDXCONFIG server Server)
-    index_prefix=$(getconf.py --config $IDXCONFIG index_prefix Settings)
-else
-    server=""
-    index_prefix=""
-fi
+server=$(getconf.py server Indexing)
+index_prefix=$(getconf.py index_prefix Indexing)
 if [ -z "$server" -o -z "$index_prefix" ] ;then
     # We don't have an Elasticsearch configuration, use syslog.
-    if [ ! -z "$IDXCONFIG" ]; then
-        if [ -z "$server" ] ;then
-            echo "$prog: no server defined in [Server] section of $IDXCONFIG" >> ${tmp}/log
-        fi
-        if [ -z "$index_prefix" ] ;then
-            echo "$prog: no index_prefix defined in [Settings] section of $IDXCONFIG" >> ${tmp}/log
-        fi
-    fi
 
     # Prepend the proper sequence to allow rsyslog to recognize JSON and process it
     printf "@cee:" > ${tmp}/payload
