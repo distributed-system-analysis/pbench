@@ -1,5 +1,5 @@
 {
-  "name": "PDash",
+  "name": "Pbench-Dashboard",
   "version": "2.0.0",
   "description": "UI solution for scalable visualization of benchmark data.",
   "private": true,
