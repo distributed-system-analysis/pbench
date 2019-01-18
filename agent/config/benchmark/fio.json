@@ -33,7 +33,7 @@
         // The "mandatory" entry will alwyas be included and cannot be overrided by the user.
         // These are considered mandatory because the post-processing relies on the data
         // these options produce.
-        "mandatory" : [ "--time_based=1", "--write_hist_log=fio", "--log_hist_msec=10000",
+        "mandatory" : [ "--write_hist_log=fio", "--log_hist_msec=10000",
           "--write_bw_log=fio", "--write_iops_log=fio", "--write_lat_log=fio",
           "--log_avg_msec=1000", "--log_unix_epoch=1", "--output-format=json",
           "--output=fio-result.json"
