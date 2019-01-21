@@ -25,12 +25,11 @@ BEGIN {
 use lib "$_test_alt_tools_lib";
 no lib ".";
 use GenData qw(gen_data);
+use SysStat qw(get_pidstat_attributes);
 
 my $dir=$ARGV[0];
 my $threads=$ARGV[1];
 my %pidstat;
-my %timestamps;
-my %cmdline;
 my %graph_type;
 my %graph_threshold;
 my $vm_name;
@@ -39,7 +38,8 @@ my $vcpu;
 my $line;
 my $line2;
 my $tid;
-my @stats;
+my @prev_stats;
+my @curr_stats;
 
 my @virsh_list;
 my @virsh_vcpus;
@@ -70,88 +70,82 @@ if ( (($? >> 8) == 0) && (! -e "/usr/bin/vdsClient") && (-e "/usr/bin/virsh") ) 
 	}
 }
 
-# read the pidstat.txt and collect stats for all non dm-* devices
-open(PIDSTAT_TXT, "$dir/pidstat-stdout.txt") || die "could not find $dir/pidstat-stdout.txt\n";
-while ($line = <PIDSTAT_TXT>) {
-	chomp $line;
-	        ##      Time   UID       PID    %usr   %system  %guest  %CPU   CPU     minflt/s     majflt/s     VSZ     RSS       %MEM      kB_rd/s      kB_wr/s    kB_ccwr/s iodelay     cswch/s    nvcswch/s  Command
-	        # 1394568782   107    222936     0.67         0.00        0.00   3       0.67        8       0.00         0.00        164   17760     0.61         0.00        0.00         0.00         0       64.67        0.00      /usr/libexec/qemu-kvm -name dhcp31-2
-	if ( $line =~ /^(\s\d+\s+\d+\s+\d+\s+\d*).*/ ) {
-		$line =~ s/^\s+//;
-		@stats = split(/\s+/,$line);
-		my $timestamp = shift(@stats);
-		my $uid = shift(@stats);
-		my $pid = shift(@stats);
-
-		my $usr = shift(@stats);
-		# $usr might actually be the TID if its an integer
-		if ($usr =~ /^\d+$/) {
-			$tid=$usr;
-			# and the next value is for $usr
-			$usr = shift(@stats);
-		}
-		my $sys = shift(@stats);
-		my $guest = shift(@stats);
-		my $cpu = shift(@stats);
-		my $cpu_id = shift(@stats);
-		my $minor_faults = shift(@stats);
-		my $major_faults = shift(@stats);
-		my $vsz = shift(@stats);
-		my $rss = shift(@stats);
-		my $mem = shift(@stats);
-		my $kb_read = shift(@stats);
-		my $kb_write = shift(@stats);
-		my $kb_ccrw = shift(@stats);
-		my $io_delay = shift(@stats);
-		my $cswitches = shift(@stats);
-		my $nvcswitches = shift(@stats);
-		my $cmd = join(' ', @stats);
-
-		# print "timestamp[$timestamp]  uid[$uid]\n";
-
-		my $timestamp_ms = 1000 * $timestamp;
-
-		# if threads are reported
-		if ( $pid =~ /(\d+)\s+(\d+)/ ) {
-			$pid = $1;
-			$tid = $2;
-			if ($tid == 0) {
-				next;
-			} else {
-				$pid = $tid;
-				$cmd =~ s/\|_+//;
-			}
-		} else {
-			$pid =~ s/\s+//g;
-		}
-
-		# if this is a VM, change the "$cmd" to something more readable
-		if ( $cmd =~ /name\s(\S+).*/ ) {
-			$vm_name = $1;
-			$cmd = "KVMguest--" . $vm_name;
-		}
-		$cmd = substr($cmd, 0, 40);
-		$cmd =~ s/\s/_/g;
-		$cmd =~ s/\'//g;
-		$cmd =~ s/\"//g;
-                # commas cause problems in the CSV files.
-                $cmd =~ s/,//g;
-		# avoid 'Invalid conversion in printf: "%=" ' errors if cmd contains a %.
-		$cmd =~ s/%/%%/g;
-		$pid = $pid . "-". $cmd;
-		$pidstat{cpu_usage}{percent_cpu}{$pid}{$timestamp_ms} = $cpu;
-		$pidstat{file_io}{io_reads_KB_sec}{$pid}{$timestamp_ms} = $kb_read;
-		$pidstat{file_io}{io_writes_KB_sec}{$pid}{$timestamp_ms} = $kb_write;
-		$pidstat{memory_faults}{minor_faults_sec}{$pid}{$timestamp_ms} = $minor_faults;
-		$pidstat{memory_faults}{major_faults_sec}{$pid}{$timestamp_ms} = $major_faults;
-		$pidstat{context_switches}{voluntary_switches_sec}{$pid}{$timestamp_ms} = $cswitches;
-		$pidstat{context_switches}{nonvoluntary_switches_sec}{$pid}{$timestamp_ms} = $nvcswitches;
-		$pidstat{memory_usage}{virtual_size}{$pid}{$timestamp_ms} = $vsz;
-		$pidstat{memory_usage}{resident_set_size}{$pid}{$timestamp_ms} = $rss;
-		$timestamps{$timestamp_ms}++;
+my %timestamps;
+my @attributes = get_pidstat_attributes();
+my $pids_dir = $dir . "/pids";
+if (opendir(my $pids_dh, $pids_dir) || die "Could not open $pids_dir") {
+        for my $pid (grep(/\d+/, readdir($pids_dh))) {
+		my $pid_dir = $pids_dir . "/" . $pid;
+		opendir(my $pid_dh, $pid_dir) || die "Could not open $pid_dir";
+		# A PID may be recycled over time as 1 process exits and another later is created,
+		# and therefore more than 1 process could have the same PID
+		my $timestamp_ms;
+        	for my $filename (grep(/[^.]/, readdir($pid_dh))) {
+			my $cmd;
+			my $pid_cmd;
+			open(my $fh, $pid_dir . "/" . $filename) || die "Could not open $filename";
+			my %old_stats;
+			my $line_num = 0;
+			while ($line = <$fh>) {
+				$line_num++;
+				if ($line_num == 1) {
+					# get the real, unmodified cmdline first
+					$cmd = $line;
+					chomp $cmd;
+					# convert qemu to a more readable label with VM name
+					if ( $cmd =~ /qemu/ and $cmd =~ /name\s(\S+).*/ ) {
+						$vm_name = $1;
+						$cmd = "KVMguest--" . $vm_name;
+					}
+					# modify to be appropriate as a label for a series in a graph
+					$cmd =~ s/%/%%/g; # avoid 'Invalid conversion in printf: "%=" ' errors if cmd contains a %.;
+					$cmd =~ s/[\'|\"]//g; # quotes and vertical bars cause problems everywhere
+					$cmd =~ s/\s/_/g; # convert spaces to _
+					$cmd =~ s/,//g; # commas cause problems in the CSV files
+					$cmd = substr $cmd, 0, 40; # limit the length
+					$pid_cmd = $pid . "-" . $cmd;
+					next;
+				}
+				my %stats;
+				chomp $line;
+				if ( $line =~ /^(\d+)(.*)/ ) {
+					$timestamp_ms = $1 * 1000;
+					my $stats_str = $2;
+					if ($stats_str eq '') {
+						# every single stat is a repeat from the previous sample
+						%stats = %old_stats;
+					} else {
+						# some or all new stats are different from previous sample
+						$stats_str =~ s/^,//;
+						@stats{@attributes} = split(/,/,$stats_str);
+						# copy any old stats to missing new stats
+						for my $attribute (@attributes) {
+							if ((not defined $stats{$attribute}) or ($stats{$attribute} eq '')) {
+								if (defined $old_stats{$attribute}) {
+									$stats{$attribute} = $old_stats{$attribute};
+								} else {
+									print "ERROR: old_stat for $attribute not found in file $filename line number $line_num\n";
+									exit 1;
+								}
+							}
+						}
+					}
+					%old_stats = %stats;
+					$pidstat{'cpu_usage'}{'percent_cpu'}{$pid_cmd}{$timestamp_ms} = $stats{'CPU_PCT'};
+					$pidstat{'file_io'}{'io_reads_KB_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'kB_rd_s'};
+					$pidstat{'file_io'}{'io_writes_KB_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'kB_wr_s'};
+					$pidstat{'memory_faults'}{'minor_faults_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'minflt_s'};
+					$pidstat{'memory_faults'}{'major_faults_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'majflt_s'};
+					$pidstat{'context_switches'}{'voluntary_switches_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'cswch_s'};
+					$pidstat{'context_switches'}{'nonvoluntary_switches_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'nvcswch_s'};
+					$pidstat{'memory_usage'}{'virtual_size'}{$pid_cmd}{$timestamp_ms} = $stats{'VSZ'};
+					$pidstat{'memory_usage'}{'resident_set_size'}{$pid_cmd}{$timestamp_ms} = $stats{'RSS'};
+					$timestamps{$timestamp_ms}++;
+				}
+                	}
+        	}
 	}
 }
-close(PIDSTAT_TXT);
 
 # fill in any missing data with zeros
 my $htmlpage;

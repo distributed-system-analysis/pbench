@@ -1,0 +1,118 @@
+#!/usr/bin/perl
+
+# Pipe the output of a pidstat command to this script to:
+# - create a directory for each PID
+# - create a file named same as the process in the PID directory
+#   - output the per PID data to the PID file
+#   - if the values repeat in subsequent sample, omit the value
+
+use strict;
+use warnings;
+
+# Check for an alternate tools library path for testing
+my $_test_alt_tools_lib;
+BEGIN {
+        my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+                $_test_alt_tools_lib = "$_pbench_tspp_dir";
+	}
+}
+use lib "$_test_alt_tools_lib";
+no lib ".";
+use File::Path qw(rmtree make_path);
+use File::Basename;
+use SysStat qw(get_pidstat_attributes);
+
+my %previous_stats; # used to detect repeated value
+my %current_stats;
+my @attributes = get_pidstat_attributes();
+my $tool_output_dir = shift; # the one and only argument to this script, the directory where these files should be written
+if (not defined $tool_output_dir) {
+	print "Directory to store PIDs is required\n";
+	exit 1;
+}
+my %file_handles;
+if ( -e $tool_output_dir . '/pids') {
+	rmtree($tool_output_dir . '/pids');
+}
+mkdir($tool_output_dir . '/pids');
+# read the STDIN which is expected to be STDOUT from 'pidstat -l -H -w -u -h -d -r -p ALL'
+my $prev_pid;
+while (my $line = <>) {
+	# example STDIN
+	#
+	###v11 no threads
+        ## Time        UID       PID    %usr %system  %guest   %CPU   CPU  minflt/s  majflt/s     VSZ     RSS   %MEM   kB_rd/s   kB_wr/s kB_ccwr/s iodelay   cswch/s nvcswch/s  Command
+        # 1547780606     0      2368    0.00    0.00    0.00    0.00     4      0.00      0.00  112808    4300   0.00      0.00      0.00      0.00       0      0.00      0.00  /usr/sbin/sshd -D
+        # 1547780606     0      2373    0.00    0.00    0.00    0.00     0      0.00      0.00  228772    7940   0.00      0.00      0.00      0.00       0      0.00      0.00  /usr/sbin/rsyslogd -n
+        # 1547780606     0      2380    0.00    0.00    0.00    0.00     7      0.00      0.00 1221772   15360   0.01      0.00      0.00      0.00       0      0.00      0.00  /usr/sbin/libvirtd
+        
+	###v11 with threads
+        # Time   UID      TGID       TID    %usr %system  %guest    %CPU   CPU  minflt/s  majflt/s     VSZ     RSS   %MEM   kB_rd/s   kB_wr/s kB_ccwr/s iodelay   cswch/s nvcswch/s  Command
+        # 1547852254     0         1         0    0.00    0.00    0.00    0.00     4      0.13      0.00  194520    7572   0.00      1.16     28.14      1.62      89      0.62      0.01  /usr/lib/systemd/systemd --switched-root --system --deserialize 22
+        # 1547852254     0         0         1    0.00    0.00    0.00    0.00     4      0.13      0.00  194520    7572   0.00      0.02      0.00      0.00      89      0.62      0.01  |__/usr/lib/systemd/systemd --switched-root --system --deserialize 22
+        #
+        if ( $line =~ /\s{0,1}(\d+)\s+\d+\s+(\S+|\S+\s+\S+)\s+(\d+\.\d+\s+\d+\.\d+\s+\d+\.\d+\s+\d+\.\d+\s+\d+\s+\d+\.\d+\s+\d+\.\d+\s+\d+\s+\d+\s+\d+\.\d+\s+\d+\.\d+\s+\d+\.\d+\s+\d+\.\d+\s+\d+\s+\d+\.\d+\s+\d+\.\d+\s+)(.*)/ ) {
+		my $time = $1;
+		my $pid = $2;
+		my $values_str = $3;
+		my $cmd = $4;
+		$cmd =~ s/^\s+|\s+$//; # remove leading and trailing spaces
+		my @values = split(/\s+/, $values_str);
+		# when pidstat reports threads
+		if ($pid =~ /(^\S+)\s+(\S+)$/) {
+			my $tgid = $1;
+			my $tid = $2;
+			if ($tgid =~ /^0|\-$/) {
+				$pid = $prev_pid . ":" . $tid;
+				$cmd =~ s/\|__//;
+			} else {
+				$prev_pid = $tgid;
+				next; # Not going to save the per-process stats because we have the per-thread stats
+			}
+		}
+		my $pid_cmd = $pid . "-" . $cmd;
+		my %pid_stats;
+		@pid_stats{@attributes} = @values;
+		$current_stats{$pid_cmd} = \%pid_stats;
+		my $filename = $cmd;
+		# storing the cmd as a filename is fine as long as we remove any "/"
+		$filename =~ s/\//->/g;
+		# maintain a file for each of the PIDs instead of having all data in 1 file
+		my $file = $tool_output_dir . "/pids/" . $pid . "/" . $filename;
+		if ( ! -e $file ) {
+			mkdir($tool_output_dir . "/pids/" . $pid);
+			open($file_handles{$pid_cmd}, ">", $file) || die "Could not open file $file";
+			# keep a copy of the real cmd, without the "/" conversions
+			printf { $file_handles{$pid_cmd} } "%s\n", $cmd;
+			select($file_handles{$pid_cmd});
+			$| = 1; # always flush
+			select(STDOUT);
+		}
+		if (exists $file_handles{$pid_cmd}) {
+			my $output = "";
+			my $changed = 0;
+			# save space by not writing duplicate values from subsequent samples
+			for my $attribute (@attributes) {
+				if (exists $previous_stats{$pid_cmd} and exists $previous_stats{$pid_cmd}{$attribute} and $current_stats{$pid_cmd}{$attribute} == $previous_stats{$pid_cmd}{$attribute}) {
+					$output .= sprintf ","; # a single value is skipped if it is the same as the previous sample's value
+				} else {
+					$output .= sprintf ",%s", $current_stats{$pid_cmd}{$attribute};
+					$changed = 1;
+				}
+			$previous_stats{$pid_cmd}{$attribute} = $current_stats{$pid_cmd}{$attribute};
+			}
+			if ($changed) {
+				printf { $file_handles{$pid_cmd} } "%s%s\n", $time, $output;
+			} else {
+				printf { $file_handles{$pid_cmd} } "%s\n", $time; # line is skipped (except timestamp) if all of the values are the same as the previous sample
+			}
+		} else {
+			print "Warning: could not find filehandle for file: $file\n";
+		}
+	}
+}
+for my $fh (keys %file_handles) {
+	close($file_handles{$fh});
+}

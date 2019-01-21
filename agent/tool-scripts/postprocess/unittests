@@ -268,6 +268,23 @@ function testcmpr {
     return $sts
 }
 
+function testpidstat {
+    echo "Testing pidstat-postprocess under sample ${1} ..."
+
+    mkdir ${_testroot}/${1}
+
+    # Generate pidstat converted data as tool would.
+    cvt_path=$(dirname $(realpath ./pidstat-convert))
+    cat samples/${1}/pidstat-stdout.txt | (cd ${_testroot}/${1}; _TEST_ALTERNATE_TOOLS_LIBRARY=${cvt_path} ${cvt_path}/pidstat-convert ${_testroot}/${1})
+
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./pidstat-postprocess ${_testroot}/${1} > ${_testroot}/${1}/stdout 2> ${_testroot}/${1}/stderr
+
+    rm -rf ${_testroot}/${1}/pids
+
+    diff -cr gold/${1}/ ${_testroot}/${1}
+    return $?
+}
+
 res=0
 
 for i in $(ls -1 samples/) ; do
@@ -317,6 +334,14 @@ for i in $(ls -1 samples/) ; do
             testgeneratebenchmarksummary $i
             sts=$?
             ;;
+        pidstat)
+            testpidstat $i
+            sts=$?
+            ;;            
+        pidstat-*)
+            testpidstat $i
+            sts=$?
+            ;;            
         *)
             testit $i ${i%-[0-9]}
             sts=$?

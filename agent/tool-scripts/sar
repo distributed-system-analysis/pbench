@@ -145,7 +145,8 @@ case "$script_name" in
 	;;
 	pidstat)
 	default_options="-l -w -u -h -d -r $threads -p ALL $pattern"
-	tool_cmd="$tool_bin $options $default_options $interval"
+	# ulimit is for all the files that might be opened by pidstat-convert
+	tool_cmd="ulimit -n 102400; $tool_bin $options $default_options $interval | $script_path/postprocess/$script_name-convert $tool_output_dir"
 	;;
 esac
 case "$mode" in
