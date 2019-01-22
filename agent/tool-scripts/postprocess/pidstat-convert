@@ -111,7 +111,10 @@ while (my $line = <>) {
 				printf { $file_handles{$pid} } "%s\n", $time; # line is skipped (except timestamp) if all of the values are the same as the previous sample
 			}
 		} else {
-			print "Could not find filehandle for file: $file\n";
+			print "Warning: could not find filehandle for file: $file\n";
 		}
-	} # open files will be closed on exit
+	}
+}
+for my $fh (keys %file_handles) {
+	close($file_handles{$fh});
 }
