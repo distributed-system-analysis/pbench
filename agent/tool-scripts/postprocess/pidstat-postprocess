@@ -25,6 +25,7 @@ BEGIN {
 use lib "$_test_alt_tools_lib";
 no lib ".";
 use GenData qw(gen_data);
+use SysStat qw(get_pidstat_attributes);
 
 my $dir=$ARGV[0];
 my $threads=$ARGV[1];
@@ -70,7 +71,7 @@ if ( (($? >> 8) == 0) && (! -e "/usr/bin/vdsClient") && (-e "/usr/bin/virsh") ) 
 }
 
 my %timestamps;
-my @attributes = qw(usr system guest CPU_PCT CPUID minflt_s majflt_s VSZ RSS MEM_PCT kB_rd_s kB_wr_s iodelay cswch_s nvcswch_s);
+my @attributes = get_pidstat_attributes();
 my $pids_dir = $dir . "/pids";
 if (opendir(my $pids_dh, $pids_dir) || die "Could not open $pids_dir") {
         for my $pid (grep(/\d+/, readdir($pids_dh))) {

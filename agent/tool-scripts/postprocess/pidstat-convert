@@ -21,10 +21,11 @@ BEGIN {
 use lib "$_test_alt_tools_lib";
 no lib ".";
 use File::Path 'rmtree';
+use SysStat qw(get_pidstat_attributes);
 
 my %previous_stats; # used to detect repeated value
 my %current_stats;
-my @attributes = qw(usr system guest CPU_PCT CPUID minflt_s majflt_s VSZ RSS MEM_PCT kB_rd_s kB_wr_s iodelay cswch_s nvcswch_s);
+my @attributes = get_pidstat_attributes();
 my $tool_output_dir = shift; # the one and only argument to this script, the directory where these file shoudl be written
 if (not defined $tool_output_dir) {
 	print "Directory to store PIDs is required\n";
@@ -109,6 +110,8 @@ while (my $line = <>) {
 			} else {
 				printf { $file_handles{$pid} } "%s\n", $time; # line is skipped (except timestamp) if all of the values are the same as the previous sample
 			}
+		} else {
+			print "Could not find filehandle for file: $file\n";
 		}
 	} # open files will be closed on exit
 }
