@@ -15,7 +15,7 @@ const { Description } = DescriptionList;
 const TabPane = Tabs.TabPane;
 
 @connect(({ global }) => ({
-  datastoreConfig: global.datastoreConfig
+  datastoreConfig: global.datastoreConfig,
 }))
 export default class RunComparison extends ReactJS.Component {
   static propTypes = {
@@ -165,7 +165,8 @@ export default class RunComparison extends ReactJS.Component {
         for (var iteration in clusteredIterations[primaryMetric][cluster]) {
           iterationRequests.push(
             axios.get(
-              datastoreConfig.results + '/results/' +
+              datastoreConfig.results +
+                '/results/' +
                 encodeURIComponent(
                   clusteredIterations[primaryMetric][cluster][iteration].controller_name
                 ) +
@@ -288,7 +289,9 @@ export default class RunComparison extends ReactJS.Component {
 
     return {
       __html:
-        '<iframe style="overflow: hidden; overflow-y: hidden; height: 650px; border: none; margin: 0; padding: 0; scrolling: none" src="' + datastoreConfig.production + '/results/' +
+        '<iframe style="overflow: hidden; overflow-y: hidden; height: 650px; border: none; margin: 0; padding: 0; scrolling: none" src="' +
+        datastoreConfig.production +
+        '/results/' +
         controllerName +
         '/' +
         resultName +
@@ -387,7 +390,7 @@ export default class RunComparison extends ReactJS.Component {
           <Description term="Controller">{<Tag>{controller}</Tag>}</Description>
           <Description term="Results">
             {selectedResults.map(result => (
-              <Tag>{result.result}</Tag>
+              <Tag>{result['run.name']}</Tag>
             ))}
           </Description>
           <Description term="Clustering Config">

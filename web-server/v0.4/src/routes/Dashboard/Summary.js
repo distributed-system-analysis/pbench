@@ -1,7 +1,6 @@
 import ReactJS from 'react';
 import { connect } from 'dva';
-import moment from 'moment';
-import { Select, Spin, Tag, Table, Button, Card } from 'antd';
+import { Select, Spin, Tag, Table, Button, Card, notification } from 'antd';
 import axios from 'axios';
 import cloneDeep from 'lodash/cloneDeep';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -27,9 +26,8 @@ const tabList = [
   iterations: dashboard.iterations,
   summaryResult: dashboard.result,
   results: dashboard.results,
-  startMonth: dashboard.startMonth,
-  endMonth: dashboard.endMonth,
   datastoreConfig: global.datastoreConfig,
+  selectedIndices: global.selectedIndices,
   controllers: dashboard.controllers,
 }))
 class Summary extends ReactJS.Component {
@@ -54,47 +52,68 @@ class Summary extends ReactJS.Component {
 
   componentDidMount() {
     this.setState({ loading: true });
-    const { dispatch, datastoreConfig, startMonth, endMonth, selectedResults, selectedController } = this.props;
+    const {
+      dispatch,
+      datastoreConfig,
+      selectedIndices,
+      selectedResults,
+      selectedController,
+    } = this.props;
 
     dispatch({
       type: 'dashboard/fetchResult',
       payload: {
         datastoreConfig: datastoreConfig,
-        startMonth: moment(startMonth),
-        endMonth: moment(endMonth),
-        result: selectedResults[0],
+        selectedIndices: selectedIndices,
+        result: selectedResults['run.name'],
       },
     });
 
     var iterationEndpoint = '';
     if (selectedController != null && selectedController.includes('.')) {
       iterationEndpoint =
-        datastoreConfig.results + '/results/' +
+        datastoreConfig.results +
+        '/results/' +
         encodeURI(selectedController.slice(0, selectedController.indexOf('.'))) +
+        (selectedResults['run.prefix'] != null ? '/' + selectedResults['run.prefix'] : '') +
         '/' +
-        encodeURI(selectedResults[0]) +
+        encodeURI(selectedResults['run.name']) +
         '/result.json';
     } else {
       iterationEndpoint =
-        datastoreConfig.results + '/results/' +
+        datastoreConfig.results +
+        '/results/' +
         encodeURI(selectedController) +
+        (selectedResults['run.prefix'] != null ? '/' + selectedResults['run.prefix'] : '') +
         '/' +
-        encodeURI(selectedResults[0]) +
+        encodeURI(selectedResults['run.name']) +
         '/result.json';
     }
+
     axios
       .get(iterationEndpoint)
       .then(res => {
         const response = res.data;
-        const responseData = this.parseJSONData(response, selectedResults[0], selectedController);
+        const responseData = this.parseJSONData(
+          response,
+          selectedResults['run.name'],
+          selectedController
+        );
         this.setState({ responseData: responseData });
         this.setState({ loading: false });
       })
       .catch(error => {
-        console.log(error);
+        this.openNetworkErrorNotification('error');
         this.setState({ loading: false });
       });
   }
+
+  openNetworkErrorNotification = type => {
+    notification[type]({
+      message: 'Network Error',
+      description: 'Unable to find an associated result file. Please try another result.',
+    });
+  };
 
   parseJSONData(response, resultName, controllerName) {
     var responseData = [];
@@ -602,11 +621,11 @@ class Summary extends ReactJS.Component {
       }
     }
 
-    if (summaryResult.length > 0 && Object.keys(summaryResult[0]).length !== 0) {
+    if (Object.keys(summaryResult).length > 0) {
       var metadataTag = '';
-      const hostTools = summaryResult[0]._source.host_tools_info;
+      const hostTools = summaryResult._source.host_tools_info;
 
-      if (typeof summaryResult[0]._source['@metadata'] !== 'undefined') {
+      if (typeof summaryResult._source['@metadata'] !== 'undefined') {
         metadataTag = '@metadata';
       } else {
         metadataTag = '_metadata';
@@ -656,19 +675,19 @@ class Summary extends ReactJS.Component {
               <li className="list-group-item">
                 <h5 className="list-group-item-heading">Script</h5>
                 <p className="list-group-item-text" id="script">
-                  {summaryResult[0]._source.run.script}
+                  {summaryResult._source.run.script}
                 </p>
               </li>
               <li className="list-group-item">
                 <h5 className="list-group-item-heading">Configuration</h5>
                 <p className="list-group-item-text" id="config">
-                  {summaryResult[0]._source.run.config}
+                  {summaryResult._source.run.config}
                 </p>
               </li>
               <li className="list-group-item">
                 <h5 className="list-group-item-heading">Controller</h5>
                 <p className="list-group-item-text" id="controller">
-                  {summaryResult[0]._source.run.controller}
+                  {summaryResult._source.run.controller}
                 </p>
               </li>
               <li className="list-group-item">
@@ -678,25 +697,25 @@ class Summary extends ReactJS.Component {
                   style={{ overflowWrap: 'break-word' }}
                   id="file_name"
                 >
-                  {summaryResult[0]._source[metadataTag]['file-name']}
+                  {summaryResult._source[metadataTag]['file-name']}
                 </p>
               </li>
               <li className="list-group-item">
                 <h5 className="list-group-item-heading">Pbench Agent Version</h5>
                 <p className="list-group-item-text" id="pbench_version">
-                  {summaryResult[0]._source[metadataTag]['pbench-agent-version']}
+                  {summaryResult._source[metadataTag]['pbench-agent-version']}
                 </p>
               </li>
               <li className="list-group-item">
                 <h5 className="list-group-item-heading">Indexer Name</h5>
                 <p className="list-group-item-text" id="generated_by">
-                  {summaryResult[0]._source[metadataTag]['generated-by']}
+                  {summaryResult._source[metadataTag]['generated-by']}
                 </p>
               </li>
               <li className="list-group-item">
                 <h5 className="list-group-item-heading">Indexer Version</h5>
                 <p className="list-group-item-text" id="generated_by_version">
-                  {summaryResult[0]._source[metadataTag]['md5']}
+                  {summaryResult._source[metadataTag]['md5']}
                 </p>
               </li>
             </ul>
@@ -753,7 +772,7 @@ class Summary extends ReactJS.Component {
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div>
             <PageHeaderLayout
-              title={selectedResults[0]}
+              title={selectedResults['run.name']}
               content={
                 <Tag color="blue" key={selectedController}>
                   {'controller: ' + selectedController}

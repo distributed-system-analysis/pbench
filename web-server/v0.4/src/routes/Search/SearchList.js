@@ -6,24 +6,25 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
 const Option = Select.Option;
 
-@connect(({ search, global, dashboard, loading  }) => ({
+@connect(({ search, global, loading }) => ({
   mapping: search.mapping,
   searchResults: search.searchResults,
   fields: search.fields,
   selectedFields: search.selectedFields,
-  selectedIndices: search.selectedIndices,
-  indices: dashboard.indices,
+  selectedIndices: global.selectedIndices,
+  selectorIndices: global.selectorIndices,
+  indices: global.indices,
   datastoreConfig: global.datastoreConfig,
   loadingMapping: loading.effects['search/fetchIndexMapping'],
-  loadingResults: loading.effects['search/fetchSearchResults']
+  loadingResults: loading.effects['search/fetchSearchResults'],
 }))
 export default class SearchList extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      searchQuery: ''
-    }
+      searchQuery: '',
+    };
   }
 
   componentDidMount() {
@@ -33,23 +34,23 @@ export default class SearchList extends Component {
   queryDatastoreConfig = () => {
     const { dispatch } = this.props;
 
-    dispatch({ 
-      type: 'global/fetchDatastoreConfig'
+    dispatch({
+      type: 'global/fetchDatastoreConfig',
     }).then(() => {
       this.fetchMonthIndices();
-    })
-  }
+    });
+  };
 
   fetchMonthIndices = () => {
     const { dispatch, datastoreConfig } = this.props;
 
     dispatch({
-      type: 'dashboard/fetchMonthIndices',
-      payload: { datastoreConfig: datastoreConfig }
+      type: 'global/fetchMonthIndices',
+      payload: { datastoreConfig: datastoreConfig },
     }).then(() => {
       this.fetchIndexMapping();
     });
-  }
+  };
 
   fetchIndexMapping = () => {
     const { dispatch, datastoreConfig, indices } = this.props;
@@ -58,64 +59,66 @@ export default class SearchList extends Component {
       type: 'search/fetchIndexMapping',
       payload: {
         datastoreConfig: datastoreConfig,
-        indices: indices
+        indices: indices,
       },
-    }).then(() => {
-      this.updateSelectedIndices(["0"])
     });
-  }
+  };
 
   resetSelectedFields = () => {
     const { dispatch } = this.props;
 
-    dispatch({ 
+    dispatch({
       type: 'search/modifySelectedFields',
-      payload: ['run.name', 'run.config', 'run.controller']
-    })
-  }
+      payload: ['run.name', 'run.config', 'run.controller'],
+    });
+  };
 
   clearSelectedFields = () => {
     const { dispatch } = this.props;
 
     dispatch({
       type: 'search/updateSelectedFields',
-      payload: []
-    })
-  }
+      payload: [],
+    });
+  };
 
-  updateSelectedIndices = (value) => {
+  updateSelectedIndices = value => {
     const { dispatch, indices } = this.props;
     let selectedIndices = [];
 
     value.map(item => {
       selectedIndices.push(indices[item]);
-    })
+    });
 
     dispatch({
       type: 'search/updateSelectedIndices',
-      payload: selectedIndices
-    })
-  }
+      payload: selectedIndices,
+    });
+    dispatch({
+      type: 'global/updateSelectorIndices',
+      payload: value,
+    });
+  };
 
-  updateSelectedFields = (field) => {
+  updateSelectedFields = field => {
     const { dispatch, selectedFields } = this.props;
     let newSelectedFields = selectedFields.slice();
 
     if (newSelectedFields.includes(field)) {
-      newSelectedFields.splice(newSelectedFields.indexOf(field), 1)
+      newSelectedFields.splice(newSelectedFields.indexOf(field), 1);
     } else {
-      newSelectedFields.push(field)
+      newSelectedFields.push(field);
     }
 
     dispatch({
       type: 'search/updateSelectedFields',
-      payload: newSelectedFields
-    })
-  }
+      payload: newSelectedFields,
+    });
+  };
 
-  updateSearchQuery = (e) => {
+  updateSearchQuery = e => {
     this.setState({ searchQuery: e.target.value });
-  }
+  };
 
   fetchSearchQuery = () => {
     const { searchQuery } = this.state;
@@ -124,115 +127,129 @@ export default class SearchList extends Component {
     dispatch({
       type: 'search/fetchSearchResults',
       payload: {
-        datastoreConfig: datastoreConfig, 
+        datastoreConfig: datastoreConfig,
         selectedIndices: selectedIndices,
         selectedFields: selectedFields,
-        query: searchQuery
-      }
+        query: searchQuery,
+      },
     });
-  }
+  };
 
   retrieveResults = params => {
     const { dispatch } = this.props;
 
     dispatch({
       type: 'dashboard/updateSelectedController',
-      payload: params["run.controller"],
+      payload: params['run.controller'],
     }).then(() => {
       dispatch({
         type: 'dashboard/updateSelectedResults',
-        payload: [params["run.name"]],
+        payload: params,
       }).then(() => {
         dispatch(
           routerRedux.push({
-            pathname:'/dashboard/summary'
+            pathname: '/dashboard/summary',
           })
         );
       });
     });
-  }
+  };
 
   render() {
-    const { indices, mapping, selectedIndices, selectedFields, searchResults, loadingResults, loadingMapping } = this.props;
+    const {
+      selectorIndices,
+      indices,
+      mapping,
+      selectedFields,
+      searchResults,
+      loadingResults,
+      loadingMapping,
+    } = this.props;
     let columns = [];
     selectedFields.map(field => {
       columns.push({
         title: field,
-        dataIndex: field, 
-        key: field
+        dataIndex: field,
+        key: field,
       });
     });
 
     return (
       <PageHeaderLayout
-        content={(
+        content={
           <div style={{ textAlign: 'center' }}>
             <Input.Search
               placeholder="Search the datastore"
-              enterButton              
+              enterButton
               size="large"
               onChange={this.updateSearchQuery}
               onSearch={this.fetchSearchQuery}
               style={{ width: 522 }}
             />
           </div>
-        )}
+        }
       >
         <div>
           <Row gutter={24}>
             <Col lg={7} md={24}>
               <Card
-                title={"Filters"} 
+                title={'Filters'}
                 extra={
                   <div>
                     <a onClick={this.resetSelectedFields}>{'Reset'}</a>
-                    <a onClick={this.clearSelectedFields} style={{marginLeft: 16}}>{'Clear'}</a>
+                    <a onClick={this.clearSelectedFields} style={{ marginLeft: 16 }}>
+                      {'Clear'}
+                    </a>
                   </div>
                 }
-                style={{ marginBottom: 24 }}>
+                style={{ marginBottom: 24 }}
+              >
                 <Spin spinning={loadingMapping}>
-                  <p style={{fontWeight: 'bold'}}>{'Indices'}</p>
+                  <p style={{ fontWeight: 'bold' }}>{'Indices'}</p>
                   <Select
                     mode="multiple"
-                    style={{width: "100%"}}
+                    style={{ width: '100%' }}
                     placeholder="Select index"
-                    defaultValue={["0"]}
+                    value={selectorIndices}
                     onChange={this.updateSelectedIndices}
                     tokenSeparators={[',']}
                   >
                     {indices.map((index, i) => {
-                      return (
-                        <Option key={i}>{index}</Option>
-                      )
+                      return <Select.Option key={i}>{index}</Select.Option>;
                     })}
                   </Select>
-                  <Divider></Divider>
+                  <Divider />
                 </Spin>
                 {Object.keys(mapping).map(field => {
-                    return (
-                      <div>
-                        <p style={{fontWeight: 'bold'}}>{field}</p>
-                        <p>{mapping[field].map(item => {
+                  return (
+                    <div>
+                      <p style={{ fontWeight: 'bold' }}>{field}</p>
+                      <p>
+                        {mapping[field].map(item => {
                           let fieldItem = field + '.' + item;
                           return (
-                            <Tag onClick={() => this.updateSelectedFields(fieldItem)} style={{marginTop: 8}} color={selectedFields.includes(fieldItem) ? "blue" : "#bdbdbd"}>{item}</Tag>
-                          )
+                            <Tag
+                              onClick={() => this.updateSelectedFields(fieldItem)}
+                              style={{ marginTop: 8 }}
+                              color={selectedFields.includes(fieldItem) ? 'blue' : '#bdbdbd'}
+                            >
+                              {item}
+                            </Tag>
+                          );
                         })}
-                        </p>
-                        <Divider></Divider>
-                      </div>
-                    ) 
-                  })
-                }
+                      </p>
+                      <Divider />
+                    </div>
+                  );
+                })}
               </Card>
             </Col>
             <Col lg={17} md={24}>
               <Card>
-                <p style={{fontWeight: 'bold'}}>{searchResults.resultCount !== undefined ?
-                searchResults.resultCount + ' results'
-                :
-                null
-                }
+                <p style={{ fontWeight: 'bold' }}>
+                  {searchResults.resultCount !== undefined
+                    ? searchResults.resultCount + ' results'
+                    : null}
                 </p>
                 <Table
                   style={{ marginTop: 20 }}
