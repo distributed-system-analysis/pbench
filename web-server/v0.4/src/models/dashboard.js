@@ -1,21 +1,15 @@
 import {
-  queryMonthIndices,
   queryControllers,
   queryResults,
   queryResult,
   queryIterations,
 } from '../services/dashboard';
 
-import moment from 'moment';
-
-const defaultMonth = moment().toString();
-
 export default {
   namespace: 'dashboard',
 
   state: {
     controller: '',
-    indices: [],
     result: [],
     results: [],
     configCategories: [],
@@ -24,31 +18,10 @@ export default {
     controllers: [],
     selectedResults: [],
     selectedController: '',
-    startMonth: defaultMonth,
-    endMonth: defaultMonth,
     loading: false,
   },
 
   effects: {
-    *fetchMonthIndices({ payload }, { call, put }) {
-      let response = yield call(queryMonthIndices, payload);
-
-      let indices = [];
-      response.map(index => {
-        if (index.index.includes("dsa.pbench.run")) {
-          indices.push(index.index.split('.').pop());
-        }
-      });
-
-      indices.sort((a, b) => {
-        return parseInt(b.replace('-', '')) - parseInt(a.replace('-', ''));
-      });
-
-      yield put({ 
-        type: 'getMonthIndices',
-        payload: indices
-      });
-    },
     *fetchControllers({ payload }, { call, put }) {
       let response = yield call(queryControllers, payload);
 
@@ -75,11 +48,15 @@ export default {
       response.hits.hits.map(result => {
         results.push({
           key: result.fields['run.name'][0],
-          result: result.fields['run.name'][0],
-          config: result.fields['run.config'][0],
+          ['run.name']: result.fields['run.name'][0],
+          ['run.config']: result.fields['run.config'][0],
+          ['run.prefix']:
+            typeof result.fields['run.prefix'] !== 'undefined'
+              ? result.fields['run.prefix'][0]
+              : null,
           startRunUnixTimestamp: Date.parse(result.fields['run.start_run'][0]),
-          startRun: result.fields['run.start_run'][0],
-          endRun: result.fields['run.end_run'][0],
+          ['run.startRun']: result.fields['run.start_run'][0],
+          ['run.endRun']: result.fields['run.end_run'][0],
         });
       });
 
@@ -91,9 +68,11 @@ export default {
     *fetchResult({ payload }, { call, put }) {
       let response = yield call(queryResult, payload);
 
+      let result = typeof response.hits.hits[0] !== 'undefined' ? response.hits.hits[0] : [];
+
       yield put({
         type: 'getResult',
-        payload: [response.hits.hits[0]],
+        payload: result,
       });
     },
     *fetchIterations({ payload }, { call, put }) {
@@ -141,12 +120,6 @@ export default {
   },
 
   reducers: {
-    getMonthIndices(state, { payload }) {
-      return {
-        ...state,
-        indices: payload
-      }
-    },
     getControllers(state, { payload }) {
       return {
         ...state,
@@ -169,18 +142,6 @@ export default {
       return {
         ...state,
         iterations: payload,
-      };
-    },
-    modifyControllerStartMonth(state, action) {
-      return {
-        ...state,
-        startMonth: action.payload,
-      };
-    },
-    modifyControllerEndMonth(state, action) {
-      return {
-        ...state,
-        endMonth: action.payload,
       };
     },
     modifySelectedController(state, { payload }) {

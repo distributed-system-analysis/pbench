@@ -14,8 +14,6 @@ import { queryIterations } from '../../services/dashboard';
   iterations: dashboard.iterations,
   results: dashboard.results,
   controllers: dashboard.controllers,
-  startMonth: dashboard.startMonth,
-  endMonth: dashboard.endMonth,
   datastoreConfig: global.datastoreConfig,
   loading: loading.effects['dashboard/fetchIterations'],
 }))
@@ -268,7 +266,7 @@ class ComparisonSelect extends ReactJS.Component {
           <Card style={{ marginBottom: 16 }}>
             <Card
               type="inner"
-              title={<h3 style={{marginTop: 8}}>{'Selected Iterations'}</h3>}
+              title={<h3 style={{ marginTop: 8 }}>{'Selected Iterations'}</h3>}
               extra={
                 <div>
                   <Button
@@ -289,31 +287,35 @@ class ComparisonSelect extends ReactJS.Component {
                   </Button>
                 </div>
               }
-            > 
-              {selectedRowNames.length > 0 ?
+            >
+              {selectedRowNames.length > 0 ? (
                 <div>
                   {selectedRowNames.map((row, i) => (
-                    <Tag style={{fontSize: 16}} key={i} id={i}>
+                    <Tag style={{ fontSize: 16 }} key={i} id={i}>
                       {row}
                     </Tag>
                   ))}
                 </div>
-                :
-                <Card.Meta
-                  description="Start by comparing all iterations or selecting specific iterations from the result tables below."
-                />
-              }
+              ) : (
+                <Card.Meta description="Start by comparing all iterations or selecting specific iterations from the result tables below." />
+              )}
             </Card>
             <Card
               type="inner"
-              title={<h3 style={{marginTop: 8}}>{'Iteration Filters'}</h3>}
+              title={<h3 style={{ marginTop: 8 }}>{'Iteration Filters'}</h3>}
               style={{ marginTop: 16 }}
               extra={
-                <Button style={{ marginLeft: 8 }} type="primary" onClick={this.clearFilters} loading={loadingButton}>
+                <Button
+                  style={{ marginLeft: 8 }}
+                  type="primary"
+                  onClick={this.clearFilters}
+                  loading={loadingButton}
+                >
                   {'Clear Filters'}
                 </Button>
-              }>
-                {/*<Select
+              }
+            >
+              {/*<Select
                   allowClear={true}
                   placeholder={'Filter Hostname & Port'}
                   style={{ marginTop: 16, width: 160 }}
@@ -324,22 +326,22 @@ class ComparisonSelect extends ReactJS.Component {
                     <Select.Option value={port}>{port}</Select.Option>
                   ))}
                   </Select>*/}
-                {Object.keys(configData).map((category, i) => (
-                  <Select
-                    key={i}
-                    allowClear={true}
-                    placeholder={category}
-                    style={{ marginLeft: 8, width: 160 }}
-                    value={selectedConfig[category]}
-                    onChange={value => this.configChange(value, category)}
-                  >
-                    {configData[category].map((categoryData, i) => (
-                      <Select.Option key={i} value={categoryData}>
-                        {categoryData}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                ))}
+              {Object.keys(configData).map((category, i) => (
+                <Select
+                  key={i}
+                  allowClear={true}
+                  placeholder={category}
+                  style={{ marginLeft: 8, width: 160 }}
+                  value={selectedConfig[category]}
+                  onChange={value => this.configChange(value, category)}
+                >
+                  {configData[category].map((categoryData, i) => (
+                    <Select.Option key={i} value={categoryData}>
+                      {categoryData}
+                    </Select.Option>
+                  ))}
+                </Select>
+              ))}
             </Card>
           </Card>
           {responseDataCopy.map((response, i) => {

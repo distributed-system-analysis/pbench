@@ -1,15 +1,13 @@
-import ReactJS, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import moment from 'moment';
 import { Tag, Card, Table, Input, Button } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
 @connect(({ global, dashboard, loading }) => ({
+  selectedIndices: global.selectedIndices,
   results: dashboard.results,
   selectedController: dashboard.selectedController,
-  startMonth: dashboard.startMonth,
-  endMonth: dashboard.endMonth,
   datastoreConfig: global.datastoreConfig,
   loading: loading.effects['dashboard/fetchResults'],
 }))
@@ -29,28 +27,17 @@ export default class Results extends Component {
   }
 
   componentDidMount() {
-    const { dispatch, datastoreConfig, startMonth, endMonth, selectedController } = this.props;
+    const { dispatch, datastoreConfig, selectedIndices, selectedController } = this.props;
 
     dispatch({
       type: 'dashboard/fetchResults',
       payload: {
         datastoreConfig: datastoreConfig,
-        startMonth: moment(startMonth),
-        endMonth: moment(endMonth),
+        selectedIndices: selectedIndices,
         controller: selectedController,
       },
     });
   }
-
-  start = () => {
-    this.setState({ loadingButton: true });
-    setTimeout(() => {
-      this.setState({
-        selectedRowKeys: [],
-        loadingButton: false,
-      });
-    }, 1000);
-  };
 
   openNotificationWithIcon = type => {
     notification[type]({
@@ -106,12 +93,17 @@ export default class Results extends Component {
             ...record,
             result: (
               <span key={i}>
-                {record.result
-                  .split(reg)
-                  .map(
-                    (text, i) =>
-                      i > 0 ? [<span key={i} style={{ color: 'orange' }}>{match[0]}</span>, text] : text
-                  )}
+                {record['run.name'].split(reg).map(
+                  (text, i) =>
+                    i > 0
+                      ? [
+                          <span key={i} style={{ color: 'orange' }}>
+                            {match[0]}
+                          </span>,
+                          text,
+                        ]
+                      : text
+                )}
               </span>
             ),
           };
@@ -120,7 +112,7 @@ export default class Results extends Component {
     });
   };
 
-  compareResults = params => {
+  compareResults = () => {
     const { dispatch } = this.props;
 
     dispatch(
@@ -135,7 +127,7 @@ export default class Results extends Component {
 
     dispatch({
       type: 'dashboard/updateSelectedResults',
-      payload: [params.result],
+      payload: params,
     });
 
     dispatch(
@@ -162,25 +154,25 @@ export default class Results extends Component {
     const columns = [
       {
         title: 'Result',
-        dataIndex: 'result',
-        key: 'result',
-        sorter: (a, b) => compareByAlph(a.result, b.result),
+        dataIndex: 'run.name',
+        key: 'run.name',
+        sorter: (a, b) => compareByAlph(a['run.name'], b['run.name']),
       },
       {
         title: 'Config',
-        dataIndex: 'config',
-        key: 'config',
+        dataIndex: 'run.config',
+        key: 'run.config',
       },
       {
         title: 'Start Time',
-        dataIndex: 'startRun',
-        key: 'startRun',
-        sorter: (a, b) => a.startRunUnixTimestamp - b.startRunUnixTimestamp,
+        dataIndex: 'run.startRun',
+        key: 'run.startRun',
+        sorter: (a, b) => a['run.startRunUnixTimestamp'] - b['run.startRunUnixTimestamp'],
       },
       {
         title: 'End Time',
-        dataIndex: 'endRun',
-        key: 'endRun',
+        dataIndex: 'run.endRun',
+        key: 'run.endRun',
       },
     ];
 
@@ -216,7 +208,9 @@ export default class Results extends Component {
               type="inner"
             >
               {selectedRowKeys.map((row, i) => (
-                <Tag key={i} id={row}>{results[row].result}</Tag>
+                <Tag key={i} id={row}>
+                  {results[row]['run.name']}
+                </Tag>
               ))}
             </Card>
           ) : (

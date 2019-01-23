@@ -1,41 +1,24 @@
 import request from '../utils/request';
-import moment from 'moment';
 import axios from 'axios';
 
-function parseMonths(datastoreConfig, startMonth, endMonth) {
-  let months = '/';
+function parseMonths(datastoreConfig, selectedIndices) {
+  let indices = '';
 
-  if (endMonth.isBefore(moment().endOf('month'))) {
-    months = months.concat(
-      ',' + datastoreConfig.prefix + datastoreConfig.run_index + endMonth.format('YYYY-MM') + ','
-    );
-  }
-  while (startMonth.isBefore(endMonth) && startMonth.isBefore(moment().endOf('month'))) {
-    months = months.concat(
-      ',' + datastoreConfig.prefix + datastoreConfig.run_index + startMonth.format('YYYY-MM') + ','
-    );
-    startMonth.add(1, 'month');
-  }
+  selectedIndices.map(value => {
+    indices += datastoreConfig.prefix + datastoreConfig.run_index + value + ',';
+  });
 
-  return months;
-}
-
-export async function queryMonthIndices(params) {
-  const { datastoreConfig } = params;
-
-  const endpoint = 
-    datastoreConfig.elasticsearch + '/_cat/indices?format=json&pretty=true';
-
-  return request(endpoint, {
-    method: 'GET'
-  })
+  return indices;
 }
 
 export async function queryControllers(params) {
-  const { datastoreConfig, startMonth, endMonth } = params;
+  const { datastoreConfig, selectedIndices } = params;
 
   const endpoint =
-    datastoreConfig.elasticsearch + parseMonths(datastoreConfig, startMonth, endMonth) + '/_search';
+    datastoreConfig.elasticsearch +
+    '/' +
+    parseMonths(datastoreConfig, selectedIndices) +
+    '/_search';
 
   return request(endpoint, {
     method: 'POST',
@@ -63,15 +46,25 @@ export async function queryControllers(params) {
 }
 
 export async function queryResults(params) {
-  const { datastoreConfig, startMonth, endMonth, controller } = params;
+  const { datastoreConfig, selectedIndices, controller } = params;
 
   const endpoint =
-    datastoreConfig.elasticsearch + parseMonths(datastoreConfig, startMonth, endMonth) + '/_search';
+    datastoreConfig.elasticsearch +
+    '/' +
+    parseMonths(datastoreConfig, selectedIndices) +
+    '/_search';
 
   return request(endpoint, {
     method: 'POST',
     body: {
-      fields: ['run.controller', 'run.start_run', 'run.end_run', 'run.name', 'run.config'],
+      fields: [
+        'run.controller',
+        'run.start_run',
+        'run.end_run',
+        'run.name',
+        'run.config',
+        'run.prefix',
+      ],
       sort: {
         'run.end_run': {
           order: 'desc',
@@ -89,11 +82,12 @@ export async function queryResults(params) {
 }
 
 export async function queryResult(params) {
-  const { datastoreConfig, startMonth, endMonth, result } = params;
+  const { datastoreConfig, selectedIndices, result } = params;
 
   const endpoint =
     datastoreConfig.elasticsearch +
-    parseMonths(datastoreConfig, startMonth, endMonth) +
+    '/' +
+    parseMonths(datastoreConfig, selectedIndices) +
     '/_search?source=';
 
   return request(endpoint, {
@@ -120,8 +114,9 @@ export async function queryIterations(params) {
           datastoreConfig.results +
             '/results/' +
             encodeURI(result.controller.slice(0, result.controller.indexOf('.'))) +
+            (result['run.prefix'] != null ? '/' + result['run.prefix'] : '') +
             '/' +
-            encodeURI(result.result) +
+            encodeURI(result['run.name']) +
             '/result.json'
         );
       }
@@ -130,8 +125,9 @@ export async function queryIterations(params) {
           datastoreConfig.results +
             '/results/' +
             encodeURI(result.controller.slice(0, result.controller.indexOf('.'))) +
+            (result['run.prefix'] != null ? '/' + result['run.prefix'] : '') +
             '/' +
-            encodeURI(result.result) +
+            encodeURI(result['run.name']) +
             '/result.json'
         )
       );
