@@ -20,7 +20,8 @@ BEGIN {
 }
 use lib "$_test_alt_tools_lib";
 no lib ".";
-use File::Path 'rmtree';
+use File::Path qw(rmtree make_path);
+use File::Basename;
 use SysStat qw(get_pidstat_attributes);
 
 my %previous_stats; # used to detect repeated value
@@ -56,43 +57,40 @@ while (my $line = <>) {
 		my $time = $1;
 		my $pid = $2;
 		my $values_str = $3;
-		my $cmd = substr $4, 0, 40; # limit the length to 60 chars
+		my $cmd = $4;
+		$cmd =~ s/^\s+|\s+$//; # remove leading and trailing spaces
 		my @values = split(/\s+/, $values_str);
+		# when pidstat reports threads
 		if ($pid =~ /(^\S+)\s+(\S+)$/) {
 			my $tgid = $1;
 			my $tid = $2;
 			if ($tgid =~ /^0|\-$/) {
-				$pid = $prev_pid . "-" . $tid;
+				$pid = $prev_pid . ":" . $tid;
 				$cmd =~ s/\|__//;
 			} else {
 				$prev_pid = $tgid;
 				next; # Not going to save the per-process stats because we have the per-thread stats
 			}
 		}
-		# filenames have restrictions, and a process name with arguments don't always work as filename
-		
-		$cmd =~ s/%/%%/g; # avoid 'Invalid conversion in printf: "%=" ' errors if cmd contains a %.;
-		$cmd =~ s/\s$//g; # remove the last space pidstat always adds
-		$cmd =~ s/\s/_/g; # convert spaces to _
-		$cmd =~ s/\//_/g; # remove the first _
-		$cmd =~ s/\'//g;
-		$cmd =~ s/\"//g;
-		$cmd =~ s/^_//g;
-		$cmd =~ s/,//g; # commas cause problems in the CSV files.;
-		my $pid_cmd = $pid . ":" . $cmd;
+		my $pid_cmd = $pid . "-" . $cmd;
 		my %pid_stats;
 		@pid_stats{@attributes} = @values;
 		$current_stats{$pid_cmd} = \%pid_stats;
+		my $filename = $cmd;
+		# storing the cmd as a filename is fine as long as we remove any "/"
+		$filename =~ s/\//->/g;
 		# maintain a file for each of the PIDs instead of having all data in 1 file
-		my $file = $tool_output_dir . "/pids/" . $pid . "/" . $cmd;
+		my $file = $tool_output_dir . "/pids/" . $pid . "/" . $filename;
 		if ( ! -e $file ) {
 			mkdir($tool_output_dir . "/pids/" . $pid);
-			open($file_handles{$pid}, ">", $file) || die "Could not open file $file";
-			select($file_handles{$pid});
+			open($file_handles{$pid_cmd}, ">", $file) || die "Could not open file $file";
+			# keep a copy of the real cmd, without the "/" conversions
+			printf { $file_handles{$pid_cmd} } "%s\n", $cmd;
+			select($file_handles{$pid_cmd});
 			$| = 1; # always flush
 			select(STDOUT);
 		}
-		if (exists $file_handles{$pid}) {
+		if (exists $file_handles{$pid_cmd}) {
 			my $output = "";
 			my $changed = 0;
 			# save space by not writing duplicate values from subsequent samples
@@ -106,9 +104,9 @@ while (my $line = <>) {
 			$previous_stats{$pid_cmd}{$attribute} = $current_stats{$pid_cmd}{$attribute};
 			}
 			if ($changed) {
-				printf { $file_handles{$pid} } "%s%s\n", $time, $output;
+				printf { $file_handles{$pid_cmd} } "%s%s\n", $time, $output;
 			} else {
-				printf { $file_handles{$pid} } "%s\n", $time; # line is skipped (except timestamp) if all of the values are the same as the previous sample
+				printf { $file_handles{$pid_cmd} } "%s\n", $time; # line is skipped (except timestamp) if all of the values are the same as the previous sample
 			}
 		} else {
 			print "Warning: could not find filehandle for file: $file\n";

@@ -80,19 +80,32 @@ if (opendir(my $pids_dh, $pids_dir) || die "Could not open $pids_dir") {
 		# A PID may be recycled over time as 1 process exits and another later is created,
 		# and therfore more than 1 process could have the same PID
 		my $timestamp_ms;
-        	for my $proc (grep(/[^.]/, readdir($pid_dh))) {
-			# if this is a VM, change the process name to something more readable
-			if ( $proc =~ /qemu/ and $proc =~ /name\s(\S+).*/ ) {
-				$vm_name = $1;
-				$proc = "QEMU--" . $vm_name;
-			}
-			my $pid_proc = $pid . ":" . $proc;
-			my $proc_file = $pid_dir . "/" . $proc;
-			open(my $proc_fh, $proc_file) || die "Could not open $proc_file";
+        	for my $filename (grep(/[^.]/, readdir($pid_dh))) {
+			my $cmd;
+			my $pid_cmd;
+			open(my $fh, $pid_dir . "/" . $filename) || die "Could not open $filename";
 			my %old_stats;
 			my $line_num = 0;
-			while ($line = <$proc_fh>) {
+			while ($line = <$fh>) {
 				$line_num++;
+				if ($line_num == 1) {
+					# get the real, unmodified cmdline first
+					$cmd = $line;
+					chomp $cmd;
+					# convert qemu to a more readable label with VM name
+					if ( $cmd =~ /qemu/ and $cmd =~ /name\s(\S+).*/ ) {
+						$vm_name = $1;
+						$cmd = "KVMguest--" . $vm_name;
+					}
+					# modify to be appropriate as a label for a series in a graph
+					$cmd =~ s/%/%%/g; # avoid 'Invalid conversion in printf: "%=" ' errors if cmd contains a %.;
+					$cmd =~ s/[\'|\"]//g; # quotes cause problems everywhere
+					$cmd =~ s/\s/_/g; # convert spaces to _
+					$cmd =~ s/,//g; # commas cause problems in the CSV files
+					$cmd = substr $cmd, 0, 40; # limit the length
+					$pid_cmd = $pid . "-" . $cmd;
+					next;
+				}
 				my %stats;
 				chomp $line;
 				if ( $line =~ /^(\d+)(.*)/ ) {
@@ -111,22 +124,22 @@ if (opendir(my $pids_dh, $pids_dir) || die "Could not open $pids_dir") {
 								if (defined $old_stats{$attribute}) {
 									$stats{$attribute} = $old_stats{$attribute};
 								} else {
-									print "ERROR: old_stat for $attribute not found in file $proc_file line number $line_num\n";
+									print "ERROR: old_stat for $attribute not found in file $filename line number $line_num\n";
 									exit 1;
 								}
 							}
 						}
 					}
 					%old_stats = %stats;
-					$pidstat{'cpu_usage'}{'percent_cpu'}{$pid_proc}{$timestamp_ms} = $stats{'CPU_PCT'};
-					$pidstat{'file_io'}{'io_reads_KB_sec'}{$pid_proc}{$timestamp_ms} = $stats{'kB_rd_s'};
-					$pidstat{'file_io'}{'io_writes_KB_sec'}{$pid_proc}{$timestamp_ms} = $stats{'kB_wr_s'};
-					$pidstat{'memory_faults'}{'minor_faults_sec'}{$pid_proc}{$timestamp_ms} = $stats{'minflt_s'};
-					$pidstat{'memory_faults'}{'major_faults_sec'}{$pid_proc}{$timestamp_ms} = $stats{'majflt_s'};
-					$pidstat{'context_switches'}{'voluntary_switches_sec'}{$pid_proc}{$timestamp_ms} = $stats{'cswch_s'};
-					$pidstat{'context_switches'}{'nonvoluntary_switches_sec'}{$pid_proc}{$timestamp_ms} = $stats{'nvcswch_s'};
-					$pidstat{'memory_usage'}{'virtual_size'}{$pid_proc}{$timestamp_ms} = $stats{'VSZ'};
-					$pidstat{'memory_usage'}{'resident_set_size'}{$pid_proc}{$timestamp_ms} = $stats{'RSS'};
+					$pidstat{'cpu_usage'}{'percent_cpu'}{$pid_cmd}{$timestamp_ms} = $stats{'CPU_PCT'};
+					$pidstat{'file_io'}{'io_reads_KB_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'kB_rd_s'};
+					$pidstat{'file_io'}{'io_writes_KB_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'kB_wr_s'};
+					$pidstat{'memory_faults'}{'minor_faults_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'minflt_s'};
+					$pidstat{'memory_faults'}{'major_faults_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'majflt_s'};
+					$pidstat{'context_switches'}{'voluntary_switches_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'cswch_s'};
+					$pidstat{'context_switches'}{'nonvoluntary_switches_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'nvcswch_s'};
+					$pidstat{'memory_usage'}{'virtual_size'}{$pid_cmd}{$timestamp_ms} = $stats{'VSZ'};
+					$pidstat{'memory_usage'}{'resident_set_size'}{$pid_cmd}{$timestamp_ms} = $stats{'RSS'};
 					$timestamps{$timestamp_ms}++;
 				}
                 	}

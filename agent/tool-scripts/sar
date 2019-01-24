@@ -129,8 +129,6 @@ tool_cmd_file="$tool_output_dir/$tool.cmd"
 tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
 tool_stdout_file=$tool_output_dir/$tool-stdout.txt
 tool_stderr_file=$tool_output_dir/$tool-stderr.txt
-tool_pp_stdout_file=$tool_output_dir/$tool-pp-stdout.txt
-tool_pp_stderr_file=$tool_output_dir/$tool-pp-stderr.txt
 case "$script_name" in
 	mpstat)
 	default_options="-P ALL"
@@ -176,7 +174,7 @@ case "$mode" in
 	postprocess)
 	if [ -z "$options" ] ;then
 		debug_log "postprocessing $script_name"
-		$script_path/postprocess/$script_name-postprocess $tool_output_dir >"$tool_pp_stdout_file" 2>"$tool_pp_stderr_file"
+		$script_path/postprocess/$script_name-postprocess $tool_output_dir
 	else
 		debug_log "Non-default options $options: skipping postprocessing for $script_name"
 	fi

@@ -29,9 +29,15 @@ function testit {
 
     mkdir /tmp/GenData/$1
     cp samples/$1/$2-std*.txt /tmp/GenData/$1/
+    if [ $2 == "pidstat" ]; then
+        cp -a samples/$1/pids /tmp/GenData/$1/
+    fi
     _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./$2-postprocess /tmp/GenData/$1 > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
 
     rm /tmp/GenData/$1/$2-std*.txt
+    if [ $2 == "pidstat" ]; then
+        rm -rf /tmp/GenData/$1/pids
+    fi
 
     diff -cr gold/$1/ /tmp/GenData/$1
     return $?
