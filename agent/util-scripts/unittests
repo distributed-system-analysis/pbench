@@ -203,6 +203,8 @@ declare -A tools=(
     [test-30]="pbench-collect-sysinfo"
     [test-31]="pbench-copy-results"
     [test-32]="pbench-copy-results"
+    [test-33]="pbench-move-results"
+    [test-34]="pbench-move-results"
 )
 declare -A options=(
     [test-00]="--name=mpstat --group=default -- --interval=10"
@@ -237,6 +239,7 @@ declare -A options=(
     [test-30]="--check --sysinfo=libvirt,default,kernel_config,all,topology,none"
     [test-31]="--prefix=foo/bar --user=ndk"
     [test-32]="--help"
+    [test-34]="--help"
 )
 
 declare -A expected_status=(
@@ -246,6 +249,10 @@ declare -A expected_status=(
     [test-12]=1
     [test-13]=2
     [test-29]=1
+)
+
+declare -A pre_hooks=(
+    [test-33]='(echo "+++ setup pbench results dir time stamps"; touch --date="2019-01-01 12:00:42" $_testdir/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42; touch --date="2019-01-01 12:00:43" $_testdir/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43; echo "--- setup pbench results dir time stamps") >> $_testout'
 )
 
 declare -A post_hooks=(
@@ -263,9 +270,11 @@ for tst in $tests; do
     tool=${tools[$tst]}
     opts=${options[$tst]}
     status=${expected_status[$tst]}
+    pre_hook=${pre_hooks[$tst]}
     post_hook=${post_hooks[$tst]}
 
     _setup_state $tst $tool
+    eval "$pre_hook"
     USER=nobody _run $tst $tool $opts
     res=$?
     _save_tree
