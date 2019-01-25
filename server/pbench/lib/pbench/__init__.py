@@ -226,8 +226,8 @@ def es_index(es, actions, errorsfp, dbg=0):
         try:
             resp = resp_payload[_op_type]
         except KeyError as e:
-            assert not ok
-            assert e.args == _op_type
+            assert not ok, "{!r}".format(ok)
+            assert e.args[0] == _op_type, "e.args = {!r}, _op_type = {!r}".format(e.args, _op_type)
             # For whatever reason, some errors are always returned using
             # the "index" operation type instead of _op_type (e.g. "create"
             # op type still comes back as an "index" response).
