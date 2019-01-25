@@ -1,0 +1,13 @@
++++ Running test-35 pbench-register-tool-trigger
+pbench-register-tool-trigger: the start trigger cannot have a colon in it: ""START:DEFAULT""
+--- Finished test-35 pbench-register-tool-trigger (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/tmp
+--- pbench tree state
++++ pbench.log file contents
+grep: /var/tmp/pbench-test-utils/pbench/pbench.log: No such file or directory
+--- pbench.log file contents
++++ test-execution.log file contents
+grep: /var/tmp/pbench-test-utils/test-execution.log: No such file or directory
+--- test-execution.log file contents

@@ -14,6 +14,8 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 
 # Defaults
 group=default
+start_trigger=""
+stop_trigger=""
 
 function usage() {
 	printf "usage:\n"
@@ -27,8 +29,6 @@ if [ $? -ne 0 ]; then
 	printf "%s\n" $*
 	printf "$script_name: you specified an invalid option\n\n"
 	usage
-
-
 	exit 1
 fi
 eval set -- "$opts";
@@ -69,13 +69,21 @@ while true; do
 	esac
 done
 
+if [ "$start_trigger" != "${start_trigger%%:*}" ]; then
+	printf "$script_name: the start trigger cannot have a colon in it: \"${start_trigger}\"\n"
+	exit 1
+fi
+if [ "$stop_trigger" != "${stop_trigger%%:*}" ]; then
+	printf "$script_name: the stop trigger cannot have a colon in it: \"${stop_trigger}\"\n"
+	exit 1
+fi
+
 if [ ! -f "$pbench_run/tool-triggers" ]; then
 	mkdir -p "$pbench_run"
-	echo "#group:start-trigger:stop-trigger" >"$pbench_run/tool-triggers"
+	echo "#group:start-trigger:stop-trigger" > "$pbench_run/tool-triggers"
 fi
-# remove any previous trigger
+# remove any previous trigger for the given group
 sed -i /^$group.*/d "$pbench_run/tool-triggers"
-# remeber this trigger
-printf "%s:%s:%s\n" "$group" "$start_trigger" "$stop_trigger" >>"$pbench_run/tool-triggers"
+# remember this trigger
+printf "%s:%s:%s\n" "$group" "$start_trigger" "$stop_trigger" >> "$pbench_run/tool-triggers"
 printf "tool trigger strings for start: \"$start_trigger\" and for stop: \"$stop_trigger\" are now registered for tool group: $group\n"
-

@@ -1,1 +1,35 @@
-mock-cmd
+#!/bin/bash
+
+echo "$0 $*" >> $_testlog
+
+opts=$(getopt -q -o d:g: --longoptions "dir:,group:,iteration:" -n "getopt.sh" -- "$@");
+eval set -- "$opts";
+while true; do
+	case "$1" in
+		-g|--group)
+		shift;
+		if [ -n "$1" ]; then
+			group="$1"
+			shift;
+		fi
+		;;
+		-d|--dir)
+		shift;
+		if [ -n "$1" ]; then
+			dir="$1"
+			shift;
+		fi
+		;;
+		-i|--iteration)
+		shift;
+		if [ -n "$1" ]; then
+			shift;
+		fi
+		;;
+		--)
+		shift;
+		break;
+		;;
+	esac
+done
+mkdir -p "$dir/tools-$group"

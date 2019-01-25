@@ -9,6 +9,7 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 		                                     available: default,none,all,a,b,c,d,e
 		       --pbench-pre=str        path to the script which will be executed before tools are started
 		       --pbench-post=str       path to the script which will be executed after tools are stopped and postprocessing is complete
+		       --use-tool-triggers     use tool triggers instead of normal start/stop around script
 --- Finished test-07 pbench-user-benchmark (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench

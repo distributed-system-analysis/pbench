@@ -86,6 +86,10 @@ fi
 # this tool group's directory which stores tool output
 tool_output_dir="$dir/tools-$group"
 mkdir -p $tool_output_dir
+if [ $? -ne 0 ]; then
+	error_log "[$script_name] failed to create tool output directory, \"$tool_output_dir\""
+	exit 1
+fi
 
 # Try to prevent a cascade of tools running.
 if [ "$action" == "start" ] ;then

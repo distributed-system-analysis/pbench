@@ -1,26 +1,37 @@
 #!/usr/bin/perl
-# This script is designed to start & stop pbench tools while monitoring the output of a benchmark.
-# For many of the benchmarks we use, we simply start the tools before the benchmark, then run 
-# the benchmark, then stop the tools.  For some benchmarks, this is not optimal, because the
-# benchmark must do work before or after the measurement period, and tool's average results are then
-# not quite accurate.  There are also other benchmarks which have multiple measurment periods,
-# which may or may not correlate to different test iterations (SPECjbb is a good example, where
-# there are several warehouse counts measured, each one of these correspnding to to pbench test
-# iteration).
+# This script is designed to start & stop pbench tools while monitoring the
+# output of a benchmark.
 #
-# So, this tool registers the user's triggers for starting and stopping the tools.  If the trigger
-# for stating a tool is encountered more than once, then the iteration is incremented, so the
-# tool's results for each trigger are easily managed.
+# For many of the benchmarks we use, we simply start the tools before the
+# benchmark, then run the benchmark, then stop the tools.  For some
+# benchmarks, this is not optimal, because the benchmark must do work before
+# or after the measurement period, and tool's average results are then not
+# quite accurate.  There are also other benchmarks which have multiple
+# measurment periods, which may or may not correlate to different test
+# iterations (SPECjbb is a good example, where there are several warehouse
+# counts measured, each one of these correspnding to a pbench test iteration).
+#
+# This script registers the user's triggers for starting and stopping the
+# registered tools.  If the trigger for starting a tool is encountered more
+# than once, then the iteration is incremented, so the tool's results for each
+# trigger are easily managed.
+#
+# The tools are given a unique results directory for each iteration by using
+# the pattern "$benchmark_run_dir/$iteration/reference-result".
+
+my $script="pbench-tool-trigger";
 
 # turn on autoflushing
 $| = 1;
 
-my $iteration=$ARGV[0]; # which iteratoin number to start with (required)
-my $benchmark_results_dir=$ARGV[1];
-my $script="pbench-tool-trigger";
-my %start_t;
-my %started;
-my %stop_t;
+my $iteration=$ARGV[0]; # which iteration number to start with (required)
+my $benchmark_run_dir=$ARGV[1];
+my $tool_group=$ARGV[2];
+
+my $start_t = "";
+my $started = 0;
+my $stop_t = "";
+
 my $pbrun = $ENV{'pbench_run'};
 print "$pbrun\n";
 if (!$pbrun) {
@@ -28,8 +39,7 @@ if (!$pbrun) {
         chop $pbrun;
 }
 
-
-my $t_file =  $pbrun  . "/tool-triggers";
+my $t_file =  $pbrun . "/tool-triggers";
 print "$t_file\n";
 
 open(TRIG, "<$t_file") || die "Could not open $t_file\n";
@@ -39,31 +49,46 @@ while (<TRIG>) {
 	}
 	chomp;
 	($group, $start, $stop) = split(/:/);
-	printf "[$script]found trigger: group:$group start-trigger:$start stop-trigger:$stop\n";
-	$start_t{$group} = $start;
-	$started{$group} = 0;
-	$stop_t{$group} = $stop;
+	if ($group ne $tool_group) {
+		next;
+	}
+	if ($start eq "" || $stop eq "") {
+		die "Empty triggers found, start-trigger:\"\", stop-trigger:\"\"";
+	}
+	printf "[$script]found trigger: tool-group:$group start-trigger:\"$start\" stop-trigger:\"$stop\"\n";
+	$start_t = $start;
+	$stop_t = $stop;
 }
 close(TRIG);
 
+# Initial reference result directory for tools
+my $benchmark_results_dir = $benchmark_run_dir . '/' . $iteration . '/reference-result';
+
 while (<STDIN>) {
-
+	# Echo the line we read
 	printf;
-	foreach $group (keys %stop_t) {
-		if ((/$stop_t{$group}/) && $started{$group}) {
-			$cmd="pbench-stop-tools --group=$group --iteration=$iteration --dir=$benchmark_results_dir\n";
-			print "[$script]$cmd";
-			system("$cmd");
-			$started{$group} = 0;
-		}
-	}
-	foreach $group (keys %start_t) {
-		if ((/$start_t{$group}/) && !$started{$group}) {
-			$cmd="pbench-start-tools --group=$group --iteration=$iteration --dir=$benchmark_results_dir\n";
-			print "[$script]$cmd";
-			system("$cmd");
-			$started{$group} = 1;
-		}
-	}
 
+	# Look for triggers
+	if ((/$stop_t/) && $started) {
+		$cmd="pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir\n";
+		print "[$script]$cmd";
+		system("$cmd");
+		$started = 0;
+		# Increment the iteration and adjust the benchmark results
+		# directory now that this iteration is done.
+		$iteration++;
+		$benchmark_results_dir = $benchmark_run_dir . '/' . $iteration . '/reference-result';
+	}
+	if ((/$start_t/) && !$started) {
+		$cmd="pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir\n";
+		print "[$script]$cmd";
+		system("$cmd");
+		$started = 1;
+	}
+}
+
+if ($started) {
+	$cmd="pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir\n";
+	print "[$script]$cmd";
+	system("$cmd");
 }
