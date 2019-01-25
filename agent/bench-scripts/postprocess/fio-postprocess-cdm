@@ -32,12 +32,12 @@ my $run_id = $sample{'run'}{'id'}; # Needs to be included in all metric-sample d
 # as "measurement", to indicate this period as the one the the UI/query tool computes a summary
 # metric 
 my %period = create_bench_iter_sample_period_doc(\%sample, "measurement");
-# the primary metric needs to match exactly one metric-type that gets created from the benchmark data
+# The primary metric needs to match exactly one metric-type that gets created from the benchmark data
 $sample{'iteration'}{'primary_metric'} = "iops";
 $sample{'iteration'}{'primary_period'} = "measurement";
 put_json_file(\%sample, $base_bench_dir . "/es/bench/sample-" . $sample{'sample'}{'id'} . ".json");
 
-# under ./clients/<hostname>, process the fio result files
+# Under ./clients/<hostname>, process the fio result files
 opendir(my $clients_dh, "clients") || die "$script_name: could not open directory clients: $!\n";
 my @client_dirs = grep(!/^\./, (sort readdir($clients_dh)));
 closedir $clients_dh;
@@ -46,10 +46,10 @@ my $latest_timestamp;
 for my $client (@client_dirs) {
     mkdir("../../es/metrics");
     mkdir("../../es/metrics/" . $client);
-    # first, try to process fio log files, and then if missing get the data from the
+    # First, try to process fio log files, and then if missing get the data from the
     # fio-result.json.  Don't use both for the same metric
     my @log_metric_types = qw(bw clat iops lat slat);
-                              # all the possible metrics (except histogram logs)
+                              # All the possible metrics (except histogram logs)
                               # that can be timeseries data
     print "client: $client\n";
     opendir(my $client_dh, "clients/" . $client) ||
@@ -60,10 +60,10 @@ for my $client (@client_dirs) {
         if ($log_file =~ /fio_([a-z]+)\.(\d+)\.log$/) {
             my $metric_type = $1;
             my $job_id = $2;
-            # process this timeseries data and remove this
+            # Process this timeseries data and remove this
             # metric_type from processing in fio_result.json
             if (grep(/^$metric_type$/, @log_metric_types)) {
-                # this allows us to know to skip looking for this in the fio_result.json
+                # This allows us to know to skip looking for this in the fio_result.json
                 remove_element(\@log_metric_types, $metric_type);
                 open(my $log_fh, "clients/$client/$log_file")
                     || die "$script_name: could not open file clients/$client/$log_file $!\n";
@@ -74,19 +74,19 @@ for my $client (@client_dirs) {
                     if ( $line =~  /(\d+),\s+(\d+),\s+(\d+),\s+(\d+)/ ) {
                         my $timestamp_ms = $1;
                         my $value = $2;
-                        my $rwtype = $3; #todo: generate per-rwtype metrics
+                        my $rwtype = $3; #ToDo: generate per-rwtype metrics
                         if ($last_timestamp_ms) {
                             my %metric_sample = create_metric_sample_doc(
                                 \%period,
-                                "throughput",   # metric-class
-                                $metric_type,   # metric-type
-                                $client,# hostname
-                                "fio",      # the source
-                                # the metric-instance name format
-                                "%source%-%type%-%hostname%",
-                                $value,     # the value of the metric
-                                $timestamp_ms   # the timestamp
+                                "throughput",   # The metric-class
+                                $metric_type,   # The metric-type
+                                $client,# The hostname
+                                "fio",      # The source
+                                "%source%-%type%-%hostname%", # The metric-instance name format
+                                $value,     # The value of the metric
+                                $timestamp_ms   # The timestamp
                                 );
+
                             $metric_sample{'metric'}{'begin'} = $last_timestamp_ms;
                             put_json_file(\%metric_sample, "../../es/metrics/" .
                                 $client .
