@@ -5,12 +5,12 @@
 use strict;
 use warnings;
 use File::Basename;
-my $pbench_run_path;
+my $pbench_install_path;
 my $pbench_lib_path;
 BEGIN {
-    $pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
-    chomp $pbench_lib_path;
-    $pbench_lib_path .= "/lib";
+    $pbench_install_path = `getconf.py pbench_install_dir pbench-agent`;
+    chomp $pbench_install_path;
+    $pbench_lib_path = $pbench_install_path . "/lib";
 }
 use lib "$pbench_lib_path";
 use JSON;
@@ -44,6 +44,15 @@ closedir $clients_dh;
 my $earliest_timestamp;
 my $latest_timestamp;
 for my $client (@client_dirs) {
+    # Until the CDM/Elastic UI/Web interface is ready, we need to 
+    # call the legacy fio post-processing script to generate a
+    # Pbench result.json for each sample.  In order to do that, we
+    # need a single "fio-result.json", so we symilnk that from the
+    # first client to the main directory, where that script expects
+    # it to be
+    if (not -e "fio-result.txt") {
+        symlink("clients" . "/" . $client . "/" . "fio-result.json", "fio-result.txt");
+    }
     mkdir("../../es/metrics");
     mkdir("../../es/metrics/" . $client);
     # First, try to process fio log files, and then if missing get the data from the
@@ -117,3 +126,6 @@ my $tools_cdm_pp_cmd = "pbench-postprocess-tools-cdm " . $period_file . " " .
 printf "tools_cdm_pp cmd\n%s\n\n", $tools_cdm_pp_cmd;
 my $tools_cdm_pp_output = `$tools_cdm_pp_cmd`;
 printf "tools_cdm_pp output\n%s\n\n", $tools_cdm_pp_output;
+
+# Finally, call the legacy post-process script, so we can build the static html reports later
+system($pbench_install_path . "/bench-scripts/postprocess/fio-postprocess `/bin/pwd` fio default");
