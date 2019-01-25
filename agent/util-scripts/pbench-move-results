@@ -184,6 +184,12 @@ for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v 
         continue
     fi
 
+    res_name=$(getconf.py --config ${pbench_run_name}/metadata.log name pbench)
+    if [ "${res_name}" != "${pbench_run_name}" ]; then
+        warn_log "the run in directory ${pbench_run}/${pbench_run_name} has an unexpected metadata name, \"${res_name}\" - skipping"
+        continue
+    fi
+
     # Any result where tools or benchmark results were used get the pbench
     # logfile so it can be referenced later if needed.
     if [ -e pbench.log ]; then
