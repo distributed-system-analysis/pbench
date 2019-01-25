@@ -20,52 +20,53 @@ use PbenchBase qw(get_json_file put_json_file remove_element);
 
 printf "\@ARGV: %s\n", join(" ", @ARGV);
 
-# todo: put stuff in the bench_iter_sample.json (CDM) doc
-# - the primary metric
-# - a list of all fio metrics this result has (this script generated)
-#
-# todo:
-# - for each metric, create CDM doc(s), one per timeseries-sample
-#
 my $script_name = basename($0);
 my $rundir = shift(@ARGV);
 my $base_bench_dir = shift(@ARGV);
 my $json_ref = get_json_file("sample.json");
-my %bench_iter_sample = %$json_ref; # this is the CDM doc for this benchmark-iteration-sample
-my $sample_id = $bench_iter_sample{'sample'}{'id'}; # needs to be included in all metric-sample docs
-my $run_id = $bench_iter_sample{'run'}{'id'}; # needs to be included in all metric-sample docs
-# create [at least one] benchmark period: a window of time during this benchmark, this one marked as "measurement",
-# to indicate this period as the one the the UI/query tool computes a summary metric 
-my %bench_iter_sample_period = create_bench_iter_sample_period_doc(\%bench_iter_sample, "measurement");
+my %sample = %$json_ref; # This is the CDM doc for this benchmark-iteration-sample
+my $sample_id = $sample{'sample'}{'id'}; # Needs to be included in all metric-sample docs
+my $run_id = $sample{'run'}{'id'}; # Needs to be included in all metric-sample docs
+
+# Create [at least one] benchmark period: a window of time during this benchmark, this one marked
+# as "measurement", to indicate this period as the one the the UI/query tool computes a summary
+# metric 
+my %period = create_bench_iter_sample_period_doc(\%sample, "measurement");
 # the primary metric needs to match exactly one metric-type that gets created from the benchmark data
-$bench_iter_sample{'iteration'}{'primary_metric'} = "iops";
-$bench_iter_sample{'iteration'}{'primary_period'} = "measurement";
-put_json_file(\%bench_iter_sample, $base_bench_dir . "/es/bench/sample-" . $bench_iter_sample{'sample'}{'id'} . ".json");
+$sample{'iteration'}{'primary_metric'} = "iops";
+$sample{'iteration'}{'primary_period'} = "measurement";
+put_json_file(\%sample, $base_bench_dir . "/es/bench/sample-" . $sample{'sample'}{'id'} . ".json");
 
 # under ./clients/<hostname>, process the fio result files
 opendir(my $clients_dh, "clients") || die "$script_name: could not open directory clients: $!\n";
-my @client_hostname_dirs = grep(!/^\./, (sort readdir($clients_dh)));
+my @client_dirs = grep(!/^\./, (sort readdir($clients_dh)));
 closedir $clients_dh;
-my $period_earliest_timestamp;
-my $period_latest_timestamp;
-for my $client_hostname (@client_hostname_dirs) {
+my $earliest_timestamp;
+my $latest_timestamp;
+for my $client (@client_dirs) {
     mkdir("../../es/metrics");
-    mkdir("../../es/metrics/" . $client_hostname);
-    # first, try to process fio log files, and then if missing get the data from the fio-result.json.  Don't use both for the same metric
-    my @log_metric_types = qw(bw clat iops lat slat); # all the possible metrics (except histogram logs) that can be timeseries data
-    print "client: $client_hostname\n";
-    opendir(my $client_dh, "clients/" . $client_hostname) || die "$script_name: could not open client directory: $!\n";
+    mkdir("../../es/metrics/" . $client);
+    # first, try to process fio log files, and then if missing get the data from the
+    # fio-result.json.  Don't use both for the same metric
+    my @log_metric_types = qw(bw clat iops lat slat);
+                              # all the possible metrics (except histogram logs)
+                              # that can be timeseries data
+    print "client: $client\n";
+    opendir(my $client_dh, "clients/" . $client) ||
+        die "$script_name: could not open client directory: $!\n";
     my @log_files = grep(/fio_([a-z]+)\.(\d+)\.log$/, (sort readdir($client_dh)));
     closedir $client_dh;
     for my $log_file (@log_files) {
         if ($log_file =~ /fio_([a-z]+)\.(\d+)\.log$/) {
             my $metric_type = $1;
             my $job_id = $2;
-            # process this timeseries data and remove this metric_type from processing in fio_result.json
+            # process this timeseries data and remove this
+            # metric_type from processing in fio_result.json
             if (grep(/^$metric_type$/, @log_metric_types)) {
                 # this allows us to know to skip looking for this in the fio_result.json
                 remove_element(\@log_metric_types, $metric_type);
-                open(my $log_fh, "clients/$client_hostname/$log_file") || die "$script_name: could not open file clients/$client_hostname/$log_file $!\n";
+                open(my $log_fh, "clients/$client/$log_file")
+                    || die "$script_name: could not open file clients/$client/$log_file $!\n";
                 while (<$log_fh>) {
                     my $last_timestamp_ms;
                     my $line = "$_";
@@ -73,13 +74,13 @@ for my $client_hostname (@client_hostname_dirs) {
                     if ( $line =~  /(\d+),\s+(\d+),\s+(\d+),\s+(\d+)/ ) {
                         my $timestamp_ms = $1;
                         my $value = $2;
-                                            my $rwtype = $3; #todo: generate per-rwtype metrics
+                        my $rwtype = $3; #todo: generate per-rwtype metrics
                         if ($last_timestamp_ms) {
                             my %metric_sample = create_metric_sample_doc(
-                                \%bench_iter_sample_period,
+                                \%period,
                                 "throughput",   # metric-class
                                 $metric_type,   # metric-type
-                                $client_hostname,# hostname
+                                $client,# hostname
                                 "fio",      # the source
                                 # the metric-instance name format
                                 "%source%-%type%-%hostname%",
@@ -88,16 +89,16 @@ for my $client_hostname (@client_hostname_dirs) {
                                 );
                             $metric_sample{'metric'}{'begin'} = $last_timestamp_ms;
                             put_json_file(\%metric_sample, "../../es/metrics/" .
-                                $client_hostname .
+                                $client .
                                 "/metric-" .
                                 $metric_sample{'metric'}{'id'} .
                                 ".json");
                         }
-                        if (! $period_earliest_timestamp or $period_earliest_timestamp > $timestamp_ms) {
-                            $period_earliest_timestamp = $timestamp_ms;
+                        if (! $earliest_timestamp or $earliest_timestamp > $timestamp_ms) {
+                            $earliest_timestamp = $timestamp_ms;
                         }
-                        if (! $period_latest_timestamp or $period_latest_timestamp < $timestamp_ms) {
-                            $period_latest_timestamp = $timestamp_ms;
+                        if (! $latest_timestamp or $latest_timestamp < $timestamp_ms) {
+                            $latest_timestamp = $timestamp_ms;
                         }
                         $last_timestamp_ms = $timestamp_ms;
                     }
@@ -107,11 +108,12 @@ for my $client_hostname (@client_hostname_dirs) {
         }
     }
 }
-$bench_iter_sample_period{'period'}{'begin'} = $period_earliest_timestamp;
-$bench_iter_sample_period{'period'}{'end'} = $period_latest_timestamp;
-my $period_file = $base_bench_dir . "/es/bench/period-" . $bench_iter_sample_period{'period'}{'id'} . ".json";
-put_json_file(\%bench_iter_sample_period, $period_file);
-my $tools_cdm_pp_cmd = "pbench-postprocess-tools-cdm " . $period_file . " " . $base_bench_dir . "/es  " . $rundir;
+$period{'period'}{'begin'} = $earliest_timestamp;
+$period{'period'}{'end'} = $latest_timestamp;
+my $period_file = $base_bench_dir . "/es/bench/period-" . $period{'period'}{'id'} . ".json";
+put_json_file(\%period, $period_file);
+my $tools_cdm_pp_cmd = "pbench-postprocess-tools-cdm " . $period_file . " " .
+                       $base_bench_dir . "/es  " . $rundir;
 printf "tools_cdm_pp cmd\n%s\n\n", $tools_cdm_pp_cmd;
 my $tools_cdm_pp_output = `$tools_cdm_pp_cmd`;
 printf "tools_cdm_pp output\n%s\n\n", $tools_cdm_pp_output;
