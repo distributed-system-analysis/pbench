@@ -1,59 +1,26 @@
-// Benchmark configuration data for fio
-//
-// There are potentially 3 sections for a benchmark: controller, client, and server
-// Every benchmark must have a cotroller and client section, and some benchmarks
-// need a server section.
 {
-  // This section defines how the controller works: benchmark options, packages to install, 
   "controller" : {
-    // This script is run before any client/server execution.  This may be used to 
-    // prepare certain files on the controller for the benchmark.
     "pre-script" : "/opt/pbench-agent/bench-scripts/postprocess/fio-prepare-jobfile",
-    // This script is run after data is copied from clients [and servers if applicable].
-    // This script must translate the result data into metrics consumable by ES.
     "post-script" : "/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess-cdm",
-    // The following deals specially with command-line parameters of this benchmark.
-    // A parameter is a benchmark option, typically written as "--arg-=value" format.  This
-    // section specifies various defaults (there can be different defaults for different
-    // use-cases), mandatory parameters, of which the pbench execution and post-processing
-    // expects, and finally a "specs" section which validates the user's parameters for
-    // correctness.
     "parameters" : { 
       "defaults": {
-        // When calling pbench-run-benchmark, if one uses "--defaults=<name>", a matching
-        // name will cause their respective parameters listed here to be used.
-        // If not "--defaults=<name> is used, the entry "default" will be used
         "basic" : [ "--rw=read,randread", "--filename=/tmp/fio-tst", "--filesize=256M",
           "--runtime=30s", "--bs=16k"
           ],
-        // This one is completely made-up and may bear no relevance to actual ceph use-case
         "ceph-osp" : [ "--rw=read,randread,write,randwrite", "--bs=1m", "--ioengine=sync",
           "--numjobs=1", "--runtime=30s", "--filesize=512M" 
           ],
-        // The "mandatory" entry will alwyas be included and cannot be overrided by the user.
-        // These are considered mandatory because the post-processing relies on the data
-        // these options produce.
         "mandatory" : [ "--write_hist_log=fio", "--log_hist_msec=10000",
           "--write_bw_log=fio", "--write_iops_log=fio", "--write_lat_log=fio",
           "--log_avg_msec=1000", "--log_unix_epoch=1", "--output-format=json",
           "--output=fio-result.json"
           ]
       },
-      // The following infomation is to aid pbench in parsing benchmark-specific paramters.
-      // Paramaters are grouped together by similar *value* types and tranforms.
       "specs" : {
-        // For example, a group of parameters named "size_KMG" describes values which are sizes,
-        // like 4k or 16M.  This is a common value type used in fio for several parameters.
-        // Since the input value can use different units, the value is converted (transformed)
-        // to a common unit.
         "size_KMG" : {
-          // A description of the types of values in "--arg=value"
           "description" : "bytes in k/K (1024), m/M (1024^2) or g/G (1024^3): 4k 16M 1g",
-          // All of the valid strings for "arg" in "--arg=value"
           "arguments" : [ "bs", "filesize", "io_size", "mem" ],
-          // This is the perl regex tested against the value in "--arg=value" which must pass
        	  "value_regex" : "[0-9]+[kbmgKBMG]",
-          // Once value_regex passes, it can be optionally be tranformed with perl s// regex
        	  "value_transforms" : [ "s/([0-9]+)[gG]/($1*1024).\"M\"/e",
             "s/([0-9]+)[mM]/($1*1024).\"K\"/e"
             ]
@@ -75,7 +42,6 @@
             "jobfile"
             ],
           "value_regex" : ".+"
-          // no "value_transform" here because there's no reason to alter this value
           },
         "rw_types" : {
           "description" : "all possible testtypes",
@@ -105,7 +71,6 @@
             "steadystate"
             ],
           "value_regex" : "^[0-9]+[smh]$"
-          // todo: use value_transform to convert all values to seconds (for consistency in search for ES)
           },
         "boolean" : {
           "description" : "1 for true and 0 for false",
@@ -142,35 +107,18 @@
             ],
           "value_regex" : "[1-9][0-9]*"
           }
-        } // end of specs
-      } // end of parameters
-    }, // end of controller 
-    // If the benchmark uses --clients parameter (all of them should), then this "client" section
-    // must be filled out.
+        }
+      }
+    },
   "client" : { 
-    // Any package listed here must be present, or an install is attempted
     "packages" : [ "pbench-fio-3.3-1" ],
-    // A local path or URL to a script to run on client before test but after copy-to files,
-    // The benchmark parameters are passed to this, and this script must exit "0" to continue.
-    // If a URL is provided, the client will attempt to retrive it via curl.
     "pre-script" : " ",
-    // Similar ro the pre-script, this will execute after the test.
     "post-script" : " ",
-    // A list of files to copy to the client (under $pbench_bench) before the test
-    "copy-to" : [ "/var/lib/pbench-agent/tmp/fio.job" ], //todo: allow vars
-    // The benchmark binary to execute on the client
+    "copy-to" : [ "/var/lib/pbench-agent/tmp/fio.job" ],
     "bin" : "fio",
-    // When the benchmark binary is executed on the client, all of the parameters
-    // included in the benchmark-iteration are passed along.  In order to make changes
-    // to those parameters, Apply a regex to the paramaters before executing.
-      // ##"s/\\s--jobfile=(\\S+)(.*)/$2$1/" // Strip --jobfile and put filename at end
-    "param_regex" : [ "s/--clients=.+//", // Remove entire --clients=hostanmes param
-      "s/\\s--jobfile=(\\S+)//", // Strip --jobfile
-      "s/(.*)/$1fio.job/" // put job filename at end
+    "param_regex" : [ "s/--clients=.+//",
+      "s/\\s--jobfile=(\\S+)//",
+      "s/(.*)/$1fio.job/"
       ]
   }
-    // There can be a "server" section, just like a "client" section, but fio
-    // does not use this.  Other benchmarks like uperf will use it.  The server
-    // section follows the same format and function as the "clients" section, but
-    // applies to the hostnames provides with --servers= parameter.
 }
