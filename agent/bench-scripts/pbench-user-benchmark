@@ -33,6 +33,7 @@ benchmark="pbench-user-benchmark"
 config=""
 tool_group=default
 sysinfo=default
+use_tool_triggers=0
 
 function usage {
 	printf "Usage: $script_name [options] -- <script to run>\n\n"
@@ -43,10 +44,11 @@ function usage {
 	printf -- "\t\t                                     available: $(pbench-collect-sysinfo --options)\n"
 	printf -- "\t\t       --pbench-pre=str        path to the script which will be executed before tools are started\n"
 	printf -- "\t\t       --pbench-post=str       path to the script which will be executed after tools are stopped and postprocessing is complete\n"
+	printf -- "\t\t       --use-tool-triggers     use tool triggers instead of normal start/stop around script\n"
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:h --longoptions "config:,help,tool-group:,sysinfo:,pbench-post:,pbench-pre:" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o C:h --longoptions "config:,help,tool-group:,sysinfo:,pbench-post:,pbench-pre:,use-tool-triggers" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf -- "$*\n\n"
 	printf "\t${benchmark}: you specified an invalid option\n\n"
@@ -92,6 +94,10 @@ while true; do
 			shift
 		fi
 		;;
+		--use-tool-triggers)
+		shift
+		use_tool_triggers=1
+		;;
 		-h|--help)
 		usage
 		exit 0
@@ -131,7 +137,7 @@ benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
 mkdir -p $benchmark_results_dir/.running
 export benchmark_results_dir=$benchmark_results_dir
 
-# For now, since we only ever run one iteration here, don't bother
+# For now, since we usually only ever run one iteration here, don't bother
 # collecting sysinfo data before and after, just do it after.
 # pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
 
@@ -165,21 +171,35 @@ if [[ ! -z $pbench_pre ]]; then
 	fi
 fi
 
-pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+if [ $use_tool_triggers -eq 0 ]; then
+	pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+fi
 
 echo "Running $benchmark_bin"
 log "[$script_name] Running $benchmark_bin"
 
 SECONDS=0
-$benchmark_bin 2>&1 | tee $benchmark_results_dir/result.txt
+if [ $use_tool_triggers -eq 0 ]; then
+	$benchmark_bin 2>&1 | tee $benchmark_results_dir/result.txt
+else
+	$benchmark_bin 2>&1 | tee $benchmark_run_dir/result.txt     | pbench-tool-trigger ${iteration} ${benchmark_run_dir} ${tool_group}
+fi
 benchmark_duration=$SECONDS
 # make it predictable in the unittest environment
 if [[ $_PBENCH_BENCH_TESTS == 1 ]]; then
 	benchmark_duration=0
 fi
 
-pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+if [ $use_tool_triggers -eq 0 ]; then
+	pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+	pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+else
+	result_dirs=$(ls -1d ${benchmark_run_dir}/*/reference-result)
+	for rdir in $result_dirs; do
+		iteration_dir=$(basename $(dirname ${rdir}))
+		pbench-postprocess-tools --group=${tool_group} --iteration=${iteration_dir} --dir=${rdir}
+	done
+fi
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 
 if [[ ! -z $pbench_post ]]; then

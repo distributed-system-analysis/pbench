@@ -202,6 +202,7 @@ declare -A cmds=(
     [test-20]="pbench-fio --targets=/dev/foo,/dev/bar --config=test-06 --test-type=throughput --samples=1 --client-file=/tmp/foo"
     [test-21]="pbench-trafficgen --help"
     [test-22]="pbench-trafficgen --config=test-22 --traffic-generator=trex-txrx-profile --max-loss-pct=0.0 --samples=1 --validation-runtime=30 --rate=5000000 --num-flows=1000 --frame-size=74 --traffic-direction=bidirectional,unidirectional,revunidirectional --flow-mods=src-ip,dst-ip,src-port,dst-port,protocol --one-shot --postprocess-only=y --run-dir=$_testdir"
+    [test-23]="pbench-user-benchmark --config=test-23 --use-tool-triggers -- tool-trigger-example"
 )
 
 declare -A expected_status=(
@@ -230,6 +231,7 @@ declare -A pre=(
     [test-17]="mkdir -p $_testopt/config;cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
     [test-18]="mkdir -p $_testopt/config;cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
     [test-22]="tar xf $_tdir/samples/test-22.tar.xz -C $_testdir/"
+    [test-23]="cp $_tdir/sample-tools/tool-triggers $_testdir/"
 )
 
 declare -A post=(
@@ -239,6 +241,7 @@ declare -A post=(
     [test-11]="cat $_testdir/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json >> $_testout"
     [test-12]="cat $_testdir/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json >> $_testout"
     [test-22]="cat $_testdir/result.json >> $_testout"
+    [test-23]="rm $_testdir/tool-triggers"
 )
 
 tests="$*"

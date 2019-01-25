@@ -43,9 +43,11 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c3-server::s3:20030--test_config.xml
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample1
+/var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample1/tools-default
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample1/uperf-average.txt
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample1/uperf-postprocess.cmd
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2
+/var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2/tools-default
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2/uperf-average.txt
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2/uperf-postprocess.cmd
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i
@@ -60,9 +62,11 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c3-server::s3:20030--test_config.xml
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample1
+/var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample1/tools-default
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample1/uperf-average.txt
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample1/uperf-postprocess.cmd
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample2
+/var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample2/tools-default
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample2/uperf-average.txt
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample2/uperf-postprocess.cmd
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/generate-benchmark-summary.cmd

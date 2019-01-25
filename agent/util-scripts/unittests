@@ -219,6 +219,8 @@ declare -A tools=(
     [test-32]="pbench-copy-results"
     [test-33]="pbench-move-results"
     [test-34]="pbench-move-results"
+    [test-35]="pbench-register-tool-trigger"
+    [test-36]="pbench-register-tool-trigger"
 )
 
 declare -A options=(
@@ -255,6 +257,13 @@ declare -A options=(
     [test-31]="--prefix=foo/bar --user=ndk"
     [test-32]="--help"
     [test-34]="--help"
+    [test-35]="--group=default --start-trigger=\"START:DEFAULT\" --stop-trigger=\"STOP DEFAULT\""
+    [test-36]="--group=default --start-trigger=\"START DEFAULT\" --stop-trigger=\"STOP:DEFAULT\""
+)
+
+declare -A expected_status=(
+    [test-05]=1
+    [test-06]=1
 )
 
 declare -A expected_status=(
@@ -264,6 +273,8 @@ declare -A expected_status=(
     [test-12]=1
     [test-13]=2
     [test-29]=1
+    [test-35]=1
+    [test-36]=1
 )
 
 declare -A pre_hooks=(

@@ -12,6 +12,7 @@ Running user-benchmark-script no-duration
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/reference-result
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/reference-result/result.txt
+/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/reference-result/tools-default
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/metadata.log
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary-debug.json
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json

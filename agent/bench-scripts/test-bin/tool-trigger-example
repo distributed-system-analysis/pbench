@@ -1,0 +1,17 @@
+#!/bin/bash
+
+echo "fud"
+echo "START DEFAULT"
+echo "bud"
+echo "STOP DEFAULT"
+echo "lud"
+echo "START DEFAULT"
+echo "zud"
+echo "STOP DEFAULT"
+echo "mud"
+echo "START DEFAULT"
+echo "yud"
+echo "STOP DEFAULT"
+echo "sud"
+
+exit 0

@@ -1,7 +1,12 @@
 #! /bin/bash
 
+# Emulate being called for two iterations
 (echo "foo"
 echo "START DEFAULT"
 echo "bar"
 echo "STOP DEFAULT"
-echo "baz") | pbench-tool-trigger 1 $_testdir
+echo "rab"
+echo "START DEFAULT"
+echo "bir"
+echo "STOP DEFAULT"
+echo "baz") | pbench-tool-trigger 0 $benchmark_run_dir default
