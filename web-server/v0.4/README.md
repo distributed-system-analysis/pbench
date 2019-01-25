@@ -40,7 +40,7 @@ Pbench Dashboard is a web-based platform for consuming indexed performance bench
 
 Assets placed in the `public` directory are copied to the `dist` directory for reference in the generated `index.html` file during the build process.
 
-Assets placed in the `src/assets/` directory are only referenced within components or layouts definitions and is packaged in the generated `***.js` file during the build process.
+Assets placed in the `src/assets/` directory are only referenced within component or layout definitions and are packaged in the generated `***.js` file during the build process.
 
 
 ## Installation
@@ -61,13 +61,7 @@ This will automatically open the application on [http://localhost:8000](http://l
 
 ## Local Development
 
-Both the production and development builds of the dashboard require specific configurations in order to run on their respective environment. For local development, modify the following configuration definitions:
-
-`.webpackrc.js`
-
-```Javascript
-publicPath: '/'
-```
+Both the production and development builds of the dashboard require specific configurations in order to run on their respective environment.
 
 Create and include a JSON config file in the root directory. Please reference the following example for required configuration fields.
 
@@ -79,18 +73,6 @@ Create and include a JSON config file in the root directory. Please reference th
    "results": "http://results.example.com",
    "prefix": "example.prefix",
    "run_index": "example.index"
-}
-```
-
-For local development, reference `dev.config.json` on localhost through the `global` service.
-
-`/src/services/global.js`
-
-```Javascript
-export async function queryDatastoreConfig() {
-  return request('http://localhost:8000/dev.config.json', {
-    method: 'GET',
-  });
 }
 ```
 
