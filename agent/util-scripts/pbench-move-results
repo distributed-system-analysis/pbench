@@ -184,9 +184,16 @@ for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v 
         continue
     fi
 
-    res_name=$(getconf.py --config ${pbench_run_name}/metadata.log name pbench)
+    mdlog=${pbench_run_name}/metadata.log
+    if [ ! -e ${mdlog} ]; then
+        debug_log "The pbench result ${pbench_run_name} does not appear to be a benchmark directory - skipping"
+        debug_log "The ${pbench_run}/${pbench_run_name}/metadata.log file seems to be missing"
+        continue
+    fi
+
+    res_name=$(getconf.py --config ${mdlog} name pbench)
     if [ "${res_name}" != "${pbench_run_name}" ]; then
-        warn_log "the run in directory ${pbench_run}/${pbench_run_name} has an unexpected metadata name, \"${res_name}\" - skipping"
+        warn_log "The run in directory ${pbench_run}/${pbench_run_name} has an unexpected metadata name, \"${res_name}\" - skipping"
         continue
     fi
 
@@ -198,13 +205,11 @@ for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v 
 
     # if -u was specified, store the specified user in metadata.log
     if [ ! -z $user ] ;then
-	mdlog=${pbench_run_name}/metadata.log
 	echo $user | pbench-add-metalog-option ${mdlog} run user
     fi
 
     # if -p was specified, store the specified prefix in metadata.log
     if [ ! -z $prefix ] ;then
-	mdlog=${pbench_run_name}/metadata.log
 	echo $prefix | pbench-add-metalog-option ${mdlog} run prefix
     fi
 

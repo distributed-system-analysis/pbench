@@ -279,7 +279,7 @@ declare -A expected_status=(
 
 declare -A pre_hooks=(
     [test-20]='mkdir -p $_testdir/tmp/tools-default/iostat; touch $_testdir/tmp/tools-default/iostat/iostat-stdout.txt'
-    [test-33]='(echo "+++ setup pbench results dir time stamps"; touch --date="2019-01-01 12:00:42" $_testdir/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42; touch --date="2019-01-01 12:00:43" $_testdir/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43; echo "--- setup pbench results dir time stamps") >> $_testout'
+    [test-33]='(echo "+++ setup pbench results dir time stamps"; touch --date="2019-01-01 12:00:42" $_testdir/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42; touch --date="2019-01-01 12:00:43" $_testdir/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43; touch --date="2019-01-01 12:00:44" $_testdir/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.44; echo "--- setup pbench results dir time stamps") >> $_testout'
 )
 
 declare -A post_hooks=(
