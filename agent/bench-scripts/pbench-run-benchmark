@@ -16,10 +16,11 @@ use strict;
 use warnings;
 use File::Basename;
 my $pbench_lib_path;
+my $pbench_install_path;
 BEGIN {
-    $pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
-    chomp $pbench_lib_path;
-    $pbench_lib_path .= "/lib";
+    $pbench_install_path = `getconf.py pbench_install_dir pbench-agent`;
+    chomp $pbench_install_path;
+    $pbench_lib_path = $pbench_install_path . "/lib";
 }
 use lib "$pbench_lib_path";
 use JSON;
@@ -76,18 +77,12 @@ for my $param (qw(user-name user-email user-desc)) {
     }
 }
 
-# Apply the defaults
+# Apply the Pbench defaults (not the benchmark defaults)
 for my $def (keys %defaults) {
     if (!$params{$def}) {
         $params{$def} = $defaults{$def};
     }
 }
-
-# We don't want these params passed on to other utils
-remove_params(\@ARGV, qw(tool-group samples user-desc user-name user-email)); 
-my %run_doc = create_run_doc($benchmark, join(" ", @ARGV), $params{"clients"}, $params{"servers"},
-                $params{"user-desc"}, $params{"user-name"}, $params{"user-email"},
-                "pbench", ""); #todo: include tool names
 
 # Prepare all the dirs for the run
 my $base_bench_dir = get_benchmark_results_dir($benchmark, $params{"user-desc"});
@@ -105,74 +100,99 @@ if (-e "/tmp/stockpile") {
     stockpile_hosts(\@config_hosts, $base_bench_dir,"stockpile_output_path=".
                     $base_bench_dir . "/stockpile.json");
 }
-    
-# Pass the rest of the args to pbench-gen-iterations and store the iterations in an array
-my @iterations;
-print "Generating all benchmark iterations\n";
-my $gen_iterations_cmd = "pbench-gen-iterations " . $benchmark . " " . join(" ", @ARGV);
-# Escape any quotes so they don't get lost before calling pbench-gen-iterations
-$gen_iterations_cmd =~ s/\"/\\\"/g;
-my $output = `$gen_iterations_cmd`;
-if ($? != 0) {
-    printf "%s\nCalling pbench-gen-iterations failed, exiting\n", $output;
-    exit 1;
-} else {
-    @iterations = grep(!/^#/, split(/\n/, $output));
-    # print any non-iterations, for example, if --defaults=list was used, it will be here
-    printf "%s\n", join("\n", grep(/^#/, split(/\n/, $output)));
-}
 
-# Now run the iterations
-printf "iterations: %d\n", scalar @iterations;
-mkdir($base_bench_dir);
-open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
 my $iteration_id = 0;
-for my $iteration_params (@iterations) {
-    my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,); 
-    put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{'iteration'}{'id'} . ".json");
-    printf $fh "%d %s\n", $iteration_id, $iteration_params;
-    printf "iteration_ID: %d iteration_params: %s\n", $iteration_id, $iteration_params;
-    for (my $sample_id=0; $sample_id<$params{"num_samples"}; $sample_id++) {
-        printf "sample_ID: %d\n", $sample_id;
-        my $iteration_dir = $base_bench_dir . "/iteration" . $iteration_id;
-        mkdir($iteration_dir);
-        my $iteration_sample_dir = $iteration_dir . "/sample" . $sample_id;
-        mkdir($iteration_sample_dir);
-        my $benchmark_cmd = "pbench-run-benchmark-sample " . $es_dir . "/bench/iteration-" .
-                            $iter_doc{'iteration'}{'id'} . ".json " . $iteration_sample_dir .
-                            " " . $base_bench_dir . " " . $params{"tool_group"};
-        my $benchmark_sample_output = `$benchmark_cmd`;
-        my $exit_code = $?;
-        if ($exit_code != 0) {
-            printf "Stopping because of iteration-sample exit code: %d\n", $exit_code;
-            print "output:\n$benchmark_sample_output";
-            exit 1;
-        }
-    }
-    $iteration_id++;
+my $run_id = get_uuid;
+my %last_run_doc;
+print "Generating all benchmark iterations\n";
+# We don't want these params passed to gen-iterations because they are not bechmark-native options
+remove_params(\@ARGV, qw(user-desc user-name user-email)); 
+# First call pbench-gven-iterations and only resolve any --defaults=
+my $get_defs_cmd = "pbench-gen-iterations " . $benchmark . " --defaults-only " . join(" ", @ARGV);
+# Escape any quotes so they don't get lost before calling pbench-gen-iterations
+$get_defs_cmd =~ s/\"/\\\"/g;
+my @output = `$get_defs_cmd`;
+print "get-defs:\n";
+print Dumper \@output;
+if ($? != 0) {
+    printf "%s\nCalling pbench-gen-iterations failed, exiting\n", $get_defs_cmd;
+    exit 1;
 }
-close $fh;
-$run_doc{'run'}{'end'} = time * 1000; # time in milliseconds
-put_json_file(\%run_doc, $es_dir . "/run/run-" . $run_doc{'run'}{'id'} . ".json");
+my $run_part = 0;
+while (scalar @output > 0) {
+    my $line = shift(@output);
+    printf "line:%s\n", $line;
+    if ($line =~ /^#/) {
+        printf "%s\n", $line;
+        next;
+    }
+    my $get_iters_cmd = "pbench-gen-iterations " . $benchmark . " " . $line;
+    my @iterations = `$get_iters_cmd`;
+    if ($? != 0) {
+        printf "%s\nCalling pbench-gen-iterations failed, exiting\n", $get_iters_cmd;
+        exit 1;
+    }
+    my %run_doc = create_run_doc($benchmark, $line, $params{"clients"}, $params{"servers"},
+                    $params{"user-desc"}, $params{"user-name"}, $params{"user-email"},
+                    "pbench", ""); #todo: include tool names
+    $run_doc{'run'}{'id'} = $run_id; # use the same run ID for all run docs
+    # Now run the iterations
+    mkdir($base_bench_dir);
+    open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
+    for my $iteration_params (@iterations) {
+        if ($iteration_params =~ /^#/) {
+            printf "%s\n", $line;
+            next;
+        }
+        my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,); 
+        put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{'iteration'}{'id'} . ".json");
+        printf $fh "%d %s\n", $iteration_id, $iteration_params;
+        printf "iteration_ID: %d iteration_params: %s\n", $iteration_id, $iteration_params;
+        for (my $sample_id=0; $sample_id<$params{"num_samples"}; $sample_id++) {
+            printf "sample_ID: %d\n", $sample_id;
+            my $iteration_dir = $base_bench_dir . "/iteration" . $iteration_id;
+            mkdir($iteration_dir);
+            my $iteration_sample_dir = $iteration_dir . "/sample" . $sample_id;
+            mkdir($iteration_sample_dir);
+            my $benchmark_cmd = "pbench-run-benchmark-sample " . $es_dir . "/bench/iteration-" .
+                                $iter_doc{'iteration'}{'id'} . ".json " . $iteration_sample_dir .
+                                " " . $base_bench_dir . " " . $params{"tool_group"};
+            print "benchmnark_cmd: $benchmark_cmd\n";
+            my $benchmark_sample_output = `$benchmark_cmd`;
+            my $exit_code = $?;
+            print "output:\n$benchmark_sample_output";
+            if ($exit_code != 0) {
+                printf "Stopping because of iteration-sample exit code: %d\n", $exit_code;
+                exit 1;
+            }
+        }
+        $iteration_id++;
+    }
+    close $fh;
+    $run_doc{'run'}{'end'} = time * 1000; # time in milliseconds
+    put_json_file(\%run_doc, $es_dir . "/run/run" . $run_part . "-" . $run_doc{'run'}{'id'} . ".json");
+    %last_run_doc = %run_doc; # We need to keep at least 1 run doc to create the config docs later
+    $run_part++;
+}
 
 # Convert the stockpile data with scribe, then create CDM docs in ./es/config
 if (-e $base_bench_dir . "/stockpile.json") {
     system('scl enable rh-python36 \'python3 -m venv /var/lib/pbench-agent/tmp/scribe && cd ' .
-           $base_bench_dir . ' && scribe -t stockpile -ip ./stockpile.json >scribe.json\'');
+        $base_bench_dir . ' && scribe -t stockpile -ip ./stockpile.json >scribe.json\'');
     open(my $scribe_fh, "<" . $base_bench_dir . "/scribe.json") || die "Could not open " .
-         $base_bench_dir . "/scribe.json";
+        $base_bench_dir . "/scribe.json";
     my $json_text = "";
     # Instead of 1 json document, there are actually multiple documents, but no seperator
     # between them or organized in an array
     while (<$scribe_fh>) {
         $json_text .= $_;
         if (/^\}/) { # Assume this is the end of a json doc
-            my %config_doc = create_config_doc(\%run_doc, from_json($json_text));
+            my %config_doc = create_config_doc(\%last_run_doc, from_json($json_text));
             if ($config_doc{'cdm'}{'doctype'} =~ /^config_(.+)/) {
                 my $config_subname = $1;
                 if ($config_doc{'config'}{'id'}) {
                     put_json_file(\%config_doc, $es_dir . "/config/" . $config_doc{'cdm'}{'doctype'} .
-                                  "-" . $config_doc{'config'}{'id'} . ".json");
+                                "-" . $config_doc{'config'}{'id'} . ".json");
                 } else {
                     printf "Error: config doc's config.%s not found\n", $config_subname;
                 }

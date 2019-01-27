@@ -79,7 +79,6 @@ if (! $hosts{"client"}) {
 if ($specs{"controller"}{"pre-script"} and $specs{"controller"}{"pre-script"} ne "") {
     # pre-script gets same params as benchmark.
     my $preprocess_cmd = $specs{"controller"}{"pre-script"} . " " . $iteration{'iteration'}{'params'};
-    print "preprocess_cmd: [$preprocess_cmd]\n";
     my $preprocess_output = `$preprocess_cmd`;
     print "rc: $?\n";
     open(my $fh, ">" . $sample_dir . "/preprocess-output.txt");
@@ -116,6 +115,9 @@ for my $type (reverse sort keys %hosts) { # reverse so "server" is first
             printf "%s->bin does not exist, exiting\n", $type;
             exit 1;
         }
+        # Apply a regex from the benchmark config file to the command
+        # This is used to remove things like "--clients=" because the
+        # native benchmark does not understand this parameter
         if ($specs{$type} and $specs{$type}{"param_regex"}) {
             for my $r (@{ $specs{$type}{"param_regex"} }) {
                 # to apply the 's/x/y/' regex from the file, some eval trickery is necessary
@@ -123,8 +125,8 @@ for my $type (reverse sort keys %hosts) { # reverse so "server" is first
                 # before doing below
                 $cmd = eval "\$_='$cmd'; $r; return scalar \$_";
             }
-            my $result = ssh_hosts(\@{ $hosts{$type} }, $cmd, $sample_dir . "-" . $type, $base_dir);
         }
+        my $result = ssh_hosts(\@{ $hosts{$type} }, $cmd, $sample_dir . "-" . $type, $base_dir);
     }
 }
 

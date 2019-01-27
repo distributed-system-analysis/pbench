@@ -217,6 +217,13 @@ if ($benchmark eq "list") {
     printf "%s\n",  join(" ", @benchmarks);
     exit;
 }
+# If the very next argument is "--defaults-only" then expand any "--defaults="
+# and do nothing else.
+my $defaults_only = 0;
+if ($ARGV[0] eq "--defaults-only") {
+    shift(@ARGV);
+    $defaults_only = 1;
+}
 
 # Go through the @ARGS and either:
 # - swap out "--defaults" with a list of default params
@@ -246,7 +253,7 @@ if (! $bench_config{"controller"}{"parameters"}{"specs"} ) {
     exit 1;
 }
 
-my @iteration_cmds;
+my @cmds;
 my @params;
 my %processed_bench_params; # Benchmark-specific parameters that will have been validated/transformed
 my %processed_pbench_params; # Universal parameters that will have been validated/transformed
@@ -263,6 +270,7 @@ for my $param (@ARGV) {
         push(@params, $param);
     }
 }
+
 # Now process all of the parameters
 while ( scalar @params > 0 ) {
     my $param = shift @params;
@@ -275,8 +283,7 @@ while ( scalar @params > 0 ) {
         for my $p (get_benchmark_args(\%bench_config)) {
             printf("    --%s\n", $p);
         }
-    } elsif ($param =~ /^--defaults=(.+)$/) { # Expanded to all of the parameters
-                                              # found for that default
+    } elsif ($param =~ /^--defaults=(.+)$/) { # Expanded to all of the params found for that default
         @params = (get_benchmark_defaults(\%bench_config, $1), @params);
     } elsif ($param =~ /^--(.+)=(.+)$/) { # We now have a parameter, a "--argument=value"
                                           # that we can process
@@ -295,8 +302,21 @@ while ( scalar @params > 0 ) {
     # allows the user to have some iterations with --rw=read using --bs=64k,256 and --rw=randread
     # using bs=4k, all within the same pbench run.
     } elsif ($param eq "--") {
-        @iteration_cmds = (@iteration_cmds, build_iteration_cmds("", \%processed_bench_params, \%processed_pbench_params));
-        %processed_bench_params = ();
+        if ($defaults_only) {
+            # Only output the processed params without expanding into multiple iterations
+            my $cmd = "";
+            for my $arg (keys %processed_pbench_params) {
+                $cmd .= sprintf "--%s=%s ", $arg, $processed_pbench_params{$arg};
+            }
+            for my $arg (keys %processed_bench_params) {
+                $cmd .= sprintf "--%s=%s ", $arg, $processed_bench_params{$arg};
+            }
+            push(@cmds, $cmd);
+        } else {
+            # Output the processed params with expanding into multiple iterations
+            @cmds = (@cmds, build_iteration_cmds("", \%processed_bench_params, \%processed_pbench_params));
+            %processed_bench_params = ();
+        }
     } else {
         printf "The format of \'%s\' is not valid\n", $param;
         exit 1;
@@ -304,6 +324,6 @@ while ( scalar @params > 0 ) {
 }
 
 # Print all of the iterations
-for my $cmd (@iteration_cmds) {
+for my $cmd (@cmds) {
     print "$cmd\n";
 }
