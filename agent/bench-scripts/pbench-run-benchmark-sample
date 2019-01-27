@@ -33,7 +33,7 @@ my $pbench_bench_config_dir = get_pbench_bench_config_dir;
 
 # main program starts here
 
-if (scalar @ARGV < 4) {
+if (scalar @ARGV < 5) {
     print "You must supply at least the /path/to/iteration-doc.json, results directory, " .
           "base benchmark directory, and the tool group name (in that order):\n";
     exit;
@@ -42,6 +42,7 @@ my $iter_doc_filename = shift(@ARGV);
 my $sample_dir = shift(@ARGV); # dir for *this* iteration-sample execution
 my $base_dir = shift(@ARGV); # dir for all of the pbench run
 my $tool_group = shift(@ARGV);
+my $last_sample = shift(@ARGV);
 if (! -d $base_dir) {
     die "The base bench directory $base_dir must already exist";
 }
@@ -80,8 +81,12 @@ if ($specs{"controller"}{"pre-script"} and $specs{"controller"}{"pre-script"} ne
     # pre-script gets same params as benchmark.
     my $preprocess_cmd = $specs{"controller"}{"pre-script"} . " " . $iteration{'iteration'}{'params'};
     my $preprocess_output = `$preprocess_cmd`;
-    print "rc: $?\n";
+    my $rc = $?;
     open(my $fh, ">" . $sample_dir . "/preprocess-output.txt");
+    if ($rc != 0) {
+        printf "Controller pre-script failed, exiting\n";
+        exit 1;
+    }
 }
 # - create sample_dir on clients and servers
 # - copy files to clients and servers
@@ -166,9 +171,14 @@ if ($specs{"controller"}{"post-script"} and $specs{"controller"}{"post-script"} 
     put_json_file(\%sample, $sample_dir . "/sample" . ".json");
     my $postprocess_cmd = ". /opt/pbench-agent/base; cd " . $sample_dir . "; " .
                           $specs{"controller"}{"post-script"} . " " . $sample_dir . " " .
-                          $base_dir . " " . join(" ", @ARGV); # all params get passed to postprocess
+                          $base_dir . " " . $tool_group . " " .$last_sample;
     my $postprocess_output = `$postprocess_cmd`;
+    my $rc = $?;
     open(my $fh, ">" . $sample_dir . "/postprocess-output.txt");
+    if ($rc != 0) {
+        printf "Controller post-script failed, exiting\n";
+        exit 1;
+    }
 } else {
     # If there is no post-processor for the benchmark (there really should be!) then this
     # script will write the saple CDM doc.  This document is not really complete.

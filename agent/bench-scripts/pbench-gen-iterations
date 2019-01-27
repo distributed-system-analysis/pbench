@@ -190,12 +190,18 @@ sub build_iteration_cmds {
         # As in process_param, quotewords() allows a comma to be within a single value
         # as long as it is wraped in quotes
         for my $value (quotewords(',', 0, $values)) {
+            if (not $value =~ /,/) {
+                $value =~ s/\"//g;
+            }
             push(@cmds, build_iteration_cmds($cmdline . " --" . $arg . "=" . $value . " ",
                  \%multiplex_params, \%simplex_params));
         }
         return @cmds;
     } else {
         for my $arg (keys %simplex_params) {
+            if (not $arg =~ /,/) {
+                $arg =~ s/\"//g;
+            }
             $cmdline .= " --" . $arg . "=" . $simplex_params{$arg};
         }
         return ($cmdline);
@@ -306,9 +312,15 @@ while ( scalar @params > 0 ) {
             # Only output the processed params without expanding into multiple iterations
             my $cmd = "";
             for my $arg (keys %processed_pbench_params) {
+                if (not $processed_pbench_params{$arg} =~ /,/) {
+                    $processed_pbench_params{$arg} =~ s/\"//g;
+                }
                 $cmd .= sprintf "--%s=%s ", $arg, $processed_pbench_params{$arg};
             }
             for my $arg (keys %processed_bench_params) {
+                if (not $processed_bench_params{$arg} =~ /,/) {
+                    $processed_bench_params {$arg}=~ s/\"//g;
+                }
                 $cmd .= sprintf "--%s=%s ", $arg, $processed_bench_params{$arg};
             }
             push(@cmds, $cmd);

@@ -107,24 +107,33 @@ my %last_run_doc;
 print "Generating all benchmark iterations\n";
 # We don't want these params passed to gen-iterations because they are not bechmark-native options
 remove_params(\@ARGV, qw(user-desc user-name user-email)); 
-# First call pbench-gven-iterations and only resolve any --defaults=
+# First call pbench-gen-iterations and only resolve any --defaults=, so that the run
+# doc has the full set of params
 my $get_defs_cmd = "pbench-gen-iterations " . $benchmark . " --defaults-only " . join(" ", @ARGV);
 # Escape any quotes so they don't get lost before calling pbench-gen-iterations
 $get_defs_cmd =~ s/\"/\\\"/g;
 my @output = `$get_defs_cmd`;
-print "get-defs:\n";
-print Dumper \@output;
 if ($? != 0) {
     printf "%s\nCalling pbench-gen-iterations failed, exiting\n", $get_defs_cmd;
     exit 1;
 }
+# There can be multiple parts of a run if the user generated multiple parameter-sets
+# (used a "--" in their cmdline).  Each part of the run has it's own run document, 
+# but all of the run documents share the same run ID.
 my $run_part = 0;
 while (scalar @output > 0) {
+    my $num_samples;
     my $line = shift(@output);
-    printf "line:%s\n", $line;
     if ($line =~ /^#/) {
         printf "%s\n", $line;
         next;
+    }
+    # Process --samples= here, since it can be different for each parameter-set,
+    # and we need this below for running pbench-run-benchmark-sample N times
+    if ($line =~ s/--samples=(\S+)\s*//) {
+        $num_samples = $1;
+    } else {
+        $num_samples = $defaults{'num_samples'};
     }
     my $get_iters_cmd = "pbench-gen-iterations " . $benchmark . " " . $line;
     my @iterations = `$get_iters_cmd`;
@@ -147,17 +156,20 @@ while (scalar @output > 0) {
         my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,); 
         put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{'iteration'}{'id'} . ".json");
         printf $fh "%d %s\n", $iteration_id, $iteration_params;
-        printf "iteration_ID: %d iteration_params: %s\n", $iteration_id, $iteration_params;
-        for (my $sample_id=0; $sample_id<$params{"num_samples"}; $sample_id++) {
+        printf "\n\n\niteration_ID: %d\niteration_params: %s\n", $iteration_id, $iteration_params;
+        for (my $sample_id=0; $sample_id<$num_samples; $sample_id++) {
             printf "sample_ID: %d\n", $sample_id;
             my $iteration_dir = $base_bench_dir . "/iteration" . $iteration_id;
             mkdir($iteration_dir);
             my $iteration_sample_dir = $iteration_dir . "/sample" . $sample_id;
             mkdir($iteration_sample_dir);
+            my $last_sample = "0";
+            if ($sample_id == ($params{"num_samples"} - 1)) {
+                $last_sample = "1";
+            }
             my $benchmark_cmd = "pbench-run-benchmark-sample " . $es_dir . "/bench/iteration-" .
                                 $iter_doc{'iteration'}{'id'} . ".json " . $iteration_sample_dir .
-                                " " . $base_bench_dir . " " . $params{"tool_group"};
-            print "benchmnark_cmd: $benchmark_cmd\n";
+                                " " . $base_bench_dir . " " . $params{"tool_group"} . " " . $last_sample;
             my $benchmark_sample_output = `$benchmark_cmd`;
             my $exit_code = $?;
             print "output:\n$benchmark_sample_output";
@@ -174,6 +186,8 @@ while (scalar @output > 0) {
     %last_run_doc = %run_doc; # We need to keep at least 1 run doc to create the config docs later
     $run_part++;
 }
+# Generate the result.html (to go away once CDM/Elastic UI is available)
+system($pbench_install_path . "/bench-scripts/postprocess/generate-benchmark-summary " . $benchmark . " " . $benchmark . " " . $base_bench_dir);
 
 # Convert the stockpile data with scribe, then create CDM docs in ./es/config
 if (-e $base_bench_dir . "/stockpile.json") {

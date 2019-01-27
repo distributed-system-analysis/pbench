@@ -20,9 +20,20 @@ use PbenchBase qw(get_json_file put_json_file remove_element);
 
 printf "\@ARGV: %s\n", join(" ", @ARGV);
 
+if (scalar @ARGV < 4) {
+    print "You must supply 4 arguments to fio-postprocess-cdm:\n";
+    print "(1) The run directory\n";
+    print "(2) The sample directory\n";
+    print "(3) The tool group\n";
+    print "(4) 0 or 1 indicating this is the last sample\n";
+    exit 1;
+}
+
 my $script_name = basename($0);
 my $rundir = shift(@ARGV);
 my $base_bench_dir = shift(@ARGV);
+my $tool_group = shift(@ARGV);
+my $last_sample = shift(@ARGV);
 my $json_ref = get_json_file("sample.json");
 my %sample = %$json_ref; # This is the CDM doc for this benchmark-iteration-sample
 my $sample_id = $sample{'sample'}{'id'}; # Needs to be included in all metric-sample docs
@@ -127,5 +138,8 @@ printf "tools_cdm_pp cmd\n%s\n\n", $tools_cdm_pp_cmd;
 my $tools_cdm_pp_output = `$tools_cdm_pp_cmd`;
 printf "tools_cdm_pp output\n%s\n\n", $tools_cdm_pp_output;
 
-# Finally, call the legacy post-process script, so we can build the static html reports later
+# Call the legacy post-process script, so we can build the static html reports later
 system($pbench_install_path . "/bench-scripts/postprocess/fio-postprocess `/bin/pwd` fio default");
+if (defined $last_sample and $last_sample eq "1") {
+    system($pbench_install_path . "/bench-scripts/postprocess/process-iteration-samples `/bin/pwd`/.. iops 100 0 1 n n");
+}
