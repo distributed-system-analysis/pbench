@@ -4,4 +4,4 @@
 echo "START DEFAULT"
 echo "bar"
 echo "STOP DEFAULT"
-echo "baz") | pbench-tool-trigger
+echo "baz") | pbench-tool-trigger 1 $_testdir

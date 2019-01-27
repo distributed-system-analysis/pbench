@@ -1,0 +1,43 @@
++++ Running test-19 test-tool-trigger
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/tool-triggers
+[pbench-tool-trigger]found trigger: group:default start-trigger:START DEFAULT stop-trigger:STOP DEFAULT
+[pbench-tool-trigger]found trigger: group:foo start-trigger:START FOO stop-trigger:STOP FOO
+foo
+START DEFAULT
+[pbench-tool-trigger]pbench-start-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-utils/pbench
+bar
+STOP DEFAULT
+[pbench-tool-trigger]pbench-stop-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-utils/pbench
+[warn][1900-01-01T00:00:00.000000] [sar]: tool is not running, nothing to kill
+baz
+--- Finished test-19 test-tool-trigger (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tmp/.empty
+/var/tmp/pbench-test-utils/pbench/tool-triggers
+/var/tmp/pbench-test-utils/pbench/tools-default
+/var/tmp/pbench-test-utils/pbench/tools-default/sar
+/var/tmp/pbench-test-utils/pbench/tools-default/sar:
+--interval=3
+/var/tmp/pbench-test-utils/pbench/tmp/.empty:
+--- pbench tree state
++++ pbench.log file contents
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-start-tools]started: --group=default --iteration=1 --dir=/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-kill-tools]started: --group default
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-kill-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --kill --iteration=1 --group=default --dir=/tmp --interval=3
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-kill-tools]completed: 
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-start-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench --interval=3
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-start-tools] screen -dmS pbench-tool-sar-default-1 /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench --interval=3
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-start-tools]completed: 
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]started: --group=default --iteration=1 --dir=/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --stop --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench --interval=3
+/var/tmp/pbench-test-utils/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [sar]: tool is not running, nothing to kill
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]completed: 
+--- pbench.log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/screen -ls
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/screen -dmS pbench-tool-sar-default-1 /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench --interval=3
+--- test-execution.log file contents

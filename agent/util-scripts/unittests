@@ -16,48 +16,53 @@ if [[ $? -gt 0 ]]; then
 fi
 export _testout=$_testroot/output.txt
 export _testlog=$_testroot/test-execution.log
-_testdir=$_testroot/pbench
+export _testdir=$_testroot/pbench
 
 # Copy util-scripts execution environment to _testroot
 _testopt=$_testroot/opt/pbench-agent
 res=0
-mkdir -p $_testopt/config
+mkdir -p $_testopt/config $_testopt/util-scripts $_testopt/tool-scripts $_testopt/unittest-scripts
 let res=res+$?
-mkdir -p $_testopt/util-scripts
+cp -L $_tdir/../base $_testopt/
 let res=res+$?
-cp $_tdir/../base $_testopt/
-let res=res+$?
-mkdir -p $_testopt/tool-scripts
-let res=res+$?
-cp $_tdir/../tool-scripts/{iostat,kvmstat,mpstat,numastat,perf,pidstat,proc-interrupts,proc-vmstat,sar,turbostat,vmstat} $_testopt/tool-scripts
-
-mkdir -p $_testopt/tool-scripts/postprocess
-let res=res+$?
-cp $_tdir/test-bin/iostat-postprocess $_testopt/tool-scripts/postprocess
-let res=res+$?
-# scripts="$_tdir/pbench-register-tool $_tdir/pbench-metadata-log"
 scripts="$_tdir/pbench-*"
 for script in $scripts ; do
-    cp $script $_testopt/util-scripts/
+    cp -L $script $_testopt/util-scripts/
     let res=res+$?
 done
-mkdir -p $_testopt/unittest-scripts/
+cp -rL $_tdir/../tool-scripts/* $_testopt/tool-scripts/
 let res=res+$?
 cp -rL $_tdir/test-bin/* $_testopt/unittest-scripts/
 let res=res+$?
-cp -L $_tdir/test-bin/iostat-postprocess $_testopt/tool-scripts/postprocess
-let res=res+$?
+
 if [[ $res -ne 0 ]]; then
     echo "ERROR: failed to construct unittest execution directory hierarchy" \
          "under, \"$_testroot\"" >&2
     exit 1
 fi
 
-# Fixed timestamp output
-export _PBENCH_BENCH_TESTS=1
+function remove_path {
+    # PATH ($2) => /bin:/opt/a dir/bin:/sbin
+    WORK=:$2:
+    # WORK => :/bin:/opt/a dir/bin:/sbin:
+    REMOVE=$1
+    WORK=${WORK/:$REMOVE:/:}
+    # WORK => :/bin:/sbin:
+    WORK=${WORK%:}
+    WORK=${WORK#:}
+    #PATH=$WORK
+    # PATH => /bin:/sbin
+    echo $WORK
+}
+PATH=$(remove_path /opt/pbench-agent/bench-scripts $PATH)
+PATH=$(remove_path /opt/pbench-agent/util-scripts $PATH)
 # Allows us to intercept scp, ssh, rsync, etc.
 export PATH=$_testopt/unittest-scripts:$_testopt/util-scripts:$_testopt/tool-scripts:$PATH
+
 export CONFIG=$_testopt/config/pbench-agent.cfg
+
+# Fixed timestamp output
+export _PBENCH_BENCH_TESTS=1
 
 res=0
 
@@ -68,13 +73,19 @@ function _run {
     shift
     tscrpt=$1
     shift
+
     echo "$tname $tscrpt $@"
     echo "+++ Running $tname $tscrpt" >> $_testout
-    benchmark_bin=$_testopt/unittest-scripts/bm pbench_run=$_testdir pbench_log=$_testdir/pbench.log pbench_config=$_testopt  benchmark_run_dir=$_testdir $_testopt/util-scripts/$tscrpt $@ >> $_testout 2>&1
+
+    _TEST_ALTERNATE_BENCH_LIBRARY=$_tdir/../bench-scripts/postprocess \
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$_tdir/../tool-scripts/postprocess \
+            benchmark_bin=$_testopt/unittest-scripts/bm pbench_run=$_testdir pbench_log=$_testdir/pbench.log pbench_config=$_testopt benchmark_run_dir=$_testdir $tscrpt $@ >> $_testout 2>&1
     sts=$?
+
     echo "--- Finished $tname $tscrpt (status=$sts)" >> $_testout
     return $sts
 }
+
 function _save_tree {
     # Save state of the tree
     echo "+++ pbench tree state" >> $_testout
@@ -96,6 +107,7 @@ function _save_tree {
     done >> $_testout
     echo "--- pbench tree state" >> $_testout
 }
+
 function _dump_logs {
     # Dump the state of any generated script logs
     if [ -f $_testdir/metadata.log ] ;then
@@ -111,6 +123,7 @@ function _dump_logs {
     echo "--- test-execution.log file contents" >> $_testout
     rm -f $_testroot/test-execution.log
 }
+
 function _verify_output {
     local sts tname tscrpt expected_status
     sts=$1
@@ -138,6 +151,7 @@ function _verify_output {
     fi
     return $sts
 }
+
 function _setup_state {
     local tool
     local tst
@@ -155,6 +169,7 @@ function _setup_state {
         fi
     fi
 }
+
 function _reset_state {
     rm -rf $_testdir
     if [[ -d $_testdir ]]; then
@@ -164,7 +179,6 @@ function _reset_state {
 }
 
 let errs=0
-
 
 declare -A tools=(
     [test-00]="pbench-register-tool"
@@ -189,7 +203,7 @@ declare -A tools=(
     [test-16]="pbench-list-triggers"
     [test-17]="pbench-list-triggers"
     [test-18]="pbench-list-triggers"
-    [test-19]="pbench-tool-trigger-test"
+    [test-19]="test-tool-trigger"
     [test-20]="pbench-postprocess-tools"
     [test-21]="pbench-clear-tools"
     [test-22]="pbench-metadata-log"
@@ -206,6 +220,7 @@ declare -A tools=(
     [test-33]="pbench-move-results"
     [test-34]="pbench-move-results"
 )
+
 declare -A options=(
     [test-00]="--name=mpstat --group=default -- --interval=10"
     [test-01]="--dir=$_testdir/tmp beg"
@@ -252,6 +267,7 @@ declare -A expected_status=(
 )
 
 declare -A pre_hooks=(
+    [test-20]='mkdir -p $_testdir/tmp/tools-default/iostat; touch $_testdir/tmp/tools-default/iostat/iostat-stdout.txt'
     [test-33]='(echo "+++ setup pbench results dir time stamps"; touch --date="2019-01-01 12:00:42" $_testdir/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42; touch --date="2019-01-01 12:00:43" $_testdir/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43; echo "--- setup pbench results dir time stamps") >> $_testout'
 )
 
@@ -285,6 +301,12 @@ for tst in $tests; do
     let errs=$errs+$res
     _reset_state
 done
+
+# Clean up opt subdirectory, and attempt to remove test directory entirely;
+# if we fail, ignore it as it just means there are output files present for
+# failed tests.
+rm -rf $_testroot/opt
+rmdir $_testroot > /dev/null 2>&1
 
 if [[ $errs -gt 0 ]]; then
     sts=1
