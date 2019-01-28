@@ -117,6 +117,8 @@ if ($? != 0) {
     printf "%s\nCalling pbench-gen-iterations failed, exiting\n", $get_defs_cmd;
     exit 1;
 }
+mkdir($base_bench_dir);
+open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
 # There can be multiple parts of a run if the user generated multiple parameter-sets
 # (used a "--" in their cmdline).  Each part of the run has it's own run document, 
 # but all of the run documents share the same run ID.
@@ -145,9 +147,7 @@ while (scalar @output > 0) {
                     $params{"user-desc"}, $params{"user-name"}, $params{"user-email"},
                     "pbench", ""); #todo: include tool names
     $run_doc{'run'}{'id'} = $run_id; # use the same run ID for all run docs
-    # Now run the iterations
-    mkdir($base_bench_dir);
-    open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
+    # Now run the iterations for this parameter-set
     for my $iteration_params (@iterations) {
         if ($iteration_params =~ /^#/) {
             printf "%s\n", $line;
@@ -180,12 +180,12 @@ while (scalar @output > 0) {
         }
         $iteration_id++;
     }
-    close $fh;
     $run_doc{'run'}{'end'} = time * 1000; # time in milliseconds
     put_json_file(\%run_doc, $es_dir . "/run/run" . $run_part . "-" . $run_doc{'run'}{'id'} . ".json");
     %last_run_doc = %run_doc; # We need to keep at least 1 run doc to create the config docs later
     $run_part++;
 }
+close $fh;
 # Generate the result.html (to go away once CDM/Elastic UI is available)
 system($pbench_install_path . "/bench-scripts/postprocess/generate-benchmark-summary " . $benchmark . " " . $benchmark . " " . $base_bench_dir);
 
