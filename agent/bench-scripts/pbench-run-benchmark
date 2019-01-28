@@ -149,6 +149,7 @@ while (scalar @output > 0) {
     $run_doc{'run'}{'id'} = $run_id; # use the same run ID for all run docs
     # Now run the iterations for this parameter-set
     for my $iteration_params (@iterations) {
+        chomp $iteration_params;
         if ($iteration_params =~ /^#/) {
             printf "%s\n", $line;
             next;
