@@ -35,6 +35,23 @@ _testtmp=$_testroot/tmp
 _testhtml=$_testroot/var-www-html
 _testhtml_sat=$_testroot/var-www-html-satellite
 
+function remove_path {
+    # PATH ($2) => /bin:/opt/a dir/bin:/sbin
+    WORK=:$2:
+    # WORK => :/bin:/opt/a dir/bin:/sbin:
+    REMOVE=$1
+    WORK=${WORK/:$REMOVE:/:}
+    # WORK => :/bin:/sbin:
+    WORK=${WORK%:}
+    WORK=${WORK#:}
+    #PATH=$WORK
+    # PATH => /bin:/sbin
+    echo $WORK
+}
+PATH=$(remove_path /opt/pbench-server/bin $PATH)
+PATH=$(remove_path /opt/pbench-agent/bench-scripts $PATH)
+export PATH=$(remove_path /opt/pbench-agent/util-scripts $PATH)
+
 # Fixed timestamp output
 export _PBENCH_SERVER_TEST=1
 
@@ -585,4 +602,9 @@ for test in $tests ;do
 
     _reset_state ${test}
 done
+
+# Attempt to remove test directory entirely; if we fail, ignore it as it
+# just means there are output files present for failed tests.
+rmdir $_testroot > /dev/null 2>&1
+
 exit $failures
