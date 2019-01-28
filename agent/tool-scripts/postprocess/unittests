@@ -14,8 +14,13 @@ if [[ ! -z "$1" ]]; then
     fi
 fi
 
-mkdir -p /tmp/GenData
-rm -rf /tmp/GenData/*
+export _testroot=/var/tmp/pbench-test-tools-postprocess
+mkdir -p ${_testroot}
+if [ $? -ne 0 ]; then
+    echo "ERROR - unable to create ${_testroot} directory" >&2
+    exit 1
+fi
+rm -rf ${_testroot}/*
 
 function remove_path {
     # PATH ($2) => /bin:/opt/a dir/bin:/sbin
@@ -43,14 +48,18 @@ export _TEST_SKIP_CPU_MAP=1
 function testit {
     echo "Testing $2-postprocess under sample $1 ..."
 
-    mkdir /tmp/GenData/$1
-    cp samples/$1/$2-std*.txt /tmp/GenData/$1/
-    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./$2-postprocess /tmp/GenData/$1 > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+    mkdir ${_testroot}/$1
+    cp samples/$1/$2-std*.txt ${_testroot}/$1/
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./$2-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
-    rm /tmp/GenData/$1/$2-std*.txt
+    rm ${_testroot}/$1/$2-std*.txt
 
-    diff -cr gold/$1/ /tmp/GenData/$1
-    return $?
+    diff -cr gold/$1/ ${_testroot}/$1
+    sts=$?
+    if [ $sts -eq 0 ]; then
+        rm -rf ${_testroot}/$1
+    fi
+    return $sts
 }
 
 # Remove any file that is in the sample directory that
@@ -60,19 +69,19 @@ function remove_sample_data {
     local i
     # First remove symlinks
     for i in $(cd samples/$1; find . -type l); do
-        rm -rf /tmp/GenData/$1/$i
+        rm -rf ${_testroot}/$1/$i
     done
     # Remove all files that have not changed from the
     # original sample
     for i in $(cd samples/$1; find . -type f); do
-        diff -cq samples/$1/$i /tmp/GenData/$1/$i > /dev/null 2>&1 && rm -f /tmp/GenData/$1/$i
+        diff -cq samples/$1/$i ${_testroot}/$1/$i > /dev/null 2>&1 && rm -f ${_testroot}/$1/$i
     done
     let dir_cnt=-1
     while [[ $dir_cnt -gt 0 || $dir_cnt -lt 0 ]]; do
         let dir_cnt=0
         # In the loop, exit condition set should we
         # find no empty directories.
-        for i in $(find /tmp/GenData/$1 -type d -empty); do
+        for i in $(find ${_testroot}/$1 -type d -empty); do
             let dir_cnt=$dir_cnt+1
             rmdir $i
         done
@@ -82,135 +91,181 @@ function remove_sample_data {
 function testjstack {
     echo "Testing jstack under sample $1 ..."
 
-    mkdir -p /tmp/GenData/$1
-    cp -r samples/$1 /tmp/GenData/
-    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./jstack-postprocess /tmp/GenData/$1 > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+    mkdir -p ${_testroot}/$1
+    cp -r samples/$1 ${_testroot}/
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./jstack-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
-    diff -cr gold/$1/csv /tmp/GenData/$1/csv
-    return $?
+    diff -cr gold/$1/csv ${_testroot}/$1/csv
+    sts=$?
+    if [ $sts -eq 0 ]; then
+        rm -rf ${_testroot}/$1
+    fi
+    return $sts
 }
 
 function testprocessiterationsamples {
     echo "Testing bench-scripts/postprocess/process-iteration-samples under sample $1 ..."
 
-    mkdir /tmp/GenData/$1
-    cp -r samples/$1/* /tmp/GenData/$1
+    mkdir ${_testroot}/$1
+    cp -r samples/$1/* ${_testroot}/$1
 
     _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
-        ../../bench-scripts/postprocess/process-iteration-samples /tmp/GenData/$1 `cat /tmp/GenData/$1/process-iteration-samples-args` > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+        ../../bench-scripts/postprocess/process-iteration-samples ${_testroot}/$1 `cat ${_testroot}/$1/process-iteration-samples-args` > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
     remove_sample_data $1
 
-    diff -cr gold/$1/ /tmp/GenData/$1
-    return $?
+    diff -cr gold/$1/ ${_testroot}/$1
+    sts=$?
+    if [ $sts -eq 0 ]; then
+        rm -rf ${_testroot}/$1
+    fi
+    return $sts
 }
 
 function testgeneratebenchmarksummary {
     echo "Testing bench-scripts/postprocess/generate-benchmark-summary under sample $1 ..."
 
-    mkdir /tmp/GenData/$1
-    cp -r samples/$1/* /tmp/GenData/$1
+    mkdir ${_testroot}/$1
+    cp -r samples/$1/* ${_testroot}/$1
 
     _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
-        ../../bench-scripts/postprocess/generate-benchmark-summary $1 unused-orig-cmd /tmp/GenData/$1 > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+        ../../bench-scripts/postprocess/generate-benchmark-summary $1 unused-orig-cmd ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
     remove_sample_data $1
 
-    diff -qr gold/$1/ /tmp/GenData/$1
-    return $?
+    diff -qr gold/$1/ ${_testroot}/$1
+    sts=$?
+    if [ $sts -eq 0 ]; then
+        rm -rf ${_testroot}/$1
+    fi
+    return $sts
 }
 
 function testuperf {
     echo "Testing bench-scripts/postprocess/uperf-postprocess under sample $1 ..."
 
-    mkdir /tmp/GenData/$1
-    cp -r samples/$1/* /tmp/GenData/$1
+    mkdir ${_testroot}/$1
+    cp -r samples/$1/* ${_testroot}/$1
 
     _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
-        ../../bench-scripts/postprocess/uperf-postprocess /tmp/GenData/$1 `cat /tmp/GenData/$1/uperf-postprocess-args` > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+        ../../bench-scripts/postprocess/uperf-postprocess ${_testroot}/$1 `cat ${_testroot}/$1/uperf-postprocess-args` > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
     # /usr/bin/perl -e 'use JSON; print $INC{"JSON.pm"} . "\n"; print $JSON::VERSION . "\n"'
     # ./perl-JSON-version
     remove_sample_data $1
 
-    diff -cr gold/$1/ /tmp/GenData/$1
-    return $?
+    diff -cr gold/$1/ ${_testroot}/$1
+    sts=$?
+    if [ $sts -eq 0 ]; then
+        rm -rf ${_testroot}/$1
+    fi
+    return $sts
 }
 
 function testpcp {
     echo "Testing pcp-postprocess under sample $1 ..."
-    mkdir /tmp/GenData/$1
-    cp -r samples/$1/* /tmp/GenData/$1
+
+    mkdir ${_testroot}/$1
+    cp -r samples/$1/* ${_testroot}/$1
+
     PATH=$(pwd)/mock-bin:$PATH _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
-        ./pcp-postprocess /tmp/GenData/$1 > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+        ./pcp-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
+
     remove_sample_data $1
-    diff -cr gold/$1/ /tmp/GenData/$1
-    return $?
+
+    diff -cr gold/$1/ ${_testroot}/$1
+    sts=$?
+    if [ $sts -eq 0 ]; then
+        rm -rf ${_testroot}/$1
+    fi
+    return $sts
 }
 
 function testfio {
     echo "Testing bench-scripts/postprocess/fio-postprocess under sample $1 ..."
 
-    mkdir /tmp/GenData/$1
-    cp -r samples/$1/* /tmp/GenData/$1
+    mkdir ${_testroot}/$1
+    cp -r samples/$1/* ${_testroot}/$1
 
     _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
-        ../../bench-scripts/postprocess/fio-postprocess /tmp/GenData/$1/result/reference-result fio- default > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+        ../../bench-scripts/postprocess/fio-postprocess ${_testroot}/$1/result/reference-result fio- default > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
     remove_sample_data $1
 
-    diff -cr gold/$1/ /tmp/GenData/$1
-    return $?
+    diff -cr gold/$1/ ${_testroot}/$1
+    sts=$?
+    if [ $sts -eq 0 ]; then
+        rm -rf ${_testroot}/$1
+    fi
+    return $sts
 }
 
 function testhaproxy_ocp {
     echo "Testing haproxy-ocp-postprocess under sample $1 ..."
 
-    mkdir /tmp/GenData/$1
-    cp samples/$1/router*.csv /tmp/GenData/$1/
-    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./haproxy-ocp-postprocess /tmp/GenData/$1 > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+    mkdir ${_testroot}/$1
+    cp samples/$1/router*.csv ${_testroot}/$1/
 
-    diff -cr gold/$1/ /tmp/GenData/$1
-    return $?
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./haproxy-ocp-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
+
+    diff -cr gold/$1/ ${_testroot}/$1
+    sts=$?
+    if [ $sts -eq 0 ]; then
+        rm -rf ${_testroot}/$1
+    fi
+    return $sts
 }
 
 function testjmap {
     echo "Testing jmap under sample $1 ..."
 
-    mkdir -p /tmp/GenData/$1
-    cp -r samples/$1 /tmp/GenData/
-    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./jmap-postprocess /tmp/GenData/$1 > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr
+    mkdir -p ${_testroot}/$1
+    cp -r samples/$1 ${_testroot}/
 
-    diff -cr gold/$1/csv /tmp/GenData/$1/csv
-    return $?
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./jmap-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
+
+    diff -cr gold/$1/csv ${_testroot}/$1/csv
+    sts=$?
+    if [ $sts -eq 0 ]; then
+        rm -rf ${_testroot}/$1
+    fi
+    return $sts
 }
 
 function testprometheus-metrics {
     echo "Testing prometheus-metrics-postprocess under sample $1 ..."
 
-    mkdir -p /tmp/GenData/$1/json
-    cp -r samples/$1/* /tmp/GenData/$1
-    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./prometheus-metrics-postprocess /tmp/GenData/$1/metrics-stdout /tmp/GenData/$1/json/metrics.json 2> /tmp/GenData/$1/stderr
+    mkdir -p ${_testroot}/$1/json
+    cp -r samples/$1/* ${_testroot}/$1
 
-    diff -cr gold/$1/stderr /tmp/GenData/$1/stderr &&  diff -cr gold/$1/json/ /tmp/GenData/$1/json/
-    return $?
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./prometheus-metrics-postprocess ${_testroot}/$1/metrics-stdout ${_testroot}/$1/json/metrics.json 2> ${_testroot}/$1/stderr
+
+    diff -cr gold/$1/stderr ${_testroot}/$1/stderr && diff -cr gold/$1/json/ ${_testroot}/$1/json/
+    sts=$?
+    if [ $sts -eq 0 ]; then
+        rm -rf ${_testroot}/$1
+    fi
+    return $sts
 }
 
 function testcmpr {
     echo "Testing bench-scripts/postprocess/compare-bench-results under sample $1 ..."
 
-    mkdir /tmp/GenData/$1
-    rm -rf /tmp/GenData/$1
-    cp -a samples/$1 /tmp/GenData/
+    rm -rf ${_testroot}/$1
+    cp -a samples/$1 ${_testroot}/
 
     # Run the test
     fullcmd=$(realpath ../../bench-scripts/postprocess/compare-bench-results)
-    (cd /tmp/GenData/$1; $fullcmd comparison * > /tmp/GenData/$1/stdout 2> /tmp/GenData/$1/stderr)
+    (cd ${_testroot}/$1; $fullcmd comparison * > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr)
 
     remove_sample_data $1
 
-    diff -cr gold/$1/ /tmp/GenData/$1
-    return $?
+    diff -cr gold/$1/ ${_testroot}/$1
+    sts=$?
+    if [ $sts -eq 0 ]; then
+        rm -rf ${_testroot}/$1
+    fi
+    return $sts
 }
 
 res=0
@@ -273,5 +328,9 @@ for i in $(ls -1 samples/) ; do
     fi
     let res=$res+$sts
 done
+
+# Attempt to remove the test directory; if it fails we ignore the failure
+# as it indicates failed test output left for review.
+rmdir ${_testroot} > /dev/null 2>&1
 
 exit $res
