@@ -17,6 +17,22 @@ fi
 mkdir -p /tmp/GenData
 rm -rf /tmp/GenData/*
 
+function remove_path {
+    # PATH ($2) => /bin:/opt/a dir/bin:/sbin
+    WORK=:$2:
+    # WORK => :/bin:/opt/a dir/bin:/sbin:
+    REMOVE=$1
+    WORK=${WORK/:$REMOVE:/:}
+    # WORK => :/bin:/sbin:
+    WORK=${WORK%:}
+    WORK=${WORK#:}
+    #PATH=$WORK
+    # PATH => /bin:/sbin
+    echo $WORK
+}
+PATH=$(remove_path /opt/pbench-agent/bench-scripts $PATH)
+export PATH=$(remove_path /opt/pbench-agent/util-scripts $PATH)
+
 # the timestamps in the data are (or should be) in UTC
 # make sure that we test in that environment, else the
 # timestamps will show a constant offset.
