@@ -78,7 +78,7 @@ class BadResultData(Exception):
     pass
 
 _ts_start = None
-def ts(msg, newline=False):
+def _ts(msg, newline=False):
     """Debugging helper for emitting a timestamp aiding timing.
     """
     global _ts_start
@@ -247,8 +247,17 @@ class PbenchData(object):
            It is assumed the given timestamp is a float in milliseconds since
            the epoch and is in UTC.
         """
-        ts_float = float(orig_ts)/1000
-        ts = datetime.utcfromtimestamp(ts_float)
+        try:
+            orig_ts_float = float(orig_ts)
+        except Exception as e:
+            raise BadDate("{!r} is not a float in milliseconds since the"
+                    " epoch: {}".format(orig_ts, e))
+        ts_float = orig_ts_float/1000
+        try:
+            ts = datetime.utcfromtimestamp(ts_float)
+        except Exception as e:
+            raise BadDate("{:f} ({!r}) is not a proper float in seconds since"
+                    " the epoch: {}".format(ts_float, orig_ts, e))
         if ts < self.ptb.start_run_ts:
             # The calculated timestamp, `ts`, is earlier that the timestamp of
             # the start of the pbench run itself, `start_run_ts`.  That can
@@ -270,14 +279,23 @@ class PbenchData(object):
             # timestamp.  If the new absolute timestamp is beyond the end of
             # the run, it is likely that the timestamp is not relative so we
             # raise an error.
-            d = timedelta(0, 0, orig_ts * 1000)
-            ts = self.ptb.start_run_ts + d
-            if ts > self.ptb.end_run_ts:
+            try:
+                d = timedelta(0, 0, orig_ts_float * 1000)
+            except Exception as e:
+                raise BadDate("{:f} ({!r}) is not a proper float in"
+                        " milliseconds since the epoch: {}".format(
+                            orig_ts_float, orig_ts, e))
+            newts = self.ptb.start_run_ts + d
+            if newts > self.ptb.end_run_ts:
                 self.counters['ts_before_start_run_ts'] += 1
-                raise BadDate()
+                raise BadDate("{} ({!r}) is before the start of the"
+                        " run ({})".format(ts, orig_ts, self.ptb.start_run_ts))
+            else:
+                ts = newts
         elif ts > self.ptb.end_run_ts:
             self.counters['ts_after_end_run_ts'] += 1
-            raise BadDate()
+            raise BadDate("{} ({!r}) is after the end of the"
+                    " run ({})".format(ts, orig_ts, self.ptb.end_run_ts))
         return ts.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
     def generate_index_name(self, template, prefix, source, tool=None):
@@ -1997,18 +2015,18 @@ def mk_run_action(ptb, options, idx_prefix, idx_patterns, opctx):
     # debug: -T options will cause each call below to be timed
     # and the elapsed interval printed.
     debug_time_operations = options.debug_time_operations
-    if debug_time_operations: ts("mk_metadata")
+    if debug_time_operations: _ts("mk_metadata")
     source['@metadata'] = mk_metadata(ptb.tbname, ptb.tb, ptb.mdconf, ptb.md5sum)
     if options.metadata_string:
-        if debug_time_operations: ts("mk_user_specified_metadata")
+        if debug_time_operations: _ts("mk_user_specified_metadata")
         source['user_specified_metadata'] = mk_user_specified_metadata(options)
-    #if debug_time_operations: ts("mk_pbench_metadata")
+    #if debug_time_operations: _ts("mk_pbench_metadata")
     #source['pbench'] = mk_pbench_metadata(mdconf)
-    if debug_time_operations: ts("mk_run_metadata")
+    if debug_time_operations: _ts("mk_run_metadata")
     source['run'] = mk_run_metadata(ptb)
-    if debug_time_operations: ts("mk_sosreports")
+    if debug_time_operations: _ts("mk_sosreports")
     source['sosreports'] = sos_d = mk_sosreports(ptb.tb)
-    if debug_time_operations: ts("mk_tool_info")
+    if debug_time_operations: _ts("mk_tool_info")
     source['host_tools_info'] = mk_tool_info(sos_d, ptb.mdconf)
 
     # make a simple action for indexing
@@ -2022,7 +2040,7 @@ def mk_run_action(ptb, options, idx_prefix, idx_patterns, opctx):
         _id=ptb.md5sum,
         _source=source,
     )
-    if debug_time_operations: ts("Done!", newline=True)
+    if debug_time_operations: _ts("Done!", newline=True)
     return action
 
 def make_all_actions(ptb, options, idx_prefix, idx_patterns, opctx):
@@ -2032,18 +2050,18 @@ def make_all_actions(ptb, options, idx_prefix, idx_patterns, opctx):
     all the tool data.
     """
     debug_time_operations = options.debug_time_operations
-    if debug_time_operations: ts("mk_run_action")
+    if debug_time_operations: _ts("mk_run_action")
     yield mk_run_action(ptb, options, idx_prefix, idx_patterns, opctx)
-    if debug_time_operations: ts("mk_toc_actions")
+    if debug_time_operations: _ts("mk_toc_actions")
     for action in mk_toc_actions(ptb, options, idx_prefix, idx_patterns, opctx):
         yield action
-    if debug_time_operations: ts("mk_result_data_actions")
+    if debug_time_operations: _ts("mk_result_data_actions")
     for action in mk_result_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
         yield action
-    if debug_time_operations: ts("mk_tool_data_actions")
+    if debug_time_operations: _ts("mk_tool_data_actions")
     for action in mk_tool_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
         yield action
-    if debug_time_operations: ts("", newline=True)
+    if debug_time_operations: _ts("", newline=True)
     return
 
 
@@ -2113,7 +2131,7 @@ class PbenchTarBall(object):
 
         This is offered as a service once here when processing a tar ball
         so that any code needing the start or end of a run has a timestamp
-        in a form they can use that is consistent with all the other uses. 
+        in a form they can use that is consistent with all the other uses.
         """
         # Fetch the original values from the metadata.log file.
         start_run_orig = self.mdconf.get('run', 'start_run')
@@ -2292,7 +2310,7 @@ def main(options, args):
                 ptb, options, INDEX_PREFIX, _index_patterns, opctx)
 
         # Create the various index templates
-        if options.debug_time_operations: ts("es_template")
+        if options.debug_time_operations: _ts("es_template")
         es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config, dbg=_DEBUG)
 
         # returns 0 or 1
@@ -2301,7 +2319,7 @@ def main(options, args):
         else:
             ie_filename = os.path.join(options.tmpdir, "index-pbench.error-log.json")
         with open(ie_filename, "w") as fp:
-            if options.debug_time_operations: ts("es_index")
+            if options.debug_time_operations: _ts("es_index")
             res = es_index(es, actions, fp, dbg=_DEBUG)
             beg, end, successes, duplicates, failures, retries = res
             print("\tdone indexing (end ts: %s, duration: %.2fs,"
@@ -2319,19 +2337,19 @@ def main(options, args):
         res = 3
 
     except UnsupportedTarballFormat as e:
-        print("Unsupported Tarball Format: ", e, file=sys.stderr)
+        print("Unsupported Tarball Format: {}".format(e), file=sys.stderr)
         res = 4
 
     except BadDate as e:
-        print("Bad Date: ", e, file=sys.stderr)
+        print("Bad Date: {!r}".format(e), file=sys.stderr)
         res = 5
 
     except filenotfounderror as e:
-        print("No such file: ", e, file=sys.stderr)
+        print("No such file: {}".format(e), file=sys.stderr)
         res = 6
 
     except BadMDLogFormat as e:
-        print("The metadata.log file is curdled in tarball: ", e, file=sys.stderr)
+        print("The metadata.log file is curdled in tarball: {}".format(e), file=sys.stderr)
         res = 7
 
     except MappingFileError as e:
@@ -2343,7 +2361,7 @@ def main(options, args):
         res = 9
 
     except SosreportHostname as e:
-        print("Bad hostname in sosreport: ", e, file=sys.stderr)
+        print("Bad hostname in sosreport: {}".format(e), file=sys.stderr)
         res = 10
 
     except tarfile.TarError as e:
@@ -2352,7 +2370,7 @@ def main(options, args):
 
     # this is Spinal Tap
     except Exception as e:
-        print("Other error", e, file=sys.stderr)
+        print("Other error: {}".format(e), file=sys.stderr)
         import traceback
         print(traceback.format_exc())
         res = 12
@@ -2363,9 +2381,9 @@ def main(options, args):
             if ctx['counters']:
                 dump = True
         if dump:
-            print("** Errors encountered while indexing:")
-            print(json.dumps(opctx, indent=4, sort_keys=True))
-        if options.debug_time_operations: ts("Done", newline=True)
+            print("** Errors encountered while indexing:\n{}\n".format(
+                    json.dumps(opctx, indent=4, sort_keys=True)), file=sys.stderr)
+        if options.debug_time_operations: _ts("Done", newline=True)
 
     # status codes: these are used by pbench-index to segregate tarballs into
     #               classes: should we retry (perhaps after fixing bugs in the
