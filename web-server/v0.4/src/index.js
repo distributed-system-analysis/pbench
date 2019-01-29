@@ -1,9 +1,12 @@
 import './polyfill';
 import dva from 'dva';
 
-import createHistory from 'history/createHashHistory';
-// user BrowserHistory
-// import createHistory from 'history/createBrowserHistory';
+/**
+ * Use `history/createHashHistory` to support legacy web browsers.
+ * Use `history/createBrowserHistory` for use in modern web browsers
+ * that support the HTML5 History API.
+ */
+import createHistory from 'history/createBrowserHistory';
 import createLoading from 'dva-loading';
 
 import './index.less';
