@@ -552,10 +552,11 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									benchmark_client_cmd_file="$iteration_dir/$uperf_identifier--client_start.sh"
 									benchmark_server_cmd_file="$iteration_dir/$uperf_identifier--server_start.sh"
 									result_file="$benchmark_results_dir/$uperf_identifier--client_output.txt"
+									server_log="$benchmark_results_dir/$uperf_identifier--server.log"
 									gen_xml $server $protocol ${runtime}s $message_size $instance $test_type >$xml_file
 
 									# construct the server command
-									benchmark_server_cmd="/usr/local/bin/uperf -s -P $server_port"
+									benchmark_server_cmd="${benchmark_bin} -v -s -P $server_port > ${server_log} 2>&1"
 									# adjust server command for NUMA binding
 									if [ ! -z "$server_node" ]; then
 										if [ $server_node -ge 0 ]; then
@@ -571,8 +572,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									if [ "$log_response_times" == "y" ]; then
 										resp_opt=" -X $benchmark_results_dir/$uperf_identifier--response-times.txt"
 									fi
-									#benchmark_client_cmd="profile=${protocol}_$test_type test=$test_type nthr=$instance size=$message_size h=$server proto=$protocol runtime=${runtime}s $benchmark_bin -m $xml_file -x -a -i 1 $resp_opt -P $server_port >$result_file 2>&1"
-									benchmark_client_cmd="$benchmark_bin -m $xml_file -x -a -i 1 $resp_opt -P $server_port >$result_file 2>&1"
+									benchmark_client_cmd="${benchmark_bin} -v -m $xml_file -x -a -i 1 $resp_opt -P $server_port >$result_file 2>&1"
 									# adjust client command for NUMA binding
 									if [ ! -z "$client_node" ]; then
 										if [ $client_node -ge 0 ]; then
@@ -661,6 +661,8 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									server_port=`echo "$port_number_gap * $server_nr + $server_base_port" | bc`
 									uperf_identifier="client::$client-server::$server:$server_port"
 									stop_server $server $server_port 0
+									server_log="$benchmark_results_dir/$uperf_identifier--server.log"
+									scp $scp_opts $server:$server_log $server_log >/dev/null
 									if [ ! -z "$clients" ]; then
 										result_file="$benchmark_results_dir/$uperf_identifier--client_output.txt"
 										scp $scp_opts $client:$result_file $result_file >/dev/null
