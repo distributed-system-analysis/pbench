@@ -32,7 +32,7 @@ echo ""
 echo ""
 echo "+++ Server Unit Tests +++"
 echo ""
-$dir/server/pbench/bin/unittests
+$dir/server/bin/unittests
 let sts=sts+$?
 echo ""
 echo "--- Server Unit Tests ---"

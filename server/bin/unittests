@@ -6,7 +6,7 @@ export LANG=C
 export LC_ALL=C
 
 _tdir=$(dirname $(readlink -f $0))
-_gitdir=$(dirname $(dirname $(dirname $_tdir)))
+_gitdir=$(dirname $(dirname $_tdir))
 _tlib=${_tdir}/../lib
 
 _testroot=/var/tmp/pbench-test-server
