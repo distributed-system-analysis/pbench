@@ -2,45 +2,45 @@
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running unit test audit
 --- Finished unit test audit (status=0)
-+++ var/www/html tree state (/var/tmp/pbench-test-server/var-www-html)
-lrwxrwxrwx         55 incoming -> /var/tmp/pbench-test-server/pbench/public_html/incoming
++++ var/www/html tree state (/var/tmp/pbench-test-server/test-16/var-www-html)
+lrwxrwxrwx         63 incoming -> /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
--rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--        118 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
--rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--        118 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
-lrwxrwxrwx         54 results -> /var/tmp/pbench-test-server/pbench/public_html/results
-lrwxrwxrwx         53 static -> /var/tmp/pbench-test-server/pbench/public_html/static
-lrwxrwxrwx         52 users -> /var/tmp/pbench-test-server/pbench/public_html/users
+lrwxrwxrwx         62 results -> /var/tmp/pbench-test-server/test-16/pbench/public_html/results
+lrwxrwxrwx         61 static -> /var/tmp/pbench-test-server/test-16/pbench/public_html/static
+lrwxrwxrwx         60 users -> /var/tmp/pbench-test-server/test-16/pbench/public_html/users
 --- var/www/html tree state
-+++ results host info (/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-001
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
++++ results host info (/var/tmp/pbench-test-server/test-16/var-www-html/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-16/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-16/pbench-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/test-16/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+/var/tmp/pbench-test-server/test-16/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-16/pbench-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-16/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
-+++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/var-www-html-satellite)
-lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/pbench-satellite/public_html/incoming
++++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-16/var-www-html-satellite)
+lrwxrwxrwx         73 incoming -> /var/tmp/pbench-test-server/test-16/pbench-satellite/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
--rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--        138 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
--rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--        138 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
-lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/pbench-satellite/public_html/results
-lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/pbench-satellite/public_html/static
-lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/pbench-satellite/public_html/users
+lrwxrwxrwx         72 results -> /var/tmp/pbench-test-server/test-16/pbench-satellite/public_html/results
+lrwxrwxrwx         71 static -> /var/tmp/pbench-test-server/test-16/pbench-satellite/public_html/static
+lrwxrwxrwx         70 users -> /var/tmp/pbench-test-server/test-16/pbench-satellite/public_html/users
 --- var/www/html-satellite tree state
-+++ results host info (/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-001
-/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
-/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
++++ results host info (/var/tmp/pbench-test-server/test-16/var-www-html-satellite/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-16/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-16/pbench-satellite-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/test-16/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+/var/tmp/pbench-test-server/test-16/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-16/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-16/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
-+++ pbench tree state (/var/tmp/pbench-test-server/pbench)
++++ pbench tree state (/var/tmp/pbench-test-server/test-16/pbench)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/controller00
@@ -129,28 +129,28 @@ drwxrwxr-x          - public_html/incoming/controller02/benchmark-result-small_1
 -rw-rw-r--        730 public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00/lines.10.txt
 drwxrwxr-x          - public_html/results
 drwxrwxr-x          - public_html/results/controller00
-lrwxrwxrwx        111 public_html/results/controller00/benchmark-result-large_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00
+lrwxrwxrwx        119 public_html/results/controller00/benchmark-result-large_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00
 drwxrwxr-x          - public_html/results/controller01
 drwxrwxr-x          - public_html/results/controller01/prefix01
-lrwxrwxrwx        112 public_html/results/controller01/prefix01/benchmark-result-medium_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00
+lrwxrwxrwx        120 public_html/results/controller01/prefix01/benchmark-result-medium_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00
 drwxrwxr-x          - public_html/results/controller02
 drwxrwxr-x          - public_html/results/controller02/prefix02
-lrwxrwxrwx        111 public_html/results/controller02/prefix02/benchmark-result-small_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00
+lrwxrwxrwx        119 public_html/results/controller02/prefix02/benchmark-result-small_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00
 drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/users
 drwxrwxr-x          - public_html/users/user01
 drwxrwxr-x          - public_html/users/user01/controller01
 drwxrwxr-x          - public_html/users/user01/controller01/prefix01
-lrwxrwxrwx        112 public_html/users/user01/controller01/prefix01/benchmark-result-medium_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00
+lrwxrwxrwx        120 public_html/users/user01/controller01/prefix01/benchmark-result-medium_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00
 --- pbench tree state
-+++ pbench-local tree state (/var/tmp/pbench-test-server/pbench-local)
++++ pbench-local tree state (/var/tmp/pbench-test-server/test-16/pbench-local)
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
--rw-rw-r--        194 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
--rw-rw-r--       1450 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+-rw-rw-r--        202 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
+-rw-rw-r--       1514 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -164,7 +164,7 @@ drwxrwxr-x          - quarantine/md5-002
 drwxrwxr-x          - tmp
 -rw-rw-r--        442 tmp/README.pbench-unpack-tarballs.sorting
 --- pbench-local tree state
-+++ pbench-satellite tree state (/var/tmp/pbench-test-server/pbench-satellite)
++++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-16/pbench-satellite)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - public_html
@@ -173,7 +173,7 @@ drwxrwxr-x          - public_html/results
 drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/users
 --- pbench-satellite tree state
-+++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/pbench-satellite-local)
++++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-16/pbench-satellite-local)
 drwxrwxr-x          - logs
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
@@ -194,16 +194,16 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.log
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-unpack-tarballs/pbench-unpack-tarballs.error
-run-1900-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz does not exist
+run-1900-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/test-16/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz does not exist
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.error
 +++++ pbench-unpack-tarballs/pbench-unpack-tarballs.log
 run-1900-01-01T00:00:00-UTC
-ln -s /var/tmp/pbench-test-server/pbench/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/results/controller02/prefix02/benchmark-result-small_1900-01-01T00:00:00
+ln -s /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00 /var/tmp/pbench-test-server/test-16/pbench/public_html/results/controller02/prefix02/benchmark-result-small_1900-01-01T00:00:00
 run-1900-01-01T00:00:00-UTC: controller02/benchmark-result-small_1900-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 848
-ln -s /var/tmp/pbench-test-server/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/results/controller01/prefix01/benchmark-result-medium_1900-01-01T00:00:00
-ln -s /var/tmp/pbench-test-server/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/users/user01/controller01/prefix01/benchmark-result-medium_1900-01-01T00:00:00
+ln -s /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00 /var/tmp/pbench-test-server/test-16/pbench/public_html/results/controller01/prefix01/benchmark-result-medium_1900-01-01T00:00:00
+ln -s /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00 /var/tmp/pbench-test-server/test-16/pbench/public_html/users/user01/controller01/prefix01/benchmark-result-medium_1900-01-01T00:00:00
 run-1900-01-01T00:00:00-UTC: controller01/benchmark-result-medium_1900-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 3180
-ln -s /var/tmp/pbench-test-server/pbench/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00 /var/tmp/pbench-test-server/pbench/public_html/results/controller00/benchmark-result-large_1900-01-01T00:00:00
+ln -s /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00 /var/tmp/pbench-test-server/test-16/pbench/public_html/results/controller00/benchmark-result-large_1900-01-01T00:00:00
 run-1900-01-01T00:00:00-UTC: controller00/benchmark-result-large_1900-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 5920
 run-1900-01-01T00:00:00-UTC: Processed 3 tarballs
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
@@ -212,7 +212,7 @@ run-1900-01-01T00:00:00-UTC: Processed 3 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ test-execution.log file contents
-curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-unpack-tarballs.1900-01/status/f6f9c99306ce74f99a18adc6274bbb63 --data @/tmp/pbench-report-status.NNNN/payload
+curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-unpack-tarballs.1900-01/status/04b8dc6d5028256cf061d68eed01349d --data @/tmp/pbench-report-status.NNNN/payload
 curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/a31a32f626ba4c79e940a02029c58ac1 --data @/tmp/pbench-report-status.NNNN/payload
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
@@ -220,7 +220,7 @@ curl --silent --show-error -XPOST -H Content-Type: application/json --output /tm
     "@timestamp": "1900-01-01T00:00:00",
     "doctype": "status",
     "name": "pbench-unpack-tarballs",
-    "text": "pbench-unpack-tarballs.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 1 errors\nProcessed 5 result tar balls, 3 successfully, 0 warnings, 1 errors, and 1 duplicates\n\nrun-1900-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz does not exist\n"
+    "text": "pbench-unpack-tarballs.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 1 errors\nProcessed 5 result tar balls, 3 successfully, 0 warnings, 1 errors, and 1 duplicates\n\nrun-1900-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/test-16/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz does not exist\n"
 }
 {
     "@timestamp": "1900-01-01T00:00:00",

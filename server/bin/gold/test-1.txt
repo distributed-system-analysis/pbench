@@ -1,83 +1,83 @@
 +++ Running pbench-server-prep-shim-001
-pbench-server-prep-shim-001: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
+pbench-server-prep-shim-001: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-server-prep-shim-001 (status=1)
 +++ Running pbench-server-prep-shim-002
-pbench-server-prep-shim-002: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
+pbench-server-prep-shim-002: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-server-prep-shim-002 (status=1)
 +++ Running pbench-sync-satellite
-pbench-sync-satellite: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
+pbench-sync-satellite: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-sync-satellite (status=1)
 +++ Running pbench-dispatch
-pbench-dispatch: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
+pbench-dispatch: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-dispatch (status=1)
 +++ Running pbench-unpack-tarballs
-pbench-unpack-tarballs: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
+pbench-unpack-tarballs: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-unpack-tarballs (status=1)
 +++ Running pbench-move-unpacked
-pbench-move-unpacked: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
+pbench-move-unpacked: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-move-unpacked (status=1)
 +++ Running pbench-copy-sosreports
-pbench-copy-sosreports: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
+pbench-copy-sosreports: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-copy-sosreports (status=1)
 +++ Running pbench-index
-pbench-index: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
+pbench-index: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-index (status=1)
 +++ Running pbench-clean-up-dangling-results-links
-pbench-clean-up-dangling-results-links: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
+pbench-clean-up-dangling-results-links: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-clean-up-dangling-results-links (status=1)
 +++ Running pbench-edit-prefixes
-pbench-edit-prefixes: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
+pbench-edit-prefixes: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-edit-prefixes (status=1)
 +++ Running pbench-backup-tarballs
 --- Finished pbench-backup-tarballs (status=1)
 +++ Running pbench-verify-backup-tarballs
-pbench-verify-backup-tarballs: Bad archive: /var/tmp/pbench-test-server/pbench/archive/fs-version-001
+pbench-verify-backup-tarballs: Bad archive: /var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-verify-backup-tarballs (status=1)
 +++ Running pbench-satellite-cleanup
-pbench-satellite-cleanup: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench-satellite/archive/fs-version-001
+pbench-satellite-cleanup: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench-satellite/archive/fs-version-001
 --- Finished pbench-satellite-cleanup (status=1)
 +++ Running unit test audit
-pbench-audit-server: Bad ARCHIVE=/var/tmp/pbench-test-server/pbench/archive/fs-version-001
+pbench-audit-server: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished unit test audit (status=1)
-+++ var/www/html tree state (/var/tmp/pbench-test-server/var-www-html)
-lrwxrwxrwx         55 incoming -> /var/tmp/pbench-test-server/pbench/public_html/incoming
++++ var/www/html tree state (/var/tmp/pbench-test-server/test-1/var-www-html)
+lrwxrwxrwx         62 incoming -> /var/tmp/pbench-test-server/test-1/pbench/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
--rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--        117 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
--rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--        117 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
-lrwxrwxrwx         54 results -> /var/tmp/pbench-test-server/pbench/public_html/results
-lrwxrwxrwx         53 static -> /var/tmp/pbench-test-server/pbench/public_html/static
-lrwxrwxrwx         52 users -> /var/tmp/pbench-test-server/pbench/public_html/users
+lrwxrwxrwx         61 results -> /var/tmp/pbench-test-server/test-1/pbench/public_html/results
+lrwxrwxrwx         60 static -> /var/tmp/pbench-test-server/test-1/pbench/public_html/static
+lrwxrwxrwx         59 users -> /var/tmp/pbench-test-server/test-1/pbench/public_html/users
 --- var/www/html tree state
-+++ results host info (/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-001
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
++++ results host info (/var/tmp/pbench-test-server/test-1/var-www-html/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-1/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-1/pbench-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/test-1/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+/var/tmp/pbench-test-server/test-1/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-1/pbench-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-1/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
-+++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/var-www-html-satellite)
-lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/pbench-satellite/public_html/incoming
++++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-1/var-www-html-satellite)
+lrwxrwxrwx         72 incoming -> /var/tmp/pbench-test-server/test-1/pbench-satellite/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
--rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--        137 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
--rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--        137 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
-lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/pbench-satellite/public_html/results
-lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/pbench-satellite/public_html/static
-lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/pbench-satellite/public_html/users
+lrwxrwxrwx         71 results -> /var/tmp/pbench-test-server/test-1/pbench-satellite/public_html/results
+lrwxrwxrwx         70 static -> /var/tmp/pbench-test-server/test-1/pbench-satellite/public_html/static
+lrwxrwxrwx         69 users -> /var/tmp/pbench-test-server/test-1/pbench-satellite/public_html/users
 --- var/www/html-satellite tree state
-+++ results host info (/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-001
-/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
-/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
++++ results host info (/var/tmp/pbench-test-server/test-1/var-www-html-satellite/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-1/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-1/pbench-satellite-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/test-1/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+/var/tmp/pbench-test-server/test-1/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-1/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-1/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
-+++ pbench tree state (/var/tmp/pbench-test-server/pbench)
++++ pbench tree state (/var/tmp/pbench-test-server/test-1/pbench)
 drwxrwxr-x          - no-archive
 drwxrwxr-x          - no-archive/fs-version-001
 drwxrwxr-x          - public_html
@@ -86,10 +86,10 @@ drwxrwxr-x          - public_html/results
 drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/users
 --- pbench tree state
-+++ pbench-local tree state (/var/tmp/pbench-test-server/pbench-local)
++++ pbench-local tree state (/var/tmp/pbench-test-server/test-1/pbench-local)
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-backup-tarballs
--rw-rw-r--        141 logs/pbench-backup-tarballs/pbench-backup-tarballs.error
+-rw-rw-r--        148 logs/pbench-backup-tarballs/pbench-backup-tarballs.error
 -rw-rw-r--         30 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
@@ -103,7 +103,7 @@ drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
 drwxrwxr-x          - tmp
 --- pbench-local tree state
-+++ pbench-satellite tree state (/var/tmp/pbench-test-server/pbench-satellite)
++++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-1/pbench-satellite)
 drwxrwxr-x          - no-archive
 drwxrwxr-x          - no-archive/fs-version-001
 drwxrwxr-x          - public_html
@@ -112,7 +112,7 @@ drwxrwxr-x          - public_html/results
 drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/users
 --- pbench-satellite tree state
-+++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/pbench-satellite-local)
++++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-1/pbench-satellite-local)
 drwxrwxr-x          - logs
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
@@ -129,7 +129,7 @@ drwxrwxr-x          - tmp
 +++ pbench log file contents
 ++++ pbench-local/logs
 +++++ pbench-backup-tarballs/pbench-backup-tarballs.error
-pbench-backup-tarballs: The ARCHIVE directory does not resolve to a real location, /var/tmp/pbench-test-server/pbench/archive/fs-version-001
+pbench-backup-tarballs: The ARCHIVE directory does not resolve to a real location, /var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 ----- pbench-backup-tarballs/pbench-backup-tarballs.error
 +++++ pbench-backup-tarballs/pbench-backup-tarballs.log
 start-1900-01-01T00:00:00-UTC

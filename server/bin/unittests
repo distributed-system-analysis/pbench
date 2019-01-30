@@ -5,35 +5,10 @@ unset CONFIG
 export LANG=C
 export LC_ALL=C
 
-_tdir=$(dirname $(readlink -f $0))
-_gitdir=$(dirname $(dirname $_tdir))
-_tlib=${_tdir}/../lib
-
-_testroot=/var/tmp/pbench-test-server
-mkdir -p $_testroot
-if [[ ! -d $_testroot ]]; then
-    echo "ERROR: failed to create test root directory, \"$_testroot\"" >&2
-    exit 1
-fi
-rm -rf $_testroot/*
-if [[ $? -gt 0 ]]; then
-    echo "ERROR: failed to empty test root directory, \"$_testroot\"" >&2
-    exit 1
-fi
-
-_testout=$_testroot/output.txt
-_testactout=$_testroot/actoutput.txt
-_testactlog=$_testroot/test-activation-execution.log
-export _testlog=$_testroot/test-execution.log
-export _testcurlpayload=$_testroot/test-curl-payload.log
-export _testloggerpayload=$_testroot/test-logger-payload.log
-_testdir=$_testroot/pbench
-_testdir_local=$_testroot/pbench-local
-_testdir_sat=$_testroot/pbench-satellite
-_testdir_sat_local=$_testroot/pbench-satellite-local
-_testtmp=$_testroot/tmp
-_testhtml=$_testroot/var-www-html
-_testhtml_sat=$_testroot/var-www-html-satellite
+export _tdir=$(dirname $(readlink -f $0))
+export _gitdir=$(dirname $(dirname $_tdir))
+export _tlib=${_tdir}/../lib
+export _testbase=/var/tmp/pbench-test-server
 
 function remove_path {
     # PATH ($2) => /bin:/opt/a dir/bin:/sbin
@@ -54,12 +29,6 @@ export PATH=$(remove_path /opt/pbench-agent/util-scripts $PATH)
 
 # Fixed timestamp output
 export _PBENCH_SERVER_TEST=1
-
-# execution environments
-_testopt=$_testroot/opt/pbench-server
-_testopt_sat=$_testroot/opt/pbench-server-satellite
-
-export TMPDIR=$_testtmp
 export TZ="UTC"
 
 function _run {
@@ -219,11 +188,10 @@ function _verify_output {
     tname=$2
     diff -c $_tdir/gold/${tname}.txt $_testout
     if [[ $? -gt 0 ]]; then
-        echo "FAIL - $tname"
-        mv $_testout $_testroot/${tname}_output.txt
+        echo "FAIL" > $_testres
         res=1
     else
-        echo "PASS - $tname"
+        echo "PASS" > $_testres
         rm $_testout
     fi
     return $res
@@ -298,13 +266,18 @@ function _setup_state {
     if [ ! -e ${_state_config} ]; then
         _state_config="${_tdir}/state/config/pbench-server.cfg"
     fi
+    > ${_testtmp}/pbench-server.cfg
+    printf "[DEFAULT]\n"                   >> ${_testtmp}/pbench-server.cfg
+    printf "unittest-dir = ${_testroot}\n" >> ${_testtmp}/pbench-server.cfg
+    cat ${_state_config}                   >> ${_testtmp}/pbench-server.cfg
+
     # First we activate the main pbench server (not a satellite).
-    echo $_testopt/bin/pbench-server-config-activate ${_state_config} >> $_testactout
-    $_testopt/bin/pbench-server-config-activate ${_state_config} >> $_testactout
+    echo "$_testopt/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg" >> $_testactout
+    $_testopt/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg >> $_testactout
     rc=$?
     if [ $rc == 0 ] ;then
         # This script uses the copied config file to do the rest.
-        echo $_testopt/bin/pbench-server-activate ${CONFIG} >> $_testactout
+        echo "$_testopt/bin/pbench-server-activate ${CONFIG}" >> $_testactout
         $_testopt/bin/pbench-server-activate ${CONFIG} >> $_testactout
         rc=$?
     fi
@@ -318,13 +291,18 @@ function _setup_state {
     if [ ! -e ${_state_config} ]; then
         _state_config="${_tdir}/state/config-satellite/pbench-server.cfg"
     fi
+    > ${_testtmp}/pbench-server.cfg
+    printf "[DEFAULT]\n"                   >> ${_testtmp}/pbench-server.cfg
+    printf "unittest-dir = ${_testroot}\n" >> ${_testtmp}/pbench-server.cfg
+    cat ${_state_config}                   >> ${_testtmp}/pbench-server.cfg
+
     # Next we activate the satellite pbench server.
-    echo $_testopt_sat/bin/pbench-server-config-activate ${_state_config} >> $_testactout
-    $_testopt_sat/bin/pbench-server-config-activate ${_state_config} >> $_testactout
+    echo "$_testopt_sat/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg" >> $_testactout
+    $_testopt_sat/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg >> $_testactout
     rc=$?
     if [ $rc == 0 ] ;then
         # This script uses the copied config file to do the rest.
-        echo $_testopt_sat/bin/pbench-server-activate ${SATCONFIG} >> $_testactout
+        echo "$_testopt_sat/bin/pbench-server-activate ${SATCONFIG}" >> $_testactout
         $_testopt_sat/bin/pbench-server-activate ${SATCONFIG} >> $_testactout
         rc=$?
     fi
@@ -366,6 +344,52 @@ function _setup_state {
             exit 1
         fi
     fi
+}
+
+function _run_test {
+    # What it takes to run one test
+    testname=$1
+    cmd=$2
+    shift 2
+
+    export _testroot="${_testbase}/${testname}"
+    mkdir -p $_testroot
+    if [[ ! -d $_testroot ]]; then
+        echo "ERROR: failed to create test root directory, \"$_testroot\"" >&2
+        exit 1
+    fi
+    rm -rf $_testroot/*
+    if [[ $? -gt 0 ]]; then
+        echo "ERROR: failed to empty test root directory, \"$_testroot\"" >&2
+        exit 1
+    fi
+    
+    export _testres=$_testroot/result.txt
+    export _testout=$_testroot/output.txt
+    export _testactout=$_testroot/actoutput.txt
+    export _testactlog=$_testroot/test-activation-execution.log
+    export _testlog=$_testroot/test-execution.log
+    export _testcurlpayload=$_testroot/test-curl-payload.log
+    export _testloggerpayload=$_testroot/test-logger-payload.log
+    export _testdir=$_testroot/pbench
+    export _testdir_local=$_testroot/pbench-local
+    export _testdir_sat=$_testroot/pbench-satellite
+    export _testdir_sat_local=$_testroot/pbench-satellite-local
+    export _testtmp=$_testroot/tmp
+    export TMPDIR=$_testtmp
+    export _testhtml=$_testroot/var-www-html
+    export _testhtml_sat=$_testroot/var-www-html-satellite
+    export _testopt=$_testroot/opt/pbench-server
+    export _testopt_sat=$_testroot/opt/pbench-server-satellite
+
+    _setup_state ${testname}
+    # echo ${testname}: ${cmd}
+    ${cmd} $*
+    _audit_server; _save_tree; _dump_logs
+    _verify_output $res ${testname}
+    res=$?
+    _reset_state ${testname}
+    return $res
 }
 
 function _reset_state {
@@ -563,6 +587,22 @@ declare -A cmds=(
 )
 all_tests_sorted=$(for x in ${!cmds[@]} ;do echo $x ;done | sed 's/\./-/' | sort -n -t '-' -k 3 | sort -n -t '-' -k 2 --stable | sed 's/\(.*-[0-9]\)-\([0-9]\)/\1.\2/')
 
+mode="serial"
+case $1 in
+    --serial)
+        shift
+        mode="serial"
+        ;;
+    --parallel)
+        shift
+        mode="parallel"
+        ;;
+    --*)
+        printf "Bad argument $1\n" >&2
+        exit 1
+        ;;
+esac
+
 test_args=$*
 if [ -z "$test_args" ] ;then
     # No tests given, run them all in sorted order
@@ -570,41 +610,71 @@ if [ -z "$test_args" ] ;then
 else
     tests=""
     for test_arg in $test_args ;do
+        let found=0
         for test_name in $all_tests_sorted; do
-            if [[ "$test_name" =~ "$test_arg" ]]; then
+            if [[ "$test_arg" == "$test_name" ]]; then
                 tests="$tests $test_name"
+                let found=found+1
+                break
+            elif [[ "$test_name" =~ $test_arg ]]; then
+                tests="$tests $test_name"
+                let found=found+1
+            elif [[ "test-$test_arg" == "$test_name" ]]; then
+                tests="$tests $test_name"
+                let found=found+1
+                break
+            elif [[ "$test_name" =~ test-$test_arg ]]; then
+                tests="$tests $test_name"
+                let found=found+1
             fi
         done
+        if [ $found -eq 0 ]; then
+            printf "Unknown test $test_arg, skipping ...\n" >&2
+        fi
     done
 fi
 
+let count=0
 let failures=0
-for test in $tests ;do
-    cmd=${cmds[$test]}
+for testname in $tests ;do
+    cmd=${cmds[$testname]}
     if [ -z "$cmd" ]; then
-        cmd=${cmds[test-$test]}
-        if [ -z "$cmd" ]; then
-            printf "Unknown test: \"${test}\"\n"
-            continue
-        else
-            test="test-${test}"
+        printf "Unknown test - Logic bomb!: \"${testname}\"\n" >&2
+        continue
+    fi
+    let count=count+1
+    if [[ $mode == "parallel" ]]; then
+        _run_test ${testname} ${cmd} &
+    else
+        _run_test ${testname} ${cmd}
+        res=$(cat ${_testbase}/${testname}/result.txt)
+        echo "$res - ${testname}"
+        if [ $res == "PASS" ]; then
+            rm ${_testbase}/${testname}/result.txt
+            rmdir ${_testbase}/${testname}
         fi
     fi
-    _setup_state ${test}
-    # echo ${test}: ${cmd}
-    ${cmd}
-    _audit_server; _save_tree; _dump_logs
-    _verify_output $res ${test}
-    res=$?
-    if [[ $res != 0 ]] ;then
+    if [[ $? != 0 ]] ;then
         let failures=failures+1
     fi
-
-    _reset_state ${test}
 done
+if [ $count -eq 0 ]; then
+    printf "No tests run!\n" >&2
+    let failures=1
+elif [[ $mode == "parallel" ]]; then
+    wait
+    for testname in $tests ;do
+        res=$(cat ${_testbase}/${testname}/result.txt)
+        echo "$res - ${testname}"
+        if [ $res == "PASS" ]; then
+            rm ${_testbase}/${testname}/result.txt
+            rmdir ${_testbase}/${testname}
+        fi
+    done
+fi
 
 # Attempt to remove test directory entirely; if we fail, ignore it as it
 # just means there are output files present for failed tests.
-rmdir $_testroot > /dev/null 2>&1
+rmdir $_testbase > /dev/null 2>&1
 
 exit $failures

@@ -3,10 +3,20 @@
 dir=$(dirname $0)
 let sts=0
 
+$dir/agent/bench-scripts/unittests > /var/tmp/agent.bench-scripts.out 2>&1 < /dev/null &
+bpid=$!
+$dir/agent/tool-scripts/postprocess/unittests > /var/tmp/agent.tool-scripts.pp.out 2>&1 < /dev/null &
+tpid=$!
+$dir/agent/util-scripts/unittests > /var/tmp/agent.util-scripts.out 2>&1 < /dev/null &
+upid=$!
+$dir/server/bin/unittests --parallel > /var/tmp/server.out 2>&1 < /dev/null &
+spid=$!
+
 echo "+++ Agent bench-scripts Unit Tests +++"
 echo ""
-$dir/agent/bench-scripts/unittests
+wait $bpid
 let sts=sts+$?
+cat /var/tmp/agent.bench-scripts.out && rm /var/tmp/agent.bench-scripts.out
 echo ""
 echo "--- Agent bench-scripts Unit Tests ---"
 echo ""
@@ -14,8 +24,9 @@ echo ""
 echo ""
 echo "+++ Agent tool-scripts/postprocess Unit Tests +++"
 echo ""
-$dir/agent/tool-scripts/postprocess/unittests
+wait $tpid
 let sts=sts+$?
+cat /var/tmp/agent.tool-scripts.pp.out && rm /var/tmp/agent.tool-scripts.pp.out
 echo ""
 echo "--- Agent tool-scripts/postprocess Unit Tests ---"
 echo ""
@@ -23,8 +34,9 @@ echo ""
 echo ""
 echo "+++ Agent util-scripts Unit Tests +++"
 echo ""
-$dir/agent/util-scripts/unittests
+wait $upid
 let sts=sts+$?
+cat /var/tmp/agent.util-scripts.out && rm /var/tmp/agent.util-scripts.out
 echo ""
 echo "--- Agent util-scripts Unit Tests ---"
 echo ""
@@ -32,8 +44,9 @@ echo ""
 echo ""
 echo "+++ Server Unit Tests +++"
 echo ""
-$dir/server/bin/unittests
+wait $spid
 let sts=sts+$?
+cat /var/tmp/server.out && rm /var/tmp/server.out
 echo ""
 echo "--- Server Unit Tests ---"
 
