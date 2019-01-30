@@ -3,45 +3,45 @@ audit archive hierarchy
 --- Finished echo (status=0)
 +++ Running unit test audit
 --- Finished unit test audit (status=2)
-+++ var/www/html tree state (/var/tmp/pbench-test-server/var-www-html)
-lrwxrwxrwx         55 incoming -> /var/tmp/pbench-test-server/pbench/public_html/incoming
++++ var/www/html tree state (/var/tmp/pbench-test-server/test-20/var-www-html)
+lrwxrwxrwx         63 incoming -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
--rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--        118 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
--rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--        118 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
-lrwxrwxrwx         54 results -> /var/tmp/pbench-test-server/pbench/public_html/results
-lrwxrwxrwx         53 static -> /var/tmp/pbench-test-server/pbench/public_html/static
-lrwxrwxrwx         52 users -> /var/tmp/pbench-test-server/pbench/public_html/users
+lrwxrwxrwx         62 results -> /var/tmp/pbench-test-server/test-20/pbench/public_html/results
+lrwxrwxrwx         61 static -> /var/tmp/pbench-test-server/test-20/pbench/public_html/static
+lrwxrwxrwx         60 users -> /var/tmp/pbench-test-server/test-20/pbench/public_html/users
 --- var/www/html tree state
-+++ results host info (/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-001
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
++++ results host info (/var/tmp/pbench-test-server/test-20/var-www-html/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-20/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-20/pbench-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/test-20/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+/var/tmp/pbench-test-server/test-20/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-20/pbench-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-20/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
-+++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/var-www-html-satellite)
-lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/pbench-satellite/public_html/incoming
++++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-20/var-www-html-satellite)
+lrwxrwxrwx         73 incoming -> /var/tmp/pbench-test-server/test-20/pbench-satellite/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
--rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--        138 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
--rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--        138 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
-lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/pbench-satellite/public_html/results
-lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/pbench-satellite/public_html/static
-lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/pbench-satellite/public_html/users
+lrwxrwxrwx         72 results -> /var/tmp/pbench-test-server/test-20/pbench-satellite/public_html/results
+lrwxrwxrwx         71 static -> /var/tmp/pbench-test-server/test-20/pbench-satellite/public_html/static
+lrwxrwxrwx         70 users -> /var/tmp/pbench-test-server/test-20/pbench-satellite/public_html/users
 --- var/www/html-satellite tree state
-+++ results host info (/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-001
-/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
-/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
++++ results host info (/var/tmp/pbench-test-server/test-20/var-www-html-satellite/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-20/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-20/pbench-satellite-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/test-20/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+/var/tmp/pbench-test-server/test-20/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-20/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-20/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
-+++ pbench tree state (/var/tmp/pbench-test-server/pbench)
++++ pbench tree state (/var/tmp/pbench-test-server/test-20/pbench)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 -rw-rw-r--          0 archive/fs-version-001/a-wayward-file.txt
@@ -157,10 +157,10 @@ lrwxrwxrwx          9 public_html/incoming/an-unexpected-symlink -> /dev/null
 drwxrwxr-x          - public_html/incoming/controller.empty
 drwxrwxr-x          - public_html/incoming/controller.mia
 drwxrwxr-x          - public_html/incoming/controller00
-lrwxrwxrwx        105 public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/pbench-local/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00
+lrwxrwxrwx        113 public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-20/pbench-local/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00
 -rw-rw-r--          0 public_html/incoming/controller00/unexpected-file
 drwxrwxr-x          - public_html/incoming/controller01
-lrwxrwxrwx        106 public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/pbench-local/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00
+lrwxrwxrwx        114 public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-20/pbench-local/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00
 drwxrwxr-x          - public_html/incoming/controller01/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss
 -rw-rw-r--          0 public_html/incoming/controller01/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss/empty
 drwxrwxr-x          - public_html/incoming/controller01/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss
@@ -171,12 +171,12 @@ drwxrwxr-x          - public_html/incoming/controller01/tarball-unused-prefix-fi
 -rw-rw-r--          0 public_html/incoming/controller01/tarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss/empty
 drwxrwxr-x          - public_html/incoming/controller02
 drwxrwxr-x          - public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00
-lrwxrwxrwx        111 public_html/incoming/controller02/does-not-exist-tar-ball-link_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/pbench-local/incoming/controller02/does-not-exist-tar-ball-link_1900-01-01T00:00:00
+lrwxrwxrwx        119 public_html/incoming/controller02/does-not-exist-tar-ball-link_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-20/pbench-local/incoming/controller02/does-not-exist-tar-ball-link_1900-01-01T00:00:00
 drwxrwxr-x          - public_html/incoming/controller02/not-in-archive_1900-01-01T00:00:00
 -rw-rw-r--          0 public_html/incoming/controller02/not-in-archive_1900-01-01T00:00:00/a-file
-lrwxrwxrwx        103 public_html/incoming/controller02/tarball-bad-incoming-link_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/pbench-local/tmp/controller02/tarball-bad-incoming-link_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        111 public_html/incoming/controller02/tarball-bad-incoming-link_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench-local/tmp/controller02/tarball-bad-incoming-link_YYYY-MM-DDTHH-mm-ss
 -rw-rw-r--          0 public_html/incoming/controller02/tarball-bad-incoming-location_YYYY-MM-DDTHH-mm-ss
-lrwxrwxrwx        114 public_html/incoming/controller02/tarball-bad-incoming-unpack-dir_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/pbench-local/incoming/controller02/tarball-bad-incoming-unpack-dir_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        122 public_html/incoming/controller02/tarball-bad-incoming-unpack-dir_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench-local/incoming/controller02/tarball-bad-incoming-unpack-dir_YYYY-MM-DDTHH-mm-ss
 drwxrwxr-x          - public_html/incoming/controllerU
 drwxrwxr-x          - public_html/incoming/controllerU/tarball-noUser_YYYY-MM-DDTHH-mm-ss
 -rw-rw-r--          0 public_html/incoming/controllerU/tarball-noUser_YYYY-MM-DDTHH-mm-ss/metadata.log
@@ -197,27 +197,27 @@ drwxrwxr-x          - public_html/results/controller00/orphaned-prefix
 drwxrwxr-x          - public_html/results/controller01
 drwxrwxr-x          - public_html/results/controller01/bad
 drwxrwxr-x          - public_html/results/controller01/bad/prefix
-lrwxrwxrwx        107 public_html/results/controller01/bad/prefix/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controller01/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        115 public_html/results/controller01/bad/prefix/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller01/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss
 drwxrwxr-x          - public_html/results/controller01/good
 drwxrwxr-x          - public_html/results/controller01/good/prefix
-lrwxrwxrwx        112 public_html/results/controller01/good/prefix/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controller01/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        120 public_html/results/controller01/good/prefix/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller01/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss
 drwxrwxr-x          - public_html/results/controller01/missing
 drwxrwxr-x          - public_html/results/controller01/missing/prefix
-lrwxrwxrwx        116 public_html/results/controller01/missing/prefix/tarball-missing-prefix-file_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controller01/tarball-missing-prefix-file_YYYY-MM-DDTHH-mm-ss
-lrwxrwxrwx        115 public_html/results/controller01/tarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controller01/tarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        124 public_html/results/controller01/missing/prefix/tarball-missing-prefix-file_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller01/tarball-missing-prefix-file_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        123 public_html/results/controller01/tarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller01/tarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss
 -rw-rw-r--          0 public_html/results/controller01/unexpected-file
 drwxrwxr-x          - public_html/results/controller02
-lrwxrwxrwx        120 public_html/results/controller02/benchmark-result-small_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controller02/benchmark-result-small-mismatch_1900-01-01T00:00:00
-lrwxrwxrwx        117 public_html/results/controller02/does-not-exist-tar-ball-link_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controller02/does-not-exist-tar-ball-link_1900-01-01T00:00:00
-lrwxrwxrwx        118 public_html/results/controller02/tarball-bad-incoming-location_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controller02/tarball-bad-incoming-location_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        128 public_html/results/controller02/benchmark-result-small_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller02/benchmark-result-small-mismatch_1900-01-01T00:00:00
+lrwxrwxrwx        125 public_html/results/controller02/does-not-exist-tar-ball-link_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller02/does-not-exist-tar-ball-link_1900-01-01T00:00:00
+lrwxrwxrwx        126 public_html/results/controller02/tarball-bad-incoming-location_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller02/tarball-bad-incoming-location_YYYY-MM-DDTHH-mm-ss
 drwxrwxr-x          - public_html/results/controllerU
 drwxrwxr-x          - public_html/results/controllerU/prefix0
-lrwxrwxrwx        101 public_html/results/controllerU/prefix0/tarball-userA_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controllerU/tarball-userA_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        109 public_html/results/controllerU/prefix0/tarball-userA_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userA_YYYY-MM-DDTHH-mm-ss
 drwxrwxr-x          - public_html/results/controllerU/prefix1
-lrwxrwxrwx        101 public_html/results/controllerU/prefix1/tarball-userB_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controllerU/tarball-userB_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        109 public_html/results/controllerU/prefix1/tarball-userB_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userB_YYYY-MM-DDTHH-mm-ss
 drwxrwxr-x          - public_html/results/controllerU/prefix2
-lrwxrwxrwx        101 public_html/results/controllerU/prefix2/tarball-userC_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controllerU/tarball-userC_YYYY-MM-DDTHH-mm-ss
-lrwxrwxrwx        102 public_html/results/controllerU/tarball-noUser_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controllerU/tarball-noUser_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        109 public_html/results/controllerU/prefix2/tarball-userC_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userC_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        110 public_html/results/controllerU/tarball-noUser_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-noUser_YYYY-MM-DDTHH-mm-ss
 -rw-rw-r--          0 public_html/results/unexpected-file
 lrwxrwxrwx          9 public_html/results/unexpected-symlink -> /dev/null
 drwxrwxr-x          - public_html/static
@@ -228,20 +228,20 @@ lrwxrwxrwx          9 public_html/users/unexpected-symlink -> /dev/null
 drwxrwxr-x          - public_html/users/userA
 drwxrwxr-x          - public_html/users/userA/controllerU
 drwxrwxr-x          - public_html/users/userA/controllerU/prefix0
-lrwxrwxrwx        101 public_html/users/userA/controllerU/prefix0/tarball-userA_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controllerU/tarball-userA_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        109 public_html/users/userA/controllerU/prefix0/tarball-userA_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userA_YYYY-MM-DDTHH-mm-ss
 drwxrwxr-x          - public_html/users/userB
 drwxrwxr-x          - public_html/users/userB/controllerU
 drwxrwxr-x          - public_html/users/userB/controllerU/prefix0
-lrwxrwxrwx        101 public_html/users/userB/controllerU/prefix0/tarball-userA_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controllerU/tarball-userA_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        109 public_html/users/userB/controllerU/prefix0/tarball-userA_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userA_YYYY-MM-DDTHH-mm-ss
 drwxrwxr-x          - public_html/users/userB/controllerU/prefix1
-lrwxrwxrwx        101 public_html/users/userB/controllerU/prefix1/tarball-userB_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controllerU/tarball-userB_YYYY-MM-DDTHH-mm-ss
-lrwxrwxrwx        102 public_html/users/userB/controllerU/tarball-noUser_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controllerU/tarball-noUser_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        109 public_html/users/userB/controllerU/prefix1/tarball-userB_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userB_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        110 public_html/users/userB/controllerU/tarball-noUser_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-noUser_YYYY-MM-DDTHH-mm-ss
 drwxrwxr-x          - public_html/users/userC
 drwxrwxr-x          - public_html/users/userC/controllerU
 drwxrwxr-x          - public_html/users/userC/controllerU/prefix2
-lrwxrwxrwx        101 public_html/users/userC/controllerU/prefix2/tarball-userC_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/pbench/public_html/incoming/controllerU/tarball-userC_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        109 public_html/users/userC/controllerU/prefix2/tarball-userC_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userC_YYYY-MM-DDTHH-mm-ss
 --- pbench tree state
-+++ pbench-local tree state (/var/tmp/pbench-test-server/pbench-local)
++++ pbench-local tree state (/var/tmp/pbench-test-server/test-20/pbench-local)
 drwxrwxr-x          - incoming
 drwxrwxr-x          - incoming/controller00
 drwxrwxr-x          - incoming/controller00/benchmark-result-large_1900-01-01T00:00:00
@@ -255,7 +255,7 @@ drwxrwxr-x          - incoming/controller02
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--       4570 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--       4674 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -268,7 +268,7 @@ drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
 drwxrwxr-x          - tmp
 --- pbench-local tree state
-+++ pbench-satellite tree state (/var/tmp/pbench-test-server/pbench-satellite)
++++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-20/pbench-satellite)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - public_html
@@ -277,7 +277,7 @@ drwxrwxr-x          - public_html/results
 drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/users
 --- pbench-satellite tree state
-+++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/pbench-satellite-local)
++++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-20/pbench-satellite-local)
 drwxrwxr-x          - logs
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
@@ -297,7 +297,7 @@ drwxrwxr-x          - tmp
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
 
-start-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001
+start-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001
 
 Bad Controllers:
 	-rw-rw-r--          0 Mon Sep 24 17:18:42.0000000000 2018 a-wayward-file.txt
@@ -343,17 +343,17 @@ Controller: controller01
 	  prefix.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
 	  ----------
 
-end-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001
+end-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001
 
 
-start-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/pbench/public_html/incoming
+start-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming
 
 Unexpected files found:
 	an-unexpected-symlink
 	unexpected-file
 	unexpected-symlink
 
-Controllers which do not have a /var/tmp/pbench-test-server/pbench/archive/fs-version-001 directory:
+Controllers which do not have a /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001 directory:
 	controller.mia
 
 Controllers which are empty:
@@ -364,28 +364,28 @@ Controllers which have unexpected objects:
 	controller02
 
 Incoming issues for controller: controller02
-	Invalid tar ball directories (not in /var/tmp/pbench-test-server/pbench/archive/fs-version-001):
+	Invalid tar ball directories (not in /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001):
 		not-in-archive_1900-01-01T00:00:00
 	Empty tar ball directories:
 		benchmark-result-small_1900-01-01T00:00:00
-	Invalid tar ball links (not in /var/tmp/pbench-test-server/pbench/archive/fs-version-001):
+	Invalid tar ball links (not in /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001):
 		does-not-exist-tar-ball-link_1900-01-01T00:00:00
 	Invalid tar ball links:
 		tarball-bad-incoming-link_YYYY-MM-DDTHH-mm-ss
 	Tar ball links pointing to bad unpack directory:
 		tarball-bad-incoming-unpack-dir_YYYY-MM-DDTHH-mm-ss
 
-end-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/pbench/public_html/incoming
+end-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming
 
 
-start-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/pbench/public_html/results
+start-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results
 
 Unexpected files found:
 	an-unexpected-symlink
 	unexpected-file
 	unexpected-symlink
 
-Controllers which do not have a /var/tmp/pbench-test-server/pbench/archive/fs-version-001 directory:
+Controllers which do not have a /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001 directory:
 	controller.mia
 
 Controllers which are empty:
@@ -409,17 +409,17 @@ Results issues for controller: controller01
 		bad/prefix/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss
 
 Results issues for controller: controller02
-	Invalid tar ball links (not in /var/tmp/pbench-test-server/pbench/archive/fs-version-001):
+	Invalid tar ball links (not in /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001):
 		does-not-exist-tar-ball-link_1900-01-01T00:00:00
 	Incorrectly constructed tar ball links:
 		benchmark-result-small_1900-01-01T00:00:00
 	Tar ball links to invalid incoming location:
 		tarball-bad-incoming-location_YYYY-MM-DDTHH-mm-ss
 
-end-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/pbench/public_html/results
+end-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results
 
 
-start-1900-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/pbench/public_html/users
+start-1900-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users
 
 Unexpected files found:
 	an-unexpected-symlink
@@ -432,20 +432,20 @@ Results issues for controller: userB/controllerU
 	Tar ball links for the wrong user:
 		prefix0/tarball-userA_YYYY-MM-DDTHH-mm-ss
 
-end-1900-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/pbench/public_html/users
+end-1900-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users
 ----- pbench-audit-server/pbench-audit-server.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ test-execution.log file contents
-curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/4a7c9e78612b77859cecc0bb13a9559b --data @/tmp/pbench-report-status.NNNN/payload
+curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/1d4e3055112750f6893dc838ae7723fb --data @/tmp/pbench-report-status.NNNN/payload
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
 {
     "@timestamp": "1900-01-01T00:00:00",
     "doctype": "status",
     "name": "pbench-audit-server",
-    "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\nBad Controllers:\n\t-rw-rw-r--          0 Mon Sep 24 17:18:42.0000000000 2018 a-wayward-file.txt\n\t-rw-rw-r--          0 Mon Sep 24 14:38:32.0000000000 2018 wayward-file.txt\n\nController: controller.empty\n\t* No state directories found in this controller directory.\n\t* No tar ball files found in this controller directory.\n\nController: controller.unexp_state_dirs\n\t* Unexpected state directories found in this controller directory:\n\t  ++++++++++\n\t  an-unexpected\n\t  unexpected\n\t  ----------\n\t* No tar ball files found in this controller directory.\n\nController: controller.wont_index\n\t* No tar ball files found in this controller directory.\n\nController: controller00\n\t* Unexpected symlinks in controller directory:\n\t  ++++++++++\n\t  an-unexpected-symlink -> /dev/null\n\t  unexpected-symlink -> /dev/null\n\t  ----------\n\t* Unexpected files in controller directory:\n\t  ++++++++++\n\t  .prefix\n\t  unexpected-file\n\t  ----------\n\t* Prefix directory, .prefix, is not a directory!\n\nController: controller01\n\t* Unexpected file system objects in .prefix directory:\n\t  ++++++++++\n\t  a-unexpected\n\t  unexpected\n\t  ----------\n\t* Wrong prefix file names found in /.prefix directory:\n\t  ++++++++++\n\t  prefix.DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz\n\t  prefix.benchmark-result-medium_1900-01-01T00:00:00.tar.xz\n\t  ----------\n\nend-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/pbench/archive/fs-version-001\n\n\nstart-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/pbench/public_html/incoming\n\nUnexpected files found:\n\tan-unexpected-symlink\n\tunexpected-file\n\tunexpected-symlink\n\nControllers which do not have a /var/tmp/pbench-test-server/pbench/archive/fs-version-001 directory:\n\tcontroller.mia\n\nControllers which are empty:\n\tcontroller.empty\n\nControllers which have unexpected objects:\n\tcontroller00\n\tcontroller02\n\nIncoming issues for controller: controller02\n\tInvalid tar ball directories (not in /var/tmp/pbench-test-server/pbench/archive/fs-version-001):\n\t\tnot-in-archive_1900-01-01T00:00:00\n\tEmpty tar ball directories:\n\t\tbenchmark-result-small_1900-01-01T00:00:00\n\tInvalid tar ball links (not in /var/tmp/pbench-test-server/pbench/archive/fs-version-001):\n\t\tdoes-not-exist-tar-ball-link_1900-01-01T00:00:00\n\tInvalid tar ball links:\n\t\ttarball-bad-incoming-link_YYYY-MM-DDTHH-mm-ss\n\tTar ball links pointing to bad unpack directory:\n\t\ttarball-bad-incoming-unpack-dir_YYYY-MM-DDTHH-mm-ss\n\nend-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/pbench/public_html/incoming\n\n\nstart-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/pbench/public_html/results\n\nUnexpected files found:\n\tan-unexpected-symlink\n\tunexpected-file\n\tunexpected-symlink\n\nControllers which do not have a /var/tmp/pbench-test-server/pbench/archive/fs-version-001 directory:\n\tcontroller.mia\n\nControllers which are empty:\n\tcontroller.empty\n\nControllers which have unexpected objects:\n\tcontroller01\n\nResults issues for controller: controller00\n\tEmpty tar ball directories:\n\t\torphaned-prefix\n\nResults issues for controller: controller01\n\tTar ball links with unused prefix files:\n\t\ttarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss\n\tTar ball links with missing prefix files:\n\t\tmissing/prefix/tarball-missing-prefix-file_YYYY-MM-DDTHH-mm-ss\n\tTar ball links with bad prefix files:\n\t\tgood/prefix/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss\n\tTar ball links with bad prefixes:\n\t\tbad/prefix/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss\n\nResults issues for controller: controller02\n\tInvalid tar ball links (not in /var/tmp/pbench-test-server/pbench/archive/fs-version-001):\n\t\tdoes-not-exist-tar-ball-link_1900-01-01T00:00:00\n\tIncorrectly constructed tar ball links:\n\t\tbenchmark-result-small_1900-01-01T00:00:00\n\tTar ball links to invalid incoming location:\n\t\ttarball-bad-incoming-location_YYYY-MM-DDTHH-mm-ss\n\nend-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/pbench/public_html/results\n\n\nstart-1900-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/pbench/public_html/users\n\nUnexpected files found:\n\tan-unexpected-symlink\n\tunexpected-file\n\tunexpected-symlink\n\nResults issues for controller: userB/controllerU\n\tTar ball links not configured for this user:\n\t\ttarball-noUser_YYYY-MM-DDTHH-mm-ss\n\tTar ball links for the wrong user:\n\t\tprefix0/tarball-userA_YYYY-MM-DDTHH-mm-ss\n\nend-1900-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/pbench/public_html/users\n"
+    "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001\n\nBad Controllers:\n\t-rw-rw-r--          0 Mon Sep 24 17:18:42.0000000000 2018 a-wayward-file.txt\n\t-rw-rw-r--          0 Mon Sep 24 14:38:32.0000000000 2018 wayward-file.txt\n\nController: controller.empty\n\t* No state directories found in this controller directory.\n\t* No tar ball files found in this controller directory.\n\nController: controller.unexp_state_dirs\n\t* Unexpected state directories found in this controller directory:\n\t  ++++++++++\n\t  an-unexpected\n\t  unexpected\n\t  ----------\n\t* No tar ball files found in this controller directory.\n\nController: controller.wont_index\n\t* No tar ball files found in this controller directory.\n\nController: controller00\n\t* Unexpected symlinks in controller directory:\n\t  ++++++++++\n\t  an-unexpected-symlink -> /dev/null\n\t  unexpected-symlink -> /dev/null\n\t  ----------\n\t* Unexpected files in controller directory:\n\t  ++++++++++\n\t  .prefix\n\t  unexpected-file\n\t  ----------\n\t* Prefix directory, .prefix, is not a directory!\n\nController: controller01\n\t* Unexpected file system objects in .prefix directory:\n\t  ++++++++++\n\t  a-unexpected\n\t  unexpected\n\t  ----------\n\t* Wrong prefix file names found in /.prefix directory:\n\t  ++++++++++\n\t  prefix.DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz\n\t  prefix.benchmark-result-medium_1900-01-01T00:00:00.tar.xz\n\t  ----------\n\nend-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001\n\n\nstart-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming\n\nUnexpected files found:\n\tan-unexpected-symlink\n\tunexpected-file\n\tunexpected-symlink\n\nControllers which do not have a /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001 directory:\n\tcontroller.mia\n\nControllers which are empty:\n\tcontroller.empty\n\nControllers which have unexpected objects:\n\tcontroller00\n\tcontroller02\n\nIncoming issues for controller: controller02\n\tInvalid tar ball directories (not in /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001):\n\t\tnot-in-archive_1900-01-01T00:00:00\n\tEmpty tar ball directories:\n\t\tbenchmark-result-small_1900-01-01T00:00:00\n\tInvalid tar ball links (not in /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001):\n\t\tdoes-not-exist-tar-ball-link_1900-01-01T00:00:00\n\tInvalid tar ball links:\n\t\ttarball-bad-incoming-link_YYYY-MM-DDTHH-mm-ss\n\tTar ball links pointing to bad unpack directory:\n\t\ttarball-bad-incoming-unpack-dir_YYYY-MM-DDTHH-mm-ss\n\nend-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming\n\n\nstart-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results\n\nUnexpected files found:\n\tan-unexpected-symlink\n\tunexpected-file\n\tunexpected-symlink\n\nControllers which do not have a /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001 directory:\n\tcontroller.mia\n\nControllers which are empty:\n\tcontroller.empty\n\nControllers which have unexpected objects:\n\tcontroller01\n\nResults issues for controller: controller00\n\tEmpty tar ball directories:\n\t\torphaned-prefix\n\nResults issues for controller: controller01\n\tTar ball links with unused prefix files:\n\t\ttarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss\n\tTar ball links with missing prefix files:\n\t\tmissing/prefix/tarball-missing-prefix-file_YYYY-MM-DDTHH-mm-ss\n\tTar ball links with bad prefix files:\n\t\tgood/prefix/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss\n\tTar ball links with bad prefixes:\n\t\tbad/prefix/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss\n\nResults issues for controller: controller02\n\tInvalid tar ball links (not in /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001):\n\t\tdoes-not-exist-tar-ball-link_1900-01-01T00:00:00\n\tIncorrectly constructed tar ball links:\n\t\tbenchmark-result-small_1900-01-01T00:00:00\n\tTar ball links to invalid incoming location:\n\t\ttarball-bad-incoming-location_YYYY-MM-DDTHH-mm-ss\n\nend-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results\n\n\nstart-1900-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users\n\nUnexpected files found:\n\tan-unexpected-symlink\n\tunexpected-file\n\tunexpected-symlink\n\nResults issues for controller: userB/controllerU\n\tTar ball links not configured for this user:\n\t\ttarball-noUser_YYYY-MM-DDTHH-mm-ss\n\tTar ball links for the wrong user:\n\t\tprefix0/tarball-userA_YYYY-MM-DDTHH-mm-ss\n\nend-1900-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users\n"
 }
 --- test-curl-payload.log file contents

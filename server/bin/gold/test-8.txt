@@ -1,75 +1,75 @@
 +++ Verifying server activation
-/var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-server-config-activate /home/user/repo/pbench/server/bin/state/config/pbench-server.cfg
-/var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-server-activate /var/tmp/pbench-test-server/opt/pbench-server/lib/config/pbench-server.cfg
-/var/tmp/pbench-test-server/opt/pbench-server-satellite/bin/pbench-server-config-activate /home/user/repo/pbench/server/bin/state/config-satellite/pbench-server.cfg
-/var/tmp/pbench-test-server/opt/pbench-server-satellite/bin/pbench-server-activate /var/tmp/pbench-test-server/opt/pbench-server-satellite/lib/config/pbench-server.cfg
-++++ /var/tmp/pbench-test-server/opt/pbench-server/lib/crontab/crontab
-CONFIG=/var/tmp/pbench-test-server/opt/pbench-server/lib/config/pbench-server.cfg
+/var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-server-config-activate /var/tmp/pbench-test-server/test-8/tmp/pbench-server.cfg
+/var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-server-activate /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/config/pbench-server.cfg
+/var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-server-config-activate /var/tmp/pbench-test-server/test-8/tmp/pbench-server.cfg
+/var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-server-activate /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/config/pbench-server.cfg
+++++ /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/crontab/crontab
+CONFIG=/var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/config/pbench-server.cfg
 MAILTO=unit-test-user@example.com
 MAILFROM=pbench@pbench.example.com
-* * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server/lib/locks/pbench-prep-001.lock /var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-server-prep-shim-001
-* * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server/lib/locks/pbench-prep-002.lock /var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-server-prep-shim-002
-* * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server/lib/locks/pbench-dispatch.lock /var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-dispatch
-* * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server/lib/locks/pbench-unpack-tarballs.lock /var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-unpack-tarballs
-* * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server/lib/locks/pbench-move-unpacked.lock /var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-move-unpacked
-41 * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server/lib/locks/pbench-copy-sosreports.lock /var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-copy-sosreports
-* * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server/lib/locks/pbench-edit-prefixes.lock /var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-edit-prefixes
-* * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server/lib/locks/pbench-index.lock /var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-index
-41 4 * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server/lib/locks/pbench-backup-tarballs.lock /var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-backup-tarballs
-59 4 * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server/lib/locks/pbench-verify-backup-tarballs.lock /var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-verify-backup-tarballs
-* * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server/lib/locks/pbench-sync-satellite-ONE.lock /var/tmp/pbench-test-server/opt/pbench-server/bin/pbench-sync-satellite satellite-one
----- /var/tmp/pbench-test-server/opt/pbench-server/lib/crontab/crontab
-++++ /var/tmp/pbench-test-server/opt/pbench-server-satellite/lib/crontab/crontab
-CONFIG=/var/tmp/pbench-test-server/opt/pbench-server-satellite/lib/config/pbench-server.cfg
+* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-prep-001.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-server-prep-shim-001
+* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-prep-002.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-server-prep-shim-002
+* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-dispatch.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-dispatch
+* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-unpack-tarballs.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-unpack-tarballs
+* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-move-unpacked.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-move-unpacked
+41 * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-copy-sosreports.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-copy-sosreports
+* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-edit-prefixes.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-edit-prefixes
+* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-index.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-index
+41 4 * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-backup-tarballs.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-backup-tarballs
+59 4 * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-verify-backup-tarballs.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-verify-backup-tarballs
+* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-sync-satellite-ONE.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-sync-satellite satellite-one
+---- /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/crontab/crontab
+++++ /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/crontab/crontab
+CONFIG=/var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/config/pbench-server.cfg
 MAILTO=unit-test-user@example.com
 MAILFROM=pbench@pbench-satellite.example.com
-* * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server-satellite/lib/locks/pbench-prep-001.lock /var/tmp/pbench-test-server/opt/pbench-server-satellite/bin/pbench-server-prep-shim-001
-* * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server-satellite/lib/locks/pbench-prep-002.lock /var/tmp/pbench-test-server/opt/pbench-server-satellite/bin/pbench-server-prep-shim-002
-* * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server-satellite/lib/locks/pbench-dispatch.lock /var/tmp/pbench-test-server/opt/pbench-server-satellite/bin/pbench-dispatch
-* * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server-satellite/lib/locks/pbench-unpack-tarballs.lock /var/tmp/pbench-test-server/opt/pbench-server-satellite/bin/pbench-unpack-tarballs
-* * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server-satellite/lib/locks/pbench-move-unpacked.lock /var/tmp/pbench-test-server/opt/pbench-server-satellite/bin/pbench-move-unpacked
-* * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server-satellite/lib/locks/pbench-edit-prefixes.lock /var/tmp/pbench-test-server/opt/pbench-server-satellite/bin/pbench-edit-prefixes
-37 * * * *  flock -n /var/tmp/pbench-test-server/opt/pbench-server-satellite/lib/locks/pbench-satellite-cleanup.lock /var/tmp/pbench-test-server/opt/pbench-server-satellite/bin/pbench-satellite-cleanup
----- /var/tmp/pbench-test-server/opt/pbench-server-satellite/lib/crontab/crontab
+* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-prep-001.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-server-prep-shim-001
+* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-prep-002.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-server-prep-shim-002
+* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-dispatch.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-dispatch
+* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-unpack-tarballs.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-unpack-tarballs
+* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-move-unpacked.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-move-unpacked
+* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-edit-prefixes.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-edit-prefixes
+37 * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-satellite-cleanup.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-satellite-cleanup
+---- /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/crontab/crontab
 ++++ test-activation-execution.log file contents
-chown -R pbench.pbench /var/tmp/pbench-test-server/opt/pbench-server/lib/config
+chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/config
 hostname -f
-chown pbench.pbench /var/tmp/pbench-test-server/opt/pbench-server/lib/crontab/crontab
-chown -R pbench.pbench /var/tmp/pbench-test-server/opt/pbench-server/lib/locks
-chown pbench.pbench /var/tmp/pbench-test-server/pbench /var/tmp/pbench-test-server/pbench/archive/fs-version-001 /var/tmp/pbench-test-server/pbench/public_html /var/tmp/pbench-test-server/pbench/public_html/incoming /var/tmp/pbench-test-server/pbench/public_html/results /var/tmp/pbench-test-server/pbench/public_html/users /var/tmp/pbench-test-server/pbench/public_html/static
-chown pbench.pbench /var/tmp/pbench-test-server/pbench/archive/fs-version-001/* /var/tmp/pbench-test-server/pbench/public_html/incoming/* /var/tmp/pbench-test-server/pbench/public_html/results/* /var/tmp/pbench-test-server/pbench/public_html/users/* /var/tmp/pbench-test-server/pbench/public_html/static/*
+chown pbench.pbench /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/crontab/crontab
+chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks
+chown pbench.pbench /var/tmp/pbench-test-server/test-8/pbench /var/tmp/pbench-test-server/test-8/pbench/archive/fs-version-001 /var/tmp/pbench-test-server/test-8/pbench/public_html /var/tmp/pbench-test-server/test-8/pbench/public_html/incoming /var/tmp/pbench-test-server/test-8/pbench/public_html/results /var/tmp/pbench-test-server/test-8/pbench/public_html/users /var/tmp/pbench-test-server/test-8/pbench/public_html/static
+chown pbench.pbench /var/tmp/pbench-test-server/test-8/pbench/archive/fs-version-001/* /var/tmp/pbench-test-server/test-8/pbench/public_html/incoming/* /var/tmp/pbench-test-server/test-8/pbench/public_html/results/* /var/tmp/pbench-test-server/test-8/pbench/public_html/users/* /var/tmp/pbench-test-server/test-8/pbench/public_html/static/*
 selinuxenabled 
-semanage fcontext -a -t httpd_sys_content_t /var/tmp/pbench-test-server/pbench/public_html/incoming
-semanage fcontext -a -t httpd_sys_content_t /var/tmp/pbench-test-server/pbench/public_html/results
-semanage fcontext -a -t httpd_sys_content_t /var/tmp/pbench-test-server/pbench/public_html/users
-semanage fcontext -a -t httpd_sys_content_t /var/tmp/pbench-test-server/pbench/public_html/static
-restorecon -v /var/tmp/pbench-test-server/pbench/public_html /var/tmp/pbench-test-server/pbench/public_html/incoming /var/tmp/pbench-test-server/pbench/public_html/results /var/tmp/pbench-test-server/pbench/public_html/users /var/tmp/pbench-test-server/pbench/public_html/static
-chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-local/logs
-chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-local/tmp
-chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-001
-chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-002
-chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-local/quarantine
+semanage fcontext -a -t httpd_sys_content_t /var/tmp/pbench-test-server/test-8/pbench/public_html/incoming
+semanage fcontext -a -t httpd_sys_content_t /var/tmp/pbench-test-server/test-8/pbench/public_html/results
+semanage fcontext -a -t httpd_sys_content_t /var/tmp/pbench-test-server/test-8/pbench/public_html/users
+semanage fcontext -a -t httpd_sys_content_t /var/tmp/pbench-test-server/test-8/pbench/public_html/static
+restorecon -v /var/tmp/pbench-test-server/test-8/pbench/public_html /var/tmp/pbench-test-server/test-8/pbench/public_html/incoming /var/tmp/pbench-test-server/test-8/pbench/public_html/results /var/tmp/pbench-test-server/test-8/pbench/public_html/users /var/tmp/pbench-test-server/test-8/pbench/public_html/static
+chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/pbench-local/logs
+chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/pbench-local/tmp
+chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/pbench-local/pbench-move-results-receive/fs-version-001
+chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/pbench-local/pbench-move-results-receive/fs-version-002
+chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/pbench-local/quarantine
 systemctl enable httpd.service
 systemctl start httpd.service
 firewall-cmd --add-service=http
 firewall-cmd --permanent --add-service=http
-chown -R pbench.pbench /var/tmp/pbench-test-server/opt/pbench-server-satellite/lib/config
+chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/config
 hostname -f
-chown pbench.pbench /var/tmp/pbench-test-server/opt/pbench-server-satellite/lib/crontab/crontab
-chown -R pbench.pbench /var/tmp/pbench-test-server/opt/pbench-server-satellite/lib/locks
-chown pbench.pbench /var/tmp/pbench-test-server/pbench-satellite /var/tmp/pbench-test-server/pbench-satellite/archive/fs-version-001 /var/tmp/pbench-test-server/pbench-satellite/public_html /var/tmp/pbench-test-server/pbench-satellite/public_html/incoming /var/tmp/pbench-test-server/pbench-satellite/public_html/results /var/tmp/pbench-test-server/pbench-satellite/public_html/users /var/tmp/pbench-test-server/pbench-satellite/public_html/static
-chown pbench.pbench /var/tmp/pbench-test-server/pbench-satellite/archive/fs-version-001/* /var/tmp/pbench-test-server/pbench-satellite/public_html/incoming/* /var/tmp/pbench-test-server/pbench-satellite/public_html/results/* /var/tmp/pbench-test-server/pbench-satellite/public_html/users/* /var/tmp/pbench-test-server/pbench-satellite/public_html/static/*
+chown pbench.pbench /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/crontab/crontab
+chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks
+chown pbench.pbench /var/tmp/pbench-test-server/test-8/pbench-satellite /var/tmp/pbench-test-server/test-8/pbench-satellite/archive/fs-version-001 /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/incoming /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/results /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/users /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/static
+chown pbench.pbench /var/tmp/pbench-test-server/test-8/pbench-satellite/archive/fs-version-001/* /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/incoming/* /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/results/* /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/users/* /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/static/*
 selinuxenabled 
-semanage fcontext -a -t httpd_sys_content_t /var/tmp/pbench-test-server/pbench-satellite/public_html/incoming
-semanage fcontext -a -t httpd_sys_content_t /var/tmp/pbench-test-server/pbench-satellite/public_html/results
-semanage fcontext -a -t httpd_sys_content_t /var/tmp/pbench-test-server/pbench-satellite/public_html/users
-semanage fcontext -a -t httpd_sys_content_t /var/tmp/pbench-test-server/pbench-satellite/public_html/static
-restorecon -v /var/tmp/pbench-test-server/pbench-satellite/public_html /var/tmp/pbench-test-server/pbench-satellite/public_html/incoming /var/tmp/pbench-test-server/pbench-satellite/public_html/results /var/tmp/pbench-test-server/pbench-satellite/public_html/users /var/tmp/pbench-test-server/pbench-satellite/public_html/static
-chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-satellite-local/logs
-chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-satellite-local/tmp
-chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-001
-chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-002
-chown -R pbench.pbench /var/tmp/pbench-test-server/pbench-satellite-local/quarantine
+semanage fcontext -a -t httpd_sys_content_t /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/incoming
+semanage fcontext -a -t httpd_sys_content_t /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/results
+semanage fcontext -a -t httpd_sys_content_t /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/users
+semanage fcontext -a -t httpd_sys_content_t /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/static
+restorecon -v /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/incoming /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/results /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/users /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/static
+chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/pbench-satellite-local/logs
+chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/pbench-satellite-local/tmp
+chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/pbench-satellite-local/pbench-move-results-receive/fs-version-001
+chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/pbench-satellite-local/quarantine
 systemctl enable httpd.service
 systemctl start httpd.service
 firewall-cmd --add-service=http
@@ -78,45 +78,45 @@ firewall-cmd --permanent --add-service=http
 --- Finished verifying server activation (status=0)
 +++ Running unit test audit
 --- Finished unit test audit (status=0)
-+++ var/www/html tree state (/var/tmp/pbench-test-server/var-www-html)
-lrwxrwxrwx         55 incoming -> /var/tmp/pbench-test-server/pbench/public_html/incoming
++++ var/www/html tree state (/var/tmp/pbench-test-server/test-8/var-www-html)
+lrwxrwxrwx         62 incoming -> /var/tmp/pbench-test-server/test-8/pbench/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
--rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--        117 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
--rw-rw-r--        110 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--        117 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
-lrwxrwxrwx         54 results -> /var/tmp/pbench-test-server/pbench/public_html/results
-lrwxrwxrwx         53 static -> /var/tmp/pbench-test-server/pbench/public_html/static
-lrwxrwxrwx         52 users -> /var/tmp/pbench-test-server/pbench/public_html/users
+lrwxrwxrwx         61 results -> /var/tmp/pbench-test-server/test-8/pbench/public_html/results
+lrwxrwxrwx         60 static -> /var/tmp/pbench-test-server/test-8/pbench/public_html/static
+lrwxrwxrwx         59 users -> /var/tmp/pbench-test-server/test-8/pbench/public_html/users
 --- var/www/html tree state
-+++ results host info (/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-001
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/pbench-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
++++ results host info (/var/tmp/pbench-test-server/test-8/var-www-html/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-8/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-8/pbench-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/test-8/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+/var/tmp/pbench-test-server/test-8/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-8/pbench-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-8/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
-+++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/var-www-html-satellite)
-lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/pbench-satellite/public_html/incoming
++++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-8/var-www-html-satellite)
+lrwxrwxrwx         72 incoming -> /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
--rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--        137 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
--rw-rw-r--        130 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--        137 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
-lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/pbench-satellite/public_html/results
-lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/pbench-satellite/public_html/static
-lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/pbench-satellite/public_html/users
+lrwxrwxrwx         71 results -> /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/results
+lrwxrwxrwx         70 static -> /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/static
+lrwxrwxrwx         69 users -> /var/tmp/pbench-test-server/test-8/pbench-satellite/public_html/users
 --- var/www/html-satellite tree state
-+++ results host info (/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-001
-/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
-/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/pbench-satellite-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
++++ results host info (/var/tmp/pbench-test-server/test-8/var-www-html-satellite/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-8/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-8/pbench-satellite-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/test-8/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+/var/tmp/pbench-test-server/test-8/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-8/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-8/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
-+++ pbench tree state (/var/tmp/pbench-test-server/pbench)
++++ pbench tree state (/var/tmp/pbench-test-server/test-8/pbench)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - public_html
@@ -125,7 +125,7 @@ drwxrwxr-x          - public_html/results
 drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/users
 --- pbench tree state
-+++ pbench-local tree state (/var/tmp/pbench-test-server/pbench-local)
++++ pbench-local tree state (/var/tmp/pbench-test-server/test-8/pbench-local)
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
@@ -142,7 +142,7 @@ drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
 drwxrwxr-x          - tmp
 --- pbench-local tree state
-+++ pbench-satellite tree state (/var/tmp/pbench-test-server/pbench-satellite)
++++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-8/pbench-satellite)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - public_html
@@ -151,7 +151,7 @@ drwxrwxr-x          - public_html/results
 drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/users
 --- pbench-satellite tree state
-+++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/pbench-satellite-local)
++++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-8/pbench-satellite-local)
 drwxrwxr-x          - logs
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
