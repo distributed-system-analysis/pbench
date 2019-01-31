@@ -34,6 +34,7 @@ config=""
 tool_group=default
 sysinfo=default
 use_tool_triggers=0
+capture_stderr=" 2>&1"
 
 function usage {
 	printf "Usage: $script_name [options] -- <script to run>\n\n"
@@ -45,10 +46,11 @@ function usage {
 	printf -- "\t\t       --pbench-pre=str        path to the script which will be executed before tools are started\n"
 	printf -- "\t\t       --pbench-post=str       path to the script which will be executed after tools are stopped and postprocessing is complete\n"
 	printf -- "\t\t       --use-tool-triggers     use tool triggers instead of normal start/stop around script\n"
+	printf -- "\t\t       --no-stderr-capture     do not capture stderr of the script to the result.txt file\n"
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:h --longoptions "config:,help,tool-group:,sysinfo:,pbench-post:,pbench-pre:,use-tool-triggers" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o C:h --longoptions "config:,help,tool-group:,sysinfo:,pbench-post:,pbench-pre:,use-tool-triggers,no-stderr-capture" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf -- "$*\n\n"
 	printf "\t${benchmark}: you specified an invalid option\n\n"
@@ -97,6 +99,10 @@ while true; do
 		--use-tool-triggers)
 		shift
 		use_tool_triggers=1
+		;;
+		--no-stderr-capture)
+		shift
+		capture_stderr=""
 		;;
 		-h|--help)
 		usage
@@ -171,6 +177,25 @@ if [[ ! -z $pbench_pre ]]; then
 	fi
 fi
 
+benchmark_run_cmd="${benchmark_run_dir}/user-benchmark.cmd"
+if [ $use_tool_triggers -eq 0 ]; then
+	# We are not using tool triggers, so we'll only have one iteration,
+	# "1/reference-result/", so for compatibility we'll place the results
+	# output file there.
+	_final_results_dir="${benchmark_results_dir}"
+else
+	# We are using tool triggers, so we'll potentially have more than
+	# one iteration, so just place the results output file in the run
+	# directory.
+	_final_results_dir="${benchmark_run_dir}"
+fi
+printf "%s%s | tee %s/result.txt" "${benchmark_bin}" "${capture_stderr}" "${_final_results_dir}" > $benchmark_run_cmd
+if [ $use_tool_triggers -ne 0 ]; then
+	printf " | pbench-tool-trigger ${iteration} ${benchmark_run_dir} ${tool_group}" >> $benchmark_run_cmd
+fi
+printf "\n" >> $benchmark_run_cmd
+chmod +x $benchmark_run_cmd
+
 if [ $use_tool_triggers -eq 0 ]; then
 	pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 fi
@@ -179,11 +204,7 @@ echo "Running $benchmark_bin"
 log "[$script_name] Running $benchmark_bin"
 
 SECONDS=0
-if [ $use_tool_triggers -eq 0 ]; then
-	$benchmark_bin 2>&1 | tee $benchmark_results_dir/result.txt
-else
-	$benchmark_bin 2>&1 | tee $benchmark_run_dir/result.txt     | pbench-tool-trigger ${iteration} ${benchmark_run_dir} ${tool_group}
-fi
+$benchmark_run_cmd
 benchmark_duration=$SECONDS
 # make it predictable in the unittest environment
 if [[ $_PBENCH_BENCH_TESTS == 1 ]]; then
