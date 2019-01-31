@@ -9,10 +9,15 @@
     <script src="/static/js/v0.3/jschart.js"></script>
   </head>
   <body>
-    <center><h2>jvm - jmap_heap_usage</h2></center>
+    <center><h2>jstack - threads_state_per_process</h2></center>
     <div id="chart_1">
       <script>
-        create_jschart("lineChart", "timeseries", "chart_1", "Heap_Used_In_Mb", null, null, { csvfiles: [ "csv/jmap.csv" ], threshold: 1 });
+        create_jschart("lineChart", "timeseries", "chart_1", "java1-stdout.txt", null, null, { csvfiles: [ "csv/jstack-java1-stdout.txt.csv" ], threshold: 1 });
+      </script>
+    </div>
+    <div id="chart_2">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_2", "java2-stdout.txt", null, null, { csvfiles: [ "csv/jstack-java2-stdout.txt.csv" ], threshold: 1 });
       </script>
     </div>
   </body>

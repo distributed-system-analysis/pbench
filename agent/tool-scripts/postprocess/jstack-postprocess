@@ -22,28 +22,28 @@ done
 
 html_file=$dir/jstack.html
 # generate html file
-echo ' <!DOCTYPE HTML>' > ${html_file}
-echo ' <html>' >> ${html_file}
-echo ' <head>' >> ${html_file}
-echo ' <meta charset="utf-8">' >> ${html_file}
-echo ' <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">' >> ${html_file}
-echo ' </head>' >> ${html_file}
-echo ' <body>' >> ${html_file}
-echo ' <script src="/static/js/v0.3/d3.min.js"></script>' >> ${html_file}
-echo ' <script src="/static/js/v0.3/d3-queue.min.js"></script>' >> ${html_file}
-echo ' <script src="/static/js/v0.3/saveSvgAsPng.js"></script>' >> ${html_file}
-echo ' <script src="/static/js/v0.3/jschart.js"></script>' >> ${html_file}
-echo ' <center><h2>jstack - threads_state_per_process</h2></center>' >> ${html_file}
+echo '<!DOCTYPE HTML>' > ${html_file}
+echo '<html>' >> ${html_file}
+echo '  <head>' >> ${html_file}
+echo '    <meta charset="utf-8">' >> ${html_file}
+echo '    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">' >> ${html_file}
+echo '    <script src="/static/js/v0.3/d3.min.js"></script>' >> ${html_file}
+echo '    <script src="/static/js/v0.3/d3-queue.min.js"></script>' >> ${html_file}
+echo '    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>' >> ${html_file}
+echo '    <script src="/static/js/v0.3/jschart.js"></script>' >> ${html_file}
+echo '  </head>' >> ${html_file}
+echo '  <body>' >> ${html_file}
+echo '    <center><h2>jstack - threads_state_per_process</h2></center>' >> ${html_file}
 i=1
 for pid in $file_to_process; do
-  echo " <div id=\"chart_$i\">"  >> ${html_file}
-  echo ' <script>' >> ${html_file}
-  echo "    create_jschart(\"lineChart\", \"timeseries\", \"chart_$i\", \"$pid\", null, null, { csvfiles: [ \"csv/jstack-$pid.csv\" ], threshold: 1 });" >> ${html_file}
-  echo ' </script>' >> ${html_file}
-  echo ' </div>' >> ${html_file}
+  echo "    <div id=\"chart_$i\">"  >> ${html_file}
+  echo '      <script>' >> ${html_file}
+  echo "        create_jschart(\"lineChart\", \"timeseries\", \"chart_$i\", \"$pid\", null, null, { csvfiles: [ \"csv/jstack-$pid.csv\" ], threshold: 1 });" >> ${html_file}
+  echo '      </script>' >> ${html_file}
+  echo '    </div>' >> ${html_file}
   let i++
 done
-echo ' </body>' >> ${html_file}
+echo '  </body>' >> ${html_file}
 echo '</html>' >> ${html_file}
 
 exit 0
