@@ -7,6 +7,7 @@ pbench-sysstat
 pidstat tool is now registered in group default
 pbench-sysstat
 sar tool is now registered in group default
+perf
 perf tool is now registered in group default
 --- Finished test-11.3 pbench-register-tool-set (status=0)
 +++ pbench tree state
