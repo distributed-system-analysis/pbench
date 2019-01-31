@@ -22,7 +22,7 @@ case $arg in
     with-duration)
         printf "{%s,\n        \"duration\": 10,\n        \"duration-units\": \"sec\"\n        }\n" "$json" > $file
         ;;
-     bad-format)
+    bad-format)
         printf "{%s\n" "$json" > $file
         ;;
 esac

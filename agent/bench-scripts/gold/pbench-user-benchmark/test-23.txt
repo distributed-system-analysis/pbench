@@ -23,6 +23,7 @@ STOP DEFAULT
 [pbench-tool-trigger]pbench-stop-tools --group=default --iteration=3 --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-23_1900.01.01T00.00.00/3/reference-result
 sud
 --- Finished test-23 pbench-user-benchmark (status=0)
+tool-trigger-example 2>&1 | tee /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-23_1900.01.01T00.00.00/result.txt | pbench-tool-trigger 1 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-23_1900.01.01T00.00.00 default
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-23_1900.01.01T00.00.00
@@ -39,6 +40,7 @@ sud
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-23_1900.01.01T00.00.00/result.txt
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-23_1900.01.01T00.00.00/user-benchmark-summary-debug.json
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-23_1900.01.01T00.00.00/user-benchmark-summary.json
+/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-23_1900.01.01T00.00.00/user-benchmark.cmd
 /var/tmp/pbench-test-bench/pbench/pbench.log
 /var/tmp/pbench-test-bench/pbench/samples
 /var/tmp/pbench-test-bench/pbench/tmp
