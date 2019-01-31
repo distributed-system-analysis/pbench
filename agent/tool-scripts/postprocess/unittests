@@ -95,7 +95,9 @@ function testjstack {
     cp -r samples/$1 ${_testroot}/
     _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./jstack-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
-    diff -cr gold/$1/csv ${_testroot}/$1/csv
+    remove_sample_data $1
+
+    diff -cr gold/$1/ ${_testroot}/$1/
     sts=$?
     if [ $sts -eq 0 ]; then
         rm -rf ${_testroot}/$1
@@ -224,7 +226,9 @@ function testjmap {
 
     _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./jmap-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
-    diff -cr gold/$1/csv ${_testroot}/$1/csv
+    remove_sample_data $1
+
+    diff -cr gold/$1/ ${_testroot}/$1/
     sts=$?
     if [ $sts -eq 0 ]; then
         rm -rf ${_testroot}/$1
