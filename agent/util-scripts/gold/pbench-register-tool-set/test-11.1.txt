@@ -4,6 +4,7 @@ mpstat tool is now registered in group default
 vmstat tool is now registered in group default
 pbench-sysstat
 iostat tool is now registered in group default
+perf
 perf tool is now registered in group default
 --- Finished test-11.1 pbench-register-tool-set (status=0)
 +++ pbench tree state

@@ -1,0 +1,26 @@
+# How to use perf tools locally
+#
+# The pbench "perf" tool ends up creating a perf.data.xz and perf.data.tar.bz2 file.
+# The system on which this file was created may no longer be accessible to you when
+# viewing perf data in a pbench tar ball.  However, you can still process the perf
+# data on your local system.
+#
+# Copy both files to your local system:
+#
+# $ curl -X GET -o ./perf.data.xz      <URL>/perf.data.xz
+# $ curl -X GET -o ./perf.data.tar.bz2 <URL>/perf.data.tar.bz2
+#
+# Then unpack the perf.data.tar.bz2 file in a .debug directory as a sub-directory
+# of the user's home directory:
+#
+# $ mkdir -p $HOME/.debug
+# $ tar xf ./perf.data.tar.bz2 -C $HOME/.debug
+#
+# Then run perf report on the data file as normal:
+#
+# $ unxz ./perf.data.xz
+# $ perf report -i ./perf.data
+#
+# The presence of that $HOME/.debug directory will be picked up by perf report and
+# the symbols in the perf.data file will be resolved with the stored data in the
+# $HOME/.debug directory.
