@@ -30,12 +30,13 @@ sub process_dir {
 			process_dir($dir . "/" . $entry, $index, $host);
 		} else {
 			# separate the UUID (like -23316532-b21a-448c-8634-fa91c2a3410c) from the index name)
-			if ($entry =~ /(.+)-([a-x0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})\.json$/) {
+			if ($entry =~ /(\D+)\d*-([a-x0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})\.json$/) {
 				my $doc_type = $1;
 				my $curl_cmd = sprintf "curl -X POST \"%s/%s\" -H \'Content-Type: application/json\' -d@%s\n", $host, "cdm" . get_cdm_ver . "-" . $doc_type . "/" . $doc_type, $dir . "/" . $entry;
+				printf "curl_cmd: %s\n", $curl_cmd;
 				my $output = `$curl_cmd`;
 				if ($? > 0) {
-					printf "curl failed, so aboting now\n";
+					printf "curl failed, so aborting now\n";
 					die;
 				}
 				my $json_ref = from_json($output);
