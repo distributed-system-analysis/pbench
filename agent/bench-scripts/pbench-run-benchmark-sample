@@ -44,7 +44,7 @@ my $base_dir = shift(@ARGV); # dir for all of the pbench run
 my $tool_group = shift(@ARGV);
 my $last_sample = shift(@ARGV);
 if (! -d $base_dir) {
-    die "The base bench directory $base_dir must already exist";
+    die "The base bench directory, $base_dir must already exist";
 }
 mkdir($sample_dir);
 my $json_ref = get_json_file($iter_doc_filename);

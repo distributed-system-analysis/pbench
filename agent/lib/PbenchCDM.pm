@@ -50,7 +50,7 @@ sub get_user_email { # Looks for USER_NAME in %ENV
 # Create the fields every doc must have
 sub populate_base_fields {
     my $doc_ref = shift;
-    $$doc_ref{'cdm'}{'ver'} = 2;
+    $$doc_ref{'cdm'}{'ver'} = get_cdm_ver;
 }
 
 sub copy_doc_fields {
@@ -69,6 +69,7 @@ sub create_run_doc {
     $doc{'run'}{'bench'}{'clients'} = shift; # Client hosts involved in the benchmark
     $doc{'run'}{'bench'}{'servers'} = shift; # Server hosts involved in the benchmark
     $doc{'run'}{'user'}{'desc'} = shift; # User provided test description
+    $doc{'run'}{'user'}{'tags'} = shift; # User provided tags like, "beta,project-X"
     $doc{'run'}{'user'}{'name'} = shift; # User's real name
     $doc{'run'}{'user'}{'email'} = shift; # User's email address
     $doc{'run'}{'harness_name'} = shift; # Harness name like pbench, browbeat, cbt
