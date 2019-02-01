@@ -5,7 +5,7 @@
     "parameters" : { 
       "defaults": {
         "basic" : [ "--rw=read,randread", "--filename=/tmp/fio-tst", "--filesize=256M",
-          "--runtime=30s", "--bs=16k"
+          "--runtime=30s", "--bs=16k", "--time_based=1"
           ],
         "ceph-osp" : [ "--rw=read,randread,write,randwrite", "--bs=1m", "--ioengine=sync",
           "--numjobs=1", "--runtime=30s", "--filesize=512M" 
@@ -111,7 +111,7 @@
       }
     },
   "client" : { 
-    "packages" : [ "pbench-fio-3.3-1" ],
+    "packages" : [ "pbench-fio-3.12-2" ],
     "pre-script" : " ",
     "post-script" : " ",
     "copy-to" : [ "/var/lib/pbench-agent/tmp/fio.job" ],

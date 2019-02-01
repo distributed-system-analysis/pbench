@@ -83,7 +83,7 @@ while (my $line = <IOSTAT_TXT>) {
 					$timestamp_ms	# the timestamp
 					);
 				$metric_sample{"metric"}{"device"} = $dev;
-				$metric_sample{"metric"}{"begin"} = $last_timestamp_ms - 1;
+				$metric_sample{"metric"}{"begin"} = $last_timestamp_ms + 1;
 				put_json_file(\%metric_sample, $es_dir . "/metrics/" .
 						$hostname .
 						"/metric-" .

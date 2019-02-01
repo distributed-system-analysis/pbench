@@ -116,7 +116,7 @@ my $get_defs_cmd = "pbench-gen-iterations " . $benchmark . " --defaults-only " .
 $get_defs_cmd =~ s/\"/\\\"/g;
 my @param_sets = `$get_defs_cmd`;
 if ($? != 0) {
-    printf "%s\nCalling pbench-gen-iterations failed, exiting\n", $get_defs_cmd;
+    printf "%s\nCalling pbench-gen-iterations failed, exiting\n", join(" ", @param_sets);
     exit 1;
 }
 mkdir($base_bench_dir);

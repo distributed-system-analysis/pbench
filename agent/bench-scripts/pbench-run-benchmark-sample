@@ -26,7 +26,7 @@ use PbenchBase       qw(get_json_file put_json_file get_benchmark_names get_clie
                         get_params get_pbench_bench_config_dir load_benchmark_config);
 use PbenchAnsible    qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts
                         remove_files_from_hosts remove_dir_from_hosts create_dir_hosts
-                        sync_dir_from_hosts verify_success);
+                        sync_dir_from_hosts verify_success yum_install_hosts);
 use PbenchCDM        qw(create_bench_iter_sample_doc);
 
 my $pbench_bench_config_dir = get_pbench_bench_config_dir; 
@@ -74,8 +74,32 @@ if (! $hosts{"client"}) {
 }
 
 # pre-benchmark-execution:
-# - verify access to clients and servers (todo)
+# - verify access to clients and servers by attempting to create the directories
+for my $type (keys %hosts) {
+    if (scalar @{ $hosts{$type} }) {
+        if ($specs{$type} and ${specs}{$type}{"copy-to"}) {
+            my $result;
+            my $rc;
+            my @files = @{ ${specs}{$type}{"copy-to"} };
+            # the end of the dir name gets "-client" or "-server" just in case this host is
+            # also a controller or both client and server
+            $result = create_dir_hosts(\@{ $hosts{$type} }, $sample_dir . "-" .  $type,
+                                       $base_dir);
+        }
+    }
+}
 # - verify required software on clients and server (todo)
+for my $type (keys %hosts) {
+    if (scalar @{ $hosts{$type} }) {
+        if ($specs{$type} and ${specs}{$type}{"packages"}) {
+            my $result;
+            my $rc;
+            my @packages = @{ ${specs}{$type}{"packages"} };
+            $result = yum_install_hosts(\@{ $hosts{$type} }, \@packages,
+                                       $base_dir);
+        }
+    }
+}
 # - run pre-script in controller
 if ($specs{"controller"}{"pre-script"} and $specs{"controller"}{"pre-script"} ne "") {
     # pre-script gets same params as benchmark.
@@ -88,7 +112,6 @@ if ($specs{"controller"}{"pre-script"} and $specs{"controller"}{"pre-script"} ne
         exit 1;
     }
 }
-# - create sample_dir on clients and servers
 # - copy files to clients and servers
 for my $type (keys %hosts) {
     if (scalar @{ $hosts{$type} }) {
@@ -98,8 +121,6 @@ for my $type (keys %hosts) {
             my @files = @{ ${specs}{$type}{"copy-to"} };
             # the end of the dir name gets "-client" or "-server" just in case this host is
             # also a controller or both client and server
-            $result = create_dir_hosts(\@{ $hosts{$type} }, $sample_dir . "-" .  $type,
-                                       $base_dir);
             $result = copy_files_to_hosts(\@{ $hosts{$type} }, \@files, $sample_dir . "-" .
                                           $type, $base_dir);
         }
@@ -172,9 +193,12 @@ if ($specs{"controller"}{"post-script"} and $specs{"controller"}{"post-script"} 
     my $postprocess_cmd = ". /opt/pbench-agent/base; cd " . $sample_dir . "; " .
                           $specs{"controller"}{"post-script"} . " " . $sample_dir . " " .
                           $base_dir . " " . $tool_group . " " .$last_sample;
+    open(my $fh_cmd, ">" . $sample_dir . "/postprocess.cmd");
+    printf { $fh_cmd } "%s\n", $postprocess_cmd;
     my $postprocess_output = `$postprocess_cmd`;
     my $rc = $?;
-    open(my $fh, ">" . $sample_dir . "/postprocess-output.txt");
+    open(my $fh_output, ">" . $sample_dir . "/postprocess-output.txt");
+    printf { $fh_output } "%s\n", $postprocess_output;
     if ($rc != 0) {
         printf "Controller post-script failed, exiting\n";
         exit 1;

@@ -21,7 +21,7 @@ use List::Util qw(max);
 use Data::Dumper;
 use JSON;
 use PbenchBase qw(get_hostname);
-our @EXPORT_OK = qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success stockpile_hosts);
+our @EXPORT_OK = qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success stockpile_hosts yum_install_hosts);
 
 my $script = "PbenchAnsible.pm";
 my $sub;
@@ -159,6 +159,21 @@ sub stockpile_hosts { # run stockpile against these hosts
 	push(@playbook, \%play2);
 	return run_playbook(\@playbook, $inv_file, $logdir, $extra_vars);
 }
+sub yum_install_hosts { # verify/install these packages on hosts
+	my $hosts_ref = shift; # array-reference to hosts 
+	my $packages = shift; # array-reference of packages
+	my $basedir = shift;
+	my $logdir = get_ansible_logdir($basedir, "yum_install_hosts");
+	my $inv_file = build_inventory($hosts_ref, $logdir);
+	my @tasks;
+	my @packages = @$packages;
+	my %yum = ( "name" => \@packages, "state" => "present" );
+	my %task = ( "name" => "install a list of packages", "yum" => \%yum );
+	push(@tasks, \%task);
+	my %play = ( hosts => "all", tasks => \@tasks );;
+	my @playbook = (\%play);;
+	return run_playbook(\@playbook, $inv_file, $logdir);
+}
 sub create_dir_hosts { # creates a directory on remote hosts
 	my $hosts_ref = shift; # array-reference to host list to copy from 
 	my $dir = shift; # the directory to create
@@ -174,7 +189,7 @@ sub create_dir_hosts { # creates a directory on remote hosts
 }
 sub ssh_hosts { # run a command on remote hosts
 	my $hosts_ref = shift; # array-reference to host list
-	my $cmd = shift; # array-refernce to file list
+	my $cmd = shift; # command to run
 	my $chdir = shift; # directory to run command
 	my $basedir = shift;
 	my $logdir = get_ansible_logdir($basedir, "ssh_hosts");
