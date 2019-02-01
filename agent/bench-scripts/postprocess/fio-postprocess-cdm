@@ -87,8 +87,8 @@ for my $client (@client_dirs) {
                 remove_element(\@log_metric_types, $metric_type);
                 open(my $log_fh, "clients/$client/$log_file")
                     || die "$script_name: could not open file clients/$client/$log_file $!\n";
+                my $last_timestamp_ms;
                 while (<$log_fh>) {
-                    my $last_timestamp_ms;
                     my $line = "$_";
                     chomp($line);
                     if ( $line =~  /(\d+),\s+(\d+),\s+(\d+),\s+(\d+)/ ) {
@@ -106,14 +106,15 @@ for my $client (@client_dirs) {
                                 $value,     # The value of the metric
                                 $timestamp_ms   # The timestamp
                                 );
-
-                            $metric_sample{'metric'}{'begin'} = $last_timestamp_ms;
+			    # Our 'begin' is the smallest amount of time just after the previous
+			    # sample, and since we have a millisecond granularity, it is 1ms.
+                            $metric_sample{'metric'}{'begin'} = $last_timestamp_ms + 1;
                             put_json_file(\%metric_sample, "../../es/metrics/" .
                                 $client .
                                 "/metric-" .
                                 $metric_sample{'metric'}{'id'} .
                                 ".json");
-                        }
+			}
                         if (! $earliest_timestamp or $earliest_timestamp > $timestamp_ms) {
                             $earliest_timestamp = $timestamp_ms;
                         }

@@ -156,11 +156,16 @@ sub process_param {
                         }
                     }
                     # Because these will get processed again by build_iteration_cmds,
-                    # quotes are wrapped on all values, since quotes may have been stripped earlier.
+                    # single-values which have commas need to be wrapped in quotes,
+                    # so they are not mis-iterpreted as mulitple values.  The quotes
+                    # will be removed in build_iteration_cmds()
+                    if ($value =~ /,/) {
+                        $value = '"' . $value . '"';
+                    }
                     if ($processed_values eq "") {
-                        $processed_values = '"' . $value . '"';
+                        $processed_values = $value;
                     } else {
-                        $processed_values .= ',"' . $value . '"';
+                        $processed_values .= ',' . $value;
                     }
                 } else {
                     printf "the value, \'%s\' for argument, \'--%s\' is not valid\n", $value, $argument;
@@ -190,18 +195,15 @@ sub build_iteration_cmds {
         # As in process_param, quotewords() allows a comma to be within a single value
         # as long as it is wraped in quotes
         for my $value (quotewords(',', 0, $values)) {
-            if (not $value =~ /,/) {
-                $value =~ s/\"//g;
-            }
+            # Since these params are fully rendered (this will not be passed to
+            # pbench-gen-iterations again), we can remove the quotes
+            $value =~ s/\"//g;
             push(@cmds, build_iteration_cmds($cmdline . " --" . $arg . "=" . $value . " ",
                  \%multiplex_params, \%simplex_params));
         }
         return @cmds;
     } else {
         for my $arg (keys %simplex_params) {
-            if (not $arg =~ /,/) {
-                $arg =~ s/\"//g;
-            }
             $cmdline .= " --" . $arg . "=" . $simplex_params{$arg};
         }
         return ($cmdline);
@@ -312,17 +314,12 @@ while ( scalar @params > 0 ) {
             # Only output the processed params without expanding into multiple iterations
             my $cmd = "";
             for my $arg (keys %processed_pbench_params) {
-                if (not $processed_pbench_params{$arg} =~ /,/) {
-                    $processed_pbench_params{$arg} =~ s/\"//g;
-                }
                 $cmd .= sprintf "--%s=%s ", $arg, $processed_pbench_params{$arg};
             }
             for my $arg (keys %processed_bench_params) {
-                if (not $processed_bench_params{$arg} =~ /,/) {
-                    $processed_bench_params {$arg}=~ s/\"//g;
-                }
                 $cmd .= sprintf "--%s=%s ", $arg, $processed_bench_params{$arg};
             }
+            $cmd =~ s/\s$//;
             push(@cmds, $cmd);
         } else {
             # Output the processed params with expanding into multiple iterations
