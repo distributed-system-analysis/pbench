@@ -30,9 +30,9 @@ my $dir=$ARGV[0];
 my $dev;
 my %mpstat;
 my $date;
+my $date_ms;
 my $timestamp_ms;
 my $prev_time = "";
-my $extra_time = 0;  # the extra amount of time in ms we need to add as the date recorded goes from one day to the next
 my $line;
 my $cpu;
 my $cpu_online;
@@ -41,39 +41,31 @@ my %graph_type;
 
 # we'll force mpstat into a LANG=C environment: two-digit year on the first line,
 # 24-hour time with *no* AM/PM designation in the timestamp.
-# but calc_timestamp() and the TSRE below are backwards-compatible and can
-# deal with AM/PM
 # Usage example: $timestamp_ms = calc_timestamp($time);
 sub calc_timestamp {
-	my $this_time = $_[0];
-
-	if ( $prev_time eq "" ) { # if this is the first time
-		$prev_time = $this_time;
-	}
-
 	# time format: HH:MM:SS
 	# 24-hour format,*no* AM/PM designation
-	my $hourminsec = $this_time;
-	$hourminsec =~ /(\d+):\d+:\d+\s?(\w\w)?/;
+	my $hourminsec = $_[0];
+	$hourminsec =~ /(\d+):(\d+):(\d+)/;
 	my $hour = $1;
-	my $this_ampm = $2;
-	$prev_time =~ /(\d+):\d+:\d+\s?(\w\w)?/;
-	my $prevhour = $1;
-	my $prev_ampm = $2;
+	my $minute = $2;
+	my $second = $3;
+	# Keep curr/prev time in milliseconds
+	my $this_time = (($hour * 60 * 60) + ($minute * 60) + $second) * 1000;
 
-	# check for AM/PM first and if it's not there assume 24-hour
-	# clock and compare hours.
-	# the hour check is not entirely correct but it's more
-	# than sufficient for our purposes: it assumes that successive
-	# timestamps differ by less than 24 hours.
-	if ( (defined($this_ampm) and defined($prev_ampm) and ( $this_ampm eq "AM") and ( $prev_ampm eq "PM")) ||
-	     ( $prevhour > $hour ) ) {
-		# since we have rolled over to the next day, add enough ms to extra_time equal to 1 day
-		#print "detected day change\n";
-		$extra_time += (24 * 60 * 60 * 1000);
+	if ( $prev_time eq "" ) {
+		# This is the first time stamp we have seen, so remember
+		# it as the previous one to start.
+		$prev_time = $this_time;
+	} else {
+		if ( $prev_time > $this_time ) {
+			# We have detected a date roll-over, so add 24 hours to
+			# the current date.
+			$date_ms += (24 * 60 * 60 * 1000);
+		}
+		$prev_time = $this_time;
 	}
-	$prev_time = $this_time;
-	return int ($extra_time + 1000 * `date --date="$date $this_time" +%s.%N`);
+	return $date_ms + $this_time;
 }
 
 # read the mpstat.txt and collect stats for all non dm-* devices
@@ -84,24 +76,26 @@ open(MPSTAT_TXT, "$dir/mpstat-stdout.txt") || die "could not find $dir/mpstat-st
 # The first line contains the date:
 #    Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 02/25/15 _x86_64_ (8 CPU)
 # Subsequent lines are of the form:
-#    15:48:49  CPU  %usr  %nice  %sys  %iowait  %irq  %soft  %steal  %guest  %gnice  %idle
+#    23:59:56     CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+#    00:00:06     all    0.01    0.00    0.03    0.00    0.00    0.00    0.00    0.00    0.00   99.96
+#    00:00:06       0    0.10    0.00    0.10    0.00    0.00    0.00    0.00    0.00    0.00   99.80
+#    00:00:06       1    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00
 # containing only the time, so we need to combine the two to get a meaningful timestamp.
 
 $line = <MPSTAT_TXT>;
 chomp $line;
-if ( $line =~ /\S+\s\S+\s\S+\s+(\d\d\/\d\d\/\d\d)(.*)/ ) {
-    # Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 02/25/15 _x86_64_ (8 CPU)
-    $date = $1;
+if ( $line =~ /\S+\s\S+\s\S+\s+(\d\d\/\d\d\/\d\d).*/ ) {
+	# Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 02/25/15 _x86_64_ (8 CPU)
+	$date = $1;
+	# Convert to milliseconds since the epoch
+	$date_ms = 1000 * `date --date="$date" +%s.%N`;
 } else {
-    # TBD: default is today - should we bail instead?
-    # TBD: what if the first line does not match? do we keep looking? or die?
-    # die("Bad mpstat.txt file format: first line should have the form: Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 02/25/2015 _x86_64_ (8 CPU)");
-    $date = "";
+	die("Bad mpstat.txt file format: first line should have the form: Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 02/25/2015 _x86_64_ (8 CPU)");
 }
 
 while (my $line = <MPSTAT_TXT>) {
 	chomp $line;
-	if ( $line =~ /(\d\d:\d\d:\d\d)\s+(\S+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)(.*)/ ) {
+	if ( $line =~ /(\d\d:\d\d:\d\d)\s+(\S+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+).*/ ) {
 		$timestamp_ms = calc_timestamp($1);
 		$cpu=$2;
 		my $online_file="/sys/devices/system/cpu/cpu" . "$cpu" . "/online";
@@ -132,9 +126,13 @@ while (my $line = <MPSTAT_TXT>) {
 			$mpstat{$cpu_label}{$cpu_label}{steal}{$timestamp_ms} = $steal;
 			$mpstat{$cpu_label}{$cpu_label}{iowait}{$timestamp_ms} = $iowait;
 			$mpstat{$cpu_label}{$cpu_label}{idle}{$timestamp_ms} = $idle;
-			}
 		}
+	} elsif ( $line =~ /(\d\d:\d\d:\d\d)\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+.*/ ) {
+		# Run the timestamp calculation since the first head might
+		# contain the last timestamp of the day.
+		$timestamp_ms = calc_timestamp($1);
 	}
+}
 close(MPSTAT_TXT);
 my $file;
 my $graph;
