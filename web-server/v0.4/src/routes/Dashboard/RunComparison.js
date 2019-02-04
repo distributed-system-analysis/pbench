@@ -1,18 +1,17 @@
 import ReactJS from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
+import axios from 'axios';
+import jschart from 'jschart';
 import _ from 'lodash';
-import { Row, Col, Card, Select, Tabs, Spin, Modal, Tag, Table, Button } from 'antd';
+import { Row, Col, Card, Select, Tabs, Spin, Tag, Table, Button, Form } from 'antd';
+import { ResponsiveBar } from '@nivo/bar';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import DescriptionList from 'ant-design-pro/lib/DescriptionList';
-import { ResponsiveBar } from '@nivo/bar';
-import Timeseries from '../../utils/timeseries';
-import styles from './RunComparison.less';
-import axios from 'axios';
 
 const { Description } = DescriptionList;
 const TabPane = Tabs.TabPane;
+const FormItem = Form.Item;
 
 @connect(({ global }) => ({
   datastoreConfig: global.datastoreConfig,
@@ -36,15 +35,44 @@ export default class RunComparison extends ReactJS.Component {
       timeseriesDropdownSelected: [],
       primaryMetricIterations: [],
       clusteredGraphData: [],
-      allConfigCategories: [],
       graphKeys: [],
       tableData: [],
-      selectedSample: {},
       loading: false,
-      closestSampleModalVisible: false,
-      modalGraphVisible: false,
     };
   }
+
+  componentDidMount = () => {
+    this.setState({ loading: true });
+    const { configCategories } = this.props.location.state;
+    this.generateIterationClusters(configCategories);
+  };
+
+  componentDidUpdate = () => {
+    const { tableData, timeseriesData, timeseriesDropdownSelected } = this.state;
+    if (
+      Object.keys(timeseriesData).length > 0 &&
+      Object.keys(timeseriesDropdownSelected).length > 0
+    ) {
+      Object.keys(tableData).map(table => {
+        const timedata = timeseriesData[table][timeseriesDropdownSelected[table]][0];
+        jschart.create_jschart(
+          0,
+          'timeseries',
+          table,
+          'Cluster ' + timeseriesDropdownSelected[table],
+          null,
+          null,
+          {
+            json_object: {
+              x_axis_series: timedata['x_axis_series'],
+              data: timedata['data'],
+              data_series_names: timedata['data_series_names'],
+            },
+          }
+        );
+      });
+    }
+  };
 
   findAggregation(key) {
     if (key.includes('all') & key.includes('mean')) {
@@ -95,7 +123,7 @@ export default class RunComparison extends ReactJS.Component {
     this.setState({ loading: false });
   };
 
-  groupBy = (array, cluster, f) => {
+  groupClusters = (array, cluster, f) => {
     var groups = {};
     array.forEach(function(o) {
       var group = f(o).join('-');
@@ -122,15 +150,17 @@ export default class RunComparison extends ReactJS.Component {
     for (var cluster in primaryMetricIterations) {
       clusteredIterations = [];
       if (typeof config == 'object' && config.length > 0) {
-        clusteredIterations = this.groupBy(primaryMetricIterations[cluster], cluster, function(
-          item
-        ) {
-          var configData = [];
-          for (var filter in config) {
-            configData.push(item[config[filter]]);
+        clusteredIterations = this.groupClusters(
+          primaryMetricIterations[cluster],
+          cluster,
+          function(item) {
+            var configData = [];
+            for (var filter in config) {
+              configData.push(item[config[filter]]);
+            }
+            return configData;
           }
-          return configData;
-        });
+        );
       } else {
         clusteredIterations = _.mapValues(
           _.groupBy(primaryMetricIterations[cluster], config),
@@ -204,8 +234,7 @@ export default class RunComparison extends ReactJS.Component {
         for (var cluster in clusteredIterations[primaryMetric]) {
           timeseriesData[primaryMetric][cluster] = [];
           var iterationTimeseriesData = [];
-          var iterationNames = [];
-          var timeseriesLabels = {};
+          var timeseriesLabels = ['time'];
           for (var iteration in clusteredIterations[primaryMetric][cluster]) {
             var iterationTypes = Object.keys(args[responseCount].data);
             for (var iterationTest in iterationTypes) {
@@ -229,18 +258,14 @@ export default class RunComparison extends ReactJS.Component {
                         hosts[host].timeseries[item]
                       );
                     }
-                    timeseriesLabels['y' + (parseInt(iteration) + 1)] =
-                      clusteredIterations[primaryMetric][cluster][iteration].result_name +
-                      '-' +
-                      clusteredIterations[primaryMetric][cluster][iteration].iteration_name;
-                    iterationTimeseriesData = _.merge(
-                      iterationTimeseriesData,
-                      hosts[host].timeseries
-                    );
-                    iterationNames.push(
+                    timeseriesLabels.push(
                       clusteredIterations[primaryMetric][cluster][iteration].result_name +
                         '-' +
                         clusteredIterations[primaryMetric][cluster][iteration].iteration_name
+                    );
+                    iterationTimeseriesData = _.merge(
+                      iterationTimeseriesData,
+                      hosts[host].timeseries
                     );
                     responseCount++;
                   }
@@ -248,10 +273,12 @@ export default class RunComparison extends ReactJS.Component {
               }
             }
           }
+          let timeLabel = timeseriesLabels.splice(0, 1)[0];
+          timeseriesLabels.splice(1, 0, timeLabel);
           timeseriesData[primaryMetric][cluster].push({
-            iterationNames: iterationNames,
-            data: iterationTimeseriesData,
-            labels: timeseriesLabels,
+            ['data_series_names']: timeseriesLabels,
+            ['data']: iterationTimeseriesData.map(Object.values),
+            ['x_axis_series']: 'time',
           });
         }
       }
@@ -268,62 +295,13 @@ export default class RunComparison extends ReactJS.Component {
   }
 
   clusterDropdownChange = (value, primaryMetric) => {
-    var { timeseriesDropdownSelected } = this.state;
+    var { tableData, timeseriesDropdownSelected } = this.state;
+    Object.keys(tableData).map(table => {
+      document.getElementById(table).innerHTML = '';
+    });
     timeseriesDropdownSelected[primaryMetric] = value;
     this.setState({ timeseriesDropdownSelected: timeseriesDropdownSelected });
   };
-
-  componentDidMount() {
-    this.setState({ loading: true });
-    const { configCategories } = this.props.location.state;
-    this.generateIterationClusters(configCategories);
-  }
-
-  printSummary = () => {
-    console.log('clicked');
-    window.print();
-  };
-
-  iframe(controllerName, resultName, iterationNumber, iterationName, closestSample) {
-    const { datastoreConfig } = this.props;
-
-    return {
-      __html:
-        '<iframe style="overflow: hidden; overflow-y: hidden; height: 650px; border: none; margin: 0; padding: 0; scrolling: none" src="' +
-        datastoreConfig.production +
-        '/results/' +
-        controllerName +
-        '/' +
-        resultName +
-        '/' +
-        iterationNumber +
-        '-' +
-        iterationName +
-        '/' +
-        'sample' +
-        closestSample +
-        '/uperf.html" width="100%" height="1000"></iframe>',
-    };
-  }
-
-  showIterationModal = record => {
-    console.log(record);
-    this.setState({ selectedSample: record });
-    this.setState({
-      modalGraphVisible: true,
-    });
-  };
-
-  handleClose = e => {
-    console.log(e);
-    this.setState({
-      modalGraphVisible: false,
-    });
-  };
-
-  setClosestSampleModalVisible(modalVisible) {
-    this.setState({ closestSampleModalVisible: modalVisible });
-  }
 
   render() {
     const { configCategories, controller, selectedResults } = this.props.location.state;
@@ -336,7 +314,6 @@ export default class RunComparison extends ReactJS.Component {
       timeseriesData,
       timeseriesDropdown,
       timeseriesDropdownSelected,
-      selectedSample,
     } = this.state;
 
     const expandedRowRender = cluster => {
@@ -371,14 +348,6 @@ export default class RunComparison extends ReactJS.Component {
         <Table
           columns={columns}
           dataSource={primaryMetricIterations[cluster.primaryMetric][cluster.key]}
-          onRow={record => {
-            return {
-              onClick: () => {
-                this.showIterationModal(record);
-              },
-              onMouseEnter: () => {},
-            };
-          }}
           pagination={false}
         />
       );
@@ -469,156 +438,136 @@ export default class RunComparison extends ReactJS.Component {
 
     return (
       <div>
-        <Modal
-          visible={this.state.modalGraphVisible}
-          width="92%"
-          style={{ marginRight: 36 }}
-          footer={[
-            <Button key="submit" type="primary" onClick={this.handleClose}>
-              Close
-            </Button>,
-          ]}
-        >
-          <div
-            dangerouslySetInnerHTML={this.iframe(
-              selectedSample.controller_name,
-              selectedSample.result_name,
-              selectedSample.iteration_number,
-              selectedSample.iteration_name,
-              selectedSample.closest_sample
-            )}
-          />
-        </Modal>
         <div>
           <PageHeaderLayout title="Run Comparison Details" content={description} action={action} />
         </div>
         <br />
-        <Card loading={false} bordered={true} bodyStyle={{ padding: 0 }}>
-          <div className={styles.graphCard}>
-            <Tabs size="large" tabBarStyle={{ marginBottom: 24 }}>
-              <TabPane tab="Summary" key="summary">
-                <div style={{ margin: 16 }}>
-                  <Spin spinning={this.state.loading}>
-                    {Object.keys(clusteredGraphData).map(cluster => (
-                      <div>
-                        <Row style={{ marginTop: 16 }}>
-                          <Col xl={16} lg={12} md={12} sm={24} xs={24} style={{ height: 500 }}>
-                            <h4 style={{ marginLeft: 16 }}>{cluster}</h4>
-                            <ResponsiveBar
-                              data={clusteredGraphData[cluster]}
-                              keys={graphKeys[cluster]}
-                              indexBy="cluster"
-                              groupMode="grouped"
-                              padding={0.3}
-                              colors="set3"
-                              animate={true}
-                              motionStiffness={90}
-                              motionDamping={15}
-                              labelSkipWidth={18}
-                              labelSkipHeight={18}
-                              tooltip={({ id, index, value, color }) => (
-                                <div style={{ backgroundColor: 'white', color: 'grey' }}>
-                                  <Row>
-                                    <Col>{'Result'}</Col>
-                                    <Col>
-                                      {primaryMetricIterations[cluster][index][id].result_name}
-                                    </Col>
-                                  </Row>
-                                  <br />
-                                  <Row>
-                                    <Col>{'Iteration'}</Col>
-                                    <Col>
-                                      {primaryMetricIterations[cluster][index][id].iteration_name}
-                                    </Col>
-                                  </Row>
-                                  <br />
-                                  <Row>
-                                    <Col>{'Mean'}</Col>
-                                    <Col>{value}</Col>
-                                  </Row>
-                                  <br />
-                                  <Row>
-                                    <Col>{'Matched Configurations'}</Col>
-                                    <Col>
-                                      <div>
-                                        {tableData[cluster][index].cluster
-                                          .split('-')
-                                          .map((tag, i) => (
-                                            <Tag color="#2db7f5">{tag}</Tag>
-                                          ))}
-                                      </div>
-                                    </Col>
-                                  </Row>
-                                </div>
-                              )}
-                              borderColor="inherit:darker(1.6)"
-                              margin={{
-                                top: 32,
-                                left: 64,
-                                bottom: 64,
-                                right: 124,
-                              }}
-                              axisLeft={{
-                                orient: 'left',
-                                tickSize: 5,
-                                tickPadding: 5,
-                                tickRotation: 0,
-                                legend: 'mean',
-                                legendPosition: 'center',
-                                legendOffset: -40,
-                              }}
-                              axisBottom={{
-                                orient: 'bottom',
-                                tickSize: 5,
-                                tickPadding: 5,
-                                tickRotation: 0,
-                                legend: 'cluster ID',
-                                legendPosition: 'center',
-                                legendOffset: 36,
-                              }}
-                              labelTextColor="inherit:darker(1.6)"
-                              theme={{
-                                tooltip: {
-                                  container: {
-                                    background: 'white',
-                                    fontSize: '13px',
-                                  },
-                                },
-                                labels: {
-                                  textColor: '#555',
-                                },
-                              }}
-                            />
-                          </Col>
-                          <Col xl={8} lg={12} md={12} sm={24} xs={24}>
-                            <Table
-                              size="small"
-                              columns={legendColumns}
-                              dataSource={tableData[cluster]}
-                            />
-                          </Col>
-                        </Row>
-                        <br
-                          style={{
-                            borderTopWidth: 1,
-                            borderStyle: 'solid',
-                            borderColor: '#8c8b8b',
+        <Card loading={false} bordered={true} bodyStyle={{ padding: 4 }}>
+          <Tabs size="large">
+            <TabPane tab="Summary" key="summary" style={{ padding: 16 }}>
+              <Spin spinning={this.state.loading}>
+                {Object.keys(clusteredGraphData).map(cluster => (
+                  <div>
+                    <Row style={{ marginTop: 16 }}>
+                      <Col xl={16} lg={12} md={12} sm={24} xs={24} style={{ height: 500 }}>
+                        <h4 style={{ marginLeft: 16 }}>{cluster}</h4>
+                        <ResponsiveBar
+                          data={clusteredGraphData[cluster]}
+                          keys={graphKeys[cluster]}
+                          indexBy="cluster"
+                          groupMode="grouped"
+                          padding={0.3}
+                          colors="set3"
+                          animate={true}
+                          motionStiffness={90}
+                          motionDamping={15}
+                          labelSkipWidth={18}
+                          labelSkipHeight={18}
+                          tooltip={({ id, index, value, color }) => (
+                            <div style={{ backgroundColor: 'white', color: 'grey' }}>
+                              <Row>
+                                <Col>{'Result'}</Col>
+                                <Col>{primaryMetricIterations[cluster][index][id].result_name}</Col>
+                              </Row>
+                              <br />
+                              <Row>
+                                <Col>{'Iteration'}</Col>
+                                <Col>
+                                  {primaryMetricIterations[cluster][index][id].iteration_name}
+                                </Col>
+                              </Row>
+                              <br />
+                              <Row>
+                                <Col>{'Mean'}</Col>
+                                <Col>{value}</Col>
+                              </Row>
+                              <br />
+                              <Row>
+                                <Col>{'Matched Configurations'}</Col>
+                                <Col>
+                                  <div>
+                                    {tableData[cluster][index].cluster.split('-').map((tag, i) => (
+                                      <Tag color="#2db7f5">{tag}</Tag>
+                                    ))}
+                                  </div>
+                                </Col>
+                              </Row>
+                            </div>
+                          )}
+                          borderColor="inherit:darker(1.6)"
+                          margin={{
+                            top: 32,
+                            left: 64,
+                            bottom: 64,
+                            right: 124,
+                          }}
+                          axisLeft={{
+                            orient: 'left',
+                            tickSize: 5,
+                            tickPadding: 5,
+                            tickRotation: 0,
+                            legend: 'mean',
+                            legendPosition: 'center',
+                            legendOffset: -40,
+                          }}
+                          axisBottom={{
+                            orient: 'bottom',
+                            tickSize: 5,
+                            tickPadding: 5,
+                            tickRotation: 0,
+                            legend: 'cluster ID',
+                            legendPosition: 'center',
+                            legendOffset: 36,
+                          }}
+                          labelTextColor="inherit:darker(1.6)"
+                          theme={{
+                            tooltip: {
+                              container: {
+                                background: 'white',
+                                fontSize: '13px',
+                              },
+                            },
+                            labels: {
+                              textColor: '#555',
+                            },
                           }}
                         />
-                      </div>
-                    ))}
-                  </Spin>
-                </div>
-              </TabPane>
-              <TabPane tab="All" key="all">
-                <div style={{ margin: 16, height: 1000 }}>
-                  {(Object.keys(timeseriesData).length > 0) &
-                  (Object.keys(timeseriesDropdown).length > 0) ? (
-                    <div style={{ marginBottom: 32 }}>
-                      {Object.keys(tableData).map(table => (
-                        <div>
-                          <div style={{ display: 'flex', flexDirection: 'row' }}>
-                            <h4 style={{ marginLeft: 16, marginTop: 8 }}>{table}</h4>
+                      </Col>
+                      <Col xl={8} lg={12} md={12} sm={24} xs={24}>
+                        <Table
+                          size="small"
+                          columns={legendColumns}
+                          dataSource={tableData[cluster]}
+                        />
+                      </Col>
+                    </Row>
+                    <br
+                      style={{
+                        borderTopWidth: 1,
+                        borderStyle: 'solid',
+                        borderColor: '#8c8b8b',
+                      }}
+                    />
+                  </div>
+                ))}
+              </Spin>
+            </TabPane>
+            <TabPane forceRender={true} tab="All" key="all" style={{ padding: 16 }}>
+              {(Object.keys(timeseriesData).length > 0) &
+              (Object.keys(timeseriesDropdown).length > 0) ? (
+                <div>
+                  {Object.keys(tableData).map(table => (
+                    <Card
+                      type="inner"
+                      title={table}
+                      style={{ marginBottom: 16 }}
+                      extra={
+                        <Form layout={'inline'}>
+                          <FormItem
+                            label="Selected Cluster"
+                            colon={false}
+                            style={{ marginLeft: 16, fontWeight: '500' }}
+                          >
                             <Select
                               defaultValue={'Cluster ' + 0}
                               style={{ width: 120, marginLeft: 16 }}
@@ -631,32 +580,26 @@ export default class RunComparison extends ReactJS.Component {
                                 </Select.Option>
                               ))}
                             </Select>
-                          </div>
-                          <Timeseries
-                            data={timeseriesData[table][timeseriesDropdownSelected[table]][0].data}
-                            titleMap={
-                              timeseriesData[table][timeseriesDropdownSelected[table]][0].labels
-                            }
-                          />
-                          <div style={{ height: 64 }} />
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div />
-                  )}
+                          </FormItem>
+                        </Form>
+                      }
+                    >
+                      <div id={table} />
+                    </Card>
+                  ))}
                 </div>
-              </TabPane>
-            </Tabs>
-          </div>
+              ) : (
+                <div />
+              )}
+            </TabPane>
+          </Tabs>
         </Card>
         <br />
         <Card title="Cluster Tables">
           {Object.keys(tableData).map(table => (
             <Table
               bordered
-              id={table}
-              title={() => <h5>{table}</h5>}
+              title={() => <h4>{table}</h4>}
               columns={columns}
               dataSource={tableData[table]}
               expandedRowRender={expandedRowRender}
