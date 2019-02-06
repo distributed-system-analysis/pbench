@@ -279,10 +279,15 @@ function testpidstat {
 
     _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./pidstat-postprocess ${_testroot}/${1} > ${_testroot}/${1}/stdout 2> ${_testroot}/${1}/stderr
 
+    remove_sample_data $1
     rm -rf ${_testroot}/${1}/pids
 
     diff -cr gold/${1}/ ${_testroot}/${1}
-    return $?
+    sts=$?
+    if [ $sts -eq 0 ]; then
+        rm -rf ${_testroot}/$1
+    fi
+    return $sts
 }
 
 res=0
