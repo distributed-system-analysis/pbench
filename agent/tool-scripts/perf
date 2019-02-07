@@ -200,7 +200,7 @@ case "$mode" in
 			fi
 			xz --threads=0 ${tool_output_dir}/perf-report.txt
 			# Provide a README file to help users work with perf data locally.
-			copy ${script_path}/${script_name}.README ${tool_output_dir}/README
+			cp ${script_path}/${script_name}.README ${tool_output_dir}/README
 			exit_status=0
 		else
 			warn_log "$script_name: postprocess - missing ${tool_output_dir}/perf.data file!"
