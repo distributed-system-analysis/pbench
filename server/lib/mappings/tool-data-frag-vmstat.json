@@ -1,0 +1,85 @@
+{
+    "_meta": {
+        "version": "1"
+    },
+    "properties": {
+        "@idx": {
+            "type": "long"
+        },
+        "block": {
+            "properties": {
+                "in": {
+                    "type": "long"
+                },
+                "out": {
+                    "type": "long"
+                }
+            }
+        },
+        "cpu": {
+            "properties": {
+                "idle": {
+                    "type": "long"
+                },
+                "steal": {
+                    "type": "long"
+                },
+                "sys": {
+                    "type": "long"
+                },
+                "user": {
+                    "type": "long"
+                },
+                "wait": {
+                    "type": "long"
+                }
+            }
+        },
+        "memory": {
+            "properties": {
+                "active": {
+                    "type": "long"
+                },
+                "free": {
+                    "type": "long"
+                },
+                "inactive": {
+                    "type": "long"
+                },
+                "swapped": {
+                    "type": "long"
+                }
+            }
+        },
+        "procs": {
+            "properties": {
+                "blocked": {
+                    "type": "long"
+                },
+                "running": {
+                    "type": "long"
+                }
+            }
+        },
+        "swap": {
+            "properties": {
+                "in": {
+                    "type": "long"
+                },
+                "out": {
+                    "type": "long"
+                }
+            }
+        },
+        "system": {
+            "properties": {
+                "cntx_switches": {
+                    "type": "long"
+                },
+                "interrupts": {
+                    "type": "long"
+                }
+            }
+        }
+    }
+}

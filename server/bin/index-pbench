@@ -1,39 +1,53 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
 
-# prereqs:
-# config file: specified in CONFIG "Indexing" section
-# mapping file:
+"""Pbench indexing driver, responsible for indexing a single pbench tar ball
+into the configured Elasticsearch V1 instance.
+
+"""
 
 from __future__ import print_function
 
-import sys, os, time, re, stat, copy
+import sys, os, re, stat, copy
 import hashlib, json, glob, csv, tarfile, shutil
 
-from urllib3 import Timeout
+from operator import itemgetter
 from datetime import datetime, timedelta
 from collections import Counter
 from argparse import ArgumentParser
 from configparser import ConfigParser, Error as ConfigParserError, NoSectionError, NoOptionError
-try:
-    from elasticsearch1 import VERSION as es_VERSION, Elasticsearch
-except ImportError:
-    from elasticsearch import VERSION as es_VERSION, Elasticsearch
-
-from pbench import tstos, es_index, es_put_template, PbenchConfig, BadConfig, get_pbench_logger
+from pbench import tstos, get_es, es_index, es_put_template, PbenchConfig, BadConfig, get_pbench_logger
 
 
-_VERSION_ = "0.7.0.0"
-_NAME_    = "index-pbench"
-_DEBUG    = 0
+_NAME_ = "index-pbench"
+_PARENT_ = "pbench-index"
+
+# This is the version of this python code. We use the version number to mean
+# the following:
+#   <major>.<minor>.<patch>
+#     major: change when:
+#       - moving between supported versions of Elasticsearch
+#       - incompatible changes occur with index name structure
+#       - when structure of index mappings change
+#     minor: change when:
+#       - code structure is changed
+#       - additional indexes are added without changing existing indices or
+#         mappings
+#     patch: change when:
+#       - bug fixes are made to existing code that don't affect indices or
+#         mappings
+# We add the version to the run documents we generate.  Having the version
+# number in each run document helps us track down the version of the code that
+# generated those documents.  In turn, this can help us fix indexing problems
+# via re-indexing data with transformations based on the version of the code
+# that generated the documents.
+_VERSION_ = "1.0.0"
+
+# Internal debugging flag.
+_DEBUG = 0
 
 # global - defaults to normal dict, ordered dict for unittests
 _dict_const = dict
-
-# 100,000 minute timeout talking to Elasticsearch; basically we just don't
-# want to timeout waiting for Elasticsearch and then have to retry, as that
-# can add undue burden to the Elasticsearch cluster.
-_read_timeout = 100000*60
 
 # All indexing uses "create" (instead of "index") to avoid updating
 # existing records, allowing us to detect duplicates.
@@ -42,11 +56,12 @@ _op_type = "create"
 # UID keyword pattern
 uid_keyword_pat = re.compile("%\w*?%")
 
-# Global logger for the module, setup in main()
-_logger = None
+
+class JsonFileError(Exception):
+    pass
 
 
-class MappingFileError(Exception):
+class MappingFileError(JsonFileError):
     pass
 
 
@@ -73,8 +88,6 @@ class UnsupportedTarballFormat(Exception):
 class SosreportHostname(Exception):
     pass
 
-class BadResultData(Exception):
-    pass
 
 _ts_start = None
 def _ts(msg, newline=False):
@@ -93,148 +106,41 @@ def _ts(msg, newline=False):
         print(msg, end=' ', file=sys.stderr)
     sys.stderr.flush()
 
-def load_json_mapping(mapping_fn):
-    with open(mapping_fn, "r") as mappingfp:
-        try:
-            mapping = json.load(mappingfp)
-        except ValueError as err:
-            raise MappingFileError("%s: %s" % (mapping_fn, err))
-    return mapping
+def _make_source_id(source, _parent=None):
+    the_bytes = json.dumps(source, sort_keys=True).encode('utf-8')
+    if _parent is not None:
+        the_bytes += str(_parent).encode('utf-8')
+    return hashlib.md5(the_bytes).hexdigest()
 
-def fetch_mapping(mapping_fn):
-    """Fetch the mapping JSON data from the given file.
-
-    Returns a tuple consisting of the mapping name pulled from the file, and
-    the python dictionary loaded from the JSON file.
-
-    Raises MappingFileError if it encounters any problem loading the file.
-    """
-    mapping = load_json_mapping(mapping_fn)
-    keys = list(mapping.keys())
-    if len(keys) != 1:
-        raise MappingFileError("Invalid mapping file: %s" % mapping_fn)
-    return keys[0], mapping
-
-def es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config, dbg=0):
-    """Load the various Elasticsearch index templates required by pbench.
-
-    We first load the pbench-run index templates, and then we construct and
-    load the templates for each tool data index.
-    """
-    index_settings = _dict_const(
-        gateway=_dict_const(
-            local=_dict_const(
-                sync='1m')),
-        merge=_dict_const(
-            scheduler=_dict_const(
-                max_thread_count=1)),
-        translog=_dict_const(
-            flush_threshold_size='1g'),
-    )
-
-    try:
-        NUMBER_OF_SHARDS = config.get('Settings', 'number_of_shards')
-    except Exception:
-        pass
-    else:
-        index_settings['number_of_shards'] = NUMBER_OF_SHARDS
-
-    try:
-        NUMBER_OF_REPLICAS = config.get('Settings', 'number_of_replicas')
-    except Exception:
-        pass
-    else:
-        index_settings['number_of_replicas'] = NUMBER_OF_REPLICAS
-
-    # where to find the mappings
-    MAPPING_DIR = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))),
-        'lib', 'mappings')
-
-    run_mappings = _dict_const()
-    for mapping_fn in glob.iglob(os.path.join(MAPPING_DIR, "run*.json")):
-        key, mapping = fetch_mapping(mapping_fn)
-        run_mappings[key] = mapping
-
-    # The API body for the create() contains a dictionary with the settings and
-    # the mappings.
-    run_template_name = '%s.run' % (INDEX_PREFIX,)
-    run_template_body = _dict_const(
-        template='%s.run.*' % (INDEX_PREFIX,),
-        settings=index_settings,
-        mappings=run_mappings)
-
-    # Now for the tool data mappings. First we fetch the base skeleton they
-    # all share.
-    skel = load_json_mapping(os.path.join(MAPPING_DIR, "tool-data-skel.json"))
-
-    # Next we load all the tool fragments
-    fpat = re.compile(r'tool-data-frag-(?P<toolname>.+)\.json')
-    tool_mapping_frags = _dict_const()
-    for mapping_fn in glob.iglob(os.path.join(MAPPING_DIR, "tool-data-frag-*.json")):
-        m = fpat.match(os.path.basename(mapping_fn))
-        toolname = m.group('toolname')
-        tool_mapping_frags[toolname] = load_json_mapping(mapping_fn)
-
-    tool_templates = []
-    for toolname,frag in tool_mapping_frags.items():
-        tool_skel = copy.deepcopy(skel)
-        tool_skel['properties'][toolname] = frag
-        tool_mapping = _dict_const([("pbench-tool-data-%s" % toolname, tool_skel)])
-        tool_template_body = _dict_const(
-            template='%s.tool-data-%s.*' % (INDEX_PREFIX, toolname),
-            settings=index_settings,
-            mappings=tool_mapping)
-        tool_templates.append((toolname, tool_template_body))
-
-    # Next we load all the results
-    results_mappings = _dict_const()
-    for mapping_fn in glob.iglob(os.path.join(MAPPING_DIR, "result-*.json")):
-        key, mapping = fetch_mapping(mapping_fn)
-        if dbg > 0:
-            print("fetch_mapping: {}".format(key))
-            from pprint import pprint;
-            pprint(mapping)
-        results_mappings[key] = mapping
-
-    results_template_name = '%s.result-data' % (INDEX_PREFIX,)
-    results_template_body = _dict_const(
-        template='%s.result-data.*' % (INDEX_PREFIX,),
-        settings=index_settings,
-        mappings=results_mappings)
-
-    # FIXME: We should query to see if a template exists, and only
-    # create it if it does not, or if the version of it is older than
-    # expected.
-    try:
-        # Pbench Run template
-        beg, end, retries = es_put_template(es, name=run_template_name, body=run_template_body)
-        successes = 1
-        # Pbench Tool Data templates
-        for name, body in sorted(tool_templates):
-            tool_template_name = '%s.tool-data-%s' % (INDEX_PREFIX,name)
-            _, end, retry_count = es_put_template(es, name=tool_template_name, body=body)
-            retries += retry_count
-            successes += 1
-    except Exception as e:
-        raise TemplateError(e)
-    else:
-        _logger.info("done templates (end ts: {}, duration: {:.2f},"
-                " successes: {:d}, retries: {:d})", tstos(end), end - beg,
-                successes, retries)
-
-
-###########################################################################
-# Pbench Data abstract class - ToolData and ResultData inherit from it.
 
 class PbenchData(object):
-
-    def __init__(self, ptb):
+    """Pbench Data abstract class - ToolData and ResultData inherit from it.
+    """
+    def __init__(self, ptb, idxctx):
         self.year, self.month, self.day = (
                 "{:04d}".format(ptb.start_run_ts.year),
                 "{:02d}".format(ptb.start_run_ts.month),
                 "{:02d}".format(ptb.start_run_ts.day))
         self.ptb = ptb
+        self.logger = idxctx.logger
+        self.idxctx = idxctx
+        self.run_metadata = _dict_const([
+            ( 'id', ptb.run_metadata['id'] ),
+            ( 'controller', ptb.run_metadata['controller'] ),
+            ( 'name', ptb.run_metadata['name'] ),
+            ( 'script', ptb.run_metadata['script'] ),
+            ( 'date', ptb.run_metadata['date'] ),
+            ( 'start', ptb.run_metadata['start'] ),
+            ( 'end', ptb.run_metadata['end'] ),
+        ])
+        try:
+            self.run_metadata['config'] = ptb.run_metadata['config']
+        except KeyError:
+            pass
+        try:
+            self.run_metadata['user'] = ptb.run_metadata['user']
+        except KeyError:
+            pass
         self.counters = Counter()
 
     def mk_abs_timestamp_millis(self, orig_ts):
@@ -248,12 +154,14 @@ class PbenchData(object):
         try:
             orig_ts_float = float(orig_ts)
         except Exception as e:
+            self.counters['ts_not_epoch_millis_float'] += 1
             raise BadDate("{!r} is not a float in milliseconds since the"
                     " epoch: {}".format(orig_ts, e))
         ts_float = orig_ts_float/1000
         try:
             ts = datetime.utcfromtimestamp(ts_float)
         except Exception as e:
+            self.counters['ts_not_epoch_float'] += 1
             raise BadDate("{:f} ({!r}) is not a proper float in seconds since"
                     " the epoch: {}".format(ts_float, orig_ts, e))
         if ts < self.ptb.start_run_ts:
@@ -280,6 +188,7 @@ class PbenchData(object):
             try:
                 d = timedelta(0, 0, orig_ts_float * 1000)
             except Exception as e:
+                self.counters['ts_calc_not_epoch_millis_float'] += 1
                 raise BadDate("{:f} ({!r}) is not a proper float in"
                         " milliseconds since the epoch: {}".format(
                             orig_ts_float, orig_ts, e))
@@ -296,79 +205,86 @@ class PbenchData(object):
                     " run ({})".format(ts, orig_ts, self.ptb.end_run_ts))
         return ts.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
-    def generate_index_name(self, template, prefix, source, tool=None):
+    def generate_index_name(self, template_name, source, toolname=None):
         """Return a fully formed index name given its template, prefix, source
         data (for an @timestamp field) and an optional tool name."""
         try:
+            template = self.idxctx._index_patterns[template_name]['template']
+            idxname_tmpl = self.idxctx._index_patterns[template_name]['idxname']
+        except KeyError as e:
+            raise Exception("Invalid template name, '{}': {}".format(
+                template_name, e))
+        if toolname is not None:
+            idxname = idxname_tmpl.format(tool=toolname)
+            try:
+                version = self.idxctx.versions[idxname]
+            except KeyError as e:
+                raise Exception("Invalid tool index name for version, '{}':"
+                    " {}".format(idxname, e))
+        else:
+            idxname = idxname_tmpl
+            try:
+                version = self.idxctx.versions[template_name]
+            except KeyError as e:
+                raise Exception("Invalid index template name for version,"
+                    " '{}': {}".format(idxname, e))
+        try:
             ts_val = source['@timestamp']
         except KeyError:
-            raise BadDate("missing @timestamp in a source document: %r" % (source,))
+            self.counters['ts_missing_at_timestamp'] += 1
+            raise BadDate("missing @timestamp in a source document:"
+                    " {!r}".format(source))
+        except TypeError as e:
+            raise Exception("Failed to generate index name, {!r}, source:"
+                    " {!r}".format(e, source))
         year, month, day = source['@timestamp'].split('T', 1)[0].split('-')[0:3]
-        assert (self.year, self.month, self.day) <= (year, month, day)
-        return template.format(prefix=prefix, tool=tool, year=year, month=month, day=day)
+        if (year, month, day) < (self.year, self.month, self.day):
+            raise BadDate("TS y/m/d, {!r}, earlier than pbench run, {!r}".format(
+                    (year, month, day), (self.year, self.month, self.day)))
+        return template.format(prefix=self.idxctx.idx_prefix, version=version,
+                idxname=idxname, year=year, month=month, day=day)
 
 
 ###########################################################################
-# Benchmark result data: json files only
 #
-
-# Table of data for supported benchmarks and what took look for in the
-# results JSON for "sub-lists" of reported data.
-#
-# Latency results include a latency['usec'] list (or
-# latency['clat'|'slat'|???] in the fio case) *and* a
-# throughput['trans_sec'] list (or throughput['iops_sec']
-# in the fio case). Each list has elements for "all" and
-# for each client/server pair (or client?) used in the test.
-#
-# Throughput results include a trans_sec, Gb_sec or
-# iops_sec list only, depending on the benchmark (uperf or
-# fio) and the kind of iteration: latency measurements
-# include a trans_sec throughput sublist, but throughput
-# measurements include a GB_sec sublist (for uperf) or
-# an iops_sec sublist (for fio).
-_benchmarks = {
-    'uperf': {
-         'latency': ['usec'],
-         'throughput': ['trans_sec', 'Gb_sec']
-    },
-    "fio": {
-        'latency': ['clat', 'lat', 'slat'],
-        'throughput': ['iops_sec']
-    }
-}
-
 
 class ResultData(PbenchData):
+    """Benchmark result data: JSON files only.
 
-    def __init__(self, ptb, experiment, opctx):
-        super().__init__(ptb)
+    Each pbench tar ball contains the result of running a benchmark (pbench-*
+    bench script or pbench-user-benchmark script wrapping a user provided
+    script), where N iterations of that benchmark were run, with each
+    iteration having M samples.
 
-        self.run_metadata = _dict_const([
-            ("runtstamp", ptb.start_run),
-            ("runid", ptb.md5sum),
-            ("experiment", experiment)
-        ])
-        opctx.append(_dict_const(object="ResultData", counters=self.counters))
-        self.json_files = None
+    The bench scripts create a result.json file in each sample directory, a
+    roll-up of all sample result.json files in the iteration directory's
+    result.json for those samples (with the mean, stddev, and closest sample
+    calculated, and including all the sample data), and finally a single
+    result.json file recording all the iterations run, including all samples
+    from all iterations.
+    """
+    def __init__(self, ptb, idxctx):
+        super().__init__(ptb, idxctx)
+
+        self.idxctx.opctx.append(
+            _dict_const(object="ResultData", counters=self.counters))
+        self.json_dirs = None
         try:
-            self.json_files = ResultData.get_json_files(ptb)
+            self.json_dirs = ResultData.get_result_json_dirs(ptb)
         except KeyError:
-            self.json_files = None
+            self.json_dirs = None
 
     @staticmethod
-    def get_json_files(ptb):
+    def get_result_json_dirs(ptb):
         """
-        Fetch the list of result.json files for this experiment;
-        return a list of dicts containing their metadata.
+        Fetch the list of directories containing result.json files for this
+        experiment; return a list directory path names.
         """
-        paths = [x for x in ptb.tb.getnames() if x.find("result.json") >= 0 and ptb.tb.getmember(x).isfile()]
-        datafiles = []
+        paths = [x for x in ptb.tb.getnames() if (os.path.basename(x) == "result.json") and ptb.tb.getmember(x).isfile()]
+        dirnames = []
         for p in paths:
-            fname = os.path.basename(p)
-            datafile = _dict_const(path=p, basename=fname)
-            datafiles.append(datafile)
-        return datafiles
+            dirnames.append(os.path.dirname(p))
+        return dirnames
 
     def make_source(self):
         """
@@ -376,90 +292,233 @@ class ResultData(PbenchData):
         is going to become a jump method, similar to ToolData.make_source().
         ATM, we only handle JSON files.
         """
-        if not self.json_files:
+        if not self.json_dirs:
             # If we do not have any json files for this experiment, ignore it.
             return None
         gen = self._make_source_json()
         return gen
 
-    def _make_source_json(self):
-        for df in self.json_files:
-            iteration = None
-            sample = None
+    # Table of data for supported benchmarks and what to look for in the
+    # results JSON for "sub-lists" of reported data.
+    #
+    # Latency results include a latency['usec'] list (or
+    # latency['clat'|'slat'|???] in the fio case) *and* a
+    # throughput['trans_sec'] list (or throughput['iops_sec'] in the fio
+    # case). Each list has elements for "all" and for each client/server pair
+    # (or client?) used in the test.
+    #
+    # Throughput results include a trans_sec, Gb_sec or iops_sec list only,
+    # depending on the benchmark (uperf or fio) and the kind of iteration:
+    # latency measurements include a trans_sec throughput sublist, but
+    # throughput measurements include a GB_sec sublist (for uperf) or an
+    # iops_sec sublist (for fio).
+    _benchmarks = {
+        'uperf': {
+            'latency': ['usec'],
+            'throughput': ['trans_sec', 'Gb_sec']
+        },
+        "fio": {
+            'latency': ['clat', 'lat', 'slat'],
+            'throughput': ['iops_sec']
+        },
+        "trafficgen": {
+        },
+        "moongen": {
+        },
+        "user-benchmark": {
+        }
+    }
 
-            dirname = os.path.dirname(df['path'])
-            dirbasename = os.path.basename(dirname)
-            if not dirbasename.startswith('sample'):
-                # iteration result.json - we don't handle it yet.
-                # experiment result.json - we don't handle it yet.
+    def _make_source_json(self):
+        """Generate source documents for all result.json files we need to handle.
+
+        FIXME
+
+        sample results is a dict with either two or three (top-level)
+        entries: latency results have three entries: parameters.benchmark,
+        latency.usec, throughput.trans_sec.  throughput results have two
+        entries: parameters.benchmark, throughput.Gb_sec.  All entries are
+        lists, but paremeters.benchmark is a one-element list, whereas the
+        other lists may have multiple elements, one for a cumulative entry
+        ("all" clients/servers) and one for each pair of client/server in
+        the experiment (at least for uperf - fio is TBD).
+
+        iteration results is a dict with either two or three (top-level)
+        entries: latency results have three entries: parameters.benchmark,
+        latency.usec, throughput.trans_sec.  throughput results have two
+        entries: parameters.benchmark, throughput.Gb_sec.  All entries are
+        lists, but paremeters.benchmark is a one-element list, whereas the
+        other lists may have multiple elements, one for a cumulative entry
+        ("all" clients/servers) and one for each pair of client/server in
+        the experiment (at least for uperf - fio is TBD).
+
+        Up to this point, iteration results are identical in structure to
+        sample results, but at this level they diverge: sample data contain
+        a timeseries list for the sample, whereas iteration data contain a
+        samples list: each element of the list contains a timeseries list
+        and a "value" which is the aggregation of the results in the
+        timeseries (generally, the mean). At the iteration level, the mean
+        is called "mean", rather than "value", but apart from that,
+        iteration data and sample data are very similar.
+
+        """
+        for dirname in self.json_dirs:
+            if dirname.startswith('sample'):
+                # sample result.json - we ignore each sample result.json since
+                # each sample is contained in the experiment level
+                # result.json.
+                continue
+            elif dirname != self.ptb.dirname:
+                # iteration result.json - there is no value in processing the
+                # result.json file at the iteration level because everything
+                # it contains is also in the experiment level's result.json.
                 continue
 
-            # sample result.json - we ONLY handle this kind.
-            sample = dirbasename
-            iteration = os.path.basename(os.path.dirname(dirname))
-            iter_number, iter_name = iteration.split('-', 1)[0:2]
-
+            result_json = os.path.join(
+                    self.ptb.extracted_root, dirname, "result.json")
             try:
                 # Read the file and interpret it as a JSON document.
-                with open(os.path.join(self.ptb.extracted_root, df['path'])) as fp:
+                with open(result_json) as fp:
                     results = json.load(fp)
             except Exception as e:
-                _logger.warning("result-data-indexing: encountered invalid"
+                self.logger.warning("result-data-indexing: encountered invalid"
                         " JSON file, {}: {:r}", df['path'], e)
                 self.counters['not_valid_json_file'] += 1
                 continue
 
-            # There should always be a 'parameters' element with 'benchmark'
-            # array element inside it.  There is no reason for this to be an
-            # array, but it is: we just pick the 0^th (and only element) as
-            # the metadata for all the documents we generate.
-            try:
-                md = results['parameters']['benchmark'][0]
-            except Exception as e:
-                _logger.warning("result-data-indexing: bad result data in JSON"
-                        " file, {}: {:r}", df['path'], e)
-                self.counters['bad_result_data_in_json_file'] += 1
+            # The outer results object shoul be an array of iterations. Probe
+            # to see if that is true.
+            if not isinstance(results, list):
+                self.logger.warning("result-data-indexing: encountered unexpected"
+                        " JSON file format, %s" % (result_json,))
+                self.counters['unexpected_json_file_format'] += 1
                 continue
 
-            benchmark = md['benchmark_name']
-            if benchmark not in _benchmarks.keys():
-                continue
-
-            md.update({"iteration_name": iter_name,
-                       "iteration_number": iter_number,
-                       "sample": sample})
-            md['uid_tmpl'] = md['uid']
-            md['uid'] = ResultData.expand_template(md['uid_tmpl'], md)
-
-            # for each file, generate a sequence of documents and yield each one
-            for orig_ts, ts, src in ResultData.gen_sources(results, _benchmarks[benchmark], self.mk_abs_timestamp_millis):
-                # each generated result is a document, accompanied by a timestamp
-                # and some metadata.
-                source = _dict_const()
-                # make a shallow copy of the run metadata dict here
-                # so that the update will only change the copy, not
-                # the original
-                source['@metadata'] = self.run_metadata.copy()
-                source['@metadata'].update(md)
-                # The source data document lives under "results".
-                source['results'] = src
-                # XXX ASSUMPTION: the timestamps we get from the result
-                # data are "milliseconds since epoch" and they are are
-                # *assumed* to be UTC.
-                source['timestamp_original'] = orig_ts
-                source['@timestamp'] = ts
-                yield source, _make_source_id(source)
+            for iteration in results:
+                try:
+                    iter_number = iteration['iteration_number']
+                    iter_name = iteration['iteration_name']
+                    iter_data = iteration['iteration_data']
+                except Exception:
+                    self.logger.warning("result-data-indexing: could not find"
+                            " iteration data in JSON file, {}", result_json)
+                    self.counters['missing_iteration'] += 1
+                    continue
+                # Validate the iteration name by looking for the iteration
+                # directory on disk.
+                iter_dir = os.path.join(
+                        self.ptb.extracted_root, dirname, iter_name)
+                if not os.path.isdir(iter_dir):
+                    iter_name = "{:d}-{}".format(iter_number, iter_name)
+                    iter_dir = os.path.join(
+                            self.ptb.extracted_root, dirname, iter_name)
+                    if not os.path.isdir(iter_dir):
+                        self.logger.warning("result-data-indexing: encountered bad"
+                                " iteration name '{}' in JSON file, {}",
+                                iteration['iteration_name'], result_json)
+                        self.counters['bad_iteration_name'] += 1
+                        continue
+                # Generate JSON documents for each iteration
+                for src, _id, _parent, _type in self._handle_iteration(
+                        iter_data, iter_name, iter_number, result_json):
+                    yield src, _id, _parent, _type
         return
 
+    def _handle_iteration(self, iter_data, iter_name, iter_number, result_json):
+        """Generate source documents for iteration data.
+        """
+        # There should always be a 'parameters' element with 'benchmark'
+        # array element inside it.  There is no reason for this to be an
+        # array, but it is: we just pick the 0^th (and only element) as
+        # the metadata for all the documents we generate.
+        try:
+            bm_data = iter_data['parameters']['benchmark']
+            bm_md = bm_data[0]
+        except Exception as e:
+            self.logger.warning("result-data-indexing: bad result data in JSON"
+                    " file, {}: {!r}", result_json, e)
+            self.counters['bad_result_data_in_json_file'] += 1
+            return
+        else:
+            if len(bm_data) > 1:
+                self.logger.warning("result-data-indexing: encountered multiple"
+                        " ({:d}) benchmark parameters in result data JSON"
+                        " file, {}", len(bm_data), result_json)
+                self.counters['multiple_benchmark_parameters'] += 1
+
+        benchmark = bm_md['benchmark_name']
+        try:
+            bm_driver_data = self._benchmarks[benchmark]
+        except KeyError:
+            return
+        else:
+            del bm_md['benchmark_name']
+            bm_md['name'] = benchmark
+
+        try:
+            bmv = bm_md['benchmark_version']
+        except KeyError:
+            pass
+        else:
+            del bm_md['benchmark_version']
+            if bmv is not None:
+                bm_md['version'] = bmv
+            else:
+                # For some result data files the benchmark_version is a "null"
+                # value (JSON representation), so no need to replace it as
+                # "version".
+                pass
+
+        bm_md['uid_tmpl'] = bm_md['uid']
+        bm_md['uid'] = ResultData.expand_template(bm_md['uid_tmpl'], bm_md, run=self.run_metadata)
+
+        iteration = _dict_const([
+                ( 'run', self.run_metadata ),
+                ( 'iteration', _dict_const([
+                        ( "name", iter_name ),
+                        ( "number", iter_number)
+                    ])
+                ),
+                # The iteration documents have all the benchmark metadata.
+                ( 'benchmark', bm_md )
+            ])
+
+        # for each file, generate a sequence of documents and yield each one
+        for source, _parent, _type in ResultData.gen_sources(
+                iter_data, bm_driver_data, iteration,
+                self.mk_abs_timestamp_millis):
+            yield source, _make_source_id(source, _parent=_parent), _parent, \
+                    _type
+
     @staticmethod
-    def expand_template(templ, d):
+    def expand_template(templ, d, run=None):
         # match %...% patterns non-greedily.
         s = templ
         for m in re.findall(uid_keyword_pat, s):
             # m[1:-1] strips the initial and final % signs from the match.
+            key = m[1:-1]
             try:
-                val = d[m[1:-1]]
+                val = d[key]
             except KeyError:
+                if key == "benchmark_name":
+                    # Fix "benchmark_name" to try to find "name" in the
+                    # metadata if available (should be as we rename
+                    # benchmark_name to name).
+                    try:
+                        val = d['name']
+                    except KeyError:
+                        pass
+                    else:
+                        s = re.sub(m, val, s)
+                if run is not None and key == "controller_host":
+                    # Fix "controller_host" to try to find "controller" in the
+                    # run metadata if available.
+                    try:
+                        val = run['controller']
+                    except KeyError:
+                        pass
+                    else:
+                        s = re.sub(m, val, s)
                 # Keyword not found, ignore
                 pass
             else:
@@ -467,60 +526,44 @@ class ResultData(PbenchData):
         return s
 
     @staticmethod
-    def make_datum_wrapper(mtype, units, idx, datum):
-        # Save the timeseries for the caller, then delete it from the datum.
-        tseries = datum['timeseries']
-        del datum['timeseries']
-        # rename the "value" field to 'aggr_value'
-        datum['aggr_value'] = datum['value']
-        del datum['value']
+    def make_sample_wrapper(mtype, units, datum):
+        # Save the samples for the caller, then delete it from the datum.
+        samples = datum['samples']
+        del datum['samples']
+        try:
+            datum['closest_sample'] = datum['closest sample']
+        except KeyError:
+            pass
+        else:
+            del datum['closest sample']
+        try:
+            datum['read_or_write'] = datum['read(0) or write(1)']
+        except KeyError:
+            pass
+        else:
+            del datum['read(0) or write(1)']
         # Add argument values ...
         datum['measurement_type'] = mtype
         datum['measurement_units'] = units
-        # The measurement index number is a monotonically increasing value
-        # assigned as each measurement array is encountered in the results
-        # file.
-        datum['measurement_idx'] = idx
-        # construct the uid from the template and the values in datum
+        # Construct the uid from the template and the values in datum
         # and replace the template with the result.
         datum['uid_tmpl'] = datum['uid']
         datum['uid'] = ResultData.expand_template(datum['uid_tmpl'], datum)
-        return datum, tseries
+        return datum, samples
 
     @staticmethod
-    def gen_sources(results, sublists, cvt_ts):
-        # sample results is a dict with either two or three
-        # (top-level) entries: latency results have three entries:
-        # parameters.benchmark, latency.usec, throughput.trans_sec.
-        # throughput results have two entries: parameters.benchmark,
-        # throughput.Gb_sec.  All entries are lists, but
-        # paremeters.benchmark is a one-element list, whereas the
-        # other lists may have multiple elements, one for a cumulative
-        # entry ("all" clients/servers) and one for each pair of
-        # client/server in the experiment (at least for uperf - fio is
-        # TBD).
+    def gen_sources(results, sublists, iteration, cvt_ts):
+        """Generate actual source documents from the given results object.
 
-        # iteration results is a dict with either two or three
-        # (top-level) entries: latency results have three entries:
-        # parameters.benchmark, latency.usec, throughput.trans_sec.
-        # throughput results have two entries: parameters.benchmark,
-        # throughput.Gb_sec.  All entries are lists, but
-        # paremeters.benchmark is a one-element list, whereas the
-        # other lists may have multiple elements, one for a cumulative
-        # entry ("all" clients/servers) and one for each pair of
-        # client/server in the experiment (at least for uperf - fio is
-        # TBD).
-
-        # Up to this point, iteration results are identical in
-        # structure to sample results, but at this level they diverge:
-        # sample data contain a timeseries list for the sample,
-        # whereas iteration data contain a samples list: each element
-        # of the list contains a timeseries list and a "value"
-        # which is the aggregation of the results in the timeseries
-        # (generally, the mean). At the iteration level, the mean is
-        # called "mean", rather than "value", but apart from that,
-        # iteration data and sample data are very similar.
-
+        This generator yields: source, parent_id, doc_type
+        """
+        iteration_md_subset = _dict_const(
+                name=iteration['iteration']['name'],
+                number=iteration['iteration']['number'])
+        run_md_subset = _dict_const([
+            ( 'id', iteration['run']['id'] ),
+            ( 'name', iteration['run']['name'] )
+            ])
         for result_type in ['latency', 'throughput']:
             try:
                 result_type_results = results[result_type]
@@ -534,79 +577,200 @@ class ResultData(PbenchData):
                     except KeyError:
                         # This sublist does not exist, ignore.
                         continue
-                    for idx, result_type_el in enumerate(result_type_list):
-                        datum, tseries = ResultData.make_datum_wrapper(result_type, sublist, idx, result_type_el)
-                        prev_ts = None
-                        for res in tseries:
-                            orig_ts = res['date']
-                            del res['date']
-                            if prev_ts is not None:
-                                assert prev_ts <= orig_ts, "prev_ts %r > orig_ts %r" % (prev_ts, orig_ts)
-                            ts = cvt_ts(orig_ts)
-                            prev_ts = orig_ts
-                            res.update(datum)
-                            yield orig_ts, ts, res
-
+                    for result_type_el in result_type_list:
+                        sample_md, samples = ResultData.make_sample_wrapper(
+                                result_type, sublist, result_type_el)
+                        sample_idx = 0
+                        for sample in samples:
+                            # Reach into the timeseries data to get the first
+                            # entry as the start time of the sample, and the
+                            # last entry as the ending timestamp of the
+                            # sample.
+                            try:
+                                tseries = sample['timeseries']
+                            except KeyError:
+                                self.counters['sample_missing_timeseries'] += 1
+                                continue
+                            start = tseries[0]
+                            end = tseries[-1]
+                            try:
+                                start_ts = cvt_ts(start['date'])
+                                end_ts = cvt_ts(end['date'])
+                            except KeyError:
+                                self.counters['timeseries_missing_date'] += 1
+                                continue
+                            except BadDate:
+                                # Ignore entire sample if start/end timestamps
+                                # are bad.  Already counted.
+                                continue
+                            del sample['timeseries']
+                            # Remember the order in which samples were
+                            # processed (zero based).
+                            sample_md['@idx'] = sample_idx
+                            sample_idx += 1
+                            # Construct the same name (one based)
+                            sample_md['name'] = "sample{:d}".format(sample_idx)
+                            sample_md_subset = _dict_const([
+                                    ( 'name', sample_md['name'] ),
+                                    ( '@idx', sample_md['@idx'] ),
+                                    ( 'uid', sample_md['uid'] ),
+                                    ( 'measurement_type', sample_md['measurement_type'] ),
+                                    ( 'measurement_units', sample_md['measurement_units'] )
+                                ])
+                            sample_md['start'] = start_ts
+                            sample_md['end'] = end_ts
+                            # Now we can emit the sample document knowing the
+                            # ID of its iteration parent document.
+                            source = _dict_const([
+                                ( '@timestamp', start_ts ),
+                                ( '@timestamp_original', start['date'] ),
+                                # Sample documents inherit the run and
+                                # iteration data of its parent.
+                                ( 'run', iteration['run'] ),
+                                ( 'iteration', iteration['iteration'] ),
+                                ( 'benchmark', iteration['benchmark'] ),
+                                ( 'sample', sample_md )
+                            ])
+                            sample_id = _make_source_id(source)
+                            yield source, None, 'sample'
+                            # Now we can yield each entry of the timeseries
+                            # data for this sample.
+                            prev_ts = None
+                            value_idx = 0
+                            for res in tseries:
+                                orig_ts = res['date']
+                                del res['date']
+                                if prev_ts is not None:
+                                    assert prev_ts <= orig_ts, "prev_ts %r > orig_ts %r" % (prev_ts, orig_ts)
+                                ts = cvt_ts(orig_ts)
+                                prev_ts = orig_ts
+                                # Now we can emit the actual timeseries value
+                                # as a small record not having any sample or
+                                # iteration data, found only by its parent
+                                # sample ID or by its parent identifying
+                                # metadata.
+                                res['@idx'] = value_idx
+                                value_idx += 1
+                                try:
+                                    res['read_or_write'] = res['read(0) or write(1)']
+                                except KeyError:
+                                    pass
+                                else:
+                                    del res['read(0) or write(1)']
+                                source = _dict_const([
+                                    ( '@timestamp', ts ),
+                                    ( '@timestamp_original', orig_ts ),
+                                    ( 'run', run_md_subset),
+                                    ( 'iteration', iteration_md_subset ),
+                                    ( 'sample', sample_md_subset ),
+                                    ( 'result', res )
+                                    ])
+                                yield source, sample_id, 'res'
         return
 
-
-def mk_result_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
-    experiment = ptb.mdconf.get("pbench", "name")
-    rd = ResultData(ptb, experiment, opctx)
+def mk_result_data_actions(ptb, idxctx):
+    rd = ResultData(ptb, idxctx)
     if not rd:
         return
     # sources is a generator
     sources = rd.make_source()
     if not sources:
         return
-    template = idx_patterns["result-data"]["template"]
-    for source, source_id in sources:
-        idx_name = rd.generate_index_name(template, idx_prefix, source)
-        action = _dict_const(
-            _op_type=_op_type,
-            _index=idx_name,
-            _type="pbench-result-data",
-            _id=source_id,
-            _source=source
-        )
-        yield action
+    for source, source_id, parent_id, doc_type in sources:
+        try:
+            idx_name = rd.generate_index_name('result-data', source)
+        except BadDate:
+            # We don't raise this exception because we are already well into
+            # indexing so much data that there is no point in stopping
+            # now.  The source of the exception has already counted the
+            # exception in its operational context.
+            pass
+        else:
+            assert doc_type in ( 'sample', 'res'), \
+                    "Invalid result data document type, {}".format(doc_type)
+            if doc_type == "res":
+                _type = "pbench-result-data"
+            else:
+                _type = "pbench-result-data-{}".format(doc_type)
+            action = _dict_const(
+                _op_type=_op_type,
+                _index=idx_name,
+                _type=_type,
+                _id=source_id,
+                _source=source
+            )
+            if parent_id is not None:
+                action['_parent'] = parent_id
+            yield action
     return
 
 ###########################################################################
 # Tool data routines
 
-def _make_source_id(source):
-    return hashlib.md5(json.dumps(source, sort_keys=True).encode('utf-8')).hexdigest()
-
-# Handlers data table / dictionary describing how to process a given tool's
+# Handlers' data table / dictionary describing how to process a given tool's
 # data files to be indexed.  The outer dictionary holds one dictionary for
 # each tool. Each tool entry has one '@prospectus' entry, which records
-# behavior and handling controls for that tool, and a "patterns" list, which
-# contains a handler record for each file that match a given pattern emitted
-# by the tool (can be per file or a pattern to match multiple files).
+# behavior and handling controls for that tool, and an optional "patterns"
+# list, which contains a handler record for each file that match a given
+# pattern emitted by the tool (can be per file or a pattern to match multiple
+# files).
 #
-# For each data file's handler record, we record the metric "class" (e.g.
-# "disk"), and its "metric" name (e.g. "iops), which are used to contruct the
-# fully qualified namespace for the index field values.  E.g., the metadata
-# path hierarchy for iostat disk_IOPS.csv data would be, 'iostat.disk.iops',
-# for disk_Queue_Size.csv it would be 'iostat.disk.qsize', etc.
+# The "@prospetus" dictionaries have two fields: "handling", and
+# "method". There are three supported values for "handling": "csv", "stdout",
+# and "json", corresponding to the types of files from which we'll pull tool
+# data.
 #
-# We also record the metrics "display" name (human readable, or really what is
-# currently used by pbench today in generated html charts), and the "units"
-# for the metric, but neither field is currently indexed (FIXME!).
+# For tools with a "handling" field value of "json", no "patterns" list of
+# handler records is provided since JSON files have their own record format
+# that is left in tact for the most part.
 #
-# The "colpat" field, or column pattern, describes as a regular expression the
-# constituent components of the .csv file column header.  Currently, the "id"
-# and "subfield" match groups are the only two expected groups, with
-# "subfield" considered optional.
+# For the "method" field, we support:
+#   "individual":         used with "csv" handling, indicates the rows from
+#                         each individual .csv file form one document with
+#                         the columns as field names
+#   "unify":              used with "csv" handling, indicates the rows from
+#                         all .csv files are merged together to form one
+#                         document associated with a timestamp with all the
+#                         columns as field names
+#   "periodic_timestamp": used with "stdout" handling, timestamps appear
+#                         periodicaly delineating data associated with each
+#                         timestamp
+#   "json":               used with "json" handling, data in a file is an
+#                         array of JSON documents
 #
-# The "subfields" field contents in the handler data structure itself is
-# meant to be a programmatic way to ensure any subfield derived from a column
-# header can be checked, but that is not currently used (FIXME!).
-#
-# The "metadata" field and "metadata_pat" are option entries which control how
-# to extract metadata from column headers.
-_known_handlers = {
+# The handler record dictionaries in "patterns" list contain a number of
+# fields:
+#   required:
+#   --------
+#     "pattern":   a regular expression string pattern to match files tool
+#                  data files
+#   optional:
+#   --------
+#     "converter":    the data type used for the value, "int" or "float"
+#     "class":        a given tool might have different "classes" of data
+#                     recorded, e.g. CPU, disk, memory, process, etc.
+#     "metric":       the metric name for the data in a file, e.g. all
+#                     data in a .csv file might be for IOPS (read and
+#                     write).
+#     "colpat":       for some .csv files, each column header encodes the
+#                     identifier of the entity the metric data is about, and
+#                     optionally has sub-fields; this field contains the
+#                     regular expression pattern for the column header
+#     "subfields":    there are some columns that record metric data as a
+#                     subfield of the metric, e.g. "read" and "write" iops
+#     "metadata":     some identifiers are constructed by combining pieces
+#                     of metadata to make a unique ID, this field lists the
+#                     possible metadata names that can be extracted
+#     "metadata_pat": the regular expression pattern which describes where
+#                     the metadata is found in the identifier
+#     "subformat":    used with "stdout" handling to further describe which
+#                     format the stdout values take
+#   unused:
+#   ------
+#     "display": human readable, or really what is currently used by pbench
+#                today in generated html charts
+#     "units":   keyword string representing the units of the metric
+_known_tool_handlers = {
     'iostat': {
         '@prospectus': {
             # For iostat .csv files, we want to merge all columns into one
@@ -617,60 +781,67 @@ _known_handlers = {
         'patterns': [
             {
                 'pattern': re.compile(r'disk_IOPS\.csv'),
-                'class': 'disk',
+                'class': None,
                 'metric': 'iops',
                 'display': 'IOPS',
                 'units': 'count_per_sec',
                 'subfields': [ 'read', 'write' ],
-                'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)')
+                'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)'),
+                'converter': float
             }, {
                 'pattern': re.compile(r'disk_Queue_Size\.csv'),
-                'class': 'disk',
+                'class': None,
                 'metric': 'qsize',
                 'display': 'Queue_Size',
                 'units': 'count',
                 'subfields': [],
-                'colpat': re.compile(r'(?P<id>.+)')
+                'colpat': re.compile(r'(?P<id>.+)'),
+                'converter': float
             }, {
                 'pattern': re.compile(r'disk_Request_Merges_per_sec\.csv'),
-                'class': 'disk',
+                'class': None,
                 'metric': 'reqmerges',
                 'display': 'Request_Merges',
                 'units': 'count_per_sec',
                 'subfields': [ 'read', 'write' ],
-                'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)')
+                'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)'),
+                'converter': float
             }, {
                 'pattern': re.compile(r'disk_Request_Size_in_512_byte_sectors\.csv'),
-                'class': 'disk',
+                'class': None,
                 'metric': 'reqsize',
                 'display': 'Request_Size',
                 'units': 'count_512b_sectors',
                 'subfields': [],
-                'colpat': re.compile(r'(?P<id>.+)')
+                'colpat': re.compile(r'(?P<id>.+)'),
+                'converter': float
             }, {
                 'pattern': re.compile(r'disk_Throughput_MB_per_sec\.csv'),
-                'class': 'disk',
+                'class': None,
                 'metric': 'tput',
                 'display': 'Throughput',
                 'units': 'MB_per_sec',
                 'subfields': [ 'read', 'write' ],
-                'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)')
+                'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)'),
+                'converter': float
             }, {
                 'pattern': re.compile(r'disk_Utilization_percent\.csv'),
-                'class': 'disk',
+                'class': None,
                 'metric': 'util',
                 'display': 'Utilization',
                 'units': 'percent',
                 'subfields': [],
-                'colpat': re.compile(r'(?P<id>.+)')
+                'colpat': re.compile(r'(?P<id>.+)'),
+                'converter': float
             }, {
                 'pattern': re.compile(r'disk_Wait_Time_msec\.csv'),
-                'class': 'disk',
+                'class': None,
                 'metric': 'wtime',
                 'display': 'Wait_Time',
                 'units': 'msec',
                 'subfields': [ 'read', 'write' ],
-                'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)')
+                'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)'),
+                'converter': float
             }
         ]
     },
@@ -684,114 +855,163 @@ _known_handlers = {
         'patterns': [
             {
                 'pattern': re.compile(r'context_switches_nonvoluntary_switches_sec\.csv'),
-                'class': 'pidstat',
-                'metric': 'context_switches_nonvoluntary_switches',
+                'class': 'context_switches',
+                'metric': 'nonvoluntary',
                 'display': 'Context_Switches_Nonvoluntary',
                 'units': 'count_per_sec',
                 'subfields': [],
                 'colpat': re.compile(r'(?P<id>.+)'),
                 'metadata': [ 'pid', 'command' ],
-                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)'),
+                'converter': float
             }, {
                 'pattern': re.compile(r'context_switches_voluntary_switches_sec\.csv'),
-                'class': 'pidstat',
-                'metric': 'context_switches_voluntary_switches',
+                'class': 'context_switches',
+                'metric': 'voluntary',
                 'display': 'Context_Switches_Voluntary',
                 'units': 'count_per_sec',
                 'subfields': [],
                 'colpat': re.compile(r'(?P<id>.+)'),
                 'metadata': [ 'pid', 'command' ],
-                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)'),
+                'converter': float
             }, {
                 'pattern': re.compile(r'cpu_usage_percent_cpu\.csv'),
-                'class': 'pidstat',
-                'metric': 'cpu_usage',
+                'class': 'cpu',
+                'metric': 'usage',
                 'display': 'CPU_Usage',
                 'units': 'percent_cpu',
                 'subfields': [],
                 'colpat': re.compile(r'(?P<id>.+)'),
                 'metadata': [ 'pid', 'command' ],
-                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)'),
+                'converter': float
             }, {
                 'pattern': re.compile(r'file_io_io_reads_KB_sec\.csv'),
-                'class': 'pidstat',
-                'metric': 'io_reads',
+                'class': 'io',
+                'metric': 'reads',
                 'display': 'IO_Reads',
                 'units': 'KB_per_sec',
                 'subfields': [],
                 'colpat': re.compile(r'(?P<id>.+)'),
                 'metadata': [ 'pid', 'command' ],
-                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)'),
+                'converter': float
             }, {
                 'pattern': re.compile(r'file_io_io_writes_KB_sec\.csv'),
-                'class': 'pidstat',
-                'metric': 'io_writes',
+                'class': 'io',
+                'metric': 'writes',
                 'display': 'IO_Writes',
                 'units': 'KB_per_sec',
                 'subfields': [],
                 'colpat': re.compile(r'(?P<id>.+)'),
                 'metadata': [ 'pid', 'command' ],
-                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)'),
+                'converter': float
             }, {
                 'pattern': re.compile(r'memory_faults_major_faults_sec\.csv'),
-                'class': 'pidstat',
-                'metric': 'memory_faults_major',
+                'class': 'memory',
+                'metric': 'faults_major',
                 'display': 'Memory_Faults_Major',
                 'units': 'count_per_sec',
                 'subfields': [],
                 'colpat': re.compile(r'(?P<id>.+)'),
                 'metadata': [ 'pid', 'command' ],
-                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)'),
+                'converter': float
             }, {
                 'pattern': re.compile(r'memory_faults_minor_faults_sec\.csv'),
-                'class': 'pidstat',
-                'metric': 'memory_faults_minor',
+                'class': 'memory',
+                'metric': 'faults_minor',
                 'display': 'Memory_Faults_Minor',
                 'units': 'count_per_sec',
                 'subfields': [],
                 'colpat': re.compile(r'(?P<id>.+)'),
                 'metadata': [ 'pid', 'command' ],
-                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)'),
+                'converter': float
             }, {
                 'pattern': re.compile(r'memory_usage_resident_set_size\.csv'),
-                'class': 'pidstat',
+                'class': 'memory',
                 'metric': 'rss',
                 'display': 'RSS',
                 'units': 'KB',
                 'subfields': [],
                 'colpat': re.compile(r'(?P<id>.+)'),
                 'metadata': [ 'pid', 'command' ],
-                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)'),
+                'converter': int
             }, {
                 'pattern': re.compile(r'memory_usage_virtual_size\.csv'),
-                'class': 'pidstat',
+                'class': 'memory',
                 'metric': 'vsz',
                 'display': 'VSZ',
                 'units': 'KB',
                 'subfields': [],
                 'colpat': re.compile(r'(?P<id>.+)'),
                 'metadata': [ 'pid', 'command' ],
-                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)')
+                'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)'),
+                'converter': int
             }
         ]
     },
-    'proc-interrupts': {
+    'vmstat': {
         '@prospectus': {
-            # For proc-interrupts .csv files, we want to individually index
-            # each column entry as its own JSON document
             'handling': 'csv',
-            'method': 'individual'
+            'method': 'unify'
         },
-        'patterns': []
+        'patterns': [
+            {
+                'pattern': re.compile(r'vmstat_block\.csv'),
+                'class': None,
+                'metric': 'block',
+                'units': 'KiB',
+                'subfields': [ 'in', 'out' ],
+                'colpat': re.compile(r'(?P<subfield>in|out)_KiB'),
+                'converter': int
+            }, {
+                'pattern': re.compile(r'vmstat_cpu\.csv'),
+                'class': None,
+                'metric': 'cpu',
+                'units': '%usage',
+                'subfields': [ 'idle', 'steal', 'sys', 'user', 'wait' ],
+                'colpat': re.compile(r'(?P<subfield>idle|steal|sys|user|wait)'),
+                'converter': int
+            }, {
+                'pattern': re.compile(r'vmstat_memory\.csv'),
+                'class': None,
+                'metric': 'memory',
+                'units': 'KiB',
+                'subfields': [ 'active', 'free', 'inactive', 'swapped' ],
+                'colpat': re.compile(r'(?P<subfield>active|free|inactive|swapped)_KiB'),
+                'converter': int
+            }, {
+                'pattern': re.compile(r'vmstat_procs\.csv'),
+                'class': None,
+                'metric': 'procs',
+                'units': 'count',
+                'subfields': [ 'blocked', 'running' ],
+                'colpat': re.compile(r'(?P<subfield>blocked|running)'),
+                'converter': int
+            }, {
+                'pattern': re.compile(r'vmstat_swap\.csv'),
+                'class': None,
+                'metric': 'swap',
+                'units': 'KiB',
+                'subfields': [ 'in', 'out' ],
+                'colpat': re.compile(r'(?P<subfield>in|out)_KiB'),
+                'converter': int
+            }, {
+                'pattern': re.compile(r'vmstat_system\.csv'),
+                'class': None,
+                'metric': 'system',
+                'units': 'count',
+                'subfields': [ 'cntx_switches', 'interrupts' ],
+                'colpat': re.compile(r'(?P<subfield>cntx_switches|interrupts)'),
+                'converter': int
+            }
+        ]
     },
-    'prometheus-metrics': {
-        '@prospectus': {
-            'handling': 'json',
-            'method': 'json'
-         }
-     },
-    'sar': None,
-    'turbostat': None,
     'mpstat': {
         '@prospectus': {
             # For mpstat .csv files, we want to individually index each row of
@@ -805,29 +1025,55 @@ _known_handlers = {
                 # cores. The number of cpu cores can be different on each
                 # computer, so map a regular expression for each file type.
                 'pattern': re.compile(r'(?P<id>cpu.+)_cpu\w+\.csv'),
-                'class': 'mpstat',
+                'class': None,
                 'metric': 'cpu',
                 'display': 'CPU',
-                'units': 'percent_cpu'
+                'units': 'percent_cpu',
+                'converter': float
             }
         ]
     },
-    'perf': None,
+    'proc-interrupts': {
+        '@prospectus': {
+            'handling': 'stdout',
+            'method': 'periodic_timestamp'
+        },
+        'patterns': [
+            {
+                'pattern': re.compile(r'proc-interrupts-stdout\.txt'),
+                'subformat': 'procint',
+                'converter': int
+            }
+        ]
+    },
     'proc-vmstat': {
         # The proc-vmstat tool writes the timestamp and key value pairs to
         # the stdout text file which is not json or csv.
         '@prospectus': {
             'handling': 'stdout',
-            'method': 'periodic_timestamp_key_value'
+            'method': 'periodic_timestamp'
         },
         'patterns': [
             {
                 'pattern': re.compile(r'proc-vmstat-stdout\.txt'),
-                'class': 'vmstat',
-                'metric': 'metric'
+                'subformat': 'keyval',
+                'converter': int
             }
         ]
-    }
+    },
+    'prometheus-metrics': {
+        '@prospectus': {
+            'handling': 'json',
+            'method': 'json'
+        }
+    },
+    # The following tools should be processed via JSON data generated from the
+    # sysstat tool suite itself, which we currently don't handle.
+    'sar': None,
+    # The following tools currently don't have output that is readily
+    # indexable:
+    'turbostat': None,
+    'perf': None
 }
 
 # If we need to deal with old .csv file names, place an alias here to map to
@@ -840,54 +1086,76 @@ _aliases = {
     'disk_Wait_Time.csv': 'disk_Wait_Time_msec.csv',
 }
 
+def _noop(arg):
+    return arg
+
 
 class ToolData(PbenchData):
-    def __init__(self, ptb, experiment, iteration, sample, host, tool,
-                toolgroup, opctx):
-        super().__init__(ptb)
+    def __init__(self, ptb, iteration, sample, host, tool, idxctx):
+        super().__init__(ptb, idxctx)
         self.toolname = tool
-        opctx.append(_dict_const(object="ToolData-%s" % (tool), counters=self.counters))
+        idxctx.opctx.append(_dict_const(object="ToolData-%s" % (tool), counters=self.counters))
         try:
-            (iterseqno, itername) = iteration.split('-', 1)
+            iterseqno = int(iteration.split('-', 1)[0])
         except ValueError:
-            iterseqno = itername = iteration
+            iterseqno = -1
+        itername = iteration
 
-        self.run_metadata = _dict_const(
-            runtstamp=ptb.start_run,
-            runid=ptb.md5sum,
-            experiment=experiment,
-            # FIXME=What are the constituent parts of an iteration name?
-            iteration=itername,
-            iterseqno=iterseqno,
-            sample=sample,
-            host=host,
-            toolgroup=toolgroup,
+        self.iteration_metadata = _dict_const(
+            name=itername,
+            number=iterseqno,
+        )
+        self.sample_metadata = _dict_const(
+            name=sample,
+            hostname=host
         )
 
-        # Impedance match between host names used when
-        # registering tools and <label>:<hostname_s>
-        # convention used when collecting the results.
-
-        # import pdb; pdb.set_trace()
-        label = get_tool_label(host, ptb.mdconf)
-        hostname_s = get_tool_hostname_s(host, ptb.mdconf)
-        if label and hostname_s:
-            hostpath = "{}:{}".format(label, hostname_s)
-        elif hostname_s:
-            hostpath = "{}".format(hostname_s)
-        else:
-            hostpath = host
-
         try:
-            self.handler = _known_handlers[tool]
+            self.handler = _known_tool_handlers[tool]
         except KeyError:
             self.handler = None
             self.files = None
         else:
-            # Fetch all the data files as a dictionary containing metadata
-            # about them.
-            self.files = ToolData.get_files(
-                    self.handler, iteration, sample, hostpath, tool, toolgroup, ptb)
+            toolsgroup = ptb.run_metadata['toolsgroup']
+            self.run_metadata['toolsgroup'] = toolsgroup
+            # Impedance match between host names used when registering tools
+            # and <label>:<hostname_s> convention used when collecting the
+            # results. Usually when labels are found the on-disk directory
+            # name where tool data is stored is <label>:<hostname_s>. But when
+            # a full hostname was used to register the tool, that can be used
+            # for the on-disk directory name instead of the short
+            # hostname. And it seems there were different versions of the
+            # agent that behaved in reverse.  So instead of just guessing at
+            # which one to use, we try all three combinations.
+            files = None
+            try:
+                label = ptb.mdconf.get("tools/{}".format(host), "label")
+            except Exception:
+                label = ""
+            try:
+                hostname_s = ptb.mdconf.get("tools/{}".format(host), "hostname-s")
+            except Exception:
+                hostname_s = ""
+            if label and hostname_s:
+                hostpath = "{}:{}".format(label, hostname_s)
+                # Fetch all the data files as a dictionary containing metadata
+                # about them.
+                files = ToolData.get_files(
+                        self.handler, iteration, sample, hostpath, tool,
+                        toolsgroup, ptb)
+            if not files and hostname_s:
+                # Fetch all the data files as a dictionary containing metadata
+                # about them.
+                files = ToolData.get_files(
+                        self.handler, iteration, sample, hostname_s, tool,
+                        toolsgroup, ptb)
+            if not files:
+                # Fetch all the data files as a dictionary containing metadata
+                # about them.
+                files = ToolData.get_files(
+                        self.handler, iteration, sample, host, tool,
+                        toolsgroup, ptb)
+            self.files = files
 
     def _make_source_unified(self):
         """Create one JSON document per identifier, per timestamp from
@@ -945,14 +1213,19 @@ class ToolData(PbenchData):
             # Each csv file dictionary provides its header row.
             header = csv['header']
             if header[0] != 'timestamp_ms':
-                _logger.warning("tool-data-indexing: expected first column of"
+                self.logger.warning("tool-data-indexing: expected first column of"
                         " .csv file ({}) to be 'timestamp_ms', found '{}'",
                         csv['basename'], header[0])
                 self.counters['first_column_not_timestamp_ms'] += 1
                 continue
             handler_rec = csv['handler_rec']
-            class_list[handler_rec['class']] = True
-            metric_mapping[csv['basename']] = (handler_rec['class'], handler_rec['metric'])
+            if handler_rec['class'] is not None:
+                class_list[handler_rec['class']] = True
+            try:
+                converter = handler_rec['converter']
+            except KeyError:
+                converter = _noop
+            metric_mapping[csv['basename']] = (handler_rec['class'], handler_rec['metric'], converter)
             colpat = handler_rec['colpat']
             if csv['basename'] not in field_mapping:
                 field_mapping[csv['basename']] = _dict_const()
@@ -964,7 +1237,10 @@ class ToolData(PbenchData):
                 # First pull out the identifier of the target from the column
                 # header and record it in the list of identifiers.
                 m = colpat.match(col)
-                identifier = m.group('id')
+                try:
+                    identifier = m.group('id')
+                except IndexError:
+                    identifier = "__none__"
                 identifiers[identifier] = True
                 try:
                     # Pull out any sub-field names found in the column
@@ -979,7 +1255,7 @@ class ToolData(PbenchData):
                     # column is in the list of expected subfields from
                     # "known handlers" table.
                     if subfield not in handler_rec['subfields']:
-                        _logger.warning("tool-data-indexing: column header,"
+                        self.logger.warning("tool-data-indexing: column header,"
                                 " {:r}, has an unexpected subfield, {:r},"
                                 " expected {:r} subfields, for .csv {}",
                                 col, subfield, handler_rec['subfields'],
@@ -1014,7 +1290,7 @@ class ToolData(PbenchData):
                             try:
                                 val = m.group(md)
                             except IndexError:
-                                _logger.warning("tool-data-indexing: handler"
+                                self.logger.warning("tool-data-indexing: handler"
                                         " metadata, {:r}, not found in column"
                                         " {:r} using pattern {:r}, for .csv"
                                         " '{}'", handler_rec['metadata'], col,
@@ -1025,7 +1301,8 @@ class ToolData(PbenchData):
                                 colmd[md] = val
                         # Store the association between the identifier
                         # and the metadata mapping for field names.
-                        metadata[identifier] = colmd
+                        if colmd:
+                            metadata[identifier] = colmd
         # At this point, we have processed all the data about csv files
         # and are ready to start reading the contents of all the csv
         # files and building the unified records.
@@ -1034,6 +1311,7 @@ class ToolData(PbenchData):
             # all the csv files, reading one row from each of the csv files,
             # returning that as a dictionary of csv file to row read, which
             # in turn is yielded by the generator.
+            idx = 0
             while True:
                 # Read a row from each .csv file
                 rows = _dict_const()
@@ -1051,9 +1329,10 @@ class ToolData(PbenchData):
                     break
                 # Yield the one dictionary that contains each newly read row
                 # from all the csv files.
-                yield rows
+                yield idx, rows
+                idx += 1
         prev_ts = None
-        for rows in rows_generator():
+        for idx, rows in rows_generator():
             # Verify timestamps are all the same for this row.
             tstamp = None
             first = None
@@ -1062,7 +1341,7 @@ class ToolData(PbenchData):
                 if first is None:
                     first = tstamp
                 elif first != tstamp:
-                    _logger.warning("tool-data-indexing: {} csv files have"
+                    self.logger.warning("tool-data-indexing: {} csv files have"
                             " inconsistent timestamps per row", self.toolname)
                     self.counters['inconsistent_timestamps_across_csv_files'] += 1
                     break
@@ -1078,12 +1357,16 @@ class ToolData(PbenchData):
             #                  "id1": { "f1": "faz", "f2": "baz" } }
             # The for loop below would generate the following dictionary:
             #   * datum = { "id0": { "@timestamp": ts_str,
-            #                        "@metadata": self.run_metadata,
+            #                        "run": self.run_metadata,
+            #                        "sample": self.sample_metadata,
+            #                        "iteration": self.iteration_metadata,
             #                        self.toolname: { "id": "id0",
             #                                         "f1": "foo",
             #                                         "f2": "bar" } },
             #               "id1": { "@timestamp": ts_str,
-            #                        "@metadata": self.run_metadata,
+            #                        "run": self.run_metadata,
+            #                        "sample": self.sample_metadata,
+            #                        "iteration": self.iteration_metadata,
             #                        self.toolname: { "id": "id1",
             #                                         "f1": "faz",
             #                                         "f2": "baz" } },
@@ -1101,38 +1384,46 @@ class ToolData(PbenchData):
                     # Since they are all the same, we use the first to
                     # generate the real timestamp.
                     ('@timestamp', ts_val),
-                    ('@metadata', self.run_metadata),
-                    ('timestamp_original', first)
+                    ('@timestamp_original', str(first)),
+                    ('run', self.run_metadata),
+                    ('iteration', self.iteration_metadata),
+                    ('sample', self.sample_metadata),
+                    (self.toolname, _dict_const())
                 ])
-                datum[identifier][self.toolname] = _dict_const()
+                if identifier != "__none__":
+                    datum[identifier][self.toolname]['id'] = identifier
+                datum[identifier][self.toolname]['@idx'] = idx
                 try:
                     md = metadata[identifier]
                 except KeyError:
-                    md = None
+                    pass
+                else:
+                    datum[identifier][self.toolname].update(md)
                 for klass in class_list.keys():
-                    d = _dict_const([('id',identifier)])
-                    if md:
-                        d.update(md)
-                    datum[identifier][self.toolname][klass] = d
+                    datum[identifier][self.toolname][klass] = _dict_const()
             # Now we can perform the mapping from multiple .csv files to JSON
             # documents using a known field hierarchy (no identifiers in field
             # names) with the identifiers as additional metadata. Note that we
             # are constructing this document just from the current row of data
             # taken from all .csv files (assumes timestamps are the same).
             for fname,row in rows.items():
-                klass, metric = metric_mapping[fname]
+                klass, metric, converter = metric_mapping[fname]
                 for idx,val in enumerate(row):
                     if idx == 0:
                         continue
                     # Given an fname and a column offset, return the
                     # identifier from the header
                     identifier, subfield = field_mapping[fname][idx]
-                    if subfield:
-                        if metric not in datum[identifier][self.toolname][klass]:
-                            datum[identifier][self.toolname][klass][metric] = _dict_const()
-                        datum[identifier][self.toolname][klass][metric][subfield] = val
+                    if klass is not None:
+                        _d = datum[identifier][self.toolname][klass]
                     else:
-                        datum[identifier][self.toolname][klass][metric] = val
+                        _d = datum[identifier][self.toolname]
+                    if subfield:
+                        if metric not in _d:
+                            _d[metric] = _dict_const()
+                        _d[metric][subfield] = converter(val)
+                    else:
+                        _d[metric] = converter(val)
             # At this point we have fully mapped all data from all .csv files
             # to their proper fields for each identifier. Now we can yield
             # records for each of the identifiers.
@@ -1145,53 +1436,106 @@ class ToolData(PbenchData):
         """Read .csv files individually, emitting records for each row and
         column coordinate."""
         for csv in self.files:
-            assert csv['header'][0] == 'timestamp_ms'
+            assert csv['header'][0] == 'timestamp_ms', \
+                    "Unexpected time stamp header, '{}'".format(
+                        csv['header'][0])
             header = csv['header']
             handler_rec = csv['handler_rec']
             klass = handler_rec['class']
             metric = handler_rec['metric']
+            try:
+                converter = handler_rec['converter']
+            except KeyError:
+                converter = _noop
             reader = csv['reader']
             ts = None
 
-            # Some individual handlers have the id in the filename pattern.
-            if 'pattern' in handler_rec:
-                # Does the pattern match the basename?
-                match = handler_rec['pattern'].match(csv['basename'])
-                if match:
-                    try:
+            if 'pattern' not in handler_rec:
+                # No pattern to consider to find matching files.
+                continue
+            match = handler_rec['pattern'].match(csv['basename'])
+            if not match:
+                # The pattern does not match the basename, skip this file.
+                continue
+            # We only handle files that have the id in the filename pattern.
+            try:
+                datum_id = match.group('id')
+            except IndexError:
+                # This handler does not have an id, skip this file.
+                break
+            prev_ts = None
+            idx = 0
+            for row in reader:
+                for col,val in enumerate(row):
+                    # The timestamp column is index zero.
+                    if col == 0:
+                        if prev_ts is not None:
+                            assert prev_ts <= val, "prev_ts %r > val %r" % (prev_ts, val)
+                        ts_val = self.mk_abs_timestamp_millis(val)
+                        prev_ts = val
                         datum = _dict_const()
-                        datum[klass] = _dict_const()
-                        # This handler has the id in the filename pattern.
-                        datum[klass][metric] = _dict_const([('id', match.group('id'))])
-                        prev_ts = None
-                        for row in reader:
-                            for idx,val in enumerate(row):
-                                # The timestamp column is index zero.
-                                if idx == 0:
-                                    if prev_ts is not None:
-                                        assert prev_ts <= val, "prev_ts %r > val %r" % (prev_ts, val)
-                                    ts_val = self.mk_abs_timestamp_millis(val)
-                                    prev_ts = val
-                                    datum['@timestamp'] = ts_val
-                                    datum['timestamp_original'] = val
-                                    datum['@metadata'] = self.run_metadata
-                                else:
-                                    column = header[idx]
-                                    datum[klass][metric][column] = val
+                        datum['@timestamp'] = ts_val
+                        datum['@timestamp_original'] = val
+                        datum['run'] = self.run_metadata
+                        datum['iteration'] = self.iteration_metadata
+                        datum['sample'] = self.sample_metadata
+                        datum[self.toolname] = _dict_const([('id', datum_id)])
+                        datum[self.toolname]['@idx'] = idx
+                        if klass is not None:
+                            _d = datum[self.toolname][klass] = _dict_const()
+                        else:
+                            _d = datum[self.toolname]
+                        _d[metric] = _dict_const()
+                    else:
+                        column = header[col]
+                        _d[metric][column] = float(val)
 
-                            source_id = _make_source_id(datum)
-                            yield datum, source_id
-                    except IndexError:
-                        # This handler does not have an id, skip this file.
-                        break
+                source_id = _make_source_id(datum)
+                yield datum, source_id
+                idx += 1
         return
 
-    def _make_source_stdout(self):
-        """
-        Read the given set of files one at a time, emitting a record
-        for each set of key/value pairs associated with a timestamp.
+    # For some tools, proc-vmstat being the first case we encounter this,
+    # depending on the version of the tool run and the version of the OS on
+    # which the tool is run, the key names emitted can change version to
+    # version.  When they do, sometimes this can cause a mapping conflict with
+    # the data types from the two (or more) versions.  To avoid such
+    # conflicts, we pick a key that does not have a substat to rename to
+    # resolve the conflict.
+    #
+    # For example, one version of proc-vmstat will emit a key such as:
+    #     pgrefill: 1000
+    # Then another version will emit a key such as:
+    #     pgrefill_bar: 10
+    #     pgrefill_foo: 20
+    # When that happens, we'll have two different JSON documents for each, one
+    # has stat "pgrefill" with a value, the other has stat "pgrefill" as an
+    # object with substats "foo" and "bar":
+    #     { "pgrefill": 1000 }
+    #     { "pgrefill": { "foo": 20, "bar": 10 } }
+    # Both of those documents can't land in the same index because the
+    # mappings for "pgrefill" are radically different.
+    #
+    # So this table gives us a place to rename the key without a substat to
+    # avoid the conflict.
+    _remaps = {
+        "proc-vmstat": {
+            "key": {
+                "allocstall": "allocstall_",
+                "pgrefill": "pgrefill_"
+            },
+            "stat": None,
+            "substat": None
+        }
+    }
 
-        The format for files considered by this method are as follows:
+    def _stdout_keyval(self, file_object, converter):
+        """Process a line of a stdout key/value pair output file, building up the
+        record (dict) by adding each key/value pair found, associating them
+        with the previously encountered timestamp.  A record is yielded as one
+        JSON object when indexed.
+
+        The format for files considered by this method is as follows:
 
          * each line of the file contains an ascii-numeric key and a
            numeric (integer or floating point) value separated by a ':'
@@ -1215,39 +1559,228 @@ class ToolData(PbenchData):
         ...
         keyN: 100.N
         timestamp: ...
+
+        """
+        record = None
+        prev_gauge = None
+        ts_orig = None
+        prev_ts_orig = None
+        try:
+            # Fetch the remaps table to see if any naming conflicts need to be
+            # resolved.
+            remaps = self._remaps[self.toolname]
+        except KeyError:
+            remaps = None
+        idx = 0
+        for line in file_object:
+            if line.startswith('timestamp:'):
+                prev_ts_orig = ts_orig
+                if record:
+                    # timestamp delimits records, yield last record.
+                    if not record[self.toolname]['rate']:
+                        # For first record, rate will be empty, so
+                        # don't emit it.
+                        del record[self.toolname]['rate']
+                    yield record
+                    idx += 1
+                    # Be sure to remember the record we just emitted
+                    # so that it is available for rate calculations.
+                    prev_gauge = record[self.toolname]['gauge']
+                # Get the second column, the timestamp value, which is
+                # *seconds* since the epoch, and then convert to millis
+                # since the epoch.
+                ts_orig = float(line.split(':')[1])
+                if prev_ts_orig is not None:
+                    assert prev_ts_orig <= ts_orig, "prev_ts_orig %r > ts_orig %r" % (prev_ts_orig, ts_orig)
+                ts_str = self.mk_abs_timestamp_millis(ts_orig * 1000)
+                record = _dict_const()
+                record['@timestamp'] = ts_str
+                record['@timestamp_original'] = str(ts_orig)
+                record['run'] = self.run_metadata
+                record['iteration'] = self.iteration_metadata
+                record['sample'] = self.sample_metadata
+                record[self.toolname] = _dict_const()
+                record[self.toolname]['@idx'] = idx
+                record[self.toolname]['gauge'] = gauge = _dict_const()
+                record[self.toolname]['rate'] = rate = _dict_const()
+            elif ts_orig is None:
+                # We have not encountered a timestamp yet, so ignore
+                # all lines until the first timestamp.
+                continue
+            else:
+                key, value = line.strip().split(' ')
+                parts = key.split('_', 1)
+                if len(parts) == 1:
+                    # For keys that are not split into stat and substat, look
+                    # to see if the stat needs to be rename to avoid conflict
+                    # with other keys that might share the same prefix.
+                    if remaps is not None:
+                        try:
+                            stat = remaps['key'][key]
+                        except KeyError:
+                            stat = key
+                    else:
+                        stat = key
+                    gauge[stat] = converter(value)
+                    if prev_ts_orig:
+                        # Note we don't record the rate on the first value
+                        # encountered.
+                        duration = ts_orig - prev_ts_orig
+                        value_diff = int(value) - prev_gauge[stat]
+                        the_rate = value_diff / duration
+                        rate[stat] = the_rate
+                else:
+                    assert len(parts) == 2, "Logic bomb! parts is not parts!"
+                    stat = parts[0]
+                    substat = parts[1]
+                    if stat not in gauge:
+                        gauge[stat] = _dict_const()
+                    gauge[stat][substat] = converter(value)
+                    if prev_ts_orig:
+                        # Note we don't record the rate on the first value
+                        # encountered.
+                        duration = (ts_orig/1000) - (prev_ts_orig/1000)
+                        value_diff = int(value) - prev_gauge[stat][substat]
+                        the_rate = value_diff / duration
+                        if stat not in rate:
+                            rate[stat] = _dict_const()
+                        rate[stat][substat] = the_rate
+        if record and record[self.toolname]['gauge']:
+            yield record
+
+    def _stdout_procint(self, file_object, converter):
+        """Process the two-dimensional proc-interrupts output.
+
+        An example file format:
+        timestamp: 1394048617.043209234
+                   CPU0       CPU1       CPU2       CPU3
+          0:         25          0          0          0   IO-APIC-edge      timer
+          1:         10          0          0          0   IO-APIC-edge      i8042
+        NMI:          0          0          0          0   Non-maskable interrupts
+        LOC:      48687      45068      40188      65602   Local timer interrupts
+        SPU:          0          0          0          0   Spurious interrupts
+        """
+        cpu_column_ids = None
+        cpu_count = None
+        ts_str = None
+        ts_orig = None
+        prev_ts_orig = None
+        prev_gauges = _dict_const()
+        idx = 0
+        for line in file_object:
+            if line.startswith('timestamp:'):
+                idx += 1
+                prev_ts_orig = ts_orig
+                # Get the second column, the timestamp value, which is
+                # *seconds* since the epoch, and then convert to millis
+                # since the epoch.
+                ts_orig = float(line.split(':')[1])
+                if prev_ts_orig is not None:
+                    assert prev_ts_orig <= ts_orig, "prev_ts_orig %r > ts_orig %r" % (prev_ts_orig, ts_orig)
+                ts_str = self.mk_abs_timestamp_millis(ts_orig * 1000)
+                # The next line is assumed to be the header, so instead of
+                # looping to get to it, we just pull it out and process it
+                # here.
+                header = next(file_object)
+                columns = header.split()
+                cpu_column_ids = []
+                for cpu in columns:
+                    if not cpu.startswith("CPU"):
+                        raise Exception("Bad proc-interrupts-stdout.txt file encountered")
+                    cpu_column_ids.append(cpu[3:])
+                cpu_count = len(cpu_column_ids)
+                continue
+            parts = line[:-1].split(None, 1 + cpu_count)
+            int_id = parts[0][:-1]
+            if int_id in ( 'ERR', 'MIS' ):
+                record = _dict_const()
+                record['@timestamp'] = ts_str
+                record['@timestamp_original'] = str(ts_orig)
+                record['run'] = self.run_metadata
+                record['iteration'] = self.iteration_metadata
+                record['sample'] = self.sample_metadata
+                record[self.toolname] = _dict_const()
+                record[self.toolname]['@idx'] = idx
+                record[self.toolname]['int_id'] = int_id
+                record[self.toolname]['gauge'] = value = converter(parts[1])
+                if int_id in prev_gauges:
+                    duration = ts_orig - prev_ts_orig
+                    value_diff = value - prev_gauges[int_id]
+                    the_rate = value_diff / duration
+                    record[self.toolname]['rate'] = the_rate
+                prev_gauges[int_id] = value
+                yield record
+            else:
+                desc_str = parts[-1]
+                col = 1
+                records = []
+                cpu_gauges = []
+                for cpu in cpu_column_ids:
+                    val = converter(parts[col])
+                    col += 1
+                    record = _dict_const()
+                    record['@timestamp'] = ts_str
+                    record['@timestamp_original'] = str(ts_orig)
+                    record['run'] = self.run_metadata
+                    record['iteration'] = self.iteration_metadata
+                    record['sample'] = self.sample_metadata
+                    record[self.toolname] = _dict_const()
+                    record[self.toolname]['@idx'] = idx
+                    record[self.toolname]['int_id'] = int_id
+                    record[self.toolname]['cpu_id'] = cpu
+                    record[self.toolname]['desc'] = desc_str
+                    record[self.toolname]['gauge'] = val
+                    records.append(record)
+                    cpu_gauges.append(val)
+                if int_id in prev_gauges:
+                    prev_cpu_gauges = prev_gauges[int_id]
+                    col = 0
+                    duration = ts_orig - prev_ts_orig
+                    for record in records:
+                        value_diff = record[self.toolname]['gauge'] - prev_cpu_gauges[col]
+                        the_rate = value_diff / duration
+                        record[self.toolname]['rate'] = the_rate
+                prev_gauges[int_id] = cpu_gauges
+                for record in records:
+                    yield record
+        return
+
+    _subformats = {
+        'procint': _stdout_procint,
+        'keyval': _stdout_keyval,
+        }
+
+    def _make_source_stdout(self):
+        """Read the given set of files one at a time, emitting a record for each data
+        set associated with a timestamp. The timestamp is expected to be on a
+        line by itself, formatted as:
+
+            timestamp: 12345.00
+
+        Where the timestamp value represents the number of seconds since the epoch.
+
+        Following that timestamp line will be a payload of data formatted in
+        one of the supported "sub-formats" (see _subformats array above).
         """
         for output_file in self.files:
             basename = output_file['basename']
-            handler = output_file['handler']
-            klass = handler['class']
+            handler_rec = output_file['handler_rec']
+            subformat = handler_rec['subformat']
+            try:
+                converter = handler_rec['converter']
+            except KeyError:
+                converter = _noop
+            try:
+                func = self._subformats[subformat]
+            except KeyError:
+                self.logger.warning("tool-data-indexing: encountered unrecognized"
+                        " sub-format, '{}', not one of {!r}", subformat,
+                        [key for key in self._subformats.keys()])
+                self.counters["unrecognized_subformat"] += 1
+                continue
             path = os.path.join(self.ptb.extracted_root, output_file['path'])
             with open(path, 'r') as file_object:
-                record = None
-                prev_ts = None
-                for line in file_object:
-                    if line.startswith('timestamp:'):
-                        # timestamp delimits records, yield last record.
-                        if record:
-                            source_id = _make_source_id(record)
-                            yield record, source_id
-                        # Get the second column, the timestamp value, which is
-                        # *seconds* since the epoch, and then convert to millis
-                        # since the epoch.
-                        val = float(line.split(':')[1]) * 1000
-                        if prev_ts is not None:
-                            assert prev_ts <= val, "prev_ts %r > val %r" % (prev_ts, val)
-                        ts_val = self.mk_abs_timestamp_millis(val)
-                        prev_ts = val
-                        record = _dict_const()
-                        record['@timestamp'] = ts_val
-                        record['timestamp_original'] = val
-                        record['@metadata'] = self.run_metadata
-                        record[self.toolname] = _dict_const()
-                        record[self.toolname][klass] = _dict_const()
-                    else:
-                        key, value = line.strip().split(' ')
-                        record[self.toolname][klass][key] = value
-                if record:
+                for record in func(self, file_object, converter):
                     source_id = _make_source_id(record)
                     yield record, source_id
 
@@ -1269,7 +1802,7 @@ class ToolData(PbenchData):
                 with open(os.path.join(self.ptb.extracted_root, df['path'])) as fp:
                     payload = json.load(fp)
             except Exception as e:
-                _logger.warning("tool-data-indexing: encountered bad JSON"
+                self.logger.warning("tool-data-indexing: encountered bad JSON"
                         " file, {}: {:r}", df['path'], e)
                 self.counters["bad_json_file"] += 1
                 continue
@@ -1277,9 +1810,10 @@ class ToolData(PbenchData):
             missing_ts = False
             invalid_ts = False
             badrange_ts = False
-            for source in payload:
+            idx = 0
+            for payload_source in payload:
                 try:
-                    ts_val = source['@timestamp']
+                    ts_val = payload_source['@timestamp']
                 except KeyError:
                     # Missing timestamps
                     if not missing_ts:
@@ -1288,11 +1822,14 @@ class ToolData(PbenchData):
                         # report the count with the summary of how the
                         # indexing went.
                         missing_ts = True
-                        _logger.warning("tool-data-indexing: encountered JSON"
+                        self.logger.warning("tool-data-indexing: encountered JSON"
                                 " file, {}, with missing @timestamp fields",
                                 df['path'])
                     self.counters['json_doc_missing_timestamp'] += 1
+                    idx += 1
                     continue
+                else:
+                    del payload_source['@timestamp']
 
                 # Further timestamp handling
                 try:
@@ -1301,38 +1838,46 @@ class ToolData(PbenchData):
                     ts = datetime.utcfromtimestamp(ts_val)
                 except TypeError:
                     # The timestamp value is not in seconds since the epoch,
-                    # so assume that source[@timestamp] is already in the
-                    # expected format; validate it.
+                    # so assume that payload_source[@timestamp] is already in
+                    # the expected format; validate it.
                     try:
                         ts = datetime.strptime(ts_val, "%Y-%m-%dT%H:%M:%S.%f")
                     except ValueError:
                         if not invalid_ts:
                             invalid_ts = True
-                            _logger.warning("tool-data-indexing: encountered"
+                            self.logger.warning("tool-data-indexing: encountered"
                                     " JSON file, {}, with invalid @timestamp"
                                     " fields ('{:r}')", df['path'], ts_val)
                         self.counters['json_doc_timestamp_not_valid'] += 1
+                        idx += 1
                         continue
                 if ts < self.ptb.start_run_ts or ts > self.ptb.end_run_ts:
                     if not badrange_ts:
                         badrange_ts = True
-                        _logger.warning("tool-data-indexing: encountered JSON"
+                        self.logger.warning("tool-data-indexing: encountered JSON"
                                 " file, {}, with @timestamp fields out side"
                                 " start/end run time range ({:r})",
                                 df['path'], ts_val)
                     self.counters['json_doc_timestamp_out_of_range'] += 1
+                    idx += 1
                     continue
 
+                source = _dict_const()
                 # Convert the validated timestamp into ISO format.
                 source['@timestamp'] = ts.strftime("%Y-%m-%dT%H:%M:%S.%f")
-                source['timestamp_original'] = ts_val
+                source['@timestamp_original'] = str(ts_val)
                 # Add the run metadata
-                source['@metadata'] = self.run_metadata
+                source['run'] = self.run_metadata
+                source['iteration'] = self.iteration_metadata
+                source['sample'] = self.sample_metadata
+                source[self.toolname] = payload_source
+                source[self.toolname]['@idx'] = idx
 
                 # Any further transformations needed should be done here.
 
                 source_id = _make_source_id(source)
                 yield source, source_id
+                idx += 1
         return
 
     def make_source(self):
@@ -1347,19 +1892,19 @@ class ToolData(PbenchData):
             gen = self._make_source_individual()
         elif self.handler['@prospectus']['method'] == 'json':
             gen = self._make_source_json()
-        elif self.handler['@prospectus']['method'] == 'periodic_timestamp_key_value':
+        elif self.handler['@prospectus']['method'] == 'periodic_timestamp':
             gen = self._make_source_stdout()
         else:
             raise Exception("Logic bomb!")
         return gen
 
     @staticmethod
-    def get_csv_files(handler, iteration, sample, host, tool, toolgroup, ptb):
+    def get_csv_files(handler, iteration, sample, host, tool, toolsgroup, ptb):
         """
         Fetch the list of .csv files for this tool, fetch their headers, and
         return a dictionary mapping their column headers to their field names.
         """
-        path = os.path.join(iteration, sample, "tools-%s" % (toolgroup,), host, tool, "csv")
+        path = os.path.join(iteration, sample, "tools-%s" % (toolsgroup,), host, tool, "csv")
         paths = [x for x in ptb.tb.getnames() if x.find(path) >= 0 and ptb.tb.getmember(x).isfile()]
         datafiles = []
         for p in paths:
@@ -1376,7 +1921,7 @@ class ToolData(PbenchData):
                     # Ignore .csv files for which we don't have a handler,
                     # after checking to see if they might have an alias
                     # name.
-                    #_logger.warning("no .csv handler for '{}' ({})\n",
+                    #self.logger.warning("no .csv handler for '{}' ({})\n",
                     #        fname, p)
                     continue
                 else:
@@ -1386,10 +1931,10 @@ class ToolData(PbenchData):
                             break
                     else:
                         # Ignore .csv files for which we don't have a handler
-                        #_logger.warning("no .csv handler for '{}' ({}, {})\n",
+                        #self.logger.warning("no .csv handler for '{}' ({}, {})\n",
                         #        alias_name, fname, p)
                         continue
-            assert handler_rec is not None
+            assert handler_rec is not None, "Logic bomb! handler_rec is None"
             datafile = _dict_const(path=p, basename=fname, handler_rec=handler_rec)
             # FIXME: we might have to deal with UTF-8 decoding issues
             # reader = csv.reader(codecs.iterdecode(tb.extractfile(dfilepath), 'utf-8'))
@@ -1400,13 +1945,12 @@ class ToolData(PbenchData):
         return datafiles
 
     @staticmethod
-    def get_json_files(handler, iteration, sample, host, tool, toolgroup, ptb):
+    def get_json_files(handler, iteration, sample, host, tool, toolsgroup, ptb):
         """
-        Fetch the list of json files for this tool, and
-        return a list of dicts containing their metadata.
+        Fetch the list of json files for this tool, and return a list of dicts
+        containing their metadata.
         """
-        # import pdb; pdb.set_trace()
-        path = os.path.join(iteration, sample, "tools-%s" % (toolgroup,), host, tool, "json")
+        path = os.path.join(iteration, sample, "tools-%s" % (toolsgroup,), host, tool, "json")
         paths = [x for x in ptb.tb.getnames() if x.find(path) >= 0 and ptb.tb.getmember(x).isfile()]
         datafiles = []
         for p in paths:
@@ -1416,13 +1960,13 @@ class ToolData(PbenchData):
         return datafiles
 
     @staticmethod
-    def get_stdout_files(handler, iteration, sample, host, tool, toolgroup, ptb):
+    def get_stdout_files(handler, iteration, sample, host, tool, toolsgroup, ptb):
         """
         Fetch the stdout file for this tool returning a list of dicts
-        containing metadata.
+        containing their metadata.
         """
         stdout_file = "{0}-stdout.txt".format(tool)
-        path = os.path.join(iteration, sample, "tools-{0}".format(toolgroup), host, tool, stdout_file)
+        path = os.path.join(iteration, sample, "tools-{0}".format(toolsgroup), host, tool, stdout_file)
         paths = [x for x in ptb.tb.getnames() if x.find(path) >= 0 and ptb.tb.getmember(x).isfile()]
         datafiles = []
         for p in paths:
@@ -1432,26 +1976,26 @@ class ToolData(PbenchData):
                 if rec['pattern'].match(fname):
                     handler_rec = rec
                     break
-
             if handler_rec is not None:
-                datafile = _dict_const(path=p, basename=stdout_file, handler=handler_rec)
+                datafile = _dict_const(path=p, basename=stdout_file, handler_rec=handler_rec)
                 datafiles.append(datafile)
-
         return datafiles
 
     @staticmethod
-    def get_files(handler, iteration, sample, host, tool, toolgroup, ptb):
+    def get_files(handler, iteration, sample, host, tool, toolsgroup, ptb):
         if handler is None:
             datafiles = []
         elif handler['@prospectus']['handling'] == 'csv':
-            datafiles = ToolData.get_csv_files(handler, iteration, sample, host, tool, toolgroup, ptb)
+            datafiles = ToolData.get_csv_files(handler, iteration, sample, host, tool, toolsgroup, ptb)
         elif handler['@prospectus']['handling'] == 'json':
-            datafiles = ToolData.get_json_files(handler, iteration, sample, host, tool, toolgroup, ptb)
+            datafiles = ToolData.get_json_files(handler, iteration, sample, host, tool, toolsgroup, ptb)
         elif handler['@prospectus']['handling'] == 'stdout':
-            datafiles = ToolData.get_stdout_files(handler, iteration, sample, host, tool, toolgroup, ptb)
+            datafiles = ToolData.get_stdout_files(handler, iteration, sample, host, tool, toolsgroup, ptb)
         else:
             raise Exception("Logic bomb! %s" % (handler['@prospectus']['handling']))
+        datafiles.sort(key=itemgetter('path', 'basename'))
         return datafiles
+
 
 # tool data are stored in csv files in the tarball.
 # the structure is
@@ -1461,14 +2005,14 @@ class ToolData(PbenchData):
 # that may not be possible; in the latter case, we fall back to trawling through the
 # tarball and using heuristics.
 
-def get_iterations(mdconf, tb):
+def get_iterations(ptb):
     try:
         # N.B. Comma-separated list
-        iterations_str = mdconf.get("pbench", "iterations")
+        iterations_str = ptb.run_metadata['iterations']
     except Exception:
         # TBD - trawl through tb with some heuristics
         iterations = []
-        for x in tb.getnames():
+        for x in ptb.tb.getnames():
             l = x.split('/')
             if len(l) != 2:
                 continue
@@ -1482,9 +2026,9 @@ def get_iterations(mdconf, tb):
     iterations.sort()
     return iterations
 
-def get_samples(iteration, mdconf, tb):
+def get_samples(ptb, iteration):
     samples = []
-    for x in tb.getnames():
+    for x in ptb.tb.getnames():
         if x.find("{}/".format(iteration)) < 0:
             continue
         l = x.split('/')
@@ -1500,21 +2044,21 @@ def get_samples(iteration, mdconf, tb):
     samples.sort()
     return samples
 
-def get_hosts(iteration, sample, mdconf, tb):
+def get_hosts(mdconf, logger):
     try:
         # N.B. Space-separated list
         hosts = mdconf.get("tools", "hosts")
     except ConfigParserError:
-        _logger.exception("ConfigParser error in get_hosts: tool data will"
+        logger.exception("ConfigParser error in get_hosts: tool data will"
                 " *not* be indexed -- this is most probably a bug: please open"
                 " an issue")
         return []
     except NoSectionError:
-        _logger.warning("No [tools] section in metadata.log: tool data will"
+        logger.warning("No [tools] section in metadata.log: tool data will"
                 " *not* be indexed.")
         return []
     except NoOptionError:
-        _logger.warning("No \"hosts\" option in [tools] section in metadata"
+        logger.warning("No \"hosts\" option in [tools] section in metadata"
                 " log: tool data will *NOT* be indexed.")
         return []
     hosts_set = set(hosts.split())
@@ -1522,61 +2066,42 @@ def get_hosts(iteration, sample, mdconf, tb):
     hosts.sort()
     return hosts
 
-def get_tools(iteration, sample, host, mdconf, tb):
+def get_tools(host, mdconf, logger):
     try:
         tools = mdconf.options("tools/{}".format(host))
     except ConfigParserError:
-        _logger.exception("ConfigParser error in get_tools: tool data will"
+        logger.exception("ConfigParser error in get_tools: tool data will"
                 " *not* be indexed -- this is most probably a bug: please open"
                 " an issue")
         return []
     except NoSectionError:
-        _logger.warning("No [tools/{}] section in metadata.log: tool data will"
+        logger.warning("No [tools/{}] section in metadata.log: tool data will"
                 " *not* be indexed", host)
         return []
     except NoOptionError:
-        _logger.warning("No tools in [tools/{}] section in metadata log: tool"
+        logger.warning("No tools in [tools/{}] section in metadata log: tool"
                 " data will *NOT* be indexed", host)
         return []
-    tools_set = set(tools)
-    tools = list(tools_set)
-    tools.sort()
-    return tools
+    # Be sure we don't include tool metadata
+    tools_list = [ tool for tool in set(tools) \
+            if not tool.startswith("remote@") and tool not in ("hostname-s", "label") ]
+    tools_list.sort()
+    return tools_list
 
-def get_tool_label(host, mdconf):
-    try:
-        return mdconf.get("tools/" + host, "label")
-    except Exception:
-        return ""
-
-def get_tool_hostname_s(host, mdconf):
-    try:
-        return mdconf.get("tools/" + host, "hostname-s")
-    except Exception:
-        return ""
-
-def mk_tool_data(ptb, opctx):
-    experiment = ptb.mdconf.get("pbench", "name")
-    try:
-        toolsgroup = ptb.mdconf.get("tools", "group")
-    except Exception:
-        toolsgroup = "default"
-    iterations = get_iterations(ptb.mdconf, ptb.tb)
+def mk_tool_data(ptb, idxctx):
+    iterations = get_iterations(ptb)
     for iteration in iterations:
-        samples = get_samples(iteration, ptb.mdconf, ptb.tb)
+        samples = get_samples(ptb, iteration)
         for sample in samples:
-            hosts = get_hosts(iteration, sample, ptb.mdconf, ptb.tb)
+            hosts = get_hosts(ptb.mdconf, idxctx.logger)
             for host in hosts:
-                tools = get_tools(iteration, sample, host, ptb.mdconf, ptb.tb)
+                tools = get_tools(host, ptb.mdconf, idxctx.logger)
                 for tool in tools:
-                    yield ToolData(
-                            ptb, experiment, iteration, sample, host, tool,
-                            toolsgroup, opctx)
+                    yield ToolData(ptb, iteration, sample, host, tool, idxctx)
     return
 
-def mk_tool_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
-    template = idx_patterns["tool-data"]["template"]
-    for td in mk_tool_data(ptb, opctx):
+def mk_tool_data_actions(ptb, idxctx):
+    for td in mk_tool_data(ptb, idxctx):
         # Each ToolData object, td, that is returned here represents how
         # data collected for that tool across all hosts is to be returned.
         # The make_source method returns a generator that will emit each
@@ -1587,59 +2112,25 @@ def mk_tool_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
         asource = td.make_source()
         if not asource:
             continue
+        type_name = "pbench-tool-data-{}".format(td.toolname)
         for source, source_id in asource:
-            idx_name = td.generate_index_name(template, idx_prefix, source,
-                    tool=td.toolname)
-            action = _dict_const(
-                _op_type=_op_type,
-                _index=idx_name,
-                _type="pbench-tool-data-%s" % td.toolname,
-                _id=source_id,
-                _source=source
-            )
-            yield action
+            try:
+                idx_name = td.generate_index_name('tool-data', source, toolname=td.toolname)
+            except BadDate:
+                pass
+            else:
+                action = _dict_const(
+                    _op_type=_op_type,
+                    _index=idx_name,
+                    _type=type_name,
+                    _id=source_id,
+                    _source=source
+                )
+                yield action
     return
 
 ###########################################################################
 # Build tar ball table-of-contents (toc) source documents.
-
-def mk_toc(tb, md5sum, options):
-    members = tb.getmembers()
-    prefix = members[0].name.split(os.path.sep)[0]
-    # create a list of dicts where each directory that contains files is represented
-    # by a dictionary with a 'name' key, whose value is the pathname of the dictionary
-    # and a 'files' key, which is a list of the files contained in the directory.
-    d = _dict_const()
-    for m in members:
-        if m.isdir():
-            dname = os.path.dirname(m.name)[len(prefix):] + os.path.sep
-            if dname not in d:
-                d[dname] = _dict_const(directory=dname)
-        elif m.isfile() or m.issym():
-            dname = os.path.dirname(m.name)[len(prefix):] + os.path.sep
-            fentry = _dict_const(
-                    name=os.path.basename(m.name),
-                    size=m.size,
-                    mode=oct(m.mode)
-            )
-            if m.issym():
-                fentry['linkpath'] = m.linkpath
-            if dname in d:
-                # we may have created an empty dir entry already
-                # without a 'files' entry, so we now make sure that
-                # there is an empty 'files' entry that we can populate.
-                if 'files' not in d[dname]:
-                    d[dname]['files'] = []
-                d[dname]['files'].append(fentry)
-            else:
-                # presumably we'll never fall through here any more:
-                # the directory entry always preceded the file entry
-                # in the tarball.
-                d[dname] = _dict_const(directory=dname, files=[fentry])
-        else:
-            # if debug: print(repr(m))
-            continue
-    return (prefix, d)
 
 def get_md5sum_of_dir(dir, parentid):
     """Calculate the md5 sum of all the names in the toc"""
@@ -1652,7 +2143,7 @@ def get_md5sum_of_dir(dir, parentid):
                 h.update(repr(f[k]).encode('utf-8'))
     return h.hexdigest()
 
-def mk_toc_actions(ptb, options, idx_prefix, idx_patterns, opctx):
+def mk_toc_actions(ptb, idxctx):
     """Construct Table-of-Contents actions.
 
     These are indexed into the run index along side the runs."""
@@ -1660,22 +2151,17 @@ def mk_toc_actions(ptb, options, idx_prefix, idx_patterns, opctx):
     # Since the timestamp for every TOC record will be the same, we generate
     # the index name once here using a fake source document on the call to
     # generate_index_name().
-    pd = PbenchData(ptb)
-    idx_name = pd.generate_index_name(
-            idx_patterns["toc-data"]["template"],
-            idx_prefix,
-            { "@timestamp": tstamp })
-    prefix, dirs = mk_toc(ptb.tb, ptb.md5sum, options)
-    assert(prefix == ptb.dirname)
-    for dname,d in dirs.items():
-        d["@timestamp"] = tstamp
+    pd = PbenchData(ptb, idxctx)
+    idx_name = pd.generate_index_name('toc-data', { "@timestamp": tstamp })
+    for source in ptb.gen_toc():
+        source["@timestamp"] = tstamp
         action = _dict_const(
-            _id=get_md5sum_of_dir(d, ptb.md5sum),
+            _id=get_md5sum_of_dir(source, ptb.run_metadata['id']),
             _op_type=_op_type,
             _index=idx_name,
             _type="pbench-run-toc-entry",
-            _source=d,
-            _parent=ptb.md5sum
+            _source=source,
+            _parent=ptb.run_metadata['id']
         )
         yield action
     return
@@ -1720,7 +2206,7 @@ def get_hostname_f_from_sos_d(sos_d, host=None, ip=None):
     else:
         return search_by_ip(sos_d, ip)
 
-def mk_tool_info(sos_d, mdconf):
+def mk_tool_info(sos_d, mdconf, logger):
     """Return a dict containing tool info (local and remote)"""
     try:
         tools_array = []
@@ -1733,10 +2219,12 @@ def mk_tool_info(sos_d, mdconf):
             tools_info['hostname'] = host
             # import pdb; pdb.set_trace()
             if valid_ip(host):
-                tools_info['hostname-f'] = get_hostname_f_from_sos_d(sos_d, ip=host)
+                full_hostname = get_hostname_f_from_sos_d(sos_d, ip=host)
             else:
-                tools_info['hostname-f'] = get_hostname_f_from_sos_d(sos_d, host=host)
-            section = "tools/%s" % (host)
+                full_hostname = get_hostname_f_from_sos_d(sos_d, host=host)
+            if full_hostname:
+                tools_info['hostname-f'] = full_hostname
+            section = "tools/{}".format(host)
             items = mdconf.items(section)
             options = mdconf.options(section)
             if 'label' in options:
@@ -1753,6 +2241,15 @@ def mk_tool_info(sos_d, mdconf):
 
             tools = _dict_const()
             tools.update(items)
+            try:
+                hostname_s = tools['hostname-s']
+            except KeyError:
+                pass
+            else:
+                # Move the tool/host "hostname-s" value to the tools_info level.
+                if tools_info['hostname'] != hostname_s:
+                    tools_info['hostname-s'] = hostname_s
+                del tools['hostname-s']
             tools_info['tools'] = tools
             tools_array.append(tools_info)
 
@@ -1765,7 +2262,7 @@ def mk_tool_info(sos_d, mdconf):
         return tools_array
 
     except Exception:
-        _logger.exception("mk_tool_info")
+        logger.exception("mk_tool_info")
         return []
 
 def ip_address_to_ip_o_addr(s):
@@ -1811,7 +2308,8 @@ def ip_address_to_ip_o_addr(s):
                 state = 1
             serial, ifname = l.split(':')[0:2]
         elif l.lstrip().startswith('inet'):
-            assert(state != 0)
+            assert(state != 0), \
+                    "Logic bomb! Unexpected state: {!r}".format(state)
             if state == 1:
                 state = 2
             elif state == 2:
@@ -1846,11 +2344,11 @@ def if_ip_from_sosreport(ip_addr_f):
 
     return d
 
-def hostnames_if_ip_from_sosreport(sos):
+def hostnames_if_ip_from_sosreport(sos_file_name):
     """Return a dict with hostname info (both short and fqdn) and
     ip addresses of all the network interfaces we find at sosreport time."""
 
-    sostb = tarfile.open(sos)
+    sostb = tarfile.open(sos_file_name)
     hostname_files = [x for x in sostb.getnames() if x.find('sos_commands/general/hostname') >= 0]
 
     # Fetch the hostname -f and hostname file contents
@@ -1894,7 +2392,7 @@ def hostnames_if_ip_from_sosreport(sos):
         elif hostname_s != "localhost":
             hostname_f = hostname_s
         else:
-            assert(1 == 0)
+            raise SosreportHostname("Can't reconcile short and full hostname")
 
     elif not hostname_f and hostname_s:
         # The sosreport did not include, or failed to properly collect, the
@@ -1936,7 +2434,7 @@ def hostnames_if_ip_from_sosreport(sos):
             d.update(if_ip_from_sosreport(sostb.extractfile(ip_files[0])))
     return d
 
-def mk_sosreports(tb, extracted_root):
+def mk_sosreports(tb, extracted_root, logger):
     sosreports = [ x for x in tb.getnames() if x.find("sosreport") >= 0 and x.endswith('.md5') ]
     sosreports.sort()
 
@@ -1949,7 +2447,7 @@ def mk_sosreports(tb, extracted_root):
             with open(md5f, "r") as fp:
                 md5_val = fp.read()[:-1]
         except Exception as e:
-            print("Failed to fetch .md5 of sosreport {}: {}".format(sos, e))
+            logger.warning("Failed to fetch .md5 of sosreport {}: {}", sos, e)
             continue
         host_md = hostnames_if_ip_from_sosreport(os.path.join(extracted_root, sos))
         # get hostname (short and FQDN) from sosreport
@@ -1961,132 +2459,88 @@ def mk_sosreports(tb, extracted_root):
 
     return sosreportlist
 
-def mk_pbench_metadata(mdconf):
-    d = _dict_const()
-    try:
-        d['pbench-rpm-version'] = mdconf.get("pbench", "rpm-version")
-    except Exception:
-        d['pbench-rpm-version'] = "Unknown"
-    return d
-
-def mk_run_metadata(ptb):
-    d = _dict_const()
-    try:
-        d.update(ptb.mdconf.items('run'))
-        d.update(ptb.mdconf.items('pbench'))
-        # Remove from run metadata as this is kept in @metadata
-        del d['rpm-version']
-    except KeyError as e:
-        _logger.exception("Tarball: {} - {} is missing in metadata.log",
-                ptb.dirname, e)
-        d = _dict_const()
-    # Update the start and end run times using the already updated
-    # values in the tar ball object.
-    d['start_run'] = ptb.start_run
-    d['end_run'] = ptb.end_run
-    d['date'] = ptb.date
-    # the run id here is the md5sum that's the _id of the main document.
-    # it's what ties all of the relevant documents together.
-    d['id'] = ptb.md5sum
-    d['tarball-dirname'] = ptb.dirname
-    d['tarball-toc-prefix'] = ptb.dirname
-    return d
-
-def mk_user_specified_metadata(options):
+def mk_user_specified_metadata(idxctx):
     # parse the JSON string into a dict and return it
     try:
-        return json.loads(options.metadata_string)
+        return json.loads(idxctx.options.metadata_string)
     except Exception:
-        _logger.exception("Cannot parse user specified metadata JSON string:"
-                " {}\n", options.metadata_string)
+        logger.exception("Cannot parse user specified metadata JSON string:"
+                " {}\n", idxctx.options.metadata_string)
         return {}
 
-def mk_metadata(fname, tb, mdconf, md5sum):
-    """Return a dict with metadata about a tarball"""
-    tb_stat = os.stat(fname)
-    mtime = datetime.utcfromtimestamp(tb_stat.st_mtime)
-
-    mddict = _dict_const([
-        ('file-date', mtime.isoformat()),
-        ('file-name', fname),
-        ('file-size', tb_stat.st_size),
-        ('generated-by', _NAME_),
-        ('generated-by-version', _VERSION_),
-        ('md5', md5sum),
-        ('pbench-agent-version', mdconf.get("pbench", "rpm-version"))
-    ])
-    return mddict
-
-def mk_run_action(ptb, options, idx_prefix, idx_patterns, opctx):
+def mk_run_action(ptb, idxctx):
     """Extract metadata from the named tarball and create an indexing
        action out of them.
 
        There are two kinds of metadata: what goes into _source[@metadata]
        is metadata about the tarball itself - not things that are *part* of
-       the tarball: its name, size, md5, mtime.
-       Metadata about the run are *data* to be indexed.
+       the tarball: its name, size, md5, mtime, etc.  Metadata about the run
+       are *data* to be indexed under the "run" field.
     """
     source = _dict_const([('@timestamp', ptb.start_run)])
 
     # debug: -T options will cause each call below to be timed
     # and the elapsed interval printed.
-    debug_time_operations = options.debug_time_operations
-    if debug_time_operations: _ts("mk_metadata")
-    source['@metadata'] = mk_metadata(ptb.tbname, ptb.tb, ptb.mdconf, ptb.md5sum)
-    if options.metadata_string:
+    debug_time_operations = idxctx.options.debug_time_operations
+    source['@metadata'] = ptb.at_metadata
+    source['run'] = ptb.run_metadata
+    if idxctx.options.metadata_string:
         if debug_time_operations: _ts("mk_user_specified_metadata")
-        source['user_specified_metadata'] = mk_user_specified_metadata(options)
-    #if debug_time_operations: _ts("mk_pbench_metadata")
-    #source['pbench'] = mk_pbench_metadata(mdconf)
-    if debug_time_operations: _ts("mk_run_metadata")
-    source['run'] = mk_run_metadata(ptb)
+        source['user_specified_metadata'] = mk_user_specified_metadata(idxctx)
     if debug_time_operations: _ts("mk_sosreports")
-    sos_d = mk_sosreports(ptb.tb, ptb.extracted_root)
+    sos_d = mk_sosreports(ptb.tb, ptb.extracted_root, idxctx.logger)
     if sos_d:
         source['sosreports'] = sos_d
     if debug_time_operations: _ts("mk_tool_info")
-    source['host_tools_info'] = mk_tool_info(sos_d, ptb.mdconf)
+    source['host_tools_info'] = mk_tool_info(sos_d, ptb.mdconf, idxctx.logger)
 
     # make a simple action for indexing
-    pd = PbenchData(ptb)
-    idx_name = pd.generate_index_name(idx_patterns["run-data"]["template"],
-            idx_prefix, source)
+    pd = PbenchData(ptb, idxctx)
+    idx_name = pd.generate_index_name('run-data', source)
     action = _dict_const(
         _op_type=_op_type,
         _index=idx_name,
         _type="pbench-run",
-        _id=ptb.md5sum,
+        _id=ptb.run_metadata['id'],
         _source=source,
     )
     if debug_time_operations: _ts("Done!", newline=True)
     return action
 
-def make_all_actions(ptb, options, idx_prefix, idx_patterns, opctx):
+def make_all_actions(ptb, idxctx):
     """Driver for generating all actions on source documents for indexing
     into Elasticsearch. This generator drives the generation of the run
     source document, the table-of-contents tar ball documents, and finally
     all the tool data.
     """
-    debug_time_operations = options.debug_time_operations
+    debug_time_operations = idxctx.options.debug_time_operations
     if debug_time_operations: _ts("mk_run_action")
-    yield mk_run_action(ptb, options, idx_prefix, idx_patterns, opctx)
+    yield mk_run_action(ptb, idxctx)
     if debug_time_operations: _ts("mk_toc_actions")
-    for action in mk_toc_actions(ptb, options, idx_prefix, idx_patterns, opctx):
+    for action in mk_toc_actions(ptb, idxctx):
         yield action
     if debug_time_operations: _ts("mk_result_data_actions")
-    for action in mk_result_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
+    for action in mk_result_data_actions(ptb, idxctx):
         yield action
     if debug_time_operations: _ts("mk_tool_data_actions")
-    for action in mk_tool_data_actions(ptb, options, idx_prefix, idx_patterns, opctx):
+    for action in mk_tool_data_actions(ptb, idxctx):
         yield action
-    if debug_time_operations: _ts("", newline=True)
+    if debug_time_operations: _ts("mk_all_actions-done", newline=True)
     return
 
 
 class PbenchTarBall(object):
-    def __init__(self, tbarg, tmpdir):
+    def __init__(self, idxctx, tbarg):
+        self.idxctx = idxctx
         self.tbname = tbarg
-        self.hostname = os.path.basename(os.path.dirname(self.tbname))
+        self.controller_dir = os.path.basename(os.path.dirname(self.tbname))
+        try:
+            self.satellite, self.controller_name = self.controller_dir.split("::", 1)
+        except Exception:
+            self.satellite = None
+            self.controller_name = self.controller_dir
+        tb_stat = os.stat(self.tbname)
+        mtime = datetime.utcfromtimestamp(tb_stat.st_mtime)
         self.tb = tarfile.open(self.tbname)
 
         # This is the top-level name of the run - it should be the common
@@ -2095,112 +2549,302 @@ class PbenchTarBall(object):
         # FIXME: should we handle result tarballs that are uncompressed, or
         # compressed with a different compression mechanism from xz?
         self.dirname = dirname[:dirname.rfind('.tar.xz')]
-        # ... but let's make sure.
-        sampled_prefix = self.tb.getmembers()[0].name.split(os.path.sep)[0]
-        if sampled_prefix != self.dirname:
-            # All members of the tarball should have self.dirname as its
-            # prefix.
+        # ... but let's make sure ...
+        #
+        # ... while we are at it, we verify we have a metadata.log file in the
+        # tar ball before we start extracting.
+        metadata_log_path = "%s/metadata.log" % (self.dirname)
+        metadata_log_found = False
+        self.members = self.tb.getmembers()
+        for m in self.members:
+            if m.name == metadata_log_path:
+                metadata_log_found = True
+            sampled_prefix = m.name.split(os.path.sep)[0]
+            if sampled_prefix != self.dirname:
+                # All members of the tarball should have self.dirname as its
+                # prefix.
+                raise UnsupportedTarballFormat(
+                    "{} - directory prefix should be \"{}\", but is"
+                    " \"{}\" instead, for tarball member \"{}\"".format(
+                        self.tbname,
+                        self.dirname,
+                        sampled_prefix,
+                        m.name))
+        if not metadata_log_found:
             raise UnsupportedTarballFormat(
-                "{} - tarball member dir prefix should be \"{}\", but is \"{}\" instead.".format(
-                    self.tbname,
-                    self.dirname,
-                    sampled_prefix))
-
-        # Verify we have a metadata.log file in the tar ball before we
-        # start extracting.
-        member_name = "%s/metadata.log" % (self.dirname)
-        try:
-            self.tb.getmember(member_name)
-        except KeyError:
-            raise UnsupportedTarballFormat(
-                "{} - tarball is missing \"{}\".".format(self.tbname, member_name))
+                "{} - tarball is missing \"{}\".".format(
+                    self.tbname, metadata_log_path))
 
         # We are expected to clean up the extracted tar ball before we exit.
-        self.tb.extractall(path=tmpdir)
-        self.extracted_root = tmpdir
+        self.extracted_root = self.idxctx.options.tmpdir
+        self.tb.extractall(path=self.extracted_root)
         if not os.path.isdir(os.path.join(self.extracted_root, self.dirname)):
             self.delete_extracted()
             raise UnsupportedTarballFormat(
                 "{} - extracted tarball but can't get to the directory \"{}\".".format(
                     self.tbname,
                     os.path.join(self.extracted_root, self.dirname)))
-        try:
-            self.mdconf = PbenchTarBall.get_mdconfig(
-                    os.path.join(self.extracted_root, member_name))
-        except Exception:
-            self.delete_extracted()
-            raise BadMDLogFormat(self.tbname)
-        # We get the start date out of the metadata log.
-        try:
-            # N.B. the start_run timestamp is in UTC.
-            self.start_run, self.start_run_ts, self.end_run, self.end_run_ts, self.date, self.date_ts = self.gen_run_timestamp_info()
-        except Exception:
-            self.delete_extracted()
-            raise BadDate(self.tbname)
         # Open the MD5 file of the tarball and read the MD5 sum from it.
-        self.md5sum = open("%s.md5" % (self.tbname)).read().split()[0]
-
-    def gen_run_timestamp_info(self):
-        """Generate the start and end run timestamps from the values in
-        the tar ball's configuration file.
-
-        The goal is to provide self.start_run and self.end_run fields
-        containing strings of the form, "YYYY-mm-ddTHH:MM:SS.ssssss", and
-        then self.start_run_ts and self.end_run_ts with datetime objects
-        derived from those strings.
-
-        This is offered as a service once here when processing a tar ball
-        so that any code needing the start or end of a run has a timestamp
-        in a form they can use that is consistent with all the other uses.
-        """
-        # Fetch the original values from the metadata.log file.
-        start_run_orig = self.mdconf.get('run', 'start_run')
-        end_run_orig = self.mdconf.get('run', 'end_run')
-        date_orig = self.mdconf.get('pbench', 'date')
-        # We'll accept dates that match any of the following:
-        #  * 2019-01-10_12:12:12
-        #  * 2019-01-10T12:12:12
-        #  * 20190110_12:12:12
-        #  * 20190110T12:12:12
-        #  * 2019-01-10_12:12:12.123456[789]
-        #  * 2019-01-10T12:12:12.123456[789]
-        #  * 20190110_12:12:12.123456[789]
-        #  * 20190110T12:12:12.123456[789]
-        # However, we reduce the combinations by immediately replacing the
-        # "_" version with a "T", and ensure we only keep microseconds of
-        # resolution, dropping any extra nanoseconds because that level of
-        # precision is ignored and causes problems during date/time string
-        # conversions (e.g. Elasticsearch ignores it, and python std lib
-        # does not offer a way to handle nanoseconds).
-        formats = [ "%Y-%m-%dT%H:%M:%S.%f", "%Y%m%dT%H:%M:%S.%f", "%Y-%m-%dT%H:%M:%S", "%Y%m%dT%H:%M:%S" ]
-        def convert_to_dt(dt_str):
-            rts = dt_str.replace('_', 'T')
-            us_offset = rts.rfind('.')
-            us = rts[us_offset:][:7]
-            rts = rts[:us_offset] + us
-            for f in formats:
-                try:
-                    dt = datetime.strptime(rts, f)
-                except ValueError:
-                    continue
-                else:
-                    return dt, dt.isoformat()
-            else:
-                raise BadDate(self.tbname)
-        start_run_ts, start_run = convert_to_dt(start_run_orig)
-        end_run_ts, end_run = convert_to_dt(end_run_orig)
-        date_ts, date = convert_to_dt(date_orig)
-        # At this point, date is a local time value, while start_ and end_run
-        # are UTC.  We figure out what the UTC offset is by comparing date to
-        # the start run value, and adjusting it accordingly.  Since these are
-        # supposed to be close, we calculate an offset rounded to a half-hour
-        # and add it to the local date. We then convert back to an ISO format
-        # date.
-        offset = date_ts - start_run_ts
-        res = round(float(offset.seconds) / 60 / 60 + offset.days * 24, 1)
-        date_ts -= timedelta(0, int(res*60*60), 0)
+        md5sum = open("%s.md5" % (self.tbname)).read().split()[0]
+        # Construct the @metadata and run metadata dictionaries from the
+        # metadata.log file.
+        self.mdconf = ConfigParser()
+        mdf = os.path.join(self.extracted_root, metadata_log_path)
+        try:
+            # Read and parse the metadata.log file.
+            self.mdconf.read(mdf)
+            controller = self.mdconf.get('run', 'controller')
+            if not controller:
+                raise Exception("empty run.controller")
+            if not controller.startswith(self.controller_name):
+                raise Exception("run.controller (\"{}\") does not match"
+                        " controller_dir (\"{}\")".format(
+                        controller, self.controller_dir))
+            name = self.mdconf.get('pbench', 'name')
+            if not name:
+                raise Exception("empty pbench.name")
+            script = self.mdconf.get('pbench', 'script')
+            if not script:
+                raise Exception("empty pbench.script")
+            toolsgroup = self.mdconf.get("tools", "group")
+            if not toolsgroup:
+                raise Exception("empty tools.group")
+            # Fetch the original run date values from the metadata.log file.
+            # The goal is to provide self.start_run and self.end_run fields
+            # containing strings of the form, "YYYY-mm-ddTHH:MM:SS.ssssss",
+            # and then self.start_run_ts and self.end_run_ts with datetime
+            # objects derived from those strings.
+            start_run_orig = self.mdconf.get('run', 'start_run')
+            if not start_run_orig:
+                raise Exception("empty run.start_run")
+            end_run_orig = self.mdconf.get('run', 'end_run')
+            if not end_run_orig:
+                raise Exception("empty run.end_run")
+            date_orig = self.mdconf.get('pbench', 'date')
+            if not date_orig:
+                raise Exception("empty pbench.date")
+        except Exception as e:
+            self.delete_extracted()
+            raise BadMDLogFormat("{} - error fetching required metadata.log"
+                    " fields, \"{}\"".format(self.tbname, e))
+        # Normalize all the timestamps
+        self.start_run_ts, self.start_run = PbenchTarBall.convert_to_dt(start_run_orig)
+        self.end_run_ts, self.end_run = PbenchTarBall.convert_to_dt(end_run_orig)
+        date_ts, date = PbenchTarBall.convert_to_dt(date_orig)
+        # At this point, date is a local time value, while start_ and
+        # end_run are UTC.  We figure out what the UTC offset is by
+        # comparing date to the start run value, and adjusting it
+        # accordingly.  Since these are supposed to be close, we calculate
+        # an offset rounded to a half-hour and add it to the local
+        # date. We then convert back to an ISO format date.
+        offset = date_ts - self.start_run_ts
+        res = round(((float(offset.seconds) / 60) / 60) + (offset.days * 24), 1)
+        date_ts -= timedelta(0, int(res * 60 * 60), 0)
         date = date_ts.isoformat()
-        return start_run, start_run_ts, end_run, end_run_ts, date, date_ts
+        # The pbench tar balls metadata.log file has two sections, "pbench"
+        # and "run" that we merge together and fix up.  We first pull the
+        # "pbench.rpm-version" field into the "@metadata" section, and then we
+        # pull the "run.prefix" in as "@metadata.result-prefix".
+        self.at_metadata = _dict_const([
+                ('file-date', mtime.isoformat()),
+                ('file-name', self.tbname),
+                ('file-size', tb_stat.st_size),
+                ('generated-by', _NAME_),
+                ('generated-by-version', _VERSION_),
+                ('md5', md5sum),
+                ('toc-prefix', self.dirname)
+            ])
+        try:
+            rpm_version = self.mdconf.get("pbench", "rpm-version")
+        except NoOptionError:
+            pass
+        else:
+            self.at_metadata['pbench-agent-version'] = rpm_version
+        try:
+            result_prefix = self.mdconf.get("run", "prefix")
+        except NoOptionError:
+            pass
+        else:
+            self.at_metadata['result-prefix'] = result_prefix
+        if self.satellite is not None:
+            self.at_metadata['satellite'] = self.satellite
+        self.at_metadata['controller_dir'] = self.controller_dir
+        # Merge the "pbench" and "run" sections of the metadata.log file into
+        # the "run" metadata, removing the "rpm-version" previously pulled.
+        self.run_metadata = _dict_const()
+        try:
+            self.run_metadata.update(self.mdconf.items('run'))
+            self.run_metadata.update(self.mdconf.items('pbench'))
+        except NoSectionError as e:
+            raise BadMDLogFormat(
+                    "{} - missing section in metadata.log, \"{}\"".format(
+                        self.dirname, e))
+        # Remove from run metadata as these fields are either kept in
+        # @metadata or being renamed.
+        for key in ( 'rpm-version', 'prefix', 'start_run', 'end_run' ):
+            try:
+                del self.run_metadata[key]
+            except KeyError:
+                pass
+        # Remove any optional empty fields (all required fields have already
+        # been determined as present.
+        for key in list(self.run_metadata.keys()):
+            if len(self.run_metadata[key]) == 0:
+                del self.run_metadata[key]
+        # Add the tools group used as run metadata for indexing purposes.
+        self.run_metadata['toolsgroup'] = toolsgroup
+        # Update the start and end run times using the already updated
+        # values in the tar ball object.
+        self.run_metadata['start'] = self.start_run
+        self.run_metadata['end'] = self.end_run
+        self.run_metadata['date'] = date
+        # The run id here is the md5sum that's the _id of the main document.
+        # It's what ties all of the relevant documents together.
+        self.run_metadata['id'] = md5sum
+
+    # We'll accept dates that match any of the following:
+    #  * 2019-01-10_12:12:12
+    #  * 2019-01-10T12:12:12
+    #  * 20190110_12:12:12
+    #  * 20190110T12:12:12
+    #  * 2019-01-10_12:12:12.123456[789]
+    #  * 2019-01-10T12:12:12.123456[789]
+    #  * 20190110_12:12:12.123456[789]
+    #  * 20190110T12:12:12.123456[789]
+    # However, we reduce the combinations by immediately replacing the
+    # "_" version with a "T", and ensure we only keep microseconds of
+    # resolution, dropping any extra nanoseconds because that level of
+    # precision is ignored and causes problems during date/time string
+    # conversions (e.g. Elasticsearch ignores it, and python std lib
+    # does not offer a way to handle nanoseconds).
+    _formats = [ "%Y-%m-%dT%H:%M:%S.%f", "%Y%m%dT%H:%M:%S.%f", "%Y-%m-%dT%H:%M:%S", "%Y%m%dT%H:%M:%S" ]
+
+    @staticmethod
+    def convert_to_dt(dt_str):
+        rts = dt_str.replace('_', 'T')
+        us_offset = rts.rfind('.')
+        us = rts[us_offset:][:7]
+        rts = rts[:us_offset] + us
+        for f in PbenchTarBall._formats:
+            try:
+                dt = datetime.strptime(rts, f)
+            except ValueError:
+                continue
+            else:
+                return dt, dt.isoformat()
+        else:
+            raise Exception()
+
+    _mode_table = _dict_const([
+        (tarfile.REGTYPE, "reg"),
+        (tarfile.AREGTYPE, "areg"),
+        (tarfile.LNKTYPE, "lnk"),
+        (tarfile.SYMTYPE, "sym"),
+        (tarfile.DIRTYPE, "dir"),
+        (tarfile.FIFOTYPE, "fifo"),
+        (tarfile.CONTTYPE, "cont"),
+        (tarfile.CHRTYPE, "chr"),
+        (tarfile.BLKTYPE, "blk"),
+        (tarfile.GNUTYPE_SPARSE, "spr")
+        ])
+
+    def gen_toc(self):
+        """Generate (t)able (o)f (c)ontents JSON documents for this tarball.
+
+        There should be one JSON document emitted per directory entry found in
+        the tarball. Each non-directory entry found is added to the given
+        directory entry it belongs. This is determined by the name element
+        which is always the full path of the object in the tar ball.
+
+        So given a tar file that looks like
+        <prefix = "pbench-user-benchmark_ex-tb_2018.10.24T14.38.18">:
+
+        drwxr-xr-x root/root         0 2018-10-24 10:58:00 <prefix>/
+        drwxr-xr-x root/root         0 2018-10-24 10:38:01 <prefix>/1/
+        drwxr-xr-x root/root         0 2018-10-24 10:58:02 <prefix>/1/rr/
+        drwxr-xr-x root/root         0 2018-10-24 10:58:03 <prefix>/1/rr/td/
+        drwxr-xr-x root/root         0 2018-10-24 10:58:04 <prefix>/1/rr/td/host.example.com/
+        drwxr-xr-x root/root         0 2018-10-24 10:58:05 <prefix>/1/rr/td/host.example.com/iostat/
+        -rwxr-xr-x root/root        48 2018-10-24 10:38:06 <prefix>/1/rr/td/host.example.com/iostat/iostat.cmd
+        -rw-r--r-- root/root      7598 2018-10-24 10:58:07 <prefix>/1/rr/td/host.example.com/iostat/iostat-stdout.txt
+        drwxr-xr-x root/root         0 2018-10-24 10:58:08 <prefix>/1/rr/td/host.example.com/iostat/csv/
+        -rw-r--r-- root/root       512 2018-10-24 10:58:09 <prefix>/1/rr/td/host.example.com/iostat/csv/disk_IOPS.csv
+        -rw-r--r-- root/root       512 2018-10-24 10:58:10 <prefix>/1/rr/td/host.example.com/iostat/csv/disk_Wait_Time_msec.csv
+        -rw-r--r-- root/root       382 2018-10-24 10:58:11 <prefix>/1/rr/td/host.example.com/iostat/disk-average.txt
+        -rw-r--r-- root/root      1379 2018-10-24 10:58:12 <prefix>/1/rr/td/host.example.com/iostat/disk.html
+
+        This method should emit JSON documents that look like:
+
+        { "directory": "/",                                       "mode": 0o755, "mtime": "2018-10-24T10:58:01" }
+        { "directory": "/1/",                                     "mode": 0o755, "mtime": "2018-10-24T10:38:01" }
+        { "directory": "/rr/",                                    "mode": 0o755, "mtime": "2018-10-24T10:58:02" }
+        { "directory": "/rr/td/",                                 "mode": 0o755, "mtime": "2018-10-24T10:58:03" }
+        { "directory": "/rr/td/host.example.com/",                "mode": 0o755, "mtime": "2018-10-24T10:58:04" }
+        { "directory": "/rr/td/host.exmaple.com/iostat/",         "mode": 0o755, "mtime": "2018-10-24T10:58:05",
+            "files": [
+                { "name": "iostat.cmd",             "size":   48, "mode": 0o755, "mtime": "2018-10-24T10:38:06" },
+                { "name": "iostat-stdout.txt",      "size": 7598, "mode": 0o644, "mtime": "2018-10-24T10:58:07" },
+                { "name": "disk-average.txt",       "size":  382, "mode": 0o644, "mtime": "2018-10-24T10:58:11" },
+                { "name": "disk.html",              "size": 1379, "mode": 0o644, "mtime": "2018-10-24T10:58:12" }
+            ] }
+        { "directory": "/rr/td/host.exmaple.com/iostat/csv/",     "mode": 0o755, "mtime": "2018-10-24T10:58:08",
+            "files": [
+                { "name": "disk_IOPS.csv",           "size": 512, "mode": 0o644, "mtime": "2018-10-24T10:58:09" },
+                { "name": "disk_Wait_Time_msec.csv", "size": 512, "mode": 0o644, "mtime": "2018-10-24T10:58:10" }
+            ] }
+
+        """
+        prefix_l = len(self.dirname)
+        # Note we have to fully populate the dictionary by processing all the
+        # members before we can yield the generated sources for each
+        # directory.
+        toc_dirs = _dict_const()
+        for m in self.members:
+            # Always strip the prefix
+            name = m.name[prefix_l:]
+            if m.isdir():
+                dname = name if name.endswith(os.path.sep) else "{}{}".format(
+                    name, os.path.sep)
+                if dname in toc_dirs:
+                    raise Exception("Logic bomb! Found a directory entry that"
+                            " already exists!")
+                toc_dirs[dname] = _dict_const(
+                        directory=dname,
+                        mtime=datetime.utcfromtimestamp(float(m.mtime)).isoformat(),
+                        mode=oct(m.mode)
+                    )
+            else:
+                fentry = _dict_const(
+                        name=os.path.basename(name),
+                        mtime=datetime.utcfromtimestamp(float(m.mtime)).isoformat(),
+                        size=m.size,
+                        mode=oct(m.mode)
+                )
+                try:
+                    ftype = self._mode_table[m.type]
+                except KeyError:
+                    ftype = "unk"
+                fentry['type'] = ftype
+                if m.issym():
+                    fentry['linkpath'] = m.linkpath
+                dname = os.path.dirname(name)
+                if not dname.endswith(os.path.sep):
+                    dname = "{}{}".format(dname, os.path.sep)
+                # we may have created an empty dir entry already without a
+                # 'files' entry, so we now make sure that there is an
+                # empty 'files' entry that we can populate.
+                if 'files' not in toc_dirs[dname]:
+                    toc_dirs[dname]['files'] = []
+                toc_dirs[dname]['files'].append(fentry)
+        for key in sorted(toc_dirs.keys()):
+            source = toc_dirs[key]
+            try:
+                sorted_file_list = sorted(source['files'], key=itemgetter('name', 'mtime'))
+            except KeyError:
+                pass
+            else:
+                source['files'] = sorted_file_list
+            yield source
 
     def delete_extracted(self):
         directory = os.path.join(self.extracted_root, self.dirname)
@@ -2212,79 +2856,306 @@ class PbenchTarBall(object):
             func(path)
         shutil.rmtree(directory, onerror=remove_readonly)
 
-    @staticmethod
-    def get_mdconfig(mdf):
-        """Get metadata from a metadata.log file.
 
-        metadata.log is in the format expected by configparser,
-        so we just get and return a configparser object."""
-        mdfconfig = ConfigParser()
-        mdfconfig.read(mdf)
-
-        # FIXME: verify start_run and end_run dictionary items are present
-        d = _dict_const()
-        d.update(mdfconfig.items('run'))
-        if "start_run" not in d or "end_run" not in d:
-            raise Exception('Missing start_run or end_run elements')
-        return mdfconfig
-
-
-def get_es_hosts(config):
+class IdxContext(object):
     """
-    Return list of dicts (a single dict for now) -
-    that's what ES is expecting.
+    The general indexing options, including configuration and other external
+    state, provided as an object.
     """
-    try:
-        URL = config.get('Indexing', 'server')
-    except NoSectionError:
-        _logging.exception("Need an [Indexing] section with host and port"
-                " defined in {} configuration file",
-                " ".join(config.__files__))
-        raise
-    except NoOptionError:
-        host = config.get('Indexing', 'host')
-        port = config.get('Indexing', 'port')
-    else:
-        host, port = URL.rsplit(':', 1)
-    timeoutobj = Timeout(total=1200, connect=10, read=_read_timeout)
-    return [_dict_const(host=host, port=port, timeout=timeoutobj),]
-
-###########################################################################
-# main: create index from template if necessary, prepare the action and ship
-# it to ES for indexing.
-
-_index_patterns = {
-    'tool-data': {
-        'template': "{prefix}.tool-data-{tool}.{year}-{month}-{day}",
-        'desc': "Daily tool data for all tools land in indices named by tool; e.g. prefix.tool-data-iostat.YYYY-MM-DD"
-    },
-    'result-data': {
-        'template': "{prefix}.result-data.{year}-{month}-{day}",
-        'desc': "Daily result data (any data generated by the benchmark) for all pbench result tar balls; e.g prefix.result-data.YYYY-MM-DD"
-    },
-    'toc-data': {
-        'template': "{prefix}.run.{year}-{month}",
-        'desc': "Monthly table of contents metadata for index tar balls; contains directories, file names, and their size, permissions, etc.; e.g. prefix.run.YYYY-MM"
-    },
-    'run-data': {
-        'template': "{prefix}.run.{year}-{month}",
-        'desc': "Monthly pbench run metadata for index tar balls; contains directories, file names, and their size, permissions, etc.; e.g. prefix.run.YYYY-MM"
-    }
-}
-
-def dump_idx_patterns(prefix, patterns, tools):
-    pattern_names = [idx for idx in patterns]
-    pattern_names.sort()
-    for idx in pattern_names:
-        if idx != "tool-data":
-            print(patterns[idx]['template'].format(prefix=prefix, year="YYYY", month="MM", day="DD"))
-            print(patterns[idx]['desc'], '\n')
+    def __init__(self, options, dbg=0):
+        self.options = options
+        self._dbg = dbg
+        self.opctx = []
+        self.config = PbenchConfig(options.cfg_name)
+        try:
+            self.idx_prefix = self.config.get('Indexing', 'index_prefix')
+        except Exception as e:
+            raise ConfigFileError(str(e))
         else:
-            tool_names = [tool for tool in tools]
-            tool_names.sort()
-            for tool in tool_names:
-                print(patterns[idx]['template'].format(prefix=prefix, tool=tool, year="YYYY", month="MM", day="DD"))
-            print(patterns[idx]['desc'], '\n')
+            if '.' in self.idx_prefix:
+                raise ConfigFileError("Index prefix, '{}', not allowed to"
+                        " contain a period ('.')".format(self.idx_prefix))
+
+        try:
+            debug_unittest = self.config.get('Indexing', 'debug_unittest')
+        except Exception as e:
+            debug_unittest = False
+        else:
+            debug_unittest = bool(debug_unittest)
+        if debug_unittest:
+            import collections
+            global _dict_const
+            _dict_const = collections.OrderedDict
+
+        self.logger = get_pbench_logger(_PARENT_, self.config)
+        self.es = get_es(self.config, self.logger)
+
+        self.versions = _dict_const()
+        self._templates = _dict_const()
+        # Load the known templates to find out what version will be used for
+        # each index pattern.
+        self._load_templates()
+
+    def dump_opctx(self):
+        dump = False
+        for ctx in self.opctx:
+            if ctx['counters']:
+                dump = True
+        if dump:
+            self.logger.error("** Errors encountered while indexing: {}",
+                    json.dumps(self.opctx, sort_keys=True))
+
+    _index_patterns = {
+        'tool-data': {
+            'idxname':       "tool-data-{tool}",
+            'template_name': "{prefix}.v{version}.{idxname}",
+            'template_pat':  "{prefix}.v{version}.{idxname}.*",
+            'template':      "{prefix}.v{version}.{idxname}.{year}-{month}-{day}",
+            'desc':          "Daily tool data for all tools land in indices"
+                    " named by tool; e.g. prefix.v0.tool-data-iostat.YYYY-MM-DD"
+        },
+        'result-data': {
+            'idxname':       "result-data",
+            'template_name': "{prefix}.v{version}.{idxname}",
+            'template_pat':  "{prefix}.v{version}.{idxname}.*",
+            'template':      "{prefix}.v{version}.{idxname}.{year}-{month}-{day}",
+            'desc':          "Daily result data (any data generated by the"
+                    " benchmark) for all pbench result tar balls;"
+                    " e.g prefix.v0.result-data.YYYY-MM-DD"
+        },
+        'toc-data': {
+            'idxname':       "run",
+            'template_name': "{prefix}.v{version}.{idxname}",
+            'template_pat':  "{prefix}.v{version}.{idxname}.*",
+            'template':      "{prefix}.v{version}.{idxname}.{year}-{month}",
+            'desc':          "Monthly table of contents metadata for index tar"
+                    " balls; contains directories, file names, and their size,"
+                    " permissions, etc.; e.g. prefix.v0.run.YYYY-MM"
+        },
+        'run-data': {
+            'idxname':       "run",
+            'template_name': "{prefix}.v{version}.{idxname}",
+            'template_pat':  "{prefix}.v{version}.{idxname}.*",
+            'template':      "{prefix}.v{version}.{idxname}.{year}-{month}",
+            'desc':          "Monthly pbench run metadata for index tar balls;"
+                    " contains directories, file names, and their size,"
+                    " permissions, etc.; e.g. prefix.v0.run.YYYY-MM"
+        }
+    }
+
+    def dump_idx_patterns(self, tools):
+        patterns = self._index_patterns
+        pattern_names = [idx for idx in patterns]
+        pattern_names.sort()
+        for idx in pattern_names:
+            if idx != "tool-data":
+                idxname = patterns[idx]['idxname']
+                print(patterns[idx]['template'].format(prefix=self.idx_prefix, version=self.versions[idx], idxname=idxname, year="YYYY", month="MM", day="DD"))
+                print(patterns[idx]['desc'], '\n')
+            else:
+                tool_names = [tool for tool in tools if tools[tool] is not None]
+                tool_names.sort()
+                for tool_name in tool_names:
+                    idxname = patterns[idx]['idxname'].format(tool=tool_name)
+                    print(patterns[idx]['template'].format(prefix=self.idx_prefix, version=self.versions[idxname], idxname=idxname, year="YYYY", month="MM", day="DD"))
+                print(patterns[idx]['desc'], '\n')
+        sys.stdout.flush()
+
+    @staticmethod
+    def _load_json(json_fn):
+        """Simple wrapper function to load a JSON object from the given file, raising
+        the JsonFileError when bad JSON data is encountered.
+        """
+        with open(json_fn, "r") as jsonfp:
+            try:
+                data = json.load(jsonfp)
+            except ValueError as err:
+                raise JsonFileError("%s: %s" % (json_fn, err))
+        return data
+
+    @staticmethod
+    def _fetch_mapping(mapping_fn):
+        """Fetch the mapping JSON data from the given file.
+
+        Returns a tuple consisting of the mapping name pulled from the file, and
+        the python dictionary loaded from the JSON file.
+
+        Raises MappingFileError if it encounters any problem loading the file.
+        """
+        mapping = IdxContext._load_json(mapping_fn)
+        keys = list(mapping.keys())
+        if len(keys) != 1:
+            raise MappingFileError("Invalid mapping file: %s" % mapping_fn)
+        return keys[0], mapping[keys[0]]
+
+    def _load_templates(self):
+        # where to find the mappings
+        MAPPING_DIR = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))),
+            'lib', 'mappings')
+        # where to find the settings
+        SETTING_DIR = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))),
+            'lib', 'settings')
+
+        # For v1 Elasticsearch, we need to use two doc types to have
+        # parent/child relationship between run documents and
+        # table-of-contents documents. So we load two mappings in a loop, but
+        # only one settings file below.
+        run_mappings = _dict_const()
+        idxver = None
+        for mapping_fn in glob.iglob(os.path.join(MAPPING_DIR, "run*.json")):
+            key, mapping = self._fetch_mapping(mapping_fn)
+            try:
+                idxver_val = mapping['_meta']['version']
+            except KeyError:
+                raise MappingFileError("{} mapping missing _meta field".format(key))
+            else:
+                if idxver is None:
+                    idxver = idxver_val
+                else:
+                    if idxver != idxver_val:
+                        raise MappingFileError("{} mappings have mismatched"
+                                " version fields".format(key))
+            if self._dbg > 5:
+                print("fetch_mapping: {}\n{}\n".format(key,
+                        json.dumps(mapping, indent=4, sort_keys=True)))
+            run_mappings[key] = mapping
+        run_settings = self._load_json(os.path.join(SETTING_DIR, "run.json"))
+
+        ip = self._index_patterns['run-data']
+        idxname = ip['idxname']
+        # The API body for the template create() contains a dictionary with the
+        # settings and the mappings.
+        run_template_name = ip['template_name'].format(prefix=self.idx_prefix,
+                version=idxver, idxname=idxname)
+        run_template_body = _dict_const(
+            template=ip['template_pat'].format(prefix=self.idx_prefix,
+                    version=idxver, idxname=idxname),
+            settings=run_settings,
+            mappings=run_mappings)
+        self._templates[run_template_name] = run_template_body
+        # Remember the version we pulled from the mapping file, record it in
+        # both the run and toc-entry names.  NOTE: this use of two mappings
+        # will go away with V6 Elasticsearch.
+        self.versions['run-data'] = idxver
+        self.versions['toc-data'] = idxver
+
+        # Next we load all the result-data mappings and settings.
+        result_mappings = _dict_const()
+        key, mapping = self._fetch_mapping(os.path.join(MAPPING_DIR, "result-data.json"))
+        try:
+            idxver = mapping['_meta']['version']
+        except KeyError:
+            raise MappingFileError("{} mapping missing _meta field".format(key))
+        if self._dbg > 5:
+            print("fetch_mapping: {}\n{}\n".format(key,
+                    json.dumps(mapping, indent=4, sort_keys=True)))
+        result_mappings[key] = mapping
+        key, mapping = self._fetch_mapping(os.path.join(MAPPING_DIR, "result-data-sample.json"))
+        try:
+            idxver = mapping['_meta']['version']
+        except KeyError:
+            raise MappingFileError("{} mapping missing _meta field".format(key))
+        if self._dbg > 5:
+            print("fetch_mapping: {}\n{}\n".format(key,
+                    json.dumps(mapping, indent=4, sort_keys=True)))
+        result_mappings[key] = mapping
+        result_settings = self._load_json(os.path.join(SETTING_DIR, "result-data.json"))
+
+        ip = self._index_patterns['result-data']
+        idxname = ip['idxname']
+        result_template_name = ip['template_name'].format(prefix=self.idx_prefix,
+                version=idxver, idxname=idxname)
+        result_template_body = _dict_const(
+            template=ip['template_pat'].format(prefix=self.idx_prefix,
+                version=idxver, idxname=idxname),
+            settings=result_settings,
+            mappings=result_mappings)
+        self._templates[result_template_name] = result_template_body
+        self.versions['result-data'] = idxver
+
+        # Now for the tool data mappings. First we fetch the base skeleton they
+        # all share.
+        skel = self._load_json(os.path.join(MAPPING_DIR, "tool-data-skel.json"))
+        ip = self._index_patterns['tool-data']
+
+        # Next we load all the tool fragments
+        fpat = re.compile(r'tool-data-frag-(?P<toolname>.+)\.json')
+        tool_mapping_frags = _dict_const()
+        for mapping_fn in glob.iglob(os.path.join(MAPPING_DIR, "tool-data-frag-*.json")):
+            m = fpat.match(os.path.basename(mapping_fn))
+            toolname = m.group('toolname')
+            if toolname not in _known_tool_handlers:
+                MappingFileError("Unsupported tool mapping file, '{}'".format(
+                        toolname))
+            mapping = self._load_json(mapping_fn)
+            try:
+                idxver = mapping['_meta']['version']
+            except KeyError:
+                raise MappingFileError("{} mapping missing _meta field".format(key))
+            if self._dbg > 5:
+                print("fetch_mapping: {}\n{}\n".format(toolname,
+                        json.dumps(mapping, indent=4, sort_keys=True)))
+            del mapping['_meta']
+            tool_mapping_frags[toolname] = mapping
+            self.versions[ip['idxname'].format(tool=toolname)] = idxver
+        tool_settings = self._load_json(os.path.join(SETTING_DIR, "tool-data.json"))
+
+        tool_templates = []
+        for toolname,frag in tool_mapping_frags.items():
+            tool_skel = copy.deepcopy(skel)
+            idxname = ip['idxname'].format(tool=toolname)
+            tool_skel['_meta'] = _dict_const(version=self.versions[idxname])
+            tool_skel['properties'][toolname] = frag
+            tool_mapping = _dict_const([("pbench-{}".format(idxname), tool_skel)])
+            tool_template_name = ip['template_name'].format(prefix=self.idx_prefix,
+                    version=idxver, idxname=idxname)
+            tool_template_body = _dict_const(
+                template=ip['template_pat'].format(prefix=self.idx_prefix,
+                        version=self.versions[idxname], idxname=idxname),
+                settings=tool_settings,
+                mappings=tool_mapping)
+            self._templates[tool_template_name] = tool_template_body
+
+    def dump_templates(self, tools):
+        template_names = [name for name in self._templates]
+        template_names.sort()
+        for name in template_names:
+            print("\n\nTemplate: {}\n\n{}\n".format(name,
+                    json.dumps(self._templates[name], indent=4, sort_keys=True)))
+        sys.stdout.flush()
+
+    def update_templates(self):
+        """Load the various Elasticsearch index templates required by pbench.
+
+        We first load the pbench-run index templates, and then we construct and
+        load the templates for each tool data index.
+        """
+
+        # FIXME: We should query to see if a template exists, and only
+        # create it if it does not, or if the version of it is older than
+        # expected.
+        template_names = [name for name in self._templates]
+        template_names.sort()
+        successes = retries = 0
+        beg = end = None
+        for name in template_names:
+            try:
+                _beg, _end, _retries = es_put_template(self.es,
+                        name=name, body=self._templates[name])
+            except Exception as e:
+                raise TemplateError(e)
+            else:
+                successes += 1
+                if beg is None:
+                    beg = _beg
+                end = _end
+                retries += _retries
+        self.logger.info("done templates (end ts: {}, duration: {:.2f}s,"
+                " successes: {:d}, retries: {:d})",
+                tstos(end), end - beg, successes, retries)
+
 
 def main(options, args):
     if not options.cfg_name:
@@ -2293,77 +3164,56 @@ def main(options, args):
                 file=sys.stderr)
         return 2
 
-    try:
-        config = PbenchConfig(options.cfg_name)
-    except BadConfig as e:
-        print("{}: {}".format(_NAME_, e), file=sys.stderr)
-        return 3
-
     # ^$!@!#%# compatibility
     # FileNotFoundError is python 3.3 and the travis-ci hosts still (2015-10-01) run
     # python 3.2
     filenotfounderror = getattr(__builtins__, 'FileNotFoundError', IOError)
-    opctx = []
+    idxctx = None
     ptb = None
-
     try:
-        INDEX_PREFIX = config.get('Indexing', 'index_prefix')
-        INDEX_VERSION = config.get('Indexing', 'index_version')
-    except Exception as e:
+        idxctx = IdxContext(options, dbg=_DEBUG)
+    except (ConfigFileError, ConfigParserError):
+        print("{}: {}".format(_NAME_, e), file=sys.stderr)
+        return 2
+    except BadConfig as e:
         print("{}: {}".format(_NAME_, e), file=sys.stderr)
         return 3
 
     if options.dump_index_patterns:
-        dump_idx_patterns(INDEX_PREFIX, _index_patterns, _known_handlers)
+        idxctx.dump_idx_patterns(_known_tool_handlers)
         return 0
 
-    global _logger
-    _logger = get_pbench_logger("pbench-index", config)
+    if options.dump_templates:
+        idxctx.dump_templates(_known_tool_handlers)
+        return 0
 
     try:
-        if not options.tmpdir:
+        if not idxctx.options.tmpdir:
             raise Exception("No temporary directory specified")
 
-        try:
-            debug_unittest = config.get('Indexing', 'debug_unittest')
-        except Exception as e:
-            debug_unittest = False
-        else:
-            debug_unittest = bool(debug_unittest)
-
-        if debug_unittest:
-            es = None
-            import collections
-            global _dict_const
-            _dict_const = collections.OrderedDict
-        else:
-            hosts = get_es_hosts(config)
-            es = Elasticsearch(hosts, max_retries=0)
-
         # prepare the actions - the tarball name is the only argument.
-        ptb = PbenchTarBall(args[0], options.tmpdir)
+        ptb = PbenchTarBall(idxctx, args[0])
 
-        # Construct the generator for emitting all actions.  The `opctx`
+        # Construct the generator for emitting all actions.  The `idxctx`
         # dictionary is passed along to each generator so that it can add its
         # context for error handling to the list.
-        actions = make_all_actions(
-                ptb, options, INDEX_PREFIX, _index_patterns, opctx)
+        actions = make_all_actions(ptb, idxctx)
 
-        # Create the various index templates
-        if options.debug_time_operations: _ts("es_template")
-        es_template(es, options, INDEX_PREFIX, INDEX_VERSION, config, dbg=_DEBUG)
+        # Now that we are ready to begin the actual indexing step, ensure we
+        # have the proper index templates in place.
+        idxctx.update_templates()
 
         # returns 0 or 1
         if options.indexing_errors:
             ie_filename = options.indexing_errors
         else:
-            ie_filename = os.path.join(options.tmpdir,
+            ie_filename = os.path.join(idxctx.options.tmpdir,
                     "index-pbench.error-log.json")
         with open(ie_filename, "w") as fp:
             if options.debug_time_operations: _ts("es_index")
-            res = es_index(es, actions, fp, _logger, dbg=_DEBUG)
+            res = es_index(idxctx.es, actions, fp, idxctx.logger, dbg=_DEBUG)
             beg, end, successes, duplicates, failures, retries = res
-            _logger.info("done indexing (end ts: {}, duration: {:.2f},"
+            idxctx.logger.info("done indexing (end ts: {}, duration: {:.2f}s,"
                     " successes: {:d}, duplicates: {:d}, failures: {:d},"
                     " retries: {:d})", tstos(end), end - beg, successes,
                     duplicates, failures, retries)
@@ -2371,50 +3221,45 @@ def main(options, args):
             res = 1 if failures > 0 else 0
 
     except UnsupportedTarballFormat as e:
-        _logger.error("Unsupported Tarball Format: {}", e)
+        idxctx.logger.error("Unsupported Tarball Format: {}", e)
         res = 4
 
     except BadDate as e:
-        _logger.error("Bad Date: {!r}", e)
+        idxctx.logger.error("Bad Date: {!r}", e)
         res = 5
 
     except filenotfounderror as e:
-        _logger.error("No such file: {}", e)
+        idxctx.logger.error("No such file: {}", e)
         res = 6
 
     except BadMDLogFormat as e:
-        _logger.error("The metadata.log file is curdled in tarball: {}", e)
+        idxctx.logger.error("The metadata.log file is curdled in tarball: {}", e)
         res = 7
 
-    except MappingFileError as e:
-        _logger.error("{}", e)
+    except JsonFileError as e:
+        idxctx.logger.error("{}", e)
         res = 8
 
     except TemplateError as e:
-        _logger.error("{:r}", e)
+        idxctx.logger.error("{:r}", e)
         res = 9
 
     except SosreportHostname as e:
-        _logger.error("Bad hostname in sosreport: {}", e)
+        idxctx.logger.error("Bad hostname in sosreport: {}", e)
         res = 10
 
     except tarfile.TarError as e:
-        _logger.error("Can't unpack tarball into {}: {}", options.tmpdir, e)
+        idxctx.logger.error("Can't unpack tarball into {}: {}", ptb.extracted_root, e)
         res = 11
 
     # this is Spinal Tap
     except Exception as e:
-        _logger.exception()
+        idxctx.logger.exception("Unexpected error encountered while indexing")
         res = 12
 
     finally:
-        dump = False
-        for ctx in opctx:
-            if ctx['counters']:
-                dump = True
-        if dump:
-            _logger.warning("Errors encountered while indexing: {}",
-                    json.dumps(opctx, sort_keys=True))
+        if idxctx:
+            idxctx.dump_opctx()
         if options.debug_time_operations: _ts("Done", newline=True)
         if ptb:
             ptb.delete_extracted()
@@ -2457,6 +3302,9 @@ if __name__ == '__main__':
         "-I", "--dump-index-patterns", action="store_true", dest="dump_index_patterns",
         help="Emit a list of index patterns used")
     parser.add_argument(
+        "-Q", "--dump-templates", action="store_true", dest="dump_templates",
+        help="Emit the full JSON document for each index template used")
+    parser.add_argument(
         "-M", "--metadata", dest="metadata_string",
         help="Specify additional metadata (e.g. for browbeat) as a JSON document string")
     parser.add_argument(
@@ -2470,10 +3318,12 @@ if __name__ == '__main__':
     parser.set_defaults(tmpdir = os.environ.get("TMPDIR"))
     parsed = parser.parse_args()
 
-    if parsed.dump_index_patterns:
+    if parsed.dump_index_patterns or parsed.dump_templates:
         if parsed.path_to_tarball_file:
-            print("-I given: ignoring positional argument {}".format(parsed.path_to_tarball_file),
-                  file=sys.stderr)
+            print("{} given: ignoring positional argument {}".format(
+                    "-I" if parsed.dump_index_patterns else "-Q", parsed.path_to_tarball_file),
+                    file=sys.stderr)
+            sys.stderr.flush()
             del parsed.path_to_tarball_file
         args = None
     else:

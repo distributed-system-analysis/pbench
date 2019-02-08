@@ -1,590 +1,80 @@
 {
-  "pbench-result-data": {
-    "properties": {
-      "@timestamp": {
-        "format": "strict_date_optional_time||epoch_millis",
-        "type": "date"
-      },
-      "@metadata": {
+    "pbench-result-data": {
+        "_all" : {"enabled" : false},
+        "_meta": {
+            "version": "1"
+        },
+        "_parent": {
+            "type": "pbench-result-data-sample"
+        },
+        "date_detection": false,
         "properties": {
-          "experiment": {
-            "type": "string"
-          },
-          "runtstamp": {
-            "format": "strict_date_optional_time||epoch_millis",
-            "type": "date"
-          },
-          "runid": {
-            "type": "string"
-          }
+            "@timestamp": {
+                "type": "date",
+                "format": "dateOptionalTime"
+            },
+            "@timestamp_original": {
+                "type": "long"
+            },
+            "run": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "name": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    }
+                }
+            },
+            "iteration": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "number": {
+                        "type": "long"
+                    }
+                }
+            },
+            "sample": {
+                "properties": {
+                    "@idx": {
+                        "type": "long"
+                    },
+                    "name": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "measurement_type": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "measurement_units": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "uid": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    }
+                }
+            },
+            "result": {
+                "properties": {
+                    "@idx": {
+                        "type": "long"
+                    },
+                    "read_or_write": {
+                        "type": "long"
+                    },
+                    "value": {
+                        "type": "double"
+                    }
+                }
+            }
         }
-      },
-      "results": {
-        "properties": {
-          "iteration_name": {
-            "type": "string"
-          },
-          "iteration_data": {
-            "properties": {
-              "latency": {
-                "properties": {
-                  "clat": {
-                    "properties": {
-                      "uid": {
-                        "type": "string"
-                      },
-                      "role": {
-                        "type": "string"
-                      },
-                      "client_hostname": {
-                        "type": "string"
-                      },
-                      "mean": {
-                        "type": "double"
-                      },
-                      "description": {
-                        "type": "string"
-                      },
-                      "server_port": {
-                        "type": "string"
-                      },
-                      "closest sample": {
-                        "type": "long"
-                      },
-                      "stddev": {
-                        "type": "long"
-                      },
-                      "samples": {
-                        "properties": {
-                          "timeseries": {
-                            "properties": {
-                              "date": {
-                                "type": "long"
-                              },
-                              "read(0) or write(1)": {
-                                "type": "long"
-                              },
-                              "value": {
-                                "type": "double"
-                              }
-                            }
-                          },
-                          "value": {
-                            "type": "double"
-                          }
-                        }
-                      },
-                      "server_hostname": {
-                        "type": "string"
-                      },
-                      "stddevpct": {
-                        "type": "long"
-                      }
-                    }
-                  },
-                  "slat": {
-                    "properties": {
-                      "uid": {
-                        "type": "string"
-                      },
-                      "role": {
-                        "type": "string"
-                      },
-                      "client_hostname": {
-                        "type": "string"
-                      },
-                      "mean": {
-                        "type": "long"
-                      },
-                      "description": {
-                        "type": "string"
-                      },
-                      "server_port": {
-                        "type": "string"
-                      },
-                      "closest sample": {
-                        "type": "long"
-                      },
-                      "stddev": {
-                        "type": "long"
-                      },
-                      "samples": {
-                        "properties": {
-                          "timeseries": {
-                            "properties": {
-                              "date": {
-                                "type": "long"
-                              },
-                              "read(0) or write(1)": {
-                                "type": "long"
-                              },
-                              "value": {
-                                "type": "double"
-                              }
-                            }
-                          },
-                          "value": {
-                              "type": "double"
-                          }
-                        }
-                      },
-                      "server_hostname": {
-                        "type": "string"
-                      },
-                      "stddevpct": {
-                        "type": "long"
-                      }
-                    }
-                  },
-                  "lat": {
-                    "properties": {
-                      "uid": {
-                        "type": "string"
-                      },
-                      "role": {
-                        "type": "string"
-                      },
-                      "client_hostname": {
-                        "type": "string"
-                      },
-                      "mean": {
-                        "type": "double"
-                      },
-                      "description": {
-                        "type": "string"
-                      },
-                      "server_port": {
-                        "type": "string"
-                      },
-                      "closest sample": {
-                        "type": "long"
-                      },
-                      "stddev": {
-                        "type": "long"
-                      },
-                      "samples": {
-                        "properties": {
-                          "timeseries": {
-                            "properties": {
-                              "date": {
-                                "type": "long"
-                              },
-                              "read(0) or write(1)": {
-                                "type": "long"
-                              },
-                              "value": {
-                                "type": "double"
-                              }
-                            }
-                          },
-                          "value": {
-                            "type": "double"
-                          }
-                        }
-                      },
-                      "server_hostname": {
-                        "type": "string"
-                      },
-                      "stddevpct": {
-                        "type": "long"
-                      }
-                    }
-                  }
-                }
-              },
-              "throughput": {
-                "properties": {
-                  "iops_sec": {
-                    "properties": {
-                      "uid": {
-                        "type": "string"
-                      },
-                      "role": {
-                        "type": "string"
-                      },
-                      "client_hostname": {
-                        "type": "string"
-                      },
-                      "mean": {
-                        "type": "double"
-                      },
-                      "description": {
-                        "type": "string"
-                      },
-                      "server_port": {
-                        "type": "string"
-                      },
-                      "closest sample": {
-                        "type": "long"
-                      },
-                      "stddev": {
-                        "type": "long"
-                      },
-                      "samples": {
-                        "properties": {
-                          "timeseries": {
-                            "properties": {
-                              "date": {
-                                "type": "long"
-                              },
-                              "read(0) or write(1)": {
-                                "type": "long"
-                              },
-                              "value": {
-                                "type": "double"
-                              }
-                            }
-                          },
-                          "value": {
-                            "type": "double"
-                          }
-                        }
-                      },
-                      "server_hostname": {
-                        "type": "string"
-                      },
-                      "stddevpct": {
-                        "type": "long"
-                      }
-                    }
-                  }
-                }
-              },
-              "parameters": {
-                "properties": {
-                  "benchmark": {
-                    "properties": {
-                      "uid": {
-                        "type": "string"
-                      },
-                      "primary_metric": {
-                        "type": "string"
-                      },
-                      "benchmark_name": {
-                        "type": "string"
-                      },
-                      "max_stddevpct": {
-                        "type": "long"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "iteration_number": {
-            "type": "long"
-          },
-          "latency": {
-            "properties": {
-              "clat": {
-                "properties": {
-                  "role": {
-                    "type": "string"
-                  },
-                  "description": {
-                    "type": "string"
-                  },
-                  "closest sample": {
-                    "type": "long"
-                  },
-                  "samples": {
-                    "properties": {
-                      "timeseries": {
-                        "properties": {
-                          "date": {
-                            "type": "long"
-                          },
-                          "read(0) or write(1)": {
-                            "type": "long"
-                          },
-                          "value": {
-                            "type": "double"
-                          }
-                        }
-                      },
-                      "value": {
-                        "type": "double"
-                      }
-                    }
-                  },
-                  "server_hostname": {
-                    "type": "string"
-                  },
-                  "stddevpct": {
-                    "type": "long"
-                  },
-                  "uid": {
-                    "type": "string"
-                  },
-                  "timeseries": {
-                    "properties": {
-                      "date": {
-                        "type": "long"
-                      },
-                      "read(0) or write(1)": {
-                        "type": "long"
-                      },
-                      "value": {
-                        "type": "double"
-                      }
-                    }
-                  },
-                  "client_hostname": {
-                    "type": "string"
-                  },
-                  "mean": {
-                    "type": "double"
-                  },
-                  "server_port": {
-                    "type": "string"
-                  },
-                  "stddev": {
-                    "type": "long"
-                  },
-                  "value": {
-                    "type": "double"
-                  }
-                }
-              },
-              "slat": {
-                "properties": {
-                  "role": {
-                    "type": "string"
-                  },
-                  "description": {
-                    "type": "string"
-                  },
-                  "closest sample": {
-                    "type": "long"
-                  },
-                  "samples": {
-                    "properties": {
-                      "timeseries": {
-                        "properties": {
-                          "date": {
-                            "type": "long"
-                          },
-                          "read(0) or write(1)": {
-                            "type": "long"
-                          },
-                          "value": {
-                            "type": "double"
-                          }
-                        }
-                      },
-                      "value": {
-                        "type": "double"
-                      }
-                    }
-                  },
-                  "server_hostname": {
-                    "type": "string"
-                  },
-                  "stddevpct": {
-                    "type": "long"
-                  },
-                  "uid": {
-                    "type": "string"
-                  },
-                  "timeseries": {
-                    "properties": {
-                      "date": {
-                        "type": "long"
-                      },
-                      "read(0) or write(1)": {
-                        "type": "long"
-                      },
-                      "value": {
-                        "type": "double"
-                      }
-                    }
-                  },
-                  "client_hostname": {
-                    "type": "string"
-                  },
-                  "mean": {
-                    "type": "long"
-                  },
-                  "server_port": {
-                    "type": "string"
-                  },
-                  "stddev": {
-                    "type": "long"
-                  },
-                  "value": {
-                    "type": "double"
-                  }
-                }
-              },
-              "lat": {
-                "properties": {
-                  "role": {
-                    "type": "string"
-                  },
-                  "description": {
-                    "type": "string"
-                  },
-                  "closest sample": {
-                    "type": "long"
-                  },
-                  "samples": {
-                    "properties": {
-                      "timeseries": {
-                        "properties": {
-                          "date": {
-                            "type": "long"
-                          },
-                          "read(0) or write(1)": {
-                            "type": "long"
-                          },
-                          "value": {
-                            "type": "double"
-                          }
-                        }
-                      },
-                      "value": {
-                        "type": "double"
-                      }
-                    }
-                  },
-                  "server_hostname": {
-                    "type": "string"
-                  },
-                  "stddevpct": {
-                    "type": "long"
-                  },
-                  "uid": {
-                    "type": "string"
-                  },
-                  "timeseries": {
-                    "properties": {
-                      "date": {
-                        "type": "long"
-                      },
-                      "read(0) or write(1)": {
-                        "type": "long"
-                      },
-                      "value": {
-                        "type": "double"
-                      }
-                    }
-                  },
-                  "client_hostname": {
-                    "type": "string"
-                  },
-                  "mean": {
-                    "type": "double"
-                  },
-                  "server_port": {
-                    "type": "string"
-                  },
-                  "stddev": {
-                    "type": "long"
-                  },
-                  "value": {
-                    "type": "double"
-                  }
-                }
-              }
-            }
-          },
-          "throughput": {
-            "properties": {
-              "iops_sec": {
-                "properties": {
-                  "role": {
-                    "type": "string"
-                  },
-                  "description": {
-                    "type": "string"
-                  },
-                  "closest sample": {
-                    "type": "long"
-                  },
-                  "samples": {
-                    "properties": {
-                      "timeseries": {
-                        "properties": {
-                          "date": {
-                            "type": "long"
-                          },
-                          "read(0) or write(1)": {
-                            "type": "long"
-                          },
-                          "value": {
-                            "type": "double"
-                          }
-                        }
-                      },
-                      "value": {
-                        "type": "double"
-                      }
-                    }
-                  },
-                  "server_hostname": {
-                    "type": "string"
-                  },
-                  "stddevpct": {
-                    "type": "long"
-                  },
-                  "uid": {
-                    "type": "string"
-                  },
-                  "timeseries": {
-                    "properties": {
-                      "date": {
-                        "type": "long"
-                      },
-                      "read(0) or write(1)": {
-                        "type": "long"
-                      },
-                      "value": {
-                        "type": "double"
-                      }
-                    }
-                  },
-                  "client_hostname": {
-                    "type": "string"
-                  },
-                  "mean": {
-                    "type": "double"
-                  },
-                  "server_port": {
-                    "type": "string"
-                  },
-                  "stddev": {
-                    "type": "long"
-                  },
-                  "value": {
-                    "type": "double"
-                  }
-                }
-              }
-            }
-          },
-          "parameters": {
-            "properties": {
-              "benchmark": {
-                "properties": {
-                  "uid": {
-                    "type": "string"
-                  },
-                  "primary_metric": {
-                    "type": "string"
-                  },
-                  "benchmark_name": {
-                    "type": "string"
-                  },
-                  "max_stddevpct": {
-                    "type": "long"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
     }
-  }
 }

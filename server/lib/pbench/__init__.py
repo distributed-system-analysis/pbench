@@ -8,22 +8,26 @@ from datetime import datetime
 from random import SystemRandom
 from collections import Counter, deque
 from configparser import ConfigParser, NoSectionError, NoOptionError
-from urllib3 import exceptions as ul_excs
+from urllib3 import Timeout, exceptions as ul_excs
 try:
-    from elasticsearch1 import VERSION as es_VERSION, helpers, exceptions as es_excs
+    from elasticsearch1 import VERSION as es_VERSION, Elasticsearch, helpers, exceptions as es_excs
 except ImportError:
-    from elasticsearch import VERSION as es_VERSION, helpers, exceptions as es_excs
+    from elasticsearch import VERSION as es_VERSION, Elasticsearch, helpers, exceptions as es_excs
+try:
+    from pbench.mock import MockElasticsearch
+except ImportError:
+    MockElasticsearch = None
 
 
 def tstos(ts=None):
-    return time.strftime("%Y-%m-%dT%H:%M:%S-%Z", time.localtime(ts))
+    return time.strftime("%Y-%m-%dT%H:%M:%S-%Z", time.gmtime(ts))
 
-
+_do_ts = time.time
 _r = SystemRandom()
 _MAX_SLEEP_TIME = 120
 _MAX_ERRMSG_LENGTH = 16384
 
-def calc_backoff_sleep(backoff):
+def _calc_backoff_sleep(backoff):
     global _r
     b = math.pow(2, backoff)
     return _r.uniform(0, min(b, _MAX_SLEEP_TIME))
@@ -232,151 +236,123 @@ class PbenchConfig(object):
         return self.conf.get(*args, **kwargs)
 
 
-class MockPutTemplate(object):
-    def __init__(self):
-        self.name = None
-
-    def put_template(self, *args, **kwargs):
-        assert 'name' in kwargs and 'body' in kwargs
-        name = kwargs['name']
-        if self.name is None:
-            self.name = name
-        else:
-            assert self.name == name
+def get_es_hosts(config, logger):
+    """
+    Return list of dicts (a single dict for now) -
+    that's what ES is expecting.
+    """
+    try:
+        URL = config.get('Indexing', 'server')
+    except NoSectionError:
+        logger.error("Need an [Indexing] section with host and port defined"
+                " in {} configuration file", " ".join(config.__files__))
         return None
+    except NoOptionError:
+        host = config.get('Indexing', 'host')
+        port = config.get('Indexing', 'port')
+    else:
+        host, port = URL.rsplit(':', 1)
+    timeoutobj = Timeout(total=1200, connect=10, read=_read_timeout)
+    return [dict(host=host, port=port, timeout=timeoutobj),]
 
-    def report(self):
-        print("Template: ", self.name)
-
-
-def es_put_template(es, name=None, body=None):
-    assert name is not None and body is not None
-    if not es:
-        mock = MockPutTemplate()
+def get_es(config, logger):
+    try:
+        debug_unittest = config.get('Indexing', 'debug_unittest')
+    except Exception as e:
+        debug_unittest = False
+    else:
+        debug_unittest = bool(debug_unittest)
+    hosts = get_es_hosts(config, logger)
+    if debug_unittest:
+        if MockElasticsearch is None:
+            raise Exception("MockElasticsearch is not available!")
+        es = MockElasticsearch(hosts, max_retries=0)
+        global helpers
+        helpers.streaming_bulk = es.mockstrm.streaming_bulk
         def _ts():
             return 0
+        global _do_ts
         _do_ts = _ts
-        _put_template = mock.put_template
     else:
-        mock = None
-        _do_ts = time.time
-        _put_template = es.indices.put_template
         # FIXME: we should just change these two loggers to write to a
         # file instead of setting the logging level up so high.
         logging.getLogger("urllib3").setLevel(logging.FATAL)
         logging.getLogger("elasticsearch1").setLevel(logging.FATAL)
+        es = Elasticsearch(hosts, max_retries=0)
+    return es
 
+def es_put_template(es, name=None, body=None):
+    assert name is not None and body is not None
     retry = True
     retry_count = 0
     backoff = 1
     beg, end = _do_ts(), None
+    # Derive the mapping name from the template name
+    mapping_name = "pbench-{}".format(name.split('.')[2])
+    try:
+        body_ver = int(body['mappings'][mapping_name]['_meta']['version'])
+    except KeyError as e:
+        raise Exception("Bad template, {}, could not derive mapping name, {}: {!r}".format(name, mapping_name, e))
     while retry:
         try:
-            _put_template(name=name, body=body)
+            tmpl = es.indices.get_template(name=name)
         except es_excs.TransportError as exc:
             # Only retry on certain 500 errors
-            if not exc.status in [500, 503, 504]:
+            if exc.status_code != 404:
+                if exc.status_code not in [500, 503, 504]:
+                    raise
+                time.sleep(_calc_backoff_sleep(backoff))
+                backoff += 1
+                retry_count += 1
+                continue
+        except es_excs.ConnectionError as exc:
+            # We retry all connection errors
+            time.sleep(_calc_backoff_sleep(backoff))
+            backoff += 1
+            retry_count += 1
+            continue
+        else:
+            try:
+                tmpl_ver = int(tmpl[name]['mappings'][mapping_name]['_meta']['version'])
+            except KeyError as e:
+                pass
+            else:
+                if tmpl_ver == body_ver:
+                    break
+        try:
+            es.indices.put_template(name=name, body=body)
+        except es_excs.TransportError as exc:
+            # Only retry on certain 500 errors
+            if exc.status_code not in [500, 503, 504]:
                 raise
-            time.sleep(calc_backoff_sleep(backoff))
+            time.sleep(_calc_backoff_sleep(backoff))
             backoff += 1
             retry_count += 1
         except es_excs.ConnectionError as exc:
             # We retry all connection errors
-            time.sleep(calc_backoff_sleep(backoff))
+            time.sleep(_calc_backoff_sleep(backoff))
             backoff += 1
             retry_count += 1
         else:
             retry = False
     end = _do_ts()
-
-    if mock:
-        mock.report()
     return beg, end, retry_count
-
-
-class MockStreamingBulk(object):
-    def __init__(self, max_actions):
-        self.max_actions = max_actions
-        self.actions_l = []
-        self.duplicates_tracker = Counter()
-        self.index_tracker = Counter()
-        self.dupes_by_index_tracker = Counter()
-
-    def our_streaming_bulk(self, es, actions, **kwargs):
-        assert es == None
-        for action in actions:
-            self.duplicates_tracker[action['_id']] += 1
-            dcnt = self.duplicates_tracker[action['_id']]
-            if dcnt == 2:
-                self.dupes_by_index_tracker[action['_index']] += 1
-            self.index_tracker[action['_index']] += 1
-            if self.index_tracker[action['_index']] <= self.max_actions:
-                self.actions_l.append(action)
-            resp = {}
-            resp[action['_op_type']] = { '_id': action['_id'] }
-            if dcnt > 2:
-                # Report each duplicate
-                resp[action['_op_type']]['status'] = 409
-                ok = False
-            else:
-                # For now, all other docs are considered successful
-                resp[action['_op_type']]['status'] = 200
-                ok = True
-            yield ok, resp
-
-    def report(self):
-        for idx in sorted(self.index_tracker.keys()):
-            print("Index: ", idx, self.index_tracker[idx])
-        total_dupes = 0
-        total_multi_dupes = 0
-        for docid in self.duplicates_tracker:
-            total_dupes += self.duplicates_tracker[docid] if self.duplicates_tracker[docid] > 1 else 0
-            if self.duplicates_tracker[docid] >= 2:
-                total_multi_dupes += 1
-        if total_dupes > 0:
-            print("Duplicates: ", total_dupes, "Multiple dupes: ", total_multi_dupes)
-        for idx in sorted(self.dupes_by_index_tracker.keys()):
-            print("Index dupes: ", idx, self.dupes_by_index_tracker[idx])
-        print("len(actions) = {}".format(len(self.actions_l)))
-        print("{}".format(json.dumps(self.actions_l, indent=4, sort_keys=True)))
-        sys.stdout.flush()
 
 
 # Always use "create" operations, as we also ensure each JSON document being
 # indexed has an "_id" field, so we can tell when we are indexing duplicate
 # data.
 _op_type = "create"
-# 100,000 minute timeout talking to Elasticsearch; basically we just don't
+# 100,000 minute timeouts talking to Elasticsearch; basically we just don't
 # want to timeout waiting for Elasticsearch and then have to retry, as that
 # can add undue burden to the Elasticsearch cluster.
+_read_timeout = 100000*60.0
 _request_timeout = 100000*60.0
 
 def es_index(es, actions, errorsfp, logger, dbg=0):
     """
     Now do the indexing specified by the actions.
     """
-    global tstos
-    if not es:
-        # If we don't have an Elasticsearch client object, we assume this is
-        # for unit tests or debugging, so we'll use our mocked out streaming
-        # bulk method.
-        mock = MockStreamingBulk(15)
-        streaming_bulk = mock.our_streaming_bulk
-        def _tstos(*args):
-            return "1970-01-01T00:00:00-UTC"
-        tstos = _tstos
-        def _ts():
-            return 0
-        _do_ts = _ts
-    else:
-        mock = None
-        streaming_bulk = helpers.streaming_bulk
-        _do_ts = time.time
-        # FIXME: we should just change these two loggers to write to a
-        # file instead of setting the logging level up so high.
-        logging.getLogger("urllib3").setLevel(logging.FATAL)
-        logging.getLogger("elasticsearch1").setLevel(logging.FATAL)
-
     # These need to be defined before the closure below. These work because
     # a closure remembers the binding of a name to an object. If integer
     # objects were used, the name would be bound to that integer value only
@@ -389,10 +365,12 @@ def es_index(es, actions, errorsfp, logger, dbg=0):
 
     def actions_tracking_closure(cl_actions):
         for cl_action in cl_actions:
-            assert '_id' in cl_action
-            assert '_index' in cl_action
-            assert '_type' in cl_action
-            assert _op_type == cl_action['_op_type']
+            for field in ('_id', '_index', '_type'):
+                assert field in cl_action, "Action missing '{}' field:" \
+                        " {!r}".format(field, cl_action)
+            assert _op_type == cl_action['_op_type'], "Unexpected _op_type" \
+                    " value '{}' in action {!r}".format(
+                    cl_action['_op_type'], cl_action)
 
             actions_deque.append((0, cl_action))   # Append to the right side ...
             yield cl_action
@@ -400,7 +378,7 @@ def es_index(es, actions, errorsfp, logger, dbg=0):
             # start yielding those actions until we drain the retry queue.
             backoff = 1
             while len(actions_retry_deque) > 0:
-                time.sleep(calc_backoff_sleep(backoff))
+                time.sleep(_calc_backoff_sleep(backoff))
                 retries_tracker['retries'] += 1
                 retry_actions = []
                 # First drain the retry deque entirely so that we know when we
@@ -408,7 +386,8 @@ def es_index(es, actions, errorsfp, logger, dbg=0):
                 while len(actions_retry_deque) > 0:
                     retry_actions.append(actions_retry_deque.popleft())
                 for retry_count, retry_action in retry_actions:
-                    actions_deque.append((retry_count, retry_action))   # Append to the right side ...
+                    # Append to the right side ...
+                    actions_deque.append((retry_count, retry_action))
                     yield retry_action
                 # if after yielding all the actions to be retried, some show up
                 # on the retry deque again, we extend our sleep backoff to avoid
@@ -423,7 +402,7 @@ def es_index(es, actions, errorsfp, logger, dbg=0):
     # Create the generator that closes over the external generator, "actions"
     generator = actions_tracking_closure(actions)
 
-    streaming_bulk_generator = streaming_bulk(
+    streaming_bulk_generator = helpers.streaming_bulk(
             es, generator, raise_on_error=False,
             raise_on_exception=False, request_timeout=_request_timeout)
 
@@ -463,11 +442,23 @@ def es_index(es, actions, errorsfp, logger, dbg=0):
                     # ... otherwise consider it successful.
                     successes += 1
             elif status == 400:
+                try:
+                    exc_payload = resp['exception']
+                except KeyError:
+                    pass
+                else:
+                    resp['exception'] = repr(exc_payload)
                 jsonstr = json.dumps({ "action": action, "ok": ok, "resp": resp, "retry_count": retry_count, "timestamp": tstos(_do_ts()) }, indent=4, sort_keys=True)
                 print(jsonstr, file=errorsfp)
                 errorsfp.flush()
                 failures += 1
             else:
+                try:
+                    exc_payload = resp['exception']
+                except KeyError:
+                    pass
+                else:
+                    resp['exception'] = repr(exc_payload)
                 try:
                     error = resp['error']
                 except KeyError:
@@ -488,8 +479,5 @@ def es_index(es, actions, errorsfp, logger, dbg=0):
 
     assert len(actions_deque) == 0
     assert len(actions_retry_deque) == 0
-
-    if mock:
-        mock.report()
 
     return (beg, end, successes, duplicates, failures, retries_tracker['retries'])

@@ -1,0 +1,3342 @@
++++ Running pbench-index
+--- Finished pbench-index (status=0)
++++ Running unit test audit
+--- Finished unit test audit (status=0)
++++ var/www/html tree state (/var/tmp/pbench-test-server/test-7.17/var-www-html)
+lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/test-7.17/pbench/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
+-rw-rw-r--        120 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        120 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/test-7.17/pbench/public_html/results
+lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/test-7.17/pbench/public_html/static
+lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/test-7.17/pbench/public_html/users
+--- var/www/html tree state
++++ results host info (/var/tmp/pbench-test-server/test-7.17/var-www-html/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-7.17/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-7.17/pbench-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/test-7.17/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+/var/tmp/pbench-test-server/test-7.17/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-7.17/pbench-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-7.17/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+--- results host info
++++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-7.17/var-www-html-satellite)
+lrwxrwxrwx         75 incoming -> /var/tmp/pbench-test-server/test-7.17/pbench-satellite/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
+-rw-rw-r--        140 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        140 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         74 results -> /var/tmp/pbench-test-server/test-7.17/pbench-satellite/public_html/results
+lrwxrwxrwx         73 static -> /var/tmp/pbench-test-server/test-7.17/pbench-satellite/public_html/static
+lrwxrwxrwx         72 users -> /var/tmp/pbench-test-server/test-7.17/pbench-satellite/public_html/users
+--- var/www/html-satellite tree state
++++ results host info (/var/tmp/pbench-test-server/test-7.17/var-www-html-satellite/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-7.17/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-7.17/pbench-satellite-local/pbench-move-results-receive/fs-version-001
+/var/tmp/pbench-test-server/test-7.17/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+/var/tmp/pbench-test-server/test-7.17/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-7.17/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-7.17/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+--- results host info
++++ pbench tree state (/var/tmp/pbench-test-server/test-7.17/pbench)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - archive/fs-version-001/ansible-host
+drwxrwxr-x          - archive/fs-version-001/ansible-host/BAD-MD5
+drwxrwxr-x          - archive/fs-version-001/ansible-host/COPIED-SOS
+drwxrwxr-x          - archive/fs-version-001/ansible-host/INDEXED
+lrwxrwxrwx         66 archive/fs-version-001/ansible-host/INDEXED/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz -> ../pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ansible-host/MOVED-UNPACKED
+drwxrwxr-x          - archive/fs-version-001/ansible-host/SATELLITE-DONE
+drwxrwxr-x          - archive/fs-version-001/ansible-host/SATELLITE-MD5-FAILED
+drwxrwxr-x          - archive/fs-version-001/ansible-host/SATELLITE-MD5-PASSED
+drwxrwxr-x          - archive/fs-version-001/ansible-host/SYNCED
+drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-BACKUP
+drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-COPY-SOS
+drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-DELETE
+drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-SYNC
+drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-UNPACK
+drwxrwxr-x          - archive/fs-version-001/ansible-host/TODO
+drwxrwxr-x          - archive/fs-version-001/ansible-host/UNPACKED
+drwxrwxr-x          - archive/fs-version-001/ansible-host/WONT-INDEX
+-rw-rw-r--      31384 archive/fs-version-001/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz
+-rw-rw-r--         98 archive/fs-version-001/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz.md5
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/static/css
+drwxrwxr-x          - public_html/static/css/v0.2
+drwxrwxr-x          - public_html/static/css/v0.2/css
+-rw-rw-r--        308 public_html/static/css/v0.2/css/pbench_utils.css
+drwxrwxr-x          - public_html/static/css/v0.3
+drwxrwxr-x          - public_html/static/css/v0.3/css
+-rw-rw-r--      11798 public_html/static/css/v0.3/css/LICENSE.TXT
+-rw-rw-r--       3663 public_html/static/css/v0.3/css/jschart.css
+drwxrwxr-x          - public_html/static/js
+drwxrwxr-x          - public_html/static/js/v0.2
+drwxrwxr-x          - public_html/static/js/v0.2/js
+-rw-rw-r--       9415 public_html/static/js/v0.2/js/app.js
+-rw-rw-r--       5556 public_html/static/js/v0.2/js/pbench_utils.js
+drwxrwxr-x          - public_html/static/js/v0.3
+drwxrwxr-x          - public_html/static/js/v0.3/js
+-rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
+-rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
+drwxrwxr-x          - public_html/users
+--- pbench tree state
++++ pbench-local tree state (/var/tmp/pbench-test-server/test-7.17/pbench-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - logs/pbench-audit-server
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
+drwxrwxr-x          - logs/pbench-index
+-rw-rw-r--          0 logs/pbench-index/pbench-index.error
+-rw-rw-r--     108365 logs/pbench-index/pbench-index.log
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-001
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-001
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-001
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-001
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-local tree state
++++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-7.17/pbench-satellite)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/static/css
+drwxrwxr-x          - public_html/static/css/v0.2
+drwxrwxr-x          - public_html/static/css/v0.2/css
+-rw-rw-r--        308 public_html/static/css/v0.2/css/pbench_utils.css
+drwxrwxr-x          - public_html/static/css/v0.3
+drwxrwxr-x          - public_html/static/css/v0.3/css
+-rw-rw-r--      11798 public_html/static/css/v0.3/css/LICENSE.TXT
+-rw-rw-r--       3663 public_html/static/css/v0.3/css/jschart.css
+drwxrwxr-x          - public_html/static/js
+drwxrwxr-x          - public_html/static/js/v0.2
+drwxrwxr-x          - public_html/static/js/v0.2/js
+-rw-rw-r--       9415 public_html/static/js/v0.2/js/app.js
+-rw-rw-r--       5556 public_html/static/js/v0.2/js/pbench_utils.js
+drwxrwxr-x          - public_html/static/js/v0.3
+drwxrwxr-x          - public_html/static/js/v0.3/js
+-rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
+-rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
+drwxrwxr-x          - public_html/users
+--- pbench-satellite tree state
++++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-7.17/pbench-satellite-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-001
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-001
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-001
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-001
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-satellite-local tree state
++++ pbench log file contents
+++++ pbench-local/logs
++++++ pbench-audit-server/pbench-audit-server.error
+----- pbench-audit-server/pbench-audit-server.error
++++++ pbench-audit-server/pbench-audit-server.log
+----- pbench-audit-server/pbench-audit-server.log
++++++ pbench-index/pbench-index.error
+----- pbench-index/pbench-index.error
++++++ pbench-index/pbench-index.log
+run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
+   1900-01-01T00:00:00-UTC: Starting /var/tmp/pbench-test-server/test-7.17/pbench/archive/fs-version-001/ansible-host/TO-INDEX/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz (size 31384)
+1970-01-01T00:00:00.000000 INFO pbench-index.index-pbench update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 9, retries: 0)
+Template:  pbench-unittests.v1.result-data
+Template:  pbench-unittests.v1.run
+Template:  pbench-unittests.v1.tool-data-iostat
+Template:  pbench-unittests.v1.tool-data-mpstat
+Template:  pbench-unittests.v1.tool-data-pidstat
+Template:  pbench-unittests.v1.tool-data-proc-interrupts
+Template:  pbench-unittests.v1.tool-data-proc-vmstat
+Template:  pbench-unittests.v1.tool-data-prometheus-metrics
+Template:  pbench-unittests.v1.tool-data-vmstat
+Index:  pbench-unittests.v1.run.2018-10 26
+Index:  pbench-unittests.v1.tool-data-iostat.2018-10-24 20
+Index:  pbench-unittests.v1.tool-data-pidstat.2018-10-24 1860
+Index:  pbench-unittests.v1.tool-data-vmstat.2018-10-24 100
+len(actions) = 60
+[
+    {
+        "_id": "45f0e2af41977b89e07bae4303dc9972",
+        "_index": "pbench-unittests.v1.run.2018-10",
+        "_op_type": "create",
+        "_source": {
+            "@metadata": {
+                "controller_dir": "ansible-host",
+                "file-date": "2019-03-07T02:19:08",
+                "file-name": "/var/tmp/pbench-test-server/test-7.17/pbench/archive/fs-version-001/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz",
+                "file-size": 31384,
+                "generated-by": "index-pbench",
+                "generated-by-version": "1.0.0",
+                "md5": "45f0e2af41977b89e07bae4303dc9972",
+                "pbench-agent-version": "0.53-2g786732f6",
+                "result-prefix": "test_glusterfs-storage-block",
+                "toc-prefix": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18"
+            },
+            "@timestamp": "2018-10-24T14:38:18.299722",
+            "host_tools_info": [
+                {
+                    "hostname": "ansible-host",
+                    "tools": {
+                        "iostat": "--interval=60",
+                        "pidstat": "--interval=60"
+                    }
+                },
+                {
+                    "hostname": "app-node-0.scale-ci.example.com",
+                    "hostname-s": "app-node-0",
+                    "tools": {
+                        "vmstat": "--interval=60"
+                    }
+                },
+                {
+                    "hostname": "app-node-1.scale-ci.example.com",
+                    "hostname-s": "app-node-1",
+                    "tools": {
+                        "vmstat": "--interval=60"
+                    }
+                },
+                {
+                    "hostname": "infra-node-0.scale-ci.example.com",
+                    "hostname-s": "infra-node-0",
+                    "tools": {
+                        "vmstat": "--interval=60"
+                    }
+                },
+                {
+                    "hostname": "infra-node-1.scale-ci.example.com",
+                    "hostname-s": "infra-node-1",
+                    "tools": {
+                        "vmstat": "--interval=60"
+                    }
+                },
+                {
+                    "hostname": "infra-node-2.scale-ci.example.com",
+                    "hostname-s": "infra-node-2",
+                    "tools": {
+                        "vmstat": "--interval=60"
+                    }
+                }
+            ],
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "iterations": "1",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            }
+        },
+        "_type": "pbench-run"
+    },
+    {
+        "_id": "09c610b1faf16149ac144cbfc9530d2a",
+        "_index": "pbench-unittests.v1.run.2018-10",
+        "_op_type": "create",
+        "_parent": "45f0e2af41977b89e07bae4303dc9972",
+        "_source": {
+            "@timestamp": "2018-10-24T14:38:18.299722",
+            "directory": "/",
+            "files": [
+                {
+                    "mode": "0o664",
+                    "mtime": "2019-02-12T21:18:56",
+                    "name": "README",
+                    "size": 239,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-02-12T21:11:52",
+                    "name": "metadata.log",
+                    "size": 1395,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:51",
+                    "name": "user-benchmark-summary-debug.json",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:51",
+                    "name": "user-benchmark-summary.json",
+                    "size": 51,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2019-02-12T21:18:56"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "684ec54d6f71eaf6394957791b372cc8",
+        "_index": "pbench-unittests.v1.run.2018-10",
+        "_op_type": "create",
+        "_parent": "45f0e2af41977b89e07bae4303dc9972",
+        "_source": {
+            "@timestamp": "2018-10-24T14:38:18.299722",
+            "directory": "/1/",
+            "mode": "0o755",
+            "mtime": "2018-10-24T14:38:18"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "8e72f4b79cb2516a2ce4c925ac1a458e",
+        "_index": "pbench-unittests.v1.run.2018-10",
+        "_op_type": "create",
+        "_parent": "45f0e2af41977b89e07bae4303dc9972",
+        "_source": {
+            "@timestamp": "2018-10-24T14:38:18.299722",
+            "directory": "/1/reference-result/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:55:34",
+                    "name": "result.txt",
+                    "size": 161996,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2018-10-24T14:58:52"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "c96733aae007a9e73d810c185c3bb7d5",
+        "_index": "pbench-unittests.v1.run.2018-10",
+        "_op_type": "create",
+        "_parent": "45f0e2af41977b89e07bae4303dc9972",
+        "_source": {
+            "@timestamp": "2018-10-24T14:38:18.299722",
+            "directory": "/1/reference-result/tools-default/",
+            "mode": "0o755",
+            "mtime": "2018-10-24T14:58:51"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "3712fb522f32571434b74f5680e944d1",
+        "_index": "pbench-unittests.v1.run.2018-10",
+        "_op_type": "create",
+        "_parent": "45f0e2af41977b89e07bae4303dc9972",
+        "_source": {
+            "@timestamp": "2018-10-24T14:38:18.299722",
+            "directory": "/1/reference-result/tools-default/ansible-host/",
+            "mode": "0o755",
+            "mtime": "2019-02-12T21:12:50"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "b16be8b6bacede708f4465ec72d8fb5b",
+        "_index": "pbench-unittests.v1.run.2018-10",
+        "_op_type": "create",
+        "_parent": "45f0e2af41977b89e07bae4303dc9972",
+        "_source": {
+            "@timestamp": "2018-10-24T14:38:18.299722",
+            "directory": "/1/reference-result/tools-default/ansible-host/iostat/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "disk-average.txt",
+                    "size": 382,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "disk.html",
+                    "size": 1379,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:38:21",
+                    "name": "iostat-stderr.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:21",
+                    "name": "iostat-stdout.txt",
+                    "size": 7598,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2018-10-24T14:38:21",
+                    "name": "iostat.cmd",
+                    "size": 48,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2018-10-24T14:58:41"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "0826065879c5536f7db43ad9505bf866",
+        "_index": "pbench-unittests.v1.run.2018-10",
+        "_op_type": "create",
+        "_parent": "45f0e2af41977b89e07bae4303dc9972",
+        "_source": {
+            "@timestamp": "2018-10-24T14:38:18.299722",
+            "directory": "/1/reference-result/tools-default/ansible-host/iostat/csv/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "disk_IOPS.csv",
+                    "size": 512,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "disk_Queue_Size.csv",
+                    "size": 397,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "disk_Request_Merges_per_sec.csv",
+                    "size": 512,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "disk_Request_Size_in_512_byte_sectors.csv",
+                    "size": 417,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "disk_Throughput_MB_per_sec.csv",
+                    "size": 512,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "disk_Utilization_percent.csv",
+                    "size": 397,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "disk_Wait_Time_msec.csv",
+                    "size": 512,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2018-10-24T14:58:41"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "bbf24f7f6f14a18309bf2c9d7834a1e5",
+        "_index": "pbench-unittests.v1.run.2018-10",
+        "_op_type": "create",
+        "_parent": "45f0e2af41977b89e07bae4303dc9972",
+        "_source": {
+            "@timestamp": "2018-10-24T14:38:18.299722",
+            "directory": "/1/reference-result/tools-default/ansible-host/pidstat/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "context_switches-average.txt",
+                    "size": 11985,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "context_switches.html",
+                    "size": 787,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "cpu_usage-average.txt",
+                    "size": 4830,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "cpu_usage.html",
+                    "size": 611,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "file_io-average.txt",
+                    "size": 10497,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "file_io.html",
+                    "size": 762,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "memory_faults-average.txt",
+                    "size": 10595,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "memory_faults.html",
+                    "size": 706,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "memory_usage-average.txt",
+                    "size": 11016,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "memory_usage.html",
+                    "size": 932,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:38:21",
+                    "name": "pidstat-stderr.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:21",
+                    "name": "pidstat-stdout.txt",
+                    "size": 364333,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2018-10-24T14:38:21",
+                    "name": "pidstat.cmd",
+                    "size": 61,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2018-10-24T14:58:41"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "42c7c3d89a30e7eeb8ad82142a1b6fa6",
+        "_index": "pbench-unittests.v1.run.2018-10",
+        "_op_type": "create",
+        "_parent": "45f0e2af41977b89e07bae4303dc9972",
+        "_source": {
+            "@timestamp": "2018-10-24T14:38:18.299722",
+            "directory": "/1/reference-result/tools-default/ansible-host/pidstat/csv/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "context_switches_nonvoluntary_switches_sec.csv",
+                    "size": 11933,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "context_switches_voluntary_switches_sec.csv",
+                    "size": 11935,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "cpu_usage_percent_cpu.csv",
+                    "size": 11933,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "file_io_io_reads_KB_sec.csv",
+                    "size": 11933,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "file_io_io_writes_KB_sec.csv",
+                    "size": 11933,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "memory_faults_major_faults_sec.csv",
+                    "size": 11933,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "memory_faults_minor_faults_sec.csv",
+                    "size": 11963,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "memory_usage_resident_set_size.csv",
+                    "size": 11877,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:41",
+                    "name": "memory_usage_virtual_size.csv",
+                    "size": 14976,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2018-10-24T14:58:41"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "f9728318f42ef861ccb4886a0bf35c77",
+        "_index": "pbench-unittests.v1.run.2018-10",
+        "_op_type": "create",
+        "_parent": "45f0e2af41977b89e07bae4303dc9972",
+        "_source": {
+            "@timestamp": "2018-10-24T14:38:18.299722",
+            "directory": "/1/reference-result/tools-default/app-node-0.scale-ci.example.com/",
+            "mode": "0o755",
+            "mtime": "2019-02-12T21:13:46"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "5a6a5331f89e94f0bfa5d9640d722f41",
+        "_index": "pbench-unittests.v1.run.2018-10",
+        "_op_type": "create",
+        "_parent": "45f0e2af41977b89e07bae4303dc9972",
+        "_source": {
+            "@timestamp": "2018-10-24T14:38:18.299722",
+            "directory": "/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:51",
+                    "name": "vmstat-average.txt",
+                    "size": 417,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:51",
+                    "name": "vmstat-stderr.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:51",
+                    "name": "vmstat-stdout.txt",
+                    "size": 2990,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2018-10-24T14:58:51",
+                    "name": "vmstat.cmd",
+                    "size": 271,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:51",
+                    "name": "vmstat.html",
+                    "size": 1615,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2018-10-24T14:58:51"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "7d8e5e44fd931ea850d048007fd8d081",
+        "_index": "pbench-unittests.v1.run.2018-10",
+        "_op_type": "create",
+        "_parent": "45f0e2af41977b89e07bae4303dc9972",
+        "_source": {
+            "@timestamp": "2018-10-24T14:38:18.299722",
+            "directory": "/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/csv/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:51",
+                    "name": "vmstat_block.csv",
+                    "size": 408,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:51",
+                    "name": "vmstat_cpu.csv",
+                    "size": 538,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:51",
+                    "name": "vmstat_memory.csv",
+                    "size": 878,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:51",
+                    "name": "vmstat_procs.csv",
+                    "size": 389,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:51",
+                    "name": "vmstat_swap.csv",
+                    "size": 388,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:51",
+                    "name": "vmstat_system.csv",
+                    "size": 518,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2018-10-24T14:58:51"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "d98f8d88d045960db697918f5ae6b4da",
+        "_index": "pbench-unittests.v1.run.2018-10",
+        "_op_type": "create",
+        "_parent": "45f0e2af41977b89e07bae4303dc9972",
+        "_source": {
+            "@timestamp": "2018-10-24T14:38:18.299722",
+            "directory": "/1/reference-result/tools-default/app-node-1.scale-ci.example.com/",
+            "mode": "0o755",
+            "mtime": "2019-02-12T21:13:46"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "6ee7768bb5a6e5af034c29e9b78adb56",
+        "_index": "pbench-unittests.v1.run.2018-10",
+        "_op_type": "create",
+        "_parent": "45f0e2af41977b89e07bae4303dc9972",
+        "_source": {
+            "@timestamp": "2018-10-24T14:38:18.299722",
+            "directory": "/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:51",
+                    "name": "vmstat-average.txt",
+                    "size": 417,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:51",
+                    "name": "vmstat-stderr.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:51",
+                    "name": "vmstat-stdout.txt",
+                    "size": 2990,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2018-10-24T14:58:51",
+                    "name": "vmstat.cmd",
+                    "size": 271,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-24T14:58:51",
+                    "name": "vmstat.html",
+                    "size": 1615,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2018-10-24T14:58:51"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "cdf0275e6dbf95f4a00b3a275fb9ed3f",
+        "_index": "pbench-unittests.v1.tool-data-iostat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:39:21.000000",
+            "@timestamp_original": "1540391961000",
+            "iostat": {
+                "@idx": 0,
+                "id": "vda",
+                "iops": {
+                    "read": 0.0,
+                    "write": 6.42
+                },
+                "qsize": 0.01,
+                "reqmerges": {
+                    "read": 0.0,
+                    "write": 1.3
+                },
+                "reqsize": 24.39,
+                "tput": {
+                    "read": 0.0,
+                    "write": 0.08
+                },
+                "util": 0.08,
+                "wtime": {
+                    "read": 0.0,
+                    "write": 0.96
+                }
+            },
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "f99afbc818f84001ad2289983836d560",
+        "_index": "pbench-unittests.v1.tool-data-iostat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:40:21.000000",
+            "@timestamp_original": "1540392021000",
+            "iostat": {
+                "@idx": 1,
+                "id": "vda",
+                "iops": {
+                    "read": 0.0,
+                    "write": 0.28
+                },
+                "qsize": 0.0,
+                "reqmerges": {
+                    "read": 0.0,
+                    "write": 0.02
+                },
+                "reqsize": 14.65,
+                "tput": {
+                    "read": 0.0,
+                    "write": 0.0
+                },
+                "util": 0.01,
+                "wtime": {
+                    "read": 0.0,
+                    "write": 0.53
+                }
+            },
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "487bad5105b2a1efcd0805872a0bce8d",
+        "_index": "pbench-unittests.v1.tool-data-iostat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:41:21.000000",
+            "@timestamp_original": "1540392081000",
+            "iostat": {
+                "@idx": 2,
+                "id": "vda",
+                "iops": {
+                    "read": 0.0,
+                    "write": 0.22
+                },
+                "qsize": 0.0,
+                "reqmerges": {
+                    "read": 0.0,
+                    "write": 0.03
+                },
+                "reqsize": 15.15,
+                "tput": {
+                    "read": 0.0,
+                    "write": 0.0
+                },
+                "util": 0.01,
+                "wtime": {
+                    "read": 0.0,
+                    "write": 0.31
+                }
+            },
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "45494aff6973f487b964cd4a617fa49f",
+        "_index": "pbench-unittests.v1.tool-data-iostat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:42:21.000000",
+            "@timestamp_original": "1540392141000",
+            "iostat": {
+                "@idx": 3,
+                "id": "vda",
+                "iops": {
+                    "read": 0.0,
+                    "write": 0.25
+                },
+                "qsize": 0.0,
+                "reqmerges": {
+                    "read": 0.0,
+                    "write": 0.03
+                },
+                "reqsize": 16.33,
+                "tput": {
+                    "read": 0.0,
+                    "write": 0.0
+                },
+                "util": 0.01,
+                "wtime": {
+                    "read": 0.0,
+                    "write": 0.27
+                }
+            },
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "a39ea00f93028e53bec049437ca8ac8a",
+        "_index": "pbench-unittests.v1.tool-data-iostat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:43:21.000000",
+            "@timestamp_original": "1540392201000",
+            "iostat": {
+                "@idx": 4,
+                "id": "vda",
+                "iops": {
+                    "read": 0.0,
+                    "write": 0.28
+                },
+                "qsize": 0.0,
+                "reqmerges": {
+                    "read": 0.0,
+                    "write": 0.03
+                },
+                "reqsize": 14.82,
+                "tput": {
+                    "read": 0.0,
+                    "write": 0.0
+                },
+                "util": 0.03,
+                "wtime": {
+                    "read": 0.0,
+                    "write": 0.88
+                }
+            },
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "431871b0eb723e70c900c7b3df83bf5d",
+        "_index": "pbench-unittests.v1.tool-data-iostat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:44:21.000000",
+            "@timestamp_original": "1540392261000",
+            "iostat": {
+                "@idx": 5,
+                "id": "vda",
+                "iops": {
+                    "read": 0.0,
+                    "write": 0.28
+                },
+                "qsize": 0.0,
+                "reqmerges": {
+                    "read": 0.0,
+                    "write": 0.05
+                },
+                "reqsize": 22.35,
+                "tput": {
+                    "read": 0.0,
+                    "write": 0.0
+                },
+                "util": 0.01,
+                "wtime": {
+                    "read": 0.0,
+                    "write": 0.41
+                }
+            },
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "8b2bed9a7f0c00c7bd9b8babd0167323",
+        "_index": "pbench-unittests.v1.tool-data-iostat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:45:21.000000",
+            "@timestamp_original": "1540392321000",
+            "iostat": {
+                "@idx": 6,
+                "id": "vda",
+                "iops": {
+                    "read": 0.0,
+                    "write": 0.27
+                },
+                "qsize": 0.0,
+                "reqmerges": {
+                    "read": 0.0,
+                    "write": 0.05
+                },
+                "reqsize": 18.69,
+                "tput": {
+                    "read": 0.0,
+                    "write": 0.0
+                },
+                "util": 0.01,
+                "wtime": {
+                    "read": 0.0,
+                    "write": 0.56
+                }
+            },
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "38c01398797fe0cbdc5da622ab019bb8",
+        "_index": "pbench-unittests.v1.tool-data-iostat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:46:21.000000",
+            "@timestamp_original": "1540392381000",
+            "iostat": {
+                "@idx": 7,
+                "id": "vda",
+                "iops": {
+                    "read": 0.0,
+                    "write": 0.18
+                },
+                "qsize": 0.0,
+                "reqmerges": {
+                    "read": 0.0,
+                    "write": 0.03
+                },
+                "reqsize": 27.36,
+                "tput": {
+                    "read": 0.0,
+                    "write": 0.0
+                },
+                "util": 0.01,
+                "wtime": {
+                    "read": 0.0,
+                    "write": 0.36
+                }
+            },
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "d88327eadda3a80a499f1f01b858925c",
+        "_index": "pbench-unittests.v1.tool-data-iostat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:47:21.000000",
+            "@timestamp_original": "1540392441000",
+            "iostat": {
+                "@idx": 8,
+                "id": "vda",
+                "iops": {
+                    "read": 0.0,
+                    "write": 0.15
+                },
+                "qsize": 0.0,
+                "reqmerges": {
+                    "read": 0.0,
+                    "write": 0.0
+                },
+                "reqsize": 24.44,
+                "tput": {
+                    "read": 0.0,
+                    "write": 0.0
+                },
+                "util": 0.01,
+                "wtime": {
+                    "read": 0.0,
+                    "write": 0.33
+                }
+            },
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "52b1588832fe201bea8b5554efccbae1",
+        "_index": "pbench-unittests.v1.tool-data-iostat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:48:21.000000",
+            "@timestamp_original": "1540392501000",
+            "iostat": {
+                "@idx": 9,
+                "id": "vda",
+                "iops": {
+                    "read": 0.0,
+                    "write": 0.15
+                },
+                "qsize": 0.0,
+                "reqmerges": {
+                    "read": 0.0,
+                    "write": 0.02
+                },
+                "reqsize": 23.33,
+                "tput": {
+                    "read": 0.0,
+                    "write": 0.0
+                },
+                "util": 0.01,
+                "wtime": {
+                    "read": 0.0,
+                    "write": 0.44
+                }
+            },
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "d95c36c2bbd417a5e508e1e280c78bc1",
+        "_index": "pbench-unittests.v1.tool-data-iostat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:49:21.000000",
+            "@timestamp_original": "1540392561000",
+            "iostat": {
+                "@idx": 10,
+                "id": "vda",
+                "iops": {
+                    "read": 0.0,
+                    "write": 0.17
+                },
+                "qsize": 0.0,
+                "reqmerges": {
+                    "read": 0.0,
+                    "write": 0.02
+                },
+                "reqsize": 22.0,
+                "tput": {
+                    "read": 0.0,
+                    "write": 0.0
+                },
+                "util": 0.01,
+                "wtime": {
+                    "read": 0.0,
+                    "write": 0.4
+                }
+            },
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "79a7c61520c123b2b18871d447252555",
+        "_index": "pbench-unittests.v1.tool-data-iostat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:50:21.000000",
+            "@timestamp_original": "1540392621000",
+            "iostat": {
+                "@idx": 11,
+                "id": "vda",
+                "iops": {
+                    "read": 0.0,
+                    "write": 0.13
+                },
+                "qsize": 0.0,
+                "reqmerges": {
+                    "read": 0.0,
+                    "write": 0.03
+                },
+                "reqsize": 24.38,
+                "tput": {
+                    "read": 0.0,
+                    "write": 0.0
+                },
+                "util": 0.01,
+                "wtime": {
+                    "read": 0.0,
+                    "write": 0.5
+                }
+            },
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "031ccbaeb8c72dce960006db666a14dc",
+        "_index": "pbench-unittests.v1.tool-data-iostat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:51:21.000000",
+            "@timestamp_original": "1540392681000",
+            "iostat": {
+                "@idx": 12,
+                "id": "vda",
+                "iops": {
+                    "read": 0.0,
+                    "write": 0.17
+                },
+                "qsize": 0.0,
+                "reqmerges": {
+                    "read": 0.0,
+                    "write": 0.02
+                },
+                "reqsize": 21.8,
+                "tput": {
+                    "read": 0.0,
+                    "write": 0.0
+                },
+                "util": 0.0,
+                "wtime": {
+                    "read": 0.0,
+                    "write": 0.2
+                }
+            },
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "43f5b6556c63c801102ff81b7cf1da32",
+        "_index": "pbench-unittests.v1.tool-data-iostat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:52:21.000000",
+            "@timestamp_original": "1540392741000",
+            "iostat": {
+                "@idx": 13,
+                "id": "vda",
+                "iops": {
+                    "read": 0.0,
+                    "write": 0.12
+                },
+                "qsize": 0.0,
+                "reqmerges": {
+                    "read": 0.0,
+                    "write": 0.0
+                },
+                "reqsize": 24.14,
+                "tput": {
+                    "read": 0.0,
+                    "write": 0.0
+                },
+                "util": 0.01,
+                "wtime": {
+                    "read": 0.0,
+                    "write": 0.57
+                }
+            },
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "286f8f5a0c98f0db9ca85b15b3cbf8ac",
+        "_index": "pbench-unittests.v1.tool-data-iostat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:53:21.000000",
+            "@timestamp_original": "1540392801000",
+            "iostat": {
+                "@idx": 14,
+                "id": "vda",
+                "iops": {
+                    "read": 0.0,
+                    "write": 0.15
+                },
+                "qsize": 0.0,
+                "reqmerges": {
+                    "read": 0.0,
+                    "write": 0.02
+                },
+                "reqsize": 20.22,
+                "tput": {
+                    "read": 0.0,
+                    "write": 0.0
+                },
+                "util": 0.01,
+                "wtime": {
+                    "read": 0.0,
+                    "write": 0.56
+                }
+            },
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-iostat"
+    },
+    {
+        "_id": "801ddf0170e6bafc4b955971d0a51169",
+        "_index": "pbench-unittests.v1.tool-data-pidstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:39:21.000000",
+            "@timestamp_original": "1540391961000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "pidstat": {
+                "@idx": 0,
+                "command": "/usr/lib/systemd/systemd_--switched-root",
+                "context_switches": {
+                    "nonvoluntary": 0.0,
+                    "voluntary": 0.12
+                },
+                "cpu": {
+                    "usage": 0.02
+                },
+                "id": "1-/usr/lib/systemd/systemd_--switched-root",
+                "io": {
+                    "reads": 0.0,
+                    "writes": 0.0
+                },
+                "memory": {
+                    "faults_major": 0.0,
+                    "faults_minor": 0.12,
+                    "rss": 7892,
+                    "vsz": 194720
+                },
+                "pid": "1"
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "06f918a3d2521e9753474887a889a9fc",
+        "_index": "pbench-unittests.v1.tool-data-pidstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:39:21.000000",
+            "@timestamp_original": "1540391961000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "pidstat": {
+                "@idx": 0,
+                "command": "-bash",
+                "context_switches": {
+                    "nonvoluntary": 0.0,
+                    "voluntary": 0.0
+                },
+                "cpu": {
+                    "usage": 0.0
+                },
+                "id": "10565--bash",
+                "io": {
+                    "reads": 0.0,
+                    "writes": 0.0
+                },
+                "memory": {
+                    "faults_major": 0.0,
+                    "faults_minor": 0.0,
+                    "rss": 7668,
+                    "vsz": 120988
+                },
+                "pid": "10565"
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "1b5bbfe61e6edb2f40d0b604d7829803",
+        "_index": "pbench-unittests.v1.tool-data-pidstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:39:21.000000",
+            "@timestamp_original": "1540391961000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "pidstat": {
+                "@idx": 0,
+                "command": "ssh_master-0",
+                "context_switches": {
+                    "nonvoluntary": 0.0,
+                    "voluntary": 0.0
+                },
+                "cpu": {
+                    "usage": 0.0
+                },
+                "id": "10594-ssh_master-0",
+                "io": {
+                    "reads": 0.0,
+                    "writes": 0.0
+                },
+                "memory": {
+                    "faults_major": 0.0,
+                    "faults_minor": 0.0,
+                    "rss": 4728,
+                    "vsz": 182904
+                },
+                "pid": "10594"
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "8eb26a76eb3373767366d64a389afaab",
+        "_index": "pbench-unittests.v1.tool-data-pidstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:39:21.000000",
+            "@timestamp_original": "1540391961000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "pidstat": {
+                "@idx": 0,
+                "command": "-bash",
+                "context_switches": {
+                    "nonvoluntary": 0.0,
+                    "voluntary": 0.0
+                },
+                "cpu": {
+                    "usage": 0.0
+                },
+                "id": "10892--bash",
+                "io": {
+                    "reads": 0.0,
+                    "writes": 0.0
+                },
+                "memory": {
+                    "faults_major": 0.0,
+                    "faults_minor": 0.0,
+                    "rss": 8196,
+                    "vsz": 121384
+                },
+                "pid": "10892"
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "a6d4b215a65cc3c8f64fbd95f569e6f7",
+        "_index": "pbench-unittests.v1.tool-data-pidstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:39:21.000000",
+            "@timestamp_original": "1540391961000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "pidstat": {
+                "@idx": 0,
+                "command": "-bash",
+                "context_switches": {
+                    "nonvoluntary": 0.0,
+                    "voluntary": 0.0
+                },
+                "cpu": {
+                    "usage": 0.0
+                },
+                "id": "12353--bash",
+                "io": {
+                    "reads": 0.0,
+                    "writes": 0.0
+                },
+                "memory": {
+                    "faults_major": 0.0,
+                    "faults_minor": 0.0,
+                    "rss": 7660,
+                    "vsz": 121244
+                },
+                "pid": "12353"
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "c83eec2d2b5ac1ca7919a60e16736daf",
+        "_index": "pbench-unittests.v1.tool-data-pidstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:39:21.000000",
+            "@timestamp_original": "1540391961000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "pidstat": {
+                "@idx": 0,
+                "command": "tmux",
+                "context_switches": {
+                    "nonvoluntary": 0.0,
+                    "voluntary": 3.0
+                },
+                "cpu": {
+                    "usage": 0.05
+                },
+                "id": "12608-tmux",
+                "io": {
+                    "reads": 0.0,
+                    "writes": 0.0
+                },
+                "memory": {
+                    "faults_major": 0.0,
+                    "faults_minor": 13.99,
+                    "rss": 10608,
+                    "vsz": 31144
+                },
+                "pid": "12608"
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "24736e2e11b12e027f67b55df67d15e6",
+        "_index": "pbench-unittests.v1.tool-data-pidstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:39:21.000000",
+            "@timestamp_original": "1540391961000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "pidstat": {
+                "@idx": 0,
+                "command": "-bash",
+                "context_switches": {
+                    "nonvoluntary": 0.0,
+                    "voluntary": 0.0
+                },
+                "cpu": {
+                    "usage": 0.0
+                },
+                "id": "12613--bash",
+                "io": {
+                    "reads": 0.0,
+                    "writes": 0.0
+                },
+                "memory": {
+                    "faults_major": 0.0,
+                    "faults_minor": 0.0,
+                    "rss": 7668,
+                    "vsz": 120988
+                },
+                "pid": "12613"
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "99715ead2b76995b5dcb4c11bb8a08c3",
+        "_index": "pbench-unittests.v1.tool-data-pidstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:39:21.000000",
+            "@timestamp_original": "1540391961000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "pidstat": {
+                "@idx": 0,
+                "command": "-bash",
+                "context_switches": {
+                    "nonvoluntary": 0.0,
+                    "voluntary": 0.0
+                },
+                "cpu": {
+                    "usage": 0.0
+                },
+                "id": "14219--bash",
+                "io": {
+                    "reads": 0.0,
+                    "writes": 0.0
+                },
+                "memory": {
+                    "faults_major": 0.0,
+                    "faults_minor": 0.0,
+                    "rss": 7632,
+                    "vsz": 120988
+                },
+                "pid": "14219"
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "774d61704ad3f7896d25a653357b769e",
+        "_index": "pbench-unittests.v1.tool-data-pidstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:39:21.000000",
+            "@timestamp_original": "1540391961000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "pidstat": {
+                "@idx": 0,
+                "command": "/usr/sbin/sshd_-D",
+                "context_switches": {
+                    "nonvoluntary": 0.0,
+                    "voluntary": 0.0
+                },
+                "cpu": {
+                    "usage": 0.0
+                },
+                "id": "15109-/usr/sbin/sshd_-D",
+                "io": {
+                    "reads": 0.0,
+                    "writes": 0.0
+                },
+                "memory": {
+                    "faults_major": 0.0,
+                    "faults_minor": 0.0,
+                    "rss": 4308,
+                    "vsz": 112756
+                },
+                "pid": "15109"
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "c55dc1618c2d80aa857ac3654842535b",
+        "_index": "pbench-unittests.v1.tool-data-pidstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:39:21.000000",
+            "@timestamp_original": "1540391961000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "pidstat": {
+                "@idx": 0,
+                "command": "ssh_app-node-0",
+                "context_switches": {
+                    "nonvoluntary": 0.0,
+                    "voluntary": 0.0
+                },
+                "cpu": {
+                    "usage": 0.0
+                },
+                "id": "16930-ssh_app-node-0",
+                "io": {
+                    "reads": 0.0,
+                    "writes": 0.0
+                },
+                "memory": {
+                    "faults_major": 0.0,
+                    "faults_minor": 0.0,
+                    "rss": 4732,
+                    "vsz": 182904
+                },
+                "pid": "16930"
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "441e1e51bd61c2ad3c3aecf19fcec56e",
+        "_index": "pbench-unittests.v1.tool-data-pidstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:39:21.000000",
+            "@timestamp_original": "1540391961000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "pidstat": {
+                "@idx": 0,
+                "command": "/usr/sbin/chronyd",
+                "context_switches": {
+                    "nonvoluntary": 0.0,
+                    "voluntary": 0.0
+                },
+                "cpu": {
+                    "usage": 0.0
+                },
+                "id": "20645-/usr/sbin/chronyd",
+                "io": {
+                    "reads": 0.0,
+                    "writes": 0.0
+                },
+                "memory": {
+                    "faults_major": 0.0,
+                    "faults_minor": 0.0,
+                    "rss": 1544,
+                    "vsz": 100480
+                },
+                "pid": "20645"
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "307500b982dab099c96928094b859ad2",
+        "_index": "pbench-unittests.v1.tool-data-pidstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:39:21.000000",
+            "@timestamp_original": "1540391961000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "pidstat": {
+                "@idx": 0,
+                "command": "-bash",
+                "context_switches": {
+                    "nonvoluntary": 0.0,
+                    "voluntary": 0.0
+                },
+                "cpu": {
+                    "usage": 0.0
+                },
+                "id": "21132--bash",
+                "io": {
+                    "reads": 0.0,
+                    "writes": 0.0
+                },
+                "memory": {
+                    "faults_major": 0.0,
+                    "faults_minor": 0.0,
+                    "rss": 7736,
+                    "vsz": 121120
+                },
+                "pid": "21132"
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "fd4b7121cb0c78f55a86eb80be50df16",
+        "_index": "pbench-unittests.v1.tool-data-pidstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:39:21.000000",
+            "@timestamp_original": "1540391961000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "pidstat": {
+                "@idx": 0,
+                "command": "sudo_su_-_cloud-user",
+                "context_switches": {
+                    "nonvoluntary": 0.0,
+                    "voluntary": 0.0
+                },
+                "cpu": {
+                    "usage": 0.0
+                },
+                "id": "21157-sudo_su_-_cloud-user",
+                "io": {
+                    "reads": 0.0,
+                    "writes": 0.0
+                },
+                "memory": {
+                    "faults_major": 0.0,
+                    "faults_minor": 0.0,
+                    "rss": 4608,
+                    "vsz": 241064
+                },
+                "pid": "21157"
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "35b9ef4618242fcd5ca053f21f577fdb",
+        "_index": "pbench-unittests.v1.tool-data-pidstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:39:21.000000",
+            "@timestamp_original": "1540391961000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "pidstat": {
+                "@idx": 0,
+                "command": "su_-_cloud-user",
+                "context_switches": {
+                    "nonvoluntary": 0.0,
+                    "voluntary": 0.0
+                },
+                "cpu": {
+                    "usage": 0.0
+                },
+                "id": "21159-su_-_cloud-user",
+                "io": {
+                    "reads": 0.0,
+                    "writes": 0.0
+                },
+                "memory": {
+                    "faults_major": 0.0,
+                    "faults_minor": 0.0,
+                    "rss": 2464,
+                    "vsz": 191924
+                },
+                "pid": "21159"
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "79bf428eef7e8a90ea3ade8b33a00d9e",
+        "_index": "pbench-unittests.v1.tool-data-pidstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:39:21.000000",
+            "@timestamp_original": "1540391961000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "pidstat": {
+                "@idx": 0,
+                "command": "-bash",
+                "context_switches": {
+                    "nonvoluntary": 0.0,
+                    "voluntary": 0.0
+                },
+                "cpu": {
+                    "usage": 0.0
+                },
+                "id": "21160--bash",
+                "io": {
+                    "reads": 0.0,
+                    "writes": 0.0
+                },
+                "memory": {
+                    "faults_major": 0.0,
+                    "faults_minor": 0.0,
+                    "rss": 7876,
+                    "vsz": 121104
+                },
+                "pid": "21160"
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "ansible-host",
+                "name": "reference-result"
+            }
+        },
+        "_type": "pbench-tool-data-pidstat"
+    },
+    {
+        "_id": "3ddc69254db2da55fc77b960e409c332",
+        "_index": "pbench-unittests.v1.tool-data-vmstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:39:22.000000",
+            "@timestamp_original": "1540391962000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "app-node-0.scale-ci.example.com",
+                "name": "reference-result"
+            },
+            "vmstat": {
+                "@idx": 0,
+                "block": {
+                    "in": 0,
+                    "out": 25
+                },
+                "cpu": {
+                    "idle": 99,
+                    "steal": 0,
+                    "sys": 0,
+                    "user": 0,
+                    "wait": 0
+                },
+                "memory": {
+                    "active": 2742964,
+                    "free": 24228432,
+                    "inactive": 2544700,
+                    "swapped": 0
+                },
+                "procs": {
+                    "blocked": 0,
+                    "running": 2
+                },
+                "swap": {
+                    "in": 0,
+                    "out": 0
+                },
+                "system": {
+                    "cntx_switches": 1952,
+                    "interrupts": 1206
+                }
+            }
+        },
+        "_type": "pbench-tool-data-vmstat"
+    },
+    {
+        "_id": "64a8bed4c45cd7e0abbdf4be2d9060d8",
+        "_index": "pbench-unittests.v1.tool-data-vmstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:40:22.000000",
+            "@timestamp_original": "1540392022000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "app-node-0.scale-ci.example.com",
+                "name": "reference-result"
+            },
+            "vmstat": {
+                "@idx": 1,
+                "block": {
+                    "in": 0,
+                    "out": 22
+                },
+                "cpu": {
+                    "idle": 99,
+                    "steal": 0,
+                    "sys": 0,
+                    "user": 0,
+                    "wait": 0
+                },
+                "memory": {
+                    "active": 2743048,
+                    "free": 24228944,
+                    "inactive": 2544688,
+                    "swapped": 0
+                },
+                "procs": {
+                    "blocked": 0,
+                    "running": 2
+                },
+                "swap": {
+                    "in": 0,
+                    "out": 0
+                },
+                "system": {
+                    "cntx_switches": 1957,
+                    "interrupts": 1223
+                }
+            }
+        },
+        "_type": "pbench-tool-data-vmstat"
+    },
+    {
+        "_id": "af8e411ff7bd31be28bb9703ef8fe932",
+        "_index": "pbench-unittests.v1.tool-data-vmstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:41:22.000000",
+            "@timestamp_original": "1540392082000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "app-node-0.scale-ci.example.com",
+                "name": "reference-result"
+            },
+            "vmstat": {
+                "@idx": 2,
+                "block": {
+                    "in": 0,
+                    "out": 36
+                },
+                "cpu": {
+                    "idle": 99,
+                    "steal": 0,
+                    "sys": 0,
+                    "user": 1,
+                    "wait": 0
+                },
+                "memory": {
+                    "active": 2743136,
+                    "free": 24228556,
+                    "inactive": 2544700,
+                    "swapped": 0
+                },
+                "procs": {
+                    "blocked": 0,
+                    "running": 2
+                },
+                "swap": {
+                    "in": 0,
+                    "out": 0
+                },
+                "system": {
+                    "cntx_switches": 1999,
+                    "interrupts": 1243
+                }
+            }
+        },
+        "_type": "pbench-tool-data-vmstat"
+    },
+    {
+        "_id": "346d2792cb259af0a3f98a19779f16f2",
+        "_index": "pbench-unittests.v1.tool-data-vmstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:42:22.000000",
+            "@timestamp_original": "1540392142000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "app-node-0.scale-ci.example.com",
+                "name": "reference-result"
+            },
+            "vmstat": {
+                "@idx": 3,
+                "block": {
+                    "in": 0,
+                    "out": 25
+                },
+                "cpu": {
+                    "idle": 99,
+                    "steal": 0,
+                    "sys": 0,
+                    "user": 0,
+                    "wait": 0
+                },
+                "memory": {
+                    "active": 2742980,
+                    "free": 24228680,
+                    "inactive": 2544712,
+                    "swapped": 0
+                },
+                "procs": {
+                    "blocked": 0,
+                    "running": 1
+                },
+                "swap": {
+                    "in": 0,
+                    "out": 0
+                },
+                "system": {
+                    "cntx_switches": 2019,
+                    "interrupts": 1206
+                }
+            }
+        },
+        "_type": "pbench-tool-data-vmstat"
+    },
+    {
+        "_id": "663b573493096635cd80bd0115363fbc",
+        "_index": "pbench-unittests.v1.tool-data-vmstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:43:22.000000",
+            "@timestamp_original": "1540392202000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "app-node-0.scale-ci.example.com",
+                "name": "reference-result"
+            },
+            "vmstat": {
+                "@idx": 4,
+                "block": {
+                    "in": 0,
+                    "out": 22
+                },
+                "cpu": {
+                    "idle": 99,
+                    "steal": 0,
+                    "sys": 0,
+                    "user": 0,
+                    "wait": 0
+                },
+                "memory": {
+                    "active": 2743188,
+                    "free": 24227332,
+                    "inactive": 2544724,
+                    "swapped": 0
+                },
+                "procs": {
+                    "blocked": 0,
+                    "running": 2
+                },
+                "swap": {
+                    "in": 0,
+                    "out": 0
+                },
+                "system": {
+                    "cntx_switches": 1892,
+                    "interrupts": 1167
+                }
+            }
+        },
+        "_type": "pbench-tool-data-vmstat"
+    },
+    {
+        "_id": "be548e9b1f405fd44d13e74356ec56ea",
+        "_index": "pbench-unittests.v1.tool-data-vmstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:44:22.000000",
+            "@timestamp_original": "1540392262000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "app-node-0.scale-ci.example.com",
+                "name": "reference-result"
+            },
+            "vmstat": {
+                "@idx": 5,
+                "block": {
+                    "in": 0,
+                    "out": 20
+                },
+                "cpu": {
+                    "idle": 99,
+                    "steal": 0,
+                    "sys": 0,
+                    "user": 1,
+                    "wait": 0
+                },
+                "memory": {
+                    "active": 2743572,
+                    "free": 24228380,
+                    "inactive": 2544728,
+                    "swapped": 0
+                },
+                "procs": {
+                    "blocked": 0,
+                    "running": 2
+                },
+                "swap": {
+                    "in": 0,
+                    "out": 0
+                },
+                "system": {
+                    "cntx_switches": 2013,
+                    "interrupts": 1251
+                }
+            }
+        },
+        "_type": "pbench-tool-data-vmstat"
+    },
+    {
+        "_id": "6c424b3fa6306434238fd58ed7059e66",
+        "_index": "pbench-unittests.v1.tool-data-vmstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:45:22.000000",
+            "@timestamp_original": "1540392322000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "app-node-0.scale-ci.example.com",
+                "name": "reference-result"
+            },
+            "vmstat": {
+                "@idx": 6,
+                "block": {
+                    "in": 0,
+                    "out": 20
+                },
+                "cpu": {
+                    "idle": 99,
+                    "steal": 0,
+                    "sys": 0,
+                    "user": 0,
+                    "wait": 0
+                },
+                "memory": {
+                    "active": 2744216,
+                    "free": 24227612,
+                    "inactive": 2544740,
+                    "swapped": 0
+                },
+                "procs": {
+                    "blocked": 0,
+                    "running": 1
+                },
+                "swap": {
+                    "in": 0,
+                    "out": 0
+                },
+                "system": {
+                    "cntx_switches": 1942,
+                    "interrupts": 1200
+                }
+            }
+        },
+        "_type": "pbench-tool-data-vmstat"
+    },
+    {
+        "_id": "3c5e5641906d9495b9f9e54a58b24da8",
+        "_index": "pbench-unittests.v1.tool-data-vmstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:46:22.000000",
+            "@timestamp_original": "1540392382000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "app-node-0.scale-ci.example.com",
+                "name": "reference-result"
+            },
+            "vmstat": {
+                "@idx": 7,
+                "block": {
+                    "in": 0,
+                    "out": 23
+                },
+                "cpu": {
+                    "idle": 99,
+                    "steal": 0,
+                    "sys": 0,
+                    "user": 0,
+                    "wait": 0
+                },
+                "memory": {
+                    "active": 2744600,
+                    "free": 24227060,
+                    "inactive": 2544752,
+                    "swapped": 0
+                },
+                "procs": {
+                    "blocked": 0,
+                    "running": 1
+                },
+                "swap": {
+                    "in": 0,
+                    "out": 0
+                },
+                "system": {
+                    "cntx_switches": 2058,
+                    "interrupts": 1297
+                }
+            }
+        },
+        "_type": "pbench-tool-data-vmstat"
+    },
+    {
+        "_id": "808bb29d7aafa831671a066c0215436c",
+        "_index": "pbench-unittests.v1.tool-data-vmstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:47:22.000000",
+            "@timestamp_original": "1540392442000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "app-node-0.scale-ci.example.com",
+                "name": "reference-result"
+            },
+            "vmstat": {
+                "@idx": 8,
+                "block": {
+                    "in": 0,
+                    "out": 23
+                },
+                "cpu": {
+                    "idle": 99,
+                    "steal": 0,
+                    "sys": 0,
+                    "user": 1,
+                    "wait": 0
+                },
+                "memory": {
+                    "active": 2744544,
+                    "free": 24227788,
+                    "inactive": 2544764,
+                    "swapped": 0
+                },
+                "procs": {
+                    "blocked": 0,
+                    "running": 2
+                },
+                "swap": {
+                    "in": 0,
+                    "out": 0
+                },
+                "system": {
+                    "cntx_switches": 2093,
+                    "interrupts": 1327
+                }
+            }
+        },
+        "_type": "pbench-tool-data-vmstat"
+    },
+    {
+        "_id": "5c7b903c528e573156496c33affde7ac",
+        "_index": "pbench-unittests.v1.tool-data-vmstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:48:22.000000",
+            "@timestamp_original": "1540392502000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "app-node-0.scale-ci.example.com",
+                "name": "reference-result"
+            },
+            "vmstat": {
+                "@idx": 9,
+                "block": {
+                    "in": 0,
+                    "out": 22
+                },
+                "cpu": {
+                    "idle": 99,
+                    "steal": 0,
+                    "sys": 0,
+                    "user": 0,
+                    "wait": 0
+                },
+                "memory": {
+                    "active": 2744800,
+                    "free": 24225804,
+                    "inactive": 2544764,
+                    "swapped": 0
+                },
+                "procs": {
+                    "blocked": 0,
+                    "running": 2
+                },
+                "swap": {
+                    "in": 0,
+                    "out": 0
+                },
+                "system": {
+                    "cntx_switches": 2093,
+                    "interrupts": 1320
+                }
+            }
+        },
+        "_type": "pbench-tool-data-vmstat"
+    },
+    {
+        "_id": "a3a88034c7220c96b6646b275fe82fad",
+        "_index": "pbench-unittests.v1.tool-data-vmstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:49:22.000000",
+            "@timestamp_original": "1540392562000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "app-node-0.scale-ci.example.com",
+                "name": "reference-result"
+            },
+            "vmstat": {
+                "@idx": 10,
+                "block": {
+                    "in": 0,
+                    "out": 22
+                },
+                "cpu": {
+                    "idle": 99,
+                    "steal": 0,
+                    "sys": 0,
+                    "user": 0,
+                    "wait": 0
+                },
+                "memory": {
+                    "active": 2744952,
+                    "free": 24226424,
+                    "inactive": 2544780,
+                    "swapped": 0
+                },
+                "procs": {
+                    "blocked": 0,
+                    "running": 2
+                },
+                "swap": {
+                    "in": 0,
+                    "out": 0
+                },
+                "system": {
+                    "cntx_switches": 2098,
+                    "interrupts": 1291
+                }
+            }
+        },
+        "_type": "pbench-tool-data-vmstat"
+    },
+    {
+        "_id": "28c70898afe25d4e2354dceacf1141a6",
+        "_index": "pbench-unittests.v1.tool-data-vmstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:50:22.000000",
+            "@timestamp_original": "1540392622000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "app-node-0.scale-ci.example.com",
+                "name": "reference-result"
+            },
+            "vmstat": {
+                "@idx": 11,
+                "block": {
+                    "in": 0,
+                    "out": 23
+                },
+                "cpu": {
+                    "idle": 99,
+                    "steal": 0,
+                    "sys": 0,
+                    "user": 1,
+                    "wait": 0
+                },
+                "memory": {
+                    "active": 2745216,
+                    "free": 24226732,
+                    "inactive": 2544792,
+                    "swapped": 0
+                },
+                "procs": {
+                    "blocked": 0,
+                    "running": 1
+                },
+                "swap": {
+                    "in": 0,
+                    "out": 0
+                },
+                "system": {
+                    "cntx_switches": 2053,
+                    "interrupts": 1254
+                }
+            }
+        },
+        "_type": "pbench-tool-data-vmstat"
+    },
+    {
+        "_id": "9be8ce4ff528acc3217f4697906b0e66",
+        "_index": "pbench-unittests.v1.tool-data-vmstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:51:22.000000",
+            "@timestamp_original": "1540392682000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "app-node-0.scale-ci.example.com",
+                "name": "reference-result"
+            },
+            "vmstat": {
+                "@idx": 12,
+                "block": {
+                    "in": 0,
+                    "out": 23
+                },
+                "cpu": {
+                    "idle": 99,
+                    "steal": 0,
+                    "sys": 0,
+                    "user": 0,
+                    "wait": 0
+                },
+                "memory": {
+                    "active": 2745472,
+                    "free": 24226236,
+                    "inactive": 2544800,
+                    "swapped": 0
+                },
+                "procs": {
+                    "blocked": 0,
+                    "running": 1
+                },
+                "swap": {
+                    "in": 0,
+                    "out": 0
+                },
+                "system": {
+                    "cntx_switches": 2048,
+                    "interrupts": 1235
+                }
+            }
+        },
+        "_type": "pbench-tool-data-vmstat"
+    },
+    {
+        "_id": "2cb4c7c6ede1342543007e4621c63b52",
+        "_index": "pbench-unittests.v1.tool-data-vmstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:52:22.000000",
+            "@timestamp_original": "1540392742000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "app-node-0.scale-ci.example.com",
+                "name": "reference-result"
+            },
+            "vmstat": {
+                "@idx": 13,
+                "block": {
+                    "in": 0,
+                    "out": 17
+                },
+                "cpu": {
+                    "idle": 99,
+                    "steal": 0,
+                    "sys": 0,
+                    "user": 0,
+                    "wait": 0
+                },
+                "memory": {
+                    "active": 2744432,
+                    "free": 24226748,
+                    "inactive": 2544804,
+                    "swapped": 0
+                },
+                "procs": {
+                    "blocked": 0,
+                    "running": 2
+                },
+                "swap": {
+                    "in": 0,
+                    "out": 0
+                },
+                "system": {
+                    "cntx_switches": 1984,
+                    "interrupts": 1231
+                }
+            }
+        },
+        "_type": "pbench-tool-data-vmstat"
+    },
+    {
+        "_id": "d4e1accbd04d507e088d9b7a7c3f596a",
+        "_index": "pbench-unittests.v1.tool-data-vmstat.2018-10-24",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-24T14:53:22.000000",
+            "@timestamp_original": "1540392802000",
+            "iteration": {
+                "name": "1",
+                "number": 1
+            },
+            "run": {
+                "config": "example-vmstat",
+                "controller": "ansible-host",
+                "date": "2018-10-24T14:38:18",
+                "end": "2018-10-24T14:58:51.933337",
+                "id": "45f0e2af41977b89e07bae4303dc9972",
+                "name": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18",
+                "script": "pbench-user-benchmark",
+                "start": "2018-10-24T14:38:18.299722",
+                "toolsgroup": "default"
+            },
+            "sample": {
+                "hostname": "app-node-0.scale-ci.example.com",
+                "name": "reference-result"
+            },
+            "vmstat": {
+                "@idx": 14,
+                "block": {
+                    "in": 0,
+                    "out": 31
+                },
+                "cpu": {
+                    "idle": 99,
+                    "steal": 0,
+                    "sys": 0,
+                    "user": 1,
+                    "wait": 0
+                },
+                "memory": {
+                    "active": 2744608,
+                    "free": 24226220,
+                    "inactive": 2544820,
+                    "swapped": 0
+                },
+                "procs": {
+                    "blocked": 0,
+                    "running": 1
+                },
+                "swap": {
+                    "in": 0,
+                    "out": 0
+                },
+                "system": {
+                    "cntx_switches": 2065,
+                    "interrupts": 1303
+                }
+            }
+        },
+        "_type": "pbench-tool-data-vmstat"
+    }
+]
+1970-01-01T00:00:00.000000 INFO pbench-index.index-pbench main -- done indexing (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 2006, duplicates: 0, failures: 0, retries: 0)
+run-1900-01-01T00:00:00-UTC: ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18: success
+   1900-01-01T00:00:00-UTC: Finished /var/tmp/pbench-test-server/test-7.17/pbench/archive/fs-version-001/ansible-host/TO-INDEX/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz (size 31384)
+run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 1 (skipped 0) results, 0 errors
+----- pbench-index/pbench-index.log
+---- pbench-local/logs
+++++ pbench-satellite-local/logs
+---- pbench-satellite-local/logs
+--- pbench log file contents
++++ test-execution.log file contents
+curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01/status/a7a106876e7cbcd71d92a6ff5c778dfd --data @/tmp/pbench-report-status.NNNN/payload
+curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/a31a32f626ba4c79e940a02029c58ac1 --data @/tmp/pbench-report-status.NNNN/payload
+--- test-execution.log file contents
++++ test-curl-payload.log file contents
+{
+    "@timestamp": "1900-01-01T00:00:00",
+    "doctype": "status",
+    "name": "pbench-index",
+    "text": "pbench-index.run-1900-01-01T00:00:00-UTC(unit-test) - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.17/pbench/archive/fs-version-001/ansible-host/TO-INDEX/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz\n"
+}
+{
+    "@timestamp": "1900-01-01T00:00:00",
+    "doctype": "status",
+    "name": "pbench-audit-server",
+    "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n"
+}
+--- test-curl-payload.log file contents

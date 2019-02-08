@@ -1,0 +1,235 @@
+{
+    "pbench-result-data-sample": {
+        "_all" : {"enabled" : false},
+        "_meta": {
+            "version": "1"
+        },
+        "date_detection": false,
+        "properties": {
+            "@timestamp": {
+                "type": "date",
+                "format": "dateOptionalTime"
+            },
+            "@timestamp_original": {
+                "type": "long"
+            },
+            "run": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "controller": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "name": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "script": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "config": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "date": {
+                        "type": "date"
+                    },
+                    "start": {
+                        "type": "date"
+                    },
+                    "end": {
+                        "type": "date"
+                    },
+                    "toolsgroup": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    }
+                }
+            },
+            "iteration": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "number": {
+                        "type": "long"
+                    }
+                }
+            },
+            "sample": {
+                "properties": {
+                    "@idx": {
+                        "type": "long"
+                    },
+                    "name": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "measurement_type": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "measurement_units": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "client_hostname": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "closest_sample": {
+                        "type": "long"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "end": {
+                        "type": "date"
+                    },
+                    "mean": {
+                        "type": "double"
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "server_hostname": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "server_port": {
+                        "type": "string"
+                    },
+                    "start": {
+                        "type": "date"
+                    },
+                    "stddev": {
+                        "type": "double"
+                    },
+                    "stddevpct": {
+                        "type": "double"
+                    },
+                    "uid": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "uid_tmpl": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "value": {
+                        "type": "double"
+                    }
+                }
+            },
+            "benchmark": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "version": {
+                        "type": "string"
+                    },
+                    "bs": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "clients": {
+                        "type": "string",
+                        "analyzer": "comma_analyzer"
+                    },
+                    "clocksource": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "closest_sample": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "direct": {
+                        "type": "string"
+                    },
+                    "filename": {
+                        "type": "string"
+                    },
+                    "instances": {
+                        "type": "long"
+                    },
+                    "iodepth": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "ioengine": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "log_avg_msec": {
+                        "type": "string"
+                    },
+                    "log_hist_msec": {
+                        "type": "string"
+                    },
+                    "max_stddevpct": {
+                        "type": "double"
+                    },
+                    "message_size_bytes": {
+                        "type": "long"
+                    },
+                    "numjobs": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "primary_metric": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "protocol": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "ramp_time": {
+                        "type": "string"
+                    },
+                    "runtime": {
+                        "type": "string"
+                    },
+                    "rw": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "servers": {
+                        "type": "string",
+                        "analyzer": "comma_analyzer"
+                    },
+                    "size": {
+                        "type": "string"
+                    },
+                    "sync": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "test_type": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "time_based": {
+                        "type": "string"
+                    },
+                    "uid": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "uid_tmpl": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    }
+                }
+            }
+        }
+    }
+}

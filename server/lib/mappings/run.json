@@ -1,5 +1,9 @@
 {
     "pbench-run": {
+        "_all" : {"enabled" : false},
+        "_meta": {
+            "version": "1"
+        },
         "date_detection": false,
         "properties": {
             "@timestamp": {
@@ -7,20 +11,19 @@
             },
             "@metadata": {
                 "properties": {
-                    "md5": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "file-name": {
+                    "controller_dir": {
                         "type": "string",
                         "index": "not_analyzed"
                     },
                     "file-date": {
                         "type": "date"
                     },
-                    "pbench-agent-version": {
+                    "file-name": {
                         "type": "string",
                         "index": "not_analyzed"
+                    },
+                    "file-size": {
+                        "type": "long"
                     },
                     "generated-by": {
                         "type": "string",
@@ -29,6 +32,24 @@
                     "generated-by-version": {
                         "type": "string",
                         "index": "not_analyzed"
+                    },
+                    "md5": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "pbench-agent-version": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "result-prefix": {
+                        "type": "string"
+                    },
+                    "satellite": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "toc-prefix": {
+                        "type": "string"
                     }
                 }
             },
@@ -43,22 +64,65 @@
                         "type": "string",
                         "index": "not_analyzed"
                     },
+                    "hostname-s": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
                     "label": {
                         "type": "string",
                         "index": "not_analyzed"
                     },
                     "tools": {
-                        "type": "nested"
+                        "properties": {
+                            "disk": {
+                                "type": "string"
+                            },
+                            "haproxy-ocp": {
+                                "type": "string"
+                            },
+                            "iostat": {
+                                "type": "string"
+                            },
+                            "mpstat": {
+                                "type": "string"
+                            },
+                            "oc": {
+                                "type": "string"
+                            },
+                            "perf": {
+                                "type": "string"
+                            },
+                            "pidstat": {
+                                "type": "string"
+                            },
+                            "pprof": {
+                                "type": "string"
+                            },
+                            "proc-interrupts": {
+                                "type": "string"
+                            },
+                            "proc-vmstat": {
+                                "type": "string"
+                            },
+                            "prometheus-metrics": {
+                                "type": "string"
+                            },
+                            "sar": {
+                                "type": "string"
+                            },
+                            "turbostat": {
+                                "type": "string"
+                            },
+                            "vmstat": {
+                                "type": "string"
+                            }
+                        }
                     }
                 }
             },
             "run": {
                 "properties": {
-                    "name": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "config": {
+                    "id": {
                         "type": "string",
                         "index": "not_analyzed"
                     },
@@ -66,7 +130,11 @@
                         "type": "string",
                         "index": "not_analyzed"
                     },
-                    "id": {
+                    "user": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "name": {
                         "type": "string",
                         "index": "not_analyzed"
                     },
@@ -74,14 +142,25 @@
                         "type": "string",
                         "index": "not_analyzed"
                     },
+                    "config": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
                     "date": {
                         "type": "date"
                     },
-                    "start_run": {
+                    "start": {
                         "type": "date"
                     },
-                    "end_run": {
+                    "end": {
                         "type": "date"
+                    },
+                    "toolsgroup": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "iterations": {
+                        "type": "string"
                     }
                 }
             },

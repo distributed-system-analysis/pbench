@@ -43,28 +43,28 @@ lrwxrwxrwx         71 users -> /var/tmp/pbench-test-server/test-7.6/pbench-satel
 +++ pbench tree state (/var/tmp/pbench-test-server/test-7.6/pbench)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
-drwxrwxr-x          - archive/fs-version-001/controller
-drwxrwxr-x          - archive/fs-version-001/controller/BAD-MD5
-drwxrwxr-x          - archive/fs-version-001/controller/COPIED-SOS
-drwxrwxr-x          - archive/fs-version-001/controller/INDEXED
-lrwxrwxrwx         18 archive/fs-version-001/controller/INDEXED/test-7.6.tar.xz -> ../test-7.6.tar.xz
-drwxrwxr-x          - archive/fs-version-001/controller/MOVED-UNPACKED
-drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-MD5-FAILED
-drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-MD5-PASSED
-drwxrwxr-x          - archive/fs-version-001/controller/SYNCED
-drwxrwxr-x          - archive/fs-version-001/controller/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/controller/TO-COPY-SOS
-drwxrwxr-x          - archive/fs-version-001/controller/TO-DELETE
-drwxrwxr-x          - archive/fs-version-001/controller/TO-INDEX
-drwxrwxr-x          - archive/fs-version-001/controller/TO-LINK
-drwxrwxr-x          - archive/fs-version-001/controller/TO-SYNC
-drwxrwxr-x          - archive/fs-version-001/controller/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/controller/TODO
-drwxrwxr-x          - archive/fs-version-001/controller/UNPACKED
-drwxrwxr-x          - archive/fs-version-001/controller/WONT-INDEX
--rw-rw-r--       1476 archive/fs-version-001/controller/test-7.6.tar.xz
--rw-rw-r--         50 archive/fs-version-001/controller/test-7.6.tar.xz.md5
+drwxrwxr-x          - archive/fs-version-001/alphaville
+drwxrwxr-x          - archive/fs-version-001/alphaville/BAD-MD5
+drwxrwxr-x          - archive/fs-version-001/alphaville/COPIED-SOS
+drwxrwxr-x          - archive/fs-version-001/alphaville/INDEXED
+lrwxrwxrwx         18 archive/fs-version-001/alphaville/INDEXED/test-7.6.tar.xz -> ../test-7.6.tar.xz
+drwxrwxr-x          - archive/fs-version-001/alphaville/MOVED-UNPACKED
+drwxrwxr-x          - archive/fs-version-001/alphaville/SATELLITE-DONE
+drwxrwxr-x          - archive/fs-version-001/alphaville/SATELLITE-MD5-FAILED
+drwxrwxr-x          - archive/fs-version-001/alphaville/SATELLITE-MD5-PASSED
+drwxrwxr-x          - archive/fs-version-001/alphaville/SYNCED
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-BACKUP
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-COPY-SOS
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-DELETE
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-SYNC
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-UNPACK
+drwxrwxr-x          - archive/fs-version-001/alphaville/TODO
+drwxrwxr-x          - archive/fs-version-001/alphaville/UNPACKED
+drwxrwxr-x          - archive/fs-version-001/alphaville/WONT-INDEX
+-rw-rw-r--       1492 archive/fs-version-001/alphaville/test-7.6.tar.xz
+-rw-rw-r--         50 archive/fs-version-001/alphaville/test-7.6.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
@@ -95,7 +95,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--       5312 logs/pbench-index/pbench-index.log
+-rw-rw-r--       6167 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -158,33 +158,40 @@ drwxrwxr-x          - tmp
 ----- pbench-index/pbench-index.error
 +++++ pbench-index/pbench-index.log
 run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
-   1900-01-01T00:00:00-UTC: Starting /var/tmp/pbench-test-server/test-7.6/pbench/archive/fs-version-001/controller/TO-INDEX/test-7.6.tar.xz (size 1476)
-1970-01-01T00:00:00.000000 INFO pbench-index.index-pbench es_template -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00, successes: 3, retries: 0)
-Template:  pbench-unittests.run
-Template:  pbench-unittests.tool-data-iostat
-Template:  pbench-unittests.tool-data-pidstat
-Index:  pbench-unittests.run.2015-09 5
+   1900-01-01T00:00:00-UTC: Starting /var/tmp/pbench-test-server/test-7.6/pbench/archive/fs-version-001/alphaville/TO-INDEX/test-7.6.tar.xz (size 1492)
+1970-01-01T00:00:00.000000 INFO pbench-index.index-pbench update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 9, retries: 0)
+Template:  pbench-unittests.v1.result-data
+Template:  pbench-unittests.v1.run
+Template:  pbench-unittests.v1.tool-data-iostat
+Template:  pbench-unittests.v1.tool-data-mpstat
+Template:  pbench-unittests.v1.tool-data-pidstat
+Template:  pbench-unittests.v1.tool-data-proc-interrupts
+Template:  pbench-unittests.v1.tool-data-proc-vmstat
+Template:  pbench-unittests.v1.tool-data-prometheus-metrics
+Template:  pbench-unittests.v1.tool-data-vmstat
+Index:  pbench-unittests.v1.run.2015-09 5
 len(actions) = 5
 [
     {
-        "_id": "c71b2c9c961ebd55f61273a6a020bdc6",
-        "_index": "pbench-unittests.run.2015-09",
+        "_id": "3a981319b66a844654ec964067b3850e",
+        "_index": "pbench-unittests.v1.run.2015-09",
         "_op_type": "create",
         "_source": {
             "@metadata": {
-                "file-date": "2015-09-28T16:18:01",
-                "file-name": "/var/tmp/pbench-test-server/test-7.6/pbench/archive/fs-version-001/controller/test-7.6.tar.xz",
-                "file-size": 1476,
+                "controller_dir": "alphaville",
+                "file-date": "2019-03-07T02:11:58",
+                "file-name": "/var/tmp/pbench-test-server/test-7.6/pbench/archive/fs-version-001/alphaville/test-7.6.tar.xz",
+                "file-size": 1492,
                 "generated-by": "index-pbench",
-                "generated-by-version": "0.7.0.0",
-                "md5": "c71b2c9c961ebd55f61273a6a020bdc6",
-                "pbench-agent-version": "plugins:"
+                "generated-by-version": "1.0.0",
+                "md5": "3a981319b66a844654ec964067b3850e",
+                "pbench-agent-version": "unittests",
+                "toc-prefix": "test-7.6"
             },
             "@timestamp": "2015-09-21T19:31:12.673292",
             "host_tools_info": [
                 {
                     "hostname": "alphaville",
-                    "hostname-f": null,
                     "tools": {
                         "iostat": "--interval=\"10\"",
                         "mpstat": "--interval=\"10\"",
@@ -198,16 +205,14 @@ len(actions) = 5
                 }
             ],
             "run": {
-                "config": "",
                 "controller": "alphaville.usersys.redhat.com",
                 "date": "2015-09-21T19:31:08",
-                "end_run": "2015-09-21T19:32:12.673292",
-                "id": "c71b2c9c961ebd55f61273a6a020bdc6",
+                "end": "2015-09-21T19:32:12.673292",
+                "id": "3a981319b66a844654ec964067b3850e",
                 "name": "testdir",
-                "script": "",
-                "start_run": "2015-09-21T19:31:12.673292",
-                "tarball-dirname": "test-7.6",
-                "tarball-toc-prefix": "test-7.6"
+                "script": "test",
+                "start": "2015-09-21T19:31:12.673292",
+                "toolsgroup": "default"
             },
             "sosreports": [
                 {
@@ -221,72 +226,86 @@ len(actions) = 5
         "_type": "pbench-run"
     },
     {
-        "_id": "7712c09ac5c74d34c6702a72a99630f4",
-        "_index": "pbench-unittests.run.2015-09",
+        "_id": "f80fc2b04b991d5e592b6803e79f7c90",
+        "_index": "pbench-unittests.v1.run.2015-09",
         "_op_type": "create",
-        "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
+        "_parent": "3a981319b66a844654ec964067b3850e",
         "_source": {
             "@timestamp": "2015-09-21T19:31:12.673292",
             "directory": "/",
             "files": [
                 {
                     "mode": "0o664",
+                    "mtime": "2019-02-20T05:52:30",
                     "name": "metadata.log",
-                    "size": 484
+                    "size": 504,
+                    "type": "reg"
                 }
-            ]
+            ],
+            "mode": "0o775",
+            "mtime": "2019-02-20T05:52:30"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "56c6c2799acd10775b0afbb9d25f0f8b",
-        "_index": "pbench-unittests.run.2015-09",
+        "_id": "a5484091371e3429da1a41c6a534cffd",
+        "_index": "pbench-unittests.v1.run.2015-09",
         "_op_type": "create",
-        "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
+        "_parent": "3a981319b66a844654ec964067b3850e",
         "_source": {
             "@timestamp": "2015-09-21T19:31:12.673292",
-            "directory": "/sysinfo/"
+            "directory": "/sysinfo/",
+            "mode": "0o775",
+            "mtime": "2015-09-21T18:57:56"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "52d58c324725aec09cfabc732be41d5e",
-        "_index": "pbench-unittests.run.2015-09",
+        "_id": "8db456ab71c968252356420162e8400f",
+        "_index": "pbench-unittests.v1.run.2015-09",
         "_op_type": "create",
-        "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
+        "_parent": "3a981319b66a844654ec964067b3850e",
         "_source": {
             "@timestamp": "2015-09-21T19:31:12.673292",
-            "directory": "/sysinfo/foo/"
+            "directory": "/sysinfo/foo/",
+            "mode": "0o775",
+            "mtime": "2015-09-21T18:58:00"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "69b96118335d82179c2ae07b8fc89c4a",
-        "_index": "pbench-unittests.run.2015-09",
+        "_id": "59d6d323ec1b5d454349f5f8c10b4155",
+        "_index": "pbench-unittests.v1.run.2015-09",
         "_op_type": "create",
-        "_parent": "c71b2c9c961ebd55f61273a6a020bdc6",
+        "_parent": "3a981319b66a844654ec964067b3850e",
         "_source": {
             "@timestamp": "2015-09-21T19:31:12.673292",
             "directory": "/sysinfo/foo/end/",
             "files": [
                 {
                     "mode": "0o664",
+                    "mtime": "2015-09-21T20:27:20",
                     "name": "sosreport.tar.xz",
-                    "size": 880
+                    "size": 880,
+                    "type": "reg"
                 },
                 {
                     "mode": "0o664",
+                    "mtime": "2015-09-21T20:27:20",
                     "name": "sosreport.tar.xz.md5",
-                    "size": 51
+                    "size": 51,
+                    "type": "reg"
                 }
-            ]
+            ],
+            "mode": "0o775",
+            "mtime": "2015-09-21T20:27:20"
         },
         "_type": "pbench-run-toc-entry"
     }
 ]
-1970-01-01T00:00:00.000000 INFO pbench-index.index-pbench main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00, successes: 5, duplicates: 0, failures: 0, retries: 0)
-run-1900-01-01T00:00:00-UTC: controller/test-7.6: success
-   1900-01-01T00:00:00-UTC: Finished /var/tmp/pbench-test-server/test-7.6/pbench/archive/fs-version-001/controller/TO-INDEX/test-7.6.tar.xz (size 1476)
+1970-01-01T00:00:00.000000 INFO pbench-index.index-pbench main -- done indexing (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 5, duplicates: 0, failures: 0, retries: 0)
+run-1900-01-01T00:00:00-UTC: alphaville/test-7.6: success
+   1900-01-01T00:00:00-UTC: Finished /var/tmp/pbench-test-server/test-7.6/pbench/archive/fs-version-001/alphaville/TO-INDEX/test-7.6.tar.xz (size 1492)
 run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 1 (skipped 0) results, 0 errors
 ----- pbench-index/pbench-index.log
 ---- pbench-local/logs
@@ -294,7 +313,7 @@ run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 1 (skipp
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ test-execution.log file contents
-curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01/status/ee11342259175ebdb745a8b7283fb0d1 --data @/tmp/pbench-report-status.NNNN/payload
+curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01/status/a4cc7f66affc288c5925f2f7c0fc40b3 --data @/tmp/pbench-report-status.NNNN/payload
 curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/a31a32f626ba4c79e940a02029c58ac1 --data @/tmp/pbench-report-status.NNNN/payload
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
@@ -302,7 +321,7 @@ curl --silent --show-error -XPOST -H Content-Type: application/json --output /tm
     "@timestamp": "1900-01-01T00:00:00",
     "doctype": "status",
     "name": "pbench-index",
-    "text": "pbench-index.run-1900-01-01T00:00:00-UTC(unit-test) - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.6/pbench/archive/fs-version-001/controller/TO-INDEX/test-7.6.tar.xz\n"
+    "text": "pbench-index.run-1900-01-01T00:00:00-UTC(unit-test) - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.6/pbench/archive/fs-version-001/alphaville/TO-INDEX/test-7.6.tar.xz\n"
 }
 {
     "@timestamp": "1900-01-01T00:00:00",
