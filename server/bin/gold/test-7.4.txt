@@ -43,29 +43,29 @@ lrwxrwxrwx         71 users -> /var/tmp/pbench-test-server/test-7.4/pbench-satel
 +++ pbench tree state (/var/tmp/pbench-test-server/test-7.4/pbench)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
-drwxrwxr-x          - archive/fs-version-001/controller
-drwxrwxr-x          - archive/fs-version-001/controller/BAD-MD5
-drwxrwxr-x          - archive/fs-version-001/controller/COPIED-SOS
-drwxrwxr-x          - archive/fs-version-001/controller/INDEXED
-drwxrwxr-x          - archive/fs-version-001/controller/MOVED-UNPACKED
-drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-MD5-FAILED
-drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-MD5-PASSED
-drwxrwxr-x          - archive/fs-version-001/controller/SYNCED
-drwxrwxr-x          - archive/fs-version-001/controller/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/controller/TO-COPY-SOS
-drwxrwxr-x          - archive/fs-version-001/controller/TO-DELETE
-drwxrwxr-x          - archive/fs-version-001/controller/TO-INDEX
-drwxrwxr-x          - archive/fs-version-001/controller/TO-LINK
-drwxrwxr-x          - archive/fs-version-001/controller/TO-SYNC
-drwxrwxr-x          - archive/fs-version-001/controller/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/controller/TODO
-drwxrwxr-x          - archive/fs-version-001/controller/UNPACKED
-drwxrwxr-x          - archive/fs-version-001/controller/WONT-INDEX
-drwxrwxr-x          - archive/fs-version-001/controller/WONT-INDEX.10
-lrwxrwxrwx         18 archive/fs-version-001/controller/WONT-INDEX.10/test-7.4.tar.xz -> ../test-7.4.tar.xz
--rw-rw-r--       1460 archive/fs-version-001/controller/test-7.4.tar.xz
--rw-rw-r--         50 archive/fs-version-001/controller/test-7.4.tar.xz.md5
+drwxrwxr-x          - archive/fs-version-001/alphaville
+drwxrwxr-x          - archive/fs-version-001/alphaville/BAD-MD5
+drwxrwxr-x          - archive/fs-version-001/alphaville/COPIED-SOS
+drwxrwxr-x          - archive/fs-version-001/alphaville/INDEXED
+drwxrwxr-x          - archive/fs-version-001/alphaville/MOVED-UNPACKED
+drwxrwxr-x          - archive/fs-version-001/alphaville/SATELLITE-DONE
+drwxrwxr-x          - archive/fs-version-001/alphaville/SATELLITE-MD5-FAILED
+drwxrwxr-x          - archive/fs-version-001/alphaville/SATELLITE-MD5-PASSED
+drwxrwxr-x          - archive/fs-version-001/alphaville/SYNCED
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-BACKUP
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-COPY-SOS
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-DELETE
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-SYNC
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-UNPACK
+drwxrwxr-x          - archive/fs-version-001/alphaville/TODO
+drwxrwxr-x          - archive/fs-version-001/alphaville/UNPACKED
+drwxrwxr-x          - archive/fs-version-001/alphaville/WONT-INDEX
+drwxrwxr-x          - archive/fs-version-001/alphaville/WONT-INDEX.10
+lrwxrwxrwx         18 archive/fs-version-001/alphaville/WONT-INDEX.10/test-7.4.tar.xz -> ../test-7.4.tar.xz
+-rw-rw-r--       1484 archive/fs-version-001/alphaville/test-7.4.tar.xz
+-rw-rw-r--         50 archive/fs-version-001/alphaville/test-7.4.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
@@ -96,7 +96,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--        766 logs/pbench-index/pbench-index.log
+-rw-rw-r--       1090 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -159,12 +159,18 @@ drwxrwxr-x          - tmp
 ----- pbench-index/pbench-index.error
 +++++ pbench-index/pbench-index.log
 run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
-   1900-01-01T00:00:00-UTC: Starting /var/tmp/pbench-test-server/test-7.4/pbench/archive/fs-version-001/controller/TO-INDEX/test-7.4.tar.xz (size 1460)
-1970-01-01T00:00:00.000000 INFO pbench-index.index-pbench es_template -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00, successes: 3, retries: 0)
+   1900-01-01T00:00:00-UTC: Starting /var/tmp/pbench-test-server/test-7.4/pbench/archive/fs-version-001/alphaville/TO-INDEX/test-7.4.tar.xz (size 1484)
+1970-01-01T00:00:00.000000 INFO pbench-index.index-pbench update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 9, retries: 0)
+Template:  pbench-unittests.v1.result-data
+Template:  pbench-unittests.v1.run
+Template:  pbench-unittests.v1.tool-data-iostat
+Template:  pbench-unittests.v1.tool-data-mpstat
+Template:  pbench-unittests.v1.tool-data-pidstat
+Template:  pbench-unittests.v1.tool-data-proc-interrupts
+Template:  pbench-unittests.v1.tool-data-proc-vmstat
+Template:  pbench-unittests.v1.tool-data-prometheus-metrics
+Template:  pbench-unittests.v1.tool-data-vmstat
 1970-01-01T00:00:00.000000 ERROR pbench-index.index-pbench main -- Bad hostname in sosreport: The sosreport did not collect a hostname other than 'localhost'
-Template:  pbench-unittests.run
-Template:  pbench-unittests.tool-data-iostat
-Template:  pbench-unittests.tool-data-pidstat
 run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 0 (skipped 1) results, 0 errors
 ----- pbench-index/pbench-index.log
 ---- pbench-local/logs
@@ -172,7 +178,7 @@ run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 0 (skipp
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ test-execution.log file contents
-curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01/status/cfe260a7304351ed5c8f6338039b4b06 --data @/tmp/pbench-report-status.NNNN/payload
+curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01/status/4441e13cea68b0c4cadb9c37b139d01c --data @/tmp/pbench-report-status.NNNN/payload
 curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/a31a32f626ba4c79e940a02029c58ac1 --data @/tmp/pbench-report-status.NNNN/payload
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
@@ -180,7 +186,7 @@ curl --silent --show-error -XPOST -H Content-Type: application/json --output /tm
     "@timestamp": "1900-01-01T00:00:00",
     "doctype": "status",
     "name": "pbench-index",
-    "text": "pbench-index.run-1900-01-01T00:00:00-UTC - Indexed 0 results, skipped 1 results\n\nSkipped Results\n===============\n/var/tmp/pbench-test-server/test-7.4/pbench/archive/fs-version-001/controller/TO-INDEX/test-7.4.tar.xz\n"
+    "text": "pbench-index.run-1900-01-01T00:00:00-UTC - Indexed 0 results, skipped 1 results\n\nSkipped Results\n===============\n/var/tmp/pbench-test-server/test-7.4/pbench/archive/fs-version-001/alphaville/TO-INDEX/test-7.4.tar.xz\n"
 }
 {
     "@timestamp": "1900-01-01T00:00:00",

@@ -43,29 +43,29 @@ lrwxrwxrwx         71 users -> /var/tmp/pbench-test-server/test-7.3/pbench-satel
 +++ pbench tree state (/var/tmp/pbench-test-server/test-7.3/pbench)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
-drwxrwxr-x          - archive/fs-version-001/controller
-drwxrwxr-x          - archive/fs-version-001/controller/BAD-MD5
-drwxrwxr-x          - archive/fs-version-001/controller/COPIED-SOS
-drwxrwxr-x          - archive/fs-version-001/controller/INDEXED
-drwxrwxr-x          - archive/fs-version-001/controller/MOVED-UNPACKED
-drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-MD5-FAILED
-drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-MD5-PASSED
-drwxrwxr-x          - archive/fs-version-001/controller/SYNCED
-drwxrwxr-x          - archive/fs-version-001/controller/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/controller/TO-COPY-SOS
-drwxrwxr-x          - archive/fs-version-001/controller/TO-DELETE
-drwxrwxr-x          - archive/fs-version-001/controller/TO-INDEX
-drwxrwxr-x          - archive/fs-version-001/controller/TO-LINK
-drwxrwxr-x          - archive/fs-version-001/controller/TO-SYNC
-drwxrwxr-x          - archive/fs-version-001/controller/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/controller/TODO
-drwxrwxr-x          - archive/fs-version-001/controller/UNPACKED
-drwxrwxr-x          - archive/fs-version-001/controller/WONT-INDEX
-drwxrwxr-x          - archive/fs-version-001/controller/WONT-INDEX.7
-lrwxrwxrwx         18 archive/fs-version-001/controller/WONT-INDEX.7/test-7.3.tar.xz -> ../test-7.3.tar.xz
--rw-rw-r--       1472 archive/fs-version-001/controller/test-7.3.tar.xz
--rw-rw-r--         50 archive/fs-version-001/controller/test-7.3.tar.xz.md5
+drwxrwxr-x          - archive/fs-version-001/alphaville
+drwxrwxr-x          - archive/fs-version-001/alphaville/BAD-MD5
+drwxrwxr-x          - archive/fs-version-001/alphaville/COPIED-SOS
+drwxrwxr-x          - archive/fs-version-001/alphaville/INDEXED
+drwxrwxr-x          - archive/fs-version-001/alphaville/MOVED-UNPACKED
+drwxrwxr-x          - archive/fs-version-001/alphaville/SATELLITE-DONE
+drwxrwxr-x          - archive/fs-version-001/alphaville/SATELLITE-MD5-FAILED
+drwxrwxr-x          - archive/fs-version-001/alphaville/SATELLITE-MD5-PASSED
+drwxrwxr-x          - archive/fs-version-001/alphaville/SYNCED
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-BACKUP
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-COPY-SOS
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-DELETE
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-SYNC
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-UNPACK
+drwxrwxr-x          - archive/fs-version-001/alphaville/TODO
+drwxrwxr-x          - archive/fs-version-001/alphaville/UNPACKED
+drwxrwxr-x          - archive/fs-version-001/alphaville/WONT-INDEX
+drwxrwxr-x          - archive/fs-version-001/alphaville/WONT-INDEX.7
+lrwxrwxrwx         18 archive/fs-version-001/alphaville/WONT-INDEX.7/test-7.3.tar.xz -> ../test-7.3.tar.xz
+-rw-rw-r--       1476 archive/fs-version-001/alphaville/test-7.3.tar.xz
+-rw-rw-r--         50 archive/fs-version-001/alphaville/test-7.3.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
@@ -96,7 +96,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--        527 logs/pbench-index/pbench-index.log
+-rw-rw-r--        596 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -159,8 +159,8 @@ drwxrwxr-x          - tmp
 ----- pbench-index/pbench-index.error
 +++++ pbench-index/pbench-index.log
 run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
-   1900-01-01T00:00:00-UTC: Starting /var/tmp/pbench-test-server/test-7.3/pbench/archive/fs-version-001/controller/TO-INDEX/test-7.3.tar.xz (size 1472)
-1970-01-01T00:00:00.000000 ERROR pbench-index.index-pbench main -- The metadata.log file is curdled in tarball: /var/tmp/pbench-test-server/test-7.3/pbench/archive/fs-version-001/controller/test-7.3.tar.xz
+   1900-01-01T00:00:00-UTC: Starting /var/tmp/pbench-test-server/test-7.3/pbench/archive/fs-version-001/alphaville/TO-INDEX/test-7.3.tar.xz (size 1476)
+1970-01-01T00:00:00.000000 ERROR pbench-index.index-pbench main -- The metadata.log file is curdled in tarball: /var/tmp/pbench-test-server/test-7.3/pbench/archive/fs-version-001/alphaville/test-7.3.tar.xz - error fetching required metadata.log fields, "empty pbench.script"
 run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 0 (skipped 1) results, 0 errors
 ----- pbench-index/pbench-index.log
 ---- pbench-local/logs
@@ -168,7 +168,7 @@ run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 0 (skipp
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ test-execution.log file contents
-curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01/status/d44ee7b5aa581b1a61d3a5f84f925cba --data @/tmp/pbench-report-status.NNNN/payload
+curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01/status/07bc31a0073d5c5186f69ba38579cee0 --data @/tmp/pbench-report-status.NNNN/payload
 curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/a31a32f626ba4c79e940a02029c58ac1 --data @/tmp/pbench-report-status.NNNN/payload
 --- test-execution.log file contents
 +++ test-curl-payload.log file contents
@@ -176,7 +176,7 @@ curl --silent --show-error -XPOST -H Content-Type: application/json --output /tm
     "@timestamp": "1900-01-01T00:00:00",
     "doctype": "status",
     "name": "pbench-index",
-    "text": "pbench-index.run-1900-01-01T00:00:00-UTC - Indexed 0 results, skipped 1 results\n\nSkipped Results\n===============\n/var/tmp/pbench-test-server/test-7.3/pbench/archive/fs-version-001/controller/TO-INDEX/test-7.3.tar.xz\n"
+    "text": "pbench-index.run-1900-01-01T00:00:00-UTC - Indexed 0 results, skipped 1 results\n\nSkipped Results\n===============\n/var/tmp/pbench-test-server/test-7.3/pbench/archive/fs-version-001/alphaville/TO-INDEX/test-7.3.tar.xz\n"
 }
 {
     "@timestamp": "1900-01-01T00:00:00",

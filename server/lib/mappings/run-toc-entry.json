@@ -1,18 +1,25 @@
 {
     "pbench-run-toc-entry": {
+        "_all" : {"enabled" : false},
+        "_meta": {
+            "version": "1"
+        },
         "_parent": {
             "type": "pbench-run"
         },
         "date_detection": false,
         "properties": {
-            "dirname": {
+            "@timestamp": {
+                "type": "date"
+            },
+            "directory": {
                 "type": "string",
                 "index": "not_analyzed"
             },
             "files": {
                 "type": "nested",
                 "properties": {
-                    "name" : {
+                    "linkpath" : {
                         "type": "string",
                         "index": "not_analyzed"
                     },
@@ -20,14 +27,28 @@
                         "type": "string",
                         "index": "not_analyzed"
                     },
+                    "mtime" : {
+                        "type": "date"
+                    },
+                    "name" : {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
                     "size" : {
                         "type": "long"
                     },
-                    "linkpath" : {
+                    "type" : {
                         "type": "string",
                         "index": "not_analyzed"
                     }
                 }
+            },
+            "mode" : {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "mtime" : {
+                "type": "date"
             }
         }
     }

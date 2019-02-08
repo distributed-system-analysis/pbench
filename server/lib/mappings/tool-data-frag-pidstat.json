@@ -1,37 +1,56 @@
 {
+    "_meta": {
+        "version": "1"
+    },
     "properties": {
-        "pidstat": {
+        "@idx": {
+            "type": "long"
+        },
+        "id": {
+            "type": "string",
+            "index": "not_analyzed"
+        },
+        "pid": {
+            "type": "string",
+            "index": "not_analyzed"
+        },
+        "command": {
+            "type": "string",
+            "index": "not_analyzed"
+        },
+        "context_switches": {
             "properties": {
-                "id": {
-                    "type": "string",
-                    "index": "not_analyzed"
-                },
-                "pid": {
-                    "type": "integer"
-                },
-                "command": {
-                    "type": "string",
-                    "index": "not_analyzed"
-                },
-                "context_switches_nonvoluntary_switches": {
+                "nonvoluntary": {
                     "type": "float"
                 },
-                "context_switches_voluntary_switches": {
+                "voluntary": {
+                    "type": "float"
+                }
+            }
+        },
+        "cpu": {
+            "properties": {
+                "usage": {
+                    "type": "float"
+                }
+            }
+        },
+        "io": {
+            "properties": {
+                "reads": {
                     "type": "float"
                 },
-                "cpu_usage": {
+                "writes": {
+                    "type": "float"
+                }
+            }
+        },
+        "memory": {
+            "properties": {
+                "faults_major": {
                     "type": "float"
                 },
-                "io_reads": {
-                    "type": "float"
-                },
-                "io_writes": {
-                    "type": "float"
-                },
-                "memory_faults_major": {
-                    "type": "float"
-                },
-                "memory_faults_minor": {
+                "faults_minor": {
                     "type": "float"
                 },
                 "rss": {

@@ -1,0 +1,141 @@
+{
+    "_meta": {
+        "version": "1"
+    },
+    "properties": {
+        "@idx": {
+            "type": "long"
+        },
+        "quantiles": {
+            "type": "string"
+        },
+        "count": {
+            "type": "long"
+        },
+        "buckets": {
+            "type": "string"
+        },
+        "metric": {
+            "type": "string", "index": "not_analyzed"
+        },
+        "labels": {
+            "properties": {
+                "scope": {
+                    "type": "string"
+                },
+                "client": {
+                    "type": "string"
+                },
+                "minor": {
+                    "type": "string"
+                },
+                "contentType": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "goVersion": {
+                    "type": "string", "index": "not_analyzed"
+                },
+                "kind": {
+                    "type": "string", "index": "not_analyzed"
+                },
+                "version": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string", "index": "not_analyzed"
+                },
+                "operation": {
+                    "type": "string", "index": "not_analyzed"
+                },
+                "username": {
+                    "type": "string", "index": "not_analyzed"
+                },
+                "verb": {
+                    "type": "string", "index": "not_analyzed"
+                },
+                "volume_plugin": {
+                    "type": "string", "index": "not_analyzed"
+                },
+                "gitTreeState": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string", "index": "not_analyzed"
+                },
+                "rejected": {
+                    "type": "string"
+                },
+                "major": {
+                    "type": "long"
+                },
+                "persistentvolumeclaim": {
+                    "type": "string", "index": "not_analyzed"
+                },
+                "gitVersion": {
+                    "type": "string"
+                },
+                "platform": {
+                    "type": "string", "index": "not_analyzed"
+                },
+                "host": {
+                    "type": "string", "index": "not_analyzed"
+                },
+                "operation_name": {
+                    "type": "string", "index": "not_analyzed"
+                },
+                "subresource": {
+                    "type": "string"
+                },
+                "resource": {
+                    "type": "string"
+                },
+                "code": {
+                    "type": "long"
+                },
+                "operation_type": {
+                    "type": "string", "index": "not_analyzed"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "compiler": {
+                    "type": "string", "index": "not_analyzed"
+                },
+                "gitCommit": {
+                    "type": "string"
+                },
+                "buildDate": {
+                    "format": "dateOptionalTime",
+                    "type": "date"
+                },
+                "method": {
+                    "type": "string", "index": "not_analyzed"
+                },
+                "requestKind": {
+                    "type": "string", "index": "not_analyzed"
+                },
+                "group": {
+                    "type": "string", "index": "not_analyzed"
+                },
+                "handler": {
+                    "type": "string", "index": "not_analyzed"
+                },
+                "request": {
+                    "type": "string"
+                }
+            }
+        },
+        "value": {
+            "type": "long"
+        },
+        "sum": {
+            "type": "double"
+        },
+        "type": {
+            "type": "string", "index": "not_analyzed"
+        }
+    }
+}

@@ -101,8 +101,14 @@ find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | so
 while read size result ;do
     echo "   $(timestamp): Starting $result (size $size)"
     link=$(readlink -e $result)
-    if [ ! -f $link  -o ! -f ${link}.md5 ] ;then
-        echo "$TS: $link and/or ${link}.md5 does not exist" >&4
+    if [[ -z "${link}" ]] ;then
+        echo "$TS: invalid symlink ${result}" >&4
+        nerrs=$nerrs+1
+        echo $result >> $erred
+        continue
+    fi
+    if [[ ! -f "${link}" || ! -f "${link}.md5" ]] ;then
+        echo "$TS: ${link} and/or ${link}.md5 does not exist for ${result}" >&4
         nerrs=$nerrs+1
         echo $result >> $erred
         continue

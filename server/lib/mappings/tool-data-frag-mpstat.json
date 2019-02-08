@@ -1,0 +1,45 @@
+{
+    "_meta": {
+        "version": "1"
+    },
+    "properties": {
+        "@idx": {
+            "type": "long"
+        },
+        "id": {
+            "type": "string",
+            "index": "not_analyzed"
+        },
+        "cpu": {
+            "properties": {
+                "steal": {
+                    "type": "float"
+                },
+                "idle": {
+                    "type": "float"
+                },
+                "sys": {
+                    "type": "float"
+                },
+                "softirq": {
+                    "type": "float"
+                },
+                "irq": {
+                    "type": "float"
+                },
+                "nice": {
+                    "type": "float"
+                },
+                "guest": {
+                    "type": "float"
+                },
+                "iowait": {
+                    "type": "float"
+                },
+                "usr": {
+                    "type": "float"
+                }
+            }
+        }
+    }
+}

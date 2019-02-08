@@ -1,0 +1,20 @@
+{
+    "analysis": {
+        "analyzer": {
+            "comma_analyzer": {
+                "tokenizer": "comma_tokenizer"
+            }
+        },
+        "tokenizer": {
+            "comma_tokenizer": {
+                "type": "pattern",
+                "pattern": ","
+            }
+        }
+    },
+    "index" : {
+        "query": {
+            "default_field": "run.name"
+        }
+    }
+}

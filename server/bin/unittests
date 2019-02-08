@@ -542,14 +542,14 @@ declare -A cmds=(
 
     # Special case of running pbench-index with -I to get a dump
     # of the index patterns in use.
-    [test-7.0]="_run pbench-index -I"
+    [test-7.0.0]="_run pbench-index -I"
+    [test-7.0.1]="_run pbench-index -Q"
 
     [test-7.1]="_run pbench-index"
 
     # 7.2.X: UnsupportedTarballFormat exceptions:
     # missing metadata.log
     [test-7.2.0]="_run pbench-index"
-
     # badly formed tarball: ./<resultdir> prefix instead of <resultdir>
     [test-7.2.1]="_run pbench-index"
 
@@ -581,6 +581,12 @@ declare -A cmds=(
     # a complete comparison of input to output.
     # uperf latency and throughput (usec and trans_sec) results
     [test-7.16]="_run pbench-index"
+
+    # Test vmstat tool data indexing.
+    [test-7.17]="_run pbench-index"
+
+    # Test bad controller.
+    [test-7.18]="_run pbench-index"
 
     # activation test
     [test-8]="_run_activate"

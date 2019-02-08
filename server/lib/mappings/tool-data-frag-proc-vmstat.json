@@ -1,0 +1,1128 @@
+{
+    "_meta": {
+        "version": "1"
+    },
+    "properties": {
+        "@idx": {
+            "type": "long"
+        },
+        "rate": {
+            "properties": {
+                "allocstall_": {
+                    "type": "double"
+                },
+                "pageoutrun": {
+                    "type": "double"
+                },
+                "pgactivate": {
+                    "type": "double"
+                },
+                "pgdeactivate": {
+                    "type": "double"
+                },
+                "pgfault": {
+                    "type": "double"
+                },
+                "pgfree": {
+                    "type": "double"
+                },
+                "pginodesteal": {
+                    "type": "double"
+                },
+                "pglazyfree": {
+                    "type": "double"
+                },
+                "pglazyfreed": {
+                    "type": "double"
+                },
+                "pgmajfault": {
+                    "type": "double"
+                },
+                "pgpgin": {
+                    "type": "double"
+                },
+                "pgpgout": {
+                    "type": "double"
+                },
+                "pgrefill_": {
+                    "type": "double"
+                },
+                "pgrotated": {
+                    "type": "double"
+                },
+                "pswpin": {
+                    "type": "double"
+                },
+                "pswpout": {
+                    "type": "double"
+                },
+                "allocstall": {
+                    "properties": {
+                        "dma": {
+                            "type": "double"
+                        },
+                        "dma32": {
+                            "type": "double"
+                        },
+                        "movable": {
+                            "type": "double"
+                        },
+                        "normal": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "balloon": {
+                    "properties": {
+                        "deflate": {
+                            "type": "double"
+                        },
+                        "inflate": {
+                            "type": "double"
+                        },
+                        "migrate": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "compact": {
+                    "properties": {
+                        "daemon_free_scanned": {
+                            "type": "double"
+                        },
+                        "daemon_migrate_scanned": {
+                            "type": "double"
+                        },
+                        "daemon_wake": {
+                            "type": "double"
+                        },
+                        "fail": {
+                            "type": "double"
+                        },
+                        "free_scanned": {
+                            "type": "double"
+                        },
+                        "isolated": {
+                            "type": "double"
+                        },
+                        "migrate_scanned": {
+                            "type": "double"
+                        },
+                        "stall": {
+                            "type": "double"
+                        },
+                        "success": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "drop": {
+                    "properties": {
+                        "pagecache": {
+                            "type": "double"
+                        },
+                        "slab": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "htlb": {
+                    "properties": {
+                        "buddy_alloc_fail": {
+                            "type": "double"
+                        },
+                        "buddy_alloc_success": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "kswapd": {
+                    "properties": {
+                        "high_wmark_hit_quickly": {
+                            "type": "double"
+                        },
+                        "inodesteal": {
+                            "type": "double"
+                        },
+                        "low_wmark_hit_quickly": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "nr": {
+                    "properties": {
+                        "active_anon": {
+                            "type": "double"
+                        },
+                        "active_file": {
+                            "type": "double"
+                        },
+                        "alloc_batch": {
+                            "type": "double"
+                        },
+                        "anon_pages": {
+                            "type": "double"
+                        },
+                        "anon_transparent_hugepages": {
+                            "type": "double"
+                        },
+                        "bounce": {
+                            "type": "double"
+                        },
+                        "dirtied": {
+                            "type": "double"
+                        },
+                        "dirty": {
+                            "type": "double"
+                        },
+                        "dirty_background_threshold": {
+                            "type": "double"
+                        },
+                        "dirty_threshold": {
+                            "type": "double"
+                        },
+                        "file_pages": {
+                            "type": "double"
+                        },
+                        "free_cma": {
+                            "type": "double"
+                        },
+                        "free_pages": {
+                            "type": "double"
+                        },
+                        "inactive_anon": {
+                            "type": "double"
+                        },
+                        "inactive_file": {
+                            "type": "double"
+                        },
+                        "isolated_anon": {
+                            "type": "double"
+                        },
+                        "isolated_file": {
+                            "type": "double"
+                        },
+                        "kernel_stack": {
+                            "type": "double"
+                        },
+                        "mapped": {
+                            "type": "double"
+                        },
+                        "mlock": {
+                            "type": "double"
+                        },
+                        "pages_scanned": {
+                            "type": "double"
+                        },
+                        "page_table_pages": {
+                            "type": "double"
+                        },
+                        "shmem": {
+                            "type": "double"
+                        },
+                        "shmem_hugepages": {
+                            "type": "double"
+                        },
+                        "shmem_pmdmapped": {
+                            "type": "double"
+                        },
+                        "slab_reclaimable": {
+                            "type": "double"
+                        },
+                        "slab_unreclaimable": {
+                            "type": "double"
+                        },
+                        "unevictable": {
+                            "type": "double"
+                        },
+                        "unstable": {
+                            "type": "double"
+                        },
+                        "vmscan_immediate_reclaim": {
+                            "type": "double"
+                        },
+                        "vmscan_write": {
+                            "type": "double"
+                        },
+                        "writeback": {
+                            "type": "double"
+                        },
+                        "writeback_temp": {
+                            "type": "double"
+                        },
+                        "written": {
+                            "type": "double"
+                        },
+                        "zone_active_anon": {
+                            "type": "double"
+                        },
+                        "zone_active_file": {
+                            "type": "double"
+                        },
+                        "zone_inactive_anon": {
+                            "type": "double"
+                        },
+                        "zone_inactive_file": {
+                            "type": "double"
+                        },
+                        "zone_unevictable": {
+                            "type": "double"
+                        },
+                        "zone_write_pending": {
+                            "type": "double"
+                        },
+                        "zspages": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "numa": {
+                    "properties": {
+                        "foreign": {
+                            "type": "double"
+                        },
+                        "hint_faults": {
+                            "type": "double"
+                        },
+                        "hint_faults_local": {
+                            "type": "double"
+                        },
+                        "hit": {
+                            "type": "double"
+                        },
+                        "huge_pte_updates": {
+                            "type": "double"
+                        },
+                        "interleave": {
+                            "type": "double"
+                        },
+                        "local": {
+                            "type": "double"
+                        },
+                        "miss": {
+                            "type": "double"
+                        },
+                        "other": {
+                            "type": "double"
+                        },
+                        "pages_migrated": {
+                            "type": "double"
+                        },
+                        "pte_updates": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "oom": {
+                    "properties": {
+                        "kill": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "pgalloc": {
+                    "properties": {
+                        "dma": {
+                            "type": "double"
+                        },
+                        "dma32": {
+                            "type": "double"
+                        },
+                        "movable": {
+                            "type": "double"
+                        },
+                        "normal": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "pgmigrate": {
+                    "properties": {
+                        "fail": {
+                            "type": "double"
+                        },
+                        "success": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "pgrefill": {
+                    "properties": {
+                        "dma": {
+                            "type": "double"
+                        },
+                        "dma32": {
+                            "type": "double"
+                        },
+                        "movable": {
+                            "type": "double"
+                        },
+                        "normal": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "pgscan": {
+                    "properties": {
+                        "direct": {
+                            "type": "double"
+                        },
+                        "direct_dma": {
+                            "type": "double"
+                        },
+                        "direct_dma32": {
+                            "type": "double"
+                        },
+                        "direct_movable": {
+                            "type": "double"
+                        },
+                        "direct_normal": {
+                            "type": "double"
+                        },
+                        "direct_throttle": {
+                            "type": "double"
+                        },
+                        "kswapd": {
+                            "type": "double"
+                        },
+                        "kswapd_dma": {
+                            "type": "double"
+                        },
+                        "kswapd_dma32": {
+                            "type": "double"
+                        },
+                        "kswapd_movable": {
+                            "type": "double"
+                        },
+                        "kswapd_normal": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "pgskip": {
+                    "properties": {
+                        "dma": {
+                            "type": "double"
+                        },
+                        "dma32": {
+                            "type": "double"
+                        },
+                        "movable": {
+                            "type": "double"
+                        },
+                        "normal": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "pgsteal": {
+                    "properties": {
+                        "direct": {
+                            "type": "double"
+                        },
+                        "direct_dma": {
+                            "type": "double"
+                        },
+                        "direct_dma32": {
+                            "type": "double"
+                        },
+                        "direct_movable": {
+                            "type": "double"
+                        },
+                        "direct_normal": {
+                            "type": "double"
+                        },
+                        "kswapd": {
+                            "type": "double"
+                        },
+                        "kswapd_dma": {
+                            "type": "double"
+                        },
+                        "kswapd_dma32": {
+                            "type": "double"
+                        },
+                        "kswapd_movable": {
+                            "type": "double"
+                        },
+                        "kswapd_normal": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "slabs": {
+                    "properties": {
+                        "scanned": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "swap": {
+                    "properties": {
+                        "ra": {
+                            "type": "double"
+                        },
+                        "ra_hit": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "thp": {
+                    "properties": {
+                        "collapse_alloc": {
+                            "type": "double"
+                        },
+                        "collapse_alloc_failed": {
+                            "type": "double"
+                        },
+                        "deferred_split_page": {
+                            "type": "double"
+                        },
+                        "fault_alloc": {
+                            "type": "double"
+                        },
+                        "fault_fallback": {
+                            "type": "double"
+                        },
+                        "file_alloc": {
+                            "type": "double"
+                        },
+                        "file_mapped": {
+                            "type": "double"
+                        },
+                        "split": {
+                            "type": "double"
+                        },
+                        "split_page": {
+                            "type": "double"
+                        },
+                        "split_page_failed": {
+                            "type": "double"
+                        },
+                        "split_pmd": {
+                            "type": "double"
+                        },
+                        "split_pud": {
+                            "type": "double"
+                        },
+                        "swpout": {
+                            "type": "double"
+                        },
+                        "swpout_fallback": {
+                            "type": "double"
+                        },
+                        "zero_page_alloc": {
+                            "type": "double"
+                        },
+                        "zero_page_alloc_failed": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "unevictable": {
+                    "properties": {
+                        "pgs_cleared": {
+                            "type": "double"
+                        },
+                        "pgs_culled": {
+                            "type": "double"
+                        },
+                        "pgs_mlocked": {
+                            "type": "double"
+                        },
+                        "pgs_munlocked": {
+                            "type": "double"
+                        },
+                        "pgs_rescued": {
+                            "type": "double"
+                        },
+                        "pgs_scanned": {
+                            "type": "double"
+                        },
+                        "pgs_stranded": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "workingset": {
+                    "properties": {
+                        "activate": {
+                            "type": "double"
+                        },
+                        "nodereclaim": {
+                            "type": "double"
+                        },
+                        "refault": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "zone": {
+                    "properties": {
+                        "reclaim_failed": {
+                            "type": "double"
+                        }
+                    }
+                }
+            }
+        },
+        "gauge": {
+            "properties": {
+                "allocstall_": {
+                    "type": "long"
+                },
+                "pageoutrun": {
+                    "type": "long"
+                },
+                "pgactivate": {
+                    "type": "long"
+                },
+                "pgdeactivate": {
+                    "type": "long"
+                },
+                "pgfault": {
+                    "type": "long"
+                },
+                "pgfree": {
+                    "type": "long"
+                },
+                "pginodesteal": {
+                    "type": "long"
+                },
+                "pglazyfree": {
+                    "type": "long"
+                },
+                "pglazyfreed": {
+                    "type": "long"
+                },
+                "pgmajfault": {
+                    "type": "long"
+                },
+                "pgpgin": {
+                    "type": "long"
+                },
+                "pgpgout": {
+                    "type": "long"
+                },
+                "pgrefill_": {
+                    "type": "long"
+                },
+                "pgrotated": {
+                    "type": "long"
+                },
+                "pswpin": {
+                    "type": "long"
+                },
+                "pswpout": {
+                    "type": "long"
+                },
+                "allocstall": {
+                    "properties": {
+                        "dma": {
+                            "type": "long"
+                        },
+                        "dma32": {
+                            "type": "long"
+                        },
+                        "movable": {
+                            "type": "long"
+                        },
+                        "normal": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "balloon": {
+                    "properties": {
+                        "deflate": {
+                            "type": "long"
+                        },
+                        "inflate": {
+                            "type": "long"
+                        },
+                        "migrate": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "compact": {
+                    "properties": {
+                        "daemon_free_scanned": {
+                            "type": "long"
+                        },
+                        "daemon_migrate_scanned": {
+                            "type": "long"
+                        },
+                        "daemon_wake": {
+                            "type": "long"
+                        },
+                        "fail": {
+                            "type": "long"
+                        },
+                        "free_scanned": {
+                            "type": "long"
+                        },
+                        "isolated": {
+                            "type": "long"
+                        },
+                        "migrate_scanned": {
+                            "type": "long"
+                        },
+                        "stall": {
+                            "type": "long"
+                        },
+                        "success": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "drop": {
+                    "properties": {
+                        "pagecache": {
+                            "type": "long"
+                        },
+                        "slab": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "htlb": {
+                    "properties": {
+                        "buddy_alloc_fail": {
+                            "type": "long"
+                        },
+                        "buddy_alloc_success": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "kswapd": {
+                    "properties": {
+                        "high_wmark_hit_quickly": {
+                            "type": "long"
+                        },
+                        "inodesteal": {
+                            "type": "long"
+                        },
+                        "low_wmark_hit_quickly": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "nr": {
+                    "properties": {
+                        "active_anon": {
+                            "type": "long"
+                        },
+                        "active_file": {
+                            "type": "long"
+                        },
+                        "alloc_batch": {
+                            "type": "long"
+                        },
+                        "anon_pages": {
+                            "type": "long"
+                        },
+                        "anon_transparent_hugepages": {
+                            "type": "long"
+                        },
+                        "bounce": {
+                            "type": "long"
+                        },
+                        "dirtied": {
+                            "type": "long"
+                        },
+                        "dirty": {
+                            "type": "long"
+                        },
+                        "dirty_background_threshold": {
+                            "type": "long"
+                        },
+                        "dirty_threshold": {
+                            "type": "long"
+                        },
+                        "file_pages": {
+                            "type": "long"
+                        },
+                        "free_cma": {
+                            "type": "long"
+                        },
+                        "free_pages": {
+                            "type": "long"
+                        },
+                        "inactive_anon": {
+                            "type": "long"
+                        },
+                        "inactive_file": {
+                            "type": "long"
+                        },
+                        "isolated_anon": {
+                            "type": "long"
+                        },
+                        "isolated_file": {
+                            "type": "long"
+                        },
+                        "kernel_stack": {
+                            "type": "long"
+                        },
+                        "mapped": {
+                            "type": "long"
+                        },
+                        "mlock": {
+                            "type": "long"
+                        },
+                        "pages_scanned": {
+                            "type": "long"
+                        },
+                        "page_table_pages": {
+                            "type": "long"
+                        },
+                        "shmem": {
+                            "type": "long"
+                        },
+                        "shmem_hugepages": {
+                            "type": "long"
+                        },
+                        "shmem_pmdmapped": {
+                            "type": "long"
+                        },
+                        "slab_reclaimable": {
+                            "type": "long"
+                        },
+                        "slab_unreclaimable": {
+                            "type": "long"
+                        },
+                        "unevictable": {
+                            "type": "long"
+                        },
+                        "unstable": {
+                            "type": "long"
+                        },
+                        "vmscan_immediate_reclaim": {
+                            "type": "long"
+                        },
+                        "vmscan_write": {
+                            "type": "long"
+                        },
+                        "writeback": {
+                            "type": "long"
+                        },
+                        "writeback_temp": {
+                            "type": "long"
+                        },
+                        "written": {
+                            "type": "long"
+                        },
+                        "zone_active_anon": {
+                            "type": "long"
+                        },
+                        "zone_active_file": {
+                            "type": "long"
+                        },
+                        "zone_inactive_anon": {
+                            "type": "long"
+                        },
+                        "zone_inactive_file": {
+                            "type": "long"
+                        },
+                        "zone_unevictable": {
+                            "type": "long"
+                        },
+                        "zone_write_pending": {
+                            "type": "long"
+                        },
+                        "zspages": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "numa": {
+                    "properties": {
+                        "foreign": {
+                            "type": "long"
+                        },
+                        "hint_faults": {
+                            "type": "long"
+                        },
+                        "hint_faults_local": {
+                            "type": "long"
+                        },
+                        "hit": {
+                            "type": "long"
+                        },
+                        "huge_pte_updates": {
+                            "type": "long"
+                        },
+                        "interleave": {
+                            "type": "long"
+                        },
+                        "local": {
+                            "type": "long"
+                        },
+                        "miss": {
+                            "type": "long"
+                        },
+                        "other": {
+                            "type": "long"
+                        },
+                        "pages_migrated": {
+                            "type": "long"
+                        },
+                        "pte_updates": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "oom": {
+                    "properties": {
+                        "kill": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "pgalloc": {
+                    "properties": {
+                        "dma": {
+                            "type": "long"
+                        },
+                        "dma32": {
+                            "type": "long"
+                        },
+                        "movable": {
+                            "type": "long"
+                        },
+                        "normal": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "pgmigrate": {
+                    "properties": {
+                        "fail": {
+                            "type": "long"
+                        },
+                        "success": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "pgrefill": {
+                    "properties": {
+                        "dma": {
+                            "type": "long"
+                        },
+                        "dma32": {
+                            "type": "long"
+                        },
+                        "movable": {
+                            "type": "long"
+                        },
+                        "normal": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "pgscan": {
+                    "properties": {
+                        "direct": {
+                            "type": "long"
+                        },
+                        "direct_dma": {
+                            "type": "long"
+                        },
+                        "direct_dma32": {
+                            "type": "long"
+                        },
+                        "direct_movable": {
+                            "type": "long"
+                        },
+                        "direct_normal": {
+                            "type": "long"
+                        },
+                        "direct_throttle": {
+                            "type": "long"
+                        },
+                        "kswapd": {
+                            "type": "long"
+                        },
+                        "kswapd_dma": {
+                            "type": "long"
+                        },
+                        "kswapd_dma32": {
+                            "type": "long"
+                        },
+                        "kswapd_movable": {
+                            "type": "long"
+                        },
+                        "kswapd_normal": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "pgskip": {
+                    "properties": {
+                        "dma": {
+                            "type": "long"
+                        },
+                        "dma32": {
+                            "type": "long"
+                        },
+                        "movable": {
+                            "type": "long"
+                        },
+                        "normal": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "pgsteal": {
+                    "properties": {
+                        "direct": {
+                            "type": "long"
+                        },
+                        "direct_dma": {
+                            "type": "long"
+                        },
+                        "direct_dma32": {
+                            "type": "long"
+                        },
+                        "direct_movable": {
+                            "type": "long"
+                        },
+                        "direct_normal": {
+                            "type": "long"
+                        },
+                        "kswapd": {
+                            "type": "long"
+                        },
+                        "kswapd_dma": {
+                            "type": "long"
+                        },
+                        "kswapd_dma32": {
+                            "type": "long"
+                        },
+                        "kswapd_movable": {
+                            "type": "long"
+                        },
+                        "kswapd_normal": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "slabs": {
+                    "properties": {
+                        "scanned": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "swap": {
+                    "properties": {
+                        "ra": {
+                            "type": "long"
+                        },
+                        "ra_hit": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "thp": {
+                    "properties": {
+                        "collapse_alloc": {
+                            "type": "long"
+                        },
+                        "collapse_alloc_failed": {
+                            "type": "long"
+                        },
+                        "deferred_split_page": {
+                            "type": "long"
+                        },
+                        "fault_alloc": {
+                            "type": "long"
+                        },
+                        "fault_fallback": {
+                            "type": "long"
+                        },
+                        "file_alloc": {
+                            "type": "long"
+                        },
+                        "file_mapped": {
+                            "type": "long"
+                        },
+                        "split": {
+                            "type": "long"
+                        },
+                        "split_page": {
+                            "type": "long"
+                        },
+                        "split_page_failed": {
+                            "type": "long"
+                        },
+                        "split_pmd": {
+                            "type": "long"
+                        },
+                        "split_pud": {
+                            "type": "long"
+                        },
+                        "swpout": {
+                            "type": "long"
+                        },
+                        "swpout_fallback": {
+                            "type": "long"
+                        },
+                        "zero_page_alloc": {
+                            "type": "long"
+                        },
+                        "zero_page_alloc_failed": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "unevictable": {
+                    "properties": {
+                        "pgs_cleared": {
+                            "type": "long"
+                        },
+                        "pgs_culled": {
+                            "type": "long"
+                        },
+                        "pgs_mlocked": {
+                            "type": "long"
+                        },
+                        "pgs_munlocked": {
+                            "type": "long"
+                        },
+                        "pgs_rescued": {
+                            "type": "long"
+                        },
+                        "pgs_scanned": {
+                            "type": "long"
+                        },
+                        "pgs_stranded": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "workingset": {
+                    "properties": {
+                        "activate": {
+                            "type": "long"
+                        },
+                        "nodereclaim": {
+                            "type": "long"
+                        },
+                        "refault": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "zone": {
+                    "properties": {
+                        "reclaim_failed": {
+                            "type": "long"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
