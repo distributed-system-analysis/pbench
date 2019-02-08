@@ -663,12 +663,16 @@ else
         let found=0
         for test_name in $all_tests_sorted; do
             case $test_arg in
+            test-*)
+                ;;
+            *)
+                test_arg="test-$test_arg"
+                ;;
+            esac
+            case $test_arg in
             *\.)
                 # if $test_arg ends in "." use as a prefix
                 if [[ "$test_name" =~ "$test_arg" ]]; then
-                    tests="$tests $test_name"
-                    let found=found+1
-                elif [[ "$test_name" =~ test-$test_arg ]]; then
                     tests="$tests $test_name"
                     let found=found+1
                 fi
@@ -676,10 +680,6 @@ else
             *)
                 # if $test_arg does not end in "." use as a full test name
                 if [[ "$test_name" = "$test_arg" ]]; then
-                    tests="$tests $test_name"
-                    let found=found+1
-                    break
-                elif [[ "$test_name" == "test-$test_arg" ]]; then
                     tests="$tests $test_name"
                     let found=found+1
                     break
