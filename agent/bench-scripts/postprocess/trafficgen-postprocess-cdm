@@ -143,7 +143,7 @@ for my $client_hostname (@client_hostname_dirs) {
 								 $$trial_metric{'type'},
 								 $client_hostname,
 								 "trafficgen",
-								 "%source%_%hostname%_%type%" . $$trial_metric{'name_format'},
+								 "%source%_%host%_%type%" . $$trial_metric{'name_format'},
 								 $trial{$$trial_metric{'key'}},
 								 $trial{'stats'}{'trial_stop'});
 		    $metric_sample{'metric'}{'begin'} = $trial{'stats'}{'trial_start'};
@@ -158,7 +158,7 @@ for my $client_hostname (@client_hostname_dirs) {
 								 $$trial_stats_metric{'type'},
 								 $client_hostname,
 								 "trafficgen",
-								 "%source%_%hostname%_%type%" . $$trial_stats_metric{'name_format'},
+								 "%source%_%host%_%type%" . $$trial_stats_metric{'name_format'},
 								 $trial{'stats'}{$$trial_stats_metric{'key'}}{$$trial_stats_metric{'field'}},
 								 $trial{'stats'}{'trial_stop'});
 		    $metric_sample{'metric'}{'begin'} = $trial{'stats'}{'trial_start'};
@@ -173,7 +173,7 @@ for my $client_hostname (@client_hostname_dirs) {
 								 $$trial_stats_device_metric{'type'},
 								 $client_hostname,
 								 "trafficgen",
-								 "%source%_%hostname%_%type%" . $$trial_stats_device_metric{'name_format'},
+								 "%source%_%host%_%type%" . $$trial_stats_device_metric{'name_format'},
 								 $trial{'stats'}{$$dev_pair{$$trial_stats_device_metric{'key'}}}{$$trial_stats_device_metric{'field'}},
 								 $trial{'stats'}{'trial_stop'});
 		    $metric_sample{'metric'}{'begin'} = $trial{'stats'}{'trial_start'};
