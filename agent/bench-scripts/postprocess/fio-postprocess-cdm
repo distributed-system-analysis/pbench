@@ -102,7 +102,7 @@ for my $client (@client_dirs) {
                                 $metric_type,   # The metric-type
                                 $client,# The hostname
                                 "fio",      # The source
-                                "%source%-%type%-%hostname%", # The metric-instance name format
+                                "%source%-%type%-%host%", # The metric-instance name format
                                 $value,     # The value of the metric
                                 $timestamp_ms   # The timestamp
                                 );

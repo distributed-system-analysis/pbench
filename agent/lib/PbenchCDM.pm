@@ -159,7 +159,7 @@ sub create_metric_sample_doc {
                                      # "count" (quantity, percent, sum, elapsed time, value, etc)
     $doc{'metric'}{'type'} = shift; # A generic name for this metric, like "gigabits-per-second",
                                     # does not include specifics like "/dev/sda" or "cpu1"
-    $doc{'metric'}{'hostname'} = shift; # The hostname where this metric comes from
+    $doc{'metric'}{'host'} = shift; # The hostname where this metric comes from
     $doc{'metric'}{'source'} = shift; # A benchmark or tool where this metric comes from, like
                                       # "iostat" or "fio"
     # The instance_name_format tells us how the name for this metric-instance is assembled.
@@ -167,13 +167,13 @@ sub create_metric_sample_doc {
     # the format is described by joining strings and field names
     # (which are identified by % before and after), like:
     #
-    #     network-L2-%type%-%hostname%,
-    #         where type=Gbps and hostname=perf1,
+    #     network-L2-%type%-%host%,
+    #         where type=Gbps and host=perf1,
     #         so this resolves to:
     #     network-L2-Gbps-perf1
     #
-    # or: %source%-%bin%-%pid%/%tid%-%hostname%-percent-cpu-usage,
-    #         where source=pidstat, bin=qemu pid=1094 tid=1095 hostname=perf1
+    # or: %source%-%bin%-%pid%/%tid%-%host%-percent-cpu-usage,
+    #         where source=pidstat, bin=qemu pid=1094 tid=1095 host=perf1
     #         so this resolves to: 
     #     pidstat-qemu-1094/1095-perf1-percent-cpu-usage
     #
@@ -181,7 +181,7 @@ sub create_metric_sample_doc {
     # so that the resulting name is different from any other metric-instance.
     # For example, you want to ensure that the pidstat data from host perf1
     # does not have the exact same metric-instance name as pidstat data from
-    # host perf2, and so including %hostname% in a metric-instance name
+    # host perf2, and so including %host% in a metric-instance name
     # format is almost always required.  However, there are potneitally many
     # more fields required, and this code can't possibly know all situations
     # so it is up to the caller of this function to understand that scenario

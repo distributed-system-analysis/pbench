@@ -78,7 +78,7 @@ while (my $line = <IOSTAT_TXT>) {
 					$hostname,# hostname
 					"iostat",		# the source
 					# the metric-instance name format
-					"%source%-%type%-%device%-%hostname%",
+					"%source%-%type%-%device%-%host%",
 					$sample{$metric_class}{$metric_type},	# the value of the metric
 					$timestamp_ms	# the timestamp
 					);
