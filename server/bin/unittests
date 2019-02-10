@@ -204,13 +204,13 @@ function _dump_logs {
 function _verify_output {
     res=$1
     tname=$2
-    diff -c $_tdir/gold/${tname}.txt $_testout
+    diff -c $_tdir/gold/${tname}.txt $_testout > $_testdiff 2>&1
     if [[ $? -gt 0 ]]; then
         echo "FAIL" > $_testres
         res=1
     else
         echo "PASS" > $_testres
-        rm $_testout
+        rm $_testout $_testdiff
     fi
     return $res
 }
@@ -386,6 +386,7 @@ function _run_test {
 
     export _testres=$_testroot/result.txt
     export _testout=$_testroot/output.txt
+    export _testdiff=$_testroot/output.diff
     export _testactout=$_testroot/actoutput.txt
     export _testactlog=$_testroot/test-activation-execution.log
     export _testlog=$_testroot/test-execution.log
@@ -635,21 +636,30 @@ else
     for test_arg in $test_args ;do
         let found=0
         for test_name in $all_tests_sorted; do
-            if [[ "$test_arg" == "$test_name" ]]; then
-                tests="$tests $test_name"
-                let found=found+1
-                break
-            elif [[ "$test_name" =~ $test_arg ]]; then
-                tests="$tests $test_name"
-                let found=found+1
-            elif [[ "test-$test_arg" == "$test_name" ]]; then
-                tests="$tests $test_name"
-                let found=found+1
-                break
-            elif [[ "$test_name" =~ test-$test_arg ]]; then
-                tests="$tests $test_name"
-                let found=found+1
-            fi
+            case $test_arg in
+            *\.)
+                # if $test_arg ends in "." use as a prefix
+                if [[ "$test_name" =~ "$test_arg" ]]; then
+                    tests="$tests $test_name"
+                    let found=found+1
+                elif [[ "$test_name" =~ test-$test_arg ]]; then
+                    tests="$tests $test_name"
+                    let found=found+1
+                fi
+                ;;
+            *)
+                # if $test_arg does not end in "." use as a full test name
+                if [[ "$test_name" = "$test_arg" ]]; then
+                    tests="$tests $test_name"
+                    let found=found+1
+                    break
+                elif [[ "$test_name" == "test-$test_arg" ]]; then
+                    tests="$tests $test_name"
+                    let found=found+1
+                    break
+                fi
+                ;;
+            esac
         done
         if [ $found -eq 0 ]; then
             printf "Unknown test $test_arg, skipping ...\n" >&2
@@ -671,10 +681,13 @@ for testname in $tests ;do
     else
         _run_test ${testname} ${cmd}
         res=$(cat ${_testbase}/${testname}/result.txt)
-        echo "$res - ${testname}"
         if [ $res == "PASS" ]; then
+            echo "$res - ${testname}"
             rm ${_testbase}/${testname}/result.txt
             rmdir ${_testbase}/${testname}
+        else
+            cat ${_testbase}/${testname}/output.diff
+            echo "$res - ${testname}"
         fi
     fi
     if [[ $? != 0 ]] ;then
@@ -688,10 +701,13 @@ elif [[ $mode == "parallel" ]]; then
     wait
     for testname in $tests ;do
         res=$(cat ${_testbase}/${testname}/result.txt)
-        echo "$res - ${testname}"
         if [ $res == "PASS" ]; then
+            echo "$res - ${testname}"
             rm ${_testbase}/${testname}/result.txt
             rmdir ${_testbase}/${testname}
+        else
+            cat ${_testbase}/${testname}/output.diff
+            echo "$res - ${testname}"
         fi
     done
 fi
