@@ -837,7 +837,7 @@
             ],
             "stddev" : 0.00149641240935551,
             "stddevpct" : 1.42284544361683,
-            "closest sample" : 3,
+            "closest_sample" : 3,
             "role" : "client"
          },
          {
@@ -1788,7 +1788,7 @@
             ],
             "stddev" : 0.00851850419132403,
             "stddevpct" : 0.398331929090985,
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "role" : "server"
          }
       ]
@@ -2510,7 +2510,7 @@
             ],
             "stddevpct" : 10.656567380114,
             "stddev" : 0.58937733552061,
-            "closest sample" : 2,
+            "closest_sample" : 2,
             "server_port" : "21000"
          },
          {
@@ -3131,7 +3131,7 @@
             ],
             "stddevpct" : 6.33025349216127,
             "stddev" : 0.274726153783667,
-            "closest sample" : 3,
+            "closest_sample" : 3,
             "server_port" : "22000"
          }
       ]
@@ -3883,7 +3883,7 @@
             ],
             "stddevpct" : 7.21802907142906,
             "stddev" : 0.0356212215059737,
-            "closest sample" : 2,
+            "closest_sample" : 2,
             "role" : "client",
             "server_port" : "22000"
          },
@@ -4632,7 +4632,7 @@
             ],
             "stddevpct" : 11.9087122658002,
             "stddev" : 0.0659756979049853,
-            "closest sample" : 2,
+            "closest_sample" : 2,
             "role" : "client",
             "server_port" : "21000"
          },
@@ -5357,7 +5357,7 @@
             ],
             "stddevpct" : 2.83674672540301,
             "stddev" : 0.027640631536193,
-            "closest sample" : 2,
+            "closest_sample" : 2,
             "role" : "aggregate",
             "server_port" : "all"
          }

@@ -881,7 +881,7 @@
             ],
             "stddev" : 0.0166113983495149,
             "stddevpct" : 10.1432282630155,
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "role" : "client"
          },
          {
@@ -1728,7 +1728,7 @@
             ],
             "stddev" : 0.00882240810539573,
             "stddevpct" : 0.410350840243146,
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "role" : "server"
          }
       ]
@@ -2466,7 +2466,7 @@
             ],
             "stddevpct" : 3.8257272771934,
             "stddev" : 531.082023259805,
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "server_port" : "21000"
          },
          {
@@ -3163,7 +3163,7 @@
             ],
             "stddevpct" : 3.77038163430314,
             "stddev" : 520.680952386683,
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "server_port" : "22000"
          }
       ]
@@ -3915,7 +3915,7 @@
             ],
             "stddevpct" : 0.224518015499635,
             "stddev" : 5.27819824930793,
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "role" : "client",
             "server_port" : "22000"
          },
@@ -4664,7 +4664,7 @@
             ],
             "stddevpct" : 0.226872317352463,
             "stddev" : 5.33439747840074,
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "role" : "client",
             "server_port" : "21000"
          },
@@ -5389,7 +5389,7 @@
             ],
             "stddevpct" : 0.232221274051794,
             "stddev" : 10.9452009704076,
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "role" : "aggregate",
             "server_port" : "all"
          }
@@ -6142,7 +6142,7 @@
             ],
             "stddevpct" : 0.220584339965172,
             "stddev" : 0.938790954673971,
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "role" : "client",
             "server_port" : "22000"
          },
@@ -6891,7 +6891,7 @@
             ],
             "stddevpct" : 0.223135785983922,
             "stddev" : 0.949528068770148,
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "role" : "client",
             "server_port" : "21000"
          },
@@ -7616,7 +7616,7 @@
             ],
             "stddevpct" : 0.231706230861742,
             "stddev" : 0.983226436959455,
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "role" : "aggregate",
             "server_port" : "all"
          }

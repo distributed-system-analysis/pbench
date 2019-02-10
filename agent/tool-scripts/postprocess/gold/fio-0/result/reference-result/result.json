@@ -73,82 +73,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1273222
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1355351
                },
                {
                   "date" : 3001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 6019655
                },
                {
                   "date" : 4003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5749951
                },
                {
                   "date" : 5002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5766638
                },
                {
                   "date" : 6004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5753173
                },
                {
                   "date" : 7001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5758150
                },
                {
                   "date" : 8004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5758840
                },
                {
                   "date" : 9004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5770775
                },
                {
                   "date" : 10002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5763815
                },
                {
                   "date" : 11004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5752404
                },
                {
                   "date" : 12001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5759560
                },
                {
                   "date" : 13004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5889139
                },
                {
                   "date" : 14003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5799931
                },
                {
                   "date" : 15003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5875528
                },
                {
                   "date" : 15004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5299323
                }
             ],
@@ -162,82 +162,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1269273
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1356100
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 6020913
                },
                {
                   "date" : 4002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5757576
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5767751
                },
                {
                   "date" : 6003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5752586
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5756972
                },
                {
                   "date" : 8001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5777153
                },
                {
                   "date" : 9001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5775947
                },
                {
                   "date" : 10001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5762377
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5738445
                },
                {
                   "date" : 12003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5758420
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5886659
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5811270
                },
                {
                   "date" : 15000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5863815
                },
                {
                   "date" : 15004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10038548
                }
             ],
@@ -251,82 +251,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1271100
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1353251
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 6027707
                },
                {
                   "date" : 4004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5760757
                },
                {
                   "date" : 5003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5771676
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5752111
                },
                {
                   "date" : 7002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5749039
                },
                {
                   "date" : 8001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5771417
                },
                {
                   "date" : 9002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5776535
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5763635
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5771516
                },
                {
                   "date" : 12004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5758200
                },
                {
                   "date" : 13001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5890973
                },
                {
                   "date" : 14001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5805176
                },
                {
                   "date" : 15000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5864353
                },
                {
                   "date" : 15004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 8389452
                }
             ],
@@ -340,82 +340,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1266945
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1357672
                },
                {
                   "date" : 3003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 6031105
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5751528
                },
                {
                   "date" : 5001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5772605
                },
                {
                   "date" : 6002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5751722
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5756291
                },
                {
                   "date" : 8003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5761024
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5756755
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5762401
                },
                {
                   "date" : 11003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5765353
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5760057
                },
                {
                   "date" : 13003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5889617
                },
                {
                   "date" : 14002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5806147
                },
                {
                   "date" : 15001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5868015
                },
                {
                   "date" : 15002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5928806
                }
             ],
@@ -429,82 +429,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1271294
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1367144
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5990853
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5740660
                },
                {
                   "date" : 5002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5757373
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5752944
                },
                {
                   "date" : 7003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5762645
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5751641
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5769527
                },
                {
                   "date" : 10003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5762771
                },
                {
                   "date" : 11001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5765707
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5759828
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5882056
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5798146
                },
                {
                   "date" : 15002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5859940
                },
                {
                   "date" : 15003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5860355
                }
             ],
@@ -518,82 +518,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2905702
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2874921
                },
                {
                   "date" : 3001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3174165
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2795383
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2697894
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2932915
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2933331
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2802929
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2792919
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2808232
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2711845
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2863236
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3034387
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2860890
                },
                {
                   "date" : 15007,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1802439
                },
                {
                   "date" : 15023,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 673435710
                }
             ],
@@ -607,82 +607,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2905525
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2873502
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3179809
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2797099
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2697086
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2931644
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2932176
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2801289
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2789313
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2808751
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2711193
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2864748
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3034654
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2865507
                },
                {
                   "date" : 15000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1665361
                },
                {
                   "date" : 15024,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 194758613
                }
             ],
@@ -696,82 +696,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2905984
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2875252
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3180371
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2793959
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2697509
                },
                {
                   "date" : 6001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2931039
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2932169
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2801635
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2791586
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2809786
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2713096
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2867456
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3037088
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2838979
                },
                {
                   "date" : 15011,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 4661871
                },
                {
                   "date" : 15023,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1017528548
                }
             ],
@@ -785,82 +785,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2905469
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2874431
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3179054
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2794823
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2697732
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2931287
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2931590
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2801054
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2791013
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2808542
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2713560
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2864864
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3035592
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2851103
                },
                {
                   "date" : 15022,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3016781
                },
                {
                   "date" : 15033,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 988907419
                }
             ],
@@ -874,82 +874,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2905324
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2873928
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3175320
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2795654
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2697586
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2930547
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2932672
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2800730
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2792053
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2806562
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2710531
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2865446
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3035591
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2842307
                },
                {
                   "date" : 15013,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 4612773
                },
                {
                   "date" : 15024,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1023111452
                }
             ],
@@ -1030,82 +1030,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1285976
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1369069
                },
                {
                   "date" : 3001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 6059496
                },
                {
                   "date" : 4003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5789683
                },
                {
                   "date" : 5002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5805769
                },
                {
                   "date" : 6004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5792424
                },
                {
                   "date" : 7001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5796878
                },
                {
                   "date" : 8004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5797948
                },
                {
                   "date" : 9004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5810102
                },
                {
                   "date" : 10002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5803436
                },
                {
                   "date" : 11004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5791889
                },
                {
                   "date" : 12001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5799503
                },
                {
                   "date" : 13004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5930868
                },
                {
                   "date" : 14003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5839510
                },
                {
                   "date" : 15003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5915936
                },
                {
                   "date" : 15004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5303194
                }
             ],
@@ -1119,82 +1119,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1282006
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1369583
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 6067007
                },
                {
                   "date" : 4002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5797706
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5807605
                },
                {
                   "date" : 6003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5792421
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5797039
                },
                {
                   "date" : 8001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5818117
                },
                {
                   "date" : 9001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5816922
                },
                {
                   "date" : 10001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5803145
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5778706
                },
                {
                   "date" : 12003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5799097
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5930082
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5852670
                },
                {
                   "date" : 15000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5907276
                },
                {
                   "date" : 15004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10081161
                }
             ],
@@ -1208,82 +1208,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1283765
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1367045
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 6067069
                },
                {
                   "date" : 4004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5799976
                },
                {
                   "date" : 5003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5812336
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5792676
                },
                {
                   "date" : 7002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5789724
                },
                {
                   "date" : 8001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5811889
                },
                {
                   "date" : 9002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5816622
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5803247
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5812463
                },
                {
                   "date" : 12004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5798954
                },
                {
                   "date" : 13001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5932600
                },
                {
                   "date" : 14001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5845904
                },
                {
                   "date" : 15000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5906165
                },
                {
                   "date" : 15004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 8394806
                }
             ],
@@ -1297,82 +1297,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1279598
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1370843
                },
                {
                   "date" : 3003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 6072287
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5791800
                },
                {
                   "date" : 5001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5813618
                },
                {
                   "date" : 6002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5792573
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5797013
                },
                {
                   "date" : 8003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5801209
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5796758
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5803108
                },
                {
                   "date" : 11003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5805436
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5799436
                },
                {
                   "date" : 13003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5928927
                },
                {
                   "date" : 14002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5845782
                },
                {
                   "date" : 15001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5907201
                },
                {
                   "date" : 15002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5932774
                }
             ],
@@ -1386,82 +1386,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1284019
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1380618
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 6038416
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5781673
                },
                {
                   "date" : 5002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5797686
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5792802
                },
                {
                   "date" : 7003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5802939
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5791697
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5810312
                },
                {
                   "date" : 10003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5802802
                },
                {
                   "date" : 11001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5805819
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5799591
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5921903
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5838574
                },
                {
                   "date" : 15002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5900202
                },
                {
                   "date" : 15003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5864129
                }
             ],
@@ -1475,82 +1475,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2908702
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2878024
                },
                {
                   "date" : 3001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3177505
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2798473
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2700752
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2935930
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2936287
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2805923
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2796098
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2811384
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2715613
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2867221
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3038300
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2864783
                },
                {
                   "date" : 15007,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1806001
                },
                {
                   "date" : 15023,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 673437935
                }
             ],
@@ -1564,82 +1564,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2908567
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2876791
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3183197
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2800205
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2700161
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2934790
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2935172
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2804515
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2792697
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2811976
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2715059
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2868604
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3038820
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2869730
                },
                {
                   "date" : 15000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1669344
                },
                {
                   "date" : 15024,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 194762903
                }
             ],
@@ -1653,82 +1653,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2909056
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2878309
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3183436
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2796738
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2700538
                },
                {
                   "date" : 6001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2933890
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2935101
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2804778
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2794506
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2812688
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2716889
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2871535
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3041390
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2843538
                },
                {
                   "date" : 15011,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 4666334
                },
                {
                   "date" : 15023,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1017532226
                }
             ],
@@ -1742,82 +1742,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2908541
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2877466
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3182031
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2798037
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2700801
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2934423
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2934884
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2804346
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2794252
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2811798
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2717274
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2869488
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3040412
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2855937
                },
                {
                   "date" : 15022,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3021502
                },
                {
                   "date" : 15033,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 988912903
                }
             ],
@@ -1831,82 +1831,82 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2908367
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2877291
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3178807
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2798842
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2700651
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2933594
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2935699
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2803958
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2795161
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2809632
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2714400
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2868886
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3038996
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2845813
                },
                {
                   "date" : 15013,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 4615882
                },
                {
                   "date" : 15024,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 1023115194
                }
             ],
@@ -1987,77 +1987,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 12609
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 13616
                },
                {
                   "date" : 3003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39837
                },
                {
                   "date" : 4004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39395
                },
                {
                   "date" : 5003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39009
                },
                {
                   "date" : 6005,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39110
                },
                {
                   "date" : 7002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 38598
                },
                {
                   "date" : 8005,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 38978
                },
                {
                   "date" : 9005,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39197
                },
                {
                   "date" : 10003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39486
                },
                {
                   "date" : 11005,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39349
                },
                {
                   "date" : 12003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39854
                },
                {
                   "date" : 13005,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 41544
                },
                {
                   "date" : 14005,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39446
                },
                {
                   "date" : 15004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40071
                }
             ],
@@ -2071,77 +2071,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 12592
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 13570
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 45099
                },
                {
                   "date" : 4003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39971
                },
                {
                   "date" : 5002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39727
                },
                {
                   "date" : 6004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39702
                },
                {
                   "date" : 7001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39949
                },
                {
                   "date" : 8002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40827
                },
                {
                   "date" : 9002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40846
                },
                {
                   "date" : 10001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40680
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40079
                },
                {
                   "date" : 12004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40558
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 43293
                },
                {
                   "date" : 14001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 41270
                },
                {
                   "date" : 15000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 43339
                }
             ],
@@ -2155,77 +2155,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 12516
                },
                {
                   "date" : 2001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 13680
                },
                {
                   "date" : 3001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39226
                },
                {
                   "date" : 4005,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39104
                },
                {
                   "date" : 5005,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40523
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40223
                },
                {
                   "date" : 7003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40821
                },
                {
                   "date" : 8003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40274
                },
                {
                   "date" : 9003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40019
                },
                {
                   "date" : 10002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39419
                },
                {
                   "date" : 11001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40821
                },
                {
                   "date" : 12005,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40630
                },
                {
                   "date" : 13002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 41501
                },
                {
                   "date" : 14002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40596
                },
                {
                   "date" : 15004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 41477
                }
             ],
@@ -2239,77 +2239,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 12500
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 13068
                },
                {
                   "date" : 3004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 41026
                },
                {
                   "date" : 4001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40152
                },
                {
                   "date" : 5001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40864
                },
                {
                   "date" : 6003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40704
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40598
                },
                {
                   "date" : 8004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40037
                },
                {
                   "date" : 9001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39872
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40587
                },
                {
                   "date" : 11004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39941
                },
                {
                   "date" : 12001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39235
                },
                {
                   "date" : 13004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39172
                },
                {
                   "date" : 14004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39555
                },
                {
                   "date" : 15002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 38790
                }
             ],
@@ -2323,77 +2323,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 12578
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 13699
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 45761
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 41106
                },
                {
                   "date" : 5004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40144
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39741
                },
                {
                   "date" : 7004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40156
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39918
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40646
                },
                {
                   "date" : 10004,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39889
                },
                {
                   "date" : 11002,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39987
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39634
                },
                {
                   "date" : 13001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39710
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 40313
                },
                {
                   "date" : 15003,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 39905
                }
             ],
@@ -2407,77 +2407,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2824
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2935
                },
                {
                   "date" : 3001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3169
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2920
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2701
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2846
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2785
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2820
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3009
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2981
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3583
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3770
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3702
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3692
                },
                {
                   "date" : 15023,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3344
                }
             ],
@@ -2491,77 +2491,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2871
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3128
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3209
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2944
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2905
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2985
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2842
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3066
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3211
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3060
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3680
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3663
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3968
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 4016
                },
                {
                   "date" : 15024,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3768
                }
             ],
@@ -2575,77 +2575,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2907
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2901
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2898
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2632
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2861
                },
                {
                   "date" : 6001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2680
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2770
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2967
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2762
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2743
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3605
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3873
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 4098
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 4334
                },
                {
                   "date" : 15023,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 4250
                }
             ],
@@ -2659,77 +2659,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2901
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2871
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2817
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3048
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2888
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2974
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3115
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3123
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3077
                },
                {
                   "date" : 10001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3092
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3513
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 4401
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 4587
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 4599
                },
                {
                   "date" : 15033,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 4505
                }
             ],
@@ -2743,77 +2743,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2877
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3187
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3307
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3017
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2902
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2885
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2865
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3060
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2951
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2898
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3647
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3252
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3210
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 3316
                },
                {
                   "date" : 15024,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 2939
                }
             ],
@@ -2924,77 +2924,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 24889
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 23148
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5312
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5536
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5504
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5536
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5504
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5536
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5504
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5504
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5536
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5504
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5408
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5476
                },
                {
                   "date" : 15000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5408
                }
             ],
@@ -3008,77 +3008,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 24978
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 23086
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5281
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5535
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5504
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5536
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5504
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5504
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5504
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5505
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5536
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5535
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5377
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5472
                },
                {
                   "date" : 15000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5409
                }
             ],
@@ -3092,77 +3092,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 24930
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 23150
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5311
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5536
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5504
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5505
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5535
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5504
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5504
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5504
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5505
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5535
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5380
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5472
                },
                {
                   "date" : 15000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5416
                }
             ],
@@ -3176,77 +3176,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 25010
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 23118
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5316
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5505
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5504
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5535
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5505
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5538
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5505
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5535
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5504
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5504
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5408
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5472
                },
                {
                   "date" : 15000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5408
                }
             ],
@@ -3260,77 +3260,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 24918
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 23144
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5309
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5508
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5535
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5514
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5526
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5536
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5499
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5509
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5504
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5536
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5376
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5504
                },
                {
                   "date" : 15000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 5408
                }
             ],
@@ -3344,77 +3344,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11008
                },
                {
                   "date" : 2001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11101
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10066
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11430
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11849
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10906
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10880
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11408
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11440
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11395
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11778
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11141
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10538
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11061
                },
                {
                   "date" : 15000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 6750
                }
             ],
@@ -3428,77 +3428,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11007
                },
                {
                   "date" : 2001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11107
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10044
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11428
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11849
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10906
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10893
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11406
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11455
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11391
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11780
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11142
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10527
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11066
                },
                {
                   "date" : 15000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 16165
                }
             ],
@@ -3512,77 +3512,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11007
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11132
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10052
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11424
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11843
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10910
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10912
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11392
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11456
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11374
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11768
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11133
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10529
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11052
                },
                {
                   "date" : 15000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 373
                }
             ],
@@ -3596,77 +3596,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11002
                },
                {
                   "date" : 2000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11122
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10053
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11434
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11840
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10904
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10910
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11402
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11446
                },
                {
                   "date" : 10000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11376
                },
                {
                   "date" : 11000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11777
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11153
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10513
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11061
                },
                {
                   "date" : 15000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 942
                }
             ],
@@ -3680,77 +3680,77 @@
             "timeseries" : [
                {
                   "date" : 1000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11008
                },
                {
                   "date" : 2001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11102
                },
                {
                   "date" : 3000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10059
                },
                {
                   "date" : 4000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11444
                },
                {
                   "date" : 5000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11840
                },
                {
                   "date" : 6000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10906
                },
                {
                   "date" : 7000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10894
                },
                {
                   "date" : 8000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11411
                },
                {
                   "date" : 9000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11438
                },
                {
                   "date" : 10001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11388
                },
                {
                   "date" : 11001,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11781
                },
                {
                   "date" : 12000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 11142
                },
                {
                   "date" : 13000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10520
                },
                {
                   "date" : 14000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 10981
                },
                {
                   "date" : 15000,
-                  "read(0) or write(1)" : 0,
+                  "read_or_write" : 0,
                   "value" : 396
                }
             ],
