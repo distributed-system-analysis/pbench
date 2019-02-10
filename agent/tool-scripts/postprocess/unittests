@@ -116,6 +116,13 @@ function testprocessiterationsamples {
 
     remove_sample_data $1
 
+    # A successful test is one where the "reference-result" symlink is created
+    # to the sample1 directory.  Since the sample1 directory is removed when
+    # the sample data is removed above, unconditionally add an empty file for
+    # sample one so that the diff will succeed when the symlink is properly
+    # created.
+    touch ${_testroot}/$1/sample1
+
     diff -cr gold/$1/ ${_testroot}/$1
     sts=$?
     if [ $sts -eq 0 ]; then

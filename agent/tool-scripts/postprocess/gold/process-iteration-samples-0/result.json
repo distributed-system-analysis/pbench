@@ -3,7 +3,7 @@
       "trans_sec/cpu_busy" : [
          {
             "client_hostname" : "perf102",
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "description" : "Number of transactions sent by client for a period of 1 second divided-by Total busy CPU usage, averaged over N seconds, where 1.0 = 1 logical CPU",
             "hostname" : "perf102",
             "mean" : 59590,
@@ -712,7 +712,7 @@
          },
          {
             "client_hostname" : "perf102",
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "description" : "Number of transactions sent by client for a period of 1 second divided-by Total busy CPU usage, averaged over N seconds, where 1.0 = 1 logical CPU",
             "hostname" : "perf102",
             "mean" : 59350,
@@ -1405,7 +1405,7 @@
       "usec" : [
          {
             "client_hostname" : "perf102",
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "description" : "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
             "mean" : 93.26,
             "role" : "client",
@@ -2154,7 +2154,7 @@
          },
          {
             "client_hostname" : "perf102",
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "description" : "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
             "mean" : 93.25,
             "role" : "client",
@@ -2903,7 +2903,7 @@
          },
          {
             "client_hostname" : "all",
-            "closest sample" : 2,
+            "closest_sample" : 2,
             "description" : "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
             "mean" : 92.39,
             "role" : "aggregate",
@@ -3648,7 +3648,7 @@
    "resource" : {
       "cpu_busy" : [
          {
-            "closest sample" : 2,
+            "closest_sample" : 2,
             "description" : "Total busy CPU usage, averaged over N seconds, where 1.0 = 1 logical CPU",
             "hostname" : "perf104",
             "mean" : 2.171,
@@ -4439,7 +4439,7 @@
             "uid" : "hostname:%hostname%"
          },
          {
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "description" : "Total busy CPU usage, averaged over N seconds, where 1.0 = 1 logical CPU",
             "hostname" : "perf102",
             "mean" : 0.1833,
@@ -5215,7 +5215,7 @@
       "trans_sec" : [
          {
             "client_hostname" : "perf102",
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "description" : "Number of transactions sent by client for a period of 1 second",
             "mean" : 10730,
             "role" : "client",
@@ -5964,7 +5964,7 @@
          },
          {
             "client_hostname" : "perf102",
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "description" : "Number of transactions sent by client for a period of 1 second",
             "mean" : 10730,
             "role" : "client",
@@ -6713,7 +6713,7 @@
          },
          {
             "client_hostname" : "all",
-            "closest sample" : 1,
+            "closest_sample" : 1,
             "description" : "Number of transactions sent by client for a period of 1 second",
             "mean" : 21280,
             "role" : "aggregate",

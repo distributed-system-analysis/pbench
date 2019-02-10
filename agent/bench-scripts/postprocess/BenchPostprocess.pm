@@ -47,13 +47,13 @@ sub get_label {
 			'mean_label' => 'mean',
 			'stddev_label' => 'stddev',
 			'stddevpct_label' => 'stddevpct',
-			'closest_sample_label' => 'closest sample',	
+			'closest_sample_label' => 'closest_sample',
 			'samples_label' => 'samples',
 			'primary_metric_label' => 'primary_metric',
 			'max_stddevpct_label' => 'max_stddevpct',
 			'max_failures_label' => 'max_failures',
 			'skip_aggregate_label' => 'skip_aggregate',
-			'rw_label' => 'read(0) or write(1)' );
+			'rw_label' => 'read_or_write' );
 	if ( $labels{$key} ) {
 		return $labels{$key}
 	} else {
@@ -261,7 +261,7 @@ sub get_cpubusy_series {
 	# CPU Busy is in CPU units: 1.0 = amoutn of cpu used is equal to 1 logical CPU
 	# 1.0 does not necessarily mean exactly 1 of the cpus was used at 100%.
 	# This value is a sum of all cpus used, which may be several cpus used, each a fraction of their maximum
-	
+
 	my $first_timestamp;
 	my $last_timestamp;
 	my $params = shift;
@@ -326,7 +326,7 @@ sub calc_ratio_series {
 	# %ratio_hash = %numerator_hash / %denominator_hash
 	# Each hash is a time series, with a value for each timestamp key
 	# The timestamp keys do not need to match exactly.  Values are interrepted linearly
-	
+
 
 	# These hashes need to be used by reference in order to preserve the changes made
 	my $params = shift;
@@ -486,8 +486,8 @@ sub calc_aggregate_metrics {
 				$agg_dataset{get_label('description_label')} = $$workload_ref{$metric_class}{$metric_type}[0]{get_label('description_label')};
 				$agg_dataset{get_label('uid_label')} = $$workload_ref{$metric_class}{$metric_type}[0]{get_label('uid_label')};
 				foreach my $label ( grep { $_ ne get_label('description_label') and
-							   $_ ne get_label('value_label') and 
-							   $_ ne get_label('uid_label') and 
+							   $_ ne get_label('value_label') and
+							   $_ ne get_label('uid_label') and
 							   $_ ne get_label('role_label') } (keys %{ $$workload_ref{$metric_class}{$metric_type}[0] } ) ) {
 					$agg_dataset{$label} = "all";
 				}
@@ -594,7 +594,7 @@ sub create_graph_hash {
 		if ($$workload_ref{$metric_type}) {
 			foreach my $metric_name (keys %{ $$workload_ref{$metric_type} }) {
 				for (my $i = 0; $i < scalar @{ $$workload_ref{$metric_type}{$metric_name} }; $i++) {
-					my $series_name = get_uid($$workload_ref{$metric_type}{$metric_name}[$i]{get_label('uid_label')}, \%{ $$workload_ref{$metric_type}{$metric_name}[$i] }); 
+					my $series_name = get_uid($$workload_ref{$metric_type}{$metric_name}[$i]{get_label('uid_label')}, \%{ $$workload_ref{$metric_type}{$metric_name}[$i] });
 					if (exists($$workload_ref{$metric_type}{$metric_name}[$i]{get_label('timeseries_label')})) {
 						for (my $j = 0; $j < scalar @{ $$workload_ref{$metric_type}{$metric_name}[$i]{get_label('timeseries_label')} }; $j++ ) {
 							my $timestamp_ms = $$workload_ref{$metric_type}{$metric_name}[$i]{get_label('timeseries_label')}[$j]{get_label('date_label')};
