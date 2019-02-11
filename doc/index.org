@@ -21,7 +21,6 @@
 ** [[file:./agent/installation.org][PBench agent installation instructions]].
 ** [[file:./agent/user-guide.org][PBench agent user guide]].
 ** [[file:./agent/faq.org][PBench agent FAQ]].
-** [[file:agent/rhel8.org][PBench agent installation on RHEL8: temporary instructions and workarounds]].
 ** [[file:./server/pbench-web-server.org][PBench web server installation instructions and use]].
 * Admin documentation
 ** [[file:./server/installation.org][PBench server installation instructions]].
