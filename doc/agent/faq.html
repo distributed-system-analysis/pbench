@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-11-27 Tue 16:58 -->
+<!-- 2019-02-11 Mon 16:47 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>&lrm;</title>
@@ -201,7 +201,7 @@
 @licstart  The following is the entire license notice for the
 JavaScript code in this tag.
 
-Copyright (C) 2012-2018 Free Software Foundation, Inc.
+Copyright (C) 2012-2019 Free Software Foundation, Inc.
 
 The JavaScript code in this tag is free software: you can
 redistribute it and/or modify it under the terms of the GNU
@@ -251,7 +251,10 @@ for the JavaScript code in this tag.
 <ul>
 <li><a href="#org6e7bc86">Frequently asked questions</a>
 <ul>
-<li><a href="#org7d55db4">I want to group related results together - how do I do that?</a></li>
+<li><a href="#org370ea9b">I want to group related results together - how do I do that? (Part 1)</a></li>
+<li><a href="#org4d7f55b">I like to rename the directory that pbench produces before I send it to the server so I can group results together - that's a good idea, right?</a></li>
+<li><a href="#org09020a5">I want to group related results together - how do I do that? (Part 2)</a></li>
+<li><a href="#org4818635">Why is the <code>metadata.log</code> file important?</a></li>
 </ul>
 </li>
 <li><a href="#orgedca930">Do's and don'ts</a>
@@ -267,9 +270,77 @@ for the JavaScript code in this tag.
 <h2 id="org6e7bc86">Frequently asked questions</h2>
 <div class="outline-text-2" id="text-org6e7bc86">
 </div>
-<div id="outline-container-org7d55db4" class="outline-3">
-<h3 id="org7d55db4">I want to group related results together - how do I do that?</h3>
-<div class="outline-text-3" id="text-org7d55db4">
+<div id="outline-container-org370ea9b" class="outline-3">
+<h3 id="org370ea9b">I want to group related results together - how do I do that? (Part 1)</h3>
+<div class="outline-text-3" id="text-org370ea9b">
+<p>
+Use <code>--config</code> when running a benchmark.
+</p>
+
+<p>
+This allows you to group together related results by using similar
+config strings (and conversely, use dissimilar strings to separate
+unrelated results), within the universe of your own results.
+</p>
+
+<p>
+All of the benchmark scripts that pbench provides, use a standardized
+name for the results directory (and hence the tarball that is packaged
+up and sent to the server). E.g. <code>pbench-fio</code> creates a directory (under
+<code>/var/lib/pbench-agent</code>) with the name <code>fio__2019.01.29T19.24.29</code> with just
+the name of the benchmark and a time stamp.
+</p>
+
+<p>
+But all the benchmark scripts take a <code>--config</code> option that allows an
+(almost) arbitrary string to be added to the name of the results
+directory: e.g <code>pbench-fio --config=foo</code> will produce a results
+directory named <code>fio_foo_2019.01.29T19.24.29</code>. The only character that
+is not allowed is the forward slash <code>/</code> for obvious reasons, but you
+probably want to avoid spaces, newlines, colons and characters that
+have special meaning to the shell (asterisks, backslashes, question
+marks, etc.) 
+</p>
+</div>
+</div>
+
+<div id="outline-container-org4d7f55b" class="outline-3">
+<h3 id="org4d7f55b">I like to rename the directory that pbench produces before I send it to the server so I can group results together - that's a good idea, right?</h3>
+<div class="outline-text-3" id="text-org4d7f55b">
+<p>
+No.
+</p>
+
+<p>
+Well, it can be done, but please don't do that. During the run, pbench
+gathers up information about the run that the indexer uses later on:
+the name of the directory is one of those pieces of information, so if
+you change it, it will either confuse the indexer or it will be
+indexed differently than you expect, making it difficult to retrieve
+those results.
+</p>
+
+<p>
+From v0.55 on, <code>pbench-move/copy-results</code> tries to detect this situation
+and will abort the move/copy, leaving the results as-is. If this happens
+frequently, we'll have to add another question to the FAQ !-)
+</p>
+</div>
+</div>
+
+<div id="outline-container-org09020a5" class="outline-3">
+<h3 id="org09020a5">I want to group related results together - how do I do that? (Part 2)</h3>
+<div class="outline-text-3" id="text-org09020a5">
+<p>
+Use <code>--prefix</code> and <code>--user</code> when moving/copying results to the server.
+</p>
+
+<p>
+After you've run your benchmark and you are ready to send the results
+to the server, there are a couple of things you should know about
+<code>pbench-move/copy-results</code>.
+</p>
+
 <p>
 There are two useful options to <code>pbench-move-results</code>: <code>--prefix</code> and
 <code>--user--</code>. The latter was introduced in v0.51, the former has existed
@@ -332,8 +403,32 @@ for the results that a user might be interested in.
 </p>
 </div>
 </div>
-</div>
 
+<div id="outline-container-org4818635" class="outline-3">
+<h3 id="org4818635">Why is the <code>metadata.log</code> file important?</h3>
+<div class="outline-text-3" id="text-org4818635">
+<p>
+The metadata log file collects information about the run as the
+benchmark script is running (name of the run, start and end times,
+controller name, tool information, etc.)  The indexer will look for
+the metadata log file in the top level directory of the tarball that
+is sent to the server and will <b>NOT</b> process the tarball if the
+metadata log file is missing or it does not contain the information
+the indexer requires.
+</p>
+
+<p>
+Right now, you can look at your results because we expand and store
+the tarballs on the server, but this does <b>not</b> scale: we soon will
+depend <b>solely</b> on the index for visualizing the results, so it
+behooves us to make sure that the indexing works. In particular, if
+you write your own benchmark scripts, please make sure that it
+produces a metadata log file (see e.g. <code>pbench-user-bencmark</code>, the
+simplest benchmark script, to see how to go about doing that).
+</p>
+</div>
+</div>
+</div>
 
 <div id="outline-container-orgedca930" class="outline-2">
 <h2 id="orgedca930">Do's and don'ts</h2>
@@ -343,9 +438,16 @@ for the results that a user might be interested in.
 <h3 id="org0e67da4">Do</h3>
 <div class="outline-text-3" id="text-org0e67da4">
 <ul class="org-ul">
-<li>namespace your results by using the <code>--prefix</code> and <code>--user</code> options
-of <code>pbench-move-results</code> - see:
-<a href="#org7d55db4">I want to group related results together - how do I do that?</a></li>
+<li>namespace your own results by using the <code>--config</code> option to the
+benchmark script - see <a href="#org370ea9b">I want to group related results together -
+how do I do that? (Part 1)</a></li>
+<li>namespace your results (within the universe of <b>all</b> results) by
+using the <code>--prefix</code> and <code>--user</code> options of <code>pbench-move-results</code> -
+see: <a href="#org09020a5">I want to group related results together - how do I do that?
+(Part 2)</a></li>
+<li>make sure that the metadata log file exists and is complete (at
+least with a start and end time for the run) - otherwise, the
+indexer will not index the tarball.</li>
 </ul>
 </div>
 </div>
@@ -359,6 +461,7 @@ in an effort to namespace the results: <code>pbench-move-results</code> will
 create a single tarball and it will unpack it seemingly
 successfully, but your results will fail to index, because the
 indexer cannot make heads or tails of the structure.</li>
+<li>rename results directories before you use <code>pbench-move/copy-results</code></li>
 </ul>
 </div>
 </div>
@@ -366,7 +469,7 @@ indexer cannot make heads or tails of the structure.</li>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Nick Dokos</p>
-<p class="date">Created: 2018-11-27 Tue 16:58</p>
+<p class="date">Created: 2019-02-11 Mon 16:47</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

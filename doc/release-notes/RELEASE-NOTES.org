@@ -1,4 +1,4 @@
-# Created 2018-11-27 Tue 16:57
+# Created 2019-02-11 Mon 16:46
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -15,6 +15,200 @@
 #+subtitle: 
 #+infojs_opt: 
 #+latex_header: 
+
+* Version 0.56
+
+** Installation                                                    :external:
+
+There are no installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.55-1g94965f79
+of the pbench-agent RPM installed.
+
+** agent
+
+*** New pbench agent universal bench script
+See [[https://github.com/distributed-system-analysis/pbench/pull/1051][the PR page]] for details. This PR was merged to make this new script available
+for experimentation. There are probably going to be problems, so it not recommended for
+general use, but the sooner we start experimenting with it, the sooner we can resolve
+problems and move towards adopting it and deprecating existing bench scripts. If you
+do find problems, please open issues on Github.
+
+*** Tool triggers work again
+Tool triggers were fixed to work as expected. In addition, =pbench-user-benchmark= got
+a new option =--use-tool-triggers= to enable such triggers with user-provided benchmark
+scripts.
+
+*** =pbench-move-results= requires the present of =metadata.log=
+Results without a =metadata.log= file cannot be indexed. That was
+detected at indexing time before, but with increasing use of the
+dashboard which looks to ES for results, we now enforce that on the
+agent side, by having =pbench-move/copy-results= fail if it cannot
+find the =metadata.log= file.
+
+This should not affect you if you use the pbench-provided benchmark
+scripts, but if you roll your own, you will probably have to modify
+your script to produce the required file.
+
+If you have questions, reach out to us: we'll help get you over the
+hump.
+
+*** perf tool postprocessing has been modified
+We no longer produce the per-cpu perf data in postprocessing: that
+takes a long time and it is not clear that they are useful. Instead,
+we use =perf archive= to get and package *all* the data that is needed
+so that any postprocessing can be done on any node (not necessarily the
+node where the perf data were gathered, as was the case previously).
+For more information, see [[https://github.com/distributed-system-analysis/pbench/pull/1047][the PR]].
+
+*** Reduce pidstat's disk usage
+De-duping pidstat output reduced its space usage by 90%. That does not
+get us out of the woods yet: displaying results still taxes the browser's
+resources.
+
+*** mpstat postprocessing bug
+Very occasionally, =mpstat= postprocessing would get wrong timestamps.
+This has been fixed.
+
+*** Known problems and backward incompatibilities
+
+See the [[https://github.com/distributed-system-analysis/pbench/issues][issues on Github]].
+
+** server
+
+*** Indexing bugs fixed
+Timestamp conversions occasionally failed, aborting the indexing.
+This has been fixed.
+
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.56
+:END:
+
+There are no changes but a 0.56-1g94965f79 RPM has been built on COPR (just
+to make sure it still builds correctly.)
+
+** Changelog
+This is the list of visible commits since v0.55:
+
+- 20664796 Version bump
+- b4c91015 Trafficgen also needs change from hostname to host for CDM
+- 74d05f24 CDM: use host instead of hostname in metrics
+- e44c92c0 Fix typo.
+- 5e1edecb Parallelize the unit tests
+- 805a9cfa Native integration of jschart with pbench dashboard
+- ce4c7b90 Use perf archive and stop generating per-CPU reports
+- 640da6a8 Fix handling of pidstat unit tests
+- 5d7dea8d Fix spacing in base
+- 290d9483 Use createBrowserHistory to manage session history
+- 251965af Fix up jstack/jmap unit tests
+- 078fa45a Update gold index.html file
+- f39de89b Fix mpstat post processing to handle timestamps properly
+- 33235eae Add mpstat-1 ahead of fix to mpstat-postprocess
+- dfadcbc0 Several fix-ups for CDM and pbench-run-benchmark
+- c3359d11 Several fix-ups for CDM and pbench-run-benchmark
+- 12d5ef32 Add --no-stderr-capture flag to pbench-user-benchmark
+- 3c89ab4c Drop the intermediate pbench dir in server
+- 38188896 Reduce pidstat space by 90%
+- 8b3e4126 Capture uperf-server logs for debugging
+- 6cf6126e Ensure pbench-move/copy-results only works with metadata.log
+- 45909e0e pbench-agent: implement universal bench script and CDM
+- 93391fb9 Fix pbench-tool-trigger to work as expected
+- d7da22ef Ensure server unittests don't use install PATHs
+- 3f7b4420 Remove installed agent PATHs in tool unittests
+- 75a6e24f Add final cleanup to util-scripts unit tests
+- d745238b Add final cleanup to bench-scripts unit tests
+- 32d54001 A few cleanups to pbench-postprocess-tools
+- 32d6329d Fix indexing error handling timestamp conversions
+- 7727e4a7 Reduce overhead for local dev by using node environment vars
+
+* Version 0.55
+There are a few changes in the agent (see the Changelog) but most of
+the changes in v0.55 are to fix the indexing on the server side. Feel
+free to skip upgrading until v0.56 (which is coming very shortly).
+If you are installing from scratch, you are going to get v0.55 which should
+be fine (but if you run into problems, please let us know).
+
+** Installation                                                    :external:
+
+There are no installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.55-1ge87cec4
+of the pbench-agent RPM installed.
+
+** agent
+
+*** fio
+The last known vestiges of pandas have been excised from the config files and the RPMS.
+If you see any mention of pandas anywhere, please let us know.
+
+*** New tools
+=jmap= and =jstack= tools added to colect JVM stats.
+
+*** prom2json
+Allow insecure certs.
+
+*** Known problems and backward incompatibilities
+
+See the [[https://github.com/distributed-system-analysis/pbench/issues][issues on Github]].
+
+** server
+
+The indexer got a major overhaul to fix various problems. It seems to
+be handling things much better now (albeit rather slowly).
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.55
+:END:
+
+There are no changes but a 0.55-1ge87cec4 RPM has been built on COPR (just
+to make sure it still builds correctly.)
+
+** Changelog
+This is the list of visible commits since v0.54:
+
+- e87cec47 Version bump to 0.55
+- b5ceebe9 Fix pbench-move-results to only push valid results
+- c6779258 Fix assertion during error handling of index resps
+- bdcba8a4 Query prefix field in run document for summary visualization
+- d5c20033 Remove IDXCONFIG in favor of existing server cfg
+- 62cc317f Validate all timestamps in run start/end
+- 233e0e4f Correct result data output values
+- 4a0651ad Test benchmarks supported for results data up front
+- f79960d8 Refactor error handling of result data loop
+- 38894175 A few comment fixups
+- c728aab6 Ensure we don't use relative timestamps
+- 828a5a87 Add file-size to tar ball metadata
+- 3c2435de Explicitly only handle 'sample' results JSON
+- 1de550c8 Refactor results class methods closer together
+- b053d8bc Fix expand_template to work properly
+- 1e5a67c8 Drop unused convert_to_float
+- 29ce5d57 Gracefully handle closed indices
+- ffdd2162 Add ability to run all tests matching a prefix
+- ba28ac8b Rename "PDash" references to "Pbench Dashboard"
+- ccd82d21 Fixes for the dashboard ansible task and playbook
+- 760014d7 Move URL from pdashv2 to dashboard
+- abd14623 Initial ansible deployment workflow for dashboard
+- 9e075b0a PDash_v2 initial release
+- b08c20bc Extend auditing to incoming, results, and users
+- c9328a11 Simplify PATH environment variable handling
+- 082393eb Use ConfigParser instead of SafeConfigParser
+- 75a53a0b Update p-rpt-sts to warn iff config file exists
+- 954e270b Clarify test-5.1 & test-5.2 comments
+- 467bbae4 Add ability to accept unittest number
+- e6eddbdb Allow insecure certs for prom2json
+- 1d068b73 Drop mailing status reports and use syslog
+- fb2cb0af Make sure JSON payload is sorted
+- 19fa2ad4 adding jstack tool to collect JVM threads statistics for plain and dockerized JVM's.
+- 20bc0a92 Add jmap tool.
+- abefecb0 Remove `--directory` option from pbench-fio.
+- 9b963274 Remove pandas-related stuff.
+- 469893a4 pbench-report-status: fix md5 calculation.
+
 
 * Version 0.54
 
