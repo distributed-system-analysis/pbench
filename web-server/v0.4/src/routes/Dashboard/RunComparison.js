@@ -57,15 +57,12 @@ export default class RunComparison extends ReactJS.Component {
       tableData: [],
       loading: false,
       generatingPdf: false,
-      modal: {
-        visible: false,
-      },
-      checked: ['details', 'summary', 'table', 'timeseries'],
-      defaultChecked: [],
-      pdf: {
-        pdfHeader: ' ',
-        confirmLoading: false,
-      },
+      modalVisible: false,
+      defaultComponents: ['details', 'summary', 'table', 'timeseries'],
+      selectedComponents: [],
+      pdfHeader: ' ',
+      pdfName: ' ',
+      confirmLoading: false,
     };
   }
 
@@ -123,9 +120,9 @@ export default class RunComparison extends ReactJS.Component {
         for (var iteration in clusteredIterations[primaryMetric][cluster]) {
           clusterObject[iteration] =
             clusteredIterations[primaryMetric][cluster][iteration][
-            Object.keys(clusteredIterations[primaryMetric][cluster][iteration]).find(
-              this.findAggregation
-            )
+              Object.keys(clusteredIterations[primaryMetric][cluster][iteration]).find(
+                this.findAggregation
+              )
             ];
         }
         clusteredGraphData[primaryMetric].push(clusterObject);
@@ -153,7 +150,7 @@ export default class RunComparison extends ReactJS.Component {
 
   groupClusters = (array, cluster, f) => {
     var groups = {};
-    array.forEach(function (o) {
+    array.forEach(function(o) {
       var group = f(o).join('-');
       groups[group] = groups[group] || [];
       groups[group].push(o);
@@ -161,7 +158,7 @@ export default class RunComparison extends ReactJS.Component {
     var { clusterLabels } = this.state;
     clusterLabels[cluster] = Object.keys(groups);
     this.setState({ clusterLabels: clusterLabels });
-    return Object.keys(groups).map(function (group) {
+    return Object.keys(groups).map(function(group) {
       return groups[group];
     });
   };
@@ -181,7 +178,7 @@ export default class RunComparison extends ReactJS.Component {
         clusteredIterations = this.groupClusters(
           primaryMetricIterations[cluster],
           cluster,
-          function (item) {
+          function(item) {
             var configData = [];
             for (var filter in config) {
               configData.push(item[config[filter]]);
@@ -224,29 +221,29 @@ export default class RunComparison extends ReactJS.Component {
           iterationRequests.push(
             axios.get(
               datastoreConfig.results +
-              '/results/' +
-              encodeURIComponent(
-                clusteredIterations[primaryMetric][cluster][iteration].controller_name
-              ) +
-              '/' +
-              encodeURIComponent(
-                clusteredIterations[primaryMetric][cluster][iteration].result_name
-              ) +
-              '/' +
-              encodeURIComponent(
-                clusteredIterations[primaryMetric][cluster][iteration].iteration_number
-              ) +
-              '-' +
-              encodeURIComponent(
-                clusteredIterations[primaryMetric][cluster][iteration].iteration_name
-              ) +
-              '/' +
-              'sample' +
-              encodeURIComponent(
-                clusteredIterations[primaryMetric][cluster][iteration].closest_sample
-              ) +
-              '/' +
-              'result.json'
+                '/results/' +
+                encodeURIComponent(
+                  clusteredIterations[primaryMetric][cluster][iteration].controller_name
+                ) +
+                '/' +
+                encodeURIComponent(
+                  clusteredIterations[primaryMetric][cluster][iteration].result_name
+                ) +
+                '/' +
+                encodeURIComponent(
+                  clusteredIterations[primaryMetric][cluster][iteration].iteration_number
+                ) +
+                '-' +
+                encodeURIComponent(
+                  clusteredIterations[primaryMetric][cluster][iteration].iteration_name
+                ) +
+                '/' +
+                'sample' +
+                encodeURIComponent(
+                  clusteredIterations[primaryMetric][cluster][iteration].closest_sample
+                ) +
+                '/' +
+                'result.json'
             )
           );
         }
@@ -288,8 +285,8 @@ export default class RunComparison extends ReactJS.Component {
                     }
                     timeseriesLabels.push(
                       clusteredIterations[primaryMetric][cluster][iteration].result_name +
-                      '-' +
-                      clusteredIterations[primaryMetric][cluster][iteration].iteration_name
+                        '-' +
+                        clusteredIterations[primaryMetric][cluster][iteration].iteration_name
                     );
                     iterationTimeseriesData = _.merge(
                       iterationTimeseriesData,
@@ -331,29 +328,29 @@ export default class RunComparison extends ReactJS.Component {
     this.setState({ timeseriesDropdownSelected: timeseriesDropdownSelected });
   };
 
-  savePDF = async () => {
+  savePDF = () => {
     /* maps through the state array containing the IDs and saves the pdf */
-    var doc = new jsPDF('p', 'mm', [1050, 1475]);
+    var doc = new jsPDF('p', 'mm');
     var position = 5;
     var fullIHeight = 0;
-    var promises = this.state.defaultChecked.map(async (check, index) => {
+    var promises = this.state.selectedComponents.map(async (check, index) => {
       await html2canvas(document.querySelector('#' + check), { allowTaint: true }).then(canvas => {
         doc.setPage(index);
         canvas.getContext('2d');
         var imgData = canvas.toDataURL();
-        var imgWidth = 345;
-        var pageHeight = 510;
+        var imgWidth = 210;
+        var pageHeight = 295;
         var imgHeight = (canvas.height * imgWidth) / canvas.width;
         position = fullIHeight + 5;
         fullIHeight = fullIHeight + imgHeight;
         var heightLeft = fullIHeight;
-        doc = doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        doc = doc.addImage(imgData, 'PNG', 15, position, imgWidth, imgHeight);
         doc.text(this.state.pdfHeader, 172, 10, 'center');
         heightLeft -= pageHeight;
         while (heightLeft >= 0) {
           position = heightLeft - fullIHeight;
           doc.addPage();
-          doc = doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+          doc = doc.addImage(imgData, 'PNG', 15, position, imgWidth, imgHeight);
           heightLeft -= pageHeight;
         }
       });
@@ -362,7 +359,7 @@ export default class RunComparison extends ReactJS.Component {
       console.log('downloaded');
       doc.save(this.state.pdfName + '.pdf');
       this.setState({
-        visible: false,
+        modalVisible: false,
         generatingPdf: false,
       });
     });
@@ -382,26 +379,28 @@ export default class RunComparison extends ReactJS.Component {
 
   showModal = () => {
     this.setState({
-      visible: true,
+      modalVisible: true,
     });
   };
 
   handleOk = e => {
-    if (this.state.pdfName == undefined) {
+    console.log(this.state.pdfHeader);
+    if (this.state.pdfName == ' ') {
       this.setState({
         pdfName: moment().format(),
       });
     }
-    if (this.state.pdfHeader == undefined) {
+    if (this.state.pdfHeader == ' ') {
       message.error('Add PDF description');
     } else {
       this.setState(
         {
           generatingPdf: true,
-          defaultChecked: this.state.checked.length == 4 ? ['all'] : [...this.state.checked],
+          selectedComponents:
+            this.state.defaultComponents.length == 4 ? ['all'] : [...this.state.defaultComponents],
         },
         () => {
-          console.log(this.state.defaultChecked);
+          console.log(this.state.selectedComponents);
           this.savePDF();
         }
       );
@@ -410,31 +409,26 @@ export default class RunComparison extends ReactJS.Component {
 
   handleCancel = e => {
     this.setState({
-      visible: false,
+      modalVisible: false,
     });
   };
 
   onChange = id => {
-    if (this.state.checked.includes(id)) {
-      let checked = this.state.checked.filter(check => {
+    if (this.state.defaultComponents.includes(id)) {
+      let defaultComponents = this.state.defaultComponents.filter(check => {
         return check !== id;
       });
       this.setState(
         {
-          checked: checked,
+          defaultComponents: defaultComponents,
         },
         () => {
-          if (this.state.checked.length == 0 || this.state.checked.length == 4) {
-            this.setState({
-              checked: [...this.state.checked, 'all'],
-            });
-          }
-          console.log(this.state.checked);
+          console.log(this.state.defaultComponents);
         }
       );
     } else {
       this.setState({
-        checked: [...this.state.checked, id],
+        defaultComponents: [...this.state.defaultComponents, id],
       });
     }
   };
@@ -534,19 +528,6 @@ export default class RunComparison extends ReactJS.Component {
               </Button>
             </div>
           </Description>
-          <Description term="Slected Division">
-            <div>
-              <Select
-                mode="multiple"
-                placeholder="Select divisions to download"
-                value={this.state.checked}
-              >
-                {this.state.checked.map((check, i) => (
-                  <Select.Option value={check}>{check}</Select.Option>
-                ))}
-              </Select>
-            </div>
-          </Description>
         </DescriptionList>
       </div>
     );
@@ -558,7 +539,7 @@ export default class RunComparison extends ReactJS.Component {
         </Button>
         <Modal
           title="Export to PDF"
-          visible={this.state.visible}
+          visible={this.state.modalVisible}
           onOk={this.handleOk}
           okText={'Save'}
           onCancel={this.handleCancel}
@@ -755,43 +736,43 @@ export default class RunComparison extends ReactJS.Component {
             </TabPane>
             <TabPane forceRender={true} tab="All" key="all" style={{ padding: 16 }}>
               {(Object.keys(timeseriesData).length > 0) &
-                (Object.keys(timeseriesDropdown).length > 0) ? (
-                  <div id="timeseries">
-                    {Object.keys(tableData).map(table => (
-                      <Card
-                        type="inner"
-                        title={table}
-                        style={{ marginBottom: 16 }}
-                        extra={
-                          <Form layout={'inline'}>
-                            <FormItem
-                              label="Selected Cluster"
-                              colon={false}
-                              style={{ marginLeft: 16, fontWeight: '500' }}
+              (Object.keys(timeseriesDropdown).length > 0) ? (
+                <div id="timeseries">
+                  {Object.keys(tableData).map(table => (
+                    <Card
+                      type="inner"
+                      title={table}
+                      style={{ marginBottom: 16 }}
+                      extra={
+                        <Form layout={'inline'}>
+                          <FormItem
+                            label="Selected Cluster"
+                            colon={false}
+                            style={{ marginLeft: 16, fontWeight: '500' }}
+                          >
+                            <Select
+                              defaultValue={'Cluster ' + 0}
+                              style={{ width: 120, marginLeft: 16 }}
+                              value={timeseriesDropdownSelected[table]}
+                              onChange={value => this.clusterDropdownChange(value, table)}
                             >
-                              <Select
-                                defaultValue={'Cluster ' + 0}
-                                style={{ width: 120, marginLeft: 16 }}
-                                value={timeseriesDropdownSelected[table]}
-                                onChange={value => this.clusterDropdownChange(value, table)}
-                              >
-                                {timeseriesDropdown[table].map(cluster => (
-                                  <Select.Option value={cluster}>
-                                    {'Cluster ' + cluster}
-                                  </Select.Option>
-                                ))}
-                              </Select>
-                            </FormItem>
-                          </Form>
-                        }
-                      >
-                        <div id={table} />
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div />
-                )}
+                              {timeseriesDropdown[table].map(cluster => (
+                                <Select.Option value={cluster}>
+                                  {'Cluster ' + cluster}
+                                </Select.Option>
+                              ))}
+                            </Select>
+                          </FormItem>
+                        </Form>
+                      }
+                    >
+                      <div id={table} />
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div />
+              )}
             </TabPane>
           </Tabs>
         </Card>
