@@ -43,16 +43,14 @@ config=""
 sysinfo="default"
 
 # Process options and arguments
-opts=$(getopt -q -o C: --longoptions "config:,threads:,kvm-host:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o C: --longoptions "config:,threads:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@");
 
 function usage {
 	printf "\tThe following options are available:\n\n"
-	printf -- "\t\t--kvm-host=str\n"
-	printf -- "\t\t-C str --config=str                         name of the test config\n"
-	printf -- "\t\t--threads=int[,int]                         number of threads to use (default is num_cpus)\n"
+	printf -- "\t\t-C str --config=str  name of the test config\n"
+	printf -- "\t\t--threads=int[,int]  number of threads to use (default is num_cpus)\n"
 	printf -- "\t\t--tool-group=str\n"
-	printf -- "\t\t--sysinfo=str,                              str= comma separated values of sysinfo to be collected\n"
-	printf -- "\t\t 
+	printf -- "\t\t--sysinfo=str,       str= comma separated values of sysinfo to be collected\n"
 }
 
 if [ $? -ne 0 ]; then
@@ -66,13 +64,6 @@ eval set -- "$opts";
 debug_log "[$script_name] processing options"
 while true; do
 	case "$1" in
-		--kvm-host)
-		shift;
-		if [ -n "$1" ]; then
-			kvm_host="$1"
-			shift;
-		fi
-		;;
 		-c|--config)
 		shift;
 		if [ -n "$1" ]; then
