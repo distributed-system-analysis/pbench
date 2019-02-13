@@ -72,7 +72,7 @@ tool_label_pattern="$benchmark_name-"
 install_only="n"
 one_shot="n"
 accept_negative_loss="n"
-sysinfo=default
+sysinfo="default"
 
 function moongen_usage {
 	  printf "\tThe following options are available:\n\n"
@@ -318,6 +318,7 @@ while true; do
 		;;
 		*)
 		error_log "[$script_name] bad option, \"$1 $2\""
+		exit 1
 		break
 		;;
 	esac
@@ -369,7 +370,8 @@ done
 echo "Total number of benchmark iterations: $total_iterations"
 count=1
 mkdir -p $benchmark_run_dir/.running
-export benchmark_name config
+benchmark=${benchmark_name}
+export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 # start the server processes

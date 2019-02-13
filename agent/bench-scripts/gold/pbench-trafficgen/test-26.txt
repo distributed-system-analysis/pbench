@@ -1,5 +1,5 @@
-+++ Running test-21 pbench-trafficgen
---help
++++ Running test-26 pbench-trafficgen
+--sysinfo=bad
 
 	trafficgen: you specified an invalid option
 
@@ -232,7 +232,7 @@ options common in most pbench benchmark scripts
 --sysinfo=str,
   comma seperated values of sysinfo to be collected, default="none"
     available: default,none,all,a,b,c,d,e
---- Finished test-21 pbench-trafficgen (status=1)
+--- Finished test-26 pbench-trafficgen (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
 /var/tmp/pbench-test-bench/pbench/samples

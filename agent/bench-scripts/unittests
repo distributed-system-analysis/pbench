@@ -205,6 +205,7 @@ declare -A cmds=(
     [test-23]="pbench-user-benchmark --config=test-23 --use-tool-triggers -- tool-trigger-example"
     [test-24]="pbench-user-benchmark --config=test-24                     -- user-benchmark-script no-file"
     [test-25]="pbench-user-benchmark --config=test-25 --no-stderr-capture -- user-benchmark-script no-file"
+    [test-26]="pbench-trafficgen --sysinfo=bad"
 )
 
 declare -A expected_status=(
@@ -215,6 +216,7 @@ declare -A expected_status=(
     [test-19]=1
     [test-20]=1
     [test-21]=1
+    [test-26]=1
 )
 
 date="1900.01.01T00.00.00"

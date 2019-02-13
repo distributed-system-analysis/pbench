@@ -87,6 +87,7 @@ passthrough_arguments=""
 packet_protocol="UDP"
 pre_sample_cmd=""
 traffic_profiles=""
+sysinfo="none"
 
 function kill_trex() {
 	# kill any existing trex server process
@@ -117,7 +118,7 @@ function convert_number_range() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o c: --longoptions "pre-benchmark-cmd:,skip-trex-install,skip-trex-server,skip-git-pull,traffic-generator:,devices:,active-devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2,traffic-profile:,traffic-profiles:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o c: --longoptions "pre-benchmark-cmd:,skip-trex-install,skip-trex-server,skip-git-pull,traffic-generator:,devices:,active-devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2,traffic-profile:,traffic-profiles:sysinfo:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "$*\n"
 	printf "\n"
@@ -346,6 +347,10 @@ if [ $? -ne 0 ]; then
 	printf -- "\n"
 	printf -- "--pre-sample-cmd=str\n"
 	printf -- "  run this command before executing each test sample\n"
+	printf -- "\n"
+	printf -- "--sysinfo=str,\n"
+	printf -- "  comma seperated values of sysinfo to be collected, default=\"none\"\n"
+	printf -- "    available: $(pbench-collect-sysinfo --options)\n"
 	exit 1
 fi
 eval set -- "$opts"
@@ -553,6 +558,13 @@ while true; do
 			shift
 		fi
 		;;
+		--sysinfo)
+		shift;
+		if [ -n "$1" ]; then
+			sysinfo="$1"
+			shift;
+		fi
+		;;
 		--)
 		shift
 		while true; do
@@ -574,10 +586,19 @@ while true; do
 	esac
 done
 
+pbench-collect-sysinfo --sysinfo=$sysinfo --check
+if [ $? != 0 ]; then
+	printf -- "$*\n\n"
+	printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
+	exit 1
+fi
+
+# Verify the tool group exists
+verify_tool_group $tool_group
+
 if [ -z "${active_devices}" ]; then
 	active_devices=${devices}
 fi
-
 
 # add test options to $config, so this test result directory is easily identifiable
 if [ $traffic_generator == "trex-txrx-profile" -a "${traffic_profiles}" != "" ]; then
@@ -828,6 +849,10 @@ if [ "${postprocess_only}" == "n" ]; then
 	fi
 fi
 
+###
+# At this point all parameter checking has been done.
+###
+
 if [[ -z "$benchmark_run_dir" ]]; then
 	# We don't have an explicit run directory, construct one
 	benchmark_fullname="${benchmark_name}_${config}_${date}"
@@ -840,19 +865,10 @@ else
 	fi
 	benchmark_fullname=$(basename $benchmark_run_dir)
 fi
+# we'll record the iterations in this file
 benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
-mkdir -p $benchmark_run_dir/.running
-# save a copy of the command, in case the test needs to be reproduced or post-processed again
-echo "$script_name $pbench_cmd" >$benchmark_run_dir/$script_name.cmd
-chmod +x $benchmark_run_dir/$script_name.cmd
-
-if [ "${postprocess_only}" == "n" ]; then
-	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
-		if [ $skip_trex_server == "n" ]; then
-			cp ${pbench_tmp}/trex_cfg.yaml ${benchmark_run_dir}
-		fi
-	fi
-fi
+> ${benchmark_iterations}
+mdlog=${benchmark_run_dir}/metadata.log
 
 function record_default_iteration {
 	local count=$1
@@ -862,7 +878,6 @@ function record_default_iteration {
 	local loss=$5
 	local iteration=$6
 
-	mdlog=${benchmark_run_dir}/metadata.log
 	echo ${iteration} >> ${benchmark_iterations}
 	echo $count | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_number
 	echo $direction | pbench-add-metalog-option ${mdlog} iterations/${iteration} traffic_direction
@@ -878,7 +893,6 @@ function record_profile_iteration {
 	local loss=$3
 	local iteration=$4
 
-	mdlog=${benchmark_run_dir}/metadata.log
 	echo ${iteration} >> ${benchmark_iterations}
 	echo ${count} | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_number
 	echo ${profile} | pbench-add-metalog-option ${mdlog} iterations/${iteration} profile
@@ -886,10 +900,12 @@ function record_profile_iteration {
 	echo ${iteration} | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
 }
 
-count=1
 mkdir -p $benchmark_run_dir/.running
-export benchmark_name config
-#pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+# save a copy of the command, in case the test needs to be reproduced or post-processed again
+echo "$script_name $pbench_cmd" >$benchmark_run_dir/$script_name.cmd
+chmod +x $benchmark_run_dir/$script_name.cmd
+
+## Run the benchmark and start/stop perf analysis tools
 
 total_iterations=0
 if [ $traffic_generator == "trex-txrx-profile" -a "${traffic_profiles}" != "" ]; then
@@ -910,6 +926,19 @@ else
 	done
 fi
 echo "Total number of benchmark iterations: $total_iterations"
+
+benchmark=${benchmark_name}
+export benchmark config
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
+
+if [ "${postprocess_only}" == "n" ]; then
+	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
+		if [ $skip_trex_server == "n" ]; then
+			cp ${pbench_tmp}/trex_cfg.yaml ${benchmark_run_dir}
+		fi
+	fi
+fi
 
 pre_loop_cmd=${cmd}
 
@@ -1072,7 +1101,7 @@ function inner_most_loop() {
 							continue
 						fi
 						echo "Not going to run $benchmark_name.  Only postprocesing existing data"
-						log "Not going to run $benchmnark_name.  Only postprocesing existing data"
+						log "Not going to run $benchmark_name.  Only postprocesing existing data"
 					fi
 					if [ $rc -eq 0 ]; then
 						trafficgen_version="unknown"
@@ -1114,8 +1143,8 @@ function inner_most_loop() {
 	done
 }
 
+count=1
 rc=0
-total_iterations=0
 if [ $traffic_generator == "trex-txrx-profile" -a "${traffic_profiles}" != "" ]; then
 	for traffic_profile in `echo $traffic_profiles | sed -e s/,/" "/g`; do
 		if [ $rc -ne 0 ]; then
@@ -1149,9 +1178,9 @@ else
 	done
 fi
 if [ $rc -eq 0 ]; then
-	echo "$script_path/postprocess/generate-benchmark-summary $benchmark_name $orig_cmd $benchmark_run_dir" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
+	echo "$script_path/postprocess/generate-benchmark-summary \"$benchmark_name\" \"$orig_cmd\" \"$benchmark_run_dir\"" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
+	chmod +x "$benchmark_run_dir/generate-benchmark-summary.cmd"
 	$script_path/postprocess/generate-benchmark-summary "$benchmark_name" "$orig_cmd" "$benchmark_run_dir"
-	#pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir end
 fi
 
 if [ "${postprocess_only}" == "n" ]; then
@@ -1165,5 +1194,8 @@ if [ "${postprocess_only}" == "n" ]; then
 		fi
 	fi
 fi
+
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 
 rmdir $benchmark_run_dir/.running
