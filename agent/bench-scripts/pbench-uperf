@@ -378,6 +378,7 @@ while true; do
 		;;
 		*)
 		error_log "[$script_name] bad option, \"$1 $2\""
+		exit 1
 		break
 		;;
 	esac
@@ -390,40 +391,6 @@ if [ $? != 0 ]; then
 	uperf_usage
 	exit 1
 fi
-
-if [[ -z "$benchmark_run_dir" ]]; then
-	# We don't have an explicit run directory, construct one
-	benchmark_fullname="${benchmark}_${config}_${date_suffix}"
-	benchmark_run_dir="$pbench_run/${benchmark_fullname}"
-else
-	# We have an explicit run directory provided by --run-dir, so warn
-	# the user if they also used --config
-	if [[ ! -z "$config" ]]; then
-		warn_log "[$script_name] ignoring --config=\"$config\" in favor of --rundir=\"$benchmark_run_dir\""
-	fi
-	benchmark_fullname=$(basename $benchmark_run_dir)
-fi
-# we'll record the iterations in this file
-benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
-> ${benchmark_iterations}
-mdlog=${benchmark_run_dir}/metadata.log
-
-function record_iteration {
-	local count=$1
-	local protocol=$2
-	local test_type=$3
-	local message_size=$4
-	local instance=$5
-	local iteration=$6
-
-	echo ${iteration} >> ${benchmark_iterations}
-	echo $count | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_number
-	echo $protocol | pbench-add-metalog-option ${mdlog} iterations/${iteration} protocol
-	echo $test_type | pbench-add-metalog-option ${mdlog} iterations/${iteration} test_type
-	echo $message_size | pbench-add-metalog-option ${mdlog} iterations/${iteration} message_size_bytes
-	echo $instance | pbench-add-metalog-option ${mdlog} iterations/${iteration} instances
-	echo $iteration | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
-}
 
 # Verify the tool group exists
 verify_tool_group $tool_group
@@ -478,30 +445,68 @@ if [ "$postprocess_only" != "y" ]; then
 	fi
 fi
 
+###
+# At this point all parameter checking has been done.
+###
+
+if [[ -z "$benchmark_run_dir" ]]; then
+	# We don't have an explicit run directory, construct one
+	benchmark_fullname="${benchmark}_${config}_${date_suffix}"
+	benchmark_run_dir="$pbench_run/${benchmark_fullname}"
+else
+	# We have an explicit run directory provided by --run-dir, so warn
+	# the user if they also used --config
+	if [[ ! -z "$config" ]]; then
+		warn_log "[$script_name] ignoring --config=\"$config\" in favor of --rundir=\"$benchmark_run_dir\""
+	fi
+	benchmark_fullname=$(basename $benchmark_run_dir)
+fi
+# we'll record the iterations in this file
+benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
+> ${benchmark_iterations}
+mdlog=${benchmark_run_dir}/metadata.log
+
+function record_iteration {
+	local count=$1
+	local protocol=$2
+	local test_type=$3
+	local message_size=$4
+	local instance=$5
+	local iteration=$6
+
+	echo ${iteration} >> ${benchmark_iterations}
+	echo $count | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_number
+	echo $protocol | pbench-add-metalog-option ${mdlog} iterations/${iteration} protocol
+	echo $test_type | pbench-add-metalog-option ${mdlog} iterations/${iteration} test_type
+	echo $message_size | pbench-add-metalog-option ${mdlog} iterations/${iteration} message_size_bytes
+	echo $instance | pbench-add-metalog-option ${mdlog} iterations/${iteration} instances
+	echo $iteration | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
+}
+
 mkdir -p $benchmark_run_dir/.running
 # save a copy of the command, in case the test needs to be reproduced or post-processed again
 echo "$script_name $pbench_cmd" >$benchmark_run_dir/$script_name.cmd
 chmod +x $benchmark_run_dir/$script_name.cmd
 
-
 ## Run the benchmark and start/stop perf analysis tools
 
-count=0
+total_iterations=0
 for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 	for test_type in `echo $test_types | sed -e s/,/" "/g`; do
 		for message_size in `echo $message_sizes | sed -e s/,/" "/g`; do
 			for instance in `echo $instances | sed -e s/,/" "/g`; do
-				let count=$count+1
+				((total_iterations++))
 			done
 		done
 	done
 done
-let total_iterations=count
-count=1
+
 export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
+
 # start the server processes
+count=1
 for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 	for test_type in `echo $test_types | sed -e s/,/" "/g`; do
 		case $test_type in
