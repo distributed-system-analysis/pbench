@@ -64,6 +64,7 @@ export async function queryResults(params) {
         'run.name',
         'run.config',
         'run.prefix',
+        '@metadata.md5',
       ],
       sort: {
         'run.end_run': {
@@ -79,6 +80,7 @@ export async function queryResults(params) {
       size: 5000,
     },
   });
+  return request(endpoint);
 }
 
 export async function queryResult(params) {
@@ -101,6 +103,18 @@ export async function queryResult(params) {
       sort: '_index',
     },
   });
+}
+
+export async function queryTocResult(params) {
+  const { datastoreConfig, selectedIndices, id } = params;
+  const endpoint =
+    datastoreConfig.elasticsearch +
+    '/' +
+    parseMonths(datastoreConfig, selectedIndices) +
+    '/_search?q=_parent:"' +
+    id +
+    '"';
+  return request(endpoint);
 }
 
 export async function queryIterations(params) {
