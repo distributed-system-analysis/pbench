@@ -76,47 +76,47 @@ sysinfo=default
 
 function moongen_usage {
 	  printf "\tThe following options are available:\n\n"
-        #              1   2         3         4         5         6         7         8         9         0         1         2         3
-        #              678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
-        printf -- "\t\t-c str       --config=str               name of the test config (i.e. jumbo_frames_and_network_throughput)\n"
-        printf -- "\t\t-r float     --rate[s]                  list of rates in millions of packets/sec (multiple rates can be used for latency tests)\n"
-        printf -- "\t\t             --portlist=int,int[,int,int]  list of DPDK ports to use (multiples of 2)\n"
-        printf -- "\t\t-t str[,str] --test-type=str            throughput, latency, or throughput-latency (default $test_type)\n"
-        printf -- "\t\t                                        throuhgput: find max throuhgput with a binary search\n"
-        printf -- "\t\t                                        latency: find latency (histogram) at a specified packet rate\n"
-        printf -- "\t\t                                        throughput-latency: first find max throuhgput with a binary search, then\n"
-        printf -- "\t\t                                                            find latency (histogram) at the max throughput\n"
-        printf -- "\t\t-o           --one-shot                 only run one test for throughput and then quit (no binary search)\n"
-        printf -- "\t\t             --accept-negative-loss     allow attempts with negative packet loss to pass\n"
-        printf -- "\t\t-t str[,str] --traffic=str[,str]        list of one or more: unidirec or bidirec (default $traffic)\n"
-        printf -- "\t\t-r int       --latency-runtime=int      test measurement period in seconds when running a latency test (default is $latency_runtime)\n"
-        printf -- "\t\t-r int       --search-runtime=int       test measurement period in seconds when searching for max throughput (default is $search_runtime)\n"
-        printf -- "\t\t-r int       --validation-runtime=int   test measurement period in seconds when running final validation (default is $validation_runtime)\n"
-        printf -- "\t\t             --max-drop-pct[s]=fl,[fl]  list of maximum allowed percentage of dropped frames (default is $max_drop_pcts)\n"
-        printf -- "\t\t-m int[,int] --frame-sizes=str[,str]    list of frame sizes in bytes (default is $frame_sizes)\n"
-        printf -- "\t\t-i int[,int] --nr-flows=int[,int]       list of number of packet flows to run (default is $nr_flows)\n"
-        printf -- "\t\t             --samples=int              the number of times each different test is run (to compute average &\n"
-        printf    "\t\t                                        standard deviations)\n"
-        printf -- "\t\t             --max-failures=int         the maximm number of failures to get below stddev\n"
-        printf -- "\t\t             --max-stddev=int           the maximm percent stddev allowed to pass\n"
-        printf -- "\t\t             --postprocess-only=y|n     don't run the benchmark, but postprocess data from previous test\n"
-        printf -- "\t\t             --run-dir=str              optionally specify what directory should be used (usually only used\n"
-        printf    "\t\t                                        if postprocess-only=y)\n"
-        printf -- "\t\t             --start-iteration-num=int  optionally skip the first (n-1) tests\n"
-        printf -- "\t\t             --tool-label-pattern=str   $benchmark_name will provide CPU and efficiency information for any tool directory\n"
-        printf    "\t\t                                        with a \"^<pattern>\" in the name, provided \"sar\" is one of the\n"
-        printf    "\t\t                                        registered tools.\n"
-        printf    "\t\t                                        a default pattern, \"$bechmark_name-\" is used if none is provided.\n"
-        printf    "\t\t                                        simply register your tools with \"--label=$benchmark_name-\$X\", and this script\n"
-        printf    "\t\t                                        will genrate CPU_$benchmark_name-\$X and Gbps/CPU_$benchmark_name-\$X or\n"
-        printf    "\t\t                                        trans_sec/CPU-$benchmark_name-\$X for all tools which have that pattern as a\n"
-        printf    "\t\t                                        prefix.  if you don't want to register your tools with \"$benchmark_name-\" as\n"
-        printf    "\t\t                                        part of the label, just use --tool-label-pattern= to tell this script\n"
-        printf    "\t\t                                        the prefix pattern to use for CPU information.\n"
-        printf -- "\t\t             --tool-group=str\n"
-        printf -- "\t\t             --mpps-per-queue=int       how many millions of packets to process per queue (default $mpps_per_queue)\n"
-        printf -- "\t\t             --queues-per-task=int      how many tasks queues to bind to each task (default $queues_per_task)\n"
-        printf -- "\t\t             --dst-macs=mac[,mac]       list of destination mac addresses, each mac in the list corresponds to a port from the port list\n"
+	#              1   2         3         4         5         6         7         8         9         0         1         2         3
+	#              678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
+	printf -- "\t\t-c str       --config=str               name of the test config (i.e. jumbo_frames_and_network_throughput)\n"
+	printf -- "\t\t-r float     --rate[s]                  list of rates in millions of packets/sec (multiple rates can be used for latency tests)\n"
+	printf -- "\t\t             --portlist=int,int[,int,int]  list of DPDK ports to use (multiples of 2)\n"
+	printf -- "\t\t-t str[,str] --test-type=str            throughput, latency, or throughput-latency (default $test_type)\n"
+	printf -- "\t\t                                        throuhgput: find max throuhgput with a binary search\n"
+	printf -- "\t\t                                        latency: find latency (histogram) at a specified packet rate\n"
+	printf -- "\t\t                                        throughput-latency: first find max throuhgput with a binary search, then\n"
+	printf -- "\t\t                                                            find latency (histogram) at the max throughput\n"
+	printf -- "\t\t-o           --one-shot                 only run one test for throughput and then quit (no binary search)\n"
+	printf -- "\t\t             --accept-negative-loss     allow attempts with negative packet loss to pass\n"
+	printf -- "\t\t-t str[,str] --traffic=str[,str]        list of one or more: unidirec or bidirec (default $traffic)\n"
+	printf -- "\t\t-r int       --latency-runtime=int      test measurement period in seconds when running a latency test (default is $latency_runtime)\n"
+	printf -- "\t\t-r int       --search-runtime=int       test measurement period in seconds when searching for max throughput (default is $search_runtime)\n"
+	printf -- "\t\t-r int       --validation-runtime=int   test measurement period in seconds when running final validation (default is $validation_runtime)\n"
+	printf -- "\t\t             --max-drop-pct[s]=fl,[fl]  list of maximum allowed percentage of dropped frames (default is $max_drop_pcts)\n"
+	printf -- "\t\t-m int[,int] --frame-sizes=str[,str]    list of frame sizes in bytes (default is $frame_sizes)\n"
+	printf -- "\t\t-i int[,int] --nr-flows=int[,int]       list of number of packet flows to run (default is $nr_flows)\n"
+	printf -- "\t\t             --samples=int              the number of times each different test is run (to compute average &\n"
+	printf    "\t\t                                        standard deviations)\n"
+	printf -- "\t\t             --max-failures=int         the maximm number of failures to get below stddev\n"
+	printf -- "\t\t             --max-stddev=int           the maximm percent stddev allowed to pass\n"
+	printf -- "\t\t             --postprocess-only=y|n     don't run the benchmark, but postprocess data from previous test\n"
+	printf -- "\t\t             --run-dir=str              optionally specify what directory should be used (usually only used\n"
+	printf    "\t\t                                        if postprocess-only=y)\n"
+	printf -- "\t\t             --start-iteration-num=int  optionally skip the first (n-1) tests\n"
+	printf -- "\t\t             --tool-label-pattern=str   $benchmark_name will provide CPU and efficiency information for any tool directory\n"
+	printf    "\t\t                                        with a \"^<pattern>\" in the name, provided \"sar\" is one of the\n"
+	printf    "\t\t                                        registered tools.\n"
+	printf    "\t\t                                        a default pattern, \"$bechmark_name-\" is used if none is provided.\n"
+	printf    "\t\t                                        simply register your tools with \"--label=$benchmark_name-\$X\", and this script\n"
+	printf    "\t\t                                        will genrate CPU_$benchmark_name-\$X and Gbps/CPU_$benchmark_name-\$X or\n"
+	printf    "\t\t                                        trans_sec/CPU-$benchmark_name-\$X for all tools which have that pattern as a\n"
+	printf    "\t\t                                        prefix.  if you don't want to register your tools with \"$benchmark_name-\" as\n"
+	printf    "\t\t                                        part of the label, just use --tool-label-pattern= to tell this script\n"
+	printf    "\t\t                                        the prefix pattern to use for CPU information.\n"
+	printf -- "\t\t             --tool-group=str\n"
+	printf -- "\t\t             --mpps-per-queue=int       how many millions of packets to process per queue (default $mpps_per_queue)\n"
+	printf -- "\t\t             --queues-per-task=int      how many tasks queues to bind to each task (default $queues_per_task)\n"
+	printf -- "\t\t             --dst-macs=mac[,mac]       list of destination mac addresses, each mac in the list corresponds to a port from the port list\n"
 	printf -- "\t\t             --sysinfo=str,             str= comma separated values of system information to be collected\n"
 	printf -- "\t\t                                              available: $(pbench-collect-sysinfo --options)\n"
 }
@@ -391,10 +391,10 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 					if [ $count -ge $start_iteration_num ]; then
 						if [ "$test_type" == "latency" ]; then
 							iteration="${count}-${test_type}-${traffic_direction}-${frame_size}B-${nr_flow}flows-${rate}Mpps"
-						else 
+						else
 							iteration="${count}-${test_type}-${traffic_direction}-${frame_size}B-${nr_flow}flows-${max_drop_pct}pct_drop"
 						fi
-                                                echo $iteration >> $benchmark_iterations
+						echo $iteration >> $benchmark_iterations
 						iteration_dir="$benchmark_run_dir/$iteration"
 						result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
 						failures=0
@@ -415,18 +415,18 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 								cfg_file="$iteration_dir/opnfv-vsperf-cfg.lua"
 								echo "VSPERF {" >$cfg_file
 								if [ "$rate" != "none" ]; then
-        								echo "startRate = $rate," >>$cfg_file
+									echo "startRate = $rate," >>$cfg_file
 								fi
-        							echo "loggingLevel = 0," >>$cfg_file
-        							echo "nrFlows = $nr_flow," >>$cfg_file
-        							echo "testType = \"$test_type\"," >>$cfg_file
-        							echo "runBidirec = $bidirec_opt," >>$cfg_file
+								echo "loggingLevel = 0," >>$cfg_file
+								echo "nrFlows = $nr_flow," >>$cfg_file
+								echo "testType = \"$test_type\"," >>$cfg_file
+								echo "runBidirec = $bidirec_opt," >>$cfg_file
 								if [ "$test_type" == "latency" ]; then
 									echo "latencyRunTime = $latency_runtime,">>$cfg_file
 								else
-        								echo "searchRunTime = $search_runtime,">>$cfg_file
-        								echo "validationRunTime = $validation_runtime,">> $cfg_file
-        								echo "acceptableLossPct = $max_drop_pct," >>$cfg_file
+									echo "searchRunTime = $search_runtime,">>$cfg_file
+									echo "validationRunTime = $validation_runtime,">> $cfg_file
+									echo "acceptableLossPct = $max_drop_pct," >>$cfg_file
 									if [ "$one_shot" == "y" ]; then
 										echo "oneShot = true," >>$cfg_file
 									fi
@@ -434,7 +434,7 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 								if [ "$accept_negative_loss" == "y" ]; then
 									echo "negativeLossRetry = false," >>$cfg_file
 								fi
-        							echo "frameSize = $frame_size,">>$cfg_file
+								echo "frameSize = $frame_size,">>$cfg_file
 								echo "mppsPerQueue = $mpps_per_queue," >>$cfg_file
 								echo "queuesPerTask = $queues_per_task," >>$cfg_file
 								if [ -n "$dst_maclist" ]; then
@@ -444,7 +444,7 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 									done
 									echo "},">>$cfg_file
 								fi
-        							echo "ports = {$portlist}" >>$cfg_file
+								echo "ports = {$portlist}" >>$cfg_file
 								echo "}">>$cfg_file
 								cp $cfg_file $moongen_dir/
 								if [ "$test_type" == "throughput" ]; then
