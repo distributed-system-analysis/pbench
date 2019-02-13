@@ -2,6 +2,7 @@ import {
   queryControllers,
   queryResults,
   queryResult,
+  queryTocResult,
   queryIterations,
 } from '../services/dashboard';
 
@@ -17,6 +18,7 @@ export default {
     iterations: [],
     controllers: [],
     selectedResults: [],
+    tocResult: [],
     selectedController: '',
     loading: false,
   },
@@ -43,7 +45,6 @@ export default {
     },
     *fetchResults({ payload }, { call, put }) {
       let response = yield call(queryResults, payload);
-
       let results = [];
       response.hits.hits.map(result => {
         results.push({
@@ -57,6 +58,7 @@ export default {
           startRunUnixTimestamp: Date.parse(result.fields['run.start_run'][0]),
           ['run.startRun']: result.fields['run.start_run'][0],
           ['run.endRun']: result.fields['run.end_run'][0],
+          ['id']: result.fields['@metadata.md5'][0],
         });
       });
 
@@ -73,6 +75,19 @@ export default {
       yield put({
         type: 'getResult',
         payload: result,
+      });
+    },
+    *fetchTocResult({ payload }, { call, put }) {
+      let response = yield call(queryTocResult, payload);
+
+      let tocResult = [];
+      response.hits.hits.map(result => {
+        tocResult.push(result._source.directory);
+      });
+
+      yield put({
+        type: 'getTocResult',
+        payload: tocResult,
       });
     },
     *fetchIterations({ payload }, { call, put }) {
@@ -136,6 +151,12 @@ export default {
       return {
         ...state,
         result: payload,
+      };
+    },
+    getTocResult(state, { payload }) {
+      return {
+        ...state,
+        tocResult: payload,
       };
     },
     getIterations(state, { payload }) {

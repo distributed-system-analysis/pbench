@@ -1,6 +1,6 @@
 import ReactJS from 'react';
 import { connect } from 'dva';
-import { Select, Spin, Tag, Table, Button, Card, notification } from 'antd';
+import { Select, Spin, Tag, Table, Button, Card, notification, Tree } from 'antd';
 import axios from 'axios';
 import cloneDeep from 'lodash/cloneDeep';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -18,7 +18,14 @@ const tabList = [
     key: 'tools',
     tab: 'Tools & Parameters',
   },
+  {
+    key: 'toc',
+    tab: 'Table of Content',
+  },
 ];
+
+const DirectoryTree = Tree.DirectoryTree;
+const { TreeNode } = Tree;
 
 @connect(({ global, dashboard, loading }) => ({
   selectedController: dashboard.selectedController,
@@ -29,6 +36,7 @@ const tabList = [
   datastoreConfig: global.datastoreConfig,
   selectedIndices: global.selectedIndices,
   controllers: dashboard.controllers,
+  tocResult: dashboard.tocResult,
 }))
 class Summary extends ReactJS.Component {
   constructor(props) {
@@ -47,6 +55,8 @@ class Summary extends ReactJS.Component {
       loading: true,
       searchText: '',
       activeTab: 'iterations',
+      tocTree: [],
+      file: [],
     };
   }
 
@@ -58,6 +68,7 @@ class Summary extends ReactJS.Component {
       selectedIndices,
       selectedResults,
       selectedController,
+      tocResult,
     } = this.props;
 
     dispatch({
@@ -68,7 +79,15 @@ class Summary extends ReactJS.Component {
         result: selectedResults['run.name'],
       },
     });
-
+    dispatch({
+      type: 'dashboard/fetchTocResult',
+      payload: {
+        datastoreConfig: datastoreConfig,
+        selectedIndices: selectedIndices,
+        id: selectedResults['id'],
+      },
+    });
+    console.log(tocResult);
     var iterationEndpoint = '';
     if (selectedController != null && selectedController.includes('.')) {
       iterationEndpoint =
@@ -558,9 +577,37 @@ class Summary extends ReactJS.Component {
     this.setState({ selectedPort: value });
   };
 
-  onTabChange = key => {
-    this.setState({ activeTab: key });
+  insertTreeData = (items = [], [head, ...tail]) => {
+    let child = items.find(child => child.name === head);
+    if (!child) items.push((child = { name: head, items: [] }));
+    if (tail.length > 0) this.insertTreeData(child.items, tail);
+    return items;
   };
+
+  onTabChange = key => {
+    const { tocResult } = this.props;
+    // console.log(tocResult);
+    this.setState({ activeTab: key });
+    if (key == 'toc') {
+      let tocTree = tocResult
+        .map(path => path.split('/').slice(1))
+        .reduce((items, path) => this.insertTreeData(items, path), []);
+      this.setState({ tocTree: tocTree });
+      console.log(tocTree);
+    }
+  };
+
+  list(data) {
+    const children = items => {
+      if (items) {
+        return this.list(items);
+      }
+    };
+
+    return data.map((node, index) => {
+      return <TreeNode title={node.name}>{children(node.items)}</TreeNode>;
+    });
+  }
 
   render() {
     var {
@@ -571,8 +618,9 @@ class Summary extends ReactJS.Component {
       ports,
       configData,
       activeTab,
+      tocTree,
     } = this.state;
-    const { selectedResults, summaryResult, selectedController } = this.props;
+    const { selectedResults, summaryResult, selectedController, tocResult } = this.props;
 
     var responseDataCopy = {};
     responseDataCopy['columns'] = cloneDeep(responseData.columns);
@@ -764,6 +812,13 @@ class Summary extends ReactJS.Component {
                 </li>
               </div>
             ))}
+          </Card>
+        ),
+        toc: (
+          <Card title="Tools and Parameters2" style={{ marginTop: 32 }}>
+            <DirectoryTree multiple defaultExpandAll>
+              {this.list(tocTree)}
+            </DirectoryTree>
           </Card>
         ),
       };
