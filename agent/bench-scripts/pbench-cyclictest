@@ -42,7 +42,7 @@ function usage {
 	printf -- "\t\t-C --cpu int                                  cpu to bind to\n"
 	printf -- "\t\t-s --stress                                   run stress process on the same cpu as --cpu\n"
 	printf -- "\t\t--tool-group=str\n"
-	printf -- "\t\t--sysinfo=str,                                str= comma seperated values of sysinfo to be collected\n"
+	printf -- "\t\t--sysinfo=str,                                str= comma separated values of sysinfo to be collected\n"
 	printf -- "\t\t                                                   available: $(pbench-collect-sysinfo --options)\n"
 }
 

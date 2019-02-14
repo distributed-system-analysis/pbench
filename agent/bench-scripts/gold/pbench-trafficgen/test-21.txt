@@ -230,7 +230,7 @@ options common in most pbench benchmark scripts
   run this command before executing each test sample
 
 --sysinfo=str,
-  comma seperated values of sysinfo to be collected, default="none"
+  comma separated values of sysinfo to be collected, default="none"
     available: default,none,all,a,b,c,d,e
 --- Finished test-21 pbench-trafficgen (status=1)
 +++ pbench tree state

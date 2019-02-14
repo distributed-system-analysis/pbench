@@ -121,7 +121,7 @@ function usage {
         printf    "\t\t                                        prefix.  if you don't want to register your tools with \"dbench-\" as\n"
         printf    "\t\t                                        part of the label, just use --tool-label-pattern= to tell this script\n"
         printf    "\t\t                                        the prefix pattern to use for CPU information.\n"
-        printf -- "\t\t             --sysinfo=str,             str= comma seperated values of sysinfo to be collected\n"
+        printf -- "\t\t             --sysinfo=str,             str= comma separated values of sysinfo to be collected\n"
         printf -- "\t\t                                             available: $(pbench-collect-sysinfo --options)\n"
 }
 

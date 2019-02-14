@@ -84,7 +84,7 @@ function usage{
 	printf -- "\t\t-n str[,str] --number_of_runs=str[,str]\n"
 	printf "\t\t\tnumber of iozone runs - default is 10 runs\n"
 	printf -- "\t\t--tool-group=str\n"
-	printf -- "\t\t--sysinfo=str, str= comma seperated values of sysinfo to be collected\n"
+	printf -- "\t\t--sysinfo=str, str= comma separated values of sysinfo to be collected\n"
 	printf -- "\t\t                    available: $(pbench-collect-sysinfo --options)\n"
 }
 

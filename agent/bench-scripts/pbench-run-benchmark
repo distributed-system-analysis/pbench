@@ -205,7 +205,7 @@ if (-e $base_bench_dir . "/stockpile.json") {
     open(my $scribe_fh, "<" . $base_bench_dir . "/scribe.json") || die "Could not open " .
         $base_bench_dir . "/scribe.json";
     my $json_text = "";
-    # Instead of 1 json document, there are actually multiple documents, but no seperator
+    # Instead of 1 json document, there are actually multiple documents, but no separator
     # between them or organized in an array
     while (<$scribe_fh>) {
         $json_text .= $_;
