@@ -1180,7 +1180,7 @@ fi
 if [ $rc -eq 0 ]; then
 	echo "$script_path/postprocess/generate-benchmark-summary \"$benchmark_name\" \"$orig_cmd\" \"$benchmark_run_dir\"" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
 	chmod +x "$benchmark_run_dir/generate-benchmark-summary.cmd"
-	$script_path/postprocess/generate-benchmark-summary "$benchmark_name" "$orig_cmd" "$benchmark_run_dir"
+	"$benchmark_run_dir/generate-benchmark-summary.cmd"
 fi
 
 if [ "${postprocess_only}" == "n" ]; then

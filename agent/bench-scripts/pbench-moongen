@@ -516,8 +516,9 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 		done
 	done
 done
-echo "$script_path/postprocess/generate-benchmark-summary $benchmark_name $orig_cmd $benchmark_run_dir" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
-$script_path/postprocess/generate-benchmark-summary "$benchmark_name" "$orig_cmd" "$benchmark_run_dir"
+echo "$script_path/postprocess/generate-benchmark-summary \"$benchmark_name\" \"$orig_cmd\" \"$benchmark_run_dir\"" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
+chmod +x "$benchmark_run_dir/generate-benchmark-summary.cmd"
+$benchmark_run_dir/generate-benchmark-summary.cmd
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 rmdir $benchmark_run_dir/.running

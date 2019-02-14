@@ -768,10 +768,10 @@ export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 fio_run_benchmark
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 echo "$script_path/postprocess/generate-benchmark-summary \"$benchmark\" \"$orig_cmd\" \"$benchmark_run_dir\"" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
 chmod +x "$benchmark_run_dir/generate-benchmark-summary.cmd"
-$script_path/postprocess/generate-benchmark-summary "$benchmark" "$orig_cmd" "$benchmark_run_dir"
+$benchmark_run_dir/generate-benchmark-summary.cmd
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir  --sysinfo=$sysinfo end
 
 rmdir $benchmark_run_dir/.running
