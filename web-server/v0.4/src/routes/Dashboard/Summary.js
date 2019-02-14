@@ -593,7 +593,6 @@ class Summary extends ReactJS.Component {
         .map(path => path.split('/').slice(1))
         .reduce((items, path) => this.insertTreeData(items, path), []);
       this.setState({ tocTree: tocTree });
-      console.log(tocTree);
     }
   };
 
@@ -605,7 +604,15 @@ class Summary extends ReactJS.Component {
     };
 
     return data.map((node, index) => {
-      return <TreeNode title={node.name}>{children(node.items)}</TreeNode>;
+      if (node.items.length == 0) {
+        return (
+          <TreeNode title={node.name} isLeaf>
+            {children(node.items)}
+          </TreeNode>
+        );
+      } else {
+        return <TreeNode title={node.name}>{children(node.items)}</TreeNode>;
+      }
     });
   }
 
@@ -815,7 +822,7 @@ class Summary extends ReactJS.Component {
           </Card>
         ),
         toc: (
-          <Card title="Tools and Parameters2" style={{ marginTop: 32 }}>
+          <Card title="Table of Contents" style={{ marginTop: 32 }}>
             <DirectoryTree multiple defaultExpandAll>
               {this.list(tocTree)}
             </DirectoryTree>
