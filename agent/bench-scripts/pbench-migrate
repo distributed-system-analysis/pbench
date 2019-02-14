@@ -77,7 +77,7 @@ function usage {
 	printf -- "\t\t--use-libvirt=y/n                       iif this is "n", then migration is done with qemu directly\n"
 	printf -- "\t\t                                        0 = 1 migration, just to dest-host (no round-trip migration, VM ends up on dest-host).\n"
 	printf -- "\t\t                                        1 = 2 migrations, 2 = 4 migrations, etc.  VM ends up on src-host\n"
-	printf -- "\t\t--sysinfo=str,                          str= comma seperated values of sysinfo to be collected\n"
+	printf -- "\t\t--sysinfo=str,                          str= comma separated values of sysinfo to be collected\n"
 	printf -- "\t\t                                             available: $(pbench-collect-sysinfo --options)\n"
 }
 

@@ -64,7 +64,7 @@ function usage {
 	printf -- "\t\t       --runtime=<int>                      measurement period in seconds (default is $runtime)\n"
 	printf -- "\t\t-d str --dir=<str>                          directory to run the test\n"
 	printf -- "\t\t       --tool-group=<str>                   tool group to use during test\n"
-	printf -- "\t\t       --sysinfo=<str,>                     comma seperated values of sysinfo to be collected\n"
+	printf -- "\t\t       --sysinfo=<str,>                     comma separated values of sysinfo to be collected\n"
 	printf -- "\t\t                                                 available: $(pbench-collect-sysinfo --options)\n"
 	printf -- "\t\t       --specjbb2005-dir=<str>              the location of the install directory for SPECjbb2005\n"
 	printf -- "\t\t                                                 (default is $specjbb2005_dir)\n"

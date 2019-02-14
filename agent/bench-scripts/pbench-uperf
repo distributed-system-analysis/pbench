@@ -112,7 +112,7 @@ function uperf_usage {
         printf    "\t\t\t\t   prefix.  If you don't want to register your tools with \"uperf-\" as\n"
         printf    "\t\t\t\t   part of the label, just use --tool-label-pattern= to tell this script\n"
         printf    "\t\t\t\t   the prefix pattern to use for CPU information.\n"
-        printf -- "\t--sysinfo=str,             str= comma seperated values of sysinfo to be collected\n"
+        printf -- "\t--sysinfo=str,             str= comma separated values of sysinfo to be collected\n"
         printf -- "\t                                available: $(pbench-collect-sysinfo --options)\n"
 }
 

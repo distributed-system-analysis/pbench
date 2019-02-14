@@ -46,7 +46,7 @@
 				   prefix.  If you don't want to register your tools with "uperf-" as
 				   part of the label, just use --tool-label-pattern= to tell this script
 				   the prefix pattern to use for CPU information.
-	--sysinfo=str,             str= comma seperated values of sysinfo to be collected
+	--sysinfo=str,             str= comma separated values of sysinfo to be collected
 	                                available: default,none,all,a,b,c,d,e
 --- Finished test-15 pbench-uperf (status=1)
 +++ pbench tree state

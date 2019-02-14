@@ -175,7 +175,7 @@ function usage {
         printf    "\t\t                                            compute a netperf-client result/CPU metric\n"
         printf -- "\t\t             --server-label=str             provide the pbench netperf-server tool label and postprocessing will\n"
         printf    "\t\t                                            compute a netperf-server result/CPU metric\n"
-        printf -- "\t\t             --sysinfo=str,                 str= comma seperated values of sysinfo to be collected\n"
+        printf -- "\t\t             --sysinfo=str,                 str= comma separated values of sysinfo to be collected\n"
         printf -- "\t\t                                                 available: $(pbench-collect-sysinfo --options)\n"
 }
 

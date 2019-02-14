@@ -156,7 +156,7 @@ function fio_usage() {
 		printf -- "\t--histogram-interval-sec=<int>\n"
 		printf "\t\tset the histogram logging interval in seconds (default $histogram_interval_sec)\n"
 		printf "\n"
-		printf -- "\t--sysinfo=str            str= comma seperated values of sysinfo to be collected\n"
+		printf -- "\t--sysinfo=str            str= comma separated values of sysinfo to be collected\n"
 		printf "\t\tavailable: $(pbench-collect-sysinfo --options)\n"
 }
 

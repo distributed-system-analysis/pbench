@@ -349,7 +349,7 @@ if [ $? -ne 0 ]; then
 	printf -- "  run this command before executing each test sample\n"
 	printf -- "\n"
 	printf -- "--sysinfo=str,\n"
-	printf -- "  comma seperated values of sysinfo to be collected, default=\"none\"\n"
+	printf -- "  comma separated values of sysinfo to be collected, default=\"none\"\n"
 	printf -- "    available: $(pbench-collect-sysinfo --options)\n"
 	exit 1
 fi
