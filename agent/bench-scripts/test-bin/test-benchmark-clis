@@ -1,0 +1,26 @@
+#!/bin/bash
+
+function doit {
+    printf -- "\nBench Script: pbench-${1} ${2} ${3}\n"
+    printf --   "------------\n"
+    pbench-${1} ${2} ${3}
+    return $?
+}
+
+let failures=0
+bench_scripts="cyclictest dbench fio iozone linpack migrate moongen netperf specjbb2005 trafficgen uperf user-benchmark"
+for bs in ${bench_scripts}; do
+    doit ${bs} --help ""
+    if [[ $? -ne 0 ]]; then
+        (( failures++ ))
+    fi
+    doit ${bs} --tool-group=bad --sysinfo=bad
+    if [[ $? -ne 1 ]]; then
+        (( failures++ ))
+    fi
+    doit ${bs} --bad-to-the-bone ""
+    if [[ $? -ne 1 ]]; then
+        (( failures++ ))
+    fi
+done
+exit $failures

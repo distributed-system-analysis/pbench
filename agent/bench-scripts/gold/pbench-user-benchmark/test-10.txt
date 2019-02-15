@@ -26,7 +26,6 @@ Running user-benchmark-script no-duration
 /var/tmp/pbench-test-bench/pbench/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-user-benchmark] processing options
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] [pbench-user-benchmark] Running user-benchmark-script no-duration
 --- pbench.log file contents
 +++ test-execution.log file contents

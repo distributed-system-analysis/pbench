@@ -1,5 +1,4 @@
 +++ Running test-05 pbench-fio
-pbench-fio
 verifying clients have fio installed
 The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio.job
 [global]
@@ -857,6 +856,7 @@ fio-postprocess: could not find any result files to process, exiting
 /var/tmp/pbench-test-bench/pbench/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-fio-3.3
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio 3.3 is installed
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] verifying clients have fio installed
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio_device_check() /tmp/fio foo,bar

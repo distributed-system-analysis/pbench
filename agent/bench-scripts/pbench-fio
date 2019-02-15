@@ -73,7 +73,7 @@ if [ -z "$histogram_interval_sec" ] ;then
 fi
 sysinfo="default"
 
-function fio_usage() {
+function usage {
 		printf "The following options are available:\n"
 		printf "\n"
 		printf -- "\t-t str[,str] --test-types=str[,str]\n"
@@ -162,17 +162,18 @@ function fio_usage() {
 
 function fio_process_options() {
 	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,remote-only,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,numjobs:,job-file:,sysinfo:,pre-iteration-script:,histogram-interval-sec:,histogram-interval-msec:" -n "getopt.sh" -- "$@");
-
 	if [ $? -ne 0 ]; then
-		printf "\t${benchmark}: you specified an invalid option\n\n"
-		fio_usage
+		printf -- "${script_name} $*\n"
+		printf -- "\n"
+		printf -- "\tunrecognized option specified\n\n"
+		usage
 		exit 1
 	fi
 	eval set -- "$opts";
 	while true; do
 		case "$1" in
 			--help)
-			fio_usage
+			usage
 			exit
 			;;
 			--install)
@@ -404,19 +405,14 @@ function fio_process_options() {
 			;;
 		esac
 	done
-	pbench-collect-sysinfo --sysinfo=$sysinfo --check
-	if [ $? != 0 ]; then
-		printf -- "$*\n\n"
-		printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
-		fio_usage
-	exit 1
-	fi
+	verify_common_bench_script_options $tool_group $sysinfo
+
 	if [ "$postprocess_only" = "n" ]; then
 		benchmark_fullname="${benchmark}_${config}_${date_suffix}"
 		benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 	else
 		if [ -z "$run_dir" ]; then
-			err_log "I need a directory if postprocessing an existing result (--run-dir=)"
+			error_log "Please specify a directory if postprocessing an existing result (--run-dir=)"
 			exit 1
 		fi
 		benchmark_fullname="$(basename $run_dir)"
@@ -424,8 +420,6 @@ function fio_process_options() {
 	fi
 	benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
 	> ${benchmark_iterations}
-
-	verify_tool_group $tool_group
 }
 
 function record_iteration {

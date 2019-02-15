@@ -1,10 +1,7 @@
 +++ Running test-11.2 pbench-register-tool-set
-pbench-sysstat
 mpstat tool is now registered in group default
 vmstat tool is now registered in group default
-pbench-sysstat
 iostat tool is now registered in group default
-perf
 perf tool is now registered in group default
 --- Finished test-11.2 pbench-register-tool-set (status=0)
 +++ pbench tree state
@@ -28,12 +25,15 @@ perf tool is now registered in group default
 +++ pbench.log file contents
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=10
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-sysstat-11.2.0
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=10
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=10
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-sysstat-11.2.0
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --record-opts=record -a --freq=100
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install perf
 --- pbench.log file contents
 +++ test-execution.log file contents
 grep: /var/tmp/pbench-test-utils/test-execution.log: No such file or directory

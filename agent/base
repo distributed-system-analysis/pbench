@@ -161,7 +161,7 @@ fi
 if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
     function check_install_rpm {
 	local this_rpm=$1
-	if [ ! -z "$2" ]; then
+	if [[ ! -z "$2" ]]; then
     	    local this_version="-$2"
 	else
 	    local this_version=""
@@ -175,7 +175,7 @@ if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
 	    rc=$?
 	else
 	    local installed_rpm_version=`rpm -q --qf "-%{VERSION}" ${this_rpm}`
-	    if [ ! -z "$this_version" -a "$this_version" != "$installed_rpm_version" ]; then
+	    if [[ ! -z "$this_version" && "$this_version" != "$installed_rpm_version" ]]; then
 		yum --debuglevel=0 install -y ${this_rpm}$this_version >> $pbench_log 2>&1
 		rc=$?
 	    else
@@ -183,7 +183,7 @@ if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
 		rc=0
 	    fi
 	fi
-	if [ $rc -ne 0 ]; then
+	if [[ $rc -ne 0 ]]; then
 	    error_log "[check_install_rpm] the installation of $this_rpm$this_version failed"
 	    return 1
 	else
@@ -192,25 +192,52 @@ if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
     }
 else
     function check_install_rpm {
-	echo $1
-	#$2 is the version which will vary
+	local this_rpm=$1
+	if [[ ! -z "$2" ]]; then
+    	    local this_version="-$2"
+	else
+	    local this_version=""
+	fi
+	debug_log "[check_install_rpm] attempting to install ${this_rpm}$this_version"
 	return 0
     }
 fi
 
 function verify_tool_group {
     local group=$1
-    if [ -z "$group" ]; then
+    if [[ -z "$group" ]]; then
 	error_log "Bad argument to verify_tool_group"
 	exit 1
     fi
     # Ensure we have a tools group directory to work with
-    tool_group_dir="$pbench_run/tools-$group"
-    if [ ! -d "$tool_group_dir" ]; then
-	error_log "Unable to find default tools group directory, $tool_group_dir"
-	exit 1
+    local tool_group_dir="$pbench_run/tools-$group"
+    if [[ ! -d "$tool_group_dir" ]]; then
+        printf -- "\t${script_name}: invalid --tool-group option (\"$group\"), directory not found: $tool_group_dir\n"
+	return 1
     fi
     return 0
+}
+
+function verify_collect_sysinfo {
+    local sysinfo=$1
+    pbench-collect-sysinfo --sysinfo=$sysinfo --check
+    local ret=$?
+    if [[ $ret -ne 0 ]]; then
+        printf -- "\t${script_name}: invalid --sysinfo option (\"$sysinfo\")\n"
+    fi
+    return $ret
+}
+
+function verify_common_bench_script_options {
+    verify_tool_group $1
+    local ret_tg=$?
+    verify_collect_sysinfo $2
+    local ret_cs=$?
+    if [[ $ret_tg -ne 0 || $ret_cs -ne 0 ]]; then
+        printf -- "\n"
+        usage
+        exit 1
+    fi
 }
 
 # generate inventory file with controller and remotes

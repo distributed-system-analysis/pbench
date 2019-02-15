@@ -1,5 +1,4 @@
 +++ Running test-04 pbench-fio
-pbench-fio
 The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1/fio.job
 [global]
 bs=4k
@@ -8008,6 +8007,7 @@ warning: timestamp already exists with this RW type, skipping this sample (file 
 /var/tmp/pbench-test-bench/pbench/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-fio-3.3
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio 3.3 is installed
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio_device_check() /tmp/fio 
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1/fio.job ]

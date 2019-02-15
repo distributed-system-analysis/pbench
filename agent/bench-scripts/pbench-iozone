@@ -63,44 +63,32 @@ iteration=1
 tool_group=default
 sysinfo="default"
 
-## Ensure the right version of the benchmark is installed
-
-if check_install_rpm $benchmark_rpm $ver; then
-	debug_log "[$script_name]$benchmark_rpm is installed"
-else
-	debug_log "[$script_name]$benchmark_rpm installation failed, exiting"
-	exit 1
-fi
-
-function usage{
-	printf "\tThe following options are available:\n\n"
+function usage {
+	printf    "\tThe following options are available:\n\n"
 	printf -- "\t\t-C str --config=str name of the test config\n"
 	printf -- "\t\t-d str[,str] --targets=str[,str]\n"
-	printf "\t\t\tfile to use for iozone test in format /dir/file - this is iozone : -f option\n"
+	printf    "\t\t\tfile to use for iozone test in format /dir/file - this is iozone : -f option\n"
 	printf -- "\t\t-s str[,str] --file_sizes=str[,str]\n"
-	printf "\t\t\tone or more file_sizes sizes to use\n"
+	printf    "\t\t\tone or more file_sizes sizes to use\n"
 	printf -- "\t\t-r str[,str] --record_sizes=str[,str]\n"
-	printf "\t\t\tone or more record_sizes sizes to use\n"
+	printf    "\t\t\tone or more record_sizes sizes to use\n"
 	printf -- "\t\t-n str[,str] --number_of_runs=str[,str]\n"
-	printf "\t\t\tnumber of iozone runs - default is 10 runs\n"
+	printf    "\t\t\tnumber of iozone runs - default is 10 runs\n"
 	printf -- "\t\t--tool-group=str\n"
 	printf -- "\t\t--sysinfo=str, str= comma separated values of sysinfo to be collected\n"
 	printf -- "\t\t                    available: $(pbench-collect-sysinfo --options)\n"
 }
 
-opts=$(getopt -q -o C:d:s:r:n: --longoptions "config:,targets:,file_sizes:,record_sizes:,number_of_runs:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@");
-
+opts=$(getopt -q -o C:d:s:r:n: --longoptions "config:,targets:,file_sizes:,record_sizes:,number_of_runs:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
-        printf -- "$*\n"
-        printf "\n"
-        printf "\t${benchmark}: you specified an invalid option\n\n"
+        printf -- "${script_name} $*\n"
+        printf -- "\n"
+        printf -- "\tunrecognized option specified\n\n"
 	usage
         exit 1
 fi
 
-
 eval set -- "$opts";
-debug_log "[$script_name] processing options"
 while true; do
         case "$1" in
                 -C|--config)
@@ -132,7 +120,7 @@ while true; do
 			shift;
 		fi
 		;;
-	         --sysinfo)
+	        --sysinfo)
 		shift;
 		if [ -n "$1" ]; then
 			sysinfo="$1"
@@ -148,7 +136,7 @@ while true; do
 		fi
 		;;
 
-		h|--help)
+		-h|--help)
 		usage
 		exit 0
 		;;
@@ -161,26 +149,27 @@ while true; do
 		fi
 		;;
 
-
                 --)
                 shift;
                 break;
                 ;;
+
                 *)
-                echo "what happened? [$1]"
-                break;
+                error_log "Encountered unrecognized parameter, what happened? [$1]"
+                usage
+                exit 1;
                 ;;
         esac
 done
+verify_common_bench_script_options $tool_group $sysinfo
 
-verify_tool_group $tool_group
+## Ensure the right version of the benchmark is installed
 
-pbench-collect-sysinfo --sysinfo=$sysinfo --check
-if [ $? != 0 ]; then
-        printf -- "$*\n\n"
-        printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
-        usage
-        exit 1
+if check_install_rpm $benchmark_rpm $ver; then
+	debug_log "[$script_name]$benchmark_rpm is installed"
+else
+	debug_log "[$script_name]$benchmark_rpm installation failed, exiting"
+	exit 1
 fi
 
 benchmark_fullname="${benchmark}_${config}_${date_suffix}"
@@ -198,7 +187,6 @@ echo $iteration >> $benchmark_iterations
 benchmark_tools_dir="$benchmark_results_dir/tools-$tool_group"
 mkdir -p $benchmark_results_dir $benchmark_tools_dir
 
-
 pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 
 # not 100% sure what is best run logic here, either to permute record sizes or over file sizes...
@@ -213,8 +201,8 @@ done
 
 pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 
 rmdir $benchmark_run_dir/.running
-

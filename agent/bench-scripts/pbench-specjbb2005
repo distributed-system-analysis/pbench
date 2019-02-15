@@ -48,9 +48,6 @@ sysinfo="default"
 java_opts=""
 dir=""
 
-# Process options and arguments
-opts=$(getopt -q -o C:c:r:d: --longoptions "dir:,nr-jvms:,heap-size:,java-opts:,start-warehouses:,inc-warehouses:,stop-warehouses:,runtime:,tool-group:,sysinfo:,specjbb2005-dir:" -n "getopt.sh" -- "$@");
-
 function usage {
 	printf "\tThe following options are available:\n\n"
 	printf -- "\t\t-C str --config=<str>                       name of the test config\n"
@@ -70,15 +67,16 @@ function usage {
 	printf -- "\t\t                                                 (default is $specjbb2005_dir)\n"
 }
 
+# Process options and arguments
+opts=$(getopt -q -o C:c:r:d: --longoptions "dir:,nr-jvms:,heap-size:,java-opts:,start-warehouses:,inc-warehouses:,stop-warehouses:,runtime:,tool-group:,sysinfo:,specjbb2005-dir:,help" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
-	printf -- "$*\n"
-	printf "\n"
-	printf "\t${benchmark}: you specified an invalid option\n\n"
+        printf -- "${script_name} $*\n"
+        printf -- "\n"
+        printf -- "\tunrecognized option specified\n\n"
 	usage
 	exit 1
 fi
 eval set -- "$opts";
-debug_log "[$script_name] processing options"
 while true; do
 	case "$1" in
 		--java-opts)
@@ -151,6 +149,13 @@ while true; do
 			shift;
 		fi
 		;;
+		--tool-group)
+		shift;
+		if [ -n "$1" ]; then
+			tool_group="$1"
+			shift;
+		fi
+		;;
 		--sysinfo)
 		shift;
 		if [ -n "$1" ]; then
@@ -165,7 +170,7 @@ while true; do
 			shift;
 		fi
 		;;
-		h|--help)
+		-h|--help)
 		usage
 		exit 0
 		;;
@@ -179,17 +184,10 @@ while true; do
 		;;
 	esac
 done
+verify_common_bench_script_options $tool_group $sysinfo
+
 if [ ! -d "${specjbb2005_dir}" ]; then
-	printf -- "$*\n\n"
-	printf "\t${benchmark}: you specified an invalid --specjbb2005-dir option (\"$specjbb2005_dir\")\n\n"
-	usage
-	exit 1
-fi
-verify_tool_group $tool_group
-pbench-collect-sysinfo --sysinfo=$sysinfo --check
-if [ $? != 0 ]; then
-	printf -- "$*\n\n"
-	printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
+	printf "\t${script_name}: you specified an invalid --specjbb2005-dir option (\"$specjbb2005_dir\")\n\n"
 	usage
 	exit 1
 fi

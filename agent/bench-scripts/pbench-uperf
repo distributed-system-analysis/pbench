@@ -69,7 +69,7 @@ server_nodes=""
 client_nodes=""
 sysinfo="default"
 
-function uperf_usage {
+function usage {
 	printf "\tThe following options are available:\n\n"
         printf -- "\t--kvm-host=str\n"
         printf -- "\t--tool-group=str\n"
@@ -191,14 +191,13 @@ function install_uperf {
 # Process options and arguments
 opts=$(getopt -q -o i:c:t:r:m:p:M:S:C: --longoptions "help,server-node:,server-nodes:,client-node:,client-nodes:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,kvm-host:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
-	printf -- "$*\n"
-	printf "\n"
-	printf "\t${benchmark}: you specified an invalid option\n\n"
-	uperf_usage
+        printf -- "${script_name} $*\n"
+        printf -- "\n"
+        printf -- "\tunrecognized option specified\n\n"
+	usage
 	exit 1
 fi
 eval set -- "$opts"
-debug_log "[$script_name]processing options"
 while true; do
 	case "$1" in
 		--install)
@@ -207,8 +206,8 @@ while true; do
 		exit
 		;;
 		--help)
-		uperf_usage
-		exit
+		usage
+		exit 0
 		;;
 		--client-label)
 		shift
@@ -383,17 +382,7 @@ while true; do
 		;;
 	esac
 done
-
-pbench-collect-sysinfo --sysinfo=$sysinfo --check
-if [ $? != 0 ]; then
-	printf -- "$*\n\n"
-	printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
-	uperf_usage
-	exit 1
-fi
-
-# Verify the tool group exists
-verify_tool_group $tool_group
+verify_common_bench_script_options $tool_group $sysinfo
 
 # Verify the number of clients and servers match.
 if [ ! -z "$clients" -a "$postprocess_only" != "y" ]; then

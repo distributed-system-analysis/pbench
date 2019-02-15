@@ -117,12 +117,7 @@ function convert_number_range() {
 	echo "$cpus_list"
 }
 
-# Process options and arguments
-opts=$(getopt -q -o c: --longoptions "pre-benchmark-cmd:,skip-trex-install,skip-trex-server,skip-git-pull,traffic-generator:,devices:,active-devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2,traffic-profile:,traffic-profiles:sysinfo:" -n "getopt.sh" -- "$@")
-if [ $? -ne 0 ]; then
-	printf -- "$*\n"
-	printf "\n"
-	printf "\t${benchmark_name}: you specified an invalid option\n\n"
+function usage {
 	printf "\tThe following options are available:\n\n"
 	#                   1         2         3         4         5         6         7         8
 	#          12345678901234567890123456789012345678901234567890123456789012345678901234567890
@@ -351,10 +346,18 @@ if [ $? -ne 0 ]; then
 	printf -- "--sysinfo=str,\n"
 	printf -- "  comma separated values of sysinfo to be collected, default=\"none\"\n"
 	printf -- "    available: $(pbench-collect-sysinfo --options)\n"
+}
+
+# Process options and arguments
+opts=$(getopt -q -o hc: --longoptions "pre-benchmark-cmd:,skip-trex-install,skip-trex-server,skip-git-pull,traffic-generator:,devices:,active-devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2,traffic-profile:,traffic-profiles:,sysinfo:,help" -n "getopt.sh" -- "$@")
+if [ $? -ne 0 ]; then
+        printf -- "${script_name} $*\n"
+        printf -- "\n"
+        printf -- "\tunrecognized option specified\n\n"
+	usage
 	exit 1
 fi
 eval set -- "$opts"
-debug_log "[$script_name]processing options"
 while true; do
 	case "$1" in
 		--tool-label-pattern)
@@ -565,6 +568,10 @@ while true; do
 			shift;
 		fi
 		;;
+		-h|--help)
+		usage
+		exit 0
+		;;
 		--)
 		shift
 		while true; do
@@ -580,21 +587,12 @@ while true; do
 		;;
 		*)
 		error_log "[$script_name] bad option, \"$1 $2\""
+		usage
 		exit 1
-		break
 		;;
 	esac
 done
-
-pbench-collect-sysinfo --sysinfo=$sysinfo --check
-if [ $? != 0 ]; then
-	printf -- "$*\n\n"
-	printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
-	exit 1
-fi
-
-# Verify the tool group exists
-verify_tool_group $tool_group
+verify_common_bench_script_options $tool_group $sysinfo
 
 if [ -z "${active_devices}" ]; then
 	active_devices=${devices}
