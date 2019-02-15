@@ -47,7 +47,7 @@ function usage {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:c:r:s --longoptions "help,cpu:,stress,config:,runtime:,runtimes:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o C:c:hr:s --longoptions "help,cpu:,stress,config:,runtime:,runtimes:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf -- "${script_name} $*\n"
 	printf -- "\n"
@@ -157,7 +157,7 @@ for runtime in `echo $runtimes | sed -e s/,/" "/g`; do
 	if [ ! -z "$cpu" ]; then
 		iteration="$iteration-cpu_$cpu"
 	fi
-        echo $iteration >> $benchmark_iterations
+	echo $iteration >> $benchmark_iterations
 	benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result/"
 	result_file=$benchmark_results_dir/result.txt
 	benchmark_cmd_file=$benchmark_results_dir/cyclictest.cmd

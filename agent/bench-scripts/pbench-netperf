@@ -40,7 +40,6 @@ benchmark_bin=/usr/bin/$benchmark
 ver=2.7.0
 spacing=25
 
-
 # Every bench-script follows a similar sequence:
 # 1) process bench script arguments
 # 2) ensure the right version of the benchmark is installed
@@ -78,7 +77,6 @@ tool_group=default
 sysinfo="default"
 
 function gen_cmd {
-
 	case $test_type in
 	tcp_rr)
 	cmd="-t tcp_rr"
@@ -89,15 +87,15 @@ function gen_cmd {
 	tcp_maerts) # "stream" in reverse direction
 	cmd="-t tcp_maerts"
 	;;
-        udp_rr)
-        cmd="-t tcp_rr"
-        ;;
-        udp_stream)
-        cmd="-t tcp_stream"
-        ;;
-        udp_maerts) # "stream" in reverse direction
-        cmd="-t tcp_maerts"
-        ;;
+	udp_rr)
+	cmd="-t tcp_rr"
+	;;
+	udp_stream)
+	cmd="-t tcp_stream"
+	;;
+	udp_maerts) # "stream" in reverse direction
+	cmd="-t tcp_maerts"
+	;;
 #	bidirec) # A streaming test in both directions at the same time
 #	cmd="-t test"
 #	;;
@@ -133,7 +131,7 @@ function print_header {
 		printf "%28s%${spacing}s%${spacing}s%${spacing}s%${spacing}s%${spacing}s%${spacing}s\n" "iteration" "trans/sec" "latency_usec" "trans/sec/serverCPU" "trans/sec/clientCPU" "serverCPU" "clientCPU" >>$benchmark_summary_txt_file
 		printf "%28s,%${spacing}s,%${spacing}s,%${spacing}s,%${spacing}s,%${spacing}s,%${spacing}s\n" "iteration" "trans/sec,stddev%" "latency_usec,stddev%" "trans/sec/serverCPU,stddev%" "trans/sec/clientCPU,stddev%" "serverCPU,stddev%" "clientCPU,stddev%" >>$benchmark_summary_csv_file
 		printf "%28s %s %s %${spacing}s%${spacing}s%${spacing}s%${spacing}s%${spacing}s%${spacing}s\n" "iteration" "       " "     " "trans/sec" "latency_usec" "trans/sec/serverCPU" "trans/sec/clientCPU" "serverCPU" "clientCPU" >>$benchmark_summary_html_file
-	else 
+	else
 		printf "%28s%${spacing}s%${spacing}s%${spacing}s%${spacing}s%${spacing}s\n" "iteration" "Gbps" "Gbps/serverCPU" "Gbps/clientCPU" "serverCPU" "clientCPU" >>$benchmark_summary_txt_file
 		printf "%28s,%${spacing}s,%${spacing}s,%${spacing}s,%${spacing}s,%${spacing}s\n" "iteration" "Gbps,stddev%" "Gbps/serverCPU,stddev%" "Gbps/clientCPU,stddev%" "serverCPU,stddev%" "clientCPU,stddev%" >>$benchmark_summary_csv_file
 		printf "%28s %s %s %${spacing}s%${spacing}s%${spacing}s%${spacing}s%${spacing}s\n" "iteration" "       " "     " "Gbps" "Gbps/serverCPU" "Gbps/clientCPU" "serverCPU" "clientCPU" >>$benchmark_summary_html_file
@@ -142,49 +140,49 @@ function print_header {
 
 function usage {
 	printf "\tThe following options are available:\n\n"
-        #              1   2         3         4         5         6         7         8         9         0         1         2         3
-        #              678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
-        printf -- "\t\t             --kvm-host=str\n"
-        printf -- "\t\t             --tool-group=str\n"
-        printf -- "\t\t-c str       --config=str                   name of the test config (i.e. jumbo_frames_and_network_throughput)\n"
-        printf -- "\t\t-t str[,str] --test-types=str[,str]         can be stream, maerts, bidirect, and/or rr (default $test_types)\n"
-        printf -- "\t\t-r int       --runtime=int                  test measurement period in seconds (default is $runtime)\n"
-        printf -- "\t\t-m int[,int] --message-sizes=str[,str]      list of message sizes in bytes (default is $message_sizes)\n"
-        printf -- "\t\t-p str[,str] --protocols=str[,str]          tcp and/or udp (default is $protocols)\n"
-        printf -- "\t\t-i int[,int] --instances=int[,int]          list of number of netperf instances to run (default is $instances)\n"
-        printf -- "\t\t-C str[,str] --client[s]=str[,str]          a list of one or more hostnames/IPs.  These systems will run the\n"
-        printf    "\t\t                                            netperf client (drive the test).\n"
-        printf    "\t\t                                            If this is omitted, the local system is the client\n"
-        printf    "\t\t                                            Note: the number of clients and server must be the same!\n"
-        printf    "\t\t                                            Clients and servers are paired according the order in the list (first\n"
-        printf    "\t\t                                            client pairs with firest server, etc)\n"
-        printf -- "\t\t-S str[,str] --server[s]=str[,str]          a list of one or more hostnames/IPs.  These systems will run the netperf\n"
-        printf    "\t\t                                            server (listening for connections)\n"
-        printf    "\t\t                                            If this is omitted, the server will listen on the local system\n"
-        printf    "\t\t                                            loopback interface\n"
-        printf -- "\t\t             --samples=int                  the number of times each different test is run (to compute average &\n"
-        printf    "\t\t                                            standard deviations)\n"
-        printf -- "\t\t             --max-failures=int             the maximm number of failures to get below stddev\n"
-        printf -- "\t\t             --max-stddev=int               the maximm percent stddev allowed to pass\n"
-        printf -- "\t\t             --postprocess-only=y|n         don't run the benchmark, but postprocess data from previous test\n"
-        printf -- "\t\t             --run-dir=str                  optionally specify what directory should be used (usually only used\n"
-        printf    "\t\t                                            if postprocess-only=y)\n"
-        printf -- "\t\t             --start-iteration-num=int      optionally skip the first (n-1) tests\n"
-        printf -- "\t\t             --log-response-times=y|n       record the response time of every single operation\n"
-        printf -- "\t\t             --client-label=str             provide the pbench netperf-client tool label and postprocessing will\n"
-        printf    "\t\t                                            compute a netperf-client result/CPU metric\n"
-        printf -- "\t\t             --server-label=str             provide the pbench netperf-server tool label and postprocessing will\n"
-        printf    "\t\t                                            compute a netperf-server result/CPU metric\n"
-        printf -- "\t\t             --sysinfo=str,                 str= comma separated values of sysinfo to be collected\n"
-        printf -- "\t\t                                                 available: $(pbench-collect-sysinfo --options)\n"
+	#              1   2         3         4         5         6         7         8         9         0         1         2         3
+	#              678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
+	printf -- "\t\t             --kvm-host=str\n"
+	printf -- "\t\t             --tool-group=str\n"
+	printf -- "\t\t-c str       --config=str                   name of the test config (i.e. jumbo_frames_and_network_throughput)\n"
+	printf -- "\t\t-t str[,str] --test-types=str[,str]         can be stream, maerts, bidirect, and/or rr (default $test_types)\n"
+	printf -- "\t\t-r int       --runtime=int                  test measurement period in seconds (default is $runtime)\n"
+	printf -- "\t\t-m int[,int] --message-sizes=str[,str]      list of message sizes in bytes (default is $message_sizes)\n"
+	printf -- "\t\t-p str[,str] --protocols=str[,str]          tcp and/or udp (default is $protocols)\n"
+	printf -- "\t\t-i int[,int] --instances=int[,int]          list of number of netperf instances to run (default is $instances)\n"
+	printf -- "\t\t-C str[,str] --client[s]=str[,str]          a list of one or more hostnames/IPs.  These systems will run the\n"
+	printf    "\t\t                                            netperf client (drive the test).\n"
+	printf    "\t\t                                            If this is omitted, the local system is the client\n"
+	printf    "\t\t                                            Note: the number of clients and server must be the same!\n"
+	printf    "\t\t                                            Clients and servers are paired according the order in the list (first\n"
+	printf    "\t\t                                            client pairs with firest server, etc)\n"
+	printf -- "\t\t-S str[,str] --server[s]=str[,str]          a list of one or more hostnames/IPs.  These systems will run the netperf\n"
+	printf    "\t\t                                            server (listening for connections)\n"
+	printf    "\t\t                                            If this is omitted, the server will listen on the local system\n"
+	printf    "\t\t                                            loopback interface\n"
+	printf -- "\t\t             --samples=int                  the number of times each different test is run (to compute average &\n"
+	printf    "\t\t                                            standard deviations)\n"
+	printf -- "\t\t             --max-failures=int             the maximm number of failures to get below stddev\n"
+	printf -- "\t\t             --max-stddev=int               the maximm percent stddev allowed to pass\n"
+	printf -- "\t\t             --postprocess-only=y|n         don't run the benchmark, but postprocess data from previous test\n"
+	printf -- "\t\t             --run-dir=str                  optionally specify what directory should be used (usually only used\n"
+	printf    "\t\t                                            if postprocess-only=y)\n"
+	printf -- "\t\t             --start-iteration-num=int      optionally skip the first (n-1) tests\n"
+	printf -- "\t\t             --log-response-times=y|n       record the response time of every single operation\n"
+	printf -- "\t\t             --client-label=str             provide the pbench netperf-client tool label and postprocessing will\n"
+	printf    "\t\t                                            compute a netperf-client result/CPU metric\n"
+	printf -- "\t\t             --server-label=str             provide the pbench netperf-server tool label and postprocessing will\n"
+	printf    "\t\t                                            compute a netperf-server result/CPU metric\n"
+	printf -- "\t\t             --sysinfo=str,                 str= comma separated values of sysinfo to be collected\n"
+	printf -- "\t\t                                                 available: $(pbench-collect-sysinfo --options)\n"
 }
 
 # Process options and arguments
-opts=$(getopt -q -o i:c:t:r:m:p:M:S:C:h --longoptions "client-label:,server-label:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,kvm-host:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o C:c:hi:m:p:r:S:t: --longoptions "client-label:,server-label:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,kvm-host:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
-        printf -- "${script_name} $*\n"
-        printf -- "\n"
-        printf -- "\tunrecognized option specified\n\n"
+	printf -- "${script_name} $*\n"
+	printf -- "\n"
+	printf -- "\tunrecognized option specified\n\n"
 	usage
 	exit 1
 fi
@@ -345,8 +343,8 @@ while true; do
 		break
 		;;
 		*)
-                error_log "[$script_name] Encountered unrecognized parameter, what happened? [\"$1\"]"
-                usage
+		error_log "[$script_name] Encountered unrecognized parameter, what happened? [\"$1\"]"
+		usage
 		exit 1
 		;;
 	esac
@@ -354,16 +352,16 @@ done
 verify_common_bench_script_options $tool_group $sysinfo
 
 if [[ -z "$benchmark_run_dir" ]]; then
-        # We don't have an explicit run directory, construct one
-        benchmark_fullname="${benchmark}_${config}_${date_suffix}"
-        benchmark_run_dir="$pbench_run/${benchmark_fullname}"
+	# We don't have an explicit run directory, construct one
+	benchmark_fullname="${benchmark}_${config}_${date_suffix}"
+	benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 else
-        # We have an explicit run directory provided by --run-dir, so warn
-        # the user if they also used --config
-        if [[ ! -z "$config" ]]; then
-                warn_log "[$script_name] ignoring --config=\"$config\" in favor of --run-dir=\"$benchmark_run_dir\""
-        fi
-        benchmark_fullname=$(basename $benchmark_run_dir)
+	# We have an explicit run directory provided by --run-dir, so warn
+	# the user if they also used --config
+	if [[ ! -z "$config" ]]; then
+		warn_log "[$script_name] ignoring --config=\"$config\" in favor of --run-dir=\"$benchmark_run_dir\""
+	fi
+	benchmark_fullname=$(basename $benchmark_run_dir)
 fi
 benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
 
@@ -450,7 +448,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 					failures=0
 					while [[ $(echo "if (${result_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; do
 						mkdir -p $iteration_dir
-						for server in `echo $servers | sed -e s/","/" "/g`; do	
+						for server in `echo $servers | sed -e s/","/" "/g`; do
 							xml_file="$benchmark_run_dir/$iteration/netperf-config-$server.xml"
 							gen_xml $test_type $message_size $protocol $instance $server >$xml_file
 						done
@@ -474,7 +472,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								# prepare test files and dirs if using remote clients
 								if [ ! -z "$clients" ]; then
 									i=1
-									for server in `echo $servers | sed -e s/","/" "/g`; do	
+									for server in `echo $servers | sed -e s/","/" "/g`; do
 										client=`echo $clients | cut -d, -f$i`
 										xml_file="$benchmark_run_dir/$iteration/netperf-config-$server.xml"
 										ssh $ssh_opts $client mkdir -p $benchmark_results_dir
@@ -487,7 +485,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 								# start a local netperf client process for each host found in the $servers list
 								if [ -z "$clients" ]; then
-									for server in `echo $servers | sed -e s/","/" "/g`; do	
+									for server in `echo $servers | sed -e s/","/" "/g`; do
 										if [ "$log_response_times" == "y" ]; then
 											resp_opt=" -X $benchmark_results_dir/response-times-$server.txt"
 										fi
@@ -499,7 +497,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									wait
 								else # using remote clients
 									i=1
-									for server in `echo $servers | sed -e s/","/" "/g`; do	
+									for server in `echo $servers | sed -e s/","/" "/g`; do
 										client=`echo $clients | cut -d, -f$i`
 										if [ "$log_response_times" == "y" ]; then
 											resp_opt=" -X $benchmark_results_dir/response-times-$server.txt"
@@ -581,7 +579,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									/bin/rm -rf $benchmark_run_dir/$iteration/sample$sample/tools-* $benchmark_run_dir/$iteration/sample$sample/response-times.txt
 								fi
 							fi
-						done		
+						done
 						# if we did not achieve the stddevpct, then move this result out of the way and try again
 						fail=0
 						if [[ $(echo "if (${tput_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; then

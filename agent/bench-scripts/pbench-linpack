@@ -49,15 +49,15 @@ function usage {
 	printf -- "\t       --threads=int[,int]  number of threads to use (default is num_cpus)\n"
 	printf -- "\t       --tool-group=str\n"
 	printf -- "\t       --sysinfo=str,       str= comma separated values of sysinfo to be collected\n"
-        printf -- "\t                                available: $(pbench-collect-sysinfo --options)\n"
+	printf -- "\t                                available: $(pbench-collect-sysinfo --options)\n"
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C: --longoptions "config:,threads:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o C:h --longoptions "config:,threads:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
-        printf -- "${script_name} $*\n"
-        printf -- "\n"
-        printf -- "\tunrecognized option specified\n\n"
+	printf -- "${script_name} $*\n"
+	printf -- "\n"
+	printf -- "\tunrecognized option specified\n\n"
 	usage
 	exit 1
 fi
@@ -86,7 +86,7 @@ while true; do
 		fi
 		;;
 		--sysinfo)
-                shift;
+		shift;
 		if [ -n "$1" ]; then
 			sysinfo="$1"
 			shift;
@@ -111,10 +111,10 @@ verify_common_bench_script_options $tool_group $sysinfo
 
 ## Ensure the right version of the benchmark is installed
 if check_install_rpm $benchmark_rpm $ver; then
-    debug_log "[$script_name]$benchmark_rpm is installed"
+	debug_log "[$script_name]$benchmark_rpm is installed"
 else
-    error_log "[$script_name]$benchmark_rpm installation failed, exiting"
-    exit 1
+	error_log "[$script_name]$benchmark_rpm installation failed, exiting"
+	exit 1
 fi
 
 benchmark_fullname="${benchmark}_${config}_${date_suffix}"

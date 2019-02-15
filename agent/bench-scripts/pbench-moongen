@@ -75,7 +75,7 @@ accept_negative_loss="n"
 sysinfo="default"
 
 function usage {
-	  printf "\tThe following options are available:\n\n"
+	printf "\tThe following options are available:\n\n"
 	#              1   2         3         4         5         6         7         8         9         0         1         2         3
 	#              678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
 	printf -- "\t\t-c str       --config=str               name of the test config (i.e. jumbo_frames_and_network_throughput)\n"
@@ -88,10 +88,10 @@ function usage {
 	printf -- "\t\t                                                            find latency (histogram) at the max throughput\n"
 	printf -- "\t\t-o           --one-shot                 only run one test for throughput and then quit (no binary search)\n"
 	printf -- "\t\t             --accept-negative-loss     allow attempts with negative packet loss to pass\n"
-	printf -- "\t\t-t str[,str] --traffic=str[,str]        list of one or more: unidirec or bidirec (default $traffic)\n"
-	printf -- "\t\t-r int       --latency-runtime=int      test measurement period in seconds when running a latency test (default is $latency_runtime)\n"
-	printf -- "\t\t-r int       --search-runtime=int       test measurement period in seconds when searching for max throughput (default is $search_runtime)\n"
-	printf -- "\t\t-r int       --validation-runtime=int   test measurement period in seconds when running final validation (default is $validation_runtime)\n"
+	printf -- "\t\t             --traffic=str[,str]        list of one or more: unidirec or bidirec (default $traffic)\n"
+	printf -- "\t\t             --latency-runtime=int      test measurement period in seconds when running a latency test (default is $latency_runtime)\n"
+	printf -- "\t\t             --search-runtime=int       test measurement period in seconds when searching for max throughput (default is $search_runtime)\n"
+	printf -- "\t\t             --validation-runtime=int   test measurement period in seconds when running final validation (default is $validation_runtime)\n"
 	printf -- "\t\t             --max-drop-pct[s]=fl,[fl]  list of maximum allowed percentage of dropped frames (default is $max_drop_pcts)\n"
 	printf -- "\t\t-m int[,int] --frame-sizes=str[,str]    list of frame sizes in bytes (default is $frame_sizes)\n"
 	printf -- "\t\t-i int[,int] --nr-flows=int[,int]       list of number of packet flows to run (default is $nr_flows)\n"
@@ -122,11 +122,11 @@ function usage {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o i:c:t:r:m:p:M:S:C:o --longoptions "help,portlist:,rate:,rates:,max-drop-pct:,max-drop-pcts:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,nr-flows:,test-type:,traffic:,latency-runtime:,search-runtime:,validation-runtime:,frame-sizes:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,one-shot,accept-negative-loss,mpps-per-queue:,queues-per-task:,dst-macs:,sysinfo:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o c:hi:m:or:t: --longoptions "help,portlist:,rate:,rates:,max-drop-pct:,max-drop-pcts:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,nr-flows:,test-type:,traffic:,latency-runtime:,search-runtime:,validation-runtime:,frame-sizes:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,one-shot,accept-negative-loss,mpps-per-queue:,queues-per-task:,dst-macs:,sysinfo:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
-        printf -- "${script_name} $*\n"
-        printf -- "\n"
-        printf -- "\tunrecognized option specified\n\n"
+	printf -- "${script_name} $*\n"
+	printf -- "\n"
+	printf -- "\tunrecognized option specified\n\n"
 	usage
 	exit 1
 fi
@@ -138,7 +138,7 @@ while true; do
 		install_only="y"
 		exit
 		;;
-		--help)
+		-h|--help)
 		usage
 		exit 0
 		;;
@@ -290,25 +290,25 @@ while true; do
 		--mpps-per-queue)
 		shift
 		if [ -n "$1" ]; then
-		    mpps_per_queue="$1"
-		    shift
+			mpps_per_queue="$1"
+			shift
 		fi
 		;;
 		--queues-per-task)
 		shift
 		if [ -n "$1" ]; then
-		    queues_per_task="$1"
-		    shift
+			queues_per_task="$1"
+			shift
 		fi
 		;;
 		--dst-macs)
 		shift
 		if [ -n "$1" ]; then
-		    dst_maclist="$1"
-		    shift
+			dst_maclist="$1"
+			shift
 		fi
 		;;
-		 --sysinfo)
+		--sysinfo)
 		shift
 		if [ -n "$1" ]; then
 			sysinfo="$1"
@@ -467,8 +467,8 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 									pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 									pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 									if [ "$test_type" == "latency" -o "$test_type" == "throughput-latency" ]; then
-									    cp $moongen_dir/latency*.csv $benchmark_results_dir
-									    xz $benchmark_results_dir/latency:samples*.csv
+										cp $moongen_dir/latency*.csv $benchmark_results_dir
+										xz $benchmark_results_dir/latency:samples*.csv
 									fi
 								else
 									if [[ ! -d $benchmark_results_dir ]]; then

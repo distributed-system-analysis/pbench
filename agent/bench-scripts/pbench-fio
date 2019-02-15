@@ -16,7 +16,7 @@ export benchmark_run_dir=""
 # allow unit tests to override
 if [[ -z "$benchmark_bin" ]]; then
 	benchmark_bin=/usr/local/bin/$benchmark
-fi	
+fi
 ver=$(getconf.py version pbench-fio)
 if [ -z "$ver" ] ;then
 	echo "pbench-fio: package version is missing in config file" > /dev/tty
@@ -74,94 +74,94 @@ fi
 sysinfo="default"
 
 function usage {
-		printf "The following options are available:\n"
-		printf "\n"
-		printf -- "\t-t str[,str] --test-types=str[,str]\n"
-		printf "\t\tone or more of %s\n" $supported_test_types
-		printf "\n"
-		printf -- "\t--direct=[0/1]\n"
-		printf "\t\t1 = O_DIRECT enabled (default), 0 = O_DIRECT disabled\n"
-		printf "\n"
-		printf -- "\t--sync=[0/1]\n"
-		printf "\t\t1 = O_SYNC enabled, 0 = O_SYNC disabled (defalt)\n"
-		printf "\n"
-		printf -- "\t--rate-iops=int\n"
-		printf "\t\tdo not exceeed this IOP rate (per job, per client)\n"
-		printf "\n"
-		printf -- "\t-r int --runtime=int\n"
-		printf "\t\truntime in seconds (default is $runtime)\n"
-		printf "\n"
-		printf -- "\t--ramptime=int\n"
-		printf "\t\ttime in seconds to warm up test before taking measurements (default is $ramptime)\n"
-		printf "\n"
-		printf -- "\t-b int[,int] --block-sizes=str[,str] (default is $block_sizes)\n"
-		printf "\t\tone or more block sizes in KiB (default is $block_sizes)\n"
-		printf "\n"
-		printf -- "\t-s int[,int] --file-size=str[,str] (default is $file_size)\n"
-		printf "\t\tfile sizes in MiB: %s\n"
-		printf "\n"
-		printf -- "\t-d str[,str] --targets=str[,str]\n"
-		printf "\t\tone or more directories or block devices (default is $targets)\n"
-		printf "\t\t(persistent names for devices highly recommended)\n"
-		printf "\n"
-		printf -- "\t-j str --job-mode=str    str=[serial|concurrent]  (default is $job_mode)\n"
-		printf "\n"
-		printf -- "\t--ioengine=str           str= any ioengine fio supports (default is $ioengine)\n"
-		printf "\n"
-		printf -- "\t--iodepth=<int>"
-		printf "\t\tSet the iodepth config variable in the fio job file\n"
-		printf "\n"
-		printf -- "\t-c str[,str] --clients=str[,str]      str= one or more remote systems to run fio\n"
-		printf "\t\tIf no clients are specified, fio is run locally\n"
-		printf "\n"
-		printf -- "\t--client-file=str        str= file (with absolute path) which contains 1 client per line\n"
-		printf "\n"
-		printf -- "\t--config=str\n"
-		printf "\t\tname of the test configuration\n"
-		printf "\n"
-		printf -- "\t--tool-group=str\n"
-		printf "\n"
-		printf -- "\t--postprocess-only=[y|n]\n"
-		printf "\t\tuse this only if you want to postprocess an existing result again\n"
-		printf "\t\tyou must use --run-dir option with this\n"
-		printf "\n"
-		printf -- "\t--run-dir=<path>\n"
-		printf "\t\tprovide the path of an existig result (typically somewhere in $pbench_run\n"
-		printf "\n"
-		printf -- "\t--numjobs=<int>\n"
-		printf "\t\tnumber of jobs to run, if not given then fio default of numjobs=1 will be used\n"
-		printf "\n"
-		printf -- "\t--job-file=<path>\n"
-		printf "\t\tprovide the path of a fio job config file, (default is $job_file)\n"
-		printf "\n"
-		printf -- "\t--pre-iteration-script=str\n"
-		printf "\t\tuse executable script/program to prepare the system for test iteration\n"
-		printf "\t\texample: --pre-iteration-script=\$HOME/drop-cache.sh\n"
-		printf "\n"
-		printf -- "\t--samples=<int>\n"
-		printf "\t\tnumber of samples to use per test iteration (default is $nr_samples)\n"
-		printf "\n"
-		printf -- "\t--max-stddev=<int>\n"
-		printf "\t\tthe maximum percent stddev allowed to pass\n"
-		printf "\n"
-		printf -- "\t--max-failures=<int>\n"
-		printf "\t\tthe maximum number of failures to get below stddev\n"
-		printf "\n"
-		printf -- "\t--install\n"
-		printf "\t\tinstall only (default is False)\n"
-		printf "\n"
-		printf -- "\t--remote-only\n"
-		printf "\t\trun this on the remotes only\n"
-		printf "\n"
-		printf -- "\t--histogram-interval-sec=<int>\n"
-		printf "\t\tset the histogram logging interval in seconds (default $histogram_interval_sec)\n"
-		printf "\n"
-		printf -- "\t--sysinfo=str            str= comma separated values of sysinfo to be collected\n"
-		printf "\t\tavailable: $(pbench-collect-sysinfo --options)\n"
+	printf "The following options are available:\n"
+	printf "\n"
+	printf -- "\t-t str[,str] --test-types=str[,str]\n"
+	printf "\t\tone or more of %s\n" $supported_test_types
+	printf "\n"
+	printf -- "\t--direct=[0/1]\n"
+	printf "\t\t1 = O_DIRECT enabled (default), 0 = O_DIRECT disabled\n"
+	printf "\n"
+	printf -- "\t--sync=[0/1]\n"
+	printf "\t\t1 = O_SYNC enabled, 0 = O_SYNC disabled (defalt)\n"
+	printf "\n"
+	printf -- "\t--rate-iops=int\n"
+	printf "\t\tdo not exceeed this IOP rate (per job, per client)\n"
+	printf "\n"
+	printf -- "\t-r int --runtime=int\n"
+	printf "\t\truntime in seconds (default is $runtime)\n"
+	printf "\n"
+	printf -- "\t--ramptime=int\n"
+	printf "\t\ttime in seconds to warm up test before taking measurements (default is $ramptime)\n"
+	printf "\n"
+	printf -- "\t-b int[,int] --block-sizes=str[,str] (default is $block_sizes)\n"
+	printf "\t\tone or more block sizes in KiB (default is $block_sizes)\n"
+	printf "\n"
+	printf -- "\t-s int[,int] --file-size=str[,str] (default is $file_size)\n"
+	printf "\t\tfile sizes in MiB: %s\n"
+	printf "\n"
+	printf -- "\t-d str[,str] --targets=str[,str]\n"
+	printf "\t\tone or more directories or block devices (default is $targets)\n"
+	printf "\t\t(persistent names for devices highly recommended)\n"
+	printf "\n"
+	printf -- "\t-j str --job-mode=str    str=[serial|concurrent]  (default is $job_mode)\n"
+	printf "\n"
+	printf -- "\t--ioengine=str           str= any ioengine fio supports (default is $ioengine)\n"
+	printf "\n"
+	printf -- "\t--iodepth=<int>"
+	printf "\t\tSet the iodepth config variable in the fio job file\n"
+	printf "\n"
+	printf -- "\t-c str[,str] --clients=str[,str]      str= one or more remote systems to run fio\n"
+	printf "\t\tIf no clients are specified, fio is run locally\n"
+	printf "\n"
+	printf -- "\t--client-file=str        str= file (with absolute path) which contains 1 client per line\n"
+	printf "\n"
+	printf -- "\t--config=str\n"
+	printf "\t\tname of the test configuration\n"
+	printf "\n"
+	printf -- "\t--tool-group=str\n"
+	printf "\n"
+	printf -- "\t--postprocess-only=[y|n]\n"
+	printf "\t\tuse this only if you want to postprocess an existing result again\n"
+	printf "\t\tyou must use --run-dir option with this\n"
+	printf "\n"
+	printf -- "\t--run-dir=<path>\n"
+	printf "\t\tprovide the path of an existig result (typically somewhere in $pbench_run\n"
+	printf "\n"
+	printf -- "\t--numjobs=<int>\n"
+	printf "\t\tnumber of jobs to run, if not given then fio default of numjobs=1 will be used\n"
+	printf "\n"
+	printf -- "\t--job-file=<path>\n"
+	printf "\t\tprovide the path of a fio job config file, (default is $job_file)\n"
+	printf "\n"
+	printf -- "\t--pre-iteration-script=str\n"
+	printf "\t\tuse executable script/program to prepare the system for test iteration\n"
+	printf "\t\texample: --pre-iteration-script=\$HOME/drop-cache.sh\n"
+	printf "\n"
+	printf -- "\t--samples=<int>\n"
+	printf "\t\tnumber of samples to use per test iteration (default is $nr_samples)\n"
+	printf "\n"
+	printf -- "\t--max-stddev=<int>\n"
+	printf "\t\tthe maximum percent stddev allowed to pass\n"
+	printf "\n"
+	printf -- "\t--max-failures=<int>\n"
+	printf "\t\tthe maximum number of failures to get below stddev\n"
+	printf "\n"
+	printf -- "\t--install\n"
+	printf "\t\tinstall only (default is False)\n"
+	printf "\n"
+	printf -- "\t--remote-only\n"
+	printf "\t\trun this on the remotes only\n"
+	printf "\n"
+	printf -- "\t--histogram-interval-sec=<int>\n"
+	printf "\t\tset the histogram logging interval in seconds (default $histogram_interval_sec)\n"
+	printf "\n"
+	printf -- "\t--sysinfo=str            str= comma separated values of sysinfo to be collected\n"
+	printf "\t\tavailable: $(pbench-collect-sysinfo --options)\n"
 }
 
 function fio_process_options() {
-	opts=$(getopt -q -o jic:t:b:s:d:r: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,remote-only,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,numjobs:,job-file:,sysinfo:,pre-iteration-script:,histogram-interval-sec:,histogram-interval-msec:" -n "getopt.sh" -- "$@");
+	opts=$(getopt -q -o b:c:d:hj:r:s:t: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,remote-only,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,numjobs:,job-file:,sysinfo:,pre-iteration-script:,histogram-interval-sec:,histogram-interval-msec:" -n "getopt.sh" -- "$@");
 	if [ $? -ne 0 ]; then
 		printf -- "${script_name} $*\n"
 		printf -- "\n"
@@ -172,7 +172,7 @@ function fio_process_options() {
 	eval set -- "$opts";
 	while true; do
 		case "$1" in
-			--help)
+			-h|--help)
 			usage
 			exit
 			;;
@@ -354,7 +354,7 @@ function fio_process_options() {
 			if [ -n "$1" ]; then
 				numjobs="$1"
 				shift;
-			fi 
+			fi
 			;;
 			--job-file)
 			shift;
@@ -392,7 +392,7 @@ function fio_process_options() {
 			if [ -n "$1" ]; then
 				sysinfo="$1"
 				shift;
-                	fi
+	        	fi
 			;;
 			--)
 			shift;
@@ -555,10 +555,10 @@ function fio_run_job() {
 		mkdir -p $benchmark_results_dir/clients/localhost
 	fi
 
-	# certain test preparation steps such as cache dropping 
+	# certain test preparation steps such as cache dropping
 	# can be a bit hard on the system, give it a few
 	# seconds before actually starting test
-	# by putting this before pbench-start-tools, 
+	# by putting this before pbench-start-tools,
 
 	if [ -n "$pre_iteration_script" ] ; then
 		printf "running pre-iteration-script command: $pre_iteration_script\n"
@@ -574,17 +574,17 @@ function fio_run_job() {
 		local max_jobs=0
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			client_opts="$client_opts --client=$client"
-			if [ ! -z $numjobs ]; then 
+			if [ ! -z $numjobs ]; then
 				let max_jobs=$numjobs
 			else
-			       for t in `echo $targets | sed -e s/,/" "/g` ; do 
+			       for t in `echo $targets | sed -e s/,/" "/g` ; do
 				       let max_jobs=$max_jobs+1
 			       done
-			fi 
+			fi
 		done
 		client_opts="$client_opts --max-jobs=$max_jobs"
 	fi
-	
+
 	# create a command file and keep it with the results for debugging later, or user can run outside of pbench
 	echo "$bench_cmd $client_opts $bench_opts" >$benchmark_results_dir/fio.cmd
 	chmod +x $benchmark_results_dir/fio.cmd
@@ -609,7 +609,7 @@ function fio_run_job() {
 			#my $log_interval = `cat $dir/fio.job | grep "^log_hist_msec"`;
 			#if [ ! $log_interval =~ /^\s*$/ ]; then
 			if grep -q "^log_hist_msec" $fio_job_file; then
-                		mkdir -p $benchmark_results_dir/clients/$client/hist
+	        		mkdir -p $benchmark_results_dir/clients/$client/hist
 				# compute per-client latency percentiles
 				$histogram_cmd $benchmark_results_dir/clients/$client/fio_clat_hist.*.log* >$benchmark_results_dir/clients/$client/hist/hist.csv
 				$script_path/postprocess/$benchmark-postprocess-viz.py --job-file=$fio_job_file $benchmark_results_dir/clients/$client/hist
@@ -720,7 +720,7 @@ function fio_run_benchmark() {
 							rc=$?
 							# if for any reason the benchmark postprocessing script fails, consider this a failure to get a sample
 							if [ $rc -ne 0 ]; then
-								debug_log "failed: $script_path/postprocess/$benchmark-postprocess $benchmark_results_dir $iteration $tool_group" 
+								debug_log "failed: $script_path/postprocess/$benchmark-postprocess $benchmark_results_dir $iteration $tool_group"
 								sample_failed=1
 							fi
 							if [ $sample_failed -eq 1 ]; then
