@@ -69,7 +69,6 @@ clients=127.0.0.1
 server_port=12865
 postprocess_only=n
 log_response_times=n
-kvm_host=""
 start_iteration_num=1
 keep_failed_tool_data="y"
 orig_cmd="$*"
@@ -142,7 +141,6 @@ function usage {
 	printf "\tThe following options are available:\n\n"
 	#              1   2         3         4         5         6         7         8         9         0         1         2         3
 	#              678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
-	printf -- "\t\t             --kvm-host=str\n"
 	printf -- "\t\t             --tool-group=str\n"
 	printf -- "\t\t-c str       --config=str                   name of the test config (i.e. jumbo_frames_and_network_throughput)\n"
 	printf -- "\t\t-t str[,str] --test-types=str[,str]         can be stream, maerts, bidirect, and/or rr (default $test_types)\n"
@@ -178,7 +176,7 @@ function usage {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:c:hi:m:p:r:S:t: --longoptions "client-label:,server-label:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,kvm-host:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o C:c:hi:m:p:r:S:t: --longoptions "client-label:,server-label:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf -- "${script_name} $*\n"
 	printf -- "\n"
@@ -254,13 +252,6 @@ while true; do
 		shift;
 		if [ -n "$1" ]; then
 			test_types="$1"
-			shift;
-		fi
-		;;
-		--kvm-host)
-		shift;
-		if [ -n "$1" ]; then
-			kvm_host="$1"
 			shift;
 		fi
 		;;

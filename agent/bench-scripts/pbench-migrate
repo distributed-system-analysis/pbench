@@ -44,7 +44,6 @@ samples=5
 maxstddevpct=3 # maximum allowable standard deviation in percent
 max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
 postprocess_only=n
-kvm_host=""
 start_iteration_num=1
 orig_cmd="$*"
 postprocess=yes

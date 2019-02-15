@@ -743,7 +743,6 @@ Bench Script: pbench-netperf --help
 ------------
 	The following options are available:
 
-		             --kvm-host=str
 		             --tool-group=str
 		-c str       --config=str                   name of the test config (i.e. jumbo_frames_and_network_throughput)
 		-t str[,str] --test-types=str[,str]         can be stream, maerts, bidirect, and/or rr (default stream,maerts,bidirec,rr)
@@ -784,7 +783,6 @@ Bench Script: pbench-netperf --tool-group=bad --sysinfo=bad
 
 	The following options are available:
 
-		             --kvm-host=str
 		             --tool-group=str
 		-c str       --config=str                   name of the test config (i.e. jumbo_frames_and_network_throughput)
 		-t str[,str] --test-types=str[,str]         can be stream, maerts, bidirect, and/or rr (default stream,maerts,bidirec,rr)
@@ -826,7 +824,6 @@ pbench-netperf --bad-to-the-bone
 
 	The following options are available:
 
-		             --kvm-host=str
 		             --tool-group=str
 		-c str       --config=str                   name of the test config (i.e. jumbo_frames_and_network_throughput)
 		-t str[,str] --test-types=str[,str]         can be stream, maerts, bidirect, and/or rr (default stream,maerts,bidirec,rr)
@@ -1634,7 +1631,6 @@ Bench Script: pbench-uperf --help
 ------------
 	The following options are available:
 
-	--kvm-host=str
 	--tool-group=str
 	-c str       --config=str               name of the test config (e.g. jumbo_frames_and_network_throughput)
 	-t str[,str] --test-types=str[,str]     can be stream, maerts, bidirec, and/or rr (default stream,maerts,bidirec,rr)
@@ -1685,7 +1681,6 @@ Bench Script: pbench-uperf --tool-group=bad --sysinfo=bad
 
 	The following options are available:
 
-	--kvm-host=str
 	--tool-group=str
 	-c str       --config=str               name of the test config (e.g. jumbo_frames_and_network_throughput)
 	-t str[,str] --test-types=str[,str]     can be stream, maerts, bidirec, and/or rr (default stream,maerts,bidirec,rr)
@@ -1737,7 +1732,6 @@ pbench-uperf --bad-to-the-bone
 
 	The following options are available:
 
-	--kvm-host=str
 	--tool-group=str
 	-c str       --config=str               name of the test config (e.g. jumbo_frames_and_network_throughput)
 	-t str[,str] --test-types=str[,str]     can be stream, maerts, bidirec, and/or rr (default stream,maerts,bidirec,rr)
