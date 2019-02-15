@@ -74,7 +74,7 @@ one_shot="n"
 accept_negative_loss="n"
 sysinfo="default"
 
-function moongen_usage {
+function usage {
 	  printf "\tThe following options are available:\n\n"
 	#              1   2         3         4         5         6         7         8         9         0         1         2         3
 	#              678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
@@ -124,14 +124,13 @@ function moongen_usage {
 # Process options and arguments
 opts=$(getopt -q -o i:c:t:r:m:p:M:S:C:o --longoptions "help,portlist:,rate:,rates:,max-drop-pct:,max-drop-pcts:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,nr-flows:,test-type:,traffic:,latency-runtime:,search-runtime:,validation-runtime:,frame-sizes:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,one-shot,accept-negative-loss,mpps-per-queue:,queues-per-task:,dst-macs:,sysinfo:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
-	printf -- "$*\n"
-	printf "\n"
-	printf "\t${benchmark_name}: you specified an invalid option\n\n"
-	moongen_usage
+        printf -- "${script_name} $*\n"
+        printf -- "\n"
+        printf -- "\tunrecognized option specified\n\n"
+	usage
 	exit 1
 fi
 eval set -- "$opts"
-debug_log "[$script_name]processing options"
 while true; do
 	case "$1" in
 		--install)
@@ -140,8 +139,8 @@ while true; do
 		exit
 		;;
 		--help)
-		moongen_usage
-		exit
+		usage
+		exit 0
 		;;
 		--tool-label-pattern)
 		shift
@@ -323,14 +322,7 @@ while true; do
 		;;
 	esac
 done
-
-pbench-collect-sysinfo --sysinfo=$sysinfo --check
-if [ $? != 0 ]; then
-	printf -- "$*\n\n"
-	printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
-	moongen_usage
-	exit 1
-fi
+verify_common_bench_script_options $tool_group $sysinfo
 
 config="${config}_r[$rates]fr[$frame_sizes]fl[$nr_flows]tr[`echo $traffic | sed -e 's/direc//g'`]pl[$max_drop_pcts]rt[$search_runtime,$validation_runtime]"
 if [ "$one_shot" == "y" ]; then

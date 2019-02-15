@@ -111,8 +111,6 @@ Iteration 2-48thread complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-dbench]processing options
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-dbench]what happened? [--]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking for dbench on client 127.0.0.1
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking for dbench on client 127.0.0.1
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration  (1 of 2)

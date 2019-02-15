@@ -100,7 +100,7 @@ function usage {
         printf -- "\t\t-C str[,str] --client[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the\n"
         printf    "\t\t                                        dbench client (drive the test).\n"
         printf    "\t\t                                        If this is omitted, the local system is the client\n"
-        printf -- "\t\t--client-node[s]=str[,str]              An ordered list of client NUMA nodes which should be used for CPU binding\n"
+        printf -- "\t\t             --client-node[s]=str[,str] An ordered list of client NUMA nodes which should be used for CPU binding\n"
         printf -- "\t\t                                        The order must correspond with the --clients list\n"
         printf -- "\t\t                                        To omit a specific client from binding, use a value of -1\n"
         printf -- "\t\t             --samples=int              the number of times each different test is run (to compute average &\n"
@@ -126,16 +126,15 @@ function usage {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o i:c:t:r:m:p:M:S:C: --longoptions "client-node:,client-nodes:,client-label:,tool-label-pattern:,install,start-iteration-num:,config:,threads:,runtime:,samples:,client:,clients:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o i:c:t:r:m:p:M:S:C: --longoptions "client-node:,client-nodes:,client-label:,tool-label-pattern:,install,start-iteration-num:,config:,threads:,runtime:,samples:,client:,clients:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
-	printf -- "$*\n"
-	printf "\n"
-	printf "\t${benchmark}: you specified an invalid option\n\n"
+        printf -- "${script_name} $*\n"
+        printf -- "\n"
+        printf -- "\tunrecognized option specified\n\n"
 	usage
 	exit 1
 fi
 eval set -- "$opts";
-debug_log "[$script_name]processing options"
 while true; do
 	case "$1" in
 		--install)
@@ -245,23 +244,19 @@ while true; do
 		usage
 		exit 0
 		;;
-		*)
-		debug_log "[$script_name]what happened? [$1]"
-		break;
-		;;
 		--)
 		shift;
 		break;
 		;;
+		*)
+		error_log "[$script_name] Encountered unrecognized parameter, what happened? [\"$1\"]"
+		usage
+		exit 1;
+		;;
 	esac
 done
-pbench-collect-sysinfo --sysinfo=$sysinfo --check
-if [ $? != 0 ]; then
-        printf -- "$*\n\n"
-        printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
-        usage
-        exit 1
-fi
+verify_common_bench_script_options $tool_group $sysinfo
+
 if [[ -z "$benchmark_run_dir" ]]; then
 	# We don't have an explicit run directory, construct one
 	benchmark_fullname="${benchmark}_${config}_${date_suffix}"
@@ -279,9 +274,6 @@ benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
 if [ -z "$clients" ]; then
 	clients=127.0.0.1
 fi
-
-# Verify the tool group exists
-verify_tool_group $tool_group
 
 # before we run a test, verify clients and install dbench if necessary
 if [ "$postprocess_only" != "y" ]; then

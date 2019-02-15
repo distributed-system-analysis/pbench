@@ -32149,7 +32149,6 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 /var/tmp/pbench-test-bench/pbench/trex_cfg.yaml
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-trafficgen]processing options
 /var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-trafficgen] ignoring --config="test-22_tg[trex-profile]r[5000000]fs[74]nf[1000]fm[si,di,sp,dp,protocol]td[bi,uni,revuni]ml[0.0]tt[os]" in favor of --rundir="/var/tmp/pbench-test-bench/pbench"
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration[1-bidirectional-74B-1000flows-0.0pct_drop] (1 of 3)
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Not going to run trafficgen.  Only postprocesing existing data

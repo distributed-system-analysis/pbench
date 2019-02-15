@@ -48,16 +48,14 @@ function usage {
 
 # Process options and arguments
 opts=$(getopt -q -o C:c:r:s --longoptions "help,cpu:,stress,config:,runtime:,runtimes:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@");
-
 if [ $? -ne 0 ]; then
-	printf -- "$0 $*\n"
-	printf "\n"
-	printf "\t${benchmark}: you specified an invalid option\n\n"
+	printf -- "${script_name} $*\n"
+	printf -- "\n"
+	printf -- "\tunrecognized option specified\n\n"
 	usage
 	exit 1
 fi
 eval set -- "$opts";
-debug_log "[$script_name] processing options"
 while true; do
 	case "$1" in
 	-C|--cpu)
@@ -109,19 +107,12 @@ while true; do
 		;;
 	*)
 		error_log "Encountered unrecognized parameter, what happened? [$1]"
-		break;
+		usage
+		exit 1;
 		;;
 	esac
 done
-verify_tool_group $tool_group
-
-pbench-collect-sysinfo --sysinfo=$sysinfo --check
-if [ $? != 0 ]; then
-	printf -- "$*\n\n"
-	printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
-	usage
-	exit 1
-fi
+verify_common_bench_script_options $tool_group $sysinfo
 
 ## Ensure the right version of the benchmark is installed
 check_install_rpm $benchmark_rpm $ver

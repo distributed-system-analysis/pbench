@@ -52,13 +52,13 @@ function usage {
 # Process options and arguments
 opts=$(getopt -q -o C:h --longoptions "config:,help,tool-group:,sysinfo:,pbench-post:,pbench-pre:,use-tool-triggers,no-stderr-capture" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
-	printf -- "$*\n\n"
-	printf "\t${benchmark}: you specified an invalid option\n\n"
+        printf -- "${script_name} $*\n"
+        printf -- "\n"
+        printf -- "\tunrecognized option specified\n\n"
 	usage
 	exit 1
 fi
 eval set -- "$opts";
-debug_log "[$script_name] processing options"
 while true; do
 	case "$1" in
 		-C|--config)
@@ -118,14 +118,8 @@ while true; do
 		;;
 	esac
 done
-pbench-collect-sysinfo --sysinfo=$sysinfo --check
-if [ $? != 0 ]; then
-	printf -- "$*\n\n"
-	printf "\t${benchmark}: you specified an invalid --sysinfo option (\"$sysinfo\")\n\n"
-	usage
-	exit 1
-fi
-verify_tool_group $tool_group
+verify_common_bench_script_options $tool_group $sysinfo
+
 iteration="1" # there can be only 1 iteration for user-benchmark
 iteration_name="1"
 benchmark_bin="$@"
