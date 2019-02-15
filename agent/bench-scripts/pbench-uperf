@@ -58,7 +58,6 @@ server_base_port=20000
 port_number_gap=10
 postprocess_only=n
 log_response_times=n
-kvm_host=""
 start_iteration_num=1
 tar_nonref_data="n"
 keep_failed_tool_data="y"
@@ -71,7 +70,6 @@ sysinfo="default"
 
 function usage {
 	printf "\tThe following options are available:\n\n"
-	printf -- "\t--kvm-host=str\n"
 	printf -- "\t--tool-group=str\n"
 	printf -- "\t-c str       --config=str               name of the test config (e.g. jumbo_frames_and_network_throughput)\n"
 	printf -- "\t-t str[,str] --test-types=str[,str]     can be stream, maerts, bidirec, and/or rr (default $test_types)\n"
@@ -189,7 +187,7 @@ function install_uperf {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:c:hi:m:p:r:S:t: --longoptions "help,server-node:,server-nodes:,client-node:,client-nodes:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,kvm-host:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o C:c:hi:m:p:r:S:t: --longoptions "help,server-node:,server-nodes:,client-node:,client-nodes:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "${script_name} $*\n"
 	printf -- "\n"
@@ -276,13 +274,6 @@ while true; do
 		shift
 		if [ -n "$1" ]; then
 			test_types="$1"
-			shift
-		fi
-		;;
-		--kvm-host)
-		shift
-		if [ -n "$1" ]; then
-			kvm_host="$1"
 			shift
 		fi
 		;;
