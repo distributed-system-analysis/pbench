@@ -608,10 +608,10 @@ Bench Script: pbench-moongen --help
 		                                                            find latency (histogram) at the max throughput
 		-o           --one-shot                 only run one test for throughput and then quit (no binary search)
 		             --accept-negative-loss     allow attempts with negative packet loss to pass
-		-t str[,str] --traffic=str[,str]        list of one or more: unidirec or bidirec (default unidirec)
-		-r int       --latency-runtime=int      test measurement period in seconds when running a latency test (default is 60)
-		-r int       --search-runtime=int       test measurement period in seconds when searching for max throughput (default is 60)
-		-r int       --validation-runtime=int   test measurement period in seconds when running final validation (default is 120)
+		             --traffic=str[,str]        list of one or more: unidirec or bidirec (default unidirec)
+		             --latency-runtime=int      test measurement period in seconds when running a latency test (default is 60)
+		             --search-runtime=int       test measurement period in seconds when searching for max throughput (default is 60)
+		             --validation-runtime=int   test measurement period in seconds when running final validation (default is 120)
 		             --max-drop-pct[s]=fl,[fl]  list of maximum allowed percentage of dropped frames (default is 0)
 		-m int[,int] --frame-sizes=str[,str]    list of frame sizes in bytes (default is 64)
 		-i int[,int] --nr-flows=int[,int]       list of number of packet flows to run (default is 1024)
@@ -657,10 +657,10 @@ Bench Script: pbench-moongen --tool-group=bad --sysinfo=bad
 		                                                            find latency (histogram) at the max throughput
 		-o           --one-shot                 only run one test for throughput and then quit (no binary search)
 		             --accept-negative-loss     allow attempts with negative packet loss to pass
-		-t str[,str] --traffic=str[,str]        list of one or more: unidirec or bidirec (default unidirec)
-		-r int       --latency-runtime=int      test measurement period in seconds when running a latency test (default is 60)
-		-r int       --search-runtime=int       test measurement period in seconds when searching for max throughput (default is 60)
-		-r int       --validation-runtime=int   test measurement period in seconds when running final validation (default is 120)
+		             --traffic=str[,str]        list of one or more: unidirec or bidirec (default unidirec)
+		             --latency-runtime=int      test measurement period in seconds when running a latency test (default is 60)
+		             --search-runtime=int       test measurement period in seconds when searching for max throughput (default is 60)
+		             --validation-runtime=int   test measurement period in seconds when running final validation (default is 120)
 		             --max-drop-pct[s]=fl,[fl]  list of maximum allowed percentage of dropped frames (default is 0)
 		-m int[,int] --frame-sizes=str[,str]    list of frame sizes in bytes (default is 64)
 		-i int[,int] --nr-flows=int[,int]       list of number of packet flows to run (default is 1024)
@@ -707,10 +707,10 @@ pbench-moongen --bad-to-the-bone
 		                                                            find latency (histogram) at the max throughput
 		-o           --one-shot                 only run one test for throughput and then quit (no binary search)
 		             --accept-negative-loss     allow attempts with negative packet loss to pass
-		-t str[,str] --traffic=str[,str]        list of one or more: unidirec or bidirec (default unidirec)
-		-r int       --latency-runtime=int      test measurement period in seconds when running a latency test (default is 60)
-		-r int       --search-runtime=int       test measurement period in seconds when searching for max throughput (default is 60)
-		-r int       --validation-runtime=int   test measurement period in seconds when running final validation (default is 120)
+		             --traffic=str[,str]        list of one or more: unidirec or bidirec (default unidirec)
+		             --latency-runtime=int      test measurement period in seconds when running a latency test (default is 60)
+		             --search-runtime=int       test measurement period in seconds when searching for max throughput (default is 60)
+		             --validation-runtime=int   test measurement period in seconds when running final validation (default is 120)
 		             --max-drop-pct[s]=fl,[fl]  list of maximum allowed percentage of dropped frames (default is 0)
 		-m int[,int] --frame-sizes=str[,str]    list of frame sizes in bytes (default is 64)
 		-i int[,int] --nr-flows=int[,int]       list of number of packet flows to run (default is 1024)
@@ -864,21 +864,21 @@ Bench Script: pbench-specjbb2005 --help
 ------------
 	The following options are available:
 
-		-C str --config=<str>                       name of the test config
-		-j str --java_opts=<str>                    options passed directly to the JVM
-		       --nr-jvms=<int>|node                 number of JVMs. if = node, number of JVMs = number of NUMA nodes
-		       --node-pinning=y/n                   if y, this script will use numactl to pin JVM to a node (1 per node round-robin)
-		       --start-warehouses=<int>             number of warehouses to start with (default is 1)
-		       --inc-warehouses=<int>               number of warehouses to increment by (default is 1)
-		       --stop-warehouses=<int>              number of warehouses to stop with (default is nr_cpus * 2 / nr_jvms)
-		       --heap-size=<str>                    size of the heap, java size spec (default is 4096m)
-		       --runtime=<int>                      measurement period in seconds (default is 30)
-		-d str --dir=<str>                          directory to run the test
-		       --tool-group=<str>                   tool group to use during test
-		       --sysinfo=<str,>                     comma separated values of sysinfo to be collected
-		                                                 available: default,none,all,a,b,c,d,e
-		       --specjbb2005-dir=<str>              the location of the install directory for SPECjbb2005
-		                                                 (default is /usr/local/share/specjbb2005)
+		-C str --config=<str>            name of the test config
+		-j str --java_opts=<str>         options passed directly to the JVM
+		       --nr-jvms=<int>|node      number of JVMs. if = node, number of JVMs = number of NUMA nodes
+		       --node-pinning=y/n        if y, this script will use numactl to pin JVM to a node (1 per node round-robin)
+		       --start-warehouses=<int>  number of warehouses to start with (default is 1)
+		       --inc-warehouses=<int>    number of warehouses to increment by (default is 1)
+		       --stop-warehouses=<int>   number of warehouses to stop with (default is nr_cpus * 2 / nr_jvms)
+		       --heap-size=<str>         size of the heap, java size spec (default is 4096m)
+		       --runtime=<int>           measurement period in seconds (default is 30)
+		-d str --dir=<str>               directory to run the test
+		       --tool-group=<str>        tool group to use during test
+		       --sysinfo=<str,>          comma separated values of sysinfo to be collected
+		                                      available: default,none,all,a,b,c,d,e
+		       --specjbb2005-dir=<str>   the location of the install directory for SPECjbb2005
+		                                      (default is /usr/local/share/specjbb2005)
 
 Bench Script: pbench-specjbb2005 --tool-group=bad --sysinfo=bad
 ------------
@@ -887,21 +887,21 @@ Bench Script: pbench-specjbb2005 --tool-group=bad --sysinfo=bad
 
 	The following options are available:
 
-		-C str --config=<str>                       name of the test config
-		-j str --java_opts=<str>                    options passed directly to the JVM
-		       --nr-jvms=<int>|node                 number of JVMs. if = node, number of JVMs = number of NUMA nodes
-		       --node-pinning=y/n                   if y, this script will use numactl to pin JVM to a node (1 per node round-robin)
-		       --start-warehouses=<int>             number of warehouses to start with (default is 1)
-		       --inc-warehouses=<int>               number of warehouses to increment by (default is 1)
-		       --stop-warehouses=<int>              number of warehouses to stop with (default is nr_cpus * 2 / nr_jvms)
-		       --heap-size=<str>                    size of the heap, java size spec (default is 4096m)
-		       --runtime=<int>                      measurement period in seconds (default is 30)
-		-d str --dir=<str>                          directory to run the test
-		       --tool-group=<str>                   tool group to use during test
-		       --sysinfo=<str,>                     comma separated values of sysinfo to be collected
-		                                                 available: default,none,all,a,b,c,d,e
-		       --specjbb2005-dir=<str>              the location of the install directory for SPECjbb2005
-		                                                 (default is /usr/local/share/specjbb2005)
+		-C str --config=<str>            name of the test config
+		-j str --java_opts=<str>         options passed directly to the JVM
+		       --nr-jvms=<int>|node      number of JVMs. if = node, number of JVMs = number of NUMA nodes
+		       --node-pinning=y/n        if y, this script will use numactl to pin JVM to a node (1 per node round-robin)
+		       --start-warehouses=<int>  number of warehouses to start with (default is 1)
+		       --inc-warehouses=<int>    number of warehouses to increment by (default is 1)
+		       --stop-warehouses=<int>   number of warehouses to stop with (default is nr_cpus * 2 / nr_jvms)
+		       --heap-size=<str>         size of the heap, java size spec (default is 4096m)
+		       --runtime=<int>           measurement period in seconds (default is 30)
+		-d str --dir=<str>               directory to run the test
+		       --tool-group=<str>        tool group to use during test
+		       --sysinfo=<str,>          comma separated values of sysinfo to be collected
+		                                      available: default,none,all,a,b,c,d,e
+		       --specjbb2005-dir=<str>   the location of the install directory for SPECjbb2005
+		                                      (default is /usr/local/share/specjbb2005)
 
 Bench Script: pbench-specjbb2005 --bad-to-the-bone 
 ------------
@@ -911,21 +911,21 @@ pbench-specjbb2005 --bad-to-the-bone
 
 	The following options are available:
 
-		-C str --config=<str>                       name of the test config
-		-j str --java_opts=<str>                    options passed directly to the JVM
-		       --nr-jvms=<int>|node                 number of JVMs. if = node, number of JVMs = number of NUMA nodes
-		       --node-pinning=y/n                   if y, this script will use numactl to pin JVM to a node (1 per node round-robin)
-		       --start-warehouses=<int>             number of warehouses to start with (default is 1)
-		       --inc-warehouses=<int>               number of warehouses to increment by (default is 1)
-		       --stop-warehouses=<int>              number of warehouses to stop with (default is nr_cpus * 2 / nr_jvms)
-		       --heap-size=<str>                    size of the heap, java size spec (default is 4096m)
-		       --runtime=<int>                      measurement period in seconds (default is 30)
-		-d str --dir=<str>                          directory to run the test
-		       --tool-group=<str>                   tool group to use during test
-		       --sysinfo=<str,>                     comma separated values of sysinfo to be collected
-		                                                 available: default,none,all,a,b,c,d,e
-		       --specjbb2005-dir=<str>              the location of the install directory for SPECjbb2005
-		                                                 (default is /usr/local/share/specjbb2005)
+		-C str --config=<str>            name of the test config
+		-j str --java_opts=<str>         options passed directly to the JVM
+		       --nr-jvms=<int>|node      number of JVMs. if = node, number of JVMs = number of NUMA nodes
+		       --node-pinning=y/n        if y, this script will use numactl to pin JVM to a node (1 per node round-robin)
+		       --start-warehouses=<int>  number of warehouses to start with (default is 1)
+		       --inc-warehouses=<int>    number of warehouses to increment by (default is 1)
+		       --stop-warehouses=<int>   number of warehouses to stop with (default is nr_cpus * 2 / nr_jvms)
+		       --heap-size=<str>         size of the heap, java size spec (default is 4096m)
+		       --runtime=<int>           measurement period in seconds (default is 30)
+		-d str --dir=<str>               directory to run the test
+		       --tool-group=<str>        tool group to use during test
+		       --sysinfo=<str,>          comma separated values of sysinfo to be collected
+		                                      available: default,none,all,a,b,c,d,e
+		       --specjbb2005-dir=<str>   the location of the install directory for SPECjbb2005
+		                                      (default is /usr/local/share/specjbb2005)
 
 Bench Script: pbench-trafficgen --help 
 ------------

@@ -50,43 +50,43 @@ dir=""
 
 function usage {
 	printf "\tThe following options are available:\n\n"
-	printf -- "\t\t-C str --config=<str>                       name of the test config\n"
-	printf -- "\t\t-j str --java_opts=<str>                    options passed directly to the JVM\n"
-	printf -- "\t\t       --nr-jvms=<int>|node                 number of JVMs. if = node, number of JVMs = number of NUMA nodes\n"
-	printf -- "\t\t       --node-pinning=y/n                   if y, this script will use numactl to pin JVM to a node (1 per node round-robin)\n"
-	printf -- "\t\t       --start-warehouses=<int>             number of warehouses to start with (default is $start_warehouses)\n"
-	printf -- "\t\t       --inc-warehouses=<int>               number of warehouses to increment by (default is $inc_warehouses)\n"
-	printf -- "\t\t       --stop-warehouses=<int>              number of warehouses to stop with (default is nr_cpus * 2 / nr_jvms)\n"
-	printf -- "\t\t       --heap-size=<str>                    size of the heap, java size spec (default is $heap_size)\n"
-	printf -- "\t\t       --runtime=<int>                      measurement period in seconds (default is $runtime)\n"
-	printf -- "\t\t-d str --dir=<str>                          directory to run the test\n"
-	printf -- "\t\t       --tool-group=<str>                   tool group to use during test\n"
-	printf -- "\t\t       --sysinfo=<str,>                     comma separated values of sysinfo to be collected\n"
-	printf -- "\t\t                                                 available: $(pbench-collect-sysinfo --options)\n"
-	printf -- "\t\t       --specjbb2005-dir=<str>              the location of the install directory for SPECjbb2005\n"
-	printf -- "\t\t                                                 (default is $specjbb2005_dir)\n"
+	printf -- "\t\t-C str --config=<str>            name of the test config\n"
+	printf -- "\t\t-j str --java_opts=<str>         options passed directly to the JVM\n"
+	printf -- "\t\t       --nr-jvms=<int>|node      number of JVMs. if = node, number of JVMs = number of NUMA nodes\n"
+	printf -- "\t\t       --node-pinning=y/n        if y, this script will use numactl to pin JVM to a node (1 per node round-robin)\n"
+	printf -- "\t\t       --start-warehouses=<int>  number of warehouses to start with (default is $start_warehouses)\n"
+	printf -- "\t\t       --inc-warehouses=<int>    number of warehouses to increment by (default is $inc_warehouses)\n"
+	printf -- "\t\t       --stop-warehouses=<int>   number of warehouses to stop with (default is nr_cpus * 2 / nr_jvms)\n"
+	printf -- "\t\t       --heap-size=<str>         size of the heap, java size spec (default is $heap_size)\n"
+	printf -- "\t\t       --runtime=<int>           measurement period in seconds (default is $runtime)\n"
+	printf -- "\t\t-d str --dir=<str>               directory to run the test\n"
+	printf -- "\t\t       --tool-group=<str>        tool group to use during test\n"
+	printf -- "\t\t       --sysinfo=<str,>          comma separated values of sysinfo to be collected\n"
+	printf -- "\t\t                                      available: $(pbench-collect-sysinfo --options)\n"
+	printf -- "\t\t       --specjbb2005-dir=<str>   the location of the install directory for SPECjbb2005\n"
+	printf -- "\t\t                                      (default is $specjbb2005_dir)\n"
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:c:r:d: --longoptions "dir:,nr-jvms:,heap-size:,java-opts:,start-warehouses:,inc-warehouses:,stop-warehouses:,runtime:,tool-group:,sysinfo:,specjbb2005-dir:,help" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o C:c:d:hj: --longoptions "dir:,nr-jvms:,heap-size:,java-opts:,start-warehouses:,inc-warehouses:,stop-warehouses:,runtime:,tool-group:,sysinfo:,specjbb2005-dir:,help" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
-        printf -- "${script_name} $*\n"
-        printf -- "\n"
-        printf -- "\tunrecognized option specified\n\n"
+	printf -- "${script_name} $*\n"
+	printf -- "\n"
+	printf -- "\tunrecognized option specified\n\n"
 	usage
 	exit 1
 fi
 eval set -- "$opts";
 while true; do
 	case "$1" in
-		--java-opts)
+		-j|--java-opts)
 		shift;
 		if [ -n "$1" ]; then
 			java_opts="$1"
 			shift;
 		fi
 		;;
-		-c|--config)
+		-c|-C|--config)
 		shift;
 		if [ -n "$1" ]; then
 			config="$1"
@@ -198,7 +198,7 @@ if [ "${nr_jvms}" == "node" ]; then
 fi
 if [ "${nr_jvms}" -eq "${nr_jvms}" ] 2>/dev/null ; then
 	# Verify the value is an int
-	: 
+	:
 else
 	printf -- "$*\n\n"
 	printf "\t${benchmark}: you specified an invalid --nr-jvms option (\"${nr_jvms}\")\n\n"
@@ -250,7 +250,7 @@ if [ -d "${dir}" ]; then
 		printf "\t${benchmark}: the --dir option has an unexpected results directory (\"${dir}/results\")\n\n"
 		usage
 		exit 1
-        fi
+	fi
 	benchmark_run_dir="${dir}"
 elif [ -n "${dir}" ]; then
 	printf -- "$*\n\n"
@@ -281,10 +281,10 @@ trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT 
 # edit the jbb properties file to match user's options
 > ${benchmark_run_dir}/SPECjbb.props.sed
 printf "s/input.jvm_instances=.\*/input.jvm_instances=$nr_jvms/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
-printf "s/input.measurement_seconds=.\*/input.measurement_seconds=$runtime/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed 
-printf "s/input.starting_number_warehouses=.\*/input.starting_number_warehouses=$start_warehouses/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed 
-printf "s/input.increment_number_warehouses=.\*/input.increment_number_warehouses=$inc_warehouses/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed 
-printf "s/input.ending_number_warehouses=.\*/input.ending_number_warehouses=$stop_warehouses/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed 
+printf "s/input.measurement_seconds=.\*/input.measurement_seconds=$runtime/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
+printf "s/input.starting_number_warehouses=.\*/input.starting_number_warehouses=$start_warehouses/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
+printf "s/input.increment_number_warehouses=.\*/input.increment_number_warehouses=$inc_warehouses/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
+printf "s/input.ending_number_warehouses=.\*/input.ending_number_warehouses=$stop_warehouses/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
 sed -f ${benchmark_run_dir}/SPECjbb.props.sed ${specjbb2005_dir}/SPECjbb.props > ${benchmark_run_dir}/SPECjbb.props
 if [ $? -ne 0 ]; then
 	printf "\t${benchmark}: unable to create the SPECjbb.props file (\"${benchmark_run_dir}/SPECjbb.props\")\n\n"
@@ -346,13 +346,13 @@ fi
 
 # Function to add data to metadata.log
 function record_iteration {
-        local iteration=$1
-        local iteration_name=$2
-        local benchmark_bin=$3
+	local iteration=$1
+	local iteration_name=$2
+	local benchmark_bin=$3
 
-        echo ${iteration_name} >> ${benchmark_iterations}
-        echo ${iteration_name} | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
-        echo ${benchmark_bin} | pbench-add-metalog-option ${mdlog} iterations/${iteration} user_script
+	echo ${iteration_name} >> ${benchmark_iterations}
+	echo ${iteration_name} | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
+	echo ${benchmark_bin} | pbench-add-metalog-option ${mdlog} iterations/${iteration} user_script
 }
 
 # rename the iterations with warehouse count and then postprocess the tools

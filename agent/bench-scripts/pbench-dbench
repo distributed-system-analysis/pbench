@@ -21,7 +21,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 benchmark_rpm=$script_name
 benchmark="dbench"
 if [[ -z "$benchmark_bin" ]]; then
-    benchmark_bin=/usr/local/bin/$benchmark
+	benchmark_bin=/usr/local/bin/$benchmark
 fi
 ver=4.00
 
@@ -91,46 +91,46 @@ function print_header {
 
 function usage {
 	printf "\tThe following options are available:\n\n"
-        #              1   2         3         4         5         6         7         8         9         0         1         2         3
-        #              678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
-        printf -- "\t\t             --tool-group=str\n"
-        printf -- "\t\t-c str       --config=str               name of the test config (i.e. jumbo_frames_and_network_throughput)\n"
-        printf -- "\t\t-r int       --runtime=int              test measurement period in seconds (default is $runtime)\n"
-        printf -- "\t\t-t int[,int] --threads=int[,int]        a list of the number of dbench threads to run (default is $threads)\n"
-        printf -- "\t\t-C str[,str] --client[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the\n"
-        printf    "\t\t                                        dbench client (drive the test).\n"
-        printf    "\t\t                                        If this is omitted, the local system is the client\n"
-        printf -- "\t\t             --client-node[s]=str[,str] An ordered list of client NUMA nodes which should be used for CPU binding\n"
-        printf -- "\t\t                                        The order must correspond with the --clients list\n"
-        printf -- "\t\t                                        To omit a specific client from binding, use a value of -1\n"
-        printf -- "\t\t             --samples=int              the number of times each different test is run (to compute average &\n"
-        printf    "\t\t                                        standard deviations)\n"
-        printf -- "\t\t             --max-failures=int         the maximm number of failures to get below stddev\n"
+	#              1   2         3         4         5         6         7         8         9         0         1         2         3
+	#              678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
+	printf -- "\t\t             --tool-group=str\n"
+	printf -- "\t\t-c str       --config=str               name of the test config (i.e. jumbo_frames_and_network_throughput)\n"
+	printf -- "\t\t-r int       --runtime=int              test measurement period in seconds (default is $runtime)\n"
+	printf -- "\t\t-t int[,int] --threads=int[,int]        a list of the number of dbench threads to run (default is $threads)\n"
+	printf -- "\t\t-C str[,str] --client[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the\n"
+	printf    "\t\t                                        dbench client (drive the test).\n"
+	printf    "\t\t                                        If this is omitted, the local system is the client\n"
+	printf -- "\t\t             --client-node[s]=str[,str] An ordered list of client NUMA nodes which should be used for CPU binding\n"
+	printf -- "\t\t                                        The order must correspond with the --clients list\n"
+	printf -- "\t\t                                        To omit a specific client from binding, use a value of -1\n"
+	printf -- "\t\t             --samples=int              the number of times each different test is run (to compute average &\n"
+	printf    "\t\t                                        standard deviations)\n"
+	printf -- "\t\t             --max-failures=int         the maximm number of failures to get below stddev\n"
        	printf -- "\t\t             --max-stddev=int           the maximm percent stddev allowed to pass\n"
-        printf -- "\t\t             --postprocess-only=y|n     don't run the benchmark, but postprocess data from previous test\n"
-        printf -- "\t\t             --run-dir=str              optionally specify what directory should be used (usually only used\n"
-        printf    "\t\t                                        if postprocess-only=y)\n"
-        printf -- "\t\t             --start-iteration-num=int  optionally skip the first (n-1) tests\n"
-        printf -- "\t\t             --tool-label-pattern=str   dbench will provide CPU and efficiency information for any tool directory\n"
-        printf    "\t\t                                        with a \"^<pattern>\" in the name, provided \"sar\" is one of the\n"
-        printf    "\t\t                                        registered tools.\n"
-        printf    "\t\t                                        a default pattern, \"dbench-\" is used if none is provided.\n"
-        printf    "\t\t                                        simply register your tools with \"--label=dbench-\$X\", and this script\n"
-        printf    "\t\t                                        will genrate CPU_dbench-\$X and MBps/CPU_dbench-\$X\n"
-        printf    "\t\t                                        for all tools which have that pattern as a\n"
-        printf    "\t\t                                        prefix.  if you don't want to register your tools with \"dbench-\" as\n"
-        printf    "\t\t                                        part of the label, just use --tool-label-pattern= to tell this script\n"
-        printf    "\t\t                                        the prefix pattern to use for CPU information.\n"
-        printf -- "\t\t             --sysinfo=str,             str= comma separated values of sysinfo to be collected\n"
-        printf -- "\t\t                                             available: $(pbench-collect-sysinfo --options)\n"
+	printf -- "\t\t             --postprocess-only=y|n     don't run the benchmark, but postprocess data from previous test\n"
+	printf -- "\t\t             --run-dir=str              optionally specify what directory should be used (usually only used\n"
+	printf    "\t\t                                        if postprocess-only=y)\n"
+	printf -- "\t\t             --start-iteration-num=int  optionally skip the first (n-1) tests\n"
+	printf -- "\t\t             --tool-label-pattern=str   dbench will provide CPU and efficiency information for any tool directory\n"
+	printf    "\t\t                                        with a \"^<pattern>\" in the name, provided \"sar\" is one of the\n"
+	printf    "\t\t                                        registered tools.\n"
+	printf    "\t\t                                        a default pattern, \"dbench-\" is used if none is provided.\n"
+	printf    "\t\t                                        simply register your tools with \"--label=dbench-\$X\", and this script\n"
+	printf    "\t\t                                        will genrate CPU_dbench-\$X and MBps/CPU_dbench-\$X\n"
+	printf    "\t\t                                        for all tools which have that pattern as a\n"
+	printf    "\t\t                                        prefix.  if you don't want to register your tools with \"dbench-\" as\n"
+	printf    "\t\t                                        part of the label, just use --tool-label-pattern= to tell this script\n"
+	printf    "\t\t                                        the prefix pattern to use for CPU information.\n"
+	printf -- "\t\t             --sysinfo=str,             str= comma separated values of sysinfo to be collected\n"
+	printf -- "\t\t                                             available: $(pbench-collect-sysinfo --options)\n"
 }
 
 # Process options and arguments
-opts=$(getopt -q -o i:c:t:r:m:p:M:S:C: --longoptions "client-node:,client-nodes:,client-label:,tool-label-pattern:,install,start-iteration-num:,config:,threads:,runtime:,samples:,client:,clients:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o C:c:hr:t: --longoptions "client-node:,client-nodes:,client-label:,tool-label-pattern:,install,start-iteration-num:,config:,threads:,runtime:,samples:,client:,clients:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
-        printf -- "${script_name} $*\n"
-        printf -- "\n"
-        printf -- "\tunrecognized option specified\n\n"
+	printf -- "${script_name} $*\n"
+	printf -- "\n"
+	printf -- "\tunrecognized option specified\n\n"
 	usage
 	exit 1
 fi
@@ -240,7 +240,7 @@ while true; do
 			shift;
 		fi
 		;;
-		h|--help)
+		-h|--help)
 		usage
 		exit 0
 		;;
@@ -324,7 +324,7 @@ for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 		echo "Starting iteration $iteration ($count of $total_iterations)"
 		log "Starting iteration $iteration ($count of $total_iterations)"
 		iteration="${count}-${thread_count}thread"
-                echo $iteration >> $benchmark_iterations
+	        echo $iteration >> $benchmark_iterations
 		iteration_dir="$benchmark_run_dir/$iteration"
 		result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
 		failures=0
