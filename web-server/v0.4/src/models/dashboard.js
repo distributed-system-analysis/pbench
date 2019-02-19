@@ -85,13 +85,12 @@ export default {
         // tocResult.push(result._source.directory);
         if (result._source.files != undefined) {
           result._source.files.map(path => {
-            tocResult.push(result._source.directory + '/' + path.name);
+            let url = result._source.directory + path.name;
+            tocResult[url] = [path.size, path.mode];
           });
-        } else {
-          tocResult.push(result._source.directory);
         }
       });
-      console.log(tocResult);
+
       yield put({
         type: 'getTocResult',
         payload: tocResult,
