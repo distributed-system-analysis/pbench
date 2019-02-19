@@ -1,6 +1,6 @@
 import ReactJS from 'react';
 import { connect } from 'dva';
-import { Select, Spin, Tag, Table, Button, Card, notification, Tree } from 'antd';
+import { Select, Spin, Tag, Table, Button, Card, notification, Tree, Icon } from 'antd';
 import axios from 'axios';
 import cloneDeep from 'lodash/cloneDeep';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -26,6 +26,40 @@ const tabList = [
 
 const DirectoryTree = Tree.DirectoryTree;
 const { TreeNode } = Tree;
+let fileData = [];
+
+const columns = [
+  {
+    title: 'Name',
+    dataIndex: 'name',
+    key: 'name',
+    width: '60%',
+  },
+  {
+    title: 'Size',
+    dataIndex: 'size',
+    key: 'size',
+    width: '20%',
+  },
+  {
+    title: 'Mode',
+    dataIndex: 'mode',
+    key: 'mode',
+  },
+];
+
+// rowSelection objects indicates the need for row selection
+const rowSelection = {
+  onChange: (selectedRowKeys, selectedRows) => {
+    console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+  },
+  onSelect: (record, selected, selectedRows) => {
+    console.log(record, selected, selectedRows);
+  },
+  onSelectAll: (selected, selectedRows, changeRows) => {
+    console.log(selected, selectedRows, changeRows);
+  },
+};
 
 @connect(({ global, dashboard, loading }) => ({
   selectedController: dashboard.selectedController,
@@ -87,7 +121,7 @@ class Summary extends ReactJS.Component {
         id: selectedResults['id'],
       },
     });
-    console.log(tocResult);
+
     var iterationEndpoint = '';
     if (selectedController != null && selectedController.includes('.')) {
       iterationEndpoint =
@@ -578,22 +612,44 @@ class Summary extends ReactJS.Component {
   };
 
   insertTreeData = (items = [], [head, ...tail]) => {
+    const { tocResult } = this.props;
+    if (tocResult['/' + [head, ...tail].join('/')] != undefined) {
+      fileData[tail[tail.length - 1]] = tocResult['/' + [head, ...tail].join('/')];
+    }
     let child = items.find(child => child.name === head);
-    if (!child) items.push((child = { name: head, items: [] }));
-    if (tail.length > 0) this.insertTreeData(child.items, tail);
+    if (!child) {
+      if (fileData[head] != undefined) {
+        items.push(
+          (child = {
+            name: head,
+            key: Math.random(),
+            size: fileData[head][0],
+            mode: fileData[head][1],
+            children: [],
+          })
+        );
+      } else {
+        items.push((child = { name: head, key: Math.random(), children: [] }));
+      }
+    }
+    if (tail.length > 0) {
+      this.insertTreeData(child.children, tail);
+    } else {
+      delete child.children;
+    }
     return items;
   };
 
   onTabChange = key => {
     const { tocResult } = this.props;
-    // console.log(tocResult);
     this.setState({ activeTab: key });
     if (key == 'toc') {
-      let tocTree = tocResult
+      let tocTree = Object.keys(tocResult)
         .map(path => path.split('/').slice(1))
         .reduce((items, path) => this.insertTreeData(items, path), []);
       this.setState({ tocTree: tocTree });
     }
+    console.log(this.state.tocTree);
   };
 
   list(data) {
@@ -604,14 +660,14 @@ class Summary extends ReactJS.Component {
     };
 
     return data.map((node, index) => {
-      if (node.items.length == 0) {
+      if (node.children.length == 0) {
         return (
           <TreeNode title={node.name} isLeaf>
-            {children(node.items)}
+            {children(node.children)}
           </TreeNode>
         );
       } else {
-        return <TreeNode title={node.name}>{children(node.items)}</TreeNode>;
+        return <TreeNode title={node.name}>{children(node.children)}</TreeNode>;
       }
     });
   }
@@ -823,9 +879,10 @@ class Summary extends ReactJS.Component {
         ),
         toc: (
           <Card title="Table of Contents" style={{ marginTop: 32 }}>
-            <DirectoryTree multiple defaultExpandAll>
+            {/* <DirectoryTree multiple defaultExpandAll>
               {this.list(tocTree)}
-            </DirectoryTree>
+            </DirectoryTree> */}
+            <Table columns={columns} dataSource={tocTree} defaultExpandAllRows />
           </Card>
         ),
       };
