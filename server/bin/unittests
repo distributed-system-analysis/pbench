@@ -1,7 +1,15 @@
 #!/bin/bash
 
+# We force the umask to a common value so that unit test output matches on all
+# platforms (well, mostly matches on all platforms).
+umask 0002
+
+# Don't allow an external CONFIG environment variable to affect the operation
+# of the unit tests since the unit tests themselves use getconf.py which looks
+# for that envinronment variable as input.
 unset CONFIG
 
+# Ensure we always use the same locale for the unit tests.
 export LANG=C
 export LC_ALL=C
 
@@ -101,6 +109,11 @@ function _local_find {
     find ${1} ! -name $(basename ${1}) -type d -printf '%M          - %P\n' , \( ! -type d ! -type l -printf '%M %10s %P\n' \) , -type l -printf '%M %10s %P -> %l\n' | sort -k 3
 }
 
+function _normalize_output {
+    # Fix up tmp directory references
+    sed 's;tmp/pbench-\([-a-zA-Z0-9]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' $*
+}
+
 function _save_tree {
     # Save state of the tree
     if [ -d ${_testhtml} ] ;then
@@ -121,22 +134,22 @@ function _save_tree {
     fi
     echo "+++ pbench tree state (${_testdir})" >> $_testout
     if [ -d ${_testdir} ] ;then
-        _local_find ${_testdir} | sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*$;tmp/pbench-\1.NNNN;' >> $_testout
+        _local_find ${_testdir} | _normalize_output >> $_testout
     fi
     echo "--- pbench tree state" >> $_testout
     if [ -d ${_testdir_local} ] ;then
         echo "+++ pbench-local tree state (${_testdir_local})" >> $_testout
-        _local_find ${_testdir_local} | sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*$;tmp/pbench-\1.NNNN;' >> $_testout
+        _local_find ${_testdir_local} | _normalize_output >> $_testout
         echo "--- pbench-local tree state" >> $_testout
     fi
     if [ -d ${_testdir_sat} ] ;then
         echo "+++ pbench-satellite tree state (${_testdir_sat})" >> $_testout
-        _local_find ${_testdir_sat} | sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*$;tmp/pbench-\1.NNNN;' >> $_testout
+        _local_find ${_testdir_sat} | _normalize_output >> $_testout
         echo "--- pbench-satellite tree state" >> $_testout
     fi
     if [ -d ${_testdir_sat_local} ] ;then
         echo "+++ pbench-satellite-local tree state (${_testdir_sat_local})" >> $_testout
-        _local_find ${_testdir_sat_local} | sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*$;tmp/pbench-\1.NNNN;' >> $_testout
+        _local_find ${_testdir_sat_local} | _normalize_output >> $_testout
         echo "--- pbench-satellite-local tree state" >> $_testout
     fi
 }
@@ -156,7 +169,7 @@ function _dump_logs {
             find ${dir}/logs -type f -printf "%P\n" | sort | \
                 while read fname; do
                     echo "+++++ ${fname}" >> $_testout
-                    cat ${dir}/logs/${fname} >> $_testout 2>&1
+                    _normalize_output ${dir}/logs/${fname} >> $_testout 2>&1
                     echo "----- ${fname}" >> $_testout
                 done
             echo "---- $(basename ${dir})/logs" >> $_testout
@@ -166,19 +179,19 @@ function _dump_logs {
 
     if [ -s $_testlog ]; then
         echo "+++ $(basename $_testlog) file contents" >> $_testout
-        sed 's;tmp/pbench-\([-a-zA-Z0-9]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' $_testlog >> $_testout 2>&1
+        _normalize_output $_testlog >> $_testout 2>&1
         echo "--- $(basename $_testlog) file contents" >> $_testout
     fi
 
     if [ -s $_testcurlpayload ]; then
         echo "+++ $(basename $_testcurlpayload) file contents" >> $_testout
-        sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' $_testcurlpayload >> $_testout 2>&1
+        _normalize_output $_testcurlpayload >> $_testout 2>&1
         echo "--- $(basename $_testcurlpayload) file contents" >> $_testout
     fi
 
     if [ -s $_testloggerpayload ]; then
         echo "+++ $(basename $_testloggerpayload) file contents" >> $_testout
-        sed 's;tmp/pbench-\([-a-zA-Z]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' $_testloggerpayload >> $_testout 2>&1
+        _normalize_output $_testloggerpayload >> $_testout 2>&1
         echo "--- $(basename $_testloggerpayload) file contents" >> $_testout
     fi
 }
@@ -363,7 +376,7 @@ function _run_test {
         echo "ERROR: failed to empty test root directory, \"$_testroot\"" >&2
         exit 1
     fi
-    
+
     export _testres=$_testroot/result.txt
     export _testout=$_testroot/output.txt
     export _testactout=$_testroot/actoutput.txt
