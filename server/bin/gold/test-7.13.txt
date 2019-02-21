@@ -78,7 +78,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--     236496 logs/pbench-index/pbench-index.log
+-rw-rw-r--     236631 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -125,10 +125,10 @@ drwxrwxr-x          - tmp
 +++++ pbench-index/pbench-index.log
 run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
    1900-01-01T00:00:00-UTC: Starting /var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/controller/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3320548)
+1970-01-01T00:00:00.000000 INFO pbench-index.index-pbench es_template -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00, successes: 3, retries: 0)
 Template:  pbench-unittests.run
 Template:  pbench-unittests.tool-data-iostat
 Template:  pbench-unittests.tool-data-pidstat
-	done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 3, retries: 0)
 Index:  pbench-unittests.run.2018-04 23
 Index:  pbench-unittests.tool-data-proc-vmstat.2018-04-10 43
 len(actions) = 30
@@ -5888,7 +5888,7 @@ len(actions) = 30
         "_type": "pbench-tool-data-proc-vmstat"
     }
 ]
-	done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 66, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-index.index-pbench main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00, successes: 66, duplicates: 0, failures: 0, retries: 0)
 run-1900-01-01T00:00:00-UTC: controller/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19: success
    1900-01-01T00:00:00-UTC: Finished /var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/controller/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3320548)
 run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 1 (skipped 0) results, 0 errors

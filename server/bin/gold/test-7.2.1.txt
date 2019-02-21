@@ -79,7 +79,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--        574 logs/pbench-index/pbench-index.log
+-rw-rw-r--        641 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -126,7 +126,7 @@ drwxrwxr-x          - tmp
 +++++ pbench-index/pbench-index.log
 run-1900-01-01T00:00:00-UTC: starting at 1900-01-01T00:00:00-UTC
    1900-01-01T00:00:00-UTC: Starting /var/tmp/pbench-test-server/test-7.2.1/pbench/archive/fs-version-001/controller/TO-INDEX/uperf__2016-10-06_16:34:03.tar.xz (size 5809020)
-Unsupported Tarball Format: /var/tmp/pbench-test-server/test-7.2.1/pbench/archive/fs-version-001/controller/uperf__2016-10-06_16:34:03.tar.xz - tarball member dir prefix should be "uperf__2016-10-06_16:34:03", but is "." instead.
+1970-01-01T00:00:00.000000 ERROR pbench-index.index-pbench main -- Unsupported Tarball Format: /var/tmp/pbench-test-server/test-7.2.1/pbench/archive/fs-version-001/controller/uperf__2016-10-06_16:34:03.tar.xz - tarball member dir prefix should be "uperf__2016-10-06_16:34:03", but is "." instead.
 run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 0 (skipped 1) results, 0 errors
 ----- pbench-index/pbench-index.log
 ---- pbench-local/logs
