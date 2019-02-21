@@ -1,6 +1,6 @@
 import ReactJS from 'react';
 import { connect } from 'dva';
-import { Select, Spin, Tag, Table, Button, Card, notification, Tree, Icon } from 'antd';
+import { Select, Spin, Tag, Table, Button, Card, notification } from 'antd';
 import axios from 'axios';
 import cloneDeep from 'lodash/cloneDeep';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -24,10 +24,6 @@ const tabList = [
   },
 ];
 
-const DirectoryTree = Tree.DirectoryTree;
-const { TreeNode } = Tree;
-let fileData = [];
-
 const columns = [
   {
     title: 'Name',
@@ -48,19 +44,6 @@ const columns = [
   },
 ];
 
-// rowSelection objects indicates the need for row selection
-const rowSelection = {
-  onChange: (selectedRowKeys, selectedRows) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-  },
-  onSelect: (record, selected, selectedRows) => {
-    console.log(record, selected, selectedRows);
-  },
-  onSelectAll: (selected, selectedRows, changeRows) => {
-    console.log(selected, selectedRows, changeRows);
-  },
-};
-
 @connect(({ global, dashboard, loading }) => ({
   selectedController: dashboard.selectedController,
   selectedResults: dashboard.selectedResults,
@@ -75,6 +58,8 @@ const rowSelection = {
 class Summary extends ReactJS.Component {
   constructor(props) {
     super(props);
+
+    this.fileData = [];
 
     this.state = {
       summaryResult: [],
@@ -102,7 +87,6 @@ class Summary extends ReactJS.Component {
       selectedIndices,
       selectedResults,
       selectedController,
-      tocResult,
     } = this.props;
 
     dispatch({
@@ -614,17 +598,17 @@ class Summary extends ReactJS.Component {
   insertTreeData = (items = [], [head, ...tail]) => {
     const { tocResult } = this.props;
     if (tocResult['/' + [head, ...tail].join('/')] != undefined) {
-      fileData[tail[tail.length - 1]] = tocResult['/' + [head, ...tail].join('/')];
+      this.fileData[tail[tail.length - 1]] = tocResult['/' + [head, ...tail].join('/')];
     }
     let child = items.find(child => child.name === head);
     if (!child) {
-      if (fileData[head] != undefined) {
+      if (this.fileData[head] != undefined) {
         items.push(
           (child = {
             name: head,
             key: Math.random(),
-            size: fileData[head][0],
-            mode: fileData[head][1],
+            size: this.fileData[head][0],
+            mode: this.fileData[head][1],
             children: [],
           })
         );
@@ -649,7 +633,6 @@ class Summary extends ReactJS.Component {
         .reduce((items, path) => this.insertTreeData(items, path), []);
       this.setState({ tocTree: tocTree });
     }
-    console.log(this.state.tocTree);
   };
 
   list(data) {
@@ -879,9 +862,6 @@ class Summary extends ReactJS.Component {
         ),
         toc: (
           <Card title="Table of Contents" style={{ marginTop: 32 }}>
-            {/* <DirectoryTree multiple defaultExpandAll>
-              {this.list(tocTree)}
-            </DirectoryTree> */}
             <Table columns={columns} dataSource={tocTree} defaultExpandAllRows />
           </Card>
         ),
