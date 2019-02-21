@@ -2,10 +2,12 @@
 Simple module level convenience functions.
 """
 
-import sys, os, time, json, errno, logging, math
+import sys, os, time, json, errno, logging, math, configtools
 
+from datetime import datetime
 from random import SystemRandom
 from collections import Counter, deque
+from configparser import ConfigParser
 from urllib3 import exceptions as ul_excs
 try:
     from elasticsearch1 import VERSION as es_VERSION, helpers, exceptions as es_excs
@@ -25,6 +27,203 @@ def calc_backoff_sleep(backoff):
     global _r
     b = math.pow(2, backoff)
     return _r.uniform(0, min(b, _MAX_SLEEP_TIME))
+
+
+class _Message(object):
+    """An object that stores a format string, expected to be using the
+    "brace" style formatting, and the arguments object which will be used
+    to satisfy the formats.
+
+    This allows for a delay in the formatting of the final logging
+    message string to a point when the log message will actually be
+    emitted.
+
+    Taken from the Python Logging Cookbook, https://docs.python.org/3.6/howto/logging-cookbook.html#use-of-alternative-formatting-styles.
+    """
+    def __init__(self, fmt, args):
+        self.fmt = fmt
+        self.args = args
+
+    def __str__(self):
+        return self.fmt.format(*self.args)
+
+
+class _StyleAdapter(logging.LoggerAdapter):
+    """Wrap a python logger object with a logging.LoggerAdapter that uses
+    the _Message() object so that log messages will be formatted using
+    "brace" style formatting.
+
+    Taken from the Python Logging Cookbook, https://docs.python.org/3.6/howto/logging-cookbook.html#use-of-alternative-formatting-styles.
+    """
+    def __init__(self, logger, extra=None):
+        super().__init__(logger, extra or {})
+
+    def log(self, level, msg, *args, **kwargs):
+        if self.isEnabledFor(level):
+            msg, kwargs = self.process(msg, kwargs)
+            self.logger._log(level, _Message(msg, args), (), **kwargs)
+
+
+class _PbenchLogFormatter(logging.Formatter):
+    """Custom logging.Formatter for pbench server processes / environments.
+
+    The pbench log formatter provides ISO timestamps in the log messages,
+    formatting using "brace" style string formats by default, removal of
+    new line ASCII characters (replaced with "#012"), optional max line
+    length handling (broken in half with an elipsis between the halves).
+
+    This work was originally copied from:
+
+        https://github.com/openstack/swift/blob/1d4249ee9d176d5563631521fb17aa24baf7fbf3/swift/common/utils.py
+
+    The original license is Apache 2.0 (see below).  See the associated
+    LICENSE.log_formatter, and AUTHORS.log_formatter files in the code
+    base.
+    ---
+    Copyright (c) 2010-2012 OpenStack Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+    implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    """
+
+    def __init__(self, fmt=None, datefmt=None, style='{', max_line_length=0):
+        super().__init__(fmt=fmt, datefmt=datefmt, style=style)
+        self.max_line_length = max_line_length
+
+    def format(self, record):
+        # Included from Python's logging.Formatter and then altered slightly to
+        # replace \n with #012
+        record.message = record.getMessage()
+        if self._fmt.find('{asctime}') >= 0:
+            try:
+                record.asctime = datetime.utcfromtimestamp(record.asctime).isoformat()
+            except AttributeError:
+                record.asctime = datetime.now().isoformat()
+        msg = (self._fmt.format(**record.__dict__)).replace('\n', '#012')
+        if record.exc_info:
+            # Cache the traceback text to avoid converting it multiple times
+            # (it's constant anyway)
+            if not record.exc_text:
+                record.exc_text = self.formatException(
+                    record.exc_info).replace('\n', '#012')
+        if record.exc_text:
+            if not msg.endswith('#012'):
+                msg = msg + '#012'
+            msg = msg + record.exc_text
+        if self.max_line_length > 0 and len(msg) > self.max_line_length:
+            if self.max_line_length < 7:
+                msg = msg[:self.max_line_length]
+            else:
+                approxhalf = (self.max_line_length - 5) // 2
+                msg = msg[:approxhalf] + " ... " + msg[-approxhalf:]
+        return msg
+
+# Used to track the individual FileHandler's created by callers of
+# get_pbench_logger().
+_handlers = {}
+
+def get_pbench_logger(caller, config):
+    """Add a specific handler for the caller using the configured LOGSDIR.
+
+    We also return a logger that supports "brace" style message formatting,
+    e.g. logger.warning("that = {}", that)
+    """
+    pbench_logger = logging.getLogger(caller)
+    if caller not in _handlers:
+        pbench_logger.setLevel(logging.DEBUG)
+        logdir = os.path.join(config.LOGSDIR, caller)
+        try:
+            os.mkdir(logdir)
+        except FileExistsError:
+            # directory already exists, ignore
+            pass
+        fh = logging.FileHandler(os.path.join(logdir, "{}.log".format(caller)))
+        fh.setLevel(logging.DEBUG)
+        try:
+            debug_unittest = config.get('Indexing', 'debug_unittest')
+        except Exception as e:
+            debug_unittest = False
+        else:
+            debug_unittest = bool(debug_unittest)
+        if not debug_unittest:
+            logfmt = "{asctime} {levelname} {process} {thread} {name}.{module} {funcName} {lineno} -- {message}"
+        else:
+            logfmt = "1970-01-01T00:00:00.000000 {levelname} {name}.{module} {funcName} -- {message}"
+        formatter = _PbenchLogFormatter(fmt=logfmt)
+        fh.setFormatter(formatter)
+        _handlers[caller] = fh
+        pbench_logger.addHandler(fh)
+    return _StyleAdapter(pbench_logger)
+
+
+class BadConfig(Exception):
+    pass
+
+
+class PbenchConfig(object):
+    """A simple class to wrap a ConfigParser object using the configtools
+       style of multiple configuration files.
+    """
+
+    def __init__(self, cfg_name):
+        # Enumerate the list of files
+        config_files = configtools.file_list(cfg_name)
+        config_files.reverse()
+
+        self.conf = ConfigParser()
+        self.files = self.conf.read(config_files)
+
+        # Now fetch some default common pbench settings that are required.
+        self.TOP = self.conf.get("pbench-server", "pbench-top-dir")
+        if not os.path.isdir(self.TOP): raise BadConfig("Bad TOP={}".format(self.TOP))
+        self.TMP = self.conf.get("pbench-server", "pbench-tmp-dir")
+        if not os.path.isdir(self.TMP): raise BadConfig("Bad TMP={}".format(self.TMP))
+        self.LOGSDIR = self.conf.get("pbench-server", "pbench-logs-dir")
+        if not os.path.isdir(self.LOGSDIR): raise BadConfig("Bad LOGSDIR={}".format(self.LOGSDIR))
+        self.BINDIR = self.conf.get("pbench-server", "script-dir")
+        if not os.path.isdir(self.BINDIR): raise BadConfig("Bad BINDIR={}".format(self.BINDIR))
+        self.LIBDIR = self.conf.get("pbench-server", "lib-dir")
+        if not os.path.isdir(self.LIBDIR): raise BadConfig("Bad LIBDIR={}".format(self.LIBDIR))
+
+        self.ARCHIVE = self.conf.get("pbench-server", "pbench-archive-dir")
+        self.INCOMING = self.conf.get("pbench-server", "pbench-incoming-dir")
+        # this is where the symlink forest is going to go
+        self.RESULTS = self.conf.get("pbench-server", "pbench-results-dir")
+        self.USERS = self.conf.get("pbench-server", "pbench-users-dir")
+        self.PBENCH_ENV = self.conf.get("pbench-server", "environment")
+        self.mail_recipients = self.conf.get("pbench-server", "mailto")
+
+        # Constants
+        self.TZ = "UTC"
+        # Make all the state directories for the pipeline and any others needed
+        # every related state directories are paired together with their final
+        # state at the end
+        self.LINKDIRS = "TODO BAD-MD5" \
+                " TO-UNPACK UNPACKED MOVED-UNPACKED" \
+                " TO-SYNC SYNCED" \
+                " TO-LINK" \
+                " TO-INDEX INDEXED WONT-INDEX" \
+                " TO-COPY-SOS COPIED-SOS" \
+                " TO-BACKUP" \
+                " SATELLITE-MD5-PASSED SATELLITE-MD5-FAILED" \
+                " TO-DELETE SATELLITE-DONE"
+        # List of the state directories which will be excluded during rsync.
+        # Note that range(1,12) generates the sequence [1..11] inclusively.
+        self.EXCLUDE_DIRS = "_QUARANTINED " + self.LINKDIRS + " " + " ".join([ "WONT-INDEX.{:d}".format(i) for i in range(1,12) ])
+
+    def get(self, *args, **kwargs):
+        return self.conf.get(*args, **kwargs)
 
 
 class MockPutTemplate(object):
@@ -101,7 +300,7 @@ class MockStreamingBulk(object):
         assert es == None
         for action in actions:
             self.duplicates_tracker[action['_id']] += 1
-            dcnt = self.duplicates_tracker[action['_id']] 
+            dcnt = self.duplicates_tracker[action['_id']]
             if dcnt == 2:
                 self.dupes_by_index_tracker[action['_index']] += 1
             self.index_tracker[action['_index']] += 1
@@ -116,7 +315,7 @@ class MockStreamingBulk(object):
             else:
                 # For now, all other docs are considered successful
                 resp[action['_op_type']]['status'] = 200
-                ok = True 
+                ok = True
             yield ok, resp
 
     def report(self):
@@ -133,7 +332,8 @@ class MockStreamingBulk(object):
         for idx in sorted(self.dupes_by_index_tracker.keys()):
             print("Index dupes: ", idx, self.dupes_by_index_tracker[idx])
         print("len(actions) = {}".format(len(self.actions_l)))
-        print(json.dumps(self.actions_l, indent=4, sort_keys=True))
+        print("{}".format(json.dumps(self.actions_l, indent=4, sort_keys=True)))
+        sys.stdout.flush()
 
 
 # Always use "create" operations, as we also ensure each JSON document being
@@ -145,7 +345,7 @@ _op_type = "create"
 # can add undue burden to the Elasticsearch cluster.
 _request_timeout = 100000*60.0
 
-def es_index(es, actions, errorsfp, dbg=0):
+def es_index(es, actions, errorsfp, logger, dbg=0):
     """
     Now do the indexing specified by the actions.
     """
@@ -242,7 +442,7 @@ def es_index(es, actions, errorsfp, dbg=0):
         except KeyError as e:
             assert not ok
             # Limit the length of the error message.
-            print("es_index: ERROR %r" % (e), file=sys.stderr)
+            logger.error("{!r}", e)
             status = 999
         else:
             assert action['_id'] == resp['_id']
@@ -275,7 +475,7 @@ def es_index(es, actions, errorsfp, dbg=0):
                 else:
                     # Retry all other errors.
                     # Limit the length of the error message.
-                    print("es_index: WARNING - retrying action \n%s" % (json.dumps(resp, indent=4)[:_MAX_ERRMSG_LENGTH]), file=sys.stderr)
+                    logger.warning("retrying action: {}", json.dumps(resp)[:_MAX_ERRMSG_LENGTH])
                     actions_retry_deque.append((retry_count + 1, action))
 
     end = _do_ts()
