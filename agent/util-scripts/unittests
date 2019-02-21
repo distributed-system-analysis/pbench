@@ -97,9 +97,6 @@ function _save_tree {
             cat $x
         done
         popd >/dev/null
-    elif [ -f $_testdir/tools.default ]; then
-        echo $_testdir/tools.default: 
-        cat $_testdir/tools.default
     fi >> $_testout
     for x in $(find $_testdir/tmp -type f) ;do
         echo $x:
@@ -262,11 +259,7 @@ declare -A options=(
 )
 
 declare -A expected_status=(
-    [test-05]=1
-    [test-06]=1
-)
-
-declare -A expected_status=(
+    [test-01]=1
     [test-05]=1
     [test-06]=1
     [test-11]=4
@@ -278,11 +271,21 @@ declare -A expected_status=(
 )
 
 declare -A pre_hooks=(
+    [test-01]='export benchmark=fake-bm'
+    [test-02]='export benchmark=fake-bm'
+    [test-03]='export benchmark=fake-bm'
+    [test-04]='export benchmark=fake-bm'
     [test-20]='mkdir -p $_testdir/tmp/tools-default/iostat; touch $_testdir/tmp/tools-default/iostat/iostat-stdout.txt'
+    [test-22]='export benchmark=fake-bm'
     [test-33]='(echo "+++ setup pbench results dir time stamps"; touch --date="2019-01-01 12:00:42" $_testdir/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42; touch --date="2019-01-01 12:00:43" $_testdir/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43; touch --date="2019-01-01 12:00:44" $_testdir/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.44; echo "--- setup pbench results dir time stamps") >> $_testout'
 )
 
 declare -A post_hooks=(
+    [test-01]='unset benchmark'
+    [test-02]='unset benchmark'
+    [test-03]='unset benchmark'
+    [test-04]='unset benchmark'
+    [test-22]='unset benchmark'
     [test-31]='(echo "+++ metadata.log file contents"; cat $_testdir/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32/metadata.log; echo "--- metadata.log file contents") >> $_testout'
 )
 

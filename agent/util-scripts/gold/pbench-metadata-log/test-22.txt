@@ -42,11 +42,16 @@ iter3
 +++ metadata.log file contents
 /var/tmp/pbench-test-utils/pbench/metadata.log:[pbench]
 /var/tmp/pbench-test-utils/pbench/metadata.log:name = pbench
-/var/tmp/pbench-test-utils/pbench/metadata.log:script = 
+/var/tmp/pbench-test-utils/pbench/metadata.log:script = fake-bm
 /var/tmp/pbench-test-utils/pbench/metadata.log:config = 
 /var/tmp/pbench-test-utils/pbench/metadata.log:date = 1900-01-01T00:00:00
 /var/tmp/pbench-test-utils/pbench/metadata.log:rpm-version = 
 /var/tmp/pbench-test-utils/pbench/metadata.log:iterations = iter1, iter2, iter3
+/var/tmp/pbench-test-utils/pbench/metadata.log:
+/var/tmp/pbench-test-utils/pbench/metadata.log:[run]
+/var/tmp/pbench-test-utils/pbench/metadata.log:controller = testhost.example.com
+/var/tmp/pbench-test-utils/pbench/metadata.log:start_run = 1900-01-01T00:00:00.000000
+/var/tmp/pbench-test-utils/pbench/metadata.log:end_run = 1900-01-01T00:00:00.000000
 /var/tmp/pbench-test-utils/pbench/metadata.log:
 /var/tmp/pbench-test-utils/pbench/metadata.log:[tools]
 /var/tmp/pbench-test-utils/pbench/metadata.log:hosts = testhost
@@ -62,11 +67,6 @@ iter3
 /var/tmp/pbench-test-utils/pbench/metadata.log:proc-vmstat = --interval=3
 /var/tmp/pbench-test-utils/pbench/metadata.log:sar = --interval=3
 /var/tmp/pbench-test-utils/pbench/metadata.log:turbostat = --interval=3
-/var/tmp/pbench-test-utils/pbench/metadata.log:
-/var/tmp/pbench-test-utils/pbench/metadata.log:[run]
-/var/tmp/pbench-test-utils/pbench/metadata.log:controller = testhost.example.com
-/var/tmp/pbench-test-utils/pbench/metadata.log:start_run = 1900-01-01T00:00:00.000000
-/var/tmp/pbench-test-utils/pbench/metadata.log:end_run = 1900-01-01T00:00:00.000000
 /var/tmp/pbench-test-utils/pbench/metadata.log:
 --- metadata.log file contents
 +++ pbench.log file contents
