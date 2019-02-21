@@ -3,7 +3,7 @@
 
 # this script uses env variables set by the base script, so it
 # needs to be invoked *after* the base script is sourced and *after*
-# the bench_run_dir is set.
+# the benchmark_run_dir is set.
 
 script_path=`dirname $0`
 script_name=`basename $0`
@@ -18,52 +18,62 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # the run.
 
 # Defaults
-dir=/tmp
+dir=""
 group="default"
 
-# benchmark scripts *have* to export benchmark_run_dir
-# unittests has to do the same.
-tmpdir=$benchmark_run_dir/tmp/remotes
+function usage {
+    printf -- "Usage: $prog --dir=str [--group=str] beg|end|int\n\n"
+    printf -- "\t-d str --dir=str,   str = the target benchmark run directory where $script_name\n"
+    printf -- "\t                          will store and process the metadata.log file (required)\n\n"
+    printf -- "\t-g str --group=str, str = the tool group to use\n\n"
+}
 
 # Process options and arguments
 
 opts=$(getopt -q -o d:g: --longoptions "dir:,group:" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
-	printf "\n"
-	printf "$script_name: you specified an invalid option\n\n"
-	printf "The following are required:\n\n"
-	printf -- "\t-d str --dir=str, str = a directory where the $script_name\n"
-	printf -- "\t                        will store and process data\n"
-	printf "\n"
-	exit 1
+    printf "\n"
+    printf "$script_name: you specified an invalid option\n\n"
+    usage
+    exit 1
 fi
 eval set -- "$opts";
 while true; do
-	case "$1" in
-		-d|--dir)
+    case "$1" in
+	-d|--dir)
+	    shift;
+	    if [ -n "$1" ]; then
+		    dir="$1"
 		shift;
-		if [ -n "$1" ]; then
-			dir="$1"
-			shift;
-		fi
-		;;
-		-g|--group)
-		shift;
-		if [ -n "$1" ]; then
-			group="$1"
-			shift;
-		fi
-		;;
-		--)
-		shift;
-		break;
-		;;
-	esac
+	    fi
+	    ;;
+	-g|--group)
+	    shift;
+	    if [ -n "$1" ]; then
+		    group="$1"
+		    shift;
+	    fi
+	    ;;
+	--)
+	    shift;
+	    break;
+	    ;;
+    esac
 done
 
-function usage {
-    echo "Usage: $prog beg|end|int <bench_run_dir>" >&2
-}
+if [[ -z "$dir" ]]; then
+    error_log "Missing --dir=<benchmark run directory>"
+    exit 1
+fi
+mkdir -p $dir
+if [[ $? -ne 0 ]]; then
+    error_log "Unable to create specified benchmark run directory, $dir"
+    exit 1
+fi
+if [[ ! -d $pbench_run/tools-$group ]]; then
+    error_log "Tool group directory, $pbench_run/tools-$group, does not exist"
+    exit 1
+fi
 
 function metadata_log_tools {
     local log=$1
@@ -108,10 +118,19 @@ EOF
     fi
 
     for remote in $remotes ;do
+        mkdir -p $tmpdir/$remote
+        if [[ $? -ne 0 ]]; then
+            error_log "Unable to create $tmpdir/$remote directory while gathering remote tool metadata"
+            continue
+        fi
+        scp $ssh_options -r $remote:$pbench_run/tools-$group $tmpdir/$remote > /dev/null 2>&1
+        if [[ $? -ne 0 ]]; then
+            error_log "Unable to fetch remote tool group directory, $remote:$pbench_run/tools-$group"
+            continue
+        fi
         cat >> $log <<EOF
 [tools/$remote]
 EOF
-        mkdir -p $tmpdir/$remote
         # the remotes may have different names than what the controller uses,
         # so go ask them - the names of the remotes in the metadata log have to
         # agree with the names of the remotes used when postprocessing the tool
@@ -121,7 +140,6 @@ EOF
         rem=$(ssh $ssh_opts -n $remote hostname -s 2>/dev/null || echo $remote)
         # add explicit hostname-s - see issue #725.
         echo "hostname-s = $rem" >> $log
-        scp $ssh_options -r $remote:$pbench_run/tools-$group $tmpdir/$remote > /dev/null
         for tool in $(/bin/ls $tmpdir/$remote/tools-$group) ;do
             echo $tool: $(cat $tmpdir/$remote/tools-$group/$tool | sed 's/^/ /')
         done >> $log
@@ -147,12 +165,12 @@ date: $date
 rpm-version: $(yum list installed pbench-agent 2>/dev/null | tail -n 1 | awk '{print $2}')
 
 EOF
-    metadata_log_tools $log $group
     cat >> $log <<EOF
 [run]
 controller: $full_hostname
 start_run: $ts
 EOF
+    metadata_log_tools $log
 }
 
 function metadata_log_end {
@@ -171,28 +189,46 @@ function metadata_log_end {
         metadata_log_start $dir $group $start_ts
     fi
     if ! grep -q end_run $log ;then
-        echo "$(timestamp)" | pbench-add-metalog-option $dir/metadata.log run end_run
+        echo "$(timestamp)" | pbench-add-metalog-option $log run end_run
+    fi
+    name=$(basename $dir)
+    if [ -f $pbench_tmp/$name.iterations ] ;then
+        cat $pbench_tmp/$name.iterations |
+            pbench-add-metalog-option $log pbench iterations
     fi
     if [ "$int" == "int" ] ;then
-        echo "true"  | pbench-add-metalog-option $dir/metadata.log run run_interrupted
+        echo "true"  | pbench-add-metalog-option $log run run_interrupted
     fi
 }
 
+tmpdir=$pbench_tmp/pmdlog
+
 trap "rm -rf $tmpdir" INT QUIT EXIT
 
-mkdir -p $dir
+if [[ -z "$benchmark" ]]; then
+    # Should be provided
+    error_log "Missing required \$benchmark environment variable"
+    exit 3
+fi
+# We don't require "$config" to be exported, because the user may not
+# provide it.
+if [[ -z "$date" ]]; then
+    # Should be provided by $pbench_bin/base
+    error_log "Missing required \$date environment variable"
+    exit 3
+fi
+if [[ -z "$full_hostname" ]]; then
+    # Should be provided by $pbench_bin/base
+    error_log "Missing required \$full_hostname environment variable"
+    exit 3
+fi
+
 case $1 in
     beg)
-        mkdir -p $tmpdir
         metadata_log_start $dir $group
         ;;
     end)
         metadata_log_end $dir $group
-        name=$(basename $dir)
-        if [ -f $pbench_tmp/$name.iterations ] ;then
-            cat $pbench_tmp/$name.iterations |
-                pbench-add-metalog-option $dir/metadata.log pbench iterations
-        fi
         ;;
     int)
         metadata_log_end $dir $group int
