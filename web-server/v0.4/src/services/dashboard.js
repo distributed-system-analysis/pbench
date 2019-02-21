@@ -64,7 +64,7 @@ export async function queryResults(params) {
         'run.name',
         'run.config',
         'run.prefix',
-        '@metadata.md5',
+        'run.id',
       ],
       sort: {
         'run.end_run': {
@@ -126,23 +126,23 @@ export async function queryIterations(params) {
       if (result.controller.includes('.')) {
         axios.get(
           datastoreConfig.results +
-            '/results/' +
-            encodeURI(result.controller.slice(0, result.controller.indexOf('.'))) +
-            (result['run.prefix'] != null ? '/' + result['run.prefix'] : '') +
-            '/' +
-            encodeURI(result['run.name']) +
-            '/result.json'
+          '/results/' +
+          encodeURI(result.controller.slice(0, result.controller.indexOf('.'))) +
+          (result['run.prefix'] != null ? '/' + result['run.prefix'] : '') +
+          '/' +
+          encodeURI(result['run.name']) +
+          '/result.json'
         );
       }
       iterationRequests.push(
         axios.get(
           datastoreConfig.results +
-            '/results/' +
-            encodeURI(result.controller.slice(0, result.controller.indexOf('.'))) +
-            (result['run.prefix'] != null ? '/' + result['run.prefix'] : '') +
-            '/' +
-            encodeURI(result['run.name']) +
-            '/result.json'
+          '/results/' +
+          encodeURI(result.controller.slice(0, result.controller.indexOf('.'))) +
+          (result['run.prefix'] != null ? '/' + result['run.prefix'] : '') +
+          '/' +
+          encodeURI(result['run.name']) +
+          '/result.json'
         )
       );
     });

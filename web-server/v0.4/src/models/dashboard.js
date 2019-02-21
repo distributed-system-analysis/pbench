@@ -58,7 +58,7 @@ export default {
           startRunUnixTimestamp: Date.parse(result.fields['run.start_run'][0]),
           ['run.startRun']: result.fields['run.start_run'][0],
           ['run.endRun']: result.fields['run.end_run'][0],
-          ['id']: result.fields['@metadata.md5'][0],
+          ['id']: result.fields['run.id'][0],
         });
       });
 
