@@ -23,7 +23,7 @@ _testdir=$_testroot/pbench
 _testopt=$_testroot/opt/pbench-agent
 export moongen_dir=$_testroot/MoonGen
 res=0
-mkdir -p $_testopt/bench-scripts/postprocess $_testopt/bench-scripts/templates $_testopt/unittest-scripts $moongen_dir/build
+mkdir -p $_testopt/bench-scripts/postprocess $_testopt/bench-scripts/templates $_testopt/util-scripts $_testopt/unittest-scripts $moongen_dir/build
 let res=res+$?
 cp $_tdir/../base $_testopt/
 let res=res+$?
@@ -35,6 +35,10 @@ cp $_tdir/postprocess/* $_testopt/bench-scripts/postprocess
 let res=res+$?
 cp $_tdir/templates/* $_testopt/bench-scripts/templates
 let res=res+$?
+for script in $_tdir/../util-scripts/pbench-* ; do
+    cp $script $_testopt/util-scripts/
+    let res=res+$?
+done
 cp -rH $_tdir/test-bin/* $_testopt/unittest-scripts/
 let res=res+$?
 # replace real post-processing scripts with mocked ones
@@ -68,7 +72,7 @@ function remove_path {
 PATH=$(remove_path /opt/pbench-agent/bench-scripts $PATH)
 PATH=$(remove_path /opt/pbench-agent/util-scripts $PATH)
 # Allows us to intercept scp, ssh, rsync, etc.
-export PATH=$_testopt/unittest-scripts:$_testopt/bench-scripts:$PATH
+export PATH=$_testopt/unittest-scripts:$_testopt/util-scripts:$_testopt/bench-scripts:$PATH
 
 # Fixed timestamp output
 export _PBENCH_BENCH_TESTS=1

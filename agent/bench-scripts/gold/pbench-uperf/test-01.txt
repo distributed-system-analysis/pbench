@@ -1,4 +1,7 @@
 +++ Running test-01 pbench-uperf
+Collecting system information
+[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]mpstat does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
+[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]sar does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 Starting iteration  (1 of 2)
 test sample 1 of 2
 client[c1]node[1]protocol[tcp]test[rr]instances[1]size[64] <-> server[s1]node[0]
@@ -19,6 +22,9 @@ client[c1]node[1]protocol[tcp]test[stream]instances[1]size[64] <-> server[s1]nod
 client[c2]protocol[tcp]test[stream]instances[1]size[64] <-> server[s2]
 client[c3]node[3]protocol[tcp]test[stream]instances[1]size[64] <-> server[s3]node[2]
 Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
+Collecting system information
+[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]mpstat does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
+[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]sar does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 --- Finished test-01 pbench-uperf (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
@@ -71,8 +77,12 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/generate-benchmark-summary.cmd
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/metadata.log
 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/pbench-uperf.cmd
+/var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/sysinfo
+/var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/sysinfo/beg
+/var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/sysinfo/end
 --- pbench tree state
 +++ pbench.log file contents
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-uperf-1.0.4
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-uperf]pbench-uperf is installed
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking for uperf on client c1
@@ -81,6 +91,8 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking for uperf on server s1
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking for uperf on server s2
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking for uperf on server s3
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]mpstat does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]sar does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration  (1 of 2)
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 2 
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[c1]node[1]protocol[tcp]test[rr]instances[1]size[64] <-> server[s1]node[0]
@@ -113,6 +125,8 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] client[c3]node[3]protocol[tcp]test[stream]instances[1]size[64] <-> server[s3]node[2]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] ssh -o StrictHostKeyChecking=no c3 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c3-server::s3:20030--client_start.sh
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]mpstat does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]sar does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 --- pbench.log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary uperf --config=test-01 --test-types=rr,stream --message-sizes=64 --instances=1 --protocols=tcp --runtime=20 --samples=2 --servers=s1,s2,s3 --clients=c1,c2,c3 --server-node=0,-1,2 --client-node=1,-1,3 /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00
@@ -122,10 +136,9 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2 tcp 64 1 rr c1,c2,c3 s1,s2,s3 uperf- default 1.0.4
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample1 tcp 64 1 stream c1,c2,c3 s1,s2,s3 uperf- default 1.0.4
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample2 tcp 64 1 stream c1,c2,c3 s1,s2,s3 uperf- default 1.0.4
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00 --sysinfo=default beg
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00 --sysinfo=default end
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00 beg
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00 beg
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00 end
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00 end
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-tcp_rr-64B-1i --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-tcp_rr-64B-1i --dir=/var/tmp/pbench-test-bench/pbench/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2

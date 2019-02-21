@@ -10,11 +10,12 @@ Bench Script: pbench-cyclictest --help
 		-s --stress                                   run stress process on the same cpu as --cpu
 		--tool-group=str
 		--sysinfo=str,                                str= comma separated values of sysinfo to be collected
-		                                                   available: default,none,all,a,b,c,d,e
+		                                                   available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-cyclictest --tool-group=bad --sysinfo=bad
 ------------
 	pbench-cyclictest: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-cyclictest: invalid --sysinfo option ("bad")
 
 	The following options are available:
@@ -25,7 +26,7 @@ Bench Script: pbench-cyclictest --tool-group=bad --sysinfo=bad
 		-s --stress                                   run stress process on the same cpu as --cpu
 		--tool-group=str
 		--sysinfo=str,                                str= comma separated values of sysinfo to be collected
-		                                                   available: default,none,all,a,b,c,d,e
+		                                                   available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-cyclictest --bad-to-the-bone 
 ------------
@@ -41,7 +42,7 @@ pbench-cyclictest --bad-to-the-bone
 		-s --stress                                   run stress process on the same cpu as --cpu
 		--tool-group=str
 		--sysinfo=str,                                str= comma separated values of sysinfo to be collected
-		                                                   available: default,none,all,a,b,c,d,e
+		                                                   available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-dbench --help 
 ------------
@@ -76,11 +77,12 @@ Bench Script: pbench-dbench --help
 		                                        part of the label, just use --tool-label-pattern= to tell this script
 		                                        the prefix pattern to use for CPU information.
 		             --sysinfo=str,             str= comma separated values of sysinfo to be collected
-		                                             available: default,none,all,a,b,c,d,e
+		                                             available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-dbench --tool-group=bad --sysinfo=bad
 ------------
 	pbench-dbench: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-dbench: invalid --sysinfo option ("bad")
 
 	The following options are available:
@@ -114,7 +116,7 @@ Bench Script: pbench-dbench --tool-group=bad --sysinfo=bad
 		                                        part of the label, just use --tool-label-pattern= to tell this script
 		                                        the prefix pattern to use for CPU information.
 		             --sysinfo=str,             str= comma separated values of sysinfo to be collected
-		                                             available: default,none,all,a,b,c,d,e
+		                                             available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-dbench --bad-to-the-bone 
 ------------
@@ -153,7 +155,7 @@ pbench-dbench --bad-to-the-bone
 		                                        part of the label, just use --tool-label-pattern= to tell this script
 		                                        the prefix pattern to use for CPU information.
 		             --sysinfo=str,             str= comma separated values of sysinfo to be collected
-		                                             available: default,none,all,a,b,c,d,e
+		                                             available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-fio --help 
 ------------
@@ -239,11 +241,12 @@ The following options are available:
 		set the histogram logging interval in seconds (default 10)
 
 	--sysinfo=str            str= comma separated values of sysinfo to be collected
-		available: default,none,all,a,b,c,d,e
+		available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-fio --tool-group=bad --sysinfo=bad
 ------------
 	pbench-fio: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-fio: invalid --sysinfo option ("bad")
 
 The following options are available:
@@ -328,7 +331,7 @@ The following options are available:
 		set the histogram logging interval in seconds (default 10)
 
 	--sysinfo=str            str= comma separated values of sysinfo to be collected
-		available: default,none,all,a,b,c,d,e
+		available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-fio --bad-to-the-bone 
 ------------
@@ -418,7 +421,7 @@ The following options are available:
 		set the histogram logging interval in seconds (default 10)
 
 	--sysinfo=str            str= comma separated values of sysinfo to be collected
-		available: default,none,all,a,b,c,d,e
+		available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-iozone --help 
 ------------
@@ -435,11 +438,12 @@ Bench Script: pbench-iozone --help
 			number of iozone runs - default is 10 runs
 		--tool-group=str
 		--sysinfo=str, str= comma separated values of sysinfo to be collected
-		                    available: default,none,all,a,b,c,d,e
+		                    available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-iozone --tool-group=bad --sysinfo=bad
 ------------
 	pbench-iozone: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-iozone: invalid --sysinfo option ("bad")
 
 	The following options are available:
@@ -455,7 +459,7 @@ Bench Script: pbench-iozone --tool-group=bad --sysinfo=bad
 			number of iozone runs - default is 10 runs
 		--tool-group=str
 		--sysinfo=str, str= comma separated values of sysinfo to be collected
-		                    available: default,none,all,a,b,c,d,e
+		                    available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-iozone --bad-to-the-bone 
 ------------
@@ -476,7 +480,7 @@ pbench-iozone --bad-to-the-bone
 			number of iozone runs - default is 10 runs
 		--tool-group=str
 		--sysinfo=str, str= comma separated values of sysinfo to be collected
-		                    available: default,none,all,a,b,c,d,e
+		                    available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-linpack --help 
 ------------
@@ -486,11 +490,12 @@ Bench Script: pbench-linpack --help
 	       --threads=int[,int]  number of threads to use (default is num_cpus)
 	       --tool-group=str
 	       --sysinfo=str,       str= comma separated values of sysinfo to be collected
-	                                available: default,none,all,a,b,c,d,e
+	                                available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-linpack --tool-group=bad --sysinfo=bad
 ------------
 	pbench-linpack: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-linpack: invalid --sysinfo option ("bad")
 
 	The following options are available:
@@ -499,7 +504,7 @@ Bench Script: pbench-linpack --tool-group=bad --sysinfo=bad
 	       --threads=int[,int]  number of threads to use (default is num_cpus)
 	       --tool-group=str
 	       --sysinfo=str,       str= comma separated values of sysinfo to be collected
-	                                available: default,none,all,a,b,c,d,e
+	                                available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-linpack --bad-to-the-bone 
 ------------
@@ -513,7 +518,7 @@ pbench-linpack --bad-to-the-bone
 	       --threads=int[,int]  number of threads to use (default is num_cpus)
 	       --tool-group=str
 	       --sysinfo=str,       str= comma separated values of sysinfo to be collected
-	                                available: default,none,all,a,b,c,d,e
+	                                available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-migrate --help 
 ------------
@@ -537,11 +542,12 @@ Bench Script: pbench-migrate --help
 		                                        0 = 1 migration, just to dest-host (no round-trip migration, VM ends up on dest-host).
 		                                        1 = 2 migrations, 2 = 4 migrations, etc.  VM ends up on src-host
 		--sysinfo=str,                          str= comma separated values of sysinfo to be collected
-		                                             available: default,none,all,a,b,c,d,e
+		                                             available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-migrate --tool-group=bad --sysinfo=bad
 ------------
 	pbench-migrate: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-migrate: invalid --sysinfo option ("bad")
 
 	The following options are available:
@@ -564,7 +570,7 @@ Bench Script: pbench-migrate --tool-group=bad --sysinfo=bad
 		                                        0 = 1 migration, just to dest-host (no round-trip migration, VM ends up on dest-host).
 		                                        1 = 2 migrations, 2 = 4 migrations, etc.  VM ends up on src-host
 		--sysinfo=str,                          str= comma separated values of sysinfo to be collected
-		                                             available: default,none,all,a,b,c,d,e
+		                                             available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-migrate --bad-to-the-bone 
 ------------
@@ -592,7 +598,7 @@ pbench-migrate --bad-to-the-bone
 		                                        0 = 1 migration, just to dest-host (no round-trip migration, VM ends up on dest-host).
 		                                        1 = 2 migrations, 2 = 4 migrations, etc.  VM ends up on src-host
 		--sysinfo=str,                          str= comma separated values of sysinfo to be collected
-		                                             available: default,none,all,a,b,c,d,e
+		                                             available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-moongen --help 
 ------------
@@ -638,11 +644,12 @@ Bench Script: pbench-moongen --help
 		             --queues-per-task=int      how many tasks queues to bind to each task (default 3)
 		             --dst-macs=mac[,mac]       list of destination mac addresses, each mac in the list corresponds to a port from the port list
 		             --sysinfo=str,             str= comma separated values of system information to be collected
-		                                              available: default,none,all,a,b,c,d,e
+		                                              available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-moongen --tool-group=bad --sysinfo=bad
 ------------
 	pbench-moongen: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-moongen: invalid --sysinfo option ("bad")
 
 	The following options are available:
@@ -687,7 +694,7 @@ Bench Script: pbench-moongen --tool-group=bad --sysinfo=bad
 		             --queues-per-task=int      how many tasks queues to bind to each task (default 3)
 		             --dst-macs=mac[,mac]       list of destination mac addresses, each mac in the list corresponds to a port from the port list
 		             --sysinfo=str,             str= comma separated values of system information to be collected
-		                                              available: default,none,all,a,b,c,d,e
+		                                              available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-moongen --bad-to-the-bone 
 ------------
@@ -737,7 +744,7 @@ pbench-moongen --bad-to-the-bone
 		             --queues-per-task=int      how many tasks queues to bind to each task (default 3)
 		             --dst-macs=mac[,mac]       list of destination mac addresses, each mac in the list corresponds to a port from the port list
 		             --sysinfo=str,             str= comma separated values of system information to be collected
-		                                              available: default,none,all,a,b,c,d,e
+		                                              available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-netperf --help 
 ------------
@@ -774,11 +781,12 @@ Bench Script: pbench-netperf --help
 		             --server-label=str             provide the pbench netperf-server tool label and postprocessing will
 		                                            compute a netperf-server result/CPU metric
 		             --sysinfo=str,                 str= comma separated values of sysinfo to be collected
-		                                                 available: default,none,all,a,b,c,d,e
+		                                                 available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-netperf --tool-group=bad --sysinfo=bad
 ------------
 	pbench-netperf: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-netperf: invalid --sysinfo option ("bad")
 
 	The following options are available:
@@ -814,7 +822,7 @@ Bench Script: pbench-netperf --tool-group=bad --sysinfo=bad
 		             --server-label=str             provide the pbench netperf-server tool label and postprocessing will
 		                                            compute a netperf-server result/CPU metric
 		             --sysinfo=str,                 str= comma separated values of sysinfo to be collected
-		                                                 available: default,none,all,a,b,c,d,e
+		                                                 available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-netperf --bad-to-the-bone 
 ------------
@@ -855,7 +863,7 @@ pbench-netperf --bad-to-the-bone
 		             --server-label=str             provide the pbench netperf-server tool label and postprocessing will
 		                                            compute a netperf-server result/CPU metric
 		             --sysinfo=str,                 str= comma separated values of sysinfo to be collected
-		                                                 available: default,none,all,a,b,c,d,e
+		                                                 available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-specjbb2005 --help 
 ------------
@@ -873,13 +881,14 @@ Bench Script: pbench-specjbb2005 --help
 		-d str --dir=<str>               directory to run the test
 		       --tool-group=<str>        tool group to use during test
 		       --sysinfo=<str,>          comma separated values of sysinfo to be collected
-		                                      available: default,none,all,a,b,c,d,e
+		                                      available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 		       --specjbb2005-dir=<str>   the location of the install directory for SPECjbb2005
 		                                      (default is /usr/local/share/specjbb2005)
 
 Bench Script: pbench-specjbb2005 --tool-group=bad --sysinfo=bad
 ------------
 	pbench-specjbb2005: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-specjbb2005: invalid --sysinfo option ("bad")
 
 	The following options are available:
@@ -896,7 +905,7 @@ Bench Script: pbench-specjbb2005 --tool-group=bad --sysinfo=bad
 		-d str --dir=<str>               directory to run the test
 		       --tool-group=<str>        tool group to use during test
 		       --sysinfo=<str,>          comma separated values of sysinfo to be collected
-		                                      available: default,none,all,a,b,c,d,e
+		                                      available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 		       --specjbb2005-dir=<str>   the location of the install directory for SPECjbb2005
 		                                      (default is /usr/local/share/specjbb2005)
 
@@ -920,7 +929,7 @@ pbench-specjbb2005 --bad-to-the-bone
 		-d str --dir=<str>               directory to run the test
 		       --tool-group=<str>        tool group to use during test
 		       --sysinfo=<str,>          comma separated values of sysinfo to be collected
-		                                      available: default,none,all,a,b,c,d,e
+		                                      available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 		       --specjbb2005-dir=<str>   the location of the install directory for SPECjbb2005
 		                                      (default is /usr/local/share/specjbb2005)
 
@@ -1154,11 +1163,12 @@ options common in most pbench benchmark scripts
 
 --sysinfo=str,
   comma separated values of sysinfo to be collected, default="none"
-    available: default,none,all,a,b,c,d,e
+    available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-trafficgen --tool-group=bad --sysinfo=bad
 ------------
 	pbench-trafficgen: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-trafficgen: invalid --sysinfo option ("bad")
 
 	The following options are available:
@@ -1389,7 +1399,7 @@ options common in most pbench benchmark scripts
 
 --sysinfo=str,
   comma separated values of sysinfo to be collected, default="none"
-    available: default,none,all,a,b,c,d,e
+    available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-trafficgen --bad-to-the-bone 
 ------------
@@ -1625,7 +1635,7 @@ options common in most pbench benchmark scripts
 
 --sysinfo=str,
   comma separated values of sysinfo to be collected, default="none"
-    available: default,none,all,a,b,c,d,e
+    available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-uperf --help 
 ------------
@@ -1672,11 +1682,12 @@ Bench Script: pbench-uperf --help
 				   part of the label, just use --tool-label-pattern= to tell this script
 				   the prefix pattern to use for CPU information.
 	--sysinfo=str,             str= comma separated values of sysinfo to be collected
-	                                available: default,none,all,a,b,c,d,e
+	                                available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-uperf --tool-group=bad --sysinfo=bad
 ------------
 	pbench-uperf: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-uperf: invalid --sysinfo option ("bad")
 
 	The following options are available:
@@ -1722,7 +1733,7 @@ Bench Script: pbench-uperf --tool-group=bad --sysinfo=bad
 				   part of the label, just use --tool-label-pattern= to tell this script
 				   the prefix pattern to use for CPU information.
 	--sysinfo=str,             str= comma separated values of sysinfo to be collected
-	                                available: default,none,all,a,b,c,d,e
+	                                available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-uperf --bad-to-the-bone 
 ------------
@@ -1773,7 +1784,7 @@ pbench-uperf --bad-to-the-bone
 				   part of the label, just use --tool-label-pattern= to tell this script
 				   the prefix pattern to use for CPU information.
 	--sysinfo=str,             str= comma separated values of sysinfo to be collected
-	                                available: default,none,all,a,b,c,d,e
+	                                available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
 Bench Script: pbench-user-benchmark --help 
 ------------
@@ -1784,7 +1795,7 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 		-C str --config=str            name of the test config
 		       --tool-group=str
 		       --sysinfo=str,          str = comma separated values of system information to be collected
-		                                     available: default,none,all,a,b,c,d,e
+		                                     available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 		       --pbench-pre=str        path to the script which will be executed before tools are started
 		       --pbench-post=str       path to the script which will be executed after tools are stopped and postprocessing is complete
 		       --use-tool-triggers     use tool triggers instead of normal start/stop around script
@@ -1793,6 +1804,7 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 Bench Script: pbench-user-benchmark --tool-group=bad --sysinfo=bad
 ------------
 	pbench-user-benchmark: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-user-benchmark: invalid --sysinfo option ("bad")
 
 Usage: pbench-user-benchmark [options] -- <script to run>
@@ -1802,7 +1814,7 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 		-C str --config=str            name of the test config
 		       --tool-group=str
 		       --sysinfo=str,          str = comma separated values of system information to be collected
-		                                     available: default,none,all,a,b,c,d,e
+		                                     available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 		       --pbench-pre=str        path to the script which will be executed before tools are started
 		       --pbench-post=str       path to the script which will be executed after tools are stopped and postprocessing is complete
 		       --use-tool-triggers     use tool triggers instead of normal start/stop around script
@@ -1821,7 +1833,7 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 		-C str --config=str            name of the test config
 		       --tool-group=str
 		       --sysinfo=str,          str = comma separated values of system information to be collected
-		                                     available: default,none,all,a,b,c,d,e
+		                                     available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 		       --pbench-pre=str        path to the script which will be executed before tools are started
 		       --pbench-post=str       path to the script which will be executed after tools are stopped and postprocessing is complete
 		       --use-tool-triggers     use tool triggers instead of normal start/stop around script
@@ -1829,6 +1841,7 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 --- Finished test-CL test-benchmark-clis (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
+/var/tmp/pbench-test-bench/pbench/pbench.log
 /var/tmp/pbench-test-bench/pbench/samples
 /var/tmp/pbench-test-bench/pbench/tmp
 /var/tmp/pbench-test-bench/pbench/tools-default
@@ -1836,55 +1849,30 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 /var/tmp/pbench-test-bench/pbench/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
-grep: /var/tmp/pbench-test-bench/pbench/pbench.log: No such file or directory
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to bad
+/var/tmp/pbench-test-bench/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to bad
+/var/tmp/pbench-test-bench/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to bad
+/var/tmp/pbench-test-bench/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to bad
+/var/tmp/pbench-test-bench/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to bad
+/var/tmp/pbench-test-bench/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to bad
+/var/tmp/pbench-test-bench/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to bad
+/var/tmp/pbench-test-bench/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to bad
+/var/tmp/pbench-test-bench/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to bad
+/var/tmp/pbench-test-bench/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to bad
+/var/tmp/pbench-test-bench/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to bad
+/var/tmp/pbench-test-bench/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to bad
+/var/tmp/pbench-test-bench/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
 --- test-execution.log file contents
