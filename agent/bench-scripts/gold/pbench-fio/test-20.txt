@@ -27,5 +27,4 @@ Collecting system information
 --- pbench.log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00 beg
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00 beg
 --- test-execution.log file contents

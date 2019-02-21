@@ -242,8 +242,4 @@ if [ $lcl_cnt -gt 0 ]; then
 fi
 wait
 
-# collect the metadata for the run
-pbench-metadata-log --group=$group --dir=$dir $name
-status=$?
-
-exit $status
+exit 0
