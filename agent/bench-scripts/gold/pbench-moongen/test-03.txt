@@ -1,5 +1,8 @@
 +++ Running test-03 pbench-moongen
 Total number of benchmark iterations: 4
+Collecting system information
+[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]mpstat does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
+[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]sar does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 Starting iteration[1-throughput-unidirec-64B-1024flows-0pct_drop] (1 of 4)
 test sample 1 of 3
 test sample 2 of 3
@@ -20,6 +23,9 @@ test sample 1 of 3
 test sample 2 of 3
 test sample 3 of 3
 Iteration 4-throughput-unidirec-1024B-1024flows-1pct_drop complete (4 of 4), with 1 pass and 0 failures
+Collecting system information
+[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]mpstat does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
+[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]sar does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 --- Finished test-03 pbench-moongen (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
@@ -86,6 +92,9 @@ Iteration 4-throughput-unidirec-1024B-1024flows-1pct_drop complete (4 of 4), wit
 /var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00/4-throughput-unidirec-1024B-1024flows-1pct_drop/sample3/tools-default
 /var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00/generate-benchmark-summary.cmd
 /var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00/pbench-moongen.cmd
+/var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00/sysinfo
+/var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00/sysinfo/beg
+/var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00/sysinfo/end
 /var/tmp/pbench-test-bench/pbench/pbench.log
 /var/tmp/pbench-test-bench/pbench/samples
 /var/tmp/pbench-test-bench/pbench/tmp
@@ -95,6 +104,9 @@ Iteration 4-throughput-unidirec-1024B-1024flows-1pct_drop complete (4 of 4), wit
 /var/tmp/pbench-test-bench/pbench/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to default
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]mpstat does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]sar does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration[1-throughput-unidirec-64B-1024flows-0pct_drop] (1 of 4)
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 1 of 3 
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 2 of 3 
@@ -119,6 +131,8 @@ Iteration 4-throughput-unidirec-1024B-1024flows-1pct_drop complete (4 of 4), wit
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] test sample 3 of 3 
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] Moving to the next iteration
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Iteration 4-throughput-unidirec-1024B-1024flows-1pct_drop complete (4 of 4), with 1 pass and 0 failures
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]mpstat does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]sar does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 --- pbench.log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-bench/test-execution.log:./build/MoonGen /root/lua-trafficgen/trafficgen.lua
@@ -150,10 +164,9 @@ Iteration 4-throughput-unidirec-1024B-1024flows-1pct_drop complete (4 of 4), wit
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00/2-throughput-unidirec-1024B-1024flows-0pct_drop Mframes_sec 5 0 6 n y
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00/3-throughput-unidirec-64B-1024flows-1pct_drop Mframes_sec 5 0 6 n y
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00/4-throughput-unidirec-1024B-1024flows-1pct_drop Mframes_sec 5 0 6 n y
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00 --sysinfo=default beg
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00 --sysinfo=default end
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00 beg
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00 beg
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00 end
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00 end
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-throughput-unidirec-64B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-throughput-unidirec-64B-1024flows-0pct_drop --dir=/var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00/1-throughput-unidirec-64B-1024flows-0pct_drop/sample2

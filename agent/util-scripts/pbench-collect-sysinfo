@@ -117,7 +117,7 @@ if $check; then
 				if [ "$item" == "all" ] || [ "$item" == "default" ] || [ "$item" == "none" ]; then
 					:  # Ignore these options in a list
 				else
-					echo "$item is not a valid sysinfo option"
+					error_log "invalid sysinfo option, \"$item\""
 					exit 1
 				fi
 			fi

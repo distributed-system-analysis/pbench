@@ -1,5 +1,8 @@
 +++ Running test-24 pbench-user-benchmark
 Running user-benchmark-script no-file
+Collecting system information
+[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]mpstat does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
+[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]sar does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 --- Finished test-24 pbench-user-benchmark (status=0)
 user-benchmark-script no-file 2>&1 | tee /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-24_1900.01.01T00.00.00/1/reference-result/result.txt
 +++ pbench tree state
@@ -10,6 +13,8 @@ user-benchmark-script no-file 2>&1 | tee /var/tmp/pbench-test-bench/pbench/pbenc
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-24_1900.01.01T00.00.00/1/reference-result/result.txt
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-24_1900.01.01T00.00.00/1/reference-result/tools-default
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-24_1900.01.01T00.00.00/metadata.log
+/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-24_1900.01.01T00.00.00/sysinfo
+/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-24_1900.01.01T00.00.00/sysinfo/end
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-24_1900.01.01T00.00.00/user-benchmark-summary-debug.json
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-24_1900.01.01T00.00.00/user-benchmark-summary.json
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-24_1900.01.01T00.00.00/user-benchmark.cmd
@@ -22,12 +27,14 @@ user-benchmark-script no-file 2>&1 | tee /var/tmp/pbench-test-bench/pbench/pbenc
 /var/tmp/pbench-test-bench/pbench/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] [pbench-user-benchmark] Running user-benchmark-script no-file
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]mpstat does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]sar does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-24_1900.01.01T00.00.00 --sysinfo=default end
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-24_1900.01.01T00.00.00 beg
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-24_1900.01.01T00.00.00 end
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-24_1900.01.01T00.00.00 end
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-24_1900.01.01T00.00.00/1/reference-result
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark_test-24_1900.01.01T00.00.00/1/reference-result
