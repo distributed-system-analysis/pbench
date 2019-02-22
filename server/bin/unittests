@@ -152,6 +152,11 @@ function _save_tree {
         _local_find ${_testdir_sat_local} | _normalize_output >> $_testout
         echo "--- pbench-satellite-local tree state" >> $_testout
     fi
+    if [ -d ${_testtmp} ]; then
+        echo "+++ ${_testtmp}" >> $_testout
+        find ${_testtmp} -ls >> $_testout 2>&1
+        echo "--- ${_testtmp}" >> $_testout
+    fi
 }
 
 function _audit_server {
@@ -243,16 +248,16 @@ function _setup_state {
 
     mkdir $_testdir $_testdir_sat $_testtmp
     if [[ $? -gt 0 ]]; then
-	echo "ERROR: failed to create test pbench, pbench-satellite, and tmp directories, \"$_testdir\", \"$_testdir_sat\", and/or \"$_testtmp\"" >&2
-	exit 1
+        echo "ERROR: failed to create test pbench, pbench-satellite, and tmp directories, \"$_testdir\", \"$_testdir_sat\", and/or \"$_testtmp\"" >&2
+        exit 1
     fi
     if [[ ! -d $_testdir ]]; then
         echo "ERROR: test pbench directory does not exist, \"$_testdir\"" >&2
         exit 1
     fi
     if [[ ! -d $_testdir_sat ]]; then
-	echo "ERROR: test pbench-satellite directory does not exist, \"$_testdir_sat\"" >&2
-	exit 1
+        echo "ERROR: test pbench-satellite directory does not exist, \"$_testdir_sat\"" >&2
+        exit 1
     fi
     if [[ ! -d $_testtmp ]]; then
         echo "ERROR: test tmp directory does not exist, \"$_testtmp\"" >&2
@@ -288,6 +293,7 @@ function _setup_state {
     echo "$_testopt/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg" >> $_testactout
     $_testopt/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg >> $_testactout
     rc=$?
+    rm ${_testtmp}/pbench-server.cfg
     if [ $rc == 0 ] ;then
         # This script uses the copied config file to do the rest.
         echo "$_testopt/bin/pbench-server-activate ${CONFIG}" >> $_testactout
@@ -313,6 +319,7 @@ function _setup_state {
     echo "$_testopt_sat/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg" >> $_testactout
     $_testopt_sat/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg >> $_testactout
     rc=$?
+    rm ${_testtmp}/pbench-server.cfg
     if [ $rc == 0 ] ;then
         # This script uses the copied config file to do the rest.
         echo "$_testopt_sat/bin/pbench-server-activate ${SATCONFIG}" >> $_testactout
@@ -398,7 +405,10 @@ function _run_test {
     _setup_state ${testname}
     # echo ${testname}: ${cmd}
     ${cmd} $*
-    _audit_server; _save_tree; _dump_logs
+    _audit_server
+    rmdir ${_testtmp} > /dev/null 2>&1
+    _save_tree
+    _dump_logs
     _verify_output $res ${testname}
     res=$?
     _reset_state ${testname}
