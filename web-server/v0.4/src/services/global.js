@@ -23,7 +23,7 @@ export async function queryDatastoreConfig() {
       break
     case 'production':
       // Note that window.location.pathname should already have a trailing slash.
-      configEndpoint = window.location.pathname + 'config.json'
+      configEndpoint = '/dashboard/config.json'
       break
   }
 
