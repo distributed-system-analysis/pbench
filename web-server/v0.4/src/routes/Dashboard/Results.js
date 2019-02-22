@@ -1,8 +1,9 @@
 import { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Tag, Card, Table, Input, Button } from 'antd';
+import { Tag, Card, Table, Input, Button, Icon, Form } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+const FormItem = Form.Item;
 
 @connect(({ global, dashboard, loading }) => ({
   selectedIndices: global.selectedIndices,
@@ -16,13 +17,12 @@ export default class Results extends Component {
     super(props);
 
     this.state = {
-      resultSearch: [],
+      results: [],
       selectedRowKeys: [],
       selectedRowNames: [],
       loading: false,
       loadingButton: false,
-      searchText: '',
-      filtered: false,
+      searchText: ''
     };
   }
 
@@ -37,6 +37,15 @@ export default class Results extends Component {
         controller: selectedController,
       },
     });
+  }
+
+  componentDidUpdate(prevProps) {
+    const { results } = this.props;
+    const prevResults = prevProps.results;
+
+    if (results !== prevResults) {
+      this.setState({ results });
+    }
   }
 
   openNotificationWithIcon = type => {
@@ -80,18 +89,17 @@ export default class Results extends Component {
     const { searchText } = this.state;
     const { results } = this.props;
     const reg = new RegExp(searchText, 'gi');
-    var resultSearch = results.slice();
+    const resultsSearch = results.slice();
     this.setState({
-      filtered: !!searchText,
-      resultSearch: resultSearch
+      results: resultsSearch
         .map((record, i) => {
-          const match = record.result.match(reg);
+          const match = record['run.name'].match(reg);
           if (!match) {
             return null;
           }
           return {
             ...record,
-            result: (
+            'run.name': (
               <span key={i}>
                 {record['run.name'].split(reg).map(
                   (text, i) =>
@@ -137,15 +145,22 @@ export default class Results extends Component {
     );
   };
 
+  emitEmpty = () => {
+    this.searchInput.focus();
+    this.setState({ results: this.props.results });
+    this.setState({ searchText: '' });
+  };
+
   render() {
-    const { resultSearch, loadingButton, selectedRowKeys } = this.state;
-    const { selectedController, results, loading } = this.props;
+    const { results, loadingButton, selectedRowKeys, searchText } = this.state;
+    const { selectedController, loading } = this.props;
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
       hideDefaultSelections: true,
       fixed: true,
     };
+    const suffix = searchText ? <Icon type="close-circle" onClick={this.emitEmpty} /> : null;
     const hasSelected = selectedRowKeys.length > 0;
     for (var result in results) {
       results[result]['key'] = result;
@@ -179,17 +194,25 @@ export default class Results extends Component {
     return (
       <PageHeaderLayout title={selectedController}>
         <Card bordered={false}>
-          <Input
-            style={{ width: 300, marginRight: 8, marginTop: 16 }}
-            ref={ele => (this.searchInput = ele)}
-            placeholder="Search Results"
-            value={this.state.searchText}
-            onChange={this.onInputChange}
-            onPressEnter={this.onSearch}
-          />
-          <Button type="primary" onClick={this.onSearch}>
-            {'Search'}
-          </Button>
+          <Form layout={'inline'} style={{ display: 'flex', flex: 1, alignItems: 'center' }}>
+            <FormItem>
+              <Input
+                style={{ width: 300, }}
+                ref={ele => (this.searchInput = ele)}
+                prefix={<Icon type="search" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                suffix={suffix}
+                placeholder="Search results"
+                value={this.state.searchText}
+                onChange={this.onInputChange}
+                onPressEnter={this.onSearch}
+              />
+            </FormItem>
+            <FormItem>
+              <Button type="primary" onClick={this.onSearch}>
+                {'Search'}
+              </Button>
+            </FormItem>
+          </Form>
           {selectedRowKeys.length > 0 ? (
             <Card
               style={{ marginTop: 16 }}
@@ -220,7 +243,7 @@ export default class Results extends Component {
             style={{ marginTop: 20 }}
             rowSelection={rowSelection}
             columns={columns}
-            dataSource={resultSearch.length > 0 ? resultSearch : results}
+            dataSource={results}
             onRowClick={this.retrieveResults.bind(this)}
             loading={loading}
             pagination={{ pageSize: 20 }}

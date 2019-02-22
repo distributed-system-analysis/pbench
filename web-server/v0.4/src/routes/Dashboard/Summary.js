@@ -20,7 +20,7 @@ const tabList = [
   },
   {
     key: 'toc',
-    tab: 'Table of Content',
+    tab: 'Table of Contents',
   },
 ];
 

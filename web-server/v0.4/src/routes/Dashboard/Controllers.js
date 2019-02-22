@@ -20,15 +20,23 @@ export default class Controllers extends Component {
     super(props);
 
     this.state = {
-      controllerSearch: [],
+      controllers: [],
       selectedIndicesUpdated: false,
-      searchText: '',
-      filtered: false,
+      searchText: ''
     };
   }
 
   componentDidMount() {
     this.queryDatastoreConfig();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { controllers } = this.props;
+    const prevControllers = prevProps.controllers;
+
+    if (controllers !== prevControllers) {
+      this.setState({ controllers });
+    }
   }
 
   queryDatastoreConfig = () => {
@@ -94,13 +102,12 @@ export default class Controllers extends Component {
   };
 
   onSearch = () => {
-    const { controllers } = this.props;
     const { searchText } = this.state;
+    const { controllers } = this.props;
     const reg = new RegExp(searchText, 'gi');
-    var controllerSearch = controllers.slice();
+    const controllersSearch = controllers.slice();
     this.setState({
-      filtered: !!searchText,
-      controllerSearch: controllerSearch
+      controllers: controllersSearch
         .map((record, i) => {
           const match = record.controller.match(reg);
           if (!match) {
@@ -146,14 +153,13 @@ export default class Controllers extends Component {
 
   emitEmpty = () => {
     this.searchInput.focus();
-    this.setState({ controllerSearch: '' });
+    this.setState({ controllers: this.props.controllers });
     this.setState({ searchText: '' });
   };
 
   render() {
-    const { controllerSearch, searchText, selectedIndicesUpdated } = this.state;
+    const { controllers, searchText, selectedIndicesUpdated } = this.state;
     const {
-      controllers,
       loadingControllers,
       loadingConfig,
       loadingIndices,
@@ -190,7 +196,7 @@ export default class Controllers extends Component {
               <Input
                 style={{ width: 300 }}
                 ref={ele => (this.searchInput = ele)}
-                prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                prefix={<Icon type="search" style={{ color: 'rgba(0,0,0,.25)' }} />}
                 suffix={suffix}
                 placeholder="Search controllers"
                 value={this.state.searchText}
@@ -199,12 +205,12 @@ export default class Controllers extends Component {
               />
             </FormItem>
             <FormItem>
-              <Button type="primary" onClick={() => this.onSearch}>
+              <Button type="primary" onClick={this.onSearch}>
                 {'Search'}
               </Button>
             </FormItem>
             <FormItem
-              label="Selected Indices"
+              label="Selected Months"
               colon={false}
               style={{ marginLeft: 16, fontWeight: '500' }}
             >
@@ -240,7 +246,7 @@ export default class Controllers extends Component {
           <Table
             style={{ marginTop: 20 }}
             columns={columns}
-            dataSource={controllerSearch.length > 0 ? controllerSearch : controllers}
+            dataSource={controllers}
             defaultPageSize={20}
             onRowClick={this.retrieveResults.bind(this)}
             loading={loadingControllers || loadingConfig || loadingIndices}
