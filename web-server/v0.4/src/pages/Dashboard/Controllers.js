@@ -114,7 +114,7 @@ export default class Controllers extends Component {
     this.setState({
       controllers: controllersSearch
         .map((record, i) => {
-          const match = record.controller.match(reg);
+          const match = record['run.controller'].match(reg);
           if (!match) {
             return null;
           }
@@ -122,7 +122,7 @@ export default class Controllers extends Component {
             ...record,
             controller: (
               <span key={i}>
-                {record.controller.split(reg).map(
+                {record['run.controller'].split(reg).map(
                   (text, i) =>
                     i > 0
                       ? [
@@ -179,7 +179,7 @@ export default class Controllers extends Component {
         title: 'Controller',
         dataIndex: 'controller',
         key: 'controller',
-        sorter: (a, b) => compareByAlph(a.controller, b.controller),
+        sorter: (a, b) => compareByAlph(a['run.controller'], b['run.controller']),
       },
       {
         title: 'Last Modified',

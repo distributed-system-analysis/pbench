@@ -224,30 +224,28 @@ export default class RunComparison extends ReactJS.Component {
         for (var iteration in clusteredIterations[primaryMetric][cluster]) {
           iterationRequests.push(
             axios.get(
-              datastoreConfig.results +
-                '/incoming/' +
-                encodeURIComponent(
-                  clusteredIterations[primaryMetric][cluster][iteration].controller_name
-                ) +
-                '/' +
-                encodeURIComponent(
-                  clusteredIterations[primaryMetric][cluster][iteration].result_name
-                ) +
-                '/' +
-                encodeURIComponent(
-                  clusteredIterations[primaryMetric][cluster][iteration].iteration_number
-                ) +
-                '-' +
-                encodeURIComponent(
-                  clusteredIterations[primaryMetric][cluster][iteration].iteration_name
-                ) +
-                '/' +
-                'sample' +
-                encodeURIComponent(
-                  clusteredIterations[primaryMetric][cluster][iteration].closest_sample
-                ) +
-                '/' +
-                'result.json'
+              datastoreConfig.results
+                + '/incoming/'
+                + encodeURIComponent(
+                    clusteredIterations[primaryMetric][cluster][iteration].controller_name
+                  )
+                + '/'
+                + encodeURIComponent(
+                    clusteredIterations[primaryMetric][cluster][iteration].result_name
+                  )
+                + '/'
+                + encodeURIComponent(
+                    clusteredIterations[primaryMetric][cluster][iteration].iteration_number
+                  )
+                + '-'
+                + encodeURIComponent(
+                    clusteredIterations[primaryMetric][cluster][iteration].iteration_name
+                  )
+                + '/sample'
+                + encodeURIComponent(
+                    clusteredIterations[primaryMetric][cluster][iteration].closest_sample
+                  )
+                + '/result.json'
             )
           );
         }

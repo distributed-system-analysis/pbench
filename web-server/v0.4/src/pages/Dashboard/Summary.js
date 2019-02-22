@@ -117,6 +117,13 @@ class Summary extends ReactJS.Component {
       },
     });
 
+    if (selectedResults[0]['run.controller'] != selectedController) {
+      throw new Error(
+        "Logic bomb! selected results controller, "
+          + selectedResults[0]['run.controller']
+          + " != selected controller "
+          + selectedController);
+    }
     queryIterations({ selectedResults: selectedResults, datastoreConfig: datastoreConfig })
       .then(res => {
         let parsedIterationData = parseIterationData(res);
@@ -420,6 +427,7 @@ class Summary extends ReactJS.Component {
           </Select>
           {Object.keys(configData).map((category, i) => (
             <Select
+              key={i}
               allowClear={true}
               placeholder={category}
               style={{ marginLeft: 8, width: 160 }}
