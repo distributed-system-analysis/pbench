@@ -8,7 +8,7 @@
 from __future__ import print_function
 
 import sys, os, time, re, stat, copy
-import hashlib, json, glob, csv, tarfile, logging
+import hashlib, json, glob, csv, tarfile, shutil
 
 from urllib3 import Timeout
 from datetime import datetime, timedelta
@@ -2106,11 +2106,11 @@ class PbenchTarBall(object):
             raise UnsupportedTarballFormat(
                 "{} - tarball is missing \"{}\".".format(self.tbname, member_name))
 
-        # The caller of index-pbench is expected to clean up the temporary
-        # directory.
+        # We are expected to clean up the extracted tar ball before we exit.
         self.tb.extractall(path=tmpdir)
         self.extracted_root = tmpdir
         if not os.path.isdir(os.path.join(self.extracted_root, self.dirname)):
+            self.delete_extracted()
             raise UnsupportedTarballFormat(
                 "{} - extracted tarball but can't get to the directory \"{}\".".format(
                     self.tbname,
@@ -2119,12 +2119,14 @@ class PbenchTarBall(object):
             self.mdconf = PbenchTarBall.get_mdconfig(
                     os.path.join(self.extracted_root, member_name))
         except Exception:
+            self.delete_extracted()
             raise BadMDLogFormat(self.tbname)
         # We get the start date out of the metadata log.
         try:
             # N.B. the start_run timestamp is in UTC.
             self.start_run, self.start_run_ts, self.end_run, self.end_run_ts, self.date, self.date_ts = self.gen_run_timestamp_info()
         except Exception:
+            self.delete_extracted()
             raise BadDate(self.tbname)
         # Open the MD5 file of the tarball and read the MD5 sum from it.
         self.md5sum = open("%s.md5" % (self.tbname)).read().split()[0]
@@ -2190,6 +2192,16 @@ class PbenchTarBall(object):
         date_ts -= timedelta(0, int(res*60*60), 0)
         date = date_ts.isoformat()
         return start_run, start_run_ts, end_run, end_run_ts, date, date_ts
+
+    def delete_extracted(self):
+        directory = os.path.join(self.extracted_root, self.dirname)
+        if not os.path.exists(directory):
+            return
+        def remove_readonly(func, path, _):
+            "Clear the readonly bit and reattempt the removal"
+            os.chmod(path, stat.S_IWRITE)
+            func(path)
+        shutil.rmtree(directory, onerror=remove_readonly)
 
     @staticmethod
     def get_mdconfig(mdf):
@@ -2271,6 +2283,7 @@ def main(options, args):
     # python 3.2
     filenotfounderror = getattr(__builtins__, 'FileNotFoundError', IOError)
     opctx = []
+    ptb = None
 
     try:
         config=ConfigParser()
@@ -2393,6 +2406,8 @@ def main(options, args):
             print("** Errors encountered while indexing:\n{}\n".format(
                     json.dumps(opctx, indent=4, sort_keys=True)), file=sys.stderr)
         if options.debug_time_operations: _ts("Done", newline=True)
+        if ptb:
+            ptb.delete_extracted()
 
     # status codes: these are used by pbench-index to segregate tarballs into
     #               classes: should we retry (perhaps after fixing bugs in the

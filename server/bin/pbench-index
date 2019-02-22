@@ -70,33 +70,32 @@ linksrc=TO-INDEX
 linkdest=INDEXED
 linkerrdest=WONT-INDEX
 
-# get the list of files we'll be operating on
-#list=$(ls $ARCHIVE/*/$linksrc/*.tar.xz 2>/dev/null)
-# Better: avoids long command line problems and sorts by size
-TMPDIR=$TMP/pbench-index.$$
-# index-pbench need to get at it
+WRKDIR=$TMP/pbench-index.$$
+# index-pbench uses TMPDIR as the location to extract tar balls; give it a
+# dedicated sub-directory to work with as its temporary directory.
+TMPDIR=$WRKDIR/extractions
 export TMPDIR
 
 echo "$TS: starting at $(timestamp)"
 
 typeset -i nidx=0
-indexed=$TMPDIR/$PROG.$TS.indexed
+indexed=$WRKDIR/$PROG.$TS.indexed
 typeset -i nerrs=0
-erred=$TMPDIR/$PROG.$TS.erred
+erred=$WRKDIR/$PROG.$TS.erred
 typeset -i nskip=0
-skipped=$TMPDIR/$PROG.$TS.skipped
-report_body=$TMPDIR/$PROG.$TS.report
-errors_json=$TMPDIR/$PROJ.$TS.indexing-errors.json
+skipped=$WRKDIR/$PROG.$TS.skipped
+report_body=$WRKDIR/$PROG.$TS.report
+errors_json=$WRKDIR/$PROJ.$TS.indexing-errors.json
 
-mkdir -p $TMPDIR
-trap "rm -rf $TMPDIR" EXIT QUIT INT
+mkdir -p $WRKDIR
+trap "rm -rf $WRKDIR" EXIT QUIT INT
 
 > $indexed
 > $erred
 > $skipped
 > $errors_json
 
-list=$TMPDIR/list
+list=$WRKDIR/list
 find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | sort -n > $list
 
 while read size result ;do
@@ -117,12 +116,16 @@ while read size result ;do
     # make sure that all the relevant state directories exist
     mk_dirs $hostname
 
-    # index-pbench depends on a whole hierarchy - this script and
-    # index-pbench are in /opt/pbench-server/bin when deployed, but it
-    # depends on /opt/pbench-server/lib/config/pbench-server.cfg,
-    # /opt/pbench-server/lib/vos etc.  Also, index-pbench requires
-    # python3: that's available on Fedora but, for RHEL, we need
-    # software collections.
+    # Ensure we can create the TMPDIR used for extracted tar balls each time
+    # we call index-pbench to help ensure everything operates cleanly and we
+    # only have one tar ball extracted at a time.
+    mkdir $TMPDIR || doexit "Bad $TMPDIR"
+
+    # index-pbench depends on a whole hierarchy - this script and index-pbench
+    # are in /opt/pbench-server/bin when deployed, but it depends on
+    # /opt/pbench-server/lib/config/pbench-server.cfg,
+    # /opt/pbench-server/lib/vos etc.  Also, index-pbench requires python3:
+    # that's available on Fedora but, for RHEL, we need software collections.
     PROGLOC=$(getconf.py install-dir pbench-server)
     if which python3 > /dev/null 2>&1 ;then
         # we have a python3 here
@@ -147,6 +150,9 @@ while read size result ;do
         rm -f $errors_json.report
         > $errors_json
     fi
+
+    # Exit if index-pbench fails to clean up properly.
+    rmdir $TMPDIR || doexit "Non-empty $TMPDIR"
 
     if [ $status -ne 0 ] ;then
         # Distinguish failure cases, so we can retry the indexing easily if possible.
