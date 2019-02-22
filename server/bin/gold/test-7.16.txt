@@ -78,7 +78,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--     212309 logs/pbench-index/pbench-index.log
+-rw-rw-r--     212279 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -211,8 +211,7 @@ len(actions) = 87
                 "start_run": "2018-10-04T06:53:52.212763",
                 "tarball-dirname": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43",
                 "tarball-toc-prefix": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43"
-            },
-            "sosreports": []
+            }
         },
         "_type": "pbench-run"
     },

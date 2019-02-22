@@ -1843,7 +1843,7 @@ def hostnames_if_ip_from_sosreport(sos):
     """Return a dict with hostname info (both short and fqdn) and
     ip addresses of all the network interfaces we find at sosreport time."""
 
-    sostb = tarfile.open(fileobj=sos)
+    sostb = tarfile.open(sos)
     hostname_files = [x for x in sostb.getnames() if x.find('sos_commands/general/hostname') >= 0]
 
     # Fetch the hostname -f and hostname file contents
@@ -1929,21 +1929,28 @@ def hostnames_if_ip_from_sosreport(sos):
             d.update(if_ip_from_sosreport(sostb.extractfile(ip_files[0])))
     return d
 
-def mk_sosreports(tb):
-    sosreports = [ x for x in tb.getnames() if x.find("sosreport") >= 0 ]
+def mk_sosreports(tb, extracted_root):
+    sosreports = [ x for x in tb.getnames() if x.find("sosreport") >= 0 and x.endswith('.md5') ]
     sosreports.sort()
 
     sosreportlist = []
     for x in sosreports:
-        if x.endswith('.md5'):
-            # x is the *sosreport*.tar.xz.md5 filename
-            d = _dict_const()
-            sos = x[:x.rfind('.md5')]
-            d['name'] = sos
-            d['md5'] = tb.extractfile(x).read().decode('ascii')[:-1]
-            # get hostname (short and FQDN) from sosreport
-            d.update(hostnames_if_ip_from_sosreport(tb.extractfile(sos)))
-            sosreportlist.append(d)
+        # x is the *sosreport*.tar.xz.md5 filename
+        sos = x[:x.rfind('.md5')]
+        md5f = os.path.join(extracted_root, x)
+        try:
+            with open(md5f, "r") as fp:
+                md5_val = fp.read()[:-1]
+        except Exception as e:
+            print("Failed to fetch .md5 of sosreport {}: {}".format(sos, e))
+            continue
+        host_md = hostnames_if_ip_from_sosreport(os.path.join(extracted_root, sos))
+        # get hostname (short and FQDN) from sosreport
+        d = _dict_const()
+        d['name'] = sos
+        d['md5'] = md5_val
+        d.update(host_md)
+        sosreportlist.append(d)
 
     return sosreportlist
 
@@ -2025,7 +2032,9 @@ def mk_run_action(ptb, options, idx_prefix, idx_patterns, opctx):
     if debug_time_operations: _ts("mk_run_metadata")
     source['run'] = mk_run_metadata(ptb)
     if debug_time_operations: _ts("mk_sosreports")
-    source['sosreports'] = sos_d = mk_sosreports(ptb.tb)
+    sos_d = mk_sosreports(ptb.tb, ptb.extracted_root)
+    if sos_d:
+        source['sosreports'] = sos_d
     if debug_time_operations: _ts("mk_tool_info")
     source['host_tools_info'] = mk_tool_info(sos_d, ptb.mdconf)
 
