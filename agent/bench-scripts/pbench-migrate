@@ -343,14 +343,16 @@ loops=$round_trips
 if [ $loops -eq 0 ]; then
 	loops=1
 fi
-count=1
+
 export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
+
+count=1
 for i in `seq 1 $loops`; do
 	iteration="$count-from-$src_host-to-$dest_host"
 	echo $iteration >> $benchmark_iterations
-	benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
+	benchmark_results_dir="$benchmark_run_dir/$iteration/sample1"
 	if [ "$postprocess" != "only" ]; then
 		mkdir -p $benchmark_results_dir
 		do_migrate $src_host $dest_host $dest_ipaddr
@@ -366,7 +368,7 @@ for i in `seq 1 $loops`; do
 		# this will complete the round-trip migration
 		# this time the src and dest hosts are swapped for the do_migrate command
 		iteration="$count-from-$dest_host-to-$src_host"
-		benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
+		benchmark_results_dir="$benchmark_run_dir/$iteration/sample1"
 		if [ "$postprocess" != "only" ]; then
 			mkdir -p $benchmark_results_dir
 			do_migrate $dest_host $src_host $src_ipaddr
@@ -384,10 +386,13 @@ done
 # after all the migrations are done, postprocess the data
 echo sleeping for $seconds_before_postprocess seconds before postprocessing tools
 sleep $seconds_before_postprocess
+
 for postprocess_dir in $postprocess_dirs; do
 	pbench-postprocess-tools --group=$tool_group --dir=$postprocess_dir &
+	ln -s sample1 $(dirname $postprocess_dir)/reference-result
 done
 wait
+
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 

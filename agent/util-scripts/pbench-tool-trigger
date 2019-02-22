@@ -17,7 +17,7 @@
 # trigger are easily managed.
 #
 # The tools are given a unique results directory for each iteration by using
-# the pattern "$benchmark_run_dir/$iteration/reference-result".
+# the pattern "$benchmark_run_dir/$iteration/sample1".
 
 my $script="pbench-tool-trigger";
 
