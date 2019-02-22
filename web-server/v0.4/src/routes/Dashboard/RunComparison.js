@@ -542,11 +542,11 @@ export default class RunComparison extends ReactJS.Component {
               <Form.Item
                 colon={false}
                 label="File Name"
-                extra="(Optional) Selected results will be used if left blank."
+                extra="We render a timestamp instead of the selected results here"
               >
                 <Input addonAfter={'.pdf'} id="pdfName" />
               </Form.Item>
-              <Form.Item colon={false} label="Description">
+              <Form.Item colon={false} label="Description" extra="(Optional)">
                 <Input id="pdfHeader" />
               </Form.Item>
             </Form>
