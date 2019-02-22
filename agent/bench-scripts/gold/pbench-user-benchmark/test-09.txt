@@ -12,8 +12,9 @@ Collecting system information
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/reference-result
-/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/reference-result/result.txt
-/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/reference-result/tools-default
+/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/sample1
+/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/sample1/result.txt
+/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/sample1/tools-default
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/metadata.log
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/sysinfo
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/sysinfo/end
@@ -37,7 +38,7 @@ Collecting system information
 +++ test-execution.log file contents
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00 beg
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00 end
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/reference-result
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/reference-result
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/reference-result
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/sample1
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/1/sample1
 --- test-execution.log file contents
