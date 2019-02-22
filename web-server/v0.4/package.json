@@ -24,7 +24,7 @@
     "@babel/polyfill": "^7.0.0-beta.36",
     "@nivo/bar": "^0.36.0",
     "ant-design-pro": "^2.1.1",
-    "antd": "3.7.3",
+    "antd": "^3.13.5",
     "axios": "^0.18.0",
     "classnames": "^2.2.5",
     "dva": "^2.2.3",
