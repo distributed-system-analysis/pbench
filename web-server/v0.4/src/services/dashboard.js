@@ -123,22 +123,11 @@ export async function queryIterations(params) {
   let iterationRequests = [];
   if (typeof params.selectedResults != undefined) {
     selectedResults.map(result => {
-      if (result.controller.includes('.')) {
-        axios.get(
-          datastoreConfig.results +
-          '/results/' +
-          encodeURI(result.controller.slice(0, result.controller.indexOf('.'))) +
-          (result['run.prefix'] != null ? '/' + result['run.prefix'] : '') +
-          '/' +
-          encodeURI(result['run.name']) +
-          '/result.json'
-        );
-      }
       iterationRequests.push(
         axios.get(
           datastoreConfig.results +
           '/results/' +
-          encodeURI(result.controller.slice(0, result.controller.indexOf('.'))) +
+          (result.controller.includes('.') ? encodeURI(result.controller.slice(0, result.controller.indexOf('.'))) : encodeURI(result.controller)) +
           (result['run.prefix'] != null ? '/' + result['run.prefix'] : '') +
           '/' +
           encodeURI(result['run.name']) +
