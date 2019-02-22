@@ -62,7 +62,6 @@ export default class Results extends Component {
     var selectedResults = [];
     for (var item in selectedRowKeys) {
       var result = results[selectedRowKeys[item]];
-      result['controller'] = selectedController;
       selectedResults.push(results[selectedRowKeys[item]]);
     }
     this.compareResults(selectedResults);

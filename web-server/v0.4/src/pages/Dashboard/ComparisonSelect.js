@@ -54,6 +54,7 @@ class ComparisonSelect extends ReactJS.Component {
       })
       .catch(err => {
         this.openNetworkErrorNotification('error');
+        this.setState({ loading: false });
       });
   }
 

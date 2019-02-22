@@ -96,9 +96,9 @@ export default {
         results.push({
           key: name,
           startUnixTimestamp: Date.parse(start),
-          controller: controller,
           ['run.name']: name,
           ['run.config']: config,
+          ['run.controller']: controller,
           ['run.prefix']: prefix,
           ['run.start']: start,
           ['run.end']: end,

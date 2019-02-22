@@ -125,55 +125,57 @@ export async function queryTocResult(params) {
 export async function queryIterations(params) {
   const { datastoreConfig, selectedResults } = params;
 
+  if (params.selectedResults === undefined) {
+    console.log('queryIterations called without params.selectedResults defined.');
+    return;
+  }
+
   let iterationRequests = [];
-  if (typeof params.selectedResults != undefined) {
-    selectedResults.map(result => {
-      let controller = result.controller;
-      iterationRequests.push(
-        axios.get(
-          datastoreConfig.results
-            + '/incoming/'
-            + (controller.includes('.')
-               ? encodeURI(controller.slice(0, controller.indexOf('.')))
-               : encodeURI(controller))
-            + '/'
-            + encodeURI(result['run.name'])
-            + '/result.json'
-        )
-      );
-    });
+  selectedResults.map(result => {
+    const controller = result['run.controller'];
+    iterationRequests.push(
+      axios.get(
+        datastoreConfig.results
+          + '/incoming/'
+          + (controller.includes('.')
+             ? encodeURI(controller.slice(0, controller.indexOf('.')))
+             : encodeURI(controller))
+          + '/'
+          + encodeURI(result['run.name'])
+          + '/result.json'
+      )
+    );
+  });
 
-    return Promise.all(iterationRequests)
-      .then(response => {
-        let iterations = [];
-        response.map((iteration, index) => {
-          iterations.push({
-            iterationData: iteration.data,
-            controllerName: iteration.config.url.split('/')[4],
-            resultName: iteration.config.url.split('/')[5],
-            tableId: index,
-          });
+  return Promise.all(iterationRequests)
+    .then(response => {
+      let iterations = [];
+      response.map((iteration, index) => {
+        iterations.push({
+          iterationData: iteration.data,
+          controllerName: iteration.config.url.split('/')[4],
+          resultName: iteration.config.url.split('/')[5],
+          tableId: index,
         });
-
-        return iterations;
       })
-      .catch(error => {
-        if ((error.response !== undefined) && (error.response.status !== undefined)) {
-          if (error.response.status == 404) {
-            console.log('(404) Not Found (queryIterations): ' + error.request.responseURL);
-            return [];
-          }
-          else {
-            console.log(
-              '(' + error.response.status + ') queryIterations: GET ' + error.request.responseURL + ' -- ' + error
-            );
-            throw error;
-          }
+      return iterations;
+    })
+    .catch(error => {
+      if ((error.response !== undefined) && (error.response.status !== undefined)) {
+        if (error.response.status == 404) {
+          console.log('(404) Not Found (queryIterations): ' + error.request.responseURL);
+          return [];
         }
         else {
-          console.log("queryIterations: " + error);
+          console.log(
+            '(' + error.response.status + ') queryIterations: GET ' + error.request.responseURL + ' -- ' + error
+          );
           throw error;
         }
-      });
-  }
+      }
+      else {
+        console.log("queryIterations: " + error);
+        throw error;
+      }
+    });
 }
