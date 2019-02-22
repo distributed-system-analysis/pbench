@@ -35,8 +35,8 @@ my $stop_t = "";
 my $pbrun = $ENV{'pbench_run'};
 print "$pbrun\n";
 if (!$pbrun) {
-        $pbrun = `getconf.py pbench_run pbench-agent`;
-        chop $pbrun;
+	$pbrun = `getconf.py pbench_run pbench-agent`;
+	chop $pbrun;
 }
 
 my $t_file =  $pbrun . "/tool-triggers";
@@ -62,7 +62,7 @@ while (<TRIG>) {
 close(TRIG);
 
 # Initial reference result directory for tools
-my $benchmark_results_dir = $benchmark_run_dir . '/' . $iteration . '/reference-result';
+my $benchmark_results_dir = $benchmark_run_dir . '/' . $iteration . '/sample1';
 
 while (<STDIN>) {
 	# Echo the line we read
@@ -77,7 +77,7 @@ while (<STDIN>) {
 		# Increment the iteration and adjust the benchmark results
 		# directory now that this iteration is done.
 		$iteration++;
-		$benchmark_results_dir = $benchmark_run_dir . '/' . $iteration . '/reference-result';
+		$benchmark_results_dir = $benchmark_run_dir . '/' . $iteration . '/sample1';
 	}
 	if ((/$start_t/) && !$started) {
 		$cmd="pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir\n";

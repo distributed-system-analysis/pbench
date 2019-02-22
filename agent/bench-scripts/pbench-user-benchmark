@@ -133,7 +133,7 @@ mdlog=${benchmark_run_dir}/metadata.log
 
 # make the run dir available to the user script
 export benchmark_run_dir
-benchmark_results_dir="$benchmark_run_dir/$iteration/reference-result"
+benchmark_results_dir="$benchmark_run_dir/$iteration/sample1"
 mkdir -p $benchmark_results_dir/.running
 export benchmark_results_dir=$benchmark_results_dir
 
@@ -174,7 +174,7 @@ fi
 benchmark_run_cmd="${benchmark_run_dir}/user-benchmark.cmd"
 if [ $use_tool_triggers -eq 0 ]; then
 	# We are not using tool triggers, so we'll only have one iteration,
-	# "1/reference-result/", so for compatibility we'll place the results
+	# "1/sample1/", so for compatibility we'll place the results
 	# output file there.
 	_final_results_dir="${benchmark_results_dir}"
 else
@@ -208,11 +208,13 @@ fi
 if [ $use_tool_triggers -eq 0 ]; then
 	pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+	ln -s $(basename ${benchmark_results_dir}) $(dirname ${benchmark_results_dir})/reference-result
 else
-	result_dirs=$(ls -1d ${benchmark_run_dir}/*/reference-result)
+	result_dirs=$(ls -1d ${benchmark_run_dir}/*/sample1)
 	for rdir in $result_dirs; do
 		iteration_dir=$(basename $(dirname ${rdir}))
 		pbench-postprocess-tools --group=${tool_group} --iteration=${iteration_dir} --dir=${rdir}
+		ln -s $(basename ${rdir}) $(dirname ${rdir})/reference-result
 	done
 fi
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
