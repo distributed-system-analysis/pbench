@@ -7,7 +7,7 @@ import sys, os, time, json, errno, logging, math, configtools
 from datetime import datetime
 from random import SystemRandom
 from collections import Counter, deque
-from configparser import ConfigParser
+from configparser import ConfigParser, NoSectionError, NoOptionError
 from urllib3 import exceptions as ul_excs
 try:
     from elasticsearch1 import VERSION as es_VERSION, helpers, exceptions as es_excs
@@ -185,24 +185,30 @@ class PbenchConfig(object):
         self.files = self.conf.read(config_files)
 
         # Now fetch some default common pbench settings that are required.
-        self.TOP = self.conf.get("pbench-server", "pbench-top-dir")
-        if not os.path.isdir(self.TOP): raise BadConfig("Bad TOP={}".format(self.TOP))
-        self.TMP = self.conf.get("pbench-server", "pbench-tmp-dir")
-        if not os.path.isdir(self.TMP): raise BadConfig("Bad TMP={}".format(self.TMP))
-        self.LOGSDIR = self.conf.get("pbench-server", "pbench-logs-dir")
-        if not os.path.isdir(self.LOGSDIR): raise BadConfig("Bad LOGSDIR={}".format(self.LOGSDIR))
-        self.BINDIR = self.conf.get("pbench-server", "script-dir")
-        if not os.path.isdir(self.BINDIR): raise BadConfig("Bad BINDIR={}".format(self.BINDIR))
-        self.LIBDIR = self.conf.get("pbench-server", "lib-dir")
-        if not os.path.isdir(self.LIBDIR): raise BadConfig("Bad LIBDIR={}".format(self.LIBDIR))
+        try:
+            self.TOP = self.conf.get("pbench-server", "pbench-top-dir")
+            if not os.path.isdir(self.TOP): raise BadConfig("Bad TOP={}".format(self.TOP))
+            self.TMP = self.conf.get("pbench-server", "pbench-tmp-dir")
+            if not os.path.isdir(self.TMP): raise BadConfig("Bad TMP={}".format(self.TMP))
+            self.LOGSDIR = self.conf.get("pbench-server", "pbench-logs-dir")
+            if not os.path.isdir(self.LOGSDIR): raise BadConfig("Bad LOGSDIR={}".format(self.LOGSDIR))
+            self.BINDIR = self.conf.get("pbench-server", "script-dir")
+            if not os.path.isdir(self.BINDIR): raise BadConfig("Bad BINDIR={}".format(self.BINDIR))
+            self.LIBDIR = self.conf.get("pbench-server", "lib-dir")
+            if not os.path.isdir(self.LIBDIR): raise BadConfig("Bad LIBDIR={}".format(self.LIBDIR))
 
-        self.ARCHIVE = self.conf.get("pbench-server", "pbench-archive-dir")
-        self.INCOMING = self.conf.get("pbench-server", "pbench-incoming-dir")
-        # this is where the symlink forest is going to go
-        self.RESULTS = self.conf.get("pbench-server", "pbench-results-dir")
-        self.USERS = self.conf.get("pbench-server", "pbench-users-dir")
-        self.PBENCH_ENV = self.conf.get("pbench-server", "environment")
-        self.mail_recipients = self.conf.get("pbench-server", "mailto")
+            self.ARCHIVE = self.conf.get("pbench-server", "pbench-archive-dir")
+            self.INCOMING = self.conf.get("pbench-server", "pbench-incoming-dir")
+            # this is where the symlink forest is going to go
+            self.RESULTS = self.conf.get("pbench-server", "pbench-results-dir")
+            self.USERS = self.conf.get("pbench-server", "pbench-users-dir")
+            self.mail_recipients = self.conf.get("pbench-server", "mailto")
+        except (NoOptionError, NoSectionError) as exc:
+            raise BadConfig(str(exc))
+        try:
+            self.PBENCH_ENV = self.conf.get("pbench-server", "environment")
+        except NoOptionError:
+            self.PBENCH_ENV = ""
 
         # Constants
         self.TZ = "UTC"
