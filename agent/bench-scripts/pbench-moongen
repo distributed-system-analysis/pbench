@@ -478,11 +478,11 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 									echo "Not going to run $benchmark_name.  Only postprocesing existing data"
 									log "Not going to run $benchmnark_name.  Only postprocesing existing data"
 								fi
-								echo "$script_path/postprocess/$benchmark_name-postprocess $benchmark_results_dir $iteration $test_type $tool_label_pattern $tool_group" >"$benchmark_results_dir/$benchmark_name-postprocess.cmd"
+								echo "$script_path/postprocess/$benchmark_name-postprocess \"$benchmark_results_dir\" \"$iteration\" \"$test_type\" \"$tool_label_pattern\" \"$tool_group\"" >"$benchmark_results_dir/$benchmark_name-postprocess.cmd"
 								chmod +x "$benchmark_results_dir/$benchmark_name-postprocess.cmd"
 								$benchmark_results_dir/$benchmark_name-postprocess.cmd
 							done
-							echo "$script_path/postprocess/process-iteration-samples $iteration_dir Mframes_sec $maxstddevpct $failures $max_failures $tar_nonref_data $keep_failed_tool_data" >"$iteration_dir/process-iteration-samples.cmd"
+							echo "$script_path/postprocess/process-iteration-samples \"$iteration_dir\" Mframes_sec \"$maxstddevpct\" \"$failures\" \"$max_failures\" \"$tar_nonref_data\" \"$keep_failed_tool_data\"" >"$iteration_dir/process-iteration-samples.cmd"
 							chmod +x "$iteration_dir/process-iteration-samples.cmd"
 							$iteration_dir/process-iteration-samples.cmd
 							fail=$?
