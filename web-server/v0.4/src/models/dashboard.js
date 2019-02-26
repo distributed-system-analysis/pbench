@@ -29,12 +29,24 @@ export default {
 
       let controllers = [];
       response.aggregations.controllers.buckets.map(controller => {
+        let last_mod_val;
+        let last_mod_str;
+        if (controller.runs.value != null) {
+          // Look for v1 data
+          last_mod_val = controller.runs.value;
+          last_mod_str = controller.runs.value_as_string;
+        }
+        else {
+          // Fall back to pre-v1 data
+          last_mod_val = controller.runs_preV1.value;
+          last_mod_str = controller.runs_preV1.value_as_string;
+        }
         controllers.push({
           key: controller.key,
           controller: controller.key,
           results: controller.doc_count,
-          last_modified_value: controller.runs.value,
-          last_modified_string: controller.runs.value_as_string,
+          last_modified_value: last_mod_val,
+          last_modified_string: last_mod_str,
         });
       });
 
@@ -46,19 +58,50 @@ export default {
     *fetchResults({ payload }, { call, put }) {
       let response = yield call(queryResults, payload);
       let results = [];
-      response.hits.hits.map(result => {
+      let hits;
+      try {
+        hits = response.hits.hits;
+      } catch (error) {
+        console.log('Unsuccessful run data query, no hits on matching documents: ' + error);
+        hits = [];
+      }
+      hits.map(result => {
+        let name, controller, id, start, end;
+        try {
+          name = result.fields['run.name'][0];
+          controller = result.fields['run.controller'][0];
+          id = result.fields['run.id'][0];
+          start =
+            typeof result.fields['run.start'] !== 'undefined'
+              ? result.fields['run.start'][0]
+              : result.fields['run.start_run'][0];
+          end =
+            typeof result.fields['run.end'] !== 'undefined'
+              ? result.fields['run.end'][0]
+              : result.fields['run.end_run'][0];
+        } catch (error) {
+          console.log(
+            "Problem handling 'run' documents (most likely missing required 'run' field name): " + error
+          );
+          return;
+        }
+        let config =
+          typeof result.fields['run.config'] !== 'undefined'
+            ? result.fields['run.config'][0]
+            : null;
+        let prefix =
+          typeof result.fields['run.prefix'] !== 'undefined'
+            ? result.fields['run.prefix'][0]
+            : null;
         results.push({
-          key: result.fields['run.name'][0],
-          ['run.name']: result.fields['run.name'][0],
-          ['run.config']: result.fields['run.config'][0],
-          ['run.prefix']:
-            typeof result.fields['run.prefix'] !== 'undefined'
-              ? result.fields['run.prefix'][0]
-              : null,
-          startRunUnixTimestamp: Date.parse(result.fields['run.start_run'][0]),
-          ['run.startRun']: result.fields['run.start_run'][0],
-          ['run.endRun']: result.fields['run.end_run'][0],
-          ['id']: result.fields['run.id'][0],
+          key: name,
+          startUnixTimestamp: Date.parse(start),
+          ['run.name']: name,
+          ['run.config']: config,
+          ['run.prefix']: prefix,
+          ['run.start']: start,
+          ['run.end']: end,
+          ['id']: id,
         });
       });
 

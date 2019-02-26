@@ -180,14 +180,14 @@ export default class Results extends Component {
       },
       {
         title: 'Start Time',
-        dataIndex: 'run.startRun',
-        key: 'run.startRun',
-        sorter: (a, b) => a['run.startRunUnixTimestamp'] - b['run.startRunUnixTimestamp'],
+        dataIndex: 'run.start',
+        key: 'run.start',
+        sorter: (a, b) => a['run.startUnixTimestamp'] - b['run.startUnixTimestamp'],
       },
       {
         title: 'End Time',
-        dataIndex: 'run.endRun',
-        key: 'run.endRun',
+        dataIndex: 'run.end',
+        key: 'run.end',
       },
     ];
 

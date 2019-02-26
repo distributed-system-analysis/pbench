@@ -28,14 +28,20 @@ export async function queryControllers(params) {
           terms: {
             field: 'controller',
             size: 0,
-            order: {
-              runs: 'desc',
-            },
+            order: [
+              { runs: 'desc' },
+              { runs_preV1: 'desc' }
+            ]
           },
           aggs: {
-            runs: {
-              min: {
+            runs_preV1: {
+              max: {
                 field: 'run.start_run',
+              },
+            },
+            runs: {
+              max: {
+                field: 'run.start',
               },
             },
           },
@@ -59,15 +65,17 @@ export async function queryResults(params) {
     body: {
       fields: [
         'run.controller',
-        'run.start_run',
-        'run.end_run',
+        'run.start',
+        'run.start_run', // For pre-v1 run mapping version
+        'run.end',
+        'run.end_run', // For pre-v1 run mapping version
         'run.name',
         'run.config',
         'run.prefix',
         'run.id',
       ],
       sort: {
-        'run.end_run': {
+        'run.end': {
           order: 'desc',
           ignore_unmapped: true,
         },
