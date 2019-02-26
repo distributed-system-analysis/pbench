@@ -1,5 +1,6 @@
 ## Foreword
 
+
 Pbench Dashboard is a web-based platform for consuming indexed performance benchmark data. The platform provides a consolidated view of benchmark data within tables, charts, and other powerful visualizations. Users are able to quickly navigate through benchmark data and tune analytics through comparison tools for in-depth analysis.
 
 ## Scaffolding
@@ -28,14 +29,14 @@ Pbench Dashboard is a web-based platform for consuming indexed performance bench
 │   ├── index.less                  # global stylesheet
 │   └── router.js                   # router entry file
 ├── .eslintrc.js                    # js linting configuration
-├── .gitignore               
+├── .gitignore
 ├── .prettierignore                 # code formatting ignore file
 ├── .prettierrc                     # code formatting configuration
 ├── .stylelintrc                    # style linting configuration
 ├── jsconfig.json                   # js compiler configuration
 ├── config.json.j2                  # template JSON configuration
 ├── package.json                    # project dependencies
-├── README.md               
+├── README.md
 └── LICENSE.ant-design-pro          # template license file
 ```
 
@@ -59,7 +60,7 @@ $ yarn install
 Start Development Server
 
 ```bash
-$ yarn start 
+$ yarn start
 ```
 
 This will automatically open the application on [http://localhost:8000](http://localhost:8000).
@@ -92,8 +93,8 @@ $ yarn build
 This will generate the `dist` folder in the root directory, which contains packaged files such as `***.js`, `***.css`, and `index.html`.
 
 
-## Template 
+## Template
 
 This application is based on v1 of Ant Design Pro which is a production-ready UI solution for admin interfaces. For more information regarding the foundation and template of the application, please visit [https://v1.pro.ant.design/docs/getting-started](https://v1.pro.ant.design/docs/getting-started).
 
-For information regarding the library license, please reference the `LICENSE.ant-design-pro` file. 
+For information regarding the library license, please reference the `LICENSE.ant-design-pro` file.
