@@ -202,13 +202,13 @@ function _dump_logs {
 }
 
 function _verify_output {
-    res=$1
-    tname=$2
+    tname=$1
     diff -c $_tdir/gold/${tname}.txt $_testout > $_testdiff 2>&1
     if [[ $? -gt 0 ]]; then
+        let res=1
         echo "FAIL" > $_testres
-        res=1
     else
+        let res=0
         echo "PASS" > $_testres
         rm $_testout $_testdiff
     fi
@@ -410,7 +410,7 @@ function _run_test {
     rmdir ${_testtmp} > /dev/null 2>&1
     _save_tree
     _dump_logs
-    _verify_output $res ${testname}
+    _verify_output ${testname}
     res=$?
     _reset_state ${testname}
     return $res
@@ -667,6 +667,29 @@ else
     done
 fi
 
+function report_test_result {
+    testname=$1
+    return_status=$2
+    pass_or_fail=$(cat ${_testbase}/${testname}/result.txt)
+    if [[ ${pass_or_fail} == "PASS" && ${return_status} -eq 0 ]]; then
+        echo "${pass_or_fail} - ${testname}"
+        rm ${_testbase}/${testname}/result.txt
+        rmdir ${_testbase}/${testname}
+        res=0
+    else
+        cat ${_testbase}/${testname}/output.diff
+        if [[ ${pass_or_fail} == "FAIL" ]]; then
+            echo "FAIL - ${testname}"
+        else
+            echo "FAIL (sts = ${return_status}) - ${testname}"
+        fi
+        res=1
+    fi
+    return ${res}
+}
+
+declare -A pids
+
 let count=0
 let failures=0
 for testname in $tests ;do
@@ -678,36 +701,26 @@ for testname in $tests ;do
     let count=count+1
     if [[ $mode == "parallel" ]]; then
         _run_test ${testname} ${cmd} &
+        pids[${testname}]=$!
     else
         _run_test ${testname} ${cmd}
-        res=$(cat ${_testbase}/${testname}/result.txt)
-        if [ $res == "PASS" ]; then
-            echo "$res - ${testname}"
-            rm ${_testbase}/${testname}/result.txt
-            rmdir ${_testbase}/${testname}
-        else
-            cat ${_testbase}/${testname}/output.diff
-            echo "$res - ${testname}"
+        res=$?
+        report_test_result ${testname} ${res}
+        if [[ $? -ne 0 ]]; then
+            let failures=${failures}+1
         fi
-    fi
-    if [[ $? != 0 ]] ;then
-        let failures=failures+1
     fi
 done
 if [ $count -eq 0 ]; then
     printf "No tests run!\n" >&2
     let failures=1
 elif [[ $mode == "parallel" ]]; then
-    wait
     for testname in $tests ;do
-        res=$(cat ${_testbase}/${testname}/result.txt)
-        if [ $res == "PASS" ]; then
-            echo "$res - ${testname}"
-            rm ${_testbase}/${testname}/result.txt
-            rmdir ${_testbase}/${testname}
-        else
-            cat ${_testbase}/${testname}/output.diff
-            echo "$res - ${testname}"
+        wait ${pids[${testname}]}
+        res=$?
+        report_test_result ${testname} ${res}
+        if [[ $? -ne 0 ]]; then
+            let failures=${failures}+1
         fi
     done
 fi
