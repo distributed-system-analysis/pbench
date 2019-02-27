@@ -1,0 +1,8 @@
+export default {
+  '/dev/datastoreConfig': {
+      "elasticsearch": "",
+      "results": "",
+      "prefix": "",
+      "run_index": "",
+  },
+}

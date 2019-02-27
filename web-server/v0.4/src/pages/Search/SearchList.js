@@ -148,7 +148,7 @@ export default class SearchList extends Component {
       }).then(() => {
         dispatch(
           routerRedux.push({
-            pathname: '/dashboard/summary',
+            pathname: '/summary',
           })
         );
       });

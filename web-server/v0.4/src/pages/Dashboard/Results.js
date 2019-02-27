@@ -125,7 +125,7 @@ export default class Results extends Component {
 
     dispatch(
       routerRedux.push({
-        pathname: '/dashboard/comparison-select',
+        pathname: '/comparison-select',
       })
     );
   };
@@ -140,7 +140,7 @@ export default class Results extends Component {
 
     dispatch(
       routerRedux.push({
-        pathname: '/dashboard/summary',
+        pathname: '/summary',
       })
     );
   };

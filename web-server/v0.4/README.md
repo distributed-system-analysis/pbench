@@ -6,34 +6,37 @@ Pbench Dashboard is a web-based platform for consuming indexed performance bench
 
 ```bash
 ├── public
-│   └── favicon.ico          # favicon
+│   └── favicon.ico                 # favicon
+├── mock
+│   └── datastoreConfig.js.example  # datastore configuration
+├── config
+│   ├── config.js                   # webpack configuration
+│   └── router.config.js            # webpack routing configuration
 ├── src
-│   ├── assets               # local static files
-│   ├── common               # common configurations (navigation, menu, etc.)
-│   ├── components           # component definitions
-│   ├── e2e                  # integrated test cases
-│   ├── layouts              # common layouts
-│   ├── models               # redux models
-│   ├── routes               # app pages and templates
-│   ├── services             # redux services
-│   ├── utils                # utility scripts
-│   ├── theme.js             # app theme configuration
-│   ├── index.ejs            # HTML entry
-│   ├── index.js             # app entry
-│   ├── index.less           # global stylesheet
-│   └── router.js            # router entry file
-├── .babelrc.js              # js compiler configuration
-├── .eslintrc.js             # js linting configuration
+│   ├── assets                      # local static files
+│   ├── common                      # common configurations (navigation, menu, etc.)
+│   ├── components                  # component definitions
+│   ├── e2e                         # integrated test cases
+│   ├── layouts                     # common layouts
+│   ├── models                      # redux models
+│   ├── routes                      # app pages and templates
+│   ├── services                    # redux services
+│   ├── utils                       # utility scripts
+│   ├── theme.js                    # app theme configuration
+│   ├── index.ejs                   # HTML entry
+│   ├── index.js                    # app entry
+│   ├── index.less                  # global stylesheet
+│   └── router.js                   # router entry file
+├── .eslintrc.js                    # js linting configuration
 ├── .gitignore               
-├── .prettierignore          # code formatting ignore file
-├── .prettierrc              # code formatting configuration
-├── .stylelintrc             # style linting configuration
-├── .webpackrc.js            # module bundler configuration
-├── jsconfig.json            # js compiler configuration
-├── config.json.j2           # template JSON configuration
-├── package.json             # project dependencies
+├── .prettierignore                 # code formatting ignore file
+├── .prettierrc                     # code formatting configuration
+├── .stylelintrc                    # style linting configuration
+├── jsconfig.json                   # js compiler configuration
+├── config.json.j2                  # template JSON configuration
+├── package.json                    # project dependencies
 ├── README.md               
-└── LICENSE.ant-design-pro   # template license file
+└── LICENSE.ant-design-pro          # template license file
 ```
 
 ## Assets
@@ -47,14 +50,16 @@ Assets placed in the `src/assets/` directory are only referenced within componen
 
 Install Dependencies
 
+`yarn` is the default dependency manager used for installing and building the application.
+
 ```bash
-$ npm install
+$ yarn install
 ```
 
 Start Development Server
 
 ```bash
-$ npm start
+$ yarn start 
 ```
 
 This will automatically open the application on [http://localhost:8000](http://localhost:8000).
@@ -63,16 +68,16 @@ This will automatically open the application on [http://localhost:8000](http://l
 
 Both the production and development builds of the dashboard require specific configurations in order to run on their respective environment.
 
-Create and include a JSON config file in the root directory. Please reference the following example for required configuration fields.
+Copy the `datastoreConfig.js.example` file in the `mock/` directory to `datastoreConfig.js` and modify the configuration fields within the route definition. Please reference the following example for required configuration fields.
 
-`dev.config.json`
-
-```JSON
-{
-   "elasticsearch": "http://elasticsearch.example.com",
-   "results": "http://results.example.com",
-   "prefix": "example.prefix",
-   "run_index": "example.index"
+```JavaScript
+export default {
+  '/dev/datastoreConfig': {
+      "elasticsearch": "http://elasticsearch.example.com",
+      "results": "http://results.example.com",
+      "prefix": "example.prefix",
+      "run_index": "example.index"
+  },
 }
 ```
 
@@ -81,7 +86,7 @@ Create and include a JSON config file in the root directory. Please reference th
 Build Application
 
 ```bash
-$ npm run build
+$ yarn build
 ```
 
 This will generate the `dist` folder in the root directory, which contains packaged files such as `***.js`, `***.css`, and `index.html`.
