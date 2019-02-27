@@ -1,0 +1,13 @@
+---
+- name: install pbench.repo
+  hosts: servers
+  remote_user: root
+  become: yes
+  become_user: root
+
+  roles:
+      - pbench-agent-install-key
+      - pbench-agent-install-config
+      
+
+

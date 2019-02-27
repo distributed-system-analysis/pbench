@@ -1,0 +1,16 @@
+* Ansible playbook to install key and config file
+
+We assume that the pbench-agent code has been installed (through a
+package or some other method). That installation is incomplete until
+we install a key file so that =pbench=-move/copy-results= can
+move/copy results to the server and a config file so that it knows
+which server to use.
+
+The =pbench-agent-config.yml= playbook does that, by using variables
+defined in the inventory file (for an example inventory file, see
+=Inventory/pbench-agent.hosts=).
+
+* Usage
+#+begin_src shell
+ansible-playbook -i Inventory/pbench-agent.hosts pbench-agent-config.yml
+#+end_src
