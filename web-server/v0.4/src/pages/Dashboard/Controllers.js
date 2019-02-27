@@ -46,6 +46,8 @@ export default class Controllers extends Component {
       type: 'global/fetchDatastoreConfig',
     }).then(() => {
       this.fetchMonthIndices();
+    }).catch((err) => {
+      console.log(err)
     });
   };
 
@@ -145,7 +147,7 @@ export default class Controllers extends Component {
     }).then(() => {
       dispatch(
         routerRedux.push({
-          pathname: '/dashboard/results',
+          pathname: '/results',
         })
       );
     });

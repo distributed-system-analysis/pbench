@@ -4,12 +4,12 @@ const menuData = [
   {
     name: 'Dashboard',
     icon: 'dashboard',
-    path: 'dashboard/',
+    path: '/',
   },
   {
     name: 'Search',
     icon: 'search',
-    path: 'dashboard/search/'
+    path: '/search'
   }
 ];
 

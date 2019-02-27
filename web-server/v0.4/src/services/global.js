@@ -15,16 +15,12 @@ import request from '../utils/request';
  */
 export async function queryDatastoreConfig() {
   let configEndpoint = '';
-  let environment = process.env || 'development';
+  const environment = process.env || 'development';
   
-  switch(environment) {
-    case 'development':
-      configEndpoint = 'http://localhost:8000/dev.config.json'
-      break
-    case 'production':
-      // Note that window.location.pathname should already have a trailing slash.
-      configEndpoint = '/dashboard/config.json'
-      break
+  if (environment === 'development') {
+    configEndpoint = '/dev/datastoreConfig';
+  } else {
+    configEndpoint = '/dashboard/config.json';
   }
 
   return request(configEndpoint, {

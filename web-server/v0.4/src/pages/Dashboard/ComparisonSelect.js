@@ -116,7 +116,7 @@ class ComparisonSelect extends ReactJS.Component {
 
     dispatch(
       routerRedux.push({
-        pathname: '/dashboard/comparison',
+        pathname: '/comparison',
         state: {
           iterations: params,
           configCategories: configCategories,
@@ -150,7 +150,7 @@ class ComparisonSelect extends ReactJS.Component {
 
     dispatch(
       routerRedux.push({
-        pathname: '/dashboard/comparison',
+        pathname: '/comparison',
         state: {
           iterations: responseDataAll,
           configCategories: configCategories,
