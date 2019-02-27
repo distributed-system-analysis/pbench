@@ -1,0 +1,8 @@
+---
+- name: install the config file
+  get_url:
+        url: "{{ configurl }}"
+        dest: "{{ configdest }}"
+        mode: 0444
+        owner: "{{ owner }}"
+        group: "{{ group }}"
