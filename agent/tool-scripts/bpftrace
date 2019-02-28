@@ -1,0 +1,172 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
+
+# Example usage: pbench-register-tool --name=bpftrace -- --script=sample_prog.bt
+# Which becomes, after processing: /usr/bin/bpftrace sample_prog.bt
+
+script_path=$(dirname $0)
+script_name=$(basename $0)
+pbench_bin="$(realpath -e ${script_path}/..)"
+
+# source the base script
+. "$pbench_bin"/base
+
+# Pbench tool scripts must provide the following functions
+# 1) Install the tool
+# 2) Start data collection
+# 3) Stop data collection
+# 4) post-process the data
+
+# Defaults
+tool=bpftrace
+tool_bin=/usr/bin/$tool
+group=default
+iteration=""
+dir=""
+script=""
+mode=""
+
+function usage {
+	printf -- "The following options are available: \n\n"
+	printf -- "\t--install                 install this pbench tool\n"
+	printf -- "\n"
+	printf -- "\t--start|stop|postprocess  start/stop/postprocess the data collection\n"
+	printf -- "\t--iteration=int           the iteration (required)\n"
+	printf -- "\t--group=str               the pbench tool group (optional)\n"
+	printf -- "\t--dir=str                 directory to store data collection (required)\n"
+	printf -- "\t--script=str              path to bpftrace script (required w/ --start)\n"
+}
+
+opts=$(getopt -q -o dgi --longoptions "dir:,script:,group:,iteration:,start,stop,install,postprocess" -n "getopt.sh" -- "$@")
+if [[ $? -ne 0 ]]; then
+	printf -- "\n" >$2
+	printf -- "$script_name: you specified an invalid option\n\n" >$2
+	usage
+	exit 1
+fi
+eval set -- "$opts"
+while true; do
+	case "$1" in
+	--install)
+		mode="install"
+		shift
+		;;
+	--start)
+		mode="start"
+		shift
+		;;
+	--stop)
+		mode="stop"
+		shift
+		;;
+	--postprocess)
+		mode="postprocess"
+		shift
+		;;
+	-d | --dir)
+		shift
+		if [[ -n "$1" ]]; then
+			dir="$1"
+			shift
+		fi
+		;;
+	-g | --group)
+		shift
+		if [[ -n "$1" ]]; then
+			group="$1"
+			shift
+		fi
+		;;
+	-i | --iteration)
+		shift
+		if [[ -n "$1" ]]; then
+			iteration="$1"
+			shift
+		fi
+		;;
+	--script)
+		shift
+		if [[ -n "$1" ]]; then
+			script=$1
+			shift
+		fi
+		;;
+	--)
+		shift
+		break
+		;;
+	*)
+		printf -- "$script_name:Error: Invalid command line options\n\n" >&2
+		usage
+		exit 1
+	esac
+done
+
+if [[ -z $mode ]]; then
+	printf -- "$script_name:Error: one of the following options is required, --install|--start|--stop|--postprocess\n\n" >&2
+	usage
+	exit 1
+fi
+
+if [[ "$mode" != "install" ]]; then
+	if [[ -z $dir || ! -d "$dir" ]]; then
+		printf -- "$script_name:Error: --dir argument is required with a valid directory\n\n" >&2
+		usage
+		exit 1
+	fi
+	if [[ -z $iteration ]]; then
+		printf -- "$script_name:Error: --iteration argument is required\n\n" >&2
+		usage
+		exit 1
+	fi
+fi
+
+if [[ "$mode" = "start" ]]; then
+	if [[ -z $script ]]; then
+		printf -- "$script_name:Error: --script argument is required for --start\n\n" >&2
+		usage
+		exit 1
+	else
+		script=$(echo $script | sed 's/^"\(.*\)"$/\1/')
+	fi
+fi
+
+tool_dir="$dir/tools-$group"
+tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
+tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
+
+case "$mode" in
+install)
+	check_install_rpm bpftrace || exit 1
+	;;
+start)
+	tool_cmd="$tool_bin $script"
+	tool_cmd_file="$tool_output_dir/$tool.cmd"
+	tool_stdout_file=$tool_output_dir/$tool-stdout.txt
+	tool_stderr_file=$tool_output_dir/$tool-stderr.txt
+	mkdir -p $tool_output_dir
+	if [[ $? -ne 0 ]]; then
+		error_log "$script_name: failed to create tool output directory, $tool_output_dir" >&2
+		exit 1
+	fi
+	echo "$tool_cmd" >$tool_cmd_file
+	debug_log "$script_name: running $tool_cmd"
+	$tool_cmd >"$tool_stdout_file" 2>"$tool_stderr_file" &
+	echo $! >$tool_pid_file
+	wait
+	;;
+stop)
+	if [[ -s "$tool_pid_file" ]]; then
+		pid=$(cat "$tool_pid_file")
+		debug_log "stopping $script_name"
+		kill -SIGINT $pid && /bin/rm "$tool_pid_file"
+	else
+		warn_log "[$script_name]: tool is not running, nothing to kill"
+	fi
+	;;
+postprocess)
+	;;
+
+esac
+
+exit 0
