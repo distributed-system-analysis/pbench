@@ -15,6 +15,11 @@ export default {
     *fetchDatastoreConfig({ payload }, { call, put }) {
       let response = yield call(queryDatastoreConfig, payload);
 
+      // Remove the trailing slashes if present, we'll take care of adding
+      // them back in the proper context.
+      response.elasticsearch = response.elasticsearch.replace(/\/+$/, '');
+      response.results = response.results.replace(/\/+$/, '');
+
       yield put({
         type: 'getDatastoreConfig',
         payload: response,
