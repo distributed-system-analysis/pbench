@@ -8,6 +8,3 @@
   roles:
       - pbench-agent-install-key
       - pbench-agent-install-config
-      
-
-
