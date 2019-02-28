@@ -110,18 +110,16 @@ class Summary extends ReactJS.Component {
     if (selectedController != null && selectedController.includes('.')) {
       iterationEndpoint =
         datastoreConfig.results +
-        '/results/' +
+        '/incoming/' +
         encodeURI(selectedController.slice(0, selectedController.indexOf('.'))) +
-        (selectedResults['run.prefix'] != null ? '/' + selectedResults['run.prefix'] : '') +
         '/' +
         encodeURI(selectedResults['run.name']) +
         '/result.json';
     } else {
       iterationEndpoint =
         datastoreConfig.results +
-        '/results/' +
+        '/incoming/' +
         encodeURI(selectedController) +
-        (selectedResults['run.prefix'] != null ? '/' + selectedResults['run.prefix'] : '') +
         '/' +
         encodeURI(selectedResults['run.name']) +
         '/result.json';
