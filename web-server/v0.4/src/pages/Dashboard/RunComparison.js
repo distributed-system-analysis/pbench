@@ -221,7 +221,7 @@ export default class RunComparison extends ReactJS.Component {
           iterationRequests.push(
             axios.get(
               datastoreConfig.results +
-              '/results/' +
+              '/incoming/' +
               encodeURIComponent(
                 clusteredIterations[primaryMetric][cluster][iteration].controller_name
               ) +

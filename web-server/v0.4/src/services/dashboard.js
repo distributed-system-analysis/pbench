@@ -134,9 +134,8 @@ export async function queryIterations(params) {
       iterationRequests.push(
         axios.get(
           datastoreConfig.results +
-          '/results/' +
+          '/incoming/' +
           (result.controller.includes('.') ? encodeURI(result.controller.slice(0, result.controller.indexOf('.'))) : encodeURI(result.controller)) +
-          (result['run.prefix'] != null ? '/' + result['run.prefix'] : '') +
           '/' +
           encodeURI(result['run.name']) +
           '/result.json'
