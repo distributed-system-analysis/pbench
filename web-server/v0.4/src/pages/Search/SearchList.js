@@ -255,7 +255,9 @@ export default class SearchList extends Component {
                   style={{ marginTop: 20 }}
                   columns={columns}
                   dataSource={searchResults.results}
-                  onRowClick={this.retrieveResults.bind(this)}
+                  onRow={(record) => ({
+                    onClick: () => { this.retrieveResults(record); }
+                  })}
                   defaultPageSize={20}
                   loading={loadingMapping || loadingResults}
                   showSizeChanger={true}

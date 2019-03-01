@@ -250,7 +250,9 @@ export default class Controllers extends Component {
             columns={columns}
             dataSource={controllers}
             defaultPageSize={20}
-            onRowClick={this.retrieveResults.bind(this)}
+            onRow={(record) => ({
+              onClick: () => { this.retrieveResults(record); }
+            })}
             loading={loadingControllers || loadingConfig || loadingIndices}
             showSizeChanger={true}
             showTotal={true}

@@ -244,7 +244,9 @@ export default class Results extends Component {
             rowSelection={rowSelection}
             columns={columns}
             dataSource={results}
-            onRowClick={this.retrieveResults.bind(this)}
+            onRow={(record) => ({
+              onClick: () => { this.retrieveResults(record); }
+            })}
             loading={loading}
             pagination={{ pageSize: 20 }}
             bordered
