@@ -88,6 +88,7 @@ packet_protocol="UDP"
 pre_sample_cmd=""
 traffic_profiles=""
 sysinfo="none"
+tool_period="binary-search" # can also be "repeat-final-vallidation"
 
 function kill_trex() {
 	# kill any existing trex server process
@@ -346,10 +347,15 @@ function usage {
 	printf -- "--sysinfo=str,\n"
 	printf -- "  comma separated values of sysinfo to be collected, default=\"none\"\n"
 	printf -- "    available: $(pbench-collect-sysinfo --options)\n"
+	printf -- "\n"
+	printf -- "--tool-period=str\n"
+	printf -- "  str = [binary-search|repeat-final-validation]\n"
+	printf -- "  binary-search (default): tools are collected during binary-search\n"
+	printf -- "  repeat-final-validation: tools are collected during a repeat-run of the final validation trial\n"
 }
 
 # Process options and arguments
-opts=$(getopt -q -o h --longoptions "pre-benchmark-cmd:,skip-trex-install,skip-trex-server,skip-git-pull,traffic-generator:,devices:,active-devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2,traffic-profile:,traffic-profiles:,sysinfo:,help" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o h --longoptions "pre-benchmark-cmd:,skip-trex-install,skip-trex-server,skip-git-pull,traffic-generator:,devices:,active-devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2,traffic-profile:,traffic-profiles:,sysinfo:,tool-period:,help" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "${script_name} $*\n"
 	printf -- "\n"
@@ -500,6 +506,13 @@ while true; do
 			shift
 		fi
 		;;
+		--tool-period)
+		shift
+		if [ -n "$1" ]; then
+			tool_period=$1
+			shift
+		fi
+		;;
 		--one-shot)
 		shift
 		one_shot="y"
@@ -609,14 +622,14 @@ if [ $traffic_generator == "trex-txrx-profile" -a "${traffic_profiles}" != "" ];
 		traffic_profiles_list+="${traffic_profile}"
 	done
 
-	config="${config}_tg[`echo ${traffic_generator} | sed -e 's/-txrx//'`]pf[${traffic_profiles_list}]ml[${max_loss_pcts}]"
+	config="${config}_tg:`echo ${traffic_generator} | sed -e 's/-txrx//'`_pf:${traffic_profiles_list}_ml:${max_loss_pcts}_"
 else
-	config="${config}_tg[`echo $traffic_generator | sed -e 's/-txrx//'`]r[$rates]fs[$frame_sizes]nf[$num_flows]fm[`echo $flow_mods | sed -e 's/src-/s/g' -e 's/dst-/d/g' -e 's/ip/i/g' -e 's/mac/m/g' -e 's/port/p/g'`]td[`echo $traffic_directions | sed -e 's/directional//g'`]ml[$max_loss_pcts]"
+	config="${config}_tg:`echo $traffic_generator | sed -e 's/-txrx//'`_r:${rates}_fs:${frame_sizes}_nf:${num_flows}_fm:`echo $flow_mods | sed -e 's/src-/s/g' -e 's/dst-/d/g' -e 's/ip/i/g' -e 's/mac/m/g' -e 's/port/p/g'`_td:`echo $traffic_directions | sed -e 's/directional//g'`_ml:${max_loss_pcts}_"
 fi
 if [ "$one_shot" == "y" ]; then
-	config="${config}tt[os]"
+	config="${config}tt:os_"
 else
-	config="${config}tt[bs]"
+	config="${config}tt:bs_"
 fi
 
 if [ "$traffic_generator" == "trex-txrx" -o "$traffic_generator" == "moongen-txrx" -o "$traffic_generator" == "trex-txrx-profile" ]; then
@@ -668,6 +681,16 @@ fi
 
 if [ $one_shot == "y" ]; then
 	cmd="$cmd --one-shot=1"
+fi
+
+# register the tool triggers depending on the tool period preference
+if [ "$tool_period" == "binary-search" ]; then
+	pbench-register-tool-trigger --group=$tool_group --start-trigger="Starting binary-search" --stop-trigger="Finished binary-search"
+else
+	if [ "$tool_period" == "repeat-final-validation" ]; then
+		pbench-register-tool-trigger --group=$tool_group --start-trigger="Starting repeat final validation for debug collection" --stop-trigger="Finished repeat final validation for debug collection"
+		cmd="$cmd --repeat-final-validation"
+	fi
 fi
 
 if [ "${postprocess_only}" == "n" ]; then
@@ -1084,14 +1107,16 @@ function inner_most_loop() {
 						if [ "$pre_benchmark_cmd" != "" ]; then
 							PBENCH_ITERATION=$iteration PBENCH_SAMPLE=$sample $pre_benchmark_cmd 2>&1 | tee -i $pre_benchmark_cmd_log
 						fi
-						pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-						$benchmark_cmd_file --output-dir=$benchmark_results_dir 2>&1 | tee -i $result_file
+						$benchmark_cmd_file --output-dir=$benchmark_results_dir 2>&1 | pbench-tool-trigger "$iteration" "$benchmark_run_dir" $tool_group $sample | tee -i $result_file
 						rc=$?
-						pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-						pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 						echo "exit code: $rc"
 						if [ $rc -ne 0 ]; then
 							error_log "iteration $iteration sample $sample returned non-zero exit code"
+							pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+						fi
+
+						if [ -e "$benchmark_results_dir/tools-default" ]; then
+							pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 						fi
 					else
 						if [[ ! -d $benchmark_results_dir ]]; then

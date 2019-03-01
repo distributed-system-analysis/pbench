@@ -1165,6 +1165,11 @@ options common in most pbench benchmark scripts
   comma separated values of sysinfo to be collected, default="none"
     available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
+--tool-period=str
+  str = [binary-search|repeat-final-validation]
+  binary-search (default): tools are collected during binary-search
+  repeat-final-validation: tools are collected during a repeat-run of the final validation trial
+
 Bench Script: pbench-trafficgen --tool-group=bad --sysinfo=bad
 ------------
 	pbench-trafficgen: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
@@ -1401,6 +1406,11 @@ options common in most pbench benchmark scripts
   comma separated values of sysinfo to be collected, default="none"
     available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
 
+--tool-period=str
+  str = [binary-search|repeat-final-validation]
+  binary-search (default): tools are collected during binary-search
+  repeat-final-validation: tools are collected during a repeat-run of the final validation trial
+
 Bench Script: pbench-trafficgen --bad-to-the-bone 
 ------------
 pbench-trafficgen --bad-to-the-bone
@@ -1636,6 +1646,11 @@ options common in most pbench benchmark scripts
 --sysinfo=str,
   comma separated values of sysinfo to be collected, default="none"
     available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara
+
+--tool-period=str
+  str = [binary-search|repeat-final-validation]
+  binary-search (default): tools are collected during binary-search
+  repeat-final-validation: tools are collected during a repeat-run of the final validation trial
 
 Bench Script: pbench-uperf --help 
 ------------

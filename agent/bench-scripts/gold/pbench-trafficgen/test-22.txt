@@ -1,5 +1,6 @@
 +++ Running test-22 pbench-trafficgen
-[warn][1900-01-01T00:00:00.000000] [pbench-trafficgen] ignoring --config="test-22_tg[trex-profile]r[5000000]fs[74]nf[1000]fm[si,di,sp,dp,protocol]td[bi,uni,revuni]ml[0.0]tt[os]" in favor of --rundir="/var/tmp/pbench-test-bench/pbench"
+tool trigger strings for start: "Starting binary-search" and for stop: "Finished binary-search" are now registered for tool group: default
+[warn][1900-01-01T00:00:00.000000] [pbench-trafficgen] ignoring --config="test-22_tg:trex-profile_r:5000000_fs:74_nf:1000_fm:si,di,sp,dp,protocol_td:bi,uni,revuni_ml:0.0_tt:os_" in favor of --rundir="/var/tmp/pbench-test-bench/pbench"
 Total number of benchmark iterations: 3
 Starting iteration[1-bidirectional-74B-1000flows-0.0pct_drop] (1 of 3)
 Not going to run trafficgen.  Only postprocesing existing data
@@ -32141,6 +32142,7 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 /var/tmp/pbench-test-bench/pbench/samples
 /var/tmp/pbench-test-bench/pbench/tmp
 /var/tmp/pbench-test-bench/pbench/tmp/pbench.iterations
+/var/tmp/pbench-test-bench/pbench/tool-triggers
 /var/tmp/pbench-test-bench/pbench/tools-default
 /var/tmp/pbench-test-bench/pbench/tools-default/mpstat
 /var/tmp/pbench-test-bench/pbench/tools-default/sar
@@ -32150,7 +32152,7 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 --- pbench tree state
 +++ pbench.log file contents
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to none
-/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-trafficgen] ignoring --config="test-22_tg[trex-profile]r[5000000]fs[74]nf[1000]fm[si,di,sp,dp,protocol]td[bi,uni,revuni]ml[0.0]tt[os]" in favor of --rundir="/var/tmp/pbench-test-bench/pbench"
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-trafficgen] ignoring --config="test-22_tg:trex-profile_r:5000000_fs:74_nf:1000_fm:si,di,sp,dp,protocol_td:bi,uni,revuni_ml:0.0_tt:os_" in favor of --rundir="/var/tmp/pbench-test-bench/pbench"
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Starting iteration[1-bidirectional-74B-1000flows-0.0pct_drop] (1 of 3)
 /var/tmp/pbench-test-bench/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] Not going to run trafficgen.  Only postprocesing existing data
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] Moving to the next iteration
