@@ -27,6 +27,10 @@ $| = 1;
 my $iteration=$ARGV[0]; # which iteration number to start with (required)
 my $benchmark_run_dir=$ARGV[1];
 my $tool_group=$ARGV[2];
+my $sample_num=1;
+if (scalar @ARGV == 4) {
+	$sample_num=$ARGV[3];
+}
 
 my $start_t = "";
 my $started = 0;
@@ -62,7 +66,7 @@ while (<TRIG>) {
 close(TRIG);
 
 # Initial reference result directory for tools
-my $benchmark_results_dir = $benchmark_run_dir . '/' . $iteration . '/sample1';
+my $benchmark_results_dir = $benchmark_run_dir . '/' . $iteration . '/sample' . $sample_num;
 
 while (<STDIN>) {
 	# Echo the line we read
@@ -77,7 +81,7 @@ while (<STDIN>) {
 		# Increment the iteration and adjust the benchmark results
 		# directory now that this iteration is done.
 		$iteration++;
-		$benchmark_results_dir = $benchmark_run_dir . '/' . $iteration . '/sample1';
+		$benchmark_results_dir = $benchmark_run_dir . '/' . $iteration . '/sample' . $sample_num;
 	}
 	if ((/$start_t/) && !$started) {
 		$cmd="pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir\n";
