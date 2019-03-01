@@ -182,7 +182,7 @@ export default class Results extends Component {
         title: 'Start Time',
         dataIndex: 'run.start',
         key: 'run.start',
-        sorter: (a, b) => a['run.startUnixTimestamp'] - b['run.startUnixTimestamp'],
+        sorter: (a, b) => a['startUnixTimestamp'] - b['startUnixTimestamp'],
       },
       {
         title: 'End Time',
@@ -256,11 +256,15 @@ export default class Results extends Component {
 }
 
 function compareByAlph(a, b) {
+  let ret;
   if (a > b) {
-    return -1;
+    ret = 1;
   }
-  if (a < b) {
-    return 1;
+  else if (a < b) {
+    ret = -1;
   }
-  return 0;
+  else {
+    ret = 0;
+  }
+  return ret;
 }
