@@ -88,7 +88,7 @@ packet_protocol="UDP"
 pre_sample_cmd=""
 traffic_profiles=""
 sysinfo="none"
-tool_period="binary-search" # can also be "repeat-final-vallidation"
+tool_period="binary-search" # can also be "repeat-final-validation"
 
 function kill_trex() {
 	# kill any existing trex server process
@@ -686,11 +686,9 @@ fi
 # register the tool triggers depending on the tool period preference
 if [ "$tool_period" == "binary-search" ]; then
 	pbench-register-tool-trigger --group=$tool_group --start-trigger="Starting binary-search" --stop-trigger="Finished binary-search"
-else
-	if [ "$tool_period" == "repeat-final-validation" ]; then
-		pbench-register-tool-trigger --group=$tool_group --start-trigger="Starting repeat final validation for debug collection" --stop-trigger="Finished repeat final validation for debug collection"
-		cmd="$cmd --repeat-final-validation"
-	fi
+elif [ "$tool_period" == "repeat-final-validation" ]; then
+	pbench-register-tool-trigger --group=$tool_group --start-trigger="Starting repeat final validation for debug collection" --stop-trigger="Finished repeat final validation for debug collection"
+	cmd="$cmd --repeat-final-validation"
 fi
 
 if [ "${postprocess_only}" == "n" ]; then
