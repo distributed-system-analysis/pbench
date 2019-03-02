@@ -231,11 +231,31 @@ function _setup_state {
     let res=res+$?
     cp -a $_tdir/{index-pbench,job_pool.sh,unittests,pbench*} $_testopt/bin
     let res=res+$?
+    mkdir -p $_testopt/html/static/{js,css}/v0.{2,3}
+    let res=res+$?
+    cp -a $_tdir/../../web-server/v0.2/js/ $_testopt/html/static/js/v0.2
+    let res=res+$?
+    cp -a $_tdir/../../web-server/v0.3/js/ $_testopt/html/static/js/v0.3
+    let res=res+$?
+    cp -a $_tdir/../../web-server/v0.2/css/ $_testopt/html/static/css/v0.2
+    let res=res+$?
+    cp -a $_tdir/../../web-server/v0.3/css/ $_testopt/html/static/css/v0.3
+    let res=res+$?
     cp -a $_tdir/{index-pbench,job_pool.sh,unittests,pbench*} $_testopt_sat/bin
     let res=res+$?
     cp -a $_tdir/../lib $_testopt
     let res=res+$?
     cp -a $_tdir/../lib $_testopt_sat
+    let res=res+$?
+    mkdir -p $_testopt_sat/html/static/{js,css}/v0.{2,3}
+    let res=res+$?
+    cp -a $_tdir/../../web-server/v0.2/js/ $_testopt_sat/html/static/js/v0.2
+    let res=res+$?
+    cp -a $_tdir/../../web-server/v0.3/js/ $_testopt_sat/html/static/js/v0.3
+    let res=res+$?
+    cp -a $_tdir/../../web-server/v0.2/css/ $_testopt_sat/html/static/css/v0.2
+    let res=res+$?
+    cp -a $_tdir/../../web-server/v0.3/css/ $_testopt_sat/html/static/css/v0.3
     let res=res+$?
     mkdir -p $_testhtml
     let res=res+$?
