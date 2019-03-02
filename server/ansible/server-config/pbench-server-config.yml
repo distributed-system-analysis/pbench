@@ -1,0 +1,10 @@
+---
+- name: install server config file and run activation script
+  hosts: servers
+  remote_user: root
+  become: yes
+  become_user: root
+
+  roles:
+      - pbench-server-install-config
+      - pbench-server-activate
