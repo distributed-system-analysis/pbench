@@ -69,6 +69,23 @@ drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
 drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/static/css
+drwxrwxr-x          - public_html/static/css/v0.2
+drwxrwxr-x          - public_html/static/css/v0.2/css
+-rw-rw-r--        308 public_html/static/css/v0.2/css/pbench_utils.css
+drwxrwxr-x          - public_html/static/css/v0.3
+drwxrwxr-x          - public_html/static/css/v0.3/css
+-rw-rw-r--      11798 public_html/static/css/v0.3/css/LICENSE.TXT
+-rw-rw-r--       3663 public_html/static/css/v0.3/css/jschart.css
+drwxrwxr-x          - public_html/static/js
+drwxrwxr-x          - public_html/static/js/v0.2
+drwxrwxr-x          - public_html/static/js/v0.2/js
+-rw-rw-r--       9415 public_html/static/js/v0.2/js/app.js
+-rw-rw-r--       5556 public_html/static/js/v0.2/js/pbench_utils.js
+drwxrwxr-x          - public_html/static/js/v0.3
+drwxrwxr-x          - public_html/static/js/v0.3/js
+-rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
+-rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
 drwxrwxr-x          - public_html/users
 --- pbench tree state
 +++ pbench-local tree state (/var/tmp/pbench-test-server/test-7.6/pbench-local)
@@ -98,6 +115,23 @@ drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
 drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/static/css
+drwxrwxr-x          - public_html/static/css/v0.2
+drwxrwxr-x          - public_html/static/css/v0.2/css
+-rw-rw-r--        308 public_html/static/css/v0.2/css/pbench_utils.css
+drwxrwxr-x          - public_html/static/css/v0.3
+drwxrwxr-x          - public_html/static/css/v0.3/css
+-rw-rw-r--      11798 public_html/static/css/v0.3/css/LICENSE.TXT
+-rw-rw-r--       3663 public_html/static/css/v0.3/css/jschart.css
+drwxrwxr-x          - public_html/static/js
+drwxrwxr-x          - public_html/static/js/v0.2
+drwxrwxr-x          - public_html/static/js/v0.2/js
+-rw-rw-r--       9415 public_html/static/js/v0.2/js/app.js
+-rw-rw-r--       5556 public_html/static/js/v0.2/js/pbench_utils.js
+drwxrwxr-x          - public_html/static/js/v0.3
+drwxrwxr-x          - public_html/static/js/v0.3/js
+-rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
+-rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
 drwxrwxr-x          - public_html/users
 --- pbench-satellite tree state
 +++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-7.6/pbench-satellite-local)
