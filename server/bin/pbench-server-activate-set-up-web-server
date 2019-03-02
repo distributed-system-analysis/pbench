@@ -1,0 +1,17 @@
+#! /bin/bash
+
+# move the static directory to where it's supposed to go
+install_dir=$(getconf.py install-dir pbench-server)
+static=$(getconf.py pbench-static-dir pbench-server)
+
+if [ -z "$static" ] ;then
+    echo "ERROR: $prog - pbench-static-dir not defined in [pbench-server] section of config"
+    status=1
+else
+    cp -a ${install_dir}/html/static/* ${static}
+    status=$?
+    if [ $? -ne 0 ] ;then
+        echo "ERROR: $prog - cp failed (cp -a ${install_dir}/html/static/* ${static})"
+    fi
+fi
+exit $status

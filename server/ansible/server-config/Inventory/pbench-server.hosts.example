@@ -1,0 +1,9 @@
+[servers]
+host1
+host1sat
+
+[servers:vars]
+configurl = http://pbench.example.com/server/config/pbench-server.cfg
+configdest = /opt/pbench-server/lib/config
+owner = pbench
+group = pbench

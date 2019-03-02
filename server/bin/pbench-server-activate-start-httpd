@@ -45,4 +45,4 @@ ln -s \
         ${pbench_users_dir} \
         ${pbench_static_dir} \
         ${docroot} 2>/dev/null
-exit $?
+exit 0

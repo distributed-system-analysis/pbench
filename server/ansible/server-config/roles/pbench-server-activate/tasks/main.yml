@@ -1,0 +1,3 @@
+---
+- name: activate the server configuration
+  shell: PATH=/opt/pbench-server/bin:$PATH pbench-server-activate {{ configdest }}/pbench-server.cfg > /tmp/foo
