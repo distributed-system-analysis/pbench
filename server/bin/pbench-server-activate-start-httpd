@@ -31,18 +31,23 @@ fi
 # FIXME: This script will need mods for non-systemd, non-apache,
 # and non-firewalld environments.
 
+res=0
 systemctl enable httpd.service
+let res=res+$?
 systemctl start httpd.service
+let res=res+$?
 
 # open up the port permanently
 firewall-cmd --add-service=http
+let res=res+$?
 firewall-cmd --permanent --add-service=http
+let res=res+$?
 
-# it's OK if this fails
+# it's OK if this fails: the links might already exist.
 ln -s \
         ${pbench_incoming_dir} \
         ${pbench_results_dir} \
         ${pbench_users_dir} \
         ${pbench_static_dir} \
         ${docroot} 2>/dev/null
-exit 0
+exit $res
