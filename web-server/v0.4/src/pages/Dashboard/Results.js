@@ -249,7 +249,7 @@ export default class Results extends Component {
             dataSource={results}
             onRow={record => ({
               onClick: () => {
-                this.retrieveResults(record);
+                this.retrieveResults([record]);
               },
             })}
             loading={loading}

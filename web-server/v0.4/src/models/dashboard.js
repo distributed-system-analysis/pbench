@@ -35,8 +35,7 @@ export default {
           // Look for v1 data
           last_mod_val = controller.runs.value;
           last_mod_str = controller.runs.value_as_string;
-        }
-        else {
+        } else {
           // Fall back to pre-v1 data
           last_mod_val = controller.runs_preV1.value;
           last_mod_str = controller.runs_preV1.value_as_string;
@@ -81,7 +80,8 @@ export default {
               : result.fields['run.end_run'][0];
         } catch (error) {
           console.log(
-            "Problem handling 'run' documents (most likely missing required 'run' field name): " + error
+            "Problem handling 'run' documents (most likely missing required 'run' field name): " +
+              error
           );
           return;
         }
@@ -96,6 +96,7 @@ export default {
         results.push({
           key: name,
           startUnixTimestamp: Date.parse(start),
+          controller: controller,
           ['run.name']: name,
           ['run.config']: config,
           ['run.prefix']: prefix,

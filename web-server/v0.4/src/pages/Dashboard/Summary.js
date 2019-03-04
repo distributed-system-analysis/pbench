@@ -1,9 +1,10 @@
 import ReactJS from 'react';
 import { connect } from 'dva';
 import { Select, Spin, Tag, Table, Button, Card, notification } from 'antd';
-import axios from 'axios';
 import cloneDeep from 'lodash/cloneDeep';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { queryIterations } from '../../services/dashboard';
+import { parseIterationData } from '../../utils/parse';
 
 const tabList = [
   {
@@ -89,12 +90,22 @@ class Summary extends ReactJS.Component {
       selectedController,
     } = this.props;
 
+    if (!Array.isArray(selectedResults)) {
+      throw new Error("selectedResults is not an array!");
+    }
+    else if (selectedResults.length <= 0) {
+      throw new Error("no selectedResults!");
+    }
+    else if (selectedResults.length > 1) {
+      throw new Error("too many selectedResults!");
+    }
+
     dispatch({
       type: 'dashboard/fetchResult',
       payload: {
         datastoreConfig: datastoreConfig,
         selectedIndices: selectedIndices,
-        result: selectedResults['run.name'],
+        result: selectedResults[0]['run.name'],
       },
     });
     dispatch({
@@ -102,44 +113,23 @@ class Summary extends ReactJS.Component {
       payload: {
         datastoreConfig: datastoreConfig,
         selectedIndices: selectedIndices,
-        id: selectedResults['id'],
+        id: selectedResults[0]['id'],
       },
     });
 
-    var iterationEndpoint = '';
-    if (selectedController != null && selectedController.includes('.')) {
-      iterationEndpoint =
-        datastoreConfig.results +
-        '/incoming/' +
-        encodeURI(selectedController.slice(0, selectedController.indexOf('.'))) +
-        '/' +
-        encodeURI(selectedResults['run.name']) +
-        '/result.json';
-    } else {
-      iterationEndpoint =
-        datastoreConfig.results +
-        '/incoming/' +
-        encodeURI(selectedController) +
-        '/' +
-        encodeURI(selectedResults['run.name']) +
-        '/result.json';
-    }
-
-    axios
-      .get(iterationEndpoint)
+    queryIterations({ selectedResults: selectedResults, datastoreConfig: datastoreConfig })
       .then(res => {
-        const response = res.data;
-        const responseData = this.parseJSONData(
-          response,
-          selectedResults['run.name'],
-          selectedController
-        );
+        let parsedIterationData = parseIterationData(res);
         this.setState({
-          responseData: responseData,
+          responseData: parsedIterationData.responseData,
+          ports: parsedIterationData.ports,
+          configData: parsedIterationData.configData,
           loading: false,
         });
       })
-      .catch(error => {
+      .catch(err => {
+        console.log("queryIterations: error processing iteration data: '" + err + "'");
+        console.log(err);
         this.openNetworkErrorNotification('error');
         this.setState({ loading: false });
       });
@@ -151,341 +141,6 @@ class Summary extends ReactJS.Component {
       description: 'Unable to find an associated result file. Please try another result.',
     });
   };
-
-  parseJSONData(response, resultName, controllerName) {
-    var responseData = [];
-    var columns = [
-      {
-        title: '#',
-        dataIndex: 'iteration_number',
-        fixed: 'left',
-        width: 50,
-        key: 'iteration_number',
-        sorter: (a, b) => a.iteration_number - b.iteration_number,
-      },
-      {
-        title: 'Iteration Name',
-        dataIndex: 'iteration_name',
-        fixed: 'left',
-        width: 150,
-        key: 'iteration_name',
-      },
-    ];
-    var iterations = [];
-    var ports = [];
-    var configCategories = {};
-
-    for (var iteration in response) {
-      if (!response[iteration].iteration_name.includes('fail')) {
-        var iterationObject = {
-          iteration_name: response[iteration].iteration_name,
-          iteration_number: response[iteration].iteration_number,
-          result_name: resultName,
-          controller_name: controllerName,
-        };
-        var configObject = {};
-        var keys = [];
-        if (response[iteration].iteration_data.parameters.benchmark[0] != undefined) {
-          var keys = Object.keys(response[iteration].iteration_data.parameters.benchmark[0]);
-          for (var key in keys) {
-            if (
-              (keys[key] != 'uid') &
-              (keys[key] != 'clients') &
-              (keys[key] != 'servers') &
-              (keys[key] != 'max_stddevpct')
-            ) {
-              if (!Object.keys(configCategories).includes(keys[key])) {
-                var obj = {};
-                configCategories[keys[key]] = [
-                  response[iteration].iteration_data.parameters.benchmark[0][keys[key]],
-                ];
-              } else {
-                if (
-                  !configCategories[keys[key]].includes(
-                    response[iteration].iteration_data.parameters.benchmark[0][keys[key]]
-                  )
-                ) {
-                  configCategories[keys[key]].push(
-                    response[iteration].iteration_data.parameters.benchmark[0][keys[key]]
-                  );
-                }
-              }
-              configObject[keys[key]] =
-                response[iteration].iteration_data.parameters.benchmark[0][keys[key]];
-            }
-          }
-        }
-        var iterationObject = Object.assign({}, iterationObject, configObject);
-        for (var iterationType in response[iteration].iteration_data) {
-          if (iterationType != 'parameters') {
-            if (!this.containsTitle(columns, iterationType)) {
-              columns.push({ title: iterationType });
-            }
-            for (var iterationNetwork in response[iteration].iteration_data[iterationType]) {
-              var parentColumnIndex = this.getColumnIndex(columns, iterationType);
-              if (!this.containsIteration(columns[parentColumnIndex], iterationNetwork)) {
-                if (columns[parentColumnIndex]['children'] == undefined) {
-                  columns[parentColumnIndex]['children'] = [{ title: iterationNetwork }];
-                } else {
-                  columns[parentColumnIndex]['children'].push({ title: iterationNetwork });
-                }
-                for (var iterationData in response[iteration].iteration_data[iterationType][
-                  iterationNetwork
-                ]) {
-                  var columnTitle =
-                    'client_hostname:' +
-                    response[iteration].iteration_data[iterationType][iterationNetwork][
-                      iterationData
-                    ].client_hostname +
-                    '-server_hostname:' +
-                    response[iteration].iteration_data[iterationType][iterationNetwork][
-                      iterationData
-                    ].server_hostname +
-                    '-server_port:' +
-                    response[iteration].iteration_data[iterationType][iterationNetwork][
-                      iterationData
-                    ].server_port;
-                  if (columns[parentColumnIndex]['children'] == undefined) {
-                    var childColumnIndex = 0;
-                  } else {
-                    var childColumnIndex = this.getColumnIndex(
-                      columns[parentColumnIndex].children,
-                      iterationNetwork
-                    );
-                  }
-                  if (
-                    !this.containsIteration(
-                      columns[parentColumnIndex].children[childColumnIndex],
-                      columnTitle
-                    )
-                  ) {
-                    if (
-                      columns[parentColumnIndex].children[childColumnIndex]['children'] == undefined
-                    ) {
-                      columns[parentColumnIndex].children[childColumnIndex]['children'] = [
-                        { title: columnTitle, dataIndex: columnTitle },
-                      ];
-                    } else {
-                      columns[parentColumnIndex].children[childColumnIndex]['children'].push({
-                        title: columnTitle,
-                      });
-                    }
-                    var columnValue = columnTitle.split(':')[3];
-                    if (!ports.includes(columnValue)) {
-                      ports.push(columnValue);
-                    }
-                    var columnMean =
-                      iterationType + '-' + iterationNetwork + '-' + columnTitle + '-' + 'mean';
-                    var columnStdDev =
-                      iterationType +
-                      '-' +
-                      iterationNetwork +
-                      '-' +
-                      columnTitle +
-                      '-' +
-                      'stddevpct';
-                    var columnSample =
-                      iterationType +
-                      '-' +
-                      iterationNetwork +
-                      '-' +
-                      columnTitle +
-                      '-' +
-                      'closestsample';
-                    var dataChildColumnIndex = this.getColumnIndex(
-                      columns[parentColumnIndex].children[childColumnIndex]['children'],
-                      columnTitle
-                    );
-                    if (dataChildColumnIndex == undefined) {
-                      dataChildColumnIndex = 0;
-                    }
-                    if (!this.containsKey(columns, columnMean)) {
-                      if (
-                        columns[parentColumnIndex].children[childColumnIndex].children[
-                          dataChildColumnIndex
-                        ]['children'] == undefined
-                      ) {
-                        columns[parentColumnIndex].children[childColumnIndex].children[
-                          dataChildColumnIndex
-                        ]['children'] = [
-                          {
-                            title: 'mean',
-                            dataIndex: columnMean,
-                            key: columnMean,
-                            sorter: (a, b) => a[columnMean] - b[columnMean],
-                          },
-                        ];
-                        iterationObject[columnMean] =
-                          response[iteration].iteration_data[iterationType][iterationNetwork][
-                            iterationData
-                          ].mean;
-                      } else {
-                        columns[parentColumnIndex].children[childColumnIndex].children[
-                          dataChildColumnIndex
-                        ]['children'].push({
-                          title: 'mean',
-                          dataIndex: columnMean,
-                          key: columnMean,
-                          sorter: (a, b) => a[columnMean] - b[columnMean],
-                        });
-                        iterationObject[columnMean] =
-                          response[iteration].iteration_data[iterationType][iterationNetwork][
-                            iterationData
-                          ].mean;
-                      }
-                    }
-                    if (!this.containsKey(columns, columnStdDev)) {
-                      if (
-                        columns[parentColumnIndex].children[childColumnIndex].children[
-                          dataChildColumnIndex
-                        ]['children'] == undefined
-                      ) {
-                        columns[parentColumnIndex].children[childColumnIndex].children[
-                          dataChildColumnIndex
-                        ]['children'] = [
-                          {
-                            title: 'stddevpct',
-                            dataIndex: columnStdDev,
-                            key: columnStdDev,
-                            sorter: (a, b) => a[columnStdDev] - b[columnStdDev],
-                          },
-                        ];
-                        iterationObject[columnStdDev] =
-                          response[iteration].iteration_data[iterationType][iterationNetwork][
-                            iterationData
-                          ].stddevpct;
-                      } else {
-                        columns[parentColumnIndex].children[childColumnIndex].children[
-                          dataChildColumnIndex
-                        ]['children'].push({
-                          title: 'stddevpct',
-                          dataIndex: columnStdDev,
-                          key: columnStdDev,
-                          sorter: (a, b) => a[columnStdDev] - b[columnStdDev],
-                        });
-                        iterationObject[columnStdDev] =
-                          response[iteration].iteration_data[iterationType][iterationNetwork][
-                            iterationData
-                          ].stddevpct;
-                      }
-                    }
-                    if (!this.containsKey(columns, columnSample)) {
-                      if (
-                        columns[parentColumnIndex].children[childColumnIndex].children[
-                          dataChildColumnIndex
-                        ]['children'] == undefined
-                      ) {
-                        columns[parentColumnIndex].children[childColumnIndex].children[
-                          dataChildColumnIndex
-                        ]['children'] = [
-                          {
-                            title: 'closest sample',
-                            dataIndex: columnSample,
-                            key: columnSample,
-                            sorter: (a, b) => a[columnSample] - b[columnSample],
-                            render: (text, record) => {
-                              return <a>{text}</a>;
-                            },
-                          },
-                        ];
-                        iterationObject[columnSample] =
-                          response[iteration].iteration_data[iterationType][iterationNetwork][
-                            iterationData
-                          ]['closest sample'];
-                        iterationObject['closest_sample'] =
-                          response[iteration].iteration_data[iterationType][iterationNetwork][
-                            iterationData
-                          ]['closest sample'];
-                      } else {
-                        columns[parentColumnIndex].children[childColumnIndex].children[
-                          dataChildColumnIndex
-                        ]['children'].push({
-                          title: 'closest sample',
-                          dataIndex: columnSample,
-                          key: columnSample,
-                          sorter: (a, b) => a[columnSample] - b[columnSample],
-                          render: (text, record) => {
-                            return <a>{text}</a>;
-                          },
-                        });
-                        iterationObject[columnSample] =
-                          response[iteration].iteration_data[iterationType][iterationNetwork][
-                            iterationData
-                          ]['closest sample'];
-                        iterationObject['closest_sample'] =
-                          response[iteration].iteration_data[iterationType][iterationNetwork][
-                            iterationData
-                          ]['closest sample'];
-                      }
-                    }
-                  }
-                }
-              } else {
-                for (var iterationData in response[iteration].iteration_data[iterationType][
-                  iterationNetwork
-                ]) {
-                  var columnTitle =
-                    'client_hostname:' +
-                    response[iteration].iteration_data[iterationType][iterationNetwork][
-                      iterationData
-                    ].client_hostname +
-                    '-server_hostname:' +
-                    response[iteration].iteration_data[iterationType][iterationNetwork][
-                      iterationData
-                    ].server_hostname +
-                    '-server_port:' +
-                    response[iteration].iteration_data[iterationType][iterationNetwork][
-                      iterationData
-                    ].server_port;
-                  var columnMean =
-                    iterationType + '-' + iterationNetwork + '-' + columnTitle + '-' + 'mean';
-                  var columnStdDev =
-                    iterationType + '-' + iterationNetwork + '-' + columnTitle + '-' + 'stddevpct';
-                  var columnSample =
-                    iterationType +
-                    '-' +
-                    iterationNetwork +
-                    '-' +
-                    columnTitle +
-                    '-' +
-                    'closestsample';
-                  iterationObject[columnMean] =
-                    response[iteration].iteration_data[iterationType][iterationNetwork][
-                      iterationData
-                    ].mean;
-                  iterationObject[columnStdDev] =
-                    response[iteration].iteration_data[iterationType][iterationNetwork][
-                      iterationData
-                    ].stddevpct;
-                  iterationObject[columnSample] =
-                    response[iteration].iteration_data[iterationType][iterationNetwork][
-                      iterationData
-                    ]['closest sample'];
-                  iterationObject['closest_sample'] =
-                    response[iteration].iteration_data[iterationType][iterationNetwork][
-                      iterationData
-                    ]['closest sample'];
-                }
-              }
-            }
-          }
-        }
-
-        iterations.push(iterationObject);
-      }
-    }
-    iterations.sort(function(a, b) {
-      return a.iteration_number - b.iteration_number;
-    });
-    responseData['resultName'] = resultName;
-    responseData['columns'] = columns;
-    responseData['iterations'] = iterations;
-    this.setState({
-      ports: ports,
-      configData: configCategories,
-    });
-    return responseData;
-  }
 
   containsKey(columns, item) {
     var contains = false;
@@ -672,10 +327,30 @@ class Summary extends ReactJS.Component {
     } = this.state;
     const { selectedResults, summaryResult, selectedController, tocResult } = this.props;
 
+    if (Array.isArray(summaryResult)) {
+      // console.log("summaryResult is not supposed to be an array!");
+      return <Spin />;
+    }
+    else if (Object.keys(summaryResult).length <= 0) {
+      // console.log("No keys for summaryResult");
+      return <Spin />;
+    }
+    else if (!Array.isArray(responseData)) {
+      // console.log("responseData is not an array!");
+      return <Spin />;
+    }
+    else if (responseData.length <= 0) {
+      // console.log('no responseData when we have a summaryResult dictionary!');
+      return <div>result.json not found!</div>;
+    }
+    else if (responseData.length > 1) {
+      throw new Error('Logic Bomb!  Unexpectedly received too many response data sets.');
+    }
+
     var responseDataCopy = {};
-    responseDataCopy['columns'] = cloneDeep(responseData.columns);
-    responseDataCopy['iterations'] = cloneDeep(responseData.iterations);
-    responseDataCopy['resultName'] = cloneDeep(responseData.resultName);
+    responseDataCopy['columns'] = cloneDeep(responseData[0].columns);
+    responseDataCopy['iterations'] = cloneDeep(responseData[0].iterations);
+    responseDataCopy['resultName'] = cloneDeep(responseData[0].resultName);
 
     var responseColumns = responseDataCopy.columns;
     var responseIterations = responseDataCopy.iterations;
@@ -719,180 +394,189 @@ class Summary extends ReactJS.Component {
       }
     }
 
-    if (Object.keys(summaryResult).length > 0) {
-      var metadataTag = '';
-      const hostTools = summaryResult._source.host_tools_info;
+    var metadataTag = '';
+    const hostTools = summaryResult._source.host_tools_info;
 
-      if (typeof summaryResult._source['@metadata'] !== 'undefined') {
-        metadataTag = '@metadata';
-      } else {
-        metadataTag = '_metadata';
-      }
+    if (typeof summaryResult._source['@metadata'] !== 'undefined') {
+      metadataTag = '@metadata';
+    } else {
+      metadataTag = '_metadata';
+    }
 
-      const contentList = {
-        iterations: (
-          <Card title="Result Iterations" style={{ marginTop: 32 }}>
-            <Button onClick={this.clearFilters}>Clear Filters</Button>
-            <br />
+    const contentList = {
+      iterations: (
+        <Card title="Result Iterations" style={{ marginTop: 32 }}>
+          <Button onClick={this.clearFilters}>Clear Filters</Button>
+          <br />
+          <Select
+            allowClear={true}
+            placeholder="Filter Hostname & Port"
+            style={{ marginTop: 16, width: 160 }}
+            onChange={this.portChange}
+          >
+            {ports.map((port, i) => (
+              <Select.Option value={port}>{port}</Select.Option>
+            ))}
+          </Select>
+          {Object.keys(configData).map((category, i) => (
             <Select
               allowClear={true}
-              placeholder="Filter Hostname & Port"
-              style={{ marginTop: 16, width: 160 }}
-              onChange={this.portChange}
+              placeholder={category}
+              style={{ marginLeft: 8, width: 160 }}
+              value={selectedConfig[category]}
+              onChange={value => this.configChange(value, category)}
             >
               {ports.map((port, i) => (
                 <Select.Option key={i} value={port}>{port}</Select.Option>
               ))}
             </Select>
-            {Object.keys(configData).map((category, i) => (
-              <Select
-                key={i}
-                allowClear={true}
-                placeholder={category}
-                style={{ marginLeft: 8, width: 160 }}
-                value={selectedConfig[category]}
-                onChange={value => this.configChange(value, category)}
+            ))}
+          {Object.keys(configData).map((category, i) => (
+            <Select
+              key={i}
+              allowClear={true}
+              placeholder={category}
+              style={{ marginLeft: 8, width: 160 }}
+              value={selectedConfig[category]}
+              onChange={value => this.configChange(value, category)}
+            >
+              {configData[category].map((categoryData, i) => (
+                <Select.Option key={i} value={categoryData}>{categoryData}</Select.Option>
+              ))}
+            </Select>
+          ))}
+          <Table
+            style={{ marginTop: 16 }}
+            loading={loading}
+            columns={responseDataCopy.columns}
+            dataSource={responseDataCopy.iterations}
+            bordered
+            pagination={{ pageSize: 20 }}
+          />
+        </Card>
+        ),
+      metadata: (
+        <Card title="Result Metadata" style={{ marginTop: 32 }}>
+          <ul className="list-group">
+            <li className="list-group-item">
+              <h5 className="list-group-item-heading">Script</h5>
+              <p className="list-group-item-text" id="script">
+                {summaryResult._source.run.script}
+              </p>
+            </li>
+            <li className="list-group-item">
+              <h5 className="list-group-item-heading">Configuration</h5>
+              <p className="list-group-item-text" id="config">
+                {summaryResult._source.run.config}
+              </p>
+            </li>
+            <li className="list-group-item">
+              <h5 className="list-group-item-heading">Controller</h5>
+              <p className="list-group-item-text" id="controller">
+                {summaryResult._source.run.controller}
+              </p>
+            </li>
+            <li className="list-group-item">
+              <h5 className="list-group-item-heading">File Name</h5>
+              <p
+                className="list-group-item-text"
+                style={{ overflowWrap: 'break-word' }}
+                id="file_name"
               >
-                {configData[category].map((categoryData, i) => (
-                  <Select.Option key={i} value={categoryData}>{categoryData}</Select.Option>
-                ))}
-              </Select>
-            ))}
-            <Table
-              style={{ marginTop: 16 }}
-              loading={loading}
-              columns={responseDataCopy.columns}
-              dataSource={responseDataCopy.iterations}
-              bordered
-              pagination={{ pageSize: 20 }}
-            />
-          </Card>
-        ),
-        metadata: (
-          <Card title="Result Metadata" style={{ marginTop: 32 }}>
-            <ul className="list-group">
+                {summaryResult._source[metadataTag]['file-name']}
+              </p>
+            </li>
+            <li className="list-group-item">
+              <h5 className="list-group-item-heading">Pbench Agent Version</h5>
+              <p className="list-group-item-text" id="pbench_version">
+                {summaryResult._source[metadataTag]['pbench-agent-version']}
+              </p>
+            </li>
+            <li className="list-group-item">
+              <h5 className="list-group-item-heading">Indexer Name</h5>
+              <p className="list-group-item-text" id="generated_by">
+                {summaryResult._source[metadataTag]['generated-by']}
+              </p>
+            </li>
+            <li className="list-group-item">
+              <h5 className="list-group-item-heading">Indexer Version</h5>
+              <p className="list-group-item-text" id="generated_by_version">
+                {summaryResult._source[metadataTag]['md5']}
+              </p>
+            </li>
+          </ul>
+        </Card>
+      ),
+      tools: (
+        <Card title="Tools and Parameters" style={{ marginTop: 32 }}>
+          {hostTools.map((host, i) => (
+            <div key={i}>
+              <br />
               <li className="list-group-item">
-                <h5 className="list-group-item-heading">Script</h5>
-                <p className="list-group-item-text" id="script">
-                  {summaryResult._source.run.script}
-                </p>
+                <h5 className="list-group-item-heading">Host</h5>
+                <p className="list-group-item-text">{host.hostname}</p>
               </li>
               <li className="list-group-item">
-                <h5 className="list-group-item-heading">Configuration</h5>
-                <p className="list-group-item-text" id="config">
-                  {summaryResult._source.run.config}
-                </p>
+                <h5 className="list-group-item-heading">mpstat</h5>
+                <p className="list-group-item-text">{host.tools.mpstat}</p>
               </li>
               <li className="list-group-item">
-                <h5 className="list-group-item-heading">Controller</h5>
-                <p className="list-group-item-text" id="controller">
-                  {summaryResult._source.run.controller}
-                </p>
+                <h5 className="list-group-item-heading">perf</h5>
+                <p className="list-group-item-text">{host.tools.perf}</p>
               </li>
               <li className="list-group-item">
-                <h5 className="list-group-item-heading">File Name</h5>
-                <p
-                  className="list-group-item-text"
-                  style={{ overflowWrap: 'break-word' }}
-                  id="file_name"
-                >
-                  {summaryResult._source[metadataTag]['file-name']}
-                </p>
+                <h5 className="list-group-item-heading">proc-interrupts</h5>
+                <p className="list-group-item-text">{host.tools['proc-interrupts']}</p>
               </li>
               <li className="list-group-item">
-                <h5 className="list-group-item-heading">Pbench Agent Version</h5>
-                <p className="list-group-item-text" id="pbench_version">
-                  {summaryResult._source[metadataTag]['pbench-agent-version']}
-                </p>
+                <h5 className="list-group-item-heading">proc-vmstat</h5>
+                <p className="list-group-item-text">{host.tools['proc-vmstat']}</p>
               </li>
               <li className="list-group-item">
-                <h5 className="list-group-item-heading">Indexer Name</h5>
-                <p className="list-group-item-text" id="generated_by">
-                  {summaryResult._source[metadataTag]['generated-by']}
-                </p>
+                <h5 className="list-group-item-heading">sar</h5>
+                <p className="list-group-item-text">{host.tools.sar}</p>
               </li>
               <li className="list-group-item">
-                <h5 className="list-group-item-heading">Indexer Version</h5>
-                <p className="list-group-item-text" id="generated_by_version">
-                  {summaryResult._source[metadataTag]['md5']}
-                </p>
+                <h5 className="list-group-item-heading">pidstat</h5>
+                <p className="list-group-item-text">{host.tools.pidstat}</p>
               </li>
-            </ul>
-          </Card>
-        ),
-        tools: (
-          <Card title="Tools and Parameters" style={{ marginTop: 32 }}>
-            {hostTools.map((host, i) => (
-              <div key={i}>
-                <br />
-                <li className="list-group-item">
-                  <h5 className="list-group-item-heading">Host</h5>
-                  <p className="list-group-item-text">{host.hostname}</p>
-                </li>
-                <li className="list-group-item">
-                  <h5 className="list-group-item-heading">mpstat</h5>
-                  <p className="list-group-item-text">{host.tools.mpstat}</p>
-                </li>
-                <li className="list-group-item">
-                  <h5 className="list-group-item-heading">perf</h5>
-                  <p className="list-group-item-text">{host.tools.perf}</p>
-                </li>
-                <li className="list-group-item">
-                  <h5 className="list-group-item-heading">proc-interrupts</h5>
-                  <p className="list-group-item-text">{host.tools['proc-interrupts']}</p>
-                </li>
-                <li className="list-group-item">
-                  <h5 className="list-group-item-heading">proc-vmstat</h5>
-                  <p className="list-group-item-text">{host.tools['proc-vmstat']}</p>
-                </li>
-                <li className="list-group-item">
-                  <h5 className="list-group-item-heading">sar</h5>
-                  <p className="list-group-item-text">{host.tools.sar}</p>
-                </li>
-                <li className="list-group-item">
-                  <h5 className="list-group-item-heading">pidstat</h5>
-                  <p className="list-group-item-text">{host.tools.pidstat}</p>
-                </li>
-                <li className="list-group-item">
-                  <h5 className="list-group-item-heading">turbostat</h5>
-                  <p className="list-group-item-text">{host.tools.turbostat}</p>
-                </li>
-                <li className="list-group-item">
-                  <h5 className="list-group-item-heading">iostat</h5>
-                  <p className="list-group-item-text">{host.tools.iostat}</p>
-                </li>
-              </div>
-            ))}
-          </Card>
-        ),
-        toc: (
-          <Card title="Table of Contents" style={{ marginTop: 32 }}>
-            <Table columns={columns} dataSource={tocTree} defaultExpandAllRows />
-          </Card>
-        ),
-      };
+              <li className="list-group-item">
+                <h5 className="list-group-item-heading">turbostat</h5>
+                <p className="list-group-item-text">{host.tools.turbostat}</p>
+              </li>
+              <li className="list-group-item">
+                <h5 className="list-group-item-heading">iostat</h5>
+                <p className="list-group-item-text">{host.tools.iostat}</p>
+              </li>
+            </div>
+          ))}
+        </Card>
+      ),
+      toc: (
+        <Card title="Table of Contents" style={{ marginTop: 32 }}>
+          <Table columns={columns} dataSource={tocTree} defaultExpandAllRows />
+        </Card>
+      ),
+    };
 
-      return (
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div>
-            <PageHeaderLayout
-              title={selectedResults['run.name']}
-              content={
-                <Tag color="blue" key={selectedController}>
-                  {'controller: ' + selectedController}
-                </Tag>
-              }
-              tabList={tabList}
-              tabActiveKey={activeTab}
-              onTabChange={this.onTabChange}
-            />
-            {contentList[activeTab]}
-          </div>
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div>
+          <PageHeaderLayout
+            title={selectedResults[0]['run.name']}
+            content={
+              <Tag color="blue" key={selectedController}>
+                {'controller: ' + selectedController}
+              </Tag>
+            }
+            tabList={tabList}
+            tabActiveKey={activeTab}
+            onTabChange={this.onTabChange}
+          />
+          {contentList[activeTab]}
         </div>
-      );
-    } else {
-      return <Spin />;
-    }
+      </div>
+    );
   }
 }
 
