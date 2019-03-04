@@ -152,3 +152,15 @@ const reg = /(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(?::\d+)?|(
 export function isUrl(path) {
   return reg.test(path);
 }
+
+export function compareByAlph(a, b) {
+  let ret;
+  if (a > b) {
+    ret = 1;
+  } else if (a < b) {
+    ret = -1;
+  } else {
+    ret = 0;
+  }
+  return ret;
+}

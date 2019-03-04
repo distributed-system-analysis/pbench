@@ -2,8 +2,9 @@ import { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Card, Table, Input, Button, Icon, Form, Select, notification } from 'antd';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 const FormItem = Form.Item;
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { compareByAlph } from '../../utils/utils';
 
 @connect(({ global, dashboard, loading }) => ({
   controllers: dashboard.controllers,
@@ -263,14 +264,4 @@ export default class Controllers extends Component {
       </PageHeaderLayout>
     );
   }
-}
-
-function compareByAlph(a, b) {
-  if (a > b) {
-    return -1;
-  }
-  if (a < b) {
-    return 1;
-  }
-  return 0;
 }
