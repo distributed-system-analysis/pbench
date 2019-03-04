@@ -253,10 +253,15 @@ export const parseIterationData = results => {
             iterationObject[columnMean] = curr_iter_type[iterationNetwork][iterationData].mean;
             iterationObject[columnStdDev] =
               curr_iter_type[iterationNetwork][iterationData].stddevpct;
-            iterationObject[columnSample] =
-              curr_iter_type[iterationNetwork][iterationData]['closest sample'];
-            iterationObject['closest_sample'] =
-              curr_iter_type[iterationNetwork][iterationData]['closest sample'];
+            let closest_sample;
+            if (curr_iter_type[iterationNetwork][iterationData]['closest sample'] == undefined) {
+              closest_sample = curr_iter_type[iterationNetwork][iterationData]['closest_sample'];
+            }
+            else {
+              closest_sample = curr_iter_type[iterationNetwork][iterationData]['closest sample'];
+            }
+            iterationObject[columnSample] = closest_sample;
+            iterationObject['closest_sample'] = closest_sample;
           }
         }
       }
