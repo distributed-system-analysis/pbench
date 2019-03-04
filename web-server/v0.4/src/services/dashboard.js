@@ -28,10 +28,7 @@ export async function queryControllers(params) {
           terms: {
             field: 'controller',
             size: 0,
-            order: [
-              { runs: 'desc' },
-              { runs_preV1: 'desc' }
-            ]
+            order: [{ runs: 'desc' }, { runs_preV1: 'desc' }],
           },
           aggs: {
             runs_preV1: {
@@ -131,14 +128,17 @@ export async function queryIterations(params) {
   let iterationRequests = [];
   if (typeof params.selectedResults != undefined) {
     selectedResults.map(result => {
+      let controller = result.controller;
       iterationRequests.push(
         axios.get(
-          datastoreConfig.results +
-          '/incoming/' +
-          (result.controller.includes('.') ? encodeURI(result.controller.slice(0, result.controller.indexOf('.'))) : encodeURI(result.controller)) +
-          '/' +
-          encodeURI(result['run.name']) +
-          '/result.json'
+          datastoreConfig.results
+            + '/incoming/'
+            + (controller.includes('.')
+               ? encodeURI(controller.slice(0, controller.indexOf('.')))
+               : encodeURI(controller))
+            + '/'
+            + encodeURI(result['run.name'])
+            + '/result.json'
         )
       );
     });
@@ -158,7 +158,22 @@ export async function queryIterations(params) {
         return iterations;
       })
       .catch(error => {
-        console.log(error);
+        if ((error.response !== undefined) && (error.response.status !== undefined)) {
+          if (error.response.status == 404) {
+            console.log('(404) Not Found (queryIterations): ' + error.request.responseURL);
+            return [];
+          }
+          else {
+            console.log(
+              '(' + error.response.status + ') queryIterations: GET ' + error.request.responseURL + ' -- ' + error
+            );
+            throw error;
+          }
+        }
+        else {
+          console.log("queryIterations: " + error);
+          throw error;
+        }
       });
   }
 }
