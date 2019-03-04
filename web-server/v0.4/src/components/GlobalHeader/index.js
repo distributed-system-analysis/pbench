@@ -30,7 +30,6 @@ class GlobalHeader extends PureComponent {
 
   render() {
     const { collapsed, isMobile, logo, location, dispatch } = this.props;
-    console.log('header rendered');
 
     return (
       <div className={styles.header}>
