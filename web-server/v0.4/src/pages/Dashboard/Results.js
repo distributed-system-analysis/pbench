@@ -2,8 +2,9 @@ import { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Tag, Card, Table, Input, Button, Icon, Form } from 'antd';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 const FormItem = Form.Item;
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { compareByAlph } from '../../utils/utils';
 
 @connect(({ global, dashboard, loading }) => ({
   selectedIndices: global.selectedIndices,
@@ -255,18 +256,4 @@ export default class Results extends Component {
       </PageHeaderLayout>
     );
   }
-}
-
-function compareByAlph(a, b) {
-  let ret;
-  if (a > b) {
-    ret = 1;
-  }
-  else if (a < b) {
-    ret = -1;
-  }
-  else {
-    ret = 0;
-  }
-  return ret;
 }
