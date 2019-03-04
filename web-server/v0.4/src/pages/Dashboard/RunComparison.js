@@ -120,9 +120,9 @@ export default class RunComparison extends ReactJS.Component {
         for (var iteration in clusteredIterations[primaryMetric][cluster]) {
           clusterObject[iteration] =
             clusteredIterations[primaryMetric][cluster][iteration][
-            Object.keys(clusteredIterations[primaryMetric][cluster][iteration]).find(
-              this.findAggregation
-            )
+              Object.keys(clusteredIterations[primaryMetric][cluster][iteration]).find(
+                this.findAggregation
+              )
             ];
         }
         clusteredGraphData[primaryMetric].push(clusterObject);
@@ -142,15 +142,17 @@ export default class RunComparison extends ReactJS.Component {
         graphKeys[primaryMetric].push(i);
       }
     }
-    this.setState({ tableData: tableData });
-    this.setState({ graphKeys: graphKeys });
-    this.setState({ clusteredGraphData: clusteredGraphData });
-    this.setState({ loading: false });
+    this.setState({
+      tableData: tableData,
+      graphKeys: graphKeys,
+      clusteredGraphData: clusteredGraphData,
+      loading: false,
+    });
   };
 
   groupClusters = (array, cluster, f) => {
     var groups = {};
-    array.forEach(function (o) {
+    array.forEach(function(o) {
       var group = f(o).join('-');
       groups[group] = groups[group] || [];
       groups[group].push(o);
@@ -158,14 +160,16 @@ export default class RunComparison extends ReactJS.Component {
     var { clusterLabels } = this.state;
     clusterLabels[cluster] = Object.keys(groups);
     this.setState({ clusterLabels: clusterLabels });
-    return Object.keys(groups).map(function (group) {
+    return Object.keys(groups).map(function(group) {
       return groups[group];
     });
   };
 
   generateIterationClusters = config => {
-    this.setState({ loading: true });
-    this.setState({ selectedConfig: config });
+    this.setState({
+      loading: true,
+      selectedConfig: config,
+    });
     const { iterations } = this.props.location.state;
     var primaryMetricIterations = [];
     primaryMetricIterations = _.mapValues(_.groupBy(iterations, 'primary_metric'), clist =>
@@ -178,7 +182,7 @@ export default class RunComparison extends ReactJS.Component {
         clusteredIterations = this.groupClusters(
           primaryMetricIterations[cluster],
           cluster,
-          function (item) {
+          function(item) {
             var configData = [];
             for (var filter in config) {
               configData.push(item[config[filter]]);
@@ -221,29 +225,29 @@ export default class RunComparison extends ReactJS.Component {
           iterationRequests.push(
             axios.get(
               datastoreConfig.results +
-              '/incoming/' +
-              encodeURIComponent(
-                clusteredIterations[primaryMetric][cluster][iteration].controller_name
-              ) +
-              '/' +
-              encodeURIComponent(
-                clusteredIterations[primaryMetric][cluster][iteration].result_name
-              ) +
-              '/' +
-              encodeURIComponent(
-                clusteredIterations[primaryMetric][cluster][iteration].iteration_number
-              ) +
-              '-' +
-              encodeURIComponent(
-                clusteredIterations[primaryMetric][cluster][iteration].iteration_name
-              ) +
-              '/' +
-              'sample' +
-              encodeURIComponent(
-                clusteredIterations[primaryMetric][cluster][iteration].closest_sample
-              ) +
-              '/' +
-              'result.json'
+                '/incoming/' +
+                encodeURIComponent(
+                  clusteredIterations[primaryMetric][cluster][iteration].controller_name
+                ) +
+                '/' +
+                encodeURIComponent(
+                  clusteredIterations[primaryMetric][cluster][iteration].result_name
+                ) +
+                '/' +
+                encodeURIComponent(
+                  clusteredIterations[primaryMetric][cluster][iteration].iteration_number
+                ) +
+                '-' +
+                encodeURIComponent(
+                  clusteredIterations[primaryMetric][cluster][iteration].iteration_name
+                ) +
+                '/' +
+                'sample' +
+                encodeURIComponent(
+                  clusteredIterations[primaryMetric][cluster][iteration].closest_sample
+                ) +
+                '/' +
+                'result.json'
             )
           );
         }
@@ -285,8 +289,8 @@ export default class RunComparison extends ReactJS.Component {
                     }
                     timeseriesLabels.push(
                       clusteredIterations[primaryMetric][cluster][iteration].result_name +
-                      '-' +
-                      clusteredIterations[primaryMetric][cluster][iteration].iteration_name
+                        '-' +
+                        clusteredIterations[primaryMetric][cluster][iteration].iteration_name
                     );
                     iterationTimeseriesData = _.merge(
                       iterationTimeseriesData,
@@ -313,9 +317,11 @@ export default class RunComparison extends ReactJS.Component {
           timeseriesData[Object.keys(timeseriesData)[primaryMetric]]
         );
       }
-      this.setState({ timeseriesData: timeseriesData });
-      this.setState({ timeseriesDropdownSelected: timeseriesDropdownSelected });
-      this.setState({ timeseriesDropdown: timeseriesDropdown });
+      this.setState({
+        timeseriesData: timeseriesData,
+        timeseriesDropdownSelected: timeseriesDropdownSelected,
+        timeseriesDropdown: timeseriesDropdown,
+      });
     });
   }
 
@@ -384,32 +390,37 @@ export default class RunComparison extends ReactJS.Component {
   };
 
   handleOk = e => {
-    this.setState({
-      pdfName: document.getElementById("pdfName").value,
-      pdfHeader: document.getElementById("pdfHeader").value,
-    }, () => {
-      if (this.state.pdfName == '') {
-        console.log(document.getElementById("pdfName").value, moment().format())
-        this.setState({
-          pdfName: moment().format(),
-        });
+    this.setState(
+      {
+        pdfName: document.getElementById('pdfName').value,
+        pdfHeader: document.getElementById('pdfHeader').value,
+      },
+      () => {
+        if (this.state.pdfName == '') {
+          console.log(document.getElementById('pdfName').value, moment().format());
+          this.setState({
+            pdfName: moment().format(),
+          });
+        }
+        if (this.state.pdfHeader == ' ') {
+          message.error('Add PDF description');
+        } else {
+          this.setState(
+            {
+              generatingPdf: true,
+              selectedComponents:
+                this.state.defaultComponents.length == 4
+                  ? ['all']
+                  : [...this.state.defaultComponents],
+            },
+            () => {
+              console.log(this.state.selectedComponents);
+              this.savePDF();
+            }
+          );
+        }
       }
-      if (this.state.pdfHeader == ' ') {
-        message.error('Add PDF description');
-      } else {
-        this.setState(
-          {
-            generatingPdf: true,
-            selectedComponents:
-              this.state.defaultComponents.length == 4 ? ['all'] : [...this.state.defaultComponents],
-          },
-          () => {
-            console.log(this.state.selectedComponents);
-            this.savePDF();
-          }
-        );
-      }
-    });
+    );
   };
 
   handleCancel = e => {
@@ -729,43 +740,43 @@ export default class RunComparison extends ReactJS.Component {
             </TabPane>
             <TabPane forceRender={true} tab="All" key="all" style={{ padding: 16 }}>
               {(Object.keys(timeseriesData).length > 0) &
-                (Object.keys(timeseriesDropdown).length > 0) ? (
-                  <div id="timeseries">
-                    {Object.keys(tableData).map(table => (
-                      <Card
-                        type="inner"
-                        title={table}
-                        style={{ marginBottom: 16 }}
-                        extra={
-                          <Form layout={'inline'}>
-                            <FormItem
-                              label="Selected Cluster"
-                              colon={false}
-                              style={{ marginLeft: 16, fontWeight: '500' }}
+              (Object.keys(timeseriesDropdown).length > 0) ? (
+                <div id="timeseries">
+                  {Object.keys(tableData).map(table => (
+                    <Card
+                      type="inner"
+                      title={table}
+                      style={{ marginBottom: 16 }}
+                      extra={
+                        <Form layout={'inline'}>
+                          <FormItem
+                            label="Selected Cluster"
+                            colon={false}
+                            style={{ marginLeft: 16, fontWeight: '500' }}
+                          >
+                            <Select
+                              defaultValue={'Cluster ' + 0}
+                              style={{ width: 120, marginLeft: 16 }}
+                              value={timeseriesDropdownSelected[table]}
+                              onChange={value => this.clusterDropdownChange(value, table)}
                             >
-                              <Select
-                                defaultValue={'Cluster ' + 0}
-                                style={{ width: 120, marginLeft: 16 }}
-                                value={timeseriesDropdownSelected[table]}
-                                onChange={value => this.clusterDropdownChange(value, table)}
-                              >
-                                {timeseriesDropdown[table].map(cluster => (
-                                  <Select.Option value={cluster}>
-                                    {'Cluster ' + cluster}
-                                  </Select.Option>
-                                ))}
-                              </Select>
-                            </FormItem>
-                          </Form>
-                        }
-                      >
-                        <div id={table} />
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div />
-                )}
+                              {timeseriesDropdown[table].map(cluster => (
+                                <Select.Option value={cluster}>
+                                  {'Cluster ' + cluster}
+                                </Select.Option>
+                              ))}
+                            </Select>
+                          </FormItem>
+                        </Form>
+                      }
+                    >
+                      <div id={table} />
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div />
+              )}
             </TabPane>
           </Tabs>
         </Card>

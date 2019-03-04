@@ -43,12 +43,14 @@ class ComparisonSelect extends ReactJS.Component {
     queryIterations({ selectedResults: selectedResults, datastoreConfig: datastoreConfig })
       .then(res => {
         let parsedIterationData = parseIterationData(res);
-        this.setState({ responseData: parsedIterationData.responseData });
-        this.setState({ selectedRowKeys: parsedIterationData.selectedRowKeys });
-        this.setState({ responseDataAll: parsedIterationData.responseDataAll });
-        this.setState({ configData: parsedIterationData.configData });
-        this.setState({ ports: parsedIterationData.ports });
-        this.setState({ loading: false });
+        this.setState({
+          responseData: parsedIterationData.responseData,
+          selectedRowKeys: parsedIterationData.selectedRowKeys,
+          responseDataAll: parsedIterationData.responseDataAll,
+          configData: parsedIterationData.configData,
+          ports: parsedIterationData.ports,
+          loading: false,
+        });
       })
       .catch(err => {
         this.openNetworkErrorNotification('error');
@@ -174,8 +176,10 @@ class ComparisonSelect extends ReactJS.Component {
   };
 
   clearFilters = () => {
-    this.setState({ selectedConfig: [] });
-    this.setState({ selectedPort: 'all' });
+    this.setState({
+      selectedConfig: [],
+      selectedPort: 'all',
+    });
   };
 
   portChange = value => {

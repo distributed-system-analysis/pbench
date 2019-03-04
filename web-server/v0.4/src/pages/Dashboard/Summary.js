@@ -134,8 +134,10 @@ class Summary extends ReactJS.Component {
           selectedResults['run.name'],
           selectedController
         );
-        this.setState({ responseData: responseData });
-        this.setState({ loading: false });
+        this.setState({
+          responseData: responseData,
+          loading: false,
+        });
       })
       .catch(error => {
         this.openNetworkErrorNotification('error');
@@ -478,8 +480,10 @@ class Summary extends ReactJS.Component {
     responseData['resultName'] = resultName;
     responseData['columns'] = columns;
     responseData['iterations'] = iterations;
-    this.setState({ ports: ports });
-    this.setState({ configData: configCategories });
+    this.setState({
+      ports: ports,
+      configData: configCategories,
+    });
     return responseData;
   }
 
@@ -581,16 +585,17 @@ class Summary extends ReactJS.Component {
   };
 
   clearFilters = () => {
-    this.setState({ selectedConfig: [] });
-    this.setState({ selectedPort: 'all' });
+    this.setState({
+      selectedConfig: [],
+      selectedPort: 'all',
+    });
   };
 
   portChange = value => {
+    this.setState({ selectedPort: value });
     if (value == 'all') {
-      this.setState({ selectedPort: value });
       this.forceUpdate();
     }
-    this.setState({ selectedPort: value });
   };
 
   insertTreeData = (items = [], [head, ...tail]) => {
@@ -624,13 +629,14 @@ class Summary extends ReactJS.Component {
 
   onTabChange = key => {
     const { tocResult } = this.props;
-    this.setState({ activeTab: key });
+    let newstate = { activeTab: key };
     if (key == 'toc') {
       let tocTree = Object.keys(tocResult)
         .map(path => path.split('/').slice(1))
         .reduce((items, path) => this.insertTreeData(items, path), []);
-      this.setState({ tocTree: tocTree });
+      newstate['tocTree'] = tocTree;
     }
+    this.setState(newstate);
   };
 
   list(data) {

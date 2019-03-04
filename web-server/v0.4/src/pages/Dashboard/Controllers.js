@@ -23,7 +23,7 @@ export default class Controllers extends Component {
     this.state = {
       controllers: [],
       selectedIndicesUpdated: false,
-      searchText: ''
+      searchText: '',
     };
   }
 
@@ -45,11 +45,13 @@ export default class Controllers extends Component {
 
     dispatch({
       type: 'global/fetchDatastoreConfig',
-    }).then(() => {
-      this.fetchMonthIndices();
-    }).catch((err) => {
-      console.log(err)
-    });
+    })
+      .then(() => {
+        this.fetchMonthIndices();
+      })
+      .catch(err => {
+        console.log(err);
+      });
   };
 
   fetchMonthIndices = async () => {
@@ -156,8 +158,10 @@ export default class Controllers extends Component {
 
   emitEmpty = () => {
     this.searchInput.focus();
-    this.setState({ controllers: this.props.controllers });
-    this.setState({ searchText: '' });
+    this.setState({
+      controllers: this.props.controllers,
+      searchText: '',
+    });
   };
 
   render() {
@@ -251,8 +255,10 @@ export default class Controllers extends Component {
             columns={columns}
             dataSource={controllers}
             defaultPageSize={20}
-            onRow={(record) => ({
-              onClick: () => { this.retrieveResults(record); }
+            onRow={record => ({
+              onClick: () => {
+                this.retrieveResults(record);
+              },
             })}
             loading={loadingControllers || loadingConfig || loadingIndices}
             showSizeChanger={true}

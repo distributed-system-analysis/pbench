@@ -23,7 +23,7 @@ export default class Results extends Component {
       selectedRowNames: [],
       loading: false,
       loadingButton: false,
-      searchText: ''
+      searchText: '',
     };
   }
 
@@ -148,8 +148,10 @@ export default class Results extends Component {
 
   emitEmpty = () => {
     this.searchInput.focus();
-    this.setState({ results: this.props.results });
-    this.setState({ searchText: '' });
+    this.setState({
+      results: this.props.results,
+      searchText: '',
+    });
   };
 
   render() {
@@ -198,7 +200,7 @@ export default class Results extends Component {
           <Form layout={'inline'} style={{ display: 'flex', flex: 1, alignItems: 'center' }}>
             <FormItem>
               <Input
-                style={{ width: 300, }}
+                style={{ width: 300 }}
                 ref={ele => (this.searchInput = ele)}
                 prefix={<Icon type="search" style={{ color: 'rgba(0,0,0,.25)' }} />}
                 suffix={suffix}
@@ -245,8 +247,10 @@ export default class Results extends Component {
             rowSelection={rowSelection}
             columns={columns}
             dataSource={results}
-            onRow={(record) => ({
-              onClick: () => { this.retrieveResults(record); }
+            onRow={record => ({
+              onClick: () => {
+                this.retrieveResults(record);
+              },
             })}
             loading={loading}
             pagination={{ pageSize: 20 }}
