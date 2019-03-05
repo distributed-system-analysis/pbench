@@ -36,8 +36,8 @@ use PbenchAnsible    qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from
                         remove_files_from_hosts remove_dir_from_hosts create_dir_hosts
                         sync_dir_from_hosts verify_success stockpile_hosts);
 
-my %defaults = ( "num_samples" => 1,
-                 "tool_group" => "default" );
+my %defaults = ( "num-samples" => 1,
+                 "tool-group" => "default" );
 
 # The only required [positional] argument is the benchmark name; verify it now
 if (scalar @ARGV == 0) {
@@ -122,7 +122,7 @@ if ($? != 0) {
 }
 mkdir($base_bench_dir);
 open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
-metadata_log_begin_run($base_bench_dir);
+metadata_log_begin_run($base_bench_dir, $params{"tool-group"});
 # There can be multiple parts of a run if the user generated multiple parameter-sets
 # (used a "--" in their cmdline).  Each part of the run has it's own run document, 
 # but all of the run documents share the same run ID.
@@ -141,7 +141,7 @@ while (scalar @param_sets > 0) {
     if ($param_set =~ s/--samples=(\S+)\s*//) {
         $num_samples = $1;
     } else {
-        $num_samples = $defaults{'num_samples'};
+        $num_samples = $defaults{'num-samples'};
     }
     my $get_iters_cmd = "pbench-gen-iterations " . $benchmark . " " . $param_set;
     # Escape quotes again as this will get passed to pbench-gen-iterations again.
@@ -176,12 +176,12 @@ while (scalar @param_sets > 0) {
             my $iteration_sample_dir = $iteration_dir . "/sample" . $sample_id;
             mkdir($iteration_sample_dir);
             my $last_sample = "0";
-            if ($sample_id == ($params{"num_samples"} - 1)) {
+            if ($sample_id == ($params{"num-samples"} - 1)) {
                 $last_sample = "1";
             }
             my $benchmark_cmd = "pbench-run-benchmark-sample " . $es_dir . "/bench/iteration-" .
                                 $iter_doc{'iteration'}{'id'} . ".json " . $iteration_sample_dir .
-                                " " . $base_bench_dir . " " . $params{"tool_group"} . " " . $last_sample;
+                                " " . $base_bench_dir . " " . $params{"tool-group"} . " " . $last_sample;
             my $benchmark_sample_output = `$benchmark_cmd`;
             my $exit_code = $?;
             print "output:\n$benchmark_sample_output";
@@ -197,12 +197,12 @@ while (scalar @param_sets > 0) {
     %last_run_doc = %run_doc; # We need to keep at least 1 run doc to create the config docs later
     $run_part++;
 }
-metadata_log_end_run($base_bench_dir, $iteration_id, $benchmark, $params{'user-tags'});
+metadata_log_end_run($base_bench_dir, $iteration_id, $benchmark, $params{'user-tags'}, $params{'tool-group'});
 close $fh;
 # Generate the result.html (to go away once CDM/Elastic UI is available)
 system(". " . $pbench_install_path . "/base; " . $pbench_install_path .
-	"/bench-scripts/postprocess/generate-benchmark-summary " . $benchmark .
-	" " . $benchmark . " " . $base_bench_dir);
+    "/bench-scripts/postprocess/generate-benchmark-summary " . $benchmark .
+    " " . $benchmark . " " . $base_bench_dir);
 
 # Convert the stockpile data with scribe, then create CDM docs in ./es/config
 if (-e $base_bench_dir . "/stockpile.json") {
