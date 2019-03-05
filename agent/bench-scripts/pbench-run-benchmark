@@ -109,7 +109,7 @@ my $run_id = get_uuid;
 my %last_run_doc;
 print "Generating all benchmark iterations\n";
 # We don't want these params passed to gen-iterations because they are not bechmark-native options
-remove_params(\@ARGV, qw(user-desc user-tags user-name user-email)); 
+remove_params(\@ARGV, qw(user-desc user-tags user-name user-email));
 # First call pbench-gen-iterations and only resolve any --defaults=, so that the run
 # doc has the full set of params
 my $get_defs_cmd = "pbench-gen-iterations " . $benchmark . " --defaults-only " . join(" ", @ARGV);
@@ -124,7 +124,7 @@ mkdir($base_bench_dir);
 open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
 metadata_log_begin_run($base_bench_dir, $params{"tool-group"});
 # There can be multiple parts of a run if the user generated multiple parameter-sets
-# (used a "--" in their cmdline).  Each part of the run has it's own run document, 
+# (used a "--" in their cmdline).  Each part of the run has it's own run document,
 # but all of the run documents share the same run ID.
 my $run_part = 0;
 while (scalar @param_sets > 0) {
@@ -164,7 +164,7 @@ while (scalar @param_sets > 0) {
             printf "%s\n", $param_set;
             next;
         }
-        my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,); 
+        my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,);
         put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{'iteration'}{'id'} . ".json");
         metadata_log_record_iteration($base_bench_dir, $iteration_id, $iteration_params);
         printf $fh "%d %s\n", $iteration_id, $iteration_params;
