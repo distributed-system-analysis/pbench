@@ -37,7 +37,8 @@ sub verify_success {
 	my $data_ref = from_json($text_data);
 	my %stats = %{ $$data_ref{"stats"}};
 	for my $host (keys %stats) {
-		if ($stats{$host}{"failures"} > 0 or $stats{$host}{"unreachable"} > 0) {
+		if ((exists $stats{$host}{"failures"} and $stats{$host}{"failures"} > 0) or
+		    (exists $stats{$host}{"unreachable"} and $stats{$host}{"unreachable"} > 0)) {
  			print "host $host failed";
 			return 0;
 		}

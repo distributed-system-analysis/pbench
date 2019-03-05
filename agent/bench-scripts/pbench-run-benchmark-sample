@@ -61,14 +61,14 @@ $sample{'sample'}{'num'} = $sample_num;
 # build a hash of clients and servers to be used in almost all the steps bewlow
 my %hosts;
 for my $type ("client", "server") {
-    if ($iteration{'run'}{'bench'}{$type . 's'}) {
+    if (exists $iteration{'run'}{'bench'}{$type . 's'} and $iteration{'run'}{'bench'}{$type . 's'}) {
         my @hosts = split(/,/, $iteration{'run'}{'bench'}{$type . 's'});
         $hosts{$type} = \@hosts;
     }
 }
 
 # all benchmarks must use --clients with at least 1 host
-if (! $hosts{"client"}) {
+if (! exists $hosts{"client"}) {
     print "There are no clients, exiting\n";
     exit 1;
 }
@@ -77,7 +77,7 @@ if (! $hosts{"client"}) {
 # - verify access to clients and servers by attempting to create the directories
 for my $type (keys %hosts) {
     if (scalar @{ $hosts{$type} }) {
-        if ($specs{$type} and ${specs}{$type}{"copy-to"}) {
+        if (exists $specs{$type} and exists ${specs}{$type}{"copy-to"}) {
             my $result;
             my $rc;
             my @files = @{ ${specs}{$type}{"copy-to"} };
@@ -91,7 +91,7 @@ for my $type (keys %hosts) {
 # - verify required software on clients and server (todo)
 for my $type (keys %hosts) {
     if (scalar @{ $hosts{$type} }) {
-        if ($specs{$type} and ${specs}{$type}{"packages"}) {
+        if (exists $specs{$type} and exists ${specs}{$type}{"packages"}) {
             my $result;
             my $rc;
             my @packages = @{ ${specs}{$type}{"packages"} };
@@ -101,7 +101,7 @@ for my $type (keys %hosts) {
     }
 }
 # - run pre-script in controller
-if ($specs{"controller"}{"pre-script"} and $specs{"controller"}{"pre-script"} ne "") {
+if (exists $specs{"controller"}{"pre-script"} and $specs{"controller"}{"pre-script"} ne "") {
     # pre-script gets same params as benchmark.
     my $preprocess_cmd = $specs{"controller"}{"pre-script"} . " " . $iteration{'iteration'}{'params'};
     my $preprocess_output = `$preprocess_cmd`;
@@ -115,7 +115,7 @@ if ($specs{"controller"}{"pre-script"} and $specs{"controller"}{"pre-script"} ne
 # - copy files to clients and servers
 for my $type (keys %hosts) {
     if (scalar @{ $hosts{$type} }) {
-        if ($specs{$type} and ${specs}{$type}{"copy-to"}) {
+        if (exists $specs{$type} and ${specs}{$type}{"copy-to"}) {
             my $result;
             my $rc;
             my @files = @{ ${specs}{$type}{"copy-to"} };
@@ -133,9 +133,9 @@ system("pbench-start-tools --iteration=0 --group=" . $tool_group . " --dir=" . $
         
 # benchmark-execution:
 for my $type (reverse sort keys %hosts) { # reverse so "server" is first
-    if ($hosts{$type} and scalar @{ $hosts{$type} }) {
+    if (exists $hosts{$type} and scalar @{ $hosts{$type} }) {
         my $cmd;
-        if ($specs{$type}{"bin"}) {
+        if (exists $specs{$type}{"bin"}) {
             $cmd = $specs{$type}{"bin"} . " " .  $iteration{'iteration'}{'params'};
         } else {
             printf "%s->bin does not exist, exiting\n", $type;
@@ -144,7 +144,7 @@ for my $type (reverse sort keys %hosts) { # reverse so "server" is first
         # Apply a regex from the benchmark config file to the command
         # This is used to remove things like "--clients=" because the
         # native benchmark does not understand this parameter
-        if ($specs{$type} and $specs{$type}{"param_regex"}) {
+        if (exists $specs{$type} and $specs{$type}{"param_regex"}) {
             for my $r (@{ $specs{$type}{"param_regex"} }) {
                 # to apply the 's/x/y/' regex from the file, some eval trickery is necessary
                 # todo: first test the $r regex separately for [perl syntax] errors with eval
@@ -165,7 +165,7 @@ system("pbench-postprocess-tools --iteration=0 --group=" . $tool_group . " --dir
 # post-benhcmark-execution:
 # - copy files back to controller
 for my $type (keys %hosts) {
-    if ($hosts{$type} and scalar @{ $hosts{$type} }) {
+    if (exists $hosts{$type} and scalar @{ $hosts{$type} }) {
         mkdir($sample_dir . "/" . $type . "s");
         my $sync_result = sync_dir_from_hosts(\@{ $hosts{$type} },
                                               $sample_dir . "-" . $type . "/", #copy-from
@@ -180,7 +180,7 @@ for my $type (keys %hosts) {
 }
 # - post-process on the client/server, if applicable (todo)
 # - post-process the result data on the controller
-if ($specs{"controller"}{"post-script"} and $specs{"controller"}{"post-script"} ne "") {
+if (exists $specs{"controller"}{"post-script"} and $specs{"controller"}{"post-script"} ne "") {
     # A couple of things about the benchmark post-procesing script:
     # (1) It is responsible for completing and writing the sample document and creating all period
     # and metric documents.  It requires a partially completed sample document, that is done below,
