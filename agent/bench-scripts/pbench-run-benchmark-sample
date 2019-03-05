@@ -6,7 +6,7 @@
 #
 # This script:
 # - is normally called from pbench-run-benchmark
-# - executes a single sample of a benchmark 
+# - executes a single sample of a benchmark
 # - runs any postprocessing to get all data in CDM
 
 use strict;
@@ -29,7 +29,7 @@ use PbenchAnsible    qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from
                         sync_dir_from_hosts verify_success yum_install_hosts);
 use PbenchCDM        qw(create_bench_iter_sample_doc);
 
-my $pbench_bench_config_dir = get_pbench_bench_config_dir; 
+my $pbench_bench_config_dir = get_pbench_bench_config_dir;
 
 # main program starts here
 
@@ -130,7 +130,7 @@ for my $type (keys %hosts) {
 
 # start the tools:
 system("pbench-start-tools --iteration=0 --group=" . $tool_group . " --dir=" . $sample_dir);
-        
+
 # benchmark-execution:
 for my $type (reverse sort keys %hosts) { # reverse so "server" is first
     if (exists $hosts{$type} and scalar @{ $hosts{$type} }) {

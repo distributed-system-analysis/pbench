@@ -174,7 +174,7 @@ sub create_metric_sample_doc {
     #
     # or: %source%-%bin%-%pid%/%tid%-%host%-percent-cpu-usage,
     #         where source=pidstat, bin=qemu pid=1094 tid=1095 host=perf1
-    #         so this resolves to: 
+    #         so this resolves to:
     #     pidstat-qemu-1094/1095-perf1-percent-cpu-usage
     #
     # It is vitally important that the metric-instance name use enough fields

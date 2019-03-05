@@ -38,7 +38,7 @@
 #   default   |  --rw=read,randr --bs=4k,64k --ioengine=sync --numjobs=1, --filename=/tmp/fio-tst
 #
 #   $parameter is either a pbench universal parameter (like --samples) or a
-#   benchmark-native parameter (like --ioengine=sync for fio).  The list of valid 
+#   benchmark-native parameter (like --ioengine=sync for fio).  The list of valid
 #   parameters can be found in $config/benchmark/pbench.json for universal perameters and
 #   $config/benchmark/$benchmark.json for benchmark-native parameters.
 #                         
@@ -62,7 +62,7 @@
 #   "ceph-osp" : "--rw=read,randr,write,randw --bs=1m --ioengine=sync --numjobs=1"
 #   }
 #
-#   Since the user provided new values for --bs and --rw, those defaults were replaced with the 
+#   Since the user provided new values for --bs and --rw, those defaults were replaced with the
 #   user's values.
 #
 #   Note that the ordering of --defaults and --parameters is important.  These options are processed
@@ -73,7 +73,7 @@
 #   pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=4k --rw=read
 #   pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=4k --rw=randr
 #   pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=64k --rw=read
-#   pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=64k --rw=randr  
+#   pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=64k --rw=randr
 #
 #   Since --defaults=default was used after --bs and --rw, those parameters were overritten.
 #   This is by design.

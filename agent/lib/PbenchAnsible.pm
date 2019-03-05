@@ -161,7 +161,7 @@ sub stockpile_hosts { # run stockpile against these hosts
 	return run_playbook(\@playbook, $inv_file, $logdir, $extra_vars);
 }
 sub yum_install_hosts { # verify/install these packages on hosts
-	my $hosts_ref = shift; # array-reference to hosts 
+	my $hosts_ref = shift; # array-reference to hosts
 	my $packages = shift; # array-reference of packages
 	my $basedir = shift;
 	my $logdir = get_ansible_logdir($basedir, "yum_install_hosts");
@@ -176,7 +176,7 @@ sub yum_install_hosts { # verify/install these packages on hosts
 	return run_playbook(\@playbook, $inv_file, $logdir);
 }
 sub create_dir_hosts { # creates a directory on remote hosts
-	my $hosts_ref = shift; # array-reference to host list to copy from 
+	my $hosts_ref = shift; # array-reference to host list to copy from
 	my $dir = shift; # the directory to create
 	my $basedir = shift;
 	my $logdir = get_ansible_logdir($basedir, "create_dir_hosts");
@@ -219,7 +219,7 @@ sub copy_files_to_hosts { # copies local files to hosts with a new, common desti
 	return run_playbook(\@playbook, $inv_file, $logdir);
 }
 sub copy_files_from_hosts { # copies files from remote hosts to a local path which includes $hostbname directory
-	my $hosts_ref = shift; # array-reference to host list to copy from 
+	my $hosts_ref = shift; # array-reference to host list to copy from
 	my $src_files_ref = shift; # array-refernce to file list to fetch
 	my $src_path = shift; # a single src path where all files in list can be found
 	my $dst_path = shift;
@@ -241,7 +241,7 @@ sub copy_files_from_hosts { # copies files from remote hosts to a local path whi
 	return run_playbook(\@playbook, $inv_file, $logdir);
 }
 sub sync_dir_from_hosts { # copies files from remote hosts to a local path which includes $hostbname directory
-	my $hosts_ref = shift; # array-reference to host list to copy from 
+	my $hosts_ref = shift; # array-reference to host list to copy from
 	my $src_dir = shift; # the dir to sync from on the hosts
 	my $dst_dir = shift; # a single dst dir where all the remote host dirs will be sync'd to, first with a dir=hostname
 	my $basedir = shift;
@@ -256,7 +256,7 @@ sub sync_dir_from_hosts { # copies files from remote hosts to a local path which
 	return run_playbook(\@playbook, $inv_file, $logdir);
 }
 sub remove_files_from_hosts { # copies files from remote hosts to a local path which includes $hostbname directory
-	my $hosts_ref = shift; # array-reference to host list to copy from 
+	my $hosts_ref = shift; # array-reference to host list to copy from
 	my $src_files_ref = shift; # array-refernce to file list to fetch
 	my $src_path = shift; # a single src path where all files in list can be found
 	my $basedir = shift;
@@ -272,7 +272,7 @@ sub remove_files_from_hosts { # copies files from remote hosts to a local path w
 	return run_playbook(\@playbook, $inv_file, $logdir);
 }
 sub remove_dir_from_hosts { # copies files from remote hosts to a local path which includes $hostbname directory
-	my $hosts_ref = shift; # array-reference to host list to copy from 
+	my $hosts_ref = shift; # array-reference to host list to copy from
 	my $dir = shift; # the directory to delete
 	my $basedir = shift;
 	my $logdir = get_ansible_logdir($basedir, "remove_dir_from_hosts");
