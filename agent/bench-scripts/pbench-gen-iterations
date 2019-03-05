@@ -41,7 +41,7 @@
 #   benchmark-native parameter (like --ioengine=sync for fio).  The list of valid
 #   parameters can be found in $config/benchmark/pbench.json for universal perameters and
 #   $config/benchmark/$benchmark.json for benchmark-native parameters.
-#                         
+#
 #   Note that a parameter may have mulitple values, and this script will generate a benchmark
 #   iteration for each value.  For example, if the user runs:
 #
@@ -207,7 +207,6 @@ sub build_iteration_cmds {
             $cmdline .= " --" . $arg . "=" . $simplex_params{$arg};
         }
         return ($cmdline);
-    }   
 }
 
 # Main program starts here
