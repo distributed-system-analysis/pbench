@@ -111,13 +111,13 @@ sub get_benchmark_defaults {
     my $default_name = shift;
     if ($default_name eq "list") {
         print "# defaults available:\n";
-        for my $d (grep(!/^mandatory$/, keys $$config_ref{"controller"}{"parameters"}{"defaults"})) {
+        for my $d (grep(!/^mandatory$/, keys %{ $$config_ref{"controller"}{"parameters"}{"defaults"} })) {
             my @p = @{ $$config_ref{"controller"}{"parameters"}{"defaults"}{$d} };
             printf("# %s: %s\n", $d, join(" ", @p));
         }
         exit;
     }
-    if ($$config_ref{"controller"}{"parameters"}{"defaults"}{$default_name}) {
+    if (exists $$config_ref{"controller"}{"parameters"}{"defaults"}{$default_name}) {
         return @{ $$config_ref{"controller"}{"parameters"}{"defaults"}{$default_name} };
     } else {
         die "That default does not exist";
@@ -132,7 +132,7 @@ sub process_param {
     my $values = shift;
     my $param_ref = shift;
     my $processed_values = "";
-    for my $r (keys $$param_ref{"specs"}) {
+    for my $r (keys %{ $$param_ref{"specs"} }) {
         if (grep(/^$argument$/, @{ $$param_ref{"specs"}{$r}{"arguments"} })) {
             my %past_values;
             # Users can provide multiple values
@@ -145,7 +145,7 @@ sub process_param {
                 }
 
                 if ($value =~ /$$param_ref{"specs"}{$r}{"value_regex"}/) {
-                    if ($$param_ref{"specs"}{$r}{"value_transforms"}) {
+                    if (exists $$param_ref{"specs"}{$r}{"value_transforms"}) {
                         for my $transform (@{ $$param_ref{"specs"}{$r}{"value_transforms"} }) {
                             # In order to apply the 's/x/y/' regex from the file, some eval trickery
                             # is necessary
@@ -244,19 +244,19 @@ if ($ARGV[0] eq "--defaults-only") {
 my %pbench_config = load_benchmark_config($pbench_bench_config_dir, "pbench");
 my %bench_config = load_benchmark_config($pbench_bench_config_dir, $benchmark);
 # Ensure we have some basic info from the benchmark configuration
-if (! $bench_config{"controller"} ) {
+if (! exists $bench_config{"controller"} ) {
     print "There is no 'contoller' section in the benchmark config\n";
     exit 1;
 }
-if (! $bench_config{"controller"}{"parameters"} ) {
+if (! exists $bench_config{"controller"}{"parameters"} ) {
     print "There is no 'controller->parameters' section in the benchmark config\n";
     exit 1;
 }
-if (! $bench_config{"controller"}{"parameters"}{"defaults"} ) {
+if (! exists $bench_config{"controller"}{"parameters"}{"defaults"} ) {
     print "There is no 'controller->parameters->defaults' section in the benchmark config\n";
     exit 1;
 }
-if (! $bench_config{"controller"}{"parameters"}{"specs"} ) {
+if (! exists $bench_config{"controller"}{"parameters"}{"specs"} ) {
     print "There is no 'controller->parameters->specs' section in the benchmark config\n";
     exit 1;
 }

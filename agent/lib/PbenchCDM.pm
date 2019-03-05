@@ -36,13 +36,13 @@ sub get_uuid {
 }
 
 sub get_user_name { # Looks for USER_NAME in %ENV
-    if ($ENV{"USER_NAME"}) {
+    if (exists $ENV{"USER_NAME"}) {
         return $ENV{"USER_NAME"}
     }
 }
 
 sub get_user_email { # Looks for USER_NAME in %ENV
-    if ($ENV{"USER_EMAIL"}) {
+    if (exists $ENV{"USER_EMAIL"}) {
         return $ENV{"USER_EMAIL"};
     }
 }

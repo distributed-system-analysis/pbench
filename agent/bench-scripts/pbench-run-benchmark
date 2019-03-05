@@ -30,7 +30,8 @@ use PbenchCDM        qw(create_run_doc create_config_osrelease_doc create_config
                         get_uuid create_bench_iter_doc create_config_doc);
 use PbenchBase       qw(get_json_file put_json_file get_benchmark_names get_pbench_run_dir
                         get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir
-                        get_benchmark_results_dir get_params remove_params get_hostname);
+                        get_benchmark_results_dir get_params remove_params get_hostname
+                        metadata_log_begin_run metadata_log_end_run metadata_log_record_iteration);
 use PbenchAnsible    qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts
                         remove_files_from_hosts remove_dir_from_hosts create_dir_hosts
                         sync_dir_from_hosts verify_success stockpile_hosts);
@@ -56,7 +57,7 @@ if ($benchmark eq "list") {
 my %params = get_params(@ARGV);
 
 # Every benchmark must have at least 1 client, even if the client is the same host as the controller
-if (! $params{'clients'}) {
+if (! exists $params{'clients'}) {
     print "You must specify at least 1 client with --clients\n";
     exit 1;
 }
@@ -65,8 +66,8 @@ if (! $params{'clients'}) {
 for my $param (qw(user-name user-email user-desc user-tags)) {
     my $env_var = uc $param;
     $env_var =~ s/-/_/g;
-    if (!$params{$param}) { # if --arg_name was used, $ARG_NAME will not be used
-        if (!$ENV{$env_var}) {
+    if (! exists $params{$param}) { # if --arg_name was used, $ARG_NAME will not be used
+        if (! exists $ENV{$env_var}) {
             printf "\n***** it is highly recommended you do one of the following:\n" .
                    "- export this variable before calling this script %s\n" .
                    "- use this parameter when calling this script: --%s\n\n", $env_var, $param;
@@ -79,7 +80,7 @@ for my $param (qw(user-name user-email user-desc user-tags)) {
 
 # Apply the Pbench defaults (not the benchmark defaults)
 for my $def (keys %defaults) {
-    if (!$params{$def}) {
+    if (! exists $params{$def}) {
         $params{$def} = $defaults{$def};
     }
 }
@@ -121,6 +122,7 @@ if ($? != 0) {
 }
 mkdir($base_bench_dir);
 open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
+metadata_log_begin_run($base_bench_dir);
 # There can be multiple parts of a run if the user generated multiple parameter-sets
 # (used a "--" in their cmdline).  Each part of the run has it's own run document, 
 # but all of the run documents share the same run ID.
@@ -164,6 +166,7 @@ while (scalar @param_sets > 0) {
         }
         my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,); 
         put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{'iteration'}{'id'} . ".json");
+        metadata_log_record_iteration($base_bench_dir, $iteration_id, $iteration_params);
         printf $fh "%d %s\n", $iteration_id, $iteration_params;
         printf "\n\n\niteration_ID: %d\niteration_params: %s\n", $iteration_id, $iteration_params;
         for (my $sample_id=0; $sample_id<$num_samples; $sample_id++) {
@@ -194,9 +197,12 @@ while (scalar @param_sets > 0) {
     %last_run_doc = %run_doc; # We need to keep at least 1 run doc to create the config docs later
     $run_part++;
 }
+metadata_log_end_run($base_bench_dir, $iteration_id, $benchmark, $params{'user-tags'});
 close $fh;
 # Generate the result.html (to go away once CDM/Elastic UI is available)
-system(". " . $pbench_install_path . "/base; " . $pbench_install_path . "/bench-scripts/postprocess/generate-benchmark-summary " . $benchmark . " " . $benchmark . " " . $base_bench_dir);
+system(". " . $pbench_install_path . "/base; " . $pbench_install_path .
+	"/bench-scripts/postprocess/generate-benchmark-summary " . $benchmark .
+	" " . $benchmark . " " . $base_bench_dir);
 
 # Convert the stockpile data with scribe, then create CDM docs in ./es/config
 if (-e $base_bench_dir . "/stockpile.json") {
@@ -205,7 +211,7 @@ if (-e $base_bench_dir . "/stockpile.json") {
     open(my $scribe_fh, "<" . $base_bench_dir . "/scribe.json") || die "Could not open " .
         $base_bench_dir . "/scribe.json";
     my $json_text = "";
-    # Instead of 1 json document, there are actually multiple documents, but no separator
+    # Instead of 1 json document, there are actually multiple documents, but no seperator
     # between them or organized in an array
     while (<$scribe_fh>) {
         $json_text .= $_;
@@ -213,7 +219,7 @@ if (-e $base_bench_dir . "/stockpile.json") {
             my %config_doc = create_config_doc(\%last_run_doc, from_json($json_text));
             if ($config_doc{'cdm'}{'doctype'} =~ /^config_(.+)/) {
                 my $config_subname = $1;
-                if ($config_doc{'config'}{'id'}) {
+                if (exists $config_doc{'config'}{'id'}) {
                     put_json_file(\%config_doc, $es_dir . "/config/" . $config_doc{'cdm'}{'doctype'} .
                                 "-" . $config_doc{'config'}{'id'} . ".json");
                 } else {

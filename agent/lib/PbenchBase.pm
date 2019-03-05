@@ -15,7 +15,9 @@ use JSON;
 our @EXPORT_OK = qw(get_json_file put_json_file get_benchmark_names get_clients get_pbench_run_dir
 		            get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir
                     get_benchmark_results_dir get_params remove_params remove_element get_hostname
-                    get_pbench_datetime load_benchmark_config);
+                    get_pbench_datetime load_benchmark_config metadata_log_begin_run
+		    metadata_log_end_run metadata_log_record_iteration);
+
 my $script = "PbenchBase.pm";
 my $sub;
 
@@ -166,5 +168,44 @@ sub load_benchmark_config {
 	my $benchmark_spec_file = $pbench_bench_config_dir . "/" .  $benchmark_name . ".json";
 	my $json_ref = get_json_file($benchmark_spec_file);
 	return %$json_ref
+}
+
+sub metadata_log_begin_run {
+	my $benchmark_run_dir = shift;
+	system("pbench-metadata-log --group=default --dir=" . $benchmark_run_dir . " beg");
+}
+
+sub metadata_log_end_run {
+	my $benchmark_run_dir = shift;
+        my $last_iteration_num = shift;
+        my $benchmark_name = shift;
+	my $config = shift;
+	my $iteration_names = "";
+        my $mdlog = $benchmark_run_dir . "/metadata.log";
+	for (my $i=0; $i<=$last_iteration_num; $i++) {
+		$iteration_names = $iteration_names . ",iteration" . $i;
+	}
+	$iteration_names =~ s/^,//;
+        system("echo " . $iteration_names  . " | pbench-add-metalog-option " . $mdlog . " pbench iterations");
+        system("echo " . $config  . " | pbench-add-metalog-option " . $mdlog . " pbench config");
+        system("echo " . $benchmark_name  . " | pbench-add-metalog-option " . $mdlog . " pbench script");
+	system("pbench-metadata-log --group=default --dir=" . $benchmark_run_dir . " end");
+}
+
+sub metadata_log_record_iteration {
+	my $benchmark_run_dir = shift;
+        my $num = shift;
+        my $iteration_params = shift;
+	my $iteration_name = "iteration" . $num;
+        my $mdlog = $benchmark_run_dir . "/metadata.log";
+	system("echo " . $num .      " | pbench-add-metalog-option " . $mdlog . " iterations/" . $iteration_name . " iteration_number");
+        system("echo " . $iteration_name  . " | pbench-add-metalog-option " . $mdlog . " iterations/" . $iteration_name . " iteration_name");
+	my @params = split(/\s+/, $iteration_params);
+	while (scalar @params > 0) {
+		my $param = shift @params;
+		if ($param =~ /\-\-(\S+)\=(\S+)/) {
+			system("echo " . $2 . " | pbench-add-metalog-option " . $mdlog . " iterations/" . $iteration_name . " " . $1);
+		}
+	}
 }
 1;
