@@ -735,11 +735,12 @@ class Summary extends ReactJS.Component {
               onChange={this.portChange}
             >
               {ports.map((port, i) => (
-                <Select.Option value={port}>{port}</Select.Option>
+                <Select.Option key={i} value={port}>{port}</Select.Option>
               ))}
             </Select>
             {Object.keys(configData).map((category, i) => (
               <Select
+                key={i}
                 allowClear={true}
                 placeholder={category}
                 style={{ marginLeft: 8, width: 160 }}
@@ -747,7 +748,7 @@ class Summary extends ReactJS.Component {
                 onChange={value => this.configChange(value, category)}
               >
                 {configData[category].map((categoryData, i) => (
-                  <Select.Option value={categoryData}>{categoryData}</Select.Option>
+                  <Select.Option key={i} value={categoryData}>{categoryData}</Select.Option>
                 ))}
               </Select>
             ))}
