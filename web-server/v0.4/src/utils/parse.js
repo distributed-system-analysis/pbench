@@ -2,6 +2,16 @@
 import _ from 'lodash';
 import { Icon } from 'antd';
 import React from 'react';
+import GraphModal from '@/components/GraphModal';
+
+export const parseTimeseriesData = timeseriesData => {
+  const parsedTimeseriesData = [];
+  timeseriesData.forEach(item => {
+    const itemArray = Object.values(item);
+    parsedTimeseriesData.push(itemArray);
+  });
+  return parsedTimeseriesData;
+};
 
 export const parseIterationData = results => {
   const iterations = [];
@@ -49,10 +59,6 @@ export const parseIterationData = results => {
           }
         }
       });
-      iterationMetadata = {
-        ...iterationMetadata,
-        ...iteration.iteration_data.parameters.benchmark[0],
-      };
 
       if (iteration.iteration_name.includes('fail') || !iterationConfig) {
         return;
@@ -79,6 +85,7 @@ export const parseIterationData = results => {
             columns[iterationTypeColumnIndex].children = [{ title: iterationNetwork }];
           }
 
+          iterationMetadata.closest_samples = {};
           iterationData.forEach(hostMetadata => {
             let columnHost = [];
             if (hostMetadata.client_hostname) {
@@ -96,6 +103,9 @@ export const parseIterationData = results => {
             const columnMean = `${columnPrefix}-mean`;
             const columnStdDev = `${columnPrefix}-stddevpct`;
             const columnSample = `${columnPrefix}-closestsample`;
+
+            iterationMetadata.closest_samples[columnSample] = hostMetadata;
+            iterationMetadata.closest_sample = hostMetadata.closest_sample;
 
             // Find iteration network column and create or append iteration column child entry
             const iterationTypeColumn = columns[iterationTypeColumnIndex].children;
@@ -143,6 +153,28 @@ export const parseIterationData = results => {
               title: 'closest sample',
               dataIndex: columnSample,
               key: columnSample,
+              render: (value, record) => {
+                const graphId = `${record.iteration_name}_${columnHost}_${value}`.replace(
+                  /[^\w\s]/gi,
+                  ''
+                );
+                const timeseriesData =
+                  typeof record.closest_samples[columnSample] !== 'undefined'
+                    ? parseTimeseriesData(
+                        record.closest_samples[columnSample].samples[record[columnSample] - 1]
+                          .timeseries
+                      )
+                    : [];
+                return (
+                  <GraphModal
+                    sampleNumber={value}
+                    modalTitle={record.iteration_name}
+                    graphId={graphId}
+                    dataSeries={['time', columnSample + value]}
+                    timeseriesData={timeseriesData}
+                  />
+                );
+              },
               sorter: (a, b) => a[columnSample] - b[columnSample],
             };
 
@@ -171,12 +203,11 @@ export const parseIterationData = results => {
             }
             iterationMetadata[columnMean] = hostMetadata.mean;
             iterationMetadata[columnStdDev] = hostMetadata.stddevpct;
-            const iterationClosestSample =
-              typeof hostMetadata.closest_sample !== 'undefined'
-                ? hostMetadata.closest_sample
-                : hostMetadata['closest sample'];
-            iterationMetadata[columnSample] = iterationClosestSample;
-            iterationMetadata.closest_sample = iterationClosestSample;
+            if (typeof hostMetadata.closest_sample !== 'undefined') {
+              iterationMetadata[columnSample] = hostMetadata.closest_sample;
+            } else {
+              iterationMetadata[columnSample] = hostMetadata['closest sample'];
+            }
           });
         });
       });

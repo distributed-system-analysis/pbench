@@ -13,6 +13,7 @@ const mockProps = {
   selectedControllers: ['test_controller'],
   iterations: [{}],
   iterationParams: {},
+  summaryTocResult: [],
 };
 
 const mockDispatch = jest.fn();

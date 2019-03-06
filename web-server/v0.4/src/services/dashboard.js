@@ -249,3 +249,33 @@ export async function queryTimeseriesData(params) {
     };
   });
 }
+
+export async function queryClosestSampleData(param, record, datastoreConfig) {
+  const timeData = [];
+  const dataSeries = ['time'];
+  return request(
+    `${datastoreConfig.results}/results/${record.controller_name}/${record.result_name}/${
+      record.iteration_number
+    }-${record.iteration_name}/sample${record.closest_sample}/result.json`
+  ).then(args => {
+    args.throughput[param].map(y => {
+      const clientHostname = `/${`client_hostname:${y.client_hostname}-server_hostname:${
+        y.server_hostname
+      }-server_port:${y.server_port}`}`;
+      dataSeries.push(clientHostname);
+      return y.timeseries.map(z => {
+        const extData = timeData.filter(arr => arr[0] === z.date);
+        if (extData.length === 0) {
+          return timeData.push([z.date, z.value]);
+        }
+        return timeData.map(k => {
+          if (k[0] === z.date) {
+            k.push(z.value);
+          }
+          return k;
+        });
+      });
+    });
+    return { timeData, dataSeries };
+  });
+}

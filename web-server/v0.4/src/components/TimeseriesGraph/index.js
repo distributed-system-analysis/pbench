@@ -46,7 +46,6 @@ export default class TimeseriesGraph extends PureComponent {
 
   componentDidUpdate = prevProps => {
     const { data, dataSeriesNames, xAxisSeries, graphId } = this.props;
-
     if (
       JSON.stringify(prevProps.data) !== JSON.stringify(data) ||
       JSON.stringify(prevProps.dataSeriesNames) !== JSON.stringify(dataSeriesNames) ||
