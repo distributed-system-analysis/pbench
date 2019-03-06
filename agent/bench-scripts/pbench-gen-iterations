@@ -207,6 +207,7 @@ sub build_iteration_cmds {
             $cmdline .= " --" . $arg . "=" . $simplex_params{$arg};
         }
         return ($cmdline);
+    }
 }
 
 # Main program starts here
