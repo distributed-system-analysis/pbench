@@ -61,6 +61,8 @@ export async function queryResults(params) {
     method: 'POST',
     body: {
       fields: [
+        '@metadata.controller_dir',
+        '@metadata.satellite',
         'run.controller',
         'run.start',
         'run.start_run', // For pre-v1 run mapping version
@@ -132,17 +134,21 @@ export async function queryIterations(params) {
 
   let iterationRequests = [];
   selectedResults.map(result => {
-    const controller = result['run.controller'];
+    const controller_dir = result['@metadata.controller_dir'];
+    if (controller_dir === undefined) {
+      controller_dir = result['run.controller'];
+      controller_dir = controller_dir.includes('.')
+        ? controller_dir.slice(0, controller_dir.indexOf('.'))
+        : controller_dir;
+    }
     iterationRequests.push(
       axios.get(
-        datastoreConfig.results
-          + '/incoming/'
-          + (controller.includes('.')
-             ? encodeURI(controller.slice(0, controller.indexOf('.')))
-             : encodeURI(controller))
-          + '/'
-          + encodeURI(result['run.name'])
-          + '/result.json'
+        datastoreConfig.results +
+          '/incoming/' +
+          encodeURI(controller_dir) +
+          '/' +
+          encodeURI(result['run.name']) +
+          '/result.json'
       )
     );
   });
@@ -157,24 +163,27 @@ export async function queryIterations(params) {
           resultName: iteration.config.url.split('/')[5],
           tableId: index,
         });
-      })
+      });
       return iterations;
     })
     .catch(error => {
-      if ((error.response !== undefined) && (error.response.status !== undefined)) {
+      if (error.response !== undefined && error.response.status !== undefined) {
         if (error.response.status == 404) {
           console.log('(404) Not Found (queryIterations): ' + error.request.responseURL);
           return [];
-        }
-        else {
+        } else {
           console.log(
-            '(' + error.response.status + ') queryIterations: GET ' + error.request.responseURL + ' -- ' + error
+            '(' +
+              error.response.status +
+              ') queryIterations: GET ' +
+              error.request.responseURL +
+              ' -- ' +
+              error
           );
           throw error;
         }
-      }
-      else {
-        console.log("queryIterations: " + error);
+      } else {
+        console.log('queryIterations: ' + error);
         throw error;
       }
     });

@@ -71,11 +71,11 @@ export default {
           controller = result.fields['run.controller'][0];
           id = result.fields['run.id'][0];
           start =
-            typeof result.fields['run.start'] !== 'undefined'
+            typeof result.fields['run.start'] != 'undefined'
               ? result.fields['run.start'][0]
               : result.fields['run.start_run'][0];
           end =
-            typeof result.fields['run.end'] !== 'undefined'
+            typeof result.fields['run.end'] != 'undefined'
               ? result.fields['run.end'][0]
               : result.fields['run.end_run'][0];
         } catch (error) {
@@ -86,16 +86,22 @@ export default {
           return;
         }
         let config =
-          typeof result.fields['run.config'] !== 'undefined'
-            ? result.fields['run.config'][0]
-            : null;
+          typeof result.fields['run.config'] != 'undefined' ? result.fields['run.config'][0] : null;
         let prefix =
-          typeof result.fields['run.prefix'] !== 'undefined'
-            ? result.fields['run.prefix'][0]
+          typeof result.fields['run.prefix'] != 'undefined' ? result.fields['run.prefix'][0] : null;
+        let controller_dir =
+          typeof result.fields['@metadata.controller_dir'] != 'undefined'
+            ? result.fields['@metadata.controller_dir'][0]
+            : null;
+        let satellite =
+          typeof result.fields['@metadata.satellite'] != 'undefined'
+            ? result.fields['@metadata.satellite'][0]
             : null;
         results.push({
           key: name,
           startUnixTimestamp: Date.parse(start),
+          ['@metadata.controller_dir']: controller_dir,
+          ['@metadata.satellite']: satellite,
           ['run.name']: name,
           ['run.config']: config,
           ['run.controller']: controller,
