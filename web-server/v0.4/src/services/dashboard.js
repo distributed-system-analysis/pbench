@@ -134,7 +134,7 @@ export async function queryIterations(params) {
 
   let iterationRequests = [];
   selectedResults.map(result => {
-    const controller_dir = result['@metadata.controller_dir'];
+    let controller_dir = result['@metadata.controller_dir'];
     if (controller_dir === undefined) {
       controller_dir = result['run.controller'];
       controller_dir = controller_dir.includes('.')

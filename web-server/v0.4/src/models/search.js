@@ -58,8 +58,9 @@ export default {
           selectedFields.map(field => {
             parsedResult[field] = result._source[field.split('.')[0]][field.split('.')[1]];
           });
-          parsedResult['run.prefix'] =
-            result._source['run.prefix'.split('.')[0]]['run.prefix'.split('.')[1]];
+          if (typeof result._source['run']['prefix'] != 'undefined') {
+            parsedResult['run.prefix'] = result._source['run']['prefix'];
+          }
           parsedResults.push(parsedResult);
         });
         searchResults['results'] = parsedResults;

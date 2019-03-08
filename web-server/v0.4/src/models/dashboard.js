@@ -85,31 +85,28 @@ export default {
           );
           return;
         }
-        let config =
-          typeof result.fields['run.config'] != 'undefined' ? result.fields['run.config'][0] : null;
-        let prefix =
-          typeof result.fields['run.prefix'] != 'undefined' ? result.fields['run.prefix'][0] : null;
-        let controller_dir =
-          typeof result.fields['@metadata.controller_dir'] != 'undefined'
-            ? result.fields['@metadata.controller_dir'][0]
-            : null;
-        let satellite =
-          typeof result.fields['@metadata.satellite'] != 'undefined'
-            ? result.fields['@metadata.satellite'][0]
-            : null;
-        results.push({
+        let record = {
           key: name,
           startUnixTimestamp: Date.parse(start),
-          ['@metadata.controller_dir']: controller_dir,
-          ['@metadata.satellite']: satellite,
           ['run.name']: name,
-          ['run.config']: config,
           ['run.controller']: controller,
-          ['run.prefix']: prefix,
           ['run.start']: start,
           ['run.end']: end,
           ['id']: id,
-        });
+        };
+        if (typeof result.fields['run.config'] != 'undefined') {
+          record['run.config'] = result.fields['run.config'][0];
+        }
+        if (typeof result.fields['run.prefix'] != 'undefined') {
+          record['run.prefix'] = result.fields['run.prefix'][0];
+        }
+        if (typeof result.fields['@metadata.controller_dir'] != 'undefined') {
+          record['@metadata.controller_dir'] = result.fields['@metadata.controller_dir'][0];
+        }
+        if (typeof result.fields['@metadata.satellite'] != 'undefined') {
+          record['@metadata.satellite'] = result.fields['@metadata.satellite'][0];
+        }
+        results.push(record);
       });
 
       yield put({
