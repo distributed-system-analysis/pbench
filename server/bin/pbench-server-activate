@@ -38,7 +38,7 @@ if [ "$sts" != "0" ] ;then
     nerrs=$nerrs+1
 fi
 
-pbench-server-activate-set-up-web-server
+pbench-server-activate-setup-web-server
 sts=$?
 if [ "$sts" != "0" ] ;then
     nerrs=$nerrs+1
