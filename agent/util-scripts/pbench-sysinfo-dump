@@ -31,6 +31,10 @@ if [[ ! -d "$dir" ]]; then
 	exit 1
 fi
 
+# generate inventory file with controller and remotes
+export INVENTORY=/tmp/inventory.$$
+trap "rm -f $INVENTORY" QUIT INT EXIT
+
 function collect_kernel_config {
 	if [[ -e /boot/config-$(uname -r) ]] ;then
 		cp /boot/config-$(uname -r) $dir
