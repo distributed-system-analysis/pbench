@@ -241,8 +241,6 @@ function verify_common_bench_script_options {
 }
 
 # generate inventory file with controller and remotes
-export INVENTORY=/tmp/inventory.$$
-trap "rm -f $INVENTORY" QUIT INT EXIT
 function generate_inventory {
     echo "[controller]"
     echo $HOSTNAME
