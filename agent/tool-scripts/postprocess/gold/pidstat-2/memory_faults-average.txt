@@ -1,0 +1,8 @@
+major_faults_sec-1029-yes=0.000000
+major_faults_sec-1116-/bin/bash_/home/pportant/bin/myyes=0.000000
+major_faults_sec-1124-/bin/bash_/home/pportant/bin/myyes=0.000000
+major_faults_sec-1312-pidstat_-l_-H_-w_-u_-h_-d_-r_-p_ALL_5_4_=0.000000
+minor_faults_sec-1029-yes=0.000000
+minor_faults_sec-1116-/bin/bash_/home/pportant/bin/myyes=0.000000
+minor_faults_sec-1124-/bin/bash_/home/pportant/bin/myyes=0.000000
+minor_faults_sec-1312-pidstat_-l_-H_-w_-u_-h_-d_-r_-p_ALL_5_4_=161.647500

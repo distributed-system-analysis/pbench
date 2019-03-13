@@ -1,0 +1,4 @@
+percent_cpu-1029-yes=99.950000
+percent_cpu-1116-/bin/bash_/home/pportant/bin/myyes=0.000000
+percent_cpu-1124-/bin/bash_/home/pportant/bin/myyes=0.000000
+percent_cpu-1312-pidstat_-l_-H_-w_-u_-h_-d_-r_-p_ALL_5_4_=0.650000
