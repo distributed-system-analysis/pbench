@@ -1,14 +1,10 @@
 import { PureComponent } from 'react';
-import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Icon, Divider, Tooltip } from 'antd';
 import Debounce from 'lodash-decorators/debounce';
 import { Link } from 'dva/router';
 import styles from './index.less';
 
-@connect(({ routing }) => ({
-  location: routing.location.pathname,
-}))
 class GlobalHeader extends PureComponent {
   componentWillUnmount() {
     this.triggerResizeEvent.cancel();
@@ -29,7 +25,7 @@ class GlobalHeader extends PureComponent {
   }
 
   render() {
-    const { collapsed, isMobile, logo, location, dispatch } = this.props;
+    const { collapsed, isMobile, logo, dispatch } = this.props;
 
     return (
       <div className={styles.header}>
@@ -77,4 +73,4 @@ class GlobalHeader extends PureComponent {
   }
 }
 
-export default connect(() => ({}))(GlobalHeader);
+export default GlobalHeader;

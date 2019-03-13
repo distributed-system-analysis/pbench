@@ -1,9 +1,12 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Card, Table, Input, Button, Icon, Form, Select, notification } from 'antd';
-const FormItem = Form.Item;
+import { Card, Form } from 'antd';
+
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import SearchBar from '../../components/SearchBar';
+import MonthSelect from '../../components/MonthSelect';
+import Table from '../../components/Table';
 import { compareByAlph } from '../../utils/utils';
 
 @connect(({ global, dashboard, loading }) => ({
@@ -11,9 +14,10 @@ import { compareByAlph } from '../../utils/utils';
   indices: global.indices,
   selectedIndices: global.selectedIndices,
   datastoreConfig: global.datastoreConfig,
-  loadingControllers: loading.effects['dashboard/fetchControllers'],
-  loadingIndices: loading.effects['global/fetchMonthIndices'],
-  loadingConfig: loading.effects['global/fetchDatastoreConfig'],
+  loadingControllers:
+    loading.effects['dashboard/fetchControllers'] ||
+    loading.effects['global/fetchMonthIndices'] ||
+    loading.effects['global/fetchDatastoreConfig'],
 }))
 export default class Controllers extends Component {
   constructor(props) {
@@ -21,8 +25,6 @@ export default class Controllers extends Component {
 
     this.state = {
       controllers: [],
-      selectedIndicesUpdated: false,
-      searchText: '',
     };
   }
 
@@ -44,13 +46,11 @@ export default class Controllers extends Component {
 
     dispatch({
       type: 'global/fetchDatastoreConfig',
-    })
-      .then(() => {
-        this.fetchMonthIndices();
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    }).then(() => {
+      this.fetchMonthIndices();
+    }).catch(err => {
+      console.log(err);
+    });
   };
 
   fetchMonthIndices = async () => {
@@ -73,13 +73,6 @@ export default class Controllers extends Component {
     });
   };
 
-  openErrorNotification = month => {
-    notification.error({
-      message: 'Index Unavailable',
-      description: month + ' does not contain any documents. Please select a different month.',
-    });
-  };
-
   updateSelectedIndices = value => {
     const { dispatch } = this.props;
 
@@ -89,19 +82,14 @@ export default class Controllers extends Component {
     });
   };
 
-  onInputChange = e => {
-    this.setState({ searchText: e.target.value });
-  };
-
-  onSearch = () => {
-    const { searchText } = this.state;
+  onSearch = searchValue => {
     const { controllers } = this.props;
-    const reg = new RegExp(searchText, 'gi');
+    const reg = new RegExp(searchValue, 'gi');
     const controllersSearch = controllers.slice();
     this.setState({
       controllers: controllersSearch
         .map((record, i) => {
-          const match = record['run.controller'].match(reg);
+          const match = record['controller'].match(reg);
           if (!match) {
             return null;
           }
@@ -109,7 +97,7 @@ export default class Controllers extends Component {
             ...record,
             controller: (
               <span key={i}>
-                {record['run.controller'].split(reg).map(
+                {record['controller'].split(reg).map(
                   (text, i) =>
                     i > 0
                       ? [
@@ -128,12 +116,12 @@ export default class Controllers extends Component {
     });
   };
 
-  retrieveResults = params => {
+  retrieveResults = controller => {
     const { dispatch } = this.props;
 
     dispatch({
       type: 'dashboard/updateSelectedController',
-      payload: params.key,
+      payload: controller.key,
     }).then(() => {
       dispatch(
         routerRedux.push({
@@ -143,24 +131,13 @@ export default class Controllers extends Component {
     });
   };
 
-  emitEmpty = () => {
-    this.searchInput.focus();
-    this.setState({
-      controllers: this.props.controllers,
-      searchText: '',
-    });
-  };
-
   render() {
-    const { controllers, searchText, selectedIndicesUpdated } = this.state;
+    const { controllers } = this.state;
     const {
       loadingControllers,
-      loadingConfig,
-      loadingIndices,
       selectedIndices,
       indices,
     } = this.props;
-    const suffix = searchText ? <Icon type="close-circle" onClick={this.emitEmpty} /> : null;
     const columns = [
       {
         title: 'Controller',
@@ -186,72 +163,28 @@ export default class Controllers extends Component {
       <PageHeaderLayout title="Controllers">
         <Card bordered={false}>
           <Form layout={'inline'} style={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-            <FormItem>
-              <Input
-                style={{ width: 300 }}
-                ref={ele => (this.searchInput = ele)}
-                prefix={<Icon type="search" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                suffix={suffix}
-                placeholder="Search controllers"
-                value={this.state.searchText}
-                onChange={this.onInputChange}
-                onPressEnter={this.onSearch}
-              />
-            </FormItem>
-            <FormItem>
-              <Button type="primary" onClick={this.onSearch}>
-                {'Search'}
-              </Button>
-            </FormItem>
-            <FormItem
-              label="Selected Months"
-              colon={false}
-              style={{ marginLeft: 16, fontWeight: '500' }}
-            >
-              <Select
-                mode="multiple"
-                style={{ width: '100%' }}
-                placeholder="Select index"
-                value={selectedIndices}
-                onChange={value => {
-                  this.updateSelectedIndices(value);
-                  this.setState({ selectedIndicesUpdated: true });
-                }}
-                tokenSeparators={[',']}
-              >
-                {indices.map((month) => {
-                  return <Select.Option key={month}>{month}</Select.Option>;
-                })}
-              </Select>
-            </FormItem>
-            <FormItem>
-              <Button
-                type="primary"
-                disabled={selectedIndicesUpdated ? false : true}
-                onClick={() => {
-                  this.fetchControllers();
-                  this.setState({ selectedIndicesUpdated: false });
-                }}
-              >
-                {'Update'}
-              </Button>
-            </FormItem>
+            <SearchBar
+              style={{ marginRight: 32 }}
+              placeholder="Search controllers"
+              onSearch={this.onSearch}
+            />
+            <MonthSelect
+              indices={indices}
+              reFetch={this.fetchControllers}
+              onChange={this.updateSelectedIndices}
+              value={selectedIndices}
+            />
           </Form>
           <Table
             style={{ marginTop: 20 }}
             columns={columns}
             dataSource={controllers}
-            defaultPageSize={20}
             onRow={record => ({
               onClick: () => {
                 this.retrieveResults(record);
               },
             })}
-            loading={loadingControllers || loadingConfig || loadingIndices}
-            showSizeChanger={true}
-            showTotal={true}
-            pagination={{ pageSize: 20 }}
-            bordered
+            loading={loadingControllers}
           />
         </Card>
       </PageHeaderLayout>

@@ -64,7 +64,7 @@ export default {
         console.log('Unsuccessful run data query, no hits on matching documents: ' + error);
         hits = [];
       }
-      hits.map(result => {
+      hits.map((result, index) => {
         let name, controller, id, start, end;
         try {
           name = result.fields['run.name'][0];
@@ -86,7 +86,7 @@ export default {
           return;
         }
         let record = {
-          key: name,
+          key: index,
           startUnixTimestamp: Date.parse(start),
           ['run.name']: name,
           ['run.controller']: controller,

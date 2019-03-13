@@ -1,9 +1,12 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Tag, Card, Table, Input, Button, Icon, Form } from 'antd';
-const FormItem = Form.Item;
+import { Card, Form } from 'antd';
+
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import SearchBar from '../../components/SearchBar';
+import RowSelection from '../../components/RowSelection';
+import Table from '../../components/Table';
 import { compareByAlph } from '../../utils/utils';
 
 @connect(({ global, dashboard, loading }) => ({
@@ -20,10 +23,7 @@ export default class Results extends Component {
     this.state = {
       results: [],
       selectedRowKeys: [],
-      selectedRowNames: [],
-      loading: false,
-      loadingButton: false,
-      searchText: '',
+      selectedRowNames: []
     };
   }
 
@@ -49,46 +49,23 @@ export default class Results extends Component {
     }
   }
 
-  openNotificationWithIcon = type => {
-    notification[type]({
-      message: 'Please select two results for comparison.',
-      placement: 'bottomRight',
-    });
-  };
-
-  onCompareResults = () => {
-    const { selectedRowKeys } = this.state;
-    const { selectedController, results } = this.props;
-    var selectedResults = [];
-    for (var item in selectedRowKeys) {
-      var result = results[selectedRowKeys[item]];
-      selectedResults.push(results[selectedRowKeys[item]]);
-    }
-    this.compareResults(selectedResults);
-  };
-
   onSelectChange = selectedRowKeys => {
     const { dispatch, results } = this.props;
-    let selectedRowNames = [];
-    selectedRowKeys.map(row => {
-      selectedRowNames.push(results[row]);
-    });
+    let selectedRows = [];
+    selectedRowKeys.forEach((key) => {
+      selectedRows.push(results[key]);
+    })
     this.setState({ selectedRowKeys });
 
     dispatch({
       type: 'dashboard/updateSelectedResults',
-      payload: selectedRowNames,
+      payload: selectedRows,
     });
   };
 
-  onInputChange = e => {
-    this.setState({ searchText: e.target.value });
-  };
-
-  onSearch = () => {
-    const { searchText } = this.state;
+  onSearch = searchValue => {
     const { results } = this.props;
-    const reg = new RegExp(searchText, 'gi');
+    const reg = new RegExp(searchValue, 'gi');
     const resultsSearch = results.slice();
     this.setState({
       results: resultsSearch
@@ -145,28 +122,13 @@ export default class Results extends Component {
     );
   };
 
-  emitEmpty = () => {
-    this.searchInput.focus();
-    this.setState({
-      results: this.props.results,
-      searchText: '',
-    });
-  };
-
   render() {
-    const { results, loadingButton, selectedRowKeys, searchText } = this.state;
+    const { results, selectedRowKeys } = this.state;
     const { selectedController, loading } = this.props;
     const rowSelection = {
       selectedRowKeys,
-      onChange: this.onSelectChange,
-      hideDefaultSelections: true,
-      fixed: true,
+      onChange: this.onSelectChange
     };
-    const suffix = searchText ? <Icon type="close-circle" onClick={this.emitEmpty} /> : null;
-    const hasSelected = selectedRowKeys.length > 0;
-    for (var result in results) {
-      results[result]['key'] = result;
-    }
 
     const columns = [
       {
@@ -196,53 +158,20 @@ export default class Results extends Component {
     return (
       <PageHeaderLayout title={selectedController}>
         <Card bordered={false}>
-          <Form layout={'inline'} style={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-            <FormItem>
-              <Input
-                style={{ width: 300 }}
-                ref={ele => (this.searchInput = ele)}
-                prefix={<Icon type="search" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                suffix={suffix}
-                placeholder="Search results"
-                value={this.state.searchText}
-                onChange={this.onInputChange}
-                onPressEnter={this.onSearch}
-              />
-            </FormItem>
-            <FormItem>
-              <Button type="primary" onClick={this.onSearch}>
-                {'Search'}
-              </Button>
-            </FormItem>
+          <Form layout={'vertical'}>
+            <SearchBar
+              style={{ marginBottom: 16 }}
+              placeholder="Search results"
+              onSearch={this.onSearch}
+            />
+            <RowSelection
+              selectedItems={selectedRowKeys}
+              compareActionName={'Compare Results'}
+              onCompare={this.compareResults}
+            />
           </Form>
-          {selectedRowKeys.length > 0 ? (
-            <Card
-              style={{ marginTop: 16 }}
-              hoverable={false}
-              title={
-                <Button
-                  type="primary"
-                  onClick={this.onCompareResults}
-                  disabled={!hasSelected}
-                  loading={loadingButton}
-                >
-                  {'Compare Results'}
-                </Button>
-              }
-              hoverable={false}
-              type="inner"
-            >
-              {selectedRowKeys.map((row, i) => (
-                <Tag key={i} id={row}>
-                  {results[row]['run.name']}
-                </Tag>
-              ))}
-            </Card>
-          ) : (
-            <div />
-          )}
           <Table
-            style={{ marginTop: 20 }}
+            style={{ marginTop: 16 }}
             rowSelection={rowSelection}
             columns={columns}
             dataSource={results}
@@ -252,7 +181,6 @@ export default class Results extends Component {
               },
             })}
             loading={loading}
-            pagination={{ pageSize: 20 }}
             bordered
           />
         </Card>

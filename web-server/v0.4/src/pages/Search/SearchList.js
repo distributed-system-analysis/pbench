@@ -1,10 +1,11 @@
-import ReactJS, { Component } from 'react';
-import { Input, Card, Row, Col, Divider, Tag, Table, Select, Spin } from 'antd';
+import React, { Component } from 'react';
+import { Input, Card, Row, Col, Divider, Tag, Spin } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
-const Option = Select.Option;
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import MonthSelect from '../../components/MonthSelect';
+import Table from '../../components/Table';
 
 @connect(({ search, global, loading }) => ({
   mapping: search.mapping,
@@ -15,7 +16,7 @@ const Option = Select.Option;
   indices: global.indices,
   datastoreConfig: global.datastoreConfig,
   loadingMapping: loading.effects['search/fetchIndexMapping'],
-  loadingResults: loading.effects['search/fetchSearchResults'],
+  loadingSearchResults: loading.effects['search/fetchSearchResults'],
 }))
 export default class SearchList extends Component {
   constructor(props) {
@@ -152,7 +153,7 @@ export default class SearchList extends Component {
       mapping,
       selectedFields,
       searchResults,
-      loadingResults,
+      loadingSearchResults,
       loadingMapping,
     } = this.props;
     let columns = [];
@@ -195,19 +196,12 @@ export default class SearchList extends Component {
                 style={{ marginBottom: 24 }}
               >
                 <Spin spinning={loadingMapping}>
-                  <p style={{ fontWeight: 'bold' }}>{'Indices'}</p>
-                  <Select
-                    mode="multiple"
-                    style={{ width: '100%' }}
-                    placeholder="Select index"
-                    value={selectedIndices}
+                  <MonthSelect
+                    indices={indices}
+                    updateButtonVisible={false}
                     onChange={this.updateSelectedIndices}
-                    tokenSeparators={[',']}
-                  >
-                    {indices.map((month) => {
-                      return <Select.Option key={month}>{month}</Select.Option>;
-                    })}
-                  </Select>
+                    value={selectedIndices}
+                  />
                   <Divider />
                 </Spin>
                 {Object.keys(mapping).map(field => {
@@ -245,17 +239,12 @@ export default class SearchList extends Component {
                   style={{ marginTop: 20 }}
                   columns={columns}
                   dataSource={searchResults.results}
-                  onRow={(record) => ({
-                    onClick: () => { 
-                      this.retrieveResults([record]); 
-                    }
+                  onRow={record => ({
+                    onClick: () => {
+                      this.retrieveResults([record]);
+                    },
                   })}
-                  defaultPageSize={20}
-                  loading={loadingMapping || loadingResults}
-                  showSizeChanger={true}
-                  showTotal={true}
-                  pagination={{ pageSize: 20 }}
-                  bordered
+                  loading={loadingSearchResults}
                 />
               </Card>
             </Col>
