@@ -112,7 +112,7 @@ function collect_sos {
 	if [[ -f "sosreport-$name-*.tar.xz" ]]; then
 		debug_log "[$script_name]done collecting sosreport"
 	else
-		debug_log "[$script_name]sosreport collection failed!"
+		error_log "[$script_name]sosreport collection failed!"
 	fi
 }
 
@@ -144,7 +144,7 @@ for item in ${sysinfo//,/ };do
 	elif [[ "$item" == "ara" ]]; then
 		collect_ara_data &> $pbench_log
 	else
-		debug_log "[$script_name]bad sysinfo value"
+		error_log "[$script_name]bad sysinfo value"
 	fi
 done
 wait
