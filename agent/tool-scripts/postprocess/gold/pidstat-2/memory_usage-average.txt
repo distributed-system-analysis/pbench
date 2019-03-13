@@ -1,0 +1,8 @@
+resident_set_size-1029-yes=616.000000
+resident_set_size-1116-/bin/bash_/home/pportant/bin/myyes=1200.000000
+resident_set_size-1124-/bin/bash_/home/pportant/bin/myyes=1196.000000
+resident_set_size-1312-pidstat_-l_-H_-w_-u_-h_-d_-r_-p_ALL_5_4_=11074.000000
+virtual_size-1029-yes=107956.000000
+virtual_size-1116-/bin/bash_/home/pportant/bin/myyes=113176.000000
+virtual_size-1124-/bin/bash_/home/pportant/bin/myyes=113176.000000
+virtual_size-1312-pidstat_-l_-H_-w_-u_-h_-d_-r_-p_ALL_5_4_=119585.000000

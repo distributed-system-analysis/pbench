@@ -1,0 +1,6 @@
+major_faults_sec-1029:1029-yes=0.000000
+major_faults_sec-1116:1116-myyes=0.000000
+major_faults_sec-1124:1124-myyes=0.000000
+minor_faults_sec-1029:1029-yes=0.000000
+minor_faults_sec-1116:1116-myyes=0.000000
+minor_faults_sec-1124:1124-myyes=0.000000

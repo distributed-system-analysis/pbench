@@ -1,0 +1,8 @@
+nonvoluntary_switches_sec-1029-yes=0.350000
+nonvoluntary_switches_sec-1116-/bin/bash_/home/pportant/bin/myyes=0.000000
+nonvoluntary_switches_sec-1124-/bin/bash_/home/pportant/bin/myyes=0.000000
+nonvoluntary_switches_sec-1312-pidstat_-l_-H_-w_-u_-h_-d_-r_-p_ALL_5_4_=0.400000
+voluntary_switches_sec-1029-yes=0.000000
+voluntary_switches_sec-1116-/bin/bash_/home/pportant/bin/myyes=0.000000
+voluntary_switches_sec-1124-/bin/bash_/home/pportant/bin/myyes=0.000000
+voluntary_switches_sec-1312-pidstat_-l_-H_-w_-u_-h_-d_-r_-p_ALL_5_4_=0.200000

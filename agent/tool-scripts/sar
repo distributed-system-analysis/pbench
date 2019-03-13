@@ -177,7 +177,7 @@ start)
 		tool_cmd="$tool_bin $default_options $options -o $tool_data_file $interval"
 		;;
 	pidstat)
-		default_options="-H -l -w -u -h -d -r $threads -p ALL $pattern"
+		default_options="-l -H -w -u -h -d -r $threads -p ALL $pattern"
 		# ulimit is for all the files that might be opened by pidstat-convert
 		tool_cmd="$tool_bin $default_options $options $interval | (ulimit -n 102400; $script_path/postprocess/$script_name-convert $tool_output_dir)"
 		;;
