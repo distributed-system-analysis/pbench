@@ -1,6 +1,0 @@
-timestamp_ms,datagram_fragments_gen_sec,datagrams_delivered_sec,datagrams_fragmented_ok_sec,datagrams_output_requests_sec,datagrams_reassmbled_sec,fragments_rx_need_reassemble_sec,rx_datagrams_forwarded_sec,rx_datagrams_header_err_sec,rx_datagrams_invalid_addr_sec,rx_datagrams_nobuff_sec,rx_datagrams_reassmbly_fail_sec,rx_datagrams_sec,rx_datagrams_unknown_proto_sec,tx_datagrams_fragment_fail_sec,tx_datagrams_nobuff_sec,tx_datagrams_noroute_sec
-1497462677000,0.00,4.67,0.00,2.67,0.00,0.00,0.00,0.00,0.00,0.00,0.00,4.67,0.00,0.00,0.00,0.00
-1497462680000,0.00,1.67,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,1.67,0.00,0.00,0.00,0.00
-1497462683000,0.00,0.33,0.00,0.33,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.33,0.00,0.00,0.00,0.00
-1497462686000,0.00,0.67,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.67,0.00,0.00,0.00,0.00
-1497462689000,0.00,0.67,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.67,0.00,0.00,0.00,0.00

@@ -1,6 +1,0 @@
-timestamp_ms,collapse_alloc,collapse_alloc_failed,deferred_split_page,fault_alloc,fault_fallback,file_alloc,file_mapped,split_page,split_page_failed,split_pmd,zero_page_alloc,zero_page_alloc_failed
-1497462677672.56,0,0,0,0,0,0,0,0,0,0,0,0
-1497462680674.61,0,0,0,0,0,0,0,0,0,0,0,0
-1497462683676.53,0,0,0,0,0,0,0,0,0,0,0,0
-1497462686678.45,0,0,0,0,0,0,0,0,0,0,0,0
-1497462689680.26,0,0,0,0,0,0,0,0,0,0,0,0
