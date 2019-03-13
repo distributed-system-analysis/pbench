@@ -1,0 +1,8 @@
+resident_set_size-1-/usr/lib/systemd/systemd_--switched-root=7148.000000
+resident_set_size-1409-/sbin/rsyslogd_-n=2040.000000
+resident_set_size-1986-/usr/bin/memcached_-u_memcached_-p_11211=1816.000000
+resident_set_size-4689-cat=740.000000
+virtual_size-1-/usr/lib/systemd/systemd_--switched-root=53216.000000
+virtual_size-1409-/sbin/rsyslogd_-n=249612.000000
+virtual_size-1986-/usr/bin/memcached_-u_memcached_-p_11211=314820.000000
+virtual_size-4689-cat=107916.000000

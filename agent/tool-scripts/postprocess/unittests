@@ -350,10 +350,6 @@ for i in $(ls -1 samples/) ; do
             testgeneratebenchmarksummary $i
             sts=$?
             ;;
-        pidstat)
-            testpidstat $i
-            sts=$?
-            ;;            
         pidstat-*)
             testpidstat $i
             sts=$?

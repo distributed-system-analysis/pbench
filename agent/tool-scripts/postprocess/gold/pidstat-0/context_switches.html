@@ -10,11 +10,15 @@
     <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
     <script src="/static/js/v0.3/jschart.js"></script>
     <center><h2>pidstat-0 - context_switches</h2></center>
-    <h3 class="chart-header">nonvoluntary_switches_sec</h3>
-    <p class="chart-reason">No data from any series met set thresholds for graphing.</p>
-    <br>
-    <h3 class="chart-header">voluntary_switches_sec</h3>
-    <p class="chart-reason">No data from any series met set thresholds for graphing.</p>
-    <br>
+    <div id="chart_1">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_1", "nonvoluntary_switches_sec", null, null, { csvfiles: [ "csv/context_switches_nonvoluntary_switches_sec.csv" ], threshold: 100 });
+      </script>
+    </div>
+    <div id="chart_2">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_2", "voluntary_switches_sec", null, null, { csvfiles: [ "csv/context_switches_voluntary_switches_sec.csv" ], threshold: 100 });
+      </script>
+    </div>
   </body>
 </html>
