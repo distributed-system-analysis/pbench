@@ -1,0 +1,8 @@
+major_faults_sec-1-/usr/lib/systemd/systemd_--switched-root=0.000000
+major_faults_sec-1409-/sbin/rsyslogd_-n=0.000000
+major_faults_sec-1986-/usr/bin/memcached_-u_memcached_-p_11211=0.000000
+major_faults_sec-4689-cat=0.000000
+minor_faults_sec-1-/usr/lib/systemd/systemd_--switched-root=0.158095
+minor_faults_sec-1409-/sbin/rsyslogd_-n=0.000000
+minor_faults_sec-1986-/usr/bin/memcached_-u_memcached_-p_11211=0.000000
+minor_faults_sec-4689-cat=0.000000
