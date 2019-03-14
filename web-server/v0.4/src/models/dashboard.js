@@ -227,6 +227,11 @@ export default {
         tocResult: payload,
       };
     },
+    getSharedConfig(state, { payload }) {
+      return {
+        payload,
+      };
+    },
     getIterations(state, { payload }) {
       return {
         ...state,
