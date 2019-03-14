@@ -34,9 +34,10 @@ my $json_ref = get_json_file($period_doc);
 my %period_doc = %$json_ref; # this is the CDM doc for the run
 
 # there should be a directory for each host that have tools
+my $timestamp;
 my $timestamp_ms;
 my $last_timestamp_ms;
-open(IOSTAT_TXT, $tool_dir . "/iostat-stdout.txt") || die "could not find iostat-stdout.txt";
+open(IOSTAT_TXT, $tool_dir . "/iostat-stdout.txt") || die "could not find " . $tool_dir . "/iostat-stdout.txt\n";
 while (my $line = <IOSTAT_TXT>) {
 	chomp $line;
 	# Each sample should start with a time stamp (the -t in iostat).
@@ -45,30 +46,37 @@ while (my $line = <IOSTAT_TXT>) {
 		if ($timestamp_ms) {
 			$last_timestamp_ms = $timestamp_ms;
 		}
-		$timestamp_ms=`date --date="$line" +%s.%N` * 1000;
+		$timestamp = `date --date="$line" +%s.%N`;
+		# Elasticsearch requires the timestamp to be in milliseconds
+		$timestamp_ms = $timestamp * 1000;
+		if (!$last_timestamp_ms) {
+			$last_timestamp_ms = $timestamp_ms;
+		}
 	}
-	#Device:         rrqm/s   wrqm/s     r/s     w/s    rMB/s    wMB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
-	#sda               0.00     0.00 22116.00    4.00    86.39     0.07     8.00    32.03    1.43    1.43    4.92   0.05 100.00
-	#dm-0              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
-	#dm-1              0.00     0.00    0.00    4.33     0.00     0.10    47.38     0.35    4.54    0.00    4.54  76.08  32.97
-	#dm-2              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
-	#dm-3              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
-	#                         rrqm/s      wrqm/s       r/s          w/s          rMB/s        wMD/s        avgrqsz      avgqsz       await        r_await      w_await      svctm        util
-	if ( $line =~ /(\S+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)(.*)/ and $last_timestamp_ms) {
+	#     1    2    3     4     5      6      7     8     9      10      11     12       13       14    15    16
+	#Device  r/s  w/s rMB/s wMB/s rrqm/s wrqm/s %rrqm %wrqm r_await w_await aqu-sz rareq-sz wareq-sz svctm %util
+	#sdc    0.00 0.00  0.00  0.00   0.00   0.00  0.00  0.00    0.00    0.00   0.00     0.00     0.00  0.00  0.00
+	#
+	#                 1            2            3            4            5            6            7            8            9           10           11           12           13           14           15           16
+	#                            r/s          w/s        rMB/s        wMB/s       rrqm/s       wrqm/s        %rrqm        %wrqm      r_await      w_await       aqu-sz     rareq-sz     wareq-sz        svctm        %util
+	if ( $line =~ /(\S+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)(.*)/ ) {
 		my $dev = $1;
 		my %sample;
-		$sample{"throughput"}{"blockdev_read_request_merges_sec"} = $2;
-		$sample{"throughput"}{"blockdev_write_request_merges_sec"} = $3;
-		$sample{"throughput"}{"blockdev_read_iops"} = $4;
-		$sample{"throughput"}{"blockdev_write_iops"} = $5;
-		$sample{"throughput"}{"blockdev_read_KB_sec"} = $6;
-		$sample{"throughput"}{"blockdev_write_KB_sec"} = $7;
-		$sample{"count"}{"blockdev_request_size_KB"} = $8;
-		$sample{"count"}{"blockdev_queue_size"} = $9;
+		$sample{"throughput"}{"blockdev_read_iops"} = $2;
+		$sample{"throughput"}{"blockdev_write_iops"} = $3;
+		$sample{"throughput"}{"blockdev_read_KB_sec"} = $4;
+		$sample{"throughput"}{"blockdev_write_KB_sec"} = $5;
+		$sample{"throughput"}{"blockdev_read_request_merges_sec"} = $6;
+		$sample{"throughput"}{"blockdev_write_request_merges_sec"} = $7;
+		# %rrqm - percent read rq merged -- ignored
+		# %wrqm - percent write rq merged -- ignored
 		$sample{"count"}{"blockdev_read_wait_msec"} = $10;
 		$sample{"count"}{"blockdev_write_wait_msec"} = $11;
-		$sample{"count"}{"blockdev_write_wait_msec"} = $12;
-		$sample{"count"}{"blockdev_io_utilization_percent"} = $14;
+		$sample{"count"}{"blockdev_queue_size"} = $12;
+		$sample{"count"}{"blockdev_read_request_size_KB"} = $13;
+		$sample{"count"}{"blockdev_write_request_size_KB"} = $14;
+		# svctm skipped, bogus stat
+		$sample{"count"}{"blockdev_io_utilization_percent"} = $16;
 		for my $metric_class (keys %sample) {
 			for my $metric_type (keys %{ $sample{$metric_class} }) {
 				my %metric_sample = create_metric_sample_doc(

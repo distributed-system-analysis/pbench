@@ -3,7 +3,7 @@
 # Author: Andrew Theurer
 #
 # usage: iostat-postprocess <dir>  dir = directory where iostat.txt can be found
-# iostat.txt must be generated from "iostat -t -y -x -m <interval>"
+# iostat.txt must be generated from "iostat -N -t -y -x -m <interval>"
 #
 # The purpose of this script is to
 # -output the chart data in JSON format (iostat.js)
@@ -16,58 +16,62 @@ use warnings;
 # Check for an alternate tools library path for testing
 my $_test_alt_tools_lib;
 BEGIN {
-        my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
-        $_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
-        if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
-                $_test_alt_tools_lib = "$_pbench_tspp_dir";
-        }
+	my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
+	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
+	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
+		$_test_alt_tools_lib = "$_pbench_tspp_dir";
+	}
 }
 use lib "$_test_alt_tools_lib";
 no lib ".";
 use GenData qw(gen_data);
 
-my $dir=$ARGV[0];
+my $tool_dir = $ARGV[0];
 my $dev;
 my %iostat;
 my $timestamp;
 my $timestamp_ms;
 
 # read the iostat.txt
-open(IOSTAT_TXT, "$dir/iostat-stdout.txt") || die "could not find $dir/iostat-stdout.txt\n";
+open(IOSTAT_TXT, $tool_dir . "/iostat-stdout.txt") || die "could not find " . $tool_dir . "/iostat-stdout.txt\n";
 while (my $line = <IOSTAT_TXT>) {
 	chomp $line;
 	# Each sample should start with a time stamp (the -t in iostat).
 	# When we find this, update our timestamp for the hash.
 	if ( $line =~ /^\d\d\/\d\d\/\d\d(\d\d)?\s\d\d:\d\d:\d\d(\s[AP]M)?/ ) {
 		$timestamp=`date --date="$line" +%s.%N`;
-		# Javascript requires the timestamp to be in milliseconds
+		# Elasticsearch requires the timestamp to be in milliseconds
 		$timestamp_ms = $timestamp * 1000;
 	}
-	#Device:         rrqm/s   wrqm/s     r/s     w/s    rMB/s    wMB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
-	#sda               0.00     0.00 22116.00    4.00    86.39     0.07     8.00    32.03    1.43    1.43    4.92   0.05 100.00
-	#dm-0              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
-	#dm-1              0.00     0.00    0.00    4.33     0.00     0.10    47.38     0.35    4.54    0.00    4.54  76.08  32.97
-	#dm-2              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
-	#dm-3              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00
-	#                         rrqm/s      wrqm/s       r/s          w/s          rMB/s        wMD/s        avgrqsz      avgqsz       await        r_await      w_await      svctm        util
-	if ( $line =~ /(\S+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)(.*)/ ) {
+	#     1    2    3     4     5      6      7     8     9      10      11     12       13       14    15    16
+	#Device  r/s  w/s rMB/s wMB/s rrqm/s wrqm/s %rrqm %wrqm r_await w_await aqu-sz rareq-sz wareq-sz svctm %util
+	#sdc    0.00 0.00  0.00  0.00   0.00   0.00  0.00  0.00    0.00    0.00   0.00     0.00     0.00  0.00  0.00
+	#
+	#                 1            2            3            4            5            6            7            8            9           10           11           12           13           14           15           16
+	#                            r/s          w/s        rMB/s        wMB/s       rrqm/s       wrqm/s        %rrqm        %wrqm      r_await      w_await       aqu-sz     rareq-sz     wareq-sz        svctm        %util
+	if ( $line =~ /(\S+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)(.*)/ ) {
 		$dev = $1;
-		my $rrqm=$2;
-		my $wrqm=$3;
-		my $riops=$4;
-		my $wiops=$5;
-		my $rtput=$6;
-		my $wtput=$7;
-		my $reqsize=$8;
-		my $qsize=$9;
-		my $rwait=$11;
-		my $wwait=$12;
+		my $riops=$2;
+		my $wiops=$3;
+		my $rtput=$4;
+		my $wtput=$5;
+		my $rrqm=$6;
+		my $wrqm=$7;
+		# %rrqm - percent read rq merged -- ignored
+		# %wrqm - percent write rq merged -- ignored
+		my $rwait=$10;
+		my $wwait=$11;
+		my $qsize=$12;
+		my $reqsize=(($13 + $14) * 2);  # Convert kB to 512 byte sectors
+		my $rrqsize=$13;
+		my $wrqsize=$14;
 		# svctm skipped, bogus stat
-		my $util=$14;
-		# data is stored this way:
-		# $sar{htmlpage}{graph}{series}{sample}
+		my $util=$16;
 
-		# Each data series is for one device (sda).  One some graphs, read and write
+		# data is stored this way:
+		# $iostat{htmlpage}{graph}{series}{sample}
+
+		# Each data series is for one device (sda).  On some graphs, read and write
 		# series are included in to one graph (instead of having one read-ops chart
 		# and another write-ops chart), so each series needs "-read" or
 		# "-write" appended to keep them distinct.
@@ -77,10 +81,12 @@ while (my $line = <IOSTAT_TXT>) {
 		$iostat{disk}{"Throughput_MB_per_sec"}{$dev . "-write"}{$timestamp_ms} = $wtput;
 		$iostat{disk}{"Request_Merges_per_sec"}{$dev . "-read"}{$timestamp_ms} = $rrqm;
 		$iostat{disk}{"Request_Merges_per_sec"}{$dev . "-write"}{$timestamp_ms} = $wrqm;
-		$iostat{disk}{IOPS}{$dev . "-read"}{$timestamp_ms} = $riops;
-		$iostat{disk}{IOPS}{$dev . "-write"}{$timestamp_ms} = $wiops;
+		$iostat{disk}{"IOPS"}{$dev . "-read"}{$timestamp_ms} = $riops;
+		$iostat{disk}{"IOPS"}{$dev . "-write"}{$timestamp_ms} = $wiops;
 		$iostat{disk}{"Request_Size_in_512_byte_sectors"}{$dev}{$timestamp_ms} = $reqsize;
-		$iostat{disk}{Queue_Size}{$dev}{$timestamp_ms} = $qsize;
+		$iostat{disk}{"Request_Size_in_kB"}{$dev . "-read"}{$timestamp_ms} = $rrqsize;
+		$iostat{disk}{"Request_Size_in_kB"}{$dev . "-write"}{$timestamp_ms} = $wrqsize;
+		$iostat{disk}{"Queue_Size"}{$dev}{$timestamp_ms} = $qsize;
 		$iostat{disk}{"Wait_Time_msec"}{$dev . "-read"}{$timestamp_ms} = $rwait;
 		$iostat{disk}{"Wait_Time_msec"}{$dev . "-write"}{$timestamp_ms} = $wwait;
 	}
@@ -95,10 +101,11 @@ my %graph_type;
 my %graph_threshold;
 $graph_threshold{disk}{"Utilization_percent"} = 1;
 $graph_threshold{disk}{"Throughput_MB_per_sec"} = 1;
-$graph_threshold{disk}{IOPS} = 1;
+$graph_threshold{disk}{"IOPS"} = 1;
 $graph_threshold{disk}{"Wait_Time_msec"} = 0.1;
 $graph_threshold{disk}{"Request_Size_in_512_byte_sectors"} = 0.1;
+$graph_threshold{disk}{"Request_Size_in_kB"} = 0.1;
 $graph_threshold{disk}{"Request_Merges_per_sec"} = 0.1;
-$graph_threshold{disk}{Queue_Size} = 0.01;
+$graph_threshold{disk}{"Queue_Size"} = 0.01;
 
-gen_data(\%iostat, \%graph_type, \%graph_threshold, $dir);
+gen_data(\%iostat, \%graph_type, \%graph_threshold, $tool_dir);

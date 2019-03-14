@@ -32,17 +32,22 @@
     </div>
     <div id="chart_5">
       <script>
-        create_jschart("lineChart", "timeseries", "chart_5", "Throughput_MB_per_sec", null, null, { csvfiles: [ "csv/disk_Throughput_MB_per_sec.csv" ], threshold: 1 });
+        create_jschart("lineChart", "timeseries", "chart_5", "Request_Size_in_kB", null, null, { csvfiles: [ "csv/disk_Request_Size_in_kB.csv" ], threshold: 0.1 });
       </script>
     </div>
     <div id="chart_6">
       <script>
-        create_jschart("lineChart", "timeseries", "chart_6", "Utilization_percent", null, null, { csvfiles: [ "csv/disk_Utilization_percent.csv" ], threshold: 1 });
+        create_jschart("lineChart", "timeseries", "chart_6", "Throughput_MB_per_sec", null, null, { csvfiles: [ "csv/disk_Throughput_MB_per_sec.csv" ], threshold: 1 });
       </script>
     </div>
     <div id="chart_7">
       <script>
-        create_jschart("lineChart", "timeseries", "chart_7", "Wait_Time_msec", null, null, { csvfiles: [ "csv/disk_Wait_Time_msec.csv" ], threshold: 0.1 });
+        create_jschart("lineChart", "timeseries", "chart_7", "Utilization_percent", null, null, { csvfiles: [ "csv/disk_Utilization_percent.csv" ], threshold: 1 });
+      </script>
+    </div>
+    <div id="chart_8">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_8", "Wait_Time_msec", null, null, { csvfiles: [ "csv/disk_Wait_Time_msec.csv" ], threshold: 0.1 });
       </script>
     </div>
   </body>
