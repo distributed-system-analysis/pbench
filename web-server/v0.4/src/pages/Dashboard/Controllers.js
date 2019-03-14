@@ -10,7 +10,6 @@ import { compareByAlph } from '../../utils/utils';
   controllers: dashboard.controllers,
   indices: global.indices,
   selectedIndices: global.selectedIndices,
-  selectorIndices: global.selectorIndices,
   datastoreConfig: global.datastoreConfig,
   loadingControllers: loading.effects['dashboard/fetchControllers'],
   loadingIndices: loading.effects['global/fetchMonthIndices'],
@@ -61,9 +60,7 @@ export default class Controllers extends Component {
       type: 'global/fetchMonthIndices',
       payload: { datastoreConfig: datastoreConfig },
     }).then(() => {
-      Promise.resolve(this.updateSelectedIndices(['0'])).then(() => {
-        this.fetchControllers();
-      });
+      this.fetchControllers();
     });
   };
 
@@ -84,21 +81,11 @@ export default class Controllers extends Component {
   };
 
   updateSelectedIndices = value => {
-    const { dispatch, indices } = this.props;
-    let selectedIndices = [];
-
-    value.map(item => {
-      selectedIndices.push(indices[item]);
-    });
+    const { dispatch } = this.props;
 
     dispatch({
       type: 'global/updateSelectedIndices',
-      payload: selectedIndices,
-    }).then(() => {
-      dispatch({
-        type: 'global/updateSelectorIndices',
-        payload: value,
-      });
+      payload: value,
     });
   };
 
@@ -170,7 +157,7 @@ export default class Controllers extends Component {
       loadingControllers,
       loadingConfig,
       loadingIndices,
-      selectorIndices,
+      selectedIndices,
       indices,
     } = this.props;
     const suffix = searchText ? <Icon type="close-circle" onClick={this.emitEmpty} /> : null;
@@ -225,15 +212,15 @@ export default class Controllers extends Component {
                 mode="multiple"
                 style={{ width: '100%' }}
                 placeholder="Select index"
-                value={selectorIndices}
+                value={selectedIndices}
                 onChange={value => {
                   this.updateSelectedIndices(value);
                   this.setState({ selectedIndicesUpdated: true });
                 }}
                 tokenSeparators={[',']}
               >
-                {indices.map((index, i) => {
-                  return <Select.Option key={i}>{index}</Select.Option>;
+                {indices.map((month) => {
+                  return <Select.Option key={month}>{month}</Select.Option>;
                 })}
               </Select>
             </FormItem>
