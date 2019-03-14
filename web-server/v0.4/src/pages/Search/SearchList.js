@@ -135,16 +135,16 @@ export default class SearchList extends Component {
     });
   };
 
-  retrieveResults = params => {
+  retrieveResults = selectedResults => {
     const { dispatch } = this.props;
 
     dispatch({
       type: 'dashboard/updateSelectedController',
-      payload: params['run.controller'],
+      payload: selectedResults[0]['run.controller'],
     }).then(() => {
       dispatch({
         type: 'dashboard/updateSelectedResults',
-        payload: params,
+        payload: selectedResults,
       }).then(() => {
         dispatch(
           routerRedux.push({
@@ -256,7 +256,9 @@ export default class SearchList extends Component {
                   columns={columns}
                   dataSource={searchResults.results}
                   onRow={(record) => ({
-                    onClick: () => { this.retrieveResults(record); }
+                    onClick: () => { 
+                      this.retrieveResults([record]); 
+                    }
                   })}
                   defaultPageSize={20}
                   loading={loadingMapping || loadingResults}
