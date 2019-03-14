@@ -102,3 +102,10 @@ export const mockSearch = {
     ],
   },
 };
+
+export const mockStore = {
+  router: {},
+  dashboard: {},
+  search: {},
+  store: {},
+};

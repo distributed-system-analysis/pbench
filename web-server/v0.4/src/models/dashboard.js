@@ -6,7 +6,6 @@ import {
   queryIterations,
   queryTimeseriesData,
 } from '../services/dashboard';
-
 import { parseIterationData } from '../utils/parse';
 import { insertTocTreeData } from '../utils/utils';
 
@@ -25,6 +24,12 @@ export default {
   },
 
   effects: {
+    *rehydrate({ payload }, { put }) {
+      yield put({
+        type: 'rehydrateDashboard',
+        payload,
+      });
+    },
     *fetchControllers({ payload }, { call, put }) {
       const response = yield call(queryControllers, payload);
       const controllers = [];
@@ -189,15 +194,15 @@ export default {
         payload,
       });
     },
-    *updateConfigData({ payload }, { put }) {
-      yield put({
-        type: 'modifyConfigData',
-        payload,
-      });
-    },
   },
 
   reducers: {
+    rehydrateDashboard(state, { payload }) {
+      return {
+        ...state,
+        ...payload,
+      };
+    },
     getControllers(state, { payload }) {
       return {
         ...state,
@@ -244,12 +249,6 @@ export default {
       return {
         ...state,
         iterationParams: payload,
-      };
-    },
-    modifyConfigData(state, { payload }) {
-      return {
-        ...state,
-        configData: payload,
       };
     },
   },

@@ -11,6 +11,12 @@ export default {
   },
 
   effects: {
+    *rehydrate({ payload }, { put }) {
+      yield put({
+        type: 'rehydrateSearch',
+        payload,
+      });
+    },
     *fetchIndexMapping({ payload }, { call, put }) {
       const response = yield call(queryIndexMapping, payload);
       const { datastoreConfig, indices } = payload;
@@ -75,6 +81,12 @@ export default {
   },
 
   reducers: {
+    rehydrateSearch(state, { payload }) {
+      return {
+        ...state,
+        ...payload,
+      };
+    },
     getIndexMapping(state, { payload }) {
       return {
         ...state,

@@ -83,8 +83,13 @@ enquireScreen(b => {
   isMobile = b;
 });
 
-@connect(({ global = {} }) => ({
+@connect(({ global, datastore, loading }) => ({
+  datastoreConfig: datastore.datastoreConfig,
   collapsed: global.collapsed,
+  sessionBannerVisible: global.sessionBannerVisible,
+  sessionDescription: global.sessionDescription,
+  sessionId: global.sessionId,
+  savingSession: loading.effects['global/saveUserSession'],
 }))
 class BasicLayout extends React.PureComponent {
   static childContextTypes = {
@@ -199,7 +204,12 @@ class BasicLayout extends React.PureComponent {
 
   render() {
     const {
+      datastoreConfig,
       collapsed,
+      savingSession,
+      sessionBannerVisible,
+      sessionDescription,
+      sessionId,
       fetchingNotices,
       children,
       location: { pathname },
@@ -226,6 +236,11 @@ class BasicLayout extends React.PureComponent {
               logo={logo}
               fetchingNotices={fetchingNotices}
               collapsed={collapsed}
+              datastoreConfig={datastoreConfig}
+              savingSession={savingSession}
+              sessionBannerVisible={sessionBannerVisible}
+              sessionDescription={sessionDescription}
+              sessionId={sessionId}
               isMobile={mb}
               onNoticeClear={this.handleNoticeClear}
               onCollapse={this.handleMenuCollapse}
@@ -233,7 +248,12 @@ class BasicLayout extends React.PureComponent {
               onNoticeVisibleChange={this.handleNoticeVisibleChange}
             />
           </Header>
-          <Content style={{ margin: '24px 24px 0', height: '100%' }}>
+          <Content
+            style={{
+              margin: sessionBannerVisible ? '104px 24px 0' : '24px 24px 0',
+              height: '100%',
+            }}
+          >
             <PersistGate
               persistor={this.persistor}
               loading={
