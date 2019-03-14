@@ -190,7 +190,7 @@ for host in $hosts ;do
     fi
 
     # get the tarball list for this host
-    flist=$(find $unpack/$host -type f -name '*.tar.xz.md5' | sed 's;'$unpack/$host/';;')
+    flist=$(find $unpack/$host -type f -name '*.tar.xz.md5' | sed 's;'$unpack/$host/';;' | sort)
 
     echo $flist
 
