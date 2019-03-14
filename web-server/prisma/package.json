@@ -1,0 +1,15 @@
+{
+  "name": "pbench_dashboard_backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "prisma-client-lib": "^1.26.6"
+  }
+}

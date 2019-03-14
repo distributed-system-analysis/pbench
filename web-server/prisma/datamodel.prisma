@@ -1,0 +1,7 @@
+type Url {
+  id: ID! @unique
+  createdAt: DateTime!
+  config: String!
+  description: String
+}
+
