@@ -5,8 +5,8 @@ import {
   queryTocResult,
   queryIterations,
   queryTimeseriesData,
+  querySharedConfig,
 } from '../services/dashboard';
-
 import { parseIterationData } from '../utils/parse';
 import { insertTocTreeData } from '../utils/utils';
 
@@ -158,6 +158,16 @@ export default {
         payload: tocTree,
       });
     },
+    *fetchSharedConfig({ payload }, { call, put }) {
+      let response = yield call(querySharedConfig, payload);
+      const config = JSON.parse(response.data.data.url.config);
+      const { description } = response.data.data.url;
+      response = { config, description };
+      yield put({
+        type: 'getSharedConfig',
+        payload: response,
+      });
+    },
     *fetchIterations({ payload }, { call, put }) {
       const response = yield call(queryIterations, payload);
       const parsedIterationData = parseIterationData(response);
@@ -218,6 +228,11 @@ export default {
       return {
         ...state,
         tocResult: payload,
+      };
+    },
+    getSharedConfig(state, { payload }) {
+      return {
+        payload,
       };
     },
     getIterations(state, { payload }) {

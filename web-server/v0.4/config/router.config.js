@@ -54,6 +54,11 @@ module.exports = [
         name: 'exception-500',
         component: './Exception/500',
       },
+      {
+        path: '/share/:id',
+        name: 'share',
+        component: './Sharable',
+      },
     ],
   },
 ];

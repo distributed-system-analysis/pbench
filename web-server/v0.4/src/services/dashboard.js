@@ -117,6 +117,24 @@ export async function queryTocResult(params) {
   return request.post(endpoint);
 }
 
+export async function querySharedConfig(params) {
+  const { id } = params;
+  return request.post('http://localhost:4466/',
+    {data: {
+      query: `
+              query($id: ID!) {
+                  url(where: {id: $id}) {
+                      config
+                      description
+                  }
+                  }`,
+      variables: {
+        id,
+      },
+    },
+  });
+}
+
 export async function queryIterations(params) {
   const { datastoreConfig, selectedResults } = params;
 
