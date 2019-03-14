@@ -9,46 +9,74 @@ $dir/agent/tool-scripts/postprocess/unittests > /var/tmp/agent.tool-scripts.pp.o
 tpid=$!
 $dir/agent/util-scripts/unittests > /var/tmp/agent.util-scripts.out 2>&1 < /dev/null &
 upid=$!
-$dir/server/bin/unittests --parallel > /var/tmp/server.out 2>&1 < /dev/null &
+$dir/server/bin/unittests > /var/tmp/server.out 2>&1 < /dev/null &
 spid=$!
 
 echo "+++ Agent bench-scripts Unit Tests +++"
 echo ""
 wait $bpid
-let sts=sts+$?
+let bs_sts=$?
+let sts=sts+bs_sts
 cat /var/tmp/agent.bench-scripts.out && rm /var/tmp/agent.bench-scripts.out
 echo ""
-echo "--- Agent bench-scripts Unit Tests ---"
+if [[ $bs_sts -ne 0 ]]; then
+    status="FAILED"
+else
+    status="SUCCEEDED"
+fi
+echo "--- Agent bench-scripts Unit Tests ($status) ---"
 echo ""
 echo ""
 echo ""
 echo "+++ Agent tool-scripts/postprocess Unit Tests +++"
 echo ""
 wait $tpid
-let sts=sts+$?
+let pp_sts=$?
+let sts=sts+pp_sts
 cat /var/tmp/agent.tool-scripts.pp.out && rm /var/tmp/agent.tool-scripts.pp.out
 echo ""
-echo "--- Agent tool-scripts/postprocess Unit Tests ---"
+if [[ $pp_sts -ne 0 ]]; then
+    status="FAILED"
+else
+    status="SUCCEEDED"
+fi
+echo "--- Agent tool-scripts/postprocess Unit Tests ($status) ---"
 echo ""
 echo ""
 echo ""
 echo "+++ Agent util-scripts Unit Tests +++"
 echo ""
 wait $upid
-let sts=sts+$?
+let us_sts=$?
+let sts=sts+us_sts
 cat /var/tmp/agent.util-scripts.out && rm /var/tmp/agent.util-scripts.out
 echo ""
-echo "--- Agent util-scripts Unit Tests ---"
+if [[ $us_sts -ne 0 ]]; then
+    status="FAILED"
+else
+    status="SUCCEEDED"
+fi
+echo "--- Agent util-scripts Unit Tests ($status) ---"
 echo ""
 echo ""
 echo ""
 echo "+++ Server Unit Tests +++"
 echo ""
+# We tail the server test output in the background
+tail -n 9999999 -f /var/tmp/server.out --pid $spid &
+tail_pid=$!
 wait $spid
-let sts=sts+$?
-cat /var/tmp/server.out && rm /var/tmp/server.out
+let sr_sts=$?
+let sts=sts+sr_sts
+wait $tail_pid > /dev/null 2>&1
+rm -f /var/tmp/server.out
 echo ""
-echo "--- Server Unit Tests ---"
+if [[ $sr_sts -ne 0 ]]; then
+    status="FAILED"
+else
+    status="SUCCEEDED"
+fi
+echo "--- Server Unit Tests ($status) ---"
 
 if [ $sts -gt 0 ]; then
     echo "Unit tests FAILED"
