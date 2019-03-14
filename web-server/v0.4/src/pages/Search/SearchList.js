@@ -12,7 +12,6 @@ const Option = Select.Option;
   fields: search.fields,
   selectedFields: search.selectedFields,
   selectedIndices: global.selectedIndices,
-  selectorIndices: global.selectorIndices,
   indices: global.indices,
   datastoreConfig: global.datastoreConfig,
   loadingMapping: loading.effects['search/fetchIndexMapping'],
@@ -83,19 +82,10 @@ export default class SearchList extends Component {
   };
 
   updateSelectedIndices = value => {
-    const { dispatch, indices } = this.props;
-    let selectedIndices = [];
-
-    value.map(item => {
-      selectedIndices.push(indices[item]);
-    });
+    const { dispatch } = this.props;
 
     dispatch({
-      type: 'search/updateSelectedIndices',
-      payload: selectedIndices,
-    });
-    dispatch({
-      type: 'global/updateSelectorIndices',
+      type: 'global/updateSelectedIndices',
       payload: value,
     });
   };
@@ -157,7 +147,7 @@ export default class SearchList extends Component {
 
   render() {
     const {
-      selectorIndices,
+      selectedIndices,
       indices,
       mapping,
       selectedFields,
@@ -210,12 +200,12 @@ export default class SearchList extends Component {
                     mode="multiple"
                     style={{ width: '100%' }}
                     placeholder="Select index"
-                    value={selectorIndices}
+                    value={selectedIndices}
                     onChange={this.updateSelectedIndices}
                     tokenSeparators={[',']}
                   >
-                    {indices.map((index, i) => {
-                      return <Select.Option key={i}>{index}</Select.Option>;
+                    {indices.map((month) => {
+                      return <Select.Option key={month}>{month}</Select.Option>;
                     })}
                   </Select>
                   <Divider />

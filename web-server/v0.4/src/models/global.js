@@ -8,7 +8,6 @@ export default {
     datastoreConfig: {},
     indices: [],
     selectedIndices: [],
-    selectorIndices: ['0'],
   },
 
   effects: {
@@ -52,12 +51,6 @@ export default {
         payload: payload,
       });
     },
-    *updateSelectorIndices({ payload }, { put }) {
-      yield put({
-        type: 'modifySelectorIndices',
-        payload: payload,
-      });
-    },
   },
 
   reducers: {
@@ -76,6 +69,7 @@ export default {
     getMonthIndices(state, { payload }) {
       return {
         ...state,
+        selectedIndices: [payload[0]],
         indices: payload,
       };
     },
@@ -83,12 +77,6 @@ export default {
       return {
         ...state,
         selectedIndices: payload,
-      };
-    },
-    modifySelectorIndices(state, { payload }) {
-      return {
-        ...state,
-        selectorIndices: payload,
       };
     },
   },
