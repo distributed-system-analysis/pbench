@@ -1,4 +1,4 @@
-# Created 2019-02-11 Mon 16:46
+# Created 2019-03-14 Thu 15:48
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -16,6 +16,101 @@
 #+infojs_opt: 
 #+latex_header: 
 
+* Version 0.57
+
+** Installation                                                    :external:
+
+There are ansible playbooks to install ~pbench-agent~ and the pieces
+needed (key and config files) to be able to send results to a server.
+
+There are no other installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.57-1g2cbeba41
+of the pbench-agent RPM installed.
+
+** agent
+- pbench-trafficgen: various fixes and enhancements.
+- ansible playbook to install key and config files.
+
+** server
+- index-pbench and friends: various fixes and enhancements that enable
+  more dashboard features.
+- ansible playbook to install config files and perform server activation.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.57
+:END:
+
+There are no changes but a 0.57-1g2cbeba41 RPM has been built on COPR (just
+to make sure it still builds correctly.)
+
+** Changelog
+This is the list of visible commits since v0.56:
+
+- de6430ff Version bump: v0.57
+- e0755058 Handle @metadata.controller_dir properly
+- 147f5b7b Drop redundant server-config directory
+- f2e64c11 Use @metadata.controller_dir when present
+- 036d65b9 Update index document models to fix data problems
+- b75a4df9 Ensure benchmark command args are properly quoted
+- e9677699 Look for closest sample w/wo underscore
+- 934726e4 Refactor parseIterationData to be a bit smaller
+- 3dd765bd put back '}' in pbench-gen-iterations
+- 96f2940e more whitespace fixes
+- caa85259 pbench-run-benchmark & co: fix whitespace
+- 047e09bc updates for run-benchmark -convert tabs to spaces -pass along tool group to metadata-log -consistently use "-" instead of "_" in %defaults and %params
+- 3ab129ec spelling fix
+- fc6b5b48 Updates for pbench-run-benchmark -Perl sytnax fixes for RHEL8, explicit %{} when using "keys" -Implement pbench-metadata-log -Perl fixes, use "exists"
+- 53fee0ea Use common result.json parse func on Summary page
+- 8e5acaf3 Reduce repeated calls to setState() where possible
+- 8bb51649 Fix sorting consistently for all pages
+- dc589414 Rendered lists of children elements should contain a unique "key" prop.
+- 4ae5c191 pbench-trafficgen: address review comments
+- 3c2e2723 Update pbench-trafficgen and tool-trigger -pbench-trafficgen:  -fix $config so pbench-move-results/metadata chack does not barf -get rid of []'s  -add option to choose what period in the benchmark to use tools  -use tool triggers instead of start/stop tools -pbench-tool-trigger:  -add 4th optional argument to include sample number (otherwise assume 1)
+- 8b87414f Remove console log on render() for header
+- bf54133c Remove use of deprecated ant design's onRowClick
+- 3a9afbe6 Address review comments
+- 48b1f945 Enhance unittests script to include the web server bits
+- e3b4b5ec Ansible playbook for server post-installation
+- 3569ef49 Fix sort order and proper sort by time
+- f32a3b78 Using incoming URL instead of results
+- 675b7bbe Strip trailing slashes from configured URLs
+- 01d33f9f Handle both pre-v1 and v1 run field names
+- b02ffff2 Delete trailing blank lines.
+- 66da3fe8 Ansible playbook for installing key and config files.
+- 1f8e87ea Upgrade the front-end build tool from roadhog to UmiJS
+- ecf0218a Further fixes to stop using reference-result directly
+- 54a3d720 Don't require pbench-server 'environment' option
+- 5f865ab0 Properly check for unittest failures
+- bcacd800 Fix and improve search UX for controllers and results
+- d04e9d2d Update base URL paths for controller and search routes
+- a4356391 Add python pbench logger and PbenchConfig class
+- 230a0732 Fix server unittests to emit diff properly
+- 53cf9a04 Add ignore for *~
+- c6ca2cd3 Remove spaces from field names
+- be3289f6 Adds full PDF download feature to comparison page
+- be028752 fixing run.id name for react table tree view
+- 90aca8e1 Adds table tree view
+- 462c2d7a Added files to the directory tree visualizer
+- 175f06c2 Adds tree visualizer for directory
+- eceb7600 Ensure indexing properly cleans up extracted tar balls
+- 7e1e06eb Use the already extracted sosreports
+- e3d57a99 Don't use reference-result directly, use sample1
+- c26c354e Move sed commands into common shared function
+- 0fd5919d Add additional error checking to pbench-metadata-log
+- 66a1c883 Stop calling metadata-log from collect-sysinfo
+- 521cd430 Reduce # of util-scripts mock'd in bench-utils
+- 087dc53c Remove unused kvm-host parameter
+- 8e806652 Whitespace and single char param cleanup
+- 63467194 Consistently handle bench scripts options & help
+- 90f28584 Remove unused --kvm-host parameter for pbench-linpack
+- cbb01e18 Use created gen-bench-sum.cmd file
+- d14472e2 Fix spelling of separated/separator
+- edf9f402 Fix pbench-trafficgen to record metadata properly
+- 89abda57 Fix tabs/spaces formatting
+
 * Version 0.56
 
 ** Installation                                                    :external:
@@ -23,7 +118,7 @@
 There are no installation changes in this release: see the
 [[file:../agent/installation.org][Installation Instructions]] for how to install or update.
 
-After installation or update, you should have version 0.55-1g94965f79
+After installation or update, you should have version 0.56-1g94965f79
 of the pbench-agent RPM installed.
 
 ** agent
@@ -123,6 +218,7 @@ This is the list of visible commits since v0.55:
 - 32d54001 A few cleanups to pbench-postprocess-tools
 - 32d6329d Fix indexing error handling timestamp conversions
 - 7727e4a7 Reduce overhead for local dev by using node environment vars
+
 
 * Version 0.55
 There are a few changes in the agent (see the Changelog) but most of
