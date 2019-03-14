@@ -54,10 +54,7 @@ class Explore extends Component {
   startSharedSession = record => {
     const { dispatch } = this.props;
 
-    const parsedConfig = JSON.parse(record.config);
-    window.localStorage.setItem('persist:root', parsedConfig);
-
-    dispatch(routerRedux.push(parsedConfig.routing.location.pathname));
+    dispatch(routerRedux.push(`/share/${record.id}`));
   };
 
   render() {

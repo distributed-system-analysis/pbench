@@ -1,4 +1,4 @@
-import { queryDatastoreConfig, queryMonthIndices } from '../services/global';
+import { queryDatastoreConfig, queryMonthIndices } from '../services/datastore';
 
 export default {
   namespace: 'datastore',
