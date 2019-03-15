@@ -243,7 +243,7 @@ function testjmap {
     return $sts
 }
 
-function testprometheus-metrics {
+function testprometheus_metrics {
     echo "Testing prometheus-metrics-postprocess under sample $1 ..."
 
     mkdir -p ${_testroot}/$1/json
@@ -331,7 +331,7 @@ for i in $(ls -1 samples/) ; do
             sts=$?
             ;;
         prometheus-metrics)
-            testprometheus-metrics $i
+            testprometheus_metrics $i
             sts=$?
             ;;
         pcp-*)
