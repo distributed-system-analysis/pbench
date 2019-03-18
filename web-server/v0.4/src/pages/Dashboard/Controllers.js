@@ -24,20 +24,21 @@ export default class Controllers extends Component {
     super(props);
 
     this.state = {
-      controllers: [],
+      controllers: this.props.controllers
     };
   }
 
   componentDidMount() {
-    this.queryDatastoreConfig();
+    const { controllers, selectedIndices, indices } = this.props;
+
+    if (controllers.length === 0 || selectedIndices.length === 0 || indices.length === 0) {
+      this.queryDatastoreConfig();
+    }
   }
 
-  componentDidUpdate(prevProps) {
-    const { controllers } = this.props;
-    const prevControllers = prevProps.controllers;
-
-    if (controllers !== prevControllers) {
-      this.setState({ controllers });
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.controllers !== this.props.controllers) {
+      this.setState({ controllers: nextProps.controllers });
     }
   }
 

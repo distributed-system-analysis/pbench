@@ -50,6 +50,7 @@
     "react-dom": "^16.8.3",
     "react-fittext": "^1.0.0",
     "redux": "3.x",
+    "redux-persist": "^5.10.0",
     "setprototypeof": "^1.1.0",
     "url-polyfill": "^1.0.10"
   },
