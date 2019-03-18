@@ -21,7 +21,7 @@ export default class Results extends Component {
     super(props);
 
     this.state = {
-      results: [],
+      results: this.props.results,
       selectedRowKeys: [],
       selectedRowNames: []
     };
@@ -40,12 +40,9 @@ export default class Results extends Component {
     });
   }
 
-  componentDidUpdate(prevProps) {
-    const { results } = this.props;
-    const prevResults = prevProps.results;
-
-    if (results !== prevResults) {
-      this.setState({ results });
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.results !== this.props.results) {
+      this.setState({ results: nextProps.results });
     }
   }
 

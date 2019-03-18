@@ -28,7 +28,11 @@ export default class SearchList extends Component {
   }
 
   componentDidMount() {
-    this.queryDatastoreConfig();
+    const { selectedIndices, indices} = this.props;
+
+    if (selectedIndices.length === 0 || indices.length === 0) {
+      this.queryDatastoreConfig();      
+    }
   }
 
   queryDatastoreConfig = () => {
