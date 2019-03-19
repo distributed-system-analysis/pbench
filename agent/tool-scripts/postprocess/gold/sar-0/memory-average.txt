@@ -13,6 +13,7 @@ memory_usage-commit_pct=67.114286
 memory_usage-hugeused_pct=0.000000
 memory_usage-kbactive=3249130.095238
 memory_usage-kbanonpg=310364.000000
+memory_usage-kbavail=63387252.000000
 memory_usage-kbbuffers=107508.000000
 memory_usage-kbcached=3446987.238095
 memory_usage-kbcommit=10571595.809524
