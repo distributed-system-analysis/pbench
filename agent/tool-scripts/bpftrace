@@ -119,6 +119,10 @@ if [[ "$mode" != "install" ]]; then
 		usage
 		exit 1
 	fi
+	if [[ ! -x $tool_bin ]]; then
+		printf -- "$script_name:Error: $tool_bin missing or is not executable" >&2
+		exit 1
+	fi
 fi
 
 if [[ "$mode" = "start" ]]; then
@@ -130,6 +134,45 @@ if [[ "$mode" = "start" ]]; then
 		script=$(echo $script | sed 's/^"\(.*\)"$/\1/')
 	fi
 fi
+
+function kill_and_wait {
+	local sig=${1}
+	local pid=${2}
+	kill -${sig} ${pid} > /dev/null 2>&1
+	let cnt=10
+	while [[ -e /proc/${pid}/status ]]; do
+		let cnt=cnt-1
+		if [[ $cnt -lt 0 ]]; then
+			break
+		fi
+		sleep 0.10
+	done
+	if [[ ! -e /proc/${pid}/status ]]; then
+		# Process does not exist, exit successfully
+		return 0
+	fi
+	# Process still exists (last we checked)
+	return 1
+}
+
+function dokill {
+	local pid=${1}
+	kill_and_wait INT ${pid}
+	if [[ $? -eq 0 ]]; then
+		return 0
+	fi
+	# kill -INT failed, let's try kill -TERM
+	kill_and_wait TERM ${pid}
+	if [[ $? -eq 0 ]]; then
+		return 0
+	fi
+	# kill -TERM failed, let's try kill -KILL
+	kill_and_wait KILL ${pid}
+	if [[ $? -eq 0 ]]; then
+		return 0
+	fi
+	return 1
+}
 
 tool_dir="$dir/tools-$group"
 tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
@@ -146,7 +189,7 @@ start)
 	tool_stderr_file=$tool_output_dir/$tool-stderr.txt
 	mkdir -p $tool_output_dir
 	if [[ $? -ne 0 ]]; then
-		error_log "$script_name: failed to create tool output directory, $tool_output_dir" >&2
+		error_log "$script_name: failed to create tool output directory, $tool_output_dir"
 		exit 1
 	fi
 	echo "$tool_cmd" >$tool_cmd_file
@@ -158,8 +201,14 @@ start)
 stop)
 	if [[ -s "$tool_pid_file" ]]; then
 		pid=$(cat "$tool_pid_file")
-		debug_log "stopping $script_name"
-		kill -SIGINT $pid && /bin/rm "$tool_pid_file"
+		debug_log "stopping $script_name, pid: $pid"
+		dokill $pid
+		if [[ $? -ne 0 ]]; then
+			error_log "[$script_name]: failed to \"kill\" pid ${pid}"
+			exit 1
+		else
+			/bin/rm "$tool_pid_file"
+		fi
 	else
 		warn_log "[$script_name]: tool is not running, nothing to kill"
 	fi
