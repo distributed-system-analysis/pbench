@@ -1069,8 +1069,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:55:20      frmpg/s   bufpg/s   campg/s
 06:55:23      -769.33      0.67     50.67
 
-06:55:20    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:55:23     60009228   5719676      8.70     45352   3363156   3160252      3.20   2315936   2268272       668    310364  14665204      9648     21148    201476
+06:55:20    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:55:23     60009228  63387252   5719676      8.70     45352   3363156   3160252      3.20   2315936   2268272       668    310364  14665204      9648     21148    201476
 
 06:55:20    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:55:23     32964604         0      0.00         0      0.00
@@ -2305,8 +2305,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:55:23      frmpg/s   bufpg/s   campg/s
 06:55:26     -1722.33      0.00     37.67
 
-06:55:23    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:55:26     59988560   5740344      8.73     45352   3363608   3228716      3.27   2318440   2268268      1120    310364  14665204      9648     21148    201476
+06:55:23    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:55:26     59988560  63387252   5740344      8.73     45352   3363608   3228716      3.27   2318440   2268268      1120    310364  14665204      9648     21148    201476
 
 06:55:23    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:55:26     32964604         0      0.00         0      0.00
@@ -3541,8 +3541,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:55:26      frmpg/s   bufpg/s   campg/s
 06:55:29      1094.00      0.67     37.67
 
-06:55:26    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:55:29     60001688   5727216      8.71     45360   3364060   3172224      3.21   2324096   2268276      1572    310364  14665204      9648     21148    201476
+06:55:26    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:55:29     60001688  63387252   5727216      8.71     45360   3364060   3172224      3.21   2324096   2268276      1572    310364  14665204      9648     21148    201476
 
 06:55:26    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:55:29     32964604         0      0.00         0      0.00
@@ -4777,8 +4777,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:55:29      frmpg/s   bufpg/s   campg/s
 06:55:32     -2989.00      0.00     31.33
 
-06:55:29    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:55:32     59965820   5763084      8.77     45360   3364436   3245472      3.29   2351204   2268288      1940    310364  14665204      9648     21148    201476
+06:55:29    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:55:32     59965820  63387252   5763084      8.77     45360   3364436   3245472      3.29   2351204   2268288      1940    310364  14665204      9648     21148    201476
 
 06:55:29    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:55:32     32964604         0      0.00         0      0.00
@@ -6013,8 +6013,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:55:32      frmpg/s   bufpg/s   campg/s
 06:55:35     -4250.33      0.67     41.33
 
-06:55:32    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:55:35     59914816   5814088      8.85     45368   3364932   3284652      3.33   2391064   2268368      2372    310364  14665204      9648     21148    201476
+06:55:32    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:55:35     59914816  63387252   5814088      8.85     45368   3364932   3284652      3.33   2391064   2268368      2372    310364  14665204      9648     21148    201476
 
 06:55:32    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:55:35     32964604         0      0.00         0      0.00
@@ -7249,8 +7249,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:55:35      frmpg/s   bufpg/s   campg/s
 06:55:38     -1102.67      0.67     34.00
 
-06:55:35    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:55:38     59901584   5827320      8.87     45376   3365340   3284476      3.33   2391216   2268380      2772    310364  14665204      9648     21148    201476
+06:55:35    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:55:38     59901584  63387252   5827320      8.87     45376   3365340   3284476      3.33   2391216   2268380      2772    310364  14665204      9648     21148    201476
 
 06:55:35    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:55:38     32964604         0      0.00         0      0.00
@@ -8485,8 +8485,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:55:38      frmpg/s   bufpg/s   campg/s
 06:55:41      -334.00      0.00     33.33
 
-06:55:38    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:55:41     59897576   5831328      8.87     45376   3365740   3284648      3.33   2391228   2268396      3168    310364  14665204      9648     21148    201476
+06:55:38    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:55:41     59897576  63387252   5831328      8.87     45376   3365740   3284648      3.33   2391228   2268396      3168    310364  14665204      9648     21148    201476
 
 06:55:38    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:55:41     32964604         0      0.00         0      0.00
@@ -9721,8 +9721,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:55:41      frmpg/s   bufpg/s   campg/s
 06:55:44      -155.67      0.67     33.67
 
-06:55:41    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:55:44     59895708   5833196      8.87     45384   3366144   3284932      3.33   2391372   2268396      3576    310364  14665204      9648     21148    201476
+06:55:41    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:55:44     59895708  63387252   5833196      8.87     45384   3366144   3284932      3.33   2391372   2268396      3576    310364  14665204      9648     21148    201476
 
 06:55:41    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:55:44     32964604         0      0.00         0      0.00
@@ -10957,8 +10957,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:55:44      frmpg/s   bufpg/s   campg/s
 06:55:47      -665.33      0.00     31.00
 
-06:55:44    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:55:47     59887724   5841180      8.89     45384   3366516   3366948      3.41   2391336   2268420      3484    310364  14665204      9648     21148    201476
+06:55:44    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:55:47     59887724  63387252   5841180      8.89     45384   3366516   3366948      3.41   2391336   2268420      3484    310364  14665204      9648     21148    201476
 
 06:55:44    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:55:47     32964604         0      0.00         0      0.00
@@ -12193,8 +12193,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:55:47      frmpg/s   bufpg/s   campg/s
 06:55:50       621.00      0.67     35.67
 
-06:55:47    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:55:50     59895176   5833728      8.88     45392   3366944   3284756      3.33   2390224   2268420      3912    310364  14665204      9648     21148    201476
+06:55:47    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:55:50     59895176  63387252   5833728      8.88     45392   3366944   3284756      3.33   2390224   2268420      3912    310364  14665204      9648     21148    201476
 
 06:55:47    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:55:50     32964604         0      0.00         0      0.00
@@ -13429,8 +13429,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:55:50      frmpg/s   bufpg/s   campg/s
 06:55:53      -140.00      0.67     43.00
 
-06:55:50    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:55:53     59893496   5835408      8.88     45400   3367460   3284756      3.33   2390884   2268448      1840    310364  14665204      9648     21148    201476
+06:55:50    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:55:53     59893496  63387252   5835408      8.88     45400   3367460   3284756      3.33   2390884   2268448      1840    310364  14665204      9648     21148    201476
 
 06:55:50    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:55:53     32964604         0      0.00         0      0.00
@@ -14665,8 +14665,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:55:53      frmpg/s   bufpg/s   campg/s
 06:55:56      -259.67      0.00     42.33
 
-06:55:53    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:55:56     59890380   5838524      8.88     45400   3367968   3284760      3.33   2390816   2268444       736    310364  14665204      9648     21148    201476
+06:55:53    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:55:56     59890380  63387252   5838524      8.88     45400   3367968   3284760      3.33   2390816   2268444       736    310364  14665204      9648     21148    201476
 
 06:55:53    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:55:56     32964604         0      0.00         0      0.00
@@ -15901,8 +15901,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:55:56      frmpg/s   bufpg/s   campg/s
 06:55:59       -20.33      0.67     39.67
 
-06:55:56    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:55:59     59890136   5838768      8.88     45408   3368444   3284768      3.33   2390312   2268528       944    310364  14665204      9648     21148    201476
+06:55:56    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:55:59     59890136  63387252   5838768      8.88     45408   3368444   3284768      3.33   2390312   2268528       944    310364  14665204      9648     21148    201476
 
 06:55:56    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:55:59     32964604         0      0.00         0      0.00
@@ -17137,8 +17137,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:55:59      frmpg/s   bufpg/s   campg/s
 06:56:02       228.33      0.00     32.00
 
-06:55:59    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:56:02     59892876   5836028      8.88     45408   3368828   3284936      3.33   2389048   2268552      1324    310364  14665204      9648     21148    201476
+06:55:59    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:56:02     59892876  63387252   5836028      8.88     45408   3368828   3284936      3.33   2389048   2268552      1324    310364  14665204      9648     21148    201476
 
 06:55:59    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:56:02     32964604         0      0.00         0      0.00
@@ -18373,8 +18373,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:56:02      frmpg/s   bufpg/s   campg/s
 06:56:05       161.00      0.67     12.33
 
-06:56:02    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:56:05     59894808   5834096      8.88     45416   3368976   3260172      3.30   2388024   2268248      1792    310364  14665204      9648     21148    201476
+06:56:02    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:56:05     59894808  63387252   5834096      8.88     45416   3368976   3260172      3.30   2388024   2268248      1792    310364  14665204      9648     21148    201476
 
 06:56:02    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:56:05     32964604         0      0.00         0      0.00
@@ -19609,8 +19609,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:56:05      frmpg/s   bufpg/s   campg/s
 06:56:08       271.00      0.67     20.33
 
-06:56:05    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:56:08     59898060   5830844      8.87     45424   3369220   3254004      3.30   2386788   2268268      2044    310364  14665204      9648     21148    201476
+06:56:05    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:56:08     59898060  63387252   5830844      8.87     45424   3369220   3254004      3.30   2386788   2268268      2044    310364  14665204      9648     21148    201476
 
 06:56:05    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:56:08     32964604         0      0.00         0      0.00
@@ -20845,8 +20845,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:56:08      frmpg/s   bufpg/s   campg/s
 06:56:11       207.33      0.00     19.33
 
-06:56:08    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:56:11     59900548   5828356      8.87     45424   3369452   3254004      3.30   2388768   2268256      2268    310364  14665204      9648     21148    201476
+06:56:08    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:56:11     59900548  63387252   5828356      8.87     45424   3369452   3254004      3.30   2388768   2268256      2268    310364  14665204      9648     21148    201476
 
 06:56:08    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:56:11     32964604         0      0.00         0      0.00
@@ -22081,8 +22081,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:56:11      frmpg/s   bufpg/s   campg/s
 06:56:14       227.33      0.67     23.33
 
-06:56:11    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:56:14     59903276   5825628      8.86     45432   3369732   3252096      3.30   2389104   2268268      2540    310364  14665204      9648     21148    201476
+06:56:11    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:56:14     59903276  63387252   5825628      8.86     45432   3369732   3252096      3.30   2389104   2268268      2540    310364  14665204      9648     21148    201476
 
 06:56:11    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:56:14     32964604         0      0.00         0      0.00
@@ -23317,8 +23317,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:56:14      frmpg/s   bufpg/s   campg/s
 06:56:17       125.67      0.00     18.67
 
-06:56:14    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:56:17     59904784   5824120      8.86     45432   3369956   3247984      3.29   2389048   2268288      2760    310364  14665204      9648     21148    201476
+06:56:14    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:56:17     59904784  63387252   5824120      8.86     45432   3369956   3247984      3.29   2389048   2268288      2760    310364  14665204      9648     21148    201476
 
 06:56:14    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:56:17     32964604         0      0.00         0      0.00
@@ -24553,8 +24553,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:56:17      frmpg/s   bufpg/s   campg/s
 06:56:20        77.00      0.67     17.00
 
-06:56:17    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:56:20     59905708   5823196      8.86     45440   3370160   3247984      3.29   2389596   2268284      2968    310364  14665204      9648     21148    201476
+06:56:17    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:56:20     59905708  63387252   5823196      8.86     45440   3370160   3247984      3.29   2389596   2268284      2968    310364  14665204      9648     21148    201476
 
 06:56:17    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:56:20     32964604         0      0.00         0      0.00
@@ -25789,8 +25789,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:56:20      frmpg/s   bufpg/s   campg/s
 06:56:23       128.33      0.67     19.33
 
-06:56:20    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:56:23     59907248   5821656      8.86     45448   3370392   3247984      3.29   2389724   2268304      2748    310364  14665204      9648     21148    201476
+06:56:20    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:56:23     59907248  63387252   5821656      8.86     45448   3370392   3247984      3.29   2389724   2268304      2748    310364  14665204      9648     21148    201476
 
 06:56:20    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:56:23     32964604         0      0.00         0      0.00
@@ -27025,8 +27025,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:56:23      frmpg/s   bufpg/s   campg/s
 06:56:26       110.33      0.00     24.33
 
-06:56:23    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:56:26     59908572   5820332      8.86     45448   3370684   3247984      3.29   2389860   2268380       428    310364  14665204      9648     21148    201476
+06:56:23    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:56:26     59908572  63387252   5820332      8.86     45448   3370684   3247984      3.29   2389860   2268380       428    310364  14665204      9648     21148    201476
 
 06:56:23    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:56:26     32964604         0      0.00         0      0.00
@@ -28261,8 +28261,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:56:26      frmpg/s   bufpg/s   campg/s
 06:56:29        65.33      0.67     21.00
 
-06:56:26    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:56:29     59909356   5819548      8.85     45456   3370936   3247840      3.29   2390020   2268396       336    310364  14665204      9648     21148    201476
+06:56:26    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:56:29     59909356  63387252   5819548      8.85     45456   3370936   3247840      3.29   2390020   2268396       336    310364  14665204      9648     21148    201476
 
 06:56:26    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:56:29     32964604         0      0.00         0      0.00
@@ -29497,8 +29497,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:56:29      frmpg/s   bufpg/s   campg/s
 06:56:32        38.00      0.00     19.67
 
-06:56:29    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:56:32     59909812   5819092      8.85     45456   3371172   3247840      3.29   2390280   2268420       532    310364  14665204      9648     21148    201476
+06:56:29    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:56:32     59909812  63387252   5819092      8.85     45456   3371172   3247840      3.29   2390280   2268420       532    310364  14665204      9648     21148    201476
 
 06:56:29    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:56:32     32964604         0      0.00         0      0.00
@@ -30733,8 +30733,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:56:32      frmpg/s   bufpg/s   campg/s
 06:56:35       -26.33      0.67     22.67
 
-06:56:32    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:56:35     59909496   5819408      8.85     45464   3371444   3247984      3.29   2390676   2268392       808    310364  14665204      9648     21148    201476
+06:56:32    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:56:35     59909496  63387252   5819408      8.85     45464   3371444   3247984      3.29   2390676   2268392       808    310364  14665204      9648     21148    201476
 
 06:56:32    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:56:35     32964604         0      0.00         0      0.00
@@ -31969,8 +31969,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:56:35      frmpg/s   bufpg/s   campg/s
 06:56:38        -5.33      0.00     19.67
 
-06:56:35    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:56:38     59909432   5819472      8.85     45464   3371680   3247984      3.29   2390764   2268412      1032    310364  14665204      9648     21148    201476
+06:56:35    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:56:38     59909432  63387252   5819472      8.85     45464   3371680   3247984      3.29   2390764   2268412      1032    310364  14665204      9648     21148    201476
 
 06:56:35    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:56:38     32964604         0      0.00         0      0.00
@@ -33205,8 +33205,8 @@ Linux 3.10.0-229.el7.x86_64 (ose3-master-node.example.com) 	04/01/15 	_x86_64_	(
 06:56:38      frmpg/s   bufpg/s   campg/s
 06:56:41      -577.67      0.67     22.67
 
-06:56:38    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-06:56:41     59902500   5826404      8.86     45472   3371952   3312744      3.36   2393200   2268424      1308    310364  14665204      9648     21148    201476
+06:56:38    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+06:56:41     59902500  63387252   5826404      8.86     45472   3371952   3312744      3.36   2393200   2268424      1308    310364  14665204      9648     21148    201476
 
 06:56:38    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 06:56:41     32964604         0      0.00         0      0.00

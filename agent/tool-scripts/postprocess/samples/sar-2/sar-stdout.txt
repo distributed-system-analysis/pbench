@@ -1061,8 +1061,8 @@ Linux 3.10.0-234.el7.x86_64 (a.foo.example.com) 	04/01/2015 	_x86_64_	(16 CPU)
 07:50:06 AM   frmpg/s   bufpg/s   campg/s
 07:50:09 AM   -976.00      0.00     32.00
 
-07:50:06 AM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-07:50:09 AM 130597092   1284960      0.97      4120    284648    294008      0.22    221904    144348       400    310364  14665204      9648     21148    201476
+07:50:06 AM kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+07:50:09 AM 130597092  63387252   1284960      0.97      4120    284648    294008      0.22    221904    144348       400    310364  14665204      9648     21148    201476
 
 07:50:06 AM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 07:50:09 AM   4194300         0      0.00         0      0.00

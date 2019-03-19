@@ -116,14 +116,14 @@ while ($line = <SAR_TXT>) {
 		$mode = "none";
 		next;
 	}
-	# 02:50:58 PM     CPU      %usr     %nice      %sys   %iowait    %steal      %irq     %soft    %guest    %gnice     %idle
+	# 03:25:51 AM     CPU      %usr     %nice      %sys   %iowait    %steal      %irq     %soft    %guest    %gnice     %idle
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+CPU\s+%usr\s+%nice\s+%sys\s+%iowait\s+%steal\s+%irq\s+%soft\s+%guest\s+%gnice\s+%idle/ )) {
 		$mode = "cpu_util";
 		next;
 	}
-	# 02:50:59 PM     all      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00    100.00
-	# 02:50:59 PM       0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00    100.00
+	# 03:25:56 AM     all      0.01      0.00      0.01      0.00      0.00      0.00      0.00      0.00      0.00     99.98
+	# 03:25:56 AM       0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00    100.00
 	if (( $mode eq "cpu_util" ) &&
 	               # timestamp              pu_id   %user     %nice        %sys         %iowait      %steal       %irq         %soft        %guest        %gnice      %id
 	    ( $line =~ /($tsre)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)/ )) {
@@ -160,13 +160,13 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM    proc/s   cswch/s
+	# 03:25:51 AM    proc/s   cswch/s
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+proc\/s\s+cswch\/s$/ )) {
 		$mode = "proc_cswch";
 		next;
 	}
-	# 02:50:59 PM      0.00    140.00
+	# 03:25:56 AM      0.80    352.20
 	if (( $mode eq "proc_cswch" ) &&
 	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+.\d+)$/ )) {
 		$time = $1;
@@ -180,14 +180,14 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM      INTR    intr/s
+	# 03:25:51 AM      INTR    intr/s
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /\d+\:\d+\:\d+(\s\w\w)?\s+INTR\s+intr\/s$/ )) {
 		$mode = "intr";
 		next;
 	}
-	# 02:50:59 PM       sum   1490.00
-	# 02:50:59 PM         0      0.00
+	# 03:25:56 AM       sum    294.60
+	# 03:25:56 AM         0      0.00
 	if (( $mode eq "intr" ) &&
 	    ( $line =~ /($tsre)\s+sum\s+(\d+.\d+)$/ )) {
 		$time = $1;
@@ -199,13 +199,13 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM  pswpin/s pswpout/s
+	# 03:25:51 AM  pswpin/s pswpout/s
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+pswpin\/s\s+pswpout\/s$/ )) {
 		$mode = "pageswap";
 		next;
 	}
-	# 02:50:59 PM      0.00      0.00
+	# 03:25:56 AM      0.00      0.00
 	if (( $mode eq "pageswap" ) &&
 	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+.\d+)$/ )) {
 		$time = $1;
@@ -219,13 +219,13 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM  pgpgin/s pgpgout/s   fault/s  majflt/s  pgfree/s pgscank/s pgscand/s pgsteal/s    %vmeff
+	# 03:25:51 AM  pgpgin/s pgpgout/s   fault/s  majflt/s  pgfree/s pgscank/s pgscand/s pgsteal/s    %vmeff
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+pgpgin\/s\s+pgpgout\/s\s+fault\/s\s+majflt\/s\s+pgfree\/s\s+pgscank\/s\s+pgscand\/s\s+pgsteal\/s\s+%vmeff$/ )) {
 		$mode = "pagefault";
 		next;
 	}
-	# 02:50:59 PM      0.00      0.00     70.00      0.00    163.00      0.00      0.00      0.00      0.00
+	# 03:25:56 AM      0.00      1.60     29.60      0.00     76.00      0.00      0.00      0.00      0.00
 	if (( $mode eq "pagefault" ) &&
 	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
 		$time = $1;
@@ -253,41 +253,40 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM       tps      rtps      wtps   bread/s   bwrtn/s
-	# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00
+	# 03:25:51 AM       tps      rtps      wtps   bread/s   bwrtn/s
+	# 03:25:56 AM      0.40      0.00      0.40      0.00      3.20
 
-	# 02:50:58 PM   frmpg/s   bufpg/s   campg/s
-	# 02:50:59 PM    -33.00      0.00      0.00
-
-	# 09:56:15    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+	# 03:25:51 AM kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
 	if (( $mode eq "none" ) &&
-	    ( $line =~ /$tsre\s+kbmemfree\s+kbmemused\s+%memused\s+kbbuffers\s+kbcached\s+kbcommit\s+%commit\s+kbactive\s+kbinact\s+kbdirty\s+kbanonpg\s+kbslab\s+kbkstack\s+kbpgtbl\s+kbvmused$/ )) {
+	    ( $line =~ /$tsre\s+kbmemfree\s+kbavail\s+kbmemused\s+%memused\s+kbbuffers\s+kbcached\s+kbcommit\s+%commit\s+kbactive\s+kbinact\s+kbdirty\s+kbanonpg\s+kbslab\s+kbkstack\s+kbpgtbl\s+kbvmused$/ )) {
 		$mode = "mem_usage";
 		next;
 	}
-	# 09:56:18     28563624  35695216     55.55     54256  27031068  13283212     20.03  15544256  16783636      1304   5271884   2781856     25056     30236    158020
+	# 03:25:56 AM  24045600  63360192   1186124      1.80      2324  26717516   1877828      2.85   9057276  17947280       640    309160  13842856      9360     20588    201476
 	if (( $mode eq "mem_usage" ) &&
-	    ( $line =~ /($tsre)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)$/ )) {
+	    ( $line =~ /($tsre)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)$/ )) {
 		$time = $1;
 		my $kbmemfree = $2;
-		my $kbmemused = $3;
-		my $memused_pct = $4;
-		my $kbbuffers = $5;
-		my $kbcached = $6;
-		my $kbcommit = $7;
-		my $commit_pct = $8;
-		my $kbactive = $9;
-		my $kbinactive = $10;
-		my $kbdirty = $11;
-		my $kbanonpg = $12;
-		my $kbslab = $13;
-		my $kbkstack = $14;
-		my $kbpgtbl = $15;
-		my $kbvmused = $16;
+		my $kbavail = $3;
+		my $kbmemused = $4;
+		my $memused_pct = $5;
+		my $kbbuffers = $6;
+		my $kbcached = $7;
+		my $kbcommit = $8;
+		my $commit_pct = $9;
+		my $kbactive = $10;
+		my $kbinactive = $11;
+		my $kbdirty = $12;
+		my $kbanonpg = $13;
+		my $kbslab = $14;
+		my $kbkstack = $15;
+		my $kbpgtbl = $16;
+		my $kbvmused = $17;
 		$timestamp_ms = calc_timestamp($time);
 		# data is stored this way:
 		# $sar{htmlpage}{graph}{series}{sample}
 		$sar{memory}{memory_usage}{kbmemfree}{$timestamp_ms} = $kbmemfree;
+		$sar{memory}{memory_usage}{kbavail}{$timestamp_ms} = $kbavail;
 		$sar{memory}{memory_usage}{kbmemused}{$timestamp_ms} = $kbmemused;
 		$sar{memory}{memory_usage}{memused_pct}{$timestamp_ms} = $memused_pct;
 		$sar{memory}{memory_usage}{kbbuffers}{$timestamp_ms} = $kbbuffers;
@@ -305,13 +304,13 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
+	# 03:25:51 AM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+kbswpfree\s+kbswpused\s+%swpused\s+kbswpcad\s+%swpcad$/ )) {
 		$mode = "swap_usage";
 		next;
 	}
-	# 02:50:59 PM         0         0      0.00         0      0.00
+	# 03:25:56 AM         0         0      0.00         0      0.00
 	if (( $mode eq "swap_usage" ) &&
 	    ( $line =~ /($tsre)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+)\s+(\d+\.\d+)$/ )) {
 		$time = $1;
@@ -331,13 +330,13 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM kbhugfree kbhugused  %hugused
+	# 03:25:51 AM kbhugfree kbhugused  %hugused
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+kbhugfree\s+kbhugused\s+%hugused$/ )) {
 		$mode = "hugemem_usage";
 		next;
 	}
-	# 02:50:58 PM         0         0      0.00
+	# 03:25:56 AM         0         0      0.00
 	if (( $mode eq "hugemem_usage" ) &&
 	    ( $line =~ /($tsre)\s+(\d+)\s+(\d+)\s+(\d+\.\d+)$/ )) {
 		$time = $1;
@@ -353,30 +352,30 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM dentunusd   file-nr  inode-nr    pty-nr
-	# 02:50:59 PM    111122      1584     74020         3
+	# 03:25:51 AM dentunusd   file-nr  inode-nr    pty-nr
+	# 03:25:56 AM  41593563      4752   4300862         2
 
-	# 02:50:58 PM   runq-sz  plist-sz   ldavg-1   ldavg-5  ldavg-15   blocked
-	# 02:50:59 PM         0       379      0.00      0.01      0.05         0
+	# 03:25:51 AM   runq-sz  plist-sz   ldavg-1   ldavg-5  ldavg-15   blocked
+	# 03:25:56 AM         0       555      0.25      0.14      0.14         0
 
-	# 02:50:58 PM       TTY   rcvin/s   xmtin/s framerr/s prtyerr/s     brk/s   ovrun/s
-	# 02:50:59 PM         0      0.00      0.00      0.00      0.00      0.00      0.00
-	# 02:50:59 PM         1      0.00      0.00      0.00      0.00      0.00      0.00
+	# 03:25:51 AM       TTY   rcvin/s  txmtin/s framerr/s prtyerr/s     brk/s   ovrun/s
+	# 03:25:56 AM         0      0.00      0.00      0.00      0.00      0.00      0.00
+	# 03:25:56 AM         1      0.00      0.00      0.00      0.00      0.00      0.00
 
-	# 02:50:58 PM       DEV       tps  rd_sec/s  wr_sec/s  avgrq-sz  avgqu-sz     await     svctm     %util
-	# 02:50:59 PM   dev8-32      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
-	# 02:50:59 PM   dev8-33      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
-	# 02:50:59 PM   dev8-34      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
-	# 02:50:59 PM   dev8-35      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
-	# 02:50:59 PM  dev253-0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+	# 03:25:51 AM       DEV       tps     rkB/s     wkB/s   areq-sz    aqu-sz     await     svctm     %util
+	# 03:25:56 AM    dev8-0      0.40      0.00      1.60      4.00      0.00      0.00      0.00      0.00
+	# 03:25:56 AM   dev8-16      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+	# 03:25:56 AM   dev8-32      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+	# 03:25:56 AM  dev253-0      0.40      0.00      1.60      4.00      0.00      0.00      0.00      0.00
+	# 03:25:56 AM  dev253-1      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
 
-	# 02:50:58 PM     IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s   rxcmp/s   txcmp/s  rxmcst/s   %ifutil
+	# 03:25:51 AM     IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s   rxcmp/s   txcmp/s  rxmcst/s   %ifutil
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+IFACE\s+rxpck\/s\s+txpck\/s\s+rxkB\/s\s+txkB\/s\s+rxcmp\/s\s+txcmp\/s\s+rxmcst\/s\s+%ifutil$/ )) {
 		$mode = "net_dev";
 		next;
 	}
-	# 02:50:59 PM    br-em1     11.00      1.00      0.52      0.06      0.00      0.00      0.00      0.00
+	# 03:25:56 AM  enp3s0f0     21.80     20.80     18.20      2.44      0.00      0.00      0.00      0.01
 	if (( $mode eq "net_dev" ) &&
 	    ( $line =~ /($tsre)\s+(\S+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
 		$time = $1;
@@ -405,13 +404,13 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM     IFACE   rxerr/s   txerr/s    coll/s  rxdrop/s  txdrop/s  txcarr/s  rxfram/s  rxfifo/s  txfifo/s
+	# 03:25:51 AM     IFACE   rxerr/s   txerr/s    coll/s  rxdrop/s  txdrop/s  txcarr/s  rxfram/s  rxfifo/s  txfifo/s
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+IFACE\s+rxerr\/s\s+txerr\/s\s+coll\/s\s+rxdrop\/s\s+txdrop\/s\s+txcarr\/s\s+rxfram\/s\s+rxfifo\/s\s+txfifo\/s$/ )) {
 		$mode = "net_dev_error";
 		next;
 	}
-	# 02:50:59 PM    br-em1      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+	# 03:25:56 AM  enp3s0f0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
 	if (( $mode eq "net_dev_error" ) &&
 	    ( $line =~ /($tsre)\s+(\S+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
 		$time = $1;
@@ -442,13 +441,13 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM    call/s retrans/s    read/s   write/s  access/s  getatt/s
+	# 03:25:51 AM    call/s retrans/s    read/s   write/s  access/s  getatt/s
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+call\/s\s+retrans\/s\s+read\/s\s+write\/s\s+access\/s\s+getatt\/s$/ )) {
 		$mode = "net_nfs_client";
 		next;
 	}
-	# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00
+	# 03:25:56 AM      0.00      0.00      0.00      0.00      0.00      0.00
 	if (( $mode eq "net_nfs_client") &&
 	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
 		$time = $1;
@@ -469,13 +468,13 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM   scall/s badcall/s  packet/s     udp/s     tcp/s     hit/s    miss/s   sread/s  swrite/s saccess/s sgetatt/s
+	# 03:25:51 AM   scall/s badcall/s  packet/s     udp/s     tcp/s     hit/s    miss/s   sread/s  swrite/s saccess/s sgetatt/s
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+scall\/s\s+badcall\/s\s+packet\/s\s+udp\/s\s+tcp\/s\s+hit\/s\s+miss\/s\s+sread\/s\s+swrite\/s\s+saccess\/s\s+sgetatt\/s$/ )) {
 		$mode = "net_nfs_server";
 		next;
 	}
-	# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+	# 03:25:56 AM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
 	if (( $mode eq "net_nfs_server" ) &&
 	    ( $line =~ /(\d+\:\d+\:\d+\s)\w\w\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
 		$time = $1;
@@ -506,13 +505,13 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM    totsck    tcpsck    udpsck    rawsck   ip-frag    tcp-tw
+	# 03:25:51 AM    totsck    tcpsck    udpsck    rawsck   ip-frag    tcp-tw
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+totsck\s+tcpsck\s+udpsck\s+rawsck\s+ip-frag\s+tcp-tw$/ )) {
 		$mode = "net_sock";
 		next;
 	}
-	# 02:50:59 PM       318        15        14         0         0         0
+	# 03:25:56 AM       495       101         4         0         0         0
 	if (( $mode eq "net_sock" ) &&
 	    ( $line =~ /($tsre)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)$/ )) {
 		$time = $1;
@@ -534,13 +533,13 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM    irec/s  fwddgm/s    idel/s     orq/s   asmrq/s   asmok/s  fragok/s fragcrt/s
+	# 03:25:51 AM    irec/s  fwddgm/s    idel/s     orq/s   asmrq/s   asmok/s  fragok/s fragcrt/s
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+irec\/s\s+fwddgm\/s\s+idel\/s\s+orq\/s\s+asmrq\/s\s+asmok\/s\s+fragok\/s\s+fragcrt\/s$/ )) {
 		$mode = "net_ip";
 		next;
 	}
-	# 02:50:59 PM      4.00      0.00      2.00      1.00      0.00      0.00      0.00      0.00
+	# 03:25:56 AM      8.20      0.00      7.80     18.40      0.00      0.00      0.00      0.00
 	if (( $mode eq "net_ip" ) &&
 	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
 		$time = $1;
@@ -568,13 +567,13 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM ihdrerr/s iadrerr/s iukwnpr/s   idisc/s   odisc/s   onort/s    asmf/s   fragf/s
+	# 03:25:51 AM ihdrerr/s iadrerr/s iukwnpr/s   idisc/s   odisc/s   onort/s    asmf/s   fragf/s
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+ihdrerr\/s\s+iadrerr\/s\s+iukwnpr\/s\s+idisc\/s\s+odisc\/s\s+onort\/s\s+asmf\/s\s+fragf\/s$/ )) {
 		$mode = "net_ip_error";
 		next;
 	}
-	# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+	# 03:25:56 AM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
 	if (( $mode eq "net_ip_error" ) &&
 	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
 		$time = $1;
@@ -601,13 +600,13 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM    imsg/s    omsg/s    iech/s   iechr/s    oech/s   oechr/s     itm/s    itmr/s     otm/s    otmr/s  iadrmk/s iadrmkr/s  oadrmk/s oadrmkr/s
+	# 03:25:51 AM    imsg/s    omsg/s    iech/s   iechr/s    oech/s   oechr/s     itm/s    itmr/s     otm/s    otmr/s  iadrmk/s iadrmkr/s  oadrmk/s oadrmkr/s
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+imsg\/s\s+omsg\/s\s+iech\/s\s+iechr\/s\s+oech\/s\s+oechr\/s\s+itm\/s\s+itmr\/s\s+otm\/s\s+otmr\/s\s+iadrmk\/s\s+iadrmkr\/s\s+oadrmk\/s\s+oadrmkr\/s$/ )) {
 		$mode = "net_icmp";
 		next;
 	}
-	# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+	# 03:25:56 AM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
 	if (( $mode eq "net_icmp" ) &&
 	    ( $line =~ /(\d+\:\d+\:\d+\s)\w\w\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
 		$time = $1;
@@ -645,13 +644,13 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM    ierr/s    oerr/s idstunr/s odstunr/s   itmex/s   otmex/s iparmpb/s oparmpb/s   isrcq/s   osrcq/s  iredir/s  oredir/s
+	# 03:25:51 AM    ierr/s    oerr/s idstunr/s odstunr/s   itmex/s   otmex/s iparmpb/s oparmpb/s   isrcq/s   osrcq/s  iredir/s  oredir/s
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+ierr\/s\s+oerr\/s\s+idstunr\/s\s+odstunr\/s\s+itmex\/s\s+otmex\/s\s+iparmpb\/s\s+oparmpb\/s\s+isrcq\/s\s+osrcq\/s\s+iredir\/s\s+oredir\/s$/ )) {
 		$mode = "net_eicmp";
 		next;
 	}
-	# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+	# 03:25:56 AM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
 	if (( $mode eq "net_eicmp" ) &&
 	    ( $line =~ /(\d+\:\d+\:\d+\s)\w\w\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
 		$time = $1;
@@ -685,13 +684,13 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM  active/s passive/s    iseg/s    oseg/s
+	# 03:25:51 AM  active/s passive/s    iseg/s    oseg/s
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+active\/s\s+passive\/s\s+iseg\/s\s+oseg\/s$/ )) {
 		$mode = "net_tcp";
 		next;
 	}
-	# 02:50:59 PM      0.00      0.00      1.00      1.00
+	# 03:25:56 AM      3.60      0.00      0.20      3.60
 	if (( $mode eq "net_tcp" ) &&
 	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
 		$time = $1;
@@ -709,13 +708,13 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM  atmptf/s  estres/s retrans/s isegerr/s   orsts/s
+	# 03:25:51 AM  atmptf/s  estres/s retrans/s isegerr/s   orsts/s
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+atmptf\/s\s+estres\/s\s+retrans\/s\s+isegerr\/s\s+orsts\/s$/ )) {
 		$mode = "net_tcp_error";
 		next;
 	}
-	# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00
+	# 03:25:56 AM      0.00      0.00      7.20      0.00      0.00
 	if (( $mode eq "net_tcp_error" ) &&
 	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
 		$time = $1;
@@ -735,13 +734,13 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM    idgm/s    odgm/s  noport/s idgmerr/s
+	# 03:25:51 AM    idgm/s    odgm/s  noport/s idgmerr/s
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+idgm\/s\s+odgm\/s\s+noport\/s\s+idgmerr\/s$/ )) {
 		$mode = "net_udp";
 		next;
 	}
-	# 02:50:59 PM      0.00      0.00      0.00      0.00
+	# 03:25:56 AM      7.60      7.60      0.00      0.00
 	if (( $mode eq "net_udp" ) &&
 	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
 		$time = $1;
@@ -759,33 +758,36 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 PM   tcp6sck   udp6sck   raw6sck  ip6-frag
-	# 02:50:59 PM         8         9         0         0
+	# 03:25:51 AM   tcp6sck   udp6sck   raw6sck  ip6-frag
+	# 03:25:56 AM         8         2         1         0
 
-	# 02:50:58 PM   irec6/s fwddgm6/s   idel6/s    orq6/s  asmrq6/s  asmok6/s imcpck6/s omcpck6/s fragok6/s fragcr6/s
-	# 02:50:59 PM      2.00      0.00      0.00      0.00      0.00      0.00      2.00      0.00      0.00      0.00
+	# 03:25:51 AM   irec6/s fwddgm6/s   idel6/s    orq6/s  asmrq6/s  asmok6/s imcpck6/s omcpck6/s fragok6/s fragcr6/s
+	# 03:25:56 AM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
 
-	# 02:50:58 PM ihdrer6/s iadrer6/s iukwnp6/s  i2big6/s  idisc6/s  odisc6/s  inort6/s  onort6/s   asmf6/s  fragf6/s itrpck6/s
-	# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+	# 03:25:51 AM ihdrer6/s iadrer6/s iukwnp6/s  i2big6/s  idisc6/s  odisc6/s  inort6/s  onort6/s   asmf6/s  fragf6/s itrpck6/s
+	# 03:25:56 AM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
 
-	# 02:50:58 PM   imsg6/s   omsg6/s   iech6/s  iechr6/s  oechr6/s  igmbq6/s  igmbr6/s  ogmbr6/s igmbrd6/s ogmbrd6/s irtsol6/s ortsol6/s  irtad6/s inbsol6/s onbsol6/s  inbad6/s  onbad6/s
-	# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+	# 03:25:51 AM   imsg6/s   omsg6/s   iech6/s  iechr6/s  oechr6/s  igmbq6/s  igmbr6/s  ogmbr6/s igmbrd6/s ogmbrd6/s irtsol6/s ortsol6/s  irtad6/s inbsol6/s onbsol6/s  inbad6/s  onbad6/s
+	# 03:25:56 AM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
 
-	# 02:50:58 PM   ierr6/s idtunr6/s odtunr6/s  itmex6/s  otmex6/s iprmpb6/s oprmpb6/s iredir6/s oredir6/s ipck2b6/s opck2b6/s
-	# 02:50:59 PM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+	# 03:25:51 AM   ierr6/s idtunr6/s odtunr6/s  itmex6/s  otmex6/s iprmpb6/s oprmpb6/s iredir6/s oredir6/s ipck2b6/s opck2b6/s
+	# 03:25:56 AM      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
 
-	# 02:50:58 PM   idgm6/s   odgm6/s noport6/s idgmer6/s
-	# 02:50:59 PM      0.00      0.00      0.00      0.00
+	# 03:25:51 AM   idgm6/s   odgm6/s noport6/s idgmer6/s
+	# 03:25:56 AM      0.00      0.00      0.00      0.00
 
-	# 02:50:58 PM     CPU       MHz
+	# 03:25:51 AM     CPU   total/s   dropd/s squeezd/s  rx_rps/s flw_lim/s
+	# 03:25:56 AM     all     10.20      0.00      0.00      0.00      0.00
+	# 03:25:56 AM       0      0.00      0.00      0.00      0.00      0.00
+
+	# 03:25:51 AM     CPU       MHz
 	if (( $mode eq "none" ) &&
 	    ( $line =~ /$tsre\s+CPU\s+MHz$/ )) {
 		$mode = "cpu_freq";
 		next;
 	}
-	# 02:50:59 PM     all   2661.00
-	# 02:50:59 PM       0   2661.00
-	#               #date                   cpu_id  MHz
+	# 03:25:56 AM     all   2793.00
+	# 03:25:56 AM       0   2793.00
 	if (( $mode eq "cpu_freq" ) &&
 	    ( $line =~ /($tsre)\s+(\d+)\s+(\d+.\d+)$/ )) {
 		$time = $1;
@@ -800,19 +802,19 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 
-	# 02:50:58 AM    TEMP      degC     %temp               DEVICE
-	# 02:50:59 AM       1      8.30      0.00     acpitz-virtual-0
-	# 02:50:59 AM       2     19.00     23.75    coretemp-isa-0000
+	# 03:25:51 AM      TEMP      degC     %temp DEVICE
+	# 03:25:56 AM         1      8.30      0.00 acpitz-virtual-0
+	# 03:25:56 AM         2     18.00     22.50 coretemp-isa-0000
 
-	# 02:50:58 PM     BUS  idvendor    idprod  maxpower                manufact                                         product
-	# 02:50:59 PM       1       424      2514         4
-	# 02:50:59 PM       2       624       249         4                 Avocent                          USB Composite Device-1
-	# 02:50:59 PM       5       624       248         4                 Avocent                          USB Composite Device-0
+	# 03:25:51 AM     BUS  idvendor    idprod  maxpower manufact                product
+	# 03:25:56 AM       6       3f0      7029         0 HP                      Virtual Keyboard
 
-	# 02:50:58 PM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
-	# 02:50:59 PM     70223     29728     29.74     29.74 102282133    117867      0.12 /dev/sdc2
-	# 02:50:59 PM      4866       124      2.48      2.48   5119622       378      0.01 /dev/sdc1
-	# 02:50:59 PM    362638      8893      2.39      2.39 380632957       131      0.00 /dev/mapper/nfs--share-nfs--share
+	# 03:25:51 AM  MBfsfree  MBfsused   %fsused  %ufsused     Ifree     Iused    %Iused FILESYSTEM
+	# 03:25:56 AM     19754     31421     61.40     61.40  52237292    191508      0.37 /dev/mapper/rhel72_perf48-root
+	# 03:25:56 AM    419598    140058     25.03     25.03 573360465      6959      0.00 /dev/sdb
+	# 03:25:56 AM       269       227     45.79     45.79    511655       345      0.07 /dev/sda1
+	# 03:25:56 AM    194709      5394      2.70      2.70 204722751    282049      0.14 /dev/mapper/rhel72_perf48-home
+	# 03:25:56 AM     19754     31421     61.40     61.40  52237292    191508      0.37 /dev/mapper/rhel72_perf48-root
 }
 close(SAR_TXT);
 $graph_type{cpu}{"all_cpu_busy"} = "stackedAreaChart";

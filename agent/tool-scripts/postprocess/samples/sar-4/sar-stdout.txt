@@ -278,8 +278,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:49:56      frmpg/s   bufpg/s   campg/s
 08:49:59      -303.34      0.00     26.09
 
-08:49:56    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:49:59      1505580    378616     20.09       872    212300    371924     19.74    123452    161596      1704     71852     53072      2224      5964     11484
+08:49:56    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:49:59      1505580  63387252    378616     20.09       872    212300    371924     19.74    123452    161596      1704     71852     53072      2224      5964     11484
 
 08:49:56    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:49:59            0         0      0.00         0      0.00
@@ -647,8 +647,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:49:59      frmpg/s   bufpg/s   campg/s
 08:50:02        -3.36      0.00      3.36
 
-08:49:59    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:02      1505540    378656     20.10       872    212340    371580     19.72    123444    161572      1744     71812     53128      2224      5892     11484
+08:49:59    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:02      1505540  63387252    378656     20.10       872    212340    371580     19.72    123444    161572      1744     71812     53128      2224      5892     11484
 
 08:49:59    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:02            0         0      0.00         0      0.00
@@ -1016,8 +1016,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:50:02      frmpg/s   bufpg/s   campg/s
 08:50:05        -0.66      0.00      3.65
 
-08:50:02    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:05      1505532    378664     20.10       872    212384    371924     19.74    123540    161572      1788     71880     53128      2224      5972     11484
+08:50:02    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:05      1505532  63387252    378664     20.10       872    212384    371924     19.74    123540    161572      1788     71880     53128      2224      5972     11484
 
 08:50:02    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:05            0         0      0.00         0      0.00
@@ -1385,8 +1385,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:50:05      frmpg/s   bufpg/s   campg/s
 08:50:08         0.00      0.00      3.68
 
-08:50:05    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:08      1505532    378664     20.10       872    212428    371924     19.74    123580    161576      1832     71876     53144      2224      5964     11484
+08:50:05    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:08      1505532  63387252    378664     20.10       872    212428    371924     19.74    123580    161576      1832     71876     53144      2224      5964     11484
 
 08:50:05    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:08            0         0      0.00         0      0.00
@@ -1754,8 +1754,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:50:08      frmpg/s   bufpg/s   campg/s
 08:50:11         0.00      0.00      2.99
 
-08:50:08    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:11      1505532    378664     20.10       872    212464    371924     19.74    123616    161568      1868     71872     53144      2224      5960     11484
+08:50:08    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:11      1505532  63387252    378664     20.10       872    212464    371924     19.74    123616    161568      1868     71872     53144      2224      5960     11484
 
 08:50:08    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:11            0         0      0.00         0      0.00
@@ -2123,8 +2123,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:50:11      frmpg/s   bufpg/s   campg/s
 08:50:14         0.00      0.00      4.36
 
-08:50:11    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:14      1505532    378664     20.10       872    212516    371924     19.74    123664    161580      1920     71884     53144      2224      5968     11484
+08:50:11    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:14      1505532  63387252    378664     20.10       872    212516    371924     19.74    123664    161580      1920     71884     53144      2224      5968     11484
 
 08:50:11    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:14            0         0      0.00         0      0.00
@@ -2492,8 +2492,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:50:14      frmpg/s   bufpg/s   campg/s
 08:50:17       -10.33      0.00      3.00
 
-08:50:14    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:17      1505408    378788     20.10       872    212552    371924     19.74    123720    161568      1956     71888     53144      2224      5968     11484
+08:50:14    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:17      1505408  63387252    378788     20.10       872    212552    371924     19.74    123720    161568      1956     71888     53144      2224      5968     11484
 
 08:50:14    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:17            0         0      0.00         0      0.00
@@ -2861,8 +2861,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:50:17      frmpg/s   bufpg/s   campg/s
 08:50:20         0.00      0.00      4.00
 
-08:50:17    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:20      1505408    378788     20.10       872    212600    371924     19.74    123764    161576      2004     71888     53148      2224      5968     11484
+08:50:17    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:20      1505408  63387252    378788     20.10       872    212600    371924     19.74    123764    161576      2004     71888     53148      2224      5968     11484
 
 08:50:17    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:20            0         0      0.00         0      0.00
@@ -3230,8 +3230,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:50:20      frmpg/s   bufpg/s   campg/s
 08:50:23       -10.37      0.00      3.68
 
-08:50:20    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:23      1505284    378912     20.11       872    212644    371924     19.74    123800    161576      2048     71888     53148      2224      5972     11484
+08:50:20    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:23      1505284  63387252    378912     20.11       872    212644    371924     19.74    123800    161576      2048     71888     53148      2224      5972     11484
 
 08:50:20    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:23            0         0      0.00         0      0.00
@@ -3599,8 +3599,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:50:23      frmpg/s   bufpg/s   campg/s
 08:50:26         0.00      0.00      3.34
 
-08:50:23    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:26      1505284    378912     20.11       872    212684    371924     19.74    123872    161572      2080     71888     53148      2224      5960     11484
+08:50:23    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:26      1505284  63387252    378912     20.11       872    212684    371924     19.74    123872    161572      2080     71888     53148      2224      5960     11484
 
 08:50:23    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:26            0         0      0.00         0      0.00
@@ -3968,8 +3968,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:50:26      frmpg/s   bufpg/s   campg/s
 08:50:29        -2.33      0.00      3.67
 
-08:50:26    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:29      1505256    378940     20.11       872    212728    371924     19.74    123884    161572        12     71888     53196      2224      5960     11484
+08:50:26    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:29      1505256  63387252    378940     20.11       872    212728    371924     19.74    123884    161572        12     71888     53196      2224      5960     11484
 
 08:50:26    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:29            0         0      0.00         0      0.00
@@ -4337,8 +4337,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:50:29      frmpg/s   bufpg/s   campg/s
 08:50:32        -9.36      0.00      4.35
 
-08:50:29    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:32      1505144    379052     20.12       872    212780    371924     19.74    123936    161576        68     71884     53180      2224      5960     11484
+08:50:29    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:32      1505144  63387252    379052     20.12       872    212780    371924     19.74    123936    161576        68     71884     53180      2224      5960     11484
 
 08:50:29    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:32            0         0      0.00         0      0.00
@@ -4706,8 +4706,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:50:32      frmpg/s   bufpg/s   campg/s
 08:50:35         0.00      0.00      3.00
 
-08:50:32    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:35      1505144    379052     20.12       872    212816    371924     19.74    123980    161572       112     71888     53180      2224      5968     11484
+08:50:32    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:35      1505144  63387252    379052     20.12       872    212816    371924     19.74    123980    161572       112     71888     53180      2224      5968     11484
 
 08:50:32    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:35            0         0      0.00         0      0.00
@@ -5075,8 +5075,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:50:35      frmpg/s   bufpg/s   campg/s
 08:50:38         0.00      0.00      3.68
 
-08:50:35    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:38      1505144    379052     20.12       872    212860    371924     19.74    124024    161572       156     71888     53180      2224      5968     11484
+08:50:35    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:38      1505144  63387252    379052     20.12       872    212860    371924     19.74    124024    161572       156     71888     53180      2224      5968     11484
 
 08:50:35    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:38            0         0      0.00         0      0.00
@@ -5444,8 +5444,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:50:38      frmpg/s   bufpg/s   campg/s
 08:50:41       -31.00      0.00     25.67
 
-08:50:38    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:41      1504772    379424     20.14       872    213168    371924     19.74    124092    161828       468     71884     53188      2224      5968     11484
+08:50:38    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:41      1504772  63387252    379424     20.14       872    213168    371924     19.74    124092    161828       468     71884     53188      2224      5968     11484
 
 08:50:38    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:41            0         0      0.00         0      0.00
@@ -5813,8 +5813,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:50:41      frmpg/s   bufpg/s   campg/s
 08:50:44         0.00      0.00      3.68
 
-08:50:41    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:44      1504772    379424     20.14       872    213212    371924     19.74    124120    161828       512     71884     53192      2224      5964     11484
+08:50:41    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:44      1504772  63387252    379424     20.14       872    213212    371924     19.74    124120    161828       512     71884     53192      2224      5964     11484
 
 08:50:41    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:44            0         0      0.00         0      0.00
@@ -6182,8 +6182,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:50:44      frmpg/s   bufpg/s   campg/s
 08:50:47         0.00      0.00      3.01
 
-08:50:44    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:47      1504772    379424     20.14       872    213248    371924     19.74    124172    161820       548     71888     53192      2224      5968     11484
+08:50:44    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:47      1504772  63387252    379424     20.14       872    213248    371924     19.74    124172    161820       548     71888     53192      2224      5968     11484
 
 08:50:44    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:47            0         0      0.00         0      0.00
@@ -6551,8 +6551,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:50:47      frmpg/s   bufpg/s   campg/s
 08:50:50       -10.33      0.00      4.00
 
-08:50:47    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:50      1504648    379548     20.14       872    213296    371924     19.74    124196    161828       596     71880     53192      2224      5960     11484
+08:50:47    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:50      1504648  63387252    379548     20.14       872    213296    371924     19.74    124196    161828       596     71880     53192      2224      5960     11484
 
 08:50:47    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:50            0         0      0.00         0      0.00
@@ -6920,8 +6920,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:50:50      frmpg/s   bufpg/s   campg/s
 08:50:53        -0.67      0.00      3.33
 
-08:50:50    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:53      1504640    379556     20.14       872    213336    371924     19.74    124248    161820       636     71884     53204      2224      5968     11484
+08:50:50    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:53      1504640  63387252    379556     20.14       872    213336    371924     19.74    124248    161820       636     71884     53204      2224      5968     11484
 
 08:50:50    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:53            0         0      0.00         0      0.00
@@ -7289,8 +7289,8 @@ Linux 3.10.0-349.el7.x86_64 (os-gold-base.novalocal) 	02/17/16 	_x86_64_	(1 CPU)
 08:50:53      frmpg/s   bufpg/s   campg/s
 08:50:56     -1961.07      0.00      3.69
 
-08:50:53    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
-08:50:56      1481264    402932     21.38       872    213380    399912     21.22    144972    161824       680     92556     53516      2576      7240     11484
+08:50:53    kbmemfree   kbavail kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:50:56      1481264  63387252    402932     21.38       872    213380    399912     21.22    144972    161824       680     92556     53516      2576      7240     11484
 
 08:50:53    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:50:56            0         0      0.00         0      0.00

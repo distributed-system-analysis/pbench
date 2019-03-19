@@ -1,2 +1,2 @@
-timestamp_ms,commit_pct,hugeused_pct,kbactive,kbanonpg,kbbuffers,kbcached,kbcommit,kbdirty,kbhugefree,kbhugeused,kbinactive,kbkstack,kbmemfree,kbmemused,kbpgtbl,kbslab,kbswpcad,kbswpfree,kbswpused,kbvmused,memused_pct,swpcad_pct,swpused_pct
-1427874609000,0.22,0.00,221904,310364,4120,284648,294008,400,0,0,144348,9648,130597092,1284960,21148,14665204,0,4194300,0,201476,0.97,0.00,0.00
+timestamp_ms,commit_pct,hugeused_pct,kbactive,kbanonpg,kbavail,kbbuffers,kbcached,kbcommit,kbdirty,kbhugefree,kbhugeused,kbinactive,kbkstack,kbmemfree,kbmemused,kbpgtbl,kbslab,kbswpcad,kbswpfree,kbswpused,kbvmused,memused_pct,swpcad_pct,swpused_pct
+1427874609000,0.22,0.00,221904,310364,63387252,4120,284648,294008,400,0,0,144348,9648,130597092,1284960,21148,14665204,0,4194300,0,201476,0.97,0.00,0.00
