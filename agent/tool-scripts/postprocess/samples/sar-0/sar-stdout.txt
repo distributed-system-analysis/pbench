@@ -773,8 +773,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:48:49 PM   frmpg/s   bufpg/s   campg/s
 05:48:52 PM -13527.67  -8366.67  22628.67
 
-05:48:49 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:48:52 PM    101932   7768732     98.70    118764   3441684  10661016     67.68   3299468   3563648      2116
+05:48:49 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:48:52 PM    101932   7768732     98.70    118764   3441684  10661016     67.68   3299468   3563648      2116    310364  14665204      9648     21148    201476
 
 05:48:49 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:48:52 PM   7787872     92828      1.18     42156     45.41
@@ -1669,8 +1669,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:48:52 PM   frmpg/s   bufpg/s   campg/s
 05:48:55 PM   4987.00  -1008.67  -1291.67
 
-05:48:52 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:48:55 PM    161776   7708888     97.94    106660   3426184  10732048     68.13   3271292   3564664       132
+05:48:52 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:48:55 PM    161776   7708888     97.94    106660   3426184  10732048     68.13   3271292   3564664       132    310364  14665204      9648     21148    201476
 
 05:48:52 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:48:55 PM   7771436    109264      1.39     53616     49.07
@@ -2565,8 +2565,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:48:55 PM   frmpg/s   bufpg/s   campg/s
 05:48:58 PM   -794.33      1.00   1016.00
 
-05:48:55 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:48:58 PM    152244   7718420     98.07    106672   3438376  11022988     69.98   3272544   3576028       536
+05:48:55 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:48:58 PM    152244   7718420     98.07    106672   3438376  11022988     69.98   3272544   3576028       536    310364  14665204      9648     21148    201476
 
 05:48:55 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:48:58 PM   7771436    109264      1.39     53616     49.07
@@ -3461,8 +3461,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:48:58 PM   frmpg/s   bufpg/s   campg/s
 05:49:01 PM    476.33      0.67     -3.67
 
-05:48:58 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:49:01 PM    157960   7712704     97.99    106680   3438332  11022988     69.98   3273924   3573232       740
+05:48:58 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:49:01 PM    157960   7712704     97.99    106680   3438332  11022988     69.98   3273924   3573232       740    310364  14665204      9648     21148    201476
 
 05:48:58 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:49:01 PM   7771436    109264      1.39     50336     46.07
@@ -4357,8 +4357,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:01 PM   frmpg/s   bufpg/s   campg/s
 05:49:04 PM   -378.67      0.67    102.33
 
-05:49:01 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:49:04 PM    153416   7717248     98.05    106688   3439560  10990388     69.77   3276952   3572580      1476
+05:49:01 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:49:04 PM    153416   7717248     98.05    106688   3439560  10990388     69.77   3276952   3572580      1476    310364  14665204      9648     21148    201476
 
 05:49:01 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:49:04 PM   7771436    109264      1.39     50336     46.07
@@ -5253,8 +5253,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:04 PM   frmpg/s   bufpg/s   campg/s
 05:49:07 PM    -82.67      0.67      9.00
 
-05:49:04 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:49:07 PM    152424   7718240     98.06    106696   3439668  10990388     69.77   3277880   3572956      1612
+05:49:04 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:49:07 PM    152424   7718240     98.06    106696   3439668  10990388     69.77   3277880   3572956      1612    310364  14665204      9648     21148    201476
 
 05:49:04 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:49:07 PM   7771436    109264      1.39     50336     46.07
@@ -6149,8 +6149,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:07 PM   frmpg/s   bufpg/s   campg/s
 05:49:10 PM    110.67      0.67   -134.00
 
-05:49:07 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:49:10 PM    153752   7716912     98.05    106704   3438060  10823720     68.72   3278060   3571188      1244
+05:49:07 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:49:10 PM    153752   7716912     98.05    106704   3438060  10823720     68.72   3278060   3571188      1244    310364  14665204      9648     21148    201476
 
 05:49:07 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:49:10 PM   7771436    109264      1.39     50336     46.07
@@ -7045,8 +7045,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:10 PM   frmpg/s   bufpg/s   campg/s
 05:49:13 PM    -72.00      1.33    197.00
 
-05:49:10 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:49:13 PM    152888   7717776     98.06    106720   3440424  10646364     67.59   3278280   3573208       700
+05:49:10 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:49:13 PM    152888   7717776     98.06    106720   3440424  10646364     67.59   3278280   3573208       700    310364  14665204      9648     21148    201476
 
 05:49:10 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:49:13 PM   7771436    109264      1.39     50336     46.07
@@ -7941,8 +7941,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:13 PM   frmpg/s   bufpg/s   campg/s
 05:49:16 PM     25.33      0.67   -126.33
 
-05:49:13 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:49:16 PM    153192   7717472     98.05    106728   3438908  10646364     67.59   3278272   3571628       744
+05:49:13 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:49:16 PM    153192   7717472     98.05    106728   3438908  10646364     67.59   3278272   3571628       744    310364  14665204      9648     21148    201476
 
 05:49:13 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:49:16 PM   7771436    109264      1.39     50336     46.07
@@ -8837,8 +8837,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:16 PM   frmpg/s   bufpg/s   campg/s
 05:49:19 PM  -2233.00      5.67   2192.67
 
-05:49:16 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:49:19 PM    126396   7744268     98.39    106796   3465220  10661724     67.69   3284496   3592156       388
+05:49:16 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:49:19 PM    126396   7744268     98.39    106796   3465220  10661724     67.69   3284496   3592156       388    310364  14665204      9648     21148    201476
 
 05:49:16 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:49:19 PM   7771436    109264      1.39     50336     46.07
@@ -9733,8 +9733,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:19 PM   frmpg/s   bufpg/s   campg/s
 05:49:22 PM    611.33      0.67   -701.00
 
-05:49:19 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:49:22 PM    133732   7736932     98.30    106804   3456808  10652856     67.63   3284840   3583496      1684
+05:49:19 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:49:22 PM    133732   7736932     98.30    106804   3456808  10652856     67.63   3284840   3583496      1684    310364  14665204      9648     21148    201476
 
 05:49:19 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:49:22 PM   7771436    109264      1.39     50336     46.07
@@ -10629,8 +10629,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:22 PM   frmpg/s   bufpg/s   campg/s
 05:49:25 PM  -1205.67      0.67   1417.00
 
-05:49:22 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:49:25 PM    119264   7751400     98.48    106812   3473812  10660424     67.68   3283568   3600236      1228
+05:49:22 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:49:25 PM    119264   7751400     98.48    106812   3473812  10660424     67.68   3283568   3600236      1228    310364  14665204      9648     21148    201476
 
 05:49:22 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:49:25 PM   7771436    109264      1.39     50336     46.07
@@ -11525,8 +11525,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:25 PM   frmpg/s   bufpg/s   campg/s
 05:49:28 PM   3275.67      9.67   -991.33
 
-05:49:25 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:49:28 PM    158572   7712092     97.99    106928   3461916  10437168     66.26   3262108   3579720       384
+05:49:25 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:49:28 PM    158572   7712092     97.99    106928   3461916  10437168     66.26   3262108   3579720       384    310364  14665204      9648     21148    201476
 
 05:49:25 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:49:28 PM   7771436    109264      1.39     50336     46.07
@@ -12421,8 +12421,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:28 PM   frmpg/s   bufpg/s   campg/s
 05:49:31 PM   6348.67      1.67   -635.67
 
-05:49:28 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:49:31 PM    234756   7635908     97.02    106948   3454288  10264756     65.17   3198828   3569776       292
+05:49:28 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:49:31 PM    234756   7635908     97.02    106948   3454288  10264756     65.17   3198828   3569776       292    310364  14665204      9648     21148    201476
 
 05:49:28 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:49:31 PM   7771436    109264      1.39     50336     46.07
@@ -13317,8 +13317,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:31 PM   frmpg/s   bufpg/s   campg/s
 05:49:34 PM    917.67      0.67   -870.00
 
-05:49:31 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:49:34 PM    245768   7624896     96.88    106956   3443848  10254796     65.10   3198940   3559020       936
+05:49:31 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:49:34 PM    245768   7624896     96.88    106956   3443848  10254796     65.10   3198940   3559020       936    310364  14665204      9648     21148    201476
 
 05:49:31 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:49:34 PM   7771436    109264      1.39     50336     46.07
@@ -14213,8 +14213,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:34 PM   frmpg/s   bufpg/s   campg/s
 05:49:37 PM   -510.00      1.67    434.67
 
-05:49:34 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:49:37 PM    239648   7631016     96.96    106976   3449064  10269052     65.19   3199792   3563308       912
+05:49:34 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:49:37 PM    239648   7631016     96.96    106976   3449064  10269052     65.19   3199792   3563308       912    310364  14665204      9648     21148    201476
 
 05:49:34 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:49:37 PM   7771436    109264      1.39     50336     46.07
@@ -15109,8 +15109,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:37 PM   frmpg/s   bufpg/s   campg/s
 05:49:40 PM    -45.33     34.67     82.33
 
-05:49:37 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:49:40 PM    239104   7631560     96.96    107392   3450052  10263640     65.16   3200828   3563468       180
+05:49:37 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:49:40 PM    239104   7631560     96.96    107392   3450052  10263640     65.16   3200828   3563468       180    310364  14665204      9648     21148    201476
 
 05:49:37 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:49:40 PM   7771448    109252      1.39     50324     46.06
@@ -16005,8 +16005,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:40 PM   frmpg/s   bufpg/s   campg/s
 05:49:43 PM   -250.67      2.00    148.00
 
-05:49:40 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:49:43 PM    236096   7634568     97.00    107416   3451828  10250616     65.08   3202476   3564132       456
+05:49:40 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:49:43 PM    236096   7634568     97.00    107416   3451828  10250616     65.08   3202476   3564132       456    310364  14665204      9648     21148    201476
 
 05:49:40 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:49:43 PM   7771448    109252      1.39     50324     46.06
@@ -16901,8 +16901,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:43 PM   frmpg/s   bufpg/s   campg/s
 05:49:46 PM    415.33      0.67   -538.33
 
-05:49:43 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:49:46 PM    241080   7629584     96.94    107424   3445368  10250456     65.08   3202872   3558168       636
+05:49:43 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:49:46 PM    241080   7629584     96.94    107424   3445368  10250456     65.08   3202872   3558168       636    310364  14665204      9648     21148    201476
 
 05:49:43 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:49:46 PM   7771448    109252      1.39     50324     46.06
@@ -17797,8 +17797,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:46 PM   frmpg/s   bufpg/s   campg/s
 05:49:49 PM    -80.00      2.00    179.67
 
-05:49:46 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:49:49 PM    240120   7630544     96.95    107448   3447524  10253136     65.09   3203056   3559888       224
+05:49:46 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:49:49 PM    240120   7630544     96.95    107448   3447524  10253136     65.09   3203056   3559888       224    310364  14665204      9648     21148    201476
 
 05:49:46 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:49:49 PM   7771448    109252      1.39     50324     46.06
@@ -18693,8 +18693,8 @@ Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)
 05:49:49 PM   frmpg/s   bufpg/s   campg/s
 05:49:52 PM    112.33      0.67   -143.00
 
-05:49:49 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-05:49:52 PM    241468   7629196     96.93    107456   3445808  10248624     65.06   3203256   3558216       340
+05:49:49 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+05:49:52 PM    241468   7629196     96.93    107456   3445808  10248624     65.06   3203256   3558216       340    310364  14665204      9648     21148    201476
 
 05:49:49 PM kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 05:49:52 PM   7771448    109252      1.39     50324     46.06

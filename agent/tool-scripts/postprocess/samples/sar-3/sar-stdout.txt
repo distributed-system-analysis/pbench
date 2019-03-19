@@ -1077,8 +1077,8 @@ Linux 3.10.0-229.el7.x86_64 (a.foo.example.com) 	05/20/15 	_x86_64_	(32 CPU)
 08:37:24      frmpg/s   bufpg/s   campg/s
 08:37:27      -855.67      0.00     10.67
 
-08:37:24    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-08:37:27    146721616 117208588     44.41    108404    343264 211074856     78.72 114313760    255912      1692
+08:37:24    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:37:27    146721616 117208588     44.41    108404    343264 211074856     78.72 114313760    255912      1692    310364  14665204      9648     21148    201476
 
 08:37:24    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:37:27      4194300         0      0.00         0      0.00
@@ -2605,8 +2605,8 @@ Linux 3.10.0-229.el7.x86_64 (a.foo.example.com) 	05/20/15 	_x86_64_	(32 CPU)
 08:37:27      frmpg/s   bufpg/s   campg/s
 08:37:30        80.33      0.00     50.00
 
-08:37:27    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-08:37:30    146722580 117207624     44.41    108404    343864 211075160     78.72 114316620    255944      2292
+08:37:27    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:37:30    146722580 117207624     44.41    108404    343864 211075160     78.72 114316620    255944      2292    310364  14665204      9648     21148    201476
 
 08:37:27    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:37:30      4194300         0      0.00         0      0.00
@@ -4133,8 +4133,8 @@ Linux 3.10.0-229.el7.x86_64 (a.foo.example.com) 	05/20/15 	_x86_64_	(32 CPU)
 08:37:30      frmpg/s   bufpg/s   campg/s
 08:37:33       154.33      0.00     32.00
 
-08:37:30    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-08:37:33    146724432 117205772     44.41    108404    344248 211077488     78.72 114286816    255964      2676
+08:37:30    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:37:33    146724432 117205772     44.41    108404    344248 211077488     78.72 114286816    255964      2676    310364  14665204      9648     21148    201476
 
 08:37:30    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:37:33      4194300         0      0.00         0      0.00
@@ -5661,8 +5661,8 @@ Linux 3.10.0-229.el7.x86_64 (a.foo.example.com) 	05/20/15 	_x86_64_	(32 CPU)
 08:37:33      frmpg/s   bufpg/s   campg/s
 08:37:36        43.00      0.00     27.00
 
-08:37:33    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-08:37:36    146724948 117205256     44.41    108404    344572 211072788     78.72 114332544    256024      3000
+08:37:33    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:37:36    146724948 117205256     44.41    108404    344572 211072788     78.72 114332544    256024      3000    310364  14665204      9648     21148    201476
 
 08:37:33    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:37:36      4194300         0      0.00         0      0.00
@@ -7189,8 +7189,8 @@ Linux 3.10.0-229.el7.x86_64 (a.foo.example.com) 	05/20/15 	_x86_64_	(32 CPU)
 08:37:36      frmpg/s   bufpg/s   campg/s
 08:37:39       -97.67      0.00     26.00
 
-08:37:36    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-08:37:39    146723776 117206428     44.41    108404    344884 211072620     78.72 114343308    256024      3312
+08:37:36    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:37:39    146723776 117206428     44.41    108404    344884 211072620     78.72 114343308    256024      3312    310364  14665204      9648     21148    201476
 
 08:37:36    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:37:39      4194300         0      0.00         0      0.00
@@ -8717,8 +8717,8 @@ Linux 3.10.0-229.el7.x86_64 (a.foo.example.com) 	05/20/15 	_x86_64_	(32 CPU)
 08:37:39      frmpg/s   bufpg/s   campg/s
 08:37:42       118.33      0.00     25.67
 
-08:37:39    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-08:37:42    146725196 117205008     44.41    108404    345192 211073728     78.72 114345452    256076      3620
+08:37:39    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:37:42    146725196 117205008     44.41    108404    345192 211073728     78.72 114345452    256076      3620    310364  14665204      9648     21148    201476
 
 08:37:39    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:37:42      4194300         0      0.00         0      0.00
@@ -10245,8 +10245,8 @@ Linux 3.10.0-229.el7.x86_64 (a.foo.example.com) 	05/20/15 	_x86_64_	(32 CPU)
 08:37:42      frmpg/s   bufpg/s   campg/s
 08:37:45        -5.33      0.00     26.00
 
-08:37:42    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-08:37:45    146725132 117205072     44.41    108404    345504 211073212     78.72 114343720    256108      3916
+08:37:42    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:37:45    146725132 117205072     44.41    108404    345504 211073212     78.72 114343720    256108      3916    310364  14665204      9648     21148    201476
 
 08:37:42    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:37:45      4194300         0      0.00         0      0.00
@@ -11773,8 +11773,8 @@ Linux 3.10.0-229.el7.x86_64 (a.foo.example.com) 	05/20/15 	_x86_64_	(32 CPU)
 08:37:45      frmpg/s   bufpg/s   campg/s
 08:37:48      -193.67      0.00     25.67
 
-08:37:45    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-08:37:48    146722808 117207396     44.41    108404    345812 211073664     78.72 114337964    256132      4224
+08:37:45    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:37:48    146722808 117207396     44.41    108404    345812 211073664     78.72 114337964    256132      4224    310364  14665204      9648     21148    201476
 
 08:37:45    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:37:48      4194300         0      0.00         0      0.00
@@ -13301,8 +13301,8 @@ Linux 3.10.0-229.el7.x86_64 (a.foo.example.com) 	05/20/15 	_x86_64_	(32 CPU)
 08:37:48      frmpg/s   bufpg/s   campg/s
 08:37:51         9.00      0.00     26.00
 
-08:37:48    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-08:37:51    146722916 117207288     44.41    108404    346124 211073664     78.72 114337680    256164      4536
+08:37:48    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:37:51    146722916 117207288     44.41    108404    346124 211073664     78.72 114337680    256164      4536    310364  14665204      9648     21148    201476
 
 08:37:48    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:37:51      4194300         0      0.00         0      0.00
@@ -14829,8 +14829,8 @@ Linux 3.10.0-229.el7.x86_64 (a.foo.example.com) 	05/20/15 	_x86_64_	(32 CPU)
 08:37:51      frmpg/s   bufpg/s   campg/s
 08:37:54       143.33      0.00     26.33
 
-08:37:51    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-08:37:54    146724636 117205568     44.41    108404    346440 211067276     78.72 114342568    256192      4840
+08:37:51    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:37:54    146724636 117205568     44.41    108404    346440 211067276     78.72 114342568    256192      4840    310364  14665204      9648     21148    201476
 
 08:37:51    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:37:54      4194300         0      0.00         0      0.00
@@ -16357,8 +16357,8 @@ Linux 3.10.0-229.el7.x86_64 (a.foo.example.com) 	05/20/15 	_x86_64_	(32 CPU)
 08:37:54      frmpg/s   bufpg/s   campg/s
 08:37:57      -131.33      0.00     26.33
 
-08:37:54    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
-08:37:57    146723060 117207144     44.41    108404    346756 211067384     78.72 114338768    256216      5156
+08:37:54    kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty  kbanonpg    kbslab  kbkstack   kbpgtbl  kbvmused
+08:37:57    146723060 117207144     44.41    108404    346756 211067384     78.72 114338768    256216      5156    310364  14665204      9648     21148    201476
 
 08:37:54    kbswpfree kbswpused  %swpused  kbswpcad   %swpcad
 08:37:57      4194300         0      0.00         0      0.00
