@@ -1,0 +1,4788 @@
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "4478b3d0-28c2-4c67-8864-3ec50f10883f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "73.10"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "19829abd-eabd-4adf-ada2-fd90124ea201",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "23.91"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "170362fd-107d-4e09-b8dc-42b53ba00381",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "127.17"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "5b293045-ad54-4219-a1ea-ca2630c3ba61",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "2.95"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "6561f493-ea52-4aa2-a1fd-9120c43c0280",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "23.91"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "0a436414-72b2-4b4f-8c32-9a6adebb7bf2",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "61.18"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "27840e43-dc4e-48ff-a099-c7977e79dfbe",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "c284dd93-8512-4a90-9ca2-28943da09b3f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "27.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "3ac9e936-1111-4cff-9ea3-518d0f1b97f0",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "4.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "5b18f47a-a59f-4657-ac8b-26c13415a6bc",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "1.42"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "2c1fa8f1-1c8f-490d-88ac-304e6c0f82e4",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.04"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "ac1335f9-64aa-4217-940f-70585c92346f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "742b817f-ed00-46f0-a462-4ee2953625f8",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "100.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "f5edd43f-dcad-41c3-a336-6abf4987f450",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "40.31"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "064940de-ffc5-44de-962b-ca7e177c070d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "268.82"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "ca5d04d5-a920-4905-8033-b54cf6274473",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "7.28"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "918739d1-f08f-4986-b073-5fad7a6d1087",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "40.31"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "3a96b8a4-4f51-46be-a9ab-bfc9c81f9539",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "524.80"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "24b5a7bd-16e0-498e-9ccf-e2437fc6132d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "04060e11-3ef4-47d1-aef5-874d492e9572",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "13.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "5187e510-fb36-44cf-bade-50bfaf8857b6",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "3.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "9baaee45-7d85-4a99-aca6-c1eca52c9078",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "1.26"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "7e78d664-9f69-4f7e-a377-bc01a791f935",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.08"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "a9e5d7aa-c87c-4776-8dd4-8ba352dffe1d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "e4e903d8-debe-4288-892c-2758eff07702",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "92.57"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "11ee858d-6073-4eae-8d3f-01aa5d389d29",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "6.45"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "52f2390f-6ee7-4712-9a88-2e4ff5272ad6",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "44.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "f8353cfa-8727-45e2-94cd-20d0422e48ee",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "4.30"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "6a552bf8-c651-481a-9f9d-70578b8fced9",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "6.45"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "ccdaba9b-a7d2-4009-a626-7de90c87b8ba",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "16.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "1db25ca1-e30e-4a7e-90ff-c6f75c8cb665",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "7632e3ff-988e-4802-bd8d-14c49799aebe",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "267.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "9fa5b777-d7ae-4c7b-b145-733f2a77c4ce",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "2.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "c9caa583-407e-45b1-a595-05452f27beba",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "3.34"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "e391beda-c821-4f20-9d31-07549808d7cd",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.05"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "a3da6703-b655-4953-b215-15fd70996357",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "e621be78-a089-458d-9b8a-159131f43883",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "8.10"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "14f783ec-6b48-4187-951f-ebd85d9cedfb",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "29.05"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "e40998d3-005b-46c2-980e-0b10791d88a9",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "15.26"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "868ed9cf-0e81-43a7-ae33-aebc86b85f64",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.10"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "03525ecf-3df2-4fbe-8905-246414196368",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "29.05"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "39c2970f-e61a-41ab-a323-310e29a43282",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "b05ab8ea-7ab0-47a3-9d2b-9c0b49f37f19",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "4c7313eb-1f5b-4756-9a31-e76a16737a8a",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "8340219b-72c6-4e78-8dbf-e88d0e94ba16",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "6.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "47d28b9e-0049-4574-8609-eedb5458aefa",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "aa35c2e4-dcbf-4767-af39-bf54be7eb20e",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.36"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "a381d63b-9b80-43d7-818c-9137cf50badf",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "779f8a81-cd0e-4ab3-a36f-31e74c4bf33f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "20.27"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "ff8b79ad-2e6d-4110-8830-1d99a5921f83",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "3.88"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "dd2cb987-2dd4-415b-bac8-0a61de8aad4e",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "100.73"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "24c03195-80b0-4ed5-ab84-42e98284a721",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "9.90"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "55393cae-3be7-42dd-ad82-50b1f96f2aac",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "3.88"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "f883e031-fe31-4281-a624-29a80e0434af",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "d93efcd1-b818-45e7-80a0-d80f7a7ca881",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "082e18aa-dae3-484b-9dd3-ac0907a83054",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "2ff3aa22-43d5-4c95-b851-2e1bc1583e03",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "98.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "19763f35-9697-480b-8291-f8f6c44ec152",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "2e200b57-766e-4801-ab95-46d3a1c63dd5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.74"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "0259273f-739c-4b92-8359-8c4b9a823b3f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "7a0f004b-00df-48f4-8ccc-a62d8592b01f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "3.47"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "14dcfbfe-fa8b-457e-a796-f678182ca0f1",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "1.46"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "5db94445-691d-4b92-b1bf-7d8e9a2ce98e",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "9.64"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "c193591e-ed0d-4674-b57e-659524c104fe",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.04"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "32a6a7a1-caa1-4ad4-8bb4-75cdaec7ab85",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "1.46"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "4bb36e40-1a57-4387-8d01-a9e722f04e88",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "9998493f-e668-4a01-b464-1ee903e2124d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "067d588a-b994-47fe-9c5b-a75db00d0734",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "2c9441dc-dae0-4b93-b7ab-c8c15936f322",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "3.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "7d03492b-041c-4f91-b21f-8b57b4bd0797",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "efd7bf4b-d1a4-46a3-bdd2-d1632600342f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.01"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "5e4566be-098f-4746-81c8-417d3e0452dd",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "316a853b-c8d7-4385-bfd3-789de7a46782",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "6.27"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "2b2a67cb-5dcd-401c-94de-76da22e10456",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "3.86"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "4bed6280-3d52-4738-a8e9-ba7a57fb8163",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "61.69"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "5b3e0f7c-d01e-4cbc-98fa-bf85009ee965",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "1.46"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "a13e8aaf-6ad8-4d78-b908-865cbfd77ad5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "3.86"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "7a72024e-bce2-4f31-9081-c254875409e7",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "034b834f-4a0e-483f-88f9-f8146b115714",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "d513a05a-8947-4f9e-9024-f22b40d88e76",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "eafce4c3-6c74-48b3-be24-f2e21012032c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "23.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "9a002619-9806-4cb4-b340-0d550998cc3e",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "42d12c02-a031-445e-b891-9cc7e67d7134",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.18"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "d4591dc1-3ccb-4263-8b32-adb5f31419ed",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "0be594bf-825f-429d-af25-5b6f724d342d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "9.43"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "5de9f621-657e-4260-ab63-af6b6adf4ba2",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "1.53"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "b561b322-fc8c-41e8-bea1-1d720a848b96",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "10.23"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "509f6234-03dd-4d83-b7e9-f8401e8b46b2",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.10"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "91c67fe2-1adc-4549-bfa8-06ce56cdfe98",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "1.53"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "f9e8710d-ee0b-4460-a9c4-9470318ac569",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "4efc73e4-201d-47d1-877f-b32e0eab7af0",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "0cef4d8d-1f15-46fc-be13-b86e8f1e1636",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "23d90699-2904-483e-835d-10e056f031cf",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "10.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "6face466-a97e-4bb2-b54f-e0283528a5a8",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "788a5abf-4f9a-4e22-a08c-dc1e0b67638c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.03"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "a0a10f8f-1e26-4f49-86a1-a42a3eab46fc",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "c42428c4-39ac-4ab3-a9fe-db2c4b8f321f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "2.73"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "f64f214d-621e-460c-8818-cc5aa60ed40b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "2.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "5309a5d0-0a10-4eff-9934-d84749deeedd",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "12.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "cc51f975-5b23-4db5-99b9-5d0a4a62a35f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.03"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "2872ff62-a3e8-44b7-a6d9-b5035ca7a2ae",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "2.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "0c890982-e6e2-48b0-8886-be13f70ce2ba",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "02062bf5-6f0e-4084-a843-28a66dab5bdc",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "b9abb215-65f2-46fd-9aa3-07619d7e76c0",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "86382dd3-9594-42b1-98fd-ef1befc2450f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "2.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "cfcc2db5-1cec-4050-8dd6-6676457a447f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "a89e3835-6731-47f1-81ff-8920e704311f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.01"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "2b31d1d0-76fc-497e-a9e7-434dc83a2cbc",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "a990f24f-906a-4c3e-a816-bd3f1e01c96a",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "20.20"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "5fea5c79-4164-4d9c-97a1-b670d338ecdf",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "4.08"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "958e078f-297c-4db6-87e2-f4ce7f9a1ee7",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "64.76"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "783b9473-d439-4f49-bab1-957903beeb77",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "1.60"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "2d6cb32b-9c72-4f56-93d8-713396c52c28",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "4.08"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "0e3e5c36-78e7-45a0-8e6a-17820baa3fd4",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "3240424b-8001-4bd6-9344-ab0a0242fb99",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "c7ebd1f0-f530-491e-9c77-86155695aa73",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "6ce3022f-9422-4637-afda-a2667278b448",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "24.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "463eda2b-3700-43d0-a04f-6085a4d658aa",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "9ae5ccac-ab54-43b2-9309-827ff3bc1a47",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.20"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "3dba67e5-cfc4-4ed7-8216-b91774f38ad5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "5df9c15a-1e48-481e-8a1a-d62837d6cfc3",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "2.47"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "7b54a174-4c38-4455-b1e1-c24dde62f67b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "1.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "4a0d4de2-b233-4484-a277-ba3bfecaa33c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "12.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "9cac84cc-89d9-4630-a530-0510db9e037e",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.02"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "b1700779-b5e4-4fcd-a58a-fc4739695eeb",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "1.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "eb5ebfe2-31a8-46fb-98e2-2b1b7098b78d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "6858d2d1-4e45-42be-b33b-250ccc23dc71",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "ba5117d7-a7ad-456f-b62b-016684f7e3f3",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "e55f8e03-74f9-41b9-8718-2b20b3fcd4c1",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "2.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "c7ea79d3-0124-4423-ab08-de705165e595",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "40f3f439-3dcc-460e-9a3d-d1a6da68c776",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.01"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "a3d093ee-f578-4d6a-953c-967811e45be0",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "038d1c06-b382-4822-acfa-ecf898158153",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "11.43"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "12ad403b-b849-47a2-9796-8c6319fa8cba",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "7.73"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "4df82db9-15dd-4ea5-acb7-8e3a00dd1eb3",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "36.30"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "6a0f1f87-e34c-42e6-80fa-a41bbccc476d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.90"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "a8546a1e-2c1b-49d7-9164-590d4cede27f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "7.73"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "8d3a1029-2c12-475d-ac25-0fd6d6da5680",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "52ba4438-7fd1-4b59-970c-c0a52ff9e137",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "556cb710-3b3b-4462-b21e-9799e94930f4",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "af41184e-ed6c-4230-a1aa-0729dcaa0959",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "24.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "b86a14ac-913a-44ab-b79f-d1cdc4fbce5b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "9415a961-4a72-43cd-98ce-90ec4973cfe6",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.37"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "9e98b775-412a-415a-be21-c8a4d056858c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "a81224d8-73a4-4f62-9a2a-134e4b3629c8",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "5.27"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "289276ce-56d4-42c8-b3f2-12751639c88b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "14.53"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "f282afbb-c47a-4440-a47f-e527b69afbcd",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "35.80"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "3760f91a-650e-4d05-a562-c3c5fa900f62",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.18"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "7f2cdb96-b536-4074-8d68-843e6f6ff7f9",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "14.53"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "dc975602-a6a2-4d94-a7f5-34707e76267f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "b00c6c6e-9e9e-4f1d-ac7a-5e7bdf8d187d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "a05a9c1e-1df6-49ea-be46-41c759942bc7",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "e85e407d-c8d9-4cf3-b46f-b16bb2702af0",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "5.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "ce282237-f6dd-4125-b67b-50c293defb19",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "3617c2f3-9290-41aa-b53e-83c48b042d5b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.14"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "837a1f9d-a0f1-45cf-b806-70918d0a93d2",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "c2fe3cd7-5185-4075-85ea-3749514579c0",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "10.73"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "257d5089-fef6-4bea-8ecb-745762e35e24",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "15.85"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "ae9cc569-ece5-462f-bb30-0b41724820f8",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "46.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "fe793351-dbc6-4e1b-9a36-e40c7b5946e5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.20"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "b4420499-7545-4a4f-926a-bfff39f4ce5f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "15.85"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "130bf6e6-1036-4388-a3d7-2088857d4b22",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "fc925d8b-a0c0-47f9-8292-1bc8e172eb9f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "616f0c0b-523b-4dc3-b9d6-b02161f1f394",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "17ed14ab-3cde-4cf0-93a7-893f1e00fcb6",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "4.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "fdb1ad2b-7245-4983-abb8-f9bede10b75b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "71eaa320-2e9d-488b-981f-cb7d7aee665b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.13"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "73de6558-f3ce-40ee-849e-c0abeaeee09b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "dbadc0bd-6d29-43da-bc11-cae7f8024f1d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "0.90"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "b884d054-15dc-473e-8ee6-dd0f05c29137",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "2.29"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "fbdc5114-5281-4e76-b16a-89457c5fafda",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "3.86"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "a5d8875a-f625-4443-abd9-d435e3aead06",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.01"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "c2aad13e-a738-4cce-adcb-2cb852fa9858",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "2.29"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "e60eb19e-a73f-4ca4-907f-ca48b9727efe",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "ee6e55d2-0921-4987-9d0b-047865b7139e",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "85d720f9-6305-4da3-8a67-f2a6b3d5cbf2",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "58c00da8-18cb-4816-8ce2-a7549dc64dbf",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "2.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "9b1c2392-ecbb-4ef9-9b7d-b94be8f33a02",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "f4937024-65ca-45d9-bc55-bb0e1743f96a",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.01"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "a7ebd09f-f820-4109-bd78-33713253a18a",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "dfa503b9-ee35-47eb-a4f5-548091d2bafe",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "4.90"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "6eeda610-6521-45ec-ae31-cbc1df871ac9",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "7.83"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "89fa2263-059a-4816-b1e6-129ce8d4d2b6",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "12.50"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "2d005263-346b-469b-92ee-a0b44eed7b53",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.05"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "97be8914-15ef-41b8-8517-d7ed97c2e318",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "7.83"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "32e383cc-3e76-48f3-9a3c-2735ae95f6ee",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "1ae2c19a-b6b9-4500-8f90-57a747b4ef73",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "e32222ae-4968-41e7-8fe2-f5cf730cdb15",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "00bb7fe4-9cfe-44e6-87a5-93a5d97f684f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "4.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "7fc56b92-416a-4e57-bc16-d9269cf28e16",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "32b6c0e2-3c6a-42e6-953b-f34456685bab",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.06"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "b5990d40-af73-42c2-b629-e0006dc91c49",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "1277d917-5f8e-46e8-bd89-4e028a4260da",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "20.27"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "4b1a04df-f09f-47ab-b629-ddca6d87fe66",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "3.44"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "76def79a-3d61-4c4b-b816-3edd5574364e",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "45.60"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "0acc1ce1-0230-4486-be32-bd6a51eeae35",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.37"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "eb42296d-2a72-4156-80ff-84902416ca57",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "3.44"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "e92cbd59-dc9f-46ad-af71-d03adaad28e2",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "10.87"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "cfe38a88-c79b-4851-bfbc-47bf48250cb5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "a24046cc-465f-483c-92b9-1d7676dee334",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "12.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "cd4bc56f-a5d7-42e6-9062-ce90c1f397c1",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "5.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "d446e63c-4b8b-4f3b-85be-9b39c34390b1",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.05"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "328ae235-610c-4945-9214-c66312a031ab",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.07"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "b9c66251-7f77-400c-81ba-efc1889b7cc9",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "5ca235fb-c902-4884-a465-1f152afed9db",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "13.43"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "5580214f-ce8e-4280-a9c4-3ae122610b41",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "1.66"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "c186e6da-a074-4e67-8fc5-d00f8b188673",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "19.07"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "c6f41985-cdde-4651-8357-94ff71377279",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.25"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "c6746bf5-2eae-424d-baa7-79cb35f06ac5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "1.66"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "34b6eb02-fdc4-44ba-9d28-1b730c2d290a",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "16.71"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "30c8db0c-1b3d-4d81-83a2-76c2cfeec841",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "a6a35446-70c9-4f42-991a-c9fa29e90585",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "4.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "62a3a072-3c36-48d4-9985-9b321bfaa68d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "9.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "91d39fc8-f224-4cf4-98cd-2d12258fe46d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.02"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "853be002-f5a8-4c8b-a1a1-99d7844d2498",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.03"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "ee3fe3a8-7778-441e-a915-d437686240e5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "2156fbd4-517d-487a-b4b2-f70ff847ee02",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "4.47"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "5bb4cf09-7e73-4048-89f2-aa8c5e2b4e83",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "1.72"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "6f6f486c-b961-44db-8c4e-e239554118b7",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "19.43"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "a219bd11-677e-43c7-a025-a31027fefd76",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.05"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "7bd3318e-222f-45df-8e28-b485e92caddc",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "1.72"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "90b317d7-2d86-4f63-b7a2-d6af2bc399eb",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "39641e2a-9018-4883-ab26-a7af83571129",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "baa472b2-9ef5-4f32-8ad2-33ed353e3199",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "4ab6006b-4d50-40e9-859e-9f6b9d6756fd",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "2.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "363658c5-d15e-4b53-96bf-97a2734de2cf",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "9405bec7-587d-4728-90e2-bf21e378e28e",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.01"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "b63cd953-e667-4550-afcd-cc2df873d717",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "35bb9f25-365c-442c-9671-9a344637a442",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "3.70"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "44cce124-ebcb-4c47-929b-4ff678b72bbe",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "1.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "f74c0c3c-baa1-40c3-bfb3-80fbb1335eda",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "21.89"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "f4bc81f4-c63d-4321-b8ca-0d67b6c0e5ee",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.13"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "e2ea8447-2e1b-4aec-85bc-af84c8533cc2",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "1.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "f133d217-72ce-4613-8878-ba6bb2a613e3",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "20cd015e-0787-49b8-8045-7da9c9c26287",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "cc0682a4-878c-45c1-8f18-1a4069eed4e4",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "0792c4bd-2b5a-4fd2-9b5a-f21550f5aa91",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "6.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "fd2d2d1e-c49d-4c6d-95de-9354be97ad9a",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "ad1314b4-9cb9-4ffa-abfa-dc7917ccd513",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.02"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "8aef3b36-2608-4598-8922-4603e9bcff9c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "2e50ccad-3bda-46b7-8172-831396efbecf",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "2.40"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "d51f0665-63cd-4585-8341-3574418e758a",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "1.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "3f5889ad-7e44-4fe6-84a4-7dd1715581cc",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "12.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "2cc547e6-d989-4904-8750-9a9e56b6e347",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.02"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "b9d3fb79-1c84-41e6-95c2-a3972f07865d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "1.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "count",
+      "device" : "fedora-home",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "c06432b1-014a-4f4b-b9fc-7d9e13bad157",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "16e2711f-7f35-462e-904b-532de89b82cb",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "922726b1-f4ba-44d8-b74e-5b69ba30baca",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "3d2030d6-adf5-420c-a35b-8425f941d12c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "2.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "5f7af5b3-cfa9-450e-a8e0-8ef2973db75d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "49895a7e-714f-4ff3-aced-34c2aec7641e",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.01"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "throughput",
+      "device" : "fedora-home",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "57ed7ccd-be52-499f-a5ba-9f468d701425",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}

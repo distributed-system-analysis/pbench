@@ -1,0 +1,912 @@
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524144000,
+      "host" : "unittests.example.com",
+      "id" : "f1a0a125-a0d0-49d4-9747-26ba27a2d180",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524144000,
+      "host" : "unittests.example.com",
+      "id" : "8e96ecb9-9deb-4ce4-87ea-0b642551faf7",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524144000,
+      "host" : "unittests.example.com",
+      "id" : "e4649468-5f54-45ce-b643-3de9b48d9035",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524144000,
+      "host" : "unittests.example.com",
+      "id" : "efb202d3-ef87-4012-aceb-c99e0db60367",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524144000,
+      "host" : "unittests.example.com",
+      "id" : "69579611-beec-47cb-a66b-4aa5402a263b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "4.25"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524144000,
+      "host" : "unittests.example.com",
+      "id" : "4b5df1b9-b573-4bfb-b96c-456d12424863",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524144000,
+      "host" : "unittests.example.com",
+      "id" : "36053492-e674-4c23-8cd7-76e7bee6c210",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524144000,
+      "host" : "unittests.example.com",
+      "id" : "3e6cea4c-dd30-49c0-b5bf-5fdd410e7265",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524144000,
+      "host" : "unittests.example.com",
+      "id" : "cff4e5e1-87e2-40d5-b6c9-e1b42b42529c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "3.20"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524144000,
+      "host" : "unittests.example.com",
+      "id" : "72e03513-50af-4dda-a956-cddcc514ecc5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524144000,
+      "host" : "unittests.example.com",
+      "id" : "a569fe1d-045a-4c26-bb97-7c703b10e9b1",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.01"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524144000,
+      "host" : "unittests.example.com",
+      "id" : "c1042cdc-9466-47e6-a425-bf1adee63007",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524149000,
+      "host" : "unittests.example.com",
+      "id" : "de27c4a8-c9c1-4498-8b29-06a50ca14500",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524149000,
+      "host" : "unittests.example.com",
+      "id" : "98f70c60-9da9-472d-b91d-bea9a4a4aae5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524149000,
+      "host" : "unittests.example.com",
+      "id" : "ca336435-fbb2-4a4f-a1ba-d652fed544dd",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524149000,
+      "host" : "unittests.example.com",
+      "id" : "a202051c-7331-4f97-80dc-0c8cb13ddd2f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524149000,
+      "host" : "unittests.example.com",
+      "id" : "5a0861bf-7496-4ca8-85aa-8fd90886d2ef",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "7.05"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524149000,
+      "host" : "unittests.example.com",
+      "id" : "b7db39e3-3555-42a6-8e4a-c406b256e99d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524149000,
+      "host" : "unittests.example.com",
+      "id" : "823fd241-9816-4fa5-a91c-a771521d861f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.20"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524149000,
+      "host" : "unittests.example.com",
+      "id" : "e8017328-617e-4093-8509-a0d705ba4871",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524149000,
+      "host" : "unittests.example.com",
+      "id" : "0482eb0b-6afe-4152-8d7e-b2f844fab3dc",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "2.20"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524149000,
+      "host" : "unittests.example.com",
+      "id" : "12136fc9-a040-4d1d-9d0a-f2c1eeaac794",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524149000,
+      "host" : "unittests.example.com",
+      "id" : "6c0a7a4e-799d-411b-bdf5-f6796fea345e",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.02"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524144001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524149000,
+      "host" : "unittests.example.com",
+      "id" : "74998b29-508f-4a28-9b67-730dbbe289ab",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524149001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524154000,
+      "host" : "unittests.example.com",
+      "id" : "a56b92de-ec0b-4c2b-ab4e-bb0be98e1f09",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524149001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524154000,
+      "host" : "unittests.example.com",
+      "id" : "18b8d34b-b986-4489-91f5-23bad86bbba1",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524149001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524154000,
+      "host" : "unittests.example.com",
+      "id" : "1b43cebc-9abc-49cb-9dac-8d980b979d34",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524149001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524154000,
+      "host" : "unittests.example.com",
+      "id" : "d7de8578-e57c-4736-b993-e6db55926d05",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524149001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524154000,
+      "host" : "unittests.example.com",
+      "id" : "99fa1861-9023-4759-9a52-7c89b5254d79",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "22.25"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524149001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524154000,
+      "host" : "unittests.example.com",
+      "id" : "86dc67df-4e96-471b-b7f0-140e7d09bb2c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524149001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524154000,
+      "host" : "unittests.example.com",
+      "id" : "5d0aa236-874b-47c6-850a-0a36cc4d7d62",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524149001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524154000,
+      "host" : "unittests.example.com",
+      "id" : "6fae76f1-0817-4040-a1ac-57a7469afa7d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524149001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524154000,
+      "host" : "unittests.example.com",
+      "id" : "025c1514-743c-4299-91e7-0a3548778534",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "1.20"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524149001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524154000,
+      "host" : "unittests.example.com",
+      "id" : "77b3007e-9ff7-442c-9173-95a1671aeccd",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524149001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524154000,
+      "host" : "unittests.example.com",
+      "id" : "7f9a8b64-aeb3-4782-9bff-f47ca7d523f9",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.03"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524149001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524154000,
+      "host" : "unittests.example.com",
+      "id" : "b3abbde5-b9eb-4e60-860c-f16676cac1b3",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524154001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524159000,
+      "host" : "unittests.example.com",
+      "id" : "35ce7ee2-1836-48cd-87af-c467adee623d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524154001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524159000,
+      "host" : "unittests.example.com",
+      "id" : "f03718a1-ac3d-41fc-b75c-ff057a40092c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524154001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524159000,
+      "host" : "unittests.example.com",
+      "id" : "f6acda6c-3b4c-4287-a1ca-63aad35a5b20",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524154001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524159000,
+      "host" : "unittests.example.com",
+      "id" : "30d09ec0-e2a0-4bb5-8784-00d0135da9d5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524154001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524159000,
+      "host" : "unittests.example.com",
+      "id" : "de784d6e-413c-40ad-8d8a-87745e91faee",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "22.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524154001,
+      "class" : "count",
+      "device" : "sda",
+      "end" : 1552524159000,
+      "host" : "unittests.example.com",
+      "id" : "bd3444aa-f1d9-4062-beaa-a1891e290369",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524154001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524159000,
+      "host" : "unittests.example.com",
+      "id" : "65c581df-4ade-46f6-8286-21d42526d66a",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524154001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524159000,
+      "host" : "unittests.example.com",
+      "id" : "03146542-24bb-44bc-825b-d067115033dd",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524154001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524159000,
+      "host" : "unittests.example.com",
+      "id" : "b4539685-473a-4311-8531-d97c469c1b41",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "0.60"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524154001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524159000,
+      "host" : "unittests.example.com",
+      "id" : "b6352c2c-f530-4dd7-98eb-13b00c8f82f7",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524154001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524159000,
+      "host" : "unittests.example.com",
+      "id" : "589e4226-badf-4f6e-b70d-202af3ea9956",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.01"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1552524154001,
+      "class" : "throughput",
+      "device" : "sda",
+      "end" : 1552524159000,
+      "host" : "unittests.example.com",
+      "id" : "c4b84b4d-fedd-4445-a0dd-31fc2e6ccbc2",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}

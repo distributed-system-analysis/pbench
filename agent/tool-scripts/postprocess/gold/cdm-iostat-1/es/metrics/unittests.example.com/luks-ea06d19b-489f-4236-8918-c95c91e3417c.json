@@ -1,0 +1,4788 @@
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "bae90141-1a74-4892-bfd1-1b111f470981",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "91.50"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "28c57a22-4cc3-4000-9149-f242c88a20e7",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "2.19"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "f4120cd1-c1b3-4590-acae-1961bc3a226c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "163.46"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "215b277d-94cc-428a-b36d-9f1e08941079",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "2166.36"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "7b15dabd-b48b-40de-828f-430e1ae9823f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "2.19"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "2d7e5b1c-f067-4d59-8aa2-da6b0f33cffb",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "35.25"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "fa1c895e-bd01-4f29-bbc7-a3807a60d414",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "0c1fc17b-74bf-47ce-aa87-7a1dad535425",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "99.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "7c1c754b-cd0d-4787-b60c-237046e234f3",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "6791.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "d3713e4a-5862-4ea0-aa9b-c467df222ac6",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "2.85"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "bd756869-9b43-4df5-95f4-e96ae646b2b6",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "26.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886532000,
+      "host" : "unittests.example.com",
+      "id" : "c68343aa-b908-457c-b54c-db2ae4434861",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "34765f22-56f7-48ff-8ce7-c5156cfae3ff",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "100.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "ca91523a-faac-4ff3-b97e-5690cc255a00",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "2.62"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "e8c8a799-fdd3-4bc4-a156-6459ce550e74",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "4318.61"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "92c63f59-d964-452b-84f9-e5a74666da05",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "6324.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "0c65bc75-36b6-4254-8174-1383afb8de02",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "2.62"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "e3adc3e3-c02e-4b51-9727-a4573f3b7edb",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "536.15"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "7f631e00-fa55-432a-99df-bace140c636b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "a12c2422-1479-44ad-8e84-b64771d01351",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "13.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "1a8a378c-d3a0-4a71-8607-775dafef875b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "1389.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "5841640c-db96-4014-9162-1ca59a8423e6",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "1.26"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "4e7999a1-5602-4bd9-bf13-c02bb3ed94f2",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "5.92"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886532001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886535000,
+      "host" : "unittests.example.com",
+      "id" : "cfa1a687-a4ad-4730-abe0-5310890f4bb7",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "9da7441b-9318-45fd-986d-5feb4e07d948",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "92.57"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "ac919326-9c3d-40b7-bf75-77401321e9e5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "6.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "33f25e88-96ae-4853-a4bf-2ae9a7b62c04",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "155919.74"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "994f38cf-357b-4e96-b562-0b8ad353cf22",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "55.17"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "ec8abd5a-c02b-4ed6-800e-738fb9199f4b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "6.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "00db0802-755c-4bb0-b27e-4a07996ee106",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "16.03"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "0029bfea-9eae-4d86-a125-515b8d399878",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "9469e761-9dbe-4a9d-baad-81231d7fc9cb",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "269.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "128c0880-ec50-4ec8-b2ff-bc55f83a71a5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "9.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "978f627c-1ee2-485f-a6b3-f0b287bed34c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "3.37"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "60326252-f72d-40b5-85ef-93dc219f193c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.07"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886535001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886538000,
+      "host" : "unittests.example.com",
+      "id" : "fb16764a-a9b9-46f9-8705-80a032bc2138",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "10c51083-7046-4676-b59b-6056485e4698",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "8.10"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "c4bcfe5b-89d7-4986-ba20-4b044a2e1a88",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "27.60"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "3769d62d-95fb-4890-85f0-b0bd3e40258a",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "14.50"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "b85df7d2-72c7-4fda-a9e2-b51944bd056f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.10"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "50011b2f-803d-4114-ab9b-5bec88ed2bf4",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "27.60"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "0a4d71b8-6f44-4dd8-8326-be23481392ea",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "fe2cf60a-f264-45fe-8472-e59587b19b3a",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "ef6f683a-54d3-4e13-b1f7-d018664ba386",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "8e75ce8b-b18e-4315-88ff-d8152800328b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "6.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "9ff22a0a-e5a5-4150-b172-0c35195c9eb0",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "9af52cbe-80f8-4981-8f88-53be2c58160a",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.36"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886538001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886541000,
+      "host" : "unittests.example.com",
+      "id" : "e50f5d6c-4a09-4dc6-a17b-cf1518dcdef1",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "d706355f-3de8-4c52-a971-4ce75ab303ee",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "26.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "7c8fb558-0a6e-49df-a446-4275e9bb73e6",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "4.37"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "15b9b20d-c7bb-4776-baa9-a7c800b1132b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "97.21"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "307fa656-5ace-4805-b8f3-a1502274e7da",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "10.18"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "4c7d220c-6b73-42ea-add0-e5bd73e3fd1c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "4.37"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "2be8411e-f416-4cca-a0ca-335e5e54d992",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "25.30"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "80061466-65fd-4f6a-b381-64a53a203c7c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "90d90f9a-3846-44e1-b7f1-979748d72d9b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "9.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "10b41160-6a89-4c40-85eb-5337a7155096",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "102.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "b6d49ed5-5b77-4952-91bb-8528384f96b7",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.19"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "7f17ff03-d45e-475f-8da1-ad8dd62037f5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.76"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886541001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886544000,
+      "host" : "unittests.example.com",
+      "id" : "bae7d165-4c55-4356-9f9e-2bc42790ad86",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "aea0cb3c-8cf2-436d-b73d-c964c54d9ad8",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "3.47"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "4c30fb89-790e-4b1e-b59e-d09303480e5e",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "1.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "15cd8354-b19e-4481-a16d-6445225ac70e",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "8.83"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "1f11351b-22d8-47b4-b3e9-1b3fab6d48d5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.04"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "17fb0d18-87ed-47f3-afb5-4aac75a0f535",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "1.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "fc310ceb-0c35-4f65-85b0-437504f53958",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "654fb2fe-0a04-4518-819f-0d34d410630f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "0de03811-9b47-477a-953b-da1c9f353a1f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "c666734d-37b6-412a-b47f-380a010b62f1",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "4.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "86f2e86f-2163-4c6f-b32a-cf04707fac94",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "c6d4644f-dde7-4bae-b210-4125c180e713",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.01"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886544001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886547000,
+      "host" : "unittests.example.com",
+      "id" : "754ddd6a-d485-4105-8323-64d7cda864e8",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "e0da8c00-0eae-4463-8315-210c93404e34",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "9.40"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "60796363-b729-42ad-866e-4333ae18a3a6",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "3.62"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "cd8c542c-41ad-402a-a069-2725e27c0a7e",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "58.86"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "3c16db2b-cc81-463e-a138-d89d93e2a5d0",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "1.57"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "4ba39345-3f0a-4663-aa6a-165b0f30a966",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "3.62"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "2a2b7e25-6cc9-447e-883e-97943c5c411c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "72420344-9d97-45b0-9f5e-0d5976144a40",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "b5e58009-d824-4c12-9ffc-ec9362d3ea99",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "e7a7d45f-0a78-4c54-bbcb-8aa1d214cbef",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "26.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "6a370ecf-63a6-4ed9-99f0-93c77ebee282",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "06eaf241-c11b-4694-afd1-0a72fa8fab57",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.19"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886547001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886550000,
+      "host" : "unittests.example.com",
+      "id" : "2556c203-4c86-4c78-b809-7406708c4d65",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "42fb16c8-af41-4530-8aae-15ffdd2992b5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "17.10"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "0a0453af-cab4-4c7c-89f7-7b20469939f4",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "5.04"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "d58cb110-f1c7-42e0-9a49-f923b593b089",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "55.08"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "8c88d8d6-6165-4a88-bfa4-c9d1758aed45",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "2.71"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "92893168-b25a-4822-8f24-4d397b1c5ca1",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "5.04"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "ab328f50-f954-41d6-9d84-24ba76bea1a0",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "62.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "dc1a2b00-7819-44be-9e60-75a7f9bb3e38",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "a38ef7af-ff78-4189-8c2e-f8efa9f9d16d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "1.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "6d820502-2d75-4598-967f-88b821ba3f98",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "48.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "07ff9d83-1357-4b78-b76d-f42579e42e2f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.02"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "84c5f358-3b44-417f-a499-aea284d3b9be",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.47"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886550001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886553000,
+      "host" : "unittests.example.com",
+      "id" : "a075574d-84cc-429e-8e8f-c8f30455ad9c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "fb97acf8-10ed-4e88-99aa-9168d7631438",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "6.17"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "56128237-f003-437a-874f-1e2bea03c08d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "1.93"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "8f20ee85-2fbc-4f10-a2be-70543aebfeec",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "49.21"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "7c035dae-420f-4f02-b5d2-fd8ca216cb8e",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.46"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "0e785164-c0c0-419a-b6fb-4dca7570f0fe",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "1.93"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "2d680cff-2e44-4ff9-ae04-120ca58b6fcf",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "be928318-33ce-4922-86fd-28beb189b8ba",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "57e0a679-0ad3-4416-a9e8-c169f10082d6",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "7fbf1388-b6b8-4a38-b275-dde4834ae190",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "9.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "bd35d0cf-2554-48b4-992d-35c83505e70c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "31393e00-e980-4bdd-9b00-2f4c6cc19e06",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.04"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886553001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886556000,
+      "host" : "unittests.example.com",
+      "id" : "7ce5064d-590f-4e5d-bc1c-71a7da7b4bfe",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "26704cb2-d1c9-4e8b-abb9-3ddc29e379d5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "47.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "2a8281b1-028b-4305-90b1-bfa2fefa2c99",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "11.34"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "b614b582-ebf7-41c8-a84d-9a1d56ad58ae",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "63.46"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "0c727b2a-1432-4736-86f5-11841482e865",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "3.08"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "ea96e2b0-a9b3-45a8-a1a9-d7a87f5f242f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "11.34"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "033affb2-2888-481c-92bb-e236919f1148",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "13.40"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "11f9ab6c-f3da-48c6-8283-9381c84a3ebe",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "170609e9-61a6-48ed-bc3b-33b7f1567bed",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "110.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "183e30d1-5d1d-4d4d-add9-50159ef138e0",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "25.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "242ad1d6-4d2b-4dc1-9f37-4471f0cca6b4",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "2.79"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "49615fc2-b5b9-4e0c-a1a6-6a3e6bab9240",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.20"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886556001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886559000,
+      "host" : "unittests.example.com",
+      "id" : "a5812803-f889-4173-ac03-f004cc1ed431",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "b7105f57-31ef-4c01-a078-d9d5f3cd42a2",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "6.23"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "9c68d737-d310-41b6-8d15-c9105a9e0494",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "1.85"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "f873fbb4-1685-4c0e-b11c-74acdf595741",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "46.77"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "a6436b1a-9243-4046-a14b-281a19468998",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.41"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "c0c730ea-d08f-4327-9cd4-e965c8afc2f4",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "1.85"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "f2e5c8ca-3c7b-4feb-8f54-22ed3a35b35b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "15.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "eb2c4855-4402-474b-8fef-d19c5cc53a7a",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "f328bab8-b78d-4711-96d5-58bd1ee89d66",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "58f724db-8b40-4920-9e17-12bcdb20bc6c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "8.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "7f3c57d0-038d-4a86-966d-d50cb72a2f7b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "b1c873d4-af42-4c8d-949b-bcbdcf4327a5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.03"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886559001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886562000,
+      "host" : "unittests.example.com",
+      "id" : "a179406f-7283-4dba-8967-67a207945190",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "6561e495-fb5e-480d-9818-9e3cb37d95a2",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "14.73"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "d30c1c6f-b267-4402-862a-7b6f19405483",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "8.14"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "e459dde7-63c7-4d1b-b1d6-4b7cec9115e0",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "35.80"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "2a59ca9d-82e8-4b0b-8370-fec5b9499e97",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "1.04"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "3f3008e6-6d05-4781-a0d3-fab2ecdceecf",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "8.14"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "9a9ae2d0-bf6b-4347-b3b5-db95d9f96a0a",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "35.83"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "b6526af6-43b6-4979-a7d0-a4b06639a548",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "28b73745-608b-452a-8ec4-86c972879076",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "4.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "557bead9-c836-4158-83b2-4ece5c411551",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "25.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "bf2fd9ea-fe14-4d67-a58d-93b6b42421ce",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.09"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "59febfae-0c0d-4b34-8e82-13053ad0737b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.37"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886562001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886565000,
+      "host" : "unittests.example.com",
+      "id" : "4fdd15c0-f057-4126-93ba-196a4ed15705",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "a4e3e451-ee91-45d0-81f2-416038afc544",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "11.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "bf04b5e6-e063-4bb5-9800-1899303f657d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "5.07"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "8526e235-f65f-45b3-b180-b738f4668f3d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "37.11"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "b466df0c-8499-4523-9a8c-67cf645d1b45",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.66"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "2952371e-2f06-4f14-af16-b517e27e807c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "5.07"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "08ad7392-8619-4586-a2e3-090e2c7eed29",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "23.24"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "731cd506-5de5-41a1-938d-581bada69e4a",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "dc6b20f1-f1cc-472d-b318-bf5be488ac78",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "14.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "35eb5336-2318-498e-9ea1-ad024ae4a603",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "9.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "d2680888-fc59-437d-8663-8ef0230c414d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.07"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "d54e2505-f4e9-43ee-a266-f8410b1b3c29",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.16"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886565001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886568000,
+      "host" : "unittests.example.com",
+      "id" : "74182af3-ab2a-4b90-b1cd-0f782ee715f4",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "32930796-5d5d-4104-8810-5ba1bf5f51ce",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "31.17"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "52dae0be-2967-4743-b318-4ce2b73df897",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "9.96"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "033c9889-ce53-4c7f-b987-67bf4089cdc6",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "69.60"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "fac98d68-6d4a-49d4-8cef-0fdb936ee77f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "3.06"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "e6559948-129c-4d37-a154-9dbb580fbde3",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "9.96"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "0563755d-7980-4561-aa64-996702f6f478",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "31.03"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "fc0d33c9-2942-4a12-9859-71de1776aa50",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "22aead25-f88c-4cdb-8283-2787b9ced1e5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "29.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "70fbd0ad-5ef5-42b8-8a8f-1b08d08cfb77",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "31.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "2983cad2-6356-418a-99a8-b325063227d3",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.72"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "4f70e94a-b26a-419d-8f0e-1d902a6f62dd",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.45"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886568001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886571000,
+      "host" : "unittests.example.com",
+      "id" : "b07d0227-9139-46cb-8226-f5f64188d038",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "b1ea7938-6914-4974-b5a6-342cbd246549",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "7.17"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "6b5cde41-91ba-40c9-9fb9-6954f31d7e1f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "2.41"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "7e180e82-c34d-4b15-9ce4-21fd9d4569af",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "61.93"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "045f7630-4fee-40c9-be8d-20e769343b25",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "1.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "9ab04988-8623-4d97-b798-1eae9e071e27",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "2.41"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "088b7fda-5fb6-4a63-b82c-527cbd044258",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "58.25"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "a8e127fc-7d04-4ad9-8850-bef244a36c30",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "1d902680-fcd4-4913-838e-a3bb68703a9b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "2.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "6ba53207-599a-4006-88b0-ebe703d6a10f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "13.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "03e45a61-a022-40f5-98f6-d7b77e002127",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.02"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "4c8eea83-3201-4e61-ae69-44bc8dd0f950",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.05"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886571001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886574000,
+      "host" : "unittests.example.com",
+      "id" : "b887db58-5e0e-43e2-bfd4-35b16cffb46b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "d360e559-c3d6-42f1-b96a-fd9dc3a6f59b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "14.20"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "7b6857d7-0e90-4f3f-866f-53c287eaa158",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "8.21"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "b018d59b-3931-40af-858f-7a0da857b8c8",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "11.54"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "caa7be19-6665-47e9-aca7-4581e13e97fd",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.17"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "b50d6e7c-245b-491f-9f59-90952804d086",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "8.21"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "3f22658e-a947-4f18-a789-17f78adc5ced",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "10.03"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "533cef71-2bd0-40c2-9237-9db2d98b6fa9",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "951b48b9-a67a-49fc-bca3-42a4a08238dd",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "11.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "a81ed39e-78b5-407c-bea4-ae5655151ccc",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "4.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "2a061d75-7e9c-48da-858e-81e074e056a1",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.20"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "6dbec3ee-63d5-4b6a-b6b0-4109a48e8f06",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.06"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886574001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886577000,
+      "host" : "unittests.example.com",
+      "id" : "fa362edb-f365-41ef-9090-d29eab603a3c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "861af6b4-9648-4d16-8c61-254fc5e35162",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "32.60"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "f71a8fe9-ad2f-497e-adf8-24936d426043",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "4.25"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "f2782321-97dd-4ddc-aeef-267abaf1d6c6",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "144.23"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "5251ba26-3bfd-48e8-bbf3-6f5e381400f4",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "6.59"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "67f83d30-5f41-44c7-9caf-6c07b50eaaec",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "4.25"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "96d9072a-744e-4fa6-80d1-dc6c63f34b39",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "18.86"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "9a287018-cdc5-45e4-8084-871b63ee22c1",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "122c83f5-3f68-4fe3-8210-908eb81b04d2",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "48.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "29c0c6d2-627e-4549-8977-4d0b549e2963",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "39.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "f1c8ec1e-c2fd-46f0-9307-a42d69101f39",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.36"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "b40bca82-2830-4263-8014-da3a5f090116",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.37"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886577001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886580000,
+      "host" : "unittests.example.com",
+      "id" : "77977fe1-b2c6-4805-9093-bea5e7aadc27",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "e4db0e99-db45-4602-bdc1-964873260f05",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "17.87"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "e606294a-c059-488f-988f-8db9535879b7",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "11.22"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "b631cf67-a3af-42e8-957e-6ef1c7eaf92e",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "17.76"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "e0636a23-c07d-4bfa-b15b-22af356d28d5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.41"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "d11138d2-9c8d-4e6e-afa0-6170266b57fc",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "11.22"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "2ac3872f-4d67-4560-a0d5-a1239e9e5b3a",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "16.88"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "87a80fcd-154d-4791-9350-09d47469714f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "343becc8-a7fa-476f-9956-7f819895db51",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "14.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "21800a3f-a8d4-4cad-8405-f5238a70e790",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "9.67"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "424ed6be-dc28-46cb-b438-1373c5b1eb0c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.50"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "93d87f23-098d-423d-b4d7-cafea2434873",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.03"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886580001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886583000,
+      "host" : "unittests.example.com",
+      "id" : "1691c04b-53cd-4374-9e78-55ebf854c8cb",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "a28ad392-56ae-47fa-adb4-cf06df6505a1",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "4.73"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "2eff7b30-331a-4327-9785-321da2874339",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "1.87"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "8ca27591-576c-40de-b4d3-3e580e6373b6",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "17.50"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "0958e1d7-8873-4497-a6d5-87dfde0746b6",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.17"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "76012fda-3f99-447f-aace-b9fc2a5b0c7c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "1.87"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "94c9531b-90be-4054-b391-e27a217c7d7a",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "c25bb034-8acc-48da-bc6e-537d3644e98a",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "f6d39c58-bf92-45e5-a386-f42e90d55230",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "e5b50c28-4b96-4ffc-9d25-6327fa3a5223",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "10.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "3a110aa1-dab5-4589-abd5-16db0db13b02",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "a6c98c25-c56a-4606-b4d9-b3eebe75ff36",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.04"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886583001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886586000,
+      "host" : "unittests.example.com",
+      "id" : "0da4317b-6975-4c34-85a1-a30c76ae5443",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "2ee82ee6-5205-4b41-9b67-205e3cba24aa",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "9.57"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "657defc6-e67e-4eda-be1c-fed09ee48d18",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "3.72"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "cfd31802-ac5a-423c-9876-8eb0f86bb184",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "54.58"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "f9e0c756-e262-4cc0-bb49-da298ce6e465",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "2.13"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "28ef928d-564a-476d-827c-06d3a3b82175",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "3.72"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "eb4b653d-f6c6-4dd3-8130-d0e16aafb939",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "18.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "f69f1685-6afb-4095-b470-45f643959f2b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "585fef07-be95-446c-9ea6-d80d02ee8fa2",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "fe2193aa-1db1-4a20-a4f4-7b00e5fc29e9",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "38.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "3690a727-d13f-4152-9b54-11721633f74f",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "df8aadf5-f21f-461a-accf-e07d5155abc8",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.28"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886586001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886589000,
+      "host" : "unittests.example.com",
+      "id" : "e1ef8317-ead6-402c-bebf-8e86065d739e",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "1874452b-4589-496d-bbc0-9e94df678ade",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "6.37"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "07898d33-d613-49d6-a0ee-5230ee8a4767",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "1.87"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "2b9c877b-ef05-4a8b-a014-eba0110b67e8",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "64.13"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "65fb18f7-aecd-4131-be1d-4cb26c2b145d",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.59"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "2147452a-450f-45ec-bb2b-1048f0259081",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "1.87"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "count",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "c0b7e2ca-b285-49b9-ba60-b4b831350ce5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "8e0ac721-5f22-4340-af9b-6e1acb706c19",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "fae041cd-6578-461b-9e2d-68ab967d1ac6",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "c5654bf8-5f27-4959-978c-710b75b2883b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "10.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "496f468e-e2a9-41b4-afbc-f23e59ab5412",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "ad8c5de6-c6cc-45ea-b1de-6d9cdccaa105",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.04"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1424886589001,
+      "class" : "throughput",
+      "device" : "luks-ea06d19b-489f-4236-8918-c95c91e3417c",
+      "end" : 1424886592000,
+      "host" : "unittests.example.com",
+      "id" : "b356f710-ed6b-46ea-9f92-961c7e5a9bb8",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}

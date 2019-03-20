@@ -1,0 +1,228 @@
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1430743061001,
+      "class" : "count",
+      "device" : "docker-253:1-4596-b95df1edb2fd49528427d191fe435a523359694bedd4facc764bc",
+      "end" : 1430743064000,
+      "host" : "unittests.example.com",
+      "id" : "8e27f0e8-da22-4dc6-a4de-809e8330a6ac",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_io_utilization_percent",
+      "value" : "0.40"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1430743061001,
+      "class" : "count",
+      "device" : "docker-253:1-4596-b95df1edb2fd49528427d191fe435a523359694bedd4facc764bc",
+      "end" : 1430743064000,
+      "host" : "unittests.example.com",
+      "id" : "14d8f722-8c29-4ce5-923d-c9454ae48c01",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_size_KB",
+      "value" : "1.99"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1430743061001,
+      "class" : "count",
+      "device" : "docker-253:1-4596-b95df1edb2fd49528427d191fe435a523359694bedd4facc764bc",
+      "end" : 1430743064000,
+      "host" : "unittests.example.com",
+      "id" : "a3db8339-cd8d-4bac-b00a-e88c9de1c11b",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_wait_msec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1430743061001,
+      "class" : "count",
+      "device" : "docker-253:1-4596-b95df1edb2fd49528427d191fe435a523359694bedd4facc764bc",
+      "end" : 1430743064000,
+      "host" : "unittests.example.com",
+      "id" : "8d8706ab-9467-429e-81a3-1d2e75c713a7",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_queue_size",
+      "value" : "0.01"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1430743061001,
+      "class" : "count",
+      "device" : "docker-253:1-4596-b95df1edb2fd49528427d191fe435a523359694bedd4facc764bc",
+      "end" : 1430743064000,
+      "host" : "unittests.example.com",
+      "id" : "117fa387-1b0a-4c81-a3ed-627b2621adfa",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_size_KB",
+      "value" : "1.99"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1430743061001,
+      "class" : "count",
+      "device" : "docker-253:1-4596-b95df1edb2fd49528427d191fe435a523359694bedd4facc764bc",
+      "end" : 1430743064000,
+      "host" : "unittests.example.com",
+      "id" : "e4eac435-1112-4daf-94fe-431c083878e5",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_wait_msec",
+      "value" : "0.18"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1430743061001,
+      "class" : "throughput",
+      "device" : "docker-253:1-4596-b95df1edb2fd49528427d191fe435a523359694bedd4facc764bc",
+      "end" : 1430743064000,
+      "host" : "unittests.example.com",
+      "id" : "9d5ddc24-7857-4449-b7b1-cc06cfcd6cda",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_request_merges_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1430743061001,
+      "class" : "throughput",
+      "device" : "docker-253:1-4596-b95df1edb2fd49528427d191fe435a523359694bedd4facc764bc",
+      "end" : 1430743064000,
+      "host" : "unittests.example.com",
+      "id" : "7ff6d73e-f966-4ffe-a5d1-b0625aeaecd8",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_iops",
+      "value" : "70.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1430743061001,
+      "class" : "throughput",
+      "device" : "docker-253:1-4596-b95df1edb2fd49528427d191fe435a523359694bedd4facc764bc",
+      "end" : 1430743064000,
+      "host" : "unittests.example.com",
+      "id" : "17984dc5-0ced-4acd-8fd4-acc0a6098a1c",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_iops",
+      "value" : "0.33"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1430743061001,
+      "class" : "throughput",
+      "device" : "docker-253:1-4596-b95df1edb2fd49528427d191fe435a523359694bedd4facc764bc",
+      "end" : 1430743064000,
+      "host" : "unittests.example.com",
+      "id" : "ccaa9cc1-ec51-40ed-9273-a35bba602661",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_KB_sec",
+      "value" : "0.27"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1430743061001,
+      "class" : "throughput",
+      "device" : "docker-253:1-4596-b95df1edb2fd49528427d191fe435a523359694bedd4facc764bc",
+      "end" : 1430743064000,
+      "host" : "unittests.example.com",
+      "id" : "c14d4842-518a-4715-9f7e-36dfc265c2a2",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_write_KB_sec",
+      "value" : "0.00"
+   }
+}
+{
+   "cdm" : {
+      "doctype" : "metric",
+      "ver" : "v3dev"
+   },
+   "fake" : "json",
+   "metric" : {
+      "begin" : 1430743061001,
+      "class" : "throughput",
+      "device" : "docker-253:1-4596-b95df1edb2fd49528427d191fe435a523359694bedd4facc764bc",
+      "end" : 1430743064000,
+      "host" : "unittests.example.com",
+      "id" : "8941c40b-0c5f-4aca-a63a-11b1684272f2",
+      "name_format" : "%source%-%type%-%device%-%host%",
+      "source" : "iostat",
+      "type" : "blockdev_read_request_merges_sec",
+      "value" : "0.00"
+   }
+}
