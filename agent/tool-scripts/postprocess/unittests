@@ -88,6 +88,27 @@ function remove_sample_data {
     done
 }
 
+function testcdm {
+    local toolname=${2#cdm-}
+    local samplename=${1}
+    echo "Testing ${toolname}-postprocess-cdm under sample ${samplename} ..."
+
+    local _dir=${_testroot}/${samplename}
+    mkdir -p ${_dir}/es/metrics/unittests.example.com
+    echo "{ \"fake\": \"json\" }" > ${_dir}/periodic.json
+    cp samples/${samplename}/${toolname}-std*.txt ${_dir}/
+    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./${toolname}-postprocess-cdm ${_dir}/periodic.json ${_dir}/es ${_dir} unittests.example.com > ${_dir}/stdout 2> ${_dir}/stderr
+
+    rm ${_dir}/${toolname}-std*.txt ${_dir}/periodic.json
+
+    diff -cr gold/${samplename}/ ${_dir}/
+    sts=$?
+    if [ $sts -eq 0 ]; then
+        rm -rf ${_dir}
+    fi
+    return $sts
+}
+
 function testjstack {
     echo "Testing jstack under sample $1 ..."
 
@@ -354,9 +375,14 @@ for i in $(ls -1 samples/) ; do
             testpidstat $i
             sts=$?
             ;;            
+        cdm-iostat-*)
+            testcdm $i ${i%-[0-9]}
+            sts=$?
+	    ;;
         *)
             testit $i ${i%-[0-9]}
             sts=$?
+	    ;;
     esac
     if [[ $sts -eq 0 ]]; then
         echo "PASS - $i"
