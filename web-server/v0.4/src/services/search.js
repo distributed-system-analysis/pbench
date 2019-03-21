@@ -35,9 +35,10 @@ export async function searchQuery(params) {
       query: {
           query_string: {
               analyze_wildcard: true,
-              query: searchQuery
-          }
-      }
-    }
+              query: searchQuery,
+          },
+      },
+      size: 1000,
+    },
   });
 }

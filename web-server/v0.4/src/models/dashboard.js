@@ -10,7 +10,6 @@ export default {
   namespace: 'dashboard',
 
   state: {
-    controller: '',
     result: [],
     results: [],
     configCategories: [],
@@ -19,7 +18,7 @@ export default {
     controllers: [],
     selectedResults: [],
     tocResult: [],
-    selectedController: '',
+    selectedControllers: [],
     loading: false,
   },
 
@@ -161,9 +160,9 @@ export default {
         payload: iterations,
       });
     },
-    *updateSelectedController({ payload }, { select, put }) {
+    *updateSelectedControllers({ payload }, { select, put }) {
       yield put({
-        type: 'modifySelectedController',
+        type: 'modifySelectedControllers',
         payload: payload,
       });
     },
@@ -218,10 +217,10 @@ export default {
         iterations: payload,
       };
     },
-    modifySelectedController(state, { payload }) {
+    modifySelectedControllers(state, { payload }) {
       return {
         ...state,
-        selectedController: payload,
+        selectedControllers: payload,
       };
     },
     modifySelectedResults(state, { payload }) {

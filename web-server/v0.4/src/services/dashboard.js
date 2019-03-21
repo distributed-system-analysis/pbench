@@ -81,7 +81,7 @@ export async function queryResults(params) {
       },
       query: {
         term: {
-          'run.controller': controller,
+          'run.controller': controller[0],
         },
       },
       size: 5000,

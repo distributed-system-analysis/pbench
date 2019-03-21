@@ -12,7 +12,7 @@ import { compareByAlph } from '../../utils/utils';
 @connect(({ global, dashboard, loading }) => ({
   selectedIndices: global.selectedIndices,
   results: dashboard.results,
-  selectedController: dashboard.selectedController,
+  selectedControllers: dashboard.selectedControllers,
   datastoreConfig: global.datastoreConfig,
   loading: loading.effects['dashboard/fetchResults'],
 }))
@@ -28,14 +28,14 @@ export default class Results extends Component {
   }
 
   componentDidMount() {
-    const { dispatch, datastoreConfig, selectedIndices, selectedController } = this.props;
+    const { dispatch, datastoreConfig, selectedIndices, selectedControllers } = this.props;
 
     dispatch({
       type: 'dashboard/fetchResults',
       payload: {
         datastoreConfig: datastoreConfig,
         selectedIndices: selectedIndices,
-        controller: selectedController,
+        controller: selectedControllers,
       },
     });
   }
@@ -121,7 +121,7 @@ export default class Results extends Component {
 
   render() {
     const { results, selectedRowKeys } = this.state;
-    const { selectedController, loading } = this.props;
+    const { selectedControllers, loading } = this.props;
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange
@@ -153,7 +153,7 @@ export default class Results extends Component {
     ];
 
     return (
-      <PageHeaderLayout title={selectedController}>
+      <PageHeaderLayout title={selectedControllers.join(', ')}>
         <Card bordered={false}>
           <Form layout={'vertical'}>
             <SearchBar

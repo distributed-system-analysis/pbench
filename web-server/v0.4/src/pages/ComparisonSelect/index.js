@@ -9,7 +9,7 @@ import { parseIterationData } from '../../utils/parse';
 import { queryIterations } from '../../services/dashboard';
 
 @connect(({ global, dashboard, loading }) => ({
-  selectedController: dashboard.selectedController,
+  selectedControllers: dashboard.selectedControllers,
   selectedResults: dashboard.selectedResults,
   iterations: dashboard.iterations,
   results: dashboard.results,
@@ -100,7 +100,7 @@ class ComparisonSelect extends ReactJS.Component {
 
   compareIterations = params => {
     const { configData } = this.state;
-    const { results, selectedController, selectedResults } = this.props;
+    const { results, selectedControllers, selectedResults } = this.props;
     const { dispatch } = this.props;
     const configCategories = Object.keys(configData);
 
@@ -125,7 +125,6 @@ class ComparisonSelect extends ReactJS.Component {
           configCategories: configCategories,
           configData: configData,
           results: results,
-          controller: selectedController,
           selectedResults: selectedResults,
         },
       })
@@ -134,7 +133,7 @@ class ComparisonSelect extends ReactJS.Component {
 
   compareAllIterations = () => {
     const { responseDataAll, configData } = this.state;
-    const { results, selectedController, selectedResults } = this.props;
+    const { results, selectedControllers, selectedResults } = this.props;
     const { dispatch } = this.props;
     const configCategories = Object.keys(configData);
 
@@ -159,7 +158,6 @@ class ComparisonSelect extends ReactJS.Component {
           configCategories: configCategories,
           configData: configData,
           results: results,
-          controller: selectedController,
           selectedResults: selectedResults,
         },
       })
@@ -198,7 +196,7 @@ class ComparisonSelect extends ReactJS.Component {
       configData,
       selectedConfig,
     } = this.state;
-    const { selectedController } = this.props;
+    const { selectedControllers } = this.props;
 
     var selectedRowNames = [];
     for (var item in selectedRowKeys) {
@@ -266,7 +264,7 @@ class ComparisonSelect extends ReactJS.Component {
     }
 
     return (
-      <PageHeaderLayout title={selectedController}>
+      <PageHeaderLayout title={selectedControllers.join(', ')}>
         <Spin style={{ marginTop: 200, alignSelf: 'center' }} spinning={loading}>
           <Card style={{ marginBottom: 16 }}>
             <Card

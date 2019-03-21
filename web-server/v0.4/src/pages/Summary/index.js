@@ -46,7 +46,7 @@ const columns = [
 ];
 
 @connect(({ global, dashboard, loading }) => ({
-  selectedController: dashboard.selectedController,
+  selectedControllers: dashboard.selectedControllers,
   selectedResults: dashboard.selectedResults,
   iterations: dashboard.iterations,
   summaryResult: dashboard.result,
@@ -87,7 +87,7 @@ class Summary extends ReactJS.Component {
       datastoreConfig,
       selectedIndices,
       selectedResults,
-      selectedController,
+      selectedControllers,
     } = this.props;
 
     if (!Array.isArray(selectedResults)) {
@@ -117,12 +117,12 @@ class Summary extends ReactJS.Component {
       },
     });
 
-    if (selectedResults[0]['run.controller'] != selectedController) {
+    if (selectedResults[0]['run.controller'] != selectedControllers[0]) {
       throw new Error(
         "Logic bomb! selected results controller, "
           + selectedResults[0]['run.controller']
           + " != selected controller "
-          + selectedController);
+          + selectedControllers[0]);
     }
     queryIterations({ selectedResults: selectedResults, datastoreConfig: datastoreConfig })
       .then(res => {
@@ -332,7 +332,7 @@ class Summary extends ReactJS.Component {
       activeTab,
       tocTree,
     } = this.state;
-    const { selectedResults, summaryResult, selectedController, tocResult } = this.props;
+    const { selectedResults, summaryResult, selectedControllers, tocResult } = this.props;
 
     if (Array.isArray(summaryResult)) {
       // console.log("summaryResult is not supposed to be an array!");
@@ -573,8 +573,8 @@ class Summary extends ReactJS.Component {
           <PageHeaderLayout
             title={selectedResults[0]['run.name']}
             content={
-              <Tag color="blue" key={selectedController}>
-                {'controller: ' + selectedController}
+              <Tag color="blue" key={selectedControllers[0]}>
+                {'controller: ' + selectedControllers[0]}
               </Tag>
             }
             tabList={tabList}

@@ -121,8 +121,8 @@ export default class Controllers extends Component {
     const { dispatch } = this.props;
 
     dispatch({
-      type: 'dashboard/updateSelectedController',
-      payload: controller.key,
+      type: 'dashboard/updateSelectedControllers',
+      payload: [controller.key],
     }).then(() => {
       dispatch(
         routerRedux.push({
