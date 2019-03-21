@@ -7,32 +7,32 @@ module.exports = [
         path: '/',
         name: 'dashboard',
         icon: 'dashboard',
-        component: './Dashboard/Controllers',
+        component: './Controllers',
       },
       {
         path: '/results',
         name: 'results',
-        component: './Dashboard/Results',
+        component: './Results',
       },
       {
         path: '/summary',
         name: 'summary',
-        component: './Dashboard/Summary',
+        component: './Summary',
       },
       {
         path: '/comparison-select',
         name: 'comparison-select',
-        component: './Dashboard/ComparisonSelect',
+        component: './ComparisonSelect',
       },
       {
         path: '/comparison',
         name: 'comparison',
-        component: './Dashboard/RunComparison',
+        component: './RunComparison',
       },
       {
         path: '/search',
         name: 'search',
-        component: './Search/SearchList',
+        component: './Search',
       },
       {
         path: '/exception/403',

@@ -40,7 +40,7 @@ export default class RunComparison extends ReactJS.Component {
     configCategories: PropTypes.array,
     configData: PropTypes.array,
     results: PropTypes.array,
-    controller: PropTypes.controller,
+    controller: PropTypes.string,
   };
 
   constructor(props) {
