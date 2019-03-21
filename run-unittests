@@ -3,22 +3,6 @@
 dir=$(dirname $0)
 let sts=0
 
-> /var/tmp/agent.bench-scripts.out
-$dir/agent/bench-scripts/unittests > /var/tmp/agent.bench-scripts.out 2>&1 < /dev/null &
-bpid=$!
-
-> /var/tmp/agent.tool-scripts.pp.out
-$dir/agent/tool-scripts/postprocess/unittests > /var/tmp/agent.tool-scripts.pp.out 2>&1 < /dev/null &
-tpid=$!
-
-> /var/tmp/agent.util-scripts.out
-$dir/agent/util-scripts/unittests > /var/tmp/agent.util-scripts.out 2>&1 < /dev/null &
-upid=$!
-
-> /var/tmp/server.out
-$dir/server/bin/unittests > /var/tmp/server.out 2>&1 < /dev/null &
-spid=$!
-
 function tail_and_wait {
     pid=$1
     name=$2
@@ -43,17 +27,17 @@ function tail_and_wait {
     return $tw_sts
 }
 
-tail_and_wait $bpid 'Agent bench-scripts' /var/tmp/agent.bench-scripts.out
-let sts=sts+$?
+trap "kill -KILL -$$ > /dev/null 2>&1" INT TERM QUIT
 
-printf -- "\n\n\n"
+> /var/tmp/agent.out
+$dir/agent/run-unittests > /var/tmp/agent.out 2>&1 < /dev/null &
+apid=$!
 
-tail_and_wait $tpid 'Agent tool-scripts/postprocess' /var/tmp/agent.tool-scripts.pp.out
-let sts=sts+$?
+> /var/tmp/server.out
+$dir/server/bin/unittests > /var/tmp/server.out 2>&1 < /dev/null &
+spid=$!
 
-printf -- "\n\n\n"
-
-tail_and_wait $upid 'Agent util-scripts' /var/tmp/agent.util-scripts.out
+tail_and_wait $apid 'Agent' /var/tmp/agent.out
 let sts=sts+$?
 
 printf -- "\n\n\n"

@@ -1,0 +1,60 @@
+#!/bin/bash
+
+dir=$(dirname $0)
+let sts=0
+
+function tail_and_wait {
+    pid=$1
+    name=$2
+    file=$3
+    printf -- "+++ ${name} Unit Tests +++\n\n"
+
+    tail -n 9999999 -f ${file} --pid ${pid}
+    if [[ $? -ne 0 ]]; then
+        printf -- "tail -f ${file} --pid ${pid} failed\n" >&2
+        return 1
+    fi
+    wait ${pid}
+    let tw_sts=$?
+    if [[ $tw_sts -ne 0 ]]; then
+	status="FAILED"
+    else
+	status="SUCCEEDED"
+    fi
+    rm -f ${file}
+
+    printf -- "\n--- ${name} Unit Tests ($status) ---\n"
+    return $tw_sts
+}
+
+trap "kill -KILL -$$ > /dev/null 2>&1" INT TERM QUIT
+
+> /var/tmp/agent.bench-scripts.out
+$dir/bench-scripts/unittests > /var/tmp/agent.bench-scripts.out 2>&1 < /dev/null &
+bpid=$!
+
+> /var/tmp/agent.tool-scripts.pp.out
+$dir/tool-scripts/postprocess/unittests > /var/tmp/agent.tool-scripts.pp.out 2>&1 < /dev/null &
+tpid=$!
+
+> /var/tmp/agent.util-scripts.out
+$dir/util-scripts/unittests > /var/tmp/agent.util-scripts.out 2>&1 < /dev/null &
+upid=$!
+
+tail_and_wait $bpid 'Agent bench-scripts' /var/tmp/agent.bench-scripts.out
+let sts=sts+$?
+
+printf -- "\n\n\n"
+
+tail_and_wait $tpid 'Agent tool-scripts/postprocess' /var/tmp/agent.tool-scripts.pp.out
+let sts=sts+$?
+
+printf -- "\n\n\n"
+
+tail_and_wait $upid 'Agent util-scripts' /var/tmp/agent.util-scripts.out
+let sts=sts+$?
+
+if [ $sts -gt 0 ]; then
+    echo "Agent unit tests FAILED"
+fi
+exit $sts
