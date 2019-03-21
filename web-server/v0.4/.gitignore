@@ -27,3 +27,6 @@ package-lock.json
 
 # visual studio code 
 .history
+
+# jest tests
+__snapshots__

@@ -35,7 +35,7 @@ export default class SearchList extends Component {
     }
   }
 
-  queryDatastoreConfig = () => {
+  queryDatastoreConfig = async () => {
     const { dispatch } = this.props;
 
     dispatch({
@@ -45,7 +45,7 @@ export default class SearchList extends Component {
     });
   };
 
-  fetchMonthIndices = () => {
+  fetchMonthIndices = async () => {
     const { dispatch, datastoreConfig } = this.props;
 
     dispatch({
@@ -210,13 +210,14 @@ export default class SearchList extends Component {
                 </Spin>
                 {Object.keys(mapping).map(field => {
                   return (
-                    <div>
+                    <div key={field}>
                       <p style={{ fontWeight: 'bold' }}>{field}</p>
                       <p>
                         {mapping[field].map(item => {
                           let fieldItem = field + '.' + item;
                           return (
                             <Tag
+                              key={fieldItem}
                               onClick={() => this.updateSelectedFields(fieldItem)}
                               style={{ marginTop: 8 }}
                               color={selectedFields.includes(fieldItem) ? 'blue' : '#bdbdbd'}

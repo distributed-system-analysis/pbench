@@ -42,7 +42,7 @@ export default class Controllers extends Component {
     }
   }
 
-  queryDatastoreConfig = () => {
+  queryDatastoreConfig = async () => {
     const { dispatch } = this.props;
 
     dispatch({

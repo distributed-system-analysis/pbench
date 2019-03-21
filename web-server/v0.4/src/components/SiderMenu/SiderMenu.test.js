@@ -1,27 +1,35 @@
-import { urlToList } from '@/components/_utils/pathTools';
-import { getFlatMenuKeys, getMenuMatchKeys } from '@/components/SiderMenu/SiderMenu';
+import { urlToList } from '../_utils/pathTools';
+import { getFlatMenuKeys, getMenuMatchKeys } from './SiderMenu';
 
 const menu = [
   {
     path: '/dashboard',
     children: [
       {
-        path: '/dashboard/name',
+        path: '/dashboard/results',
+      },
+      {
+        path: '/dashboard/summary',
+      },
+      {
+        path: '/dashboard/comparison-select',
+      },
+      {
+        path: '/dashboard/comparison',
       },
     ],
   },
   {
-    path: '/userinfo',
-    children: [
-      {
-        path: '/userinfo/:id',
-        children: [
-          {
-            path: '/userinfo/:id/info',
-          },
-        ],
-      },
-    ],
+    path: '/search',
+  },
+  {
+    path: '/exception/404',
+  },
+  {
+    path: '/exception/403',
+  },
+  {
+    path: '/exception/500',
   },
 ];
 
@@ -31,10 +39,14 @@ describe('test convert nested menu to flat menu', () => {
   it('simple menu', () => {
     expect(flatMenuKeys).toEqual([
       '/dashboard',
-      '/dashboard/name',
-      '/userinfo',
-      '/userinfo/:id',
-      '/userinfo/:id/info',
+      '/dashboard/results',
+      '/dashboard/summary',
+      '/dashboard/comparison-select',
+      '/dashboard/comparison',
+      '/search',
+      '/exception/404',
+      '/exception/403',
+      '/exception/500',
     ]);
   });
 });
@@ -45,28 +57,13 @@ describe('test menu match', () => {
   });
 
   it('error path', () => {
-    expect(getMenuMatchKeys(flatMenuKeys, urlToList('/dashboardname'))).toEqual([]);
+    expect(getMenuMatchKeys(flatMenuKeys, urlToList('/dashboardresult'))).toEqual([]);
   });
 
-  it('Secondary path', () => {
-    expect(getMenuMatchKeys(flatMenuKeys, urlToList('/dashboard/name'))).toEqual([
+  it('secondary path', () => {
+    expect(getMenuMatchKeys(flatMenuKeys, urlToList('/dashboard/results'))).toEqual([
       '/dashboard',
-      '/dashboard/name',
-    ]);
-  });
-
-  it('Parameter path', () => {
-    expect(getMenuMatchKeys(flatMenuKeys, urlToList('/userinfo/2144'))).toEqual([
-      '/userinfo',
-      '/userinfo/:id',
-    ]);
-  });
-
-  it('three parameter path', () => {
-    expect(getMenuMatchKeys(flatMenuKeys, urlToList('/userinfo/2144/info'))).toEqual([
-      '/userinfo',
-      '/userinfo/:id',
-      '/userinfo/:id/info',
+      '/dashboard/results',
     ]);
   });
 });

@@ -17,17 +17,16 @@ Pbench Dashboard is a web-based platform for consuming indexed performance bench
 │   ├── assets                      # local static files
 │   ├── common                      # common configurations (navigation, menu, etc.)
 │   ├── components                  # component definitions
-│   ├── e2e                         # integrated test cases
 │   ├── layouts                     # common layouts
 │   ├── models                      # redux models
-│   ├── routes                      # app pages and templates
+│   ├── pages                       # app page components and templates
 │   ├── services                    # redux services
 │   ├── utils                       # utility scripts
-│   ├── theme.js                    # app theme configuration
+│   ├── app.js                      # app theme configuration
+│   ├── global.js                   # global imports
+│   ├── global.less                 # global styling
 │   ├── index.ejs                   # HTML entry
-│   ├── index.js                    # app entry
-│   ├── index.less                  # global stylesheet
-│   └── router.js                   # router entry file
+│   └── polyfill.js                 # polyfill configuration
 ├── .eslintrc.js                    # js linting configuration
 ├── .gitignore
 ├── .prettierignore                 # code formatting ignore file
@@ -92,6 +91,15 @@ $ yarn build
 
 This will generate the `dist` folder in the root directory, which contains packaged files such as `***.js`, `***.css`, and `index.html`.
 
+## UI Tests
+
+Run All UI Unit Tests
+
+```bash
+$ yarn test
+```
+
+This will run test cases for all files referenced with a `*.test.js` naming schema. 
 
 ## Template
 

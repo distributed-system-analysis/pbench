@@ -1,7 +1,7 @@
 import 'rc-drawer/assets/index.css';
 import ReactJS from 'react';
 import DrawerMenu from 'rc-drawer/lib';
-import SiderMenu from '@/components/SiderMenu/SiderMenu';
+import SiderMenu from './SiderMenu';
 
 const SiderMenuWrapper = props => {
   const { isMobile, collapsed } = props;
