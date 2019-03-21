@@ -17,6 +17,12 @@ export _tdir=$(dirname $(readlink -f $0))
 export _gitdir=$(dirname $(dirname $_tdir))
 export _tlib=${_tdir}/../lib
 export _testbase=/var/tmp/pbench-test-server
+rm -rf ${_testbase}
+mkdir ${_testbase}
+if [[ ! -d $_testbase ]]; then
+    echo "ERROR: failed to create test base directory, \"$_testbase\"" >&2
+    exit 1
+fi
 
 function remove_path {
     # PATH ($2) => /bin:/opt/a dir/bin:/sbin
@@ -716,6 +722,8 @@ function report_test_result {
 
 declare -A pids
 
+trap "kill -KILL -$$" INT TERM QUIT
+
 let count=0
 let failures=0
 for testname in $tests ;do
@@ -727,7 +735,7 @@ for testname in $tests ;do
     let count=count+1
     if [[ $mode == "parallel" ]]; then
         _run_test ${testname} ${cmd} &
-        pids[${testname}]=$!
+        pids[${testname}]=${!}
     else
         _run_test ${testname} ${cmd}
         res=$?
