@@ -4,6 +4,8 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import Button from '../../components/Button';
+import RowSelection from '../../components/RowSelection';
 import MonthSelect from '../../components/MonthSelect';
 import Table from '../../components/Table';
 
@@ -24,18 +26,28 @@ export default class SearchList extends Component {
 
     this.state = {
       searchQuery: '',
+      updateFiltersDisabled: true,
+      selectedRowKeys: [],
     };
   }
 
   componentDidMount() {
-    const { selectedIndices, indices} = this.props;
+    const { selectedIndices, indices, mapping} = this.props;
 
-    if (selectedIndices.length === 0 || indices.length === 0) {
+    if (selectedIndices.length === 0 || indices.length === 0 || Object.keys(mapping).length === 0) {
       this.queryDatastoreConfig();      
     }
   }
 
-  queryDatastoreConfig = async () => {
+  componentDidUpdate(prevProps) {
+    const { selectedIndices, selectedFields } = this.props;
+    
+    if (selectedIndices !== prevProps.selectedIndices || selectedFields !== prevProps.selectedFields) {
+      this.setState({ updateFiltersDisabled: false });
+    }
+  }
+
+  queryDatastoreConfig = () => {
     const { dispatch } = this.props;
 
     dispatch({
@@ -68,21 +80,33 @@ export default class SearchList extends Component {
     });
   };
 
-  resetSelectedFields = () => {
+  onRowSelectChange = (selectedRowKeys, selectedRows) => {
+    const { dispatch } = this.props;
+    let selectedControllers = [];
+    selectedRows.forEach((row) => {
+      let controller = row['run.controller'];
+      if (!selectedControllers.includes(controller)) {
+        selectedControllers.push(controller);
+      } 
+    })
+    this.setState({ selectedRowKeys });
+
+    dispatch({
+      type: 'dashboard/updateSelectedResults',
+      payload: selectedRows,
+    });
+    dispatch({
+      type: 'dashboard/updateSelectedControllers',
+      payload: selectedControllers,
+    })
+  }
+
+  resetSelectedFields = async () => {
     const { dispatch } = this.props;
 
     dispatch({
       type: 'search/modifySelectedFields',
       payload: ['run.name', 'run.config', 'run.controller'],
-    });
-  };
-
-  clearSelectedFields = () => {
-    const { dispatch } = this.props;
-
-    dispatch({
-      type: 'search/updateSelectedFields',
-      payload: [],
     });
   };
 
@@ -109,6 +133,7 @@ export default class SearchList extends Component {
       type: 'search/updateSelectedFields',
       payload: newSelectedFields,
     });
+    this.setState({ updateFiltersDisabled: false });
   };
 
   updateSearchQuery = e => {
@@ -128,14 +153,20 @@ export default class SearchList extends Component {
         query: searchQuery,
       },
     });
+    dispatch({
+      type: 'dashboard/updateSelectedResults',
+      payload: [],
+    });
+    this.setState({ selectedRowKeys: [] });
+    this.setState({ updateFiltersDisabled: true });
   };
 
   retrieveResults = selectedResults => {
     const { dispatch } = this.props;
 
     dispatch({
-      type: 'dashboard/updateSelectedController',
-      payload: selectedResults[0]['run.controller'],
+      type: 'dashboard/updateSelectedControllers',
+      payload: [selectedResults[0]['run.controller']],
     }).then(() => {
       dispatch({
         type: 'dashboard/updateSelectedResults',
@@ -150,7 +181,18 @@ export default class SearchList extends Component {
     });
   };
 
+  compareResults = () => {
+    const { dispatch } = this.props;
+
+    dispatch(
+      routerRedux.push({
+        pathname: '/comparison-select',
+      })
+    );
+  };
+
   render() {
+    const { selectedRowKeys, updateFiltersDisabled } = this.state;
     const {
       selectedIndices,
       indices,
@@ -168,6 +210,10 @@ export default class SearchList extends Component {
         key: field,
       });
     });
+    const rowSelection = {
+      selectedRowKeys,
+      onChange: this.onRowSelectChange
+    };
 
     return (
       <PageHeaderLayout
@@ -188,13 +234,11 @@ export default class SearchList extends Component {
           <Row gutter={24}>
             <Col lg={7} md={24}>
               <Card
-                title={'Filters'}
+                title={'Filter Results'}
                 extra={
                   <div>
-                    <a onClick={this.resetSelectedFields}>{'Reset'}</a>
-                    <a onClick={this.clearSelectedFields} style={{ marginLeft: 16 }}>
-                      {'Clear'}
-                    </a>
+                    <Button name="Reset" type="default" size="small" onClick={this.resetSelectedFields} />
+                    <Button name="Apply" size="small" disabled={updateFiltersDisabled} onClick={this.fetchSearchQuery}  style={{ marginLeft: 16 }} />
                   </div>
                 }
                 style={{ marginBottom: 24 }}
@@ -220,7 +264,7 @@ export default class SearchList extends Component {
                               key={fieldItem}
                               onClick={() => this.updateSelectedFields(fieldItem)}
                               style={{ marginTop: 8 }}
-                              color={selectedFields.includes(fieldItem) ? 'blue' : '#bdbdbd'}
+                              color={selectedFields.includes(fieldItem) && 'blue'}
                             >
                               {item}
                             </Tag>
@@ -237,11 +281,17 @@ export default class SearchList extends Component {
               <Card>
                 <p style={{ fontWeight: 'bold' }}>
                   {searchResults.resultCount !== undefined
-                    ? searchResults.resultCount + ' results'
+                    ? searchResults.resultCount + ' hits'
                     : null}
                 </p>
+                <RowSelection
+                  selectedItems={selectedRowKeys}
+                  compareActionName={'Compare Results'}
+                  onCompare={this.compareResults}
+                />
                 <Table
                   style={{ marginTop: 20 }}
+                  rowSelection={rowSelection}
                   columns={columns}
                   dataSource={searchResults.results}
                   onRow={record => ({

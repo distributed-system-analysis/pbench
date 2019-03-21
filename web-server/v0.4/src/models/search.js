@@ -53,13 +53,16 @@ export default {
         let searchResults = {};
         searchResults['resultCount'] = response.hits.total;
         let parsedResults = [];
-        response.hits.hits.map(result => {
+        response.hits.hits.map((result) => {
           let parsedResult = {};
           selectedFields.map(field => {
             parsedResult[field] = result._source[field.split('.')[0]][field.split('.')[1]];
           });
           if (typeof result._source['run']['prefix'] != 'undefined') {
             parsedResult['run.prefix'] = result._source['run']['prefix'];
+          }
+          if (typeof result._source['run']['id'] !== 'undefined') {
+            parsedResult['key'] = result._source['run']['id'];
           }
           parsedResults.push(parsedResult);
         });

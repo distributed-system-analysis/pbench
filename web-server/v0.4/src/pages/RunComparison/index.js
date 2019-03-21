@@ -31,7 +31,8 @@ const { Description } = DescriptionList;
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
 
-@connect(({ global }) => ({
+@connect(({ global, dashboard }) => ({
+  selectedControllers: dashboard.selectedControllers,
   datastoreConfig: global.datastoreConfig,
 }))
 export default class RunComparison extends ReactJS.Component {
@@ -40,7 +41,6 @@ export default class RunComparison extends ReactJS.Component {
     configCategories: PropTypes.array,
     configData: PropTypes.array,
     results: PropTypes.array,
-    controller: PropTypes.string,
   };
 
   constructor(props) {
@@ -448,7 +448,7 @@ export default class RunComparison extends ReactJS.Component {
   };
 
   render() {
-    const { configCategories, controller, selectedResults } = this.props.location.state;
+    const { configCategories, selectedResults } = this.props.location.state;
     const {
       graphKeys,
       tableData,
@@ -460,6 +460,7 @@ export default class RunComparison extends ReactJS.Component {
       timeseriesDropdownSelected,
       generatingPdf,
     } = this.state;
+    const { selectedControllers } = this.props;
 
     const expandedRowRender = cluster => {
       var columns = [
@@ -499,39 +500,41 @@ export default class RunComparison extends ReactJS.Component {
     };
 
     const description = (
-      <div>
-        <DescriptionList size="small" col="1" gutter={16}>
-          <Description term="Controller">{<Tag>{controller}</Tag>}</Description>
-          <Description term="Results">
-            {selectedResults.map(result => (
-              <Tag>{result['run.name']}</Tag>
-            ))}
-          </Description>
-          <Description term="Clustering Config">
-            <div>
-              <Select
-                addonBefore="Cluster Parameters"
-                mode="tags"
-                placeholder="Select cluster config"
-                value={selectedConfig}
-                defaultValue={configCategories}
-                onChange={this.generateIterationClusters}
-              >
-                {configCategories.map((category, i) => (
-                  <Select.Option value={category}>{category}</Select.Option>
-                ))}
-              </Select>
-              <Button
-                type="primary"
-                onClick={this.resetIterationClusters}
-                style={{ marginLeft: 8 }}
-              >
-                {'Reset'}
-              </Button>
-            </div>
-          </Description>
-        </DescriptionList>
-      </div>
+      <DescriptionList size="small" col="1" gutter={16}>
+        <Description term="Controllers">
+          {selectedControllers.map((controller) => (
+            <Tag key={controller}>{controller}</Tag>
+          ))}
+        </Description>
+        <Description term="Results">
+          {selectedResults.map(result => (
+            <Tag>{result['run.name']}</Tag>
+          ))}
+        </Description>
+        <Description term="Clustering Config">
+          <div>
+            <Select
+              addonBefore="Cluster Parameters"
+              mode="tags"
+              placeholder="Select cluster config"
+              value={selectedConfig}
+              defaultValue={configCategories}
+              onChange={this.generateIterationClusters}
+            >
+              {configCategories.map((category, i) => (
+                <Select.Option value={category}>{category}</Select.Option>
+              ))}
+            </Select>
+            <Button
+              type="primary"
+              onClick={this.resetIterationClusters}
+              style={{ marginLeft: 8 }}
+            >
+              {'Reset'}
+            </Button>
+          </div>
+        </Description>
+      </DescriptionList>
     );
 
     const action = (
