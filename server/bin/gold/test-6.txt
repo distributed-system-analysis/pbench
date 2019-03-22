@@ -1,6 +1,40 @@
 +++ Running pbench-backup-tarballs
+Template:  pbench-unittests.v1.server-reports
+Index:  pbench-unittests-server-reports.1900-01 1
+len(actions) = 1
+[
+    {
+        "_id": "991c7cd9e3375f9a6013150181958a16",
+        "_index": "pbench-unittests-server-reports.1900-01",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "1900-01-01T00:00:00",
+            "doctype": "status",
+            "name": "pbench-backup-tarballs",
+            "text": "pbench-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
 --- Finished pbench-backup-tarballs (status=0)
 +++ Running unit test audit
+Template:  pbench-unittests.v1.server-reports
+Index:  pbench-unittests-server-reports.1900-01 1
+len(actions) = 1
+[
+    {
+        "_id": "c035b87db9c8fe6cfc65f199b59fb9e7",
+        "_index": "pbench-unittests-server-reports.1900-01",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "1900-01-01T00:00:00",
+            "doctype": "status",
+            "name": "pbench-audit-server",
+            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
 --- Finished unit test audit (status=0)
 +++ var/www/html tree state (/var/tmp/pbench-test-server/test-6/var-www-html)
 lrwxrwxrwx         62 incoming -> /var/tmp/pbench-test-server/test-6/pbench/public_html/incoming
@@ -75,6 +109,8 @@ drwxrwxr-x          - logs/pbench-audit-server
 drwxrwxr-x          - logs/pbench-backup-tarballs
 -rw-rw-r--          0 logs/pbench-backup-tarballs/pbench-backup-tarballs.error
 -rw-rw-r--         58 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
+drwxrwxr-x          - logs/pbench-report-status
+-rw-rw-r--        744 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -139,25 +175,13 @@ drwxrwxr-x          - tmp
 start-1900-01-01T00:00:00-UTC
 end-1900-01-01T00:00:00-UTC
 ----- pbench-backup-tarballs/pbench-backup-tarballs.log
++++++ pbench-report-status/pbench-report-status.log
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-report-status/pbench-report-status.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
-+++ test-execution.log file contents
-curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-backup-tarballs.1900-01/status/20156bd0ac46ab8a41cb2d25cd33d837 --data @/tmp/pbench-report-status.NNNN/payload
-curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/a31a32f626ba4c79e940a02029c58ac1 --data @/tmp/pbench-report-status.NNNN/payload
---- test-execution.log file contents
-+++ test-curl-payload.log file contents
-{
-    "@timestamp": "1900-01-01T00:00:00",
-    "doctype": "status",
-    "name": "pbench-backup-tarballs",
-    "text": "pbench-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n"
-}
-{
-    "@timestamp": "1900-01-01T00:00:00",
-    "doctype": "status",
-    "name": "pbench-audit-server",
-    "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n"
-}
---- test-curl-payload.log file contents

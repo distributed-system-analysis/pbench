@@ -1,6 +1,40 @@
 +++ Running pbench-satellite-cleanup
+Template:  pbench-unittests.v1.server-reports
+Index:  pbench-unittests-server-reports.1900-01 1
+len(actions) = 1
+[
+    {
+        "_id": "9c76a51432307ad14a65c62b295d3e00",
+        "_index": "pbench-unittests-server-reports.1900-01",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "1900-01-01T00:00:00",
+            "doctype": "status",
+            "name": "pbench-satellite-cleanup",
+            "text": "pbench-satellite-cleanup.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 total errors\nTotal 6 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.\n\n"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
 --- Finished pbench-satellite-cleanup (status=0)
 +++ Running unit test audit
+Template:  pbench-unittests.v1.server-reports
+Index:  pbench-unittests-server-reports.1900-01 1
+len(actions) = 1
+[
+    {
+        "_id": "ced78d3e069822a8dc33f2cd15d8b23c",
+        "_index": "pbench-unittests-server-reports.1900-01",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "1900-01-01T00:00:00",
+            "doctype": "status",
+            "name": "pbench-audit-server",
+            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-22/pbench/archive/fs-version-001\n\nController: controller-a\n\t* No tar ball files found in this controller directory.\n\nController: controller-b\n\t* No tar ball files found in this controller directory.\n\nController: controller-c\n\t* No tar ball files found in this controller directory.\n\nend-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-22/pbench/archive/fs-version-001\n\n\nstart-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/incoming\n\nControllers which are empty:\n\tcontroller-a\n\tcontroller-c\n\nend-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/incoming\n\n\nstart-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/results\n\nControllers which are empty:\n\tcontroller-a\n\nResults issues for controller: controller-c\n\tEmpty tar ball directories:\n\t\tdirA/dirB\n\nend-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/results\n"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
 --- Finished unit test audit (status=3)
 +++ var/www/html tree state (/var/tmp/pbench-test-server/test-22/var-www-html)
 lrwxrwxrwx         63 incoming -> /var/tmp/pbench-test-server/test-22/pbench/public_html/incoming
@@ -93,6 +127,8 @@ drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--       1127 logs/pbench-audit-server/pbench-audit-server.log
+drwxrwxr-x          - logs/pbench-report-status
+-rw-rw-r--        744 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - logs/pbench-satellite-cleanup
 -rw-rw-r--          0 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.error
 -rw-rw-r--        312 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log
@@ -188,6 +224,12 @@ Results issues for controller: controller-c
 
 end-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/results
 ----- pbench-audit-server/pbench-audit-server.log
++++++ pbench-report-status/pbench-report-status.log
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-report-status/pbench-report-status.log
 +++++ pbench-satellite-cleanup/pbench-satellite-cleanup.error
 ----- pbench-satellite-cleanup/pbench-satellite-cleanup.error
 +++++ pbench-satellite-cleanup/pbench-satellite-cleanup.log
@@ -198,21 +240,3 @@ run-1900-01-01T00:00:00-UTC: pbench-satellite-cleanup ends: Total 6 tarballs cle
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
-+++ test-execution.log file contents
-curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-satellite-cleanup.1900-01/status/7142e1cefcb54482af77102b9fb7b55e --data @/tmp/pbench-report-status.NNNN/payload
-curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/080c7c30c633e7dfedf17e2d0e795419 --data @/tmp/pbench-report-status.NNNN/payload
---- test-execution.log file contents
-+++ test-curl-payload.log file contents
-{
-    "@timestamp": "1900-01-01T00:00:00",
-    "doctype": "status",
-    "name": "pbench-satellite-cleanup",
-    "text": "pbench-satellite-cleanup.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 total errors\nTotal 6 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.\n\n"
-}
-{
-    "@timestamp": "1900-01-01T00:00:00",
-    "doctype": "status",
-    "name": "pbench-audit-server",
-    "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-22/pbench/archive/fs-version-001\n\nController: controller-a\n\t* No tar ball files found in this controller directory.\n\nController: controller-b\n\t* No tar ball files found in this controller directory.\n\nController: controller-c\n\t* No tar ball files found in this controller directory.\n\nend-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-22/pbench/archive/fs-version-001\n\n\nstart-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/incoming\n\nControllers which are empty:\n\tcontroller-a\n\tcontroller-c\n\nend-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/incoming\n\n\nstart-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/results\n\nControllers which are empty:\n\tcontroller-a\n\nResults issues for controller: controller-c\n\tEmpty tar ball directories:\n\t\tdirA/dirB\n\nend-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/results\n"
-}
---- test-curl-payload.log file contents

@@ -1,6 +1,40 @@
 +++ Running pbench-index
+Template:  pbench-unittests.v1.server-reports
+Index:  pbench-unittests-server-reports.1900-01 1
+len(actions) = 1
+[
+    {
+        "_id": "30b6ad07cd103fe1bd5b47b5e6a32b4d",
+        "_index": "pbench-unittests-server-reports.1900-01",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "1900-01-01T00:00:00",
+            "doctype": "status",
+            "name": "pbench-index",
+            "text": "pbench-index.run-1900-01-01T00:00:00-UTC(unit-test) - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.0.1/pbench/archive/fs-version-001/controller/TO-INDEX/tarball-noop_YYYY-MM-DDTHH-mm-ss.tar.xz\n"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
 --- Finished pbench-index (status=0)
 +++ Running unit test audit
+Template:  pbench-unittests.v1.server-reports
+Index:  pbench-unittests-server-reports.1900-01 1
+len(actions) = 1
+[
+    {
+        "_id": "c035b87db9c8fe6cfc65f199b59fb9e7",
+        "_index": "pbench-unittests-server-reports.1900-01",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "1900-01-01T00:00:00",
+            "doctype": "status",
+            "name": "pbench-audit-server",
+            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
 --- Finished unit test audit (status=0)
 +++ var/www/html tree state (/var/tmp/pbench-test-server/test-7.0.1/var-www-html)
 lrwxrwxrwx         66 incoming -> /var/tmp/pbench-test-server/test-7.0.1/pbench/public_html/incoming
@@ -95,7 +129,9 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--          0 logs/pbench-index/pbench-index.error
--rw-rw-r--     121332 logs/pbench-index/pbench-index.log
+-rw-rw-r--     122632 logs/pbench-index/pbench-index.log
+drwxrwxr-x          - logs/pbench-report-status
+-rw-rw-r--        744 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -803,6 +839,61 @@ Template: pbench-unittests.v1.run
         }
     },
     "template": "pbench-unittests.v1.run.*"
+}
+
+
+
+Template: pbench-unittests.v1.server-reports
+
+{
+    "mappings": {
+        "pbench-server-reports": {
+            "_all": {
+                "enabled": false
+            },
+            "_meta": {
+                "version": "1"
+            },
+            "date_detection": false,
+            "properties": {
+                "@timestamp": {
+                    "type": "date"
+                },
+                "doctype": {
+                    "index": "not_analyzed",
+                    "type": "string"
+                },
+                "name": {
+                    "index": "not_analyzed",
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "settings": {
+        "analysis": {
+            "analyzer": {
+                "comma_analyzer": {
+                    "tokenizer": "comma_tokenizer"
+                }
+            },
+            "tokenizer": {
+                "comma_tokenizer": {
+                    "pattern": ",",
+                    "type": "pattern"
+                }
+            }
+        },
+        "index": {
+            "query": {
+                "default_field": "text"
+            }
+        }
+    },
+    "template": "pbench-unittests.v1.server-reports.*"
 }
 
 
@@ -3132,25 +3223,13 @@ run-1900-01-01T00:00:00-UTC: controller/tarball-noop_YYYY-MM-DDTHH-mm-ss: succes
    1900-01-01T00:00:00-UTC: Finished /var/tmp/pbench-test-server/test-7.0.1/pbench/archive/fs-version-001/controller/TO-INDEX/tarball-noop_YYYY-MM-DDTHH-mm-ss.tar.xz (size 216)
 run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, indexed 1 (skipped 0) results, 0 errors
 ----- pbench-index/pbench-index.log
++++++ pbench-report-status/pbench-report-status.log
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-report-status/pbench-report-status.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
-+++ test-execution.log file contents
-curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-index.1900-01/status/f59a9ed693e179d5aa2f1c3b5f68d168 --data @/tmp/pbench-report-status.NNNN/payload
-curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/a31a32f626ba4c79e940a02029c58ac1 --data @/tmp/pbench-report-status.NNNN/payload
---- test-execution.log file contents
-+++ test-curl-payload.log file contents
-{
-    "@timestamp": "1900-01-01T00:00:00",
-    "doctype": "status",
-    "name": "pbench-index",
-    "text": "pbench-index.run-1900-01-01T00:00:00-UTC(unit-test) - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.0.1/pbench/archive/fs-version-001/controller/TO-INDEX/tarball-noop_YYYY-MM-DDTHH-mm-ss.tar.xz\n"
-}
-{
-    "@timestamp": "1900-01-01T00:00:00",
-    "doctype": "status",
-    "name": "pbench-audit-server",
-    "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n"
-}
---- test-curl-payload.log file contents

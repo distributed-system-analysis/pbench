@@ -1,6 +1,40 @@
 +++ Running pbench-backup-tarballs
+Template:  pbench-unittests.v1.server-reports
+Index:  pbench-unittests-server-reports.1900-01 1
+len(actions) = 1
+[
+    {
+        "_id": "827e831b1bbd88a3fd1bdc00330ad149",
+        "_index": "pbench-unittests-server-reports.1900-01",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "1900-01-01T00:00:00",
+            "doctype": "status",
+            "name": "pbench-backup-tarballs",
+            "text": "pbench-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n\nNumber of files: 6\nNumber of files transferred: 4\nTotal file size: # bytes\nTotal transferred file size: # bytes\nLiteral data: # bytes\nMatched data: # bytes\nFile list size: #\nFile list generation time: #.### seconds\nFile list transfer time: #.### seconds\nTotal bytes sent: #\nTotal bytes received: #\n\nsent # bytes  received # bytes  #.### bytes/sec\ntotal size is #  speedup is #.##\n"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
 --- Finished pbench-backup-tarballs (status=0)
 +++ Running unit test audit
+Template:  pbench-unittests.v1.server-reports
+Index:  pbench-unittests-server-reports.1900-01 1
+len(actions) = 1
+[
+    {
+        "_id": "c8486205e53d113dd03bdbd257dc3db4",
+        "_index": "pbench-unittests-server-reports.1900-01",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "1900-01-01T00:00:00",
+            "doctype": "status",
+            "name": "pbench-audit-server",
+            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-6.5/pbench/archive/fs-version-001\n\nController: foo\n\t* No state directories found in this controller directory.\n\nend-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-6.5/pbench/archive/fs-version-001\n"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
 --- Finished unit test audit (status=1)
 +++ var/www/html tree state (/var/tmp/pbench-test-server/test-6.5/var-www-html)
 lrwxrwxrwx         64 incoming -> /var/tmp/pbench-test-server/test-6.5/pbench/public_html/incoming
@@ -85,6 +119,8 @@ drwxrwxr-x          - logs/pbench-audit-server
 drwxrwxr-x          - logs/pbench-backup-tarballs
 -rw-rw-r--          0 logs/pbench-backup-tarballs/pbench-backup-tarballs.error
 -rw-rw-r--        665 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
+drwxrwxr-x          - logs/pbench-report-status
+-rw-rw-r--        744 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -178,26 +214,16 @@ sent # bytes  received # bytes  #.### bytes/sec
 total size is #  speedup is #.##
 end-1900-01-01T00:00:00-UTC
 ----- pbench-backup-tarballs/pbench-backup-tarballs.log
++++++ pbench-report-status/pbench-report-status.log
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-report-status/pbench-report-status.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ test-execution.log file contents
 rsync -va --stats --exclude=_QUARANTINED --exclude=TODO --exclude=BAD-MD5 --exclude=TO-UNPACK --exclude=UNPACKED --exclude=MOVED-UNPACKED --exclude=TO-SYNC --exclude=SYNCED --exclude=TO-LINK --exclude=TO-INDEX --exclude=INDEXED --exclude=WONT-INDEX --exclude=TO-COPY-SOS --exclude=COPIED-SOS --exclude=TO-BACKUP --exclude=SATELLITE-MD5-PASSED --exclude=SATELLITE-MD5-FAILED --exclude=TO-DELETE --exclude=SATELLITE-DONE --exclude=WONT-INDEX.1 --exclude=WONT-INDEX.2 --exclude=WONT-INDEX.3 --exclude=WONT-INDEX.4 --exclude=WONT-INDEX.5 --exclude=WONT-INDEX.6 --exclude=WONT-INDEX.7 --exclude=WONT-INDEX.8 --exclude=WONT-INDEX.9 --exclude=WONT-INDEX.10 --exclude=WONT-INDEX.11 /var/tmp/pbench-test-server/test-6.5/pbench/archive/fs-version-001/ /var/tmp/pbench-test-server/test-6.5/pbench-local/archive.backup
-curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-backup-tarballs.1900-01/status/ff72c84c4405cffede11ce1a594218c2 --data @/tmp/pbench-report-status.NNNN/payload
-curl --silent --show-error -XPOST -H Content-Type: application/json --output /tmp/pbench-report-status.NNNN/response_body --write-out %{http_code} http://elasticsearch.example.com:9280/pbench-unittests.pbench-audit-server.1900-01/status/c1db457af4c8e5798927bc7a68979d18 --data @/tmp/pbench-report-status.NNNN/payload
 --- test-execution.log file contents
-+++ test-curl-payload.log file contents
-{
-    "@timestamp": "1900-01-01T00:00:00",
-    "doctype": "status",
-    "name": "pbench-backup-tarballs",
-    "text": "pbench-backup-tarballs.run-1900-01-01T00:00:00-UTC(unit-test)\n\nNumber of files: 6\nNumber of files transferred: 4\nTotal file size: # bytes\nTotal transferred file size: # bytes\nLiteral data: # bytes\nMatched data: # bytes\nFile list size: #\nFile list generation time: #.### seconds\nFile list transfer time: #.### seconds\nTotal bytes sent: #\nTotal bytes received: #\n\nsent # bytes  received # bytes  #.### bytes/sec\ntotal size is #  speedup is #.##\n"
-}
-{
-    "@timestamp": "1900-01-01T00:00:00",
-    "doctype": "status",
-    "name": "pbench-audit-server",
-    "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-6.5/pbench/archive/fs-version-001\n\nController: foo\n\t* No state directories found in this controller directory.\n\nend-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-6.5/pbench/archive/fs-version-001\n"
-}
---- test-curl-payload.log file contents

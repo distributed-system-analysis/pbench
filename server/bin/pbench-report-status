@@ -1,122 +1,66 @@
-#! /bin/bash
+#!/usr/bin/env python3
+# -*- mode: python -*-
 
-prog=$(basename $0)
-dir=$(dirname $0)
+import sys, os
 
-function usage() {
-    echo "Usage: $prog --name <name> --timestamp <ts> --type status|error <file-to-index>"
-}
+from argparse import ArgumentParser
 
-opts=$(getopt -q -o hn:t:T: --longoptions "help,name:,timestamp:,type:" -n "getopt.sh" -- "$@");
+# Correct the first path to be the "lib" directory to make the
+# pbench-base.sh script simple, allowing the imports from the
+# pbench library to work cleanly.
+first_path = sys.path[0]
+assert first_path.endswith('/bin')
+lib_path = os.path.join(os.path.dirname(first_path), 'lib')
+sys.path[0] = lib_path
 
-eval set -- "$opts"
-while true; do
-    case "$1" in
-        -h|--help)
-            usage
-            exit 0
-            ;;
-        -n|--name)
-            name="$2"
-            shift 2
-            ;;
-        -t|--timestamp)
-            # timestamp is of the form run-<yyyy>-<mm>-<dd>T<HH>:<MM>:<SS>-<TZ>
-            # It is the value of the variable TS created by pbench-base.sh.
+from pbench import report_status, PbenchConfig, BadConfig, get_es, \
+        get_pbench_logger, PbenchTemplates
 
-            # Snip off the initial "run-"
-            timestamp="${2#run-}"
-            shift 2
-            ;;
-        -T|--type)
-            doctype="$2"
-            shift 2
-            ;;
-        --)
-            shift
-            break
-            ;;
-    esac
-done
 
-file=$1
+_prog = os.path.basename(sys.argv[0])
+_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
 
-# if no name, timestamp, type, or file bail
-if [ -z "$name" ] ;then
-    usage
-    exit 1
-fi
+if __name__ == '__main__':
+    parser = ArgumentParser(
+        """Usage: {} --name <name> --timestamp <ts> --type status|error"""
+        """ <file-to-index>""".format(_prog))
+    parser.add_argument(
+        "-C", "--config", dest="cfg_name",
+        help="Specify config file")
+    parser.set_defaults(cfg_name = os.environ.get("CONFIG"))
+    parser.add_argument(
+        "-n", "--name", dest="name", required=True,
+        help="Specify name of program reporting its status")
+    parser.add_argument(
+        "-t", "--timestamp", dest="timestamp", required=True,
+        help="The timestamp that should be associated with the file to index,"
+            " takes the form run-<yyyy>-<mm>-<dd>T<HH>:<MM>:<SS>-<TZ>")
+    parser.add_argument(
+        "-T", "--type", dest="doctype", required=True,
+        help="The type of report document to index, one of status|error")
+    parser.add_argument(
+        "file_to_index", nargs=1,
+        help="The file containing the report to index")
+    parsed = parser.parse_args()
 
-if [ -z "$timestamp" ] ;then
-    usage
-    exit 2
-fi
+    try:
+        config = PbenchConfig(parsed.cfg_name)
+    except BadConfig as e:
+        print("{}: {}".format(_prog, e), file=sys.stderr)
+        sys.exit(1)
 
-if [ -z "$doctype" ] ;then
-    usage
-    exit 3
-fi
-
-if [ -z "$file" ] ;then
-    usage
-    exit 4
-fi
-
-tmp=/tmp/$prog.$$
-
-trap "
-# append ${tmp}/log to the caller's log file
-if [ -f "$LOGSDIR/$name/$name.log" -a -s "${tmp}/log" ]; then
-    cat ${tmp}/log >> $LOGSDIR/$name/$name.log
-fi;
-
-rm -rf $tmp" EXIT QUIT INT
-
-mkdir $tmp
->${tmp}/log
-
-server=$(getconf.py server Indexing)
-index_prefix=$(getconf.py index_prefix Indexing)
-if [ -z "$server" -o -z "$index_prefix" ] ;then
-    # We don't have an Elasticsearch configuration, use syslog.
-
-    # Prepend the proper sequence to allow rsyslog to recognize JSON and process it
-    printf "@cee:" > ${tmp}/payload
-    # Generate the payload without pretty JSON format so it fits in a single line.
-    $dir/pbench-gen-json-payload ${timestamp%-*} $name $doctype $file "false" >> ${tmp}/payload
-
-    size=$(stat --printf="%s" "${tmp}/payload")
-    if [ $size -gt 4096 ]; then
-        xz -9 -c ${tmp}/payload > $LOGSDIR/$name/${prog}-payload.${timestamp%-*}.xz
-    else
-        cat ${tmp}/payload | logger --size 4096 --tag $name --priority daemon.info
-    fi
-else
-    # We have an Elasticsearch configuration.
-
-    # Snip off the trailing "-<TZ>" - assumes that <TZ> does not contain a "-"
-    datestamp="${timestamp%-*}"
-    # Snip off the time part of the timestamp to get YYYY-MM
-    datestamp=${datestamp%-*}
-
-    # drop the -UTC spec from the timestamp: the ES date parser does not like it
-    $dir/pbench-gen-json-payload ${timestamp%-*} $name $doctype $file > ${tmp}/payload
-
-    md5=$(md5sum ${tmp}/payload | cut -d' ' -f1)
-
-    # Construct the actual index name to use.
-    index="$index_prefix"."$name"."$datestamp"
-    >${tmp}/http_code
-    >${tmp}/response_body
-    curl --silent --show-error -XPOST -H 'Content-Type: application/json' --output ${tmp}/response_body --write-out "%{http_code}" "http://$server/$index/$doctype/$md5" --data @"${tmp}/payload" > ${tmp}/http_code 2>> ${tmp}/log
-    status=$?
-    if [ ${status} -ne 0 -o "$(cat ${tmp}/http_code)" != "201" ]; then
-        echo "${prog}: curl failed (exit code: \"${status}\", HTTP code: \"$(cat ${tmp}/http_code 2> /dev/null)\")" >> ${tmp}/log
-        if [ -s ${tmp}/response_body ]; then
-            echo "Response body:" >> ${tmp}/log
-            cat ${tmp}/response_body >> ${tmp}/log 2> /dev/null && echo >> ${tmp}/log
-        fi
-    fi
-fi
-
-exit $status
+    logger = get_pbench_logger(_prog, config)
+    try:
+        es = get_es(config, logger)
+        idx_prefix = config.get('Indexing', 'index_prefix')
+    except Exception:
+        # If we don't have an Elasticsearch configuration just pass None
+        es = None
+        idx_prefix = None
+    else:
+        templates = PbenchTemplates(_dir, idx_prefix, logger)
+        templates.update_templates(es, 'server-reports')
+    status = report_status(es, logger, config.LOGSDIR, idx_prefix,
+            parsed.name, parsed.timestamp, parsed.doctype,
+            parsed.file_to_index[0])
+    sys.exit(status)
