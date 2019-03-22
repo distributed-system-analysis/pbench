@@ -1,26 +1,28 @@
 dist: xenial
 language: perl
 perl:
- - "5.28"
- - "5.26"
- - "5.24"
- - "5.22"
- - "5.20"
- - "5.18"
- - "5.16"
- - "5.10"
+  - "5.28"
+  - "5.26"
+  - "5.24"
+  - "5.22"
+  - "5.20"
+  - "5.18"
+  - "5.16"
+  - "5.10"
 before_install:
- - sudo apt-get update
+  - sudo apt-get update
 install:
- - sudo apt-get install python python-pip bc libjson-perl libswitch-perl realpath
- - sudo pip install configtools elasticsearch
- - sudo apt-get install python-software-properties
- - sudo add-apt-repository ppa:fkrull/deadsnakes -y
- - sudo apt-get update
- - sudo apt-get install python3.6 --force-yes -y
- - sudo wget -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py
- - sudo python3.6 /tmp/get-pip.py
- - sudo pip install 'configtools<0.4.0' elasticsearch
- - sudo ln -sf python3.6 /usr/bin/python3
+  - sudo apt-get install python python-pip bc libjson-perl libswitch-perl realpath
+  - sudo pip install configtools elasticsearch
+  - sudo apt-get install python-software-properties
+  - sudo add-apt-repository ppa:fkrull/deadsnakes -y
+  - sudo apt-get update
+  - sudo apt-get install python3.6 --force-yes -y
+  - sudo wget -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py
+  - sudo python3.6 /tmp/get-pip.py
+  - sudo pip install 'configtools<0.4.0' elasticsearch
+  - sudo ln -sf python3.6 /usr/bin/python3
+env:
+  - PBENCH_UNITTEST_SERVER_MODE=serial
 script:
- - ./run-unittests
+  - ./run-unittests

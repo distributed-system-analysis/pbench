@@ -644,6 +644,9 @@ declare -A cmds=(
 all_tests_sorted=$(for x in ${!cmds[@]} ;do echo $x ;done | sed 's/\./-/' | sort -n -t '-' -k 3 | sort -n -t '-' -k 2 --stable | sed 's/\(.*-[0-9]\)-\([0-9]\)/\1.\2/')
 
 mode="serial"
+if [[ -n "$PBENCH_UNITTEST_SERVER_MODE" ]]; then
+    mode="$PBENCH_UNITTEST_SERVER_MODE"
+fi
 case $1 in
     --serial)
         shift
@@ -658,6 +661,10 @@ case $1 in
         exit 1
         ;;
 esac
+if [[ "$mode" != "serial" && "$mode" != "parallel" ]]; then
+    printf "Bad server unit test mode \"$mode\", choose either 'serial' or 'parallel'\n" >&2
+    exit 1
+fi
 
 test_args=$*
 if [ -z "$test_args" ] ;then
