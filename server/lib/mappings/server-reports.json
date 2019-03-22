@@ -1,0 +1,25 @@
+{
+    "pbench-server-reports": {
+        "_all" : {"enabled" : false},
+        "_meta": {
+            "version": "1"
+        },
+        "date_detection": false,
+        "properties": {
+            "@timestamp": {
+                "type": "date"
+            },
+            "doctype": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "name": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "text": {
+                "type": "string"
+            }
+        }
+    }
+}
