@@ -37,12 +37,21 @@ apid=$!
 $dir/server/bin/unittests > /var/tmp/server.out 2>&1 < /dev/null &
 spid=$!
 
+> /var/tmp/dashboard.out
+$dir/web-server/v0.4/unittests > /var/tmp/dashboard.out 2>&1 < /dev/null &
+dpid=$!
+
 tail_and_wait $apid 'Agent' /var/tmp/agent.out
 let sts=sts+$?
 
 printf -- "\n\n\n"
 
 tail_and_wait $spid 'Server' /var/tmp/server.out
+let sts=sts+$?
+
+printf -- "\n\n\n"
+
+tail_and_wait $dpid 'Dashboard' /var/tmp/dashboard.out
 let sts=sts+$?
 
 if [ $sts -gt 0 ]; then
