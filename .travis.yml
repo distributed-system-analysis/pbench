@@ -22,6 +22,10 @@ install:
   - sudo python3.6 /tmp/get-pip.py
   - sudo pip install 'configtools<0.4.0' elasticsearch
   - sudo ln -sf python3.6 /usr/bin/python3
+  - sudo apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg
+  - sudo echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+  - sudo apt-get update -qq
+  - sudo apt-get install -y -qq yarn
 env:
   - PBENCH_UNITTEST_SERVER_MODE=serial
 script:
