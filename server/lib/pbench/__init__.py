@@ -207,6 +207,7 @@ class PbenchConfig(object):
             # this is where the symlink forest is going to go
             self.RESULTS = self.conf.get("pbench-server", "pbench-results-dir")
             self.USERS = self.conf.get("pbench-server", "pbench-users-dir")
+            # the scripts may use this to send status messages
             self.mail_recipients = self.conf.get("pbench-server", "mailto")
         except (NoOptionError, NoSectionError) as exc:
             raise BadConfig(str(exc))
@@ -216,10 +217,12 @@ class PbenchConfig(object):
             self.PBENCH_ENV = ""
 
         # Constants
+
+        # Force UTC everywhere
         self.TZ = "UTC"
-        # Make all the state directories for the pipeline and any others needed
-        # every related state directories are paired together with their final
-        # state at the end
+        # Make all the state directories for the pipeline and any others
+        # needed.  Every related state directories are paired together with
+        # their final state at the end.
         self.LINKDIRS = "TODO BAD-MD5" \
                 " TO-UNPACK UNPACKED MOVED-UNPACKED" \
                 " TO-SYNC SYNCED" \
@@ -256,13 +259,13 @@ def report_status(es, logger, LOGSDIR, idx_prefix, name, timestamp, doctype, fil
             timestamp = timestamp[4:]
         # Snip off the trailing "-<TZ>" - assumes that <TZ> does not contain a "-"
         timestamp_noutc = timestamp.rsplit('-', 1)[0]
-    
+
         source, source_id, the_bytes, the_bytes_len = _gen_json_payload(
             file_to_index, timestamp_noutc, name, doctype)
 
         if es is None:
             # We don't have an Elasticsearch configuration, use syslog only.
-    
+
             # Prepend the proper sequence to allow rsyslog to recognize JSON and
             # process it
             payload = "@cee:{}".format(the_bytes)
@@ -281,7 +284,7 @@ def report_status(es, logger, LOGSDIR, idx_prefix, name, timestamp, doctype, fil
             # Snip off the time part of the timestamp to get YYYY-MM for the
             # index name.
             datestamp = timestamp_noutc.rsplit('-', 1)[0]
-    
+
             idx_name = "{}-server-reports.{}".format(idx_prefix, datestamp)
             action = {
                 "_op_type": _op_type,
