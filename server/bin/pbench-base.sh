@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# force UTC everywhere
-export TZ=UTC
+# Helper functions for pbench-server bash scripts.  All environment variables
+# are defined in pbench-base.py, execv() our caller.
 
 if [ -z "$PROG" ]; then
     echo "$(basename $0): ERROR: \$PROG environment variable does not exist." > /dev/stdout
@@ -9,14 +9,19 @@ if [ -z "$PROG" ]; then
 fi
 if [ -z "$dir" ]; then
     echo "$(basename $0): ERROR: \$dir environment variable does not exist." > /dev/stdout
-    exit 2
+    exit 3
 else
     # Ensure the configuration file in play is self-consistent with the
     # location from which this script is being invoked.
-    BINDIR=$(getconf.py script-dir pbench-server)
     if [ "$BINDIR" != "$dir" ]; then
         echo "$PROG: ERROR: BINDIR (\"$BINDIR\") not defined as \"$dir\"" > /dev/stdout
-        exit 3
+        exit 4
+    fi
+    # Ensure the path where pbench-base.sh was found is in the PATH environment
+    # variable.
+    if [[ ! ":$PATH:" =~ ":${BINDIR}:" ]]; then
+        echo "$PROG: ERROR: BINDIR (\"$BINDIR\") not in PATH=\"$PATH\"" > /dev/stdout
+        exit 5
     fi
 fi
 
@@ -25,53 +30,8 @@ function doexit {
     exit 1
 }
 
-# The only directory we verify exists here is $TMP, we leave
-# the rest to the individual scripts to check.
-
-# $TOP is generally some distributed file system with lots of space.
-# TMP was a subdirectory, but that has caused problems occasionally,
-# so we (optionally) make it a local directory now. That decouples the
-# immediate availability of data from long-term storage
-# considerations.  Not every script does that however: see
-# pbench-unpack-tarballs for a script that does this, when called with
-# two arguments (if it is called with one, both TOP and TOP_LOCAL are
-# set to the same thing).
-
-if which getconf.py > /dev/null 2>&1 ;then
-    :
-else
-    doexit "ERROR: The configtools package must be installed."
-fi
-
-# Required
-TOP=$(getconf.py pbench-top-dir pbench-server)
-test -d $TOP || doexit "Bad TOP=$TOP"
-
-# Required
-TMP=$(getconf.py pbench-tmp-dir pbench-server)
-test -d $TMP || doexit "Bad TMP=$TMP"
-
-# Required
-export LOGSDIR=$(getconf.py pbench-logs-dir pbench-server)
-test -d $LOGSDIR || doexit "Bad LOGSDIR=$LOGSDIR"
-
-# Optional
-PBENCH_ENV=$(getconf.py environment pbench-server)
-
-# Ensure the path where pbench-base.sh was found is in the PATH environment
-# variable.
-if [[ ! ":$PATH:" =~ ":${dir}:" ]]; then
-   PATH=${dir}${PATH:+:}$PATH; export PATH
-fi
-
 if [[ -z "$_PBENCH_SERVER_TEST" ]]; then
     # the real thing
-
-    LIBDIR=$(getconf.py lib-dir pbench-server)
-    if [[ -z "$LIBDIR" ]]; then
-        echo "$PROG: ERROR: LIBDIR not defined" > /dev/stdout
-        exit 3
-    fi
 
     function timestamp {
         echo "$(date +'%Y-%m-%dT%H:%M:%S-%Z')"
@@ -103,35 +63,10 @@ else
     }
 fi
 
-ARCHIVE=$(getconf.py pbench-archive-dir pbench-server)
-INCOMING=$(getconf.py pbench-incoming-dir pbench-server)
-# this is where the symlink forest is going to go
-RESULTS=$(getconf.py pbench-results-dir pbench-server)
-USERS=$(getconf.py pbench-users-dir pbench-server)
-
 # Convenient task run identifier.
 if [ "$TS" = "" ]; then
     TS="run-$(timestamp)"
 fi
-
-# the scripts may use this to send status messages
-export mail_recipients=$(getconf.py mailto pbench-server)
-
-# make all the state directories for the pipeline and any others needed
-# every related state directories are paired together with their
-# final state at the end
-LINKDIRS="TODO BAD-MD5 \
-    TO-UNPACK UNPACKED MOVED-UNPACKED  \
-    TO-SYNC SYNCED \
-    TO-LINK \
-    TO-INDEX INDEXED WONT-INDEX \
-    TO-COPY-SOS COPIED-SOS \
-    TO-BACKUP \
-    SATELLITE-MD5-PASSED SATELLITE-MD5-FAILED \
-    TO-DELETE SATELLITE-DONE"
-
-# list of the state directories which will be excluded during rsync
-EXCLUDE_DIRS="_QUARANTINED $LINKDIRS $(for i in {1..11}; do printf 'WONT-INDEX.%d ' ${i}; done)"
 
 function mk_dirs {
     hostname=$1
