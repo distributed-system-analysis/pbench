@@ -8,24 +8,25 @@ export default class RowSelection extends PureComponent {
     selectedItems: PropTypes.array.isRequired,
     compareActionName: PropTypes.string.isRequired,
     onCompare: PropTypes.func.isRequired,
-    styles: PropTypes.object,
+    style: PropTypes.object,
   };
 
   static defaultProps = {
-    styles: {},
-  } 
+    style: {},
+  };
 
-  render () {
-    const { selectedItems, compareActionName, onCompare, styles } = this.props;
+  render() {
+    const { selectedItems, compareActionName, onCompare, style } = this.props;
     const selectedItemsLength = selectedItems.length;
 
     return (
-      <div styles={styles}>
+      <div style={style}>
         <Button
           type="primary"
           onClick={onCompare}
           name={compareActionName}
           disabled={!(selectedItemsLength > 0)}
+          style={{ marginRight: 8 }}
         />
         <span style={{ marginLeft: 8 }}>
           {selectedItemsLength > 0 ? `Selected ${selectedItemsLength} items` : ''}
