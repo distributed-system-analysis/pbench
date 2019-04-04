@@ -1,3 +1,6 @@
+import cloneDeep from 'lodash/cloneDeep';
+import isMatch from 'lodash/isMatch';
+
 const containsKey = (columns, item) => {
   var contains = false;
   for (var column in columns) {
@@ -81,17 +84,8 @@ export const parseIterationData = results => {
 
     var columns = [
       {
-        title: '#',
-        dataIndex: 'iteration_number',
-        fixed: 'left',
-        width: 50,
-        key: 'iteration_number',
-        sorter: (a, b) => a.iteration_number - b.iteration_number,
-      },
-      {
         title: 'Iteration Name',
         dataIndex: 'iteration_name',
-        fixed: 'left',
         width: 150,
         key: 'iteration_name',
       },
@@ -174,17 +168,17 @@ export const parseIterationData = results => {
             if (port_val != undefined && !ports.includes(port_val)) {
               ports.push(port_val);
             }
-            var columnTitle =
+            var columnHost =
               'client_hostname:' +
               curr_iter_type[iterationNetwork][iterationData].client_hostname +
               '-server_hostname:' +
               curr_iter_type[iterationNetwork][iterationData].server_hostname +
               '-server_port:' +
               port_val;
-            var _columnPrefix = iterationType + '-' + iterationNetwork + '-' + columnTitle + '-';
-            var columnMean = _columnPrefix + 'mean';
-            var columnStdDev = _columnPrefix + 'stddevpct';
-            var columnSample = _columnPrefix + 'closestsample';
+            var columnKey = iterationType + '-' + iterationNetwork + '-' + columnHost + '-';
+            var columnMean = columnKey + 'mean';
+            var columnStdDev = columnKey + 'stddevpct';
+            var columnSample = columnKey + 'closestsample';
             if (constructChildCol) {
               if (columns[parentColumnIndex]['children'] == undefined) {
                 var childColumnIndex = 0;
@@ -195,14 +189,14 @@ export const parseIterationData = results => {
                 );
               }
               var child_column = columns[parentColumnIndex].children[childColumnIndex];
-              if (!containsIteration(child_column, columnTitle)) {
+              if (!containsIteration(child_column, columnHost)) {
                 if (child_column['children'] == undefined) {
-                  child_column['children'] = [{ title: columnTitle, dataIndex: columnTitle }];
+                  child_column['children'] = [{ title: columnHost, dataIndex: columnKey }];
                 } else {
-                  child_column['children'].push({ title: columnTitle });
+                  child_column['children'].push({ title: columnHost });
                 }
               }
-              var dataChildColumnIndex = getColumnIndex(child_column['children'], columnTitle);
+              var dataChildColumnIndex = getColumnIndex(child_column['children'], columnHost);
               if (dataChildColumnIndex == undefined) {
                 dataChildColumnIndex = 0;
               }
@@ -289,4 +283,27 @@ export const parseIterationData = results => {
     configData: configData,
     ports: ports,
   };
+};
+
+export const filterIterations = (results, selectedConfig) => {
+  const resultsCopy = [];
+
+  results.forEach((result, index) => {
+    resultsCopy[index] = {};
+    resultsCopy[index].columns = cloneDeep(result.columns);
+    resultsCopy[index].iterations = cloneDeep(result.iterations);
+    resultsCopy[index].resultName = cloneDeep(result.resultName);
+  });
+
+  resultsCopy.forEach((result) => {
+    const filteredIterations = [];
+    result.iterations.forEach((iteration) => {
+      if (isMatch(iteration, selectedConfig)) {
+        filteredIterations.push(iteration);
+      }
+    });
+    result.iterations = filteredIterations;
+  });
+
+  return resultsCopy;
 };

@@ -6,6 +6,8 @@ import {
   queryIterations,
 } from '../services/dashboard';
 
+import { parseIterationData } from '../utils/parse';
+
 export default {
   namespace: 'dashboard',
 
@@ -14,7 +16,10 @@ export default {
     results: [],
     configCategories: [],
     configData: [],
-    iterations: [],
+    iterations: {
+      responseData: [],
+      configData: {},
+    },
     controllers: [],
     tocResult: [],
     loading: false,
@@ -143,19 +148,11 @@ export default {
     *fetchIterations({ payload }, { call, put }) {
       let response = yield call(queryIterations, payload);
 
-      let iterations = [];
-      response.map((iteration, index) => {
-        iterations.push({
-          iterationData: iteration.data,
-          controllerName: iteration.config.url.split('/')[4],
-          resultName: iteration.config.url.split('/')[5],
-          tableId: index,
-        });
-      });
+      const parsedIterationData = parseIterationData(response);
 
       yield put({
         type: 'getIterations',
-        payload: iterations,
+        payload: parsedIterationData,
       });
     },
     *updateConfigCategories({ payload }, { select, put }) {
