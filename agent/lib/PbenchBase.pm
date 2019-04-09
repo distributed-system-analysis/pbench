@@ -19,7 +19,6 @@ our @EXPORT_OK = qw(get_json_file put_json_file get_benchmark_names get_clients 
                     metadata_log_end_run metadata_log_record_iteration);
 
 my $script = "PbenchBase.pm";
-my $sub;
 
 sub get_hostname {
     my $hostname = `hostname -s`;
@@ -76,10 +75,14 @@ sub remove_params { # remove any parameters with "arg"
     my @args = @_;
     for my $arg (@args) {
         my $index = 0;
-        for my $param (@{ $argv_ref }) {
+                # Copy the argv so we can iterate over all elements even if some are removed
+                my @argv = @$argv_ref;
+        for my $param (@argv) {
+                        chomp $param;
             if ($param =~ /--(\S+)=(\S+)/) {
                 if ($1 eq $arg) {
                     splice(@{ $argv_ref }, $index, 1);
+                                        $index--;
                 }
             }
             $index++;
@@ -89,35 +92,26 @@ sub remove_params { # remove any parameters with "arg"
 
 # Read a json file and put in hash the return value is a reference
 sub get_json_file {
-    $sub = "get_json()";
     my $filename = shift;
-    open(JSON, $filename) || die("$script $sub: could not open file $filename\n");
+    my $coder = JSON->new;
+    open(JSON_FH, $filename) || die("$script: could not open file $filename\n");
     my $json_text = "";
-    my $junk_mode = 1;
-    while ( <JSON> ) {
-        if ($junk_mode) {
-            if ( /(.*)(\{.*)/ ) { # Ignore any junk before the "{"
-                $junk_mode = 0;
-                my $junk = $1;
-                my $not_junk = $2;
-                $json_text = $json_text . $not_junk;
-            }
-        } else {
-                $json_text = $json_text . $_;
-        }
+    while ( <JSON_FH> ) {
+        $json_text .= $_;
     }
-    close JSON;
-    my $perl_scalar = from_json($json_text);
+    close JSON_FH;
+    my $perl_scalar  = $coder->decode($json_text);
     return $perl_scalar;
 }
 
 sub put_json_file {
     my $doc_ref = shift;
     my $filename = shift;
-    my $json_text  = to_json($doc_ref, { ascii => 1, pretty => 1, canonical => 1 } );
-    open(my $fh, ">" . $filename) || die "$script: could not open file $filename: $!\n";
-    print $fh $json_text;
-    close($fh);
+    my $coder = JSON->new->ascii->canonical;
+    my $json_text  = $coder->encode($doc_ref);
+    open(JSON_FH, ">" . $filename) || die "$script: could not open file $filename: $!\n";
+    printf JSON_FH "%s", $json_text;
+    close(JSON_FH);
 }
 
 # Find all the benchmarks in the pbench configuraton data
