@@ -15,7 +15,7 @@ BEGIN {
 use lib "$pbench_lib_path";
 use JSON;
 use Data::Dumper;
-use PbenchCDM qw(create_metric_sample_doc create_bench_iter_sample_period_doc);
+use PbenchCDM qw(create_metric_desc_doc create_metric_data_doc create_bench_iter_sample_period_doc);
 use PbenchBase qw(get_json_file put_json_file remove_element);
 
 printf "\@ARGV: %s\n", join(" ", @ARGV);
@@ -76,6 +76,15 @@ for my $client (@client_dirs) {
         die "$script_name: could not open client directory: $!\n";
     my @log_files = grep(/fio_([a-z]+)\.(\d+)\.log$/, (sort readdir($client_dh)));
     closedir $client_dh;
+    # Metric docs that are for the same timeseries go into a "newline delimited json"
+    # (ndjson) file instead of individual files because (1) it creates far less
+    # files and (2) is better suited for importing into ES.  The document format
+    # consists of 1 line of action followed by 1 line of json data, matching the
+    # format expected for "_bulk/" action for Elasticsearch.
+    open(NDJSON_DATA_FH, ">../../es/metrics/" . $client .  "/metric_data-" . $period{"period"}{"id"}
+         . "-fio.ndjson");
+    open(NDJSON_DESC_FH, ">../../es/metrics/" . $client .  "/metric_desc-" . $period{"period"}{"id"}
+         . "-fio.ndjson");
     for my $log_file (@log_files) {
         if ($log_file =~ /fio_([a-z]+)\.(\d+)\.log$/) {
             my $metric_type = $1;
@@ -88,6 +97,16 @@ for my $client (@client_dirs) {
                 open(my $log_fh, "clients/$client/$log_file")
                     || die "$script_name: could not open file clients/$client/$log_file $!\n";
                 my $last_timestamp_ms;
+                my %metric_desc = create_metric_desc_doc(
+                    \%period,
+                    "throughput",   # The metric-class
+                    $metric_type,   # The metric-type
+                    $client,# The hostname
+                    "fio",      # The source
+                    "%source%-%type%-%host%", # The metric-instance name format
+                    );
+                printf NDJSON_DESC_FH "%s\n", '{ "index": {} }';
+                printf NDJSON_DESC_FH "%s\n", to_json(\%metric_desc);
                 while (<$log_fh>) {
                     my $line = "$_";
                     chomp($line);
@@ -96,25 +115,14 @@ for my $client (@client_dirs) {
                         my $value = $2;
                         my $rwtype = $3; #ToDo: generate per-rwtype metrics
                         if ($last_timestamp_ms) {
-                            my %metric_sample = create_metric_sample_doc(
-                                \%period,
-                                "throughput",   # The metric-class
-                                $metric_type,   # The metric-type
-                                $client,# The hostname
-                                "fio",      # The source
-                                "%source%-%type%-%host%", # The metric-instance name format
-                                $value,     # The value of the metric
-                                $timestamp_ms   # The timestamp
-                                );
-			    # Our 'begin' is the smallest amount of time just after the previous
-			    # sample, and since we have a millisecond granularity, it is 1ms.
-                            $metric_sample{'metric'}{'begin'} = $last_timestamp_ms + 1;
-                            put_json_file(\%metric_sample, "../../es/metrics/" .
-                                $client .
-                                "/metric-" .
-                                $metric_sample{'metric'}{'id'} .
-                                ".json");
-			}
+                            my %metric_data = create_metric_data_doc(
+                                $metric_desc{'id'},
+                                $value,
+                                $last_timestamp_ms + 1, 
+                                $timestamp_ms);
+                            printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+                            printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
+                        }
                         if (! $earliest_timestamp or $earliest_timestamp > $timestamp_ms) {
                             $earliest_timestamp = $timestamp_ms;
                         }
@@ -128,6 +136,8 @@ for my $client (@client_dirs) {
             }
         }
     }
+    close(NDJSON_DATA_FH);
+    close(NDJSON_DESC_FH);
 }
 $period{'period'}{'begin'} = $earliest_timestamp;
 $period{'period'}{'end'} = $latest_timestamp;
