@@ -1,7 +1,3 @@
-// The following infomation is to aid pbench in parsing pbench-universal paramters
-// when calling a benchmark.  These are not the benchmark-specific options, but
-// the pbench options for running a set of benchmark iterations & samples..
-//
 {
 "controller" : {
   "parameters" : {
