@@ -18,15 +18,18 @@ use PbenchBase       qw(get_hostname get_pbench_datetime);
 
 our @EXPORT_OK = qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc
                     create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc
-                    get_uuid create_bench_iter_sample_doc create_metric_sample_doc
-                    create_metric_sample_doc create_bench_iter_sample_period_doc
-                    create_bench_iter_doc create_config_doc get_cdm_ver);
+                    get_uuid create_bench_iter_sample_doc create_metric_desc_doc
+                    create_metric_data_doc create_bench_iter_sample_period_doc
+                    create_bench_iter_doc create_config_doc get_cdm_ver get_cdm_rel);
 
 my $script = "PbenchCDM.pm";
-my $sub;
 
 sub get_cdm_ver {
-    return 'v3dev';
+    return 4;
+}
+
+sub get_cdm_rel {
+    return "dev"; # can also be "prod"
 }
 
 sub get_uuid {
@@ -50,7 +53,7 @@ sub get_user_email { # Looks for USER_NAME in %ENV
 # Create the fields every doc must have
 sub populate_base_fields {
     my $doc_ref = shift;
-    $$doc_ref{'cdm'}{'ver'} = get_cdm_ver;
+    $$doc_ref{'cdm'}{'ver'} = int get_cdm_ver;
 }
 
 sub copy_doc_fields {
@@ -67,16 +70,20 @@ sub create_run_doc {
     $doc{'run'}{'bench'}{'name'} = shift; # Name of the actual benchmark used, like fio ir uperf
     $doc{'run'}{'bench'}{'params'} = shift; # Full list of parameters when calling the benchmark
     $doc{'run'}{'bench'}{'clients'} = shift; # Client hosts involved in the benchmark
+    $doc{'run'}{'bench'}{'clients'} =~ s/,/ /g;
     $doc{'run'}{'bench'}{'servers'} = shift; # Server hosts involved in the benchmark
+    $doc{'run'}{'bench'}{'servers'} =~ s/,/ /g;
     $doc{'run'}{'user'}{'desc'} = shift; # User provided test description
     $doc{'run'}{'user'}{'tags'} = shift; # User provided tags like, "beta,project-X"
+    $doc{'run'}{'user'}{'tags'} =~ s/,/ /g;
     $doc{'run'}{'user'}{'name'} = shift; # User's real name
     $doc{'run'}{'user'}{'email'} = shift; # User's email address
     $doc{'run'}{'harness_name'} = shift; # Harness name like pbench, browbeat, cbt
     $doc{'run'}{'tool_names'} = shift; # List tool names like sar, mpstat
+    $doc{'run'}{'tool_names'} = s/,/ /g;
     $doc{'run'}{'host'} = get_hostname; # Hostname of this controller system
     $doc{'run'}{'ignore'} = JSON::false; # Set to true later if run should be ingnored in queries
-    $doc{'run'}{'start'} = time * 1000;
+    $doc{'run'}{'begin'} = int time * 1000;
     $doc{'run'}{'id'} = get_uuid;
     $doc{'cdm'}{'doctype'} = 'run';
     return %doc;
@@ -146,21 +153,26 @@ sub create_bench_iter_sample_period_doc {
 }
 
 # Create a document describing either a benchmark or tool metric (result)
-sub create_metric_sample_doc {
+sub create_metric_desc_doc {
     my %doc;
-    copy_doc_fields(shift, \%doc); # Get some essential fields from a prev doc, our first arg
+    #copy_doc_fields(shift, \%doc); # Get some essential fields from a prev doc, our first arg
+    my $period_doc_ref = shift;
+    $doc{'run'}{'id'} = $$period_doc_ref{'run'}{'id'};
+    $doc{'iteration'}{'id'} = $$period_doc_ref{'iteration'}{'id'};
+    $doc{'period'}{'id'} = $$period_doc_ref{'period'}{'id'};
+    $doc{'sample'}{'id'} = $$period_doc_ref{'sample'}{'id'};
     populate_base_fields(\%doc);
-    $doc{'cdm'}{'doctype'} = 'metric';
+    $doc{'cdm'}{'doctype'} = 'metric_desc';
     # These are the required fields for any metric.  There are potentially
     # more fields, but not all metrics use all the same options fields.  However, the ones
     # below must all be used, and so creating a new doc requires that these fields be
     # defined.
-    $doc{'metric'}{'class'} = shift; # "throughput" (work over time, like Gbps or interrupts/sec) or
+    $doc{'metric_desc'}{'class'} = shift; # "throughput" (work over time, like Gbps or interrupts/sec) or
                                      # "count" (quantity, percent, sum, elapsed time, value, etc)
-    $doc{'metric'}{'type'} = shift; # A generic name for this metric, like "gigabits-per-second",
+    $doc{'metric_desc'}{'type'} = shift; # A generic name for this metric, like "gigabits-per-second",
                                     # does not include specifics like "/dev/sda" or "cpu1"
-    $doc{'metric'}{'host'} = shift; # The hostname where this metric comes from
-    $doc{'metric'}{'source'} = shift; # A benchmark or tool where this metric comes from, like
+    $doc{'metric_desc'}{'host'} = shift; # The hostname where this metric comes from
+    $doc{'metric_desc'}{'source'} = shift; # A benchmark or tool where this metric comes from, like
                                       # "iostat" or "fio"
     # The instance_name_format tells us how the name for this metric-instance is assembled.
     # The instance name is assembled from other fields in this document
@@ -186,20 +198,18 @@ sub create_metric_sample_doc {
     # more fields required, and this code can't possibly know all situations
     # so it is up to the caller of this function to understand that scenario
     # and provide an adequtate instance name format.
-    $doc{'metric'}{'name_format'} = shift;
-    $doc{'metric'}{'value'} = shift; # The value of the metric
-    $doc{'metric'}{'end'} = shift; # The end epochtime for this value.  A 'begin' epochtime
-                                   # can also be used if you have one.  Using both is the best
-                                   # way to represent a metric which was actually an avergae
-                                   # over a (begin-to-end) time-period.  If you only have a single
-                                   # metric for an entire period, it is highly recommened both
-                                   # begin and end are used.
-    $doc{'metric'}{'id'} = get_uuid;
-    # Optional fields will be validated with a different function, likely at the
-    # time the document is written to a file.  A list of optional fields needs
-    # to be maintained.  ES docs typically cannot have more than 1000 fields,
-    # which for metrics, should be fine, but we should track these so we don't
-    # introduce unknown fields into ES.
+    $doc{'metric_desc'}{'name_format'} = shift;
+    $doc{'metric_desc'}{'id'} = get_uuid;
+    return %doc;
+}
+sub create_metric_data_doc {
+    my %doc;
+    $doc{'metric_data'}{'id'} = shift; # The same id as the metric_desc
+    $doc{'metric_data'}{'value'} = shift; # The value of the metric
+    $doc{'metric_data'}{'begin'} = int shift; # The begin epochtime for this value.
+    $doc{'metric_data'}{'end'} = int shift; # The end epochtime for this value.
+    $doc{'metric_data'}{'duration'} = $doc{'metric_data'}{'end'} -
+                                      $doc{'metric_data'}{'begin'} + 1;
     return %doc;
 }
 1;
