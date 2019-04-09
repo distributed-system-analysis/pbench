@@ -43,10 +43,13 @@ my $sample_dir = shift(@ARGV); # dir for *this* iteration-sample execution
 my $base_dir = shift(@ARGV); # dir for all of the pbench run
 my $tool_group = shift(@ARGV);
 my $last_sample = shift(@ARGV);
+my $pp_only = shift(@ARGV);
 if (! -d $base_dir) {
     die "The base bench directory, $base_dir must already exist";
 }
-mkdir($sample_dir);
+if (! $pp_only) {
+	mkdir($sample_dir);
+}
 my $json_ref = get_json_file($iter_doc_filename);
 my %iteration = %$json_ref; # this is the CDM doc for this benchmark-iteration
 my %sample = create_bench_iter_sample_doc(\%iteration);
@@ -73,112 +76,115 @@ if (! exists $hosts{"client"}) {
     exit 1;
 }
 
-# pre-benchmark-execution:
-# - verify access to clients and servers by attempting to create the directories
-for my $type (keys %hosts) {
-    if (scalar @{ $hosts{$type} }) {
-        if (exists $specs{$type} and exists ${specs}{$type}{"copy-to"}) {
-            my $result;
-            my $rc;
-            my @files = @{ ${specs}{$type}{"copy-to"} };
-            # the end of the dir name gets "-client" or "-server" just in case this host is
-            # also a controller or both client and server
-            $result = create_dir_hosts(\@{ $hosts{$type} }, $sample_dir . "-" .  $type,
-                                       $base_dir);
-        }
-    }
-}
-# - verify required software on clients and server (todo)
-for my $type (keys %hosts) {
-    if (scalar @{ $hosts{$type} }) {
-        if (exists $specs{$type} and exists ${specs}{$type}{"packages"}) {
-            my $result;
-            my $rc;
-            my @packages = @{ ${specs}{$type}{"packages"} };
-            $result = yum_install_hosts(\@{ $hosts{$type} }, \@packages,
-                                       $base_dir);
-        }
-    }
-}
-# - run pre-script in controller
-if (exists $specs{"controller"}{"pre-script"} and $specs{"controller"}{"pre-script"} ne "") {
-    # pre-script gets same params as benchmark.
-    my $preprocess_cmd = $specs{"controller"}{"pre-script"} . " " . $iteration{'iteration'}{'params'};
-    my $preprocess_output = `$preprocess_cmd`;
-    my $rc = $?;
-    open(my $fh, ">" . $sample_dir . "/preprocess-output.txt");
-    if ($rc != 0) {
-        printf "Controller pre-script failed, exiting\n";
-        exit 1;
-    }
-}
-# - copy files to clients and servers
-for my $type (keys %hosts) {
-    if (scalar @{ $hosts{$type} }) {
-        if (exists $specs{$type} and ${specs}{$type}{"copy-to"}) {
-            my $result;
-            my $rc;
-            my @files = @{ ${specs}{$type}{"copy-to"} };
-            # the end of the dir name gets "-client" or "-server" just in case this host is
-            # also a controller or both client and server
-            $result = copy_files_to_hosts(\@{ $hosts{$type} }, \@files, $sample_dir . "-" .
-                                          $type, $base_dir);
-        }
-    }
-}
-# - execute pre-benchmark scripts on clients and servers (todo)
-
-# start the tools:
-system("pbench-start-tools --iteration=0 --group=" . $tool_group . " --dir=" . $sample_dir);
-
-# benchmark-execution:
-for my $type (reverse sort keys %hosts) { # reverse so "server" is first
-    if (exists $hosts{$type} and scalar @{ $hosts{$type} }) {
-        my $cmd;
-        if (exists $specs{$type}{"bin"}) {
-            $cmd = $specs{$type}{"bin"} . " " .  $iteration{'iteration'}{'params'};
-        } else {
-            printf "%s->bin does not exist, exiting\n", $type;
-            exit 1;
-        }
-        # Apply a regex from the benchmark config file to the command
-        # This is used to remove things like "--clients=" because the
-        # native benchmark does not understand this parameter
-        if (exists $specs{$type} and $specs{$type}{"param_regex"}) {
-            for my $r (@{ $specs{$type}{"param_regex"} }) {
-                # to apply the 's/x/y/' regex from the file, some eval trickery is necessary
-                # todo: first test the $r regex separately for [perl syntax] errors with eval
-                # before doing below
-                $cmd = eval "\$_='$cmd'; $r; return scalar \$_";
+if (! $pp_only) {
+    # pre-benchmark-execution:
+    # - verify access to clients and servers by attempting to create the directories
+    for my $type (keys %hosts) {
+        if (scalar @{ $hosts{$type} }) {
+            if ($specs{$type} and ${specs}{$type}{"copy-to"}) {
+                my $result;
+                my $rc;
+                my @files = @{ ${specs}{$type}{"copy-to"} };
+                # the end of the dir name gets "-client" or "-server" just in case this host is
+                # also a controller or both client and server
+                $result = create_dir_hosts(\@{ $hosts{$type} }, $sample_dir . "-" .  $type,
+                                           $base_dir);
             }
         }
-        my $result = ssh_hosts(\@{ $hosts{$type} }, $cmd, $sample_dir . "-" . $type, $base_dir);
     }
-}
+    # - verify required software on clients and server (todo)
+    for my $type (keys %hosts) {
+        if (scalar @{ $hosts{$type} }) {
+            if ($specs{$type} and ${specs}{$type}{"packages"}) {
+                my $result;
+                my $rc;
+                my @packages = @{ ${specs}{$type}{"packages"} };
+                $result = yum_install_hosts(\@{ $hosts{$type} }, \@packages,
+                                           $base_dir);
+            }
+        }
+    }
+    # - run pre-script in controller
+    if (exists $specs{"controller"}{"pre-script"} and $specs{"controller"}{"pre-script"} ne "") {
+        # pre-script gets same params as benchmark.
+        my $preprocess_cmd = $specs{"controller"}{"pre-script"} . " " . $iteration{'iteration'}{'params'};
+        my $preprocess_output = `$preprocess_cmd`;
+        my $rc = $?;
+        open(my $fh, ">" . $sample_dir . "/preprocess-output.txt");
+        if ($rc != 0) {
+            printf "Controller pre-script failed, exiting\n";
+            exit 1;
+        }
+    }
+    # - copy files to clients and servers
+    for my $type (keys %hosts) {
+        if (scalar @{ $hosts{$type} }) {
+            if ($specs{$type} and ${specs}{$type}{"copy-to"}) {
+                my $result;
+                my $rc;
+                my @files = @{ ${specs}{$type}{"copy-to"} };
+                # the end of the dir name gets "-client" or "-server" just in case this host is
+                # also a controller or both client and server
+                $result = copy_files_to_hosts(\@{ $hosts{$type} }, \@files, $sample_dir . "-" .
+                                              $type, $base_dir);
+            }
+        }
+    }
+    # - execute pre-benchmark scripts on clients and servers (todo)
+    
+    # start the tools:
+    system("pbench-start-tools --iteration=0 --group=" . $tool_group . " --dir=" . $sample_dir);
+            
+    # benchmark-execution:
+    for my $type (reverse sort keys %hosts) { # reverse so "server" is first
+        if ($hosts{$type} and scalar @{ $hosts{$type} }) {
+            my $cmd;
+            if ($specs{$type}{"bin"}) {
+                $cmd = $specs{$type}{"bin"} . " " .  $iteration{'iteration'}{'params'};
+            } else {
+                printf "%s->bin does not exist, exiting\n", $type;
+                exit 1;
+            }
+            # Apply a regex from the benchmark config file to the command
+            # This is used to remove things like "--clients=" because the
+            # native benchmark does not understand this parameter
+            if ($specs{$type} and $specs{$type}{"param_regex"}) {
+                for my $r (@{ $specs{$type}{"param_regex"} }) {
+                    # to apply the 's/x/y/' regex from the file, some eval trickery is necessary
+                    # todo: first test the $r regex separately for [perl syntax] errors with eval
+                    # before doing below
+                    $cmd = eval "\$_='$cmd'; $r; return scalar \$_";
+                }
+            }
+            my $result = ssh_hosts(\@{ $hosts{$type} }, $cmd, $sample_dir . "-" . $type, $base_dir);
+        }
+    }
 
-# stop & post-process the tools:
-system("pbench-stop-tools --iteration=0 --group=" . $tool_group . " --dir=" . $sample_dir);
+    # stop the tools:
+    system("pbench-stop-tools --iteration=0 --group=" . $tool_group . " --dir=" . $sample_dir);
 
-# post-process the tools:
-system("pbench-postprocess-tools --iteration=0 --group=" . $tool_group . " --dir=" . $sample_dir);
+    # post-process the tools:
+    system("pbench-postprocess-tools --iteration=0 --group=" . $tool_group . " --dir=" . $sample_dir);
 
-# post-benhcmark-execution:
-# - copy files back to controller
-for my $type (keys %hosts) {
-    if (exists $hosts{$type} and scalar @{ $hosts{$type} }) {
-        mkdir($sample_dir . "/" . $type . "s");
-        my $sync_result = sync_dir_from_hosts(\@{ $hosts{$type} },
-                                              $sample_dir . "-" . $type . "/", #copy-from
-                                              $sample_dir . "/" . $type . "s", #copy-to
-                                              $base_dir);
-                                              # adding the "/" ensures the base dir
-                                              # name is not copied
-        my $remove_result = remove_dir_from_hosts(\@{ $hosts{$type} },
-                                                  $sample_dir . "-" . $type,
+    # post-benhcmark-execution:
+    # - copy files back to controller
+    for my $type (keys %hosts) {
+        if ($hosts{$type} and scalar @{ $hosts{$type} }) {
+            mkdir($sample_dir . "/" . $type . "s");
+            my $sync_result = sync_dir_from_hosts(\@{ $hosts{$type} },
+                                                  $sample_dir . "-" . $type . "/", #copy-from
+                                                  $sample_dir . "/" . $type . "s", #copy-to
                                                   $base_dir);
+                                                  # adding the "/" ensures the base dir
+                                                  # name is not copied
+            my $remove_result = remove_dir_from_hosts(\@{ $hosts{$type} },
+                                                      $sample_dir . "-" . $type,
+                                                      $base_dir);
+        }
     }
-}
-# - post-process on the client/server, if applicable (todo)
+    # - post-process on the client/server, if applicable (todo)
+} # if (! $pp_only)
+
 # - post-process the result data on the controller
 if (exists $specs{"controller"}{"post-script"} and $specs{"controller"}{"post-script"} ne "") {
     # A couple of things about the benchmark post-procesing script:
@@ -190,12 +196,14 @@ if (exists $specs{"controller"}{"post-script"} and $specs{"controller"}{"post-sc
     # benchmark post-processing script, it is up to that benchmark post-processing script to call
     # pbench-postprocess-tools-cdm and passing the period doc as one of the paramters.
     put_json_file(\%sample, $sample_dir . "/sample" . ".json");
-    my $postprocess_cmd = ". /opt/pbench-agent/base; cd " . $sample_dir . "; " .
+    my $postprocess_cmd = ". /opt/pbench-agent/base; cd \"" . $sample_dir . "\"; " .
                           $specs{"controller"}{"post-script"} . " " . $sample_dir . " " .
                           $base_dir . " " . $tool_group . " " .$last_sample;
-    open(my $fh_cmd, ">" . $sample_dir . "/postprocess.cmd");
+    my $pp_cmd_file = $sample_dir . "/postprocess.cmd";
+    open(my $fh_cmd, ">" . $pp_cmd_file);
     printf { $fh_cmd } "%s\n", $postprocess_cmd;
-    my $postprocess_output = `$postprocess_cmd`;
+    close($fh_cmd);
+    my $postprocess_output = `. $pp_cmd_file`;
     my $rc = $?;
     open(my $fh_output, ">" . $sample_dir . "/postprocess-output.txt");
     printf { $fh_output } "%s\n", $postprocess_output;
