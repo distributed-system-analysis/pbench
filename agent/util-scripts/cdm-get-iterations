@@ -1,0 +1,97 @@
+#!/usr/bin/perl
+## -*- mode: perl; indent-tabs-mode: t; perl-indent-level: 4 -*-
+## vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
+
+use strict;
+use warnings;
+use File::Basename;
+use File::Find;
+use REST::Client;
+my $pbench_run_path;
+my $pbench_lib_path;
+BEGIN {
+	$pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
+	chomp $pbench_lib_path;
+	$pbench_lib_path .= "/lib";
+}
+use lib "$pbench_lib_path";
+use JSON::MaybeXS;
+use Data::Dumper;
+use PbenchCDM qw(get_cdm_ver get_cdm_rel);
+use PbenchBase qw(get_json_file put_json_file remove_element);
+
+sub gen_metric_groups {
+    my $pointer = shift;
+    my $query = shift;
+    my @fields = @_;
+    my @metr_grp_queries;
+    # If being called from a previous gen_metric_groups, finish the second part of the terms query
+    if (exists $$pointer{"key"}) {
+        $query .= '"' . $$pointer{"key"} . '"}}';
+    }
+    if (scalar @fields > 0) {
+        my $field = shift @fields;
+        if (exists $$pointer{$field} and exists $$pointer{$field}{"buckets"}) {
+            foreach my $bucket (@{ $$pointer{$field}{"buckets"} }) {
+                # Only the first half of the "term", the field name, is here because we need to go one level deeper to get
+                # the value, in each of the buckets (one levep deeper).
+                push @metr_grp_queries, gen_metric_groups($bucket, $query . "," . '{"term": {"metric.' . $field . '": ', @fields);
+            }
+        }
+        return @metr_grp_queries;
+    } else {
+        $query =~ s/^,//;
+        return $query;
+    }
+}
+
+my $script_name = basename($0);
+my $es_host = shift(@ARGV);
+my $run_id = shift(@ARGV);
+my %req_header = ("Content-Type" => "application/json");
+my $template = 
+'{
+  "size": 100,
+  "query" : {
+      "bool": {
+        "filter": [
+        ]
+      }
+    }
+}';
+my $client = REST::Client->new();
+$client->setHost($es_host);
+
+my $bench_name;
+my $coder = JSON::MaybeXS->new->ascii->canonical;
+# with run.id get the run doc(s)
+my $run_req_ref = $coder->decode($template);
+push @{ $$run_req_ref{"query"}{"bool"}{"filter"} },
+     $coder->decode('{"term": {"run.id": "' . $run_id . '"}}');
+$$run_req_ref{"aggs"}{"source"}{"terms"}{"field"} = "run.bench.name";
+my $run_req_json = $coder->encode($run_req_ref);
+$client->request('GET', "cdmv" . get_cdm_ver . get_cdm_rel . "-iteration/iteration/_search",
+                 $run_req_json, \%req_header);
+my $resp = $client->responseContent();
+my $run_resp_ref = $coder->decode($resp);
+print Dumper $run_resp_ref;
+if (scalar @{ $$run_resp_ref{"aggregations"}{"source"}{"buckets"} } == 1) {
+    $bench_name = $$run_resp_ref{"aggregations"}{"source"}{"buckets"}[0]{"key"};
+    print "benchmark: $bench_name\n";
+} else {
+    print "Could not find just one benchmark for this run\n";
+    printf "%s\n",  $resp;
+    exit 1;
+}
+# with run.id get the iterations
+my $iter_req_ref = $coder->decode($template);
+push @{ $$iter_req_ref{"query"}{"bool"}{"filter"} },
+     $coder->decode('{"term": {"run.id": "' . $run_id . '"}}');
+my $iter_req_json = $coder->encode($iter_req_ref);
+$client->request('GET', "cdmv" . get_cdm_ver . get_cdm_rel . "-iteration/iteration/_search",
+                 $iter_req_json, \%req_header);
+my $response = $client->responseContent();
+$run_resp_ref = $coder->decode($response);
+foreach my $iter ( @{ $$run_resp_ref{'hits'}{'hits'} } ) {
+    printf "\niteration.id: %s\n", $$iter{'_source'}{'iteration'}{'id'};
+}
