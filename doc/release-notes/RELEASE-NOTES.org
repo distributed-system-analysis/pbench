@@ -1,4 +1,4 @@
-# Created 2019-04-08 Mon 22:48
+# Created 2019-04-08 Mon 23:21
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -16,7 +16,6 @@
 #+infojs_opt: 
 #+latex_header: 
 
-
 * Version 0.58
 
 ** Installation                                                    :external:
@@ -27,7 +26,7 @@ needed (key and config files) to be able to send results to a server.
 There are no other installation changes in this release: see the
 [[file:../agent/installation.org][Installation Instructions]] for how to install or update.
 
-After installation or update, you should have version 0.58-1gXXX
+After installation or update, you should have version 0.58-1gb64aef2
 of the pbench-agent RPM installed.
 
 
@@ -62,7 +61,7 @@ There are no changes to the server code in this release.
 :CUSTOM_ID: web-server-0.58
 :END:
 
-There are no changes but a 0.58-1gXXX RPM has been built on COPR (just
+There are no changes but a 0.58-1gb64aef2 RPM has been built on COPR (just
 to make sure it still builds correctly.)
 
 ** Changelog
@@ -96,6 +95,7 @@ This is the list of visible commits since v0.57:
 - cbe7e86e Remove trap from agent base
 - d7d48a04 Fix flaky test-11
 - 4661356b Move to Ubuntu Xenial in TravisCI w py36
+
 
 * Version 0.57
 
@@ -191,7 +191,6 @@ This is the list of visible commits since v0.56:
 - d14472e2 Fix spelling of separated/separator
 - edf9f402 Fix pbench-trafficgen to record metadata properly
 - 89abda57 Fix tabs/spaces formatting
-
 
 * Version 0.56
 
