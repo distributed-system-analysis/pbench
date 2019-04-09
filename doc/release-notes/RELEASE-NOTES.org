@@ -1,4 +1,4 @@
-# Created 2019-03-14 Thu 15:48
+# Created 2019-04-08 Mon 22:48
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -15,6 +15,87 @@
 #+subtitle: 
 #+infojs_opt: 
 #+latex_header: 
+
+
+* Version 0.58
+
+** Installation                                                    :external:
+
+There are ansible playbooks to install ~pbench-agent~ and the pieces
+needed (key and config files) to be able to send results to a server.
+
+There are no other installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.58-1gXXX
+of the pbench-agent RPM installed.
+
+
+** agent
+
+The main change in this release is that now pbench requires the 12.0.3
+version of the sysstat tools. pbench-sysstat RPMs for this version are
+available in the COPR repos. There is no need to install a
+pbench-sysstat RPM explicitly, but it's a good idea to remove and
+re-register the set of tools that you use: that will install the RPM
+and it there are any problems, it will alert you to them and allow for
+remedial action.
+
+This version of the systat tools has changed the output of some tools,
+which in turn has necessitated changes to pbench postprocessing
+scripts for these tools (sar, iostat, pidstat). Please keep an eye out
+for any strange data in the output of these tools.
+
+In addition, the bpftrace tool was added in this release.
+
+There is a known problem in this release (issue #1161): the current
+3.6 sosreport release does not support the "general" and "lsbrelease"
+plugins of previous versions and exits without producing a
+sosreport. This bug will be fixed in the next release of pbench.
+
+** server
+
+There are no changes to the server code in this release.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.58
+:END:
+
+There are no changes but a 0.58-1gXXX RPM has been built on COPR (just
+to make sure it still builds correctly.)
+
+** Changelog
+This is the list of visible commits since v0.57:
+
+- b2f9d48c Version bump
+- 4efb33ee Travis CI integration with pbench dashboard
+- 218f0dbf Integrate Jest and Enzyme for React component unit testing
+- e5d06658 Add env var for server unit test parallelism
+- ed6748b8 Add sar support for sysstat-12.0.3
+- 73a325f3 Add iostat support for sysstat-12.0.3
+- ce858508 Add pidstat support for sysstat-12.0.3
+- 2e15d5af Update to sysstat v12.0.3
+- 6487b75b Rearrange sar-postprocess code to match order in file
+- c0b14090 Rework sar 11.2.0 data support
+- c26eb59f Rename pidstat, pidstat-0 & pidstat-0 to pidstat-1
+- 29e358ba Remove unneeded sample data from fio-0 post-processing
+- ad0b24b9 Remove executable permission from iostat-stdout.txt
+- 382ee1da Fix non-POSIX function name in unittests
+- dc6ad57a Add a way to run all agent side unit tests
+- 79375672 Integrate redux persist for persisting and rehydrating redux store
+- e66fd82a Destructure page components to reduce component rerenders
+- 5699d0a6 Add bpftrace to pbench-agent-tools
+- 40f2547b Use tail for all unit tests
+- 6e172117 Initial dashboard backend GraphQL infrastructure
+- 5889917a Reference selectedResults as an array from SearchList
+- bd3bbacf Remove `selectorIndices` logic for simple month selection
+- 6b43a13d Simplify logic for comparing unit tests to run
+- 325bd51a Use error_log where appropriate in sysinfo-dump
+- 39de2929 Remove redundant agent-config directory
+- cbe7e86e Remove trap from agent base
+- d7d48a04 Fix flaky test-11
+- 4661356b Move to Ubuntu Xenial in TravisCI w py36
 
 * Version 0.57
 
@@ -110,6 +191,7 @@ This is the list of visible commits since v0.56:
 - d14472e2 Fix spelling of separated/separator
 - edf9f402 Fix pbench-trafficgen to record metadata properly
 - 89abda57 Fix tabs/spaces formatting
+
 
 * Version 0.56
 
