@@ -32,7 +32,7 @@ const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
 
 @connect(({ global, dashboard }) => ({
-  selectedControllers: dashboard.selectedControllers,
+  selectedControllers: global.selectedControllers,
   datastoreConfig: global.datastoreConfig,
 }))
 export default class RunComparison extends ReactJS.Component {

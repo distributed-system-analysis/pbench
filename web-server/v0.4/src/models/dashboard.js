@@ -16,9 +16,7 @@ export default {
     configData: [],
     iterations: [],
     controllers: [],
-    selectedResults: [],
     tocResult: [],
-    selectedControllers: [],
     loading: false,
   },
 
@@ -158,18 +156,6 @@ export default {
       yield put({
         type: 'getIterations',
         payload: iterations,
-      });
-    },
-    *updateSelectedControllers({ payload }, { select, put }) {
-      yield put({
-        type: 'modifySelectedControllers',
-        payload: payload,
-      });
-    },
-    *updateSelectedResults({ payload }, { select, put }) {
-      yield put({
-        type: 'modifySelectedResults',
-        payload: payload,
       });
     },
     *updateConfigCategories({ payload }, { select, put }) {

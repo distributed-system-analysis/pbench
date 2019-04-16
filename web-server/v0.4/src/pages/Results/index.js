@@ -12,7 +12,7 @@ import { compareByAlph } from '../../utils/utils';
 @connect(({ global, dashboard, loading }) => ({
   selectedIndices: global.selectedIndices,
   results: dashboard.results,
-  selectedControllers: dashboard.selectedControllers,
+  selectedControllers: global.selectedControllers,
   datastoreConfig: global.datastoreConfig,
   loading: loading.effects['dashboard/fetchResults'],
 }))
@@ -55,7 +55,7 @@ export default class Results extends Component {
     this.setState({ selectedRowKeys });
 
     dispatch({
-      type: 'dashboard/updateSelectedResults',
+      type: 'global/updateSelectedResults',
       payload: selectedRows,
     });
   };
@@ -108,7 +108,7 @@ export default class Results extends Component {
     const { dispatch } = this.props;
 
     dispatch({
-      type: 'dashboard/updateSelectedResults',
+      type: 'global/updateSelectedResults',
       payload: params,
     });
 

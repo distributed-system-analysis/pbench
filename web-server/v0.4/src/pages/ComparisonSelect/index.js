@@ -9,8 +9,8 @@ import { parseIterationData } from '../../utils/parse';
 import { queryIterations } from '../../services/dashboard';
 
 @connect(({ global, dashboard, loading }) => ({
-  selectedControllers: dashboard.selectedControllers,
-  selectedResults: dashboard.selectedResults,
+  selectedControllers: global.selectedControllers,
+  selectedResults: global.selectedResults,
   iterations: dashboard.iterations,
   results: dashboard.results,
   controllers: dashboard.controllers,
