@@ -46,8 +46,8 @@ const columns = [
 ];
 
 @connect(({ global, dashboard, loading }) => ({
-  selectedControllers: dashboard.selectedControllers,
-  selectedResults: dashboard.selectedResults,
+  selectedControllers: global.selectedControllers,
+  selectedResults: global.selectedResults,
   iterations: dashboard.iterations,
   summaryResult: dashboard.result,
   results: dashboard.results,

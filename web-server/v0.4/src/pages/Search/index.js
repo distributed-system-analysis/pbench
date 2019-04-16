@@ -13,7 +13,7 @@ import Table from '../../components/Table';
   mapping: search.mapping,
   searchResults: search.searchResults,
   fields: search.fields,
-  selectedFields: search.selectedFields,
+  selectedFields: global.selectedFields,
   selectedIndices: global.selectedIndices,
   indices: global.indices,
   datastoreConfig: global.datastoreConfig,
@@ -32,16 +32,18 @@ export default class SearchList extends Component {
   }
 
   componentDidMount() {
-    const { selectedIndices, indices, mapping} = this.props;
+    const { selectedIndices, indices, mapping } = this.props;
 
-    if (selectedIndices.length === 0 || indices.length === 0 || Object.keys(mapping).length === 0) {
-      this.queryDatastoreConfig();      
+    if (selectedIndices.length === 0 || indices.length === 0) {
+      this.queryDatastoreConfig();
+    } else if (Object.keys(mapping).length === 0) {
+      this.fetchIndexMapping();
     }
   }
 
   componentDidUpdate(prevProps) {
     const { selectedIndices, selectedFields } = this.props;
-    
+
     if (selectedIndices !== prevProps.selectedIndices || selectedFields !== prevProps.selectedFields) {
       this.setState({ updateFiltersDisabled: false });
     }
@@ -92,11 +94,11 @@ export default class SearchList extends Component {
     this.setState({ selectedRowKeys });
 
     dispatch({
-      type: 'dashboard/updateSelectedResults',
+      type: 'global/updateSelectedResults',
       payload: selectedRows,
     });
     dispatch({
-      type: 'dashboard/updateSelectedControllers',
+      type: 'global/updateSelectedControllers',
       payload: selectedControllers,
     })
   }
@@ -105,7 +107,7 @@ export default class SearchList extends Component {
     const { dispatch } = this.props;
 
     dispatch({
-      type: 'search/modifySelectedFields',
+      type: 'global/updateSelectedFields',
       payload: ['run.name', 'run.config', 'run.controller'],
     });
   };
@@ -130,7 +132,7 @@ export default class SearchList extends Component {
     }
 
     dispatch({
-      type: 'search/updateSelectedFields',
+      type: 'global/updateSelectedFields',
       payload: newSelectedFields,
     });
     this.setState({ updateFiltersDisabled: false });
@@ -154,7 +156,7 @@ export default class SearchList extends Component {
       },
     });
     dispatch({
-      type: 'dashboard/updateSelectedResults',
+      type: 'global/updateSelectedResults',
       payload: [],
     });
     this.setState({ selectedRowKeys: [] });
@@ -165,11 +167,11 @@ export default class SearchList extends Component {
     const { dispatch } = this.props;
 
     dispatch({
-      type: 'dashboard/updateSelectedControllers',
+      type: 'global/updateSelectedControllers',
       payload: [selectedResults[0]['run.controller']],
     }).then(() => {
       dispatch({
-        type: 'dashboard/updateSelectedResults',
+        type: 'global/updateSelectedResults',
         payload: selectedResults,
       }).then(() => {
         dispatch(

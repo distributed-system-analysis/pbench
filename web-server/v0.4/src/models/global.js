@@ -8,6 +8,9 @@ export default {
     datastoreConfig: {},
     indices: [],
     selectedIndices: [],
+    selectedResults: [],
+    selectedControllers: [],
+    selectedFields: [],
   },
 
   effects: {
@@ -51,6 +54,24 @@ export default {
         payload: payload,
       });
     },
+    *updateSelectedControllers({ payload }, { select, put }) {
+      yield put({
+        type: 'modifySelectedControllers',
+        payload: payload,
+      });
+    },
+    *updateSelectedResults({ payload }, { select, put }) {
+      yield put({
+        type: 'modifySelectedResults',
+        payload: payload,
+      });
+    },
+    *updateSelectedFields({ payload }, { select, put }) {
+      yield put({
+        type: 'modifySelectedFields',
+        payload: payload,
+      });
+    },
   },
 
   reducers: {
@@ -77,6 +98,24 @@ export default {
       return {
         ...state,
         selectedIndices: payload,
+      };
+    },
+    modifySelectedControllers(state, { payload }) {
+      return {
+        ...state,
+        selectedControllers: payload,
+      };
+    },
+    modifySelectedResults(state, { payload }) {
+      return {
+        ...state,
+        selectedResults: payload,
+      };
+    },
+    modifySelectedFields(state, { payload }) {
+      return {
+        ...state,
+        selectedFields: payload,
       };
     },
   },

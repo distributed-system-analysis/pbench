@@ -7,8 +7,6 @@ export default {
     mapping: {},
     searchResults: [],
     fields: [],
-    selectedFields: [],
-    loading: false,
   },
 
   effects: {
@@ -37,12 +35,8 @@ export default {
         payload: fields,
       });
       yield put({
-        type: 'modifySelectedFields',
+        type: 'global/modifySelectedFields',
         payload: ['run.name', 'run.config', 'run.controller'],
-      });
-      yield put({
-        type: 'modifySelectedIndices',
-        payload: [indices[0]],
       });
     },
     *fetchSearchResults({ payload }, { call, put }) {
@@ -76,12 +70,6 @@ export default {
         console.log(e.message);
       }
     },
-    *updateSelectedFields({ payload }, { select, put }) {
-      yield put({
-        type: 'modifySelectedFields',
-        payload: payload,
-      });
-    },
   },
 
   reducers: {
@@ -101,12 +89,6 @@ export default {
       return {
         ...state,
         searchResults: payload,
-      };
-    },
-    modifySelectedFields(state, { payload }) {
-      return {
-        ...state,
-        selectedFields: payload,
       };
     },
   },

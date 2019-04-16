@@ -31,8 +31,10 @@ export default class Controllers extends Component {
   componentDidMount() {
     const { controllers, selectedIndices, indices } = this.props;
 
-    if (controllers.length === 0 || selectedIndices.length === 0 || indices.length === 0) {
+    if (selectedIndices.length === 0 || indices.length === 0) {
       this.queryDatastoreConfig();
+    } else if (controllers.length === 0) {
+      this.fetchControllers();
     }
   }
 
@@ -121,7 +123,7 @@ export default class Controllers extends Component {
     const { dispatch } = this.props;
 
     dispatch({
-      type: 'dashboard/updateSelectedControllers',
+      type: 'global/updateSelectedControllers',
       payload: [controller.key],
     }).then(() => {
       dispatch(
