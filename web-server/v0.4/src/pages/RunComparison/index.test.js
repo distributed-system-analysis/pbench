@@ -12,6 +12,7 @@ const mockProps = {
 const mockLocation = {
   state: {
     iterations: [],
+    clusteredGraphData: [],
   },
 };
 
