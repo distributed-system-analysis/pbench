@@ -15,6 +15,8 @@ import {
   Input,
   Switch,
   message,
+  Collapse,
+  Icon,
 } from 'antd';
 import { ResponsiveBar } from '@nivo/bar';
 import DescriptionList from 'ant-design-pro/lib/DescriptionList';
@@ -22,12 +24,13 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import moment from 'moment';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import { generateIterationClusters } from '../../utils/parse';
+import { generateIterationClusters, getComparisonColumn } from '../../utils/parse';
 import TimeseriesGraph from '@/components/TimeseriesGraph';
 
 const { Description } = DescriptionList;
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
+const { Panel } = Collapse;
 
 const columns = [
   {
@@ -102,6 +105,7 @@ class RunComparison extends React.Component {
       selectedComponents: [],
       pdfHeader: '',
       pdfName: '',
+      column: [],
     };
   }
 
@@ -131,6 +135,10 @@ class RunComparison extends React.Component {
         this.setState({ loadingClusters: false });
         this.setState({
           ...timeseriesData,
+        });
+        const column = getComparisonColumn(iterationClusters.maxIterationLength);
+        this.setState({
+          column,
         });
       });
     });
@@ -266,6 +274,7 @@ class RunComparison extends React.Component {
       loadingPdf,
       exportModalVisible,
       loadingClusters,
+      column,
     } = this.state;
     const { selectedControllers, selectedResults, iterationParams } = this.props;
 
@@ -509,9 +518,26 @@ class RunComparison extends React.Component {
                         />
                       </Col>
                     </Row>
+                    <Collapse
+                      bordered
+                      defaultActiveKey={['1']}
+                      expandIcon={({ isActive }) => (
+                        <Icon type="caret-right" rotate={isActive ? 90 : 0} />
+                      )}
+                    >
+                      <Panel header="Percent Differences Table" key="1">
+                        <Table
+                          columns={column}
+                          dataSource={clusteredGraphData[cluster]}
+                          pagination={{ pageSize: 50 }}
+                          scroll={{ x: 1500, y: 240 }}
+                          bordered
+                        />
+                      </Panel>
+                    </Collapse>
                     <br
                       style={{
-                        borderTopWidth: 1,
+                        borderTopWidth: 3,
                         borderStyle: 'solid',
                         borderColor: '#8c8b8b',
                       }}
