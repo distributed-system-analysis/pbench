@@ -23,6 +23,7 @@ no lib ".";
 use File::Path qw(rmtree make_path);
 use File::Basename;
 use SysStat qw(get_pidstat_attributes);
+use Digest::MD5 qw(md5_hex);
 
 my %previous_stats; # used to detect repeated value
 my %current_stats;
@@ -32,6 +33,7 @@ if (not defined $tool_output_dir) {
 	print "Directory to store PIDs is required\n";
 	exit 1;
 }
+my %md5_filename;
 my %file_handles;
 if ( -e $tool_output_dir . '/pids') {
 	rmtree($tool_output_dir . '/pids');
@@ -75,9 +77,10 @@ while (my $line = <>) {
 		my %pid_stats;
 		@pid_stats{@attributes} = @values;
 		$current_stats{$pid_cmd} = \%pid_stats;
-		my $filename = $cmd;
-		# storing the cmd as a filename is fine as long as we remove any "/"
-		$filename =~ s/\//->/g;
+		if (not exists $md5_filename{$cmd}) {
+			$md5_filename{$cmd} = md5_hex($cmd);
+		}
+		my $filename = $md5_filename{$cmd};
 		# maintain a file for each of the PIDs instead of having all data in 1 file
 		my $file = $tool_output_dir . "/pids/" . $pid . "/" . $filename;
 		if ( ! -e $file ) {
