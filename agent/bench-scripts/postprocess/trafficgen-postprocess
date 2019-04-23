@@ -34,6 +34,8 @@ use Data::Dumper;
 use List::Util('sum');
 use JSON;
 
+my $script_name = basename($0);
+
 # This script produces a JSON format of a benchmark iteration sample,
 # and uses the standard metric types for pbench, which are:
 # %workload{parameters,throughput|latency|resource|efficiency}
@@ -118,6 +120,23 @@ my $tool_label_pattern = $ARGV[4];
 my $tool_group = $ARGV[5];
 
 my $result_file = $dir . "/binary-search.json";
+if (! -e $result_file) {
+	opendir(my $clients_dh, $dir . '/clients') || die "$script_name: could not open directory clients: $!\n";
+	my @client_hostname_dirs = grep(!/^\./, (sort readdir($clients_dh)));
+	closedir $clients_dh;
+	for my $client_hostname (@client_hostname_dirs) {
+		$result_file = $dir . '/clients/' . $client_hostname . '/binary-search.json';
+		if (-e $result_file) {
+			last;
+		} else {
+			$result_file = '';
+		}
+	}
+	if ($result_file eq '') {
+		die "$script_name: could not find binary-search.json\n";
+	}
+}
+
 my $json_file = $dir . "/result.json";
 my $benchmark_name = 'trafficgen';
 my $primary_metric="rx_mpps";
