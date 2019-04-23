@@ -150,7 +150,7 @@ my $run_id = get_uuid;
 my %last_run_doc;
 print "Generating all benchmark iterations\n";
 # We don't want these params passed to gen-iterations because they are not benchmark-native options
-remove_params(\@ARGV, qw(postprocess-only user-desc user-tags user-name user-email)); 
+remove_params(\@ARGV, qw(postprocess-only user-desc user-tags user-name user-email pre-sample-cmd));
 if (! $pp_only) {
     # Store the rest of the params for re-running or postprocessing
     printf $cmd_fh " %s", join(" ", @ARGV);
@@ -233,6 +233,15 @@ while (scalar @param_sets > 0) {
             }
         }
         while (scalar @sample_dirs > 0) {
+	    if (exists $params{'pre-sample-cmd'}) {
+                my $pre_sample_cmd_output = `$params{'pre-sample-cmd'}`;
+                my $exit_code = $?;
+                print "pre-sample-cmd output:\n$pre_sample_cmd_output";
+                if ($exit_code != 0) {
+                    printf "Stopping because of pre-sample-cmd exit code: %d\n", $exit_code;
+                    exit 1;
+                }
+            }
             my $sample_dir = shift(@sample_dirs);
             print "$sample_dir\n";
             my $iteration_sample_dir = $iteration_dir . "/" . $sample_dir;
