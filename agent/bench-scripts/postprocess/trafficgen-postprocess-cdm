@@ -3,17 +3,17 @@
 use strict;
 use warnings;
 use File::Basename;
-my $pbench_run_path;
+my $pbench_install_path;
 my $pbench_lib_path;
 BEGIN {
-	$pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
-	chomp $pbench_lib_path;
-	$pbench_lib_path .= "/lib";
+	$pbench_install_path = `getconf.py pbench_install_dir pbench-agent`;
+	chomp $pbench_install_path;
+	$pbench_lib_path = $pbench_install_path . "/lib";
 }
 use lib "$pbench_lib_path";
 use JSON;
 use Data::Dumper;
-use PbenchCDM qw(create_metric_sample_doc create_bench_iter_sample_period_doc);
+use PbenchCDM qw(create_metric_desc_doc create_metric_data_doc create_bench_iter_sample_period_doc);
 use PbenchBase qw(get_json_file put_json_file remove_element);
 
 printf "\@ARGV: %s\n", join(" ", @ARGV);
@@ -126,7 +126,7 @@ for my $client_hostname (@client_hostname_dirs) {
 	    $trial{'stats'}{'trial_stop'} *= 1000;
 
 	    printf "TRIAL COUNTER: %d\n", $trial{'trial'};
-	    print Dumper \%trial;
+	    #print Dumper \%trial;
 
 	    my $period_name = "trial-" . $trial{'trial'};
 	    if ($index == (scalar(@{ $$bs_json_ref{'trials'} }) - 1)) {
@@ -136,56 +136,71 @@ for my $client_hostname (@client_hostname_dirs) {
 	    my %bench_iter_sample_period = create_bench_iter_sample_period_doc(\%bench_iter_sample, $period_name, $prev_period_id);
 	    $prev_period_id = $bench_iter_sample_period{'period'}{'id'};
 
+	    open(NDJSON_DESC_FH, ">../../es/metrics/" . $client_hostname . "/metric_desc-" . $bench_iter_sample_period{'period'}{'id'} . "-trafficgen.ndjson");
+	    open(NDJSON_DATA_FH, ">../../es/metrics/" . $client_hostname . "/metric_data-" . $bench_iter_sample_period{'period'}{'id'} . "-trafficgen.ndjson");
+
 	    foreach my $dev_pair ( @{ $trial{'trial_params'}{'test_dev_pairs'} } ) {
 		for my $trial_metric ( @trial_metrics ) {
-		    my %metric_sample = create_metric_sample_doc(\%bench_iter_sample_period,
-								 $$trial_metric{'class'},
-								 $$trial_metric{'type'},
-								 $client_hostname,
-								 "trafficgen",
-								 "%source%_%host%_%type%" . $$trial_metric{'name_format'},
-								 $trial{$$trial_metric{'key'}},
-								 $trial{'stats'}{'trial_stop'});
-		    $metric_sample{'metric'}{'begin'} = $trial{'stats'}{'trial_start'};
+		    my %metric_desc = create_metric_desc_doc(\%bench_iter_sample_period,
+							     $$trial_metric{'class'},
+							     $$trial_metric{'type'},
+							     $client_hostname,
+							     "trafficgen",
+							     "%source%_%host%_%type%" . $$trial_metric{'name_format'});
+		    printf NDJSON_DESC_FH "%s\n", '{ "index": {} }';
+		    printf NDJSON_DESC_FH "%s\n", to_json(\%metric_desc);
 
-		    put_json_file(\%metric_sample, "../../es/metrics/" . $client_hostname . "/metric-" .
-				  $metric_sample{'metric'}{'id'} . ".json");
+		    my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
+							     $trial{$$trial_metric{'key'}},
+							     $trial{'stats'}{'trial_start'},
+							     $trial{'stats'}{'trial_stop'});
+		    printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+		    printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
 		}
 
 		for my $trial_stats_metric ( @trial_stats_metrics ) {
-		    my %metric_sample = create_metric_sample_doc(\%bench_iter_sample_period,
+		    my %metric_desc = create_metric_desc_doc(\%bench_iter_sample_period,
 								 $$trial_stats_metric{'class'},
 								 $$trial_stats_metric{'type'},
 								 $client_hostname,
 								 "trafficgen",
-								 "%source%_%host%_%type%" . $$trial_stats_metric{'name_format'},
-								 $trial{'stats'}{$$trial_stats_metric{'key'}}{$$trial_stats_metric{'field'}},
-								 $trial{'stats'}{'trial_stop'});
-		    $metric_sample{'metric'}{'begin'} = $trial{'stats'}{'trial_start'};
+								 "%source%_%host%_%type%" . $$trial_stats_metric{'name_format'});
+		    printf NDJSON_DESC_FH "%s\n", '{ "index": {} }';
+		    printf NDJSON_DESC_FH "%s\n", to_json(\%metric_desc);
 
-		    put_json_file(\%metric_sample, "../../es/metrics/" . $client_hostname . "/metric-" .
-				  $metric_sample{'metric'}{'id'} . ".json");
+		    my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
+							     $trial{'stats'}{$$trial_stats_metric{'key'}}{$$trial_stats_metric{'field'}},
+							     $trial{'stats'}{'trial_start'},
+							     $trial{'stats'}{'trial_stop'});
+		    printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+		    printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
 		}
 
 		for my $trial_stats_device_metric ( @trial_stats_device_metrics ) {
-		    my %metric_sample = create_metric_sample_doc(\%bench_iter_sample_period,
+		    my %metric_desc = create_metric_desc_doc(\%bench_iter_sample_period,
 								 $$trial_stats_device_metric{'class'},
 								 $$trial_stats_device_metric{'type'},
 								 $client_hostname,
 								 "trafficgen",
-								 "%source%_%host%_%type%" . $$trial_stats_device_metric{'name_format'},
-								 $trial{'stats'}{$$dev_pair{$$trial_stats_device_metric{'key'}}}{$$trial_stats_device_metric{'field'}},
-								 $trial{'stats'}{'trial_stop'});
-		    $metric_sample{'metric'}{'begin'} = $trial{'stats'}{'trial_start'};
+								 "%source%_%host%_%type%" . $$trial_stats_device_metric{'name_format'});
+		    $metric_desc{'metric_desc'}{'tx_port'} = $$dev_pair{'tx'};
+		    $metric_desc{'metric_desc'}{'rx_port'} = $$dev_pair{'rx'};
+		    $metric_desc{'metric_desc'}{'port_pair'} = $$dev_pair{'dev_pair'};
+		    printf NDJSON_DESC_FH "%s\n", '{ "index": {} }';
+		    printf NDJSON_DESC_FH "%s\n", to_json(\%metric_desc);
 
-		    $metric_sample{'metric'}{'tx_port'} = $$dev_pair{'tx'};
-		    $metric_sample{'metric'}{'rx_port'} = $$dev_pair{'rx'};
-		    $metric_sample{'metric'}{'port_pair'} = $$dev_pair{'dev_pair'};
+		    my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
+							     $trial{'stats'}{$$dev_pair{$$trial_stats_device_metric{'key'}}}{$$trial_stats_device_metric{'field'}},
+							     $trial{'stats'}{'trial_start'},
+							     $trial{'stats'}{'trial_stop'});
+		    printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+		    printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
 
-		    put_json_file(\%metric_sample, "../../es/metrics/" . $client_hostname . "/metric-" .
-				  $metric_sample{'metric'}{'id'} . ".json");
 		}
 	    }
+
+	    close(NDJSON_DESC_FH);
+	    close(NDJSON_DATA_FH);
 
 	    $bench_iter_sample_period{'period'}{'begin'} = $trial{'stats'}{'trial_start'};
 	    $bench_iter_sample_period{'period'}{'end'} = $trial{'stats'}{'trial_stop'};
@@ -193,3 +208,14 @@ for my $client_hostname (@client_hostname_dirs) {
 	    put_json_file(\%bench_iter_sample_period, $period_file);
 	}
 }
+
+my $trafficgen_version=`pushd /opt/trafficgen >/dev/null; git log --max-count=1 --pretty=%h; popd >/dev/null`;
+
+my $iteration = `/bin/pwd`;
+$iteration =~ m/.*\/(iteration[0-9]+)\/.*/;
+$iteration = $1;
+
+# Call the legacy post-process script, so we can build the static html reports later
+system($pbench_install_path . "/bench-scripts/postprocess/trafficgen-postprocess `/bin/pwd` $iteration NA $trafficgen_version");
+
+system($pbench_install_path . "/bench-scripts/postprocess/process-iteration-samples `/bin/pwd`/.. rx_Mpps 100 0 1 n n");
