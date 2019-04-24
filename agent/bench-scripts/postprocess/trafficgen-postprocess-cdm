@@ -139,43 +139,43 @@ for my $client_hostname (@client_hostname_dirs) {
 	    open(NDJSON_DESC_FH, ">../../es/metrics/" . $client_hostname . "/metric_desc-" . $bench_iter_sample_period{'period'}{'id'} . "-trafficgen.ndjson");
 	    open(NDJSON_DATA_FH, ">../../es/metrics/" . $client_hostname . "/metric_data-" . $bench_iter_sample_period{'period'}{'id'} . "-trafficgen.ndjson");
 
+	    for my $trial_metric ( @trial_metrics ) {
+		my %metric_desc = create_metric_desc_doc(\%bench_iter_sample_period,
+							 $$trial_metric{'class'},
+							 $$trial_metric{'type'},
+							 $client_hostname,
+							 "trafficgen",
+							 "%source%_%host%_%type%" . $$trial_metric{'name_format'});
+		printf NDJSON_DESC_FH "%s\n", '{ "index": {} }';
+		printf NDJSON_DESC_FH "%s\n", to_json(\%metric_desc);
+
+		my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
+							 $trial{$$trial_metric{'key'}},
+							 $trial{'stats'}{'trial_start'},
+							 $trial{'stats'}{'trial_stop'});
+		printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+		printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
+	    }
+
+	    for my $trial_stats_metric ( @trial_stats_metrics ) {
+		my %metric_desc = create_metric_desc_doc(\%bench_iter_sample_period,
+							 $$trial_stats_metric{'class'},
+							 $$trial_stats_metric{'type'},
+							 $client_hostname,
+							 "trafficgen",
+							 "%source%_%host%_%type%" . $$trial_stats_metric{'name_format'});
+		printf NDJSON_DESC_FH "%s\n", '{ "index": {} }';
+		printf NDJSON_DESC_FH "%s\n", to_json(\%metric_desc);
+
+		my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
+							 $trial{'stats'}{$$trial_stats_metric{'key'}}{$$trial_stats_metric{'field'}},
+							 $trial{'stats'}{'trial_start'},
+							 $trial{'stats'}{'trial_stop'});
+		printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+		printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
+	    }
+
 	    foreach my $dev_pair ( @{ $trial{'trial_params'}{'test_dev_pairs'} } ) {
-		for my $trial_metric ( @trial_metrics ) {
-		    my %metric_desc = create_metric_desc_doc(\%bench_iter_sample_period,
-							     $$trial_metric{'class'},
-							     $$trial_metric{'type'},
-							     $client_hostname,
-							     "trafficgen",
-							     "%source%_%host%_%type%" . $$trial_metric{'name_format'});
-		    printf NDJSON_DESC_FH "%s\n", '{ "index": {} }';
-		    printf NDJSON_DESC_FH "%s\n", to_json(\%metric_desc);
-
-		    my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
-							     $trial{$$trial_metric{'key'}},
-							     $trial{'stats'}{'trial_start'},
-							     $trial{'stats'}{'trial_stop'});
-		    printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
-		    printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
-		}
-
-		for my $trial_stats_metric ( @trial_stats_metrics ) {
-		    my %metric_desc = create_metric_desc_doc(\%bench_iter_sample_period,
-								 $$trial_stats_metric{'class'},
-								 $$trial_stats_metric{'type'},
-								 $client_hostname,
-								 "trafficgen",
-								 "%source%_%host%_%type%" . $$trial_stats_metric{'name_format'});
-		    printf NDJSON_DESC_FH "%s\n", '{ "index": {} }';
-		    printf NDJSON_DESC_FH "%s\n", to_json(\%metric_desc);
-
-		    my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
-							     $trial{'stats'}{$$trial_stats_metric{'key'}}{$$trial_stats_metric{'field'}},
-							     $trial{'stats'}{'trial_start'},
-							     $trial{'stats'}{'trial_stop'});
-		    printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
-		    printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
-		}
-
 		for my $trial_stats_device_metric ( @trial_stats_device_metrics ) {
 		    my %metric_desc = create_metric_desc_doc(\%bench_iter_sample_period,
 								 $$trial_stats_device_metric{'class'},
