@@ -45,6 +45,7 @@ open(IOSTAT_TXT, $tool_dir . "/iostat-stdout.txt") || die "could not find iostat
 open(NDJSON_DESC_FH, ">" . $es_dir . "/metrics/" . $hostname .  "/metric_desc-" . $period_doc{"period"}{"id"} . "-iostat.ndjson");
 open(NDJSON_DATA_FH, ">" . $es_dir . "/metrics/" . $hostname .  "/metric_data-" . $period_doc{"period"}{"id"} . "-iostat.ndjson");
 my $count = 1;
+my %metric_desc_ids;
 while (my $line = <IOSTAT_TXT>) {
 	chomp $line;
 	# Each sample should start with a time stamp (the -t in iostat).
@@ -84,29 +85,35 @@ while (my $line = <IOSTAT_TXT>) {
 		$sample{"count"}{"blockdev_write_request_size_KB"} = $14;
 		# svctm skipped, bogus stat
 		$sample{"count"}{"blockdev_io_utilization_percent"} = $16;
-		for my $metric_class (keys %sample) {
-			for my $metric_type (keys %{ $sample{$metric_class} }) {
-				my %metric_desc;
-				if ($count == 1) {
+		if (not exists $metric_desc_ids{$dev}) {
+			for my $metric_class (keys %sample) {
+				for my $metric_type (keys %{ $sample{$metric_class} }) {
+					# Create the metric_desc doc only on the first occurrance of
+					# the metric, and save the devce/class/type <-> metric id relationship
+					my %metric_desc;
 					%metric_desc = create_metric_desc_doc(
 						\%period_doc,
 						$metric_class,	# metric-class
 						$metric_type,	# metric-type
 						$hostname,# hostname
 						"iostat",# the source
-						"%source%-%type%-%device%-%host%");
+						"%source%-%type%-%host%-%device%");
 					$metric_desc{"metric_desc"}{"device"} = $dev;
-                                	printf NDJSON_DESC_FH "%s\n", '{ "index": {} }';
-                                	printf NDJSON_DESC_FH "%s\n", $coder->encode(\%metric_desc);
+                               		printf NDJSON_DESC_FH "%s\n", '{ "index": {} }';
+                               		printf NDJSON_DESC_FH "%s\n", $coder->encode(\%metric_desc);
+					$metric_desc_ids{$dev}{$metric_class}{$metric_type} = $metric_desc{"metric_desc"}{"id"};
 				}
-				my %metric_data = create_metric_data_doc($metric_desc{'id'},
-					$sample{$metric_class}{$metric_type},# the value of the metric
-					$last_timestamp_ms + 1, $timestamp_ms);
-                                printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
-                                printf NDJSON_DATA_FH "%s\n", $coder->encode(\%metric_data);
 			}
 		}
-		$count++;
+		for my $metric_class (keys %sample) {
+			for my $metric_type (keys %{ $sample{$metric_class} }) {
+				my %metric_data = create_metric_data_doc($metric_desc_ids{$dev}{$metric_class}{$metric_type},
+					$sample{$metric_class}{$metric_type},# the value of the metric
+					$last_timestamp_ms + 1, $timestamp_ms);
+                               	printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+                               	printf NDJSON_DATA_FH "%s\n", $coder->encode(\%metric_data);
+			}
+		}
 	}
 }
 close(IOSTAT_TXT);
