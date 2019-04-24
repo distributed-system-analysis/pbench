@@ -23,11 +23,12 @@ my $rundir = shift(@ARGV);
 my $base_bench_dir = shift(@ARGV);
 
 my @trial_metrics = (
-    { 'key' => 'result',
+    { 'key' => 'flubberbubbles',
       'class' => 'pass/fail',
       'type' => 'trial-result',
-      'name_format' => '' }
-
+      'name_format' => '',
+      'altkey' => 'result',
+      'altvalue' => 'status' }
     );
 
 my @trial_stats_metrics = (
@@ -36,7 +37,6 @@ my @trial_stats_metrics = (
       'class' => 'count',
       'type' => 'trial-runtime-in-seconds',
       'name_format' => '' }
-
     );
 
 my @trial_stats_device_metrics = (
@@ -96,6 +96,261 @@ my @trial_stats_device_metrics = (
 
     );
 
+my @trial_profiler_metrics = (
+    { 'key' => 'tsdelta',
+      'subkey' => '',
+      'field' => '',
+      'class' => 'count',
+      'type' => 'profiler-sample-collection-duration-in-usec',
+      'name_format' => '',
+      'extra_field' => '',
+      'cumulative' => 0 },
+
+    { 'key' => 'global',
+      'subkey' => 'rx',
+      'field' => 'pps',
+      'class' => 'throughput',
+      'type' => 'average-rx-packet-throughput-in-pps',
+      'name_format' => '',
+      'extra_field' => '',
+      'cumulative' => 0 },
+
+    { 'key' => 'global',
+      'subkey' => 'tx',
+      'field' => 'pps',
+      'class' => 'throughput',
+      'type' => 'average-tx-packet-throughput-in-pps',
+      'name_format' => '',
+      'extra_field' => '',
+      'cumulative' => 0 },
+
+    { 'key' => 'global',
+      'subkey' => 'rx',
+      'field' => 'bps',
+      'class' => 'througput',
+      'type' => 'average-rx-throughput-in-bps',
+      'name_format' => '',
+      'extra_field' => '',
+      'cumulative' => 0 },
+
+    { 'key' => 'global',
+      'subkey' => 'tx',
+      'field' => 'bps',
+      'class' => 'throughput',
+      'type' => 'average-tx-throughput-in-bps',
+      'name_format' => '',
+      'extra_field' => '',
+      'cumulative' => 0 },
+
+    { 'key' => 'global',
+      'subkey' => 'rx',
+      'field' => 'drop_bps',
+      'class' => 'throughput',
+      'type' => 'average-dropped-rx-throughput-in-bps',
+      'name_format' => '',
+      'extra_field' => '',
+      'cumulative' => 0 },
+
+    { 'key' => 'global',
+      'subkey' => 'misc',
+      'field' => 'cpu_util',
+      'class' => 'count',
+      'type' => 'average-cpu-utilization-percentage-for-tx-cores',
+      'name_format' => '',
+      'extra_field' => '',
+      'cumulative' => 0 },
+
+    { 'key' => 'global',
+      'subkey' => 'rx',
+      'field' => 'cpu_util',
+      'class' => 'count',
+      'type' => 'average-cpu-utilization-percentage-for-rx-core',
+      'name_format' => '',
+      'extra_field' => '',
+      'cumulative' => 0 },
+
+    { 'key' => 'global',
+      'subkey' => 'misc',
+      'field' => 'bw_per_core',
+      'class' => 'throughput',
+      'type' => 'average-per-core-bandwidth-in-gbs',
+      'name_format' => '',
+      'extra_field' => '',
+      'cumulative' => 0 },
+
+    { 'key' => 'global',
+      'subkey' => 'misc',
+      'field' => 'queue_full',
+      'class' => 'count',
+      'type' => 'number-of-queue-full-events',
+      'name_format' => '',
+      'extra_field' => '',
+      'cumulative' => 1 },
+
+    { 'key' => 'ports',
+      'subkey' => 'rx',
+      'field' => 'pps',
+      'class' => 'throughput',
+      'type' => 'average-rx-packet-throughput-in-pps',
+      'name_format' => '_%rx_port%',
+      'extra_field' => 'rx_port',
+      'cumulative' => 0 },
+
+    { 'key' => 'ports',
+      'subkey' => 'tx',
+      'field' => 'pps',
+      'class' => 'throughput',
+      'type' => 'average-tx-packet-throughput-in-pps',
+      'name_format' => '_%tx_port%',
+      'extra_field' => 'tx_port',
+      'cumulative' => 0 },
+
+    { 'key' => 'ports',
+      'subkey' => 'rx',
+      'field' => 'bps_l1',
+      'class' => 'throughput',
+      'type' => 'average-rx-l1-bandwidth-in-bps',
+      'name_format' => '_%rx_port%',
+      'extra_field' => 'rx_port',
+      'cumulative' => 0 },
+
+    { 'key' => 'ports',
+      'subkey' => 'tx',
+      'field' => 'bps_l1',
+      'class' => 'throughput',
+      'type' => 'average-tx-l1-bandwidth-in-bps',
+      'name_format' => '_%tx_port%',
+      'extra_field' => 'tx_port',
+      'cumulative' => 0 },
+
+    { 'key' => 'ports',
+      'subkey' => 'rx',
+      'field' => 'bps',
+      'class' => 'throughput',
+      'type' => 'average-rx-l2-throughput-in-bps',
+      'name_format' => '_%rx_port%',
+      'extra_field' => 'rx_port',
+      'cumulative' => 0 },
+
+    { 'key' => 'ports',
+      'subkey' => 'tx',
+      'field' => 'bps',
+      'class' => 'throughput',
+      'type' => 'average-tx-l2-throughput-in-bps',
+      'name_format' => '_%tx_port%',
+      'extra_field' => 'tx_port',
+      'cumulative' => 0 },
+
+    { 'key' => 'ports',
+      'subkey' => 'rx',
+      'field' => 'util',
+      'class' => 'count',
+      'type' => 'average-rx-port-utilization-percentage',
+      'name_format' => '_%rx_port%',
+      'extra_field' => 'rx_port',
+      'cumulative' => 0 },
+
+    { 'key' => 'ports',
+      'subkey' => 'tx',
+      'field' => 'util',
+      'class' => 'count',
+      'type' => 'average-tx-port-utilization-percentage',
+      'name_format' => '_%tx_port%',
+      'extra_field' => 'tx_port',
+      'cumulative' => 0 },
+
+    { 'key' => 'pgids',
+      'subkey' => 'latency',
+      'field' => 'average',
+      'class' => 'count',
+      'type' => 'average-round-trip-packet-latency-in-microseconds',
+      'name_format' => '_%stream_id%',
+      'extra_field' => 'stream_id',
+      'cumulative' => 0 },
+
+    { 'key' => 'pgids',
+      'subkey' => 'latency',
+      'field' => 'total_max',
+      'class' => 'count',
+      'type' => 'maximum-round-trip-packet-latency-in-microseconds',
+      'name_format' => '_%stream_id%',
+      'extra_field' => 'stream_id',
+      'cumulative' => 0 },
+
+    { 'key' => 'pgids',
+      'subkey' => 'latency',
+      'field' => 'total_min',
+      'class' => 'count',
+      'type' => 'minimum-round-trip-packet-latency-in-microsends',
+      'name_format' => '_%stream_id%',
+      'extra_field' => 'stream_id',
+      'cumulative' => 0 },
+
+    { 'key' => 'pgids',
+      'subkey' => 'latency',
+      'field' => 'duplicate',
+      'class' => 'count',
+      'type' => 'number-of-duplicate-latency-packets-detected',
+      'name_format' => '_%stream_id%',
+      'extra_field' => 'stream_id',
+      'cumulative' => 1 },
+
+    { 'key' => 'pgids',
+      'subkey' => 'latency',
+      'field' => 'dropped',
+      'class' => 'count',
+      'type' => 'number-of-dropped-latency-packets-detected',
+      'name_format' => '_%stream_id%',
+      'extra_field' => 'stream_id',
+      'cumulative' => 1 },
+
+    { 'key' => 'pgids',
+      'subkey' => 'latency',
+      'field' => 'out_of_order',
+      'class' => 'count',
+      'type' => 'number-of-latency-packets-received-in-the-wrong-order-detected',
+      'name_format' => '_%stream_id%',
+      'extra_field' => 'stream_id',
+      'cumulative' => 1 },
+
+    { 'key' => 'pgids',
+      'subkey' => 'latency',
+      'field' => 'seq_too_high',
+      'class' => 'count',
+      'type' => 'number-of-latency-packets-received-before-they-were-expected-detected',
+      'name_format' => '_%stream_id%',
+      'extra_field' => 'stream_id',
+      'cumulative' => 1 },
+
+    { 'key' => 'pgids',
+      'subkey' => 'latency',
+      'field' => 'seq_too_low',
+      'class' => 'count',
+      'type' => 'number-of-latency-packets-received-after-they-were-expected-detected',
+      'name_format' => '_%stream_id%',
+      'extra_field' => 'stream_id',
+      'cumulative' => 1 },
+
+    { 'key' => 'pgids',
+      'subkey' => 'tx_pps',
+      'field' => 'stream_id',
+      'class' => 'throughput',
+      'type' => 'average-tx-packet-throughput-in-pps',
+      'name_format' => '_%tx_port%_%stream_id%',
+      'extra_field' => 'tx_port',
+      'cumulative' => 0 },
+
+    { 'key' => 'pgids',
+      'subkey' => 'rx_pps',
+      'field' => 'stream_id',
+      'class' => 'throughput',
+      'type' => 'average-rx-packet-throughput-in-pps',
+      'name_format' => '_%rx_port%_%stream_id%',
+      'extra_field' => 'rx_port',
+      'cumulative' => 0 },
+
+    );
+
 
 # retrieve CDM sample information
 my $json_ref = get_json_file("sample.json");
@@ -121,11 +376,7 @@ for my $client_hostname (@client_hostname_dirs) {
 	for (my $index=0; $index<scalar(@{ $$bs_json_ref{'trials'} }); $index++) {
 	    my %trial = %{ $$bs_json_ref{'trials'}[$index] };
 
-	    # convert timestamps from seconds to milliseconds
-	    $trial{'stats'}{'trial_start'} *= 1000;
-	    $trial{'stats'}{'trial_stop'} *= 1000;
-
-	    printf "TRIAL COUNTER: %d\n", $trial{'trial'};
+	    printf "Processing new period: Trial %d\n", $trial{'trial'};
 	    #print Dumper \%trial;
 
 	    my $period_name = "trial-" . $trial{'trial'};
@@ -140,6 +391,13 @@ for my $client_hostname (@client_hostname_dirs) {
 	    open(NDJSON_DATA_FH, ">../../es/metrics/" . $client_hostname . "/metric_data-" . $bench_iter_sample_period{'period'}{'id'} . "-trafficgen.ndjson");
 
 	    for my $trial_metric ( @trial_metrics ) {
+		my $metric_value;
+		if (exists($trial{$$trial_metric{'key'}})) {
+		    $metric_value = $trial{$$trial_metric{'key'}};
+		} else {
+		    $metric_value = 0.0;
+		}
+
 		my %metric_desc = create_metric_desc_doc(\%bench_iter_sample_period,
 							 $$trial_metric{'class'},
 							 $$trial_metric{'type'},
@@ -150,9 +408,14 @@ for my $client_hostname (@client_hostname_dirs) {
 		printf NDJSON_DESC_FH "%s\n", to_json(\%metric_desc);
 
 		my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
-							 $trial{$$trial_metric{'key'}},
+							 $metric_value,
 							 $trial{'stats'}{'trial_start'},
 							 $trial{'stats'}{'trial_stop'});
+
+		if (exists($$trial_metric{'altvalue'}) && exists($$trial_metric{'altkey'})) {
+		    $metric_data{'metric_data'}{$$trial_metric{'altvalue'}} = $trial{$$trial_metric{'altkey'}};
+		}
+
 		printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
 		printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
 	    }
@@ -196,6 +459,422 @@ for my $client_hostname (@client_hostname_dirs) {
 		    printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
 		    printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
 
+		}
+	    }
+
+	    if (exists($trial{'profiler-data'}) && defined($trial{'profiler-data'})) {
+		print "\tFound profiler data\n";
+
+		my %trex_ports;
+		my %trex_pgids;
+		my %trex_latency_pgids;
+
+		foreach my $timestamp (sort (keys %{ $trial{'profiler-data'} } ) ) {
+		    foreach my $port (keys %{ $trial{'profiler-data'}{$timestamp}{'ports'}} ) {
+			$trex_ports{$port} = 1;
+		    }
+
+		    foreach my $pgid (keys %{ $trial{'profiler-data'}{$timestamp}{'pgids'}} ) {
+			$trex_pgids{$pgid} = 1;
+
+			if (exists($trial{'profiler-data'}{$timestamp}{'pgids'}{$pgid}{'latency'})) {
+			    $trex_latency_pgids{$pgid} = 1;
+			}
+		    }
+		}
+
+		printf "\t\tports=%s\n\n", to_json(\%trex_ports);
+		printf "\t\tpgids=%s\n\n", to_json(\%trex_pgids);
+		printf "\t\tlatency_pgids=%s\n\n", to_json(\%trex_latency_pgids);
+
+		for my $trial_profiler_metric ( @trial_profiler_metrics ) {
+		    my %metric_desc = create_metric_desc_doc(\%bench_iter_sample_period,
+							     $$trial_profiler_metric{'class'},
+							     $$trial_profiler_metric{'type'},
+							     $client_hostname,
+							     "trafficgen",
+							     "%source%_%host%_%type%" . $$trial_profiler_metric{'name_format'});
+
+		    printf NDJSON_DESC_FH "%s\n", '{ "index": {} }';
+		    printf NDJSON_DESC_FH "%s\n", to_json(\%metric_desc);
+
+		    printf "\t\t%s\n", to_json($trial_profiler_metric);
+
+		    if (($$trial_profiler_metric{'key'} eq 'tsdelta') || ($$trial_profiler_metric{'key'} eq 'global')) {
+			my $last_timestamp;
+			my $last_value;
+			my $value;
+			my $sample_count = 0;
+			my $start_timestamp;
+			my $stop_timestamp;
+			my $timestamp_counter = 0;
+			my $insert_counter = 0;
+			foreach my $timestamp (sort (keys %{ $trial{'profiler-data'} } ) ) {
+			    $timestamp_counter++;
+
+			    printf "\t\t\ttimestamp=%s timestamp_counter=%d", $timestamp, $timestamp_counter;
+
+			    if (! defined($last_timestamp)) {
+				$last_timestamp = $timestamp;
+			    }
+
+			    if ($$trial_profiler_metric{'key'} eq 'tsdelta') {
+				$value = $trial{'profiler-data'}{$timestamp}{$$trial_profiler_metric{'key'}};
+				if ($$trial_profiler_metric{'cumulative'} && ($timestamp != $last_timestamp)) {
+				    if (defined($trial{'profiler-data'}{$last_timestamp}{$$trial_profiler_metric{'key'}})) {
+					$value -= $trial{'profiler-data'}{$last_timestamp}{$$trial_profiler_metric{'key'}};
+				    }
+				}
+			    } elsif ($$trial_profiler_metric{'key'} eq 'global') {
+				$value = $trial{'profiler-data'}{$timestamp}{$$trial_profiler_metric{'key'}}{$$trial_profiler_metric{'subkey'}}{$$trial_profiler_metric{'field'}};
+				if ($$trial_profiler_metric{'cumulative'} && ($timestamp != $last_timestamp)) {
+				    if (defined($trial{'profiler-data'}{$last_timestamp}{$$trial_profiler_metric{'key'}}{$$trial_profiler_metric{'subkey'}}{$$trial_profiler_metric{'field'}})) {
+					$value -= $trial{'profiler-data'}{$last_timestamp}{$$trial_profiler_metric{'key'}}{$$trial_profiler_metric{'subkey'}}{$$trial_profiler_metric{'field'}};
+				    }
+				}
+			    }
+
+			    if (! defined($start_timestamp)) {
+				$start_timestamp = $timestamp;
+			    }
+
+			    if (! defined($last_value)) {
+				$last_value = $value;
+			    }
+
+			    printf " value=%s last_value=%s\n", $value, $last_value;
+
+			    if ($value != $last_value) {
+				$stop_timestamp = $timestamp;
+
+				my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
+									 $last_value,
+									 $start_timestamp,
+									 $stop_timestamp);
+				$metric_data{'metric_data'}{'samples'} = $sample_count;
+
+				printf "\t\t\t\tinsert metric data --> sample_count=%d last_value=%s\n", $sample_count, $last_value;
+
+				printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+				printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
+
+				$insert_counter += $sample_count;
+
+				$last_value = $value;
+				$start_timestamp = $timestamp;
+				$sample_count = 1;
+			    } else {
+				$sample_count++;
+			    }
+
+			    if ($timestamp_counter == scalar(keys %{ $trial{'profiler-data'} })) {
+				$stop_timestamp = $timestamp;
+
+				my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
+									 $value,
+									 $start_timestamp,
+									 $stop_timestamp);
+				$metric_data{'metric_data'}{'samples'} = $sample_count;
+
+				printf "\t\t\t\tinsert metric data --> sample_count=%d value=%s\n", $sample_count, $value;
+
+				printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+				printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
+
+				$insert_counter += $sample_count;
+			    }
+			}
+
+			print "\t\t";
+			if (scalar(keys %{ $trial{'profiler-data'} }) != $insert_counter) {
+			    print "ERROR --> ";
+			}
+			printf "timestamps=%d insert_counter=%d\n", scalar(keys %{ $trial{'profiler-data'} }), $insert_counter;
+
+			print "\n";
+		    } elsif ($$trial_profiler_metric{'key'} eq 'ports') {
+			foreach my $port (sort (keys %trex_ports)) {
+			    printf "\t\t\tport=%s\n", $port;
+
+			    $metric_desc{'metric_desc'}{$$trial_profiler_metric{'extra_field'}} = $port;
+
+			    my $last_timestamp;
+			    my $last_value;
+			    my $value;
+			    my $sample_count = 0;
+			    my $start_timestamp;
+			    my $stop_timestamp;
+			    my $timestamp_counter = 0;
+			    my $insert_counter = 0;
+			    foreach my $timestamp (sort (keys %{ $trial{'profiler-data'} } ) ) {
+				$timestamp_counter++;
+
+				printf "\t\t\t\ttimestamp=%s timestamp_counter=%d", $timestamp, $timestamp_counter;
+
+				if (! defined($last_timestamp)) {
+				    $last_timestamp = $timestamp;
+				}
+
+				$value = $trial{'profiler-data'}{$timestamp}{$$trial_profiler_metric{'key'}}{$port}{$$trial_profiler_metric{'subkey'}}{$$trial_profiler_metric{'field'}};
+				if ($$trial_profiler_metric{'cumulative'} && ($timestamp != $last_timestamp)) {
+				    if (defined($trial{'profiler-data'}{$last_timestamp}{$$trial_profiler_metric{'key'}}{$port}{$$trial_profiler_metric{'subkey'}}{$$trial_profiler_metric{'field'}})) {
+					$value -= $trial{'profiler-data'}{$last_timestamp}{$$trial_profiler_metric{'key'}}{$port}{$$trial_profiler_metric{'subkey'}}{$$trial_profiler_metric{'field'}};
+				    }
+				}
+
+				if (! defined($start_timestamp)) {
+				    $start_timestamp = $timestamp;
+				}
+
+				if (! defined($last_value)) {
+				    $last_value = $value;
+				}
+
+				printf " value=%s last_value=%s\n", $value, $last_value;
+
+				if ($value != $last_value) {
+				    $stop_timestamp = $timestamp;
+
+				    my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
+									     $last_value,
+									     $start_timestamp,
+									     $stop_timestamp);
+				    $metric_data{'metric_data'}{'samples'} = $sample_count;
+
+				    printf "\t\t\t\t\tinsert metric data --> sample_count=%d last_value=%s\n", $sample_count, $last_value;
+
+				    printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+				    printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
+
+				    $insert_counter += $sample_count;
+
+				    $last_value = $value;
+				    $start_timestamp = $timestamp;
+				    $sample_count = 1;
+				} else {
+				    $sample_count++;
+				}
+
+				if ($timestamp_counter == scalar(keys %{ $trial{'profiler-data'} })) {
+				    $stop_timestamp = $timestamp;
+
+				    my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
+									     $value,
+									     $timestamp,
+									     $timestamp);
+				    $metric_data{'metric_data'}{'samples'} = $sample_count;
+
+				    printf "\t\t\t\t\tinsert metric data --> sample_count=%d value=%s\n", $sample_count, $value;
+
+				    printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+				    printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
+
+				    $insert_counter += $sample_count;
+				}
+			    }
+
+			    print "\t\t\t";
+			    if (scalar(keys %{ $trial{'profiler-data'} }) != $insert_counter) {
+				print "ERROR --> ";
+			    }
+			    printf "timestamps=%d insert_counter=%d\n", scalar(keys %{ $trial{'profiler-data'} }), $insert_counter;
+
+			    print "\n";
+			}
+		    } elsif (($$trial_profiler_metric{'key'} eq 'pgids') && ($$trial_profiler_metric{'subkey'} eq 'latency')) {
+			foreach my $pgid (sort (keys %trex_latency_pgids)) {
+			    printf "\t\t\tpgid=%s\n", $pgid;
+
+			    $metric_desc{'metric_desc'}{$$trial_profiler_metric{'extra_field'}} = $pgid;
+
+			    my $last_timestamp;
+			    my $last_value;
+			    my $value;
+			    my $sample_count = 0;
+			    my $start_timestamp;
+			    my $stop_timestamp;
+			    my $timestamp_counter = 0;
+			    my $insert_counter = 0;
+			    foreach my $timestamp (sort (keys %{ $trial{'profiler-data'} } ) ) {
+				$timestamp_counter++;
+
+				printf "\t\t\t\ttimestamp=%s timestamp_counter=%d", $timestamp, $timestamp_counter;
+
+				if (! defined($last_timestamp)) {
+				    $last_timestamp = $timestamp;
+				}
+
+				$value = 0;
+				if (exists($trial{'profiler-data'}{$timestamp}{$$trial_profiler_metric{'key'}}{$pgid}{$$trial_profiler_metric{'subkey'}}{$$trial_profiler_metric{'field'}})) {
+				    $value = $trial{'profiler-data'}{$timestamp}{$$trial_profiler_metric{'key'}}{$pgid}{$$trial_profiler_metric{'subkey'}}{$$trial_profiler_metric{'field'}};
+
+				    if ($$trial_profiler_metric{'cumulative'} &&
+					($timestamp != $last_timestamp) &&
+					exists($trial{'profiler-data'}{$last_timestamp}{$$trial_profiler_metric{'key'}}{$pgid}{$$trial_profiler_metric{'subkey'}}{$$trial_profiler_metric{'field'}})) {
+					$value -= $trial{'profiler-data'}{$last_timestamp}{$$trial_profiler_metric{'key'}}{$pgid}{$$trial_profiler_metric{'subkey'}}{$$trial_profiler_metric{'field'}};
+				    }
+				}
+
+				if (! defined($start_timestamp)) {
+				    $start_timestamp = $timestamp;
+				}
+
+				if (! defined($last_value)) {
+				    $last_value = $value;
+				}
+
+				printf " value=%s last_value=%s\n", $value, $last_value;
+
+				if ($value != $last_value) {
+				    $stop_timestamp = $timestamp;
+
+				    my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
+									     $last_value,
+									     $start_timestamp,
+									     $stop_timestamp);
+				    $metric_data{'metric_data'}{'samples'} = $sample_count;
+
+				    printf "\t\t\t\t\tinsert metric data --> sample_count=%d last_value=%s\n", $sample_count, $last_value;
+
+				    printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+				    printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
+
+				    $insert_counter += $sample_count;
+
+				    $last_value = $value;
+				    $start_timestamp = $timestamp;
+				    $sample_count = 1;
+				} else {
+				    $sample_count++;
+				}
+
+				if ($timestamp_counter == scalar(keys %{ $trial{'profiler-data'} })) {
+				    $stop_timestamp = $timestamp;
+
+				    my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
+									     $value,
+									     $start_timestamp,
+									     $stop_timestamp);
+				    $metric_data{'metric_data'}{'samples'} = $sample_count;
+
+				    printf "\t\t\t\t\tinsert metric data --> sample_count=%d value=%s\n", $sample_count, $value;
+
+				    printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+				    printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
+
+				    $insert_counter += $sample_count;
+				}
+			    }
+
+			    print "\t\t\t";
+			    if (scalar(keys %{ $trial{'profiler-data'} }) != $insert_counter) {
+				print "ERROR --> ";
+			    }
+			    printf "timestamps=%d insert_counter=%d\n", scalar(keys %{ $trial{'profiler-data'} }), $insert_counter;
+
+			    print "\n";
+			}
+		    } elsif ($$trial_profiler_metric{'key'} eq 'pgids') {
+			foreach my $pgid (sort (keys %trex_pgids)) {
+			    printf "\t\t\tpgid=%s\n", $pgid;
+
+			    foreach my $port (sort (keys %trex_ports)) {
+				printf "\t\t\t\tport=%s\n", $port;
+
+				$metric_desc{'metric_desc'}{$$trial_profiler_metric{'field'}} = $pgid;
+				$metric_desc{'metric_desc'}{$$trial_profiler_metric{'extra_field'}} = $port;
+
+				my $last_timestamp;
+				my $last_value;
+				my $value;
+				my $sample_count = 0;
+				my $start_timestamp;
+				my $stop_timestamp;
+				my $timestamp_counter = 0;
+				my $insert_counter = 0;
+				foreach my $timestamp (sort (keys %{ $trial{'profiler-data'} } ) ) {
+				    $timestamp_counter++;
+
+				    printf "\t\t\t\t\ttimestamp=%s timestamp_counter=%d", $timestamp, $timestamp_counter;
+
+				    if (! defined($last_timestamp)) {
+					$last_timestamp = $timestamp;
+				    }
+
+				    $value = 0;
+				    if (exists($trial{'profiler-data'}{$timestamp}{$$trial_profiler_metric{'key'}}{$pgid}{$$trial_profiler_metric{'subkey'}}{$port})) {
+					$value = $trial{'profiler-data'}{$timestamp}{$$trial_profiler_metric{'key'}}{$pgid}{$$trial_profiler_metric{'subkey'}}{$port};
+
+					if ($$trial_profiler_metric{'cumulative'} &&
+					    ($timestamp != $last_timestamp) &&
+					    exists($trial{'profiler-data'}{$last_timestamp}{$$trial_profiler_metric{'key'}}{$pgid}{$$trial_profiler_metric{'subkey'}}{$port})) {
+					    $value -= $trial{'profiler-data'}{$last_timestamp}{$$trial_profiler_metric{'key'}}{$pgid}{$$trial_profiler_metric{'subkey'}}{$port};
+					}
+				    }
+
+				    if (! defined($start_timestamp)) {
+					$start_timestamp = $timestamp;
+				    }
+
+				    if (! defined($last_value)) {
+					$last_value = $value;
+				    }
+
+				    printf " value=%s last_value=%s\n", $value, $last_value;
+
+				    if ($value != $last_value) {
+					$stop_timestamp = $timestamp;
+
+					my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
+										 $last_value,
+										 $start_timestamp,
+										 $stop_timestamp);
+					$metric_data{'metric_data'}{'samples'} = $sample_count;
+
+					printf "\t\t\t\t\t\tinsert metric data --> sample_count=%d last_value=%s\n", $sample_count, $last_value;
+
+					printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+					printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
+
+					$insert_counter += $sample_count;
+
+					$last_value = $value;
+					$start_timestamp = $timestamp;
+					$sample_count = 1;
+				    } else {
+					$sample_count++;
+				    }
+
+				    if ($timestamp_counter == scalar(keys %{ $trial{'profiler-data'} })) {
+					$stop_timestamp = $timestamp;
+
+					my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
+										 $value,
+										 $start_timestamp,
+										 $stop_timestamp);
+					$metric_data{'metric_data'}{'samples'} = $sample_count;
+
+					printf "\t\t\t\t\t\tinsert metric data --> sample_count=%d value=%s\n", $sample_count, $value;
+
+					printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+					printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
+
+					$insert_counter += $sample_count;
+				    }
+				}
+
+				print "\t\t\t\t";
+				if (scalar(keys %{ $trial{'profiler-data'} }) != $insert_counter) {
+				    print "ERROR --> ";
+				}
+				printf "timestamps=%d insert_counter=%d\n", scalar(keys %{ $trial{'profiler-data'} }), $insert_counter;
+
+				print "\n";
+			    }
+			}
+		    }  else {
+			printf "HELP! Dazed and confused since key=%s\n", $$trial_profiler_metric{'key'};
+		    }
 		}
 	    }
 
