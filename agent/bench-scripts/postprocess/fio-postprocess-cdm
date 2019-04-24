@@ -66,11 +66,6 @@ for my $client (@client_dirs) {
     }
     mkdir("../../es/metrics");
     mkdir("../../es/metrics/" . $client);
-    # First, try to process fio log files, and then if missing get the data from the
-    # fio-result.json.  Don't use both for the same metric
-    my @log_metric_types = qw(bw clat iops lat slat);
-                              # All the possible metrics (except histogram logs)
-                              # that can be timeseries data
     print "client: $client\n";
     opendir(my $client_dh, "clients/" . $client) ||
         die "$script_name: could not open client directory: $!\n";
@@ -89,51 +84,46 @@ for my $client (@client_dirs) {
         if ($log_file =~ /fio_([a-z]+)\.(\d+)\.log$/) {
             my $metric_type = $1;
             my $job_id = $2;
-            # Process this timeseries data and remove this
-            # metric_type from processing in fio_result.json
-            if (grep(/^$metric_type$/, @log_metric_types)) {
-                # This allows us to know to skip looking for this in the fio_result.json
-                remove_element(\@log_metric_types, $metric_type);
-                open(my $log_fh, "clients/$client/$log_file")
-                    || die "$script_name: could not open file clients/$client/$log_file $!\n";
-                my $last_timestamp_ms;
-                my %metric_desc = create_metric_desc_doc(
-                    \%period,
-                    "throughput",   # The metric-class
-                    $metric_type,   # The metric-type
-                    $client,# The hostname
-                    "fio",      # The source
-                    "%source%-%type%-%host%", # The metric-instance name format
-                    );
-                printf NDJSON_DESC_FH "%s\n", '{ "index": {} }';
-                printf NDJSON_DESC_FH "%s\n", to_json(\%metric_desc);
-                while (<$log_fh>) {
-                    my $line = "$_";
-                    chomp($line);
-                    if ( $line =~  /(\d+),\s+(\d+),\s+(\d+),\s+(\d+)/ ) {
-                        my $timestamp_ms = $1;
-                        my $value = $2;
-                        my $rwtype = $3; #ToDo: generate per-rwtype metrics
-                        if ($last_timestamp_ms) {
-                            my %metric_data = create_metric_data_doc(
-                                $metric_desc{'id'},
-                                $value,
-                                $last_timestamp_ms + 1, 
-                                $timestamp_ms);
-                            printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
-                            printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
-                        }
-                        if (! $earliest_timestamp or $earliest_timestamp > $timestamp_ms) {
-                            $earliest_timestamp = $timestamp_ms;
-                        }
-                        if (! $latest_timestamp or $latest_timestamp < $timestamp_ms) {
-                            $latest_timestamp = $timestamp_ms;
-                        }
-                        $last_timestamp_ms = $timestamp_ms;
+            open(my $log_fh, "clients/$client/$log_file")
+                || die "$script_name: could not open file clients/$client/$log_file $!\n";
+            my $last_timestamp_ms;
+            my %metric_desc = create_metric_desc_doc(
+                \%period,
+                "throughput",   # The metric-class
+                $metric_type,   # The metric-type
+                $client,# The hostname
+                "fio",      # The source
+                "%source%-%type%-%host%-%job%", # The metric-instance name format
+                );
+            $metric_desc{'metric_desc'}{'job'} = $job_id;
+            printf NDJSON_DESC_FH "%s\n", '{ "index": {} }';
+            printf NDJSON_DESC_FH "%s\n", to_json(\%metric_desc);
+            while (<$log_fh>) {
+                my $line = "$_";
+                chomp($line);
+                if ( $line =~  /(\d+),\s+(\d+),\s+(\d+),\s+(\d+)/ ) {
+                    my $timestamp_ms = $1;
+                    my $value = $2;
+                    my $rwtype = $3; #ToDo: generate per-rwtype metrics
+                    if ($last_timestamp_ms) {
+                        my %metric_data = create_metric_data_doc(
+                            $metric_desc{'metric_desc'}{'id'},
+                            $value,
+                            $last_timestamp_ms + 1, 
+                            $timestamp_ms);
+                        printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+                        printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
                     }
+                    if (! $earliest_timestamp or $earliest_timestamp > $timestamp_ms) {
+                        $earliest_timestamp = $timestamp_ms;
+                    }
+                    if (! $latest_timestamp or $latest_timestamp < $timestamp_ms) {
+                        $latest_timestamp = $timestamp_ms;
+                    }
+                    $last_timestamp_ms = $timestamp_ms;
                 }
-                close($log_fh);
             }
+            close($log_fh);
         }
     }
     close(NDJSON_DATA_FH);
