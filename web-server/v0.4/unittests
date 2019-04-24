@@ -11,4 +11,9 @@ if [[ $? -ne 0 ]]; then
   echo "yarn unit tests failed!" >&2
   exit 1
 fi
+yarn lint
+if [[ $? -ne 0 ]]; then
+  echo "yarn lint failed!" >&2
+  exit 1
+fi
 exit 0
