@@ -1,10 +1,10 @@
-import ReactJS, { PureComponent, createElement } from 'react';
+import React, { PureComponent, createElement } from 'react';
 import PropTypes from 'prop-types';
 import pathToRegexp from 'path-to-regexp';
 import { Breadcrumb, Tabs } from 'antd';
 import classNames from 'classnames';
 import styles from './index.less';
-import { urlToList } from '@/components/_utils/pathTools';
+import urlToList from '@/components/_utils/pathTools';
 
 const { TabPane } = Tabs;
 export function getBreadcrumb(breadcrumbNameMap, url) {
@@ -229,7 +229,9 @@ export default class PageHeader extends PureComponent {
               onChange={this.onChange}
               tabBarExtraContent={tabBarExtraContent}
             >
-              {tabList.map(item => <TabPane tab={item.tab} key={item.key} />)}
+              {tabList.map(item => (
+                <TabPane tab={item.tab} key={item.key} />
+              ))}
             </Tabs>
           )}
       </div>

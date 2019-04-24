@@ -9,8 +9,8 @@ const menuData = [
   {
     name: 'Search',
     icon: 'search',
-    path: '/search'
-  }
+    path: '/search',
+  },
 ];
 
 function formatter(data, parentPath = '/', parentAuthority) {
@@ -31,4 +31,5 @@ function formatter(data, parentPath = '/', parentAuthority) {
   });
 }
 
-export const getMenuData = () => formatter(menuData);
+const getMenuData = () => formatter(menuData);
+export default getMenuData;

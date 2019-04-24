@@ -55,9 +55,9 @@ export default class MonthSelect extends PureComponent {
             }}
             tokenSeparators={[',']}
           >
-            {indices.map(item => {
-              return <Select.Option key={item}>{item}</Select.Option>;
-            })}
+            {indices.map(item => (
+              <Select.Option key={item}>{item}</Select.Option>
+            ))}
           </Select>
         </FormItem>
         {updateButtonVisible ? (

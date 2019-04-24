@@ -11,11 +11,12 @@ export default {
     selectedResults: [],
     selectedControllers: [],
     selectedFields: [],
+    selectedIterationKeys: []
   },
 
   effects: {
     *fetchDatastoreConfig({ payload }, { call, put }) {
-      let response = yield call(queryDatastoreConfig, payload);
+      const response = yield call(queryDatastoreConfig, payload);
 
       // Remove the trailing slashes if present, we'll take care of adding
       // them back in the proper context.
@@ -28,20 +29,18 @@ export default {
       });
     },
     *fetchMonthIndices({ payload }, { call, put }) {
-      let response = yield call(queryMonthIndices, payload);
-
-      let indices = [];
+      const response = yield call(queryMonthIndices, payload);
       const { datastoreConfig } = payload;
-      let prefix = datastoreConfig.prefix + datastoreConfig.run_index.slice(0, -1);
-      response.map(index => {
+      const indices = [];
+      
+      const prefix = datastoreConfig.prefix + datastoreConfig.run_index.slice(0, -1);
+      response.forEach(index => {
         if (index.index.includes(prefix)) {
           indices.push(index.index.split('.').pop());
         }
       });
 
-      indices.sort((a, b) => {
-        return parseInt(b.replace('-', '')) - parseInt(a.replace('-', ''));
-      });
+      indices.sort((a, b) => parseInt(b.replace('-', ''), 10) - parseInt(a.replace('-', ''), 10));
 
       yield put({
         type: 'getMonthIndices',
@@ -51,25 +50,25 @@ export default {
     *updateSelectedIndices({ payload }, { put }) {
       yield put({
         type: 'modifySelectedIndices',
-        payload: payload,
+        payload,
       });
     },
-    *updateSelectedControllers({ payload }, { select, put }) {
+    *updateSelectedControllers({ payload }, { put }) {
       yield put({
         type: 'modifySelectedControllers',
-        payload: payload,
+        payload,
       });
     },
-    *updateSelectedResults({ payload }, { select, put }) {
+    *updateSelectedResults({ payload }, { put }) {
       yield put({
         type: 'modifySelectedResults',
-        payload: payload,
+        payload,
       });
     },
-    *updateSelectedFields({ payload }, { select, put }) {
+    *updateSelectedFields({ payload }, { put }) {
       yield put({
         type: 'modifySelectedFields',
-        payload: payload,
+        payload,
       });
     },
   },
@@ -118,5 +117,11 @@ export default {
         selectedFields: payload,
       };
     },
+    modifySelectedIterationKeys(state, { payload }) {
+      return { 
+        ...state,
+        selectedIterationKeys: payload,
+      }
+    }
   },
 };

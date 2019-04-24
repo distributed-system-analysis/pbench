@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Card, Form } from 'antd';
+import { compareByAlph } from '../../utils/utils';
 
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import SearchBar from '../../components/SearchBar';
-import MonthSelect from '../../components/MonthSelect';
-import Table from '../../components/Table';
-import { compareByAlph } from '../../utils/utils';
+import SearchBar from '@/components/SearchBar';
+import MonthSelect from '@/components/MonthSelect';
+import Table from '@/components/Table';
 
 @connect(({ global, dashboard, loading }) => ({
   controllers: dashboard.controllers,
@@ -19,12 +19,12 @@ import { compareByAlph } from '../../utils/utils';
     loading.effects['global/fetchMonthIndices'] ||
     loading.effects['global/fetchDatastoreConfig'],
 }))
-export default class Controllers extends Component {
+class Controllers extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      controllers: this.props.controllers
+      controllers: props.controllers,
     };
   }
 
@@ -39,7 +39,9 @@ export default class Controllers extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.controllers !== this.props.controllers) {
+    const { controllers } = this.props;
+
+    if (nextProps.controllers !== controllers) {
       this.setState({ controllers: nextProps.controllers });
     }
   }
@@ -51,8 +53,6 @@ export default class Controllers extends Component {
       type: 'global/fetchDatastoreConfig',
     }).then(() => {
       this.fetchMonthIndices();
-    }).catch(err => {
-      console.log(err);
     });
   };
 
@@ -61,7 +61,7 @@ export default class Controllers extends Component {
 
     dispatch({
       type: 'global/fetchMonthIndices',
-      payload: { datastoreConfig: datastoreConfig },
+      payload: { datastoreConfig },
     }).then(() => {
       this.fetchControllers();
     });
@@ -72,7 +72,7 @@ export default class Controllers extends Component {
 
     dispatch({
       type: 'dashboard/fetchControllers',
-      payload: { datastoreConfig: datastoreConfig, selectedIndices: selectedIndices },
+      payload: { datastoreConfig, selectedIndices },
     });
   };
 
@@ -91,26 +91,25 @@ export default class Controllers extends Component {
     const controllersSearch = controllers.slice();
     this.setState({
       controllers: controllersSearch
-        .map((record, i) => {
-          const match = record['controller'].match(reg);
+        .map((record) => {
+          const match = record.controller.match(reg);
           if (!match) {
             return null;
           }
           return {
             ...record,
             controller: (
-              <span key={i}>
-                {record['controller'].split(reg).map(
-                  (text, i) =>
-                    i > 0
-                      ? [
-                          <span key={i} style={{ color: 'orange' }}>
-                            {match[0]}
-                          </span>,
-                          text,
-                        ]
-                      : text
-                )}
+              <span key={record}>
+                {record.controller.split(reg).map((text, index) => (
+                  index > 0
+                    ? [
+                      <span key={text} style={{ color: 'orange' }}>
+                        {match[0]}
+                      </span>,
+                        text,
+                      ]
+                    : text
+                ))}
               </span>
             ),
           };
@@ -136,11 +135,7 @@ export default class Controllers extends Component {
 
   render() {
     const { controllers } = this.state;
-    const {
-      loadingControllers,
-      selectedIndices,
-      indices,
-    } = this.props;
+    const { loadingControllers, selectedIndices, indices } = this.props;
     const columns = [
       {
         title: 'Controller',
@@ -165,7 +160,7 @@ export default class Controllers extends Component {
     return (
       <PageHeaderLayout title="Controllers">
         <Card bordered={false}>
-          <Form layout={'inline'} style={{ display: 'flex', flex: 1, alignItems: 'center' }}>
+          <Form layout="inline" style={{ display: 'flex', flex: 1, alignItems: 'center' }}>
             <SearchBar
               style={{ marginRight: 32 }}
               placeholder="Search controllers"
@@ -194,3 +189,5 @@ export default class Controllers extends Component {
     );
   }
 }
+
+export default Controllers;

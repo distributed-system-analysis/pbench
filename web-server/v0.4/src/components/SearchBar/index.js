@@ -40,7 +40,15 @@ export default class SearchBar extends PureComponent {
     const suffix = searchValue ? <Icon type="close-circle" onClick={this.emitEmpty} /> : <span />;
 
     return (
-      <div style={{ display: 'flex', flexDirection: 'row', alignContent: 'center', maxWidth: 300, ...style }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignContent: 'center',
+          maxWidth: 300,
+          ...style,
+        }}
+      >
         <Search
           ref={node => {
             this.searchBar = node;

@@ -2,7 +2,7 @@ import pageRoutes from './router.config';
 
 export default {
   define: {
-    'process.env': process.env.NODE_ENV
+    'process.env': process.env.NODE_ENV,
   },
   dynamicImport: undefined,
   base: '/dashboard',
@@ -17,8 +17,8 @@ export default {
       'umi-plugin-react',
       {
         antd: true,
-        dva: true
-      }
-    ]
+        dva: true,
+      },
+    ],
   ],
 };

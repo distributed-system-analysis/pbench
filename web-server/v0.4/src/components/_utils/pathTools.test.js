@@ -1,4 +1,4 @@
-import { urlToList } from './pathTools';
+import urlToList from './pathTools';
 
 describe('test urlToList', () => {
   it('single path', () => {

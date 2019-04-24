@@ -5,27 +5,29 @@ import { Card, Spin, notification } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { filterIterations } from '../../utils/parse';
 
-import TableFilterSelection from '../../components/TableFilterSelection';
-import Button from '../../components/Button';
-import Table from '../../components/Table';
+import TableFilterSelection from '@/components/TableFilterSelection';
+import Button from '@/components/Button';
+import Table from '@/components/Table';
 
 @connect(({ global, dashboard, loading }) => ({
-  selectedControllers: global.selectedControllers,
-  selectedResults: global.selectedResults,
   iterations: dashboard.iterations,
+  iterationParams: dashboard.iterationParams,
   results: dashboard.results,
   controllers: dashboard.controllers,
   datastoreConfig: global.datastoreConfig,
+  selectedControllers: global.selectedControllers,
+  selectedResults: global.selectedResults,
+  selectedIterationKeys: global.selectedIterationKeys,
   loading: loading.effects['dashboard/fetchIterations'],
 }))
 class ComparisonSelect extends React.Component {
   constructor(props) {
     super(props);
-    const { iterations } = props;
+    const { iterations, selectedIterationKeys } = props;
 
     this.state = {
-      resultIterations: iterations.responseData,
-      selectedRowKeys: iterations.selectedRowKeys,
+      resultIterations: iterations,
+      selectedRowKeys: selectedIterationKeys,
     };
   }
 
@@ -37,13 +39,15 @@ class ComparisonSelect extends React.Component {
       payload: { selectedResults, datastoreConfig },
     }).catch(() => {
       this.openNetworkErrorNotification('error');
-    })
+    });
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.iterations !== this.props.iterations) {
-      this.setState({ resultIterations: nextProps.iterations.responseData });
-      this.setState({ selectedRowKeys: nextProps.iterations.selectedRowKeys });
+    const { iterations } = this.props;
+
+    if (nextProps.iterations !== iterations) {
+      this.setState({ resultIterations: nextProps.iterations });
+      this.setState({ selectedRowKeys: nextProps.selectedIterationKeys });
     }
   }
 
@@ -60,19 +64,17 @@ class ComparisonSelect extends React.Component {
 
     if (selectedRowKeys.flat(1).length > 0) {
       const selectedRowData = [];
-      for (const item in selectedRowKeys) {
-        if (selectedRowKeys[item].length > 0) {
-          for (var row in selectedRowKeys[item]) {
-            selectedRowData.push(resultIterations[item].iterations[selectedRowKeys[item][row]]);
-          }
-        }
-      }
+      selectedRowKeys.forEach(rowKey => {
+        selectedRowKeys[rowKey].forEach(row => {
+          selectedRowData.push(resultIterations[rowKey].iterations[selectedRowKeys[rowKey][row]]);
+        });
+      });
       this.compareIterations(selectedRowData);
     } else {
       let selectedIterations = [];
-      resultIterations.forEach((result) => {
+      resultIterations.forEach(result => {
         selectedIterations = selectedIterations.concat(result.iterations);
-      })
+      });
       this.compareIterations(selectedIterations);
     }
   };
@@ -90,39 +92,20 @@ class ComparisonSelect extends React.Component {
 
   onFilterTable = selectedFilters => {
     const { iterations } = this.props;
-    const { responseData } = iterations;
 
-    const filteredIterations = filterIterations(responseData, selectedFilters);
+    const filteredIterations = filterIterations(iterations, selectedFilters);
     this.setState({ resultIterations: filteredIterations });
-  }
+  };
 
   compareIterations = selectedIterations => {
-    const { results, selectedResults, iterations, dispatch } = this.props;
-    const { configData } = iterations;
-    const configCategories = Object.keys(configData);
-
-    dispatch({
-      type: 'dashboard/modifyConfigCategories',
-      payload: configCategories,
-    });
-    dispatch({
-      type: 'dashboard/modifyConfigData',
-      payload: configData,
-    });
-    dispatch({
-      type: 'dashboard/modifySelectedResults',
-      payload: selectedResults,
-    });
+    const { results, dispatch } = this.props;
 
     dispatch(
       routerRedux.push({
         pathname: '/comparison',
         state: {
           iterations: selectedIterations,
-          configCategories: configCategories,
-          configData: configData,
-          results: results,
-          selectedResults: selectedResults,
+          results,
         },
       })
     );
@@ -130,34 +113,31 @@ class ComparisonSelect extends React.Component {
 
   render() {
     const { resultIterations, selectedRowKeys } = this.state;
-    const { iterations, selectedControllers, loading } = this.props;
-    const { configData } = iterations;
+    const { iterationParams, selectedControllers, loading } = this.props;
 
     return (
       <PageHeaderLayout title={selectedControllers.join(', ')}>
         <Card>
           <Spin spinning={loading} tip="Loading Iterations...">
             <Button
+              type="primary"
               style={{ marginBottom: 16 }}
               name="Compare Iterations"
               onClick={this.onCompareIterations}
             />
-            <TableFilterSelection
-              onFilter={this.onFilterTable}
-              filters={configData}
-            />
-            {resultIterations.map((response, index) => {
+            <TableFilterSelection onFilter={this.onFilterTable} filters={iterationParams} />
+            {resultIterations.map((iteration, index) => {
               const rowSelection = {
                 selectedRowKeys: selectedRowKeys[index],
                 onSelect: record => this.onSelectChange(record),
               };
               return (
-                <div key={response.resultName} style={{ marginTop: 32 }}>
-                  <h2>{response.resultName}</h2>
+                <div key={iteration.resultName} style={{ marginTop: 32 }}>
+                  <h2>{iteration.resultName}</h2>
                   <Table
                     rowSelection={rowSelection}
-                    columns={response.columns}
-                    dataSource={response.iterations}
+                    columns={iteration.columns}
+                    dataSource={iteration.iterations}
                     bordered
                   />
                 </div>

@@ -1,9 +1,9 @@
-import ReactJS, { PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 import { Layout, Menu, Icon } from 'antd';
 import pathToRegexp from 'path-to-regexp';
 import { Link } from 'dva/router';
 import styles from './index.less';
-import { urlToList } from '@/components/_utils/pathTools';
+import urlToList from '@/components/_utils/pathTools';
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -143,9 +143,8 @@ export default class SiderMenu extends PureComponent {
         );
       }
       return null;
-    } else {
-      return <Menu.Item key={item.path}>{this.getMenuItemPath(item)}</Menu.Item>;
     }
+    return <Menu.Item key={item.path}>{this.getMenuItemPath(item)}</Menu.Item>;
   };
 
   /**
@@ -175,9 +174,8 @@ export default class SiderMenu extends PureComponent {
   conversionPath = path => {
     if (path && path.indexOf('http') === 0) {
       return path;
-    } else {
-      return `/${path || ''}`.replace(/\/+/g, '/');
     }
+    return `/${path || ''}`.replace(/\/+/g, '/');
   };
 
   checkPermissionItem = (authority, ItemDom) => {

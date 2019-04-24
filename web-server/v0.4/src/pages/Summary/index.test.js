@@ -4,8 +4,14 @@ import { shallow } from 'enzyme';
 import Summary from './index';
 
 const mockProps = {
-  summaryResult: [],
+  result: {
+    runMetadata: [],
+    hostTools: [],
+  },
   selectedResults: ['test_result'],
+  selectedControllers: ['test_controller'],
+  iterations: [{}],
+  iterationParams: {},
 }
 
 const mockDispatch = jest.fn();

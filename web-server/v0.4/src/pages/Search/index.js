@@ -4,10 +4,10 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import Button from '../../components/Button';
-import RowSelection from '../../components/RowSelection';
-import MonthSelect from '../../components/MonthSelect';
-import Table from '../../components/Table';
+import Button from '@/components/Button';
+import RowSelection from '@/components/RowSelection';
+import MonthSelect from '@/components/MonthSelect';
+import Table from '@/components/Table';
 
 @connect(({ search, global, loading }) => ({
   mapping: search.mapping,
@@ -20,7 +20,7 @@ import Table from '../../components/Table';
   loadingMapping: loading.effects['search/fetchIndexMapping'],
   loadingSearchResults: loading.effects['search/fetchSearchResults'],
 }))
-export default class SearchList extends Component {
+class SearchList extends Component {
   constructor(props) {
     super(props);
 
@@ -41,7 +41,7 @@ export default class SearchList extends Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentWillReceiveProps(nextProps, prevProps) {
     const { selectedIndices, selectedFields } = this.props;
 
     if (selectedIndices !== prevProps.selectedIndices || selectedFields !== prevProps.selectedFields) {
@@ -64,7 +64,7 @@ export default class SearchList extends Component {
 
     dispatch({
       type: 'global/fetchMonthIndices',
-      payload: { datastoreConfig: datastoreConfig },
+      payload: { datastoreConfig },
     }).then(() => {
       this.fetchIndexMapping();
     });
@@ -76,21 +76,21 @@ export default class SearchList extends Component {
     dispatch({
       type: 'search/fetchIndexMapping',
       payload: {
-        datastoreConfig: datastoreConfig,
-        indices: indices,
+        datastoreConfig,
+        indices,
       },
     });
   };
 
   onRowSelectChange = (selectedRowKeys, selectedRows) => {
     const { dispatch } = this.props;
-    let selectedControllers = [];
-    selectedRows.forEach((row) => {
-      let controller = row['run.controller'];
+    const selectedControllers = [];
+    selectedRows.forEach(row => {
+      const controller = row['run.controller'];
       if (!selectedControllers.includes(controller)) {
         selectedControllers.push(controller);
-      } 
-    })
+      }
+    });
     this.setState({ selectedRowKeys });
 
     dispatch({
@@ -100,8 +100,8 @@ export default class SearchList extends Component {
     dispatch({
       type: 'global/updateSelectedControllers',
       payload: selectedControllers,
-    })
-  }
+    });
+  };
 
   resetSelectedFields = async () => {
     const { dispatch } = this.props;
@@ -123,7 +123,7 @@ export default class SearchList extends Component {
 
   updateSelectedFields = field => {
     const { dispatch, selectedFields } = this.props;
-    let newSelectedFields = selectedFields.slice();
+    const newSelectedFields = selectedFields.slice();
 
     if (newSelectedFields.includes(field)) {
       newSelectedFields.splice(newSelectedFields.indexOf(field), 1);
@@ -149,9 +149,9 @@ export default class SearchList extends Component {
     dispatch({
       type: 'search/fetchSearchResults',
       payload: {
-        datastoreConfig: datastoreConfig,
-        selectedIndices: selectedIndices,
-        selectedFields: selectedFields,
+        datastoreConfig,
+        selectedIndices,
+        selectedFields,
         query: searchQuery,
       },
     });
@@ -204,17 +204,19 @@ export default class SearchList extends Component {
       loadingSearchResults,
       loadingMapping,
     } = this.props;
-    let columns = [];
-    selectedFields.map(field => {
+    const columns = [];
+    
+    selectedFields.forEach(field => {
       columns.push({
         title: field,
         dataIndex: field,
         key: field,
       });
     });
+    
     const rowSelection = {
       selectedRowKeys,
-      onChange: this.onRowSelectChange
+      onChange: this.onRowSelectChange,
     };
 
     return (
@@ -236,11 +238,22 @@ export default class SearchList extends Component {
           <Row gutter={24}>
             <Col lg={7} md={24}>
               <Card
-                title={'Filter Results'}
+                title="Filter Results"
                 extra={
                   <div>
-                    <Button name="Reset" type="default" size="small" onClick={this.resetSelectedFields} />
-                    <Button name="Apply" size="small" disabled={updateFiltersDisabled} onClick={this.fetchSearchQuery}  style={{ marginLeft: 16 }} />
+                    <Button
+                      name="Reset"
+                      size="small"
+                      onClick={this.resetSelectedFields}
+                    />
+                    <Button
+                      name="Apply"
+                      type="primary"
+                      size="small"
+                      disabled={updateFiltersDisabled}
+                      onClick={this.fetchSearchQuery}
+                      style={{ marginLeft: 16 }}
+                    />
                   </div>
                 }
                 style={{ marginBottom: 24 }}
@@ -254,41 +267,39 @@ export default class SearchList extends Component {
                   />
                   <Divider />
                 </Spin>
-                {Object.keys(mapping).map(field => {
-                  return (
-                    <div key={field}>
-                      <p style={{ fontWeight: 'bold' }}>{field}</p>
-                      <p>
-                        {mapping[field].map(item => {
-                          let fieldItem = field + '.' + item;
-                          return (
-                            <Tag
-                              key={fieldItem}
-                              onClick={() => this.updateSelectedFields(fieldItem)}
-                              style={{ marginTop: 8 }}
-                              color={selectedFields.includes(fieldItem) && 'blue'}
-                            >
-                              {item}
-                            </Tag>
-                          );
-                        })}
-                      </p>
-                      <Divider />
-                    </div>
-                  );
-                })}
+                {Object.keys(mapping).map(field => (
+                  <div key={field}>
+                    <p style={{ fontWeight: 'bold' }}>{field}</p>
+                    <p>
+                      {mapping[field].map(item => {
+                        const fieldItem = `${field}.${item}`;
+                        return (
+                          <Tag
+                            key={fieldItem}
+                            onClick={() => this.updateSelectedFields(fieldItem)}
+                            style={{ marginTop: 8 }}
+                            color={selectedFields.includes(fieldItem) && 'blue'}
+                          >
+                            {item}
+                          </Tag>
+                        );
+                      })}
+                    </p>
+                    <Divider />
+                  </div>
+                ))}
               </Card>
             </Col>
             <Col lg={17} md={24}>
               <Card>
                 <p style={{ fontWeight: 'bold' }}>
                   {searchResults.resultCount !== undefined
-                    ? searchResults.resultCount + ' hits'
+                    ? `${searchResults.resultCount} hits`
                     : null}
                 </p>
                 <RowSelection
                   selectedItems={selectedRowKeys}
-                  compareActionName={'Compare Results'}
+                  compareActionName="Compare Results"
                   onCompare={this.compareResults}
                 />
                 <Table
@@ -311,3 +322,5 @@ export default class SearchList extends Component {
     );
   }
 }
+
+export default SearchList;

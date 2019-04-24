@@ -1,5 +1,5 @@
 import { getBreadcrumb } from './index';
-import { urlToList } from '../_utils/pathTools';
+import urlToList from '../_utils/pathTools';
 
 const routerData = {
   '/dashboard/results': {
@@ -16,9 +16,7 @@ describe('test getBreadcrumb', () => {
   });
 
   it('getBreadcrumb for a single path', () => {
-    const urlNameList = urlToList('/search').map(url => {
-      return getBreadcrumb(routerData, url).name;
-    });
+    const urlNameList = urlToList('/search').map(url => getBreadcrumb(routerData, url).name);
     expect(urlNameList).toEqual(['search']);
   });
 });
