@@ -1,4 +1,3 @@
-import { createStore } from 'redux';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
@@ -23,6 +22,8 @@ const persistEnhancer = () => createStore => (reducer, initialState, enhancer) =
     ...store,
   };
 };
+
+// eslint-disable-next-line import/prefer-default-export
 export const dva =
   process.env.APP_TYPE === 'build'
     ? {

@@ -11,12 +11,12 @@ import classNames from 'classnames';
 import pathToRegexp from 'path-to-regexp';
 import { enquireScreen, unenquireScreen } from 'enquire-js';
 import memoizeOne from 'memoize-one';
-import deepEqual from 'lodash.isequal';
+import deepEqual from 'lodash/isEqual';
 import GlobalHeader from '@/components/GlobalHeader';
 import GlobalFooter from 'ant-design-pro/lib/GlobalFooter';
 import SiderMenu from '../components/SiderMenu';
 import Authorized from '../utils/Authorized';
-import { getMenuData } from '../common/menu';
+import getMenuData from '../common/menu';
 import logo from '../assets/rh_logo.png';
 
 const { Content, Header, Footer } = Layout;
@@ -84,9 +84,9 @@ enquireScreen(b => {
 });
 
 @connect(({ global = {} }) => ({
-  collapsed: global.collapsed
+  collapsed: global.collapsed,
 }))
-export default class BasicLayout extends React.PureComponent {
+class BasicLayout extends React.PureComponent {
   static childContextTypes = {
     location: PropTypes.object,
     breadcrumbNameMap: PropTypes.object,
@@ -212,7 +212,8 @@ export default class BasicLayout extends React.PureComponent {
           // you will be forced to jump to the 403 interface without permission
           Authorized={Authorized}
           menuData={getMenuData()}
-          collapsed={collapsed == true ? false : true}
+          collapsed={collapsed !== true}
+          // eslint-disable-next-line no-restricted-globals
           location={location}
           isMobile={mb}
           onCollapse={this.handleMenuCollapse}
@@ -260,6 +261,7 @@ export default class BasicLayout extends React.PureComponent {
     );
 
     return (
+      // eslint-disable-next-line no-underscore-dangle
       <PersistGate persistor={persistStore(window.g_app._store)}>
         <DocumentTitle title={this.getPageTitle(pathname)}>
           <ContainerQuery query={query}>
@@ -270,3 +272,5 @@ export default class BasicLayout extends React.PureComponent {
     );
   }
 }
+
+export default BasicLayout;

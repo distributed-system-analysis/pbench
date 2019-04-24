@@ -1,11 +1,13 @@
-import request from '../utils/request';
 import axios from 'axios';
+import _ from 'lodash';
+import request from '../utils/request';
+import { renameProp } from '../utils/utils';
 
 function parseMonths(datastoreConfig, selectedIndices) {
   let indices = '';
 
-  selectedIndices.map(value => {
-    indices += datastoreConfig.prefix + datastoreConfig.run_index + value + ',';
+  selectedIndices.forEach(value => {
+    indices += `${datastoreConfig.prefix + datastoreConfig.run_index + value},`;
   });
 
   return indices;
@@ -14,11 +16,10 @@ function parseMonths(datastoreConfig, selectedIndices) {
 export async function queryControllers(params) {
   const { datastoreConfig, selectedIndices } = params;
 
-  const endpoint =
-    datastoreConfig.elasticsearch +
-    '/' +
-    parseMonths(datastoreConfig, selectedIndices) +
-    '/_search';
+  const endpoint = `${datastoreConfig.elasticsearch}/${parseMonths(
+    datastoreConfig,
+    selectedIndices
+  )}/_search`;
 
   return request(endpoint, {
     method: 'POST',
@@ -51,17 +52,16 @@ export async function queryControllers(params) {
 export async function queryResults(params) {
   const { datastoreConfig, selectedIndices, controller } = params;
 
-  const endpoint =
-    datastoreConfig.elasticsearch +
-    '/' +
-    parseMonths(datastoreConfig, selectedIndices) +
-    '/_search';
+  const endpoint = `${datastoreConfig.elasticsearch}/${parseMonths(
+    datastoreConfig,
+    selectedIndices
+  )}/_search`;
 
   return request(endpoint, {
     method: 'POST',
     body: {
       fields: [
-        '@metadata.controller_dir',
+        '@metadata.controllerDir',
         '@metadata.satellite',
         'run.controller',
         'run.start',
@@ -87,17 +87,15 @@ export async function queryResults(params) {
       size: 5000,
     },
   });
-  return request(endpoint);
 }
 
 export async function queryResult(params) {
   const { datastoreConfig, selectedIndices, result } = params;
 
-  const endpoint =
-    datastoreConfig.elasticsearch +
-    '/' +
-    parseMonths(datastoreConfig, selectedIndices) +
-    '/_search?source=';
+  const endpoint = `${datastoreConfig.elasticsearch}/${parseMonths(
+    datastoreConfig,
+    selectedIndices
+  )}/_search?source=`;
 
   return request(endpoint, {
     method: 'POST',
@@ -114,77 +112,143 @@ export async function queryResult(params) {
 
 export async function queryTocResult(params) {
   const { datastoreConfig, selectedIndices, id } = params;
-  const endpoint =
-    datastoreConfig.elasticsearch +
-    '/' +
-    parseMonths(datastoreConfig, selectedIndices) +
-    '/_search?q=_parent:"' +
-    id +
-    '"';
+
+  const endpoint = `${datastoreConfig.elasticsearch}/${parseMonths(
+    datastoreConfig,
+    selectedIndices
+  )}/_search?q=_parent:"${id}"`;
+
   return request(endpoint);
 }
 
 export async function queryIterations(params) {
   const { datastoreConfig, selectedResults } = params;
 
-  if (params.selectedResults === undefined) {
-    console.log('queryIterations called without params.selectedResults defined.');
-    return;
-  }
-
-  let iterationRequests = [];
-  selectedResults.map(result => {
-    let controller_dir = result['@metadata.controller_dir'];
-    if (controller_dir === undefined) {
-      controller_dir = result['run.controller'];
-      controller_dir = controller_dir.includes('.')
-        ? controller_dir.slice(0, controller_dir.indexOf('.'))
-        : controller_dir;
+  const iterationRequests = [];
+  selectedResults.forEach(result => {
+    let controllerDir = result['@metadata.controllerDir'];
+    if (controllerDir === undefined) {
+      controllerDir = result['run.controller'];
+      controllerDir = controllerDir.includes('.')
+        ? controllerDir.slice(0, controllerDir.indexOf('.'))
+        : controllerDir;
     }
     iterationRequests.push(
       axios.get(
-        datastoreConfig.results +
-          '/incoming/' +
-          encodeURI(controller_dir) +
-          '/' +
-          encodeURI(result['run.name']) +
-          '/result.json'
+        `${datastoreConfig.results}/incoming/${encodeURI(controllerDir)}/${encodeURI(
+          result['run.name']
+        )}/result.json`
       )
     );
   });
 
-  return Promise.all(iterationRequests)
-    .then(response => {
-      let iterations = [];
-      response.map((iteration, index) => {
-        iterations.push({
-          iterationData: iteration.data,
-          controllerName: iteration.config.url.split('/')[4],
-          resultName: iteration.config.url.split('/')[5],
-          tableId: index,
+  return Promise.all(iterationRequests).then(response => {
+    const iterations = [];
+    response.forEach((iteration, index) => {
+      iterations.push({
+        iterationData: iteration.data,
+        controllerName: iteration.config.url.split('/')[4],
+        resultName: iteration.config.url.split('/')[5],
+        tableId: index,
+      });
+    });
+    return iterations;
+  });
+}
+
+export async function queryTimeseriesData(params) {
+  const { datastoreConfig, clusteredIterations } = params;
+  const iterationRequests = [];
+
+  Object.keys(clusteredIterations).forEach(primaryMetric => {
+    Object.keys(clusteredIterations[primaryMetric]).forEach(cluster => {
+      Object.keys(clusteredIterations[primaryMetric][cluster]).forEach(iteration => {
+        iterationRequests.push(
+          axios.get(
+            `${datastoreConfig.results}/incoming/${encodeURIComponent(
+              clusteredIterations[primaryMetric][cluster][iteration].controller_name
+            )}/${encodeURIComponent(
+              clusteredIterations[primaryMetric][cluster][iteration].result_name
+            )}/${encodeURIComponent(
+              clusteredIterations[primaryMetric][cluster][iteration].iteration_number
+            )}-${encodeURIComponent(
+              clusteredIterations[primaryMetric][cluster][iteration].iteration_name
+            )}/sample${encodeURIComponent(
+              clusteredIterations[primaryMetric][cluster][iteration].closest_sample
+            )}/result.json`
+          )
+        );
+      });
+    });
+  });
+
+  return Promise.all(iterationRequests).then(args => {
+    const timeseriesData = [];
+    const timeseriesDropdown = [];
+    const timeseriesDropdownSelected = [];
+    let responseCount = 0;
+
+    Object.keys(clusteredIterations).forEach(primaryMetric => {
+      timeseriesData[primaryMetric] = [];
+      Object.keys(clusteredIterations[primaryMetric]).forEach(cluster => {
+        timeseriesData[primaryMetric][cluster] = [];
+        let iterationTimeseriesData = [];
+        const timeseriesLabels = ['time'];
+        Object.keys(clusteredIterations[primaryMetric][cluster]).forEach(iteration => {
+          const iterationTypes = Object.keys(args[responseCount].data);
+          Object.keys(iterationTypes).forEach(iterationTest => {
+            if (
+              Object.keys(args[responseCount].data[iterationTypes[iterationTest]]).includes(
+                primaryMetric
+              )
+            ) {
+              const hosts = args[responseCount].data[iterationTypes[iterationTest]][primaryMetric];
+              Object.keys(hosts).forEach(host => {
+                if (hosts[host].client_hostname === 'all') {
+                  Object.keys(hosts[host].timeseries).forEach(item => {
+                    hosts[host].timeseries[item] = renameProp(
+                      'date',
+                      'x',
+                      hosts[host].timeseries[item]
+                    );
+                    hosts[host].timeseries[item] = renameProp(
+                      'value',
+                      `y${parseInt(iteration, 10) + 1}`,
+                      hosts[host].timeseries[item]
+                    );
+                  });
+                  timeseriesLabels.push(
+                    `${clusteredIterations[primaryMetric][cluster][iteration].result_name}-${
+                      clusteredIterations[primaryMetric][cluster][iteration].iteration_name
+                    }`
+                  );
+                  iterationTimeseriesData = _.merge(
+                    iterationTimeseriesData,
+                    hosts[host].timeseries
+                  );
+                  responseCount += 1;
+                }
+              });
+            }
+          });
+        });
+        const timeLabel = timeseriesLabels.splice(0, 1)[0];
+        timeseriesLabels.splice(1, 0, timeLabel);
+        timeseriesData[primaryMetric][cluster].push({
+          data_series_names: timeseriesLabels,
+          data: iterationTimeseriesData.map(Object.values),
+          x_axis_series: 'time',
         });
       });
-      return iterations;
-    })
-    .catch(error => {
-      if (error.response !== undefined && error.response.status !== undefined) {
-        if (error.response.status == 404) {
-          console.log('(404) Not Found (queryIterations): ' + error.request.responseURL);
-          return [];
-        } else {
-          console.log(
-            '(' +
-              error.response.status +
-              ') queryIterations: GET ' +
-              error.request.responseURL +
-              ' -- ' +
-              error
-          );
-          throw error;
-        }
-      } else {
-        console.log('queryIterations: ' + error);
-        throw error;
-      }
     });
+    Object.keys(timeseriesData).forEach(primaryMetric => {
+      timeseriesDropdownSelected[primaryMetric] = 0;
+      timeseriesDropdown[primaryMetric] = Object.keys(timeseriesData[primaryMetric]);
+    });
+    return {
+      timeseriesData,
+      timeseriesDropdownSelected,
+      timeseriesDropdown,
+    };
+  });
 }

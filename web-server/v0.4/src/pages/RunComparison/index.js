@@ -1,9 +1,6 @@
-import ReactJS from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import { connect } from 'dva';
-import axios from 'axios';
 import jschart from 'jschart';
-import _ from 'lodash';
 import {
   Row,
   Col,
@@ -21,77 +18,123 @@ import {
   message,
 } from 'antd';
 import { ResponsiveBar } from '@nivo/bar';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import DescriptionList from 'ant-design-pro/lib/DescriptionList';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import moment from 'moment';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { generateIterationClusters } from '../../utils/parse';
+import { queryTimeseriesData } from '../../services/dashboard';
 
 const { Description } = DescriptionList;
-const TabPane = Tabs.TabPane;
+const { TabPane } = Tabs;
 const FormItem = Form.Item;
 
-@connect(({ global, dashboard }) => ({
+const columns = [
+  {
+    title: 'Cluster ID',
+    dataIndex: 'clusterID',
+    key: 'clusterID',
+  },
+  {
+    title: 'Matched Configurations',
+    dataIndex: 'cluster',
+    render: text => {
+      const splitTags = text.split('-');
+      return splitTags.map(tag => (
+        <Tag color="#2db7f5" key={tag}>
+          {tag}
+        </Tag>
+      ));
+    },
+    key: 'cluster',
+  },
+  {
+    title: 'Iterations',
+    dataIndex: 'length',
+    key: 'length',
+  },
+];
+
+const legendColumns = [
+  {
+    title: 'Cluster ID',
+    dataIndex: 'clusterID',
+    key: 'clusterID',
+  },
+  {
+    title: 'Matched Configurations',
+    dataIndex: 'cluster',
+    render: text => {
+      const splitTags = text.split('-');
+      return splitTags.map(tag => (
+        <Tag color="#2db7f5" key={tag}>
+          {tag}
+        </Tag>
+      ));
+    },
+    key: 'cluster',
+  },
+];
+
+@connect(({ dashboard, global }) => ({
+  iterationParams: dashboard.iterationParams,
   selectedControllers: global.selectedControllers,
+  selectedResults: global.selectedResults,
   datastoreConfig: global.datastoreConfig,
 }))
-export default class RunComparison extends ReactJS.Component {
-  static propTypes = {
-    iterations: PropTypes.array,
-    configCategories: PropTypes.array,
-    configData: PropTypes.array,
-    results: PropTypes.array,
-  };
-
+class RunComparison extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      clusterLabels: [],
       timeseriesData: [],
       timeseriesDropdown: [],
       timeseriesDropdownSelected: [],
-      primaryMetricIterations: [],
+      clusteredIterations: [],
       clusteredGraphData: [],
       graphKeys: [],
       tableData: [],
-      loading: false,
-      generatingPdf: false,
-      modalVisible: false,
+      selectedConfig: [],
+      loadingClusters: false,
+      loadingPdf: false,
+      exportModalVisible: false,
       defaultComponents: ['details', 'summary', 'table', 'timeseries'],
       selectedComponents: [],
-      pdfHeader: ' ',
-      pdfName: ' ',
-      confirmLoading: false,
+      pdfHeader: '',
+      pdfName: '',
     };
   }
 
   componentDidMount = () => {
-    this.setState({ loading: true });
-    const { configCategories } = this.props.location.state;
-    this.generateIterationClusters(configCategories);
+    const { iterationParams } = this.props;
+    const { location } = this.props;
+    const { iterations } = location.state;
+
+    this.onGenerateIterationClusters(Object.keys(iterationParams), iterations);
   };
 
   componentDidUpdate = () => {
     const { tableData, timeseriesData, timeseriesDropdownSelected } = this.state;
+
     if (
       Object.keys(timeseriesData).length > 0 &&
       Object.keys(timeseriesDropdownSelected).length > 0
     ) {
-      Object.keys(tableData).map(table => {
+      Object.keys(tableData).forEach(table => {
         const timedata = timeseriesData[table][timeseriesDropdownSelected[table]][0];
         jschart.create_jschart(
           0,
           'timeseries',
           table,
-          'Cluster ' + timeseriesDropdownSelected[table],
+          `Cluster ${timeseriesDropdownSelected[table]}`,
           null,
           null,
           {
             json_object: {
-              x_axis_series: timedata['x_axis_series'],
-              data: timedata['data'],
-              data_series_names: timedata['data_series_names'],
+              x_axis_series: timedata.x_axis_series,
+              data: timedata.data,
+              data_series_names: timedata.data_series_names,
             },
           }
         );
@@ -99,257 +142,70 @@ export default class RunComparison extends ReactJS.Component {
     }
   };
 
-  findAggregation(key) {
-    if (key.includes('all') & key.includes('mean')) {
-      return key;
-    }
-  }
-
-  parseGraphData = clusteredIterations => {
-    const { clusterLabels } = this.state;
-    var clusteredGraphData = [];
-    var graphKeys = [];
-    var tableData = [];
-    for (var primaryMetric in clusteredIterations) {
-      clusteredGraphData[primaryMetric] = [];
-      graphKeys[primaryMetric] = [];
-      tableData[primaryMetric] = [];
-      var maxClusterLength = 0;
-      for (var cluster in clusteredIterations[primaryMetric]) {
-        var clusterObject = { cluster: cluster };
-        for (var iteration in clusteredIterations[primaryMetric][cluster]) {
-          clusterObject[iteration] =
-            clusteredIterations[primaryMetric][cluster][iteration][
-              Object.keys(clusteredIterations[primaryMetric][cluster][iteration]).find(
-                this.findAggregation
-              )
-            ];
-        }
-        clusteredGraphData[primaryMetric].push(clusterObject);
-        var clusterItems = Object.keys(clusterObject).length - 1;
-        if (clusterItems > maxClusterLength) {
-          maxClusterLength = clusterItems;
-        }
-        tableData[primaryMetric].push({
-          key: cluster,
-          clusterID: cluster,
-          cluster: clusterLabels[primaryMetric][cluster],
-          primaryMetric: primaryMetric,
-          length: clusterItems,
-        });
-      }
-      for (var i = 0; i < maxClusterLength; i++) {
-        graphKeys[primaryMetric].push(i);
-      }
-    }
-    this.setState({
-      tableData: tableData,
-      graphKeys: graphKeys,
-      clusteredGraphData: clusteredGraphData,
-      loading: false,
-    });
-  };
-
-  groupClusters = (array, cluster, f) => {
-    var groups = {};
-    array.forEach(function(o) {
-      var group = f(o).join('-');
-      groups[group] = groups[group] || [];
-      groups[group].push(o);
-    });
-    var { clusterLabels } = this.state;
-    clusterLabels[cluster] = Object.keys(groups);
-    this.setState({ clusterLabels: clusterLabels });
-    return Object.keys(groups).map(function(group) {
-      return groups[group];
-    });
-  };
-
-  generateIterationClusters = config => {
-    this.setState({
-      loading: true,
-      selectedConfig: config,
-    });
-    const { iterations } = this.props.location.state;
-    var primaryMetricIterations = [];
-    primaryMetricIterations = _.mapValues(_.groupBy(iterations, 'primary_metric'), clist =>
-      clist.map(iteration => _.omit(iteration, 'primary_metric'))
-    );
-    var clusteredIterations = [];
-    for (var cluster in primaryMetricIterations) {
-      clusteredIterations = [];
-      if (typeof config == 'object' && config.length > 0) {
-        clusteredIterations = this.groupClusters(
-          primaryMetricIterations[cluster],
-          cluster,
-          function(item) {
-            var configData = [];
-            for (var filter in config) {
-              configData.push(item[config[filter]]);
-            }
-            return configData;
-          }
-        );
-      } else {
-        clusteredIterations = _.mapValues(
-          _.groupBy(primaryMetricIterations[cluster], config),
-          clist => clist.map(iteration => _.omit(iteration, config))
-        );
-      }
-      primaryMetricIterations[cluster] = clusteredIterations;
-    }
-    this.setState({ primaryMetricIterations: primaryMetricIterations });
-    this.retrieveTimeseriesData(primaryMetricIterations);
-    this.parseGraphData(primaryMetricIterations);
-  };
-
-  resetIterationClusters = () => {
-    const { configCategories } = this.props.location.state;
-    this.generateIterationClusters(configCategories);
-  };
-
-  renameProp = (oldProp, newProp, { [oldProp]: old, ...others }) => {
-    return {
-      [newProp]: old,
-      ...others,
-    };
-  };
-
-  retrieveTimeseriesData(clusteredIterations) {
+  onGenerateIterationClusters = (clusters, iterations) => {
     const { datastoreConfig } = this.props;
 
-    var iterationRequests = [];
-    for (var primaryMetric in clusteredIterations) {
-      for (var cluster in clusteredIterations[primaryMetric]) {
-        for (var iteration in clusteredIterations[primaryMetric][cluster]) {
-          iterationRequests.push(
-            axios.get(
-              datastoreConfig.results
-                + '/incoming/'
-                + encodeURIComponent(
-                    clusteredIterations[primaryMetric][cluster][iteration].controller_name
-                  )
-                + '/'
-                + encodeURIComponent(
-                    clusteredIterations[primaryMetric][cluster][iteration].result_name
-                  )
-                + '/'
-                + encodeURIComponent(
-                    clusteredIterations[primaryMetric][cluster][iteration].iteration_number
-                  )
-                + '-'
-                + encodeURIComponent(
-                    clusteredIterations[primaryMetric][cluster][iteration].iteration_name
-                  )
-                + '/sample'
-                + encodeURIComponent(
-                    clusteredIterations[primaryMetric][cluster][iteration].closest_sample
-                  )
-                + '/result.json'
-            )
-          );
-        }
-      }
-    }
-    axios.all(iterationRequests).then(args => {
-      var timeseriesData = [];
-      var timeseriesDropdown = [];
-      var timeseriesDropdownSelected = [];
-      var responseCount = 0;
-      for (var primaryMetric in clusteredIterations) {
-        timeseriesData[primaryMetric] = [];
-        for (var cluster in clusteredIterations[primaryMetric]) {
-          timeseriesData[primaryMetric][cluster] = [];
-          var iterationTimeseriesData = [];
-          var timeseriesLabels = ['time'];
-          for (var iteration in clusteredIterations[primaryMetric][cluster]) {
-            var iterationTypes = Object.keys(args[responseCount].data);
-            for (var iterationTest in iterationTypes) {
-              if (
-                Object.keys(args[responseCount].data[iterationTypes[iterationTest]]).includes(
-                  primaryMetric
-                )
-              ) {
-                var hosts = args[responseCount].data[iterationTypes[iterationTest]][primaryMetric];
-                for (var host in hosts) {
-                  if (hosts[host].client_hostname == 'all') {
-                    for (var item in hosts[host].timeseries) {
-                      hosts[host].timeseries[item] = this.renameProp(
-                        'date',
-                        'x',
-                        hosts[host].timeseries[item]
-                      );
-                      hosts[host].timeseries[item] = this.renameProp(
-                        'value',
-                        'y' + (parseInt(iteration) + 1),
-                        hosts[host].timeseries[item]
-                      );
-                    }
-                    timeseriesLabels.push(
-                      clusteredIterations[primaryMetric][cluster][iteration].result_name +
-                        '-' +
-                        clusteredIterations[primaryMetric][cluster][iteration].iteration_name
-                    );
-                    iterationTimeseriesData = _.merge(
-                      iterationTimeseriesData,
-                      hosts[host].timeseries
-                    );
-                    responseCount++;
-                  }
-                }
-              }
-            }
-          }
-          let timeLabel = timeseriesLabels.splice(0, 1)[0];
-          timeseriesLabels.splice(1, 0, timeLabel);
-          timeseriesData[primaryMetric][cluster].push({
-            ['data_series_names']: timeseriesLabels,
-            ['data']: iterationTimeseriesData.map(Object.values),
-            ['x_axis_series']: 'time',
-          });
-        }
-      }
-      for (var primaryMetric in Object.keys(timeseriesData)) {
-        timeseriesDropdownSelected[Object.keys(timeseriesData)[primaryMetric]] = 0;
-        timeseriesDropdown[Object.keys(timeseriesData)[primaryMetric]] = Object.keys(
-          timeseriesData[Object.keys(timeseriesData)[primaryMetric]]
-        );
-      }
+    this.setState({ loadingClusters: true });
+    Promise.resolve(generateIterationClusters(clusters, iterations)).then(iterationClusters => {
       this.setState({
-        timeseriesData: timeseriesData,
-        timeseriesDropdownSelected: timeseriesDropdownSelected,
-        timeseriesDropdown: timeseriesDropdown,
+        ...iterationClusters,
+      });
+      queryTimeseriesData({
+        clusteredIterations: iterationClusters.clusteredIterations,
+        datastoreConfig,
+      }).then(timeseriesData => {
+        this.setState({ loadingClusters: false });
+        this.setState({
+          ...timeseriesData,
+        });
       });
     });
-  }
+  };
 
-  clusterDropdownChange = (value, primaryMetric) => {
-    var { tableData, timeseriesDropdownSelected } = this.state;
-    Object.keys(tableData).map(table => {
+  onResetIterationClusters = () => {
+    const { iterationParams } = this.props;
+    const { location } = this.props;
+    const { iterations } = location.state;
+
+    this.onGenerateIterationClusters(Object.keys(iterationParams), iterations);
+  };
+
+  onChangeIterationClusters = clusters => {
+    const { location } = this.props;
+    const { iterations } = location.state;
+
+    this.onGenerateIterationClusters(clusters, iterations);
+  };
+
+  onTimeseriesClusterChange = (value, primaryMetric) => {
+    const { tableData, timeseriesDropdownSelected } = this.state;
+    Object.keys(tableData).forEach(table => {
       document.getElementById(table).innerHTML = '';
     });
     timeseriesDropdownSelected[primaryMetric] = value;
-    this.setState({ timeseriesDropdownSelected: timeseriesDropdownSelected });
+    this.setState({ timeseriesDropdownSelected });
   };
 
   savePDF = () => {
-    /* maps through the state array containing the IDs and saves the pdf */
-    var doc = new jsPDF('p', 'mm', 'a4', true);
-    var position = 5;
-    var fullIHeight = 0;
-    var promises = this.state.selectedComponents.map(async (check, index) => {
-      await html2canvas(document.querySelector('#' + check), { allowTaint: true }).then(canvas => {
+    const { pdfHeader, pdfName, selectedComponents } = this.state;
+
+    // eslint-disable-next-line new-cap
+    let doc = new jsPDF('p', 'mm', 'a4', true);
+    let position = 5;
+    let fullIHeight = 0;
+    const promises = selectedComponents.map(async (check, index) => {
+      await html2canvas(document.querySelector(`#${check}`), { allowTaint: true }).then(canvas => {
         doc.setPage(index);
         canvas.getContext('2d');
-        var imgData = canvas.toDataURL();
-        var imgWidth = 210;
-        var pageHeight = 295;
-        var imgHeight = (canvas.height * imgWidth) / canvas.width;
+        const imgData = canvas.toDataURL();
+        const imgWidth = 210;
+        const pageHeight = 295;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
         position = fullIHeight + 5;
-        fullIHeight = fullIHeight + imgHeight;
-        var heightLeft = fullIHeight;
+        fullIHeight += imgHeight;
+        let heightLeft = fullIHeight;
         doc = doc.addImage(imgData, 'PNG', 3, position, imgWidth, imgHeight, '', 'FAST');
-        doc.text(this.state.pdfHeader, 115, 10, 'center');
+        doc.text(pdfHeader, 115, 10, 'center');
         heightLeft -= pageHeight;
         while (heightLeft >= 0) {
           position = heightLeft - fullIHeight;
@@ -360,59 +216,49 @@ export default class RunComparison extends ReactJS.Component {
       });
     });
     Promise.all(promises).then(() => {
-      console.log('downloaded');
-      doc.save(this.state.pdfName + '.pdf');
+      doc.save(`${pdfName}.pdf`);
       this.setState({
-        modalVisible: false,
-        generatingPdf: false,
+        exportModalVisible: false,
+        loadingPdf: false,
       });
     });
   };
 
-  addName = e => {
+  showExportModal = () => {
     this.setState({
-      pdfName: e.target.value,
+      exportModalVisible: true,
     });
   };
 
-  addHeader = e => {
+  hideExportModal = () => {
     this.setState({
-      pdfHeader: e.target.value,
+      exportModalVisible: false,
     });
   };
 
-  showModal = () => {
-    this.setState({
-      modalVisible: true,
-    });
-  };
+  onExportPdf = () => {
+    const { pdfName, pdfHeader, defaultComponents } = this.state;
 
-  handleOk = e => {
     this.setState(
       {
         pdfName: document.getElementById('pdfName').value,
         pdfHeader: document.getElementById('pdfHeader').value,
       },
       () => {
-        if (this.state.pdfName == '') {
-          console.log(document.getElementById('pdfName').value, moment().format());
+        if (pdfName === '') {
           this.setState({
             pdfName: moment().format(),
           });
         }
-        if (this.state.pdfHeader == ' ') {
+        if (pdfHeader === '') {
           message.error('Add PDF description');
         } else {
           this.setState(
             {
-              generatingPdf: true,
-              selectedComponents:
-                this.state.defaultComponents.length == 4
-                  ? ['all']
-                  : [...this.state.defaultComponents],
+              loadingPdf: true,
+              selectedComponents: defaultComponents.length === 4 ? ['all'] : [...defaultComponents],
             },
             () => {
-              console.log(this.state.selectedComponents);
               this.savePDF();
             }
           );
@@ -421,49 +267,39 @@ export default class RunComparison extends ReactJS.Component {
     );
   };
 
-  handleCancel = e => {
-    this.setState({
-      modalVisible: false,
-    });
-  };
+  onSelectPageSection = id => {
+    const { defaultComponents } = this.state;
 
-  onChange = id => {
-    if (this.state.defaultComponents.includes(id)) {
-      let defaultComponents = this.state.defaultComponents.filter(check => {
-        return check !== id;
+    if (defaultComponents.includes(id)) {
+      const components = defaultComponents.filter(check => check !== id);
+      this.setState({
+        defaultComponents: components,
       });
-      this.setState(
-        {
-          defaultComponents: defaultComponents,
-        },
-        () => {
-          console.log(this.state.defaultComponents);
-        }
-      );
     } else {
       this.setState({
-        defaultComponents: [...this.state.defaultComponents, id],
+        defaultComponents: [...defaultComponents, id],
       });
     }
   };
 
   render() {
-    const { configCategories, selectedResults } = this.props.location.state;
     const {
       graphKeys,
       tableData,
       clusteredGraphData,
-      primaryMetricIterations,
+      clusteredIterations,
       selectedConfig,
       timeseriesData,
       timeseriesDropdown,
       timeseriesDropdownSelected,
-      generatingPdf,
+      loadingPdf,
+      exportModalVisible,
+      loadingClusters,
     } = this.state;
-    const { selectedControllers } = this.props;
+    const { selectedControllers, selectedResults, iterationParams } = this.props;
 
     const expandedRowRender = cluster => {
-      var columns = [
+      const expandedColumns = [
         {
           title: 'iteration_name',
           dataIndex: 'iteration_name',
@@ -481,19 +317,24 @@ export default class RunComparison extends ReactJS.Component {
           key: 'iteration_number',
         },
       ];
-      for (var config in configCategories) {
-        columns.push({
-          title: configCategories[config],
-          dataIndex: configCategories[config],
-          key: configCategories[config],
+
+      Object.keys(iterationParams).forEach(config => {
+        expandedColumns.push({
+          title: iterationParams[config],
+          dataIndex: iterationParams[config],
+          key: iterationParams[config],
         });
-      }
-      columns.push({ title: 'closest_sample', dataIndex: 'closest_sample', key: 'closest_sample' });
+      });
+      expandedColumns.push({
+        title: 'closestSample',
+        dataIndex: 'closestSample',
+        key: 'closestSample',
+      });
 
       return (
         <Table
-          columns={columns}
-          dataSource={primaryMetricIterations[cluster.primaryMetric][cluster.key]}
+          columns={expandedColumns}
+          dataSource={clusteredIterations[cluster.primaryMetric][cluster.key]}
           pagination={false}
         />
       );
@@ -502,13 +343,13 @@ export default class RunComparison extends ReactJS.Component {
     const description = (
       <DescriptionList size="small" col="1" gutter={16}>
         <Description term="Controllers">
-          {selectedControllers.map((controller) => (
+          {selectedControllers.map(controller => (
             <Tag key={controller}>{controller}</Tag>
           ))}
         </Description>
         <Description term="Results">
           {selectedResults.map(result => (
-            <Tag>{result['run.name']}</Tag>
+            <Tag key={result}>{result['run.name']}</Tag>
           ))}
         </Description>
         <Description term="Clustering Config">
@@ -518,18 +359,16 @@ export default class RunComparison extends ReactJS.Component {
               mode="tags"
               placeholder="Select cluster config"
               value={selectedConfig}
-              defaultValue={configCategories}
-              onChange={this.generateIterationClusters}
+              defaultValue={Object.keys(iterationParams)}
+              onChange={this.onChangeIterationClusters}
             >
-              {configCategories.map((category, i) => (
-                <Select.Option value={category}>{category}</Select.Option>
+              {Object.keys(iterationParams).map(category => (
+                <Select.Option value={category} key={category}>
+                  {category}
+                </Select.Option>
               ))}
             </Select>
-            <Button
-              type="primary"
-              onClick={this.resetIterationClusters}
-              style={{ marginLeft: 8 }}
-            >
+            <Button type="primary" onClick={this.resetIterationClusters} style={{ marginLeft: 8 }}>
               {'Reset'}
             </Button>
           </div>
@@ -539,100 +378,65 @@ export default class RunComparison extends ReactJS.Component {
 
     const action = (
       <div>
-        <Button type="primary" onClick={this.showModal}>
+        <Button type="primary" onClick={this.showExportModal}>
           {'Export'}
         </Button>
-        <Modal
-          title="Export to PDF"
-          visible={this.state.modalVisible}
-          onOk={this.handleOk}
-          okText={'Save'}
-          onCancel={this.handleCancel}
-        >
-          <Spin spinning={this.state.generatingPdf}>
-            <Form>
-              <Form.Item
-                colon={false}
-                label="File Name"
-                extra="(Optional) Timestamp will be used if left blank"
-              >
-                <Input addonAfter={'.pdf'} id="pdfName" />
-              </Form.Item>
-              <Form.Item colon={false} label="Description" extra="(Optional)">
-                <Input id="pdfHeader" />
-              </Form.Item>
-            </Form>
-
-            <Card type="inner" title="Render Options">
-              <Form layout="inline">
-                <Form.Item colon={false} label="Details">
-                  <Switch defaultChecked onChange={() => this.onChange('details')} />
-                </Form.Item>
-                <Form.Item colon={false} label="Summary Graphs">
-                  <Switch defaultChecked onChange={() => this.onChange('summary')} />
-                </Form.Item>
-                <Form.Item colon={false} label="Timeseries Graphs">
-                  <Switch defaultChecked onChange={() => this.onChange('timeseries')} />
-                </Form.Item>
-                <Form.Item colon={false} label="Cluster Tables">
-                  <Switch defaultChecked onChange={() => this.onChange('table')} />
-                </Form.Item>
-              </Form>
-            </Card>
-          </Spin>
-        </Modal>
       </div>
     );
 
-    const columns = [
-      {
-        title: 'Cluster ID',
-        dataIndex: 'clusterID',
-        key: 'clusterID',
-      },
-      {
-        title: 'Matched Configurations',
-        dataIndex: 'cluster',
-        render: text => {
-          var splitTags = text.split('-');
-          return splitTags.map((tag, i) => <Tag color="#2db7f5">{tag}</Tag>);
-        },
-        key: 'cluster',
-      },
-      {
-        title: 'Iterations',
-        dataIndex: 'length',
-        key: 'length',
-      },
-    ];
+    const exportModal = (
+      <Modal
+        title="Export to PDF"
+        visible={exportModalVisible}
+        onOk={this.onExportPdf}
+        okText="Save"
+        onCancel={this.hideExportModal}
+      >
+        <Spin spinning={loadingPdf}>
+          <Form>
+            <Form.Item
+              colon={false}
+              label="File Name"
+              extra="(Optional) Timestamp will be used if left blank"
+            >
+              <Input addonAfter=".pdf" id="pdfName" />
+            </Form.Item>
+            <Form.Item colon={false} label="Description" extra="(Optional)">
+              <Input id="pdfHeader" />
+            </Form.Item>
+          </Form>
 
-    const legendColumns = [
-      {
-        title: 'Cluster ID',
-        dataIndex: 'clusterID',
-        key: 'clusterID',
-      },
-      {
-        title: 'Matched Configurations',
-        dataIndex: 'cluster',
-        render: text => {
-          var splitTags = text.split('-');
-          return splitTags.map((tag, i) => <Tag color="#2db7f5">{tag}</Tag>);
-        },
-        key: 'cluster',
-      },
-    ];
+          <Card type="inner" title="Render Options">
+            <Form layout="inline">
+              <Form.Item colon={false} label="Details">
+                <Switch defaultChecked onSelectPageSection={() => this.onSelectPageSection('details')} />
+              </Form.Item>
+              <Form.Item colon={false} label="Summary Graphs">
+                <Switch defaultChecked onSelectPageSection={() => this.onSelectPageSection('summary')} />
+              </Form.Item>
+              <Form.Item colon={false} label="Timeseries Graphs">
+                <Switch defaultChecked onSelectPageSection={() => this.onSelectPageSection('timeseries')} />
+              </Form.Item>
+              <Form.Item colon={false} label="Cluster Tables">
+                <Switch defaultChecked onSelectPageSection={() => this.onSelectPageSection('table')} />
+              </Form.Item>
+            </Form>
+          </Card>
+        </Spin>
+      </Modal>
+    );
 
     return (
       <div id="all">
         <div id="details">
           <PageHeaderLayout title="Run Comparison Details" content={description} action={action} />
         </div>
+        {exportModal}
         <br />
-        <Card loading={false} bordered={true} bodyStyle={{ padding: 4 }} id="summary">
+        <Card bordered bodyStyle={{ padding: 4 }} id="summary">
           <Tabs size="large">
             <TabPane tab="Summary" key="summary" style={{ padding: 16 }}>
-              <Spin spinning={this.state.loading}>
+              <Spin spinning={loadingClusters}>
                 {Object.keys(clusteredGraphData).map(cluster => (
                   <div>
                     <Row style={{ marginTop: 16 }}>
@@ -644,36 +448,30 @@ export default class RunComparison extends ReactJS.Component {
                           indexBy="cluster"
                           groupMode="grouped"
                           padding={0.3}
-                          colors="set3"
-                          animate={true}
-                          motionStiffness={90}
-                          motionDamping={15}
                           labelSkipWidth={18}
                           labelSkipHeight={18}
-                          tooltip={({ id, index, value, color }) => (
+                          tooltip={({ id, index, value }) => (
                             <div style={{ backgroundColor: 'white', color: 'grey' }}>
                               <Row>
-                                <Col>{'Result'}</Col>
-                                <Col>{primaryMetricIterations[cluster][index][id].result_name}</Col>
+                                <Col>Result</Col>
+                                <Col>{clusteredIterations[cluster][index][id].result_name}</Col>
                               </Row>
                               <br />
                               <Row>
-                                <Col>{'Iteration'}</Col>
-                                <Col>
-                                  {primaryMetricIterations[cluster][index][id].iteration_name}
-                                </Col>
+                                <Col>Iteration</Col>
+                                <Col>{clusteredIterations[cluster][index][id].iteration_name}</Col>
                               </Row>
                               <br />
                               <Row>
-                                <Col>{'Mean'}</Col>
+                                <Col>Mean</Col>
                                 <Col>{value}</Col>
                               </Row>
                               <br />
                               <Row>
-                                <Col>{'Matched Configurations'}</Col>
+                                <Col>Matched Configurations</Col>
                                 <Col>
                                   <div>
-                                    {tableData[cluster][index].cluster.split('-').map((tag, i) => (
+                                    {tableData[cluster][index].cluster.split('-').map(tag => (
                                       <Tag color="#2db7f5">{tag}</Tag>
                                     ))}
                                   </div>
@@ -739,9 +537,9 @@ export default class RunComparison extends ReactJS.Component {
                 ))}
               </Spin>
             </TabPane>
-            <TabPane forceRender={true} tab="All" key="all" style={{ padding: 16 }}>
-              {(Object.keys(timeseriesData).length > 0) &
-              (Object.keys(timeseriesDropdown).length > 0) ? (
+            <TabPane forceRender tab="All" key="all" style={{ padding: 16 }}>
+              {Object.keys(timeseriesData).length > 0 &&
+              Object.keys(timeseriesDropdown).length > 0 ? (
                 <div id="timeseries">
                   {Object.keys(tableData).map(table => (
                     <Card
@@ -749,21 +547,21 @@ export default class RunComparison extends ReactJS.Component {
                       title={table}
                       style={{ marginBottom: 16 }}
                       extra={
-                        <Form layout={'inline'}>
+                        <Form layout="inline">
                           <FormItem
                             label="Selected Cluster"
                             colon={false}
                             style={{ marginLeft: 16, fontWeight: '500' }}
                           >
                             <Select
-                              defaultValue={'Cluster ' + 0}
+                              defaultValue={`Cluster ${0}`}
                               style={{ width: 120, marginLeft: 16 }}
                               value={timeseriesDropdownSelected[table]}
-                              onChange={value => this.clusterDropdownChange(value, table)}
+                              onChange={value => this.onTimeseriesClusterChange(value, table)}
                             >
                               {timeseriesDropdown[table].map(cluster => (
                                 <Select.Option value={cluster}>
-                                  {'Cluster ' + cluster}
+                                  {`Cluster ${cluster}`}
                                 </Select.Option>
                               ))}
                             </Select>
@@ -798,3 +596,5 @@ export default class RunComparison extends ReactJS.Component {
     );
   }
 }
+
+export default RunComparison;

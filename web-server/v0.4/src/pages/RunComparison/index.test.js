@@ -6,12 +6,11 @@ import RunComparison from './index';
 
 const mockProps = {
   selectedControllers: ['controller1', 'controller2'],
+  selectedResults: [],
+  iterationParams: {},
 };
 const mockLocation = {
   state: {
-    configCategories: [],
-    controller: '',
-    selectedResults: [],
     iterations: [],
   },
 };

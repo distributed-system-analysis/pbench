@@ -24,10 +24,10 @@ export default class TableFilterSelection extends Component {
   onFilterTable = () => {
     const { selectedFilters } = this.state;
     const { onFilter } = this.props;
-   
+
     onFilter(selectedFilters);
     this.setState({ updateFiltersDisabled: true });
-  }
+  };
 
   onFilterChange = (value, category) => {
     const { selectedFilters } = this.state;
@@ -67,7 +67,7 @@ export default class TableFilterSelection extends Component {
             borderRadius: '6px',
           }}
         >
-          <Row style={{display: 'flex', flexWrap: 'wrap'}}>
+          <Row style={{ display: 'flex', flexWrap: 'wrap' }}>
             {Object.keys(filters).map(category => (
               <div key={category}>
                 <p style={{ marginBottom: 4, fontSize: 12, fontWeight: 600 }}>{category}</p>

@@ -1,4 +1,4 @@
-import { urlToList } from '../_utils/pathTools';
+import urlToList from '../_utils/pathTools';
 import { getFlatMenuKeys, getMenuMatchKeys } from './SiderMenu';
 
 const menu = [

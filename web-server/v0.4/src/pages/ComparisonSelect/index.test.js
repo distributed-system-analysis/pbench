@@ -7,10 +7,8 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 const mockProps = {
   selectedResults: [],
   selectedControllers: ['controller1', 'controller2'],
-  iterations: {
-    responseData: [],
-    configData: {},
-  },
+  iterations: [],
+  iterationParams: {},
 }
 
 const mockDispatch = jest.fn();

@@ -51,6 +51,8 @@ export function getTimeDistance(type) {
 
     return [moment(`${year}-01-01 00:00:00`), moment(`${year}-12-31 23:59:59`)];
   }
+
+  return now;
 }
 
 export function getPlainNode(nodeList, parentPath = '') {
@@ -71,15 +73,6 @@ export function getPlainNode(nodeList, parentPath = '') {
   return arr;
 }
 
-function accMul(arg1, arg2) {
-  let m = 0;
-  const s1 = arg1.toString();
-  const s2 = arg2.toString();
-  m += s1.split('.').length > 1 ? s1.split('.')[1].length : 0;
-  m += s2.split('.').length > 1 ? s2.split('.')[1].length : 0;
-  return (Number(s1.replace('.', '')) * Number(s2.replace('.', ''))) / 10 ** m;
-}
-
 function getRelation(str1, str2) {
   if (str1 === str2) {
     console.warn('Two path are equal!'); // eslint-disable-line
@@ -88,7 +81,8 @@ function getRelation(str1, str2) {
   const arr2 = str2.split('/');
   if (arr2.every((item, index) => item === arr1[index])) {
     return 1;
-  } else if (arr1.every((item, index) => item === arr2[index])) {
+  }
+  if (arr1.every((item, index) => item === arr2[index])) {
     return 2;
   }
   return 3;
@@ -164,3 +158,39 @@ export function compareByAlph(a, b) {
   }
   return ret;
 }
+
+export const renameProp = (oldProp, newProp, { [oldProp]: old, ...others }) => ({
+  [newProp]: old,
+  ...others,
+});
+
+export const insertTocTreeData = (tocResult, items = [], [head, ...tail]) => {
+  const tocResultCopy = Object.assign({}, tocResult);
+  const fileData = [];
+
+  if (tocResultCopy[`/${[head, ...tail].join('/')}`] !== undefined) {
+    fileData[tail[tail.length - 1]] = tocResultCopy[`/${[head, ...tail].join('/')}`];
+  }
+  let child = items.find(childNode => childNode.name === head);
+  if (!child) {
+    if (fileData[head] !== undefined) {
+      items.push(
+        (child = {
+          name: head,
+          key: Math.random(),
+          size: fileData[head][0],
+          mode: fileData[head][1],
+          children: [],
+        })
+      );
+    } else {
+      items.push((child = { name: head, key: Math.random(), children: [] }));
+    }
+  }
+  if (tail.length > 0) {
+    insertTocTreeData(tocResult, child.children, tail);
+  } else {
+    delete child.children;
+  }
+  return items;
+};

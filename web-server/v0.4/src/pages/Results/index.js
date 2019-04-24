@@ -4,9 +4,9 @@ import { routerRedux } from 'dva/router';
 import { Card, Form } from 'antd';
 
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import SearchBar from '../../components/SearchBar';
-import RowSelection from '../../components/RowSelection';
-import Table from '../../components/Table';
+import SearchBar from '@/components/SearchBar';
+import RowSelection from '@/components/RowSelection';
+import Table from '@/components/Table';
 import { compareByAlph } from '../../utils/utils';
 
 @connect(({ global, dashboard, loading }) => ({
@@ -16,14 +16,13 @@ import { compareByAlph } from '../../utils/utils';
   datastoreConfig: global.datastoreConfig,
   loading: loading.effects['dashboard/fetchResults'],
 }))
-export default class Results extends Component {
+class Results extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      results: this.props.results,
+      results: props.results,
       selectedRowKeys: [],
-      selectedRowNames: []
     };
   }
 
@@ -33,25 +32,27 @@ export default class Results extends Component {
     dispatch({
       type: 'dashboard/fetchResults',
       payload: {
-        datastoreConfig: datastoreConfig,
-        selectedIndices: selectedIndices,
+        datastoreConfig,
+        selectedIndices,
         controller: selectedControllers,
       },
     });
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.results !== this.props.results) {
+    const { results } = this.props;
+
+    if (nextProps.results !== results) {
       this.setState({ results: nextProps.results });
     }
   }
 
   onSelectChange = selectedRowKeys => {
     const { dispatch, results } = this.props;
-    let selectedRows = [];
-    selectedRowKeys.forEach((key) => {
+    const selectedRows = [];
+    selectedRowKeys.forEach(key => {
       selectedRows.push(results[key]);
-    })
+    });
     this.setState({ selectedRowKeys });
 
     dispatch({
@@ -66,7 +67,7 @@ export default class Results extends Component {
     const resultsSearch = results.slice();
     this.setState({
       results: resultsSearch
-        .map((record, i) => {
+        .map((record) => {
           const match = record['run.name'].match(reg);
           if (!match) {
             return null;
@@ -74,18 +75,17 @@ export default class Results extends Component {
           return {
             ...record,
             'run.name': (
-              <span key={i}>
-                {record['run.name'].split(reg).map(
-                  (text, i) =>
-                    i > 0
-                      ? [
-                          <span key={i} style={{ color: 'orange' }}>
-                            {match[0]}
-                          </span>,
-                          text,
-                        ]
-                      : text
-                )}
+              <span key={record}>
+                {record['run.name'].split(reg).map((text, index) => (
+                  index > 0
+                    ? [
+                      <span key={text} style={{ color: 'orange' }}>
+                        {match[0]}
+                      </span>,
+                        text,
+                      ]
+                    : text
+                ))}
               </span>
             ),
           };
@@ -124,7 +124,7 @@ export default class Results extends Component {
     const { selectedControllers, loading } = this.props;
     const rowSelection = {
       selectedRowKeys,
-      onChange: this.onSelectChange
+      onChange: this.onSelectChange,
     };
 
     const columns = [
@@ -143,7 +143,7 @@ export default class Results extends Component {
         title: 'Start Time',
         dataIndex: 'run.start',
         key: 'run.start',
-        sorter: (a, b) => a['startUnixTimestamp'] - b['startUnixTimestamp'],
+        sorter: (a, b) => a.startUnixTimestamp - b.startUnixTimestamp,
       },
       {
         title: 'End Time',
@@ -155,7 +155,7 @@ export default class Results extends Component {
     return (
       <PageHeaderLayout title={selectedControllers.join(', ')}>
         <Card bordered={false}>
-          <Form layout={'vertical'}>
+          <Form layout="vertical">
             <SearchBar
               style={{ marginBottom: 16 }}
               placeholder="Search results"
@@ -163,7 +163,7 @@ export default class Results extends Component {
             />
             <RowSelection
               selectedItems={selectedRowKeys}
-              compareActionName={'Compare Results'}
+              compareActionName="Compare Results"
               onCompare={this.compareResults}
             />
           </Form>
@@ -185,3 +185,5 @@ export default class Results extends Component {
     );
   }
 }
+
+export default Results;
