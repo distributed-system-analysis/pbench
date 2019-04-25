@@ -1,4 +1,3 @@
-import axios from 'axios';
 import _ from 'lodash';
 import request from '../utils/request';
 import { renameProp } from '../utils/utils';
@@ -131,7 +130,7 @@ export async function queryIterations(params) {
         : controllerDir;
     }
     iterationRequests.push(
-      axios.get(
+      request.get(
         `${datastoreConfig.results}/incoming/${encodeURI(controllerDir)}/${encodeURI(
           result['run.name']
         )}/result.json`,
@@ -162,7 +161,7 @@ export async function queryTimeseriesData(params) {
     Object.keys(clusteredIterations[primaryMetric]).forEach(cluster => {
       Object.keys(clusteredIterations[primaryMetric][cluster]).forEach(iteration => {
         iterationRequests.push(
-          axios.get(
+          request.get(
             `${datastoreConfig.results}/incoming/${encodeURIComponent(
               clusteredIterations[primaryMetric][cluster][iteration].controller_name
             )}/${encodeURIComponent(

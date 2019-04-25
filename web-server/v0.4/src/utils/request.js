@@ -34,11 +34,15 @@ const errorHandler = error => {
     router.push('/exception/403');
     return;
   }
+  if (status === 404) {
+    router.goBack();
+    return;
+  }
   if (status <= 504 && status >= 500) {
     router.push('/exception/500');
     return;
   }
-  if (status >= 404 && status < 422) {
+  if (status >= 405 && status < 422) {
     router.push('/exception/404');
   }
 };

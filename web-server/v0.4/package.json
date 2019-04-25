@@ -26,7 +26,6 @@
     "@nivo/bar": "^0.36.0",
     "ant-design-pro": "^2.1.1",
     "antd": "^3.16.1",
-    "axios": "^0.18.0",
     "classnames": "^2.2.5",
     "dva": "^2.4.1",
     "dva-core": "^1.1.0",
