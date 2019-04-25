@@ -198,7 +198,7 @@ if (exists $specs{"controller"}{"post-script"} and $specs{"controller"}{"post-sc
     put_json_file(\%sample, $sample_dir . "/sample" . ".json");
     my $postprocess_cmd = ". /opt/pbench-agent/base; cd \"" . $sample_dir . "\"; " .
                           $specs{"controller"}{"post-script"} . " " . $sample_dir . " " .
-                          $base_dir . " " . $tool_group . " " .$last_sample;
+                          $base_dir . " " . $tool_group . " " .$last_sample . " 2>&1";
     my $pp_cmd_file = $sample_dir . "/postprocess.cmd";
     open(my $fh_cmd, ">" . $pp_cmd_file);
     printf { $fh_cmd } "%s\n", $postprocess_cmd;
