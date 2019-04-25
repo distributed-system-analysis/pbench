@@ -5,7 +5,7 @@
 	"parameters": {
 	    "defaults": {
 		"default": [],
-		"mandatory": []
+		"mandatory": [ "--process-all-profiler-data=ON" ]
 	    },
 	    "specs": {
 		"integer": {
@@ -71,7 +71,8 @@
 				   "disable-flow-cache",
 				   "send-teaching-warmup",
 				   "send-teaching-measurement",
-				   "disable-trex-profiler"
+				   "disable-trex-profiler",
+				   "process-all-profiler-data"
 				 ],
 		    "value_regex": "[ON,OFF]"
 		},
