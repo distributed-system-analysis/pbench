@@ -126,8 +126,8 @@
 	"copy-to": [],
 	"bin": "/opt/trafficgen/pbench-run.py",
 	"param_regex": [ "s/--clients=.+//",
-			 "s/(\\s--.+)=ON/$1/g",
-			 "s/\\s--.+=OFF//g"
+			 "s/(\\s--[^\\s]+)=ON/$1/g",
+			 "s/\\s--[^\\s]+=OFF//g"
 		       ]
     }
 }
