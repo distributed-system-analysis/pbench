@@ -15,6 +15,7 @@
 				   "validation-runtime",
 				   "search-runtime",
 				   "sniff-runtime",
+				   "warmup-trial-runtime",
 				   "latency-rate",
 				   "trial-gap",
 				   "max-retries",
@@ -72,7 +73,8 @@
 				   "send-teaching-warmup",
 				   "send-teaching-measurement",
 				   "disable-trex-profiler",
-				   "process-all-profiler-data"
+				   "process-all-profiler-data",
+				   "warmup-trial"
 				 ],
 		    "value_regex": "[ON,OFF]"
 		},
@@ -109,6 +111,7 @@
 				   "teaching-warmup-packet-type",
 				   "teaching-measurement-packet-type",
 				   "traffic-profile",
+				   "warmup-traffic-profile",
 				   "pre-trial-cmd"
 				 ],
 		    "value_regex": ".+"
