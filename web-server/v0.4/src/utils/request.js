@@ -1,7 +1,6 @@
-import fetch from 'dva/fetch';
+import { extend } from 'umi-request';
 import { notification } from 'antd';
-import { routerRedux } from 'dva/router';
-import store from '../global';
+import router from 'umi/router';
 
 const codeMessage = {
   200: 'The server successfully returned the requested data. ',
@@ -20,79 +19,32 @@ const codeMessage = {
   503: 'The service is unavailable and the server is temporarily overloaded or maintained. ',
   504: 'The gateway timed out. ',
 };
-function checkStatus(response) {
-  if (response.status >= 200 && response.status < 300) {
-    return response;
-  }
+
+const errorHandler = error => {
+  const { response = {} } = error;
   const errortext = codeMessage[response.status] || response.statusText;
+  const { status, url } = response;
+
   notification.error({
-    message: `Request error ${response.status}: ${response.url}`,
+    message: `Request Error ${status}: ${url}`,
     description: errortext,
   });
-  const error = new Error(errortext);
-  error.name = response.status;
-  error.response = response;
-  throw error;
-}
 
-/**
- * Requests a URL, returning a promise.
- *
- * @param  {string} url       The URL we want to request
- * @param  {object} [options] The options we want to pass to "fetch"
- * @return {object}           An object containing either "data" or "err"
- */
-export default function request(url, options) {
-  const defaultOptions = {};
-  const newOptions = { ...defaultOptions, ...options };
-  if (
-    newOptions.method === 'POST' ||
-    newOptions.method === 'PUT' ||
-    newOptions.method === 'DELETE'
-  ) {
-    if (!(newOptions.body instanceof FormData)) {
-      newOptions.headers = {
-        Accept: 'application/json',
-        'Content-Type': 'application/json; charset=utf-8',
-        ...newOptions.headers,
-      };
-      newOptions.body = JSON.stringify(newOptions.body);
-    } else {
-      // newOptions.body is FormData
-      newOptions.headers = {
-        Accept: 'application/json',
-        ...newOptions.headers,
-      };
-    }
+  if (status === 403) {
+    router.push('/exception/403');
+    return;
   }
+  if (status <= 504 && status >= 500) {
+    router.push('/exception/500');
+    return;
+  }
+  if (status >= 404 && status < 422) {
+    router.push('/exception/404');
+  }
+};
 
-  return fetch(url, newOptions)
-    .then(checkStatus)
-    .then(response => {
-      if (newOptions.method === 'DELETE' || response.status === 204) {
-        return response.text();
-      }
-      return response.json();
-    })
-    .catch(e => {
-      const { dispatch } = store;
-      const status = e.name;
-      if (status === 401) {
-        dispatch({
-          type: 'login/logout',
-        });
-        return;
-      }
-      if (status === 403) {
-        dispatch(routerRedux.push('/exception/403'));
-        return;
-      }
-      if (status <= 504 && status >= 500) {
-        dispatch(routerRedux.push('/exception/500'));
-        return;
-      }
-      if (status >= 404 && status < 422) {
-        dispatch(routerRedux.push('/exception/404'));
-      }
-    });
-}
+const request = extend({
+  errorHandler, // extend default error handler with custom actions
+});
+
+export default request;

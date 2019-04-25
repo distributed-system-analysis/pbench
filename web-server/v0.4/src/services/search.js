@@ -7,9 +7,7 @@ export async function queryIndexMapping(params) {
     datastoreConfig.run_index
   }${indices[0]}/_mappings`;
 
-  return request(endpoint, {
-    method: 'GET',
-  });
+  return request.get(endpoint);
 }
 
 export async function searchQuery(params) {
@@ -31,9 +29,8 @@ export async function searchQuery(params) {
     }
   });
 
-  return request(endpoint, {
-    method: 'POST',
-    body: {
+  return request.post(endpoint, {
+    data: {
       query: {
         query_string: {
           analyze_wildcard: true,

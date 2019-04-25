@@ -52,6 +52,7 @@
     "redux": "3.x",
     "redux-persist": "^5.10.0",
     "setprototypeof": "^1.1.0",
+    "umi-request": "^1.0.7",
     "url-polyfill": "^1.0.10"
   },
   "devDependencies": {
@@ -84,7 +85,9 @@
     "umi-plugin-react": "^1.4.2"
   },
   "jest": {
-    "setupFiles": ["jest-canvas-mock"]
+    "setupFiles": [
+      "jest-canvas-mock"
+    ]
   },
   "optionalDependencies": {
     "puppeteer": "^1.4.0"
