@@ -20,12 +20,12 @@ Pbench Dashboard is a web-based platform for consuming indexed performance bench
 │   ├── layouts                     # common layouts
 │   ├── models                      # redux models
 │   ├── pages                       # app page components and templates
+│   │   └── document.ejs            # HTML entry
 │   ├── services                    # redux services
 │   ├── utils                       # utility scripts
 │   ├── app.js                      # app theme configuration
 │   ├── global.js                   # global imports
 │   ├── global.less                 # global styling
-│   ├── index.ejs                   # HTML entry
 │   └── polyfill.js                 # polyfill configuration
 ├── .eslintrc.js                    # js linting configuration
 ├── .gitignore
