@@ -392,6 +392,7 @@ if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'}
 		if ($$profiler_metric{'category'} eq 'global') {
 			my @samples;
 
+			$$profiler_metric{'last'} = 0;
 			foreach my $timestamp_ms (sort (keys %{ $last_trial{'profiler-data'} } ) ) {
 				my $value = $last_trial{'profiler-data'}{$timestamp_ms}{'global'}{$$profiler_metric{'group'}}{$$profiler_metric{'field'}};
 
@@ -430,6 +431,7 @@ if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'}
 			foreach my $port (sort (keys %trex_ports)) {
 				my @samples;
 
+				$$profiler_metric{'last'} = 0;
 				foreach my $timestamp_ms (sort (keys %{ $last_trial{'profiler-data'} } ) ) {
 					my $value = $last_trial{'profiler-data'}{$timestamp_ms}{'ports'}{$port}{$$profiler_metric{'group'}}{$$profiler_metric{'field'}};
 
@@ -472,6 +474,7 @@ if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'}
 					my @samples;
 					my $valid = 0;
 
+					$$profiler_metric{'last'} = 0;
 					foreach my $timestamp_ms (sort (keys %{ $last_trial{'profiler-data'} } ) ) {
 						my $value;
 						if (! exists($last_trial{'profiler-data'}{$timestamp_ms}{'pgids'}{$pgid}{$$profiler_metric{'group'}}{$$profiler_metric{'field'}})) {
@@ -517,6 +520,7 @@ if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'}
 					foreach my $port (sort (keys %trex_ports)) {
 						my @samples;
 
+						$$profiler_metric{'last'} = 0;
 						foreach my $timestamp_ms (sort (keys %{ $last_trial{'profiler-data'} } ) ) {
 							my $value;
 							if (! exists($last_trial{'profiler-data'}{$timestamp_ms}{'pgids'}{$pgid}{$$profiler_metric{'group'}}{$port})) {
