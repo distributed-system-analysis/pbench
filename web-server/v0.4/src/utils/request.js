@@ -23,10 +23,10 @@ const codeMessage = {
 const errorHandler = error => {
   const { response = {} } = error;
   const errortext = codeMessage[response.status] || response.statusText;
-  const { status, url } = response;
+  const { status } = response;
 
   notification.error({
-    message: `Request Error ${status}: ${url}`,
+    message: `Request Error ${status}`,
     description: errortext,
   });
 

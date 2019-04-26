@@ -15,7 +15,7 @@
     "lint:fix": "eslint --fix --ext .js src && npm run lint:style",
     "lint-staged": "lint-staged",
     "lint-staged:js": "eslint --ext .js",
-    "test": "umi test --verbose",
+    "test": "umi test --verbose --maxWorkers=1 --runInBand",
     "test:component": "umi test @",
     "test:all": "node ./tests/run-tests.js",
     "prettier": "prettier --write ./src/**/**/**/*"
@@ -80,8 +80,8 @@
     "stylelint": "^9.2.1",
     "stylelint-config-prettier": "^3.0.4",
     "stylelint-config-standard": "^18.0.0",
-    "umi": "^2.4.4",
-    "umi-plugin-react": "^1.4.2"
+    "umi": "^2.6.16",
+    "umi-plugin-react": "^1.7.5"
   },
   "jest": {
     "setupFiles": [

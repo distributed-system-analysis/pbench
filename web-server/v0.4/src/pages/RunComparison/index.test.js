@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import 'jest-canvas-mock';
 
 import RunComparison from './index';
@@ -16,7 +16,7 @@ const mockLocation = {
 };
 
 const mockDispatch = jest.fn();
-const wrapper = mount(
+const wrapper = shallow(
   <RunComparison.WrappedComponent dispatch={mockDispatch} location={mockLocation} {...mockProps} />,
   { disableLifecycleMethods: true }
 );
@@ -27,7 +27,6 @@ describe('test RunComparison page component', () => {
   });
 
   it('render multiple user selected controllers', () => {
-    expect(wrapper.findWhere(node => node.key() === 'controller1').length).toEqual(1);
-    expect(wrapper.findWhere(node => node.key() === 'controller2').length).toEqual(1);
+    expect(wrapper.instance().props.selectedControllers).toEqual(['controller1', 'controller2']);
   });
 });
