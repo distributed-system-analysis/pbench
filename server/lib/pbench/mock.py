@@ -203,7 +203,7 @@ class _MockStreamingBulk(object):
                     try:
                         sub_mapping = props[key]
                     except KeyError:
-                        print("A source does not conform to mapping, {}: key '{}' not found in {!r}".format(mtype, key, set(props.keys())))
+                        print("A source does not conform to mapping, {}: key '{}' not found in {!r}".format(mtype, key, sorted(set(props.keys()))))
                         ret_val = False
                     if not _MockStreamingBulk._check_fields(item[key], sub_mapping):
                         print("A source does not conform to mapping, {}: key '{}' has bad mapping".format(mtype, key))
@@ -223,7 +223,7 @@ class _MockStreamingBulk(object):
                 try:
                     sub_mapping = mapping['properties'][key]
                 except KeyError:
-                    print("A source does not conform to mapping: key '{}' not found in {!r}".format(key, set(mapping['properties'].keys())))
+                    print("A source does not conform to mapping: key '{}' not found in {!r}".format(key, sorted(set(mapping['properties'].keys()))))
                     ret_val = False
                 else:
                     if not _MockStreamingBulk._check_fields(sub_source, sub_mapping):
