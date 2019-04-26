@@ -19,14 +19,6 @@ from argparse import ArgumentParser
 from configparser import ConfigParser, Error as ConfigParserError, \
         NoSectionError, NoOptionError
 
-# Correct the first path to be the "lib" directory to make the
-# pbench-base.sh script simple, allowing the imports from the
-# pbench library to work cleanly.
-first_path = sys.path[0]
-assert first_path.endswith('/bin')
-lib_path = os.path.join(os.path.dirname(first_path), 'lib')
-sys.path[0] = lib_path
-
 from pbench import tstos, get_es, es_index, es_put_template, PbenchConfig, \
         BadConfig, get_pbench_logger, quarantine, JsonFileError, \
         PbenchTemplates, TemplateError, report_status
@@ -381,7 +373,7 @@ class ResultData(PbenchData):
                     results = json.load(fp)
             except Exception as e:
                 self.logger.warning("result-data-indexing: encountered invalid"
-                        " JSON file, {}: {:r}", df['path'], e)
+                        " JSON file, {}: {:r}", result_json, e)
                 self.counters['not_valid_json_file'] += 1
                 continue
 
@@ -433,20 +425,42 @@ class ResultData(PbenchData):
         # the metadata for all the documents we generate.
         try:
             bm_data = iter_data['parameters']['benchmark']
-            bm_md = bm_data[0]
         except Exception as e:
             self.logger.warning("result-data-indexing: bad result data in JSON"
                     " file, {}: {!r}", result_json, e)
             self.counters['bad_result_data_in_json_file'] += 1
             return
         else:
-            if len(bm_data) > 1:
-                self.logger.warning("result-data-indexing: encountered multiple"
-                        " ({:d}) benchmark parameters in result data JSON"
-                        " file, {}", len(bm_data), result_json)
-                self.counters['multiple_benchmark_parameters'] += 1
-
-        benchmark = bm_md['benchmark_name']
+            if not isinstance(bm_data, (list,)):
+                self.logger.warning("result-data-indexing: bad result data in"
+                        " JSON file, {}: parameters.benchmark is not a list",
+                        result_json)
+                self.counters['bad_result_data_in_json_file_bm_not_a_list'] += 1
+                return
+        bm_md = {}
+        conflicts = []
+        mod_bm_data = []
+        # Merge all the benchmark metadata array entries into one, recording
+        # conflicts to handle later.
+        #
+        # First, find the entry that has the benchmark_name field to use that
+        # as a the first one to merge.
+        found = False
+        for entry in bm_data:
+            if not found and 'benchmark_name' in entry:
+                bm_md.update(entry)
+                found = True
+            else:
+                mod_bm_data.append(entry)
+        # Skip results that don't have a "benchmark_name" field.
+        try:
+            benchmark = bm_md['benchmark_name']
+        except KeyError:
+            self.logger.warning("result-data-indexing: bad result data in JSON"
+                    " file, {}: missing 'benchmark_name' field", result_json)
+            self.counters['bad_result_data_in_json_file_missing_bm_name'] += 1
+            return
+        # Skip any results that we don't support.
         try:
             bm_driver_data = self._benchmarks[benchmark]
         except KeyError:
@@ -456,10 +470,11 @@ class ResultData(PbenchData):
         else:
             del bm_md['benchmark_name']
             bm_md['name'] = benchmark
-
+        # Rename the benchmark_version field.
         try:
             bmv = bm_md['benchmark_version']
         except KeyError:
+            # Ignore a missing benchmark_version field
             pass
         else:
             del bm_md['benchmark_version']
@@ -470,9 +485,35 @@ class ResultData(PbenchData):
                 # value (JSON representation), so no need to replace it as
                 # "version".
                 pass
+        # Next, continue processing the remaining benchmark parameter entries,
+        # merging all the keys while looking for conflicts.
+        for entry in mod_bm_data:
+            for key in entry.keys():
+                if key in bm_md:
+                    conflicts.append((key, entry[key]))
+                else:
+                    bm_md[key] = entry[key]
+        # Sneak conflicts in as a field with the benchmark name as a
+        # prefix, using one or more "_" on conflict.
+        key_sep = ""
+        while conflicts:
+            key_sep += "_"
+            new_conflicts = []
+            for key, val in conflicts:
+                new_key = "{}{}{}".format(benchmark, key_sep, key)
+                if new_key in bm_md:
+                    new_conflicts.append((key, val))
+                else:
+                    bm_md[new_key] = val
+            conflicts = new_conflicts
 
-        bm_md['uid_tmpl'] = bm_md['uid']
-        bm_md['uid'] = ResultData.expand_template(bm_md['uid_tmpl'], bm_md, run=self.run_metadata)
+        try:
+            bm_md['uid_tmpl'] = bm_md['uid']
+        except KeyError:
+            # Ignore a missing uid field
+            pass
+        else:
+            bm_md['uid'] = ResultData.expand_template(bm_md['uid_tmpl'], bm_md, run=self.run_metadata)
 
         iteration = _dict_const([
                 ( 'run', self.run_metadata ),
