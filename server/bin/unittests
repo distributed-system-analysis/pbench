@@ -410,6 +410,7 @@ function _run_test {
         exit 1
     fi
 
+    export _testdur=$_testroot/result.duration
     export _testres=$_testroot/result.txt
     export _testout=$_testroot/output.txt
     export _testdiff=$_testroot/output.diff
@@ -431,7 +432,9 @@ function _run_test {
 
     _setup_state ${testname}
     # echo ${testname}: ${cmd}
+    SECONDS=0
     ${cmd} $*
+    echo "${SECONDS} secs" > ${_testdur}
     _audit_server
     rmdir ${_testtmp} > /dev/null 2>&1
     _save_tree
@@ -711,18 +714,20 @@ function report_test_result {
     return_status=$2
     pass_or_fail=$(cat ${_testbase}/${testname}/result.txt)
     if [[ ${pass_or_fail} == "PASS" && ${return_status} -eq 0 ]]; then
-        echo "${pass_or_fail} - ${testname}"
+        echo "${pass_or_fail} - ${testname} ($(cat ${_testbase}/${testname}/result.duration))"
         rm ${_testbase}/${testname}/result.txt
+        rm -f ${_testbase}/${testname}/result.duration
         rmdir ${_testbase}/${testname}
         res=0
     else
         cat ${_testbase}/${testname}/output.diff
         if [[ ${pass_or_fail} == "FAIL" ]]; then
-            echo "FAIL - ${testname}"
+            echo "FAIL - ${testname} ($(cat ${_testbase}/${testname}/result.duration))"
         else
-            echo "FAIL (sts = ${return_status}) - ${testname}"
+            echo "FAIL (sts = ${return_status}) - ${testname} ($(cat ${_testbase}/${testname}/result.duration))"
         fi
         res=1
+        rm -f ${_testbase}/${testname}/result.duration
     fi
     return ${res}
 }
