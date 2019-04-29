@@ -11,18 +11,21 @@ use Cwd 'abs_path';
 use Exporter qw(import);
 use List::Util qw(max);
 use JSON;
+use Data::Dumper;
 use PbenchAnsible    qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts
                         remove_files_from_hosts remove_dir_from_hosts create_dir_hosts
                         sync_dir_from_hosts verify_success);
-use PbenchBase       qw(get_hostname get_pbench_datetime);
+use PbenchBase       qw(get_hostname get_pbench_datetime get_json_file);
 
 our @EXPORT_OK = qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc
                     create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc
                     get_uuid create_bench_iter_sample_doc create_metric_desc_doc
                     create_metric_data_doc create_bench_iter_sample_period_doc
-                    create_bench_iter_doc create_config_doc get_cdm_ver get_cdm_rel);
+                    create_bench_iter_doc create_config_doc get_cdm_ver get_cdm_rel
+                    log_cdm_metric_sample gen_cdm_metric_data);
 
 my $script = "PbenchCDM.pm";
+my $condense_samples = 1;
 
 sub get_cdm_ver {
     return 4;
@@ -212,4 +215,131 @@ sub create_metric_data_doc {
                                       $doc{'metric_data'}{'begin'} + 1;
     return %doc;
 }
+sub log_cdm_metric_sample {
+    my $metadata_ref = shift; # contains all field names used in metric_desc except id
+    my $metric_ref = shift; # the metric hash we are populating
+    my $timestamp_ms = shift;
+    my $value = shift;
+    my $label = "";
+    if (not exists $$metadata_ref{'name_format'}) {
+        print "Error: name_format does not exist\n";
+        return 1;
+    }
+    # Find all fields in the name_format and ensure they are present
+    # in the metadata_ref
+    my $name_format = $$metadata_ref{'name_format'};
+    while ($name_format =~ s/(^\S*)%(\S+)%(\S*$)/$3/) {
+        my $prefix = $1;
+        my $field_name = $2;
+        $label .= $prefix . $field_name;
+        if (not defined $$metadata_ref{$field_name}) {
+            print "Error: metadata field $field_name not defined\n";
+            print "metadata:\n";
+            print Dumper $metadata_ref;
+            return 1;
+        }
+    }
+    # This only happens when logging the first sample for a metric
+    if (not exists $$metric_ref{$label}) {
+        for my $field_name (keys %{ $metadata_ref }) {
+            $$metric_ref{$field_name} = $$metadata_ref{$field_name};
+        }
+    }
+    if (not defined $value) {
+        print "Error: value is undefined\n";
+        return 2;
+    }
+    if (not defined $timestamp_ms) {
+        print "Error: timestamp is undefined\n";
+        return 3;
+    }
+    $$metric_ref{'samples'}{int $timestamp_ms} = $value;
+    return 0;
+}
+sub gen_cdm_metric_data {
+    my $data_ref = shift;
+    my $period_doc_path = shift;
+    my $es_dir = shift;
+    my $hostname = shift;
+    my $tool = shift;
+    my $nr_samples = 0;
+    my $nr_condensed_samples = 0;
+    my $coder = JSON->new->ascii->canonical;
+    my $json_ref = get_json_file($period_doc_path);
+    my %period_doc = %$json_ref; # this is the CDM doc for the run
+    open(NDJSON_DESC_FH, ">" . $es_dir . "/metrics/" . $hostname .  "/metric_desc-" . $period_doc{"period"}{"id"} . "-" . $tool . ".ndjson");
+    open(NDJSON_DATA_FH, ">" . $es_dir . "/metrics/" . $hostname .  "/metric_data-" . $period_doc{"period"}{"id"} . "-" . $tool . ".ndjson");
+    print "Generating CDM\n";
+    for my $label (keys %$data_ref) {
+        if (exists $$data_ref{$label}{'samples'}) {
+            my $bail = 0;
+            my %series = %{$$data_ref{$label} };
+            my %metric_desc = create_metric_desc_doc( \%period_doc, $series{'class'}, $series{'type'},
+                                                      $hostname, $tool, $series{'name_format'});
+            for my $field ( grep(!/class|type|name_format/, (keys %series)) ) {
+                $metric_desc{"metric_desc"}{$field} = $series{$field};
+            }
+            printf NDJSON_DESC_FH "%s\n", '{ "index": {} }';
+            printf NDJSON_DESC_FH "%s\n", $coder->encode(\%metric_desc);
+            my $begin_value;
+            my $begin_timestamp;
+            my $end_timestamp;
+            for my $timestamp_ms (sort keys $series{'samples'}) {
+                $nr_samples++;
+                if (not defined $series{'samples'}{$timestamp_ms}) {
+                    print "Warning: undefined value in\n";
+                    print Dumper \%series;
+                    $bail = 1;
+                    last;
+                };
+                my $value = $series{'samples'}{$timestamp_ms};
+                if (not defined $begin_value) {
+                    $begin_value = $value;
+                    $begin_timestamp = $timestamp_ms + 1;
+                    next;
+                }
+                if ($condense_samples) {
+                    if ($value == $begin_value) { # Keep extending the end timestamp
+                        $end_timestamp = $timestamp_ms;
+                    } elsif (defined $end_timestamp) { # The value changed, so log the previous sample
+                        $nr_condensed_samples++;
+                        my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
+                            $begin_value, $begin_timestamp, $end_timestamp);
+                        printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+                        printf NDJSON_DATA_FH "%s\n", $coder->encode(\%metric_data);
+                        # Since we start tracking a new value, begin_value and begin/end timestamps must be reasigned
+                        $begin_value = $value;
+                        $begin_timestamp = $end_timestamp + 1;
+                        $end_timestamp = $timestamp_ms;
+                    } else { # End was not defined yet because we only had 1 sample so far
+                        $end_timestamp = $timestamp_ms;
+                    }
+                } else {
+                    $nr_condensed_samples++;
+                    my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
+                        $begin_value, $begin_timestamp, $timestamp_ms);
+                    printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+                    printf NDJSON_DATA_FH "%s\n", $coder->encode(\%metric_data);
+                    $begin_value = $value;
+                    $begin_timestamp = $timestamp_ms + 1;
+                    
+                }
+            }
+            if ($condense_samples and not $bail) {
+                if (not defined $begin_value) { print "no beging_value\n"; print Dumper \%series; next;}
+                if (not defined $begin_timestamp) { print "no begin_timestamp\n"; print Dumper \%series; next;}
+                if (not defined $end_timestamp) { print "no end_timestamp\n"; print Dumper \%series; next;}
+                # Since we only log the previous value/timestamp in the while loop, we have to log the final value/timestamp
+                my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
+                    $begin_value, $begin_timestamp, $end_timestamp);
+                printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
+                printf NDJSON_DATA_FH "%s\n", $coder->encode(\%metric_data);
+            }
+        }
+    }
+    close(NDJSON_DATA_FH);
+    close(NDJSON_DESC_FH);
+    printf "dedup reduction: %d%%\n", 100*(1 - $nr_condensed_samples/$nr_samples);
+}
+
 1;
