@@ -1,4 +1,4 @@
-# Created 2019-04-24 Wed 14:29
+# Created 2019-04-30 Tue 14:59
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -15,6 +15,77 @@
 #+subtitle: 
 #+infojs_opt: 
 #+latex_header: 
+
+* Version 0.59
+
+This is an *agent-only* release.
+
+** Installation                                                    :external:
+
+There are ansible playbooks to install ~pbench-agent~ and the pieces
+needed (key and config files) to be able to send results to a server.
+
+There are no other installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.59-1g68efd295
+of the pbench-agent RPM installed.
+
+
+** agent
+This release includes a fix for a serious pidstat postprocessing
+problem, which caused pidstat files to not be produced.
+
+It also includes work on pbench-run-benchmark in order for it to
+produce CDM-compliant output. Note that this code (as well as
+pbench-run-benchmark) is beta code: we would appreciate bug reports
+(please open an issue!), as well as reports of success in using it.
+
+There is a known problem in this release (issue #1161): the current
+3.6 sosreport release does not support the "general" and "lsbrelease"
+plugins of previous versions and exits without producing a
+sosreport. Although we were planning to fix it for v0.59, we didn't
+get around to it. This bug will be fixed in the next release of
+pbench.
+
+** server
+
+This is an agent-only release. There are no new server RPMs produced.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.59
+:END:
+
+This is an agent-only release. There are no new web-server RPMs produced.
+
+** Changelog
+This is the list of visible commits *in the agent* since v0.58:
+
+- 8efd295  Version bump
+- 05c463e3 trafficgen-postprocess: bug fix for cumulative data processing
+- ae74b4aa pbench-run-benchmark-sample: capture postprocessing STDERR along with STDOUT
+- c5d40acd trafficgen.json: improve param_regex to be less greedy
+- 9b1aead8 trafficgen.json: add warmup trial options
+- 23070e8c trafficgen.json: always force profiler data processing for all trials
+- 439150da trafficgen-postprocess-cdm: add TRex profiler metric processing
+- dcf665cb trafficgen-postprocess-cdm: move some processing out of the dev pair loop
+- 66839208 trafficgen-postprocss-cdm: update to CDMv4
+- 029e1506 trafficgen-postprocess: update logic to locate binary-search.json
+- 4b7dfd99 pbench-run-benchmark: add support for --pre-sample-cmd
+- 7f709fe5 Helper functions for CDM for metrics -Used for postprocess scripts for tools or benchmarks -Log data samples with log_cdm_metric_sample, which populates  hash -Call gen_cdm_metric_data once all samples are logged to generate  ndjson files for metric_desc and metric_data documents
+- d7929fee Fixup metric id usage for fio and iostat and process multi jobs for fio
+- a524471e pbench-import-cdm: support cdmv4, exit on response error -NDJSON used for metric_data and metric_desc -parse ES response and exit if there's an error
+- 465e029d pbench.json: don't include comments in the JSON -embedding comments is not really supported in JSON,  and pbench libs no longer try to strip comments out
+- 29eb0f86 fio.json: use the sameversion of fio we bundle with pbench
+- 15aa298f cdm-get-result/iterations: query CDM for run info -cdm-get-iterations provides a list of iteration ids -cdm-get-result provides a benchmark result for a iteration -this is a work-in-progress
+- 9628c5cf iostat-postprocess-cdm: support the metric_desc and metric_data cdmv4 format
+- bf8c3ac4 fio-postprocess-cdm: support the metric_desc and metric_data cdmv4 format
+- 2dd966f5 pbench-run-benchmark-sample: support postprocess-only -to be used with pbench-run-benchmark with --postprocess-only
+- bc7ea29c pbench-run-benchmark: support a postprocess-only mode -using --postprocess-only will re-run the benchmark's postprocessing  script and regenerate the CDM documents
+- 84ea69f2 PbenchCDM.pm: update cdm_ver, comma->whitesp some fields, split metric docs -CommonDataModel version separates the version number (int) from the release  ('dev' or 'prod') as well as ensuring the ES field value for cdm_ver is only  an interger.  The release value is used in the index names only. -Values for field names clients, servers, tags, and tool_names have their  contents converted from comma-delimited to space delimited to work with  whitespace analyzer. -Metric doc split into two docs: first one is for metadata (metric_desc) and  second one is for actual data (metric_data).  Metric_data docs are still  one per sample and still include a begin and end timestamp, but also have  a metric.id which is shared with the metric_desc doc.  Queries to find  a specific metric are now made against metric_desc, and once the desired  metric is foumnd, its data is queried against metric_data by using the  metric.id (and possibly other terms such as begin/end being >,<,= specific  value.  Splitting metadata and data into two docs reduces space by about  50%.
+- 8238771b PbenchBase.pm: fix remove_params, update JSON calls -remove_params: would not remove multiple --myarg=myvalue -JSON: use OO notation which should be portable across different modules (native, XS) -other minor cleanup
+- 5aabdae8 pidstat-convert: use md5 for filenames - using $cmd for filenames would sometimes not work - md5_hex should not have problems when used as a filename - $cmd to md5 stored in memory and not needed later
 
 * Version 0.58
 
@@ -191,6 +262,7 @@ This is the list of visible commits since v0.56:
 - d14472e2 Fix spelling of separated/separator
 - edf9f402 Fix pbench-trafficgen to record metadata properly
 - 89abda57 Fix tabs/spaces formatting
+
 
 * Version 0.56
 

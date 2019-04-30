@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-04-24 Wed 14:31 -->
+<!-- 2019-04-30 Tue 14:59 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench release notes</title>
@@ -251,197 +251,316 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org6ab69a0">Version 0.58</a>
-<ul>
-<li><a href="#org1488eae">Installation</a></li>
-<li><a href="#org15dd985">agent</a></li>
-<li><a href="#org73c3db6">server</a></li>
-<li><a href="#web-server-0.58">web-server</a></li>
-<li><a href="#orga2458be">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#orgd9327d5">Version 0.57</a>
-<ul>
-<li><a href="#org628ee3a">Installation</a></li>
-<li><a href="#org8e730a0">agent</a></li>
-<li><a href="#org0928bfc">server</a></li>
-<li><a href="#web-server-0.57">web-server</a></li>
-<li><a href="#org576c73f">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#orgea05d28">Version 0.56</a>
-<ul>
-<li><a href="#org9bd30ae">Installation</a></li>
-<li><a href="#org5f5a8d7">agent</a></li>
-<li><a href="#org43ed81e">server</a></li>
-<li><a href="#web-server-0.56">web-server</a></li>
-<li><a href="#orgb88965d">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#org2278374">Version 0.55</a>
-<ul>
-<li><a href="#org1a9fc15">Installation</a></li>
-<li><a href="#org978181e">agent</a></li>
-<li><a href="#org3d691ed">server</a></li>
-<li><a href="#web-server-0.55">web-server</a></li>
-<li><a href="#org8fc27e8">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#org983debb">Version 0.54</a>
-<ul>
-<li><a href="#org4ff84de">Installation</a></li>
-<li><a href="#orga948a78">agent</a></li>
-<li><a href="#orgc66f9bd">server</a></li>
-<li><a href="#web-server-0.54">web-server</a></li>
-<li><a href="#orgd7085ef">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#org7b0a521">Version 0.53</a>
-<ul>
-<li><a href="#org7a1de75">Installation</a></li>
-<li><a href="#org9a3e7ce">agent</a></li>
-<li><a href="#org31d5b5b">server</a></li>
-<li><a href="#web-server-0.53">web-server</a></li>
-<li><a href="#org59d245c">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#org0da703d">Version 0.52</a>
-<ul>
-<li><a href="#org3756268">Installation</a></li>
-<li><a href="#org4479b28">agent</a></li>
-<li><a href="#org96cbbeb">server</a></li>
-<li><a href="#web-server-0.52">web-server</a></li>
-<li><a href="#org0b61255">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#org28b3858">Version 0.51</a>
-<ul>
-<li><a href="#org1c5ee63">Installation</a></li>
-<li><a href="#v0.51-agent">agent</a></li>
-<li><a href="#orgb66c75b">server</a></li>
-<li><a href="#web-server-0.51">web-server</a></li>
-<li><a href="#org0c1320e">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#org1611e7c">Version 0.50</a>
-<ul>
-<li><a href="#org4a9ff33">Installation</a></li>
-<li><a href="#org9398b94">agent</a></li>
-<li><a href="#org8161e62">server</a></li>
-<li><a href="#web-server-0.50">web-server</a></li>
-<li><a href="#org607695d">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#org46d1ada">Version 0.49</a>
-<ul>
-<li><a href="#orgb87c277">Installation</a></li>
-<li><a href="#org361cb58">agent</a></li>
-<li><a href="#org65f7018">server</a></li>
-<li><a href="#web-server-0.49">web-server</a></li>
-<li><a href="#orgf533568">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#org2b1aeaa">Version 0.48</a>
-<ul>
-<li><a href="#orgcf846d6">Installation</a></li>
-<li><a href="#orgfd4b7e2">agent</a></li>
-<li><a href="#orgf377d6a">server</a></li>
-<li><a href="#web-server-0.48">web-server</a></li>
-<li><a href="#org0330f39">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#org7ec84e5">Version 0.47</a>
-<ul>
-<li><a href="#orgcb86e9b">Installation</a></li>
-<li><a href="#org035ebbc">agent</a></li>
-<li><a href="#orgd8ba0d0">server</a></li>
-<li><a href="#web-server-0.47">web-server</a></li>
-<li><a href="#org986c301">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#org42cbe87">Version 0.46</a>
-<ul>
-<li><a href="#org0610620">Installation</a></li>
-<li><a href="#org817e099">agent</a></li>
-<li><a href="#org72cb25d">server</a></li>
-<li><a href="#web-server-0.46">web-server</a></li>
-<li><a href="#org3c3c50f">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#orgd944658">Version 0.45</a>
-<ul>
-<li><a href="#orgb151e04">Installation</a></li>
-<li><a href="#org5eed2c1">agent</a></li>
-<li><a href="#orgaec7c7e">server</a></li>
-<li><a href="#web-server-0.45">web-server</a></li>
-<li><a href="#orgfb3c966">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#org408cb7a">Version 0.44</a>
-<ul>
-<li><a href="#org495852b">Installation</a></li>
-<li><a href="#org06ed6df">agent</a></li>
-<li><a href="#org2320849">server</a></li>
-<li><a href="#web-server-0.44">web-server</a></li>
-<li><a href="#orgcfdd4c4">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#org0eb346d">Version 0.43</a>
-<ul>
-<li><a href="#orgd3c31d3">Installation</a></li>
-<li><a href="#org7ad5343">agent</a></li>
-<li><a href="#orge974aba">server</a></li>
-<li><a href="#web-server-0.43">web-server</a></li>
-<li><a href="#orgb29dff8">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#org381b52b">Version 0.42</a>
-<ul>
-<li><a href="#org14a908c">Installation</a></li>
-<li><a href="#orga05a048">agent</a></li>
-<li><a href="#org28ae159">server</a></li>
-<li><a href="#web-server-0.42">web-server</a></li>
-<li><a href="#org9ac794c">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#orgafb54ad">Version 0.41</a>
-<ul>
-<li><a href="#org94c0ad1">Installation</a></li>
-<li><a href="#org66b76d7">agent</a></li>
-<li><a href="#orgfed8a03">server</a></li>
-<li><a href="#web-server-0.41">web-server</a></li>
-<li><a href="#org3de4f17">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#org7958788">Version 0.40</a>
-<ul>
-<li><a href="#org7d35f58">Installation</a></li>
-<li><a href="#orgdafd76a">agent</a></li>
-<li><a href="#orgdfebd99">server</a></li>
-<li><a href="#web-server-0.40">web-server</a></li>
-<li><a href="#org200ab2e">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#org2c6653a">Version 0.39</a>
-<ul>
-<li><a href="#org2c7d9cb">Installation</a></li>
-<li><a href="#org9911fa8">agent</a></li>
-<li><a href="#org9a9483f">server</a></li>
-<li><a href="#web-server-0.39">web-server</a></li>
-<li><a href="#org21b1c73">Changelog</a></li>
-</ul>
-</li>
-<li><a href="#org3f50a9c">Version 0.38</a>
+<li><a href="#orgb4f75a7">Version 0.59</a>
 <ul>
 <li><a href="#org74fdd16">Installation</a></li>
 <li><a href="#org228d87c">agent</a></li>
 <li><a href="#org8d57218">server</a></li>
-<li><a href="#org3fdcb5e">web-server</a></li>
-<li><a href="#org68687a4">Fedora 24 RPMs on COPR</a></li>
+<li><a href="#web-server-0.59">web-server</a></li>
 <li><a href="#org1db5a6c">Changelog</a></li>
 </ul>
 </li>
+<li><a href="#org6ab69a0">Version 0.58</a>
+<ul>
+<li><a href="#org7da25ba">Installation</a></li>
+<li><a href="#org2656541">agent</a></li>
+<li><a href="#org21fa0ce">server</a></li>
+<li><a href="#web-server-0.58">web-server</a></li>
+<li><a href="#org064c373">Changelog</a></li>
 </ul>
+</li>
+<li><a href="#orgd9327d5">Version 0.57</a>
+<ul>
+<li><a href="#org7bd0c9f">Installation</a></li>
+<li><a href="#orgb307224">agent</a></li>
+<li><a href="#orgb7585f3">server</a></li>
+<li><a href="#web-server-0.57">web-server</a></li>
+<li><a href="#org2320203">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#orgea05d28">Version 0.56</a>
+<ul>
+<li><a href="#org4e2e66c">Installation</a></li>
+<li><a href="#org634ba85">agent</a></li>
+<li><a href="#org60b5fe0">server</a></li>
+<li><a href="#web-server-0.56">web-server</a></li>
+<li><a href="#orga9c4322">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#org2278374">Version 0.55</a>
+<ul>
+<li><a href="#org3df4c38">Installation</a></li>
+<li><a href="#orgcfc3a4f">agent</a></li>
+<li><a href="#org826e8fe">server</a></li>
+<li><a href="#web-server-0.55">web-server</a></li>
+<li><a href="#org10b73a0">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#org983debb">Version 0.54</a>
+<ul>
+<li><a href="#orgf48249c">Installation</a></li>
+<li><a href="#org3fbbce8">agent</a></li>
+<li><a href="#org854146f">server</a></li>
+<li><a href="#web-server-0.54">web-server</a></li>
+<li><a href="#orgf698c7e">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#org7b0a521">Version 0.53</a>
+<ul>
+<li><a href="#orga5e727e">Installation</a></li>
+<li><a href="#orgf8ffd9f">agent</a></li>
+<li><a href="#org2f9f053">server</a></li>
+<li><a href="#web-server-0.53">web-server</a></li>
+<li><a href="#orgb5f2dad">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#org0da703d">Version 0.52</a>
+<ul>
+<li><a href="#org8bb8772">Installation</a></li>
+<li><a href="#org564a6a0">agent</a></li>
+<li><a href="#org49b088e">server</a></li>
+<li><a href="#web-server-0.52">web-server</a></li>
+<li><a href="#orgc64efed">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#org28b3858">Version 0.51</a>
+<ul>
+<li><a href="#org479fe9f">Installation</a></li>
+<li><a href="#v0.51-agent">agent</a></li>
+<li><a href="#org135c3b4">server</a></li>
+<li><a href="#web-server-0.51">web-server</a></li>
+<li><a href="#orgae00219">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#org1611e7c">Version 0.50</a>
+<ul>
+<li><a href="#orgb343865">Installation</a></li>
+<li><a href="#org9991bbd">agent</a></li>
+<li><a href="#orgbdf837f">server</a></li>
+<li><a href="#web-server-0.50">web-server</a></li>
+<li><a href="#orgab4fd59">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#org46d1ada">Version 0.49</a>
+<ul>
+<li><a href="#orgb30d279">Installation</a></li>
+<li><a href="#org2b28268">agent</a></li>
+<li><a href="#org877d8c9">server</a></li>
+<li><a href="#web-server-0.49">web-server</a></li>
+<li><a href="#org5230221">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#org2b1aeaa">Version 0.48</a>
+<ul>
+<li><a href="#org9113d6b">Installation</a></li>
+<li><a href="#org279726b">agent</a></li>
+<li><a href="#orge491b90">server</a></li>
+<li><a href="#web-server-0.48">web-server</a></li>
+<li><a href="#orgaf809c6">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#org7ec84e5">Version 0.47</a>
+<ul>
+<li><a href="#org5a2ce9f">Installation</a></li>
+<li><a href="#orge2b1212">agent</a></li>
+<li><a href="#orgab63d7f">server</a></li>
+<li><a href="#web-server-0.47">web-server</a></li>
+<li><a href="#org30da353">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#org42cbe87">Version 0.46</a>
+<ul>
+<li><a href="#orga02bd7e">Installation</a></li>
+<li><a href="#org820f712">agent</a></li>
+<li><a href="#org0899f24">server</a></li>
+<li><a href="#web-server-0.46">web-server</a></li>
+<li><a href="#orgb0cc069">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#orgd944658">Version 0.45</a>
+<ul>
+<li><a href="#org0051a53">Installation</a></li>
+<li><a href="#org43fc08a">agent</a></li>
+<li><a href="#org3add185">server</a></li>
+<li><a href="#web-server-0.45">web-server</a></li>
+<li><a href="#orgd9fc67f">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#org408cb7a">Version 0.44</a>
+<ul>
+<li><a href="#orgeeadba9">Installation</a></li>
+<li><a href="#org96a7393">agent</a></li>
+<li><a href="#org8c64e9e">server</a></li>
+<li><a href="#web-server-0.44">web-server</a></li>
+<li><a href="#org6f9a940">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#org0eb346d">Version 0.43</a>
+<ul>
+<li><a href="#orgad8e670">Installation</a></li>
+<li><a href="#orgfded09b">agent</a></li>
+<li><a href="#org9b9639c">server</a></li>
+<li><a href="#web-server-0.43">web-server</a></li>
+<li><a href="#org0cd4518">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#org381b52b">Version 0.42</a>
+<ul>
+<li><a href="#org553636b">Installation</a></li>
+<li><a href="#orge297412">agent</a></li>
+<li><a href="#org4b42ee1">server</a></li>
+<li><a href="#web-server-0.42">web-server</a></li>
+<li><a href="#org3d6e368">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#orgafb54ad">Version 0.41</a>
+<ul>
+<li><a href="#org1b5fc23">Installation</a></li>
+<li><a href="#orgc1d9a97">agent</a></li>
+<li><a href="#org45a2f52">server</a></li>
+<li><a href="#web-server-0.41">web-server</a></li>
+<li><a href="#org2dcf803">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#org7958788">Version 0.40</a>
+<ul>
+<li><a href="#org4763462">Installation</a></li>
+<li><a href="#org2f482d5">agent</a></li>
+<li><a href="#orga7f4ae6">server</a></li>
+<li><a href="#web-server-0.40">web-server</a></li>
+<li><a href="#org1083546">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#org2c6653a">Version 0.39</a>
+<ul>
+<li><a href="#org22b74bc">Installation</a></li>
+<li><a href="#orgf6e8e60">agent</a></li>
+<li><a href="#org3cefda7">server</a></li>
+<li><a href="#web-server-0.39">web-server</a></li>
+<li><a href="#orgabec522">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#org3f50a9c">Version 0.38</a>
+<ul>
+<li><a href="#orgd74f179">Installation</a></li>
+<li><a href="#orgc05b757">agent</a></li>
+<li><a href="#orgc10941c">server</a></li>
+<li><a href="#orgff1b442">web-server</a></li>
+<li><a href="#org68687a4">Fedora 24 RPMs on COPR</a></li>
+<li><a href="#org36cdeac">Changelog</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgb4f75a7" class="outline-2">
+<h2 id="orgb4f75a7">Version 0.59</h2>
+<div class="outline-text-2" id="text-orgb4f75a7">
+<p>
+This is an <b>agent-only</b> release.
+</p>
+</div>
+
+<div id="outline-container-org74fdd16" class="outline-3">
+<h3 id="org74fdd16">Installation</h3>
+<div class="outline-text-3" id="text-org74fdd16">
+<p>
+There are ansible playbooks to install <code>pbench-agent</code> and the pieces
+needed (key and config files) to be able to send results to a server.
+</p>
+
+<p>
+There are no other installation changes in this release: see the
+<a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
+</p>
+
+<p>
+After installation or update, you should have version 0.59-1g68efd295
+of the pbench-agent RPM installed.
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-org228d87c" class="outline-3">
+<h3 id="org228d87c">agent</h3>
+<div class="outline-text-3" id="text-org228d87c">
+<p>
+This release includes a fix for a serious pidstat postprocessing
+problem, which caused pidstat files to not be produced.
+</p>
+
+<p>
+It also includes work on pbench-run-benchmark in order for it to
+produce CDM-compliant output. Note that this code (as well as
+pbench-run-benchmark) is beta code: we would appreciate bug reports
+(please open an issue!), as well as reports of success in using it.
+</p>
+
+<p>
+There is a known problem in this release (issue #1161): the current
+3.6 sosreport release does not support the "general" and "lsbrelease"
+plugins of previous versions and exits without producing a
+sosreport. Although we were planning to fix it for v0.59, we didn't
+get around to it. This bug will be fixed in the next release of
+pbench.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org8d57218" class="outline-3">
+<h3 id="org8d57218">server</h3>
+<div class="outline-text-3" id="text-org8d57218">
+<p>
+This is an agent-only release. There are no new server RPMs produced.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3fdcb5e" class="outline-3">
+<h3 id="web-server-0.59">web-server</h3>
+<div class="outline-text-3" id="text-web-server-0.59">
+<p>
+This is an agent-only release. There are no new web-server RPMs produced.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org1db5a6c" class="outline-3">
+<h3 id="org1db5a6c">Changelog</h3>
+<div class="outline-text-3" id="text-org1db5a6c">
+<p>
+This is the list of visible commits <b>in the agent</b> since v0.58:
+</p>
+
+<ul class="org-ul">
+<li>8efd295  Version bump</li>
+<li>05c463e3 trafficgen-postprocess: bug fix for cumulative data processing</li>
+<li>ae74b4aa pbench-run-benchmark-sample: capture postprocessing STDERR along with STDOUT</li>
+<li>c5d40acd trafficgen.json: improve param_regex to be less greedy</li>
+<li>9b1aead8 trafficgen.json: add warmup trial options</li>
+<li>23070e8c trafficgen.json: always force profiler data processing for all trials</li>
+<li>439150da trafficgen-postprocess-cdm: add TRex profiler metric processing</li>
+<li>dcf665cb trafficgen-postprocess-cdm: move some processing out of the dev pair loop</li>
+<li>66839208 trafficgen-postprocss-cdm: update to CDMv4</li>
+<li>029e1506 trafficgen-postprocess: update logic to locate binary-search.json</li>
+<li>4b7dfd99 pbench-run-benchmark: add support for &#x2013;pre-sample-cmd</li>
+<li>7f709fe5 Helper functions for CDM for metrics -Used for postprocess scripts for tools or benchmarks -Log data samples with log_cdm_metric_sample, which populates  hash -Call gen_cdm_metric_data once all samples are logged to generate  ndjson files for metric_desc and metric_data documents</li>
+<li>d7929fee Fixup metric id usage for fio and iostat and process multi jobs for fio</li>
+<li>a524471e pbench-import-cdm: support cdmv4, exit on response error -NDJSON used for metric_data and metric_desc -parse ES response and exit if there's an error</li>
+<li>465e029d pbench.json: don't include comments in the JSON -embedding comments is not really supported in JSON,  and pbench libs no longer try to strip comments out</li>
+<li>29eb0f86 fio.json: use the sameversion of fio we bundle with pbench</li>
+<li>15aa298f cdm-get-result/iterations: query CDM for run info -cdm-get-iterations provides a list of iteration ids -cdm-get-result provides a benchmark result for a iteration -this is a work-in-progress</li>
+<li>9628c5cf iostat-postprocess-cdm: support the metric_desc and metric_data cdmv4 format</li>
+<li>bf8c3ac4 fio-postprocess-cdm: support the metric_desc and metric_data cdmv4 format</li>
+<li>2dd966f5 pbench-run-benchmark-sample: support postprocess-only -to be used with pbench-run-benchmark with &#x2013;postprocess-only</li>
+<li>bc7ea29c pbench-run-benchmark: support a postprocess-only mode -using &#x2013;postprocess-only will re-run the benchmark's postprocessing  script and regenerate the CDM documents</li>
+<li>84ea69f2 PbenchCDM.pm: update cdm_ver, comma-&gt;whitesp some fields, split metric docs -CommonDataModel version separates the version number (int) from the release  ('dev' or 'prod') as well as ensuring the ES field value for cdm_ver is only  an interger.  The release value is used in the index names only. -Values for field names clients, servers, tags, and tool_names have their  contents converted from comma-delimited to space delimited to work with  whitespace analyzer. -Metric doc split into two docs: first one is for metadata (metric_desc) and  second one is for actual data (metric_data).  Metric_data docs are still  one per sample and still include a begin and end timestamp, but also have  a metric.id which is shared with the metric_desc doc.  Queries to find  a specific metric are now made against metric_desc, and once the desired  metric is foumnd, its data is queried against metric_data by using the  metric.id (and possibly other terms such as begin/end being &gt;,&lt;,= specific  value.  Splitting metadata and data into two docs reduces space by about  50%.</li>
+<li>8238771b PbenchBase.pm: fix remove_params, update JSON calls -remove_params: would not remove multiple &#x2013;myarg=myvalue -JSON: use OO notation which should be portable across different modules (native, XS) -other minor cleanup</li>
+<li>5aabdae8 pidstat-convert: use md5 for filenames - using $cmd for filenames would sometimes not work - md5_hex should not have problems when used as a filename - $cmd to md5 stored in memory and not needed later</li>
+</ul>
+</div>
 </div>
 </div>
 
@@ -449,9 +568,9 @@ for the JavaScript code in this tag.
 <h2 id="org6ab69a0">Version 0.58</h2>
 <div class="outline-text-2" id="text-org6ab69a0">
 </div>
-<div id="outline-container-org1488eae" class="outline-3">
-<h3 id="org1488eae">Installation</h3>
-<div class="outline-text-3" id="text-org1488eae">
+<div id="outline-container-org7da25ba" class="outline-3">
+<h3 id="org7da25ba">Installation</h3>
+<div class="outline-text-3" id="text-org7da25ba">
 <p>
 There are ansible playbooks to install <code>pbench-agent</code> and the pieces
 needed (key and config files) to be able to send results to a server.
@@ -470,9 +589,9 @@ of the pbench-agent RPM installed.
 </div>
 
 
-<div id="outline-container-org15dd985" class="outline-3">
-<h3 id="org15dd985">agent</h3>
-<div class="outline-text-3" id="text-org15dd985">
+<div id="outline-container-org2656541" class="outline-3">
+<h3 id="org2656541">agent</h3>
+<div class="outline-text-3" id="text-org2656541">
 <p>
 The main change in this release is that now pbench requires the 12.0.3
 version of the sysstat tools. pbench-sysstat RPMs for this version are
@@ -503,16 +622,16 @@ sosreport. This bug will be fixed in the next release of pbench.
 </div>
 </div>
 
-<div id="outline-container-org73c3db6" class="outline-3">
-<h3 id="org73c3db6">server</h3>
-<div class="outline-text-3" id="text-org73c3db6">
+<div id="outline-container-org21fa0ce" class="outline-3">
+<h3 id="org21fa0ce">server</h3>
+<div class="outline-text-3" id="text-org21fa0ce">
 <p>
 There are no changes to the server code in this release.
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgae70f0a" class="outline-3">
+<div id="outline-container-org7880158" class="outline-3">
 <h3 id="web-server-0.58">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.58">
 <p>
@@ -522,9 +641,9 @@ to make sure it still builds correctly.)
 </div>
 </div>
 
-<div id="outline-container-orga2458be" class="outline-3">
-<h3 id="orga2458be">Changelog</h3>
-<div class="outline-text-3" id="text-orga2458be">
+<div id="outline-container-org064c373" class="outline-3">
+<h3 id="org064c373">Changelog</h3>
+<div class="outline-text-3" id="text-org064c373">
 <p>
 This is the list of visible commits since v0.57:
 </p>
@@ -568,9 +687,9 @@ This is the list of visible commits since v0.57:
 <h2 id="orgd9327d5">Version 0.57</h2>
 <div class="outline-text-2" id="text-orgd9327d5">
 </div>
-<div id="outline-container-org628ee3a" class="outline-3">
-<h3 id="org628ee3a">Installation</h3>
-<div class="outline-text-3" id="text-org628ee3a">
+<div id="outline-container-org7bd0c9f" class="outline-3">
+<h3 id="org7bd0c9f">Installation</h3>
+<div class="outline-text-3" id="text-org7bd0c9f">
 <p>
 There are ansible playbooks to install <code>pbench-agent</code> and the pieces
 needed (key and config files) to be able to send results to a server.
@@ -588,9 +707,9 @@ of the pbench-agent RPM installed.
 </div>
 </div>
 
-<div id="outline-container-org8e730a0" class="outline-3">
-<h3 id="org8e730a0">agent</h3>
-<div class="outline-text-3" id="text-org8e730a0">
+<div id="outline-container-orgb307224" class="outline-3">
+<h3 id="orgb307224">agent</h3>
+<div class="outline-text-3" id="text-orgb307224">
 <ul class="org-ul">
 <li>pbench-trafficgen: various fixes and enhancements.</li>
 <li>ansible playbook to install key and config files.</li>
@@ -598,9 +717,9 @@ of the pbench-agent RPM installed.
 </div>
 </div>
 
-<div id="outline-container-org0928bfc" class="outline-3">
-<h3 id="org0928bfc">server</h3>
-<div class="outline-text-3" id="text-org0928bfc">
+<div id="outline-container-orgb7585f3" class="outline-3">
+<h3 id="orgb7585f3">server</h3>
+<div class="outline-text-3" id="text-orgb7585f3">
 <ul class="org-ul">
 <li>index-pbench and friends: various fixes and enhancements that enable
 more dashboard features.</li>
@@ -609,7 +728,7 @@ more dashboard features.</li>
 </div>
 </div>
 
-<div id="outline-container-orgefbbbdf" class="outline-3">
+<div id="outline-container-org93f1731" class="outline-3">
 <h3 id="web-server-0.57">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.57">
 <p>
@@ -619,9 +738,9 @@ to make sure it still builds correctly.)
 </div>
 </div>
 
-<div id="outline-container-org576c73f" class="outline-3">
-<h3 id="org576c73f">Changelog</h3>
-<div class="outline-text-3" id="text-org576c73f">
+<div id="outline-container-org2320203" class="outline-3">
+<h3 id="org2320203">Changelog</h3>
+<div class="outline-text-3" id="text-org2320203">
 <p>
 This is the list of visible commits since v0.56:
 </p>
@@ -693,13 +812,14 @@ This is the list of visible commits since v0.56:
 </div>
 </div>
 
+
 <div id="outline-container-orgea05d28" class="outline-2">
 <h2 id="orgea05d28">Version 0.56</h2>
 <div class="outline-text-2" id="text-orgea05d28">
 </div>
-<div id="outline-container-org9bd30ae" class="outline-3">
-<h3 id="org9bd30ae">Installation</h3>
-<div class="outline-text-3" id="text-org9bd30ae">
+<div id="outline-container-org4e2e66c" class="outline-3">
+<h3 id="org4e2e66c">Installation</h3>
+<div class="outline-text-3" id="text-org4e2e66c">
 <p>
 There are no installation changes in this release: see the
 <a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
@@ -712,9 +832,9 @@ of the pbench-agent RPM installed.
 </div>
 </div>
 
-<div id="outline-container-org5f5a8d7" class="outline-3">
-<h3 id="org5f5a8d7">agent</h3>
-<div class="outline-text-3" id="text-org5f5a8d7">
+<div id="outline-container-org634ba85" class="outline-3">
+<h3 id="org634ba85">agent</h3>
+<div class="outline-text-3" id="text-org634ba85">
 </div>
 <ul class="org-ul">
 <li><a id="org67f9ce9"></a>New pbench agent universal bench script<br />
@@ -794,8 +914,8 @@ This has been fixed.
 </div>
 </li>
 
-<li><a id="org92d570e"></a>Known problems and backward incompatibilities<br />
-<div class="outline-text-4" id="text-org92d570e">
+<li><a id="orgbf8b35b"></a>Known problems and backward incompatibilities<br />
+<div class="outline-text-4" id="text-orgbf8b35b">
 <p>
 See the <a href="https://github.com/distributed-system-analysis/pbench/issues">issues on Github</a>.
 </p>
@@ -804,9 +924,9 @@ See the <a href="https://github.com/distributed-system-analysis/pbench/issues">i
 </ul>
 </div>
 
-<div id="outline-container-org43ed81e" class="outline-3">
-<h3 id="org43ed81e">server</h3>
-<div class="outline-text-3" id="text-org43ed81e">
+<div id="outline-container-org60b5fe0" class="outline-3">
+<h3 id="org60b5fe0">server</h3>
+<div class="outline-text-3" id="text-org60b5fe0">
 </div>
 <ul class="org-ul">
 <li><a id="orga9ba859"></a>Indexing bugs fixed<br />
@@ -821,7 +941,7 @@ This has been fixed.
 </div>
 
 
-<div id="outline-container-org7f2ba8d" class="outline-3">
+<div id="outline-container-org5faf50f" class="outline-3">
 <h3 id="web-server-0.56">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.56">
 <p>
@@ -831,9 +951,9 @@ to make sure it still builds correctly.)
 </div>
 </div>
 
-<div id="outline-container-orgb88965d" class="outline-3">
-<h3 id="orgb88965d">Changelog</h3>
-<div class="outline-text-3" id="text-orgb88965d">
+<div id="outline-container-orga9c4322" class="outline-3">
+<h3 id="orga9c4322">Changelog</h3>
+<div class="outline-text-3" id="text-orga9c4322">
 <p>
 This is the list of visible commits since v0.55:
 </p>
@@ -887,9 +1007,9 @@ be fine (but if you run into problems, please let us know).
 </p>
 </div>
 
-<div id="outline-container-org1a9fc15" class="outline-3">
-<h3 id="org1a9fc15">Installation</h3>
-<div class="outline-text-3" id="text-org1a9fc15">
+<div id="outline-container-org3df4c38" class="outline-3">
+<h3 id="org3df4c38">Installation</h3>
+<div class="outline-text-3" id="text-org3df4c38">
 <p>
 There are no installation changes in this release: see the
 <a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
@@ -902,13 +1022,13 @@ of the pbench-agent RPM installed.
 </div>
 </div>
 
-<div id="outline-container-org978181e" class="outline-3">
-<h3 id="org978181e">agent</h3>
-<div class="outline-text-3" id="text-org978181e">
+<div id="outline-container-orgcfc3a4f" class="outline-3">
+<h3 id="orgcfc3a4f">agent</h3>
+<div class="outline-text-3" id="text-orgcfc3a4f">
 </div>
 <ul class="org-ul">
-<li><a id="org03a0c39"></a>fio<br />
-<div class="outline-text-4" id="text-org03a0c39">
+<li><a id="org724e598"></a>fio<br />
+<div class="outline-text-4" id="text-org724e598">
 <p>
 The last known vestiges of pandas have been excised from the config files and the RPMS.
 If you see any mention of pandas anywhere, please let us know.
@@ -932,8 +1052,8 @@ Allow insecure certs.
 </div>
 </li>
 
-<li><a id="org53e70d1"></a>Known problems and backward incompatibilities<br />
-<div class="outline-text-4" id="text-org53e70d1">
+<li><a id="org76ea48b"></a>Known problems and backward incompatibilities<br />
+<div class="outline-text-4" id="text-org76ea48b">
 <p>
 See the <a href="https://github.com/distributed-system-analysis/pbench/issues">issues on Github</a>.
 </p>
@@ -942,9 +1062,9 @@ See the <a href="https://github.com/distributed-system-analysis/pbench/issues">i
 </ul>
 </div>
 
-<div id="outline-container-org3d691ed" class="outline-3">
-<h3 id="org3d691ed">server</h3>
-<div class="outline-text-3" id="text-org3d691ed">
+<div id="outline-container-org826e8fe" class="outline-3">
+<h3 id="org826e8fe">server</h3>
+<div class="outline-text-3" id="text-org826e8fe">
 <p>
 The indexer got a major overhaul to fix various problems. It seems to
 be handling things much better now (albeit rather slowly).
@@ -952,7 +1072,7 @@ be handling things much better now (albeit rather slowly).
 </div>
 </div>
 
-<div id="outline-container-org1935fa2" class="outline-3">
+<div id="outline-container-org3bb61d3" class="outline-3">
 <h3 id="web-server-0.55">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.55">
 <p>
@@ -962,9 +1082,9 @@ to make sure it still builds correctly.)
 </div>
 </div>
 
-<div id="outline-container-org8fc27e8" class="outline-3">
-<h3 id="org8fc27e8">Changelog</h3>
-<div class="outline-text-3" id="text-org8fc27e8">
+<div id="outline-container-org10b73a0" class="outline-3">
+<h3 id="org10b73a0">Changelog</h3>
+<div class="outline-text-3" id="text-org10b73a0">
 <p>
 This is the list of visible commits since v0.54:
 </p>
@@ -1017,9 +1137,9 @@ This is the list of visible commits since v0.54:
 <h2 id="org983debb">Version 0.54</h2>
 <div class="outline-text-2" id="text-org983debb">
 </div>
-<div id="outline-container-org4ff84de" class="outline-3">
-<h3 id="org4ff84de">Installation</h3>
-<div class="outline-text-3" id="text-org4ff84de">
+<div id="outline-container-orgf48249c" class="outline-3">
+<h3 id="orgf48249c">Installation</h3>
+<div class="outline-text-3" id="text-orgf48249c">
 <p>
 There are no installation changes in this release: see the
 <a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
@@ -1032,13 +1152,13 @@ of the pbench-agent RPM installed.
 </div>
 </div>
 
-<div id="outline-container-orga948a78" class="outline-3">
-<h3 id="orga948a78">agent</h3>
-<div class="outline-text-3" id="text-orga948a78">
+<div id="outline-container-org3fbbce8" class="outline-3">
+<h3 id="org3fbbce8">agent</h3>
+<div class="outline-text-3" id="text-org3fbbce8">
 </div>
 <ul class="org-ul">
-<li><a id="org724e598"></a>fio<br />
-<div class="outline-text-4" id="text-org724e598">
+<li><a id="org411221f"></a>fio<br />
+<div class="outline-text-4" id="text-org411221f">
 <ul class="org-ul">
 <li>pbench-fio latency data processing has been streamlined and speeded up.
 It also does not have the dependency on pandas any longer (yay!)</li>
@@ -1062,8 +1182,8 @@ builds succeeded).</li>
 </li>
 
 
-<li><a id="org710027f"></a>Known problems and backward incompatibilities<br />
-<div class="outline-text-4" id="text-org710027f">
+<li><a id="org932ec66"></a>Known problems and backward incompatibilities<br />
+<div class="outline-text-4" id="text-org932ec66">
 <p>
 See the <a href="https://github.com/distributed-system-analysis/pbench/issues">issues on Github</a>.
 </p>
@@ -1072,9 +1192,9 @@ See the <a href="https://github.com/distributed-system-analysis/pbench/issues">i
 </ul>
 </div>
 
-<div id="outline-container-orgc66f9bd" class="outline-3">
-<h3 id="orgc66f9bd">server</h3>
-<div class="outline-text-3" id="text-orgc66f9bd">
+<div id="outline-container-org854146f" class="outline-3">
+<h3 id="org854146f">server</h3>
+<div class="outline-text-3" id="text-org854146f">
 <p>
 TBD - we are not going to update the servers with the new bits yet. We'll update these notes and send out an
 update when we are ready.
@@ -1082,7 +1202,7 @@ update when we are ready.
 </div>
 </div>
 
-<div id="outline-container-orgb442450" class="outline-3">
+<div id="outline-container-org47c1fe5" class="outline-3">
 <h3 id="web-server-0.54">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.54">
 <p>
@@ -1091,9 +1211,9 @@ There are no changes but a 0.54-1g4802e4ba RPM has been built on COPR (just to m
 </div>
 </div>
 
-<div id="outline-container-orgd7085ef" class="outline-3">
-<h3 id="orgd7085ef">Changelog</h3>
-<div class="outline-text-3" id="text-orgd7085ef">
+<div id="outline-container-orgf698c7e" class="outline-3">
+<h3 id="orgf698c7e">Changelog</h3>
+<div class="outline-text-3" id="text-orgf698c7e">
 <p>
 This is the list of visible commits since v0.53:
 </p>
@@ -1164,9 +1284,9 @@ This is the list of visible commits since v0.53:
 <h2 id="org7b0a521">Version 0.53</h2>
 <div class="outline-text-2" id="text-org7b0a521">
 </div>
-<div id="outline-container-org7a1de75" class="outline-3">
-<h3 id="org7a1de75">Installation</h3>
-<div class="outline-text-3" id="text-org7a1de75">
+<div id="outline-container-orga5e727e" class="outline-3">
+<h3 id="orga5e727e">Installation</h3>
+<div class="outline-text-3" id="text-orga5e727e">
 <p>
 There are no installation changes in this release: see the
 <a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
@@ -1179,9 +1299,9 @@ of the pbench-agent RPM installed.
 </div>
 </div>
 
-<div id="outline-container-org9a3e7ce" class="outline-3">
-<h3 id="org9a3e7ce">agent</h3>
-<div class="outline-text-3" id="text-org9a3e7ce">
+<div id="outline-container-orgf8ffd9f" class="outline-3">
+<h3 id="orgf8ffd9f">agent</h3>
+<div class="outline-text-3" id="text-orgf8ffd9f">
 <p>
 The <code>pprof</code> tool got some bug fixes.
 </p>
@@ -1194,8 +1314,8 @@ important information that you <b>really want</b> to know about.
 </div>
 
 <ul class="org-ul">
-<li><a id="org20730d0"></a>Known problems and backward incompatibilities<br />
-<div class="outline-text-4" id="text-org20730d0">
+<li><a id="orge9bdd37"></a>Known problems and backward incompatibilities<br />
+<div class="outline-text-4" id="text-orge9bdd37">
 <p>
 See the <a href="https://github.com/distributed-system-analysis/pbench/issues">issues on Github</a>.
 </p>
@@ -1204,9 +1324,9 @@ See the <a href="https://github.com/distributed-system-analysis/pbench/issues">i
 </ul>
 </div>
 
-<div id="outline-container-org31d5b5b" class="outline-3">
-<h3 id="org31d5b5b">server</h3>
-<div class="outline-text-3" id="text-org31d5b5b">
+<div id="outline-container-org2f9f053" class="outline-3">
+<h3 id="org2f9f053">server</h3>
+<div class="outline-text-3" id="text-org2f9f053">
 <p>
 The most important change was in <code>index-pbench</code> which acquired the ability
 to index some more tool data: <code>mpstat</code> and <code>proc-vmstat</code>.
@@ -1222,7 +1342,7 @@ The unit tests were enhanced in multiple ways.
 </div>
 </div>
 
-<div id="outline-container-org1cf1ed6" class="outline-3">
+<div id="outline-container-org5543b29" class="outline-3">
 <h3 id="web-server-0.53">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.53">
 <p>
@@ -1232,9 +1352,9 @@ from COPR, 0.52-1gbb9ce25, is still current.
 </div>
 </div>
 
-<div id="outline-container-org59d245c" class="outline-3">
-<h3 id="org59d245c">Changelog</h3>
-<div class="outline-text-3" id="text-org59d245c">
+<div id="outline-container-orgb5f2dad" class="outline-3">
+<h3 id="orgb5f2dad">Changelog</h3>
+<div class="outline-text-3" id="text-orgb5f2dad">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
 since v0.52:
@@ -1264,9 +1384,9 @@ since v0.52:
 <h2 id="org0da703d">Version 0.52</h2>
 <div class="outline-text-2" id="text-org0da703d">
 </div>
-<div id="outline-container-org3756268" class="outline-3">
-<h3 id="org3756268">Installation</h3>
-<div class="outline-text-3" id="text-org3756268">
+<div id="outline-container-org8bb8772" class="outline-3">
+<h3 id="org8bb8772">Installation</h3>
+<div class="outline-text-3" id="text-org8bb8772">
 <p>
 There are no installation changes in this release: see the
 <a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
@@ -1279,9 +1399,9 @@ of the pbench-agent RPM installed.
 </div>
 </div>
 
-<div id="outline-container-org4479b28" class="outline-3">
-<h3 id="org4479b28">agent</h3>
-<div class="outline-text-3" id="text-org4479b28">
+<div id="outline-container-org564a6a0" class="outline-3">
+<h3 id="org564a6a0">agent</h3>
+<div class="outline-text-3" id="text-org564a6a0">
 <p>
 No changes were made to the agent for this release (apart from a fix
 to the help message of <code>pbench-move-results</code>). Please see the <a href="#v0.51-agent">v0.51 changes</a>
@@ -1291,16 +1411,16 @@ about.
 </div>
 
 <ul class="org-ul">
-<li><a id="org8af755b"></a>Known problems and backward incompatibilities<br />
-<div class="outline-text-4" id="text-org8af755b">
+<li><a id="org2a955b8"></a>Known problems and backward incompatibilities<br />
+<div class="outline-text-4" id="text-org2a955b8">
 <p>
 See the <a href="https://github.com/distributed-system-analysis/pbench/issues">issues on Github</a>.
 </p>
 </div>
 </li>
 
-<li><a id="org9e1b935"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-org9e1b935">
+<li><a id="orga6fd86c"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-orga6fd86c">
 <ul class="org-ul">
 <li><code>pbench-move-results --help</code> now gives complete information.</li>
 </ul>
@@ -1309,9 +1429,9 @@ See the <a href="https://github.com/distributed-system-analysis/pbench/issues">i
 </ul>
 </div>
 
-<div id="outline-container-org96cbbeb" class="outline-3">
-<h3 id="org96cbbeb">server</h3>
-<div class="outline-text-3" id="text-org96cbbeb">
+<div id="outline-container-org49b088e" class="outline-3">
+<h3 id="org49b088e">server</h3>
+<div class="outline-text-3" id="text-org49b088e">
 <p>
 The <code>index-pbench</code> script got roto-tilled fairly extensively. Most
 of the changes are designed to make it a better citizen in the ES world:
@@ -1323,8 +1443,8 @@ clients. The next step is to move that module into its own repo.
 </div>
 
 <ul class="org-ul">
-<li><a id="org57909eb"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-org57909eb">
+<li><a id="org48b7e19"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-org48b7e19">
 <ul class="org-ul">
 <li><code>index-pbench</code>: see the changelog for the extensive set of changes.</li>
 </ul>
@@ -1333,7 +1453,7 @@ clients. The next step is to move that module into its own repo.
 </ul>
 </div>
 
-<div id="outline-container-org7f91282" class="outline-3">
+<div id="outline-container-org1f20646" class="outline-3">
 <h3 id="web-server-0.52">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.52">
 <p>
@@ -1343,9 +1463,9 @@ not include any changes from before. The version is 0.52-1gbb9ce25.
 </div>
 </div>
 
-<div id="outline-container-org0b61255" class="outline-3">
-<h3 id="org0b61255">Changelog</h3>
-<div class="outline-text-3" id="text-org0b61255">
+<div id="outline-container-orgc64efed" class="outline-3">
+<h3 id="orgc64efed">Changelog</h3>
+<div class="outline-text-3" id="text-orgc64efed">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
 since v0.51:
@@ -1383,9 +1503,9 @@ since v0.51:
 <h2 id="org28b3858">Version 0.51</h2>
 <div class="outline-text-2" id="text-org28b3858">
 </div>
-<div id="outline-container-org1c5ee63" class="outline-3">
-<h3 id="org1c5ee63">Installation</h3>
-<div class="outline-text-3" id="text-org1c5ee63">
+<div id="outline-container-org479fe9f" class="outline-3">
+<h3 id="org479fe9f">Installation</h3>
+<div class="outline-text-3" id="text-org479fe9f">
 <p>
 There are no installation changes in this release: see the
 <a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
@@ -1398,7 +1518,7 @@ of the pbench-agent RPM installed.
 </div>
 </div>
 
-<div id="outline-container-orgef6fe78" class="outline-3">
+<div id="outline-container-orgfa02f29" class="outline-3">
 <h3 id="v0.51-agent">agent</h3>
 <div class="outline-text-3" id="text-v0.51-agent">
 <p>
@@ -1463,16 +1583,16 @@ might be more convenient than modifying the invocation(s) of
 
 
 <ul class="org-ul">
-<li><a id="orga2ddd27"></a>Known problems and backward incompatibilities<br />
-<div class="outline-text-4" id="text-orga2ddd27">
+<li><a id="orgd0291be"></a>Known problems and backward incompatibilities<br />
+<div class="outline-text-4" id="text-orgd0291be">
 <p>
 See the <a href="https://github.com/distributed-system-analysis/pbench/issues">issues on Github</a>.
 </p>
 </div>
 </li>
 
-<li><a id="org73cbe47"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-org73cbe47">
+<li><a id="orgdb0efcb"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-orgdb0efcb">
 <ul class="org-ul">
 <li><code>pbench-move-results</code> was reworked to decouple it as much as
 possible from the server implementation. As a result, the number of
@@ -1486,16 +1606,16 @@ traffic generator, <code>trex-txrx-profile</code>.</li>
 </ul>
 </div>
 
-<div id="outline-container-orgb66c75b" class="outline-3">
-<h3 id="orgb66c75b">server</h3>
-<div class="outline-text-3" id="text-orgb66c75b">
+<div id="outline-container-org135c3b4" class="outline-3">
+<h3 id="org135c3b4">server</h3>
+<div class="outline-text-3" id="text-org135c3b4">
 </div>
 <ul class="org-ul">
-<li><a id="org760e39c"></a>Known problems and backward incompatibilities<br /></li>
+<li><a id="org8e233cd"></a>Known problems and backward incompatibilities<br /></li>
 
 
-<li><a id="org70669ce"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-org70669ce">
+<li><a id="orgd6e6804"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-orgd6e6804">
 <ul class="org-ul">
 <li>The scripts that back up tarballs and verify their integrity were
 reworked after the server migration that we went through, to make
@@ -1510,7 +1630,7 @@ is improved to make the status more readable.</li>
 </ul>
 </div>
 
-<div id="outline-container-org28e2b04" class="outline-3">
+<div id="outline-container-org921e6fa" class="outline-3">
 <h3 id="web-server-0.51">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.51">
 <p>
@@ -1520,9 +1640,9 @@ not include any changes from before. The version is 0.51-1g8d37ba0.
 </div>
 </div>
 
-<div id="outline-container-org0c1320e" class="outline-3">
-<h3 id="org0c1320e">Changelog</h3>
-<div class="outline-text-3" id="text-org0c1320e">
+<div id="outline-container-orgae00219" class="outline-3">
+<h3 id="orgae00219">Changelog</h3>
+<div class="outline-text-3" id="text-orgae00219">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
 since v0.50:
@@ -1565,9 +1685,9 @@ since v0.50:
 <h2 id="org1611e7c">Version 0.50</h2>
 <div class="outline-text-2" id="text-org1611e7c">
 </div>
-<div id="outline-container-org4a9ff33" class="outline-3">
-<h3 id="org4a9ff33">Installation</h3>
-<div class="outline-text-3" id="text-org4a9ff33">
+<div id="outline-container-orgb343865" class="outline-3">
+<h3 id="orgb343865">Installation</h3>
+<div class="outline-text-3" id="text-orgb343865">
 <p>
 There are no installation changes in this release: see the
 <a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
@@ -1580,9 +1700,9 @@ of the pbench-agent RPM installed.
 </div>
 </div>
 
-<div id="outline-container-org9398b94" class="outline-3">
-<h3 id="org9398b94">agent</h3>
-<div class="outline-text-3" id="text-org9398b94">
+<div id="outline-container-org9991bbd" class="outline-3">
+<h3 id="org9991bbd">agent</h3>
+<div class="outline-text-3" id="text-org9991bbd">
 <p>
 Fedora 28 has been added to the build list on COPR and agent RPMs
 for it have been produced. However, we have not produced RPMs for
@@ -1592,16 +1712,16 @@ shortly and a separate announcement will be sent out.
 </div>
 
 <ul class="org-ul">
-<li><a id="orgc8d8087"></a>Known problems and backward incompatibilities<br />
-<div class="outline-text-4" id="text-orgc8d8087">
+<li><a id="orged327fc"></a>Known problems and backward incompatibilities<br />
+<div class="outline-text-4" id="text-orged327fc">
 <p>
 See the <a href="https://github.com/distributed-system-analysis/pbench/issues">issues on Github</a>.
 </p>
 </div>
 </li>
 
-<li><a id="orge23fb57"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-orge23fb57">
+<li><a id="org64fb15f"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-org64fb15f">
 <ul class="org-ul">
 <li>Openvswitch tool has been added.</li>
 
@@ -1617,16 +1737,16 @@ and added to the metadata for the run. See issue #379 and PR #796
 </ul>
 </div>
 
-<div id="outline-container-org8161e62" class="outline-3">
-<h3 id="org8161e62">server</h3>
-<div class="outline-text-3" id="text-org8161e62">
+<div id="outline-container-orgbdf837f" class="outline-3">
+<h3 id="orgbdf837f">server</h3>
+<div class="outline-text-3" id="text-orgbdf837f">
 </div>
 <ul class="org-ul">
-<li><a id="org1e357c0"></a>Known problems and backward incompatibilities<br /></li>
+<li><a id="org7314fa6"></a>Known problems and backward incompatibilities<br /></li>
 
 
-<li><a id="orgc931874"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-orgc931874">
+<li><a id="org43e8c19"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-org43e8c19">
 <ul class="org-ul">
 <li>Pidstat data are now indexed into Elasticsearch.</li>
 
@@ -1643,15 +1763,15 @@ here.</li>
 </ul>
 </div>
 
-<div id="outline-container-orgfcb579b" class="outline-3">
+<div id="outline-container-org0ae0f9b" class="outline-3">
 <h3 id="web-server-0.50">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.50">
 </div>
 </div>
 
-<div id="outline-container-org607695d" class="outline-3">
-<h3 id="org607695d">Changelog</h3>
-<div class="outline-text-3" id="text-org607695d">
+<div id="outline-container-orgab4fd59" class="outline-3">
+<h3 id="orgab4fd59">Changelog</h3>
+<div class="outline-text-3" id="text-orgab4fd59">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
 since v0.49:
@@ -1691,9 +1811,9 @@ since v0.49:
 <h2 id="org46d1ada">Version 0.49</h2>
 <div class="outline-text-2" id="text-org46d1ada">
 </div>
-<div id="outline-container-orgb87c277" class="outline-3">
-<h3 id="orgb87c277">Installation</h3>
-<div class="outline-text-3" id="text-orgb87c277">
+<div id="outline-container-orgb30d279" class="outline-3">
+<h3 id="orgb30d279">Installation</h3>
+<div class="outline-text-3" id="text-orgb30d279">
 <p>
 There are no installation changes in this release: see the
 <a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
@@ -1706,9 +1826,9 @@ of the pbench-agent RPM installed.
 </div>
 </div>
 
-<div id="outline-container-org361cb58" class="outline-3">
-<h3 id="org361cb58">agent</h3>
-<div class="outline-text-3" id="text-org361cb58">
+<div id="outline-container-org2b28268" class="outline-3">
+<h3 id="org2b28268">agent</h3>
+<div class="outline-text-3" id="text-org2b28268">
 <p>
 We rebuilt pbench-sysstat and benchmark RPMs to include Fedora 27.  We
 can no longer build for Fedora 25 or earlier on COPR, so those
@@ -1717,16 +1837,16 @@ platforms are not supported any longer.
 </div>
 
 <ul class="org-ul">
-<li><a id="org86ddd14"></a>Known problems and backward incompatibilities<br />
-<div class="outline-text-4" id="text-org86ddd14">
+<li><a id="orga57644b"></a>Known problems and backward incompatibilities<br />
+<div class="outline-text-4" id="text-orga57644b">
 <p>
 See the <a href="https://github.com/distributed-system-analysis/pbench/issues">issues on Github</a> for an (extensive) list.
 </p>
 </div>
 </li>
 
-<li><a id="org7ec7ca8"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-org7ec7ca8">
+<li><a id="orga7404f0"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-orga7404f0">
 <ul class="org-ul">
 <li>New benchmark: pbench-trafficgen.</li>
 <li>The pbench-fio RPM is now based on upstream fio 3.3.</li>
@@ -1743,9 +1863,9 @@ please let us know asap.</li>
 </ul>
 </div>
 
-<div id="outline-container-org65f7018" class="outline-3">
-<h3 id="org65f7018">server</h3>
-<div class="outline-text-3" id="text-org65f7018">
+<div id="outline-container-org877d8c9" class="outline-3">
+<h3 id="org877d8c9">server</h3>
+<div class="outline-text-3" id="text-org877d8c9">
 <p>
 This is still TBD: For the next release (scheduled for mid April), we
 hope to finish the sar indexing work.  The rest of the tool results
@@ -1761,16 +1881,16 @@ inotify. That will be done in v0.50.
 </div>
 
 <ul class="org-ul">
-<li><a id="org8042a7d"></a>Known problems and backward incompatibilities<br />
-<div class="outline-text-4" id="text-org8042a7d">
+<li><a id="org3658dd6"></a>Known problems and backward incompatibilities<br />
+<div class="outline-text-4" id="text-org3658dd6">
 <p>
 None known.
 </p>
 </div>
 </li>
 
-<li><a id="org9cb3c98"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-org9cb3c98">
+<li><a id="org0f6ce77"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-org0f6ce77">
 <ul class="org-ul">
 <li>Various small fixes plus better logging in some cases.</li>
 </ul>
@@ -1779,7 +1899,7 @@ None known.
 </ul>
 </div>
 
-<div id="outline-container-org973efdd" class="outline-3">
+<div id="outline-container-org1323bc9" class="outline-3">
 <h3 id="web-server-0.49">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.49">
 <p>
@@ -1790,9 +1910,9 @@ install it locally.
 </div>
 </div>
 
-<div id="outline-container-orgf533568" class="outline-3">
-<h3 id="orgf533568">Changelog</h3>
-<div class="outline-text-3" id="text-orgf533568">
+<div id="outline-container-org5230221" class="outline-3">
+<h3 id="org5230221">Changelog</h3>
+<div class="outline-text-3" id="text-org5230221">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
 since v0.48:
@@ -1832,9 +1952,9 @@ since v0.48:
 <h2 id="org2b1aeaa">Version 0.48</h2>
 <div class="outline-text-2" id="text-org2b1aeaa">
 </div>
-<div id="outline-container-orgcf846d6" class="outline-3">
-<h3 id="orgcf846d6">Installation</h3>
-<div class="outline-text-3" id="text-orgcf846d6">
+<div id="outline-container-org9113d6b" class="outline-3">
+<h3 id="org9113d6b">Installation</h3>
+<div class="outline-text-3" id="text-org9113d6b">
 <p>
 There are no installation changes in this release: see the
 <a href="../agent/installation.html">Installation Instructions</a> for how to install or update.
@@ -1847,9 +1967,9 @@ of the pbench-agent RPM installed.
 </div>
 </div>
 
-<div id="outline-container-orgfd4b7e2" class="outline-3">
-<h3 id="orgfd4b7e2">agent</h3>
-<div class="outline-text-3" id="text-orgfd4b7e2">
+<div id="outline-container-org279726b" class="outline-3">
+<h3 id="org279726b">agent</h3>
+<div class="outline-text-3" id="text-org279726b">
 <p>
 We rebuilt pbench-sysstat and benchmark RPMs to include Fedora 27.  We
 can no longer build for Fedora 25 or earlier on COPR, so those
@@ -1858,8 +1978,8 @@ platforms are not supported any longer.
 </div>
 
 <ul class="org-ul">
-<li><a id="org6f93e88"></a>Known problems and backward incompatibilities<br />
-<div class="outline-text-4" id="text-org6f93e88">
+<li><a id="orga0827da"></a>Known problems and backward incompatibilities<br />
+<div class="outline-text-4" id="text-orga0827da">
 <p>
 pbench-fio has had a bunch of fixes in this release but problems
 remain: see the <a href="https://github.com/distributed-system-analysis/pbench/issues">issues on Github</a> for an (extensive) list.
@@ -1867,8 +1987,8 @@ remain: see the <a href="https://github.com/distributed-system-analysis/pbench/i
 </div>
 </li>
 
-<li><a id="org5d7d500"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-org5d7d500">
+<li><a id="org1d342ce"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-org1d342ce">
 <ul class="org-ul">
 <li>The pbench-fio RPM is now based on upstream fio 3.3.</li>
 <li>We are moving some default setting from the pbench-fio script
@@ -1884,9 +2004,9 @@ please let us know asap.</li>
 </ul>
 </div>
 
-<div id="outline-container-orgf377d6a" class="outline-3">
-<h3 id="orgf377d6a">server</h3>
-<div class="outline-text-3" id="text-orgf377d6a">
+<div id="outline-container-orge491b90" class="outline-3">
+<h3 id="orge491b90">server</h3>
+<div class="outline-text-3" id="text-orge491b90">
 <p>
 The indexing script now indexes fio, uperf and moongen results,
 including the time series data. It also has undergone some fixes
@@ -1909,16 +2029,16 @@ that it will land in time for the next release.
 </div>
 
 <ul class="org-ul">
-<li><a id="orgcfa5e2a"></a>Known problems and backward incompatibilities<br />
-<div class="outline-text-4" id="text-orgcfa5e2a">
+<li><a id="orgc8ad4d1"></a>Known problems and backward incompatibilities<br />
+<div class="outline-text-4" id="text-orgc8ad4d1">
 <p>
 None known
 </p>
 </div>
 </li>
 
-<li><a id="org97d98b0"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-org97d98b0">
+<li><a id="orgd58fbcb"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-orgd58fbcb">
 <ul class="org-ul">
 <li>The long-standing pbench-move-unpacked problem (in some cases,
 the incoming directory existed and the script failed to get all
@@ -1934,7 +2054,7 @@ as well.</li>
 </ul>
 </div>
 
-<div id="outline-container-org3d2ac47" class="outline-3">
+<div id="outline-container-org7527168" class="outline-3">
 <h3 id="web-server-0.48">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.48">
 <p>
@@ -1955,9 +2075,9 @@ is 0.48-1g87190ca.
 </div>
 </div>
 
-<div id="outline-container-org0330f39" class="outline-3">
-<h3 id="org0330f39">Changelog</h3>
-<div class="outline-text-3" id="text-org0330f39">
+<div id="outline-container-orgaf809c6" class="outline-3">
+<h3 id="orgaf809c6">Changelog</h3>
+<div class="outline-text-3" id="text-orgaf809c6">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
 since v0.47:
@@ -2027,9 +2147,9 @@ since v0.47:
 <h2 id="org7ec84e5">Version 0.47</h2>
 <div class="outline-text-2" id="text-org7ec84e5">
 </div>
-<div id="outline-container-orgcb86e9b" class="outline-3">
-<h3 id="orgcb86e9b">Installation</h3>
-<div class="outline-text-3" id="text-orgcb86e9b">
+<div id="outline-container-org5a2ce9f" class="outline-3">
+<h3 id="org5a2ce9f">Installation</h3>
+<div class="outline-text-3" id="text-org5a2ce9f">
 <p>
 There are no installation changes in this release: see the
 </p>
@@ -2052,13 +2172,13 @@ of the pbench-agent RPM installed.
 
 
 
-<div id="outline-container-org035ebbc" class="outline-3">
-<h3 id="org035ebbc">agent</h3>
-<div class="outline-text-3" id="text-org035ebbc">
+<div id="outline-container-orge2b1212" class="outline-3">
+<h3 id="orge2b1212">agent</h3>
+<div class="outline-text-3" id="text-orge2b1212">
 </div>
 <ul class="org-ul">
-<li><a id="org92f7573"></a>Known problems and backward incompatibilities<br />
-<div class="outline-text-4" id="text-org92f7573">
+<li><a id="org2b009f2"></a>Known problems and backward incompatibilities<br />
+<div class="outline-text-4" id="text-org2b009f2">
 <p>
 The pprof tools is undergoing some renovation right now: see issue #675
 </p>
@@ -2067,8 +2187,8 @@ The pprof tools is undergoing some renovation right now: see issue #675
 
 
 
-<li><a id="orgb03db67"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-orgb03db67">
+<li><a id="org1c71ac4"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-org1c71ac4">
 <ul class="org-ul">
 <li><p>
 Running xz in multithread mode in <code>pbench-move/copy-results</code> is a
@@ -2097,13 +2217,13 @@ order to allow this fallback, a new option was added to
 
 
 
-<div id="outline-container-orgd8ba0d0" class="outline-3">
-<h3 id="orgd8ba0d0">server</h3>
-<div class="outline-text-3" id="text-orgd8ba0d0">
+<div id="outline-container-orgab63d7f" class="outline-3">
+<h3 id="orgab63d7f">server</h3>
+<div class="outline-text-3" id="text-orgab63d7f">
 </div>
 <ul class="org-ul">
-<li><a id="orge96caba"></a>Known problems and backward incompatibilities<br />
-<div class="outline-text-4" id="text-orge96caba">
+<li><a id="orgfa56a2c"></a>Known problems and backward incompatibilities<br />
+<div class="outline-text-4" id="text-orgfa56a2c">
 <ul class="org-ul">
 <li><p>
 pbench-move-unpacked occasionally leaves a dangling symlink in the
@@ -2138,8 +2258,8 @@ failures in fairly short order.
 
 
 
-<li><a id="org1d39236"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-org1d39236">
+<li><a id="org8546597"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-org8546597">
 <ul class="org-ul">
 <li><p>
 Made the above failure in pbench-move-unpacked visible in the email
@@ -2160,7 +2280,7 @@ help us diagnose the error once and for alland fix it (we hope in v0.48).
 
 
 
-<div id="outline-container-orge198c3a" class="outline-3">
+<div id="outline-container-orgc53b797" class="outline-3">
 <h3 id="web-server-0.47">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.47">
 <p>
@@ -2192,9 +2312,9 @@ is 0.47-1g2cfe130.
 
 
 
-<div id="outline-container-org986c301" class="outline-3">
-<h3 id="org986c301">Changelog</h3>
-<div class="outline-text-3" id="text-org986c301">
+<div id="outline-container-org30da353" class="outline-3">
+<h3 id="org30da353">Changelog</h3>
+<div class="outline-text-3" id="text-org30da353">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
 </p>
@@ -2266,9 +2386,9 @@ since v0.46:
 <h2 id="org42cbe87">Version 0.46</h2>
 <div class="outline-text-2" id="text-org42cbe87">
 </div>
-<div id="outline-container-org0610620" class="outline-3">
-<h3 id="org0610620">Installation</h3>
-<div class="outline-text-3" id="text-org0610620">
+<div id="outline-container-orga02bd7e" class="outline-3">
+<h3 id="orga02bd7e">Installation</h3>
+<div class="outline-text-3" id="text-orga02bd7e">
 <p>
 There are no installation changes in this release: see the
 </p>
@@ -2291,13 +2411,13 @@ of the pbench-agent RPM installed.
 
 
 
-<div id="outline-container-org817e099" class="outline-3">
-<h3 id="org817e099">agent</h3>
-<div class="outline-text-3" id="text-org817e099">
+<div id="outline-container-org820f712" class="outline-3">
+<h3 id="org820f712">agent</h3>
+<div class="outline-text-3" id="text-org820f712">
 </div>
 <ul class="org-ul">
-<li><a id="orgf908d4b"></a>Known problems and backward incompatibilities<br />
-<div class="outline-text-4" id="text-orgf908d4b">
+<li><a id="org91c532e"></a>Known problems and backward incompatibilities<br />
+<div class="outline-text-4" id="text-org91c532e">
 <p>
 The pprof tools is undergoing some renovation right now: see issue #675
 </p>
@@ -2306,8 +2426,8 @@ The pprof tools is undergoing some renovation right now: see issue #675
 
 
 
-<li><a id="org9bd5989"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-org9bd5989">
+<li><a id="orgfec220f"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-orgfec220f">
 <ul class="org-ul">
 <li><p>
 Running xz in multithread mode in <code>pbench-move/copy-results</code> is a
@@ -2336,13 +2456,13 @@ order to allow this fallback, a new option was added to
 
 
 
-<div id="outline-container-org72cb25d" class="outline-3">
-<h3 id="org72cb25d">server</h3>
-<div class="outline-text-3" id="text-org72cb25d">
+<div id="outline-container-org0899f24" class="outline-3">
+<h3 id="org0899f24">server</h3>
+<div class="outline-text-3" id="text-org0899f24">
 </div>
 <ul class="org-ul">
-<li><a id="org9bea2b3"></a>Known problems and backward incompatibilities<br />
-<div class="outline-text-4" id="text-org9bea2b3">
+<li><a id="orgb277dfe"></a>Known problems and backward incompatibilities<br />
+<div class="outline-text-4" id="text-orgb277dfe">
 <p>
 The script that copies the contents of each tarball to the distributed
 </p>
@@ -2371,8 +2491,8 @@ problem in v0.47.
 
 
 
-<li><a id="org8e32610"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-org8e32610">
+<li><a id="org812f274"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-org812f274">
 <p>
 Most of the changes in this release are to fix some problems in the
 </p>
@@ -2435,7 +2555,7 @@ satellite servers. If you see problems, please open an issue.
 
 
 
-<div id="outline-container-orge37add8" class="outline-3">
+<div id="outline-container-org1aee09a" class="outline-3">
 <h3 id="web-server-0.46">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.46">
 <p>
@@ -2467,9 +2587,9 @@ is 0.46-1g6327ec7.
 
 
 
-<div id="outline-container-org3c3c50f" class="outline-3">
-<h3 id="org3c3c50f">Changelog</h3>
-<div class="outline-text-3" id="text-org3c3c50f">
+<div id="outline-container-orgb0cc069" class="outline-3">
+<h3 id="orgb0cc069">Changelog</h3>
+<div class="outline-text-3" id="text-orgb0cc069">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
 </p>
@@ -2525,9 +2645,9 @@ since v0.45:
 <h2 id="orgd944658">Version 0.45</h2>
 <div class="outline-text-2" id="text-orgd944658">
 </div>
-<div id="outline-container-orgb151e04" class="outline-3">
-<h3 id="orgb151e04">Installation</h3>
-<div class="outline-text-3" id="text-orgb151e04">
+<div id="outline-container-org0051a53" class="outline-3">
+<h3 id="org0051a53">Installation</h3>
+<div class="outline-text-3" id="text-org0051a53">
 <p>
 There are no installation changes in this release: see the
 </p>
@@ -2550,13 +2670,13 @@ of the pbench-agent RPM installed.
 
 
 
-<div id="outline-container-org5eed2c1" class="outline-3">
-<h3 id="org5eed2c1">agent</h3>
-<div class="outline-text-3" id="text-org5eed2c1">
+<div id="outline-container-org43fc08a" class="outline-3">
+<h3 id="org43fc08a">agent</h3>
+<div class="outline-text-3" id="text-org43fc08a">
 </div>
 <ul class="org-ul">
-<li><a id="orgd9b1b8b"></a>Known problems and backward incompatibilities<br />
-<div class="outline-text-4" id="text-orgd9b1b8b">
+<li><a id="orgc73b3c6"></a>Known problems and backward incompatibilities<br />
+<div class="outline-text-4" id="text-orgc73b3c6">
 <p>
 Some of these were in v0.44 - they are repeated here for convenience.
 </p>
@@ -2673,8 +2793,8 @@ to <code>/etc/yum.repos.d</code>.
 
 
 
-<li><a id="org8b3a994"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-org8b3a994">
+<li><a id="org61c1e00"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-org61c1e00">
 <ul class="org-ul">
 <li><p>
 Some benchmark scripts now take an additional option:
@@ -2809,9 +2929,9 @@ seen some enhancements.
 
 
 
-<div id="outline-container-orgaec7c7e" class="outline-3">
-<h3 id="orgaec7c7e">server</h3>
-<div class="outline-text-3" id="text-orgaec7c7e">
+<div id="outline-container-org3add185" class="outline-3">
+<h3 id="org3add185">server</h3>
+<div class="outline-text-3" id="text-org3add185">
 <p>
 The server code underwent fairly radical changes:
 </p>
@@ -2886,7 +3006,7 @@ going to be deployed on the satellite servers in the next day or two.
 
 
 
-<div id="outline-container-orgfb08211" class="outline-3">
+<div id="outline-container-org5a9168d" class="outline-3">
 <h3 id="web-server-0.45">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.45">
 <p>
@@ -2922,9 +3042,9 @@ is 0.45-1g8874a17.
 
 
 
-<div id="outline-container-orgfb3c966" class="outline-3">
-<h3 id="orgfb3c966">Changelog</h3>
-<div class="outline-text-3" id="text-orgfb3c966">
+<div id="outline-container-orgd9fc67f" class="outline-3">
+<h3 id="orgd9fc67f">Changelog</h3>
+<div class="outline-text-3" id="text-orgd9fc67f">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
 </p>
@@ -3038,9 +3158,9 @@ since v0.44:
 <h2 id="org408cb7a">Version 0.44</h2>
 <div class="outline-text-2" id="text-org408cb7a">
 </div>
-<div id="outline-container-org495852b" class="outline-3">
-<h3 id="org495852b">Installation</h3>
-<div class="outline-text-3" id="text-org495852b">
+<div id="outline-container-orgeeadba9" class="outline-3">
+<h3 id="orgeeadba9">Installation</h3>
+<div class="outline-text-3" id="text-orgeeadba9">
 <p>
 There are no installation changes in this release: see the
 </p>
@@ -3063,13 +3183,13 @@ of the pbench-agent RPM installed.
 
 
 
-<div id="outline-container-org06ed6df" class="outline-3">
-<h3 id="org06ed6df">agent</h3>
-<div class="outline-text-3" id="text-org06ed6df">
+<div id="outline-container-org96a7393" class="outline-3">
+<h3 id="org96a7393">agent</h3>
+<div class="outline-text-3" id="text-org96a7393">
 </div>
 <ul class="org-ul">
-<li><a id="org10caedb"></a>Known problems and backward incompatibilities<br />
-<div class="outline-text-4" id="text-org10caedb">
+<li><a id="orgfdfd1ca"></a>Known problems and backward incompatibilities<br />
+<div class="outline-text-4" id="text-orgfdfd1ca">
 <p>
 These are identical to v0.43 and are repeated here for convenience:
 </p>
@@ -3174,8 +3294,8 @@ to <code>/etc/yum.repos.d</code>.
 
 
 
-<li><a id="orgc99377b"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-orgc99377b">
+<li><a id="orgb1c3bf6"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-orgb1c3bf6">
 <ul class="org-ul">
 <li><p>
 (v0.43) pbench-user-benchmark also produces a rudimentary JSON result
@@ -3354,9 +3474,9 @@ hopefully for good.
 
 
 
-<div id="outline-container-org2320849" class="outline-3">
-<h3 id="org2320849">server</h3>
-<div class="outline-text-3" id="text-org2320849">
+<div id="outline-container-org8c64e9e" class="outline-3">
+<h3 id="org8c64e9e">server</h3>
+<div class="outline-text-3" id="text-org8c64e9e">
 <p>
 There is a minor change in the server to make a mail message report
 </p>
@@ -3369,7 +3489,7 @@ more accurately. This will be deployed opportunistically.
 
 
 
-<div id="outline-container-org3114cc1" class="outline-3">
+<div id="outline-container-orgd0ab9bb" class="outline-3">
 <h3 id="web-server-0.44">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.44">
 <p>
@@ -3409,9 +3529,9 @@ is 0.44-1gf694c2f.
 
 
 
-<div id="outline-container-orgcfdd4c4" class="outline-3">
-<h3 id="orgcfdd4c4">Changelog</h3>
-<div class="outline-text-3" id="text-orgcfdd4c4">
+<div id="outline-container-org6f9a940" class="outline-3">
+<h3 id="org6f9a940">Changelog</h3>
+<div class="outline-text-3" id="text-org6f9a940">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
 </p>
@@ -3475,9 +3595,9 @@ since v0.43:
 <h2 id="org0eb346d">Version 0.43</h2>
 <div class="outline-text-2" id="text-org0eb346d">
 </div>
-<div id="outline-container-orgd3c31d3" class="outline-3">
-<h3 id="orgd3c31d3">Installation</h3>
-<div class="outline-text-3" id="text-orgd3c31d3">
+<div id="outline-container-orgad8e670" class="outline-3">
+<h3 id="orgad8e670">Installation</h3>
+<div class="outline-text-3" id="text-orgad8e670">
 <p>
 There are no installation changes in this release: see the
 </p>
@@ -3500,13 +3620,13 @@ of the pbench-agent RPM installed.
 
 
 
-<div id="outline-container-org7ad5343" class="outline-3">
-<h3 id="org7ad5343">agent</h3>
-<div class="outline-text-3" id="text-org7ad5343">
+<div id="outline-container-orgfded09b" class="outline-3">
+<h3 id="orgfded09b">agent</h3>
+<div class="outline-text-3" id="text-orgfded09b">
 </div>
 <ul class="org-ul">
-<li><a id="orgbf8b35b"></a>Known problems and backward incompatibilities<br />
-<div class="outline-text-4" id="text-orgbf8b35b">
+<li><a id="org90061f3"></a>Known problems and backward incompatibilities<br />
+<div class="outline-text-4" id="text-org90061f3">
 <ul class="org-ul">
 <li><p>
 <code>pbench-user-benchmark</code> will now produce a warning about a non-existent
@@ -3615,8 +3735,8 @@ the format may be different.
 
 
 
-<li><a id="orgff41f65"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-orgff41f65">
+<li><a id="orgf8b3b21"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-orgf8b3b21">
 <ul class="org-ul">
 <li><p>
 pbench-fio produces JSON results now, using the same libraries
@@ -3775,9 +3895,9 @@ as they happen.
 
 
 
-<div id="outline-container-orge974aba" class="outline-3">
-<h3 id="orge974aba">server</h3>
-<div class="outline-text-3" id="text-orge974aba">
+<div id="outline-container-org9b9639c" class="outline-3">
+<h3 id="org9b9639c">server</h3>
+<div class="outline-text-3" id="text-org9b9639c">
 <p>
 The script that syncs "satellite" pbench servers to a master server
 </p>
@@ -3836,8 +3956,8 @@ months.
 
 
 <ul class="org-ul">
-<li><a id="orgde72b83"></a>Instructions<br />
-<div class="outline-text-4" id="text-orgde72b83">
+<li><a id="org43dcfaf"></a>Instructions<br />
+<div class="outline-text-4" id="text-org43dcfaf">
 <p>
 TBD.
 </p>
@@ -3848,7 +3968,7 @@ TBD.
 
 
 
-<div id="outline-container-orgace67dd" class="outline-3">
+<div id="outline-container-org433305e" class="outline-3">
 <h3 id="web-server-0.43">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.43">
 <p>
@@ -3900,9 +4020,9 @@ is 0.43-1g87c4f83
 
 
 
-<div id="outline-container-orgb29dff8" class="outline-3">
-<h3 id="orgb29dff8">Changelog</h3>
-<div class="outline-text-3" id="text-orgb29dff8">
+<div id="outline-container-org0cd4518" class="outline-3">
+<h3 id="org0cd4518">Changelog</h3>
+<div class="outline-text-3" id="text-org0cd4518">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
 </p>
@@ -4026,9 +4146,9 @@ since v0.42:
 <h2 id="org381b52b">Version 0.42</h2>
 <div class="outline-text-2" id="text-org381b52b">
 </div>
-<div id="outline-container-org14a908c" class="outline-3">
-<h3 id="org14a908c">Installation</h3>
-<div class="outline-text-3" id="text-org14a908c">
+<div id="outline-container-org553636b" class="outline-3">
+<h3 id="org553636b">Installation</h3>
+<div class="outline-text-3" id="text-org553636b">
 <p>
 N.B. COPR has deleted the Fedora 23 chroot, so we can no longer
 </p>
@@ -4061,13 +4181,13 @@ of the pbench-agent RPM installed.
 
 
 
-<div id="outline-container-orga05a048" class="outline-3">
-<h3 id="orga05a048">agent</h3>
-<div class="outline-text-3" id="text-orga05a048">
+<div id="outline-container-orge297412" class="outline-3">
+<h3 id="orge297412">agent</h3>
+<div class="outline-text-3" id="text-orge297412">
 </div>
 <ul class="org-ul">
-<li><a id="org8b818be"></a>Backward incompatibilities<br />
-<div class="outline-text-4" id="text-org8b818be">
+<li><a id="orgf86bfdc"></a>Backward incompatibilities<br />
+<div class="outline-text-4" id="text-orgf86bfdc">
 <p>
 None known.
 </p>
@@ -4076,8 +4196,8 @@ None known.
 
 
 
-<li><a id="orga3a25db"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-orga3a25db">
+<li><a id="org7e0d0fe"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-org7e0d0fe">
 <p>
 User-visible changes include:
 </p>
@@ -4120,9 +4240,9 @@ cycle. It will be in v0.43.
 
 
 
-<div id="outline-container-org28ae159" class="outline-3">
-<h3 id="org28ae159">server</h3>
-<div class="outline-text-3" id="text-org28ae159">
+<div id="outline-container-org4b42ee1" class="outline-3">
+<h3 id="org4b42ee1">server</h3>
+<div class="outline-text-3" id="text-org4b42ee1">
 <p>
 Indexing work has been proceeding on a branch. It has not been merged onto the master
 </p>
@@ -4145,8 +4265,8 @@ The server has seen fixes for installing into different environments.
 
 
 <ul class="org-ul">
-<li><a id="org43dcfaf"></a>Instructions<br />
-<div class="outline-text-4" id="text-org43dcfaf">
+<li><a id="org06b85cb"></a>Instructions<br />
+<div class="outline-text-4" id="text-org06b85cb">
 <p>
 TBD.
 </p>
@@ -4157,7 +4277,7 @@ TBD.
 
 
 
-<div id="outline-container-org85a2475" class="outline-3">
+<div id="outline-container-org7567e1d" class="outline-3">
 <h3 id="web-server-0.42">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.42">
 <p>
@@ -4193,9 +4313,9 @@ is 0.42-1gcf7a941.
 
 
 
-<div id="outline-container-org9ac794c" class="outline-3">
-<h3 id="org9ac794c">Changelog</h3>
-<div class="outline-text-3" id="text-org9ac794c">
+<div id="outline-container-org3d6e368" class="outline-3">
+<h3 id="org3d6e368">Changelog</h3>
+<div class="outline-text-3" id="text-org3d6e368">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
 </p>
@@ -4279,9 +4399,9 @@ since v0.41:
 <h2 id="orgafb54ad">Version 0.41</h2>
 <div class="outline-text-2" id="text-orgafb54ad">
 </div>
-<div id="outline-container-org94c0ad1" class="outline-3">
-<h3 id="org94c0ad1">Installation</h3>
-<div class="outline-text-3" id="text-org94c0ad1">
+<div id="outline-container-org1b5fc23" class="outline-3">
+<h3 id="org1b5fc23">Installation</h3>
+<div class="outline-text-3" id="text-org1b5fc23">
 <p>
 There are no installation changes in this release: see the
 </p>
@@ -4304,13 +4424,13 @@ of the pbench-agent RPM installed.
 
 
 
-<div id="outline-container-org66b76d7" class="outline-3">
-<h3 id="org66b76d7">agent</h3>
-<div class="outline-text-3" id="text-org66b76d7">
+<div id="outline-container-orgc1d9a97" class="outline-3">
+<h3 id="orgc1d9a97">agent</h3>
+<div class="outline-text-3" id="text-orgc1d9a97">
 </div>
 <ul class="org-ul">
-<li><a id="org4607a18"></a>Backward incompatibilities<br />
-<div class="outline-text-4" id="text-org4607a18">
+<li><a id="orge6cff72"></a>Backward incompatibilities<br />
+<div class="outline-text-4" id="text-orge6cff72">
 <p>
 None known.
 </p>
@@ -4319,8 +4439,8 @@ None known.
 
 
 
-<li><a id="org66944c7"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-org66944c7">
+<li><a id="org18354d1"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-org18354d1">
 <p>
 User-visible changes include:
 </p>
@@ -4339,8 +4459,8 @@ Thanks to Ottavio Piske for this addition which runs msg-perf-tool.
 
 
 
-<li><a id="org69d4a18"></a><code>pbench-fio</code><br />
-<div class="outline-text-5" id="text-org69d4a18">
+<li><a id="org9d6e906"></a><code>pbench-fio</code><br />
+<div class="outline-text-5" id="text-org9d6e906">
 <p>
 Various fixes to the recently added latency histogram functionality.
 </p>
@@ -4371,8 +4491,8 @@ by the user.
 
 
 
-<li><a id="org1f1a75c"></a><code>pbench-moongen</code><br />
-<div class="outline-text-5" id="text-org1f1a75c">
+<li><a id="orgccf1107"></a><code>pbench-moongen</code><br />
+<div class="outline-text-5" id="text-orgccf1107">
 <p>
 Add latency data plus various fixes.
 </p>
@@ -4381,8 +4501,8 @@ Add latency data plus various fixes.
 
 
 
-<li><a id="orgc9c446c"></a>Fixes to graph rendering<br />
-<div class="outline-text-5" id="text-orgc9c446c">
+<li><a id="orgbe35a78"></a>Fixes to graph rendering<br />
+<div class="outline-text-5" id="text-orgbe35a78">
 <p>
 See <a href="#web-server-0.41">web-server</a> below.
 </p>
@@ -4395,9 +4515,9 @@ See <a href="#web-server-0.41">web-server</a> below.
 
 
 
-<div id="outline-container-orgfed8a03" class="outline-3">
-<h3 id="orgfed8a03">server</h3>
-<div class="outline-text-3" id="text-orgfed8a03">
+<div id="outline-container-org45a2f52" class="outline-3">
+<h3 id="org45a2f52">server</h3>
+<div class="outline-text-3" id="text-org45a2f52">
 <ul class="org-ul">
 <li>Various fixes to rsyncing from satellite servers.</li>
 </ul>
@@ -4406,7 +4526,7 @@ See <a href="#web-server-0.41">web-server</a> below.
 
 
 
-<div id="outline-container-org38587f5" class="outline-3">
+<div id="outline-container-org68f0c95" class="outline-3">
 <h3 id="web-server-0.41">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.41">
 <p>
@@ -4446,9 +4566,9 @@ is 0.41-1g97296c4.
 
 
 
-<div id="outline-container-org3de4f17" class="outline-3">
-<h3 id="org3de4f17">Changelog</h3>
-<div class="outline-text-3" id="text-org3de4f17">
+<div id="outline-container-org2dcf803" class="outline-3">
+<h3 id="org2dcf803">Changelog</h3>
+<div class="outline-text-3" id="text-org2dcf803">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
 </p>
@@ -4548,9 +4668,9 @@ since v0.40:
 <h2 id="org7958788">Version 0.40</h2>
 <div class="outline-text-2" id="text-org7958788">
 </div>
-<div id="outline-container-org7d35f58" class="outline-3">
-<h3 id="org7d35f58">Installation</h3>
-<div class="outline-text-3" id="text-org7d35f58">
+<div id="outline-container-org4763462" class="outline-3">
+<h3 id="org4763462">Installation</h3>
+<div class="outline-text-3" id="text-org4763462">
 <p>
 There are no installation changes in this release: see the
 </p>
@@ -4573,13 +4693,13 @@ of the pbench-agent RPM installed.
 
 
 
-<div id="outline-container-orgdafd76a" class="outline-3">
-<h3 id="orgdafd76a">agent</h3>
-<div class="outline-text-3" id="text-orgdafd76a">
+<div id="outline-container-org2f482d5" class="outline-3">
+<h3 id="org2f482d5">agent</h3>
+<div class="outline-text-3" id="text-org2f482d5">
 </div>
 <ul class="org-ul">
-<li><a id="orga6b4b1e"></a>Backward incompatibilities<br />
-<div class="outline-text-4" id="text-orga6b4b1e">
+<li><a id="org93067c5"></a>Backward incompatibilities<br />
+<div class="outline-text-4" id="text-org93067c5">
 <p>
 None known.
 </p>
@@ -4588,8 +4708,8 @@ None known.
 
 
 
-<li><a id="orga6fd86c"></a>Bug fixes and enhancements<br />
-<div class="outline-text-4" id="text-orga6fd86c">
+<li><a id="org95b003f"></a>Bug fixes and enhancements<br />
+<div class="outline-text-4" id="text-org95b003f">
 <p>
 User-visible changes include:
 </p>
@@ -4598,8 +4718,8 @@ User-visible changes include:
 
 
 <ul class="org-ul">
-<li><a id="org9d6e906"></a><code>pbench-fio</code><br />
-<div class="outline-text-5" id="text-org9d6e906">
+<li><a id="orgfe20c8b"></a><code>pbench-fio</code><br />
+<div class="outline-text-5" id="text-orgfe20c8b">
 <p>
 The pbench-fio script has undergone significant enhancements in order
 </p>
@@ -4735,8 +4855,8 @@ client per line.
 
 
 
-<li><a id="orgccf1107"></a><code>pbench-moongen</code><br />
-<div class="outline-text-5" id="text-orgccf1107">
+<li><a id="org59cf02e"></a><code>pbench-moongen</code><br />
+<div class="outline-text-5" id="text-org59cf02e">
 <p>
 New options.
 </p>
@@ -4809,8 +4929,8 @@ the suspect file/subdirectory be removed.
 
 
 
-<li><a id="org2c1b907"></a>Fixes to graph rendering<br />
-<div class="outline-text-5" id="text-org2c1b907">
+<li><a id="org6ad7169"></a>Fixes to graph rendering<br />
+<div class="outline-text-5" id="text-org6ad7169">
 <p>
 See <a href="#web-server-0.40">web-server</a> below.
 </p>
@@ -4823,9 +4943,9 @@ See <a href="#web-server-0.40">web-server</a> below.
 
 
 
-<div id="outline-container-orgdfebd99" class="outline-3">
-<h3 id="orgdfebd99">server</h3>
-<div class="outline-text-3" id="text-orgdfebd99">
+<div id="outline-container-orga7f4ae6" class="outline-3">
+<h3 id="orga7f4ae6">server</h3>
+<div class="outline-text-3" id="text-orga7f4ae6">
 <ul class="org-ul">
 <li><p>
 Add mail notifications to the scripts that backs up results tarballs
@@ -4882,7 +5002,7 @@ the works but is not running yet.
 
 
 
-<div id="outline-container-org39d247f" class="outline-3">
+<div id="outline-container-org8513e0d" class="outline-3">
 <h3 id="web-server-0.40">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.40">
 <p>
@@ -4922,9 +5042,9 @@ is 0.40-1gf281562.
 
 
 
-<div id="outline-container-org200ab2e" class="outline-3">
-<h3 id="org200ab2e">Changelog</h3>
-<div class="outline-text-3" id="text-org200ab2e">
+<div id="outline-container-org1083546" class="outline-3">
+<h3 id="org1083546">Changelog</h3>
+<div class="outline-text-3" id="text-org1083546">
 <p>
 This is the list of visible (non-merge, non-unit-test-related) commits
 </p>
@@ -5030,9 +5150,9 @@ since v0.39:
 <h2 id="org2c6653a">Version 0.39</h2>
 <div class="outline-text-2" id="text-org2c6653a">
 </div>
-<div id="outline-container-org2c7d9cb" class="outline-3">
-<h3 id="org2c7d9cb">Installation</h3>
-<div class="outline-text-3" id="text-org2c7d9cb">
+<div id="outline-container-org22b74bc" class="outline-3">
+<h3 id="org22b74bc">Installation</h3>
+<div class="outline-text-3" id="text-org22b74bc">
 <p>
 There are no installation changes in this release: see the
 </p>
@@ -5055,12 +5175,12 @@ of the pbench-agent RPM installed.
 
 
 
-<div id="outline-container-org9911fa8" class="outline-3">
-<h3 id="org9911fa8">agent</h3>
-<div class="outline-text-3" id="text-org9911fa8">
+<div id="outline-container-orgf6e8e60" class="outline-3">
+<h3 id="orgf6e8e60">agent</h3>
+<div class="outline-text-3" id="text-orgf6e8e60">
 </div>
 <ul class="org-ul">
-<li><a id="orgb251683"></a>Backward incompatibilities<br />
+<li><a id="orge99b89e"></a>Backward incompatibilities<br />
 <ul class="org-ul">
 <li><a id="orgfb91bf9"></a>pbench-agent config file renamed<br />
 <div class="outline-text-5" id="text-orgfb91bf9">
@@ -5134,8 +5254,8 @@ comment at <a href="https://github.com/distributed-system-analysis/pbench/issues
 
 
 
-<li><a id="org65181ba"></a>New features<br />
-<div class="outline-text-4" id="text-org65181ba">
+<li><a id="org462dc03"></a>New features<br />
+<div class="outline-text-4" id="text-org462dc03">
 <p>
 Please submit suggestions/issues to the <a href="https://github.com/distributed-system-analysis/pbench/issues">issue tracker</a>.
 </p>
@@ -5250,7 +5370,7 @@ described, we hope, even if it is somewhat laborious).
 
 
 
-<li><a id="orgdec58d8"></a>Bug fixes<br />
+<li><a id="orge32fae4"></a>Bug fixes<br />
 <ul class="org-ul">
 <li><a id="org36681cc"></a>Better error handling by utility scripts<br />
 <div class="outline-text-5" id="text-org36681cc">
@@ -5308,8 +5428,8 @@ name to a safe length.
 </div>
 </li>
 
-<li><a id="orgbe35a78"></a>Fixes to graph rendering<br />
-<div class="outline-text-5" id="text-orgbe35a78">
+<li><a id="orgcf3b482"></a>Fixes to graph rendering<br />
+<div class="outline-text-5" id="text-orgcf3b482">
 <p>
 See <a href="#web-server-0.39">web-server</a> below.
 </p>
@@ -5321,9 +5441,9 @@ See <a href="#web-server-0.39">web-server</a> below.
 </div>
 
 
-<div id="outline-container-org9a9483f" class="outline-3">
-<h3 id="org9a9483f">server</h3>
-<div class="outline-text-3" id="text-org9a9483f">
+<div id="outline-container-org3cefda7" class="outline-3">
+<h3 id="org3cefda7">server</h3>
+<div class="outline-text-3" id="text-org3cefda7">
 <p>
 Server installation was simplified in v0.38: there is an RPM on COPR that can be used
 </p>
@@ -5366,7 +5486,7 @@ finish the installation. But it is also possible to do these steps manually. See
 
 
 
-<div id="outline-container-orgff67d7c" class="outline-3">
+<div id="outline-container-orgcd5c6fa" class="outline-3">
 <h3 id="web-server-0.39">web-server</h3>
 <div class="outline-text-3" id="text-web-server-0.39">
 <p>
@@ -5420,9 +5540,9 @@ is 0.3-19gaf1ffe4.
 
 
 
-<div id="outline-container-org21b1c73" class="outline-3">
-<h3 id="org21b1c73">Changelog</h3>
-<div class="outline-text-3" id="text-org21b1c73">
+<div id="outline-container-orgabec522" class="outline-3">
+<h3 id="orgabec522">Changelog</h3>
+<div class="outline-text-3" id="text-orgabec522">
 <ul class="org-ul">
 <li>9c2554f Bump versions for various benchmarks.</li>
 
@@ -5512,9 +5632,9 @@ is 0.3-19gaf1ffe4.
 <h2 id="org3f50a9c">Version 0.38</h2>
 <div class="outline-text-2" id="text-org3f50a9c">
 </div>
-<div id="outline-container-org74fdd16" class="outline-3">
-<h3 id="org74fdd16">Installation</h3>
-<div class="outline-text-3" id="text-org74fdd16">
+<div id="outline-container-orgd74f179" class="outline-3">
+<h3 id="orgd74f179">Installation</h3>
+<div class="outline-text-3" id="text-orgd74f179">
 <p>
 There are no installation changes in this release: see the
 </p>
@@ -5537,13 +5657,13 @@ of the pbench-agent RPM installed.
 
 
 
-<div id="outline-container-org228d87c" class="outline-3">
-<h3 id="org228d87c">agent</h3>
-<div class="outline-text-3" id="text-org228d87c">
+<div id="outline-container-orgc05b757" class="outline-3">
+<h3 id="orgc05b757">agent</h3>
+<div class="outline-text-3" id="text-orgc05b757">
 </div>
 <ul class="org-ul">
-<li><a id="orgf86bfdc"></a>Backward incompatibilities<br />
-<div class="outline-text-4" id="text-orgf86bfdc">
+<li><a id="orgb7fd970"></a>Backward incompatibilities<br />
+<div class="outline-text-4" id="text-orgb7fd970">
 <p>
 In the v0.36 timeframe, all pbench scripts and benchmarks that are
 </p>
@@ -5588,8 +5708,8 @@ prefix.
 
 
 
-<li><a id="org462dc03"></a>New features<br />
-<div class="outline-text-4" id="text-org462dc03">
+<li><a id="org61c53d9"></a>New features<br />
+<div class="outline-text-4" id="text-org61c53d9">
 <p>
 Please submit suggestions/issues to the <a href="https://github.com/distributed-system-analysis/pbench/issues">issue tracker</a>.
 </p>
@@ -5644,7 +5764,7 @@ better chance of staying alive and able to display the graphs.
 
 
 
-<li><a id="orge32fae4"></a>Bug fixes<br />
+<li><a id="org9e4d44d"></a>Bug fixes<br />
 <ul class="org-ul">
 <li><a id="org2aed991"></a>Fixed the RPM names for tools and benchmarks to include the pbench- prefix<br />
 <div class="outline-text-5" id="text-org2aed991">
@@ -5728,9 +5848,9 @@ pbench does not know how to handle the modified output.
 
 
 
-<div id="outline-container-org8d57218" class="outline-3">
-<h3 id="org8d57218">server</h3>
-<div class="outline-text-3" id="text-org8d57218">
+<div id="outline-container-orgc10941c" class="outline-3">
+<h3 id="orgc10941c">server</h3>
+<div class="outline-text-3" id="text-orgc10941c">
 <p>
 The server has now been organized in the same way as the agent: there
 </p>
@@ -5755,9 +5875,9 @@ installation guide]].
 
 
 
-<div id="outline-container-org3fdcb5e" class="outline-3">
-<h3 id="org3fdcb5e">web-server</h3>
-<div class="outline-text-3" id="text-org3fdcb5e">
+<div id="outline-container-orgff1b442" class="outline-3">
+<h3 id="orgff1b442">web-server</h3>
+<div class="outline-text-3" id="text-orgff1b442">
 <p>
 There is an RPM available on COPR that allows local viewing of graphs,
 </p>
@@ -5811,9 +5931,9 @@ will be fixed shortly.
 
 
 
-<div id="outline-container-org1db5a6c" class="outline-3">
-<h3 id="org1db5a6c">Changelog</h3>
-<div class="outline-text-3" id="text-org1db5a6c">
+<div id="outline-container-org36cdeac" class="outline-3">
+<h3 id="org36cdeac">Changelog</h3>
+<div class="outline-text-3" id="text-org36cdeac">
 <ul class="org-ul">
 <li>4a65484 Version bump.</li>
 
@@ -5960,7 +6080,7 @@ Unless you install locally - see <a href="http://pbench.example.com/server/pbenc
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2019-04-24 Wed 14:31</p>
+<p class="date">Page updated: 2019-04-30 Tue 14:59</p>
 </div>
 </body>
 </html>
