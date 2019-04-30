@@ -155,11 +155,12 @@ export const parseIterationData = results => {
             }
             iterationMetadata[columnMean] = hostMetadata.mean;
             iterationMetadata[columnStdDev] = hostMetadata.stddevpct;
-            iterationMetadata[columnSample] = hostMetadata.closest_sample;
-            iterationMetadata.closest_sample =
+            const iterationClosestSample =
               typeof hostMetadata.closest_sample !== 'undefined'
                 ? hostMetadata.closest_sample
                 : hostMetadata['closest sample'];
+            iterationMetadata[columnSample] = iterationClosestSample;
+            iterationMetadata.closest_sample = iterationClosestSample;
           });
         });
       });
@@ -216,7 +217,7 @@ export const parseClusteredIterations = (clusteredIterations, clusterLabels, sel
       Object.keys(clusteredIterations[primaryMetric][cluster]).forEach(iteration => {
         clusterObject[iteration] =
           clusteredIterations[primaryMetric][cluster][iteration][
-            Object.keys(clusteredIterations[primaryMetric][cluster][iteration]).find((key) => {
+            Object.keys(clusteredIterations[primaryMetric][cluster][iteration]).find(key => {
               if (key.includes('all') && key.includes('mean')) {
                 return key;
               }
