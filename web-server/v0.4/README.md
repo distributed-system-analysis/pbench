@@ -22,6 +22,7 @@ Pbench Dashboard is a web-based platform for consuming indexed performance bench
 │   ├── pages                       # app page components and templates
 │   │   └── document.ejs            # HTML entry
 │   ├── services                    # redux services
+│   ├── e2e                         # e2e test definitions
 │   ├── utils                       # utility scripts
 │   ├── app.js                      # app theme configuration
 │   ├── global.js                   # global imports
@@ -93,13 +94,13 @@ This will generate the `dist` folder in the root directory, which contains packa
 
 ## UI Tests
 
-Run All UI Unit Tests
+Run All UI Unit Tests and E2E Tests
 
 ```bash
 $ yarn test
 ```
 
-This will run test cases for all files referenced with a `*.test.js` naming schema. 
+This will run test cases for all files referenced with a `*.test.js` or `*.e2e.js` naming schema. 
 
 ## Template
 

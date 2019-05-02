@@ -15,8 +15,9 @@
     "lint:fix": "eslint --fix --ext .js src && npm run lint:style",
     "lint-staged": "lint-staged",
     "lint-staged:js": "eslint --ext .js",
-    "test": "umi test --verbose --maxWorkers=1 --runInBand",
+    "test": "umi test ./src/components ./src/pages --verbose --maxWorkers=1 --runInBand",
     "test:component": "umi test @",
+    "test:e2e": "umi test ./src/e2e --verbose",
     "test:all": "node ./tests/run-tests.js",
     "prettier": "prettier --write ./src/**/**/**/*"
   },
@@ -97,7 +98,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run lint-staged"
+      "pre-commit": "npm run lint-staged",
+      "pre-push": "npm run test:e2e"
     }
   },
   "lint-staged": {
