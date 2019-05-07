@@ -5,18 +5,20 @@ import Search from './index';
 
 const mockProps = {
   mapping: {
-    "run": [],
+    run: [],
   },
   searchResults: {
-    "resultsCount": [],
-    "results": [],
+    resultsCount: [],
+    results: [],
   },
   selectedFields: [],
   selectedIndices: [],
-}
+};
 
 const mockDispatch = jest.fn();
-const wrapper = shallow(<Search.WrappedComponent dispatch={mockDispatch} {...mockProps} />, { disableLifecycleMethods: true });
+const wrapper = shallow(<Search.WrappedComponent dispatch={mockDispatch} {...mockProps} />, {
+  disableLifecycleMethods: true,
+});
 
 describe('test Search page component', () => {
   it('render with empty props', () => {

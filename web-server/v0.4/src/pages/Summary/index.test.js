@@ -12,10 +12,12 @@ const mockProps = {
   selectedControllers: ['test_controller'],
   iterations: [{}],
   iterationParams: {},
-}
+};
 
 const mockDispatch = jest.fn();
-const wrapper = shallow(<Summary.WrappedComponent dispatch={mockDispatch} {...mockProps} />, { disableLifecycleMethods: true });
+const wrapper = shallow(<Summary.WrappedComponent dispatch={mockDispatch} {...mockProps} />, {
+  disableLifecycleMethods: true,
+});
 
 describe('test Summary page component', () => {
   it('render with empty props', () => {

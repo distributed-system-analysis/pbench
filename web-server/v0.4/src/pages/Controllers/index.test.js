@@ -10,10 +10,12 @@ const mockProps = {
   controllers: [],
   selectedIndices: [],
   indices: [],
-}
+};
 
 const mockDispatch = jest.fn();
-const wrapper = shallow(<Controllers.WrappedComponent dispatch={mockDispatch} {...mockProps} />, { disableLifecycleMethods: true });
+const wrapper = shallow(<Controllers.WrappedComponent dispatch={mockDispatch} {...mockProps} />, {
+  disableLifecycleMethods: true,
+});
 
 describe('test Controllers page component', () => {
   it('render with empty props', () => {

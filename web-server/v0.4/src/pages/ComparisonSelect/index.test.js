@@ -9,10 +9,13 @@ const mockProps = {
   selectedControllers: ['controller1', 'controller2'],
   iterations: [],
   iterationParams: {},
-}
+};
 
 const mockDispatch = jest.fn();
-const wrapper = shallow(<ComparisonSelect.WrappedComponent dispatch={mockDispatch} {...mockProps} />, { disableLifecycleMethods: true });
+const wrapper = shallow(
+  <ComparisonSelect.WrappedComponent dispatch={mockDispatch} {...mockProps} />,
+  { disableLifecycleMethods: true }
+);
 
 describe('test ComparisonSelect page component', () => {
   it('render with empty props', () => {
@@ -21,5 +24,5 @@ describe('test ComparisonSelect page component', () => {
 
   it('render multiple user selected controllers', () => {
     expect(wrapper.find(PageHeaderLayout).prop('title')).toBe('controller1, controller2');
-  })
+  });
 });

@@ -44,7 +44,10 @@ class SearchList extends Component {
   componentWillReceiveProps(nextProps, prevProps) {
     const { selectedIndices, selectedFields } = this.props;
 
-    if (selectedIndices !== prevProps.selectedIndices || selectedFields !== prevProps.selectedFields) {
+    if (
+      selectedIndices !== prevProps.selectedIndices ||
+      selectedFields !== prevProps.selectedFields
+    ) {
       this.setState({ updateFiltersDisabled: false });
     }
   }
@@ -205,7 +208,7 @@ class SearchList extends Component {
       loadingMapping,
     } = this.props;
     const columns = [];
-    
+
     selectedFields.forEach(field => {
       columns.push({
         title: field,
@@ -213,7 +216,7 @@ class SearchList extends Component {
         key: field,
       });
     });
-    
+
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onRowSelectChange,
@@ -241,11 +244,7 @@ class SearchList extends Component {
                 title="Filter Results"
                 extra={
                   <div>
-                    <Button
-                      name="Reset"
-                      size="small"
-                      onClick={this.resetSelectedFields}
-                    />
+                    <Button name="Reset" size="small" onClick={this.resetSelectedFields} />
                     <Button
                       name="Apply"
                       type="primary"
