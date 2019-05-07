@@ -174,7 +174,6 @@ sub create_metric_desc_doc {
                                      # "count" (quantity, percent, sum, elapsed time, value, etc)
     $doc{'metric_desc'}{'type'} = shift; # A generic name for this metric, like "gigabits-per-second",
                                     # does not include specifics like "/dev/sda" or "cpu1"
-    $doc{'metric_desc'}{'host'} = shift; # The hostname where this metric comes from
     $doc{'metric_desc'}{'source'} = shift; # A benchmark or tool where this metric comes from, like
                                       # "iostat" or "fio"
     # The instance_name_format tells us how the name for this metric-instance is assembled.
@@ -216,44 +215,58 @@ sub create_metric_data_doc {
     return %doc;
 }
 sub log_cdm_metric_sample {
-    my $metadata_ref = shift; # contains all field names used in metric_desc except id
+    my $metric_source = shift;
+    my $metric_class = shift;
+    my $metric_type = shift;
+    my $metric_name_format = shift;
+    my $names_ref = shift; # contains all field names used in metric_name_format
     my $metric_ref = shift; # the metric hash we are populating
     my $timestamp_ms = shift;
     my $value = shift;
-    my $label = "";
-    if (not exists $$metadata_ref{'name_format'}) {
-        print "Error: name_format does not exist\n";
-        return 1;
-    }
-    # Find all fields in the name_format and ensure they are present
-    # in the metadata_ref
-    my $name_format = $$metadata_ref{'name_format'};
-    while ($name_format =~ s/(^\S*)%(\S+)%(\S*$)/$3/) {
+    my $label = $metric_source . "-" . $metric_type . "-";
+    # Extract the fiel names from name_format to create the label
+    my $tmp_name_format = $metric_name_format;
+    while ($tmp_name_format =~ s/([^%]*)%([^%]*)%(\S*$)/$3/) {
         my $prefix = $1;
-        my $field_name = $2;
-        $label .= $prefix . $field_name;
-        if (not defined $$metadata_ref{$field_name}) {
-            print "Error: metadata field $field_name not defined\n";
-            print "metadata:\n";
-            print Dumper $metadata_ref;
+        my $name = $2;
+        my $remainder = $3;
+        if (not defined $$names_ref{$name}) {
+            print "Error: field name $name not defined\n";
+            print "prefix: [$prefix]\n";
+            print "field_name: [$name]\n";
+            print "remainder: [$remainder]\n";
+            print "metric_source: [$metric_source]\n";
+            print "metric_type: [$metric_type]\n";
+            print "field names:\n";
+            print Dumper $names_ref;
             return 1;
         }
+        $label .= $prefix . $$names_ref{$name};
     }
     # This only happens when logging the first sample for a metric
     if (not exists $$metric_ref{$label}) {
-        for my $field_name (keys %{ $metadata_ref }) {
-            $$metric_ref{$field_name} = $$metadata_ref{$field_name};
+        print "creating label: $label\n";
+        for my $name (keys %{ $names_ref }) {
+            $$metric_ref{$label}{'names'}{$name} = $$names_ref{$name};
         }
+        $$metric_ref{$label}{'source'} = $metric_source;
+        $$metric_ref{$label}{'class'} = $metric_class;
+        $$metric_ref{$label}{'type'} = $metric_type;
+        $$metric_ref{$label}{'name_format'} = $metric_name_format;
     }
     if (not defined $value) {
         print "Error: value is undefined\n";
         return 2;
     }
-    if (not defined $timestamp_ms) {
-        print "Error: timestamp is undefined\n";
+    if (not $value =~ /^\d+$|^\.\d+$|^\d+\.\d*$/) {
+        print "Error: $label: value [$value] is not a number\n";
         return 3;
     }
-    $$metric_ref{'samples'}{int $timestamp_ms} = $value;
+    if (not defined $timestamp_ms) {
+        print "Error: timestamp is undefined\n";
+        return 4;
+    }
+    $$metric_ref{$label}{'samples'}{int $timestamp_ms} = $value;
     return 0;
 }
 sub gen_cdm_metric_data {
@@ -262,6 +275,7 @@ sub gen_cdm_metric_data {
     my $es_dir = shift;
     my $hostname = shift;
     my $tool = shift;
+    print "data:\n";
     my $nr_samples = 0;
     my $nr_condensed_samples = 0;
     my $coder = JSON->new->ascii->canonical;
@@ -270,14 +284,17 @@ sub gen_cdm_metric_data {
     open(NDJSON_DESC_FH, ">" . $es_dir . "/metrics/" . $hostname .  "/metric_desc-" . $period_doc{"period"}{"id"} . "-" . $tool . ".ndjson");
     open(NDJSON_DATA_FH, ">" . $es_dir . "/metrics/" . $hostname .  "/metric_data-" . $period_doc{"period"}{"id"} . "-" . $tool . ".ndjson");
     print "Generating CDM\n";
-    for my $label (keys %$data_ref) {
+    for my $label (sort keys %$data_ref) {
+        my $nr_label_samples = 0;
+        my $nr_condensed_label_samples = 0;
+        print "processing $label: ";
         if (exists $$data_ref{$label}{'samples'}) {
             my $bail = 0;
             my %series = %{$$data_ref{$label} };
             my %metric_desc = create_metric_desc_doc( \%period_doc, $series{'class'}, $series{'type'},
-                                                      $hostname, $tool, $series{'name_format'});
-            for my $field ( grep(!/class|type|name_format/, (keys %series)) ) {
-                $metric_desc{"metric_desc"}{$field} = $series{$field};
+                                                      $tool, $series{'name_format'});
+            for my $field (keys %{ $series{'names'} }) {
+                $metric_desc{"metric_desc"}{'names'}{$field} = $series{'names'}{$field};
             }
             printf NDJSON_DESC_FH "%s\n", '{ "index": {} }';
             printf NDJSON_DESC_FH "%s\n", $coder->encode(\%metric_desc);
@@ -286,6 +303,7 @@ sub gen_cdm_metric_data {
             my $end_timestamp;
             for my $timestamp_ms (sort keys $series{'samples'}) {
                 $nr_samples++;
+                $nr_label_samples++;
                 if (not defined $series{'samples'}{$timestamp_ms}) {
                     print "Warning: undefined value in\n";
                     print Dumper \%series;
@@ -303,6 +321,7 @@ sub gen_cdm_metric_data {
                         $end_timestamp = $timestamp_ms;
                     } elsif (defined $end_timestamp) { # The value changed, so log the previous sample
                         $nr_condensed_samples++;
+                        $nr_condensed_label_samples++;
                         my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
                             $begin_value, $begin_timestamp, $end_timestamp);
                         printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
@@ -316,6 +335,7 @@ sub gen_cdm_metric_data {
                     }
                 } else {
                     $nr_condensed_samples++;
+                    $nr_condensed_label_samples++;
                     my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
                         $begin_value, $begin_timestamp, $timestamp_ms);
                     printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
@@ -329,17 +349,26 @@ sub gen_cdm_metric_data {
                 if (not defined $begin_value) { print "no beging_value\n"; print Dumper \%series; next;}
                 if (not defined $begin_timestamp) { print "no begin_timestamp\n"; print Dumper \%series; next;}
                 if (not defined $end_timestamp) { print "no end_timestamp\n"; print Dumper \%series; next;}
+                $nr_condensed_samples++;
+                $nr_condensed_label_samples++;
                 # Since we only log the previous value/timestamp in the while loop, we have to log the final value/timestamp
                 my %metric_data = create_metric_data_doc($metric_desc{'metric_desc'}{'id'},
                     $begin_value, $begin_timestamp, $end_timestamp);
                 printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
                 printf NDJSON_DATA_FH "%s\n", $coder->encode(\%metric_data);
             }
+            if ($nr_label_samples > 0) {
+                printf "dedup reduction: %d%%\n", 100*(1 - $nr_condensed_label_samples/$nr_label_samples);
+            } else {
+                print "\n";
+            }
         }
     }
     close(NDJSON_DATA_FH);
     close(NDJSON_DESC_FH);
-    printf "dedup reduction: %d%%\n", 100*(1 - $nr_condensed_samples/$nr_samples);
+    if ($nr_samples > 0) {
+        printf "dedup reduction: %d%%\n", 100*(1 - $nr_condensed_samples/$nr_samples);
+    }
 }
 
 1;
