@@ -1,23 +1,14 @@
 import React from 'react';
 import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import { Spin } from 'antd';
 
-@connect(store => ({
-  store,
+@connect(({ routing }) => ({
+  pathname: routing.location.pathname,
 }))
 class Sharable extends React.Component {
-  static propTypes = {};
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      spinnerLoading: true,
-    };
-  }
-
   componentDidMount = () => {
-    const { dispatch } = this.props;
+    const { dispatch, pathname } = this.props;
     const path = window.location.href;
     const id = path.substring(path.lastIndexOf('/') + 1);
 
@@ -27,22 +18,32 @@ class Sharable extends React.Component {
         id,
       },
     }).then(() => {
-      // dispatch(routerRedux.push('/comparison'));
-    });
-    this.setState({
-      spinnerLoading: false,
+      dispatch(
+        routerRedux.push({
+          pathname,
+        })
+      );
     });
   };
 
-  render() {
-    const { spinnerLoading } = this.state;
-    return (
-      <div style={{ textAlign: 'center', marginTop: '20%' }}>
-        <h1>Hi there...</h1>
-        <Spin spinning={spinnerLoading} size="large" />
-      </div>
-    );
-  }
+  render = () => (
+    <div
+      style={{
+        display: 'flex',
+      }}
+    >
+      <Spin
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+        spinning
+        tip="Retrieving dashboard session..."
+        size="large"
+      />
+    </div>
+  );
 }
 
 export default connect(() => ({}))(Sharable);
