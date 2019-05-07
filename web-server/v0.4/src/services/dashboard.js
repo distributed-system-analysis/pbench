@@ -122,12 +122,12 @@ export async function querySharedConfig(params) {
   return request.post('http://localhost:4466/',
     {data: {
       query: `
-              query($id: ID!) {
-                  url(where: {id: $id}) {
-                      config
-                      description
-                  }
-                  }`,
+        query($id: ID!) {
+            url(where: {id: $id}) {
+                config
+                description
+            }
+      }`,
       variables: {
         id,
       },

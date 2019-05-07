@@ -158,15 +158,11 @@ export default {
         payload: tocTree,
       });
     },
-    *fetchSharedConfig({ payload }, { call, put }) {
-      let response = yield call(querySharedConfig, payload);
-      const config = JSON.parse(response.data.data.url.config);
-      const { description } = response.data.data.url;
-      response = { config, description };
-      yield put({
-        type: 'getSharedConfig',
-        payload: response,
-      });
+    *fetchSharedConfig({ payload }, { call }) {
+      const response = yield call(querySharedConfig, payload);
+      const { config } = response.data.data.url;
+
+      return window.localStorage.setItem('persist:root', config);
     },
     *fetchIterations({ payload }, { call, put }) {
       const response = yield call(queryIterations, payload);
@@ -228,11 +224,6 @@ export default {
       return {
         ...state,
         tocResult: payload,
-      };
-    },
-    getSharedConfig(state, { payload }) {
-      return {
-        payload,
       };
     },
     getIterations(state, { payload }) {
