@@ -8,10 +8,12 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
 const mockProps = {
   selectedControllers: ['controller1'],
-}
+};
 
 const mockDispatch = jest.fn();
-const wrapper = shallow(<Results.WrappedComponent dispatch={mockDispatch} {...mockProps} />, { disableLifecycleMethods: true });
+const wrapper = shallow(<Results.WrappedComponent dispatch={mockDispatch} {...mockProps} />, {
+  disableLifecycleMethods: true,
+});
 
 describe('test Results page component', () => {
   it('render with empty props', () => {
@@ -28,5 +30,5 @@ describe('test Results page component', () => {
 
   it('render user selected controllers', () => {
     expect(wrapper.find(PageHeaderLayout).prop('title')).toBe('controller1');
-  })
+  });
 });

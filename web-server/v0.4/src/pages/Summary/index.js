@@ -165,29 +165,30 @@ class Summary extends React.Component {
       ),
       tools: (
         <Card title="Host Tools & Parameters" style={{ marginTop: 32 }}>
-          {result.hostTools && result.hostTools.map(host => (
-            <List
-              key={host.hostname}
-              style={{ marginBottom: 16 }}
-              size="small"
-              bordered
-              header={
-                <div>
-                  <Typography.Text strong>hostname</Typography.Text>
-                  <Divider type="vertical" />
-                  {host.hostname}
-                </div>
-              }
-              dataSource={Object.entries(host.tools)}
-              renderItem={([label, value]) => (
-                <List.Item key={label}>
-                  <Typography.Text strong>{label}</Typography.Text>
-                  <Divider type="vertical" />
-                  {value}
-                </List.Item>
-              )}
-            />
-          ))}
+          {result.hostTools &&
+            result.hostTools.map(host => (
+              <List
+                key={host.hostname}
+                style={{ marginBottom: 16 }}
+                size="small"
+                bordered
+                header={
+                  <div>
+                    <Typography.Text strong>hostname</Typography.Text>
+                    <Divider type="vertical" />
+                    {host.hostname}
+                  </div>
+                }
+                dataSource={Object.entries(host.tools)}
+                renderItem={([label, value]) => (
+                  <List.Item key={label}>
+                    <Typography.Text strong>{label}</Typography.Text>
+                    <Divider type="vertical" />
+                    {value}
+                  </List.Item>
+                )}
+              />
+            ))}
         </Card>
       ),
     };

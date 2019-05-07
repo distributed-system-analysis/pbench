@@ -11,7 +11,7 @@ export default {
     selectedResults: [],
     selectedControllers: [],
     selectedFields: [],
-    selectedIterationKeys: []
+    selectedIterationKeys: [],
   },
 
   effects: {
@@ -32,7 +32,7 @@ export default {
       const response = yield call(queryMonthIndices, payload);
       const { datastoreConfig } = payload;
       const indices = [];
-      
+
       const prefix = datastoreConfig.prefix + datastoreConfig.run_index.slice(0, -1);
       response.forEach(index => {
         if (index.index.includes(prefix)) {
@@ -118,10 +118,10 @@ export default {
       };
     },
     modifySelectedIterationKeys(state, { payload }) {
-      return { 
+      return {
         ...state,
         selectedIterationKeys: payload,
-      }
-    }
+      };
+    },
   },
 };

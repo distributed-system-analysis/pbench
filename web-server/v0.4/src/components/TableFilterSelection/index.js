@@ -45,12 +45,15 @@ export default class TableFilterSelection extends Component {
   onClearFilters = () => {
     const { onFilter } = this.props;
 
-    this.setState({
-      selectedFilters: [],
-    }, () => {
-      const { selectedFilters } = this.state; 
-      onFilter(selectedFilters);
-    });
+    this.setState(
+      {
+        selectedFilters: [],
+      },
+      () => {
+        const { selectedFilters } = this.state;
+        onFilter(selectedFilters);
+      }
+    );
   };
 
   render() {

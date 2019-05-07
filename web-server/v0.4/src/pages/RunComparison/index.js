@@ -409,16 +409,28 @@ class RunComparison extends React.Component {
           <Card type="inner" title="Render Options">
             <Form layout="inline">
               <Form.Item colon={false} label="Details">
-                <Switch defaultChecked onSelectPageSection={() => this.onSelectPageSection('details')} />
+                <Switch
+                  defaultChecked
+                  onSelectPageSection={() => this.onSelectPageSection('details')}
+                />
               </Form.Item>
               <Form.Item colon={false} label="Summary Graphs">
-                <Switch defaultChecked onSelectPageSection={() => this.onSelectPageSection('summary')} />
+                <Switch
+                  defaultChecked
+                  onSelectPageSection={() => this.onSelectPageSection('summary')}
+                />
               </Form.Item>
               <Form.Item colon={false} label="Timeseries Graphs">
-                <Switch defaultChecked onSelectPageSection={() => this.onSelectPageSection('timeseries')} />
+                <Switch
+                  defaultChecked
+                  onSelectPageSection={() => this.onSelectPageSection('timeseries')}
+                />
               </Form.Item>
               <Form.Item colon={false} label="Cluster Tables">
-                <Switch defaultChecked onSelectPageSection={() => this.onSelectPageSection('table')} />
+                <Switch
+                  defaultChecked
+                  onSelectPageSection={() => this.onSelectPageSection('table')}
+                />
               </Form.Item>
             </Form>
           </Card>

@@ -105,8 +105,9 @@ export default {
     },
     *fetchResult({ payload }, { call, put }) {
       const response = yield call(queryResult, payload);
-      // eslint-disable-next-line no-underscore-dangle
-      const result = typeof response.hits.hits[0] !== 'undefined' ? response.hits.hits[0]._source : [];
+      const result =
+        // eslint-disable-next-line no-underscore-dangle
+        typeof response.hits.hits[0] !== 'undefined' ? response.hits.hits[0]._source : [];
       let metadataTag = '';
       const parsedResult = {};
 
@@ -118,13 +119,13 @@ export default {
 
       parsedResult.runMetadata = {
         ...result.run,
-        ...result[metadataTag]
-      }
+        ...result[metadataTag],
+      };
 
       parsedResult.hostTools = [];
       result.host_tools_info.forEach(toolData => {
         parsedResult.hostTools.push(toolData);
-      })
+      });
 
       yield put({
         type: 'getResult',
@@ -164,17 +165,17 @@ export default {
         type: 'getIterations',
         payload: {
           iterations: parsedIterationData.iterations,
-          iterationParams: parsedIterationData.iterationParams
+          iterationParams: parsedIterationData.iterationParams,
         },
       });
       yield put({
-        type: 'global/modifySelectedIterationKeys', 
-        payload: parsedIterationData.selectedIterationKeys
-      })
+        type: 'global/modifySelectedIterationKeys',
+        payload: parsedIterationData.selectedIterationKeys,
+      });
     },
     *fetchTimeseriesData({ payload }, { call }) {
       const response = yield call(queryTimeseriesData, payload);
-      
+
       return response;
     },
     *updateConfigCategories({ payload }, { put }) {

@@ -91,7 +91,7 @@ class Controllers extends Component {
     const controllersSearch = controllers.slice();
     this.setState({
       controllers: controllersSearch
-        .map((record) => {
+        .map(record => {
           const match = record.controller.match(reg);
           if (!match) {
             return null;
@@ -100,16 +100,18 @@ class Controllers extends Component {
             ...record,
             controller: (
               <span key={record}>
-                {record.controller.split(reg).map((text, index) => (
-                  index > 0
-                    ? [
-                      <span key={text} style={{ color: 'orange' }}>
-                        {match[0]}
-                      </span>,
-                        text,
-                      ]
-                    : text
-                ))}
+                {record.controller.split(reg).map(
+                  (text, index) =>
+                    index > 0
+                      ? [
+                          // eslint-disable-next-line react/jsx-indent
+                          <span key={text} style={{ color: 'orange' }}>
+                            {match[0]}
+                          </span>,
+                          text,
+                        ]
+                      : text
+                )}
               </span>
             ),
           };

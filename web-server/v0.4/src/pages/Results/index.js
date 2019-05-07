@@ -67,7 +67,7 @@ class Results extends Component {
     const resultsSearch = results.slice();
     this.setState({
       results: resultsSearch
-        .map((record) => {
+        .map(record => {
           const match = record['run.name'].match(reg);
           if (!match) {
             return null;
@@ -76,16 +76,18 @@ class Results extends Component {
             ...record,
             'run.name': (
               <span key={record}>
-                {record['run.name'].split(reg).map((text, index) => (
-                  index > 0
-                    ? [
-                      <span key={text} style={{ color: 'orange' }}>
-                        {match[0]}
-                      </span>,
-                        text,
-                      ]
-                    : text
-                ))}
+                {record['run.name'].split(reg).map(
+                  (text, index) =>
+                    index > 0
+                      ? [
+                          // eslint-disable-next-line react/jsx-indent
+                          <span key={text} style={{ color: 'orange' }}>
+                            {match[0]}
+                          </span>,
+                          text,
+                        ]
+                      : text
+                )}
               </span>
             ),
           };
