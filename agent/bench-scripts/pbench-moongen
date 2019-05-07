@@ -121,6 +121,9 @@ function usage {
 	printf -- "\t\t                                              available: $(pbench-collect-sysinfo --options)\n"
 }
 
+warn_log "This script (pbench-moongen) is deprecated and will be removed in a future version of pbench (v0.61)."
+warn_log "Please switch ASAP to pbench-trafficgen, which provides MoonGen and TRex based traffic generators."
+
 # Process options and arguments
 opts=$(getopt -q -o c:hi:m:or:t: --longoptions "help,portlist:,rate:,rates:,max-drop-pct:,max-drop-pcts:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,nr-flows:,test-type:,traffic:,latency-runtime:,search-runtime:,validation-runtime:,frame-sizes:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,one-shot,accept-negative-loss,mpps-per-queue:,queues-per-task:,dst-macs:,sysinfo:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then

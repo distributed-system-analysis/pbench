@@ -1,4 +1,6 @@
 +++ Running test-03 pbench-moongen
+[warn][1900-01-01T00:00:00.000000] This script (pbench-moongen) is deprecated and will be removed in a future version of pbench (v0.61).
+[warn][1900-01-01T00:00:00.000000] Please switch ASAP to pbench-trafficgen, which provides MoonGen and TRex based traffic generators.
 Total number of benchmark iterations: 4
 Collecting system information
 [warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]mpstat does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
@@ -104,6 +106,8 @@ Collecting system information
 /var/tmp/pbench-test-bench/pbench/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] This script (pbench-moongen) is deprecated and will be removed in a future version of pbench (v0.61).
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] Please switch ASAP to pbench-trafficgen, which provides MoonGen and TRex based traffic generators.
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]mpstat does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 /var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]sar does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.

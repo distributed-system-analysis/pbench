@@ -602,6 +602,8 @@ pbench-migrate --bad-to-the-bone
 
 Bench Script: pbench-moongen --help 
 ------------
+[warn][1900-01-01T00:00:00.000000] This script (pbench-moongen) is deprecated and will be removed in a future version of pbench (v0.61).
+[warn][1900-01-01T00:00:00.000000] Please switch ASAP to pbench-trafficgen, which provides MoonGen and TRex based traffic generators.
 	The following options are available:
 
 		-c str       --config=str               name of the test config (i.e. jumbo_frames_and_network_throughput)
@@ -648,6 +650,8 @@ Bench Script: pbench-moongen --help
 
 Bench Script: pbench-moongen --tool-group=bad --sysinfo=bad
 ------------
+[warn][1900-01-01T00:00:00.000000] This script (pbench-moongen) is deprecated and will be removed in a future version of pbench (v0.61).
+[warn][1900-01-01T00:00:00.000000] Please switch ASAP to pbench-trafficgen, which provides MoonGen and TRex based traffic generators.
 	pbench-moongen: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-moongen: invalid --sysinfo option ("bad")
@@ -698,6 +702,8 @@ Bench Script: pbench-moongen --tool-group=bad --sysinfo=bad
 
 Bench Script: pbench-moongen --bad-to-the-bone 
 ------------
+[warn][1900-01-01T00:00:00.000000] This script (pbench-moongen) is deprecated and will be removed in a future version of pbench (v0.61).
+[warn][1900-01-01T00:00:00.000000] Please switch ASAP to pbench-trafficgen, which provides MoonGen and TRex based traffic generators.
 pbench-moongen --bad-to-the-bone
 
 	unrecognized option specified
@@ -1876,8 +1882,14 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 /var/tmp/pbench-test-bench/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to bad
 /var/tmp/pbench-test-bench/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] This script (pbench-moongen) is deprecated and will be removed in a future version of pbench (v0.61).
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] Please switch ASAP to pbench-trafficgen, which provides MoonGen and TRex based traffic generators.
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] This script (pbench-moongen) is deprecated and will be removed in a future version of pbench (v0.61).
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] Please switch ASAP to pbench-trafficgen, which provides MoonGen and TRex based traffic generators.
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to bad
 /var/tmp/pbench-test-bench/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] This script (pbench-moongen) is deprecated and will be removed in a future version of pbench (v0.61).
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] Please switch ASAP to pbench-trafficgen, which provides MoonGen and TRex based traffic generators.
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to bad
 /var/tmp/pbench-test-bench/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to bad
