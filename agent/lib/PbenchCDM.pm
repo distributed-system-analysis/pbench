@@ -223,6 +223,7 @@ sub log_cdm_metric_sample {
     my $metric_ref = shift; # the metric hash we are populating
     my $timestamp_ms = shift;
     my $value = shift;
+    my $metric_interval = shift; # the time in ms between each sample is logged
     my $label = $metric_source . "-" . $metric_type . "-";
     # Extract the fiel names from name_format to create the label
     my $tmp_name_format = $metric_name_format;
@@ -245,7 +246,7 @@ sub log_cdm_metric_sample {
     }
     # This only happens when logging the first sample for a metric
     if (not exists $$metric_ref{$label}) {
-        print "creating label: $label\n";
+        #print "creating label: $label metric_type: $metric_type metric_name_format: $metric_name_format\n";
         for my $name (keys %{ $names_ref }) {
             $$metric_ref{$label}{'names'}{$name} = $$names_ref{$name};
         }
@@ -253,9 +254,14 @@ sub log_cdm_metric_sample {
         $$metric_ref{$label}{'class'} = $metric_class;
         $$metric_ref{$label}{'type'} = $metric_type;
         $$metric_ref{$label}{'name_format'} = $metric_name_format;
+        if (defined $metric_interval) {
+            $$metric_ref{$label}{'interval'} = $metric_interval;
+        }
     }
     if (not defined $value) {
         print "Error: value is undefined\n";
+        print "metric_source: [$metric_source]\n";
+        print "metric_type: [$metric_type]\n";
         return 2;
     }
     if (not $value =~ /^\d+$|^\.\d+$|^\d+\.\d*$/) {
@@ -311,10 +317,17 @@ sub gen_cdm_metric_data {
                     last;
                 };
                 my $value = $series{'samples'}{$timestamp_ms};
-                if (not defined $begin_value) {
+                if (not defined $begin_value) { # The very first value
                     $begin_value = $value;
-                    $begin_timestamp = $timestamp_ms + 1;
-                    next;
+                    if (defined $series{'interval'}) {
+                        # If we know the interval, we can calculate a $begin_timestamp
+                        # and this new timestamp can be an $end_timestamp.  If we don't
+                        # know the interval, we have to wait until we get another timestamp
+                        $begin_timestamp = $timestamp_ms - $series{'interval'} + 1;
+                    } else {
+                        $begin_timestamp = $timestamp_ms + 1;
+                        next;
+                    }
                 }
                 if ($condense_samples) {
                     if ($value == $begin_value) { # Keep extending the end timestamp

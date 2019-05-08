@@ -22,14 +22,26 @@ BEGIN {
                 $_test_alt_tools_lib = "$_pbench_tspp_dir";
 	}
 }
+my $pbench_lib_path;
+BEGIN {
+	$pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
+	chomp $pbench_lib_path;
+	$pbench_lib_path .= "/lib";
+}
+use lib "$pbench_lib_path";
 use lib "$_test_alt_tools_lib";
 no lib ".";
 use GenData qw(gen_data);
 use SysStat qw(get_pidstat_attributes);
+use PbenchCDM qw(create_metric_desc_doc create_metric_data_doc log_cdm_metric_sample gen_cdm_metric_data);
 
-my $dir=$ARGV[0];
-my $threads=$ARGV[1];
+my $dir = shift;
+my $threads = shift;;
 my %pidstat;
+my $cdm = 0;
+my $es_dir;
+my $period_doc_path;
+my $hostname;
 my %graph_type;
 my %graph_threshold;
 my $vm_name;
@@ -43,27 +55,43 @@ my @curr_stats;
 
 my @virsh_list;
 my @virsh_vcpus;
-# build a table for vcpu <-> TID
-# only do this is libvirtd is running
-system("pgrep libvirtd > /dev/null 2>&1");
-# the exit code is not $?, but $?>>8
-if ( (($? >> 8) == 0) && (! -e "/usr/bin/vdsClient") && (-e "/usr/bin/virsh") ) {
-	@virsh_list = `virsh list 2> /dev/null`;
-	foreach $line (@virsh_list) {
-		chomp $line;
-		#  8     dhcp31-212                     running
-		if ( $line =~ /^\s+\d+\s+(\S+)\s+running/ ) {
-			$vm_name = $1;
-			@virsh_vcpus = `virsh qemu-monitor-command $vm_name --hmp info cpus`;
-			foreach $line2 (@virsh_vcpus) {
-				# * CPU #0: pc=0xffffffff81046346 (halted) thread_id=30618
-				chomp $line2;
-				# for some unknown reason, virsh qemu-monitor-cmd outputs a \r in addition to a \n at the end of every line
-				$line2 =~ s/\r//;
-				if ( $line2 =~ /^..CPU\s\#(\d+).*thread_id=(\d+)\s*/) {
-					$vcpu = $1;
-					$tid = $2;
-					$vcpus{$vm_name}{$tid} = $vcpu;
+# CDM only: Chronologically contiguous metric_data samples with same values
+# are combined into a single sample with a longer begin-to-end time period.
+# This should always be enabled, unless you want to see what the size 
+# difference is when not condensing the data.
+my $condense_samples = 1; 
+# When peoducing CDM docs, this is typically called from the pbench
+# controller only, and the following arguments must be provided:
+if (scalar @ARGV > 1) {
+	#printf "num args: %d args: %s\n", scalar @ARGV, join(" ", @ARGV);
+	die "Must provide <path-to-period.doc> <es-dir> <tool-hostname>" if (scalar @ARGV != 3);
+	$cdm = 1;
+	$period_doc_path = shift;
+	$es_dir = shift;
+	$hostname = shift;
+} else {
+	# build a table for vcpu <-> TID
+	# only do this is libvirtd is running
+	system("pgrep libvirtd > /dev/null 2>&1");
+	# the exit code is not $?, but $?>>8
+	if ( (($? >> 8) == 0) && (! -e "/usr/bin/vdsClient") && (-e "/usr/bin/virsh") ) {
+		@virsh_list = `virsh list 2> /dev/null`;
+		foreach $line (@virsh_list) {
+			chomp $line;
+			#  8     dhcp31-212                     running
+			if ( $line =~ /^\s+\d+\s+(\S+)\s+running/ ) {
+				$vm_name = $1;
+				@virsh_vcpus = `virsh qemu-monitor-command $vm_name --hmp info cpus`;
+				foreach $line2 (@virsh_vcpus) {
+					# * CPU #0: pc=0xffffffff81046346 (halted) thread_id=30618
+					chomp $line2;
+					# for some unknown reason, virsh qemu-monitor-cmd outputs a \r in addition to a \n at the end of every line
+					$line2 =~ s/\r//;
+					if ( $line2 =~ /^..CPU\s\#(\d+).*thread_id=(\d+)\s*/) {
+						$vcpu = $1;
+						$tid = $2;
+						$vcpus{$vm_name}{$tid} = $vcpu;
+					}
 				}
 			}
 		}
@@ -72,6 +100,20 @@ if ( (($? >> 8) == 0) && (! -e "/usr/bin/vdsClient") && (-e "/usr/bin/virsh") ) 
 
 my %timestamps;
 my @attributes = get_pidstat_attributes();
+my $interval; # sampling interval
+my $pidstat_cmd_file = $dir . "/pidstat.cmd";
+open (FH, $pidstat_cmd_file) || die "Could not open $pidstat_cmd_file";
+while ($line = <FH>) {
+	#LANG=C /usr/local/bin/pidstat -l -H -w -u -h -d -r  -p ALL   1
+	if ($line =~ /-p\sALL\s+(\d+)/ ){
+		$interval = $1;
+	}
+}
+close FH;
+if ($cdm and not defined $interval) {
+	print "Could not determine the sampling interval for pidstat\n";
+	exit 1;
+}
 my $pids_dir = $dir . "/pids";
 if (opendir(my $pids_dh, $pids_dir) || die "Could not open $pids_dir") {
         for my $pid (grep(/\d+/, readdir($pids_dh))) {
@@ -131,15 +173,42 @@ if (opendir(my $pids_dh, $pids_dir) || die "Could not open $pids_dir") {
 						}
 					}
 					%old_stats = %stats;
-					$pidstat{'cpu_usage'}{'percent_cpu'}{$pid_cmd}{$timestamp_ms} = $stats{'CPU_PCT'};
-					$pidstat{'file_io'}{'io_reads_KB_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'kB_rd_s'};
-					$pidstat{'file_io'}{'io_writes_KB_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'kB_wr_s'};
-					$pidstat{'memory_faults'}{'minor_faults_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'minflt_s'};
-					$pidstat{'memory_faults'}{'major_faults_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'majflt_s'};
-					$pidstat{'context_switches'}{'voluntary_switches_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'cswch_s'};
-					$pidstat{'context_switches'}{'nonvoluntary_switches_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'nvcswch_s'};
-					$pidstat{'memory_usage'}{'virtual_size'}{$pid_cmd}{$timestamp_ms} = $stats{'VSZ'};
-					$pidstat{'memory_usage'}{'resident_set_size'}{$pid_cmd}{$timestamp_ms} = $stats{'RSS'};
+					my %file_io_kb_sec = ( 'Read' => $stats{'kB_rd_s'}, 'Write' => $stats{'kB_wr_s'} );
+					my %memory_faults_sec = ( 'Minor' => $stats{'minflt_s'}, 'Major' => $stats{'majflt_s'} );
+					my %ctxsw_sec = ( 'Voluntary' => $stats{'cswch_s'}, 'NonVoluntary' => $stats{'nvcswch_s'} );
+					my %noncpu_tput = ( 'FileIoKbSec' => \%file_io_kb_sec, 'MemoryFaultsSec' => \%memory_faults_sec,
+								'ContextSwitchesSec' => \%ctxsw_sec );
+					my %memory_usage_kb = ( 'Resident' => $stats{'RSS'}, 'NonResident' => $stats{'VSZ'} - $stats{'RSS'} );
+					if ($cdm) {
+						for my $metric_type (keys %noncpu_tput) {
+							for my $type (keys %{ $noncpu_tput{$metric_type} }) {
+								my %md = ( 'host' => $hostname, 'type' => $type, 'pid' => $pid, 'cmd' => $cmd );
+								log_cdm_metric_sample('pidstat', 'throughput', $metric_type, '%host%-%pid%-%cmd%-%type%',
+											\%md, \%pidstat, $timestamp_ms, $noncpu_tput{$metric_type}{$type},
+											$interval);
+							}
+						}
+						for my $type (keys %memory_usage_kb) {
+							my %md = ( 'host' => $hostname, 'type' => $type, 'pid' => $pid, 'cmd' => $cmd );
+							log_cdm_metric_sample('pidstat', 'count', 'MemoryUsageKb', '%host%-%pid%-%cmd%-%type%',
+										\%md, \%pidstat, $timestamp_ms, $memory_usage_kb{$type},
+										$interval);
+						}
+						my %md = ( 'host' => $hostname, 'pid' => $pid, 'cmd' => $cmd );
+						log_cdm_metric_sample('pidstat', 'throughput', 'PercentCPUutil', '%host%-%pid%-%cmd%',
+									\%md, \%pidstat, $timestamp_ms, $stats{'CPU_PCT'},
+									$interval);
+					} else {
+						$pidstat{'cpu_usage'}{'percent_cpu'}{$pid_cmd}{$timestamp_ms} = $stats{'CPU_PCT'};
+						$pidstat{'file_io'}{'io_reads_KB_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'kB_rd_s'};
+						$pidstat{'file_io'}{'io_writes_KB_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'kB_wr_s'};
+						$pidstat{'memory_faults'}{'minor_faults_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'minflt_s'};
+						$pidstat{'memory_faults'}{'major_faults_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'majflt_s'};
+						$pidstat{'context_switches'}{'voluntary_switches_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'cswch_s'};
+						$pidstat{'context_switches'}{'nonvoluntary_switches_sec'}{$pid_cmd}{$timestamp_ms} = $stats{'nvcswch_s'};
+						$pidstat{'memory_usage'}{'virtual_size'}{$pid_cmd}{$timestamp_ms} = $stats{'VSZ'};
+						$pidstat{'memory_usage'}{'resident_set_size'}{$pid_cmd}{$timestamp_ms} = $stats{'RSS'};
+					}
 					$timestamps{$timestamp_ms}++;
 				}
                 	}
@@ -147,31 +216,35 @@ if (opendir(my $pids_dh, $pids_dir) || die "Could not open $pids_dir") {
 	}
 }
 
-# fill in any missing data with zeros
-my $htmlpage;
-my $graph;
-my $pid;
-my $timestamp_ms;
-foreach  $htmlpage ( keys %pidstat ) {
-	foreach  $graph ( keys %{ $pidstat{$htmlpage} } ) {
-		foreach $pid ( keys %{ $pidstat{$htmlpage}{$graph} } ) {
-			foreach $timestamp_ms ( sort {$a <=> $b} (keys %timestamps ) ) {
-				if (! defined($pidstat{$htmlpage}{$graph}{$pid}{$timestamp_ms})) {
-					$pidstat{$htmlpage}{$graph}{$pid}{$timestamp_ms} = 0;
+if ($cdm) {
+	print "cdm\n";
+	gen_cdm_metric_data(\%pidstat, $period_doc_path, $es_dir, $hostname, "pidstat");
+} else {
+	# fill in any missing data with zeros
+	my $htmlpage;
+	my $graph;
+	my $pid;
+	my $timestamp_ms;
+	foreach  $htmlpage ( keys %pidstat ) {
+		foreach  $graph ( keys %{ $pidstat{$htmlpage} } ) {
+			foreach $pid ( keys %{ $pidstat{$htmlpage}{$graph} } ) {
+				foreach $timestamp_ms ( sort {$a <=> $b} (keys %timestamps ) ) {
+					if (! defined($pidstat{$htmlpage}{$graph}{$pid}{$timestamp_ms})) {
+						$pidstat{$htmlpage}{$graph}{$pid}{$timestamp_ms} = 0;
+					}
 				}
 			}
 		}
 	}
+	$graph_type{cpu_usage}{percent_cpu} = "stackedAreaChart";
+	$graph_threshold{cpu_usage}{percent_cpu} = 1;
+	$graph_threshold{file_io}{io_reads_KB_sec} = 50;
+	$graph_threshold{file_io}{io_writes_KB_sec} = 50;
+	$graph_threshold{memory_faults}{minor_faults_sec} = 150;
+	$graph_threshold{memory_faults}{major_faults_sec} = 150;
+	$graph_threshold{context_switches}{voluntary_switches_sec} = 100;
+	$graph_threshold{context_switches}{nonvoluntary_switches_sec} = 100;
+	$graph_threshold{memory_usage}{virtual_size} = 100;
+	$graph_threshold{memory_usage}{resident_set_size} = 100;
+	gen_data(\%pidstat, \%graph_type, \%graph_threshold, $dir);
 }
-
-$graph_type{cpu_usage}{percent_cpu} = "stackedAreaChart";
-$graph_threshold{cpu_usage}{percent_cpu} = 1;
-$graph_threshold{file_io}{io_reads_KB_sec} = 50;
-$graph_threshold{file_io}{io_writes_KB_sec} = 50;
-$graph_threshold{memory_faults}{minor_faults_sec} = 150;
-$graph_threshold{memory_faults}{major_faults_sec} = 150;
-$graph_threshold{context_switches}{voluntary_switches_sec} = 100;
-$graph_threshold{context_switches}{nonvoluntary_switches_sec} = 100;
-$graph_threshold{memory_usage}{virtual_size} = 100;
-$graph_threshold{memory_usage}{resident_set_size} = 100;
-gen_data(\%pidstat, \%graph_type, \%graph_threshold, $dir);

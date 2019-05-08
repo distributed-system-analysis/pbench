@@ -180,10 +180,9 @@ while ($line = <SAR_TXT>) {
 			for my $util_type (keys %cpu_modes ) {
 				my $type = "Processor" . ucfirst $util_type . "Util";
 				for my $mode (@{ $cpu_modes{$util_type} }) {
-					my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => $type, 'host' => $hostname,
-				   	   	'name_format' => "%source%-%type%-%host%-%socket%:%core%:%id%-%mode%",
-				   	   	'socket' => $socket, 'core' => $core, 'id' => $cpuid, 'mode' => $mode );
-					log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $cpumode_util{$mode});
+					my %md = ( 'host' => $hostname, 'socket' => $socket, 'core' => $core, 'id' => $cpuid, 'mode' => $mode );
+					log_cdm_metric_sample('sar', 'throughput', $type, '%host%-%socket%:%core%:%id%-%mode%',
+								\%md, \%sar, $timestamp_ms, $cpumode_util{$mode});
 				}
 			}
 		} else {
@@ -217,9 +216,9 @@ while ($line = <SAR_TXT>) {
 		$timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
 			for my $type (keys %proc_ctx) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => $type,
-					'host' => $hostname, 'name_format' => "%source%-%type%-%host%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $proc_ctx{$type});
+				my %md = ( 'host' => $hostname );
+				log_cdm_metric_sample('sar', 'throughput', $type, '%host%',
+							\%md, \%sar, $timestamp_ms, $proc_ctx{$type});
 			}
 		} else {
 			$sar{system}{proc_cswch_sec}{processes_created_sec}{$timestamp_ms} = $proc_ctx{'ProcessesCreatedSec'};
@@ -242,9 +241,9 @@ while ($line = <SAR_TXT>) {
 		my $intr_sec = $2;
 		$timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
-			my %md = ( 'name_format' => "%source%-%type%-%host%", 'source' => "sar",
-				   'class' => "throughput", 'type' => "InterruptsSec", 'host' => $hostname );
-			log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $intr_sec);
+			my %md = ( 'host' => $hostname );
+			log_cdm_metric_sample('sar', 'throughput', 'InterruptsSec', '%host%',
+						\%md, \%sar, $timestamp_ms, $intr_sec);
 		} else {
 			$sar{system}{interrupts_sec}{all_interrupts}{$timestamp_ms} = $intr_sec;
 		}
@@ -261,17 +260,17 @@ while ($line = <SAR_TXT>) {
 	if (( $mode eq "pageswap" ) &&
 	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+.\d+)$/ )) {
 		$time = $1;
-		my %pswp_sec = ( 'in' => $2, 'out' => $3 );
+		my %pswp_sec = ( 'In' => $2, 'Out' => $3 );
 		$timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
 			for my $dir (keys %pswp_sec) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "PageSwapsSec", 'host' => $hostname,
-		   	   		'direction' => $dir, 'name_format' => "%source%-%type%-%host%-%direction%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $pswp_sec{$dir});
+				my %md = ( 'host' => $hostname, 'direction' => $dir );
+				log_cdm_metric_sample('sar', 'througput', 'PageSwapsSec', '%host%-%direction%',
+							\%md, \%sar, $timestamp_ms, $pswp_sec{$dir});
 			}
 		} else {
-			$sar{memory}{memory_activity}{page_swaps_in_sec}{$timestamp_ms} = $pswp_sec{'in'};
-			$sar{memory}{memory_activity}{page_swaps_out_sec}{$timestamp_ms} = $pswp_sec{'out'};
+			$sar{memory}{memory_activity}{page_swaps_in_sec}{$timestamp_ms} = $pswp_sec{'In'};
+			$sar{memory}{memory_activity}{page_swaps_out_sec}{$timestamp_ms} = $pswp_sec{'Out'};
 		}
 		next;
 	}
@@ -293,23 +292,23 @@ while ($line = <SAR_TXT>) {
 		$timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
 			for my $dir (keys %disk_pg_kb_sec) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "DiskPageFaultKbytesSec",
-		   		   	'host' => $hostname, 'direction' => $dir, 'name_format' => "%source%-%type%-%host%-%direction%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $disk_pg_kb_sec{$dir});
+				my %md = ( 'host' => $hostname, 'direction' => $dir );
+				log_cdm_metric_sample('sar', 'througput', 'DiskPageFaultKbytesSec', '%host%-%direction%',
+							\%md, \%sar, $timestamp_ms, $disk_pg_kb_sec{$dir});
 			}
-			for my $ver (keys %fault_sec) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "PageFaultPagesSec",
-		   		   	'host' => $hostname, 'version' => $ver, 'name_format' => "%source%-%type%-%host%-%version%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $fault_sec{$ver});
+			for my $type (keys %fault_sec) {
+				my %md = ( 'host' => $hostname, 'type' => $type );
+				log_cdm_metric_sample('sar', 'througput', 'PageFaultPagesSec', '%host%-%type%',
+							\%md, \%sar, $timestamp_ms, $fault_sec{$type});
 			}
 			for my $action (keys %other_pg_sec) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "OtherProcessedPagesSec",
-		   		   	'host' => $hostname, 'action' => $action, 'name_format' => "%source%-%type%-%host%-%action%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $other_pg_sec{$action});
+				my %md = ( 'host' => $hostname, 'action' => $action );
+				log_cdm_metric_sample('sar', 'througput', 'OtherProcessedPagesSec', '%host%-%action%',
+							\%md, \%sar, $timestamp_ms, $other_pg_sec{$action});
 			}
-			my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "VirtMemPctEff",
-		   	   	'host' => $hostname, 'name_format' => "%source%-%type%-%host%" );
-			log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $vmeff_pct);
+			my %md = ( 'host' => $hostname );
+			log_cdm_metric_sample('sar', 'throughput', 'VirtMemPctEff', '%host%',
+						\%md, \%sar, $timestamp_ms, $vmeff_pct);
 		} else {
 			$sar{memory}{memory_activity}{pgpgin_sec}{$timestamp_ms} = $disk_pg_kb_sec{'In'};
 			$sar{memory}{memory_activity}{pgpgout_sec}{$timestamp_ms} = $disk_pg_kb_sec{'Out'};
@@ -342,32 +341,16 @@ while ($line = <SAR_TXT>) {
 		my %kbmem_kernel = ( 'Dirty' => $12, 'Stack' => $15, 'NoPage' => $13, 'PageTable' => $16 );
 		my %kbmem_other = ( 'Avail' => $3, 'Used' => $4, 'Commit' => $8, 'VmUsed' => $17 );
 		my %pctmem = ( 'Used' => $5, 'Commit' => $9 ) ;
+		my %memusage = ( 'SystemMemUsageKB' => \%kbmem_system, 'SystemMemActivenessKB' => \%kbmem_activeness,
+				'KernelMemUsageKB' => \%kbmem_kernel, 'OtherMemUsageKB' => \%kbmem_other, 'PercentMemUsageKB' => \%pctmem );
 		$timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
-			for my $category (keys %kbmem_system) {
-				my %md = ( 'source' => "sar", 'class' => "count", 'type' => "SystemMemUsageKB",
-		   		   	'host' => $hostname, 'category' => $category, 'name_format' => "%source%-%type%-%host%-%category%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $kbmem_system{$category});
-			}
-			for my $category (keys %kbmem_activeness) {
-				my %md = ( 'source' => "sar", 'class' => "count", 'type' => "SystemMemActivenessKB",
-		   		   	'host' => $hostname, 'category' => $category, 'name_format' => "%source%-%type%-%host%-%category%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $kbmem_activeness{$category});
-			}
-			for my $category (keys %kbmem_kernel) {
-				my %md = ( 'source' => "sar", 'class' => "count", 'type' => "KernelMemUsageKB",
-		   		   	'host' => $hostname, 'category' => $category, 'name_format' => "%source%-%type%-%host%-%category%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $kbmem_kernel{$category});
-			}
-			for my $category (keys %kbmem_other) {
-				my %md = ( 'source' => "sar", 'class' => "count", 'type' => "OtherMemUsageKB",
-		   		   	'host' => $hostname, 'category' => $category, 'name_format' => "%source%-%type%-%host%-%category%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $kbmem_other{$category});
-			}
-			for my $category (keys %pctmem) {
-				my %md = ( 'source' => "sar", 'class' => "count", 'type' => "PercentMemUsageKB",
-		   		   	'host' => $hostname, 'category' => $category, 'name_format' => "%source%-%type%-%host%-%category%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $pctmem{$category});
+			for my $memtype (keys %memusage) {
+				for my $type (keys %{ $memusage{$memtype} }) {
+					my %md = ( 'host' => $hostname, 'type' => $type );
+					log_cdm_metric_sample('sar', 'count', $memtype, '%host%-%type%',
+								\%md, \%sar, $timestamp_ms, $memusage{$memtype}{$type});
+				}
 			}
 		} else {
 			$sar{memory}{memory_usage}{kbmemfree}{$timestamp_ms} = $kbmem_system{'Free'};
@@ -402,18 +385,13 @@ while ($line = <SAR_TXT>) {
 		$time = $1;
 		my %kbswap = ( 'Used' => $3, 'Free' => $2, 'Cached' => $5 );
 		my %pctswap = ( 'Used' => $4, 'Cached' => $6 );
-		#my $kbswpfree = $2;
-		#my $kbswpused = $3;
-		#my $swpused_pct = $4;
-		#my $kbswpcad = $5;
-		#my $swpcad_pct = $6;
 		$timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
-			for my $category (keys %kbswap) {
-				my %md = ( 'source' => "sar", 'class' => "count", 'type' => "SwapUsageKB",
-		   		   	'host' => $hostname, 'category' => $category,
+			for my $type (keys %kbswap) {
+				my %md = ( 'host' => $hostname, 'type' => $type,
 					'name_format' => "%source%-%type%-%host%-%category%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $kbswap{$category});
+				log_cdm_metric_sample('sar', 'count', "SwapUsageKB", '%host%-%type%',
+							\%md, \%sar, $timestamp_ms, $kbswap{$type});
 			}
 		} else {
 			$sar{memory}{memory_usage}{kbswpfree}{$timestamp_ms} = $kbswap{'Free'};
@@ -437,22 +415,15 @@ while ($line = <SAR_TXT>) {
 		$time = $1;
 		my %kbhuge = ( 'Free' => $2, 'Used' => $3 );
 		my %pcthuge = ( 'Used' => $4 );
-		my $kbhugfree = $2;
-		my $kbhugused = $3;
-		my $hugused_pct = $4;
+		my %hugemem = ( 'HugePageUsageKB' => \%kbhuge, 'HugePageUsagePercent' => \%pcthuge );
 		$timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
-			for my $category (keys %kbhuge) {
-				my %md = ( 'source' => "sar", 'class' => "count", 'type' => "HugePageUsageMB",
-		   		   	'host' => $hostname, 'category' => $category,
-					'name_format' => "%source%-%type%-%host%-%category%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, int ($kbhuge{$category} / 1024));
-			}
-			for my $category (keys %pcthuge) {
-				my %md = ( 'source' => "sar", 'class' => "count", 'type' => "HugePageUsagePercent",
-		   		   	'host' => $hostname, 'category' => $category,
-					'name_format' => "%source%-%type%-%host%-%category%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $pcthuge{$category} );
+			for my $hugetype (keys %hugemem) {
+				for my $type (keys %{ $hugemem{$hugetype} }) {
+					my %md = ( 'host' => $hostname, 'type' => $type );
+					log_cdm_metric_sample('sar', 'count', $hugetype, '%host%-%type%',
+								\%md, \%sar, $timestamp_ms, $hugemem{$hugetype}{$type});
+				}
 			}
 		} else {
 			$sar{memory}{memory_usage}{kbhugefree}{$timestamp_ms} = $kbhuge{'Free'};
@@ -494,48 +465,32 @@ while ($line = <SAR_TXT>) {
 			next;
 		}
 		my %packets_sec = ( 'rx' => $3, 'tx' => $4 );
-		my %kbytes_sec = ( 'rx' => $5, 'tx' => $6 );
+		my %mbits_sec = ( 'rx' => sprintf("%.2f", $5 * 1024 * 8 / 100000), 'tx' => sprintf("%.2f", $6 * 1024 * 8 / 100000) );
 		my %comp_packets_sec = ( 'rx' => $7, 'tx' => $8 );
 		my %mult_packets_sec = ( 'rx' => $9 );
+		my %network_sec = ( 'NetdevPacketsSec' => \%packets_sec, 'NetdevLayer1MbitSec' => \%mbits_sec,
+					'NetdevCompressedPacketsSec' => \%comp_packets_sec, 'NetdevMulticastPacketsSec' => \%mult_packets_sec );
 		my $pct_util = $10;
 		my $timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
-			for my $dir (keys %packets_sec) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "NetdevPacketsSec",
-		   		   	'host' => $hostname, 'direction' => $dir,
-					'name_format' => "%source%-%type%-%host%-%direction%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $packets_sec{$dir});
+			for my $nettype (keys %network_sec) {
+				for my $dir (keys %{ $network_sec{$nettype} }) {
+					my %md = ( 'host' => $hostname, 'direction' => $dir);
+					log_cdm_metric_sample('sar', 'throughput', $nettype, '%host%-%direction%',
+								\%md, \%sar, $timestamp_ms, $network_sec{$nettype}{$dir});
+				}
 			}
-			for my $dir (keys %kbytes_sec) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "NetdevLayer1GbitSec",
-		   		   	'host' => $hostname, 'direction' => $dir,
-					'name_format' => "%source%-%type%-%host%-%direction%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, (sprintf "%.2f", $kbytes_sec{$dir} *1024 *8 /1000000000));
-			}
-			for my $dir (keys %comp_packets_sec) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "NetdevCompressedPacketsSec",
-		   		   	'host' => $hostname, 'direction' => $dir,
-					'name_format' => "%source%-%type%-%host%-%direction%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $comp_packets_sec{$dir});
-			}
-			for my $dir (keys %mult_packets_sec) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "NetdevMulticastPacketsSec",
-		   		   	'host' => $hostname, 'direction' => $dir,
-					'name_format' => "%source%-%type%-%host%-%direction%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $mult_packets_sec{$dir});
-			}
-			my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "NetdevPercentUtilization",
-		   	   	'host' => $hostname, 'direction' => $dir,
-				'name_format' => "%source%-%type%-%host%" );
-			log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $pct_util);
+			my %md = ( 'host' => $hostname );
+			log_cdm_metric_sample('sar', 'throughput', 'NetdevPercentUtilization', '%host%',
+						\%md, \%sar, $timestamp_ms, $pct_util);
 		} else {
 			$sar{network_l2}{network_packets_sec}{"$interface" . "-rx"}{$timestamp_ms} = $packets_sec{'rx'};
 			$sar{network_l2}{network_packets_sec}{"$interface" . "-tx"}{$timestamp_ms} = $packets_sec{'tx'};
 			$sar{network_l2}{network_compressed_packets_sec}{"$interface" . "-rx"}{$timestamp_ms} = $comp_packets_sec{'rx'};
 			$sar{network_l2}{network_compressed_packets_sec}{"$interface" . "-tx"}{$timestamp_ms} = $comp_packets_sec{'tx'};
 			$sar{network_l2}{network_multicast_packets_sec}{"$interface" . "-rx"}{$timestamp_ms} = $mult_packets_sec{'rx'};
-			$sar{network_l2}{network_Mbits_sec}{"$interface" . "-rx"}{$timestamp_ms} = $kbytes_sec{'rx'} *1024 *8 /1000000; # Mbit = 1,000,000 bits per second
-			$sar{network_l2}{network_Mbits_sec}{"$interface" . "-tx"}{$timestamp_ms} = $kbytes_sec{'tx'} *1024 *8 /1000000; # Mbit = 1,000,000 bits per second
+			$sar{network_l2}{network_Mbits_sec}{"$interface" . "-rx"}{$timestamp_ms} = $mbits_sec{'rx'};
+			$sar{network_l2}{network_Mbits_sec}{"$interface" . "-tx"}{$timestamp_ms} = $mbits_sec{'tx'};
 		}
 		next;
 	}
@@ -563,10 +518,9 @@ while ($line = <SAR_TXT>) {
 		if ($cdm) {
 			for my $dir (keys %err_packets_sec) {
 				for my $error (keys %{ $err_packets_sec{$dir} } ){
-					my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "NetdevErrorPacketsSec",
-		   		   		'host' => $hostname, 'direction' => $dir, 'error' => $error,
-						'name_format' => "%source%-%type%-%host%-%direction%-%error%" );
-					log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $err_packets_sec{$dir}{$error});
+					my %md = ( 'host' => $hostname, 'direction' => $dir, 'type' => $error );
+					log_cdm_metric_sample('sar', 'throughput', 'NetdevErrorPacketsSec', '%host%-%direction%-%type%',
+								\%md, \%sar, $timestamp_ms, $err_packets_sec{$dir}{$error});
 				}
 			}
 		} else {
@@ -592,17 +546,18 @@ while ($line = <SAR_TXT>) {
 	if (( $mode eq "net_nfs_client") &&
 	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
 		$time = $1;
-		my $call_sec = $2;
+		my $calls_sec = $2;
 		my %nfs_client_calls_sec = ( 'Retrans' => $3, 'Read' => $4, 'Write' => $5, 'Access' => $6, 'GetAttr' => $7 );
 		if ($cdm) {
-			for my $call (keys %nfs_client_calls_sec) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "NFSClientCallsSec",
-		   	  		'host' => $hostname, 'call' => $call, 'name_format' => "%source%-%type%-%host%-%call%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $nfs_client_calls_sec{$call});
+			for my $type (keys %nfs_client_calls_sec) {
+				# these metrics will end up being grouped with NFS server calls/sec
+				my %md = ( 'host' => $hostname, 'type' => $type, 'clientserver' => 'client' );
+				log_cdm_metric_sample('sar', 'throughput', 'NFSCallsSec', '%host%-%clientserver%-%type%',
+							\%md, \%sar, $timestamp_ms, $nfs_client_calls_sec{$type});
 			}
 		} else {
 			my $timestamp_ms = calc_timestamp($time);
-			$sar{network_l345}{nfs_client}{calls_sec}{$timestamp_ms} = $call_sec;
+			$sar{network_l345}{nfs_client}{calls_sec}{$timestamp_ms} = $calls_sec;
 			$sar{network_l345}{nfs_client}{reads_sec}{$timestamp_ms} = $nfs_client_calls_sec{'Read'};
 			$sar{network_l345}{nfs_client}{writes_sec}{$timestamp_ms} = $nfs_client_calls_sec{'Write'};
 			$sar{network_l345}{nfs_client}{access_sec}{$timestamp_ms} = $nfs_client_calls_sec{'Access'};
@@ -621,39 +576,40 @@ while ($line = <SAR_TXT>) {
 	if (( $mode eq "net_nfs_server" ) &&
 	    ( $line =~ /(\d+\:\d+\:\d+\s)\w\w\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
 		$time = $1;
-		my %nfs_server_stat_sec = ( 'Bad' => $3, 'Good' => $2 - $6 );
-		my %nfs_server_packets_sec = ( 'Udp' => $5, 'Tcp' => $6 );
-		my %nfs_server_caches_sec = ( 'Hit' => $7, 'Miss' => $8 );
+		my %nfs_server_goodbad_sec = ( 'Bad' => $3, 'Good' => $2 - $6 );
+		my %nfs_server_proto_sec = ( 'Udp' => $5, 'Tcp' => $6 );
+		my %nfs_server_hitmiss_sec = ( 'Hit' => $7, 'Miss' => $8 );
 		my %nfs_server_calls_sec = ( 'Read' => $9, 'Write' => $10, 'Access' => $11, 'GetAttr' => $12 );
 		my $timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
-			for my $call (keys %nfs_server_calls_sec) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "NFSServerRpcCallsByTypeSec",
-	   	  			'host' => $hostname, 'call' => $call, 'name_format' => "%source%-%type%-%host%-%call%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $nfs_server_calls_sec{$call});
+			for my $type (keys %nfs_server_calls_sec) {
+				# these metrics will end up being grouped with NFS client calls/sec
+				my %md = ( 'host' => $hostname, 'type' => $type, 'clientserver' => 'server' );
+				log_cdm_metric_sample('sar', 'throughput', 'NFSCallsSec', '%host%-%clientserver%-%type%',
+							\%md, \%sar, $timestamp_ms, $nfs_server_calls_sec{$type});
 			}
-			for my $stat (keys %nfs_server_stat_sec) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "NFSServerRpcCallsByStatusSec",
-	   	  			'host' => $hostname, 'stat' => $stat, 'name_format' => "%source%-%type%-%host%-%stat%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $nfs_server_stat_sec{$stat});
+			for my $status (keys %nfs_server_goodbad_sec) {
+				my %md = ( 'host' => $hostname, 'status' => $status );
+				log_cdm_metric_sample('sar', 'throughput', 'NFSServerGoodBadCallsSec', '%host%-%status%',
+							 \%md, \%sar, $timestamp_ms, $nfs_server_goodbad_sec{$status});
 			}
-			for my $stat (keys %nfs_server_caches_sec) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "NFSServerCacheHitMissSec",
-	   	  			'host' => $hostname, 'stat' => $stat, 'name_format' => "%source%-%type%-%host%-%stat%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $nfs_server_caches_sec{$stat});
+			for my $status (keys %nfs_server_hitmiss_sec) {
+				my %md = ( 'host' => $hostname, 'status' => $status );
+				log_cdm_metric_sample('sar', 'throughput', 'NFSServerCacheHitMissSec', '%host%-%status%',
+							\%md, \%sar, $timestamp_ms, $nfs_server_hitmiss_sec{$status});
 			}
-			for my $proto (keys %nfs_server_packets_sec) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "NFSServerPacketsSec",
-	   	  			'host' => $hostname, 'proto' => $proto, 'name_format' => "%source%-%type%-%host%-%proto%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $nfs_server_packets_sec{$proto});
+			for my $proto (keys %nfs_server_proto_sec) {
+				my %md = ( 'host' => $hostname, 'protocol' => $proto );
+				log_cdm_metric_sample('sar', 'throughput', 'NFSServerPacketsSec', '%host%-%protocol%',
+							\%md, \%sar, $timestamp_ms, $nfs_server_proto_sec{$proto});
 			}
 		} else {
-			$sar{network_l345}{nfs_server}{calls_sec}{$timestamp_ms} = $nfs_server_stat_sec{'Good'} + $nfs_server_stat_sec{'Bad'};
-			$sar{network_l345}{nfs_server}{badcalls_sec}{$timestamp_ms} = $nfs_server_stat_sec{'Bad'};
-			$sar{network_l345}{nfs_server}{rx_udp_packets_sec}{$timestamp_ms} = $nfs_server_packets_sec{'Udp'};
-			$sar{network_l345}{nfs_server}{rx_tcp_packets_sec}{$timestamp_ms} = $nfs_server_packets_sec{'Tcp'};
-			$sar{network_l345}{nfs_server}{reply_cache_hits_sec}{$timestamp_ms} = $nfs_server_caches_sec{'Hit'};
-			$sar{network_l345}{nfs_server}{reply_cache_misses_sec}{$timestamp_ms} = $nfs_server_caches_sec{'Miss'};
+			$sar{network_l345}{nfs_server}{calls_sec}{$timestamp_ms} = $nfs_server_goodbad_sec{'Good'} + $nfs_server_goodbad_sec{'Bad'};
+			$sar{network_l345}{nfs_server}{badcalls_sec}{$timestamp_ms} = $nfs_server_goodbad_sec{'Bad'};
+			$sar{network_l345}{nfs_server}{rx_udp_packets_sec}{$timestamp_ms} = $nfs_server_proto_sec{'Udp'};
+			$sar{network_l345}{nfs_server}{rx_tcp_packets_sec}{$timestamp_ms} = $nfs_server_proto_sec{'Tcp'};
+			$sar{network_l345}{nfs_server}{reply_cache_hits_sec}{$timestamp_ms} = $nfs_server_hitmiss_sec{'Hit'};
+			$sar{network_l345}{nfs_server}{reply_cache_misses_sec}{$timestamp_ms} = $nfs_server_hitmiss_sec{'Miss'};
 			$sar{network_l345}{nfs_server}{rpc_read_calls_sec}{$timestamp_ms} = $nfs_server_calls_sec{'Read'};
 			$sar{network_l345}{nfs_server}{rpc_write_calls_sec}{$timestamp_ms} = $nfs_server_calls_sec{'Write'};
 			$sar{network_l345}{nfs_server}{rpc_access_calls_sec}{$timestamp_ms} = $nfs_server_calls_sec{'Access'};
@@ -682,16 +638,14 @@ while ($line = <SAR_TXT>) {
 		$timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
 			for my $proto (keys %sck) {
-				my %md = ( 'source' => "sar", 'class' => "count", 'type' => "SocketsByProtocol",
-	   	  			'host' => $hostname, 'protocol' => $proto, 'name_format' => "%source%-%type%-%host%-%protocol%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, int $sck{$proto});
+				my %md = ( 'host' => $hostname, 'protocol' => $proto );
+				log_cdm_metric_sample('sar', 'count', 'SocketsByProtocol', '%host%-%protocol%',
+							\%md, \%sar, $timestamp_ms, int $sck{$proto});
 			}
-			my %md = ( 'source' => "sar", 'class' => "count", 'type' => "IpFragments",
-	   	  		'host' => $hostname, 'name_format' => "%source%-%type%-%host%" );
-			log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, int $ipfrag);
-			%md = ( 'source' => "sar", 'class' => "count", 'type' => "TcpTimewaitSockets",
-	   	  		'host' => $hostname, 'name_format' => "%source%-%type%-%host%" );
-			log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, int $tcptw);
+			my %md = ( 'host' => $hostname ); # works for both metrics
+			log_cdm_metric_sample('sar', 'count', 'IpFragments', '%host%',
+						\%md, \%sar, $timestamp_ms, int $ipfrag);
+			log_cdm_metric_sample('sar', 'count', 'TcpTimewaitSockets', '%host%', \%md, \%sar, $timestamp_ms, int $tcptw);
 
 		} else {
 			$sar{network_l345}{sockets}{total_sockets}{$timestamp_ms} = $totsck;
@@ -727,9 +681,9 @@ while ($line = <SAR_TXT>) {
 		my $timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
 			for my $type (keys %net_ip) {
-				my %md = ( 'source' => "sar", 'class' => "count", 'type' => $type,
-	   	  			'host' => $hostname, 'name_format' => "%source%-%type%-%host%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $net_ip{$type});
+				my %md = ( 'host' => $hostname );
+				log_cdm_metric_sample('sar', 'throughput', $type, '%host%',
+							\%md, \%sar, $timestamp_ms, $net_ip{$type});
 			}
 		} else {
 			$sar{network_l345}{ip}{rx_datagrams_sec}{$timestamp_ms} = $net_ip{'RxDatagramsSec'};
@@ -760,11 +714,10 @@ while ($line = <SAR_TXT>) {
 		my $timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
 			for my $dir (keys %ipv4_discarded_sec) {
-				for my $stat (keys %{ $ipv4_discarded_sec{$dir} }) {
-					my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "Ipv4DiscardsSec",
-	   	  				'host' => $hostname, 'direction' => $dir, 'stat' => $stat,
-						'name_format' => "%source%-%type%-%host%-%direction%-%stat%" );
-					log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $ipv4_discarded_sec{$dir}{$stat});
+				for my $type (keys %{ $ipv4_discarded_sec{$dir} }) {
+					my %md = ( 'host' => $hostname, 'direction' => $dir, 'type' => $type );
+					log_cdm_metric_sample('sar', 'throughput', 'Ipv4DiscardsSec', '%host%-%direction%-%type%',
+								 \%md, \%sar, $timestamp_ms, $ipv4_discarded_sec{$dir}{$type});
 				}
 			}
 		} else {
@@ -806,10 +759,9 @@ while ($line = <SAR_TXT>) {
 			for my $dir (keys %icmp_sec) {
 				for my $msgtype (keys %{ $icmp_sec{$dir} }) {
 					for my $reqtype (keys %{ $icmp_sec{$dir}{$msgtype} }) {
-						my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "IcmpMessagesSec",
-	   	  					'host' => $hostname, 'direction' => $dir, 'msgtype' => $msgtype, 'reqtype' => $msgtype,
-							'name_format' => "%source%-%type%-%host%-%direction%-%msgtype%-%reqtype%" );
-						log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $icmp_sec{$dir}{$msgtype}{$reqtype});
+						my %md = ( 'host' => $hostname, 'direction' => $dir, 'msgtype' => $msgtype, 'reqtype' => $msgtype );
+						log_cdm_metric_sample('sar', 'throughput', 'IcmpMessagesSec', '%host%-%direction%-%msgtype%-%reqtype%',
+									\%md, \%sar, $timestamp_ms, $icmp_sec{$dir}{$msgtype}{$reqtype});
 					}
 				}
 			}
@@ -850,11 +802,10 @@ while ($line = <SAR_TXT>) {
 		$timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
 			for my $dir (keys %icmperr_sec) {
-				for my $stat (keys %{ $icmperr_sec{$dir} }) {
-					my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "IcmpErrorsSec",
-	   	  				'host' => $hostname, 'direction' => $dir, 'stat' => $stat,
-						'name_format' => "%source%-%type%-%host%-%direction%-%stat%" );
-					log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $icmperr_sec{$dir}{$stat});
+				for my $type (keys %{ $icmperr_sec{$dir} }) {
+					my %md = ( 'host' => $hostname, 'direction' => $dir, 'type' => $type );
+					log_cdm_metric_sample('sar', 'throughput', 'IcmpErrorsSec', '%host%-%direction%-%type%',
+								\%md, \%sar, $timestamp_ms, $icmperr_sec{$dir}{$type});
 				}
 			}
 		} else {
@@ -888,17 +839,15 @@ while ($line = <SAR_TXT>) {
 		my %tcp_segments_sec = ( 'Input' => $4, 'Output' => $5 );
 		$timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
-			for my $stat (keys %tcp_opens_sec) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "TcpOpensSec",
-	   	  			'host' => $hostname, 'stat' => $stat,
-					'name_format' => "%source%-%type%-%host%-%stat%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $tcp_opens_sec{$stat});
+			for my $type (keys %tcp_opens_sec) {
+				my %md = ( 'host' => $hostname, 'type' => $type );
+				log_cdm_metric_sample('sar', 'throughput', 'TcpOpensSec', '%host%-%type%',
+							\%md, \%sar, $timestamp_ms, $tcp_opens_sec{$type});
 			}
 			for my $dir (keys %tcp_segments_sec) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "TcpSegmentsSec",
-	   	  			'host' => $hostname, 'direction' => $dir,
-					'name_format' => "%source%-%type%-%host%-%direction%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $tcp_segments_sec{$dir});
+				my %md = ( 'host' => $hostname, 'direction' => $dir );
+				log_cdm_metric_sample('sar', 'throughput', 'TcpSegmentsSec', '%host%-%direction%',
+							\%md, \%sar, $timestamp_ms, $tcp_segments_sec{$dir});
 			}
 		} else {
 			$sar{network_l345}{tcp_sockets}{active_opens_sec}{$timestamp_ms} = $tcp_opens_sec{'Active'};
@@ -925,21 +874,18 @@ while ($line = <SAR_TXT>) {
 		my $tcp_output_rsts_sec = $5; # The number of TCP segments sent per second containing the RST flag [tcpOutRsts].
 		$timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
-			for my $stat (keys %tcperr_closes_sec ) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "TcpErrorClosesSec",
-	   	  			'host' => $hostname, 'stat' => $stat,
-					'name_format' => "%source%-%type%-%host%-%stat%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $tcperr_closes_sec{$stat});
+			for my $type (keys %tcperr_closes_sec ) {
+				my %md = ( 'host' => $hostname, 'type' => $type );
+				log_cdm_metric_sample('sar', 'throughput', 'TcpErrorClosesSec', '%host%-%type%',
+							\%md, \%sar, $timestamp_ms, $tcperr_closes_sec{$type});
 			}
-			my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "TcpRetransmitsSec",
-	   	  		'host' => $hostname, 'name_format' => "%source%-%type%-%host%" );
-			log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $tcp_retrans_sec);
-			%md = ( 'source' => "sar", 'class' => "throughput", 'type' => "TcpInputSegmentErrorsSec",
-	   	  		'host' => $hostname, 'name_format' => "%source%-%type%-%host%" );
-			log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $tcp_input_segerr_sec);
-			%md = ( 'source' => "sar", 'class' => "throughput", 'type' => "TcpOutputRstsSec",
-	   	  		'host' => $hostname, 'name_format' => "%source%-%type%-%host%" );
-			log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $tcp_output_rsts_sec);
+			my %md = ( 'host' => $hostname );
+			log_cdm_metric_sample('sar', 'throughput', 'TcpRetransmitsSec', '%host%',
+						\%md, \%sar, $timestamp_ms, $tcp_retrans_sec);
+			log_cdm_metric_sample('sar', 'throughput', 'TcpInputSegmentErrorsSec', '%host%',
+						\%md, \%sar, $timestamp_ms, $tcp_input_segerr_sec);
+			log_cdm_metric_sample('sar', 'throughput', 'TcpOutputRstsSec', '%host%',
+						\%md, \%sar, $timestamp_ms, $tcp_output_rsts_sec);
 		} else {
 			$sar{network_l345}{tcp_sockets}{tcp_attempt_fails_sec}{$timestamp_ms} = $tcperr_closes_sec{'AttemptFail'};
 			$sar{network_l345}{tcp_sockets}{tcp_establish_resets_sec}{$timestamp_ms} = $tcperr_closes_sec{'EstablishReset'};
@@ -967,19 +913,16 @@ while ($line = <SAR_TXT>) {
 		my $timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
 			for my $dir (keys %udp_datagrams_sec) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "UdpDatagramsSec",
-	   	  			'host' => $hostname, 'direction' => $dir,
-					'name_format' => "%source%-%type%-%host%-%direction%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $udp_datagrams_sec{$dir});
+				my %md = ( 'host' => $hostname, 'direction' => $dir );
+				log_cdm_metric_sample('sar', 'throughput', 'UdpDatagramsSec', '%host%-%direction%',
+							\%md, \%sar, $timestamp_ms, $udp_datagrams_sec{$dir});
 			}
-			for my $stat (keys %udp_error_datagrams_sec) {
-				my %md = ( 'source' => "sar", 'class' => "throughput", 'type' => "UdpErrorDatagramsSec",
-	   	  			'host' => $hostname, 'stat' => $stat,
-					'name_format' => "%source%-%type%-%host%-%stat%" );
-				log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, $udp_error_datagrams_sec{$stat});
+			for my $type (keys %udp_error_datagrams_sec) {
+				my %md = ( 'host' => $hostname, 'type' => $type );
+				log_cdm_metric_sample('sar', 'throughput', 'UdpErrorDatagramsSec', '%host%-%type%',
+							\%md, \%sar, $timestamp_ms, $udp_error_datagrams_sec{$type});
 			}
 		} else {
-			# $sar{htmlpage}{graph}{series}{sample}
 			$sar{network_l345}{udp}{rx_datagrams_sec}{$timestamp_ms} = $udp_datagrams_sec{'Rx'};
 			$sar{network_l345}{udp}{tx_datagrams_sec}{$timestamp_ms} = $udp_datagrams_sec{'Tx'};
 			$sar{network_l345}{udp}{rx_datagrams_discard_no_dest_port_sec}{$timestamp_ms} = $udp_error_datagrams_sec{'NoPort'};
@@ -1024,10 +967,9 @@ while ($line = <SAR_TXT>) {
 
 		$timestamp_ms = calc_timestamp($time);
 		if ($cdm and $cpuid ne "all") {
-			my %md = ( 'source' => "sar", 'class' => "count", 'type' => "ProcessorFrequencyMhz",
-				   'name_format' => "%source%-%type%-%host%-%socket%:%core%:%id%",
-				   'host' => $hostname, 'socket' => $socket, 'core' => $core, 'id' => $cpuid );
-			log_cdm_metric_sample(\%md, \%sar, $timestamp_ms, int $mhz);
+			my %md = ( 'host' => $hostname, 'socket' => $socket, 'core' => $core, 'id' => $cpuid );
+			log_cdm_metric_sample('sar', 'count', 'ProcessorFrequencyMhz', '%host%-%socket%:%core%:%id%',
+						\%md, \%sar, $timestamp_ms, $mhz);
 		} else { 
 			$sar{cpu}{"frequency_MHz"}{sprintf "cpu_%02d", $cpuid}{$timestamp_ms} = $mhz;
 		}
