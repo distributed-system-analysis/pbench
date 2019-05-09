@@ -11,39 +11,34 @@ class Sharable extends React.Component {
     const { dispatch, pathname } = this.props;
     const path = window.location.href;
     const id = path.substring(path.lastIndexOf('/') + 1);
-
     dispatch({
       type: 'dashboard/fetchSharedConfig',
       payload: {
         id,
       },
-    }).then(() => {
-      dispatch(
-        routerRedux.push({
-          pathname,
-        })
-      );
-    });
+    }).then(dispatch(routerRedux.push(pathname)));
   };
 
-  render = () => (
-    <div
-      style={{
-        display: 'flex',
-      }}
-    >
-      <Spin
+  render() {
+    return (
+      <div
         style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
+          display: 'flex',
         }}
-        spinning
-        tip="Retrieving dashboard session..."
-        size="large"
-      />
-    </div>
-  );
+      >
+        <Spin
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          spinning
+          tip="Retrieving dashboard session..."
+          size="large"
+        />
+      </div>
+    );
+  }
 }
 
 export default connect(() => ({}))(Sharable);

@@ -161,8 +161,7 @@ export default {
     *fetchSharedConfig({ payload }, { call }) {
       const response = yield call(querySharedConfig, payload);
       const { config } = response.data.data.url;
-
-      return window.localStorage.setItem('persist:root', config);
+      return window.localStorage.setItem('persist:root', JSON.parse(config));
     },
     *fetchIterations({ payload }, { call, put }) {
       const response = yield call(queryIterations, payload);
@@ -224,6 +223,12 @@ export default {
       return {
         ...state,
         tocResult: payload,
+      };
+    },
+    getSharedResult(state, { payload }) {
+      return {
+        ...state,
+        shared: payload,
       };
     },
     getIterations(state, { payload }) {
