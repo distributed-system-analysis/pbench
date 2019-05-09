@@ -10,12 +10,6 @@ import SessionModal from '../SessionModal';
   store,
 }))
 class GlobalHeader extends PureComponent {
-  state = {
-    visible: false,
-    url: 'Click on generate to get URL',
-    description: 'Add description here',
-  };
-
   componentWillUnmount() {
     this.triggerResizeEvent.cancel();
   }
@@ -33,70 +27,6 @@ class GlobalHeader extends PureComponent {
     event.initEvent('resize', true, false);
     window.dispatchEvent(event);
   }
-
-  showModal = () => {
-    this.setState({
-      visible: true,
-    });
-  };
-
-  handleOk = e => {
-    this.setState({
-      visible: false,
-    });
-  };
-
-  handleCancel = e => {
-    this.setState({
-      visible: false,
-    });
-  };
-
-  onGenerate = () => {
-    this.setState(
-      {
-        description: document.getElementById('description').value,
-      },
-      () => {
-        const stringProp = JSON.stringify(this.props.store);
-        console.log('generateed');
-        axios({
-          url: 'http://localhost:4466/',
-          method: 'post',
-          data: {
-            query: `
-            mutation($config: String!$description: String!) {
-              createUrl(data: {config: $config,description: $description}) {
-                id
-                config
-                description
-              }
-            }       
-          `,
-            variables: {
-              config: stringProp,
-              description: this.state.description,
-            },
-          },
-        })
-          .then(result => {
-            this.setState({
-              url: 'http://localhost:8000/dashboard/share/' + result.data.data.createUrl.id,
-            });
-          })
-          .catch(err => {
-            console.log(err);
-          });
-      }
-    );
-  };
-
-  copyURL = () => {
-    var copyText = document.getElementById('url');
-    copyText.select();
-    document.execCommand('copy');
-    message.success('Copied the text: ' + copyText.value);
-  };
 
   render() {
     const { collapsed, isMobile, logo, dispatch } = this.props;
@@ -143,40 +73,6 @@ class GlobalHeader extends PureComponent {
             </a>
           </Tooltip>
         </div>
-        <Modal
-          title="Share with others"
-          visible={this.state.visible}
-          onOk={this.handleOk}
-          onCancel={this.handleCancel}
-        >
-          <Card type="inner">
-            <Form>
-              <Form.Item label="Generated URL">
-                <Form>
-                  <Form.Item>
-                    <Input id="url" value={this.state.url} />
-                    <Input.TextArea
-                      id="description"
-                      rows={4}
-                      placeholder={this.state.description}
-                    />
-                    <Button
-                      type="primary"
-                      shape="circle-outline"
-                      icon="copy"
-                      size="default"
-                      style={{ float: 'right' }}
-                      onClick={this.copyURL}
-                    />
-                    <Button type="primary" onClick={this.onGenerate}>
-                      Generate
-                    </Button>
-                  </Form.Item>
-                </Form>
-              </Form.Item>
-            </Form>
-          </Card>
-        </Modal>
       </div>
     );
   }
