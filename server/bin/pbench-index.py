@@ -2880,23 +2880,16 @@ class IdxContext(object):
                 raise ConfigFileError("Index prefix, '{}', not allowed to"
                         " contain a period ('.')".format(self.idx_prefix))
 
-        try:
-            debug_unittest = self.config.get('Indexing', 'debug_unittest')
-        except Exception as e:
-            debug_unittest = False
-        else:
-            debug_unittest = bool(debug_unittest)
-        if debug_unittest:
+        if self.config._unittests:
             import collections
             global _dict_const
             _dict_const = collections.OrderedDict
-            self.TS = datetime.utcfromtimestamp(0).isoformat()
             def _do_time():
                 return 0
             self.time = _do_time
         else:
-            self.TS = datetime.utcnow().isoformat()
             self.time = time.time
+        self.TS = self.config.TS
 
         self.logger = get_pbench_logger(_NAME_, self.config)
         self.es = get_es(self.config, self.logger)

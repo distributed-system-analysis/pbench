@@ -51,7 +51,7 @@ except BadConfig as e:
 
 # Exclude the "files" and "conf" attributes from being exported
 vars = sorted([ key for key in config.__dict__.keys() \
-        if key not in ('files', 'conf') ])
+        if key not in ('files', 'conf', 'timestamp', '_unittests', 'get') ])
 for att in vars:
     try:
         os.environ[att] = getattr(config, att)
@@ -59,6 +59,9 @@ for att in vars:
         print("{}: Missing internal pbench attribute, \"{}\", in"
                 " configuration".format(_prog, att), file=sys.stderr)
         sys.exit(1)
+
+if config._unittests:
+    os.environ['_PBENCH_SERVER_TEST'] = "1"
 
 cmd = "{}.sh".format(sys.argv[1])
 args = [ cmd ] + sys.argv[2:]

@@ -63,11 +63,6 @@ else
     }
 fi
 
-# Convenient task run identifier.
-if [ "$TS" = "" ]; then
-    TS="run-$(timestamp)"
-fi
-
 function mk_dirs {
     hostname=$1
 
