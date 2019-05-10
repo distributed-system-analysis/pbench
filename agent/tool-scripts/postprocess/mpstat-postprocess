@@ -184,13 +184,15 @@ while (my $line = <MPSTAT_TXT>) {
 			}
                	} else {
                        	for my $mode (@cpumode_attributes) {
-                               	my $busy = 0;
-                               	if (! $mode =~ /idle|iowait|steal/) {
-                                       	$busy += $cpumode_util{$mode};
-                               	}
-                               	$cpuid = sprintf "%02d", $cpuid;
+				next if ($mode eq "gnice");
+				my $mode_label;
+				if ($mode eq 'soft') { # Stay compatible with legacy label
+					$mode_label = 'softirq';
+				} else {
+					$mode_label = $mode;
+				}
 				my $cpu_label = "cpu" . $cpuid;
-				$mpstat{$cpu_label}{$cpu_label}{$mode}{$timestamp_ms} = $cpumode_util{$mode};
+				$mpstat{$cpu_label}{$cpu_label}{$mode_label}{$timestamp_ms} = $cpumode_util{$mode};
                        	}
                	}
 	} elsif ( $line =~ /(\d\d:\d\d:\d\d)\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+.*/ ) {
