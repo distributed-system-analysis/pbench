@@ -246,7 +246,7 @@ sub log_cdm_metric_sample {
     }
     # This only happens when logging the first sample for a metric
     if (not exists $$metric_ref{$label}) {
-        #print "creating label: $label metric_type: $metric_type metric_name_format: $metric_name_format\n";
+        print "creating label: $label metric_type: $metric_type metric_name_format: $metric_name_format\n";
         for my $name (keys %{ $names_ref }) {
             $$metric_ref{$label}{'names'}{$name} = $$names_ref{$name};
         }
@@ -262,6 +262,9 @@ sub log_cdm_metric_sample {
         print "Error: value is undefined\n";
         print "metric_source: [$metric_source]\n";
         print "metric_type: [$metric_type]\n";
+        print "label: $label metric_type: $metric_type metric_name_format: $metric_name_format\n";
+        print "field names:\n";
+        print Dumper $names_ref;
         return 2;
     }
     if (not $value =~ /^\d+$|^\.\d+$|^\d+\.\d*$/) {
@@ -293,8 +296,8 @@ sub gen_cdm_metric_data {
     for my $label (sort keys %$data_ref) {
         my $nr_label_samples = 0;
         my $nr_condensed_label_samples = 0;
-        print "processing $label: ";
         if (exists $$data_ref{$label}{'samples'}) {
+            print "processing $label: ";
             my $bail = 0;
             my %series = %{$$data_ref{$label} };
             my %metric_desc = create_metric_desc_doc( \%period_doc, $series{'class'}, $series{'type'},
