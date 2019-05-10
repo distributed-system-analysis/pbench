@@ -39,19 +39,24 @@ fi
 
 cd $documentroot || exit 1
 
-# the directory and filename are specified in the agent config file as
-# the value of [results]/host_info_url and the setting is duplicated
-# (except for the version number which is appended here) in the server
-# config file: if it changes in one, it *has* to change in the other.
+# The host and directory of the reception areas are specified in the
+# agent config file as the value of [results]/host_info_url and the
+# setting is duplicated (except for the version number which is
+# appended here) in the server config file: if it changes in one, it
+# *has* to change in the other.
 
-results_host_info_url=$(getconf.py host_info_url results)
-if [ -z "$results_host_info_url" ] ;then
-    echo 'No setting for host_info_url in section "results" of the configuration file.'
+# To simplify things, the url is constructed from two explicitly defined
+# pieces in the config file: the hostname and the path prefix. We only
+# need the path prefix here.
+
+results_host_info_path_prefix=$(getconf.py host-info-path-prefix results)
+if [ -z "$results_host_info_path_prefix" ] ;then
+    echo 'No setting for host-info-path-prefix in section "results" of the configuration file.'
     exit 5
 fi
 
 # path is relative to documentroot
-path=$(echo $results_host_info_url | sed 's/http:\/\///' | sed 's/[^/]*\///')
+path=${results_host_info_path_prefix}
 
 mkdir -p $(dirname $path)
 cd $(dirname $path) >/dev/null 2>&1 || exit 6
@@ -61,7 +66,8 @@ host=$(getconf.py host pbench-server)
 versions=$(getconf.py pbench-move-results-receive-versions pbench-server)
 for version in $versions ;do
     prefix=$(basename $path)${version}
-    receive_dir=$(getconf.py pbench-receive-dir-${version} pbench-server)
+    receive_dir_prefix=$(getconf.py pbench-receive-dir-prefix pbench-server)
+    receive_dir=${receive_dir_prefix}-${version}
     results_host_info=$user@$host:${receive_dir}
     echo $results_host_info > $prefix.active
 
