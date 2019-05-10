@@ -33,11 +33,12 @@ if [ ! -d "$qdir" ] ;then
 fi
 
 # we are explicitly handling version-001 data in this shim
-receive_dir=$(getconf.py pbench-receive-dir-001 pbench-server)
-if [ -z "$receive_dir" ] ;then
-    echo "Failed: \"getconf.py pbench-receive-dir-001 pbench-server\", status $sts" >> $errlog
+receive_dir_prefix=$(getconf.py pbench-receive-dir-prefix pbench-server)
+if [ -z "$receive_dir_prefix" ] ;then
+    echo "Failed: \"getconf.py pbench-receive-dir-prefix pbench-server\", status $sts" >> $errlog
     exit 2
 fi
+receive_dir=${receive_dir_prefix}-001
 if [ ! -d "$receive_dir" ] ;then
     echo "Failed: $receive_dir does not exist, or is not a directory" >> $errlog
     exit 2
