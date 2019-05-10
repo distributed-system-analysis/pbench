@@ -2,22 +2,23 @@
 
 prog=$(basename $0)
 
-pbench_incoming_dir=$(getconf.py pbench-incoming-dir pbench-server)
+pbench_top_dir=$(getconf.py pbench-top-dir pbench-server)
+pbench_incoming_dir=${pbench_top_dir}/public_html/incoming
 if [ -z "${pbench_incoming_dir}" ]; then
     echo "$prog: \"pbench-incoming-dir\" is undefined in section \"pbench-server\" of config file." >&2
     exit 1
 fi
-pbench_results_dir=$(getconf.py pbench-results-dir pbench-server)
+pbench_results_dir=${pbench_top_dir}/public_html/results
 if [ -z "${pbench_results_dir}" ]; then
     echo "$prog: \"pbench-results-dir\" is undefined in section \"pbench-server\" of config file." >&2
     exit 1
 fi
-pbench_users_dir=$(getconf.py pbench-users-dir pbench-server)
+pbench_users_dir=${pbench_top_dir}/public_html/users
 if [ -z "${pbench_users_dir}" ]; then
     echo "$prog: \"pbench-users-dir\" is undefined in section \"pbench-server\" of config file." >&2
     exit 1
 fi
-pbench_static_dir=$(getconf.py pbench-static-dir pbench-server)
+pbench_static_dir=${pbench_top_dir}/public_html/static
 if [ -z "${pbench_static_dir}" ]; then
     echo "$prog: \"pbench-static-dir\" is undefined in section \"pbench-server\" of config file." >&2
     exit 1
