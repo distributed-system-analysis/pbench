@@ -2,13 +2,28 @@
 
 # Author: Andrew Theurer
 #
-# usage: iostat-postprocess <dir>  dir = directory where iostat.txt can be found
-# iostat.txt must be generated from "iostat -N -t -y -x -m <interval>"
+# The purpose of this script is to convert iostat text output
+# into either (depending on how this script is invoked):
 #
-# The purpose of this script is to
-# -output the chart data in JSON format (iostat.js)
-# -output html file (iostat.html) with embedded javascript, using d3.js libraries
-# The result should be several iostat graphs
+#   CSV files and statically generated graphs
+#   with embedded javascript, using d3.js libraries
+# 
+# or
+#
+#   CommonDataModel documents
+#
+# usage:
+#
+# iostat-postprocess <dir> [<period-doc> <es-dir> <hostname>]
+#
+# dir = directory where iostat.txt can be found
+# period-doc = path to CDM period document for this iteration-sample
+# es-dir = path to base directory where CDM documents should be written
+# hostname = the host where mpstat was run
+#
+# Note: arguments 2 - 4 are only used when generating CommonDataModel
+#
+# iostat.txt must be generated from "iostat -N -t -y -x -m <interval>"
 
 use strict;
 use warnings;
@@ -31,29 +46,19 @@ BEGIN {
 use lib "$pbench_lib_path";
 use lib "$_test_alt_tools_lib";
 no lib ".";
-use JSON;
 use Data::Dumper;
-use PbenchCDM qw(create_metric_desc_doc create_metric_data_doc log_cdm_metric_sample gen_cdm_metric_data);
-use PbenchBase qw(get_json_file put_json_file get_benchmark_names get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params remove_element);
+use PbenchCDM qw(log_cdm_metric_sample gen_cdm_metric_data);
 use GenData qw(gen_data);
-use SysStat qw(get_sar_cpumode_attributes build_cpu_topology get_cpu_socket_core);
 
 my $dir = shift;
 my $dev;
-my %iostat;
-my $timestamp;
+my %iostat; # For gen_data()
+my %iostat_cdm; # For log_cdm_metric_sample()
 my $timestamp_ms;
-my $coder = JSON->new->ascii->canonical;
 my $es_dir;
 my $hostname;
 my $period_doc_path;
 my $cdm = 0;
-my @cpu_topology;
-# CDM only: Chronologically contiguous metric_data samples with same values
-# are combined into a single sample with a longer begin-to-end time period.
-# This should always be enabled, unless you want to see what the size 
-# difference is when not condensing the data.
-my $condense_samples = 1; 
 # When peoducing CDM docs, this is typically called from the pbench
 # controller only, and the following arguments must be provided:
 if (scalar @ARGV > 1) {
@@ -63,7 +68,6 @@ if (scalar @ARGV > 1) {
 	$period_doc_path = shift;
 	$es_dir = shift;
 	$hostname = shift;
-	build_cpu_topology(\@cpu_topology, $dir);
 }
 
 # read the iostat.txt
@@ -73,8 +77,7 @@ while (my $line = <IOSTAT_TXT>) {
 	# Each sample should start with a time stamp (the -t in iostat).
 	# When we find this, update our timestamp for the hash.
 	if ( $line =~ /^\d\d\/\d\d\/\d\d(\d\d)?\s\d\d:\d\d:\d\d(\s[AP]M)?/ ) {
-		$timestamp=`date --date="$line" +%s.%N`;
-		# Elasticsearch requires the timestamp to be in milliseconds
+		my $timestamp=`date --date="$line" +%s.%N`;
 		$timestamp_ms = $timestamp * 1000;
 	}
 	#     1    2    3     4     5      6      7     8     9      10      11     12       13       14    15    16
@@ -91,7 +94,6 @@ while (my $line = <IOSTAT_TXT>) {
 		my %rw_tput_stats = ( 'IOPS' => \%iops, 'MegabytesSec' => \%mbps, 'RequestMergesSec' => \%rqms );
 		my %wait_ms = ( 'Read' => $10, 'Write' => $11 );
 		my %reqsize_kb = ( 'Read' => $13, 'Write' => $14 );
-		#my $reqsize=(($13 + $14) * 2);  # Convert kB to 512 byte sectors
 		my %rw_count_stats = ( 'RequestSizeKB' => \%reqsize_kb, 'RequestWaitMs' => \%wait_ms );
 		my %rw_stats = ( 'throughput' => \%rw_tput_stats, 'count' => \%rw_count_stats );
 		my %other_count_stats = ( 'QueueSize' => $12, 'Utilization' => $16 );
@@ -102,14 +104,14 @@ while (my $line = <IOSTAT_TXT>) {
 					for my $rw (keys %{ $rw_stats{$class}{$type} }) {
 						my %md = ( 'host' => $hostname, 'type' => $rw, 'dev' => $dev );
 						log_cdm_metric_sample('iostat', 'throughput', $type, '%host%-%dev%-%type%',
-									\%md, \%iostat, $timestamp_ms, $rw_stats{$class}{$type}{$rw});
+									\%md, \%iostat_cdm, $timestamp_ms, $rw_stats{$class}{$type}{$rw});
 					}
 				}
 			}
 			for my $type (keys %other_count_stats) {
 				my %md = ( 'host' => $hostname, 'dev' => $dev );
 				log_cdm_metric_sample('iostat', 'count', $type, '%host%-%dev%',
-							\%md, \%iostat, $timestamp_ms, $other_count_stats{$type});
+							\%md, \%iostat_cdm, $timestamp_ms, $other_count_stats{$type});
 			}
 		} else {
 			# Each data series is for one device (sda).  On some graphs, read and write
@@ -117,30 +119,29 @@ while (my $line = <IOSTAT_TXT>) {
 			# and another write-ops chart), so each series needs "-read" or
 			# "-write" appended to keep them distinct.
 			$iostat{disk}{"Utilization_percent"}{$dev}{$timestamp_ms} = $other_count_stats{'util'};
-			$iostat{disk}{"Throughput_MB_per_sec"}{$dev . "-read"}{$timestamp_ms} = $rw_stats{'throughput'}{'Read'}{'MegabytesSec'};
-			$iostat{disk}{"Throughput_MB_per_sec"}{$dev . "-write"}{$timestamp_ms} = $rw_stats{'throughput'}{'Write'}{'MegabytesSec'};
-			$iostat{disk}{"Request_Merges_per_sec"}{$dev . "-read"}{$timestamp_ms} = $rw_stats{'throughput'}{'Read'}{'RequestMergesSec'};
-			$iostat{disk}{"Request_Merges_per_sec"}{$dev . "-write"}{$timestamp_ms} = $rw_stats{'throughput'}{'Write'}{'RequestMergesSec'};
-			$iostat{disk}{"IOPS"}{$dev . "-read"}{$timestamp_ms} = $rw_stats{'throughput'}{'Read'}{'IOPS'};
-			$iostat{disk}{"IOPS"}{$dev . "-write"}{$timestamp_ms} = $rw_stats{'throughput'}{'Write'}{'IOPS'};
-			$iostat{disk}{"Request_Size_in_512_byte_sectors"}{$dev}{$timestamp_ms} = ($rw_stats{'count'}{'Read'}{'RequestSizeKB'} + $rw_stats{'count'}{'Write'}{'RequestSizeKB'}) * 2;
-			$iostat{disk}{"Request_Size_in_kB"}{$dev . "-read"}{$timestamp_ms} = $rw_stats{'count'}{'Read'}{'RequestSizeKB'};
-			$iostat{disk}{"Request_Size_in_kB"}{$dev . "-write"}{$timestamp_ms} = $rw_stats{'count'}{'Write'}{'RequestSizeKB'};
+			$iostat{disk}{"Throughput_MB_per_sec"}{$dev . "-read"}{$timestamp_ms} = $rw_stats{'throughput'}{'MegabytesSec'}{'Read'};
+			$iostat{disk}{"Throughput_MB_per_sec"}{$dev . "-write"}{$timestamp_ms} = $rw_stats{'throughput'}{'MegabytesSec'}{'Write'};
+			$iostat{disk}{"Request_Merges_per_sec"}{$dev . "-read"}{$timestamp_ms} = $rw_stats{'throughput'}{'RequestMergesSec'}{'Read'};
+			$iostat{disk}{"Request_Merges_per_sec"}{$dev . "-write"}{$timestamp_ms} = $rw_stats{'throughput'}{'RequestMergesSec'}{'Write'};
+			$iostat{disk}{"IOPS"}{$dev . "-read"}{$timestamp_ms} = $rw_stats{'throughput'}{'IOPS'}{'Read'};
+			$iostat{disk}{"IOPS"}{$dev . "-write"}{$timestamp_ms} = $rw_stats{'throughput'}{'IOPS'}{'Write'};
+			$iostat{disk}{"Request_Size_in_512_byte_sectors"}{$dev}{$timestamp_ms} = ($rw_stats{'count'}{'RequestSizeKB'}{'Read'}
+				+ $rw_stats{'count'}{'RequestSizeKB'}{'Write'}) * 2;
+			$iostat{disk}{"Request_Size_in_kB"}{$dev . "-read"}{$timestamp_ms} = $rw_stats{'count'}{'RequestSizeKB'}{'Read'};
+			$iostat{disk}{"Request_Size_in_kB"}{$dev . "-write"}{$timestamp_ms} = $rw_stats{'count'}{'RequestSizeKB'}{'Write'};
 			$iostat{disk}{"Queue_Size"}{$dev}{$timestamp_ms} = $other_count_stats{'qsize'};
-			$iostat{disk}{"Wait_Time_msec"}{$dev . "-read"}{$timestamp_ms} = $rw_stats{'count'}{'Read'}{'RequestWaitMs'};
-			$iostat{disk}{"Wait_Time_msec"}{$dev . "-write"}{$timestamp_ms} = $rw_stats{'count'}{'Write'}{'RequestWaitMs'};
+			$iostat{disk}{"Wait_Time_msec"}{$dev . "-read"}{$timestamp_ms} = $rw_stats{'count'}{'RequestWaitMs'}{'Read'};
+			$iostat{disk}{"Wait_Time_msec"}{$dev . "-write"}{$timestamp_ms} = $rw_stats{'count'}{'RequestWaitMs'}{'Write'};
 		}
 	}
 }
 close(IOSTAT_TXT);
 if ($cdm) {
-	print "cdm\n";
-	gen_cdm_metric_data(\%iostat, $period_doc_path, $es_dir, $hostname, "sar");
+	gen_cdm_metric_data(\%iostat_cdm, $period_doc_path, $es_dir, $hostname, "iostat");
 } else {
 	# define the graph types
 	# if you want something other than lineChart, put it here
 	my %graph_type;
-
 	# threshold for displying a series in a graph
 	my %graph_threshold;
 	$graph_threshold{disk}{"Utilization_percent"} = 1;
@@ -151,6 +152,5 @@ if ($cdm) {
 	$graph_threshold{disk}{"Request_Size_in_kB"} = 0.1;
 	$graph_threshold{disk}{"Request_Merges_per_sec"} = 0.1;
 	$graph_threshold{disk}{"Queue_Size"} = 0.01;
-
 	gen_data(\%iostat, \%graph_type, \%graph_threshold, $dir);
 }
