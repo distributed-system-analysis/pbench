@@ -10,11 +10,16 @@ use warnings;
 use Data::Dumper;
 use Exporter qw(import);
 
-our @EXPORT_OK = qw(get_pidstat_attributes get_sar_cpumode_attributes build_cpu_topology get_cpu_socket_core);
+our @EXPORT_OK = qw(get_pidstat_attributes get_mpstat_cpumode_attributes get_sar_cpumode_attributes build_cpu_topology get_cpu_socket_core);
 
 sub get_pidstat_attributes {
 	# Headers for v12 of sysstat
 	return qw(usr system guest wait CPU_PCT CPUID minflt_s majflt_s VSZ RSS MEM_PCT kB_rd_s kB_wr_s kB_ccwr_s iodelay cswch_s nvcswch_s);
+}
+
+sub get_mpstat_cpumode_attributes {
+	# Headers for v12 of sysstat
+	return qw(usr nice sys iowait irq soft steal guest gnice idle);
 }
 
 sub get_sar_cpumode_attributes {
