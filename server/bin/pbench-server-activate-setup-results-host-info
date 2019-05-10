@@ -61,7 +61,8 @@ host=$(getconf.py host pbench-server)
 versions=$(getconf.py pbench-move-results-receive-versions pbench-server)
 for version in $versions ;do
     prefix=$(basename $path)${version}
-    receive_dir=$(getconf.py pbench-receive-dir-${version} pbench-server)
+    receive_dir_prefix=$(getconf.py pbench-receive-dir-prefix pbench-server)
+    receive_dir=${receive_dir_prefix}-${version}
     results_host_info=$user@$host:${receive_dir}
     echo $results_host_info > $prefix.active
 

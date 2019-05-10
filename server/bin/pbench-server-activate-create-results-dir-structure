@@ -38,6 +38,12 @@ if [ -z "$qdir" ] ;then
     exit 12
 fi
 
+shimdir_prefix=$(getconf.py pbench-receive-dir-prefix pbench-server)
+if [ -z "shimdir_prefix" ] ;then
+    echo "$prog: \"pbench-receive-dir-prefix\" is undefined in section \"pbench-server\" of config file." >&2
+    exit 12
+fi
+
 user=$(getconf.py user pbench-server)
 if [ -z "$user" ] ;then
     echo "$prog: \"user\" is undefined in section \"pbench-server\" of config file." >&2
@@ -117,16 +123,11 @@ fi
 
 # create the reception directories for the shims
 for version in $receive_versions ;do
-    shimdir=$(getconf.py pbench-receive-dir-$version pbench-server)
-    if [ -z "${shimdir}" ]; then
-        echo "$prog: WARNING \"pbench-receive-dir-$version\" is undefined in section \"pbench-server\" of config file." >&2
+    shimdir=${shimdir_prefix}-${version}
+    mkdir -p ${shimdir} && chown -R ${user}.${group} ${shimdir}
+    sts=$?
+    if [ "$sts" != "0" ] ;then
         nerrs=$nerrs+1
-    else
-        mkdir -p ${shimdir} && chown -R ${user}.${group} ${shimdir}
-        sts=$?
-        if [ "$sts" != "0" ] ;then
-            nerrs=$nerrs+1
-        fi
     fi
 done
 
