@@ -41,10 +41,6 @@ PATH=$(remove_path /opt/pbench-server/bin $PATH)
 PATH=$(remove_path /opt/pbench-agent/bench-scripts $PATH)
 export PATH=$(remove_path /opt/pbench-agent/util-scripts $PATH)
 
-# Fixed timestamp output
-export _PBENCH_SERVER_TEST=1
-export TZ="UTC"
-
 function _run {
     tname=$1
     shift

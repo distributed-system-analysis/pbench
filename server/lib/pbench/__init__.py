@@ -155,13 +155,7 @@ def get_pbench_logger(caller, config):
             pass
         fh = logging.FileHandler(os.path.join(logdir, "{}.log".format(caller)))
         fh.setLevel(logging.DEBUG)
-        try:
-            environment = config.get('pbench-server', 'environment')
-        except Exception as e:
-            debug_unittest = False
-        else:
-            debug_unittest = (environment == 'unit-test')
-        if not debug_unittest:
+        if not config._unittests:
             logfmt = "{asctime} {levelname} {process} {thread} {name}.{module} {funcName} {lineno} -- {message}"
         else:
             logfmt = "1970-01-01T00:00:00.000000 {levelname} {name}.{module} {funcName} -- {message}"
@@ -216,10 +210,19 @@ class PbenchConfig(object):
         except NoOptionError:
             self.PBENCH_ENV = ""
 
+        try:
+            self._unittests = self.conf.get('pbench-server', 'debug_unittest')
+        except Exception as e:
+            self._unittests = False
+        else:
+            self._unittests = bool(self._unittests)
+
         # Constants
 
         # Force UTC everywhere
         self.TZ = "UTC"
+        # Initial common timestamp format
+        self.TS = "run-{}".format(self.timestamp())
         # Make all the state directories for the pipeline and any others
         # needed.  Every related state directories are paired together with
         # their final state at the end.
@@ -238,6 +241,13 @@ class PbenchConfig(object):
 
     def get(self, *args, **kwargs):
         return self.conf.get(*args, **kwargs)
+
+    def timestamp(self):
+        if self._unittests:
+            ts = "1900-01-01T00:00:00-UTC"
+        else:
+            ts = datetime.utcnow().isoformat()
+        return ts
 
 
 def _gen_json_payload(file_to_index, timestamp, name, doctype):
@@ -349,14 +359,8 @@ def _get_es_hosts(config, logger):
     return [dict(host=host, port=port, timeout=timeoutobj),]
 
 def get_es(config, logger):
-    try:
-        debug_unittest = config.get('Indexing', 'debug_unittest')
-    except Exception as e:
-        debug_unittest = False
-    else:
-        debug_unittest = bool(debug_unittest)
     hosts = _get_es_hosts(config, logger)
-    if debug_unittest:
+    if config._unittests:
         if MockElasticsearch is None:
             raise Exception("MockElasticsearch is not available!")
         es = MockElasticsearch(hosts, max_retries=0)

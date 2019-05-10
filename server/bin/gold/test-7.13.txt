@@ -10463,14 +10463,14 @@ Index:  pbench-unittests-server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "6e67466c4dd523000954aac3ca22c2c3",
+        "_id": "ab32d1a6a7a9195b09c9e982eb106eed",
         "_index": "pbench-unittests-server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1970-01-01T00:00:00",
             "doctype": "status",
             "name": "pbench-index",
-            "text": "pbench-index.1970-01-01T00:00:00 - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz\n\n"
+            "text": "pbench-index.run-1900-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz\n\n"
         },
         "_type": "pbench-server-reports"
     }
@@ -10571,7 +10571,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
--rw-rw-r--       1558 logs/pbench-index/pbench-index.log
+-rw-rw-r--       1582 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
 -rw-rw-r--        372 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - pbench-move-results-receive
@@ -10633,14 +10633,14 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.log
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-index/pbench-index.log
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.1970-01-01T00:00:00: starting
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: starting
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tarballs
 1970-01-01T00:00:00.000000 INFO pbench-index.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 10, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3318192)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1026970, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- 1970-01-01T00:00:00: b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz: success
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- run-1900-01-01T00:00:00-UTC: b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz: success
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3318192)
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.1970-01-01T00:00:00: indexed 1 (skipped 0) results, 0 errors
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: indexed 1 (skipped 0) results, 0 errors
 1970-01-01T00:00:00.000000 INFO pbench-index.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-index/pbench-index.log
 +++++ pbench-report-status/pbench-report-status.log

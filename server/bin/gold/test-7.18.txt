@@ -13,14 +13,14 @@ Index:  pbench-unittests-server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "590f65a8a33b48160ae7773e72f518f2",
+        "_id": "5b74265f9bd856d79a1609d36576e7f4",
         "_index": "pbench-unittests-server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1970-01-01T00:00:00",
             "doctype": "status",
             "name": "pbench-index",
-            "text": "pbench-index.1970-01-01T00:00:00 - Indexed 0 results, skipped 1 results\n\nSkipped Results\n===============\n/var/tmp/pbench-test-server/test-7.18/pbench/archive/fs-version-001/bad-controller/TO-INDEX/test-7.18.tar.xz\n\n"
+            "text": "pbench-index.run-1900-01-01T00:00:00-UTC - Indexed 0 results, skipped 1 results\n\nSkipped Results\n===============\n/var/tmp/pbench-test-server/test-7.18/pbench/archive/fs-version-001/bad-controller/TO-INDEX/test-7.18.tar.xz\n\n"
         },
         "_type": "pbench-server-reports"
     }
@@ -121,7 +121,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
--rw-rw-r--       1687 logs/pbench-index/pbench-index.log
+-rw-rw-r--       1703 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
 -rw-rw-r--        372 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - pbench-move-results-receive
@@ -184,14 +184,14 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.log
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-index/pbench-index.log
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.1970-01-01T00:00:00: starting
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: starting
 1970-01-01T00:00:00.000000 WARNING pbench-index.pbench-index main -- Missing .md5 file for /var/tmp/pbench-test-server/test-7.18/pbench/archive/fs-version-001/bad-controller/TO-INDEX/pbench-user-benchmark__2018.02.05T20.35.36.tar.xz
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tarballs
 1970-01-01T00:00:00.000000 INFO pbench-index.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 10, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.18/pbench/archive/fs-version-001/bad-controller/TO-INDEX/test-7.18.tar.xz (size 1496)
 1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- The metadata.log file is curdled in tarball: /var/tmp/pbench-test-server/test-7.18/pbench/archive/fs-version-001/bad-controller/test-7.18.tar.xz - error fetching required metadata.log fields, "run.controller ("alphaville.usersys.redhat.com") does not match controller_dir ("bad-controller")"
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.18/pbench/archive/fs-version-001/bad-controller/TO-INDEX/test-7.18.tar.xz (size 1496)
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.1970-01-01T00:00:00: indexed 0 (skipped 1) results, 0 errors
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: indexed 0 (skipped 1) results, 0 errors
 1970-01-01T00:00:00.000000 INFO pbench-index.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-index/pbench-index.log
 +++++ pbench-report-status/pbench-report-status.log
