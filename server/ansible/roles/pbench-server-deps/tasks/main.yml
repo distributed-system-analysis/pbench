@@ -1,0 +1,20 @@
+---
+- set_fact:
+    policy_core_utils_package: "{{ 'policycoreutils-python'
+                                      if ansible_distribution_major_version == '7'
+                                      else 'policycoreutils-python-utils' }}"
+- set_fact:
+    python_dnf_package: "{{ 'python3-dnf'
+                                      if ansible_distribution_major_version == '8' or
+                                         ansible_distribution_major_version == '30'
+                                      else 'python2-dnf' }}"
+
+- name: "Install/uninstall policycoreutils-python."
+  package:
+    name: "{{ policy_core_utils_package }}"
+    state: "{{ package_state }}"
+
+- name: "Install/update python-dnf package (dnf needs this, so we don't try to uninstall it)."
+  package:
+    name: "{{ (ansible_distribution_major_version != '7') | ternary(python_dnf_package, omit) }}"
+    state: latest

@@ -1,0 +1,16 @@
+---
+- name: install pbench-server
+  hosts: servers
+  remote_user: root
+  become: yes
+  become_user: root
+
+  vars:
+    package_state: "latest"
+
+  roles:
+    - pbench-server-deps
+    - pbench-repo-install
+    - pbench-server-install
+    - pbench-server-config-install
+    - pbench-server-config

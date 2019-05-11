@@ -1,0 +1,5 @@
+---
+pbench_server_install_dir: /opt/pbench-server
+pbench_server_config_dest: "{{ pbench_server_install_dir }}/lib/config"
+pbench_owner: pbench
+pbench_group: pbench

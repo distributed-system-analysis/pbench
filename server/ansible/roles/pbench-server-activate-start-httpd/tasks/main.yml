@@ -1,0 +1,33 @@
+---
+# we need the top-level pbench directory on each server
+# in order to create a bunch of links in the httpd doc root
+# (see the last task in this file). We need to ask the server
+# for it because it may vary by server.
+
+- name: fetch the pbench directory from remote
+  shell: getconf.py pbench-top-dir pbench-server
+  register: cmd_output
+  environment:
+        CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
+
+- set_fact:
+    pbench_dir: "{{ cmd_output.stdout_lines[0].strip() }}"
+
+- debug:
+    msg: "{{ pbench_dir }}"
+    verbosity: 2
+
+- name: links in doc root to various pbench directories
+  file:
+    src: "{{ pbench_dir }}/public_html/{{ item }}"
+    path: "{{ httpd_document_root_dir }}/{{ item }}"
+    state: link
+  with_items:
+    - incoming
+    - results
+    - users
+    - static
+  notify:
+    - restart apache
+
+

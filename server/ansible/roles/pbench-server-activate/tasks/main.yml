@@ -1,8 +1,0 @@
----
-- name: ensure httpd is installed
-  package:
-      name: httpd
-      state: present
-
-- name: activate the server configuration
-  shell: PATH=/opt/pbench-server/bin:$PATH pbench-server-activate {{ configdest }}/pbench-server.cfg

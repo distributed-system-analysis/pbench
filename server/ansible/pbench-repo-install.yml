@@ -1,0 +1,11 @@
+---
+# ASSUMPTION: any necessary boostrapping has already been done.
+- name: install pbench.repo
+  hosts: servers
+  remote_user: root
+  become: yes
+  become_user: root
+
+  roles:
+    - pbench-repo-install
+
