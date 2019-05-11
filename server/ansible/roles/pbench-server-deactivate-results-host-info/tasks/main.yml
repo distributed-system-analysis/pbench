@@ -1,0 +1,6 @@
+---
+- name: deactivate the server results host info structure
+  file:
+    path: /var/www/html/pbench-results-host-info.versioned
+    state: absent
+

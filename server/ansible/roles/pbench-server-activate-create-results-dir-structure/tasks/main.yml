@@ -1,0 +1,54 @@
+---
+# activate the server - create results dir structure
+
+- name: ensure archive and public_html directories and top-level subdirs are present
+  file:
+    path: "{{ pbench_dir }}/{{ item }}"
+    owner: "{{ pbench_user }}"
+    group: "{{ pbench_group }}"
+    mode:  0775
+    state: directory
+    setype: httpd_sys_content_t
+  with_items:
+    - archive
+    - archive/fs-version-001
+    - public_html
+    - public_html/incoming
+    - public_html/results
+    - public_html/users
+    - public_html/static
+
+- name: ensure log directory is present
+  file:
+    path: "{{ pbench_logs_dir }}"
+    owner: "{{ pbench_user }}"
+    group: "{{ pbench_group }}"
+    mode:  0775
+    state: directory
+
+- name: ensure tmp directory is present
+  file:
+    path: "{{ pbench_tmp_dir }}"
+    owner: "{{ pbench_user }}"
+    group: "{{ pbench_group }}"
+    mode: 0775
+    state: directory
+
+- name: ensure quarantine directory is present
+  file:
+    path: "{{ pbench_quarantine_dir }}"
+    owner: "{{ pbench_user }}"
+    group: "{{ pbench_group }}"
+    mode: 0775
+    state: directory
+
+- name: ensure reception areas and quarantine areas are present
+  file:
+    path: "{{ pbench_reception_dir }}/{{ item }}"
+    owner: "{{ pbench_user }}"
+    group: "{{ pbench_group }}"
+    mode:  0775
+    state: directory
+  with_items:
+    - fs-version-001
+    - fs-version-002

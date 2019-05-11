@@ -1,0 +1,11 @@
+###########################################################################
+# pbench "official" repo
+[copr-pbench-test]
+name=Copr test repo for pbench
+baseurl={{ testbaseurl }}
+skip_if_unavailable=True
+gpgcheck= {{ gpgcheck }}
+gpgkey={{ testgpgkey }}
+enabled={{ test_repo_enabled }}
+enabled_metadata=1
+skip_if_unavailable=1

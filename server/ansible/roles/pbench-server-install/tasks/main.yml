@@ -2,4 +2,4 @@
 - name: ensure the pbench-server RPM is installed
   package:
       name: pbench-server
-      state: present
+      state: latest

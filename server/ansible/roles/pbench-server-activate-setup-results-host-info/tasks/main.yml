@@ -1,0 +1,39 @@
+---
+- name: "make sure the directory exists"
+  file:
+    path: "{{ httpd_document_root_dir }}/{{ pbench_host_info_prefix | dirname }}"
+    owner: "{{ pbench_user }}"
+    group: "{{ pbench_group }}"
+    mode:  0755
+    state: directory
+
+- name: "set up active files"
+  copy:
+    dest:  "{{ httpd_document_root_dir }}/{{ pbench_host_info_prefix }}{{ item }}.active"
+    content: "{{ pbench_user}}@{{ pbench_host }}:{{ pbench_reception_dir }}-{{ item }}\n"
+    owner: "{{ pbench_user }}"
+    group: "{{ pbench_group }}"
+    mode:  0444
+  with_items:
+    - "001"
+    - "002"
+
+- name: "set up maint files"
+  copy:
+    dest:  "{{ httpd_document_root_dir }}/{{ pbench_host_info_prefix }}{{ item }}.maint"
+    content: "MESSAGE===System Under Maintenance - please retry at a later time ({{ mailaddr }})\n"
+    owner: "{{ pbench_user }}"
+    group: "{{ pbench_group }}"
+    mode:  0444
+  with_items:
+    - "001"
+    - "002"
+
+- name: "set up links to the active files"
+  file:
+    path: "{{ httpd_document_root_dir }}/{{ pbench_host_info_prefix }}{{ item }}"
+    src:  "{{ pbench_host_info_prefix | basename }}{{ item }}.active"
+    state: link
+  with_items:
+    - "001"
+    - "002"

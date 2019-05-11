@@ -1,0 +1,188 @@
+#+TITLE: How to install pbench-server using the ansible playbooks
+
+* Introduction
+There is an ansible playbook and a set of roles to facilitate the
+installation of pbench-server on a host (or, less commonly, a set of
+hosts, e.g. servers in multiple environments).
+
+The playbook is =pbench-server-install.yml= and the roles are as
+follows:
+
+- pbench-server-deps: install dependencies.
+- pbench-repo-install: install the pbench repos into /etc/yum.repos.d.
+- pbench-server-install: install the pbench-server RPM.
+- pbench-server-config-install: install the server configuration file.
+- pbench-server-config: configure the server according to the config
+  file that was installed in the previous step.[fn:1]
+
+* Setup
+
+** Install the playbooks locally
+
+This is a one-time step: once you have the playbooks locally, you
+can use them to reinstall multiple times.
+
+To get the playbooks, clone the pbench repo from github:
+#+begin_src shell
+git clone https://github.com/distributed-system-analysis/pbench.git .
+#+end_src
+
+The playbooks can then be found under ~./pbench/server/ansible~.
+
+You will also need to install a third-party role from Ansible Galaxy:
+#+begin_src shell
+ansible-galaxy install geerlinguy:apache
+#+end_src
+
+Eventually, we plan to put all the roles in Ansible Galaxy.
+
+** Create an inventory file
+
+Create an inventory file by copying the example file
+~ansible/Inventory/pbench-server.hosts.example~ and modifying the
+=[servers]= section *only*, listing all the relevant hosts.  The file
+can be created anywhere, but for the purposes of this document we
+assume that it is in ~/tmp/pbench-server.hosts~.
+
+In addition to the hosts, the inventory file should contain a variable
+whose value should be the URL where the server config file can be
+found. We provide a generic example inventory file, but a local
+installation should provide its own example inventory file with
+that variable already set to point to the server config file
+appropriate for that installation.
+
+You might want to create multiple inventory files if you have
+multiple sets of servers to install to, e.g. "production" servers
+and "staging" servers should probably go into different inventory
+files.
+
+** Make sure that you can ssh to the hosts as *root* without a password
+
+#+begin_src shell
+ssh-copy-id root@<host>
+#+end_src
+
+When prompted, enter the root password; repeat for each host.
+
+In addition, one of the ansible sub-roles
+(=pbench-server-activate-web-server=) synchronizes two directories on
+each remote host, using rsync. That means that each host has to be able
+to login to *itself* (using the hostname from the inventory file -
+*not* =localhost=) as root without a password. That requires something
+like the following, where we ssh to each remote host and then on each
+one, we run =ssh-copy-id root@$host=:
+#+begin_src shell
+for host in host1 host2 ... ;do
+    ssh root@$host ssh-copy-id root@$host
+done
+#+end_src
+
+** Install the =geerlingguy.apache= playbook from Ansible Galaxy
+
+This is a sub-role used by =pbench-server-config=:
+
+#+begin_src shell
+ansible-galaxy install geerlingguy.apache
+#+end_src
+
+* Run the playbook
+
+With the setup done, you can run the playbook:
+#+begin_src shell
+ansible-playbook -i /tmp/pbench-server.hosts pbench-server-install.yml
+#+end_src
+
+You might want to run this first to check that you are installing on
+the correct set of hosts:
+#+begin_src shell
+ansible-playbook -i /tmp/pbench-server.hosts --list-hosts pbench-server-install.yml
+#+end_src
+
+* Some caveats
+
+** "No /usr/bin/python" systems (e.g. Fedora 30)
+You might have problems installing on a Fedora 30 host. If there is a
+problem, you may be able to work around it by changing the python
+interpreter that will be used on the host. The easiest way to do that
+is to annotate the host entry in the inventory file with a definition
+for the =ansible_python_interpreter= variable:
+
+#+begin_example
+[servers]
+host1
+host2             ansible_python_interpreter=/usr/bin/python3
+#+end_example
+
+so that =/usr/bin/python3= will be used by ansible as the python
+interpreter on that host.
+
+** Currently supported systems
+The playbooks have been tested on systems that run RHEL7, RHEL8
+and current Fedora distros (Fedora 28, 29 and 30). We are planning
+to continue this support indefinitely, with the caveat that when
+a new release comes out, it may take a little time to test the
+playbooks and fix any breakage.
+
+* Some other playbooks
+
+There are two more playbooks, one to install the repo files only and
+one to delete the installation and clean up everything so the
+installation can be retried.
+
+You can of course provide your own playbooks that use some of these
+roles: the =pbench-repo-install.yml= playbook mentioned above is
+an example of this; in addition, it is often convenient to create
+specialized playbooks for testing.
+
+* Installing on multiple servers
+It is sometimes convenient to install =pbench-server= on multiple
+hosts[fn:2]. Assuming you have config files for all the servers,
+you can put them at some URL which depends on the server environment:
+#+begin_example
+http://pbench.example.com/server/config/master/pbench-server.cfg
+http://pbench.example.com/server/config/satellite/pbench-server.cfg
+#+end_example
+Then all you have to do is use a host variable in your inventory file
+to select the appropriate config file for each server host:
+#+begin_example
+[servers]
+host1         config_env=master
+host2         config_env=satellite
+
+[servers:vars]
+configurl = http://pbench.example.com/server/config/{{ config_env }}/pbench-server.cfg
+#+end_example
+There are no changes to the playbooks or roles.
+
+* Footnotes
+
+[fn:1] The =pbench-server-config= role is composed of the following
+sub-roles, which are *not* meant to stand by themselves (except for
+the =geerlingguy.apache= role):
+
+- =geerlingguy.apache=: install and configure apache. This is a role we
+  download from Ansible Galaxy.
+- =pbench-server-vars=: query each server and set some additional facts
+  from its (previously installed) configuration file.
+- =pbench-server-activate-create-crontab=: run a script on each server
+  to create its crontab.
+- =pbench-server-activate-setup-results-hosts-info=: create the
+  structures that =pbench-move-results= expects in order to be able to
+  send tarballs to the server.
+- =pbench-server-activate-create-results-dir-structure=: create the
+  structures that store the tarballs and enable further processing by
+  the server scripts.
+- =pbench-server-activate-start-httpd=: creation of links to allow
+  access to results.
+- =pbench-server-activate-setup-web-server=: create links to give
+  user agents access to jschart for visualization purposes.
+
+[fn:2] One example of multiple servers is the case where we have a
+master server for most =pbench-agent= hosts, but we also have an
+"island" of =pbench-agent= hosts that cannot communicate directly with
+the master server: in that case, we set up a satellite server on the
+island itself, so that all the island hosts can send their results to
+the satellite server. The master server then polls the satellite and pulls
+back those results periodically.
+
+
