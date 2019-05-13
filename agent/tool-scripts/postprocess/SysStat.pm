@@ -24,7 +24,7 @@ sub get_mpstat_cpumode_attributes {
 
 sub get_sar_cpumode_attributes {
 	# Headers for v12 of sysstat
-	return qw(user nice sys iowait steal irq soft guest gnice id);
+	return qw(usr nice sys iowait steal irq soft guest gnice idle);
 }
 
 sub build_cpu_topology {
