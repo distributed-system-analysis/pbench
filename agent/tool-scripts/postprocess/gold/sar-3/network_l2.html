@@ -10,32 +10,10 @@
     <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
     <script src="/static/js/v0.3/jschart.js"></script>
     <center><h2>sar-3 - network_l2</h2></center>
-    <h3 class="chart-header">carrier_errors</h3>
-    <p class="chart-reason">No data from any series met set thresholds for graphing.</p>
-    <br>
-    <h3 class="chart-header">drops_sec</h3>
-    <p class="chart-reason">No data from any series met set thresholds for graphing.</p>
-    <br>
-    <h3 class="chart-header">errors_sec</h3>
-    <p class="chart-reason">No data from any series met set thresholds for graphing.</p>
-    <br>
-    <h3 class="chart-header">fifo_overrun_errors</h3>
-    <p class="chart-reason">No data from any series met set thresholds for graphing.</p>
-    <br>
-    <h3 class="chart-header">frame_alignment_errors</h3>
-    <p class="chart-reason">No data from any series met set thresholds for graphing.</p>
-    <br>
-    <h3 class="chart-header">network_Mbits_sec</h3>
-    <p class="chart-reason">No data from any series met set thresholds for graphing.</p>
-    <br>
-    <h3 class="chart-header">network_compressed_packets_sec</h3>
-    <p class="chart-reason">No data from any series met set thresholds for graphing.</p>
-    <br>
-    <h3 class="chart-header">network_multicast_packets_sec</h3>
-    <p class="chart-reason">No data from any series met set thresholds for graphing.</p>
-    <br>
-    <h3 class="chart-header">network_packets_sec</h3>
-    <p class="chart-reason">No data from any series met set thresholds for graphing.</p>
-    <br>
+    <div id="chart_1">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_1", "network_multicast_packets_sec", null, null, { csvfiles: [ "csv/network_l2_network_multicast_packets_sec.csv" ], threshold: 1 });
+      </script>
+    </div>
   </body>
 </html>
