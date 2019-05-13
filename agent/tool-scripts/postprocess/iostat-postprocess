@@ -118,7 +118,7 @@ while (my $line = <IOSTAT_TXT>) {
 			# series are included in to one graph (instead of having one read-ops chart
 			# and another write-ops chart), so each series needs "-read" or
 			# "-write" appended to keep them distinct.
-			$iostat{disk}{"Utilization_percent"}{$dev}{$timestamp_ms} = $other_count_stats{'util'};
+			$iostat{disk}{"Utilization_percent"}{$dev}{$timestamp_ms} = $other_count_stats{'Utilization'};
 			$iostat{disk}{"Throughput_MB_per_sec"}{$dev . "-read"}{$timestamp_ms} = $rw_stats{'throughput'}{'MegabytesSec'}{'Read'};
 			$iostat{disk}{"Throughput_MB_per_sec"}{$dev . "-write"}{$timestamp_ms} = $rw_stats{'throughput'}{'MegabytesSec'}{'Write'};
 			$iostat{disk}{"Request_Merges_per_sec"}{$dev . "-read"}{$timestamp_ms} = $rw_stats{'throughput'}{'RequestMergesSec'}{'Read'};
@@ -129,7 +129,7 @@ while (my $line = <IOSTAT_TXT>) {
 				+ $rw_stats{'count'}{'RequestSizeKB'}{'Write'}) * 2;
 			$iostat{disk}{"Request_Size_in_kB"}{$dev . "-read"}{$timestamp_ms} = $rw_stats{'count'}{'RequestSizeKB'}{'Read'};
 			$iostat{disk}{"Request_Size_in_kB"}{$dev . "-write"}{$timestamp_ms} = $rw_stats{'count'}{'RequestSizeKB'}{'Write'};
-			$iostat{disk}{"Queue_Size"}{$dev}{$timestamp_ms} = $other_count_stats{'qsize'};
+			$iostat{disk}{"Queue_Size"}{$dev}{$timestamp_ms} = $other_count_stats{'QueueSize'};
 			$iostat{disk}{"Wait_Time_msec"}{$dev . "-read"}{$timestamp_ms} = $rw_stats{'count'}{'RequestWaitMs'}{'Read'};
 			$iostat{disk}{"Wait_Time_msec"}{$dev . "-write"}{$timestamp_ms} = $rw_stats{'count'}{'RequestWaitMs'}{'Write'};
 		}
