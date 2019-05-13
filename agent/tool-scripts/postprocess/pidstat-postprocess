@@ -52,14 +52,10 @@ my $line2;
 my $tid;
 my @prev_stats;
 my @curr_stats;
+my $interval; # sampling interval
 
 my @virsh_list;
 my @virsh_vcpus;
-# CDM only: Chronologically contiguous metric_data samples with same values
-# are combined into a single sample with a longer begin-to-end time period.
-# This should always be enabled, unless you want to see what the size 
-# difference is when not condensing the data.
-my $condense_samples = 1; 
 # When peoducing CDM docs, this is typically called from the pbench
 # controller only, and the following arguments must be provided:
 if (scalar @ARGV > 1) {
@@ -69,6 +65,15 @@ if (scalar @ARGV > 1) {
 	$period_doc_path = shift;
 	$es_dir = shift;
 	$hostname = shift;
+	my $pidstat_cmd_file = $dir . "/pidstat.cmd";
+	open (FH, $pidstat_cmd_file) || die "Could not open $pidstat_cmd_file";
+	while ($line = <FH>) {
+		#LANG=C /usr/local/bin/pidstat -l -H -w -u -h -d -r  -p ALL   1
+		if ($line =~ /-p\sALL\s+(\d+)/ ){
+			$interval = $1;
+		}
+	}
+	close FH;
 } else {
 	# build a table for vcpu <-> TID
 	# only do this is libvirtd is running
@@ -100,16 +105,6 @@ if (scalar @ARGV > 1) {
 
 my %timestamps;
 my @attributes = get_pidstat_attributes();
-my $interval; # sampling interval
-my $pidstat_cmd_file = $dir . "/pidstat.cmd";
-open (FH, $pidstat_cmd_file) || die "Could not open $pidstat_cmd_file";
-while ($line = <FH>) {
-	#LANG=C /usr/local/bin/pidstat -l -H -w -u -h -d -r  -p ALL   1
-	if ($line =~ /-p\sALL\s+(\d+)/ ){
-		$interval = $1;
-	}
-}
-close FH;
 if ($cdm and not defined $interval) {
 	print "Could not determine the sampling interval for pidstat\n";
 	exit 1;
