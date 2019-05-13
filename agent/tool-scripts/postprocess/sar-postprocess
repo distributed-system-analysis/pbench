@@ -214,7 +214,7 @@ while ($line = <SAR_TXT>) {
 		next;
 	}
 	# 03:25:56 AM      0.80    352.20
-	if (0 and ( $mode eq "proc_cswch" ) &&
+	if (( $mode eq "proc_cswch" ) &&
 	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+.\d+)$/ )) {
 		$time = $1;
 		my %proc_ctx = ( 'ProcessesCreatedSec' => $2, 'ContextSwitchesSec' => $3 );
