@@ -31,13 +31,10 @@ BEGIN {
 use lib "$pbench_lib_path";
 use lib "$_test_alt_tools_lib";
 no lib ".";
-use DateTime;
 use PbenchCDM qw(create_metric_desc_doc create_metric_data_doc log_cdm_metric_sample gen_cdm_metric_data);
-#use PbenchBase qw(get_json_file put_json_file get_benchmark_names get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params remove_element);
 use GenData qw(gen_data);
 use SysStat qw(get_sar_cpumode_attributes build_cpu_topology get_cpu_socket_core);
 
-my $coder = JSON->new->ascii->canonical;
 my $dir = shift;
 my $es_dir;
 my $hostname;
@@ -45,33 +42,37 @@ my $period_doc_path;
 my $cdm = 0;
 my @cpu_topology;
 my %sar_cdm;
-
-# CDM only: Chronologically contiguous metric_data samples with same values
-# are combined into a single sample with a longer begin-to-end time period.
-# This should always be enabled, unless you want to see what the size 
-# difference is when not condensing the data.
-my $condense_samples = 1; 
+my $interval; # sampling interval
 
 # When peoducing CDM docs, this is typically called from the pbench
 # controller only, and the following arguments must be provided:
 if (scalar @ARGV > 1) {
-	#printf "num args: %d args: %s\n", scalar @ARGV, join(" ", @ARGV);
 	die "Must provide <path-to-period.doc> <es-dir> <tool-hostname>" if (scalar @ARGV != 3);
 	$cdm = 1;
 	$period_doc_path = shift;
 	$es_dir = shift;
 	$hostname = shift;
 	build_cpu_topology(\@cpu_topology, $dir);
+	my $sar_cmd_file = $dir . "/sar.cmd";
+	open (FH, $sar_cmd_file) || die "Could not open $sar_cmd_file";
+	while (my $line = <FH>) {
+        	if ($line =~ /\S+\s+(\d+)$/ ){
+                	$interval = $1;
+        	}
+	}
+	close FH;
+        print "Could not determine the sampling interval for sar\n";
+        exit 1;
 }
 my %sar;
 my $prev_time = "";
-my $timestamp_ms;
-my $time;
-my $date;
+my $date_ms;
 my %graph_type;
 my $line_num = 0;
 my $line;
-my $extra_time = 0;  # the extra amount of time in ms we need to add as the date recorded goes from one day to the next
+my $time;
+my $timestamp_ms;
+my $extra_day_ms= 0;  # the extra amount of time in ms we need to add as the date recorded goes from one day to the next
 my %graph_threshold;
 my @cpumode_attributes = get_sar_cpumode_attributes;
 my %cpu_modes;
@@ -118,30 +119,18 @@ sub calc_timestamp {
 	# timestamps differ by less than 24 hours.
 	if ( (defined($this_ampm) and defined($prev_ampm) and ( $this_ampm eq "AM") and ( $prev_ampm eq "PM")) ||
 	     ( $prevhour > $hour ) ) {
-		# since we have rolled over to the next day, add enough ms to extra_time equal to 1 day
-		$extra_time += (24 * 60 * 60 * 1000);
+		# since we have rolled over to the next day, add enough ms to extra_day_msequal to 1 day
+		$extra_day_ms += (24 * 60 * 60 * 1000);
 	}
+	# Calculate the milliseconds for just the time for today
+	if (defined($this_ampm) and ($this_ampm eq "PM")) {
+		$hour += 12;
+	}
+	my $today_time_ms = ($hour * 60 * 60 + $min * 60 + $sec) * 1000;
 	$prev_time = $this_time;
-	#(my $month, my $day, my $year) = split(/\//, $date); 
-	#my $dt = DateTime->new( 'year' => "20" . $year, 'month' => $month, 'day' => $day,
-				#'hour' => $hour, 'minute' => $min, 'second' => $sec );
-	return int ($extra_time + 1000 * `date --date="$date $this_time" +%s`);
-	#return int ($extra_time + $dt->epoch);
+	return int ($date_ms + $extra_day_ms + $today_time_ms);
 }
 
-my $interval; # sampling interval
-my $sar_cmd_file = $dir . "/sar.cmd";
-open (FH, $sar_cmd_file) || die "Could not open $sar_cmd_file";
-while ($line = <FH>) {
-        if ($line =~ /\S+\s+(\d+)$/ ){
-                $interval = $1;
-        }
-}
-close FH;
-if ($cdm and not defined $interval) {
-        print "Could not determine the sampling interval for sar\n";
-        exit 1;
-}
 
 # read the sar.txt and collect stats
 open(SAR_TXT, "$dir/sar-stdout.txt") || die "could not find $dir/sar-stdout.txt\n";
@@ -155,12 +144,12 @@ open(SAR_TXT, "$dir/sar-stdout.txt") || die "could not find $dir/sar-stdout.txt\
 $line = <SAR_TXT>;
 chomp $line;
 if ( $line =~ /\S+\s\S+\s\S+\s+(\d\d\/\d\d\/(\d\d)?\d\d)(.*)/ ) {
-	$date = $1;
+	$date_ms = 1000 * `date --date="$1" +%s`;
 } else {
 	# TBD: default is today - should we bail instead?
 	# TBD: what if the first line does not match? do we keep looking? or die?
 	# die("Bad mpstat.txt file format: first line should have the form: Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)");
-	$date = "";
+	$date_ms = "";
 }
 
 # timestamp regexp - optional AM/PM designator, but don't catch it as a group
@@ -186,7 +175,9 @@ while ($line = <SAR_TXT>) {
 	if (( $mode eq "cpu_util" ) &&
 	               # timestamp              pu_id   %user     %nice        %sys         %iowait      %steal       %irq         %soft        %guest        %gnice      %id
 	    ( $line =~ /($tsre)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)/ )) {
-		($time, my $cpuid, my @values) = split(/\s+/, $line);
+		$line =~ s/($tsre)\s+//;
+		$time = $1;
+		(my $cpuid, my @values) = split(/\s+/, $line);
 		my %cpumode_util;
 		(my $socket, my $core) = get_cpu_socket_core($cpuid, \@cpu_topology);
                 @cpumode_util{@cpumode_attributes} = @values;
@@ -205,16 +196,13 @@ while ($line = <SAR_TXT>) {
 				}
 			}
 		} else {
+			$cpuid = sprintf "%02d", $cpuid;
+			my $cpulabel = "cpu_" . $cpuid;
+			my $busy = $cpumode_util{'usr'} + $cpumode_util{'nice'} + $cpumode_util{'sys'} + $cpumode_util{'irq'} + $cpumode_util{'soft'} + $cpumode_util{'guest'} + $cpumode_util{'gnice'};
 			for my $mode (@cpumode_attributes) {
-				my $busy = 0;
-				if (! $mode =~ /idle|iowait/) {
-					$busy += $cpumode_util{$mode};
-				}
-				$cpuid = sprintf "%02d", $cpuid;
-				my $cpulabel = "cpu_" . $cpuid;
 				$sar{per_cpu}{$cpulabel}{$mode}{$timestamp_ms} = $cpumode_util{$mode};
-				$sar{cpu}{"all_cpu_busy"}{$cpulabel}{$timestamp_ms} = $busy;
 			}
+			$sar{cpu}{"all_cpu_busy"}{$cpulabel}{$timestamp_ms} = $busy;
 		}
 		next;
 	}
@@ -230,8 +218,6 @@ while ($line = <SAR_TXT>) {
 	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+.\d+)$/ )) {
 		$time = $1;
 		my %proc_ctx = ( 'ProcessesCreatedSec' => $2, 'ContextSwitchesSec' => $3 );
-		#my $proc_sec = $2;
-		#my $cswch_sec = $3;
 		$timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
 			for my $type (keys %proc_ctx) {
@@ -331,7 +317,7 @@ while ($line = <SAR_TXT>) {
 		} else {
 			$sar{memory}{memory_activity}{pgpgin_sec}{$timestamp_ms} = $disk_pg_kb_sec{'In'};
 			$sar{memory}{memory_activity}{pgpgout_sec}{$timestamp_ms} = $disk_pg_kb_sec{'Out'};
-			$sar{memory}{memory_activity}{fault_sec}{$timestamp_ms} = $fault_sec{'Minor'} + $fault_sec{'Major'};
+			$sar{memory}{memory_activity}{fault_sec}{$timestamp_ms} = sprintf("%.2f", $fault_sec{'Minor'} + $fault_sec{'Major'});
 			$sar{memory}{memory_activity}{majflt_sec}{$timestamp_ms} = $fault_sec{'Major'};
 			$sar{memory}{memory_activity}{pgfree_sec}{$timestamp_ms} = $other_pg_sec{'Free'};
 			$sar{memory}{memory_activity}{pgscank_sec}{$timestamp_ms} = $other_pg_sec{'KswapdSacn'};
@@ -484,7 +470,7 @@ while ($line = <SAR_TXT>) {
 			next;
 		}
 		my %packets_sec = ( 'rx' => $3, 'tx' => $4 );
-		my %mbits_sec = ( 'rx' => sprintf("%.2f", $5 * 1024 * 8 / 100000), 'tx' => sprintf("%.2f", $6 * 1024 * 8 / 100000) );
+		my %mbits_sec = ( 'rx' => $5 * 1024 * 8 / 1000000, 'tx' => $6 * 1024 * 8 / 1000000 );
 		my %comp_packets_sec = ( 'rx' => $7, 'tx' => $8 );
 		my %mult_packets_sec = ( 'rx' => $9 );
 		my %network_sec = ( 'NetdevPacketsSec' => \%packets_sec, 'NetdevLayer1MbitSec' => \%mbits_sec,
@@ -548,7 +534,7 @@ while ($line = <SAR_TXT>) {
 			$sar{network_l2}{drops_sec}{"$interface" . "-rx"}{$timestamp_ms} = $err_packets_sec{'rx'}{'Drop'};
 			$sar{network_l2}{drops_sec}{"$interface" . "-tx"}{$timestamp_ms} = $err_packets_sec{'tx'}{'Drop'};
 			$sar{network_l2}{carrier_errors}{"$interface"}{$timestamp_ms} = $err_packets_sec{'tx'}{'Carrier'};
-			$sar{network_l2}{frame_alignment_errors}{"$interface"}{$timestamp_ms} = $err_packets_sec{'tx'}{'Frame'};
+			$sar{network_l2}{frame_alignment_errors}{"$interface"}{$timestamp_ms} = $err_packets_sec{'rx'}{'Frame'};
 			$sar{network_l2}{fifo_overrun_errors}{"$interface" . "-rx"}{$timestamp_ms} = $err_packets_sec{'rx'}{'Fifo'};
 			$sar{network_l2}{fifo_overrun_errors}{"$interface" . "-tx"}{$timestamp_ms} = $err_packets_sec{'tx'}{'Fifo'};
 		}
@@ -623,7 +609,7 @@ while ($line = <SAR_TXT>) {
 							\%md, \%sar, $timestamp_ms, $nfs_server_proto_sec{$proto});
 			}
 		} else {
-			$sar{network_l345}{nfs_server}{calls_sec}{$timestamp_ms} = $nfs_server_goodbad_sec{'Good'} + $nfs_server_goodbad_sec{'Bad'};
+			$sar{network_l345}{nfs_server}{calls_sec}{$timestamp_ms} = sprintf("%.2f", $nfs_server_goodbad_sec{'Good'} + $nfs_server_goodbad_sec{'Bad'});
 			$sar{network_l345}{nfs_server}{badcalls_sec}{$timestamp_ms} = $nfs_server_goodbad_sec{'Bad'};
 			$sar{network_l345}{nfs_server}{rx_udp_packets_sec}{$timestamp_ms} = $nfs_server_proto_sec{'Udp'};
 			$sar{network_l345}{nfs_server}{rx_tcp_packets_sec}{$timestamp_ms} = $nfs_server_proto_sec{'Tcp'};
@@ -709,7 +695,7 @@ while ($line = <SAR_TXT>) {
 			$sar{network_l345}{ip}{rx_datagrams_forwarded_sec}{$timestamp_ms} = $net_ip{'FwdDatagramsSec'};
 			$sar{network_l345}{ip}{datagrams_delivered_sec}{$timestamp_ms} = $net_ip{'DelDatagramsSec'};
 			$sar{network_l345}{ip}{datagrams_output_requests_sec}{$timestamp_ms} = $net_ip{'OutputReqDatagramsSec'};
-			$sar{network_l345}{ip}{fragments_rx_need_reassemble_sec}{$timestamp_ms} = $net_ip{'RxNeedReassembleDatagramsSec'};
+			$sar{network_l345}{ip}{fragments_rx_need_reassemble_sec}{$timestamp_ms} = $net_ip{'RxNeedReassmbleDatagramsSec'};
 			$sar{network_l345}{ip}{datagrams_reassmbled_sec}{$timestamp_ms} = $net_ip{'ReassembledDatagramsSec'};
 			$sar{network_l345}{ip}{datagrams_fragmented_ok_sec}{$timestamp_ms} = $net_ip{'FragmentedDatagramsSec'};
 			$sar{network_l345}{ip}{datagram_fragments_gen_sec}{$timestamp_ms} = $net_ip{'FragmentCreatedSec'};
@@ -727,7 +713,7 @@ while ($line = <SAR_TXT>) {
 	if (( $mode eq "net_ip_error" ) &&
 	    ( $line =~ /($tsre)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)$/ )) {
 		$time = $1;
-		my %ipv4_rx_discarded_sec = ( 'HeaderError' => $3, 'DestIpError' => $3, 'UnkownProto' => $4, 'NoBuff' => $5, 'ReassemblyFail' => $8 );
+		my %ipv4_rx_discarded_sec = ( 'HeaderError' => $3, 'DestIpError' => $3, 'UnknownProto' => $4, 'NoBuff' => $5, 'ReassemblyFail' => $8 );
 		my %ipv4_tx_discarded_sec = ( 'NoRoute' => $7, 'FragmentFail' => $9, 'NoBuff' => $6 );
 		my %ipv4_discarded_sec = ( 'Rx' => \%ipv4_rx_discarded_sec, 'Tx' => \%ipv4_tx_discarded_sec );
 		my $timestamp_ms = calc_timestamp($time);
@@ -828,8 +814,8 @@ while ($line = <SAR_TXT>) {
 				}
 			}
 		} else {
-			$sar{network_l345}{icmp}{rx_icmp_err_sec}{$timestamp_ms} = $icmperr_sec{'Rx'}{'IcmpErr'};
-			$sar{network_l345}{icmp}{tx_icmp_err_sec}{$timestamp_ms} = $icmperr_sec{'Tx'}{'IcmpErr'};
+			$sar{network_l345}{icmp}{rx_icmp_err_sec}{$timestamp_ms} = $icmperr_sec{'Rx'}{'IcmpError'};
+			$sar{network_l345}{icmp}{tx_icmp_err_sec}{$timestamp_ms} = $icmperr_sec{'Tx'}{'IcmpError'};
 			$sar{network_l345}{icmp}{rx_dest_unreachable_sec}{$timestamp_ms} = $icmperr_sec{'Rx'}{'DestUnreachable'};
 			$sar{network_l345}{icmp}{tx_dest_unreachable_sec}{$timestamp_ms} = $icmperr_sec{'Tx'}{'DestUnreachable'};
 			$sar{network_l345}{icmp}{rx_time_exceed_sec}{$timestamp_ms} = $icmperr_sec{'Rx'}{'TimeExceeded'};
@@ -981,7 +967,9 @@ while ($line = <SAR_TXT>) {
 	# 03:25:56 AM     all   2793.00
 	# 03:25:56 AM       0   2793.00
 	if (( $mode eq "cpu_freq" ) && ( $line =~ /($tsre)\s+(\d+)\s+(\d+.\d+)$/ )) {
-		($time, my $cpuid, my $mhz) = split(/\s+/, $line);
+		$line =~ s/($tsre)\s+//;
+		$time = $1;
+		(my $cpuid, my $mhz) = split(/\s+/, $line);
 		(my $socket, my $core) = get_cpu_socket_core($cpuid, \@cpu_topology);
 
 		$timestamp_ms = calc_timestamp($time);
