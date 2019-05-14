@@ -1,8 +1,7 @@
 #!/usr/bin/perl
-
 # Author: Andrew Theurer
 #
-# The purpose of this script is to convert iostat text output
+# The purpose of this script is to convert iostat-stdout.txt
 # into either (depending on how this script is invoked):
 #
 #   CSV files and statically generated graphs
@@ -12,18 +11,20 @@
 #
 #   CommonDataModel documents
 #
-# usage:
+# Usage:
 #
-# iostat-postprocess <dir> [<period-doc> <es-dir> <hostname>]
+#   iostat-postprocess <dir> [<period-doc> <es-dir> <hostname>]
 #
-# dir = directory where iostat.txt can be found
-# period-doc = path to CDM period document for this iteration-sample
-# es-dir = path to base directory where CDM documents should be written
-# hostname = the host where mpstat was run
+#   dir = directory where iostat.txt can be found
+#   period-doc = path to CDM period document for this iteration-sample
+#   es-dir = path to base directory where CDM documents should be written
+#   hostname = the host where mpstat was run
 #
-# Note: arguments 2 - 4 are only used when generating CommonDataModel
+# Note:
 #
-# iostat.txt must be generated from "iostat -N -t -y -x -m <interval>"
+#   arguments 2 - 4 are only used when generating CommonDataModel
+#
+#   iostat-stdout.txt must be generated from "iostat -N -t -y -x -m <interval>"
 
 use strict;
 use warnings;

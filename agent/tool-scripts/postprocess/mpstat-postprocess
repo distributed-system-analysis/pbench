@@ -2,22 +2,30 @@
 #
 # Author: Andrew Theurer
 #
-# usage:
+# The purpose of this script is to convert mpstat-stdout.txt
+# into either (depending on how this script is invoked):
 #
-# mpstat-postprocess <dir> [<period-doc> <es-dir> <hostname>]
-# dir = directory where mpstat.txt can be found
-# period-doc = path to CDM period document for this iteration-sample
-# es-dir = path to base directory where CDM documents should be written
-# hostname = the host where mpstat was run
+#   CSV files and statically generated graphs
+#   with embedded javascript, using d3.js libraries
+# 
+# or
 #
-# Note: arguments 2 - 4 are only used when generating CommonDataModel
+#   CommonDataModel documents
 #
-# mpstat.txt must be generated from "mpstat -t -y -x -m <interval>"
+# Usage:
 #
-# The purpose of this script is to
-# -output the chart data in JSON format (mpstat.js)
-# -output html file (mpstat.html) with embedded javascript, using d3.js libraries
-# The result should be several mpstat graphs
+#   mpstat-postprocess <dir> [<period-doc> <es-dir> <hostname>]
+#
+#   dir = directory where iostat.txt can be found
+#   period-doc = path to CDM period document for this iteration-sample
+#   es-dir = path to base directory where CDM documents should be written
+#   hostname = the host where mpstat was run
+#
+# Note:
+#
+#   arguments 2 - 4 are only used when generating CommonDataModel
+#
+#   mpstat-stdout.txt must be generated from "iostat -P ALL <interval>"
 
 use strict;
 use warnings;

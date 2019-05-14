@@ -1,14 +1,33 @@
 #!/usr/bin/perl
 # -*- mode: perl; indent-tabs-mode: t; perl-indent-level: 8 -*-
-
+#
 # Author: Andrew Theurer
 #
-# usage: sar-postprocess <dir>  dir = directory where sar.txt can be found
+# The purpose of this script is to convert sar data
+# found in sar-stdout.txt into either
+# (depending on how this script is invoked):
 #
-# The purpose of this script is to
-# -output the chart data in JSON format (sar.js)
-# -output html file (sar.html) with embedded javascript, using d3.js libraries
-# The result should be several sar graphs
+#   CSV files and statically generated graphs
+#   with embedded javascript, using d3.js libraries
+# 
+# or
+#
+#   CommonDataModel documents
+#
+# Usage:
+#
+# sar-postprocess <dir> [<period-doc> <es-dir> <hostname>]
+#
+#   dir = directory where pidstat.txt can be found
+#   period-doc = path to CDM period document for this iteration-sample
+#   es-dir = path to base directory where CDM documents should be written
+#   hostname = the host where pidstat was run
+#
+# Note:
+#
+#   arguments 2 - 4 are only used when generating CommonDataModel
+#
+#   sar-stdout.txt must be generated with "sar -A <interval>"
 
 use strict;
 use warnings;
