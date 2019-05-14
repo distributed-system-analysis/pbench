@@ -42,7 +42,6 @@ BEGIN {
 use lib "$pbench_lib_path";
 use lib "$_test_alt_tools_lib";
 no lib ".";
-use Data::Dumper;
 use PbenchCDM qw(log_cdm_metric_sample gen_cdm_metric_data);
 use GenData qw(gen_data);
 use SysStat qw(get_mpstat_cpumode_attributes build_cpu_topology get_cpu_socket_core);
@@ -149,7 +148,6 @@ open(MPSTAT_TXT, "$dir/mpstat-stdout.txt") || die "could not find $dir/mpstat-st
 #    00:00:06       1    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00
 # containing only the time, so we need to combine the two to get a meaningful timestamp.
 chomp(my $line = <MPSTAT_TXT>);
-#chomp $line;
 if ( $line =~ /\S+\s\S+\s\S+\s+(\d\d\/\d\d\/\d\d).*/ ) {
 	# Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 02/25/15 _x86_64_ (8 CPU)
 	# Convert to milliseconds since the epoch
