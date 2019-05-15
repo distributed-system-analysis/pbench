@@ -52,7 +52,7 @@ use lib "$_test_alt_tools_lib";
 no lib ".";
 use GenData qw(gen_data);
 use SysStat qw(get_pidstat_attributes);
-use PbenchCDM qw(create_metric_desc_doc create_metric_data_doc log_cdm_metric_sample gen_cdm_metric_data);
+use PbenchCDM qw(log_cdm_metric_sample gen_cdm_metric_data);
 
 my $dir = shift;
 my $threads = shift;;

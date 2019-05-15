@@ -47,7 +47,6 @@ BEGIN {
 use lib "$pbench_lib_path";
 use lib "$_test_alt_tools_lib";
 no lib ".";
-use Data::Dumper;
 use PbenchCDM qw(log_cdm_metric_sample gen_cdm_metric_data);
 use GenData qw(gen_data);
 
