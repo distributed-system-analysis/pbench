@@ -3275,7 +3275,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
--rw-rw-r--       1572 logs/pbench-index/pbench-index.log
+-rw-rw-r--       6998 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
 -rw-rw-r--        372 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - pbench-move-results-receive
@@ -3341,6 +3341,27 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tarballs
 1970-01-01T00:00:00.000000 INFO pbench-index.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 10, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.17/pbench/archive/fs-version-001/ansible-host/TO-INDEX/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz (size 31384)
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool iostat, start unified for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/iostat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool iostat, gen unified begin for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/iostat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool iostat, end unified for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/iostat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool pidstat, start unified for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool pidstat, gen unified begin for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool pidstat, end unified for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool vmstat, start unified for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool vmstat, gen unified begin for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool vmstat, end unified for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool vmstat, start unified for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool vmstat, gen unified begin for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool vmstat, end unified for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool vmstat, start unified for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-0.scale-ci.example.com/vmstat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool vmstat, gen unified begin for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-0.scale-ci.example.com/vmstat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool vmstat, end unified for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-0.scale-ci.example.com/vmstat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool vmstat, start unified for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-1.scale-ci.example.com/vmstat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool vmstat, gen unified begin for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-1.scale-ci.example.com/vmstat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool vmstat, end unified for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-1.scale-ci.example.com/vmstat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool vmstat, start unified for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com/vmstat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool vmstat, gen unified begin for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com/vmstat
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool vmstat, end unified for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com/vmstat
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 2006, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- run-1900-01-01T00:00:00-UTC: ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz: success
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.17/pbench/archive/fs-version-001/ansible-host/TO-INDEX/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz (size 31384)
