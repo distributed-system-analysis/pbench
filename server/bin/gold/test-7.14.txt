@@ -11,22 +11,22 @@ Template:  pbench-unittests.v1.tool-data-prometheus-metrics
 Template:  pbench-unittests.v1.tool-data-vmstat
 Index:  pbench-unittests.v1.run.2018-04 27
 Index:  pbench-unittests.v1.tool-data-mpstat.2018-04-10 2730
-Index:  pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10 1026900
+Index:  pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10 73350
 len(actions) = 45
 [
     {
-        "_id": "ba74df2000251aa5c67114f730048910",
+        "_id": "f38462917c6b0545e8afd67cb8c393f9",
         "_index": "pbench-unittests.v1.run.2018-04",
         "_op_type": "create",
         "_source": {
             "@metadata": {
                 "controller_dir": "b03-h01-1029p",
-                "file-date": "2019-03-07T02:17:34",
+                "file-date": "2019-05-15T18:32:45",
                 "file-name": "/var/tmp/pbench-test-server/test-7.14/pbench/archive/fs-version-001/b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz",
-                "file-size": 3321424,
+                "file-size": 3324496,
                 "generated-by": "pbench-index",
                 "generated-by-version": "1.0.0",
-                "md5": "ba74df2000251aa5c67114f730048910",
+                "md5": "f38462917c6b0545e8afd67cb8c393f9",
                 "pbench-agent-version": "0.49-1g6b67ec6",
                 "toc-prefix": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19"
             },
@@ -52,7 +52,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "iterations": "1, 1",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
@@ -203,10 +203,10 @@ len(actions) = 45
         "_type": "pbench-run"
     },
     {
-        "_id": "e96a400ea2d1b3afc7d8a5dd64552c55",
+        "_id": "c5a1cb30b8e00d76a1cf9afe681ddf28",
         "_index": "pbench-unittests.v1.run.2018-04",
         "_op_type": "create",
-        "_parent": "ba74df2000251aa5c67114f730048910",
+        "_parent": "f38462917c6b0545e8afd67cb8c393f9",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
             "directory": "/",
@@ -246,10 +246,10 @@ len(actions) = 45
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "9da91710d8903d24552d656305205fec",
+        "_id": "61233599f98f894e6cd607f90832ff23",
         "_index": "pbench-unittests.v1.run.2018-04",
         "_op_type": "create",
-        "_parent": "ba74df2000251aa5c67114f730048910",
+        "_parent": "f38462917c6b0545e8afd67cb8c393f9",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
             "directory": "/1/",
@@ -259,10 +259,10 @@ len(actions) = 45
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "4872ca11d8e09edae28636ff3a13523f",
+        "_id": "61ff280cf47b1b301f0684aae46b3911",
         "_index": "pbench-unittests.v1.run.2018-04",
         "_op_type": "create",
-        "_parent": "ba74df2000251aa5c67114f730048910",
+        "_parent": "f38462917c6b0545e8afd67cb8c393f9",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
             "directory": "/1/reference-result/",
@@ -281,10 +281,10 @@ len(actions) = 45
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "392761891677f6f45724fa2f7646a351",
+        "_id": "a57a504d407b2fa4c36dec563de07c55",
         "_index": "pbench-unittests.v1.run.2018-04",
         "_op_type": "create",
-        "_parent": "ba74df2000251aa5c67114f730048910",
+        "_parent": "f38462917c6b0545e8afd67cb8c393f9",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
             "directory": "/1/reference-result/tools-default/",
@@ -294,10 +294,10 @@ len(actions) = 45
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "f6559fbcc93d2fb8b22dedccc8ecd2a9",
+        "_id": "c5ef7c5d247c1771a3d96273f94ad990",
         "_index": "pbench-unittests.v1.run.2018-04",
         "_op_type": "create",
-        "_parent": "ba74df2000251aa5c67114f730048910",
+        "_parent": "f38462917c6b0545e8afd67cb8c393f9",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/",
@@ -307,10 +307,10 @@ len(actions) = 45
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "53328da4b933af0f5a55a1ad3705fbcd",
+        "_id": "a89e8bd2285d248b3ea1c44e7c6818bb",
         "_index": "pbench-unittests.v1.run.2018-04",
         "_op_type": "create",
-        "_parent": "ba74df2000251aa5c67114f730048910",
+        "_parent": "f38462917c6b0545e8afd67cb8c393f9",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/mpstat/",
@@ -1253,10 +1253,10 @@ len(actions) = 45
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "c98ccfacf6e48357aa5d9ba6c35ba3bf",
+        "_id": "d863fde3a6f5f12e0c42d699c2914802",
         "_index": "pbench-unittests.v1.run.2018-04",
         "_op_type": "create",
-        "_parent": "ba74df2000251aa5c67114f730048910",
+        "_parent": "f38462917c6b0545e8afd67cb8c393f9",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/",
@@ -1723,10 +1723,10 @@ len(actions) = 45
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "4107eaf6957989d266aee0b14aef6b2a",
+        "_id": "2f2bbc89a36bedc1e0e112c67bcc7fc7",
         "_index": "pbench-unittests.v1.run.2018-04",
         "_op_type": "create",
-        "_parent": "ba74df2000251aa5c67114f730048910",
+        "_parent": "f38462917c6b0545e8afd67cb8c393f9",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/perf/",
@@ -1780,10 +1780,10 @@ len(actions) = 45
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "e4c92ce71725ad16a2f3fa88fb8aeac7",
+        "_id": "0c4d253a661126df560359c49d0ea6f9",
         "_index": "pbench-unittests.v1.run.2018-04",
         "_op_type": "create",
-        "_parent": "ba74df2000251aa5c67114f730048910",
+        "_parent": "f38462917c6b0545e8afd67cb8c393f9",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/perf/perf-percpu/",
@@ -2243,10 +2243,10 @@ len(actions) = 45
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "96475b18cbe852f4d7aa0b25f5072fbb",
+        "_id": "4de6b0948b0781b18b0f61861d34782d",
         "_index": "pbench-unittests.v1.run.2018-04",
         "_op_type": "create",
-        "_parent": "ba74df2000251aa5c67114f730048910",
+        "_parent": "f38462917c6b0545e8afd67cb8c393f9",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/",
@@ -2288,8 +2288,22 @@ len(actions) = 45
                 },
                 {
                     "mode": "0o644",
-                    "mtime": "2018-04-10T19:03:24",
+                    "mtime": "2019-05-15T18:31:45",
                     "name": "proc-interrupts-stdout.txt",
+                    "size": 864270,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o664",
+                    "mtime": "2019-05-15T18:30:23",
+                    "name": "proc-interrupts-stdout.txt.README",
+                    "size": 325,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-04-10T19:03:24",
+                    "name": "proc-interrupts-stdout.txt.orig",
                     "size": 12099780,
                     "type": "reg"
                 },
@@ -2302,15 +2316,15 @@ len(actions) = 45
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-04-10T19:03:34"
+            "mtime": "2019-05-15T18:31:45"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "1529b737eef95badfde72c29874f8bc6",
+        "_id": "61a3c7b0fbf710d57e4442ac3aef0f0c",
         "_index": "pbench-unittests.v1.run.2018-04",
         "_op_type": "create",
-        "_parent": "ba74df2000251aa5c67114f730048910",
+        "_parent": "f38462917c6b0545e8afd67cb8c393f9",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/csv/",
@@ -5458,10 +5472,10 @@ len(actions) = 45
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "e89feb9c259b7a6d8bf661ce8749a9e1",
+        "_id": "b9ee21dba6e05320d21e9d832a91e2c1",
         "_index": "pbench-unittests.v1.run.2018-04",
         "_op_type": "create",
-        "_parent": "ba74df2000251aa5c67114f730048910",
+        "_parent": "f38462917c6b0545e8afd67cb8c393f9",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/sar/",
@@ -5585,10 +5599,10 @@ len(actions) = 45
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "f645cc08b852028b65d9d97b58686db4",
+        "_id": "73736c59d74f3392675321fb94ad84e5",
         "_index": "pbench-unittests.v1.run.2018-04",
         "_op_type": "create",
-        "_parent": "ba74df2000251aa5c67114f730048910",
+        "_parent": "f38462917c6b0545e8afd67cb8c393f9",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/sar/csv/",
@@ -6188,10 +6202,10 @@ len(actions) = 45
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "6d9857555046fece68f66268909ddfb0",
+        "_id": "21f8c9a91bceea1cf1e514a04a39824f",
         "_index": "pbench-unittests.v1.run.2018-04",
         "_op_type": "create",
-        "_parent": "ba74df2000251aa5c67114f730048910",
+        "_parent": "f38462917c6b0545e8afd67cb8c393f9",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/turbostat/",
@@ -6224,7 +6238,7 @@ len(actions) = 45
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "1debafc1844a6c6ef3129b344d18477c",
+        "_id": "d1bd9941d26b22eb5619d5f94498b1a1",
         "_index": "pbench-unittests.v1.tool-data-mpstat.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -6254,7 +6268,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -6268,7 +6282,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "6c880707df5666efa951c2b9621d4ff9",
+        "_id": "9a9dd8c33db040b8027984305322e8e6",
         "_index": "pbench-unittests.v1.tool-data-mpstat.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -6298,7 +6312,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -6312,7 +6326,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "3b1c1b26fcd0c7d9fcf237685c7820e9",
+        "_id": "752f8c683cbd475104e9faf7f2da3a01",
         "_index": "pbench-unittests.v1.tool-data-mpstat.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -6342,7 +6356,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -6356,7 +6370,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "674d33096c44021b4bac52b3cd73fc16",
+        "_id": "ff3fd9249320e9feb6a2352c643506f0",
         "_index": "pbench-unittests.v1.tool-data-mpstat.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -6386,7 +6400,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -6400,7 +6414,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "a5a4e3a0631f735a85ec45813917d7d5",
+        "_id": "af272d2b06f5a95358729babbfae6eda",
         "_index": "pbench-unittests.v1.tool-data-mpstat.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -6430,7 +6444,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -6444,7 +6458,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "11fb06f36d07771fde8f0babb5ab6833",
+        "_id": "db944e0240712f095ee998524e98c25a",
         "_index": "pbench-unittests.v1.tool-data-mpstat.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -6474,7 +6488,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -6488,7 +6502,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "5943a54845c488845255a4076a7a3c2d",
+        "_id": "6d59303087558c820dd28a3e6e3010a2",
         "_index": "pbench-unittests.v1.tool-data-mpstat.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -6518,7 +6532,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -6532,7 +6546,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "5b3f723ad54e6d231f1d6043552da059",
+        "_id": "724c899bc8dfaf28e3510a27aa5b4418",
         "_index": "pbench-unittests.v1.tool-data-mpstat.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -6562,7 +6576,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -6576,7 +6590,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "bbd3e89597d45b74da162bc8d96e5d2c",
+        "_id": "6388b01454651f9ca1945e0d96c41f7b",
         "_index": "pbench-unittests.v1.tool-data-mpstat.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -6606,7 +6620,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -6620,7 +6634,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "b22f352f53e8dc67d9a11cf78401569d",
+        "_id": "6430afc4ca053d440c4993da78125380",
         "_index": "pbench-unittests.v1.tool-data-mpstat.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -6650,7 +6664,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -6664,7 +6678,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "5dcd71b4e4a2a6bd4e2730c09cb2bfbb",
+        "_id": "af0848fb823255d97c3922b95ac023cf",
         "_index": "pbench-unittests.v1.tool-data-mpstat.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -6694,7 +6708,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -6708,7 +6722,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "b628909fd59e585653b8562144255843",
+        "_id": "93957841228eef2d6d2eb7ee3bf5aafb",
         "_index": "pbench-unittests.v1.tool-data-mpstat.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -6738,7 +6752,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -6752,7 +6766,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "d51d4ed133677c5b8972ff7ef202967c",
+        "_id": "36d55347604bdcea2411d93e16000ecb",
         "_index": "pbench-unittests.v1.tool-data-mpstat.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -6782,7 +6796,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -6796,7 +6810,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "2907bd67746bfc8cfa9401bf06ce4887",
+        "_id": "9de6ebc2216d0b11337d652526dec430",
         "_index": "pbench-unittests.v1.tool-data-mpstat.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -6826,7 +6840,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -6840,7 +6854,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "761221cc6e64b7091bbaef81f349ba96",
+        "_id": "ea1e03bc7610f58d3aed9ee9238ec442",
         "_index": "pbench-unittests.v1.tool-data-mpstat.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -6870,7 +6884,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -6884,7 +6898,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-mpstat"
     },
     {
-        "_id": "4b39a16f013c723bc0a16d04fa5600b2",
+        "_id": "04f9635b769c392582d63e919571c5df",
         "_index": "pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -6906,7 +6920,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -6920,7 +6934,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-proc-interrupts"
     },
     {
-        "_id": "5d3cb49f712a7746339e89e5330b07ae",
+        "_id": "9b404570da063f8eb009322dc993cc63",
         "_index": "pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -6942,7 +6956,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -6956,7 +6970,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-proc-interrupts"
     },
     {
-        "_id": "23824ce4cb969bcd3b26eaf869dab1eb",
+        "_id": "b5de6b438ea91780f4a9cce6c5c352fc",
         "_index": "pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -6978,7 +6992,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -6992,7 +7006,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-proc-interrupts"
     },
     {
-        "_id": "414cbad911812597e0aa002ce809e253",
+        "_id": "e560c2f272755abf26ca7c6e2b17b564",
         "_index": "pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -7014,7 +7028,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -7028,7 +7042,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-proc-interrupts"
     },
     {
-        "_id": "fb76949b96451a4bef14cfba24202fa5",
+        "_id": "68cebfe07970ba226bb48aeadb107c7f",
         "_index": "pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -7050,7 +7064,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -7064,7 +7078,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-proc-interrupts"
     },
     {
-        "_id": "9b033b028b01b79d14332dd7577f6255",
+        "_id": "c7e414f9cbd705ce228ef36c91350962",
         "_index": "pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -7086,7 +7100,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -7100,7 +7114,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-proc-interrupts"
     },
     {
-        "_id": "1121165d25c730ef5ac2ee0a5e0c7ec6",
+        "_id": "3f5ffeb67d1fc784d07fe17b7068896b",
         "_index": "pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -7122,7 +7136,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -7136,7 +7150,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-proc-interrupts"
     },
     {
-        "_id": "fd2ab763b309f5dcceaafdc1914b30ba",
+        "_id": "98738e2a361f19603bdd447e8bed2a04",
         "_index": "pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -7158,7 +7172,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -7172,7 +7186,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-proc-interrupts"
     },
     {
-        "_id": "4be1dba75fab893970aef3c0c384e793",
+        "_id": "6e82bea694221ae80bed0f8eae723551",
         "_index": "pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -7194,7 +7208,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -7208,7 +7222,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-proc-interrupts"
     },
     {
-        "_id": "c377835a4436c07a64e1deb681cf22cf",
+        "_id": "5cc322c34dd1fe3327955a0a0b0c1355",
         "_index": "pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -7230,7 +7244,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -7244,7 +7258,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-proc-interrupts"
     },
     {
-        "_id": "48e00ad7f1e3f29375c8ef610df34e85",
+        "_id": "85c672348af7857800d46ee117fa535c",
         "_index": "pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -7266,7 +7280,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -7280,7 +7294,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-proc-interrupts"
     },
     {
-        "_id": "20138ce739dea3fa1b478046090c4b87",
+        "_id": "8371971bf2bd947fb4506024e2131fa7",
         "_index": "pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -7302,7 +7316,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -7316,7 +7330,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-proc-interrupts"
     },
     {
-        "_id": "e31a6d634e1a308bc01c8e7cf18ee9d6",
+        "_id": "4b7b2454b00e28fa2560fafe9d338c1c",
         "_index": "pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -7338,7 +7352,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -7352,7 +7366,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-proc-interrupts"
     },
     {
-        "_id": "d434a64286f7dcc743f192755fec1e8a",
+        "_id": "57583945ab4df9b80fd63dbc63e362d7",
         "_index": "pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -7374,7 +7388,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -7388,7 +7402,7 @@ len(actions) = 45
         "_type": "pbench-tool-data-proc-interrupts"
     },
     {
-        "_id": "64578d5b80e0f8ba92c71609b3c62ac7",
+        "_id": "1ca84cb9fc33de89386690cf55a5f1ee",
         "_index": "pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10",
         "_op_type": "create",
         "_source": {
@@ -7410,7 +7424,7 @@ len(actions) = 45
                 "controller": "b03-h01-1029p.rdu.openstack.engineering.redhat.com",
                 "date": "2018-04-10T19:01:19",
                 "end": "2018-04-10T19:03:55.215079",
-                "id": "ba74df2000251aa5c67114f730048910",
+                "id": "f38462917c6b0545e8afd67cb8c393f9",
                 "name": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19",
                 "script": "pbench-user-benchmark",
                 "start": "2018-04-10T19:01:19.927438",
@@ -7515,7 +7529,7 @@ drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/INDEXED
 lrwxrwxrwx         66 archive/fs-version-001/b03-h01-1029p/INDEXED/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz -> ../pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-INDEX
--rw-rw-r--    3321424 archive/fs-version-001/b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz
+-rw-rw-r--    3324496 archive/fs-version-001/b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz
 -rw-rw-r--         98 archive/fs-version-001/b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
@@ -7546,7 +7560,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
--rw-rw-r--       1582 logs/pbench-index/pbench-index.log
+-rw-rw-r--      36566 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
 -rw-rw-r--        372 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - pbench-move-results-receive
@@ -7611,10 +7625,142 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: starting
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tarballs
 1970-01-01T00:00:00.000000 INFO pbench-index.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 10, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.14/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3321424)
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1029657, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.14/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3324496)
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu0_cpu0.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu0_cpu0.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu10_cpu10.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu10_cpu10.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu11_cpu11.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu11_cpu11.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu12_cpu12.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu12_cpu12.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu13_cpu13.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu13_cpu13.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu14_cpu14.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu14_cpu14.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu15_cpu15.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu15_cpu15.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu16_cpu16.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu16_cpu16.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu17_cpu17.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu17_cpu17.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu18_cpu18.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu18_cpu18.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu19_cpu19.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu19_cpu19.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu1_cpu1.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu1_cpu1.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu20_cpu20.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu20_cpu20.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu21_cpu21.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu21_cpu21.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu22_cpu22.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu22_cpu22.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu23_cpu23.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu23_cpu23.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu24_cpu24.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu24_cpu24.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu25_cpu25.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu25_cpu25.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu26_cpu26.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu26_cpu26.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu27_cpu27.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu27_cpu27.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu28_cpu28.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu28_cpu28.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu29_cpu29.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu29_cpu29.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu2_cpu2.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu2_cpu2.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu30_cpu30.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu30_cpu30.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu31_cpu31.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu31_cpu31.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu32_cpu32.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu32_cpu32.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu33_cpu33.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu33_cpu33.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu34_cpu34.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu34_cpu34.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu35_cpu35.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu35_cpu35.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu36_cpu36.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu36_cpu36.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu37_cpu37.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu37_cpu37.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu38_cpu38.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu38_cpu38.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu39_cpu39.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu39_cpu39.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu3_cpu3.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu3_cpu3.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu40_cpu40.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu40_cpu40.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu41_cpu41.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu41_cpu41.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu42_cpu42.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu42_cpu42.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu43_cpu43.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu43_cpu43.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu44_cpu44.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu44_cpu44.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu45_cpu45.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu45_cpu45.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu46_cpu46.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu46_cpu46.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu47_cpu47.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu47_cpu47.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu48_cpu48.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu48_cpu48.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu49_cpu49.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu49_cpu49.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu4_cpu4.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu4_cpu4.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu50_cpu50.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu50_cpu50.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu51_cpu51.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu51_cpu51.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu52_cpu52.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu52_cpu52.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu53_cpu53.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu53_cpu53.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu54_cpu54.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu54_cpu54.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu55_cpu55.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu55_cpu55.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu56_cpu56.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu56_cpu56.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu57_cpu57.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu57_cpu57.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu58_cpu58.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu58_cpu58.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu59_cpu59.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu59_cpu59.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu5_cpu5.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu5_cpu5.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu60_cpu60.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu60_cpu60.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu61_cpu61.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu61_cpu61.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu62_cpu62.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu62_cpu62.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu63_cpu63.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu63_cpu63.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu6_cpu6.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu6_cpu6.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu7_cpu7.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu7_cpu7.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu8_cpu8.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu8_cpu8.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu9_cpu9.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu9_cpu9.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpuall_cpuall.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpuall_cpuall.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _stdout_procint -- tool-data-indexing: tool proc-interrupts, stdout procint start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/proc-interrupts-stdout.txt
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _stdout_procint -- tool-data-indexing: tool proc-interrupts, stdout procint end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/proc-interrupts-stdout.txt
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 76107, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- run-1900-01-01T00:00:00-UTC: b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz: success
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.14/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3321424)
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.14/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3324496)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: indexed 1 (skipped 0) results, 0 errors
 1970-01-01T00:00:00.000000 INFO pbench-index.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-index/pbench-index.log

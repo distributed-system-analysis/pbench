@@ -790,7 +790,7 @@ _known_tool_handlers = {
         },
         'patterns': [
             {
-                'pattern': re.compile(r'disk_IOPS\.csv'),
+                'pattern': re.compile(r'^disk_IOPS\.csv$'),
                 'class': None,
                 'metric': 'iops',
                 'display': 'IOPS',
@@ -799,7 +799,7 @@ _known_tool_handlers = {
                 'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)'),
                 'converter': float
             }, {
-                'pattern': re.compile(r'disk_Queue_Size\.csv'),
+                'pattern': re.compile(r'^disk_Queue_Size\.csv$'),
                 'class': None,
                 'metric': 'qsize',
                 'display': 'Queue_Size',
@@ -808,7 +808,7 @@ _known_tool_handlers = {
                 'colpat': re.compile(r'(?P<id>.+)'),
                 'converter': float
             }, {
-                'pattern': re.compile(r'disk_Request_Merges_per_sec\.csv'),
+                'pattern': re.compile(r'^disk_Request_Merges_per_sec\.csv$'),
                 'class': None,
                 'metric': 'reqmerges',
                 'display': 'Request_Merges',
@@ -817,7 +817,7 @@ _known_tool_handlers = {
                 'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)'),
                 'converter': float
             }, {
-                'pattern': re.compile(r'disk_Request_Size_in_512_byte_sectors\.csv'),
+                'pattern': re.compile(r'^disk_Request_Size_in_512_byte_sectors\.csv$'),
                 'class': None,
                 'metric': 'reqsize',
                 'display': 'Request_Size',
@@ -826,7 +826,7 @@ _known_tool_handlers = {
                 'colpat': re.compile(r'(?P<id>.+)'),
                 'converter': float
             }, {
-                'pattern': re.compile(r'disk_Throughput_MB_per_sec\.csv'),
+                'pattern': re.compile(r'^disk_Throughput_MB_per_sec\.csv$'),
                 'class': None,
                 'metric': 'tput',
                 'display': 'Throughput',
@@ -835,7 +835,7 @@ _known_tool_handlers = {
                 'colpat': re.compile(r'(?P<id>.+)-(?P<subfield>read|write)'),
                 'converter': float
             }, {
-                'pattern': re.compile(r'disk_Utilization_percent\.csv'),
+                'pattern': re.compile(r'^disk_Utilization_percent\.csv$'),
                 'class': None,
                 'metric': 'util',
                 'display': 'Utilization',
@@ -844,7 +844,7 @@ _known_tool_handlers = {
                 'colpat': re.compile(r'(?P<id>.+)'),
                 'converter': float
             }, {
-                'pattern': re.compile(r'disk_Wait_Time_msec\.csv'),
+                'pattern': re.compile(r'^disk_Wait_Time_msec\.csv$'),
                 'class': None,
                 'metric': 'wtime',
                 'display': 'Wait_Time',
@@ -864,7 +864,7 @@ _known_tool_handlers = {
         },
         'patterns': [
             {
-                'pattern': re.compile(r'context_switches_nonvoluntary_switches_sec\.csv'),
+                'pattern': re.compile(r'^context_switches_nonvoluntary_switches_sec\.csv$'),
                 'class': 'context_switches',
                 'metric': 'nonvoluntary',
                 'display': 'Context_Switches_Nonvoluntary',
@@ -875,7 +875,7 @@ _known_tool_handlers = {
                 'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)'),
                 'converter': float
             }, {
-                'pattern': re.compile(r'context_switches_voluntary_switches_sec\.csv'),
+                'pattern': re.compile(r'^context_switches_voluntary_switches_sec\.csv$'),
                 'class': 'context_switches',
                 'metric': 'voluntary',
                 'display': 'Context_Switches_Voluntary',
@@ -886,7 +886,7 @@ _known_tool_handlers = {
                 'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)'),
                 'converter': float
             }, {
-                'pattern': re.compile(r'cpu_usage_percent_cpu\.csv'),
+                'pattern': re.compile(r'^cpu_usage_percent_cpu\.csv$'),
                 'class': 'cpu',
                 'metric': 'usage',
                 'display': 'CPU_Usage',
@@ -897,7 +897,7 @@ _known_tool_handlers = {
                 'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)'),
                 'converter': float
             }, {
-                'pattern': re.compile(r'file_io_io_reads_KB_sec\.csv'),
+                'pattern': re.compile(r'^file_io_io_reads_KB_sec\.csv$'),
                 'class': 'io',
                 'metric': 'reads',
                 'display': 'IO_Reads',
@@ -908,7 +908,7 @@ _known_tool_handlers = {
                 'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)'),
                 'converter': float
             }, {
-                'pattern': re.compile(r'file_io_io_writes_KB_sec\.csv'),
+                'pattern': re.compile(r'^file_io_io_writes_KB_sec\.csv$'),
                 'class': 'io',
                 'metric': 'writes',
                 'display': 'IO_Writes',
@@ -919,7 +919,7 @@ _known_tool_handlers = {
                 'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)'),
                 'converter': float
             }, {
-                'pattern': re.compile(r'memory_faults_major_faults_sec\.csv'),
+                'pattern': re.compile(r'^memory_faults_major_faults_sec\.csv$'),
                 'class': 'memory',
                 'metric': 'faults_major',
                 'display': 'Memory_Faults_Major',
@@ -930,7 +930,7 @@ _known_tool_handlers = {
                 'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)'),
                 'converter': float
             }, {
-                'pattern': re.compile(r'memory_faults_minor_faults_sec\.csv'),
+                'pattern': re.compile(r'^memory_faults_minor_faults_sec\.csv$'),
                 'class': 'memory',
                 'metric': 'faults_minor',
                 'display': 'Memory_Faults_Minor',
@@ -941,7 +941,7 @@ _known_tool_handlers = {
                 'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)'),
                 'converter': float
             }, {
-                'pattern': re.compile(r'memory_usage_resident_set_size\.csv'),
+                'pattern': re.compile(r'^memory_usage_resident_set_size\.csv$'),
                 'class': 'memory',
                 'metric': 'rss',
                 'display': 'RSS',
@@ -952,7 +952,7 @@ _known_tool_handlers = {
                 'metadata_pat': re.compile(r'(?P<pid>.+?)-(?P<command>.+)'),
                 'converter': int
             }, {
-                'pattern': re.compile(r'memory_usage_virtual_size\.csv'),
+                'pattern': re.compile(r'^memory_usage_virtual_size\.csv$'),
                 'class': 'memory',
                 'metric': 'vsz',
                 'display': 'VSZ',
@@ -972,7 +972,7 @@ _known_tool_handlers = {
         },
         'patterns': [
             {
-                'pattern': re.compile(r'vmstat_block\.csv'),
+                'pattern': re.compile(r'^vmstat_block\.csv$'),
                 'class': None,
                 'metric': 'block',
                 'units': 'KiB',
@@ -980,7 +980,7 @@ _known_tool_handlers = {
                 'colpat': re.compile(r'(?P<subfield>in|out)_KiB'),
                 'converter': int
             }, {
-                'pattern': re.compile(r'vmstat_cpu\.csv'),
+                'pattern': re.compile(r'^vmstat_cpu\.csv$'),
                 'class': None,
                 'metric': 'cpu',
                 'units': '%usage',
@@ -988,7 +988,7 @@ _known_tool_handlers = {
                 'colpat': re.compile(r'(?P<subfield>idle|steal|sys|user|wait)'),
                 'converter': int
             }, {
-                'pattern': re.compile(r'vmstat_memory\.csv'),
+                'pattern': re.compile(r'^vmstat_memory\.csv$'),
                 'class': None,
                 'metric': 'memory',
                 'units': 'KiB',
@@ -996,7 +996,7 @@ _known_tool_handlers = {
                 'colpat': re.compile(r'(?P<subfield>active|free|inactive|swapped)_KiB'),
                 'converter': int
             }, {
-                'pattern': re.compile(r'vmstat_procs\.csv'),
+                'pattern': re.compile(r'^vmstat_procs\.csv$'),
                 'class': None,
                 'metric': 'procs',
                 'units': 'count',
@@ -1004,7 +1004,7 @@ _known_tool_handlers = {
                 'colpat': re.compile(r'(?P<subfield>blocked|running)'),
                 'converter': int
             }, {
-                'pattern': re.compile(r'vmstat_swap\.csv'),
+                'pattern': re.compile(r'^vmstat_swap\.csv$'),
                 'class': None,
                 'metric': 'swap',
                 'units': 'KiB',
@@ -1012,7 +1012,7 @@ _known_tool_handlers = {
                 'colpat': re.compile(r'(?P<subfield>in|out)_KiB'),
                 'converter': int
             }, {
-                'pattern': re.compile(r'vmstat_system\.csv'),
+                'pattern': re.compile(r'^vmstat_system\.csv$'),
                 'class': None,
                 'metric': 'system',
                 'units': 'count',
@@ -1034,7 +1034,7 @@ _known_tool_handlers = {
                 # The mpstat tool produces csv files with names based on cpu
                 # cores. The number of cpu cores can be different on each
                 # computer, so map a regular expression for each file type.
-                'pattern': re.compile(r'(?P<id>cpu.+)_cpu\w+\.csv'),
+                'pattern': re.compile(r'^(?P<id>cpu.+)_cpu\w+\.csv$'),
                 'class': None,
                 'metric': 'cpu',
                 'display': 'CPU',
@@ -1050,7 +1050,7 @@ _known_tool_handlers = {
         },
         'patterns': [
             {
-                'pattern': re.compile(r'proc-interrupts-stdout\.txt'),
+                'pattern': re.compile(r'^proc-interrupts-stdout\.txt$'),
                 'subformat': 'procint',
                 'converter': int
             }
@@ -1065,7 +1065,7 @@ _known_tool_handlers = {
         },
         'patterns': [
             {
-                'pattern': re.compile(r'proc-vmstat-stdout\.txt'),
+                'pattern': re.compile(r'^proc-vmstat-stdout\.txt$'),
                 'subformat': 'keyval',
                 'converter': int
             }
@@ -1125,6 +1125,7 @@ class ToolData(PbenchData):
         except KeyError:
             self.handler = None
             self.files = None
+            self.basepath = None
         else:
             toolsgroup = ptb.run_metadata['toolsgroup']
             self.run_metadata['toolsgroup'] = toolsgroup
@@ -1146,25 +1147,24 @@ class ToolData(PbenchData):
                 hostname_s = ptb.mdconf.get("tools/{}".format(host), "hostname-s")
             except Exception:
                 hostname_s = ""
+            basepath_tmpl = os.path.join(ptb.dirname, iteration, sample, "tools-{0}".format(toolsgroup), "{}", tool)
             if label and hostname_s:
                 hostpath = "{}:{}".format(label, hostname_s)
                 # Fetch all the data files as a dictionary containing metadata
                 # about them.
-                files = ToolData.get_files(
-                        self.handler, iteration, sample, hostpath, tool,
-                        toolsgroup, ptb)
+                basepath = basepath_tmpl.format(hostpath)
+                files = ToolData.get_files(self.handler, basepath, toolsgroup, tool, ptb)
             if not files and hostname_s:
                 # Fetch all the data files as a dictionary containing metadata
                 # about them.
-                files = ToolData.get_files(
-                        self.handler, iteration, sample, hostname_s, tool,
-                        toolsgroup, ptb)
+                basepath = basepath_tmpl.format(hostname_s)
+                files = ToolData.get_files(self.handler, basepath, toolsgroup, tool, ptb)
             if not files:
                 # Fetch all the data files as a dictionary containing metadata
                 # about them.
-                files = ToolData.get_files(
-                        self.handler, iteration, sample, host, tool,
-                        toolsgroup, ptb)
+                basepath = basepath_tmpl.format(host)
+                files = ToolData.get_files(self.handler, basepath, toolsgroup, tool, ptb)
+            self.basepath = basepath
             self.files = files
 
     def _make_source_unified(self):
@@ -1219,6 +1219,7 @@ class ToolData(PbenchData):
         # structure to drive processing of the rows from all csv files
         # by deriving data from the header rows of all the csv files,
         # first. This is driven by the data provided in the handler.
+        self.logger.info("tool-data-indexing: tool {}, start unified for {}", self.toolname, self.basepath)
         for csv in self.files:
             # Each csv file dictionary provides its header row.
             header = csv['header']
@@ -1341,6 +1342,7 @@ class ToolData(PbenchData):
                 # from all the csv files.
                 yield idx, rows
                 idx += 1
+        self.logger.info("tool-data-indexing: tool {}, gen unified begin for {}", self.toolname, self.basepath)
         prev_ts = None
         for idx, rows in rows_generator():
             # Verify timestamps are all the same for this row.
@@ -1440,6 +1442,7 @@ class ToolData(PbenchData):
             for _id,source in datum.items():
                 source_id = _make_source_id(source)
                 yield source, source_id
+        self.logger.info("tool-data-indexing: tool {}, end unified for {}", self.toolname, self.basepath)
         return
 
     def _make_source_individual(self):
@@ -1475,6 +1478,7 @@ class ToolData(PbenchData):
                 break
             prev_ts = None
             idx = 0
+            self.logger.info("tool-data-indexing: tool {}, individual start {}", self.toolname, csv['path'])
             for row in reader:
                 for col,val in enumerate(row):
                     # The timestamp column is index zero.
@@ -1503,6 +1507,7 @@ class ToolData(PbenchData):
                 source_id = _make_source_id(datum)
                 yield datum, source_id
                 idx += 1
+            self.logger.info("tool-data-indexing: tool {}, individual end {}", self.toolname, csv['path'])
         return
 
     # For some tools, proc-vmstat being the first case we encounter this,
@@ -1539,7 +1544,7 @@ class ToolData(PbenchData):
         }
     }
 
-    def _stdout_keyval(self, file_object, converter):
+    def _stdout_keyval(self, file_object, converter, path):
         """Process a line of a stdout key/value pair output file, building up the
         record (dict) by adding each key/value pair found, associating them
         with the previously encountered timestamp.  A record is yielded as one
@@ -1582,6 +1587,7 @@ class ToolData(PbenchData):
         except KeyError:
             remaps = None
         idx = 0
+        self.logger.info("tool-data-indexing: tool {}, stdout keyval start {}", self.toolname, path)
         for line in file_object:
             if line.startswith('timestamp:'):
                 prev_ts_orig = ts_orig
@@ -1657,8 +1663,9 @@ class ToolData(PbenchData):
                         rate[stat][substat] = the_rate
         if record and record[self.toolname]['gauge']:
             yield record
+        self.logger.info("tool-data-indexing: tool {}, stdout keyval end {}", self.toolname, path)
 
-    def _stdout_procint(self, file_object, converter):
+    def _stdout_procint(self, file_object, converter, path):
         """Process the two-dimensional proc-interrupts output.
 
         An example file format:
@@ -1677,6 +1684,7 @@ class ToolData(PbenchData):
         prev_ts_orig = None
         prev_gauges = _dict_const()
         idx = 0
+        self.logger.info("tool-data-indexing: tool {}, stdout procint start {}", self.toolname, path)
         for line in file_object:
             if line.startswith('timestamp:'):
                 idx += 1
@@ -1753,6 +1761,7 @@ class ToolData(PbenchData):
                 prev_gauges[int_id] = cpu_gauges
                 for record in records:
                     yield record
+        self.logger.info("tool-data-indexing: tool {}, stdout procint end {}", self.toolname, path)
         return
 
     _subformats = {
@@ -1790,7 +1799,7 @@ class ToolData(PbenchData):
                 continue
             path = os.path.join(self.ptb.extracted_root, output_file['path'])
             with open(path, 'r') as file_object:
-                for record in func(self, file_object, converter):
+                for record in func(self, file_object, converter, output_file['path']):
                     source_id = _make_source_id(record)
                     yield record, source_id
 
@@ -1821,6 +1830,7 @@ class ToolData(PbenchData):
             invalid_ts = False
             badrange_ts = False
             idx = 0
+            self.logger.info("tool-data-indexing: tool {}, json start {}", self.toolname, df['path'])
             for payload_source in payload:
                 try:
                     ts_val = payload_source['@timestamp']
@@ -1888,6 +1898,7 @@ class ToolData(PbenchData):
                 source_id = _make_source_id(source)
                 yield source, source_id
                 idx += 1
+            self.logger.info("tool-data-indexing: tool {}, json end {}", self.toolname, df['path'])
         return
 
     def make_source(self):
@@ -1909,12 +1920,12 @@ class ToolData(PbenchData):
         return gen
 
     @staticmethod
-    def get_csv_files(handler, iteration, sample, host, tool, toolsgroup, ptb):
+    def get_csv_files(handler, basepath, toolsgroup, tool, ptb):
         """
         Fetch the list of .csv files for this tool, fetch their headers, and
         return a dictionary mapping their column headers to their field names.
         """
-        path = os.path.join(iteration, sample, "tools-%s" % (toolsgroup,), host, tool, "csv")
+        path = os.path.join(basepath, "csv")
         paths = [x for x in ptb.tb.getnames() if x.find(path) >= 0 and ptb.tb.getmember(x).isfile()]
         datafiles = []
         for p in paths:
@@ -1952,12 +1963,12 @@ class ToolData(PbenchData):
         return datafiles
 
     @staticmethod
-    def get_json_files(handler, iteration, sample, host, tool, toolsgroup, ptb):
+    def get_json_files(handler, basepath, toolsgroup, tool, ptb):
         """
         Fetch the list of json files for this tool, and return a list of dicts
         containing their metadata.
         """
-        path = os.path.join(iteration, sample, "tools-%s" % (toolsgroup,), host, tool, "json")
+        path = os.path.join(basepath, "json")
         paths = [x for x in ptb.tb.getnames() if x.find(path) >= 0 and ptb.tb.getmember(x).isfile()]
         datafiles = []
         for p in paths:
@@ -1967,13 +1978,13 @@ class ToolData(PbenchData):
         return datafiles
 
     @staticmethod
-    def get_stdout_files(handler, iteration, sample, host, tool, toolsgroup, ptb):
+    def get_stdout_files(handler, basepath, toolsgroup, tool, ptb):
         """
         Fetch the stdout file for this tool returning a list of dicts
         containing their metadata.
         """
         stdout_file = "{0}-stdout.txt".format(tool)
-        path = os.path.join(iteration, sample, "tools-{0}".format(toolsgroup), host, tool, stdout_file)
+        path = os.path.join(basepath, stdout_file)
         paths = [x for x in ptb.tb.getnames() if x.find(path) >= 0 and ptb.tb.getmember(x).isfile()]
         datafiles = []
         for p in paths:
@@ -1989,15 +2000,15 @@ class ToolData(PbenchData):
         return datafiles
 
     @staticmethod
-    def get_files(handler, iteration, sample, host, tool, toolsgroup, ptb):
+    def get_files(handler, basepath, toolsgroup, tool, ptb):
         if handler is None:
             datafiles = []
         elif handler['@prospectus']['handling'] == 'csv':
-            datafiles = ToolData.get_csv_files(handler, iteration, sample, host, tool, toolsgroup, ptb)
+            datafiles = ToolData.get_csv_files(handler, basepath, toolsgroup, tool, ptb)
         elif handler['@prospectus']['handling'] == 'json':
-            datafiles = ToolData.get_json_files(handler, iteration, sample, host, tool, toolsgroup, ptb)
+            datafiles = ToolData.get_json_files(handler, basepath, toolsgroup, tool, ptb)
         elif handler['@prospectus']['handling'] == 'stdout':
-            datafiles = ToolData.get_stdout_files(handler, iteration, sample, host, tool, toolsgroup, ptb)
+            datafiles = ToolData.get_stdout_files(handler, basepath, toolsgroup, tool, ptb)
         else:
             raise Exception("Logic bomb! %s" % (handler['@prospectus']['handling']))
         datafiles.sort(key=itemgetter('path', 'basename'))
