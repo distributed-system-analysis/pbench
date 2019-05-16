@@ -1,7 +1,7 @@
 import React, { PureComponent, createElement } from 'react';
 import PropTypes from 'prop-types';
 import pathToRegexp from 'path-to-regexp';
-import { Breadcrumb, Tabs } from 'antd';
+import { Breadcrumb, Tabs, Tag } from 'antd';
 import classNames from 'classnames';
 import styles from './index.less';
 import urlToList from '@/components/_utils/pathTools';
@@ -193,9 +193,10 @@ export default class PageHeader extends PureComponent {
       tabActiveKey,
       tabDefaultActiveKey,
       tabBarExtraContent,
+      selectedControllers,
     } = this.props;
-    const { breadcrumb } = this.state;
 
+    const { breadcrumb } = this.state;
     const clsString = classNames(styles.pageHeader, className);
     const activeKeyProps = {};
     if (tabDefaultActiveKey !== undefined) {
@@ -204,6 +205,22 @@ export default class PageHeader extends PureComponent {
     if (tabActiveKey !== undefined) {
       activeKeyProps.activeKey = tabActiveKey;
     }
+    let titleHeader = '';
+    if (selectedControllers !== undefined) {
+      titleHeader = selectedControllers.map(i => <Tag color="blue">{i}</Tag>);
+      titleHeader = (
+        <div>
+          <h1 className={styles.title}>Selected Controllers</h1>
+          {titleHeader}
+        </div>
+      );
+    } else {
+      titleHeader = title && (
+        <div>
+          <h1 className={styles.title}>{title}</h1>
+        </div>
+      );
+    }
 
     return (
       <div className={clsString}>
@@ -211,8 +228,8 @@ export default class PageHeader extends PureComponent {
         <div className={styles.detail}>
           {logo && <div className={styles.logo}>{logo}</div>}
           <div className={styles.main}>
-            <div className={styles.row}>
-              {title && <h1 className={styles.title}>{title}</h1>}
+            <div className={styles.row} style={{ marginBottom: 15 }}>
+              {titleHeader}
               {action && <div className={styles.action}>{action}</div>}
             </div>
             <div className={styles.row}>

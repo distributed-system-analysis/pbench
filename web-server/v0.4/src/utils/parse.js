@@ -168,6 +168,7 @@ export const parseIterationData = results => {
     });
     parsedResponse.iterations.sort((a, b) => a.iteration_number - b.iteration_number);
     parsedResponse.resultName = result.resultName;
+    parsedResponse.controllerName = result.controllerName;
     parsedResponse.columns = columns;
     iterations.push(parsedResponse);
   });

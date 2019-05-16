@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Card, Spin, notification } from 'antd';
+import { Card, Spin, notification, Tag } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { filterIterations } from '../../utils/parse';
 
@@ -114,9 +114,11 @@ class ComparisonSelect extends React.Component {
   render() {
     const { resultIterations, selectedRowKeys } = this.state;
     const { iterationParams, selectedControllers, loading } = this.props;
-
     return (
-      <PageHeaderLayout title={selectedControllers.join(', ')}>
+      <PageHeaderLayout
+        title={selectedControllers.join(', ')}
+        selectedControllers={selectedControllers}
+      >
         <Card>
           <Spin spinning={loading} tip="Loading Iterations...">
             <Button
@@ -133,7 +135,13 @@ class ComparisonSelect extends React.Component {
               };
               return (
                 <div key={iteration.resultName} style={{ marginTop: 32 }}>
-                  <h2>{iteration.resultName}</h2>
+                  <div style={{ display: 'flex' }}>
+                    <h1>{iteration.resultName}</h1>
+                    <span style={{ marginLeft: 8 }}>
+                      <Tag color="blue">{iteration.controllerName}</Tag>
+                    </span>
+                  </div>
+
                   <Table
                     rowSelection={rowSelection}
                     columns={iteration.columns}
