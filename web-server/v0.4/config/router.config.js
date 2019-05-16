@@ -57,7 +57,7 @@ module.exports = [
       {
         path: '/share/:id',
         name: 'share',
-        component: './StaticLinkShare',
+        component: './SessionPlaceholder',
       },
     ],
   },

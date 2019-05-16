@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const { TextArea } = Input;
 
-export default class ShareModal extends Component {
+export default class SessionModal extends Component {
   static propTypes = {
     configData: PropTypes.object.isRequired,
     styles: PropTypes.object.isRequired,
@@ -15,14 +15,14 @@ export default class ShareModal extends Component {
     super(props);
 
     this.state = {
-      description: 'Add description here.',
+      description: '',
       visible: false,
       confirmLoading: false,
-      generatedLink: 'http://samplelink.com',
+      generatedLink: '',
     };
   }
 
-  showSucces = () => {
+  showSuccess = () => {
     const { generatedLink } = this.state;
 
     Modal.success({
@@ -59,8 +59,8 @@ export default class ShareModal extends Component {
       method: 'post',
       data: {
         query: `
-            mutation($config: String!$description: String!) {
-              createUrl(data: {config: $config,description: $description}) {
+            mutation($config: String!, $description: String!) {
+              createUrl(data: {config: $config, description: $description}) {
                 id
                 config
                 description
@@ -82,9 +82,11 @@ export default class ShareModal extends Component {
             visible: false,
             confirmLoading: false,
             description: document.getElementById('description').value,
-            generatedLink: `http://localhost:8000/dashboard/share/${result.data.data.createUrl.id}`,
+            generatedLink: `${window.location.origin}/dashboard/share/${
+              result.data.data.createUrl.id
+            }`,
           });
-          this.showSucces();
+          this.showSuccess();
         }, 2000);
       }
     });
@@ -108,9 +110,11 @@ export default class ShareModal extends Component {
           </a>
         </Tooltip>
         <Modal
-          title="Share Session Link:"
+          title="Share Session Link"
           visible={visible}
           confirmLoading={confirmLoading}
+          onOk={this.onGenerate}
+          onCancel={this.handleCancel}
           footer={[
             <Button key="back" onClick={this.handleCancel}>
               Cancel

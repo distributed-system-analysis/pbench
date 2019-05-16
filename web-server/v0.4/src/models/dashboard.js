@@ -161,7 +161,9 @@ export default {
     *fetchSharedConfig({ payload }, { call }) {
       const response = yield call(querySharedConfig, payload);
       const { config } = response.data.data.url;
-      return window.localStorage.setItem('persist:root', JSON.parse(config));
+      const parsedConfig = JSON.parse(config);
+      window.localStorage.setItem('persist:root', parsedConfig);
+      return parsedConfig;
     },
     *fetchIterations({ payload }, { call, put }) {
       const response = yield call(queryIterations, payload);

@@ -3,12 +3,10 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Spin } from 'antd';
 
-@connect(({ routing }) => ({
-  pathname: routing.location.pathname,
-}))
-class Sharable extends React.Component {
+@connect(() => ({}))
+class SessionPlaceholder extends React.Component {
   componentDidMount = () => {
-    const { dispatch, pathname } = this.props;
+    const { dispatch } = this.props;
     const path = window.location.href;
     const id = path.substring(path.lastIndexOf('/') + 1);
     dispatch({
@@ -16,7 +14,9 @@ class Sharable extends React.Component {
       payload: {
         id,
       },
-    }).then(dispatch(routerRedux.push(pathname)));
+    }).then(config => {
+      dispatch(routerRedux.push(config.routing.location.pathname));
+    });
   };
 
   render() {
@@ -41,4 +41,4 @@ class Sharable extends React.Component {
   }
 }
 
-export default connect(() => ({}))(Sharable);
+export default connect(() => ({}))(SessionPlaceholder);

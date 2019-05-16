@@ -4,7 +4,7 @@ import { Icon, Divider, Tooltip } from 'antd';
 import Debounce from 'lodash-decorators/debounce';
 import { connect } from 'dva';
 import styles from './index.less';
-import ShareModal from '../shareModal';
+import SessionModal from '../SessionModal';
 
 @connect(store => ({
   store,
@@ -47,7 +47,7 @@ class GlobalHeader extends PureComponent {
           />
         </div>
         <div className={styles.right}>
-          <ShareModal configData={this.props.store} styles={styles} />
+          <SessionModal configData={this.props.store} styles={styles} />
           <Tooltip
             title="Search"
             onClick={() => {
