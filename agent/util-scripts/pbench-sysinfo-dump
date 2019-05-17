@@ -87,11 +87,17 @@ function collect_block {
 function collect_sos {
 	name=$(hostname -f)-pbench
 	debug_log "[$script_name]collecting sosreport"
-	sos_ver=`rpm -q sos | awk -F- '{print $2}' | awk -F. '{print $1}'`
-	if [[ "$sos_ver" == "3" ]]; then
+	read sos_ver sos_ver_minor <<< `rpm -q sos | awk -F- '{print $2}' | awk -F. '{print $1" "$2}'`
+	if [[ "$sos_ver" -ge 3 ]]; then
 		quiet="--quiet"
 		block="-o block"
 		processor="-o processor"
+		# ref for plugin collectd: https://github.com/sosreport/sos/pull/866
+		if [[ "$sos_ver_minor" -ge 4 ]]; then
+		    collectd="-o collectd"
+		else
+		    collectd=""
+		fi
 		sos_ver=`rpm -q sos | awk -F- '{print $2}' | awk -F. '{print $2}'`
 		if [[ "$sos_ver" == "0" ]]; then
 		    # No tuned plug-in in sosreport v3.0
@@ -105,10 +111,11 @@ function collect_sos {
 		block=""
 		processor=""
 		tuned=""
+		collectd=""
 	fi
 	sosreport -o general -o kernel -o filesys -o devicemapper -o system -o memory \
 	      -o hardware -o networking -o lsbrelease ${block} ${processor} ${tuned} \
-	      --batch ${quiet} --tmp-dir=$dir --name "$name" > /dev/null 2>&1
+	      ${collectd} --batch ${quiet} --tmp-dir=$dir --name "$name" > /dev/null 2>&1
 	if [[ -f "sosreport-$name-*.tar.xz" ]]; then
 		debug_log "[$script_name]done collecting sosreport"
 	else
