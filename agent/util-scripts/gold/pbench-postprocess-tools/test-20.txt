@@ -1,4 +1,4 @@
-+++ Running test-20 pbench-postprocess-tools
++++ Running test-20 pbench-postprocess-tools --dir=/var/tmp/pbench-test-utils/pbench/tmp --group=default --iteration=1
 [warn][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]foo does not exist in /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 [warn][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]foo does not exist in /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 --- Finished test-20 pbench-postprocess-tools (status=0)

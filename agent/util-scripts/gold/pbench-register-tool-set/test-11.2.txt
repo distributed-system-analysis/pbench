@@ -1,4 +1,4 @@
-+++ Running test-11.2 pbench-register-tool-set
++++ Running test-11.2 pbench-register-tool-set --interval=10
 mpstat tool is now registered in group default
 vmstat tool is now registered in group default
 iostat tool is now registered in group default

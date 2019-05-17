@@ -1,4 +1,4 @@
-+++ Running test-17 pbench-list-triggers
++++ Running test-17 pbench-list-triggers --group=default
 default:START DEFAULT:STOP DEFAULT
 --- Finished test-17 pbench-list-triggers (status=0)
 +++ pbench tree state

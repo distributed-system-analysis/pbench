@@ -1,4 +1,4 @@
-+++ Running test-07 pbench-stop-tools
++++ Running test-07 pbench-stop-tools --dir=/var/tmp/pbench-test-utils/pbench/tmp
 --- Finished test-07 pbench-stop-tools (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench

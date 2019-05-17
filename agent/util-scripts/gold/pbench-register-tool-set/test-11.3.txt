@@ -1,4 +1,4 @@
-+++ Running test-11.3 pbench-register-tool-set
++++ Running test-11.3 pbench-register-tool-set 
 mpstat tool is now registered in group default
 iostat tool is now registered in group default
 pidstat tool is now registered in group default

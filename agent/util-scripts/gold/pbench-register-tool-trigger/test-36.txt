@@ -1,4 +1,4 @@
-+++ Running test-36 pbench-register-tool-trigger
++++ Running test-36 pbench-register-tool-trigger --group=default --start-trigger="START DEFAULT" --stop-trigger="STOP:DEFAULT"
 pbench-register-tool-trigger: the stop trigger cannot have a colon in it: ""STOP:DEFAULT""
 --- Finished test-36 pbench-register-tool-trigger (status=1)
 +++ pbench tree state
