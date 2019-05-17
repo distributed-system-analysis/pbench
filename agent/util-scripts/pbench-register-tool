@@ -31,8 +31,6 @@ if [ $? -ne 0 ]; then
 	printf "%s\n" $*
 	printf "$script_name: you specified an invalid option\n\n"
 	usage
-
-
 	exit 1
 fi
 # here we process only the arguments before the "--"
@@ -69,10 +67,10 @@ while true; do
 			shift;
 		fi
 		;;
-                -h|--help)
-                usage;
-                exit 0
-                ;;
+		-h|--help)
+		usage;
+		exit 0
+		;;
 		--)
 		shift;
 		break;
@@ -123,8 +121,8 @@ if [ ! -z "$remote" ]; then
 	done
 fi
 
-# a local tool registration
 if [ -z "$remote" ]; then
+	# a local tool registration
 	if [ -e "$pbench_bin/tool-scripts/$name" ]; then
 		debug_log "checking to see if tool is installed..."
 		$pbench_bin/tool-scripts/$name --install "${tool_opts[@]}"
@@ -133,7 +131,7 @@ if [ -z "$remote" ]; then
 		debug_log "Could not find $name in $pbench_bin/tool-scripts.  Has this tool been integrated in to pbench?"
 	fi
 	# remeber the tool and its options
-	if [ $rc == "0" ]; then
+	if [ "$rc" == "0" ]; then
 		if [ ! -d "$pbench_run/tools-$group" ]; then
 			mkdir -p "$pbench_run/tools-$group"
 		fi
@@ -154,9 +152,10 @@ if [ -z "$remote" ]; then
 			echo "$label" >"$this_label_file"
 		fi
 	else
-		printf "For some reason this tool could not be installed\n"
+		error_log "Failed to install tool $name ($pbench_bin/tool-scripts/$name --install \"${tool_opts[@]}\")\n"
 	fi
-else    # register this tool on the remote host
+else
+	# register this tool on the remote host
 	if [ -z "$label" ]; then
 		label_opt=""
 	else
@@ -166,6 +165,9 @@ else    # register this tool on the remote host
 	debug_log "$tool_opt_array_cmd"' pbench-register-tool --name='"$name"' --group='"$group"' $label_opt -- "${tool_opts[@]}" 2>&1'
 	ssh $ssh_opts $remote "$tool_opt_array_cmd"' pbench-register-tool --name='"$name"' --group='"$group" $label_opt' -- "${tool_opts[@]}" 2>&1' | sed -e 's/\(.*\)/'[$remote]'\1/g'
 	rc=$?
+	if [ "$rc" != "0" ]; then
+		error_log "Failed to register tool $name remotely\n"
+	fi
 	if [ ! -d "$pbench_run/tools-$group" ]; then
 		mkdir -p "$pbench_run/tools-$group"
 	fi

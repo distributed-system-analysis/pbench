@@ -5,14 +5,8 @@
 use strict;
 use warnings;
 use File::Basename;
-my $pbench_install_path;
-my $pbench_lib_path;
-BEGIN {
-    $pbench_install_path = `getconf.py pbench_install_dir pbench-agent`;
-    chomp $pbench_install_path;
-    $pbench_lib_path = $pbench_install_path . "/lib";
-}
-use lib "$pbench_lib_path";
+my $pbench_install_dir $ENV{'pbench_install_dir'};
+use lib $ENV{'pbench_lib_dir'};
 use JSON;
 use Data::Dumper;
 use PbenchCDM qw(create_metric_desc_doc create_metric_data_doc create_bench_iter_sample_period_doc);
@@ -140,7 +134,7 @@ my $tools_cdm_pp_output = `$tools_cdm_pp_cmd`;
 printf "tools_cdm_pp output\n%s\n\n", $tools_cdm_pp_output;
 
 # Call the legacy post-process script, so we can build the static html reports later
-system($pbench_install_path . "/bench-scripts/postprocess/fio-postprocess `/bin/pwd` fio default");
+system($pbench_install_dir . "/bench-scripts/postprocess/fio-postprocess `/bin/pwd` fio default");
 if (defined $last_sample and $last_sample eq "1") {
-    system($pbench_install_path . "/bench-scripts/postprocess/process-iteration-samples `/bin/pwd`/.. iops 100 0 1 n n");
+    system($pbench_install_dir . "/bench-scripts/postprocess/process-iteration-samples `/bin/pwd`/.. iops 100 0 1 n n");
 }

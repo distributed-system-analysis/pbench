@@ -6,41 +6,16 @@
 /var/tmp/pbench-test-utils/pbench/tmp/pbench-agent.cfg
 /var/tmp/pbench-test-utils/pbench/tmp/pbench-agent.cfg:
 [DEFAULT]
-pbench_install_dir = /opt/pbench-agent
-pbench_results_redirector = pbench.perf.lab.eng.bos.redhat.com
-pbench_web_server = pbench.perf.lab.eng.bos.redhat.com
+pbench_install_dir = /var/tmp/pbench-test-utils/opt/pbench-agent
 
 [pbench-agent]
 install-dir = %(pbench_install_dir)s
-pbench_user = pbench
-pbench_group = pbench
-pbench_run = /var/lib/pbench-agent
-pbench_log = %(pbench_run)s/pbench.log
-
-[pbench-agent-internal]
-install-dir = /opt/pbench-agent-internal
-
-[results]
-user = pbench
-host_path = http://%(pbench_results_redirector)s/pbench-archive-host
-dir = /pbench/public_html/incoming
-ssh_opts = -o StrictHostKeyChecking=no
-webserver = %(pbench_web_server)s
-host_info_url = http://%(webserver)s/pbench-results-host-info.versioned/pbench-results-host-info.URL001
-
-[pbench/tools]
-default-tool-set = sar, iostat, mpstat, pidstat, proc-vmstat, proc-interrupts, turbostat
-interval = 3
-
-[sosreports]
-# if you want to collect rpm -q information, uncomment the rpm-options
-# line and (after having set up your remotes) execute pbench-distribute-config-file
-# to propagate the change to all the remotes.
-# rpm-options = -o rpm rpm.rpmq on
+pbench_user = upbench
+pbench_group = gpbench
 
 [config]
 path = %(pbench_install_dir)s/config
-files = pbench-agent.cfg
+files = pbench-agent-default.cfg
 --- pbench tree state
 +++ pbench.log file contents
 grep: /var/tmp/pbench-test-utils/pbench/pbench.log: No such file or directory

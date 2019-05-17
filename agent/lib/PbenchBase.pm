@@ -27,13 +27,13 @@ sub get_hostname {
 }
 
 sub get_pbench_run_dir {
-    my $dir = `getconf.py pbench_run pbench-agent`; # typically /var/lib/pbench-agent
+    my $dir = $ENV{'pbench_run'}; # typically /var/lib/pbench-agent
     chomp $dir;
     return $dir;
 }
 
 sub get_pbench_install_dir {
-    my $dir = `getconf.py install-dir pbench-agent`; # typically /var/lib/pbench-agent
+    my $dir = $ENV{'pbench_install_dir'}; # typically /var/lib/pbench-agent
     chomp $dir;
     return $dir;
 }

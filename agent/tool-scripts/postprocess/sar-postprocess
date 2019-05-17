@@ -13,16 +13,7 @@
 use strict;
 use warnings;
 
-# Check for an alternate tools library path for testing
-my $_test_alt_tools_lib;
-BEGIN {
-	my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
-	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
-	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
-                $_test_alt_tools_lib = "$_pbench_tspp_dir";
-	}
-}
-use lib "$_test_alt_tools_lib";
+use lib $ENV{'pbench_lib_dir'};
 no lib ".";
 use GenData qw(gen_data);
 

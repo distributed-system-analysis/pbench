@@ -1,48 +1,65 @@
 #!/bin/bash
 
-export PBENCH_debug_mode=0
+# base: contains the base functions and environment variables needed to use
+#       the pbench-agent.
+
 # pipeline status is set to the status of the last command that *failed*
 # in the pipeline (or 0 if all succeed): this way "ssh foo | sed '...' "
 # will catch any ssh failure
 set -o pipefail
 
-# very first thing to do is figure out which pbench
-# we are
-if [ -z "$pbench_run" ]; then
+# very first thing to do is figure out which pbench we are
+if [[ -z "$pbench_run" ]]; then
     pbench_run=$(getconf.py pbench_run pbench-agent)
-    if [ -z "$pbench_run" ]; then
+    if [[ -z "$pbench_run" ]]; then
 	pbench_run=/var/lib/pbench-agent
     fi
+    if [[ ! -d $pbench_run ]]; then
+        echo "[ERROR] pbench run directory, ${pbench_run}, does not exist" >&2
+        exit 1
+    fi
+    export pbench_run
 fi
 
-# if $pbench-run does not exist, but we had an old /var/lib/pbench directory
+# if $pbench_run does not exist, but we had an old /var/lib/pbench directory
 # then just rename the old directory
 if [[ ! -d $pbench_run && -d /var/lib/pbench ]] ;then
     mv /var/lib/pbench $pbench_run
 fi
 
-# make sure it exists in any case
-mkdir -p $pbench_run
+# the pbench temporary directory is always relative to the $pbench_run
+# directory
 pbench_tmp="$pbench_run/tmp"
 mkdir -p $pbench_tmp
+if [[ ! -d $pbench_tmp ]]; then
+    echo "[ERROR] unable to create TMP dir, ${pbench_tmp}" >&2
+    exit 1
+fi
+export pbench_tmp
 
 # log file - N.B. not a directory
-if [ -z "$pbench_log" ]; then
+if [[ -z "$pbench_log" ]]; then
     pbench_log=$(getconf.py pbench_log pbench-agent)
-    if [ -z "$pbench_log" ]; then
+    if [[ -z "$pbench_log" ]]; then
 	pbench_log=$pbench_run/pbench.log
     fi
+    export pbench_log
 fi
 
-if [ -z "$pbench_install_dir" ]; then
-    pbench_install_dir=$(getconf.py pbench_install_dir pbench-agent)
-    if [ -z "$pbench_install_dir" ]; then
+if [[ -z "$pbench_install_dir" ]]; then
+    pbench_install_dir=$(getconf.py install-dir pbench-agent)
+    if [[ -z "$pbench_install_dir" ]]; then
 	pbench_install_dir=/opt/pbench-agent
     fi
+    if [[ ! -d $pbench_install_dir ]]; then
+        echo "[ERROR] pbench installation directory, ${pbench_install_dir}, does not exist" >&2
+        exit 1
+    fi
+    export pbench_install_dir
 fi
-pbench_tspp_dir=$pbench_install_dir/tool-scripts/postprocess
 pbench_bspp_dir=$pbench_install_dir/bench-scripts/postprocess
-export pbench_install_dir pbench_tspp_dir pbench_bspp_dir pbench_run
+pbench_lib_dir=$pbench_install_dir/lib
+export pbench_bspp_dir pbench_lib_dir
 
 TS_FORMAT="%FT%H:%M:%S"
 
@@ -56,30 +73,31 @@ else
 	echo "1900-01-01T00:00:00.000000"
     }
 fi
-# contains the base functions needed to use pbench
+
 function log {
-    debug_date=$(timestamp)
-    echo "[info][$debug_date] $1" >> $pbench_log
+    echo "[info][$(timestamp)] $*" >> $pbench_log
 }
 
 function warn_log {
-    debug_date=$(timestamp)
-    echo "[warn][$debug_date] $1" >&2
-    echo "[warn][$debug_date] $1" >> $pbench_log
+    local log_date=$(timestamp)
+    echo "[warn][$log_date] $*" >&2
+    echo "[warn][$log_date] $*" >> $pbench_log
 }
 
 function error_log {
-    debug_date=$(timestamp)
-    echo "[error][$debug_date] $1" >&2
-    echo "[error][$debug_date] $1" >> $pbench_log
+    local log_date=$(timestamp)
+    echo "[error][$log_date] $*" >&2
+    echo "[error][$log_date] $*" >> $pbench_log
 }
 
+export _pbench_debug_mode=0
+
 function debug_log {
-    debug_date=$(timestamp)
-    if [ "$PBENCH_debug_mode" != "0" ]; then
-	echo "[debug][$debug_date] $*"
+    local log_date=$(timestamp)
+    if [[ "${_pbench_debug_mode}" != "0" ]]; then
+	echo "[debug][${log_date}] $*"
     fi
-    echo "[debug][$debug_date] $*" >> $pbench_log
+    echo "[debug][${log_date}] $*" >> ${pbench_log}
 }
 
 
@@ -88,7 +106,7 @@ function debug_log {
 if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
     # date may be set "accidentally" so add a var with an unlikely name
     # to check whether we need to set it.
-    if [ -z "$date" -o -z "$_PBENCH_DATE_SET" ] ;then
+    if [[ -z "$date" || -z "$_PBENCH_DATE_SET" ]]; then
 	# don't use ns in the date
 	export date=$(date --utc +"${TS_FORMAT}")
 	export _PBENCH_DATE_SET=1
@@ -104,14 +122,20 @@ else
     full_hostname="testhost.example.com"
 fi
 
-ssh_opts=$(getconf.py ssh_opts results)
-if [ -z "$ssh_opts" ]; then
-    ssh_opts='-o StrictHostKeyChecking=no'
+if [[ -z "$ssh_opts" ]]; then
+    ssh_opts=$(getconf.py ssh_opts results)
+    if [[ -z "$ssh_opts" ]]; then
+        ssh_opts='-o StrictHostKeyChecking=no'
+    fi
+    export ssh_opts
 fi
 
-scp_opts=$(getconf.py scp_opts results)
-if [ -z "$scp_opts" ]; then
-    scp_opts='-o StrictHostKeyChecking=no'
+if [[ -z "$scp_opts" ]]; then
+    scp_opts=$(getconf.py scp_opts results)
+    if [[ -z "$scp_opts" ]]; then
+        scp_opts='-o StrictHostKeyChecking=no'
+    fi
+    export scp_opts
 fi
 
 function is_redhat() {

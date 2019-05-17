@@ -14,15 +14,10 @@
 use strict;
 use warnings;
 use File::Basename;
-my $pbench_lib_path;
-BEGIN {
-	$pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
-	chomp $pbench_lib_path;
-	$pbench_lib_path .= "/lib";
-}
-use lib "$pbench_lib_path";
 use JSON;
 use Data::Dumper;
+
+use lib $ENV{'pbench_lib_dir'};
 use PbenchCDM qw(create_metric_desc_doc create_metric_data_doc);
 use PbenchBase qw(get_json_file put_json_file get_benchmark_names get_pbench_run_dir get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir get_benchmark_results_dir get_params remove_params remove_element);
 

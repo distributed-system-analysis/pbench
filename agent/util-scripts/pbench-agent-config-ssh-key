@@ -25,7 +25,7 @@ if [ -z "$group" ] ;then
     group=pbench
 fi
 
-pbenchdir=$(getconf.py -C $configfile pbench_install_dir pbench-agent)
+pbenchdir=$(getconf.py -C $configfile install-dir pbench-agent)
 # copy the key file and adjust perms
 if [ -f $keyfile ] ;then
     cp $keyfile $pbenchdir/id_rsa
@@ -36,5 +36,3 @@ else
 fi
 
 exit 0
-
-    
