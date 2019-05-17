@@ -3,23 +3,8 @@
 use strict;
 use warnings;
 
-# Check for an alternate tools library path for testing
-my $_test_alt_tools_lib;
-my $_test_alt_bench_lib;
-BEGIN {
-	my $_pbench_tspp_dir = $ENV{'pbench_tspp_dir'};
-	$_test_alt_tools_lib=$ENV{_TEST_ALTERNATE_TOOLS_LIBRARY};
-	if (not defined $_test_alt_tools_lib or not -d $_test_alt_tools_lib) {
-		$_test_alt_tools_lib = "$_pbench_tspp_dir";
-	}
-	my $_pbench_bspp_dir = $ENV{'pbench_bspp_dir'};
-	$_test_alt_bench_lib=$ENV{_TEST_ALTERNATE_BENCH_LIBRARY};
-	if (not defined $_test_alt_bench_lib or not -d $_test_alt_bench_lib) {
-		$_test_alt_bench_lib = "$_pbench_bspp_dir";
-	}
-}
-use lib "$_test_alt_tools_lib";
-use lib "$_test_alt_bench_lib";
+use lib $ENV{'pbench_lib_dir'};
+use lib $ENV{'pbench_bspp_dir'};
 no lib ".";
 use GenData qw(gen_data);
 use BenchPostprocess qw(trim_series get_label create_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash);

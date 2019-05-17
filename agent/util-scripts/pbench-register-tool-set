@@ -14,12 +14,14 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # $pbench_bin/tool-scripts directory.
 
 # Defaults
-remote=""
-group=""
-options=""
 toolset="default"
-
+remote=""
+label=""
+group=""
 default_interval=$(getconf.py interval pbench/tools)
+if [[ -z "${default_interval}" ]] ;then
+	default_interval=3
+fi
 
 function usage() {
 	printf "usage:\n"
@@ -33,8 +35,6 @@ if [ $? -ne 0 ]; then
 	printf "%s\n" $*
 	printf "$script_name: you specified an invalid option or forgot a required option value\n\n"
 	usage
-
-
 	exit 1
 fi
 eval set -- "$opts";
@@ -75,10 +75,10 @@ while true; do
 			shift;
 		fi
 		;;
-                -h|--help)
-                usage;
-                exit 0
-                ;;
+		-h|--help)
+		usage;
+		exit 0
+		;;
 		--)
 		shift;
 		break;
@@ -86,26 +86,28 @@ while true; do
 	esac
 done
 
-if [[ -z "${default_interval}" ]] ;then
-	default_interval=3
-fi
-
 typeset -i nerrs=0
-default_tool_set=$(getconf.py -l default-tool-set pbench/tools)
 case "$toolset" in
 	default)
-	for i in $default_tool_set; do
-		interval=$(getconf.py interval tools/$i)
+	default_tool_set=$(getconf.py -l default-tool-set pbench/tools)
+	for tool_name in $default_tool_set; do
+		if [[ ${tool_name} == "perf" ]]; then
+			# Ignore, we'll register it after all the others
+			# FIXME: Why is perf always registered?
+			continue
+		fi
+		interval=$(getconf.py interval tools/${tool_name})
 		if [ -z "${interval}" ] ;then
 			interval=${default_interval}
 		fi
-		pbench-register-tool --name=$i $remote $label $group -- --interval="$interval"
+		pbench-register-tool --name=${tool_name} $remote $label $group -- --interval="$interval"
 		rc=$?
 		if [ $rc != 0 ] ;then
 			nerrs=$nerrs+1
 		fi
 	done
 	# low overhead perf
+	# FIXME: Why is perf always registered?
 	pbench-register-tool --name=perf $remote $label $group -- --record-opts="record -a --freq=100"
 	rc=$?
 	if [ $rc != 0 ] ;then

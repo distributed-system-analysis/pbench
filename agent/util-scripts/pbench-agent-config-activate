@@ -23,14 +23,9 @@ fi
 
 # copy the configuration file(s) to the destination
 # use the "real" config file to get the destination
-dest=$(getconf.py --config $configfile pbench_install_dir pbench-agent)
-if [[ $_PBENCH_BENCH_TESTS -eq 1 ]] ;then
-    dest=$pbench_config/config
-else
-    dest=$dest/config
-fi
-cp $configfile "$@" $dest
+idir=$(getconf.py --config $configfile install-dir pbench-agent)
+dest=$idir/config
+# FIXME - Why do we gratuitously copy any remaining
+# command line parameters as well?
+cp $configfile "$@" $dest/
 exit $?
-
-
-

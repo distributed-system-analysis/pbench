@@ -8,14 +8,8 @@ use File::Basename;
 use File::Find;
 use REST::Client;
 use Time::HiRes qw(gettimeofday);
-my $pbench_run_path;
-my $pbench_lib_path;
-BEGIN {
-	$pbench_lib_path = `getconf.py pbench_install_dir pbench-agent`;
-	chomp $pbench_lib_path;
-	$pbench_lib_path .= "/lib";
-}
-use lib "$pbench_lib_path";
+
+use lib $ENV{'pbench_lib_dir'};
 use JSON::MaybeXS;
 use Data::Dumper;
 use PbenchCDM qw(get_cdm_ver get_cdm_rel);

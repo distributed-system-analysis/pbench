@@ -50,7 +50,7 @@ function testit {
 
     mkdir ${_testroot}/$1
     cp samples/$1/$2-std*.txt ${_testroot}/$1/
-    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./$2-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
+    pbench_lib_dir=$(pwd)/../../lib ./$2-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
     rm ${_testroot}/$1/$2-std*.txt
 
@@ -93,7 +93,7 @@ function testjstack {
 
     mkdir -p ${_testroot}/$1
     cp -r samples/$1 ${_testroot}/
-    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./jstack-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
+    pbench_lib_dir=$(pwd)/../../lib ./jstack-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
     remove_sample_data $1
 
@@ -111,7 +111,7 @@ function testprocessiterationsamples {
     mkdir ${_testroot}/$1
     cp -r samples/$1/* ${_testroot}/$1
 
-    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
+    pbench_lib_dir=$(pwd)/../../lib pbench_bspp_dir=$(pwd)/../../bench-scripts/postprocess \
         ../../bench-scripts/postprocess/process-iteration-samples ${_testroot}/$1 `cat ${_testroot}/$1/process-iteration-samples-args` > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
     remove_sample_data $1
@@ -137,7 +137,7 @@ function testgeneratebenchmarksummary {
     mkdir ${_testroot}/$1
     cp -r samples/$1/* ${_testroot}/$1
 
-    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
+    pbench_lib_dir=$(pwd)/../../lib pbench_bspp_dir=$(pwd)/../../bench-scripts/postprocess \
         ../../bench-scripts/postprocess/generate-benchmark-summary $1 unused-orig-cmd ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
     remove_sample_data $1
@@ -156,7 +156,7 @@ function testuperf {
     mkdir ${_testroot}/$1
     cp -r samples/$1/* ${_testroot}/$1
 
-    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
+    pbench_lib_dir=$(pwd)/../../lib pbench_bspp_dir=$(pwd)/../../bench-scripts/postprocess \
         ../../bench-scripts/postprocess/uperf-postprocess ${_testroot}/$1 `cat ${_testroot}/$1/uperf-postprocess-args` > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
     # /usr/bin/perl -e 'use JSON; print $INC{"JSON.pm"} . "\n"; print $JSON::VERSION . "\n"'
@@ -177,7 +177,7 @@ function testpcp {
     mkdir ${_testroot}/$1
     cp -r samples/$1/* ${_testroot}/$1
 
-    PATH=$(pwd)/mock-bin:$PATH _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
+    PATH=$(pwd)/mock-bin:$PATH pbench_lib_dir=$(pwd)/../../lib pbench_bspp_dir=$(pwd)/../../bench-scripts/postprocess \
         ./pcp-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
     remove_sample_data $1
@@ -196,7 +196,7 @@ function testfio {
     mkdir ${_testroot}/$1
     cp -r samples/$1/* ${_testroot}/$1
 
-    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) _TEST_ALTERNATE_BENCH_LIBRARY=$(pwd)/../../bench-scripts/postprocess \
+    pbench_lib_dir=$(pwd)/../../lib pbench_bspp_dir=$(pwd)/../../bench-scripts/postprocess \
         ../../bench-scripts/postprocess/fio-postprocess ${_testroot}/$1/result/reference-result fio- default > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
     remove_sample_data $1
@@ -215,7 +215,7 @@ function testhaproxy_ocp {
     mkdir ${_testroot}/$1
     cp samples/$1/router*.csv ${_testroot}/$1/
 
-    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./haproxy-ocp-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
+    pbench_lib_dir=$(pwd)/../../lib ./haproxy-ocp-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
     diff -cr gold/$1/ ${_testroot}/$1
     sts=$?
@@ -231,7 +231,7 @@ function testjmap {
     mkdir -p ${_testroot}/$1
     cp -r samples/$1 ${_testroot}/
 
-    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./jmap-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
+    pbench_lib_dir=$(pwd)/../../lib ./jmap-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
     remove_sample_data $1
 
@@ -249,7 +249,7 @@ function testprometheus_metrics {
     mkdir -p ${_testroot}/$1/json
     cp -r samples/$1/* ${_testroot}/$1
 
-    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./prometheus-metrics-postprocess ${_testroot}/$1/metrics-stdout ${_testroot}/$1/json/metrics.json 2> ${_testroot}/$1/stderr
+    pbench_lib_dir=$(pwd)/../../lib ./prometheus-metrics-postprocess ${_testroot}/$1/metrics-stdout ${_testroot}/$1/json/metrics.json 2> ${_testroot}/$1/stderr
 
     diff -cr gold/$1/stderr ${_testroot}/$1/stderr && diff -cr gold/$1/json/ ${_testroot}/$1/json/
     sts=$?
@@ -286,9 +286,9 @@ function testpidstat {
 
     # Generate pidstat converted data as tool would.
     cvt_path=$(dirname $(realpath ./pidstat-convert))
-    cat samples/${1}/pidstat-stdout.txt | (cd ${_testroot}/${1}; _TEST_ALTERNATE_TOOLS_LIBRARY=${cvt_path} ${cvt_path}/pidstat-convert ${_testroot}/${1})
+    cat samples/${1}/pidstat-stdout.txt | (cd ${_testroot}/${1}; pbench_lib_dir=${cvt_path}/../../lib ${cvt_path}/pidstat-convert ${_testroot}/${1})
 
-    _TEST_ALTERNATE_TOOLS_LIBRARY=$(pwd) ./pidstat-postprocess ${_testroot}/${1} > ${_testroot}/${1}/stdout 2> ${_testroot}/${1}/stderr
+    pbench_lib_dir=$(pwd)/../../lib ./pidstat-postprocess ${_testroot}/${1} > ${_testroot}/${1}/stdout 2> ${_testroot}/${1}/stderr
 
     remove_sample_data $1
     rm -rf ${_testroot}/${1}/pids

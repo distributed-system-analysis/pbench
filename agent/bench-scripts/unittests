@@ -23,9 +23,11 @@ _testdir=$_testroot/pbench
 _testopt=$_testroot/opt/pbench-agent
 export moongen_dir=$_testroot/MoonGen
 res=0
-mkdir -p $_testopt/bench-scripts/postprocess $_testopt/bench-scripts/templates $_testopt/util-scripts $_testopt/unittest-scripts $moongen_dir/build
+mkdir -p $_testopt/bench-scripts/postprocess $_testopt/bench-scripts/templates $_testopt/util-scripts $_testopt/lib $_testopt/unittest-scripts $moongen_dir/build
 let res=res+$?
 cp $_tdir/../base $_testopt/
+let res=res+$?
+cp -rH $_tdir/../lib/* $_testopt/lib/
 let res=res+$?
 for script in $_tdir/pbench-* ; do
     cp $script $_testopt/bench-scripts/
@@ -87,11 +89,14 @@ function _run {
     echo "$tname $tscrpt $@"
     echo "+++ Running $tname $tscrpt" >> $_testout
     #echo PWD: $(pwd) _TDIR: $_tdir >> $_testout
-    _TEST_ALTERNATE_BENCH_LIBRARY=$_tdir/postprocess \
-    _TEST_ALTERNATE_TOOLS_LIBRARY=$_tdir/../tool-scripts/postprocess \
-                                 PBENCH_UNITTEST_BENCHMARK=$tscrpt PBENCH_UNITTEST_TEST=$tname \
-                                 benchmark_bin=$_testopt/unittest-scripts/bm pbench_run=$_testdir pbench_log=$_testdir/pbench.log \
-                                 $tscrpt $@ >> $_testout 2>&1
+    PBENCH_UNITTEST_BENCHMARK=$tscrpt PBENCH_UNITTEST_TEST=$tname \
+            pbench_install_dir=$_testopt \
+            pbench_bspp_dir=$_testopt/bench-scripts/postprocess \
+            pbench_lib_dir=$_testopt/lib \
+            pbench_run=$_testdir \
+            pbench_log=$_testdir/pbench.log \
+            benchmark_bin=$_testopt/unittest-scripts/bm \
+            $tscrpt $@ >> $_testout 2>&1
     sts=$?
     echo "--- Finished $tname $tscrpt (status=$sts)" >> $_testout
     return $sts

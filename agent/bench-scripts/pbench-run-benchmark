@@ -16,14 +16,8 @@ use strict;
 use warnings;
 use File::Basename;
 use File::Path qw(remove_tree);
-my $pbench_lib_path;
-my $pbench_install_path;
-BEGIN {
-    $pbench_install_path = `getconf.py pbench_install_dir pbench-agent`;
-    chomp $pbench_install_path;
-    $pbench_lib_path = $pbench_install_path . "/lib";
-}
-use lib "$pbench_lib_path";
+my $pbench_install_dir = $ENV{'pbench_install_dir'};
+use lib $ENV{'pbench_lib_dir'};
 use JSON;
 use Data::Dumper;
 use PbenchCDM        qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc
@@ -285,7 +279,7 @@ while (scalar @param_sets > 0) {
 metadata_log_end_run($base_bench_dir, $iteration_id, $benchmark, $params{'user-tags'}, $params{'tool-group'});
 close $fh;
 # Generate the result.html (to go away once CDM/Elastic UI is available)
-system(". " . $pbench_install_path . "/base; " . $pbench_install_path .
+system(". " . $pbench_install_dir . "/base; " . $pbench_install_dir .
     "/bench-scripts/postprocess/generate-benchmark-summary " . $benchmark .
     " " . $benchmark . " " . $base_bench_dir);
 

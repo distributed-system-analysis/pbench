@@ -21,9 +21,11 @@ export _testdir=$_testroot/pbench
 # Copy util-scripts execution environment to _testroot
 _testopt=$_testroot/opt/pbench-agent
 res=0
-mkdir -p $_testopt/config $_testopt/util-scripts $_testopt/tool-scripts $_testopt/unittest-scripts
+mkdir -p $_testopt/config $_testopt/util-scripts $_testopt/tool-scripts $_testopt/lib $_testopt/unittest-scripts
 let res=res+$?
 cp -L $_tdir/../base $_testopt/
+let res=res+$?
+cp -rL $_tdir/../config/* $_testopt/config/
 let res=res+$?
 scripts="$_tdir/pbench-*"
 for script in $scripts ; do
@@ -31,6 +33,8 @@ for script in $scripts ; do
     let res=res+$?
 done
 cp -rL $_tdir/../tool-scripts/* $_testopt/tool-scripts/
+let res=res+$?
+cp -rL $_tdir/../lib/* $_testopt/lib/
 let res=res+$?
 cp -rL $_tdir/test-bin/* $_testopt/unittest-scripts/
 let res=res+$?
@@ -59,8 +63,6 @@ PATH=$(remove_path /opt/pbench-agent/util-scripts $PATH)
 # Allows us to intercept scp, ssh, rsync, etc.
 export PATH=$_testopt/unittest-scripts:$_testopt/util-scripts:$_testopt/tool-scripts:$PATH
 
-export CONFIG=$_testopt/config/pbench-agent.cfg
-
 # Fixed timestamp output
 export _PBENCH_BENCH_TESTS=1
 
@@ -77,9 +79,15 @@ function _run {
     echo "$tname $tscrpt $@"
     echo "+++ Running $tname $tscrpt" >> $_testout
 
-    _TEST_ALTERNATE_BENCH_LIBRARY=$_tdir/../bench-scripts/postprocess \
-    _TEST_ALTERNATE_TOOLS_LIBRARY=$_tdir/../tool-scripts/postprocess \
-            benchmark_bin=$_testopt/unittest-scripts/bm pbench_run=$_testdir pbench_log=$_testdir/pbench.log pbench_config=$_testopt benchmark_run_dir=$_testdir $tscrpt $@ >> $_testout 2>&1
+    CONFIG=$_testopt/config/pbench-agent.cfg \
+            pbench_install_dir=$_testopt \
+            pbench_run=$_testdir \
+            pbench_log=$_testdir/pbench.log \
+            pbench_bspp_dir=$_testopt/bench-scripts/postprocess \
+            pbench_lib_dir=$_testopt/lib \
+            benchmark_bin=$_testopt/unittest-scripts/bm \
+            benchmark_run_dir=$_testdir \
+            $tscrpt $@ >> $_testout 2>&1
     sts=$?
 
     echo "--- Finished $tname $tscrpt (status=$sts)" >> $_testout
@@ -155,6 +163,11 @@ function _setup_state {
     tst=$1
     tool=$2
 
+    cp -a $_testopt/config/pbench-agent.cfg.example $_testopt/config/pbench-agent.cfg
+    if [[ $? -ne 0 ]]; then
+        echo "ERROR: failed to create default pbench-agent.cfg" >&2
+        exit 1
+    fi
     mkdir $_testdir
     if [[ $? -ne 0 ]]; then
         echo "ERROR: failed to create test pbench directory, \"$_testdir\"" >&2
@@ -168,6 +181,7 @@ function _setup_state {
 }
 
 function _reset_state {
+    rm -f $_testopt/config/pbench-agent.cfg
     rm -rf $_testdir
     if [[ -d $_testdir ]]; then
         echo "ERROR: unable to remove pbench hierarchy" >&2
@@ -275,6 +289,7 @@ declare -A pre_hooks=(
     [test-02]='export benchmark=fake-bm'
     [test-03]='export benchmark=fake-bm'
     [test-04]='export benchmark=fake-bm'
+    [test-14]='rm $_testopt/config/pbench-agent.cfg; sed -i "s;_REPLACE_ME_;$_testopt;g" $_testdir/tmp/pbench-agent.cfg'
     [test-20]='mkdir -p $_testdir/tmp/tools-default/iostat; touch $_testdir/tmp/tools-default/iostat/iostat-stdout.txt'
     [test-22]='export benchmark=fake-bm'
     [test-33]='(echo "+++ setup pbench results dir time stamps"; touch --date="2019-01-01 12:00:42" $_testdir/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42; touch --date="2019-01-01 12:00:43" $_testdir/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43; touch --date="2019-01-01 12:00:44" $_testdir/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.44; echo "--- setup pbench results dir time stamps") >> $_testout'

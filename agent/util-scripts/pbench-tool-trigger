@@ -37,11 +37,10 @@ my $started = 0;
 my $stop_t = "";
 
 my $pbrun = $ENV{'pbench_run'};
-print "$pbrun\n";
-if (!$pbrun) {
-	$pbrun = `getconf.py pbench_run pbench-agent`;
-	chop $pbrun;
+if (! -d $pbrun) {
+	die "the pbench run directory, [$pbrun], does not exist";
 }
+print "$pbrun\n";
 
 my $t_file =  $pbrun . "/tool-triggers";
 print "$t_file\n";
