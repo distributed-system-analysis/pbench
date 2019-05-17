@@ -1,4 +1,4 @@
-+++ Running test-22 pbench-metadata-log
++++ Running test-22 pbench-metadata-log --dir=/var/tmp/pbench-test-utils/pbench end
 --- Finished test-22 pbench-metadata-log (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench

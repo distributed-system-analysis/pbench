@@ -1,4 +1,4 @@
-+++ Running test-14 pbench-agent-config-activate
++++ Running test-14 pbench-agent-config-activate /var/tmp/pbench-test-utils/pbench/tmp/pbench-agent.cfg
 --- Finished test-14 pbench-agent-config-activate (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench

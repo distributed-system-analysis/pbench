@@ -1,4 +1,4 @@
-+++ Running test-21 pbench-clear-tools
++++ Running test-21 pbench-clear-tools --remote=fubar2
 running . /var/tmp/pbench-test-utils/opt/pbench-agent/profile; pbench-clear-tools --group default  on fubar2
 The remote host fubar2 no longer has tools registered for default group, so the remote@fubar2 entry in the local tools-default directory will be removed
 /bin/rm -f tools-default/remote@fubar2

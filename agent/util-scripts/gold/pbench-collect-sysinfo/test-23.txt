@@ -1,4 +1,4 @@
-+++ Running test-23 pbench-collect-sysinfo
++++ Running test-23 pbench-collect-sysinfo --help
 Usage: pbench-collect-sysinfo [options] beg|end 
 
 Options specified can be one of:

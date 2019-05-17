@@ -1,4 +1,4 @@
-+++ Running test-13 pbench-postprocess-tools
++++ Running test-13 pbench-postprocess-tools --dir=/var/tmp/pbench-test-utils/pbench/tmp --group=default --iteration=1
 tar: This does not look like a tar archive
 tar: Exiting with failure status due to previous errors
 --- Finished test-13 pbench-postprocess-tools (status=2)

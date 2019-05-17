@@ -1,4 +1,4 @@
-+++ Running test-32 pbench-copy-results
++++ Running test-32 pbench-copy-results --help
 usage:
 pbench-copy-results [--help] [--user=<user>] [--prefix=<path>] [--xz-single-threaded] [--show-server]
 --- Finished test-32 pbench-copy-results (status=0)

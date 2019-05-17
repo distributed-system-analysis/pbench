@@ -1,4 +1,4 @@
-+++ Running test-01 pbench-metadata-log
++++ Running test-01 pbench-metadata-log --dir=/var/tmp/pbench-test-utils/pbench/tmp beg
 [error][1900-01-01T00:00:00.000000] Tool group directory, /var/tmp/pbench-test-utils/pbench/tools-default, does not exist
 --- Finished test-01 pbench-metadata-log (status=1)
 +++ pbench tree state

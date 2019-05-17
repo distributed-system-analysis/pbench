@@ -1,4 +1,4 @@
-+++ Running test-11 pbench-register-tool-set
++++ Running test-11 pbench-register-tool-set --remote=fubar
 [error][1900-01-01T00:00:00.000000] Failed to register tool mpstat remotely\n
 [error][1900-01-01T00:00:00.000000] Failed to register tool vmstat remotely\n
 [error][1900-01-01T00:00:00.000000] Failed to register tool iostat remotely\n

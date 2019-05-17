@@ -1,4 +1,4 @@
-+++ Running test-30 pbench-collect-sysinfo
++++ Running test-30 pbench-collect-sysinfo --check --sysinfo=libvirt,default,kernel_config,all,topology,none
 --- Finished test-30 pbench-collect-sysinfo (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench

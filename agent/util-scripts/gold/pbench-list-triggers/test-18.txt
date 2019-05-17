@@ -1,4 +1,4 @@
-+++ Running test-18 pbench-list-triggers
++++ Running test-18 pbench-list-triggers --group=foo
 foo:START FOO:STOP FOO
 --- Finished test-18 pbench-list-triggers (status=0)
 +++ pbench tree state

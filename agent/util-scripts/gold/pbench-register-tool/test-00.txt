@@ -1,4 +1,4 @@
-+++ Running test-00 pbench-register-tool
++++ Running test-00 pbench-register-tool --name=mpstat --group=default -- --interval=10
 mpstat tool is now registered in group default
 --- Finished test-00 pbench-register-tool (status=0)
 +++ pbench tree state
