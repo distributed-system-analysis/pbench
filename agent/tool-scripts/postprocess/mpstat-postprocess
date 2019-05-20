@@ -2,39 +2,50 @@
 #
 # Author: Andrew Theurer
 #
-# usage: mpstat-postprocess <dir>  dir = directory where mpstat.txt can be found
-# mpstat.txt must be generated from "mpstat -t -y -x -m <interval>"
+# The purpose of this script is to convert mpstat-stdout.txt
+# into either (depending on how this script is invoked):
 #
-# The purpose of this script is to
-# -output the chart data in JSON format (mpstat.js)
-# -output html file (mpstat.html) with embedded javascript, using d3.js libraries
-# The result should be several mpstat graphs
+#   CSV files and statically generated graphs
+#   with embedded javascript, using d3.js libraries
+# 
+# or
+#
+#   CommonDataModel documents
+#
+# Usage:
+#
+#   mpstat-postprocess <dir> [<period-doc> <es-dir> <hostname>]
+#
+#   dir = directory where iostat.txt can be found
+#   period-doc = path to CDM period document for this iteration-sample
+#   es-dir = path to base directory where CDM documents should be written
+#   hostname = the host where mpstat was run
+#
+# Note:
+#
+#   arguments 2 - 4 are only used when generating CommonDataModel
+#
+#   mpstat-stdout.txt must be generated from "iostat -P ALL <interval>"
 
 use strict;
 use warnings;
 
 use lib $ENV{'pbench_lib_dir'};
 no lib ".";
+use PbenchCDM qw(log_cdm_metric_sample gen_cdm_metric_data);
 use GenData qw(gen_data);
-
-my $dir=$ARGV[0];
-my $dev;
-my %mpstat;
-my $date;
+use SysStat qw(get_mpstat_cpumode_attributes build_cpu_topology get_cpu_socket_core);
 my $date_ms;
-my $timestamp_ms;
 my $prev_time = "";
-my $line;
-my $cpu;
-my $cpu_online;
-my %graph_threshold;
-my %graph_type;
+my %online_cpus;
+my $dir = shift;
+my $hostname; # for CDM
 
-# we'll force mpstat into a LANG=C environment: two-digit year on the first line,
+# We'll force mpstat into a LANG=C environment: two-digit year on the first line,
 # 24-hour time with *no* AM/PM designation in the timestamp.
 # Usage example: $timestamp_ms = calc_timestamp($time);
 sub calc_timestamp {
-	# time format: HH:MM:SS
+	# Time format: HH:MM:SS
 	# 24-hour format,*no* AM/PM designation
 	my $hourminsec = $_[0];
 	$hourminsec =~ /(\d+):(\d+):(\d+)/;
@@ -59,11 +70,65 @@ sub calc_timestamp {
 	return $date_ms + $this_time;
 }
 
-# read the mpstat.txt and collect stats for all non dm-* devices
+sub cpu_is_online {
+	my $cpu = shift;
+	if (exists $online_cpus{$cpu}) {
+		return $online_cpus{$cpu};
+	} elsif (-e $dir . "/online-cpus.txt" and open(FH, $dir . "/online-cpus.txt")) {
+		# Try a saved file of online status for this mpstat.
+		# This may not exist depending on what version of pbench
+		# was used to get the data.
+		while (my $line = <FH>) {
+			# Take the opporunity to read all the CPUs and populate
+			# our hash
+			if ($line =~ /^(\d+):\s*([0-1])$/) {
+				$online_cpus{$1} = $2;
+			}
+		}
+		close(FH);
+		return $online_cpus{$cpu};
+	} elsif (not defined $hostname or $hostname eq chomp(my $this_host = `hostname -s`)) {
+		# Fall back to sysfs if this is the same system as where the data was collected
+		# $host	name is provided when running for CDM, not for regular post-processing
+			my $online_file="/sys/devices/system/cpu/cpu" . $cpu . "/online";
+			if ( -e $online_file and open(FH, $online_file)) {
+				$online_cpus{$cpu} = <FH>;
+				chomp $online_cpus{$cpu};
+				close(FH);
+			}
+		return $online_cpus{$cpu};
+	} else {
+		# If nothing can be found, just assume the cpu is online
+		$online_cpus{$cpu} = 1;
+		return $online_cpus{$cpu};
+	}
+}
+
+my %mpstat; # For gen_data()
+my %mpstat_cdm; # For log_cdm_metric_sample()
+my $timestamp_ms;
+my $es_dir; # for CDM
+my $period_doc_path; # for CDM
+my @cpu_topology; # for CDM
+my $cdm = 0;
+my @cpumode_attributes = get_mpstat_cpumode_attributes;
+my @nonbusy = (qw(idle iowait steal));
+my @busy = grep(!/^idle?|^iowait?|^steal?/, @cpumode_attributes);
+my %cpu_modes = ( 'idle' => \@nonbusy, 'busy' => \@busy );;
+
+# When peoducing CDM docs, this is typically called from the pbench
+# controller only, and the following arguments must be provided:
+if (scalar @ARGV > 1) {
+	die "Must provide <path-to-period.doc> <es-dir> <tool-hostname>" if (scalar @ARGV != 3);
+	$cdm = 1;
+	$period_doc_path = shift;
+	$es_dir = shift;
+	$hostname = shift;
+	build_cpu_topology(\@cpu_topology, $dir);
+}
 open(MPSTAT_TXT, "$dir/mpstat-stdout.txt") || die "could not find $dir/mpstat-stdout.txt\n";
-
 # All mpstat output processing assumes LANG=C environment when mpstat was run.
-
+#
 # The first line contains the date:
 #    Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 02/25/15 _x86_64_ (8 CPU)
 # Subsequent lines are of the form:
@@ -72,14 +137,11 @@ open(MPSTAT_TXT, "$dir/mpstat-stdout.txt") || die "could not find $dir/mpstat-st
 #    00:00:06       0    0.10    0.00    0.10    0.00    0.00    0.00    0.00    0.00    0.00   99.80
 #    00:00:06       1    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00
 # containing only the time, so we need to combine the two to get a meaningful timestamp.
-
-$line = <MPSTAT_TXT>;
-chomp $line;
+chomp(my $line = <MPSTAT_TXT>);
 if ( $line =~ /\S+\s\S+\s\S+\s+(\d\d\/\d\d\/\d\d).*/ ) {
 	# Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 02/25/15 _x86_64_ (8 CPU)
-	$date = $1;
 	# Convert to milliseconds since the epoch
-	$date_ms = 1000 * `date --date="$date" +%s.%N`;
+	$date_ms = 1000 * `date --date="$1" +%s.%N`;
 } else {
 	die("Bad mpstat.txt file format: first line should have the form: Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 02/25/2015 _x86_64_ (8 CPU)");
 }
@@ -87,37 +149,40 @@ if ( $line =~ /\S+\s\S+\s\S+\s+(\d\d\/\d\d\/\d\d).*/ ) {
 while (my $line = <MPSTAT_TXT>) {
 	chomp $line;
 	if ( $line =~ /(\d\d:\d\d:\d\d)\s+(\S+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+).*/ ) {
-		$timestamp_ms = calc_timestamp($1);
-		$cpu=$2;
-		my $online_file="/sys/devices/system/cpu/cpu" . "$cpu" . "/online";
-		if ( -e $online_file ) {
-			$cpu_online=`cat $online_file`;
-			chomp $cpu_online;
-		} else {
-			$cpu_online = 1;
-		}
-		if ( "$cpu_online" eq "1") {
-			my $usr=$3;
-			my $nice=$4;
-			my $sys=$5;
-			my $iowait=$6;
-			my $irq=$7;
-			my $softirq=$8;
-			my $steal=$9;
-			my $guest=$10;
-			my $gnice=$11;
-			my $idle=$12;
-			my $cpu_label = "cpu" . $cpu;
-			$mpstat{$cpu_label}{$cpu_label}{usr}{$timestamp_ms} = $usr;
-			$mpstat{$cpu_label}{$cpu_label}{nice}{$timestamp_ms} = $nice;
-			$mpstat{$cpu_label}{$cpu_label}{sys}{$timestamp_ms} = $sys;
-			$mpstat{$cpu_label}{$cpu_label}{irq}{$timestamp_ms} = $irq;
-			$mpstat{$cpu_label}{$cpu_label}{guest}{$timestamp_ms} = $guest;
-			$mpstat{$cpu_label}{$cpu_label}{softirq}{$timestamp_ms} = $softirq;
-			$mpstat{$cpu_label}{$cpu_label}{steal}{$timestamp_ms} = $steal;
-			$mpstat{$cpu_label}{$cpu_label}{iowait}{$timestamp_ms} = $iowait;
-			$mpstat{$cpu_label}{$cpu_label}{idle}{$timestamp_ms} = $idle;
-		}
+                (my $time, my $cpuid, my @values) = split(/\s+/, $line);
+		$timestamp_ms = calc_timestamp($time);
+               	my %cpumode_util;
+               	@cpumode_util{@cpumode_attributes} = @values;
+               	$timestamp_ms = calc_timestamp($time);
+               	if ($cdm) {
+			if ($cpuid ne "all") {
+                       		# Note that an "cpuall" metric is not calculated like with traditional pbench.  This metric is dynamically
+                       		# calculated from the Web UI. However, cpu busy vs idle stats have different name_format, so that only busy or
+                       		# only idle stats are aggregated.  Allowing aggregaton all of the modes (idle and busy) together makes little sense, since
+                       		# it will just add up to 100.
+               			(my $socket, my $core) = get_cpu_socket_core($cpuid, \@cpu_topology);
+                       		for my $util_type (keys %cpu_modes ) {
+                               		my $type = "Processor" . ucfirst $util_type . "Util";
+                               		for my $mode (@{ $cpu_modes{$util_type} }) {
+                                       		my %md = ( 'host' => $hostname, 'socket' => $socket, 'core' => $core, 'id' => $cpuid, 'mode' => $mode );
+                                       		log_cdm_metric_sample('mpstat', 'throughput', $type, '%host%-%socket%:%core%:%id%-%mode%',
+                                                               		\%md, \%mpstat_cdm, $timestamp_ms, $cpumode_util{$mode});
+                               		}
+                       		}
+			}
+               	} else {
+                       	for my $mode (@cpumode_attributes) {
+				next if ($mode eq "gnice");
+				my $mode_label;
+				if ($mode eq 'soft') { # Stay compatible with legacy label
+					$mode_label = 'softirq';
+				} else {
+					$mode_label = $mode;
+				}
+				my $cpu_label = "cpu" . $cpuid;
+				$mpstat{$cpu_label}{$cpu_label}{$mode_label}{$timestamp_ms} = $cpumode_util{$mode};
+                       	}
+               	}
 	} elsif ( $line =~ /(\d\d:\d\d:\d\d)\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+.*/ ) {
 		# Run the timestamp calculation since the first head might
 		# contain the last timestamp of the day.
@@ -125,11 +190,18 @@ while (my $line = <MPSTAT_TXT>) {
 	}
 }
 close(MPSTAT_TXT);
-my $file;
-my $graph;
-foreach $file (keys %mpstat) {
-	foreach $graph (keys %{ $mpstat{$file} }) {
-		$graph_type{$file}{$graph} = "stackedAreaChart";
+if ($cdm) {
+	print "cdm\n";
+	gen_cdm_metric_data(\%mpstat_cdm, $period_doc_path, $es_dir, $hostname, "mpstat");
+} else {
+	my $file;
+	my $graph;
+	my %graph_threshold;
+	my %graph_type;
+	foreach $file (keys %mpstat) {
+		foreach $graph (keys %{ $mpstat{$file} }) {
+			$graph_type{$file}{$graph} = "stackedAreaChart";
+		}
 	}
+	gen_data(\%mpstat, \%graph_type, \%graph_threshold, $dir);
 }
-gen_data(\%mpstat, \%graph_type, \%graph_threshold, $dir);
