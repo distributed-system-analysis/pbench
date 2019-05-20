@@ -1,0 +1,10 @@
+#!/bin/bash
+
+script_path=$(dirname $0)
+script_name=$(basename $0)
+pbench_bin="$(dirname $(realpath ${script_path}))"
+
+# source the base script
+. "${pbench_bin}"/base
+
+echo exec ${pbench_bin}/${script_name}.pl
