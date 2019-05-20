@@ -17,7 +17,12 @@
     </div>
     <div id="chart_2">
       <script>
-        create_jschart("lineChart", "timeseries", "chart_2", "network_packets_sec", null, null, { csvfiles: [ "csv/network_l2_network_packets_sec.csv" ], threshold: 300 });
+        create_jschart("lineChart", "timeseries", "chart_2", "network_multicast_packets_sec", null, null, { csvfiles: [ "csv/network_l2_network_multicast_packets_sec.csv" ], threshold: 1 });
+      </script>
+    </div>
+    <div id="chart_3">
+      <script>
+        create_jschart("lineChart", "timeseries", "chart_3", "network_packets_sec", null, null, { csvfiles: [ "csv/network_l2_network_packets_sec.csv" ], threshold: 300 });
       </script>
     </div>
   </body>
