@@ -85,37 +85,45 @@ function collect_block {
 }
 
 function collect_sos {
-	name=$(hostname -f)-pbench
+	_name="$(hostname -f)-pbench"
 	debug_log "[$script_name]collecting sosreport"
-	read sos_ver sos_ver_minor <<< `rpm -q sos | awk -F- '{print $2}' | awk -F. '{print $1" "$2}'`
+	read sos_ver sos_ver_minor sos_ver_subminor <<< `rpm -q sos | awk -F- '{print $2}' | awk -F. '{print $1" "$2" "$3}'`
 	if [[ "$sos_ver" -ge 3 ]]; then
-		quiet="--quiet"
-		block="-o block"
-		processor="-o processor"
-		# ref for plugin collectd: https://github.com/sosreport/sos/pull/866
+		_quiet="--quiet"
+		_block="-o block"
+		_processor="-o processor"
 		if [[ "$sos_ver_minor" -ge 4 ]]; then
-		    collectd="-o collectd"
+			# ref for plugin collectd: https://github.com/sosreport/sos/pull/866
+			_collectd="-o collectd"
 		else
-		    collectd=""
+			_collectd=""
 		fi
-		sos_ver=`rpm -q sos | awk -F- '{print $2}' | awk -F. '{print $2}'`
-		if [[ "$sos_ver" == "0" ]]; then
-		    # No tuned plug-in in sosreport v3.0
-		    tuned=""
+		if [[ "$sos_ver_minor" -eq 0 ]]; then
+			# No tuned plug-in in sosreport v3.0
+			_tuned=""
 		else
-		    # tuned plug-in in sosreport v3.1+
-		    tuned="-o tuned"
+			# tuned plug-in in sosreport v3.1+
+			_tuned="-o tuned"
+		fi
+		if [[ "$sos_ver_minor" -ge 6 || ( "$sos_ver_minor" -eq 5 && ! -z "$sos_ver_subminor" ) ]]; then
+			_general="-o date -o host"
+			_release="-o release"
+		else
+			_general="-o general"
+			_release="-o lsbrelease"
 		fi
 	else
-		quiet=""
-		block=""
-		processor=""
-		tuned=""
-		collectd=""
+		_quiet=""
+		_block=""
+		_processor=""
+		_tuned=""
+		_collectd=""
+		_general="-o general"
+		_release="-o lsbrelease"
 	fi
-	sosreport -o general -o kernel -o filesys -o devicemapper -o system -o memory \
-	      -o hardware -o networking -o lsbrelease ${block} ${processor} ${tuned} \
-	      ${collectd} --batch ${quiet} --tmp-dir=$dir --name "$name" > /dev/null 2>&1
+	sosreport ${_general} -o kernel -o filesys -o devicemapper -o system -o memory \
+	      -o hardware -o networking ${_release} ${_block} ${_processor} ${_tuned} \
+	      ${_collectd} --batch ${_quiet} --tmp-dir=$dir --name "$_name" > /dev/null 2>&1
 	if [[ -f "sosreport-$name-*.tar.xz" ]]; then
 		debug_log "[$script_name]done collecting sosreport"
 	else
