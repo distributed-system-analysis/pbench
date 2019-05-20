@@ -50,7 +50,7 @@ BEGIN {
 use lib "$pbench_lib_path";
 use lib "$_test_alt_tools_lib";
 no lib ".";
-use PbenchCDM qw(create_metric_desc_doc create_metric_data_doc log_cdm_metric_sample gen_cdm_metric_data);
+use PbenchCDM qw(log_cdm_metric_sample gen_cdm_metric_data);
 use GenData qw(gen_data);
 use SysStat qw(get_sar_cpumode_attributes build_cpu_topology get_cpu_socket_core);
 
@@ -77,11 +77,16 @@ if (scalar @ARGV > 1) {
 	while (my $line = <FH>) {
         	if ($line =~ /\S+\s+(\d+)$/ ){
                 	$interval = $1;
-        	}
+			print "Found sar interval: $interval\n";
+        	} else {
+			print "interval not found in sar.cmd: $line\n";
+		}
 	}
 	close FH;
-        print "Could not determine the sampling interval for sar\n";
-        exit 1;
+	if (not defined $interval) {
+        	print "Could not determine the sampling interval for sar\n";
+        	exit 1;
+	}
 }
 my %sar;
 my $prev_time = "";
@@ -95,8 +100,8 @@ my $extra_day_ms= 0;  # the extra amount of time in ms we need to add as the dat
 my %graph_threshold;
 my @cpumode_attributes = get_sar_cpumode_attributes;
 my %cpu_modes;
-my @nonbusy = (qw(id iowait steal));
-my @busy = grep(!/^id?|^iowait?|^steal?/, @cpumode_attributes);
+my @nonbusy = (qw(idle iowait steal));
+my @busy = grep(!/^idle?|^iowait?|^steal?/, @cpumode_attributes);
 $cpu_modes{'idle'} = \@nonbusy;
 $cpu_modes{'busy'} = \@busy;
 $graph_threshold{network_l2}{network_packets_sec} = 300;
