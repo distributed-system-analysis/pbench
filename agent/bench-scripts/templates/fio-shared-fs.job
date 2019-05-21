@@ -1,0 +1,33 @@
+# Syntax:
+#   $target : expands to the fio target file directory
+#   $@ : expands to the value of the option as passed to
+#        pbench-fio
+#
+# For python2 without the latest configparser installed, lines
+# cannot be indented.
+
+[global]
+bs = $@
+ioengine = libaio
+iodepth = 32
+direct = 1
+sync = 0
+time_based = 1
+clocksource = gettimeofday
+ramp_time = 5
+write_bw_log = fio
+write_iops_log = fio
+write_lat_log = fio
+log_avg_msec = 1000
+write_hist_log = fio
+log_hist_msec = 10000
+# log_hist_coarseness = 4 # 76 bins
+
+[TheJob]
+runtime = $runtime
+directory = $target
+rw = $@
+size = $size
+# if you want to specify more than 1 process per fio client host/pod,
+# uncomment this next line and add --numjobs=K to your pbench-fio command
+#numjobs = $numjobs

@@ -567,22 +567,34 @@ function fio_run_job() {
 	pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	local client_opts=""
 
-	if [ ! -z "$client_file" ] ;then
-		typeset -i nclients=$(wc -l $client_file | cut -d ' ' -f 1)
-		client_opts="--client=$client_file --max-jobs=$nclients"
-	elif [ ! -z "$clients" ]; then
+	# if a client-file parameter was passed, then clients is already 
+	# initialized to its contents
+
+	if [ ! -z "$clients" ]; then
 		local max_jobs=0
+		local nclients=0
+
+		if [ ! -z $numjobs ]; then
+			# so that a separate filename will be generated
+			# for each (host, job-number) pair
+			let max_jobs=$numjobs
+		else
+		       for t in `echo $targets | sed -e s/,/" "/g` ; do
+			       let max_jobs=$max_jobs+1
+		       done
+		fi
+
+		# make the fio command shorter by always using a client file
+		# regardless of how clients were specified
+		# we always save the client list in the benchmark results directory
+
+		client_file=$benchmark_results_dir/pbench-clients.list
 		for client in `echo $clients | sed -e s/,/" "/g`; do
-			client_opts="$client_opts --client=$client"
-			if [ ! -z $numjobs ]; then
-				let max_jobs=$numjobs
-			else
-			       for t in `echo $targets | sed -e s/,/" "/g` ; do
-				       let max_jobs=$max_jobs+1
-			       done
-			fi
-		done
-		client_opts="$client_opts --max-jobs=$max_jobs"
+			echo $client
+		done > $client_file
+		let nclients=`wc -l < $client_file`
+		let max_jobs=$max_jobs*$nclients
+		client_opts="$client_opts --client=$client_file --max-jobs=$max_jobs"
 	fi
 
 	# create a command file and keep it with the results for debugging later, or user can run outside of pbench
@@ -593,7 +605,7 @@ function fio_run_job() {
 	$benchmark_results_dir/fio.cmd >$benchmark_results_dir/fio-result.txt
 	popd >/dev/null
 	pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-
+ 
 	histogram_cmd="fio-histo-log-pctiles.py --time-quantum $histogram_interval_sec --percentiles 0 50 90 95 99 100 -- "
 	if [ ! -z "$clients" ]; then
 		for client in `echo $clients | sed -e s/,/" "/g`; do
