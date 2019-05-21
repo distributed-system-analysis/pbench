@@ -89,6 +89,22 @@ and then randomly read/write only an insignificant fraction of the entire set of
 yet still get representative throughput and latency numbers.  
 The same is true for using fio for random I/O on block devices.  
 
+## shared filesystems
+
+A slightly different set of parameters is needed for pbench-fio to work with shared filesystems (where same set of files
+is shared by multiple clients/mountpoints).  For this to work, you must do 2 things:
+
+* specify --target=my-directory 
+* specify --jobfile=/opt/pbench-agent/bench-scripts/templates/fio-shared-fs.job  
+
+**my-directory** is the shared filesystem mountpoint or some subdirectory of it
+
+The job file specification tells fio to target a directory instead of a file.  fio --client
+will then generate unique filenames for every pair of (host, job-number) combinations
+so that no 2 fio jobs will access the same pathname.  See [fio
+documentation](https://fio.readthedocs.io/en/latest/fio_doc.html#client-server) for details.
+(at present the combination of numjobs > 1 with fio-shared-fs.job has not been tested)
+
 # data persistence
 
 Performance of writes is usually only interesting if we know that the writes are persistent (will be visible after a client or server abrupt reset (i.e. crash or power-cycle).  Otherwise you may be just writing to RAM.  For sequential writes, this can be accomplished with the fio jobfile parameter **fsync_on_close=1** . For random writes, this can be accomplished with the parameter **--sync=1** .  Technically O_DIRECT open flag does not guarantee persistence of writes, and only specifies that writes bypass buffer cache.  For example, it is possible to do an O_DIRECT write and have it not be persistent if it reaches block device hardware but was never actually written to persistent storage there, and yes this can happen.  O_SYNC means that the driver both issues the write and blocks until the write is guaranteed to persist.  
@@ -154,9 +170,13 @@ A successful test should show both high throughput and acceptable latency.  For 
 
 # measuring latency percentiles
 
-Usually when a latency requirement is defined in a SLA (service-level agreement) for a cluster, the implication is that *at any point in time* during the operation of the cluster, the Nth latency percentile will not exceed X seconds.  However, fio does not output that information directly in its normal logs - instead it outputs latency percentiles measured over the duration of the entire test run.  For short test this may be sufficient, but for longer tests or tests designed to measure *changes* in latency, you need to capture the variation in latency percentiles over time.   The new fio histogram logging feature helps you do that.  It uses the histogram data structures internal to every fio process, emitting this histogram to a log file at a user-specified interval.  A post-processing tool, [fiologparser-hist.py](https://github.com/axboe/fio/blob/master/tools/hist/fiologparser_hist.py), then reads in these histogram logs and outputs latency percentiles over time.   pbench's postprocessing tool runs it and then graphs the results.  The job file parameters **write_hist_log=h** and **hist_log_msec** control the pathnames and interval for histogram logging.
+Usually when a latency requirement is defined in a SLA (service-level agreement) for a cluster, the implication is that *at any point in time* during the operation of the cluster, the Nth latency percentile will not exceed X seconds.  However, fio does not output that information directly in its normal logs - instead it outputs latency percentiles measured over the duration of the entire test run.  For short test this may be sufficient, but for longer tests or tests designed to measure *changes* in latency, you need to capture the variation in latency percentiles over time.   The new fio histogram logging feature helps you do that.  It uses the histogram data structures internal to every fio process, emitting this histogram to a log file at a user-specified interval.  A post-processing tool, [fio-histo-log-pctiles.py](https://github.com/axboe/fio/blob/master/tools/hist/fio-histo-log-pctiles.py), then reads in these histogram logs and outputs latency percentiles over time.   pbench's postprocessing tool runs it and then graphs the results.  Documentation is [here](https://github.com/axboe/fio/blob/master/doc/fio-histo-log-pctiles.pdf).  The job file parameters **write_hist_log=h** and **hist_log_msec** control the pathnames and interval for histogram logging.
 
-# example of OpenStack Cinder volumes
+# examples
+
+Here are some common use cases for distributed fio.
+
+## example of OpenStack Cinder volumes
 
 Advice: do everything on smallest possible scale to start with, until you get your input files to work, then scale it out.
 
@@ -246,6 +266,39 @@ The random read test can be performed using the same job file if you want.
     /usr/local/bin/fio --client-file=vms.list --pre-iteration-script=drop-cache.sh \
         --rw=randwrite,randread -b 4,128,1024 -d /mnt/fio/files --max-jobs=1024 \
         --output-format=json fio-random.job
+
+## testing block devices with pbench-fio
+
+In this example, each host has 2 Ceph RBD block devices, /dev/rbd0 and /dev/rbd1.  We want to generate a workload on
+both of these block devices on all hosts - this is the only way to drive RBD to its performance limit.  This command
+shows how to do that:
+
+```
+pbench-fio -c 192.168.121.64,192.168.121.112,192.168.121.158 \
+  --job-file=/opt/pbench-agent/bench-scripts/templates/fio.job \
+  --targets=/dev/rbd0,/dev/rbd1 \
+  -b 4 -t read -s 64m
+```
+
+This will result in a total of 6 fio processes, 2 per host, each process accessing a different RBD block device.
+
+## testing a distributed filesystem with pbench-fio
+
+In this example, each host has a Cephfs mountpoint, /mnt/cephfs, but this could be an NFS, Gluster or any other
+mountpoint to a distributed filesystem.
+
+```
+pbench-fio -c 192.168.121.64,192.168.121.112,192.168.121.158 \
+  --job-file=/opt/pbench-agent/bench-scripts/templates/fio-shared-fs.job \
+  --targets=/mnt/cephfs \
+  -b 4 -t read -s 64m
+```
+
+In this case, the --targets parameter points to a shared directory (the mountpoint), and the special fio-shared-fs.job
+file will assign this to the fio "directory" parameter.   When used with --client option, fio will 
+then generate unique filenames (job number, host) pair and have these files assigned to fio processes
+on each host.    At present, numjobs must be set to 1.
+
 
 # syntax
 
