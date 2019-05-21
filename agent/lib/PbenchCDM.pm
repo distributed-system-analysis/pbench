@@ -309,7 +309,7 @@ sub gen_cdm_metric_data {
             my $begin_value;
             my $begin_timestamp;
             my $end_timestamp;
-            for my $timestamp_ms (sort keys $series{'samples'}) {
+            for my $timestamp_ms (sort keys %{ $series{'samples'} }) {
                 $nr_samples++;
                 $nr_label_samples++;
                 if (not defined $series{'samples'}{$timestamp_ms}) {
