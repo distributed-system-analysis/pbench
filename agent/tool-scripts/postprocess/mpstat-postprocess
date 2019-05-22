@@ -16,7 +16,7 @@
 #
 #   mpstat-postprocess <dir> [<period-doc> <es-dir> <hostname>]
 #
-#   dir = directory where iostat.txt can be found
+#   dir = directory where mpstat.txt can be found
 #   period-doc = path to CDM period document for this iteration-sample
 #   es-dir = path to base directory where CDM documents should be written
 #   hostname = the host where mpstat was run
@@ -25,7 +25,7 @@
 #
 #   arguments 2 - 4 are only used when generating CommonDataModel
 #
-#   mpstat-stdout.txt must be generated from "iostat -P ALL <interval>"
+#   mpstat-stdout.txt must be generated from "mpstat -P ALL <interval>"
 
 use strict;
 use warnings;
@@ -75,7 +75,9 @@ sub cpu_is_online {
 	if (exists $online_cpus{$cpu}) {
 		return $online_cpus{$cpu};
 	} elsif (-e $dir . "/online-cpus.txt" and open(FH, $dir . "/online-cpus.txt")) {
-		# Try a saved file of online status for this mpstat.
+		# Try a saved file of online status for this mpstat (this
+		# relies on this file being generated at some point before
+		# postprocessing, likely at stop-tools phase),
 		# This may not exist depending on what version of pbench
 		# was used to get the data.
 		while (my $line = <FH>) {
@@ -89,7 +91,7 @@ sub cpu_is_online {
 		return $online_cpus{$cpu};
 	} elsif (not defined $hostname or $hostname eq chomp(my $this_host = `hostname -s`)) {
 		# Fall back to sysfs if this is the same system as where the data was collected
-		# $host	name is provided when running for CDM, not for regular post-processing
+		# $hostname is defined when running for CDM, not for regular post-processing
 			my $online_file="/sys/devices/system/cpu/cpu" . $cpu . "/online";
 			if ( -e $online_file and open(FH, $online_file)) {
 				$online_cpus{$cpu} = <FH>;
@@ -114,9 +116,9 @@ my $cdm = 0;
 my @cpumode_attributes = get_mpstat_cpumode_attributes;
 my @nonbusy = (qw(idle iowait steal));
 my @busy = grep(!/^idle?|^iowait?|^steal?/, @cpumode_attributes);
-my %cpu_modes = ( 'idle' => \@nonbusy, 'busy' => \@busy );;
+my %cpu_modes = ( 'idle' => \@nonbusy, 'busy' => \@busy );
 
-# When peoducing CDM docs, this is typically called from the pbench
+# When producing CDM docs, this is typically called from the pbench
 # controller only, and the following arguments must be provided:
 if (scalar @ARGV > 1) {
 	die "Must provide <path-to-period.doc> <es-dir> <tool-hostname>" if (scalar @ARGV != 3);
@@ -149,29 +151,34 @@ if ( $line =~ /\S+\s\S+\s\S+\s+(\d\d\/\d\d\/\d\d).*/ ) {
 while (my $line = <MPSTAT_TXT>) {
 	chomp $line;
 	if ( $line =~ /(\d\d:\d\d:\d\d)\s+(\S+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+).*/ ) {
-                (my $time, my $cpuid, my @values) = split(/\s+/, $line);
+		(my $time, my $cpuid, my @values) = split(/\s+/, $line);
+		next if ($cpuid ne "all" and not cpu_is_online($cpuid));
 		$timestamp_ms = calc_timestamp($time);
-               	my %cpumode_util;
-               	@cpumode_util{@cpumode_attributes} = @values;
-               	$timestamp_ms = calc_timestamp($time);
-               	if ($cdm) {
+		my %cpumode_util;
+		@cpumode_util{@cpumode_attributes} = @values;
+		$timestamp_ms = calc_timestamp($time);
+		if ($cdm) {
 			if ($cpuid ne "all") {
-                       		# Note that an "cpuall" metric is not calculated like with traditional pbench.  This metric is dynamically
-                       		# calculated from the Web UI. However, cpu busy vs idle stats have different name_format, so that only busy or
-                       		# only idle stats are aggregated.  Allowing aggregaton all of the modes (idle and busy) together makes little sense, since
-                       		# it will just add up to 100.
-               			(my $socket, my $core) = get_cpu_socket_core($cpuid, \@cpu_topology);
-                       		for my $util_type (keys %cpu_modes ) {
-                               		my $type = "Processor" . ucfirst $util_type . "Util";
-                               		for my $mode (@{ $cpu_modes{$util_type} }) {
-                                       		my %md = ( 'host' => $hostname, 'socket' => $socket, 'core' => $core, 'id' => $cpuid, 'mode' => $mode );
-                                       		log_cdm_metric_sample('mpstat', 'throughput', $type, '%host%-%socket%:%core%:%id%-%mode%',
-                                                               		\%md, \%mpstat_cdm, $timestamp_ms, $cpumode_util{$mode});
-                               		}
-                       		}
+				# Note that an "all" cpu metric is not logged with CDM like with traditional pbench.  The "all" metric representes all CPUs
+				# in a host as a range of 0-100%.  We do not represent CPU utilization this way in CDM.  Instead, we calculate system CPU by
+				# aggrgeating per-CPU stats into a single stat, dynamically, via the Web UI.  A per-system CPU utilization will be from
+				# 0 to 100*nr_cpus instead of 0-100,
+				#
+				# Addtionally, cpu busy and idle stats have different name_format, so that only busy or
+				# only idle stats are aggregated.  Allowing aggregaton all of the modes (idle and busy) together makes little sense, since
+				# it will just add up to 100.
+				(my $socket, my $core) = get_cpu_socket_core($cpuid, \@cpu_topology);
+				for my $util_type (keys %cpu_modes ) {
+				my $type = "Processor" . ucfirst $util_type . "Util";
+					for my $mode (@{ $cpu_modes{$util_type} }) {
+						my %md = ( 'host' => $hostname, 'socket' => $socket, 'core' => $core, 'id' => $cpuid, 'mode' => $mode );
+						log_cdm_metric_sample('mpstat', 'throughput', $type, '%host%-%socket%:%core%:%id%-%mode%',
+									\%md, \%mpstat_cdm, $timestamp_ms, $cpumode_util{$mode});
+					}
+				}
 			}
-               	} else {
-                       	for my $mode (@cpumode_attributes) {
+		} else {
+			for my $mode (@cpumode_attributes) {
 				next if ($mode eq "gnice");
 				my $mode_label;
 				if ($mode eq 'soft') { # Stay compatible with legacy label
@@ -181,8 +188,8 @@ while (my $line = <MPSTAT_TXT>) {
 				}
 				my $cpu_label = "cpu" . $cpuid;
 				$mpstat{$cpu_label}{$cpu_label}{$mode_label}{$timestamp_ms} = $cpumode_util{$mode};
-                       	}
-               	}
+			}
+		}
 	} elsif ( $line =~ /(\d\d:\d\d:\d\d)\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+.*/ ) {
 		# Run the timestamp calculation since the first head might
 		# contain the last timestamp of the day.
