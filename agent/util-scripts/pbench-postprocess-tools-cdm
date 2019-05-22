@@ -11,7 +11,9 @@ for tools_dir in `/bin/ls $sample_dir | grep "^tools-"`; do
 		mkdir -p $es_dir/metrics/$host
 		for tool in `/bin/ls $sample_dir/$tools_dir/$host`; do
 			if [ -e /opt/pbench-agent/tool-scripts/postprocess/${tool}-postprocess-cdm ]; then
-				/opt/pbench-agent/tool-scripts/postprocess/${tool}-postprocess-cdm $sample_dir/$tools_dir/$host/$tool $period_doc $es_dir $host
+				cmd="/opt/pbench-agent/tool-scripts/postprocess/${tool}-postprocess-cdm $sample_dir/$tools_dir/$host/$tool $period_doc $es_dir $host"
+				echo $cmd
+				$cmd
 			fi
 		done
 	done

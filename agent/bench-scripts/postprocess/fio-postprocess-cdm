@@ -5,11 +5,10 @@
 use strict;
 use warnings;
 use File::Basename;
-my $pbench_install_dir = $ENV{'pbench_install_dir'};
 use lib $ENV{'pbench_lib_dir'};
 use JSON;
 use Data::Dumper;
-use PbenchCDM qw(create_metric_desc_doc create_metric_data_doc create_bench_iter_sample_period_doc);
+use PbenchCDM qw(log_cdm_metric_sample gen_cdm_metric_data create_bench_iter_sample_period_doc);
 use PbenchBase qw(get_json_file put_json_file remove_element);
 
 printf "\@ARGV: %s\n", join(" ", @ARGV);
@@ -28,113 +27,112 @@ my $rundir = shift(@ARGV);
 my $base_bench_dir = shift(@ARGV);
 my $tool_group = shift(@ARGV);
 my $last_sample = shift(@ARGV);
-my $json_ref = get_json_file("sample.json");
-my %sample = %$json_ref; # This is the CDM doc for this benchmark-iteration-sample
-my $sample_id = $sample{'sample'}{'id'}; # Needs to be included in all metric-sample docs
-my $run_id = $sample{'run'}{'id'}; # Needs to be included in all metric-sample docs
+my $pp_mode = shift(@ARGV);
 
-# Create [at least one] benchmark period: a window of time during this benchmark, this one marked
-# as "measurement", to indicate this period as the one the the UI/query tool computes a summary
-# metric 
-my %period = create_bench_iter_sample_period_doc(\%sample, "measurement");
-# The primary metric needs to match exactly one metric-type that gets created from the benchmark data
-$sample{'iteration'}{'primary_metric'} = "iops";
-$sample{'iteration'}{'primary_period'} = "measurement";
-put_json_file(\%sample, $base_bench_dir . "/es/bench/sample-" . $sample{'sample'}{'id'} . ".json");
+if ($pp_mode eq 'cdm') {
+    my $json_ref = get_json_file("sample.json");
+    my %sample = %$json_ref; # This is the CDM doc for this benchmark-iteration-sample
+    my $sample_id = $sample{'sample'}{'id'}; # Needs to be included in all metric-sample docs
+    my $run_id = $sample{'run'}{'id'}; # Needs to be included in all metric-sample docs
 
-# Under ./clients/<hostname>, process the fio result files
-opendir(my $clients_dh, "clients") || die "$script_name: could not open directory clients: $!\n";
-my @client_dirs = grep(!/^\./, (sort readdir($clients_dh)));
-closedir $clients_dh;
-my $earliest_timestamp;
-my $latest_timestamp;
-for my $client (@client_dirs) {
-    # Until the CDM/Elastic UI/Web interface is ready, we need to 
-    # call the legacy fio post-processing script to generate a
-    # Pbench result.json for each sample.  In order to do that, we
-    # need a single "fio-result.json", so we symilnk that from the
-    # first client to the main directory, where that script expects
-    # it to be
-    if (not -e "fio-result.txt") {
-        symlink("clients" . "/" . $client . "/" . "fio-result.json", "fio-result.txt");
-    }
-    mkdir("../../es/metrics");
-    mkdir("../../es/metrics/" . $client);
-    print "client: $client\n";
-    opendir(my $client_dh, "clients/" . $client) ||
-        die "$script_name: could not open client directory: $!\n";
-    my @log_files = grep(/fio_([a-z]+)\.(\d+)\.log$/, (sort readdir($client_dh)));
-    closedir $client_dh;
-    # Metric docs that are for the same timeseries go into a "newline delimited json"
-    # (ndjson) file instead of individual files because (1) it creates far less
-    # files and (2) is better suited for importing into ES.  The document format
-    # consists of 1 line of action followed by 1 line of json data, matching the
-    # format expected for "_bulk/" action for Elasticsearch.
-    open(NDJSON_DATA_FH, ">../../es/metrics/" . $client .  "/metric_data-" . $period{"period"}{"id"}
-         . "-fio.ndjson");
-    open(NDJSON_DESC_FH, ">../../es/metrics/" . $client .  "/metric_desc-" . $period{"period"}{"id"}
-         . "-fio.ndjson");
-    for my $log_file (@log_files) {
-        if ($log_file =~ /fio_([a-z]+)\.(\d+)\.log$/) {
-            my $metric_type = $1;
-            my $job_id = $2;
-            open(my $log_fh, "clients/$client/$log_file")
-                || die "$script_name: could not open file clients/$client/$log_file $!\n";
-            my $last_timestamp_ms;
-            my %metric_desc = create_metric_desc_doc(
-                \%period,
-                "throughput",   # The metric-class
-                $metric_type,   # The metric-type
-                $client,# The hostname
-                "fio",      # The source
-                "%source%-%type%-%host%-%job%", # The metric-instance name format
-                );
-            $metric_desc{'metric_desc'}{'job'} = $job_id;
-            printf NDJSON_DESC_FH "%s\n", '{ "index": {} }';
-            printf NDJSON_DESC_FH "%s\n", to_json(\%metric_desc);
-            while (<$log_fh>) {
-                my $line = "$_";
-                chomp($line);
-                if ( $line =~  /(\d+),\s+(\d+),\s+(\d+),\s+(\d+)/ ) {
-                    my $timestamp_ms = $1;
-                    my $value = $2;
-                    my $rwtype = $3; #ToDo: generate per-rwtype metrics
-                    if ($last_timestamp_ms) {
-                        my %metric_data = create_metric_data_doc(
-                            $metric_desc{'metric_desc'}{'id'},
-                            $value,
-                            $last_timestamp_ms + 1, 
-                            $timestamp_ms);
-                        printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
-                        printf NDJSON_DATA_FH "%s\n", to_json(\%metric_data);
+    # Create [at least one] benchmark period: a window of time during this benchmark, this one marked
+    # as "measurement", to indicate this period as the one the the UI/query tool computes a summary
+    # metric 
+    my %period = create_bench_iter_sample_period_doc(\%sample, "measurement");
+    # The primary metric needs to match exactly one metric-type that gets created from the benchmark data
+    $sample{'iteration'}{'primary_metric'} = "iops";
+    $sample{'iteration'}{'primary_period'} = "measurement";
+    put_json_file(\%sample, $base_bench_dir . "/es/bench/sample-" . $sample{'sample'}{'id'} . ".json");
+
+    # Under ./clients/<hostname>, process the fio result files
+    opendir(my $clients_dh, "clients") || die "$script_name: could not open directory clients: $!\n";
+    my @client_dirs = grep(!/^\./, (sort readdir($clients_dh)));
+    closedir $clients_dh;
+    my $earliest_timestamp;
+    my $latest_timestamp;
+    my %fio_cdm;
+    for my $host (@client_dirs) {
+        # Until the CDM/Elastic UI/Web interface is ready, we need to 
+        # call the legacy fio post-processing script to generate a
+        # Pbench result.json for each sample.  In order to do that, we
+        # need a single "fio-result.json", so we symilnk that from the
+        # first client to the main directory, where that script expects
+        # it to be
+        mkdir("../../es/metrics");
+        mkdir("../../es/metrics/" . $host);
+        print "client: $host\n";
+        opendir(my $client_dh, "clients/" . $host) ||
+            die "$script_name: could not open client directory: $!\n";
+        my @log_files = grep(/fio_([a-z]+)\.(\d+)\.log$/, (sort readdir($client_dh)));
+        closedir $client_dh;
+        for my $log_file (@log_files) {
+            if ($log_file =~ /fio_([a-z]+)\.(\d+)\.log$/) {
+                my $metric_type = $1;
+                my $job_id = $2;
+                open(my $log_fh, "clients/$host/$log_file")
+                    || die "$script_name: could not open file clients/$host/$log_file $!\n";
+                while (<$log_fh>) {
+                    my $line = "$_";
+                    chomp($line);
+                    if ( $line =~  /(\d+),\s+(\d+),\s+(\d+),\s+(\d+)/ ) {
+                        my $timestamp_ms = $1;
+                        my $value = $2;
+                        my $rwtype = $3;
+                        if ($rwtype == 0) {
+                            $rwtype = "Read";
+                        } elsif ($rwtype == 1) {
+                            $rwtype = "Write";
+                        } elsif ($rwtype == 2) {
+                            $rwtype = "Trim";
+                        } else {
+                            $rwtype = "Unknown";
+                        }
+                        my %md = ( 'host' => $host, 'job' => $job_id, 'action' => $rwtype );
+                        log_cdm_metric_sample('fio', 'throughput', $metric_type, '%host%-%job%-%action%',
+                                            \%md, \%{ $fio_cdm{$host} }, $timestamp_ms, $value);
+                        $earliest_timestamp = $timestamp_ms if (not defined $earliest_timestamp
+                                                                or $timestamp_ms < $earliest_timestamp);
+                        $latest_timestamp = $timestamp_ms if (not defined $latest_timestamp
+                                                                or $timestamp_ms > $latest_timestamp);
                     }
-                    if (! $earliest_timestamp or $earliest_timestamp > $timestamp_ms) {
-                        $earliest_timestamp = $timestamp_ms;
-                    }
-                    if (! $latest_timestamp or $latest_timestamp < $timestamp_ms) {
-                        $latest_timestamp = $timestamp_ms;
-                    }
-                    $last_timestamp_ms = $timestamp_ms;
                 }
+                close($log_fh);
             }
-            close($log_fh);
+        }
+        # Metric documents are not generated yet because we
+        # don't have all the info for the period document
+    }
+    $period{'period'}{'begin'} = $earliest_timestamp;
+    $period{'period'}{'end'} = $latest_timestamp;
+    my $period_file = $base_bench_dir . "/es/bench/period-" . $period{'period'}{'id'} . ".json";
+    put_json_file(\%period, $period_file);
+    # Now that the period document is complete, we can create the metric documents
+    for my $host (keys %fio_cdm) {
+        gen_cdm_metric_data(\%{ $fio_cdm{$host} }, $period_file, $base_bench_dir . "/es", $host, "fio");
+    }
+    
+    # Now post-process the tools for CDM
+    my $tools_cdm_pp_cmd = "pbench-postprocess-tools-cdm " . $period_file . " " .
+                        $base_bench_dir . "/es  " . $rundir;
+    printf "tools_cdm_pp cmd\n%s\n\n", $tools_cdm_pp_cmd;
+    my $tools_cdm_pp_output = `$tools_cdm_pp_cmd`;
+    printf "tools_cdm_pp output\n%s\n\n", $tools_cdm_pp_output;
+} else { # $pp_mode = html
+    opendir(my $clients_dh, "clients") || die "$script_name: could not open directory clients: $!\n";
+    my @client_dirs = grep(!/^\./, (sort readdir($clients_dh)));
+    closedir $clients_dh;
+    for my $host (@client_dirs) {
+        # We need a single "fio-result.json", so we symilnk that from the
+        # first client to the main directory, where the legacy pp script expects
+        # it to be
+        if (not -e "fio-result.txt") {
+            symlink("clients" . "/" . $host . "/" . "fio-result.json", "fio-result.txt");
+            last;
         }
     }
-    close(NDJSON_DATA_FH);
-    close(NDJSON_DESC_FH);
-}
-$period{'period'}{'begin'} = $earliest_timestamp;
-$period{'period'}{'end'} = $latest_timestamp;
-my $period_file = $base_bench_dir . "/es/bench/period-" . $period{'period'}{'id'} . ".json";
-put_json_file(\%period, $period_file);
-my $tools_cdm_pp_cmd = "pbench-postprocess-tools-cdm " . $period_file . " " .
-                       $base_bench_dir . "/es  " . $rundir;
-printf "tools_cdm_pp cmd\n%s\n\n", $tools_cdm_pp_cmd;
-my $tools_cdm_pp_output = `$tools_cdm_pp_cmd`;
-printf "tools_cdm_pp output\n%s\n\n", $tools_cdm_pp_output;
-
-# Call the legacy post-process script, so we can build the static html reports later
-system($pbench_install_dir . "/bench-scripts/postprocess/fio-postprocess `/bin/pwd` fio default");
-if (defined $last_sample and $last_sample eq "1") {
-    system($pbench_install_dir . "/bench-scripts/postprocess/process-iteration-samples `/bin/pwd`/.. iops 100 0 1 n n");
+    # Call the legacy post-process script, so we can build the static html reports later
+    system($ENV{'pbench_install_dir'} . "/bench-scripts/postprocess/fio-postprocess `/bin/pwd` fio default");
+    if (defined $last_sample and $last_sample eq "1") {
+        system($ENV{'pbench_install_dir'} . "/bench-scripts/postprocess/process-iteration-samples `/bin/pwd`/.. iops 100 0 1 n n");
+    }
 }

@@ -11,9 +11,7 @@
 
 use strict;
 use warnings;
-use File::Basename;
 use lib $ENV{'pbench_lib_dir'};
-use JSON;
 use File::Temp;
 use Data::Dumper;
 use PbenchBase       qw(get_json_file put_json_file get_benchmark_names get_clients
@@ -38,6 +36,7 @@ my $sample_dir = shift(@ARGV); # dir for *this* iteration-sample execution
 my $base_dir = shift(@ARGV); # dir for all of the pbench run
 my $tool_group = shift(@ARGV);
 my $last_sample = shift(@ARGV);
+my $pp_mode = shift(@ARGV);
 my $pp_only = shift(@ARGV);
 if (! -d $base_dir) {
     die "The base bench directory, $base_dir must already exist";
@@ -64,7 +63,7 @@ $sample{'sample'}{'num'} = $sample_num;
 my %hosts;
 for my $type ("client", "server") {
     if (exists $iteration{'run'}{'bench'}{$type . 's'} and $iteration{'run'}{'bench'}{$type . 's'}) {
-        my @hosts = split(/,/, $iteration{'run'}{'bench'}{$type . 's'});
+        my @hosts = split(/ /, $iteration{'run'}{'bench'}{$type . 's'});
         $hosts{$type} = \@hosts;
     }
 }
@@ -140,8 +139,10 @@ if (! $pp_only) {
     
     # start the tools:
     system("pbench-start-tools --iteration=0 --group=" . $tool_group . " --dir=" . $sample_dir);
+    print "starting tools\n";
             
     # benchmark-execution:
+    print "starting benchmark\n";
     for my $type (reverse sort keys %hosts) { # reverse so "server" is first
         if ($hosts{$type} and scalar @{ $hosts{$type} }) {
             my $cmd;
@@ -168,13 +169,16 @@ if (! $pp_only) {
     }
 
     # stop the tools:
+    print "stopping tools\n";
     system("pbench-stop-tools --iteration=0 --group=" . $tool_group . " --dir=" . $sample_dir);
 
     # post-process the tools:
+    print "copying tool data\n";
     system("pbench-postprocess-tools --iteration=0 --group=" . $tool_group . " --dir=" . $sample_dir);
 
     # post-benhcmark-execution:
     # - copy files back to controller
+    print "copying benchmark data\n";
     for my $type (keys %hosts) {
         if ($hosts{$type} and scalar @{ $hosts{$type} }) {
             mkdir($sample_dir . "/" . $type . "s");
@@ -194,6 +198,7 @@ if (! $pp_only) {
 
 # - post-process the result data on the controller
 if (exists $specs{"controller"}{"post-script"} and $specs{"controller"}{"post-script"} ne "") {
+    print "post-processing\n";
     # A couple of things about the benchmark post-procesing script:
     # (1) It is responsible for completing and writing the sample document and creating all period
     # and metric documents.  It requires a partially completed sample document, that is done below,
@@ -205,7 +210,8 @@ if (exists $specs{"controller"}{"post-script"} and $specs{"controller"}{"post-sc
     put_json_file(\%sample, $sample_dir . "/sample" . ".json");
     my $postprocess_cmd = ". /opt/pbench-agent/base; cd \"" . $sample_dir . "\"; " .
                           $specs{"controller"}{"post-script"} . " " . $sample_dir . " " .
-                          $base_dir . " " . $tool_group . " " .$last_sample . " 2>&1";
+                          $base_dir . " " . $tool_group . " " .$last_sample .
+                          " " . $pp_mode . " 2>&1";
     my $pp_cmd_file = $sample_dir . "/postprocess.cmd";
     open(my $fh_cmd, ">" . $pp_cmd_file);
     printf { $fh_cmd } "%s\n", $postprocess_cmd;

@@ -36,7 +36,12 @@ use lib $ENV{'pbench_lib_dir'};
 no lib ".";
 use GenData qw(gen_data);
 use SysStat qw(get_pidstat_attributes);
-use PbenchCDM qw(log_cdm_metric_sample gen_cdm_metric_data);
+BEGIN {
+    if (scalar @ARGV > 1) {
+        require PbenchCDM;
+        PbenchCDM->import( qw(log_cdm_metric_sample gen_cdm_metric_data) );
+    }
+}
 
 my $dir = shift;
 my %pidstat;

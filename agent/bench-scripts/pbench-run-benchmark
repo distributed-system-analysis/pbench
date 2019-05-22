@@ -15,11 +15,9 @@
 use strict;
 use warnings;
 use File::Basename;
-use File::Path qw(remove_tree);
 my $pbench_install_dir = $ENV{'pbench_install_dir'};
 use lib $ENV{'pbench_lib_dir'};
-use JSON;
-use Data::Dumper;
+use File::Path qw(remove_tree);
 use PbenchCDM        qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc
                         create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc
                         get_uuid create_bench_iter_doc create_config_doc);
@@ -32,7 +30,8 @@ use PbenchAnsible    qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from
                         sync_dir_from_hosts verify_success stockpile_hosts);
 
 my %defaults = ( "num-samples" => 1,
-                 "tool-group" => "default" );
+                 "tool-group" => "default",
+                 "postprocess-mode" => "html"); # other mode is "cdm"
 
 my $pp_only = 0;
 my $base_bench_dir = "";
@@ -184,7 +183,7 @@ my $run_id = get_uuid;
 my %last_run_doc;
 print "Generating all benchmark iterations\n";
 # We don't want these params passed to gen-iterations because they are not benchmark-native options
-remove_params(\@ARGV, qw(postprocess-only user-desc user-tags user-name user-email pre-sample-cmd));
+remove_params(\@ARGV, qw(postprocess-only user-desc user-tags user-name user-email pre-sample-cmd postprocess-mode));
 if (! $pp_only) {
     # Store the rest of the params for re-running or postprocessing
     printf $cmd_fh " %s", join(" ", @ARGV);
@@ -194,6 +193,7 @@ if (! $pp_only) {
 my $get_defs_cmd = "pbench-gen-iterations " . $benchmark . " --defaults-only " . join(" ", @ARGV);
 # Escape any quotes so they don't get lost before calling pbench-gen-iterations
 $get_defs_cmd =~ s/\"/\\\"/g;
+print "resolving default first with $get_defs_cmd\n";
 my @param_sets = `$get_defs_cmd`;
 if ($? != 0) {
     printf "%s\nCalling pbench-gen-iterations failed, exiting\n", join(" ", @param_sets);
@@ -337,14 +337,18 @@ while (scalar @param_sets > 0) {
             my $benchmark_cmd = "pbench-run-benchmark-sample " . $es_dir . "/bench/iteration-" .
                                 $iter_doc{'iteration'}{'id'} . ".json " . $iteration_sample_dir .
                                 " " . $base_bench_dir . " " . $params{"tool-group"} .
-                                " " .  $last_sample . " " . $pp_only;
+                                " " .  $last_sample . " " . $params{"postprocess-mode"} .
+                                " " . $pp_only;
             if ($pp_only) {
                 print BULK_FH "$benchmark_cmd  &\n";
                 $nr_pp_jobs++;
             } else {
-                my $benchmark_sample_output = `$benchmark_cmd`;
+                open(CMD_FH, ">" . $iteration_sample_dir . "/benchmark-sample.cmd");
+                printf CMD_FH "%s\n", $benchmark_cmd;
+                close(CMD_FH);
+                chmod(0755, $iteration_sample_dir . "/benchmark-sample.cmd");
+                system($iteration_sample_dir . "/benchmark-sample.cmd");
                 my $exit_code = $?;
-                print "output:\n$benchmark_sample_output";
                 if ($exit_code != 0) {
                     printf "Stopping because of iteration-sample exit code: %d\n", $exit_code;
                     exit 1;
@@ -366,10 +370,12 @@ while (scalar @param_sets > 0) {
 }
 metadata_log_end_run($base_bench_dir, $benchmark, $params{'user-tags'}, $params{'tool-group'}, @iteration_names);
 close $fh;
-# Generate the result.html (to go away once CDM/Elastic UI is available)
-system(". " . $pbench_install_dir . "/base; " . $pbench_install_dir .
-    "/bench-scripts/postprocess/generate-benchmark-summary " . $benchmark .
-    " " . $benchmark . " " . $base_bench_dir);
+if ($params{'postprocess-mode'} eq 'html') {
+    # Generate the result.html (to go away once CDM/Elastic UI is available)
+    system(". " . $pbench_install_dir . "/base; " . $pbench_install_dir .
+        "/bench-scripts/postprocess/generate-benchmark-summary " . $benchmark .
+        " " . $benchmark . " " . $base_bench_dir);
+}
 
 # Convert the stockpile data with scribe, then create CDM docs in ./es/config
 if (-e $base_bench_dir . "/stockpile.json") {

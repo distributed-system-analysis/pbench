@@ -14,6 +14,8 @@ use PbenchBase qw(get_json_file put_json_file remove_element);
 my $coder = JSON->new;
 my $count = 0;
 
+open(FH, ">import.log") || die "Could not open import.log";;
+
 sub process_dir {
 	my $dir = shift;
 	my $index = shift;
@@ -24,7 +26,7 @@ sub process_dir {
 			process_dir($dir . "/" . $entry, $index, $host);
 		} else {
 			# separate the UUID (like -23316532-b21a-448c-8634-fa91c2a3410c) from the index name)
-			if ($entry =~ /(\D+)\d*-[a-x0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}[^\.]*\.(ndjson|json$)/) {
+			if ($entry =~ /(\D+)\d*-[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}[^\.]*\.(ndjson|json$)/) {
 				my $doc_type = $1;
 				my $file_type = $2;
 				my $curl_cmd = "";
@@ -39,6 +41,7 @@ sub process_dir {
 					die;
 				}
 				my $json_ref = $coder->decode($output);
+				printf FH "%s\n", $output;
 				if ($file_type eq "ndjson" and $$json_ref{'errors'} eq JSON::true) {
 					print "import of $entry failed:\n\n$output\n\n";
 					exit;
@@ -66,6 +69,9 @@ my @es_dirs = grep(!/^\./, (sort readdir($es_dh)));
 closedir $es_dh;
 
 for my $index (@es_dirs) {
-	process_dir($es_dir . "/" . $index, $index, $es_host);
+	if ( -d $index) {
+		process_dir($es_dir . "/" . $index, $index, $es_host);
+	}
 }
+close(FH);
 printf "Processed %d files\n", $count;
