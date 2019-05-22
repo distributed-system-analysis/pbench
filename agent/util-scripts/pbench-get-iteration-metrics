@@ -1,0 +1,67 @@
+#!/usr/bin/perl
+## -*- mode: perl; indent-tabs-mode: t; perl-indent-level: 4 -*-
+## vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
+
+# Usage: pbench-get-metrics <elasticsearch-hostname-and-port> <iteration-id>
+#
+# You can get the iteraton-id with pbench-get-iterations.
+#
+# This script will output all of the metrics (benchmark and tools)
+# for an iteration-id
+
+use strict;
+use warnings;
+use File::Basename;
+use File::Find;
+use REST::Client;
+use Time::HiRes qw(gettimeofday);
+
+use lib $ENV{'pbench_lib_dir'};
+use JSON::MaybeXS;
+use Data::Dumper;
+use Getopt::Long 'HelpMessage';
+use PbenchCDM qw(get_cdm_ver get_cdm_rel);
+use PbenchBase qw(get_json_file put_json_file remove_element);
+use PbenchES qw(get_primary_metric get_sample_ids get_primary_period_id get_name_format get_metric_label get_common_time_domain gen_label_to_terms list_all_metrics get_bench_name get_primary_period_name get_metric_ids);
+
+sub usage {
+    print "--es-host=<string>       The hostname and port for Elasticsearch.  You can also set ES_HOST\n";
+    print "--iteration-id=<UUID>    The UUID (iteration.id)\n";
+    print "--debug-level=<int>      0 = no debug, 1 = output ES requests and responses\n";
+    exit;
+}
+
+GetOptions(
+    'es-host=s'       => \(my $es_host = $ENV{'ES_HOST'}),
+    'iteration-id=s'  => \ my $iter_id,
+    'debug-level=i'   => \(my $debug = 0),
+    'resolution=i'    => \(my $resolution = 1)
+) or usage;
+
+$es_host and $iter_id or usage;
+
+my $index_basename = "cdmv" . get_cdm_ver . get_cdm_rel;
+my $script_name = basename($0);
+my $coder = JSON::MaybeXS->new->ascii->canonical;
+my $bench_name = get_bench_name($es_host, $iter_id);;
+printf "bench_name:\n%s\n\n", $bench_name;
+my $primary_metric = get_primary_metric($es_host, $iter_id);
+my $sample_num = 0;
+my $samples = "";
+my $sum = 0;
+foreach my $sample_id ( get_sample_ids($es_host, $iter_id) ) {
+    printf "sample.id: %s\n", $sample_id;
+    my $primary_period_name = get_primary_period_name($es_host, $sample_id);
+    if (my $period_id = get_primary_period_id($es_host, $sample_id, $primary_period_name)) {
+        printf "period.id: %s\n", $period_id;
+        # Find all of the individual metrics for the benchmark
+        my @metr_ids = get_metric_ids($es_host, $period_id, $bench_name, $primary_metric);
+        # From all of those metrics, get the time domain where they all
+        # had samples
+        (my $begin, my $end) = get_common_time_domain($es_host, @metr_ids);
+        printf "begin: %d  end: %d\n", $begin, $end;
+        list_all_metrics($es_host, $begin, $end, $resolution, $period_id);
+    }
+}
+
+

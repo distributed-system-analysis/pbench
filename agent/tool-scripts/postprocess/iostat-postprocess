@@ -31,7 +31,12 @@ use warnings;
 
 use lib $ENV{'pbench_lib_dir'};
 no lib ".";
-use PbenchCDM qw(log_cdm_metric_sample gen_cdm_metric_data);
+BEGIN {
+    if (scalar @ARGV > 1) {
+        require PbenchCDM;
+        PbenchCDM->import( qw(log_cdm_metric_sample gen_cdm_metric_data) );
+    }
+}
 use GenData qw(gen_data);
 
 my $dir = shift;

@@ -12,6 +12,7 @@ use Exporter qw(import);
 use List::Util qw(max);
 use JSON;
 use Data::Dumper;
+use Data::UUID;
 use PbenchAnsible    qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts
                         remove_files_from_hosts remove_dir_from_hosts create_dir_hosts
                         sync_dir_from_hosts verify_success);
@@ -26,6 +27,7 @@ our @EXPORT_OK = qw(create_run_doc create_config_osrelease_doc create_config_cpu
 
 my $script = "PbenchCDM.pm";
 my $condense_samples = 1;
+my $uuid = Data::UUID->new;
 
 sub get_cdm_ver {
     return 4;
@@ -36,9 +38,7 @@ sub get_cdm_rel {
 }
 
 sub get_uuid {
-    my $uuid = `uuidgen`;
-    chomp $uuid;
-    return $uuid;
+    return $uuid->create_str();
 }
 
 sub get_user_name { # Looks for USER_NAME in %ENV
@@ -158,7 +158,6 @@ sub create_bench_iter_sample_period_doc {
 # Create a document describing either a benchmark or tool metric (result)
 sub create_metric_desc_doc {
     my %doc;
-    #copy_doc_fields(shift, \%doc); # Get some essential fields from a prev doc, our first arg
     my $period_doc_ref = shift;
     $doc{'run'}{'id'} = $$period_doc_ref{'run'}{'id'};
     $doc{'iteration'}{'id'} = $$period_doc_ref{'iteration'}{'id'};
@@ -227,22 +226,19 @@ sub log_cdm_metric_sample {
     my $label = $metric_source . "-" . $metric_type . "-";
     # Extract the field names from name_format to create the label
     my $tmp_name_format = $metric_name_format;
-    while ($tmp_name_format =~ s/([^%]*)%([^%]*)%(\S*$)/$3/) {
-        my $prefix = $1;
-        my $name = $2;
-        my $remainder = $3;
-        if (not defined $$names_ref{$name}) {
-            print "Error: field name $name not defined\n";
-            print "prefix: [$prefix]\n";
-            print "field_name: [$name]\n";
-            print "remainder: [$remainder]\n";
+    while ($tmp_name_format =~ s/([^%]*)%([^%]*)%//) {
+        my $name;
+        if (not defined ($name = $$names_ref{$2})) {
+            print "Error: field name $2 not defined\n";
+            print "prefix: [$1]\n";
+            print "field_name: [$2]\n";
             print "metric_source: [$metric_source]\n";
             print "metric_type: [$metric_type]\n";
             print "field names:\n";
             print Dumper $names_ref;
             return 1;
         }
-        $label .= $prefix . $$names_ref{$name};
+        $label .= $1 . $name;
     }
     # This only happens when logging the first sample for a metric
     if (not exists $$metric_ref{$label}) {
@@ -289,10 +285,19 @@ sub gen_cdm_metric_data {
     my $coder = JSON->new->ascii->canonical;
     my $json_ref = get_json_file($period_doc_path);
     my %period_doc = %$json_ref; # this is the CDM doc for the run
+    my $metric_data_line_num = 0;
+    my $metric_data_file_num = 0;
     open(NDJSON_DESC_FH, ">" . $es_dir . "/metrics/" . $hostname .  "/metric_desc-" . $period_doc{"period"}{"id"} . "-" . $tool . ".ndjson");
-    open(NDJSON_DATA_FH, ">" . $es_dir . "/metrics/" . $hostname .  "/metric_data-" . $period_doc{"period"}{"id"} . "-" . $tool . ".ndjson");
+    open(NDJSON_DATA_FH, ">" . $es_dir . "/metrics/" . $hostname .  "/metric_data" . $metric_data_file_num . "-" . $period_doc{"period"}{"id"} . "-" . $tool . ".ndjson");
     print "Generating CDM\n";
     for my $label (sort keys %$data_ref) {
+        # Limit the size of the metric_data files, so we don't fail on bulk import
+        if ($metric_data_line_num > 1000000) {
+            close(NDJSON_DATA_FH);
+            $metric_data_file_num++;
+            open(NDJSON_DATA_FH, ">" . $es_dir . "/metrics/" . $hostname .  "/metric_data" . $metric_data_file_num . "-" . $period_doc{"period"}{"id"} . "-" . $tool . ".ndjson");
+            $metric_data_line_num = 0;
+        }
         my $nr_label_samples = 0;
         my $nr_condensed_label_samples = 0;
         if (exists $$data_ref{$label}{'samples'}) {
@@ -341,6 +346,7 @@ sub gen_cdm_metric_data {
                             $begin_value, $begin_timestamp, $end_timestamp);
                         printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
                         printf NDJSON_DATA_FH "%s\n", $coder->encode(\%metric_data);
+                        $metric_data_line_num += 2;
                         # Since we start tracking a new value, begin_value and begin/end timestamps must be reasigned
                         $begin_value = $value;
                         $begin_timestamp = $end_timestamp + 1;
@@ -355,6 +361,7 @@ sub gen_cdm_metric_data {
                         $begin_value, $begin_timestamp, $timestamp_ms);
                     printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
                     printf NDJSON_DATA_FH "%s\n", $coder->encode(\%metric_data);
+                    $metric_data_line_num += 2;
                     $begin_value = $value;
                     $begin_timestamp = $timestamp_ms + 1;
                     
@@ -371,6 +378,7 @@ sub gen_cdm_metric_data {
                     $begin_value, $begin_timestamp, $end_timestamp);
                 printf NDJSON_DATA_FH "%s\n", '{ "index": {} }';
                 printf NDJSON_DATA_FH "%s\n", $coder->encode(\%metric_data);
+                $metric_data_line_num += 2;
             }
             if ($nr_label_samples > 0) {
                 printf "dedup reduction: %d%%\n", 100*(1 - $nr_condensed_label_samples/$nr_label_samples);

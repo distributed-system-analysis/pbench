@@ -27,7 +27,12 @@ sub get_hostname {
 }
 
 sub get_pbench_run_dir {
-    my $dir = $ENV{'pbench_run'}; # typically /var/lib/pbench-agent
+    my $dir = $ENV{'pbench_run'};
+    if (not defined $dir) {
+        $dir = `getconf.py pbench_run pbench-agent 2>/dev/null`;
+    } elsif (not defined $dir) {
+        $dir = "/var/lib/pbench-agent";
+    }
     chomp $dir;
     return $dir;
 }
@@ -192,7 +197,7 @@ sub metadata_log_end_run {
     system("echo " . $iteration_names  . " | pbench-add-metalog-option " . $mdlog . " pbench iterations");
     system("echo " . $config  . " | pbench-add-metalog-option " . $mdlog . " pbench config");
     system("echo " . $benchmark_name  . " | pbench-add-metalog-option " . $mdlog . " pbench script");
-    system("pbench-metadata-log --group=" . $group . " --dir=" . $benchmark_run_dir . " end");
+    system("benchmark=" . $benchmark_name . " pbench-metadata-log --group=" . $group . " --dir=" . $benchmark_run_dir . " end");
 }
 
 sub metadata_log_record_iteration {
