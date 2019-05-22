@@ -59,7 +59,7 @@ my $threads;
 
 my @virsh_list;
 my @virsh_vcpus;
-# When peoducing CDM docs, this is typically called from the pbench
+# When producing CDM docs, this is typically called from the pbench
 # controller only, and the following arguments must be provided:
 if (scalar @ARGV > 2) {
 	#printf "num args: %d args: %s\n", scalar @ARGV, join(" ", @ARGV);
