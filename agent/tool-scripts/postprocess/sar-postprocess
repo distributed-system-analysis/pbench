@@ -401,8 +401,7 @@ while ($line = <SAR_TXT>) {
 		$timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
 			for my $type (keys %kbswap) {
-				my %md = ( 'host' => $hostname, 'type' => $type,
-					'name_format' => "%source%-%type%-%host%-%category%" );
+				my %md = ( 'host' => $hostname, 'type' => $type );
 				log_cdm_metric_sample('sar', 'count', "SwapUsageKB", '%host%-%type%',
 							\%md, \%sar, $timestamp_ms, $kbswap{$type});
 			}
