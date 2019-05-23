@@ -21,9 +21,9 @@ fi
 
 label=$3
 if [[ -z "$label" ]]; then
-    dir="$dir/$hostname"
+	dir="$dir/$hostname"
 else
-    dir="$dir/$label:$hostname"
+	dir="$dir/$label:$hostname"
 fi
 mkdir -p $dir
 if [[ ! -d "$dir" ]]; then
@@ -152,15 +152,15 @@ function collect_stockpile_data {
 	stockpile_log=$(getconf.py stockpile_log stockpile)
 
 	if [[ -z "$stockpile_path" ]]; then
-		stockpile_path=$(getconf.py pbench_install_dir pbench-agent)
+		stockpile_path=$pbench_install_dir
 	fi
 
 	# set stockpile log file and output paths
 	if [[ -z "$stockpile_log" ]]; then
-                stockpile_log=$dir/stockpile.log
-        fi
+		stockpile_log=$dir/stockpile.log
+	fi
 	if [[ -z "$stockpile_output_path" ]]; then
-        	stockpile_output_path=$dir/stockpile.json
+		stockpile_output_path=$dir/stockpile.json
 	fi
 
 	# generate inventory and run stockpile
@@ -173,7 +173,7 @@ function collect_stockpile_data {
 	debug_log "Running stockpile with options: $stockpile_opts"
 	${benchmark_run_dir}/stockpile.cmd 2>&1 >$stockpile_log
 	if [[ $? != 0 ]]; then
-        	error_log "[$script_name] Stockpile run failed"
+		error_log "[$script_name] Stockpile run failed"
 		exit 1
 	fi
 }
@@ -197,7 +197,7 @@ for item in ${sysinfo//,/ };do
 	elif [[ "$item" == "stockpile" ]]; then
 		collect_stockpile_data &
 	else
-		error_log "[$script_name]bad sysinfo value"
+		error_log "[$script_name]bad sysinfo value, \"${item}\""
 	fi
 done
 wait
