@@ -81,7 +81,7 @@ sub cpu_is_online {
 		# This may not exist depending on what version of pbench
 		# was used to get the data.
 		while (my $line = <FH>) {
-			# Take the opporunity to read all the CPUs and populate
+			# Take the opportunity to read all the CPUs and populate
 			# our hash
 			if ($line =~ /^(\d+):\s*([0-1])$/) {
 				$online_cpus{$1} = $2;
