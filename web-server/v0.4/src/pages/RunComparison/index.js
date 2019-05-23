@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'dva';
-import jschart from 'jschart';
 import {
   Row,
   Col,
@@ -24,6 +23,7 @@ import html2canvas from 'html2canvas';
 import moment from 'moment';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { generateIterationClusters } from '../../utils/parse';
+import TimeseriesGraph from '@/components/TimeseriesGraph';
 
 const { Description } = DescriptionList;
 const { TabPane } = Tabs;
@@ -113,34 +113,6 @@ class RunComparison extends React.Component {
     this.onGenerateIterationClusters(Object.keys(iterationParams), iterations);
   };
 
-  componentDidUpdate = () => {
-    const { tableData, timeseriesData, timeseriesDropdownSelected } = this.state;
-
-    if (
-      Object.keys(timeseriesData).length > 0 &&
-      Object.keys(timeseriesDropdownSelected).length > 0
-    ) {
-      Object.keys(tableData).forEach(table => {
-        const timedata = timeseriesData[table][timeseriesDropdownSelected[table]][0];
-        jschart.create_jschart(
-          0,
-          'timeseries',
-          table,
-          `Cluster ${timeseriesDropdownSelected[table]}`,
-          null,
-          null,
-          {
-            json_object: {
-              x_axis_series: timedata.x_axis_series,
-              data: timedata.data,
-              data_series_names: timedata.data_series_names,
-            },
-          }
-        );
-      });
-    }
-  };
-
   onGenerateIterationClusters = (clusters, iterations) => {
     const { datastoreConfig, dispatch } = this.props;
 
@@ -180,10 +152,7 @@ class RunComparison extends React.Component {
   };
 
   onTimeseriesClusterChange = (value, primaryMetric) => {
-    const { tableData, timeseriesDropdownSelected } = this.state;
-    Object.keys(tableData).forEach(table => {
-      document.getElementById(table).innerHTML = '';
-    });
+    const { timeseriesDropdownSelected } = this.state;
     timeseriesDropdownSelected[primaryMetric] = value;
     this.setState({ timeseriesDropdownSelected });
   };
@@ -553,43 +522,54 @@ class RunComparison extends React.Component {
             </TabPane>
             <TabPane forceRender tab="All" key="all" style={{ padding: 16 }}>
               {Object.keys(timeseriesData).length > 0 &&
-              Object.keys(timeseriesDropdown).length > 0 ? (
-                <div id="timeseries">
-                  {Object.keys(tableData).map(table => (
-                    <Card
-                      type="inner"
-                      title={table}
-                      style={{ marginBottom: 16 }}
-                      extra={
-                        <Form layout="inline">
-                          <FormItem
-                            label="Selected Cluster"
-                            colon={false}
-                            style={{ marginLeft: 16, fontWeight: '500' }}
-                          >
-                            <Select
-                              defaultValue={`Cluster ${0}`}
-                              style={{ width: 120, marginLeft: 16 }}
-                              value={timeseriesDropdownSelected[table]}
-                              onChange={value => this.onTimeseriesClusterChange(value, table)}
+                Object.keys(timeseriesDropdown).length > 0 && (
+                  <div id="timeseries">
+                    {Object.keys(tableData).map(table => (
+                      <Card
+                        type="inner"
+                        title={table}
+                        style={{ marginBottom: 16 }}
+                        extra={
+                          <Form layout="inline">
+                            <FormItem
+                              label="Selected Cluster"
+                              colon={false}
+                              style={{ marginLeft: 16, fontWeight: '500' }}
                             >
-                              {timeseriesDropdown[table].map(cluster => (
-                                <Select.Option value={cluster}>
-                                  {`Cluster ${cluster}`}
-                                </Select.Option>
-                              ))}
-                            </Select>
-                          </FormItem>
-                        </Form>
-                      }
-                    >
-                      <div id={table} />
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div />
-              )}
+                              <Select
+                                defaultValue={`Cluster ${0}`}
+                                style={{ width: 120, marginLeft: 16 }}
+                                value={timeseriesDropdownSelected[table]}
+                                onChange={value => this.onTimeseriesClusterChange(value, table)}
+                              >
+                                {timeseriesDropdown[table].map(cluster => (
+                                  <Select.Option value={cluster}>
+                                    {`Cluster ${cluster}`}
+                                  </Select.Option>
+                                ))}
+                              </Select>
+                            </FormItem>
+                          </Form>
+                        }
+                      >
+                        <TimeseriesGraph
+                          key={table}
+                          graphId={table}
+                          graphName={table}
+                          data={timeseriesData[table][timeseriesDropdownSelected[table]][0].data}
+                          dataSeriesNames={
+                            timeseriesData[table][timeseriesDropdownSelected[table]][0]
+                              .data_series_names
+                          }
+                          xAxisSeries={
+                            timeseriesData[table][timeseriesDropdownSelected[table]][0]
+                              .x_axis_series
+                          }
+                        />
+                      </Card>
+                    ))}
+                  </div>
+                )}
             </TabPane>
           </Tabs>
         </Card>
