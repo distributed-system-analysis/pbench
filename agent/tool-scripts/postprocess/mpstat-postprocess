@@ -97,6 +97,8 @@ sub cpu_is_online {
 				$online_cpus{$cpu} = <FH>;
 				chomp $online_cpus{$cpu};
 				close(FH);
+			} else {
+				$online_cpus{$cpu} = 1;
 			}
 		return $online_cpus{$cpu};
 	} else {
