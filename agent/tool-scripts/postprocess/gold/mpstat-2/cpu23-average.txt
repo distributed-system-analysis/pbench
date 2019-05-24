@@ -1,0 +1,9 @@
+cpu23-guest=0.000000
+cpu23-idle=100.000000
+cpu23-iowait=0.000000
+cpu23-irq=0.000000
+cpu23-nice=0.000000
+cpu23-softirq=0.000000
+cpu23-steal=0.000000
+cpu23-sys=0.000000
+cpu23-usr=0.000000

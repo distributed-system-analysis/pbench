@@ -1,0 +1,9 @@
+cpu13-guest=0.000000
+cpu13-idle=100.000000
+cpu13-iowait=0.000000
+cpu13-irq=0.000000
+cpu13-nice=0.000000
+cpu13-softirq=0.000000
+cpu13-steal=0.000000
+cpu13-sys=0.000000
+cpu13-usr=0.000000

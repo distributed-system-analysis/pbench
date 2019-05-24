@@ -1,0 +1,9 @@
+cpu22-guest=0.000000
+cpu22-idle=100.000000
+cpu22-iowait=0.000000
+cpu22-irq=0.000000
+cpu22-nice=0.000000
+cpu22-softirq=0.000000
+cpu22-steal=0.000000
+cpu22-sys=0.000000
+cpu22-usr=0.000000

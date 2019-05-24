@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link href="/static/css/v0.3/jschart.css" rel="stylesheet" type="text/css" media="all">
+  </head>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js"></script>
+    <script src="/static/js/v0.3/jschart.js"></script>
+    <center><h2>mpstat-2 - cpu5</h2></center>
+    <div id="chart_1">
+      <script>
+        create_jschart("stackedAreaChart", "timeseries", "chart_1", "cpu5", null, null, { csvfiles: [ "csv/cpu5_cpu5.csv" ] });
+      </script>
+    </div>
+  </body>
+</html>

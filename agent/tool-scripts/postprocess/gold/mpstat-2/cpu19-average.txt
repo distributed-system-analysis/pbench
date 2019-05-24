@@ -1,0 +1,9 @@
+cpu19-guest=0.000000
+cpu19-idle=100.000000
+cpu19-iowait=0.000000
+cpu19-irq=0.000000
+cpu19-nice=0.000000
+cpu19-softirq=0.000000
+cpu19-steal=0.000000
+cpu19-sys=0.000000
+cpu19-usr=0.000000

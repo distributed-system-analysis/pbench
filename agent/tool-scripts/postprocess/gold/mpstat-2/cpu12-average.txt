@@ -1,0 +1,9 @@
+cpu12-guest=0.000000
+cpu12-idle=99.933333
+cpu12-iowait=0.000000
+cpu12-irq=0.000000
+cpu12-nice=0.000000
+cpu12-softirq=0.000000
+cpu12-steal=0.000000
+cpu12-sys=0.066667
+cpu12-usr=0.000000

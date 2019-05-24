@@ -1,0 +1,9 @@
+cpu17-guest=0.000000
+cpu17-idle=100.000000
+cpu17-iowait=0.000000
+cpu17-irq=0.000000
+cpu17-nice=0.000000
+cpu17-softirq=0.000000
+cpu17-steal=0.000000
+cpu17-sys=0.000000
+cpu17-usr=0.000000
