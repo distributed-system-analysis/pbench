@@ -23,9 +23,7 @@ export async function queryDatastoreConfig() {
     configEndpoint = '/dashboard/config.json';
   }
 
-  return request(configEndpoint, {
-    method: 'GET',
-  });
+  return request.get(configEndpoint);
 }
 
 export async function queryMonthIndices(params) {
@@ -33,7 +31,5 @@ export async function queryMonthIndices(params) {
 
   const endpoint = `${datastoreConfig.elasticsearch}/_cat/indices?format=json&pretty=true`;
 
-  return request(endpoint, {
-    method: 'GET',
-  });
+  return request.get(endpoint);
 }

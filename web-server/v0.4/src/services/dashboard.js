@@ -1,4 +1,3 @@
-import axios from 'axios';
 import _ from 'lodash';
 import request from '../utils/request';
 import { renameProp } from '../utils/utils';
@@ -21,9 +20,8 @@ export async function queryControllers(params) {
     selectedIndices
   )}/_search`;
 
-  return request(endpoint, {
-    method: 'POST',
-    body: {
+  return request.post(endpoint, {
+    data: {
       aggs: {
         controllers: {
           terms: {
@@ -57,9 +55,8 @@ export async function queryResults(params) {
     selectedIndices
   )}/_search`;
 
-  return request(endpoint, {
-    method: 'POST',
-    body: {
+  return request.post(endpoint, {
+    data: {
       fields: [
         '@metadata.controllerDir',
         '@metadata.satellite',
@@ -97,9 +94,8 @@ export async function queryResult(params) {
     selectedIndices
   )}/_search?source=`;
 
-  return request(endpoint, {
-    method: 'POST',
-    body: {
+  return request.post(endpoint, {
+    data: {
       query: {
         match: {
           'run.name': result,
@@ -118,7 +114,7 @@ export async function queryTocResult(params) {
     selectedIndices
   )}/_search?q=_parent:"${id}"`;
 
-  return request(endpoint);
+  return request.post(endpoint);
 }
 
 export async function queryIterations(params) {
@@ -134,10 +130,11 @@ export async function queryIterations(params) {
         : controllerDir;
     }
     iterationRequests.push(
-      axios.get(
+      request.get(
         `${datastoreConfig.results}/incoming/${encodeURI(controllerDir)}/${encodeURI(
           result['run.name']
-        )}/result.json`
+        )}/result.json`,
+        { getResponse: true }
       )
     );
   });
@@ -147,8 +144,8 @@ export async function queryIterations(params) {
     response.forEach((iteration, index) => {
       iterations.push({
         iterationData: iteration.data,
-        controllerName: iteration.config.url.split('/')[4],
-        resultName: iteration.config.url.split('/')[5],
+        controllerName: iteration.response.url.split('/')[4],
+        resultName: iteration.response.url.split('/')[5],
         tableId: index,
       });
     });
@@ -164,7 +161,7 @@ export async function queryTimeseriesData(params) {
     Object.keys(clusteredIterations[primaryMetric]).forEach(cluster => {
       Object.keys(clusteredIterations[primaryMetric][cluster]).forEach(iteration => {
         iterationRequests.push(
-          axios.get(
+          request.get(
             `${datastoreConfig.results}/incoming/${encodeURIComponent(
               clusteredIterations[primaryMetric][cluster][iteration].controller_name
             )}/${encodeURIComponent(
@@ -195,14 +192,14 @@ export async function queryTimeseriesData(params) {
         let iterationTimeseriesData = [];
         const timeseriesLabels = ['time'];
         Object.keys(clusteredIterations[primaryMetric][cluster]).forEach(iteration => {
-          const iterationTypes = Object.keys(args[responseCount].data);
+          const iterationTypes = Object.keys(args[responseCount]);
           Object.keys(iterationTypes).forEach(iterationTest => {
             if (
-              Object.keys(args[responseCount].data[iterationTypes[iterationTest]]).includes(
+              Object.keys(args[responseCount][iterationTypes[iterationTest]]).includes(
                 primaryMetric
               )
             ) {
-              const hosts = args[responseCount].data[iterationTypes[iterationTest]][primaryMetric];
+              const hosts = args[responseCount][iterationTypes[iterationTest]][primaryMetric];
               Object.keys(hosts).forEach(host => {
                 if (hosts[host].client_hostname === 'all') {
                   Object.keys(hosts[host].timeseries).forEach(item => {

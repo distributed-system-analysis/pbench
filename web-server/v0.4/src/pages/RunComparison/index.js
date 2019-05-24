@@ -24,7 +24,6 @@ import html2canvas from 'html2canvas';
 import moment from 'moment';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { generateIterationClusters } from '../../utils/parse';
-import { queryTimeseriesData } from '../../services/dashboard';
 
 const { Description } = DescriptionList;
 const { TabPane } = Tabs;
@@ -143,16 +142,19 @@ class RunComparison extends React.Component {
   };
 
   onGenerateIterationClusters = (clusters, iterations) => {
-    const { datastoreConfig } = this.props;
+    const { datastoreConfig, dispatch } = this.props;
 
     this.setState({ loadingClusters: true });
     Promise.resolve(generateIterationClusters(clusters, iterations)).then(iterationClusters => {
       this.setState({
         ...iterationClusters,
       });
-      queryTimeseriesData({
-        clusteredIterations: iterationClusters.clusteredIterations,
-        datastoreConfig,
+      dispatch({
+        type: 'dashboard/fetchTimeseriesData',
+        payload: {
+          clusteredIterations: iterationClusters.clusteredIterations,
+          datastoreConfig,
+        },
       }).then(timeseriesData => {
         this.setState({ loadingClusters: false });
         this.setState({

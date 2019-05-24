@@ -15,7 +15,7 @@
     "lint:fix": "eslint --fix --ext .js src && npm run lint:style",
     "lint-staged": "lint-staged",
     "lint-staged:js": "eslint --ext .js",
-    "test": "umi test --verbose",
+    "test": "umi test --verbose --maxWorkers=1 --runInBand",
     "test:component": "umi test @",
     "test:all": "node ./tests/run-tests.js",
     "prettier": "prettier --write ./src/**/**/**/*"
@@ -26,7 +26,6 @@
     "@nivo/bar": "^0.36.0",
     "ant-design-pro": "^2.1.1",
     "antd": "^3.16.1",
-    "axios": "^0.18.0",
     "classnames": "^2.2.5",
     "dva": "^2.4.1",
     "dva-core": "^1.1.0",
@@ -52,6 +51,7 @@
     "redux": "3.x",
     "redux-persist": "^5.10.0",
     "setprototypeof": "^1.1.0",
+    "umi-request": "^1.0.7",
     "url-polyfill": "^1.0.10"
   },
   "devDependencies": {
@@ -80,11 +80,13 @@
     "stylelint": "^9.2.1",
     "stylelint-config-prettier": "^3.0.4",
     "stylelint-config-standard": "^18.0.0",
-    "umi": "^2.4.4",
-    "umi-plugin-react": "^1.4.2"
+    "umi": "^2.6.16",
+    "umi-plugin-react": "^1.7.5"
   },
   "jest": {
-    "setupFiles": ["jest-canvas-mock"]
+    "setupFiles": [
+      "jest-canvas-mock"
+    ]
   },
   "optionalDependencies": {
     "puppeteer": "^1.4.0"
