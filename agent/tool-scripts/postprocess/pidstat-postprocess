@@ -17,7 +17,7 @@
 #
 # pidstat-postprocess <dir> [<period-doc> <es-dir> <hostname>]
 #
-#   dir = directory where pidstat.txt can be found
+#   dir = directory where pidstat-stdout.txt can be found
 #   period-doc = path to CDM period document for this iteration-sample
 #   es-dir = path to base directory where CDM documents should be written
 #   hostname = the host where pidstat was run

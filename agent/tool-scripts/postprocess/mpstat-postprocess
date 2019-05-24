@@ -16,7 +16,7 @@
 #
 #   mpstat-postprocess <dir> [<period-doc> <es-dir> <hostname>]
 #
-#   dir = directory where mpstat.txt can be found
+#   dir = directory where mpstat-stdout.txt can be found
 #   period-doc = path to CDM period document for this iteration-sample
 #   es-dir = path to base directory where CDM documents should be written
 #   hostname = the host where mpstat was run
@@ -77,9 +77,9 @@ sub cpu_is_online {
 	} elsif (-e $dir . "/online-cpus.txt" and open(FH, $dir . "/online-cpus.txt")) {
 		# Try a saved file of online status for this mpstat (this
 		# relies on this file being generated at some point before
-		# postprocessing, likely at stop-tools phase),
-		# This may not exist depending on what version of pbench
-		# was used to get the data.
+		# postprocessing, likely at stop-tools phase). This may not
+		# exist depending on what version of pbench was used to get
+		# the data.
 		while (my $line = <FH>) {
 			# Take the opportunity to read all the CPUs and populate
 			# our hash
@@ -90,16 +90,16 @@ sub cpu_is_online {
 		close(FH);
 		return $online_cpus{$cpu};
 	} elsif (not defined $hostname or $hostname eq chomp(my $this_host = `hostname -s`)) {
-		# Fall back to sysfs if this is the same system as where the data was collected
-		# $hostname is defined when running for CDM, not for regular post-processing
-			my $online_file="/sys/devices/system/cpu/cpu" . $cpu . "/online";
-			if ( -e $online_file and open(FH, $online_file)) {
-				$online_cpus{$cpu} = <FH>;
-				chomp $online_cpus{$cpu};
-				close(FH);
-			} else {
-				$online_cpus{$cpu} = 1;
-			}
+		# Fall back to sysfs if this is the same system as where the data was collected.
+		# $hostname is only defined when running for CDM, not for regular post-processing.
+		my $online_file="/sys/devices/system/cpu/cpu" . $cpu . "/online";
+		if ( -e $online_file and open(FH, $online_file)) {
+			$online_cpus{$cpu} = <FH>;
+			chomp $online_cpus{$cpu};
+			close(FH);
+		} else {
+			$online_cpus{$cpu} = 1;
+		}
 		return $online_cpus{$cpu};
 	} else {
 		# If nothing can be found, just assume the cpu is online
@@ -147,7 +147,7 @@ if ( $line =~ /\S+\s\S+\s\S+\s+(\d\d\/\d\d\/\d\d).*/ ) {
 	# Convert to milliseconds since the epoch
 	$date_ms = 1000 * `date --date="$1" +%s.%N`;
 } else {
-	die("Bad mpstat.txt file format: first line should have the form: Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 02/25/2015 _x86_64_ (8 CPU)");
+	die("Bad mpstat-stdout.txt file format: first line should have the form: Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 02/25/2015 _x86_64_ (8 CPU)");
 }
 
 while (my $line = <MPSTAT_TXT>) {
@@ -161,14 +161,23 @@ while (my $line = <MPSTAT_TXT>) {
 		$timestamp_ms = calc_timestamp($time);
 		if ($cdm) {
 			if ($cpuid ne "all") {
-				# Note that an "all" cpu metric is not logged with CDM like with traditional pbench.  The "all" metric representes all CPUs
-				# in a host as a range of 0-100%.  We do not represent CPU utilization this way in CDM.  Instead, we calculate system CPU by
-				# aggrgeating per-CPU stats into a single stat, dynamically, via the Web UI.  A per-system CPU utilization will be from
-				# 0 to 100*nr_cpus instead of 0-100,
+				# Note that an "all" cpu metric is not logged
+				# with CDM like with traditional pbench.  The
+				# "all" metric represents all CPUs in a host
+				# as a range of 0-100%.  We do not represent
+				# CPU utilization this way in CDM.  Instead,
+				# we calculate system CPU by aggregating per-
+				# CPU stats into a single stat, dynamically,
+				# via the Web UI.  A per-system CPU utiliza-
+				# tion will be from 0 to (100 * nr_cpus)
+				# instead of 0-100%.
 				#
-				# Addtionally, cpu busy and idle stats have different name_format, so that only busy or
-				# only idle stats are aggregated.  Allowing aggregaton all of the modes (idle and busy) together makes little sense, since
-				# it will just add up to 100.
+				# Addtionally, cpu busy and idle stats have
+				# different name_format, so that only busy or
+				# only idle stats are aggregated.  Allowing
+				# aggregation of all the modes (idle and busy)
+				# together makes little sense, since it will
+				# just add up to 100.
 				(my $socket, my $core) = get_cpu_socket_core($cpuid, \@cpu_topology);
 				for my $util_type (keys %cpu_modes ) {
 				my $type = "Processor" . ucfirst $util_type . "Util";

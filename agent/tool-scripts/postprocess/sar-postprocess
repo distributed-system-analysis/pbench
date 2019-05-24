@@ -18,10 +18,10 @@
 #
 # sar-postprocess <dir> [<period-doc> <es-dir> <hostname>]
 #
-#   dir = directory where pidstat.txt can be found
+#   dir = directory where sar-stdout.txt can be found
 #   period-doc = path to CDM period document for this iteration-sample
 #   es-dir = path to base directory where CDM documents should be written
-#   hostname = the host where pidstat was run
+#   hostname = the host where sar was run
 #
 # Note:
 #
@@ -47,7 +47,7 @@ my @cpu_topology;
 my %sar_cdm;
 my $interval; # sampling interval
 
-# When peoducing CDM docs, this is typically called from the pbench
+# When producing CDM docs, this is typically called from the pbench
 # controller only, and the following arguments must be provided:
 if (scalar @ARGV > 1) {
 	die "Must provide <path-to-period.doc> <es-dir> <tool-hostname>" if (scalar @ARGV != 3);
@@ -156,7 +156,7 @@ if ( $line =~ /\S+\s\S+\s\S+\s+(\d\d\/\d\d\/(\d\d)?\d\d)(.*)/ ) {
 } else {
 	# TBD: default is today - should we bail instead?
 	# TBD: what if the first line does not match? do we keep looking? or die?
-	# die("Bad mpstat.txt file format: first line should have the form: Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)");
+	# die("Bad sar-stdout.txt file format: first line should have the form: Linux 3.16.6-200.fc20.x86_64 (a.foo.example.com) 	02/25/2015 	_x86_64_	(8 CPU)");
 	$date_ms = "";
 }
 
@@ -191,10 +191,13 @@ while ($line = <SAR_TXT>) {
                 @cpumode_util{@cpumode_attributes} = @values;
 		$timestamp_ms = calc_timestamp($time);
 		if ($cdm and $cpuid ne "all") {
-			# Note that an "all_cpu_busy" metric is not calculated like with traditional pbench.  This metric is dynamically
-			# calculated from the Web UI. However, cpu busy vs idle stats have different name_format, so that only busy or
-			# only idle stats are aggregated.  Allowing aggregaton all of the modes (idle and busy) together makes little sense, since
-			# it will just add up to 100.
+			# Note that an "all_cpu_busy" metric is not calculated
+			# like traditional pbench.  This metric is dynamically
+			# calculated from the Web UI. However, cpu busy vs idle
+			# stats have different name_format, so that only busy
+			# or # only idle stats are aggregated.  Allowing
+			# aggregation of all the modes (idle and busy) together
+			# makes little sense, since it will just add up to 100.
 			for my $util_type (keys %cpu_modes ) {
 				my $type = "Processor" . ucfirst $util_type . "Util";
 				for my $mode (@{ $cpu_modes{$util_type} }) {

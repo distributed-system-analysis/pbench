@@ -15,7 +15,7 @@
 #
 #   iostat-postprocess <dir> [<period-doc> <es-dir> <hostname>]
 #
-#   dir = directory where iostat.txt can be found
+#   dir = directory where iostat-stdout.txt can be found
 #   period-doc = path to CDM period document for this iteration-sample
 #   es-dir = path to base directory where CDM documents should be written
 #   hostname = the host where mpstat was run
@@ -54,7 +54,7 @@ if (scalar @ARGV > 1) {
 	$hostname = shift;
 }
 
-# read the iostat.txt
+# read the iostat-stdout.txt
 open(IOSTAT_TXT, $dir . "/iostat-stdout.txt") || die "could not find " . $dir . "/iostat-stdout.txt\n";
 while (my $line = <IOSTAT_TXT>) {
 	chomp $line;
