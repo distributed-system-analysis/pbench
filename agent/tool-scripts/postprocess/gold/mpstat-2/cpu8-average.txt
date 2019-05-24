@@ -1,0 +1,9 @@
+cpu8-guest=0.000000
+cpu8-idle=100.000000
+cpu8-iowait=0.000000
+cpu8-irq=0.000000
+cpu8-nice=0.000000
+cpu8-softirq=0.000000
+cpu8-steal=0.000000
+cpu8-sys=0.000000
+cpu8-usr=0.000000

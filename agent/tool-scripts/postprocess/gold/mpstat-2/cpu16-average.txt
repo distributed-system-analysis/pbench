@@ -1,0 +1,9 @@
+cpu16-guest=0.000000
+cpu16-idle=100.000000
+cpu16-iowait=0.000000
+cpu16-irq=0.000000
+cpu16-nice=0.000000
+cpu16-softirq=0.000000
+cpu16-steal=0.000000
+cpu16-sys=0.000000
+cpu16-usr=0.000000

@@ -1,0 +1,9 @@
+cpu9-guest=0.000000
+cpu9-idle=100.000000
+cpu9-iowait=0.000000
+cpu9-irq=0.000000
+cpu9-nice=0.000000
+cpu9-softirq=0.000000
+cpu9-steal=0.000000
+cpu9-sys=0.000000
+cpu9-usr=0.000000

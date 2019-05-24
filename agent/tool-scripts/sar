@@ -202,6 +202,18 @@ start)
 	wait
 	;;
 stop)
+	if [[ $script_name == "mpstat" ]]; then
+		if [[ -d /sys/devices/system/cpu ]]; then
+			# Assume we have a working CPU directory tree to
+			# collect CPU online statuses.
+			oc_fn=$tool_output_dir/online-cpus.txt
+			>${oc_fn}
+			for cpuonline_fn in /sys/devices/system/cpu/cpu*/online; do
+				cpuid=$(basename $(dirname ${cpuonline_fn}))
+				printf "${cpuid#cpu}: $(cat ${cpuonline_fn})\n" >> ${oc_fn}
+			done
+		fi
+	fi
 	if [[ -s "$tool_pid_file" ]]; then
 		pid=$(cat "$tool_pid_file")
 		debug_log "stopping $script_name"

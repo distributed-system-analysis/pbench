@@ -1,0 +1,9 @@
+cpu14-guest=0.000000
+cpu14-idle=100.000000
+cpu14-iowait=0.000000
+cpu14-irq=0.000000
+cpu14-nice=0.000000
+cpu14-softirq=0.000000
+cpu14-steal=0.000000
+cpu14-sys=0.000000
+cpu14-usr=0.000000

@@ -1,0 +1,9 @@
+cpu18-guest=0.000000
+cpu18-idle=100.000000
+cpu18-iowait=0.000000
+cpu18-irq=0.000000
+cpu18-nice=0.000000
+cpu18-softirq=0.000000
+cpu18-steal=0.000000
+cpu18-sys=0.000000
+cpu18-usr=0.000000

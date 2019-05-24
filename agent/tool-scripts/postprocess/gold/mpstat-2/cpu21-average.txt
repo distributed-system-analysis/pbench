@@ -1,0 +1,9 @@
+cpu21-guest=0.000000
+cpu21-idle=100.000000
+cpu21-iowait=0.000000
+cpu21-irq=0.000000
+cpu21-nice=0.000000
+cpu21-softirq=0.000000
+cpu21-steal=0.000000
+cpu21-sys=0.000000
+cpu21-usr=0.000000

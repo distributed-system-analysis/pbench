@@ -89,18 +89,6 @@ sub cpu_is_online {
 		}
 		close(FH);
 		return $online_cpus{$cpu};
-	} elsif (not defined $hostname or $hostname eq chomp(my $this_host = `hostname -s`)) {
-		# Fall back to sysfs if this is the same system as where the data was collected.
-		# $hostname is only defined when running for CDM, not for regular post-processing.
-		my $online_file="/sys/devices/system/cpu/cpu" . $cpu . "/online";
-		if ( -e $online_file and open(FH, $online_file)) {
-			$online_cpus{$cpu} = <FH>;
-			chomp $online_cpus{$cpu};
-			close(FH);
-		} else {
-			$online_cpus{$cpu} = 1;
-		}
-		return $online_cpus{$cpu};
 	} else {
 		# If nothing can be found, just assume the cpu is online
 		$online_cpus{$cpu} = 1;

@@ -50,9 +50,15 @@ function testit {
 
     mkdir ${_testroot}/$1
     cp samples/$1/$2-std*.txt ${_testroot}/$1/
+    if [[ -e samples/$1/online-cpus.txt ]]; then
+        cp samples/$1/online-cpus.txt ${_testroot}/$1/
+    fi
     pbench_lib_dir=$(pwd)/../../lib ./$2-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
     rm ${_testroot}/$1/$2-std*.txt
+    if [[ -e ${_testroot}/$1/online-cpus.txt ]]; then
+        rm ${_testroot}/$1/online-cpus.txt
+    fi
 
     diff -cr gold/$1/ ${_testroot}/$1
     sts=$?

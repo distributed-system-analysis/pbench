@@ -1,0 +1,9 @@
+cpu0-guest=0.000000
+cpu0-idle=100.000000
+cpu0-iowait=0.000000
+cpu0-irq=0.000000
+cpu0-nice=0.000000
+cpu0-softirq=0.000000
+cpu0-steal=0.000000
+cpu0-sys=0.000000
+cpu0-usr=0.000000
