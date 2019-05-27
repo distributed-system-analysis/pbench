@@ -12,6 +12,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 
 benchmark_rpm=$script_name
 benchmark="fio"
+fio_server_port=8765
 export benchmark_run_dir=""
 # allow unit tests to override
 if [[ -z "$benchmark_bin" ]]; then
@@ -538,7 +539,7 @@ function fio_run_job() {
 		wait
 		debug_log "opening port 8765 on firewall on the clients"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
-			ssh $ssh_opts $client "firewall-cmd --add-port=8765/tcp >/dev/null" &
+			ssh $ssh_opts $client "firewall-cmd --add-port=$fio_server_port/tcp >/dev/null" &
 		done
 		wait
 		debug_log "killing any old fio process on the clients"
@@ -549,6 +550,11 @@ function fio_run_job() {
 		debug_log "starting new fio process on the clients"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			ssh $ssh_opts $client "pushd $benchmark_results_dir >/dev/null; screen -dmS fio-server bash -c ''$bench_cmd' --server 2>&1 >client-result.txt'"
+		done
+		wait
+		debug_log "waiting for fio process(server) to start on clients"
+		for client in `echo $clients | sed -e s/,/" "/g`; do
+			timeout 60 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' $client $fio_server_port
 		done
 		wait
 	else
