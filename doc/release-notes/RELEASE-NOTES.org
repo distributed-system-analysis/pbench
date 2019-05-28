@@ -1,4 +1,4 @@
-# Created 2019-04-30 Tue 14:59
+# Created 2019-05-27 Mon 23:23
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -15,6 +15,87 @@
 #+subtitle: 
 #+infojs_opt: 
 #+latex_header: 
+
+* Version 0.60
+
+This is an *agent-only* release.
+
+** Installation                                                    :external:
+
+There are ansible playbooks to install ~pbench-agent~ and the pieces
+needed (key and config files) to be able to send results to a server.
+
+There are no other installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.60-1gc9e89f8f
+of the pbench-agent RPM installed.
+
+
+** agent
+This release includes work on the sysstat postprocessing scripts,
+mainly to make them CDM compatible, although some problems have been
+fixed as well.
+
+This release can (optionally) use stockpile to gather additional
+information. The functionality has not been fully vetted yet: in
+particular, it needs documentation.
+
+The problem described in issue #1161 (failure to produce a sosreport)
+has been fixed: sosreports are now produced properly.. However, there
+is a bug that causes an error message to report that no sosreport has
+been produced: that is incorrect. This has been filed as issue #1214
+and will be fixed in the next release.
+
+** server
+
+This is an agent-only release. There are no new server RPMs produced.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.60
+:END:
+
+This is an agent-only release. There are no new web-server RPMs produced.
+
+** Changelog
+This is the list of visible commits *in the agent* since v0.59:
+
+c9e89f8f Version bump: 0.60
+5a4f3d96 Reference pbench_install_dir enviroment variable
+9fe5a59e mpstat-postprocess: fix spelling
+88cfc73d mpstat-postprocess: assume online when file is missing
+a3e7453c pidstat-postprocess: fix typo
+685b555e iostat/mpstat fixes, typos, indentation, misc -use cpu_is_online -clarify why mpstat 'all' stat is not used for CDM -fix typos in comments -fix indentation
+413a1413 sar-postprocess: kbswap: name_format does not belong in 'names' section
+03c0f12b PbenchCDM.pm: fix hash reference
+c2aec527 Add -cdm files in ./postprocess -iostat-postprocess-cdm file removed -symlinks added for iostat/mpstat/sar/pidstat -pbench-postprocess-tools-cdm finds -cdm files and calls them
+374ba4ec gold files: fix multicast and nfd client stats
+2ee96530 pbench-postprocess-tools-cdm: fix $sample_dir and args
+5b588c15 sar-postprocess: add CDM and speed up processing -calling `date` done once instead of every line
+739f59cb pidstat-postprocess: add CDM generation
+a298fdc2 mpstat-postprocess: add CDM capability, speed up processing -don't use backticks to check cpu -online every time
+4df4d662 iostat-postprocess: add ability to generate CDM
+97694b63 SysStat.pm: add sar, mpstat, and cpu-topology subs
+c8462e0b PbenchCDM.pm: multiple fixes -metric field name descriptors in their own subsection ('names') to not  clash with other field names like 'type' or 'class' -more error checking when logging a metric sample -extra output on error checking when logging a metric sample -use interval if provided to get first begin_timestamp
+0ec61fd5 Integrate umi-request for handling network request errors (#1181)
+db70ccc7 Add support to run stockpile as part of collect sysinfo
+0e6fa133 Apply prettier configuration to all js source files
+fcf99ee9 Rendering multiple controllers' title properly
+2ebc86ed Fix use of sosreport for version 3.5.1 and later
+da059085 Update dashboard assets with new Red Hat logo
+5b66c906 Resolve 404 error for loading dashboard favicon assets
+11255392 Fix util-scripts unit tests to report parameters
+7d57f5e2 Refactor agent to use envi for perl module paths
+ce749f04 Merge branch 'arcolife-collectd'
+20699cab append '-o collectd' plugin while running sosreport
+4b252d08 Fix indexing multiple benchmark parameters
+583bca05 Reduce server unit tests time
+75d6631e pbench-moongen: add deprecation warning
+4381d75e Refactor to add TS envi var from python
+331e14fa Add timing to server unit tests
+31135208 Fix closest sample assignment to iteration metadata in preprocessing
+
 
 * Version 0.59
 
@@ -86,6 +167,7 @@ This is the list of visible commits *in the agent* since v0.58:
 - 84ea69f2 PbenchCDM.pm: update cdm_ver, comma->whitesp some fields, split metric docs -CommonDataModel version separates the version number (int) from the release  ('dev' or 'prod') as well as ensuring the ES field value for cdm_ver is only  an interger.  The release value is used in the index names only. -Values for field names clients, servers, tags, and tool_names have their  contents converted from comma-delimited to space delimited to work with  whitespace analyzer. -Metric doc split into two docs: first one is for metadata (metric_desc) and  second one is for actual data (metric_data).  Metric_data docs are still  one per sample and still include a begin and end timestamp, but also have  a metric.id which is shared with the metric_desc doc.  Queries to find  a specific metric are now made against metric_desc, and once the desired  metric is foumnd, its data is queried against metric_data by using the  metric.id (and possibly other terms such as begin/end being >,<,= specific  value.  Splitting metadata and data into two docs reduces space by about  50%.
 - 8238771b PbenchBase.pm: fix remove_params, update JSON calls -remove_params: would not remove multiple --myarg=myvalue -JSON: use OO notation which should be portable across different modules (native, XS) -other minor cleanup
 - 5aabdae8 pidstat-convert: use md5 for filenames - using $cmd for filenames would sometimes not work - md5_hex should not have problems when used as a filename - $cmd to md5 stored in memory and not needed later
+
 
 * Version 0.58
 
