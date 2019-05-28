@@ -1,4 +1,4 @@
-# Created 2019-05-27 Mon 23:23
+# Created 2019-05-28 Tue 16:49
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -59,42 +59,42 @@ This is an agent-only release. There are no new server RPMs produced.
 This is an agent-only release. There are no new web-server RPMs produced.
 
 ** Changelog
-This is the list of visible commits *in the agent* since v0.59:
+This is the list of visible commits since v0.59:
 
-c9e89f8f Version bump: 0.60
-5a4f3d96 Reference pbench_install_dir enviroment variable
-9fe5a59e mpstat-postprocess: fix spelling
-88cfc73d mpstat-postprocess: assume online when file is missing
-a3e7453c pidstat-postprocess: fix typo
-685b555e iostat/mpstat fixes, typos, indentation, misc -use cpu_is_online -clarify why mpstat 'all' stat is not used for CDM -fix typos in comments -fix indentation
-413a1413 sar-postprocess: kbswap: name_format does not belong in 'names' section
-03c0f12b PbenchCDM.pm: fix hash reference
-c2aec527 Add -cdm files in ./postprocess -iostat-postprocess-cdm file removed -symlinks added for iostat/mpstat/sar/pidstat -pbench-postprocess-tools-cdm finds -cdm files and calls them
-374ba4ec gold files: fix multicast and nfd client stats
-2ee96530 pbench-postprocess-tools-cdm: fix $sample_dir and args
-5b588c15 sar-postprocess: add CDM and speed up processing -calling `date` done once instead of every line
-739f59cb pidstat-postprocess: add CDM generation
-a298fdc2 mpstat-postprocess: add CDM capability, speed up processing -don't use backticks to check cpu -online every time
-4df4d662 iostat-postprocess: add ability to generate CDM
-97694b63 SysStat.pm: add sar, mpstat, and cpu-topology subs
-c8462e0b PbenchCDM.pm: multiple fixes -metric field name descriptors in their own subsection ('names') to not  clash with other field names like 'type' or 'class' -more error checking when logging a metric sample -extra output on error checking when logging a metric sample -use interval if provided to get first begin_timestamp
-0ec61fd5 Integrate umi-request for handling network request errors (#1181)
-db70ccc7 Add support to run stockpile as part of collect sysinfo
-0e6fa133 Apply prettier configuration to all js source files
-fcf99ee9 Rendering multiple controllers' title properly
-2ebc86ed Fix use of sosreport for version 3.5.1 and later
-da059085 Update dashboard assets with new Red Hat logo
-5b66c906 Resolve 404 error for loading dashboard favicon assets
-11255392 Fix util-scripts unit tests to report parameters
-7d57f5e2 Refactor agent to use envi for perl module paths
-ce749f04 Merge branch 'arcolife-collectd'
-20699cab append '-o collectd' plugin while running sosreport
-4b252d08 Fix indexing multiple benchmark parameters
-583bca05 Reduce server unit tests time
-75d6631e pbench-moongen: add deprecation warning
-4381d75e Refactor to add TS envi var from python
-331e14fa Add timing to server unit tests
-31135208 Fix closest sample assignment to iteration metadata in preprocessing
+- c9e89f8f Version bump: 0.60
+- 5a4f3d96 Reference pbench_install_dir enviroment variable
+- 9fe5a59e mpstat-postprocess: fix spelling
+- 88cfc73d mpstat-postprocess: assume online when file is missing
+- a3e7453c pidstat-postprocess: fix typo
+- 685b555e iostat/mpstat fixes, typos, indentation, misc -use cpu_is_online -clarify why mpstat 'all' stat is not used for CDM -fix typos in comments -fix indentation
+- 413a1413 sar-postprocess: kbswap: name_format does not belong in 'names' section
+- 03c0f12b PbenchCDM.pm: fix hash reference
+- c2aec527 Add -cdm files in ./postprocess -iostat-postprocess-cdm file removed -symlinks added for iostat/mpstat/sar/pidstat -pbench-postprocess-tools-cdm finds -cdm files and calls them
+- 374ba4ec gold files: fix multicast and nfd client stats
+- 2ee96530 pbench-postprocess-tools-cdm: fix $sample_dir and args
+- 5b588c15 sar-postprocess: add CDM and speed up processing -calling `date` done once instead of every line
+- 739f59cb pidstat-postprocess: add CDM generation
+- a298fdc2 mpstat-postprocess: add CDM capability, speed up processing -don't use backticks to check cpu -online every time
+- 4df4d662 iostat-postprocess: add ability to generate CDM
+- 97694b63 SysStat.pm: add sar, mpstat, and cpu-topology subs
+- c8462e0b PbenchCDM.pm: multiple fixes -metric field name descriptors in their own subsection ('names') to not  clash with other field names like 'type' or 'class' -more error checking when logging a metric sample -extra output on error checking when logging a metric sample -use interval if provided to get first begin_timestamp
+- 0ec61fd5 Integrate umi-request for handling network request errors (#1181)
+- db70ccc7 Add support to run stockpile as part of collect sysinfo
+- 0e6fa133 Apply prettier configuration to all js source files
+- fcf99ee9 Rendering multiple controllers' title properly
+- 2ebc86ed Fix use of sosreport for version 3.5.1 and later
+- da059085 Update dashboard assets with new Red Hat logo
+- 5b66c906 Resolve 404 error for loading dashboard favicon assets
+- 11255392 Fix util-scripts unit tests to report parameters
+- 7d57f5e2 Refactor agent to use envi for perl module paths
+- ce749f04 Merge branch 'arcolife-collectd'
+- 20699cab append '-o collectd' plugin while running sosreport
+- 4b252d08 Fix indexing multiple benchmark parameters
+- 583bca05 Reduce server unit tests time
+- 75d6631e pbench-moongen: add deprecation warning
+- 4381d75e Refactor to add TS envi var from python
+- 331e14fa Add timing to server unit tests
+- 31135208 Fix closest sample assignment to iteration metadata in preprocessing
 
 
 * Version 0.59
