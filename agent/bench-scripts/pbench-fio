@@ -555,8 +555,8 @@ function fio_run_job() {
 		debug_log "waiting for fio process(server) to start on clients"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			timeout --kill-after=1 60 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' $client $fio_server_port
-			if [ "$?" = "124" ]; then
-				debug_log "fio process took more than 60 seconds to start in client $client, failing"		
+			if [[ $? -eq 124 ]]; then
+				error_log "fio process took more than 60 seconds to start in client $client, failing"		
 				exit 1
 			fi
 		done
