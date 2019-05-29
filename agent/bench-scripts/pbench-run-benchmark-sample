@@ -17,7 +17,8 @@ use JSON;
 use File::Temp;
 use Data::Dumper;
 use PbenchBase       qw(get_json_file put_json_file get_benchmark_names get_clients
-                        get_params get_pbench_bench_config_dir load_benchmark_config);
+                        get_params get_pbench_bench_config_dir load_benchmark_config
+                        get_pbench_install_dir );
 use PbenchAnsible    qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts
                         remove_files_from_hosts remove_dir_from_hosts create_dir_hosts
                         sync_dir_from_hosts verify_success yum_install_hosts);
@@ -48,6 +49,10 @@ my $json_ref = get_json_file($iter_doc_filename);
 my %iteration = %$json_ref; # this is the CDM doc for this benchmark-iteration
 my %sample = create_bench_iter_sample_doc(\%iteration);
 my %specs = load_benchmark_config($pbench_bench_config_dir, $iteration{'run'}{'bench'}{'name'});
+
+my $output_wrapper_name = "pbench-output-monitor";
+my $local_output_wrapper_path = get_pbench_install_dir . "/util-scripts";
+my $remote_output_wrapper_path = "/tmp";
 
 my $sample_num = 0;
 if ($sample_dir =~ /.+([0-9])+$/) {
@@ -122,6 +127,13 @@ if (! $pp_only) {
                 $result = copy_files_to_hosts(\@{ $hosts{$type} }, \@files, $sample_dir . "-" .
                                               $type, $base_dir);
             }
+	    if ($specs{$type} and ${specs}{$type}{"bin"}) {
+		# since there is an executable that is going to be used lets copy over the output
+		# wrapper in advance
+		my $result;
+		my @files = ( $local_output_wrapper_path ."/" . $output_wrapper_name );
+		$result = copy_files_to_hosts(\@{ $hosts{$type} }, \@files, $remote_output_wrapper_path, $base_dir);
+	    }
         }
     }
     # - execute pre-benchmark scripts on clients and servers (todo)
@@ -134,7 +146,8 @@ if (! $pp_only) {
         if ($hosts{$type} and scalar @{ $hosts{$type} }) {
             my $cmd;
             if ($specs{$type}{"bin"}) {
-                $cmd = $specs{$type}{"bin"} . " " .  $iteration{'iteration'}{'params'};
+                $cmd = $remote_output_wrapper_path . "/" . $output_wrapper_name. " " .
+		       $specs{$type}{"bin"} . " " .  $iteration{'iteration'}{'params'};
             } else {
                 printf "%s->bin does not exist, exiting\n", $type;
                 exit 1;
