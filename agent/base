@@ -14,17 +14,12 @@ if [[ -z "$pbench_run" ]]; then
     if [[ -z "$pbench_run" ]]; then
 	pbench_run=/var/lib/pbench-agent
     fi
+    export pbench_run
+else
     if [[ ! -d $pbench_run ]]; then
-        echo "[ERROR] pbench run directory, ${pbench_run}, does not exist" >&2
+        echo "[ERROR] the provided pbench run directory, ${pbench_run}, does not exist" >&2
         exit 1
     fi
-    export pbench_run
-fi
-
-# if $pbench_run does not exist, but we had an old /var/lib/pbench directory
-# then just rename the old directory
-if [[ ! -d $pbench_run && -d /var/lib/pbench ]] ;then
-    mv /var/lib/pbench $pbench_run
 fi
 
 # the pbench temporary directory is always relative to the $pbench_run
