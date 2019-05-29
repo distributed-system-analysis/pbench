@@ -211,7 +211,7 @@ sub copy_files_to_hosts { # copies local files to hosts with a new, common desti
 	my $inv_file = build_inventory($hosts_ref, $logdir);
 	my @tasks;
 	for my $src_file (@$src_files_ref) {
-		my %task = ( name => "copy files to hosts", copy => "src=" . $src_file . " dest=" . $dst_path . "/" . basename($src_file) );
+		my %task = ( name => "copy files to hosts", copy => "mode=preserve src=" . $src_file . " dest=" . $dst_path . "/" . basename($src_file) );
 		push(@tasks, \%task);
 	}
 	my %play = ( hosts => "all", tasks => \@tasks );;
