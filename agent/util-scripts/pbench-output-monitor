@@ -1,0 +1,57 @@
+#!/bin/bash
+
+SESSION_NAME=$(basename ${0})
+
+CMD="$@"
+
+LOCK_FILE="/tmp/${SESSION_NAME}.lock"
+
+function setup_pipe()
+{
+    local FILE=${1}
+
+    rm ${FILE}
+    mknod ${FILE} p
+}
+
+function run()
+{
+    ${CMD} > >(tee -i ${STDOUT_FILE}) 2> >(tee -i ${STDERR_FILE} >&2)
+
+    rm ${STDOUT_FILE} ${STDERR_FILE}
+}
+
+function primary()
+{
+    TITLE="primary"
+    screen -dmS ${SESSION_NAME} -t ${TITLE} bash -c "cat ${STDOUT_FILE} & cat ${STDERR_FILE} >&2 & wait"
+
+    run
+
+    exit
+}
+
+function secondary()
+{
+    while screen -list ${SESSION_NAME} | grep -q "No sockets found"; do
+	sleep 0.1
+    done
+
+    TITLE="secondary"
+    screen -x ${SESSION_NAME} -X screen -t ${TITLE} bash -c "cat ${STDOUT_FILE} & cat ${STDERR_FILE} >&2 & wait"
+
+    run
+
+    exit
+}
+
+STDOUT_FILE=$(mktemp)
+STDERR_FILE=$(mktemp)
+
+setup_pipe ${STDOUT_FILE}
+setup_pipe ${STDERR_FILE}
+
+(
+    flock --exclusive --nonblock 9 || secondary
+    primary
+) 9>${LOCK_FILE}
