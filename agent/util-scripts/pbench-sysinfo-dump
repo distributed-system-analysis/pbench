@@ -85,7 +85,7 @@ function collect_block {
 }
 
 function collect_sos {
-	_name="$(hostname -f)-pbench"
+	_name="pbench-$(hostname -f)"
 	debug_log "[$script_name]collecting sosreport"
 	read sos_ver sos_ver_minor sos_ver_subminor <<< `rpm -q sos | awk -F- '{print $2}' | awk -F. '{print $1" "$2" "$3}'`
 	if [[ "$sos_ver" -ge 3 ]]; then
@@ -122,12 +122,20 @@ function collect_sos {
 		_release="-o lsbrelease"
 	fi
 	sosreport ${_general} -o kernel -o filesys -o devicemapper -o system -o memory \
-	      -o hardware -o networking ${_release} ${_block} ${_processor} ${_tuned} \
-	      ${_collectd} --batch ${_quiet} --tmp-dir=$dir --name "$_name" > /dev/null 2>&1
-	if [[ -f "sosreport-$name-*.tar.xz" ]]; then
-		debug_log "[$script_name]done collecting sosreport"
-	else
+	    -o hardware -o networking ${_release} ${_block} ${_processor} ${_tuned} \
+	    ${_collectd} --batch ${_quiet} --tmp-dir=${dir} --name "${_name}" > ${dir}/sosreport-${_name}.log 2>&1
+	# The latest version of sosreport (3.6 right now) generates different names
+	# for the sosreport tar balls, inserting a short hostname before the label.
+	# Since older versions of sosreport did not do that, we use a wildcard
+	# pattern to capture both names when checking for success.
+	_sosreport_tb="${dir}/sosreport-*${_name}-*.tar.xz"
+	_sosreport_md5="${_sosreport_tb}.md5"
+	ls -1 ${_sosreport_tb} ${_sosreport_md5} > ${dir}/sosreport-names.lis 2> /dev/null
+	if [[ $? -ne 0 ]]; then
 		error_log "[$script_name]sosreport collection failed!"
+	else
+		rm -f ${dir}/sosreport-names.lis
+		debug_log "[$script_name]done collecting sosreport"
 	fi
 }
 
