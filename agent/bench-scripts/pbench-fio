@@ -607,12 +607,13 @@ function fio_run_job() {
 	if [ ! -z "$clients" ]; then
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			mkdir -p $benchmark_results_dir/clients/$client
-			/bin/mv $benchmark_results_dir/*.log.$client $benchmark_results_dir/clients/$client/
-			# remove the trialing client name in the log files
+			/bin/mv $benchmark_results_dir/*.log.$client $benchmark_results_dir/clients/$client/ 2> /dev/null
+			# remove the trailing client name in the log file names
 			pushd $benchmark_results_dir/clients/$client >/dev/null
 			for i in `/bin/ls | grep log`; do
 				mv $i `echo $i | sed -e s/\.$client//`
 			done
+			popd >/dev/null
 			# Process the histograms
 			# Determine histogram interval based on value used in job file.
 			#my $log_interval = `cat $dir/fio.job | grep "^log_hist_msec"`;
@@ -623,7 +624,6 @@ function fio_run_job() {
 				$histogram_cmd $benchmark_results_dir/clients/$client/fio_clat_hist.*.log* >$benchmark_results_dir/clients/$client/hist/hist.csv
 				$script_path/postprocess/$benchmark-postprocess-viz.py --job-file=$fio_job_file $benchmark_results_dir/clients/$client/hist
 			fi
-			popd >/dev/null
 		done
 		# compute cluster-wide latency percentiles
 		if grep -q "^log_hist_msec" $fio_job_file; then
@@ -632,7 +632,7 @@ function fio_run_job() {
 			$script_path/postprocess/$benchmark-postprocess-viz.py --job-file=$fio_job_file $benchmark_results_dir/hist
 		fi
 	else
-		/bin/mv $benchmark_results_dir/*.log $benchmark_results_dir/clients/localhost/
+		/bin/mv $benchmark_results_dir/*.log $benchmark_results_dir/clients/localhost/ 2> /dev/null
 	fi
 	pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	echo "fio job complete"

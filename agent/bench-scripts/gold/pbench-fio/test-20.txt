@@ -6,7 +6,6 @@
 /var/tmp/pbench-test-bench/pbench/fio_test-20_1900.01.01T00.00.00
 /var/tmp/pbench-test-bench/pbench/fio_test-20_1900.01.01T00.00.00/metadata.log
 /var/tmp/pbench-test-bench/pbench/pbench.log
-/var/tmp/pbench-test-bench/pbench/samples
 /var/tmp/pbench-test-bench/pbench/tmp
 /var/tmp/pbench-test-bench/pbench/tmp/fio_test-20_1900.01.01T00.00.00.iterations
 /var/tmp/pbench-test-bench/pbench/tools-default

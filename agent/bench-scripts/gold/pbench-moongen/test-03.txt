@@ -89,7 +89,6 @@ Iteration 4-throughput-unidirec-1024B-1024flows-1pct_drop complete (4 of 4), wit
 /var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00/generate-benchmark-summary.cmd
 /var/tmp/pbench-test-bench/pbench/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00/pbench-moongen.cmd
 /var/tmp/pbench-test-bench/pbench/pbench.log
-/var/tmp/pbench-test-bench/pbench/samples
 /var/tmp/pbench-test-bench/pbench/tmp
 /var/tmp/pbench-test-bench/pbench/tmp/moongen__r[]fr[64,1024]fl[1024]tr[uni]pl[0,1]rt[10,10]tt[bs]_1900.01.01T00.00.00.iterations
 /var/tmp/pbench-test-bench/pbench/tools-default
