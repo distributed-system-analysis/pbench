@@ -89,13 +89,12 @@ function _run {
     echo "$tname $tscrpt $@"
     echo "+++ Running $tname $tscrpt" >> $_testout
     #echo PWD: $(pwd) _TDIR: $_tdir >> $_testout
-    PBENCH_UNITTEST_BENCHMARK=$tscrpt PBENCH_UNITTEST_TEST=$tname \
-            pbench_install_dir=$_testopt \
-            pbench_bspp_dir=$_testopt/bench-scripts/postprocess \
-            pbench_lib_dir=$_testopt/lib \
-            pbench_run=$_testdir \
-            pbench_log=$_testdir/pbench.log \
-            benchmark_bin=$_testopt/unittest-scripts/bm \
+    pbench_install_dir=$_testopt \
+    pbench_bspp_dir=$_testopt/bench-scripts/postprocess \
+    pbench_lib_dir=$_testopt/lib \
+    pbench_run=$_testdir \
+    pbench_log=$_testdir/pbench.log \
+    benchmark_bin=$_testopt/unittest-scripts/bm \
             $tscrpt $@ >> $_testout 2>&1
     sts=$?
     echo "--- Finished $tname $tscrpt (status=$sts)" >> $_testout
@@ -171,7 +170,7 @@ function _verify_output {
 }
 
 function _setup_state {
-    mkdir -p $_testdir/samples
+    mkdir -p $_testdir
     if [[ $? -ne 0 ]]; then
         echo "ERROR: failed to create test pbench directory, \"$_testdir\"" >&2
         exit 1
@@ -240,9 +239,9 @@ declare -A rundirs=(
     [test-22]="trafficgen_test-22_$date"
 )
 declare -A pre=(
-    [test-04]="cp $_tdir/samples/test-04.tar.xz $_testdir/samples; mkdir -p $_testopt/config; cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
-    [test-05]="cp $_tdir/samples/test-05.tar.xz $_testdir/samples; mkdir -p $_testopt/config; cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
-    [test-06]="cp $_tdir/samples/test-06.tar.xz $_testdir/samples; mkdir -p $_testopt/config; cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg; echo foo bar baz | tr ' ' '\n' > ${_testtmp}/foo"
+    [test-04]="mkdir -p $_testopt/config; cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
+    [test-05]="mkdir -p $_testopt/config; cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
+    [test-06]="mkdir -p $_testopt/config; cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg; echo foo bar baz | tr ' ' '\n' > ${_testtmp}/foo"
     [test-19]="mkdir -p $_testopt/config; cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
     [test-20]="mkdir -p $_testopt/config; cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
     [test-22]="tar xf $_tdir/samples/test-22.tar.xz -C $_testdir/"

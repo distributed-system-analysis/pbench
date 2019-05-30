@@ -30,7 +30,6 @@ ValueError: Expecting object: line 3 column 25 (char 50)
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json
 /var/tmp/pbench-test-bench/pbench/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark.cmd
 /var/tmp/pbench-test-bench/pbench/pbench.log
-/var/tmp/pbench-test-bench/pbench/samples
 /var/tmp/pbench-test-bench/pbench/tmp
 /var/tmp/pbench-test-bench/pbench/tmp/pbench-user-benchmark__1900.01.01T00.00.00.iterations
 /var/tmp/pbench-test-bench/pbench/tools-default

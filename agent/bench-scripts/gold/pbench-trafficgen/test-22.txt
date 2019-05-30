@@ -32139,7 +32139,6 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 /var/tmp/pbench-test-bench/pbench/result.html
 /var/tmp/pbench-test-bench/pbench/result.json
 /var/tmp/pbench-test-bench/pbench/result.txt
-/var/tmp/pbench-test-bench/pbench/samples
 /var/tmp/pbench-test-bench/pbench/tmp
 /var/tmp/pbench-test-bench/pbench/tmp/pbench.iterations
 /var/tmp/pbench-test-bench/pbench/tool-triggers

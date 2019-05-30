@@ -3,7 +3,6 @@ ERROR: foo must be executable
 --- Finished test-19 pbench-fio (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
-/var/tmp/pbench-test-bench/pbench/samples
 /var/tmp/pbench-test-bench/pbench/tmp
 /var/tmp/pbench-test-bench/pbench/tools-default
 /var/tmp/pbench-test-bench/pbench/tools-default/mpstat
