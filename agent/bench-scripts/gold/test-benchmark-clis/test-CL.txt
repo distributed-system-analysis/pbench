@@ -190,13 +190,17 @@ The following options are available:
 		(persistent names for devices highly recommended)
 
 	-j str --job-mode=str    str=[serial|concurrent]  (default is concurrent)
+		directs how --targets parameter(s) is/are used; with 'serial' mode all combinations
+		of fio job parameters are run against each target one at a time, while with 'concurrent'
+		mode all target devices are used at the same time.
 
 	--ioengine=str           str= any ioengine fio supports (default is )
 
 	--iodepth=<int>		Set the iodepth config variable in the fio job file
 
-	-c str[,str] --clients=str[,str]      str= one or more remote systems to run fio
+	-c str[,str] --clients=str[,str]      str= a list of one or more host names (hosta,hostb,hostc) where you want fio to run
 		If no clients are specified, fio is run locally
+		Note: the pbench-agent must be installed on each of the client systems already.
 
 	--client-file=str        str= file (with absolute path) which contains 1 client per line
 
@@ -280,13 +284,17 @@ The following options are available:
 		(persistent names for devices highly recommended)
 
 	-j str --job-mode=str    str=[serial|concurrent]  (default is concurrent)
+		directs how --targets parameter(s) is/are used; with 'serial' mode all combinations
+		of fio job parameters are run against each target one at a time, while with 'concurrent'
+		mode all target devices are used at the same time.
 
 	--ioengine=str           str= any ioengine fio supports (default is )
 
 	--iodepth=<int>		Set the iodepth config variable in the fio job file
 
-	-c str[,str] --clients=str[,str]      str= one or more remote systems to run fio
+	-c str[,str] --clients=str[,str]      str= a list of one or more host names (hosta,hostb,hostc) where you want fio to run
 		If no clients are specified, fio is run locally
+		Note: the pbench-agent must be installed on each of the client systems already.
 
 	--client-file=str        str= file (with absolute path) which contains 1 client per line
 
@@ -370,13 +378,17 @@ The following options are available:
 		(persistent names for devices highly recommended)
 
 	-j str --job-mode=str    str=[serial|concurrent]  (default is concurrent)
+		directs how --targets parameter(s) is/are used; with 'serial' mode all combinations
+		of fio job parameters are run against each target one at a time, while with 'concurrent'
+		mode all target devices are used at the same time.
 
 	--ioengine=str           str= any ioengine fio supports (default is )
 
 	--iodepth=<int>		Set the iodepth config variable in the fio job file
 
-	-c str[,str] --clients=str[,str]      str= one or more remote systems to run fio
+	-c str[,str] --clients=str[,str]      str= a list of one or more host names (hosta,hostb,hostc) where you want fio to run
 		If no clients are specified, fio is run locally
+		Note: the pbench-agent must be installed on each of the client systems already.
 
 	--client-file=str        str= file (with absolute path) which contains 1 client per line
 

@@ -57,12 +57,12 @@ ramptime=""
 iodepth=""
 ioengine=""
 pre_iteration_script=""
-job_mode="concurrent" # serial or concurrent
+job_mode="concurrent" # serial or concurrent targets
 file_size=""
 direct="" # don't cache IO's by default
 sync="" # don't sync IO's by default
-clients="" # A list of hostnames (hosta,hostb,hostc) where you want fio to run.  Note: if you use this, pbench must be installed on these systems already.
-client_file="" # A file containing a list of hostnames
+clients=""
+client_file=""
 tool_label_pattern="fio-"
 tool_group="default"
 max_key_length=20
@@ -105,14 +105,18 @@ function usage {
 	printf "\t\t(persistent names for devices highly recommended)\n"
 	printf "\n"
 	printf -- "\t-j str --job-mode=str    str=[serial|concurrent]  (default is $job_mode)\n"
+	printf "\t\tdirects how --targets parameter(s) is/are used; with 'serial' mode all combinations\n"
+	printf "\t\tof fio job parameters are run against each target one at a time, while with 'concurrent'\n"
+	printf "\t\tmode all target devices are used at the same time.\n"
 	printf "\n"
 	printf -- "\t--ioengine=str           str= any ioengine fio supports (default is $ioengine)\n"
 	printf "\n"
 	printf -- "\t--iodepth=<int>"
 	printf "\t\tSet the iodepth config variable in the fio job file\n"
 	printf "\n"
-	printf -- "\t-c str[,str] --clients=str[,str]      str= one or more remote systems to run fio\n"
+	printf -- "\t-c str[,str] --clients=str[,str]      str= a list of one or more host names (hosta,hostb,hostc) where you want fio to run\n"
 	printf "\t\tIf no clients are specified, fio is run locally\n"
+	printf "\t\tNote: the pbench-agent must be installed on each of the client systems already.\n"
 	printf "\n"
 	printf -- "\t--client-file=str        str= file (with absolute path) which contains 1 client per line\n"
 	printf "\n"
