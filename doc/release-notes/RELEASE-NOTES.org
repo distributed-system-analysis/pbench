@@ -1,4 +1,4 @@
-# Created 2019-05-28 Tue 16:49
+# Created 2019-05-30 Thu 14:35
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -33,6 +33,13 @@ of the pbench-agent RPM installed.
 
 
 ** agent
+N.B. The ~pbench-moongen~ script is deprecated in this release.  *It
+will disappear completely in a future release*: whatever release
+happens on or after 2019-06-30. If you are still using it, you have
+until then to migrate to ~pbench-trafficgen~ (see the
+~--traffic-generator~ option of ~pbench-trafficgen~, the
+~moongen-txrx~ value in particular).
+
 This release includes work on the sysstat postprocessing scripts,
 mainly to make them CDM compatible, although some problems have been
 fixed as well.
