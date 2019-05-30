@@ -1,13 +1,8 @@
 +++ Running test-20 pbench-fio
-Collecting system information
-[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]mpstat does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
-[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]sar does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
+[error][1900-01-01T00:00:00.000000] At least one client did not have block device /dev/foo, exiting
 --- Finished test-20 pbench-fio (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/sysinfo
-/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00/sysinfo/beg
 /var/tmp/pbench-test-bench/pbench/pbench.log
 /var/tmp/pbench-test-bench/pbench/samples
 /var/tmp/pbench-test-bench/pbench/tmp
@@ -20,11 +15,8 @@ Collecting system information
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-fio-3.3
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio 3.3 is installed
-/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]mpstat does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
-/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]sar does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio_device_check() /dev/foo,/dev/bar 
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] At least one client did not have block device /dev/foo, exiting
+/var/tmp/pbench-test-bench/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] At least one client did not have block device /dev/foo, exiting
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench/fio_test-06_1900.01.01T00.00.00 beg
 --- test-execution.log file contents
