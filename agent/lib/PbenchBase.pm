@@ -33,7 +33,7 @@ sub get_pbench_run_dir {
 }
 
 sub get_pbench_install_dir {
-    my $dir = $ENV{'pbench_install_dir'}; # typically /var/lib/pbench-agent
+    my $dir = $ENV{'pbench_install_dir'}; # typically /opt/pbench-agent
     chomp $dir;
     return $dir;
 }
