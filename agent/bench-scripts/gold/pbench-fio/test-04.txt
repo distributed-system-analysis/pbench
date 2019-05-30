@@ -2,7 +2,7 @@
 Collecting system information
 [warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]mpstat does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 [warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]sar does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1/fio.job):
 [global]
 bs=4k
 runtime=30
@@ -30,7 +30,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2/fio.job):
 [global]
 bs=4k
 runtime=30
@@ -58,7 +58,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample3/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample3/fio.job):
 [global]
 bs=4k
 runtime=30
@@ -86,7 +86,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample3/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample3/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample4/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample4/fio.job):
 [global]
 bs=4k
 runtime=30
@@ -114,7 +114,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample4/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample4/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample5/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample5/fio.job):
 [global]
 bs=4k
 runtime=30
@@ -142,7 +142,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample5/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample5/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample1/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample1/fio.job):
 [global]
 bs=64k
 runtime=30
@@ -170,7 +170,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample1/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample1/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample2/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample2/fio.job):
 [global]
 bs=64k
 runtime=30
@@ -198,7 +198,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample2/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample2/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample3/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample3/fio.job):
 [global]
 bs=64k
 runtime=30
@@ -226,7 +226,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample3/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample3/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample4/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample4/fio.job):
 [global]
 bs=64k
 runtime=30
@@ -254,7 +254,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample4/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample4/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample5/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample5/fio.job):
 [global]
 bs=64k
 runtime=30
@@ -282,7 +282,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample5/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample5/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample1/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample1/fio.job):
 [global]
 bs=1024k
 runtime=30
@@ -310,7 +310,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample1/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample1/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample2/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample2/fio.job):
 [global]
 bs=1024k
 runtime=30
@@ -338,7 +338,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample2/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample2/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample3/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample3/fio.job):
 [global]
 bs=1024k
 runtime=30
@@ -366,7 +366,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample3/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample3/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample4/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample4/fio.job):
 [global]
 bs=1024k
 runtime=30
@@ -394,7 +394,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample4/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample4/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample5/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample5/fio.job):
 [global]
 bs=1024k
 runtime=30
@@ -422,7 +422,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample5/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample5/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample1/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample1/fio.job):
 [global]
 bs=4k
 runtime=30
@@ -450,7 +450,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample1/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample1/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample2/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample2/fio.job):
 [global]
 bs=4k
 runtime=30
@@ -478,7 +478,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample2/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample2/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample3/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample3/fio.job):
 [global]
 bs=4k
 runtime=30
@@ -506,7 +506,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample3/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample3/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample4/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample4/fio.job):
 [global]
 bs=4k
 runtime=30
@@ -534,7 +534,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample4/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample4/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample5/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample5/fio.job):
 [global]
 bs=4k
 runtime=30
@@ -562,7 +562,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample5/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample5/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample1/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample1/fio.job):
 [global]
 bs=64k
 runtime=30
@@ -590,7 +590,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample1/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample1/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample2/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample2/fio.job):
 [global]
 bs=64k
 runtime=30
@@ -618,7 +618,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample2/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample2/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample3/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample3/fio.job):
 [global]
 bs=64k
 runtime=30
@@ -646,7 +646,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample3/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample3/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample4/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample4/fio.job):
 [global]
 bs=64k
 runtime=30
@@ -674,7 +674,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample4/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample4/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample5/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample5/fio.job):
 [global]
 bs=64k
 runtime=30
@@ -702,7 +702,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample5/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample5/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample1/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample1/fio.job):
 [global]
 bs=1024k
 runtime=30
@@ -730,7 +730,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample1/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample1/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample2/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample2/fio.job):
 [global]
 bs=1024k
 runtime=30
@@ -758,7 +758,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample2/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample2/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample3/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample3/fio.job):
 [global]
 bs=1024k
 runtime=30
@@ -786,7 +786,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample3/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample3/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample4/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample4/fio.job):
 [global]
 bs=1024k
 runtime=30
@@ -814,7 +814,7 @@ running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.
 fio job complete
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample4/clients/localhost/fio_clat.1.log timestamp = 10000, value = 21, rwtype = 0)
 warning: timestamp already exists with this RW type, skipping this sample (file = /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample4/clients/localhost/fio_lat.1.log timestamp = 10000, value = 22, rwtype = 0)
-The following jobfile was created: /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample5/fio.job
+Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample5/fio.job):
 [global]
 bs=1024k
 runtime=30

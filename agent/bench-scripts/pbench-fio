@@ -489,29 +489,34 @@ function fio_device_check() {
 
 function fio_create_jobfile() {
 	local fio_job_file="${13}"
-
-	mkdir -p "`dirname \"$fio_job_file\"`"
-	"${script_path}/templates/make-fio-jobfile.py" -j $job_file \
-		-bs="`printf \"%sk\" $3`" -rw="$1" \
-		-ioengine="$2" \
-		-iodepth="$4" \
-		-direct="$5" \
-		-sync="$6" \
-		-runtime="$7" \
-		-ramptime="$8" \
-		-size="$9" \
-		-rate_iops="${10}" \
-		-log_hist_msec="${11}" \
-		-numjobs="${14}" \
-		-targets $(echo "${12}" | sed -e 's/,/ /g') \
-		| sed -e 's/ = /=/g' > $fio_job_file
-
-	if [ $? -ne 0 ]; then
-		debug_log "Failed to create jobfile $fio_job_file."
+	local fio_job_file_path=$(dirname "${fio_job_file}")
+	mkdir -p "${fio_job_file_path}"
+	if [ ${?} -ne 0 ]; then
+		error_log "Failed to create path to job file \"${fio_job_file}\""
 		exit 1
 	fi
-	echo "The following jobfile was created: $fio_job_file"
-	cat $fio_job_file
+	"${script_path}/templates/make-fio-jobfile.py" -j ${job_file} \
+		-rw="${1}" \
+		-ioengine="${2}" \
+		-bs="$(printf %sk ${3})" \
+		-iodepth="${4}" \
+		-direct="${5}" \
+		-sync="${6}" \
+		-runtime="${7}" \
+		-ramptime="${8}" \
+		-size="${9}" \
+		-rate_iops="${10}" \
+		-log_hist_msec="${11}" \
+		-targets $(echo "${12}" | sed -e 's/,/ /g') \
+		-numjobs="${14}" \
+		| sed -e 's/ = /=/g' > ${fio_job_file}
+
+	if [ ${?} -ne 0 ]; then
+		error_log "Failed to create job file \"${fio_job_file}\""
+		exit 1
+	fi
+	echo "Created the following job file (${fio_job_file}):"
+	cat ${fio_job_file}
 }
 
 function fio_run_job() {
@@ -523,7 +528,7 @@ function fio_run_job() {
 	local bench_opts="--output-format=json $fio_job_file"
 
 	if [ ! -e $fio_job_file ]; then
-		debug_log "fio jobfile could not be found: $fio_job_file"
+		error_log "Fio job file could not be found: $fio_job_file"
 		return
 	fi
 	echo "running fio job: $fio_job_file"
@@ -699,6 +704,7 @@ function fio_run_benchmark() {
 								fi
 								mkdir -p $benchmark_results_dir
 								fio_job_file="$benchmark_results_dir/fio.job"
+								#             ARG   1            2           3             4          5         6       7          8           9            10           11                         12     13              14
 								fio_create_jobfile "$test_type" "$ioengine" "$block_size" "$iodepth" "$direct" "$sync" "$runtime" "$ramptime" "$file_size" "$rate_iops" "$histogram_interval_msec" "$dev" "$fio_job_file" "$numjobs"
 								fio_run_job "$iteration" "$benchmark_results_dir" "$fio_job_file" "$clients"
 							else
