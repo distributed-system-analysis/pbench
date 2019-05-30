@@ -8019,9 +8019,9 @@ Collecting system information
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to default
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-fio-3.3
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio 3.3 is installed
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio_device_check() /tmp/fio 
 /var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]mpstat does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 /var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]sar does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio_device_check() /tmp/fio 
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1/fio.job ]
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2/fio.job ]

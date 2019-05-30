@@ -479,7 +479,7 @@ function fio_device_check() {
 					if [ -L $dev ]; then dev=`dirname $dev`/`readlink $dev`; fi; test -b $dev || rc=1
 				fi
 				if [ $rc -eq 1 ]; then
-					debug_log "At least one client did not have block device $dev, exiting"
+					error_log "At least one client did not have block device $dev, exiting"
 					exit 1
 				fi
 			fi
@@ -637,9 +637,7 @@ function fio_run_job() {
 
 # Run the benchmark and start/stop perf analysis tools
 function fio_run_benchmark() {
-	fio_device_check "$targets" "$clients"
 	(( histogram_interval_msec = histogram_interval_sec * 1000 ))
-	mkdir -p $benchmark_run_dir/.running
 	local count=1
 	if [ "$job_mode" = "serial" ]; then
 		# if each target is separated by a space, there will be one job for each in next for loop
@@ -763,7 +761,14 @@ if [ "$install_only" = "y" ]; then
 	exit 0
 fi
 
-mkdir -p $benchmark_run_dir
+fio_device_check "$targets" "$clients"
+
+mkdir -p $benchmark_run_dir/.running
+if [[ $? -ne 0 ]]; then
+	error_log "Unable to create $benchmark_run_dir path and/or .running marker directory"
+	exit 1
+fi
+
 export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg

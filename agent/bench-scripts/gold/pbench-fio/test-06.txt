@@ -885,9 +885,9 @@ Collecting system information
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-fio-3.3
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio 3.3 is installed
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] verifying clients have fio installed
+/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio_device_check() /tmp/fio foo,bar,baz
 /var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]mpstat does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 /var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]sar does not exist in /var/tmp/pbench-test-bench/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
-/var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio_device_check() /tmp/fio foo,bar,baz
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
